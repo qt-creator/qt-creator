@@ -131,6 +131,22 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02();
 
+    void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncOutside();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs();
+    void test_quickfix_MoveFuncDefOutside_FreeFuncToCpp();
+    void test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS();
+
+    void test_quickfix_MoveFuncDefToDecl_MemberFunc();
+    void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();
+    void test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS();
+    void test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing();
+    void test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs();
+    void test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp();
+    void test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS();
+
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.
     void test_openEachFile();

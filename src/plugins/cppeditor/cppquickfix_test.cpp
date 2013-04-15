@@ -1042,3 +1042,488 @@ void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment0
     TestCase data(testFiles);
     data.run(&factory);
 }
+
+/// Check: Move definition from header to cpp.
+void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo {\n"
+        "  inline int numbe@r() const {\n"
+        "    return 5;\n"
+        "  }\n"
+        "\n"
+        "    void bar();\n"
+        "};";
+    expected =
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "\n"
+        "    void bar();\n"
+        "};\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "\n"
+        "int Foo::number() const {\n"
+        "    return 5;\n"
+        "}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: Move definition outside class
+void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
+{
+    QByteArray original =
+        "class Foo {\n"
+        "  inline int numbe@r() const {\n"
+        "    return 5;\n"
+        "  }\n"
+        "};";
+    QByteArray expected =
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "\n"
+        "int Foo::number() const {\n"
+        "    return 5;\n"
+        "}"
+        "\n\n";
+
+    MoveFuncDefOutside factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Move definition from header to cpp (with namespace).
+void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int numbe@r() const {\n"
+        "    return 5;\n"
+        "  }\n"
+        "};\n"
+        "}";
+    expected =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "}\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "\n"
+        "int MyNs::Foo::number() const {\n"
+        "    return 5;\n"
+        "}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: Move definition from header to cpp (with namespace + using).
+void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int numbe@r() const {\n"
+        "    return 5;\n"
+        "  }\n"
+        "};\n"
+        "}";
+    expected =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "}\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "using namespace MyNs;\n"
+        "\n";
+    expected =
+        "#include \"file.h\"\n"
+        "using namespace MyNs;\n"
+        "\n"
+        "\n"
+        "int Foo::number() const {\n"
+        "    return 5;\n"
+        "}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: Move definition outside class with Namespace
+void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
+{
+    QByteArray original =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int numbe@r() const {\n"
+        "    return 5;\n"
+        "  }\n"
+        "};}";
+    QByteArray expected =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "\n"
+        "int Foo::number() const {\n"
+        "    return 5;\n"
+        "}"
+        "\n}\n";
+
+    MoveFuncDefOutside factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Move free function from header to cpp.
+void CppPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "int numbe@r() const {\n"
+        "    return 5;\n"
+        "}\n";
+    expected =
+        "int number() const;\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "\n"
+        "int number() const {\n"
+        "    return 5;\n"
+        "}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: Move free function from header to cpp (with namespace).
+void CppPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace MyNamespace {\n"
+        "int numbe@r() const {\n"
+        "    return 5;\n"
+        "}\n"
+        "}\n";
+    expected =
+        "namespace MyNamespace {\n"
+        "int number() const;\n"
+        "}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "\n"
+        "int MyNamespace::number() const {\n"
+        "    return 5;\n"
+        "}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {inline int number() const;};\n";
+    expected = "class Foo {inline int number() const {return 5;}};\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "int Foo::num@ber() const {return 5;}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefToDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutside()
+{
+    QByteArray original =
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "\n"
+        "int Foo::num@ber() const {\n"
+        "    return 5;\n"
+        "}\n";
+
+    QByteArray expected =
+        "class Foo {\n"
+        "    inline int number() const {\n"
+        "        return 5;\n"
+        "    }\n"
+        "};\n"
+        "\n\n\n";
+
+    MoveFuncDefToDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "}\n";
+    expected =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "    inline int number() const {\n"
+        "        return 5;\n"
+        "    }\n"
+        "};\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "int MyNs::Foo::num@ber() const {\n"
+        "    return 5;\n"
+        "}\n";
+    expected = "#include \"file.h\"\n\n\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefToDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "}\n";
+    expected =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "    inline int number() const {\n"
+        "        return 5;\n"
+        "    }\n"
+        "};\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "using namespace MyNs;\n"
+        "\n"
+        "int Foo::num@ber() const {\n"
+        "    return 5;\n"
+        "}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "using namespace MyNs;\n"
+        "\n\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefToDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs()
+{
+    QByteArray original =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "  inline int number() const;\n"
+        "};\n"
+        "\n"
+        "int Foo::numb@er() const {\n"
+        "    return 5;\n"
+        "}"
+        "\n}\n";
+    QByteArray expected =
+        "namespace MyNs {\n"
+        "class Foo {\n"
+        "    inline int number() const {\n"
+        "        return 5;\n"
+        "    }\n"
+        "};\n\n\n}\n\n";
+
+    MoveFuncDefToDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "int number() const;\n";
+    expected =
+        "int number() const {\n"
+        "    return 5;\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "\n"
+        "int numb@er() const {\n"
+        "    return 5;\n"
+        "}\n";
+    expected = "#include \"file.h\"\n\n\n\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefToDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace MyNamespace {\n"
+        "int number() const;\n"
+        "}\n";
+    expected =
+        "namespace MyNamespace {\n"
+        "int number() const {\n"
+        "    return 5;\n"
+        "}\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "int MyNamespace::nu@mber() const {\n"
+        "    return 5;\n"
+        "}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefToDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}

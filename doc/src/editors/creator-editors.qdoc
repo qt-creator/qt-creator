@@ -1862,6 +1862,33 @@
             \li  Create Getter and Setter Member Functions
             \li  Creates getter and setter member functions for member variables.
             \li  Member variable in class definition
+        \row
+            \li Move function definition
+            \li Moves a function definition to the implementation file, outside the class or back to its declaration. For example, rewrites:
+
+    \code
+    class Foo
+    {
+      void bar()
+      {
+          // do stuff here
+      }
+    };
+    \endcode
+
+    as
+    \code
+    class Foo
+    {
+      void bar();
+    };
+
+    void Foo::bar() {
+        // do stuff here
+    }
+    \endcode
+
+            \li Function signature
 
     \endtable
 

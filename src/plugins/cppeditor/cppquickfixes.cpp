@@ -41,6 +41,7 @@
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
 
+#include <cplusplus/ASTPath.h>
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/DependencyTable.h>
@@ -104,6 +105,9 @@ void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new GenerateGetterSetter);
     plugIn->addAutoReleasedObject(new InsertDeclFromDef);
     plugIn->addAutoReleasedObject(new InsertDefFromDecl);
+
+    plugIn->addAutoReleasedObject(new MoveFuncDefOutside);
+    plugIn->addAutoReleasedObject(new MoveFuncDefToDecl);
 }
 
 // In the following anonymous namespace all functions are collected, which could be of interest for
@@ -3543,4 +3547,390 @@ void ApplyDeclDefLinkChanges::match(const CppQuickFixInterface &interface,
     QSharedPointer<ApplyDeclDefLinkOperation> op(new ApplyDeclDefLinkOperation(interface, link));
     op->setDescription(FunctionDeclDefLink::tr("Apply Function Signature Changes"));
     result += op;
+}
+
+namespace {
+
+QString getDefinitionSignature(const CppQuickFixAssistInterface *assist, Function *func,
+                               CppRefactoringFilePtr &file, Scope *scope)
+{
+    QTC_ASSERT(assist, return QString());
+    QTC_ASSERT(func, return QString());
+    QTC_ASSERT(scope, return QString());
+
+    LookupContext cppContext(file->cppDocument(), assist->snapshot());
+    ClassOrNamespace *cppCoN = cppContext.lookupType(scope);
+    if (!cppCoN)
+        cppCoN = cppContext.globalNamespace();
+    SubstitutionEnvironment env;
+    env.setContext(assist->context());
+    env.switchScope(func->enclosingScope());
+    UseMinimalNames q(cppCoN);
+    env.enter(&q);
+    Control *control = assist->context().control().data();
+    Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+    oo.showFunctionSignatures = true;
+    oo.showReturnTypes = true;
+    oo.showArgumentNames = true;
+    const FullySpecifiedType tn = rewriteType(func->type(), &env, control);
+    const QString name = oo.prettyName(LookupContext::minimalName(func, cppCoN, control));
+
+    return oo.prettyType(tn, name);
+}
+
+class MoveFuncDefOutsideOp : public CppQuickFixOperation
+{
+public:
+    enum MoveType {
+        MoveOutside,
+        MoveToCppFile,
+        MoveOutsideMemberToCppFile
+    };
+
+    MoveFuncDefOutsideOp(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+                         MoveType type, FunctionDefinitionAST *funcDef, const QString cppFileName,
+                         const SimpleDeclarationAST *classAST, bool insideHeader)
+        : CppQuickFixOperation(interface, 0)
+        , m_funcDef(funcDef)
+        , m_type(type)
+        , m_cppFileName(cppFileName)
+        , m_classAST(classAST)
+        , m_insideHeader(insideHeader)
+        , m_func(funcDef->symbol)
+        , m_headerFileName(QString::fromUtf8(m_func->fileName(), m_func->fileNameLength()))
+    {
+        if (m_type == MoveOutside) {
+            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
+                                                       "Move Definition outside Class"));
+        } else {
+            const QDir dir = QFileInfo(m_headerFileName).dir();
+            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
+                                                       "Move Definition to %1")
+                           .arg(dir.relativeFilePath(m_cppFileName)));
+        }
+    }
+
+    void perform()
+    {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr fromFile = refactoring.file(m_headerFileName);
+        const QString textFuncBody = fromFile->textOf(m_funcDef->function_body);
+        CppRefactoringFilePtr toFile;
+        int insertPos = 0;
+        Scope *scopeAtInsertPos = 0;
+
+        // Determine file, insert position and scope
+        if (m_type == MoveOutside) {
+            toFile = fromFile;
+            insertPos = toFile->endOf(m_classAST);
+            scopeAtInsertPos = m_func->enclosingScope()->enclosingScope();
+        } else {
+            toFile = refactoring.file(m_cppFileName);
+            const QTextDocument *doc = toFile->document();
+            insertPos = qMax(0, doc->characterCount() - 1);
+            scopeAtInsertPos = toFile->cppDocument()->scopeAt(doc->lineCount(),
+                                                              doc->lastBlock().length());
+        }
+
+        // construct definition
+        const QString funcDec = getDefinitionSignature(assistInterface(), m_func, toFile,
+                                                       scopeAtInsertPos);
+        QString funcDef = QString::fromLatin1("\n%1 %2\n")
+                .arg(funcDec)
+                .arg(textFuncBody);
+        if (m_cppFileName.isEmpty() || !m_insideHeader)
+            funcDef = QLatin1String("\n") + funcDef;
+
+        // insert definition at new position
+        ChangeSet cppChanges;
+        cppChanges.insert(insertPos, funcDef);
+        toFile->setChangeSet(cppChanges);
+        toFile->appendIndentRange(ChangeSet::Range(insertPos, insertPos + funcDef.size()));
+        toFile->setOpenEditor(true, insertPos);
+        toFile->apply();
+
+        // remove definition from fromFile
+        Utils::ChangeSet headerTarget;
+        if (m_type == MoveOutsideMemberToCppFile) {
+            headerTarget.remove(fromFile->range(m_funcDef));
+        } else {
+            QString textFuncDecl = fromFile->textOf(m_funcDef);
+            textFuncDecl.remove(-textFuncBody.length(), textFuncBody.length());
+            textFuncDecl = textFuncDecl.trimmed() + QLatin1String(";");
+            headerTarget.replace(fromFile->range(m_funcDef), textFuncDecl);
+        }
+        fromFile->setChangeSet(headerTarget);
+        fromFile->apply();
+    }
+
+private:
+    FunctionDefinitionAST *m_funcDef;
+    MoveType m_type;
+    const QString m_cppFileName;
+    const SimpleDeclarationAST *m_classAST;
+    bool m_insideHeader;
+    Function *m_func;
+    const QString m_headerFileName;
+};
+
+} // anonymous namespace
+
+void MoveFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface->path();
+    SimpleDeclarationAST *classAST = 0;
+    FunctionDefinitionAST *funcAST = 0;
+    bool moveOutsideMemberDefinition = false;
+
+    const int pathSize = path.size();
+    for (int idx = 1; idx < pathSize; ++idx) {
+        if ((funcAST = path.at(idx)->asFunctionDefinition())) {
+            // check cursor position
+            if (idx != pathSize - 1  // Do not allow "void a() @ {..."
+                    && funcAST->function_body
+                    && !interface->isCursorOn(funcAST->function_body)) {
+                if (path.at(idx - 1)->asTranslationUnit()) { // normal function
+                    if (idx + 3 < pathSize && path.at(idx + 3)->asQualifiedName()) // Outside member
+                        moveOutsideMemberDefinition = true;                        // definition
+                    break;
+                }
+
+                if (idx > 1) {
+                    if ((classAST = path.at(idx - 2)->asSimpleDeclaration())) // member function
+                        break;
+                    if (path.at(idx - 2)->asNamespace())  // normal function in namespace
+                        break;
+                }
+            }
+            funcAST = 0;
+        }
+    }
+
+    if (!funcAST)
+        return;
+
+    bool isHeaderFile = false;
+    const QString cppFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);
+
+    if (isHeaderFile && !cppFileName.isEmpty())
+        result.append(CppQuickFixOperation::Ptr(
+                          new MoveFuncDefOutsideOp(interface, ((moveOutsideMemberDefinition) ?
+                                                   MoveFuncDefOutsideOp::MoveOutsideMemberToCppFile
+                                                   : MoveFuncDefOutsideOp::MoveToCppFile),
+                                                   funcAST, cppFileName, 0, isHeaderFile)));
+
+    if (classAST)
+        result.append(CppQuickFixOperation::Ptr(
+                          new MoveFuncDefOutsideOp(interface, MoveFuncDefOutsideOp::MoveOutside,
+                                                   funcAST, QLatin1String(""), classAST, false)));
+
+    return;
+}
+
+namespace {
+
+class MoveFuncDefToDeclOp : public CppQuickFixOperation
+{
+public:
+    MoveFuncDefToDeclOp(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+                        const QString fromFileName, const QString toFileName,
+                        FunctionDefinitionAST *funcDef, const QString declText,
+                        const ChangeSet::Range toRange)
+        : CppQuickFixOperation(interface, 0)
+        , m_fromFileName(fromFileName)
+        , m_toFileName(toFileName)
+        , m_funcAST(funcDef)
+        , m_declarationText(declText)
+        , m_toRange(toRange)
+    {
+        if (m_toFileName == m_fromFileName) {
+            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
+                                                       "Move Definition to Class"));
+        } else {
+            const QDir dir = QFileInfo(m_fromFileName).dir();
+            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
+                                                       "Move Definition to %1")
+                           .arg(dir.relativeFilePath(m_toFileName)));
+        }
+    }
+
+    void perform()
+    {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr fromFile = refactoring.file(m_fromFileName);
+        CppRefactoringFilePtr toFile = refactoring.file(m_toFileName);
+        ChangeSet::Range fromRange = fromFile->range(m_funcAST);
+        const QString definitionText = fromFile->textOf(m_funcAST->function_body);
+        const QString wholeFunctionText = QString::fromLatin1("%1 %2").arg(m_declarationText)
+                .arg(definitionText);
+
+        // Replace declaration with function and delete old definition
+        Utils::ChangeSet toTarget;
+        toTarget.replace(m_toRange, wholeFunctionText);
+        if (m_toFileName == m_fromFileName)
+            toTarget.remove(fromRange);
+        toFile->setChangeSet(toTarget);
+        toFile->appendIndentRange(m_toRange);
+        toFile->setOpenEditor(true, m_toRange.start);
+        toFile->apply();
+        if (m_toFileName != m_fromFileName) {
+            Utils::ChangeSet fromTarget;
+            fromTarget.remove(fromRange);
+            fromFile->setChangeSet(fromTarget);
+            fromFile->apply();
+        }
+    }
+
+private:
+    const QString m_fromFileName;
+    const QString m_toFileName;
+    FunctionDefinitionAST *m_funcAST;
+    const QString m_declarationText;
+    const ChangeSet::Range m_toRange;
+};
+
+Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
+{
+    QTC_ASSERT(function, return 0);
+    if (isMemberFunction(context, function))
+        return 0;
+
+    Scope *enclosingScope = function->enclosingScope();
+    while (!(enclosingScope->isNamespace() || enclosingScope->isClass()))
+        enclosingScope = enclosingScope->enclosingScope();
+    QTC_ASSERT(enclosingScope != 0, return 0);
+
+    const Name *functionName = function->name();
+    if (!functionName)
+        return 0; // anonymous function names are not valid c++
+
+    // global namespace
+    if (!functionName->isQualifiedNameId()) {
+        foreach (Symbol *s, context.globalNamespace()->symbols()) {
+            if (Namespace *matchingNamespace = s->asNamespace())
+                return matchingNamespace;
+        }
+        return 0;
+    }
+
+    const QualifiedNameId *q = functionName->asQualifiedNameId();
+    if (!q->base())
+        return 0;
+
+    if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
+        foreach (Symbol *s, binding->symbols()) {
+            if (Namespace *matchingNamespace = s->asNamespace())
+                return matchingNamespace;
+        }
+    }
+
+    return 0;
+}
+
+} // anonymous namespace
+
+void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface->path();
+    FunctionDefinitionAST *funcAST = 0;
+
+    const int pathSize = path.size();
+    for (int idx = 1; idx < pathSize; ++idx) {
+        if ((funcAST = path.at(idx)->asFunctionDefinition())) {
+            if (path.at(idx - 1)->asClassSpecifier())
+                return;
+
+            // check cursor position
+            if (idx != pathSize - 1  // Do not allow "void a() @ {..."
+                    && funcAST->function_body
+                    && !interface->isCursorOn(funcAST->function_body)) {
+                break;
+            }
+            funcAST = 0;
+        }
+    }
+
+    if (!funcAST || !funcAST->symbol)
+        return;
+
+    // Determine declaration (file, range, text);
+    QString declFileName;
+    ChangeSet::Range declRange;
+    QString declText;
+
+    Function *func = funcAST->symbol;
+    if (Class *matchingClass = isMemberFunction(interface->context(), func)) {
+        // Dealing with member functions
+        const QualifiedNameId *qName = func->name()->asQualifiedNameId();
+        for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
+            if (!s->name()
+                    || !qName->identifier()->isEqualTo(s->identifier())
+                    || !s->type()->isFunctionType()
+                    || !s->type().isEqualTo(func->type())
+                    || s->isFunction()) {
+                continue;
+            }
+
+            declFileName = QString::fromUtf8(matchingClass->fileName(),
+                                             matchingClass->fileNameLength());
+
+            const CppRefactoringChanges refactoring(interface->snapshot());
+            const CppRefactoringFilePtr declFile = refactoring.file(declFileName);
+            ASTPath astPath(declFile->cppDocument());
+            const QList<AST *> path = astPath(s->line(), s->column());
+            for (int idx = 0; idx < path.size(); ++idx) {
+                AST *node = path.at(idx);
+                if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
+                    if (simpleDecl->symbols && !simpleDecl->symbols->next) {
+                        declRange = declFile->range(simpleDecl);
+                        declText = declFile->textOf(simpleDecl);
+                        declText.remove(-1, 1); // remove ';' from declaration text
+                        break;
+                    }
+                }
+            }
+
+            if (!declText.isEmpty())
+                break;
+        }
+    }
+    else if (Namespace *matchingNamespace = isNamespaceFunction(interface->context(), func)) {
+        // Dealing with free functions
+        bool isHeaderFile = false;
+        declFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);
+        if (isHeaderFile)
+            return;
+
+        const CppRefactoringChanges refactoring(interface->snapshot());
+        const CppRefactoringFilePtr declFile = refactoring.file(declFileName);
+        const LookupContext lc(declFile->cppDocument(), interface->snapshot());
+        const QList<LookupItem> candidates = lc.lookup(func->name(), matchingNamespace);
+        for (int i = 0; i < candidates.size(); ++i) {
+            if (Symbol *s = candidates.at(i).declaration()) {
+                if (s->asDeclaration()) {
+                    ASTPath astPath(declFile->cppDocument());
+                    const QList<AST *> path = astPath(s->line(), s->column());
+                    for (int idx = 0; idx < path.size(); ++idx) {
+                        AST *node = path.at(idx);
+                        if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
+                            declRange = declFile->range(simpleDecl);
+                            declText = declFile->textOf(simpleDecl);
+                            declText.remove(-1, 1); // remove ';' from declaration text
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!declText.isEmpty())
+                break;
+        }
+    }
+
+    if (!declFileName.isEmpty() && !declText.isEmpty())
+        result.append(QuickFixOperation::Ptr(new MoveFuncDefToDeclOp(interface,
+                                                                     interface->fileName(),
+                                                                     declFileName,
+                                                                     funcAST, declText,
+                                                                     declRange)));
 }

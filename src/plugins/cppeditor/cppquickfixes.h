@@ -454,6 +454,25 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
+/*!
+ Moves the definition of a member function outside the class or moves the definition of a member
+ function or a normal function to the implementation file.
+ */
+class MoveFuncDefOutside: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+ Moves the definition of a function to its declaration.
+ */
+class MoveFuncDefToDecl: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
 } // namespace Internal
 } // namespace CppEditor
 
