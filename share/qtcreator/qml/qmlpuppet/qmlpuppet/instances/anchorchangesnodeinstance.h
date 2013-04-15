@@ -59,9 +59,9 @@ public:
     virtual void resetProperty(const PropertyName &name);
 
     using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
-    void reparent(const ServerNodeInstance &oldParentInstance,
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance,
                   const PropertyName &oldParentProperty,
-                  const ServerNodeInstance &newParentInstance,
+                  const ObjectNodeInstance::Pointer &newParentInstance,
                   const PropertyName &newParentProperty);
 
 protected:

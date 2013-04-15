@@ -67,9 +67,9 @@ void AnchorChangesNodeInstance::resetProperty(const PropertyName &/*name*/)
 }
 
 
-void AnchorChangesNodeInstance::reparent(const ServerNodeInstance &/*oldParentInstance*/,
+void AnchorChangesNodeInstance::reparent(const ObjectNodeInstance::Pointer &/*oldParentInstance*/,
                                          const PropertyName &/*oldParentProperty*/,
-                                         const ServerNodeInstance &/*newParentInstance*/,
+                                         const ObjectNodeInstance::Pointer &/*newParentInstance*/,
                                          const PropertyName &/*newParentProperty*/)
 {
 }

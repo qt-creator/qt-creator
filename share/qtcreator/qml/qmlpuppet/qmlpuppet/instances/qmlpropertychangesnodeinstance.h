@@ -61,7 +61,7 @@ public:
     virtual void resetProperty(const PropertyName &name);
 
     using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
-    void reparent(const ServerNodeInstance &oldParentInstance, const PropertyName &oldParentProperty, const ServerNodeInstance &newParentInstance, const PropertyName &newParentProperty);
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty);
 
 protected:
     QmlPropertyChangesNodeInstance(QDeclarativePropertyChanges *object);
