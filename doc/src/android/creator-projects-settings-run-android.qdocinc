@@ -16,6 +16,10 @@
     \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
     {What is API Level?}.
 
+    The minimum API level is android-4 for Necessitas and android-9 for Qt 5.
+    \QC does not allow you to select an API level that the Qt version specified
+    for the kit does not support.
+
     \note The android-4 API level does not support multitouch. If your
     application needs multitouch, select a higher API level.
 
