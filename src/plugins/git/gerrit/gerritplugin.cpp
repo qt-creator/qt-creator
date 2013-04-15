@@ -367,7 +367,7 @@ void GerritPlugin::push()
 
     if (!dialog->localChangesFound()) {
         QMessageBox::critical(Core::ICore::mainWindow(), tr("No Local Changes"),
-                              tr("Change from HEAD appears to be in remote branch already! Aborting."));
+                              tr("Change from HEAD appears to be in remote branch already. Aborting."));
         return;
     }
 

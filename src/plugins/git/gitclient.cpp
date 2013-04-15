@@ -1211,6 +1211,12 @@ static inline QString msgCannotDetermineBranch(const QString &workingDirectory, 
     return GitClient::tr("Cannot retrieve branch of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), why);
 }
 
+static inline QString msgCannotRun(const QString &command, const QString &workingDirectory, const QString &why)
+{
+    return GitClient::tr("Cannot run \"%1\" in \"%2\": %3")
+        .arg(command, QDir::toNativeSeparators(workingDirectory), why);
+}
+
 bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
                                     QString *errorMessage)
 {
@@ -1221,8 +1227,7 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        QString message = tr("Cannot run \"git show-ref --head\" in \"%1\": %2").
-                arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        QString message = msgCannotRun(QLatin1String("git show-ref --head"), workingDirectory, commandOutputFromLocal8Bit(errorText));
 
         if (errorMessage)
             *errorMessage = message;
@@ -1500,7 +1505,7 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     const bool rc = fullySynchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
     *output = commandOutputFromLocal8Bit(outputText);
     if (!rc) {
-        *errorMessage = tr("Cannot run \"git branch\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = msgCannotRun(QLatin1String("git branch"), workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     return true;
@@ -1515,8 +1520,7 @@ bool GitClient::synchronousShowRefCmd(const QString &workingDirectory, QStringLi
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     *output = commandOutputFromLocal8Bit(outputText);
     if (!rc) {
-        *errorMessage = tr("Cannot run \"git show-ref\" in \"%1\": %2")
-                .arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = msgCannotRun(QLatin1String("git show-ref"),  workingDirectory, commandOutputFromLocal8Bit(errorText));
 
         return false;
     }
@@ -1531,7 +1535,7 @@ bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringLis
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, remoteArgs, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Cannot run \"git remote\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = msgCannotRun(QLatin1String("git remote"), workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -1578,8 +1582,7 @@ QMap<QString,QString> GitClient::synchronousSubmoduleList(const QString &working
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        QString message = tr("Cannot run \"git config -l\" in \"%1\": %2").
-                arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        QString message = msgCannotRun(QLatin1String("git config -l"), workingDirectory, commandOutputFromLocal8Bit(errorText));
 
         if (errorMessage)
             *errorMessage = message;
@@ -1612,7 +1615,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Cannot run \"git show\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = msgCannotRun(QLatin1String("git show"), workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -1629,7 +1632,7 @@ bool GitClient::cleanList(const QString &workingDirectory, const QString &flag, 
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Cannot run \"git clean\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = msgCannotRun(QLatin1String("git clean"), workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     // Filter files that git would remove
