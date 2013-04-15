@@ -102,11 +102,14 @@ public:
     QList<ServerNodeInstance> stateInstances() const;
 
     QImage renderImage() const;
+    QImage renderPreviewImage(const QSize &previewImageSize) const;
 
     DesignerSupport *designerSupport() const;
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
 
     static void createEffectItem(bool createEffectItem);
+
+    void updateDirtyNodeRecursive() const;
 
 protected:
     QuickItemNodeInstance(QQuickItem*);
@@ -116,6 +119,7 @@ protected:
     void refresh();
     QRectF boundingRectWithStepChilds(QQuickItem *parentItem) const;
     void updateDirtyNodeRecursive(QQuickItem *parentItem) const;
+    void updateAllDirtyNodeRecursive(QQuickItem *parentItem) const;
     static bool anyItemHasContent(QQuickItem *graphicsItem);
     static bool childItemsHaveContent(QQuickItem *graphicsItem);
 

@@ -98,6 +98,7 @@ public:
 
     void paint(QPainter *painter);
     QImage renderImage() const;
+    QImage renderPreviewImage(const QSize &previewImageSize) const;
 
     ServerNodeInstance parent() const;
     bool hasParent() const;
@@ -196,11 +197,11 @@ private: // functions
 
     void setNodeSource(const QString &source);
 
+    bool holdsQuickItem() const;
+
+    void updateDirtyNodeRecursive();
 
     QObject *internalObject() const; // should be not used outside of the nodeinstances!!!!
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    QQuickItem *internalSGItem() const;
-#endif
 
 private: // variables
     QSharedPointer<Internal::ObjectNodeInstance> m_nodeInstance;

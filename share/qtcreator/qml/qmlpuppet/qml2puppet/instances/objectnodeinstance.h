@@ -85,6 +85,7 @@ public:
     virtual void initialize(const Pointer &objectNodeInstance);
     virtual void paint(QPainter *painter);
     virtual QImage renderImage() const;
+    virtual QImage renderPreviewImage(const QSize &previewImageSize) const;
 
     virtual QObject *parent() const;
 
@@ -178,6 +179,8 @@ public:
     virtual void setNodeSource(const QString &source);
 
     static QVariant fixResourcePaths(const QVariant &value);
+
+    virtual void updateDirtyNodeRecursive();
 
 protected:
     void doResetProperty(const PropertyName &propertyName);
