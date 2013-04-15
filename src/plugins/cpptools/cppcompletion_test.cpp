@@ -1882,3 +1882,77 @@ void CppToolsPlugin::test_completion_QTCREATORBUG9098()
     QVERIFY(completions.contains(QLatin1String("c")));
     QVERIFY(completions.contains(QLatin1String("B")));
 }
+
+void CppToolsPlugin::test_completion_typedef_of_templated_typedef_QTCREATORBUG8375()
+{
+    TestData data;
+    data.srcText =
+            "struct Foo\n"
+            "{ void bar(); };\n"
+            "struct A\n"
+            "{ typedef Foo AFoo; };\n"
+            "template <class T>\n"
+            "struct B\n"
+            "{ typedef typename T::AFoo BFoo; };\n"
+            "struct C : public B<A>\n"
+            "{\n"
+            "    void test()\n"
+            "    {\n"
+            "        BFoo foo;\n"
+            "        @\n"
+            "        // padding so we get the scope right\n"
+            "    }\n"
+            "};\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("foo.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_typedef_with_the_same_base_name_and_new_type_name()
+{
+    TestData data;
+    data.srcText =
+            "namespace A\n"
+            "{\n"
+            "struct A { int aa; };\n"
+            "}\n"
+            "struct S\n"
+            "{\n"
+            "    typedef A::A A;\n"
+            "    A a;\n"
+            "};\n"
+            "void fun()\n"
+            "{\n"
+            "    S s;\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "};\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("s.a.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("A")));
+    QVERIFY(completions.contains(QLatin1String("aa")));
+}
+

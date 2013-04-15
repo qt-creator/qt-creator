@@ -690,8 +690,15 @@ bool ResolveExpression::visit(CallAST *ast)
             }
 
         } else if (Function *funTy = ty->asFunctionType()) {
-            if (maybeValidPrototype(funTy, actualArgumentCount))
-                addResult(funTy->returnType().simplified(), scope);
+            if (maybeValidPrototype(funTy, actualArgumentCount)) {
+                LookupItem item;
+                item.setType(funTy->returnType().simplified());
+                item.setScope(scope);
+                // we have to remember a binding because it can be a template instantiation
+                item.setBinding(result.binding());
+
+                _results.append(item);
+            }
 
         } else if (Class *classTy = ty->asClassType()) {
             // Constructor call

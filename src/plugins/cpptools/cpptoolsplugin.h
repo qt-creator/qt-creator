@@ -124,6 +124,8 @@ private slots:
     void test_completion_typedef_using_templates2();
     void test_completion_namespace_alias_with_many_namespace_declarations();
     void test_completion_QTCREATORBUG9098();
+    void test_completion_typedef_of_templated_typedef_QTCREATORBUG8375();
+    void test_completion_typedef_with_the_same_base_name_and_new_type_name();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
