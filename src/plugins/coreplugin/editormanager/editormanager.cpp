@@ -2176,11 +2176,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 
 void EditorManager::split(Qt::Orientation orientation)
 {
-    SplitterOrView *view = d->m_currentView;
-
-    if (!view)
-        view = d->m_currentEditor ? d->m_splitter->findView(d->m_currentEditor)
-                       : d->m_splitter->findFirstView();
+    SplitterOrView *view = currentSplitterOrView();
 
     if (view && !view->splitter())
         view->split(orientation);
@@ -2200,9 +2196,7 @@ void EditorManager::splitSideBySide()
 
 void EditorManager::removeCurrentSplit()
 {
-    SplitterOrView *viewToClose = d->m_currentView;
-    if (!viewToClose && d->m_currentEditor)
-        viewToClose = d->m_splitter->findView(d->m_currentEditor);
+    SplitterOrView *viewToClose = currentSplitterOrView();
 
     if (!viewToClose || viewToClose->isSplitter() || viewToClose == d->m_splitter)
         return;
@@ -2231,14 +2225,7 @@ void EditorManager::gotoOtherSplit()
     if (!d->m_splitter->isSplitter())
         splitSideBySide();
 
-    SplitterOrView *currentView = d->m_currentView;
-    if (!currentView && d->m_currentEditor)
-        currentView = d->m_splitter->findView(d->m_currentEditor);
-    if (!currentView)
-        currentView = d->m_splitter->findFirstView();
-    SplitterOrView *view = d->m_splitter->findNextView(currentView);
-    if (!view)
-        view = d->m_splitter->findFirstView();
+    SplitterOrView *view = currentSplitterOrView();
     if (view) {
         if (IEditor *editor = view->editor()) {
             setCurrentEditor(editor, true);
