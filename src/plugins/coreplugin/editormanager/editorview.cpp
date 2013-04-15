@@ -58,8 +58,9 @@ using namespace Core::Internal;
 
 // ================EditorView====================
 
-EditorView::EditorView(QWidget *parent) :
+EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     QWidget(parent),
+    m_parentSplitterOrView(parentSplitterOrView),
     m_toolBar(EditorManager::createToolBar(this)),
     m_container(new QStackedWidget(this)),
     m_infoBarDisplay(new InfoBarDisplay(this)),
@@ -118,6 +119,10 @@ EditorView::~EditorView()
 {
 }
 
+SplitterOrView *EditorView::parentSplitterOrView() const
+{
+    return m_parentSplitterOrView;
+}
 
 void EditorView::closeView()
 {
@@ -236,18 +241,16 @@ void EditorView::listSelectionActivated(int index)
 void EditorView::splitHorizontally()
 {
     EditorManager *editorManager = EditorManager::instance();
-    SplitterOrView *splitterOrView = editorManager->topSplitterOrView()->findView(this);
-    if (splitterOrView)
-        splitterOrView->split(Qt::Vertical);
+    if (m_parentSplitterOrView)
+        m_parentSplitterOrView->split(Qt::Vertical);
     editorManager->updateActions();
 }
 
 void EditorView::splitVertically()
 {
     EditorManager *editorManager = EditorManager::instance();
-    SplitterOrView *splitterOrView = editorManager->topSplitterOrView()->findView(this);
-    if (splitterOrView)
-        splitterOrView->split(Qt::Horizontal);
+    if (m_parentSplitterOrView)
+        m_parentSplitterOrView->split(Qt::Horizontal);
     editorManager->updateActions();
 }
 
@@ -256,6 +259,11 @@ void EditorView::closeSplit()
     EditorManager *editorManager = EditorManager::instance();
     editorManager->closeView(this);
     editorManager->updateActions();
+}
+
+void EditorView::setParentSplitterOrView(SplitterOrView *splitterOrView)
+{
+    m_parentSplitterOrView = splitterOrView;
 }
 
 void EditorView::setCurrentEditor(IEditor *editor)
@@ -459,7 +467,7 @@ SplitterOrView::SplitterOrView(OpenEditorsModel *model)
     Q_UNUSED(model); // For building in release mode.
     m_isRoot = true;
     m_layout = new QStackedLayout(this);
-    m_view = new EditorView();
+    m_view = new EditorView(this);
     m_splitter = 0;
     m_layout->addWidget(m_view);
 }
@@ -468,7 +476,7 @@ SplitterOrView::SplitterOrView(Core::IEditor *editor)
 {
     m_isRoot = false;
     m_layout = new QStackedLayout(this);
-    m_view = new EditorView();
+    m_view = new EditorView(this);
     if (editor)
         m_view->addEditor(editor);
     m_splitter = 0;
@@ -529,20 +537,6 @@ SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 if (SplitterOrView *result = splitterOrView->findView(editor))
-                    return result;
-        }
-    }
-    return 0;
-}
-
-SplitterOrView *SplitterOrView::findView(EditorView *view)
-{
-    if (view == m_view)
-        return this;
-    if (m_splitter) {
-        for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
-                if (SplitterOrView *result = splitterOrView->findView(view))
                     return result;
         }
     }
@@ -625,8 +619,10 @@ QSplitter *SplitterOrView::takeSplitter()
 EditorView *SplitterOrView::takeView()
 {
     EditorView *oldView = m_view;
-    if (m_view)
+    if (m_view) {
         m_layout->removeWidget(m_view);
+        m_view->setParentSplitterOrView(0);
+    }
     m_view = 0;
     return oldView;
 }
@@ -736,6 +732,7 @@ void SplitterOrView::unsplit()
             em->emptyView(childView);
         } else {
             m_view = childSplitterOrView->takeView();
+            m_view->setParentSplitterOrView(this);
             m_layout->addWidget(m_view);
             QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
             if (parentSplitter) { // not the toplevel splitterOrView

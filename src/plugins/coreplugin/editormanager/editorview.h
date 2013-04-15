@@ -69,13 +69,17 @@ struct EditLocation {
     QVariant state;
 };
 
+class SplitterOrView;
+
 class EditorView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit EditorView(QWidget *parent = 0);
+    explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = 0);
     virtual ~EditorView();
+
+    SplitterOrView *parentSplitterOrView() const;
 
     int editorCount() const;
     void addEditor(IEditor *editor);
@@ -106,10 +110,14 @@ private slots:
     void closeSplit();
 
 private:
+    friend class SplitterOrView; // for setParentSplitterOrView
+    void setParentSplitterOrView(SplitterOrView *splitterOrView);
+
     void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);
 
+    SplitterOrView *m_parentSplitterOrView;
     EditorToolBar *m_toolBar;
 
     QStackedWidget *m_container;
@@ -173,7 +181,6 @@ public:
     void restoreState(const QByteArray &);
 
     SplitterOrView *findView(Core::IEditor *editor);
-    SplitterOrView *findView(EditorView *view);
     SplitterOrView *findFirstView();
     SplitterOrView *findEmptyView();
     SplitterOrView *findSplitter(Core::IEditor *editor);
