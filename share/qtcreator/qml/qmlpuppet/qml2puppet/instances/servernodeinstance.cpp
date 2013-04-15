@@ -108,15 +108,6 @@ ServerNodeInstance &ServerNodeInstance::operator=(const ServerNodeInstance &othe
     return *this;
 }
 
-/*!
-\brief Paints the NodeInstance with this painter.
-\param painter used QPainter
-*/
-void ServerNodeInstance::paint(QPainter *painter)
-{
-    m_nodeInstance->paint(painter);
-}
-
 QImage ServerNodeInstance::renderImage() const
 {
     return m_nodeInstance->renderImage();

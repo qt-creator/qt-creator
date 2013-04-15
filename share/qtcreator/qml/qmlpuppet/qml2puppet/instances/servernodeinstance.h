@@ -96,7 +96,6 @@ public:
     ServerNodeInstance(const ServerNodeInstance &other);
     ServerNodeInstance& operator=(const ServerNodeInstance &other);
 
-    void paint(QPainter *painter);
     QImage renderImage() const;
     QImage renderPreviewImage(const QSize &previewImageSize) const;
 
