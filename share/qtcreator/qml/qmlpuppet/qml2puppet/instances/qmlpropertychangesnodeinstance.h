@@ -59,7 +59,6 @@ public:
     virtual QVariant property(const PropertyName &name) const Q_DECL_OVERRIDE;
     virtual void resetProperty(const PropertyName &name) Q_DECL_OVERRIDE;
 
-    using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
     void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty) Q_DECL_OVERRIDE;
 
 protected:

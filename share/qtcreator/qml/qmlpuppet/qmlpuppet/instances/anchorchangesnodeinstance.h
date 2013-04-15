@@ -58,7 +58,6 @@ public:
     virtual QVariant property(const PropertyName &name) const;
     virtual void resetProperty(const PropertyName &name);
 
-    using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
     void reparent(const ObjectNodeInstance::Pointer &oldParentInstance,
                   const PropertyName &oldParentProperty,
                   const ObjectNodeInstance::Pointer &newParentInstance,
