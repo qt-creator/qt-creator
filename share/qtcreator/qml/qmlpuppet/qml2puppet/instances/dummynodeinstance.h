@@ -53,10 +53,10 @@ public:
     QTransform transform() const;
     double opacity() const;
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyBinding(const QString &name, const QString &expression);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    void setPropertyBinding(const PropertyName &name, const QString &expression);
     void setId(const QString &id);
-    QVariant property(const QString &name) const;
+    QVariant property(const PropertyName &name) const;
     QStringList properties();
     QStringList localProperties();
 
