@@ -729,9 +729,10 @@ void HelpPlugin::showExternalWindow()
     doSetupIfNeeded();
     m_externalWindow->show();
     connectExternalHelpWindow();
-    m_externalWindow->activateWindow();
     if (firstTime)
-        Core::ICore::mainWindow()->activateWindow();
+        Core::ICore::raiseWindow(Core::ICore::mainWindow());
+    else
+        Core::ICore::raiseWindow(m_externalWindow);
 }
 
 void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)

@@ -176,8 +176,9 @@ struct EditorManagerPrivate
     explicit EditorManagerPrivate(QWidget *parent);
     ~EditorManagerPrivate();
     QList<EditLocation> m_globalHistory;
-    Internal::SplitterOrView *m_splitter;
+    QList<Internal::SplitterOrView *> m_root;
     QPointer<IEditor> m_currentEditor;
+    QPointer<IEditor> m_scheduledCurrentEditor;
     QPointer<EditorView> m_currentView;
     QTimer *m_autoSaveTimer;
 
@@ -194,6 +195,7 @@ struct EditorManagerPrivate
     QAction *m_goForwardAction;
     QAction *m_splitAction;
     QAction *m_splitSideBySideAction;
+    QAction *m_splitNewWindowAction;
     QAction *m_removeCurrentSplitAction;
     QAction *m_removeAllSplitsAction;
     QAction *m_gotoOtherSplitAction;
@@ -227,7 +229,6 @@ struct EditorManagerPrivate
 }
 
 EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
-    m_splitter(0),
     m_autoSaveTimer(0),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
     m_saveAction(new QAction(parent)),
@@ -382,6 +383,12 @@ EditorManager::EditorManager(QWidget *parent) :
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_splitSideBySideAction, SIGNAL(triggered()), this, SLOT(splitSideBySide()));
 
+    d->m_splitNewWindowAction = new QAction(tr("Split New Window"), this);
+    cmd = ActionManager::registerAction(d->m_splitNewWindowAction, Constants::SPLIT_NEW_WINDOW, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,4") : tr("Ctrl+E,4")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(d->m_splitNewWindowAction, SIGNAL(triggered()), this, SLOT(splitNewWindow()));
+
     d->m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
     cmd = ActionManager::registerAction(d->m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,0") : tr("Ctrl+E,0")));
@@ -417,12 +424,14 @@ EditorManager::EditorManager(QWidget *parent) :
     advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_EDITOR);
 
     // other setup
-    d->m_splitter = new SplitterOrView();
+    SplitterOrView *firstRoot = new SplitterOrView();
+    d->m_root.append(firstRoot);
+    d->m_currentView = firstRoot->view();
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(d->m_splitter);
+    layout->addWidget(firstRoot);
 
     updateActions();
 
@@ -444,6 +453,15 @@ EditorManager::~EditorManager()
         ExtensionSystem::PluginManager::removeObject(d->m_openEditorsFactory);
         delete d->m_openEditorsFactory;
     }
+
+    // close all extra windows
+    for (int i = 1; i < d->m_root.size(); ++i) {
+        SplitterOrView *root = d->m_root.at(i);
+        disconnect(root, SIGNAL(destroyed(QObject*)), this, SLOT(rootDestroyed(QObject*)));
+        delete root;
+    }
+    d->m_root.clear();
+
     delete d;
 }
 
@@ -490,11 +508,19 @@ void EditorManager::handleContextChange(Core::IContext *context)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO;
+    d->m_scheduledCurrentEditor = 0;
     IEditor *editor = context ? qobject_cast<IEditor*>(context) : 0;
-    if (editor)
-        setCurrentEditor(editor);
-    else
+    if (editor && editor != d->m_currentEditor) {
+        // Delay actually setting the current editor to after the current event queue has been handled
+        // Without doing this, e.g. clicking into projects tree or locator would always open editors
+        // in the main window. That is because clicking anywhere in the main window (even over e.g.
+        // the locator line edit) first activates the window and sets focus to its focus widget.
+        // Only afterwards the focus is shifted to the widget that received the click.
+        d->m_scheduledCurrentEditor = editor;
+        QTimer::singleShot(0, this, SLOT(setCurrentEditorFromContextChange()));
+    } else {
         updateActions();
+    }
 }
 
 void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory)
@@ -535,18 +561,29 @@ void EditorManager::setCurrentView(Internal::EditorView *view)
 
     if (view && !view->currentEditor()) {
         view->setFocus();
-        view->activateWindow();
+        ICore::raiseWindow(view);
     }
 }
 
 Internal::EditorView *EditorManager::currentEditorView() const
 {
     EditorView *view = d->m_currentView;
-    if (!view)
-        view = d->m_currentEditor ? viewForEditor(d->m_currentEditor)
-                                  : d->m_splitter->findFirstView();
-    if (!view)
-        return d->m_splitter->view();
+    if (!view) {
+        if (d->m_currentEditor) {
+            view = viewForEditor(d->m_currentEditor);
+            QTC_ASSERT(view, view = d->m_root.first()->findFirstView());
+        }
+        QTC_CHECK(view);
+        if (!view) { // should not happen, we should always have either currentview or currentdocument
+            foreach (SplitterOrView *root, d->m_root) {
+                if (root->window()->isActiveWindow()) {
+                    view = root->findFirstView();
+                    break;
+                }
+            }
+            QTC_ASSERT(view, view = d->m_root.first()->findFirstView());
+        }
+    }
     return view;
 }
 
@@ -559,6 +596,15 @@ EditorView *EditorManager::viewForEditor(IEditor *editor)
             return view;
     }
     return 0;
+}
+
+SplitterOrView *EditorManager::findRoot(EditorView *view)
+{
+    SplitterOrView *current = view->parentSplitterOrView();
+    while (current && !m_instance->d->m_root.contains(current)) {
+        current = current->findParentSplitter();
+    }
+    return current;
 }
 
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
@@ -620,6 +666,30 @@ void EditorManager::emptyView(Core::Internal::EditorView *view)
             delete editor;
         }
     }
+}
+
+void EditorManager::splitNewWindow(Internal::EditorView *view)
+{
+    SplitterOrView *splitter;
+    IEditor *editor = view->currentEditor();
+    IEditor *newEditor = 0;
+    if (editor && editor->duplicateSupported())
+        newEditor = m_instance->duplicateEditor(editor);
+    else
+        newEditor = editor; // move to the new view
+    splitter = new SplitterOrView;
+    splitter->setAttribute(Qt::WA_DeleteOnClose);
+    splitter->setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
+    splitter->resize(QSize(800, 600));
+    splitter->show();
+    ICore::raiseWindow(splitter);
+    if (newEditor)
+        m_instance->activateEditor(splitter->view(), newEditor, IgnoreNavigationHistory);
+    else
+        splitter->view()->setFocus();
+    m_instance->d->m_root.append(splitter);
+    connect(splitter, SIGNAL(destroyed(QObject*)), m_instance, SLOT(rootDestroyed(QObject*)));
+    m_instance->updateActions();
 }
 
 void EditorManager::closeView(Core::Internal::EditorView *view)
@@ -807,6 +877,57 @@ void EditorManager::openTerminal()
     Core::FileUtils::openTerminal(path);
 }
 
+void EditorManager::rootDestroyed(QObject *root)
+{
+    QWidget *activeWin = qApp->activeWindow();
+    SplitterOrView *newActiveRoot = 0;
+    for (int i = 0; i < d->m_root.size(); ++i) {
+        SplitterOrView *r = d->m_root.at(i);
+        if (r == root)
+            d->m_root.removeAll(r);
+        else if (r->window() == activeWin)
+            newActiveRoot = r;
+    }
+    // check if the destroyed root had the current view or current editor
+    if (d->m_currentEditor || (d->m_currentView && d->m_currentView->parentSplitterOrView() != root))
+        return;
+    // we need to set a new current editor or view
+    if (!newActiveRoot) {
+        // some window managers behave weird and don't activate another window
+        // or there might be a Qt Creator toplevel activated that doesn't have editor windows
+        newActiveRoot = d->m_root.first();
+    }
+
+    // check if the focusWidget points to some view
+    SplitterOrView *focusSplitterOrView = 0;
+    QWidget *candidate = newActiveRoot->focusWidget();
+    while (candidate && candidate != newActiveRoot) {
+        if ((focusSplitterOrView = qobject_cast<SplitterOrView *>(candidate)))
+            break;
+        candidate = candidate->parentWidget();
+    }
+    // focusWidget might have been 0
+    if (!focusSplitterOrView)
+        focusSplitterOrView = newActiveRoot->findFirstView()->parentSplitterOrView();
+    QTC_ASSERT(focusSplitterOrView, focusSplitterOrView = newActiveRoot);
+    EditorView *focusView = focusSplitterOrView->findFirstView(); // can be just focusSplitterOrView
+    QTC_ASSERT(focusView, focusView = newActiveRoot->findFirstView());
+    QTC_ASSERT(focusView, return);
+    if (focusView->currentEditor())
+        setCurrentEditor(focusView->currentEditor());
+    else
+        setCurrentView(focusView);
+}
+
+void EditorManager::setCurrentEditorFromContextChange()
+{
+    if (!d->m_scheduledCurrentEditor)
+        return;
+    IEditor *newCurrent = d->m_scheduledCurrentEditor;
+    d->m_scheduledCurrentEditor = 0;
+    setCurrentEditor(newCurrent);
+}
+
 void EditorManager::closeEditor(Core::IEditor *editor)
 {
     if (!editor)
@@ -922,6 +1043,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     if (currentView) {
         if (IEditor *editor = currentView->currentEditor())
             activateEditor(currentView, editor);
+        else
+            setCurrentView(currentView);
     }
 
     if (!currentEditor()) {
@@ -1040,7 +1163,7 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
 {
     EditorView *view = viewForEditor(editor);
-    // TODO an IEditor doesn't have to belong to a view, which makes this method a bit funny
+    // an IEditor doesn't have to belong to a view, it might be kept in storage by the editor model
     if (!view)
         view = m_instance->currentEditorView();
     m_instance->activateEditor(view, editor, flags);
@@ -1064,7 +1187,7 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
             switchToPreferedMode();
         if (isVisible()) {
             editor->widget()->setFocus();
-            editor->widget()->activateWindow();
+            ICore::raiseWindow(editor->widget());
         }
     }
     return editor;
@@ -1806,7 +1929,8 @@ void EditorManager::updateActions()
         window()->setWindowModified(false);
     }
 
-    setCloseSplitEnabled(d->m_splitter, d->m_splitter->isSplitter());
+    foreach (SplitterOrView *root, d->m_root)
+        setCloseSplitEnabled(root, root->isSplitter());
 
     QString quotedName;
     if (!fileName.isEmpty())
@@ -1825,7 +1949,9 @@ void EditorManager::updateActions()
     d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
     d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
 
-    bool hasSplitter = d->m_splitter->isSplitter();
+    SplitterOrView *viewParent = (view ? view->parentSplitterOrView() : 0);
+    SplitterOrView *parentSplitter = (viewParent ? viewParent->findParentSplitter() : 0);
+    bool hasSplitter = parentSplitter && parentSplitter->isSplitter();
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
     d->m_gotoOtherSplitAction->setEnabled(hasSplitter);
@@ -1846,25 +1972,31 @@ void EditorManager::setCloseSplitEnabled(SplitterOrView *splitterOrView, bool en
 
 bool EditorManager::hasSplitter() const
 {
-    return d->m_splitter->isSplitter();
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return false);
+    SplitterOrView *root = findRoot(view);
+    QTC_ASSERT(root, return false);
+    return root->isSplitter();
 }
 
 QList<IEditor*> EditorManager::visibleEditors() const
 {
     QList<IEditor *> editors;
-    if (d->m_splitter->isSplitter()) {
-        EditorView *firstView = d->m_splitter->findFirstView();
-        EditorView *view = firstView;
-        if (view) {
-            do {
-                if (view->currentEditor())
-                    editors.append(view->currentEditor());
-                view = view->findNextView();
-            } while (view && view != firstView);
+    foreach (SplitterOrView *root, d->m_root) {
+        if (root->isSplitter()) {
+            EditorView *firstView = root->findFirstView();
+            EditorView *view = firstView;
+            if (view) {
+                do {
+                    if (view->currentEditor())
+                        editors.append(view->currentEditor());
+                    view = view->findNextView();
+                } while (view && view != firstView);
+            }
+        } else {
+            if (root->editor())
+                editors.append(root->editor());
         }
-    } else {
-        if (d->m_splitter->editor())
-            editors.append(d->m_splitter->editor());
     }
     return editors;
 }
@@ -1959,7 +2091,7 @@ QByteArray EditorManager::saveState() const
             stream << entry.fileName() << entry.displayName() << entry.id();
     }
 
-    stream << d->m_splitter->saveState();
+    stream << d->m_root.first()->saveState(); // TODO
 
     return bytes;
 }
@@ -1967,7 +2099,11 @@ QByteArray EditorManager::saveState() const
 bool EditorManager::restoreState(const QByteArray &state)
 {
     closeAllEditors(true);
-    removeAllSplits();
+    // remove extra windows
+    for (int i = d->m_root.count() - 1; i > 0 /* keep first alive */; --i)
+        delete d->m_root.at(i); // automatically removes it from list
+    if (d->m_root.first()->isSplitter())
+        removeAllSplits();
     QDataStream stream(state);
 
     QByteArray version;
@@ -2004,7 +2140,7 @@ bool EditorManager::restoreState(const QByteArray &state)
 
     QByteArray splitterstates;
     stream >> splitterstates;
-    d->m_splitter->restoreState(splitterstates);
+    d->m_root.first()->restoreState(splitterstates); // TODO
 
     // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
     if (d->m_currentEditor) {
@@ -2180,12 +2316,17 @@ void EditorManager::splitSideBySide()
     split(Qt::Horizontal);
 }
 
+void EditorManager::splitNewWindow()
+{
+    splitNewWindow(currentEditorView());
+}
+
 void EditorManager::removeCurrentSplit()
 {
     EditorView *viewToClose = currentEditorView();
 
-    if (!viewToClose || viewToClose == d->m_splitter->view())
-        return;
+    QTC_ASSERT(viewToClose, return);
+    QTC_ASSERT(!d->m_root.contains(viewToClose->parentSplitterOrView()), return);
 
     closeView(viewToClose);
     updateActions();
@@ -2193,23 +2334,29 @@ void EditorManager::removeCurrentSplit()
 
 void EditorManager::removeAllSplits()
 {
-    if (!d->m_splitter->isSplitter())
-        return;
-    d->m_splitter->unsplitAll();
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+    SplitterOrView *root = findRoot(view);
+    QTC_ASSERT(root, return);
+    root->unsplitAll();
 }
 
 void EditorManager::gotoOtherSplit()
 {
-    if (!d->m_splitter->isSplitter())
+    EditorView *view = currentEditorView();
+    if (!view)
+        return;
+    SplitterOrView *root = findRoot(view);
+    QTC_ASSERT(root, return);
+    if (!root->isSplitter())
         splitSideBySide();
 
-    EditorView *view = currentEditorView();
     view = view->findNextView();
     if (view) {
         if (IEditor *editor = view->currentEditor()) {
             setCurrentEditor(editor, true);
             editor->widget()->setFocus();
-            editor->widget()->activateWindow();
+            ICore::raiseWindow(editor->widget());
         } else {
             setCurrentView(view);
         }

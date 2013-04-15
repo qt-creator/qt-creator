@@ -270,10 +270,10 @@ DebuggerMainWindow::~DebuggerMainWindow()
 void DebuggerMainWindow::setCurrentEngine(DebuggerEngine *engine)
 {
     if (d->m_engine)
-        disconnect(d->m_engine, SIGNAL(raiseWindow()), this, SLOT(raiseDebuggerWindow()));
+        disconnect(d->m_engine, SIGNAL(raiseWindow()), ICore::appMainWindow(), SLOT(raiseWindow()));
     d->m_engine = engine;
     if (d->m_engine)
-        connect(d->m_engine, SIGNAL(raiseWindow()), this, SLOT(raiseDebuggerWindow()));
+        connect(d->m_engine, SIGNAL(raiseWindow()), ICore::appMainWindow(), SLOT(raiseWindow()));
 }
 
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
@@ -569,13 +569,6 @@ void DebuggerMainWindow::writeSettings() const
         settings->setValue(it.key(), it.value());
     }
     settings->endGroup();
-}
-
-void DebuggerMainWindow::raiseDebuggerWindow()
-{
-    Utils::AppMainWindow *appMainWindow = qobject_cast<Utils::AppMainWindow*>(ICore::mainWindow());
-    QTC_ASSERT(appMainWindow, return);
-    appMainWindow->raiseWindow();
 }
 
 void DebuggerMainWindow::readSettings()

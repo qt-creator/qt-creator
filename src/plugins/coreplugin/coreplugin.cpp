@@ -122,7 +122,7 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */, const QStr
 {
     IDocument *res = m_mainWindow->openFiles(
                 args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineNumbers));
-    m_mainWindow->activateWindow();
+    m_mainWindow->raiseWindow();
     return res;
 }
 

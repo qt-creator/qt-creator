@@ -78,6 +78,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
         connect(m_toolBar, SIGNAL(listSelectionActivated(int)), this, SLOT(listSelectionActivated(int)));
         connect(m_toolBar, SIGNAL(horizontalSplitClicked()), this, SLOT(splitHorizontally()));
         connect(m_toolBar, SIGNAL(verticalSplitClicked()), this, SLOT(splitVertically()));
+        connect(m_toolBar, SIGNAL(splitNewWindowClicked()), this, SLOT(splitNewWindow()));
         connect(m_toolBar, SIGNAL(closeSplitClicked()), this, SLOT(closeSplit()));
         tl->addWidget(m_toolBar);
     }
@@ -241,6 +242,10 @@ void EditorView::mousePressEvent(QMouseEvent *e)
     if (e->button() != Qt::LeftButton)
         return;
     setFocus(Qt::MouseFocusReason);
+}
+
+void EditorView::focusInEvent(QFocusEvent *)
+{
     ICore::editorManager()->setCurrentView(this);
 }
 
@@ -311,6 +316,11 @@ void EditorView::splitVertically()
     if (m_parentSplitterOrView)
         m_parentSplitterOrView->split(Qt::Horizontal);
     editorManager->updateActions();
+}
+
+void EditorView::splitNewWindow()
+{
+    EditorManager::instance()->splitNewWindow(this);
 }
 
 void EditorView::closeSplit()
@@ -511,6 +521,8 @@ SplitterOrView::~SplitterOrView()
 {
     delete m_layout;
     m_layout = 0;
+    if (m_view)
+        EditorManager::instance()->emptyView(m_view);
     delete m_view;
     m_view = 0;
     delete m_splitter;
@@ -563,8 +575,10 @@ EditorView *SplitterOrView::takeView()
 {
     EditorView *oldView = m_view;
     if (m_view) {
-        m_layout->removeWidget(m_view);
+        // the focus update that is triggered by removing should already have 0 parent
+        // so we do that first
         m_view->setParentSplitterOrView(0);
+        m_layout->removeWidget(m_view);
     }
     m_view = 0;
     return oldView;

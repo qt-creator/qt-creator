@@ -449,8 +449,7 @@ void MainWindow::openDelayedFiles()
 {
     if (m_filesToOpenDelayed.isEmpty())
         return;
-    activateWindow();
-    raise();
+    raiseWindow();
     openFiles(m_filesToOpenDelayed, ICore::SwitchMode);
     m_filesToOpenDelayed.clear();
 }

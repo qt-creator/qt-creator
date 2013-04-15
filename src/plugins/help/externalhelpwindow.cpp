@@ -193,7 +193,7 @@ bool ExternalHelpWindow::eventFilter(QObject *obj, QEvent *event)
             QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event);
             switch (keyEvent->key()) {
                 case Qt::Key_Escape:
-                    Core::ICore::mainWindow()->activateWindow();
+                    Core::ICore::raiseWindow(Core::ICore::mainWindow());
                 default:
                     break;
             }

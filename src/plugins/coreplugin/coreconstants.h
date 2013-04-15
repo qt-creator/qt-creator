@@ -105,6 +105,7 @@ const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
 
 const char SPLIT[]                 = "QtCreator.Split";
 const char SPLIT_SIDE_BY_SIDE[]    = "QtCreator.SplitSideBySide";
+const char SPLIT_NEW_WINDOW[]      = "QtCreator.SplitNewWindow";
 const char REMOVE_CURRENT_SPLIT[]  = "QtCreator.RemoveCurrentSplit";
 const char REMOVE_ALL_SPLITS[]     = "QtCreator.RemoveAllSplits";
 const char GOTO_OTHER_SPLIT[]      = "QtCreator.GotoOtherSplit";

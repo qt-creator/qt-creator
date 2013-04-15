@@ -95,9 +95,6 @@ public:
     void readSettings();
     void writeSettings() const;
 
-private slots:
-    void raiseDebuggerWindow();
-
 private:
     friend class Internal::DebuggerMainWindowPrivate;
     Internal::DebuggerMainWindowPrivate *d;

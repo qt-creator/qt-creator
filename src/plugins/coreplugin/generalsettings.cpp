@@ -232,8 +232,7 @@ void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
             m_dialog->setText(helpText);
 
         m_dialog->show();
-        m_dialog->raise();
-        m_dialog->activateWindow();
+        ICore::raiseWindow(m_dialog);
         return;
     }
     QMessageBox *mb = new QMessageBox(QMessageBox::Information,

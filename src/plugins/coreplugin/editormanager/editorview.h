@@ -105,12 +105,14 @@ public:
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);
+    void focusInEvent(QFocusEvent *);
 
 private slots:
     void closeView();
     void listSelectionActivated(int index);
     void splitHorizontally();
     void splitVertically();
+    void splitNewWindow();
     void closeSplit();
 
 private:

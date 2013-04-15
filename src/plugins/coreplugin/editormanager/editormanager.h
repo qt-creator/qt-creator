@@ -231,12 +231,16 @@ private slots:
     void showInGraphicalShell();
     void openTerminal();
 
+    void rootDestroyed(QObject *root);
+    void setCurrentEditorFromContextChange();
+
 public slots:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
     void split(Qt::Orientation orientation);
     void split();
     void splitSideBySide();
+    void splitNewWindow();
     void removeCurrentSplit();
     void removeAllSplits();
     void gotoOtherSplit();
@@ -260,11 +264,13 @@ private:
     void setCurrentView(Internal::EditorView *view);
     Internal::EditorView *currentEditorView() const;
     static Internal::EditorView *viewForEditor(IEditor *editor);
+    static Internal::SplitterOrView *findRoot(Internal::EditorView *view);
 
     void closeEditor(IEditor *editor);
     void closeDuplicate(IEditor *editor);
     void closeView(Internal::EditorView *view);
     void emptyView(Internal::EditorView *view);
+    static void splitNewWindow(Internal::EditorView *view);
     IEditor *pickUnusedEditor() const;
     void addDocumentToRecentFiles(IDocument *document);
     void switchToPreferedMode();

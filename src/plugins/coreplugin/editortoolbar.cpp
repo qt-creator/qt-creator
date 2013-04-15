@@ -68,6 +68,7 @@ struct EditorToolBarPrivate {
     QToolButton *m_splitButton;
     QAction *m_horizontalSplitAction;
     QAction *m_verticalSplitAction;
+    QAction *m_splitNewWindowAction;
     QToolButton *m_closeSplitButton;
 
     QWidget *m_activeToolBar;
@@ -86,6 +87,7 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_splitButton(new QToolButton),
     m_horizontalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)), EditorManager::tr("Split"), parent)),
     m_verticalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_VERTICAL)), EditorManager::tr("Split Side by Side"), parent)),
+    m_splitNewWindowAction(new QAction(EditorManager::tr("Split New Window"), parent)),
     m_closeSplitButton(new QToolButton),
     m_activeToolBar(0),
     m_toolBarPlaceholder(new QWidget),
@@ -140,6 +142,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     if (Utils::HostOsInfo::isMacHost()) {
         d->m_horizontalSplitAction->setIconVisibleInMenu(false);
         d->m_verticalSplitAction->setIconVisibleInMenu(false);
+        d->m_splitNewWindowAction->setIconVisibleInMenu(false);
     }
 
     d->m_splitButton->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
@@ -149,6 +152,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     QMenu *splitMenu = new QMenu(d->m_splitButton);
     splitMenu->addAction(d->m_horizontalSplitAction);
     splitMenu->addAction(d->m_verticalSplitAction);
+    splitMenu->addAction(d->m_splitNewWindowAction);
     d->m_splitButton->setMenu(splitMenu);
 
     d->m_closeSplitButton->setAutoRaise(true);
@@ -179,6 +183,8 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
             this, SIGNAL(horizontalSplitClicked()), Qt::QueuedConnection);
     connect(d->m_verticalSplitAction, SIGNAL(triggered()),
             this, SIGNAL(verticalSplitClicked()), Qt::QueuedConnection);
+    connect(d->m_splitNewWindowAction, SIGNAL(triggered()),
+            this, SIGNAL(splitNewWindowClicked()), Qt::QueuedConnection);
     connect(d->m_closeSplitButton, SIGNAL(clicked()),
             this, SIGNAL(closeSplitClicked()), Qt::QueuedConnection);
 

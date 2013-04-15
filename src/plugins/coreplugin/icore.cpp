@@ -519,9 +519,27 @@ QWidget *ICore::mainWindow()
     return m_mainwindow;
 }
 
+Utils::AppMainWindow *ICore::appMainWindow()
+{
+    return m_mainwindow;
+}
+
 QStatusBar *ICore::statusBar()
 {
     return m_mainwindow->statusBar();
+}
+
+void ICore::raiseWindow(QWidget *widget)
+{
+    if (!widget)
+        return;
+    QWidget *window = widget->window();
+    if (window == m_mainwindow) {
+        m_mainwindow->raiseWindow();
+    } else {
+        window->raise();
+        window->activateWindow();
+    }
 }
 
 void ICore::updateAdditionalContexts(const Context &remove, const Context &add)

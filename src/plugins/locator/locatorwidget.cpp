@@ -38,6 +38,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icontext.h>
+#include <utils/appmainwindow.h>
 #include <utils/filterlineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -574,6 +575,7 @@ void LocatorWidget::show(const QString &text, int selectionStart, int selectionL
         m_fileLineEdit->setFocus();
     else
         showPopupNow();
+    ICore::raiseWindow(ICore::mainWindow());
 
     if (selectionStart >= 0) {
         m_fileLineEdit->setSelection(selectionStart, selectionLength);

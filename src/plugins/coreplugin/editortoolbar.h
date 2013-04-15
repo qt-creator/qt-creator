@@ -89,6 +89,7 @@ signals:
     void goForwardClicked();
     void horizontalSplitClicked();
     void verticalSplitClicked();
+    void splitNewWindowClicked();
     void closeSplitClicked();
     void listSelectionActivated(int row);
 

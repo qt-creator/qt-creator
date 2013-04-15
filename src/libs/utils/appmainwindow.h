@@ -41,6 +41,7 @@ class QTCREATOR_UTILS_EXPORT AppMainWindow : public QMainWindow
 public:
     AppMainWindow();
 
+public slots:
     void raiseWindow();
 
 signals:
