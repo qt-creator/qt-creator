@@ -76,12 +76,10 @@ void DummyNodeInstance::setPropertyVariant(const PropertyName &/*name*/, const Q
 
 void DummyNodeInstance::setPropertyBinding(const PropertyName &/*name*/, const QString &/*expression*/)
 {
-
 }
 
 void DummyNodeInstance::setId(const QString &/*id*/)
 {
-
 }
 
 QVariant DummyNodeInstance::property(const PropertyName &/*name*/) const
@@ -91,7 +89,6 @@ QVariant DummyNodeInstance::property(const PropertyName &/*name*/) const
 
 void DummyNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &/*objectNodeInstance*/)
 {
-
 }
 
 } // namespace Internal

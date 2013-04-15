@@ -52,16 +52,16 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    virtual void setPropertyVariant(const PropertyName &name, const QVariant &value);
-    virtual void setPropertyBinding(const PropertyName &name, const QString &expression);
-    virtual QVariant property(const PropertyName &name) const;
-    virtual void resetProperty(const PropertyName &name);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
+    QVariant property(const PropertyName &name) const Q_DECL_OVERRIDE;
+    void resetProperty(const PropertyName &name) Q_DECL_OVERRIDE;
 
     using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
-    void reparent(const ServerNodeInstance &oldParentInstance,
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance,
                   const PropertyName &oldParentProperty,
-                  const ServerNodeInstance &newParentInstance,
-                  const PropertyName &newParentProperty);
+                  const ObjectNodeInstance::Pointer &newParentInstance,
+                  const PropertyName &newParentProperty) Q_DECL_OVERRIDE;
 
 protected:
     AnchorChangesNodeInstance(QObject *object);

@@ -40,15 +40,15 @@ class Qt5PreviewNodeInstanceServer : public Qt5NodeInstanceServer
 public:
     explicit Qt5PreviewNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
-    void createScene(const CreateSceneCommand &command);
-    void changeState(const ChangeStateCommand &command);
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
+    void createScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
+    void changeState(const ChangeStateCommand &command) Q_DECL_OVERRIDE;
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command) Q_DECL_OVERRIDE;
 
     QImage renderPreviewImage();
 
 protected:
-    void collectItemChangesAndSendChangeCommands();
-    void startRenderTimer();
+    void collectItemChangesAndSendChangeCommands() Q_DECL_OVERRIDE;
+    void startRenderTimer() Q_DECL_OVERRIDE;
 
 private:
     ServerNodeInstance m_actualState;

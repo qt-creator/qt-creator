@@ -48,21 +48,21 @@ public:
     Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
     ~Qt5NodeInstanceServer();
 
-    QQuickView *quickView() const;
-    QQmlView *declarativeView() const;
-    QQmlEngine *engine() const;
-    void refreshBindings();
+    QQuickView *quickView() const Q_DECL_OVERRIDE;
+    QQmlView *declarativeView() const Q_DECL_OVERRIDE;
+    QQmlEngine *engine() const Q_DECL_OVERRIDE;
+    void refreshBindings() Q_DECL_OVERRIDE;
 
     DesignerSupport *designerSupport() const;
 
-    void createScene(const CreateSceneCommand &command);
-    void clearScene(const ClearSceneCommand &command);
+    void createScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
+    void clearScene(const ClearSceneCommand &command) Q_DECL_OVERRIDE;
 
 protected:
-    void initializeView(const QVector<AddImportContainer> &importVector);
-    void resizeCanvasSizeToRootItemSize();
+    void initializeView(const QVector<AddImportContainer> &importVector) Q_DECL_OVERRIDE;
+    void resizeCanvasSizeToRootItemSize() Q_DECL_OVERRIDE;
     void resetAllItems();
-    QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
+    QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
     QList<QQuickItem*> allItems() const;
 
 private:

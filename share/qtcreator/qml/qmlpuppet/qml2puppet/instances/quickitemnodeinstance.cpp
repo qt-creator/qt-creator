@@ -679,7 +679,7 @@ void QuickItemNodeInstance::createEffectItem(bool createEffectItem)
     s_createEffectItem = createEffectItem;
 }
 
-void QuickItemNodeInstance::updateDirtyNodeRecursive() const
+void QuickItemNodeInstance::updateDirtyNodeRecursive()
 {
     updateAllDirtyNodeRecursive(quickItem());
 }

@@ -47,9 +47,9 @@ public:
     ComponentNodeInstance(QQmlComponent *component);
     static Pointer create(QObject *objectToBeWrapped);
 
-    bool hasContent() const;
+    bool hasContent() const Q_DECL_OVERRIDE;
 
-    void setNodeSource(const QString &source);
+    void setNodeSource(const QString &source) Q_DECL_OVERRIDE;
 
 private: //function
     QQmlComponent *component() const;

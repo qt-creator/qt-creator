@@ -47,14 +47,14 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const PropertyName &name, const QVariant &value);
-    void setPropertyBinding(const PropertyName &name, const QString &expression);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
 
-    bool isPositioner() const;
+    bool isPositioner() const Q_DECL_OVERRIDE;
 
-    bool isResizable() const;
+    bool isResizable() const Q_DECL_OVERRIDE;
 
-    void refreshPositioner();
+    void refreshPositioner() Q_DECL_OVERRIDE;
 
 protected:
     PositionerNodeInstance(QQuickBasePositioner *item);
