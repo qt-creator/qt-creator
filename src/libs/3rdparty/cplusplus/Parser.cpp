@@ -6440,7 +6440,7 @@ void Parser::rewind(unsigned cursor)
         fprintf(stderr, "! rewinding from token %d to token %d\n", _tokenIndex, cursor);
 #endif
 
-    const int n = _translationUnit->tokenCount();
+    const unsigned n = _translationUnit->tokenCount();
     if (cursor < n)
         _tokenIndex = cursor;
     else
