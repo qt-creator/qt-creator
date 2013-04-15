@@ -111,6 +111,9 @@ private:
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
                                         bool searchInEnclosingScope, ClassOrNamespace *origin);
 
+    ClassOrNamespace *lookupType_helper_inParent(const Name *name, QSet<ClassOrNamespace *> *processed,
+                                        bool searchInEnclosingScope, ClassOrNamespace *origin);
+
     ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
 
     void instantiateNestedClasses(ClassOrNamespace *enclosingTemplateClass,
@@ -120,6 +123,8 @@ private:
     bool isInstantiateNestedClassNeeded(const QList<Symbol *>& symbols, const Subst &subst) const;
     ClassOrNamespace *findSpecializationWithPointer(const TemplateNameId *templId,
                                            const TemplateNameIdTable &specializations);
+    ClassOrNamespace *resolveTypedef(Class *klass, const Name *name,
+                                             bool searchInEnclosingScope, ClassOrNamespace *origin);
 
     CreateBindings *_factory;
     ClassOrNamespace *_parent;

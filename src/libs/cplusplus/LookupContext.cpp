@@ -719,10 +719,22 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
         if (name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
             flush();
 
+            if (name->isTemplateNameId()) {
+                // if it is a base specialization, the 'name' could be an instantiation
+                QMap<const TemplateNameId *, ClassOrNamespace *>::iterator it
+                        = _instantiations.find(name->asTemplateNameId());
+                if (it != _instantiations.end())
+                    return it.value();
+            }
+
             foreach (Symbol *s, symbols()) {
                 if (Class *klass = s->asClass()) {
                     if (klass->identifier() && klass->identifier()->isEqualTo(name->identifier()))
                         return this;
+
+                    if (ClassOrNamespace *typedefedType
+                            = resolveTypedef(klass, name, searchInEnclosingScope, origin))
+                        return typedefedType;
                 }
             }
 
@@ -746,6 +758,9 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
             }
 
             foreach (ClassOrNamespace *u, usings()) {
+                // usings are not instantiated for templates
+                if (_templateId && u->_templateId)
+                    continue;
                 if (ClassOrNamespace *r = u->lookupType_helper(name,
                                                                processed,
                                                                /*searchInEnclosingScope =*/ false,
@@ -754,8 +769,21 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
             }
         }
 
-        if (_parent && searchInEnclosingScope)
-            return _parent->lookupType_helper(name, processed, searchInEnclosingScope, origin);
+        return lookupType_helper_inParent(name, processed, searchInEnclosingScope, origin);
+    }
+
+    return 0;
+}
+
+ClassOrNamespace *ClassOrNamespace::lookupType_helper_inParent(const Name *name, QSet<ClassOrNamespace *> *processed,
+                                                               bool searchInEnclosingScope, ClassOrNamespace *origin)
+{
+    if (_parent && searchInEnclosingScope) {
+        // for templates _parent is a base specialization,
+        // so we should take here rather _parent of this base specialization
+        ClassOrNamespace *parent = _templateId ? _parent->_parent : _parent;
+        if (parent)
+            return parent->lookupType_helper(name, processed, searchInEnclosingScope, origin);
     }
 
     return 0;
@@ -792,6 +820,39 @@ ClassOrNamespace *ClassOrNamespace::findSpecializationWithPointer(const Template
         }
     }
 
+    return 0;
+}
+
+ClassOrNamespace *ClassOrNamespace::resolveTypedef(Class *klass, const Name *name,
+                                                           bool searchInEnclosingScope,
+                                                           ClassOrNamespace *origin)
+{
+    // it can be a typedef
+    const unsigned memberClassCount = klass->memberCount();
+    for (unsigned i = 0; i < memberClassCount; ++i) {
+        Symbol *memberClassAsSymbol = klass->memberAt(i);
+        if (Declaration *declaration = memberClassAsSymbol->asDeclaration()) {
+            if (declaration->isTypedef()
+                    && name->identifier()->isEqualTo(declaration->name()->identifier())) {
+                if (NamedType *namedType = declaration->type()->asNamedType()) {
+                    QSet<ClassOrNamespace *> innerProcessed;
+                    const Name *namedTypeName = namedType->name();
+                    const QualifiedNameId *q = namedTypeName->asQualifiedNameId();
+                    if (q) {
+                        if (name->isEqualTo(q->base()) && name->isEqualTo(q->name()))
+                            return lookupType_helper_inParent(name, &innerProcessed,
+                                                              searchInEnclosingScope,
+                                                              origin);
+                        if ((klass->identifier()
+                             && klass->identifier()->isEqualTo(q->base()->identifier())))
+                            return this;
+                    }
+
+                    return lookupType_helper(namedTypeName, &innerProcessed, true, origin);
+                }
+            }
+        }
+    }
     return 0;
 }
 
@@ -959,7 +1020,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     oo.showReturnTypes = true;
                     oo.showTemplateParameters = true;
                     qDebug()<<"cloned"<<oo(clone->type());
-                    if (Class *klass = s->asClass()) {
+                    if (Class *klass = clone->asClass()) {
                         const unsigned klassMemberCount = klass->memberCount();
                         for (unsigned i = 0; i < klassMemberCount; ++i){
                             Symbol *klassMemberAsSymbol = klass->memberAt(i);
