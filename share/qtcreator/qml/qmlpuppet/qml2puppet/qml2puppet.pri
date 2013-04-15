@@ -6,6 +6,8 @@ QT += core gui widgets qml quick network v8
 
 QT += core-private qml-private quick-private gui-private script-private v8-private
 
+CONFIG += c++11
+
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 
 include (../instances/instances.pri)
