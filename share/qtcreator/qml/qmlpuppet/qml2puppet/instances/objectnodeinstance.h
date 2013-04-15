@@ -83,7 +83,6 @@ public:
     void setNodeInstanceServer(NodeInstanceServer *server);
     virtual void initializePropertyWatcher(const Pointer &objectNodeInstance);
     virtual void initialize(const Pointer &objectNodeInstance);
-    virtual void paint(QPainter *painter);
     virtual QImage renderImage() const;
     virtual QImage renderPreviewImage(const QSize &previewImageSize) const;
 

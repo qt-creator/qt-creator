@@ -89,16 +89,6 @@ QVariant DummyNodeInstance::property(const PropertyName &/*name*/) const
     return QVariant();
 }
 
-QStringList DummyNodeInstance::properties()
-{
-    return QStringList();
-}
-
-QStringList DummyNodeInstance::localProperties()
-{
-    return QStringList();
-}
-
 void DummyNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &/*objectNodeInstance*/)
 {
 

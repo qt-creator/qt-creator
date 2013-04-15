@@ -1103,10 +1103,6 @@ void ObjectNodeInstance::setResetValue(const PropertyName &propertyName, const Q
     m_resetValueHash.insert(propertyName, value);
 }
 
-void ObjectNodeInstance::paint(QPainter * /*painter*/)
-{
-}
-
 QImage ObjectNodeInstance::renderImage() const
 {
     return QImage();

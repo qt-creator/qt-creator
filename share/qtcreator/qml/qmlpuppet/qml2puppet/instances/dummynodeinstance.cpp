@@ -42,10 +42,6 @@ DummyNodeInstance::Pointer DummyNodeInstance::create()
     return Pointer(new DummyNodeInstance);
 }
 
-void DummyNodeInstance::paint(QPainter * /*painter*/)
-{
-}
-
 QRectF DummyNodeInstance::boundingRect() const
 {
     return QRectF();
@@ -88,16 +84,6 @@ void DummyNodeInstance::setId(const QString &/*id*/)
 QVariant DummyNodeInstance::property(const PropertyName &/*name*/) const
 {
     return QVariant();
-}
-
-QStringList DummyNodeInstance::properties()
-{
-    return QStringList();
-}
-
-QStringList DummyNodeInstance::localProperties()
-{
-    return QStringList();
 }
 
 void DummyNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &/*objectNodeInstance*/)

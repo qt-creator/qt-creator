@@ -56,8 +56,6 @@ public:
     void setPropertyVariant(const PropertyName &name, const QVariant &value);
     void setPropertyBinding(const PropertyName &name, const QString &expression);
     void setId(const QString &id);
-    QStringList properties();
-    QStringList localProperties();
     QVariant property(const PropertyName &name) const;
 
 

@@ -45,8 +45,6 @@ public:
 
     static Pointer create();
 
-    void paint(QPainter *painter);
-
     QRectF boundingRect() const;
     QPointF position() const;
     QSizeF size() const;
@@ -57,8 +55,6 @@ public:
     void setPropertyBinding(const PropertyName &name, const QString &expression);
     void setId(const QString &id);
     QVariant property(const PropertyName &name) const;
-    QStringList properties();
-    QStringList localProperties();
 
     void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
 
