@@ -68,6 +68,8 @@ private:
 
 class QbsGroupNode;
 
+class QbsGroupNode;
+
 class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 {
     Q_OBJECT
