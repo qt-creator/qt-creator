@@ -432,11 +432,7 @@ void QbsProjectNode::update(const qbs::Project *prj)
     delete m_projectData;
     m_projectData = newData;
 
-    if (m_project) {
-        delete m_project;
-        m_project = 0;
-    }
-
+    delete m_project;
     m_project = prj;
 
     removeProjectNodes(toRemove);
