@@ -57,7 +57,6 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSharedPointer>
-#include <QStringBuilder>
 #include <QTextBlock>
 #include <QTextCursor>
 
@@ -2904,9 +2903,9 @@ public:
             funcDecl.append(QLatin1String(";\n"));
         if (m_funcReturn) {
             funcDef.append(QLatin1String("\nreturn ")
-                        % m_relevantDecls.at(0).first
-                        % QLatin1String(";"));
-            funcCall.prepend(m_relevantDecls.at(0).second % QLatin1String(" = "));
+                        + m_relevantDecls.at(0).first
+                        + QLatin1String(";"));
+            funcCall.prepend(m_relevantDecls.at(0).second + QLatin1String(" = "));
         }
         funcDef.append(QLatin1String("\n}\n\n"));
         funcDef.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
