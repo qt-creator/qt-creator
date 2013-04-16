@@ -60,6 +60,11 @@ public:
         CloseTabWithPrompt
     };
 
+    enum BehavivorOnOutput {
+        Flash,
+        Popup
+    };
+
     AppOutputPane();
     virtual ~AppOutputPane();
 
@@ -81,6 +86,7 @@ public:
 
     void createNewOutputWindow(RunControl *rc);
     void showTabFor(RunControl *rc);
+    void setBehaviorOnOutput(RunControl *rc, BehavivorOnOutput mode);
 
     bool aboutToClose() const;
     bool closeTabs(CloseTabMode mode);
@@ -124,6 +130,7 @@ private:
         Core::OutputWindow *window;
         // Is the run control stopping asynchronously, close the tab once it finishes
         bool asyncClosing;
+        BehavivorOnOutput behavivorOnOutput;
     };
 
     bool isRunning() const;
