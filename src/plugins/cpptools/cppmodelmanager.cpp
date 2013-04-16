@@ -342,12 +342,10 @@ bool CppPreprocessor::checkFile(const QString &absoluteFilePath) const
 QString CppPreprocessor::resolveFile(const QString &fileName, IncludeType type)
 {
     if (type == IncludeGlobal) {
-        QString fn = m_fileNameCache.value(fileName);
-
-        if (! fn.isEmpty())
-            return fn;
-
-        fn = resolveFile_helper(fileName, type);
+        QHash<QString, QString>::ConstIterator it = m_fileNameCache.find(fileName);
+        if (it != m_fileNameCache.end())
+            return it.value();
+        const QString fn = resolveFile_helper(fileName, type);
         m_fileNameCache.insert(fileName, fn);
         return fn;
     }
