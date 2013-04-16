@@ -31,10 +31,8 @@
 
 #include "mobileapp.h"
 #include "targetsetuppage.h"
-#include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/baseqtversion.h>
 
@@ -98,7 +96,7 @@ Core::FeatureSet MobileAppWizard::requiredFeatures() const
 Core::BaseFileWizardParameters MobileAppWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QT_PROJECT)));
+    parameters.setIcon(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)));
     parameters.setDisplayName(DisplayName);
     parameters.setId(QLatin1String("C.Qt4GuiMobile"));
     parameters.setDescription(Description);

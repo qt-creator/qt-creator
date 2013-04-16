@@ -60,3 +60,9 @@ FORMS   +=  \
     qtversioninfo.ui \
     debugginghelper.ui \
     qtversionmanager.ui \
+
+RESOURCES += \
+    qtsupport.qrc
+
+OTHER_FILES += \
+    QtSupport.mimetypes.xml

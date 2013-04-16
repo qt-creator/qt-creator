@@ -86,13 +86,13 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qt4projectmanager/images/sources.png" },
     { ProjectExplorer::FormType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Forms"),
-      ":/qt4projectmanager/images/forms.png" },
+      ":/qtsupport/images/forms.png" },
     { ProjectExplorer::ResourceType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Resources"),
-      ":/qt4projectmanager/images/qt_qrc.png" },
+      ":/qtsupport/images/qt_qrc.png" },
     { ProjectExplorer::QMLType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "QML"),
-      ":/qt4projectmanager/images/qml.png" },
+      ":/qtsupport/images/qml.png" },
     { ProjectExplorer::UnknownFileType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Other files"),
       ":/qt4projectmanager/images/unknown.png" }
@@ -146,7 +146,7 @@ Qt4NodeStaticData::Qt4NodeStaticData()
                                                                desc, folderIcon));
     }
     // Project icon
-    const QIcon projectBaseIcon(QLatin1String(":/qt4projectmanager/images/qt_project.png"));
+    const QIcon projectBaseIcon(QLatin1String(":/qtsupport/images/qt_project.png"));
     const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
                                                                       projectBaseIcon,
                                                                       desiredSize);

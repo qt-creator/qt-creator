@@ -15,9 +15,4 @@
     <comment>Qt Project feature file</comment>
     <glob pattern="*.prf"/>
   </mime-type>
-  <mime-type type="application/x-linguist">
-    <sub-class-of type="application/xml"/>
-    <comment>message catalog</comment>
-    <glob pattern="*.ts"/>
-  </mime-type>
 </mime-info>

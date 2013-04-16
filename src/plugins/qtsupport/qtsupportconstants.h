@@ -77,6 +77,8 @@ const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
 // so we define the icon here
 const char QML_WIZARD_ICON[] = ":/qmlproject/images/qml_wizard.png";
 
+const char ICON_QT_PROJECT[] = ":/qtsupport/images/qt_project.png";
+
 } // namepsace Constants
 } // namepsace QtSupport
 

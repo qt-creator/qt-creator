@@ -33,6 +33,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "profileeditor.h"
 
+#include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -49,11 +50,11 @@ ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::Text
     m_actionHandler(handler)
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(Constants::ICON_QT_PROJECT)),
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
                                         QLatin1String("pro"));
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(Constants::ICON_QT_PROJECT)),
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
                                         QLatin1String("pri"));
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(Constants::ICON_QT_PROJECT)),
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
                                         QLatin1String("prf"));
 }
 

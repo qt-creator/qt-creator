@@ -2,13 +2,9 @@
     <qresource prefix="/qt4projectmanager">
         <file>images/run_qmake.png</file>
         <file>images/run_qmake_small.png</file>
-        <file>images/qt_project.png</file>
         <file>Qt4ProjectManager.mimetypes.xml</file>
-        <file>images/forms.png</file>
         <file>images/headers.png</file>
-        <file>images/qt_qrc.png</file>
         <file>images/sources.png</file>
         <file>images/unknown.png</file>
-        <file>images/qml.png</file>
     </qresource>
 </RCC>

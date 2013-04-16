@@ -39,6 +39,8 @@
 
 #include "gettingstartedwelcomepage.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/variablemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -60,6 +62,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     ProFileEvaluator::initialize();
     new ProFileCacheManager(this);
 
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":qtsupport/QtSupport.mimetypes.xml"), errorMessage))
+        return false;
     QtVersionManager *mgr = new QtVersionManager;
     addAutoReleasedObject(mgr);
 

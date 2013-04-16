@@ -83,7 +83,6 @@ const char MAEMO_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Maemo";
 const char RVCT_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.RVCT";
 
 // ICONS
-const char ICON_QT_PROJECT[] = ":/qt4projectmanager/images/qt_project.png";
 const char ICON_QTQUICK_APP[] = ":/wizards/images/qtquickapp.png";
 const char ICON_HTML5_APP[] = ":/wizards/images/html5app.png";
 

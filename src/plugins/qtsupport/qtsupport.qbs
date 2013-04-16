@@ -56,6 +56,7 @@ QtcPlugin {
         "baseqtversion.h",
         "qtconfigwidget.cpp",
         "qtconfigwidget.h",
+        "qtsupport.qrc",
         "customexecutableconfigurationwidget.cpp",
         "customexecutableconfigurationwidget.h",
         "customexecutablerunconfiguration.cpp",
@@ -101,7 +102,13 @@ QtcPlugin {
         "screenshotcropper.cpp",
         "screenshotcropper.h",
         "showbuildlog.ui",
+        "images/forms.png",
+        "images/qml.png",
+        "images/qt_project.png",
+        "images/qt_qrc.png",
+        "QtSupport.mimetypes.xml",
     ]
+
 
     ProductModule {
         Depends { name: "cpp" }
