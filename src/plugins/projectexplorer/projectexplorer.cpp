@@ -1807,7 +1807,6 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         projectChanged = true;
     }
     d->m_currentProject = project;
-    updateContext();
 
     if (!node && Core::EditorManager::currentEditor()) {
         connect(Core::EditorManager::currentEditor(), SIGNAL(changed()),
@@ -1828,6 +1827,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     }
 
     Core::DocumentManager::setCurrentFile(filePath);
+    updateContext();
 }
 
 void ProjectExplorerPlugin::updateActions()
