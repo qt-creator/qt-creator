@@ -116,9 +116,11 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
 #ifdef Q_OS_UNIX
     const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
-    const QString currentTerminal = ConsoleProcess::terminalEmulator(settings);
+    const QString currentTerminal = ConsoleProcess::terminalEmulator(settings, false);
+    const QString currentTerminalExplicit = ConsoleProcess::terminalEmulator(settings, true);
     m_page->terminalComboBox->addItems(availableTerminals);
     m_page->terminalComboBox->lineEdit()->setText(currentTerminal);
+    m_page->terminalComboBox->lineEdit()->setPlaceholderText(currentTerminalExplicit);
 #else
     m_page->terminalLabel->hide();
     m_page->terminalComboBox->hide();
@@ -214,7 +216,7 @@ void GeneralSettings::resetWarnings()
 void GeneralSettings::resetTerminal()
 {
 #if defined(Q_OS_UNIX)
-    m_page->terminalComboBox->lineEdit()->setText(ConsoleProcess::defaultTerminalEmulator());
+    m_page->terminalComboBox->lineEdit()->setText(QString());
 #endif
 }
 
