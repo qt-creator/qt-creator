@@ -133,6 +133,14 @@ private:
         unsigned m_lineRef;
 
         ExpansionStatus m_expansionStatus;
+        void setExpansionStatus(ExpansionStatus status)
+        {
+            m_expansionStatus = status;
+            m_currentExpansion = (status == Expanding)
+                ? &m_expansionResult : m_result;
+        }
+        QByteArray *m_currentExpansion;
+
         QByteArray m_expansionResult;
         QVector<QPair<unsigned, unsigned> > m_expandedTokensInfo;
 
@@ -227,17 +235,12 @@ private:
 
     void trackExpansionCycles(PPToken *tk);
 
-    template <class T>
-    void writeOutput(const T &t);
-    void writeOutput(const ByteArrayRef &ref);
+    QByteArray &currentOutputBuffer() { return *m_state.m_currentExpansion; }
     bool atStartOfOutputLine() const;
     void maybeStartOutputLine();
     void generateOutputLineMarker(unsigned lineno);
     void synchronizeOutputLines(const PPToken &tk, bool forceLine = false);
     void removeTrailingOutputLines();
-
-    const QByteArray &currentOutputBuffer() const;
-    QByteArray &currentOutputBuffer();
 
     void enforceSpacing(const PPToken &tk, bool forceSpacing = false);
     static std::size_t computeDistance(const PPToken &tk, bool forceTillLine = false);
