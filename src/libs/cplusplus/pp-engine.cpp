@@ -1202,16 +1202,13 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
             } else if (m_state.m_expansionStatus == Expanding) {
                 m_state.m_expansionStatus = JustFinishedExpansion;
 
-                QByteArray *buffer = currentOutputBuffer();
-                if (!buffer)
-                    return;
-
+                QByteArray &buffer = currentOutputBuffer();
                 maybeStartOutputLine();
 
                 // Offset and length of the macro invocation
                 char chunk[40];
                 qsnprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->offset, tk->length());
-                buffer->append(chunk);
+                buffer.append(chunk);
 
                 // Expanded tokens
                 unsigned generatedCount = 0;
@@ -1220,23 +1217,23 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
                     if (p.first) {
                         if (generatedCount) {
                             qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
-                            buffer->append(chunk);
+                            buffer.append(chunk);
                             generatedCount = 0;
                         }
                         qsnprintf(chunk, sizeof(chunk), " %d:%d", p.first, p.second);
-                        buffer->append(chunk);
+                        buffer.append(chunk);
                     } else {
                         ++generatedCount;
                     }
                 }
                 if (generatedCount) {
                     qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
-                    buffer->append(chunk);
+                    buffer.append(chunk);
                 }
-                buffer->append('\n');
-                buffer->append(m_state.m_expansionResult);
+                buffer.append('\n');
+                buffer.append(m_state.m_expansionResult);
                 maybeStartOutputLine();
-                buffer->append("# expansion end\n");
+                buffer.append("# expansion end\n");
             }
 
             lex(tk);
@@ -1279,16 +1276,14 @@ void Preprocessor::synchronizeOutputLines(const PPToken &tk, bool forceLine)
 
 void Preprocessor::removeTrailingOutputLines()
 {
-    QByteArray *buffer = currentOutputBuffer();
-    if (buffer) {
-        int i = buffer->size() - 1;
-        while (i >= 0 && buffer->at(i) == '\n')
-            --i;
-        const int mightChop = buffer->size() - i - 1;
-        if (mightChop > 1) {
-            // Keep one new line at end.
-            buffer->chop(mightChop - 1);
-        }
+    QByteArray &buffer = currentOutputBuffer();
+    int i = buffer.size() - 1;
+    while (i >= 0 && buffer.at(i) == '\n')
+        --i;
+    const int mightChop = buffer.size() - i - 1;
+    if (mightChop > 1) {
+        // Keep one new line at end.
+        buffer.chop(mightChop - 1);
     }
 }
 
@@ -2044,40 +2039,37 @@ void Preprocessor::startSkippingBlocks(const Preprocessor::PPToken &tk) const
 template <class T>
 void Preprocessor::writeOutput(const T &t)
 {
-    QByteArray *buffer = currentOutputBuffer();
-    if (buffer)
-        buffer->append(t);
+    currentOutputBuffer().append(t);
 }
 
 void Preprocessor::writeOutput(const ByteArrayRef &ref)
 {
-    QByteArray *buffer = currentOutputBuffer();
-    if (buffer)
-        buffer->append(ref.start(), ref.length());
+    currentOutputBuffer().append(ref.start(), ref.length());
 }
 
 bool Preprocessor::atStartOfOutputLine() const
 {
-    const QByteArray *buffer = currentOutputBuffer();
-    return (buffer && !buffer->isEmpty()) ? *(buffer->end() - 1) == '\n' : true;
+    const QByteArray &buffer = currentOutputBuffer();
+    return buffer.isEmpty() || buffer.endsWith('\n');
 }
 
 void Preprocessor::maybeStartOutputLine()
 {
-    QByteArray *buffer = currentOutputBuffer();
-    if (buffer && !buffer->isEmpty() && *(buffer->end() - 1) != '\n')
+    QByteArray &buffer = currentOutputBuffer();
+    if (!buffer.isEmpty() && !buffer.endsWith('\n'))
         writeOutput('\n');
 }
 
-const QByteArray *Preprocessor::currentOutputBuffer() const
+const QByteArray &Preprocessor::currentOutputBuffer() const
 {
     if (m_state.m_expansionStatus == Expanding)
-        return &m_state.m_expansionResult;
-
-    return m_state.m_result;
+        return m_state.m_expansionResult;
+    return *m_state.m_result;
 }
 
-QByteArray *Preprocessor::currentOutputBuffer()
+QByteArray &Preprocessor::currentOutputBuffer()
 {
-    return const_cast<QByteArray *>(static_cast<const Preprocessor *>(this)->currentOutputBuffer());
+    if (m_state.m_expansionStatus == Expanding)
+        return m_state.m_expansionResult;
+    return *m_state.m_result;
 }

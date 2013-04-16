@@ -236,8 +236,8 @@ private:
     void synchronizeOutputLines(const PPToken &tk, bool forceLine = false);
     void removeTrailingOutputLines();
 
-    const QByteArray *currentOutputBuffer() const;
-    QByteArray *currentOutputBuffer();
+    const QByteArray &currentOutputBuffer() const;
+    QByteArray &currentOutputBuffer();
 
     void enforceSpacing(const PPToken &tk, bool forceSpacing = false);
     static std::size_t computeDistance(const PPToken &tk, bool forceTillLine = false);
