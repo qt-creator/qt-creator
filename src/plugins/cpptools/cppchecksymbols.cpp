@@ -270,7 +270,7 @@ protected:
 
 } // end of anonymous namespace
 
-static bool sortByLinePredicate(const CheckSymbols::Use &lhs, const CheckSymbols::Use &rhs)
+static bool sortByLinePredicate(const CheckSymbols::Result &lhs, const CheckSymbols::Result &rhs)
 {
     if (lhs.line == rhs.line)
         return lhs.column < rhs.column;
@@ -294,25 +294,17 @@ static bool acceptName(NameAST *ast, unsigned *referenceToken)
             && !ast->asOperatorFunctionId();
 }
 
-CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &context, const QList<CheckSymbols::Use> &macroUses)
+CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &context, const QList<CheckSymbols::Result> &macroUses)
 {
     QTC_ASSERT(doc, return Future());
 
     return (new CheckSymbols(doc, context, macroUses))->start();
 }
 
-CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, const QList<CheckSymbols::Use> &macroUses)
+CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, const QList<CheckSymbols::Result> &macroUses)
     : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
     , _lineOfLastUsage(0), _macroUses(macroUses)
 {
-    CollectSymbols collectTypes(doc, context.snapshot());
-
-    _fileName = doc->fileName();
-    _potentialTypes = collectTypes.types();
-    _potentialFields = collectTypes.fields();
-    _potentialFunctions = collectTypes.functions();
-    _potentialStatics = collectTypes.statics();
-
     unsigned line = 0;
     getTokenEndPosition(translationUnit()->ast()->lastToken(), &line, 0);
     _chunkSize = qMax(50U, line / 200);
@@ -330,13 +322,21 @@ CheckSymbols::~CheckSymbols()
 
 void CheckSymbols::run()
 {
+    CollectSymbols collectTypes(_doc, _context.snapshot());
+
+    _fileName = _doc->fileName();
+    _potentialTypes = collectTypes.types();
+    _potentialFields = collectTypes.fields();
+    _potentialFunctions = collectTypes.functions();
+    _potentialStatics = collectTypes.statics();
+
     qSort(_macroUses.begin(), _macroUses.end(), sortByLinePredicate);
     _doc->clearDiagnosticMessages();
 
     if (! isCanceled()) {
         if (_doc->translationUnit()) {
             accept(_doc->translationUnit()->ast());
-            _usages << QVector<Use>::fromList(_macroUses);
+            _usages << QVector<Result>::fromList(_macroUses);
             flush();
         }
     }
@@ -468,7 +468,7 @@ bool CheckSymbols::visit(NamespaceAST *ast)
         if (! tok.generated()) {
             unsigned line, column;
             getTokenStartPosition(ast->identifier_token, &line, &column);
-            Use use(line, column, tok.length(), SemanticInfo::TypeUse);
+            Result use(line, column, tok.length(), CppHighlightingSupport::TypeUse);
             addUse(use);
         }
     }
@@ -483,7 +483,7 @@ bool CheckSymbols::visit(UsingDirectiveAST *)
 
 bool CheckSymbols::visit(EnumeratorAST *ast)
 {
-    addUse(ast->identifier_token, SemanticInfo::EnumerationUse);
+    addUse(ast->identifier_token, CppHighlightingSupport::EnumerationUse);
     return true;
 }
 
@@ -498,7 +498,7 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                     if (funTy->isVirtual()
                             || (nameAST->asDestructorName()
                                 && hasVirtualDestructor(_context.lookupType(funTy->enclosingScope())))) {
-                        addUse(nameAST, SemanticInfo::VirtualMethodUse);
+                        addUse(nameAST, CppHighlightingSupport::VirtualMethodUse);
                         declrIdNameAST = nameAST;
                     } else if (maybeAddFunction(_context.lookup(decl->name(),
                                                                 decl->enclosingScope()),
@@ -506,7 +506,7 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                         declrIdNameAST = nameAST;
 
                         // Add a diagnostic message if non-virtual function has override/final marker
-                        if ((_usages.back().kind != SemanticInfo::VirtualMethodUse)) {
+                        if ((_usages.back().kind != CppHighlightingSupport::VirtualMethodUse)) {
                             if (funTy->isOverride())
                                 warning(declrIdNameAST, QCoreApplication::translate(
                                             "CPlusplus::CheckSymbols", "Only virtual methods can be marked 'override'"));
@@ -544,7 +544,7 @@ bool CheckSymbols::visit(ElaboratedTypeSpecifierAST *ast)
 {
     accept(ast->attribute_list);
     accept(ast->name);
-    addUse(ast->name, SemanticInfo::TypeUse);
+    addUse(ast->name, CppHighlightingSupport::TypeUse);
     return false;
 }
 
@@ -777,14 +777,14 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
 
             if (klass) {
                 if (hasVirtualDestructor(_context.lookupType(klass))) {
-                    addUse(ast, SemanticInfo::VirtualMethodUse);
+                    addUse(ast, CppHighlightingSupport::VirtualMethodUse);
                 } else {
                     bool added = false;
                     if (highlightCtorDtorAsType && maybeType(ast->name))
                         added = maybeAddTypeOrStatic(_context.lookup(ast->name, klass), ast);
 
                     if (!added)
-                        addUse(ast, SemanticInfo::FunctionUse);
+                        addUse(ast, CppHighlightingSupport::FunctionUse);
                 }
             }
         } else if (maybeType(ast->name) || maybeStatic(ast->name)) {
@@ -834,14 +834,14 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
         if (binding && ast->unqualified_name) {
             if (ast->unqualified_name->asDestructorName() != 0) {
                 if (hasVirtualDestructor(binding)) {
-                    addUse(ast->unqualified_name, SemanticInfo::VirtualMethodUse);
+                    addUse(ast->unqualified_name, CppHighlightingSupport::VirtualMethodUse);
                 } else {
                     bool added = false;
                     if (highlightCtorDtorAsType && maybeType(ast->name))
                         added = maybeAddTypeOrStatic(binding->find(ast->unqualified_name->name),
                                                      ast->unqualified_name);
                     if (!added)
-                        addUse(ast->unqualified_name, SemanticInfo::FunctionUse);
+                        addUse(ast->unqualified_name, CppHighlightingSupport::FunctionUse);
                 }
             } else {
                 maybeAddTypeOrStatic(binding->find(ast->unqualified_name->name), ast->unqualified_name);
@@ -877,7 +877,7 @@ ClassOrNamespace *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
                     if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
                         if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId()) {
                             if (template_id->template_token) {
-                                addUse(template_id, SemanticInfo::TypeUse);
+                                addUse(template_id, CppHighlightingSupport::TypeUse);
                                 binding = 0; // there's no way we can find a binding.
                             }
 
@@ -901,7 +901,7 @@ ClassOrNamespace *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
 
 bool CheckSymbols::visit(TypenameTypeParameterAST *ast)
 {
-    addUse(ast->name, SemanticInfo::TypeUse);
+    addUse(ast->name, CppHighlightingSupport::TypeUse);
     accept(ast->type_id);
     return false;
 }
@@ -909,7 +909,7 @@ bool CheckSymbols::visit(TypenameTypeParameterAST *ast)
 bool CheckSymbols::visit(TemplateTypeParameterAST *ast)
 {
     accept(ast->template_parameter_list);
-    addUse(ast->name, SemanticInfo::TypeUse);
+    addUse(ast->name, CppHighlightingSupport::TypeUse);
     accept(ast->type_id);
     return false;
 }
@@ -961,7 +961,7 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
 bool CheckSymbols::visit(GotoStatementAST *ast)
 {
     if (ast->identifier_token)
-        addUse(ast->identifier_token, SemanticInfo::LabelUse);
+        addUse(ast->identifier_token, CppHighlightingSupport::LabelUse);
 
     return false;
 }
@@ -969,7 +969,7 @@ bool CheckSymbols::visit(GotoStatementAST *ast)
 bool CheckSymbols::visit(LabeledStatementAST *ast)
 {
     if (ast->label_token && !tokenAt(ast->label_token).isKeyword())
-        addUse(ast->label_token, SemanticInfo::LabelUse);
+        addUse(ast->label_token, CppHighlightingSupport::LabelUse);
 
     accept(ast->statement);
     return false;
@@ -990,7 +990,7 @@ bool CheckSymbols::visit(SimpleSpecifierAST *ast)
             if (id.equalTo(_doc->control()->cpp11Override())
                     || id.equalTo(_doc->control()->cpp11Final()))
             {
-                addUse(ast->specifier_token, SemanticInfo::PseudoKeywordUse);
+                addUse(ast->specifier_token, CppHighlightingSupport::PseudoKeywordUse);
             }
         }
     }
@@ -1001,7 +1001,7 @@ bool CheckSymbols::visit(SimpleSpecifierAST *ast)
 bool CheckSymbols::visit(ClassSpecifierAST *ast)
 {
     if (ast->final_token)
-        addUse(ast->final_token, SemanticInfo::PseudoKeywordUse);
+        addUse(ast->final_token, CppHighlightingSupport::PseudoKeywordUse);
 
     return true;
 }
@@ -1026,7 +1026,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
             if (fun->isVirtual()
                     || (declId->asDestructorName()
                         && hasVirtualDestructor(_context.lookupType(fun->enclosingScope())))) {
-                addUse(declId, SemanticInfo::VirtualMethodUse);
+                addUse(declId, CppHighlightingSupport::VirtualMethodUse);
             } else if (!maybeAddFunction(_context.lookup(fun->name(),
                                                          fun->enclosingScope()),
                                          declId, fun->argumentCount())) {
@@ -1050,8 +1050,8 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     accept(ast->function_body);
 
     const LocalSymbols locals(_doc, ast);
-    foreach (const QList<SemanticInfo::Use> &uses, locals.uses) {
-        foreach (const SemanticInfo::Use &u, uses)
+    foreach (const QList<Result> &uses, locals.uses) {
+        foreach (const Result &u, uses)
             addUse(u);
     }
 
@@ -1062,7 +1062,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     return false;
 }
 
-void CheckSymbols::addUse(NameAST *ast, UseKind kind)
+void CheckSymbols::addUse(NameAST *ast, Kind kind)
 {
     if (! ast)
         return;
@@ -1085,7 +1085,7 @@ void CheckSymbols::addUse(NameAST *ast, UseKind kind)
     addUse(startToken, kind);
 }
 
-void CheckSymbols::addUse(unsigned tokenIndex, UseKind kind)
+void CheckSymbols::addUse(unsigned tokenIndex, Kind kind)
 {
     if (! tokenIndex)
         return;
@@ -1098,11 +1098,11 @@ void CheckSymbols::addUse(unsigned tokenIndex, UseKind kind)
     getTokenStartPosition(tokenIndex, &line, &column);
     const unsigned length = tok.length();
 
-    const Use use(line, column, length, kind);
+    const Result use(line, column, length, kind);
     addUse(use);
 }
 
-void CheckSymbols::addUse(const Use &use)
+void CheckSymbols::addUse(const Result &use)
 {
     if (use.isInvalid())
         return;
@@ -1134,7 +1134,7 @@ void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
     unsigned line, column;
     getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
-    const Use use(line, column, length, SemanticInfo::TypeUse);
+    const Result use(line, column, length, CppHighlightingSupport::TypeUse);
     addUse(use);
 }
 
@@ -1176,14 +1176,14 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.length();
 
-            UseKind kind = SemanticInfo::TypeUse;
+            Kind kind = CppHighlightingSupport::TypeUse;
             if (c->enclosingEnum() != 0)
-                kind = SemanticInfo::EnumerationUse;
+                kind = CppHighlightingSupport::EnumerationUse;
             else if (c->isStatic())
                 // treat static variable as a field(highlighting)
-                kind = SemanticInfo::FieldUse;
+                kind = CppHighlightingSupport::FieldUse;
 
-            const Use use(line, column, length, kind);
+            const Result use(line, column, length, kind);
             addUse(use);
 
             return true;
@@ -1218,7 +1218,7 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
         getTokenStartPosition(startToken, &line, &column);
         const unsigned length = tok.length();
 
-        const Use use(line, column, length, SemanticInfo::FieldUse);
+        const Result use(line, column, length, CppHighlightingSupport::FieldUse);
         addUse(use);
 
         return true;
@@ -1243,7 +1243,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         return false;
 
     enum { Match_None, Match_TooManyArgs, Match_TooFewArgs, Match_Ok } matchType = Match_None;
-    SemanticInfo::UseKind kind = SemanticInfo::FunctionUse;
+    Kind kind = CppHighlightingSupport::FunctionUse;
     foreach (const LookupItem &r, candidates) {
         Symbol *c = r.declaration();
 
@@ -1270,21 +1270,21 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
         if (argumentCount < funTy->minimumArgumentCount()) {
             if (matchType != Match_Ok) {
-                kind = funTy->isVirtual() ? SemanticInfo::VirtualMethodUse : SemanticInfo::FunctionUse;
+                kind = funTy->isVirtual() ? CppHighlightingSupport::VirtualMethodUse : CppHighlightingSupport::FunctionUse;
                 matchType = Match_TooFewArgs;
             }
         } else if (argumentCount > funTy->argumentCount() && ! funTy->isVariadic()) {
             if (matchType != Match_Ok) {
                 matchType = Match_TooManyArgs;
-                kind = funTy->isVirtual() ? SemanticInfo::VirtualMethodUse : SemanticInfo::FunctionUse;
+                kind = funTy->isVirtual() ? CppHighlightingSupport::VirtualMethodUse : CppHighlightingSupport::FunctionUse;
             }
         } else if (!funTy->isVirtual()) {
             matchType = Match_Ok;
-            kind = SemanticInfo::FunctionUse;
+            kind = CppHighlightingSupport::FunctionUse;
             //continue, to check if there is a matching candidate which is virtual
         } else {
             matchType = Match_Ok;
-            kind = SemanticInfo::VirtualMethodUse;
+            kind = CppHighlightingSupport::VirtualMethodUse;
             break;
         }
     }
@@ -1294,7 +1294,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         if (highlightCtorDtorAsType
                 && (isConstructor || isDestructor)
                 && maybeType(ast->name)
-                && kind == SemanticInfo::FunctionUse) {
+                && kind == CppHighlightingSupport::FunctionUse) {
             return false;
         }
 
@@ -1308,7 +1308,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         else if (matchType == Match_TooManyArgs)
             warning(line, column, QCoreApplication::translate("CPlusPlus::CheckSymbols", "Too many arguments"), length);
 
-        const Use use(line, column, length, kind);
+        const Result use(line, column, length, kind);
         addUse(use);
 
         return true;

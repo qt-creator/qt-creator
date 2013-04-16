@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include "cpphighlightingsupport.h"
 #include "cpplocalsymbols.h"
 
 #include "cppsemanticinfo.h"
@@ -73,6 +74,8 @@ protected:
     using ASTVisitor::visit;
     using ASTVisitor::endVisit;
 
+    typedef TextEditor::HighlightingResult HighlightingResult;
+
     void enterScope(Scope *scope)
     {
         _scopeStack.append(scope);
@@ -86,7 +89,9 @@ protected:
                         const Identifier *id = member->identifier();
                         unsigned line, column;
                         getTokenStartPosition(member->sourceLocation(), &line, &column);
-                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::LocalUse));
+                        localUses[member].append(
+                                    HighlightingResult(line, column, id->size(),
+                                                       CppHighlightingSupport::LocalUse));
                     }
                 }
             }
@@ -107,7 +112,9 @@ protected:
                     else if (!member->isGenerated() && (member->sourceLocation() < firstToken || member->enclosingScope()->isFunction())) {
                         unsigned line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
-                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::LocalUse));
+                        localUses[member].append(
+                                    HighlightingResult(line, column, id->size(),
+                                                       CppHighlightingSupport::LocalUse));
                         return false;
                     }
                 }

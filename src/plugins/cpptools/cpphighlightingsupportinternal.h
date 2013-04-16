@@ -40,14 +40,12 @@ namespace Internal {
 class CppHighlightingSupportInternal: public CppHighlightingSupport
 {
 public:
-    typedef TextEditor::SemanticHighlighter::Result Use;
-
-public:
     CppHighlightingSupportInternal(TextEditor::ITextEditor *editor);
     virtual ~CppHighlightingSupportInternal();
 
-    virtual QFuture<Use> highlightingFuture(const CPlusPlus::Document::Ptr &doc,
-                                            const CPlusPlus::Snapshot &snapshot) const;
+    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
+            const CPlusPlus::Document::Ptr &doc,
+            const CPlusPlus::Snapshot &snapshot) const;
 };
 
 class CppHighlightingSupportInternalFactory: public CppHighlightingSupportFactory

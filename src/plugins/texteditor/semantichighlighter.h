@@ -44,14 +44,12 @@ namespace TextEditor {
 
 class SyntaxHighlighter;
 
-namespace SemanticHighlighter {
-
-class TEXTEDITOR_EXPORT Result {
+class TEXTEDITOR_EXPORT HighlightingResult {
 public:
     unsigned line; // 1-based
     unsigned column; // 1-based
     unsigned length;
-    int kind;
+    int kind; /// The various highlighters can define their own kind of results.
 
     bool isValid() const
     { return line != 0; }
@@ -59,20 +57,24 @@ public:
     bool isInvalid() const
     { return line == 0; }
 
-    Result()
-        : line(0), column(0), length(0), kind(-1) {}
-    Result(unsigned line, unsigned column, unsigned length, int kind)
-        : line(line), column(column), length(length), kind(kind) {}
+    HighlightingResult()
+        : line(0), column(0), length(0), kind(0)
+    {}
 
-    bool operator==(const Result& other) const
+    HighlightingResult(unsigned line, unsigned column, unsigned length, int kind)
+        : line(line), column(column), length(length), kind(kind)
+    {}
+
+    bool operator==(const HighlightingResult& other) const
     {
-        return
-            line == other.line &&
-            column == other.column &&
-            length == other.length &&
-            kind == other.kind;
+        return line == other.line
+                && column == other.column
+                && length == other.length
+                && kind == other.kind;
     }
 };
+
+namespace SemanticHighlighter {
 
 // Applies the future results [from, to) and applies the extra formats
 // indicated by Result::kind and kindToFormat to the correct location using
@@ -83,7 +85,7 @@ public:
 // Requires that results of the Future are ordered by line.
 void TEXTEDITOR_EXPORT incrementalApplyExtraAdditionalFormats(
         SyntaxHighlighter *highlighter,
-        const QFuture<Result> &future,
+        const QFuture<HighlightingResult> &future,
         int from, int to,
         const QHash<int, QTextCharFormat> &kindToFormat);
 
@@ -92,7 +94,7 @@ void TEXTEDITOR_EXPORT incrementalApplyExtraAdditionalFormats(
 // Requires that results of the Future are ordered by line.
 void TEXTEDITOR_EXPORT clearExtraAdditionalFormatsUntilEnd(
         SyntaxHighlighter *highlighter,
-        const QFuture<Result> &future);
+        const QFuture<HighlightingResult> &future);
 
 
 } // namespace SemanticHighlighter

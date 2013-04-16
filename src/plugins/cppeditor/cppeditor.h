@@ -260,7 +260,7 @@ private:
 
     SemanticHighlighter::Source currentSource(bool force = false);
 
-    void highlightUses(const QList<TextEditor::SemanticHighlighter::Result> &uses,
+    void highlightUses(const QList<TextEditor::HighlightingResult> &uses,
                        QList<QTextEdit::ExtraSelection> *selections);
 
     void createToolBar(CPPEditor *editable);
@@ -316,8 +316,8 @@ private:
     bool m_objcEnabled;
     bool m_initialized;
 
-    QFuture<TextEditor::SemanticHighlighter::Result> m_highlighter;
-    QFutureWatcher<TextEditor::SemanticHighlighter::Result> m_highlightWatcher;
+    QFuture<TextEditor::HighlightingResult> m_highlighter;
+    QFutureWatcher<TextEditor::HighlightingResult> m_highlightWatcher;
     unsigned m_highlightRevision; // the editor revision that requested the highlight
 
     QFuture<QList<int> > m_references;

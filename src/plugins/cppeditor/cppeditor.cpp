@@ -1949,23 +1949,24 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrencesUnusedFormat.clearForeground();
     m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
     m_occurrenceRenameFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_RENAME);
-    m_semanticHighlightFormatMap[SemanticInfo::TypeUse] =
+
+    m_semanticHighlightFormatMap[CppHighlightingSupport::TypeUse] =
             fs.toTextCharFormat(TextEditor::C_TYPE);
-    m_semanticHighlightFormatMap[SemanticInfo::LocalUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::LocalUse] =
             fs.toTextCharFormat(TextEditor::C_LOCAL);
-    m_semanticHighlightFormatMap[SemanticInfo::FieldUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::FieldUse] =
             fs.toTextCharFormat(TextEditor::C_FIELD);
-    m_semanticHighlightFormatMap[SemanticInfo::EnumerationUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::EnumerationUse] =
             fs.toTextCharFormat(TextEditor::C_ENUMERATION);
-    m_semanticHighlightFormatMap[SemanticInfo::VirtualMethodUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::VirtualMethodUse] =
             fs.toTextCharFormat(TextEditor::C_VIRTUAL_METHOD);
-    m_semanticHighlightFormatMap[SemanticInfo::LabelUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::LabelUse] =
             fs.toTextCharFormat(TextEditor::C_LABEL);
-    m_semanticHighlightFormatMap[SemanticInfo::MacroUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::MacroUse] =
             fs.toTextCharFormat(TextEditor::C_PREPROCESSOR);
-    m_semanticHighlightFormatMap[SemanticInfo::FunctionUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::FunctionUse] =
             fs.toTextCharFormat(TextEditor::C_FUNCTION);
-    m_semanticHighlightFormatMap[SemanticInfo::PseudoKeywordUse] =
+    m_semanticHighlightFormatMap[CppHighlightingSupport::PseudoKeywordUse] =
             fs.toTextCharFormat(TextEditor::C_KEYWORD);
     m_keywordFormat = fs.toTextCharFormat(TextEditor::C_KEYWORD);
 

@@ -49,22 +49,23 @@ CppHighlightingSupportInternal::~CppHighlightingSupportInternal()
 {
 }
 
-QFuture<CppHighlightingSupport::Use> CppHighlightingSupportInternal::highlightingFuture(
+QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highlightingFuture(
         const Document::Ptr &doc,
         const Snapshot &snapshot) const
 {
-    QList<CheckSymbols::Use> macroUses;
+    typedef TextEditor::HighlightingResult Result;
+    QList<Result> macroUses;
 
-    //Get macro definitions
+    // Get macro definitions
     foreach (const CPlusPlus::Macro& macro, doc->definedMacros()) {
         int line, column;
         editor()->convertPosition(macro.offset(), &line, &column);
         ++column; //Highlighting starts at (column-1) --> compensate here
-        CheckSymbols::Use use(line, column, macro.name().size(), SemanticInfo::MacroUse);
+        Result use(line, column, macro.name().size(), MacroUse);
         macroUses.append(use);
     }
 
-    //Get macro uses
+    // Get macro uses
     foreach (const Document::MacroUse &macro, doc->macroUses()) {
         const QString name = QString::fromUtf8(macro.macro().name());
 
@@ -84,7 +85,7 @@ QFuture<CppHighlightingSupport::Use> CppHighlightingSupportInternal::highlightin
         int line, column;
         editor()->convertPosition(macro.begin(), &line, &column);
         ++column; //Highlighting starts at (column-1) --> compensate here
-        CheckSymbols::Use use(line, column, name.size(), SemanticInfo::MacroUse);
+        Result use(line, column, name.size(), MacroUse);
         macroUses.append(use);
     }
 

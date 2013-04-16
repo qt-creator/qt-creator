@@ -41,7 +41,7 @@ using namespace TextEditor::SemanticHighlighter;
 
 void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
         SyntaxHighlighter *highlighter,
-        const QFuture<Result> &future,
+        const QFuture<HighlightingResult> &future,
         int from, int to,
         const QHash<int, QTextCharFormat> &kindToFormat)
 {
@@ -54,7 +54,7 @@ void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     // be cleaned of additional extra formats if they have no results
     int currentBlockNumber = 0;
     for (int i = from - 1; i >= 0; --i) {
-        const Result &result = future.resultAt(i);
+        const HighlightingResult &result = future.resultAt(i);
         const int blockNumber = result.line - 1;
         if (blockNumber < firstResultBlockNumber) {
             // stop! found where last format stopped
@@ -69,7 +69,7 @@ void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     QTC_ASSERT(currentBlockNumber < doc->blockCount(), return);
     QTextBlock b = doc->findBlockByNumber(currentBlockNumber);
 
-    Result result = future.resultAt(from);
+    HighlightingResult result = future.resultAt(from);
     for (int i = from; i < to && b.isValid(); ) {
         const int blockNumber = result.line - 1;
         QTC_ASSERT(blockNumber < doc->blockCount(), return);
@@ -111,12 +111,12 @@ void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
 
 void TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
         SyntaxHighlighter *highlighter,
-        const QFuture<Result> &future)
+        const QFuture<HighlightingResult> &future)
 {
     // find block number of last result
     int lastBlockNumber = 0;
     for (int i = future.resultCount() - 1; i >= 0; --i) {
-        const Result &result = future.resultAt(i);
+        const HighlightingResult &result = future.resultAt(i);
         if (result.line) {
             lastBlockNumber = result.line - 1;
             break;

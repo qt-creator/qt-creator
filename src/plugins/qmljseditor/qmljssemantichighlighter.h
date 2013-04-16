@@ -78,7 +78,7 @@ public:
         Max // number of the last used value (to generate the warning formats)
     };
 
-    typedef TextEditor::SemanticHighlighter::Result Use;
+    typedef TextEditor::HighlightingResult Use;
 
     SemanticHighlighter(QmlJSTextEditorWidget *editor);
 

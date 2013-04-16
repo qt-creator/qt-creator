@@ -47,14 +47,26 @@ namespace CppTools {
 class CPPTOOLS_EXPORT CppHighlightingSupport
 {
 public:
-    typedef TextEditor::SemanticHighlighter::Result Use;
+    enum Kind {
+        Unknown = 0,
+        TypeUse,
+        LocalUse,
+        FieldUse,
+        EnumerationUse,
+        VirtualMethodUse,
+        LabelUse,
+        MacroUse,
+        FunctionUse,
+        PseudoKeywordUse
+    };
 
 public:
     CppHighlightingSupport(TextEditor::ITextEditor *editor);
     virtual ~CppHighlightingSupport() = 0;
 
-    virtual QFuture<Use> highlightingFuture(const CPlusPlus::Document::Ptr &doc,
-                                            const CPlusPlus::Snapshot &snapshot) const = 0;
+    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
+            const CPlusPlus::Document::Ptr &doc,
+            const CPlusPlus::Snapshot &snapshot) const = 0;
 
 protected:
     TextEditor::ITextEditor *editor() const
