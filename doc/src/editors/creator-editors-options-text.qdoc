@@ -79,8 +79,23 @@
 
     \section2 File Encoding
 
-    To define the default file encoding, select the desired encoding in
-    \gui {Default encoding}. By default, \QC uses the file encoding
-    used by your system.
+    To define the default file encoding, select a suitable option in
+    \gui {Default encoding}.
+
+    Qt 5 requires UTF-8 encoded source files, and therefore the default
+    encoding was changed from \gui System to \gui UTF-8 in \QC version 2.6.
+    Detecting the correct encoding is tricky, so \QC will not try to do so.
+    Instead, it displays the following error message when you try to edit a file
+    that is not UTF-8 encoded: \gui {Error: Could not decode "filename" with
+    "UTF-8"-encoding. Editing not possible.}
+
+    To resolve the issue, use a file conversion tool such as
+    \l{http://recode.progiciels-bpi.ca/index.html}{Recode} to convert the file
+    encoding to UTF-8 when developing Qt 5 applications. Otherwise, conversion
+    of string constants to QStrings might not work as expected.
+
+    If you develop only Qt 4 applications or other than Qt applications, you
+    can set other encoding options as the default encoding. Select the
+    \gui System option to use the file encoding used by your system.
 
 */
