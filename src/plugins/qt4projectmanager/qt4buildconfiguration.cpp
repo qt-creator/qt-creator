@@ -712,8 +712,6 @@ Qt4BuildConfiguration *Qt4BuildConfiguration::setup(Target *t, QString defaultDi
                                                     QString additionalArguments, QString directory,
                                                     bool importing)
 {
-    bool debug = qmakeBuildConfiguration & BaseQtVersion::DebugBuild;
-
     // Add the build configuration.
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(t);
     bc->setDefaultDisplayName(defaultDisplayName);
