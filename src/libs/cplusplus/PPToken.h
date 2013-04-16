@@ -58,12 +58,7 @@ public:
     ByteArrayRef(const QByteArray *ref, int offset, int length)
         : m_start(ref->constData() + offset)
         , m_length(length)
-    {
-        Q_ASSERT(ref);
-        Q_ASSERT(offset >= 0);
-        Q_ASSERT(length >= 0);
-        Q_ASSERT(offset + length <= ref->size());
-    }
+    {}
 
     inline const char *start() const
     { return m_start; }

@@ -230,9 +230,6 @@ private:
     void handleEndIfDirective(PPToken *tk, const PPToken &poundToken);
     void handleIfDefDirective(bool checkUndefined, PPToken *tk);
     void handleUndefDirective(PPToken *tk);
-
-    static bool isQtReservedWord(const ByteArrayRef &name);
-
     void trackExpansionCycles(PPToken *tk);
 
     QByteArray &currentOutputBuffer() { return *m_state.m_currentExpansion; }

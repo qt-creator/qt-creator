@@ -101,6 +101,63 @@ public:
     }
 };
 typedef ScopedSwap<bool> ScopedBoolSwap;
+
+static bool same(const char *a, const char *b, int size)
+{
+    return strncmp(a, b, size) == 0;
+}
+
+static bool isQtReservedWord(const char *name, int size)
+{
+    if (size < 4)
+        return false;
+
+    const char c = name[0];
+    if (c == 'Q') {
+        if (name[1] == '_') {
+            name += 2;
+            size -= 2;
+            switch (size) {
+            case 1:
+                return name[2] == 'D' || name[2] == 'Q';
+            case 4:
+                return same(name, "SLOT", size) || same(name, "EMIT", size);
+            case 5:
+                return same(name, "SLOTS", size) || same(name, "ENUMS", size)
+                        || same(name, "FLAGS", size);
+            case 6:
+                return same(name, "SIGNAL", size);
+            case 7:
+                return same(name, "SIGNALS", size) || same(name, "FOREACH", size);
+            case 8:
+                return same(name, "PROPERTY", size);
+            case 9:
+                return same(name, "INVOKABLE", size);
+            case 10:
+                return same(name, "INTERFACES", size);
+            case 16:
+                return same(name, "PRIVATE_PROPERTY", size);
+            }
+        }
+        return false;
+    }
+
+    if (c == 'S')
+        return (size == 6 && same(name, "SIGNAL", size)) || (size == 4 && same(name, "SLOT", size));
+
+    if (c == 's')
+        return (size == 7 && same(name, "signals", size)) || (size == 5 && same(name, "slots", size));
+
+    if (c == 'f')
+        return size == 7 && same(name, "foreach", size);
+
+    if (c == 'e')
+        return size == 4 && same(name, "emit", size);
+
+    return false;
+}
+
+
 } // anonymous namespace
 
 namespace CPlusPlus {
@@ -821,7 +878,7 @@ _Lclassify:
                 lex(tk);
             } while (isContinuationToken(*tk));
             goto _Lclassify;
-        } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->asByteArrayRef())) {
+        } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->tokenStart(), tk->length())) {
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
             if (m_state.m_inCondition && tk->asByteArrayRef() == "defined") {
                 handleDefined(tk);
@@ -1669,7 +1726,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         lex(tk);
     }
 
-    if (isQtReservedWord(ByteArrayRef(&macroName))) {
+    if (isQtReservedWord(macroName.data(), macroName.size())) {
         QByteArray macroId = macro.name();
 
         if (macro.isFunctionLike()) {
@@ -1919,53 +1976,6 @@ void Preprocessor::handleUndefDirective(PPToken *tk)
     }
 #endif // NO_DEBUG
 }
-
-bool Preprocessor::isQtReservedWord(const ByteArrayRef &macroId)
-{
-    const int size = macroId.size();
-    if      (size == 9 && macroId.at(0) == 'Q' && macroId == "Q_SIGNALS")
-        return true;
-    else if (size == 9 && macroId.at(0) == 'Q' && macroId == "Q_FOREACH")
-        return true;
-    else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_SLOTS")
-        return true;
-    else if (size == 8 && macroId.at(0) == 'Q' && macroId == "Q_SIGNAL")
-        return true;
-    else if (size == 6 && macroId.at(0) == 'Q' && macroId == "Q_SLOT")
-        return true;
-    else if (size == 3 && macroId.at(0) == 'Q' && macroId == "Q_D")
-        return true;
-    else if (size == 3 && macroId.at(0) == 'Q' && macroId == "Q_Q")
-        return true;
-    else if (size == 10 && macroId.at(0) == 'Q' && macroId == "Q_PROPERTY")
-        return true;
-    else if (size == 18 && macroId.at(0) == 'Q' && macroId == "Q_PRIVATE_PROPERTY")
-        return true;
-    else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_ENUMS")
-        return true;
-    else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_FLAGS")
-        return true;
-    else if (size == 12 && macroId.at(0) == 'Q' && macroId == "Q_INTERFACES")
-        return true;
-    else if (size == 11 && macroId.at(0) == 'Q' && macroId == "Q_INVOKABLE")
-        return true;
-    else if (size == 6 && macroId.at(0) == 'S' && macroId == "SIGNAL")
-        return true;
-    else if (size == 4 && macroId.at(0) == 'S' && macroId == "SLOT")
-        return true;
-    else if (size == 7 && macroId.at(0) == 's' && macroId == "signals")
-        return true;
-    else if (size == 7 && macroId.at(0) == 'f' && macroId == "foreach")
-        return true;
-    else if (size == 5 && macroId.at(0) == 's' && macroId == "slots")
-        return true;
-    else if (size == 4 && macroId.at(0) == 'e' && macroId == "emit")
-        return true;
-    else if (size == 6 && macroId.at(0) == 'Q' && macroId == "Q_EMIT")
-        return true;
-    return false;
-}
-
 
 PPToken Preprocessor::generateToken(enum Kind kind,
                                     const char *content, int length,
