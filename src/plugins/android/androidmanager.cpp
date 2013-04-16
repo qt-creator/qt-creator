@@ -36,6 +36,7 @@
 #include "androidpackagecreationstep.h"
 #include "androidtoolchain.h"
 
+#include <coreplugin/documentmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -906,6 +907,7 @@ bool AndroidManager::openManifest(ProjectExplorer::Target *target, QDomDocument 
 
 bool AndroidManager::saveManifest(ProjectExplorer::Target *target, QDomDocument &doc)
 {
+    Core::FileChangeBlocker blocker(manifestPath(target).toString());
     return saveXmlFile(target, doc, manifestPath(target));
 }
 
