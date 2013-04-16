@@ -216,9 +216,6 @@ bool Parser::maybeSplitGreaterGreaterToken(int n)
     return _translationUnit->maybeSplitGreaterGreaterToken(_tokenIndex + n - 1);
 }
 
-bool Parser::blockErrors(bool block)
-{ return _translationUnit->blockErrors(block); }
-
 bool Parser::skipUntil(int token)
 {
     while (int tk = LA()) {

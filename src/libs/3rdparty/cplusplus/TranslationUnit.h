@@ -52,12 +52,9 @@ public:
 
     void setSource(const char *source, unsigned size);
 
-    unsigned tokenCount() const
-        { return _tokens->size(); }
-    const Token &tokenAt(unsigned index) const
-        { return _tokens->at(index); }
-    int tokenKind(unsigned index) const
-        { return _tokens->at(index).f.kind; }
+    unsigned tokenCount() const { return _tokens->size(); }
+    const Token &tokenAt(unsigned index) const { return _tokens->at(index); }
+    int tokenKind(unsigned index) const { return _tokens->at(index).f.kind; }
     const char *spell(unsigned index) const;
 
     unsigned commentCount() const;
@@ -72,8 +69,12 @@ public:
     MemoryPool *memoryPool() const;
     AST *ast() const;
 
-    bool blockErrors() const { return f._blockErrors; }
-    bool blockErrors(bool block);
+    bool blockErrors(bool block)
+    {
+        const bool previous = f._blockErrors;
+        f._blockErrors = block;
+        return previous;
+    }
 
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);

@@ -278,7 +278,7 @@ public:
     bool switchTemplateArguments(bool templateArguments);
     bool maybeSplitGreaterGreaterToken(int n = 1);
 
-    bool blockErrors(bool block);
+    bool blockErrors(bool block) { return _translationUnit->blockErrors(block); }
     void warning(unsigned index, const char *format, ...);
     void error(unsigned index, const char *format, ...);
     void fatal(unsigned index, const char *format, ...);

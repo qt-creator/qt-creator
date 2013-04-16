@@ -459,13 +459,6 @@ void TranslationUnit::getPosition(unsigned tokenOffset,
        *fileName = file;
 }
 
-bool TranslationUnit::blockErrors(bool block)
-{
-    bool previous = f._blockErrors;
-    f._blockErrors = block;
-    return previous;
-}
-
 void TranslationUnit::message(DiagnosticClient::Level level, unsigned index, const char *format, va_list args)
 {
     if (f._blockErrors)
