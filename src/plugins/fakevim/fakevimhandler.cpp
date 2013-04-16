@@ -968,17 +968,23 @@ public:
     QString toString() const
     {
         QString key = vimKeyNames().key(m_key);
+        bool namedKey = !key.isEmpty();
 
-        if (key.isEmpty()) {
+        if (!namedKey) {
             if (m_xkey == '<')
                 key = _("<LT>");
             else
                 key = QChar(m_xkey);
-        } else {
-            if (isShift())
-                key.prepend(_("S-"));
-            if (isControl())
-                key.prepend(_("C-"));
+        }
+
+        bool shift = isShift();
+        bool ctrl = isControl();
+        if (shift)
+            key.prepend(_("S-"));
+        if (ctrl)
+            key.prepend(_("C-"));
+
+        if (namedKey || shift || ctrl) {
             key.prepend(QLatin1Char('<'));
             key.append(QLatin1Char('>'));
         }
