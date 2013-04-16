@@ -84,9 +84,6 @@ public:
 
     QString privateKey() const;
     QString publicKey() const;
-    bool isGenerated() const;
-
-    QSsh::SshKeyGenerator *keyGenerator() const;
 
 private slots:
     void findMatchingPublicKey(const QString &privateKeyPath);
@@ -94,13 +91,13 @@ private slots:
     void generateSshKeys();
 
 private:
-    void saveKeys();
+    bool saveKeys(const QString &privateKeyFile, const QString &publicKeyFile);
     void setBusy(bool busy);
 
     Ui::BlackBerryDeviceConfigurationWizardSshKeyPage *m_ui;
 
     BlackBerrySshKeysGenerator *m_sshKeysGenerator;
-    bool m_isGenerated;
+    QString m_generatedPrivateKeyPath;
 };
 
 class BlackBerryDeviceConfigurationWizardFinalPage : public QWizardPage

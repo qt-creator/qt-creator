@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>413</width>
-    <height>139</height>
+    <height>92</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,18 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="Utils::PathChooser" name="privateKey" native="true"/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="Utils::PathChooser" name="privateKey" native="true"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="generate">
+       <property name="text">
+        <string>Generate...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
@@ -31,17 +42,10 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="generate">
-     <property name="text">
-      <string>Generate</string>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
-    <widget class="QLabel" name="publicKey">
-     <property name="text">
-      <string/>
+    <widget class="QLineEdit" name="publicKey">
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

@@ -56,6 +56,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
+#include <QDesktopServices>
 
 namespace Qnx {
 namespace Internal {
@@ -442,16 +443,14 @@ QString BlackBerryConfiguration::dataDirPath() const
     if (Utils::HostOsInfo::isAnyUnixHost())
         return homeDir + QLatin1String("/.rim");
 
-#if defined(Q_OS_WIN)
     if (Utils::HostOsInfo::isWindowsHost()) {
-        // needed because QSysInfo::windowsVersion() is not available on other
-        // platforms.
-        if (QSysInfo::windowsVersion() == QSysInfo::WV_XP)
-            return homeDir
-                + QLatin1String("/Local Settings/Application Data/Research In Motion");
-        return homeDir + QLatin1String("/AppData/Local/Research in Motion");
+        // Get the proper storage location on Windows using QDesktopServices,
+        // to not hardcode "AppData/Local", as it might refer to "AppData/Roaming".
+        QString dataDir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+        dataDir = dataDir.left(dataDir.indexOf(QCoreApplication::organizationName()));
+        dataDir.append(QLatin1String("Research in Motion"));
+        return dataDir;
     }
-#endif
 
     return QString();
 }

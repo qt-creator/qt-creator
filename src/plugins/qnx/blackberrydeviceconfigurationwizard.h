@@ -51,16 +51,12 @@ public:
 
     ProjectExplorer::IDevice::Ptr device();
 
-    void accept();
-
 private:
     enum PageId {
         SetupPageId,
         SshKeyPageId,
         FinalPageId
     };
-
-    bool saveKeys();
 
     BlackBerryDeviceConfigurationWizardSetupPage *m_setupPage;
     BlackBerryDeviceConfigurationWizardSshKeyPage *m_sshKeyPage;

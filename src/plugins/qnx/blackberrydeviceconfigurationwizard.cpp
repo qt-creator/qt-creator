@@ -35,15 +35,6 @@
 #include "blackberrydeviceconfiguration.h"
 
 #include <ssh/sshconnection.h>
-#include <ssh/sshkeygenerator.h>
-#include <utils/portlist.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-
-#include <QDir>
-#include <QFileInfo>
-#include <QMessageBox>
-#include <QHostInfo>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -81,57 +72,4 @@ ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfigurationWizard::device()
     configuration->setSshParameters(sshParams);
     configuration->setDebugToken(m_setupPage->debugToken());
     return configuration;
-}
-
-void BlackBerryDeviceConfigurationWizard::accept()
-{
-    if (m_sshKeyPage->isGenerated()) {
-        if (saveKeys())
-            QWizard::accept();
-    } else {
-        QWizard::accept();
-    }
-}
-
-bool BlackBerryDeviceConfigurationWizard::saveKeys()
-{
-    const QString privKeyPath = m_sshKeyPage->privateKey();
-    const QString pubKeyPath = m_sshKeyPage->publicKey();
-
-    const QString storeLocation = QFileInfo(privKeyPath).absolutePath();
-    if (!QDir::root().mkpath(storeLocation)) {
-        QMessageBox::critical(this, tr("Failure to Save Key File"),
-                              tr("Failed to create directory: '%1'.").arg(storeLocation));
-        return false;
-    }
-
-    if (QFileInfo(privKeyPath).exists()) {
-        QMessageBox::critical(this, tr("Failure to Save Key File"),
-                              tr("Private key file already exists: '%1'").arg(privKeyPath));
-        return false;
-    }
-    if (QFileInfo(pubKeyPath).exists()) {
-        QMessageBox::critical(this, tr("Failure to Save Key File"),
-                              tr("Public key file already exists: '%1'").arg(pubKeyPath));
-        return false;
-    }
-
-    Utils::FileSaver privSaver(privKeyPath);
-    privSaver.write(m_sshKeyPage->keyGenerator()->privateKey());
-    if (!privSaver.finalize(this))
-        return false; // finalize shows an error message if necessary
-    QFile::setPermissions(privKeyPath, QFile::ReadOwner | QFile::WriteOwner);
-
-    Utils::FileSaver pubSaver(pubKeyPath);
-
-    // blackberry-connect requires an @ character to be included in the RSA comment
-    const QString atHost = QLatin1String("@") + QHostInfo::localHostName();
-    QByteArray pubKeyContent = m_sshKeyPage->keyGenerator()->publicKey();
-    pubKeyContent.append(atHost.toLocal8Bit());
-
-    pubSaver.write(pubKeyContent);
-    if (!pubSaver.finalize(this))
-        return false;
-
-    return true;
 }
