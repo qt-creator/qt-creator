@@ -27,10 +27,8 @@ VcManager::VcManager(VcProjectBuildOptionsPage *configPage) :
             this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
     Core::ActionManager *am = Core::ICore::actionManager();
-    Core::ActionContainer *buildMenu =
-            am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    Core::ActionContainer *projectContexMenu =
-            am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    Core::ActionContainer *buildMenu = am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+    Core::ActionContainer *projectContexMenu = am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
 
     const Core::Context projectContext(Constants::VC_PROJECT_CONTEXT);
 
@@ -110,7 +108,6 @@ void VcManager::reparseContextProject()
 void VcManager::updateContextMenu(Project *project, ProjectExplorer::Node *node)
 {
     Q_UNUSED(node);
-
     m_contextProject = project;
 }
 

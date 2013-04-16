@@ -1,5 +1,7 @@
 include(../../qtcreatorplugin.pri)
 
+QT += xml xmlpatterns
+
 HEADERS = vcprojectmanagerplugin.h \
     vcprojectreader.h \
     vcprojectnodes.h \
@@ -25,6 +27,9 @@ SOURCES = vcprojectmanagerplugin.cpp \
 
 OTHER_FILES += \
     VcProject.mimetypes.xml
+
+include($$PWD/vcprojectmodel/vcprojectmodel.pri)
+include($$PWD/widgets/widgets.pri)
 
 RESOURCES += \
     vcproject.qrc
