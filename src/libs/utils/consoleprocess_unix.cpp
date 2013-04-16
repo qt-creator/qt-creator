@@ -153,7 +153,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     d->m_process.start(xterm, xtermArgs);
     if (!d->m_process.waitForStarted()) {
         stubServerShutdown();
-        emit processError(tr("Cannot start the terminal emulator '%1'.").arg(xterm));
+        emit processError(tr("Cannot start the terminal emulator '%1', change the setting in the "
+                             "Environment options.").arg(xterm));
         delete d->m_tempFile;
         d->m_tempFile = 0;
         return false;
