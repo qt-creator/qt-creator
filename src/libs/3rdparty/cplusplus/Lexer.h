@@ -43,7 +43,7 @@ public:
     Lexer(const char *firstChar, const char *lastChar);
     ~Lexer();
 
-    Control *control() const;
+    Control *control() const { return _control; }
     TranslationUnit *translationUnit() const;
 
     bool qtMocRunEnabled() const;
@@ -118,6 +118,7 @@ private:
     };
 
     TranslationUnit *_translationUnit;
+    Control *_control;
     const char *_firstChar;
     const char *_currentChar;
     const char *_lastChar;

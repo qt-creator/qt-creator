@@ -29,6 +29,7 @@ using namespace CPlusPlus;
 
 Lexer::Lexer(TranslationUnit *unit)
     : _translationUnit(unit),
+      _control(unit->control()),
       _state(State_Default),
       _flags(0),
       _currentLine(1)
@@ -40,6 +41,7 @@ Lexer::Lexer(TranslationUnit *unit)
 
 Lexer::Lexer(const char *firstChar, const char *lastChar)
     : _translationUnit(0),
+      _control(0),
       _state(State_Default),
       _flags(0),
       _currentLine(1)
@@ -53,14 +55,6 @@ Lexer::~Lexer()
 
 TranslationUnit *Lexer::translationUnit() const
 { return _translationUnit; }
-
-Control *Lexer::control() const
-{
-    if (_translationUnit)
-        return _translationUnit->control();
-
-    return 0;
-}
 
 void Lexer::setSource(const char *firstChar, const char *lastChar)
 {
