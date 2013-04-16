@@ -47,8 +47,11 @@ const char CONFIG_MIMETYPE[]    = "application/vnd.nokia.qt.generic.config";
 // Project
 const char GENERICPROJECT_ID[]  = "GenericProjectManager.GenericProject";
 
-const char FILEFILTER_SETTING[] = "GenericProject/FileFilter";
-const char FILEFILTER_DEFAULT[] = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes";
+const char HIDE_FILE_FILTER_SETTING[] = "GenericProject/FileFilter";
+const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes";
+
+const char SHOW_FILE_FILTER_SETTING[] = "GenericProject/ShowFileFilter";
+const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
 } // namespace Constants
 } // namespace GenericProjectManager

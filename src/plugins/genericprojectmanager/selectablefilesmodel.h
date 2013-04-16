@@ -34,10 +34,13 @@
 #include <QSet>
 #include <QFutureInterface>
 #include <QFutureWatcher>
-#include <QFileSystemModel>
 #include <QDialog>
 #include <QTreeView>
 #include <QLabel>
+
+class QLabel;
+class QTreeView;
+class QVBoxLayout;
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -61,6 +64,21 @@ struct Glob
     Mode mode;
     QString matchString;
     mutable QRegExp matchRegexp;
+
+    bool isMatch(const QString &text) const
+    {
+        if (mode == Glob::EXACT) {
+            if (text == matchString)
+                return true;
+        } else if (mode == Glob::ENDSWITH) {
+            if (text.endsWith(matchString))
+                return true;
+        } else if (mode == Glob::REGEXP) {
+            if (matchRegexp.exactMatch(text))
+                return true;
+        }
+        return false;
+    }
 };
 
 class SelectableFilesModel : public QAbstractItemModel
@@ -90,7 +108,7 @@ public:
     void startParsing();
     void waitForFinished();
     void cancel();
-    void applyFilter(const QString &filter);
+    void applyFilter(const QString &selectFilesfilter, const QString &hideFilesfilter);
 
 signals:
     void parsingFinished();
@@ -120,7 +138,9 @@ private:
     Tree *m_rootForFuture;
     int m_futureCount;
     bool m_allFiles;
-    QList<Glob> m_filter;
+
+    QList<Glob> m_hideFilesFilter;
+    QList<Glob> m_showFilesFilter;
 };
 
 class SelectableFilesDialog : public QDialog
@@ -139,10 +159,19 @@ private slots:
 
 private:
     void smartExpand(const QModelIndex &index);
+    void createShowFileFilterControls(QVBoxLayout *layout);
+    void createHideFileFilterControls(QVBoxLayout *layout);
+    void createApplyButton(QVBoxLayout *layout);
     SelectableFilesModel *m_selectableFilesModel;
-    QLabel *m_filterLabel;
-    QLineEdit *m_filterLineEdit;
+
+    QLabel *m_hideFilesFilterLabel;
+    QLineEdit *m_hideFilesfilterLineEdit;
+
+    QLabel *m_showFilesFilterLabel;
+    QLineEdit *m_showFilesfilterLineEdit;
+
     QPushButton *m_applyFilterButton;
+
     QTreeView *m_view;
     QLabel *m_preservedFiles;
     QLabel *m_progressLabel;
@@ -152,3 +181,4 @@ private:
 } // namespace GenericProjectManager
 
 #endif // SELECTABLEFILESMODEL_H
+

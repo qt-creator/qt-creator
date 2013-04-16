@@ -31,8 +31,11 @@
 #define FILESSELECTIONWIZARDPAGE_H
 
 #include <QWizardPage>
-#include <QLabel>
-#include <QTreeView>
+
+class QVBoxLayout;
+class QLabel;
+class QTreeView;
+class QLineEdit;
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -58,11 +61,21 @@ private slots:
     void parsingFinished();
 
 private:
+    void createHideFileFilterControls(QVBoxLayout *layout);
+    void createShowFileFilterControls(QVBoxLayout *layout);
+    void createApplyButton(QVBoxLayout *layout);
+
     GenericProjectWizardDialog *m_genericProjectWizardDialog;
     SelectableFilesModel *m_model;
-    QLabel *m_filterLabel;
-    QLineEdit *m_filterLineEdit;
+
+    QLabel *m_hideFilesFilterLabel;
+    QLineEdit *m_hideFilesfilterLineEdit;
+
+    QLabel *m_showFilesFilterLabel;
+    QLineEdit *m_showFilesfilterLineEdit;
+
     QPushButton *m_applyFilterButton;
+
     QTreeView *m_view;
     QLabel *m_label;
     bool m_finished;

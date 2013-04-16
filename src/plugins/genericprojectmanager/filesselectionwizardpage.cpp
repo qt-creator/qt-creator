@@ -48,22 +48,9 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    QHBoxLayout *hbox = new QHBoxLayout;
-    m_filterLabel = new QLabel;
-    m_filterLabel->setText(tr("Hide files matching:"));
-    m_filterLabel->hide();
-    hbox->addWidget(m_filterLabel);
-    m_filterLineEdit = new QLineEdit;
-
-    const QString filter = Core::ICore::settings()->value(QLatin1String(Constants::FILEFILTER_SETTING),
-                                                          QLatin1String(Constants::FILEFILTER_DEFAULT)).toString();
-    m_filterLineEdit->setText(filter);
-    m_filterLineEdit->hide();
-    hbox->addWidget(m_filterLineEdit);
-    m_applyFilterButton = new QPushButton(tr("Apply Filter"), this);
-    m_applyFilterButton->hide();
-    hbox->addWidget(m_applyFilterButton);
-    layout->addLayout(hbox);
+    createShowFileFilterControls(layout);
+    createHideFileFilterControls(layout);
+    createApplyButton(layout);
 
     m_view = new QTreeView;
     m_view->setMinimumSize(500, 400);
@@ -74,6 +61,54 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
 
     layout->addWidget(m_view);
     layout->addWidget(m_label);
+}
+
+void FilesSelectionWizardPage::createHideFileFilterControls(QVBoxLayout *layout)
+{
+    QHBoxLayout *hbox = new QHBoxLayout;
+    m_hideFilesFilterLabel = new QLabel;
+    m_hideFilesFilterLabel->setText(tr("Hide files matching:"));
+
+    m_hideFilesFilterLabel->hide();
+    hbox->addWidget(m_hideFilesFilterLabel);
+    m_hideFilesfilterLineEdit = new QLineEdit;
+
+    const QString filter = Core::ICore::settings()->value(QLatin1String(Constants::HIDE_FILE_FILTER_SETTING),
+                                                          QLatin1String(Constants::HIDE_FILE_FILTER_DEFAULT)).toString();
+    m_hideFilesfilterLineEdit->setText(filter);
+    m_hideFilesfilterLineEdit->hide();
+    hbox->addWidget(m_hideFilesfilterLineEdit);
+    layout->addLayout(hbox);
+}
+
+void FilesSelectionWizardPage::createShowFileFilterControls(QVBoxLayout *layout)
+{
+    QHBoxLayout *hbox = new QHBoxLayout;
+    m_showFilesFilterLabel = new QLabel;
+    m_showFilesFilterLabel->setText(tr("Show files matching:"));
+    m_showFilesFilterLabel->hide();
+    hbox->addWidget(m_showFilesFilterLabel);
+    m_showFilesfilterLineEdit = new QLineEdit;
+
+    const QString filter = Core::ICore::settings()->value(QLatin1String(Constants::SHOW_FILE_FILTER_SETTING),
+                                                          QLatin1String(Constants::SHOW_FILE_FILTER_DEFAULT)).toString();
+    m_showFilesfilterLineEdit->setText(filter);
+    m_showFilesfilterLineEdit->hide();
+    hbox->addWidget(m_showFilesfilterLineEdit);
+    layout->addLayout(hbox);
+}
+
+void FilesSelectionWizardPage::createApplyButton(QVBoxLayout *layout)
+{
+    QHBoxLayout *hbox = new QHBoxLayout;
+
+    QSpacerItem *horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    hbox->addItem(horizontalSpacer);
+
+    m_applyFilterButton = new QPushButton(tr("Apply Filter"), this);
+    m_applyFilterButton->hide();
+    hbox->addWidget(m_applyFilterButton);
+    layout->addLayout(hbox);
 
     connect(m_applyFilterButton, SIGNAL(clicked()), this, SLOT(applyFilter()));
 }
@@ -88,8 +123,13 @@ void FilesSelectionWizardPage::initializePage()
     connect(m_model, SIGNAL(parsingFinished()),
             this, SLOT(parsingFinished()));
     m_model->startParsing();
-    m_filterLabel->setVisible(false);
-    m_filterLineEdit->setVisible(false);
+
+    m_hideFilesFilterLabel->setVisible(false);
+    m_hideFilesfilterLineEdit->setVisible(false);
+
+    m_showFilesFilterLabel->setVisible(false);
+    m_showFilesfilterLineEdit->setVisible(false);
+
     m_applyFilterButton->setVisible(false);
     m_view->setVisible(false);
     m_label->setVisible(true);
@@ -110,8 +150,13 @@ void FilesSelectionWizardPage::parsingProgress(const QString &text)
 void FilesSelectionWizardPage::parsingFinished()
 {
     m_finished = true;
-    m_filterLabel->setVisible(true);
-    m_filterLineEdit->setVisible(true);
+
+    m_hideFilesFilterLabel->setVisible(true);
+    m_hideFilesfilterLineEdit->setVisible(true);
+
+    m_showFilesFilterLabel->setVisible(true);
+    m_showFilesfilterLineEdit->setVisible(true);
+
     m_applyFilterButton->setVisible(true);
     m_view->setVisible(true);
     m_label->setVisible(false);
@@ -139,9 +184,13 @@ QStringList FilesSelectionWizardPage::selectedFiles() const
 
 void FilesSelectionWizardPage::applyFilter()
 {
-    const QString filter = m_filterLineEdit->text();
-    Core::ICore::settings()->setValue(QLatin1String(Constants::FILEFILTER_SETTING), filter);
-    m_model->applyFilter(filter);
+    const QString showFilesFilter = m_showFilesfilterLineEdit->text();
+    Core::ICore::settings()->setValue(QLatin1String(Constants::SHOW_FILE_FILTER_SETTING), showFilesFilter);
+
+    const QString hideFilesFilter = m_hideFilesfilterLineEdit->text();
+    Core::ICore::settings()->setValue(QLatin1String(Constants::HIDE_FILE_FILTER_SETTING), hideFilesFilter);
+
+    m_model->applyFilter(showFilesFilter, hideFilesFilter);
 }
 
 } // namespace Internal
