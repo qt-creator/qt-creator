@@ -72,6 +72,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplor
     m_workingDirectory(QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR)),
     m_runMode(Gui)
 {
+    if (!parent->activeBuildConfiguration())
+        m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR_ALTERNATE);
     ctor();
 }
 

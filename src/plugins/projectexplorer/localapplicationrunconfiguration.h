@@ -44,6 +44,7 @@ class PROJECTEXPLORER_EXPORT LocalApplicationRunConfiguration : public RunConfig
 {
     Q_OBJECT
 public:
+    ~LocalApplicationRunConfiguration();
     enum RunMode {
         Console = ApplicationLauncher::Console,
         Gui
@@ -66,6 +67,7 @@ protected:
 
 private:
     void ctor();
+    mutable Utils::AbstractMacroExpander *m_macroExpander;
 };
 
 } // namespace ProjectExplorer

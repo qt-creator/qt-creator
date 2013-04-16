@@ -137,7 +137,10 @@ void ProcessStep::setArguments(const QString &arguments)
 void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR);
+        if (target()->activeBuildConfiguration())
+            m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR);
+        else
+            m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR_ALTERNATE);
     else
         m_workingDirectory = workingDirectory;
 }

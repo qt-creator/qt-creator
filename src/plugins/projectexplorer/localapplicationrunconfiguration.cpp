@@ -32,22 +32,54 @@
 #include "buildconfiguration.h"
 #include "localenvironmentaspect.h"
 
+#include <utils/stringutils.h>
 #include <coreplugin/variablemanager.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
+
+#include <QDir>
+
 
 namespace ProjectExplorer {
+
+
+namespace Internal {
+class FallBackMacroExpander : public Utils::AbstractQtcMacroExpander {
+public:
+    explicit FallBackMacroExpander(const Target *target) : m_target(target) {}
+    virtual bool resolveMacro(const QString &name, QString *ret);
+private:
+    const Target *m_target;
+};
+
+bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
+{
+    if (name == QLatin1String("sourceDir")) {
+        *ret = QDir::toNativeSeparators(m_target->project()->projectDirectory());
+        return true;
+    }
+    *ret = Core::VariableManager::value(name.toUtf8());
+    return !ret->isEmpty();
+}
+} // namespace Internal
 
 /// LocalApplicationRunConfiguration
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const Core::Id id) :
-    RunConfiguration(target, id)
+    RunConfiguration(target, id), m_macroExpander(0)
 {
     ctor();
 }
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc) :
-    RunConfiguration(target, rc)
+    RunConfiguration(target, rc), m_macroExpander(0)
 {
     ctor();
+}
+
+LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
+{
+    delete m_macroExpander;
 }
 
 void LocalApplicationRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
@@ -59,7 +91,9 @@ Utils::AbstractMacroExpander *LocalApplicationRunConfiguration::macroExpander() 
 {
     if (BuildConfiguration *bc = activeBuildConfiguration())
         return bc->macroExpander();
-    return Core::VariableManager::macroExpander();
+    if (!m_macroExpander)
+        m_macroExpander = new Internal::FallBackMacroExpander(target());
+    return m_macroExpander;
 }
 
 void LocalApplicationRunConfiguration::ctor()
