@@ -289,7 +289,10 @@ QString PathChooser::baseDirectory() const
 
 void PathChooser::setBaseDirectory(const QString &directory)
 {
+    if (d->m_baseDirectory == directory)
+        return;
     d->m_baseDirectory = directory;
+    d->m_lineEdit->triggerChanged();
 }
 
 FileName PathChooser::baseFileName() const
