@@ -172,7 +172,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
 
     QStringList nameFilters;
     foreach (const Core::MimeGlobPattern &gp, headerTy.globPatterns())
-        nameFilters.append(gp.regExp().pattern());
+        nameFilters.append(gp.pattern());
 
     QStringList includePaths;
     foreach (const QString &path, paths) {

@@ -481,24 +481,39 @@ IMagicMatcher::IMagicMatcherList MagicRuleMatcher::createMatchers(
     \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
 */
 
-MimeGlobPattern::MimeGlobPattern(const QRegExp &regExp, unsigned weight) :
-    m_regExp(regExp), m_weight(weight)
+MimeGlobPattern::MimeGlobPattern(const QString &pattern, unsigned weight) :
+    m_pattern(pattern), m_weight(weight)
 {
+    bool hasQuestionMark = pattern.contains(QLatin1Char('?'));
+    bool hasStar = pattern.contains(QLatin1Char('*'));
+
+    if (!hasQuestionMark && hasStar && pattern.lastIndexOf(QLatin1Char('*')) == 0) {
+        m_type = Suffix;
+    } else if (!hasQuestionMark && !hasStar) {
+        m_type = Exact;
+    } else {
+        // This hopefully never happens as it is expensive.
+        m_type = Glob;
+        m_regexp.setPattern(pattern);
+        m_regexp.setPatternSyntax(QRegExp::Wildcard);
+        if (!m_regexp.isValid())
+            qWarning("%s: Invalid wildcard '%s'.", Q_FUNC_INFO, pattern.toUtf8().constData());
+    }
 }
 
 MimeGlobPattern::~MimeGlobPattern()
 {
 }
 
-const QRegExp &MimeGlobPattern::regExp() const
+bool MimeGlobPattern::matches(const QString &fileName) const
 {
-    return m_regExp;
+    if (m_type == Exact)
+        return fileName == m_pattern;
+    if (m_type == Suffix)
+        return fileName.endsWith(m_pattern.midRef(1));
+    return m_regexp.exactMatch(fileName);
 }
 
-unsigned MimeGlobPattern::weight() const
-{
-    return m_weight;
-}
 
 /*!
     \class Core::MimeType
@@ -607,7 +622,7 @@ void MimeTypeData::debug(QTextStream &str, int indent) const
     if (!globPatterns.empty()) {
         str << indentS << "Glob: ";
         foreach (const MimeGlobPattern &gp, globPatterns)
-            str << gp.regExp().pattern() << '(' << gp.weight() << ')';
+            str << gp.pattern() << '(' << gp.weight() << ')';
         str << '\n';
         if (!suffixes.empty()) {
             str <<  indentS << "Suffixes: " << suffixes.join(comma)
@@ -777,7 +792,7 @@ QString MimeType::formatFilterString(const QString &description, const QList<Mim
             for (int i = 0; i < size; i++) {
                 if (i)
                     str << ' ';
-                str << globs.at(i).regExp().pattern();
+                str << globs.at(i).pattern();
             }
             str << ')';
         }
@@ -809,8 +824,7 @@ unsigned MimeType::matchesFileBySuffix(Internal::FileMatchContext &c) const
 {
     // check globs
     foreach (const MimeGlobPattern &gp, m_d->globPatterns) {
-        QRegExp regExp = gp.regExp();
-        if (regExp.exactMatch(c.fileName()))
+        if (gp.matches(c.fileName()))
             return gp.weight();
     }
     return 0;
@@ -950,17 +964,10 @@ void BaseMimeTypeParser::addGlobPattern(const QString &pattern, const QString &w
         return;
     // Collect patterns as a QRegExp list and filter out the plain
     // suffix ones for our suffix list. Use first one as preferred
-    const QRegExp wildCard(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
-    if (!wildCard.isValid()) {
-        qWarning("%s: Invalid wildcard '%s'.",
-                 Q_FUNC_INFO, pattern.toUtf8().constData());
-        return;
-    }
-
     if (weight.isEmpty())
-        d->globPatterns.push_back(MimeGlobPattern(wildCard));
+        d->globPatterns.push_back(MimeGlobPattern(pattern));
     else
-        d->globPatterns.push_back(MimeGlobPattern(wildCard, weight.toInt()));
+        d->globPatterns.push_back(MimeGlobPattern(pattern, weight.toInt()));
 
     d->assignSuffix(pattern);
 }
@@ -1784,10 +1791,8 @@ void MimeDatabasePrivate::clearUserModifiedMimeTypes()
 QList<MimeGlobPattern> MimeDatabasePrivate::toGlobPatterns(const QStringList &patterns, int weight)
 {
     QList<MimeGlobPattern> globPatterns;
-    foreach (const QString &pattern, patterns) {
-        QRegExp regExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
-        globPatterns.append(Core::MimeGlobPattern(regExp, weight));
-    }
+    foreach (const QString &pattern, patterns)
+        globPatterns.append(Core::MimeGlobPattern(pattern, weight));
     return globPatterns;
 }
 
@@ -1795,7 +1800,7 @@ QStringList MimeDatabasePrivate::fromGlobPatterns(const QList<MimeGlobPattern> &
 {
     QStringList patterns;
     foreach (const MimeGlobPattern &globPattern, globPatterns)
-        patterns.append(globPattern.regExp().pattern());
+        patterns.append(globPattern.pattern());
     return patterns;
 }
 

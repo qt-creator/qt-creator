@@ -79,12 +79,16 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
             if (mimeType.type() == QLatin1String(Constants::QML_MIMETYPE)
                     || mimeType.subClassesOf().contains(QLatin1String(Constants::QML_MIMETYPE)))
                 globs << mimeType.globPatterns();
-        if (globs.isEmpty())
-            globs << Core::MimeGlobPattern(QRegExp(QLatin1String(".*\\.(?:qbs|qml|qmltypes|qmlproject)$")));
+        if (globs.isEmpty()) {
+            globs.append(Core::MimeGlobPattern(QLatin1String("*.qbs")));
+            globs.append(Core::MimeGlobPattern(QLatin1String("*.qml")));
+            globs.append(Core::MimeGlobPattern(QLatin1String("*.qmltypes")));
+            globs.append(Core::MimeGlobPattern(QLatin1String("*.qmlproject")));
+        }
         foreach (const QString &filePath
                  , project->files(ProjectExplorer::Project::ExcludeGeneratedFiles))
             foreach (const Core::MimeGlobPattern &glob, globs)
-                if (glob.regExp().exactMatch(filePath))
+                if (glob.matches(filePath))
                     projectInfo.sourceFiles << filePath;
         activeTarget = project->activeTarget();
     }
@@ -216,9 +220,9 @@ QStringList QmlJSTools::qmlAndJsGlobPatterns()
 
         QStringList pattern;
         foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())
-            pattern << glob.regExp().pattern();
+            pattern << glob.pattern();
         foreach (const Core::MimeGlobPattern &glob, qmlSourceTy.globPatterns())
-            pattern << glob.regExp().pattern();
+            pattern << glob.pattern();
     } else {
         pattern << QLatin1String("*.qml") << QLatin1String("*.js");
     }

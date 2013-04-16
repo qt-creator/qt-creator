@@ -95,7 +95,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new QnxRunConfigurationFactory);
 
     // bar-descriptor.xml editor
-    Core::MimeGlobPattern barDescriptorGlobPattern(QRegExp(QLatin1String("*.xml"), Qt::CaseInsensitive, QRegExp::Wildcard), Core::MimeGlobPattern::MinWeight + 1);
+    Core::MimeGlobPattern barDescriptorGlobPattern(QLatin1String("*.xml"), Core::MimeGlobPattern::MinWeight + 1);
     Core::MimeType barDescriptorMimeType;
     barDescriptorMimeType.setType(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
     barDescriptorMimeType.setComment(tr("Bar descriptor file (BlackBerry)"));

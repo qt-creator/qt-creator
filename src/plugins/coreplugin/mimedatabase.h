@@ -163,16 +163,20 @@ public:
     static const unsigned MaxWeight = 100;
     static const unsigned MinWeight = 1;
 
-    explicit MimeGlobPattern(const QRegExp &regExp, unsigned weight = MaxWeight);
+    explicit MimeGlobPattern(const QString &pattern, unsigned weight = MaxWeight);
     ~MimeGlobPattern();
 
-    const QRegExp &regExp() const;
-    unsigned weight() const;
+    bool matches(const QString &fileName) const;
+    unsigned weight() const { return m_weight; }
+    QString pattern() const { return m_pattern; }
 
 private:
-    QRegExp m_regExp;
-    int m_weight;
+    enum { Suffix, Exact, Glob } m_type;
+    QString m_pattern;
+    QRegExp m_regexp; // Will be used in \c Glob case only.
+    unsigned m_weight;
 };
+
 
 class CORE_EXPORT MimeType
 {

@@ -1488,7 +1488,7 @@ static inline QStringList projectFileGlobs()
         if (const Core::MimeType mimeType = mimeDatabase->findByType(ipm->mimeType())) {
             const QList<Core::MimeGlobPattern> patterns = mimeType.globPatterns();
             if (!patterns.isEmpty())
-                result.push_back(patterns.front().regExp().pattern());
+                result.push_back(patterns.front().pattern());
         }
     }
     return result;
@@ -3016,7 +3016,7 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
     foreach (const IProjectManager *pm, allProjectManagers())
         if (const Core::MimeType mt = mdb->findByType(pm->mimeType()))
             foreach (const Core::MimeGlobPattern &gp, mt.globPatterns())
-                patterns += gp.regExp().pattern();
+                patterns.append(gp.pattern());
     return patterns;
 }
 

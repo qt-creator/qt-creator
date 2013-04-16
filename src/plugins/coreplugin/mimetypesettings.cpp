@@ -416,7 +416,7 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
 
         QStringList formatedPatterns;
         foreach (const MimeGlobPattern &pattern, currentMimeType.globPatterns())
-            formatedPatterns.append(pattern.regExp().pattern());
+            formatedPatterns.append(pattern.pattern());
         m_ui.patternsLineEdit->setText(formatedPatterns.join(kSemiColon));
 
         // Consider only rule-based matchers.

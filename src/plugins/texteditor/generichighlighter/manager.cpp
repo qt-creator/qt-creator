@@ -278,8 +278,7 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
                                     else
                                         continue;
                                 }
-                                QRegExp regExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
-                                globPatterns.append(Core::MimeGlobPattern(regExp, 50));
+                                globPatterns.append(Core::MimeGlobPattern(pattern, 50));
                             }
                         }
                         mimeType.setGlobPatterns(globPatterns);
