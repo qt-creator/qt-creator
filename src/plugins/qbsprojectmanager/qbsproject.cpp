@@ -175,7 +175,7 @@ void QbsProject::invalidate()
 
 qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts)
 {
-    if (!m_rootProjectNode || !m_rootProjectNode->project())
+    if (!qbsProject())
         return 0;
     if (!activeTarget() || !activeTarget()->kit())
         return 0;
@@ -185,14 +185,14 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts)
         return 0;
 
     QProcessEnvironment env = bc->environment().toProcessEnvironment();
-    return m_rootProjectNode->project()->buildAllProducts(opts, env);
+    return qbsProject()->buildAllProducts(opts, env);
 }
 
 qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)
 {
-    if (!m_rootProjectNode || !m_rootProjectNode->project())
+    if (!qbsProject())
         return 0;
-    return m_rootProjectNode->project()->cleanAllProducts(opts);
+    return qbsProject()->cleanAllProducts(opts);
 }
 
 QString QbsProject::profileForTarget(const ProjectExplorer::Target *t) const
@@ -207,7 +207,7 @@ bool QbsProject::isParsing() const
 
 bool QbsProject::hasParseResult() const
 {
-    return m_rootProjectNode->project();
+    return qbsProject();
 }
 
 Utils::FileName QbsProject::defaultBuildDirectory() const
@@ -215,6 +215,20 @@ Utils::FileName QbsProject::defaultBuildDirectory() const
     QFileInfo fi(m_fileName);
     const QString buildDir = QDir(fi.canonicalPath()).absoluteFilePath(QString::fromLatin1("../%1-build").arg(fi.baseName()));
     return Utils::FileName::fromString(buildDir);
+}
+
+const qbs::Project *QbsProject::qbsProject() const
+{
+    if (!m_rootProjectNode)
+        return 0;
+    return m_rootProjectNode->project();
+}
+
+const qbs::ProjectData *QbsProject::qbsProjectData() const
+{
+    if (!m_rootProjectNode)
+        return 0;
+    return m_rootProjectNode->projectData();
 }
 
 void QbsProject::handleQbsParsingDone(bool success)

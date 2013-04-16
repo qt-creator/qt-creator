@@ -90,6 +90,9 @@ public:
 
     Utils::FileName defaultBuildDirectory() const;
 
+    const qbs::Project *qbsProject() const;
+    const qbs::ProjectData *qbsProjectData() const;
+
 public slots:
     void invalidate();
     void parseCurrentBuildConfiguration();
