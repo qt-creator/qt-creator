@@ -42,7 +42,8 @@ equals(TEST, 1) {
     SOURCES += \
         cppquickfix_test.cpp \
         cppdoxygen_test.cpp \
-        fileandtokenactions_test.cpp
+        fileandtokenactions_test.cpp \
+        followsymbolundercursor_test.cpp
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }

@@ -164,6 +164,16 @@ unsigned CppEditorSupport::editorRevision() const
     return m_textEditor->editorWidget()->document()->revision();
 }
 
+bool CppEditorSupport::isDocumentBeingUpdated() const
+{
+    return m_documentParser.isRunning();
+}
+
+bool CppEditorSupport::isDocumentScheduledForUpdate() const
+{
+    return m_updateDocumentTimer->isActive();
+}
+
 void CppEditorSupport::setExtraDiagnostics(const QString &key,
                                            const QList<Document::DiagnosticMessage> &messages)
 {

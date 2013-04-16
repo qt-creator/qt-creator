@@ -95,6 +95,9 @@ public:
     QString contents() const;
     unsigned editorRevision() const;
 
+    bool isDocumentBeingUpdated() const;
+    bool isDocumentScheduledForUpdate() const;
+
     void setExtraDiagnostics(const QString &key,
                              const QList<CPlusPlus::Document::DiagnosticMessage> &messages);
 

@@ -93,6 +93,29 @@ private slots:
 #ifdef WITH_TESTS
 private slots:
     // The following tests expect that no projects are loaded on start-up.
+    void test_FollowSymbolUnderCursor_globalVarFromFunction();
+    void test_FollowSymbolUnderCursor_funLocalVarHidesClassMember();
+    void test_FollowSymbolUnderCursor_funLocalVarHidesNamespaceMemberIntroducedByUsingDirective();
+    void test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVariable1();
+    void test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVariable2();
+    void test_FollowSymbolUnderCursor_subsequentDefinedClassMember();
+    void test_FollowSymbolUnderCursor_classMemberHidesOuterTypeDef();
+    void test_FollowSymbolUnderCursor_globalVarFromEnum();
+    void test_FollowSymbolUnderCursor_selfInitialization();
+    void test_FollowSymbolUnderCursor_pointerToClassInClassDefinition();
+    void test_FollowSymbolUnderCursor_previouslyDefinedMemberFromArrayDefinition();
+    void test_FollowSymbolUnderCursor_outerStaticMemberVariableFromInsideSubclass();
+    void test_FollowSymbolUnderCursor_memberVariableFollowingDotOperator();
+    void test_FollowSymbolUnderCursor_memberVariableFollowingArrowOperator();
+    void test_FollowSymbolUnderCursor_staticMemberVariableFollowingScopeOperator();
+    void test_FollowSymbolUnderCursor_staticMemberVariableFollowingDotOperator();
+    void test_FollowSymbolUnderCursor_staticMemberVariableFollowingArrowOperator();
+    void test_FollowSymbolUnderCursor_previouslyDefinedEnumValueFromInsideEnum();
+    void test_FollowSymbolUnderCursor_nsMemberHidesNsMemberIntroducedByUsingDirective();
+    void test_FollowSymbolUnderCursor_baseClassFunctionIntroducedByUsingDeclaration();
+    void test_FollowSymbolUnderCursor_funWithSameNameAsBaseClassFunIntroducedByUsingDeclaration();
+    void test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass();
+
     void test_doxygen_comments_qt_style();
     void test_doxygen_comments_qt_style_continuation();
     void test_doxygen_comments_java_style();
