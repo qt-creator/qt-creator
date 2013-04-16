@@ -134,6 +134,8 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
     const QString basicDescription = tr("Creates a Qt Quick 1 application project that can contain "
                                         "both QML and C++ code and includes a QDeclarativeView.\n\n");
+    const QString basicDescription2 = tr("Creates a Qt Quick 2 application project that can contain "
+                                        "both QML and C++ code and includes a QQuickView.\n\n");
 
     Core::FeatureSet basicFeatures;
     basicFeatures = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
@@ -148,11 +150,9 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
     parameter = base;
     parameter.setDisplayName(tr("Qt Quick 2 Application (Built-in Types)"));
-    parameter.setDescription(tr("Creates a Qt Quick 2 application project that can contain "
-                                "both QML and C++ code and includes a QQuickView.\n\n"
-                                "The built-in QML types in the QtQuick 2 namespace allow "
-                                "you to write cross-platform applications with "
-                                "a custom look and feel.\n\nRequires <b>Qt 5.0</b> or newer."));
+    parameter.setDescription(basicDescription2 + tr("The built-in QML types in the QtQuick 2 namespace allow "
+                                                    "you to write cross-platform applications with "
+                                                    "a custom look and feel.\n\nRequires <b>Qt 5.0</b> or newer."));
     parameter.setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2));
     list << parameter;
 
@@ -179,7 +179,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
     parameter = base;
     parameter.setDisplayName(tr("Qt Quick 2 Application (from Existing QML File)"));
-    parameter.setDescription(basicDescription +  tr("Creates a deployable Qt Quick application from "
+    parameter.setDescription(basicDescription2 + tr("Creates a deployable Qt Quick application from "
                                                     "existing QML files. All files and directories that "
                                                     "reside in the same directory as the main .qml file "
                                                     "are deployed. You can modify the contents of the "
