@@ -48,7 +48,6 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
-#include <utils/tcpportsgatherer.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -85,6 +84,7 @@
 #include <QMenu>
 #include <QTimer>
 #include <QTime>
+#include <QTcpServer>
 
 using namespace Core;
 using namespace Core::Constants;
@@ -343,13 +343,10 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
     const ProjectExplorer::IDevice::ConstPtr device =
             ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        Utils::TcpPortsGatherer portsGatherer;
-        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
-        Utils::PortList portList = device->freePorts();
-        int freePort = portsGatherer.getNextFreePort(&portList);
-        if (freePort == -1)
+        QTcpServer server;
+        if (!server.listen(QHostAddress(sp.connParams.host)))
             return sp;
-        sp.connParams.port = freePort;
+        sp.connParams.port = server.serverPort();
     }
     sp.startMode = StartQml;
     return sp;

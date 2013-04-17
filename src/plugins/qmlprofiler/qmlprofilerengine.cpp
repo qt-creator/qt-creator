@@ -47,11 +47,11 @@
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <qmldebug/qmloutputparser.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
-#include <utils/tcpportsgatherer.h>
 
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QTimer>
+#include <QTcpServer>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
@@ -121,13 +121,10 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         const ProjectExplorer::IDevice::ConstPtr device =
                 ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-        Utils::TcpPortsGatherer portsGatherer;
-        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
-        Utils::PortList portList = device->freePorts();
-        int freePort = portsGatherer.getNextFreePort(&portList);
-        if (freePort == -1)
+        QTcpServer server;
+        if (!server.listen(QHostAddress(QLatin1String("127.0.0.1"))))
             return 0;
-        conf.port = freePort;
+        conf.port = server.serverPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
     }
     return runner;
