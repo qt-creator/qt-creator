@@ -70,7 +70,7 @@ void MaemoPublishingUploadSettingsPageFremantleFree::initializePage()
 {
     ui->garageAccountLineEdit->clear();
     ui->privateKeyPathChooser->setExpectedKind(Utils::PathChooser::File);
-    ui->privateKeyPathChooser->setPromptDialogTitle(tr("Choose a private key file"));
+    ui->privateKeyPathChooser->setPromptDialogTitle(tr("Choose a Private Key File"));
     ui->privateKeyPathChooser->setPath(QDir::toNativeSeparators(QDir::homePath() + QLatin1String("/.ssh/id_rsa")));
     ui->serverAddressLineEdit->setText(QLatin1String("drop.maemo.org"));
     ui->targetDirectoryOnServerLineEdit->setText(QLatin1String("/var/www/extras-devel/incoming-builder/fremantle/"));
