@@ -39,12 +39,14 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -69,6 +71,10 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
 
     Q_UNUSED(arguments);
+
+    Core::FileIconProvider::instance()
+            ->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
+                                           QLatin1String("qbs"));
 
     //create and register objects
     addAutoReleasedObject(m_manager);
