@@ -154,8 +154,6 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
     d->m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
     connect(&d->m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
             this, SLOT(processIsRunning(quint16)));
-    connect(&d->m_outputParser, SIGNAL(waitingForConnectionViaOst()),
-            this, SLOT(processIsRunning()));
     connect(&d->m_outputParser, SIGNAL(noOutputMessage()),
             this, SLOT(processIsRunning()));
     connect(&d->m_outputParser, SIGNAL(errorMessage(QString)),

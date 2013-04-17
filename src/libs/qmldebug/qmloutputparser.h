@@ -47,7 +47,6 @@ public:
 
 signals:
     void waitingForConnectionOnPort(quint16 port);
-    void waitingForConnectionViaOst();
     void connectionEstablishedMessage();
     void errorMessage(const QString &detailedError);
     void unknownMessage(const QString &unknownMessage);

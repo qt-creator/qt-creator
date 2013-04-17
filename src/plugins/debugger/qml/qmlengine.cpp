@@ -306,8 +306,6 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters, DebuggerEng
                                    ::msgWinCannotRetrieveDebuggingOutput());
     connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
             this, SLOT(beginConnection(quint16)));
-    connect(&m_outputParser, SIGNAL(waitingForConnectionViaOst()),
-            this, SLOT(beginConnection()));
     connect(&m_outputParser, SIGNAL(noOutputMessage()),
             this, SLOT(tryToConnect()));
     connect(&m_outputParser, SIGNAL(errorMessage(QString)),

@@ -40,7 +40,6 @@ namespace QmlDebug {
 const int protocolVersion = 1;
 const QString serverId = QLatin1String("QDeclarativeDebugServer");
 const QString clientId = QLatin1String("QDeclarativeDebugClient");
-static const uchar KQmlOstProtocolId = 0x94;
 
 class QmlDebugClientPrivate
 {

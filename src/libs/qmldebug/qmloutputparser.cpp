@@ -91,11 +91,6 @@ void QmlOutputParser::processOutput(const QString &output)
                         emit waitingForConnectionOnPort(port);
                     continue;
                 }
-
-                static QString waitingOst
-                        = QLatin1String(Constants::STR_VIA_OST);
-                if (status.startsWith(waitingOst))
-                    emit waitingForConnectionViaOst();
             } else if (status.startsWith(unableToListen)) {
                 //: Error message shown after 'Could not connect ... debugger:"
                 emit errorMessage(tr("The port seems to be in use."));
