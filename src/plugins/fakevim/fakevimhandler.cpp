@@ -7150,6 +7150,7 @@ void FakeVimHandler::Private::undoRedo(bool undo)
         m_lastVisualMode = state.lastVisualMode;
         m_lastVisualModeInverted = state.lastVisualModeInverted;
         setMark(QLatin1Char('\''), lastPos);
+        setMark(QLatin1Char('`'), lastPos);
         setCursorPosition(m_lastChangePosition);
         setAnchor();
         stack2.push(state);
@@ -7254,6 +7255,7 @@ void FakeVimHandler::Private::recordJump(int position)
     CursorPosition pos = position >= 0 ? CursorPosition(document(), position)
                                        : CursorPosition(cursor());
     setMark(QLatin1Char('\''), pos);
+    setMark(QLatin1Char('`'), pos);
     if (m_jumpListUndo.isEmpty() || m_jumpListUndo.top() != pos)
         m_jumpListUndo.push(pos);
     m_jumpListRedo.clear();
@@ -7267,6 +7269,7 @@ void FakeVimHandler::Private::jump(int distance)
     int len = qMin(qAbs(distance), from.size());
     CursorPosition m(cursor());
     setMark(QLatin1Char('\''), m);
+    setMark(QLatin1Char('`'), m);
     for (int i = 0; i < len; ++i) {
         to.push(m);
         setCursorPosition(from.top());
@@ -7668,7 +7671,7 @@ bool FakeVimHandler::Private::jumpToMark(QChar mark, bool backTickMode)
         return false;
     }
 
-    if (mark == QLatin1Char('\'') && !m_jumpListUndo.isEmpty())
+    if ((mark == QLatin1Char('\'') || mark == QLatin1Char('`')) && !m_jumpListUndo.isEmpty())
         m_jumpListUndo.pop();
     recordJump();
     setCursorPosition(m.position);
