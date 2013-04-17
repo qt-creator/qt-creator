@@ -72,8 +72,10 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl, const QbsCleanSt
 QbsCleanStep::~QbsCleanStep()
 {
     cancel();
-    m_job->deleteLater();
-    m_job = 0;
+    if (m_job) {
+        m_job->deleteLater();
+        m_job = 0;
+    }
 }
 
 bool QbsCleanStep::init()

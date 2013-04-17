@@ -76,8 +76,10 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildSt
 QbsBuildStep::~QbsBuildStep()
 {
     cancel();
-    m_job->deleteLater();
-    m_job = 0;
+    if (m_job) {
+        m_job->deleteLater();
+        m_job = 0;
+    }
     delete m_parser;
 }
 
