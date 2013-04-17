@@ -30,8 +30,9 @@
 #include "procinterrupt.h"
 #include "debuggerconstants.h"
 
-#include <QProcess> // makes kill visible on Windows.
+#include <QCoreApplication>
 #include <QDir>
+#include <QProcess> // makes kill visible on Windows.
 
 using namespace Debugger::Internal;
 
