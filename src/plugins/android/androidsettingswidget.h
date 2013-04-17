@@ -75,6 +75,7 @@ public:
 private slots:
     void sdkLocationEditingFinished();
     void ndkLocationEditingFinished();
+    void searchForAnt(const QString &location);
     void antLocationEditingFinished();
     void openJDKLocationEditingFinished();
     void browseSDKLocation();
