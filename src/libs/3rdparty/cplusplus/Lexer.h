@@ -24,7 +24,6 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Token.h"
 
-
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Lexer
@@ -100,7 +99,7 @@ private:
     inline void yyinp()
     {
         _yychar = *++_currentChar;
-        if (Q_UNLIKELY(_yychar == '\n'))
+        if (CPLUSPLUS_UNLIKELY(_yychar == '\n'))
             pushLineStartOffset();
     }
 

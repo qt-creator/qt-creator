@@ -24,9 +24,28 @@
 #include <cstdlib>
 #include <cstddef>
 
-#ifndef CPLUSPLUS_WITHOUT_QT
+#ifdef CPLUSPLUS_WITHOUT_QT
+#  ifndef CPLUSPLUS_UNLIKELY
+#    ifdef __GNUC__
+#      define CPLUSPLUS_UNLIKELY(expr) __builtin_expect(!!(expr), false)
+#    else
+#      define CPLUSPLUS_UNLIKELY(expr) (expr)
+#    endif
+#  endif
+#  define CPLUSPLUS_EXPORT
+#else
 #  include <qglobal.h>
-
+#  ifndef CPLUSPLUS_UNLIKELY
+#    ifdef Q_UNLIKELY
+#      define CPLUSPLUS_UNLIKELY(expr) Q_UNLIKELY(expr)
+#    else // pre 4.8.something
+#      ifdef __GCC__
+#        define CPLUSPLUS_UNLIKELY(expr) __builtin_expect(!!(expr), false)
+#      else
+#        define CPLUSPLUS_UNLIKELY(expr) (expr)
+#      endif
+#    endif
+#  endif
 #  if defined(CPLUSPLUS_BUILD_LIB)
 #    define CPLUSPLUS_EXPORT Q_DECL_EXPORT
 #  elif defined(CPLUSPLUS_BUILD_STATIC_LIB)
@@ -34,8 +53,6 @@
 #  else
 #    define CPLUSPLUS_EXPORT Q_DECL_IMPORT
 #  endif
-#else
-#  define CPLUSPLUS_EXPORT
 #endif
 
 namespace CPlusPlus {
