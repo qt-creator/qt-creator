@@ -38,6 +38,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+#include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppchecksymbols.h>
@@ -174,64 +175,6 @@ public:
     }
 private:
     CPlusPlus::OverviewModel *m_sourceModel;
-};
-
-class FunctionDefinitionUnderCursor: protected ASTVisitor
-{
-    unsigned _line;
-    unsigned _column;
-    DeclarationAST *_functionDefinition;
-
-public:
-    FunctionDefinitionUnderCursor(TranslationUnit *translationUnit)
-        : ASTVisitor(translationUnit),
-          _line(0), _column(0)
-    { }
-
-    DeclarationAST *operator()(AST *ast, unsigned line, unsigned column)
-    {
-        _functionDefinition = 0;
-        _line = line;
-        _column = column;
-        accept(ast);
-        return _functionDefinition;
-    }
-
-protected:
-    virtual bool preVisit(AST *ast)
-    {
-        if (_functionDefinition)
-            return false;
-
-        else if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
-            return checkDeclaration(def);
-        }
-
-        else if (ObjCMethodDeclarationAST *method = ast->asObjCMethodDeclaration()) {
-            if (method->function_body)
-                return checkDeclaration(method);
-        }
-
-        return true;
-    }
-
-private:
-    bool checkDeclaration(DeclarationAST *ast)
-    {
-        unsigned startLine, startColumn;
-        unsigned endLine, endColumn;
-        getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
-        getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
-
-        if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-            if (_line < endLine || (_line == endLine && _column < endColumn)) {
-                _functionDefinition = ast;
-                return false;
-            }
-        }
-
-        return true;
-    }
 };
 
 class FindFunctionDefinitions: protected SymbolVisitor
@@ -573,13 +516,8 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_objcEnabled(false)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
     , m_completionSupport(0)
-    , m_highlightingSupport(0)
 {
-    m_initialized = false;
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
-
-    m_semanticHighlighter = new SemanticHighlighter(this);
-    m_semanticHighlighter->start();
 
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -591,10 +529,15 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
 
     m_modelManager = CppModelManagerInterface::instance();
     if (m_modelManager) {
-        connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-                this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
+        CppEditorSupport *editorSupport = m_modelManager->cppEditorSupport(editor());
+        connect(editorSupport, SIGNAL(documentUpdated()),
+                this, SLOT(onDocumentUpdated()));
+        connect(editorSupport, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
+                this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
+        connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult>, unsigned)),
+                this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>, unsigned)));
+
         m_completionSupport = m_modelManager->completionSupport(editor());
-        m_highlightingSupport = m_modelManager->highlightingSupport(editor());
     }
 
     m_highlightRevision = 0;
@@ -620,16 +563,12 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
 
 CPPEditorWidget::~CPPEditorWidget()
 {
-    m_semanticHighlighter->abort();
-    m_semanticHighlighter->wait();
-
     ++numberOfClosedEditors;
     if (numberOfClosedEditors == 5) {
         m_modelManager->GC();
         numberOfClosedEditors = 0;
     }
 
-    delete m_highlightingSupport;
     delete m_completionSupport;
 }
 
@@ -709,9 +648,6 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     // set up the semantic highlighter
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
-
-    connect(m_semanticHighlighter, SIGNAL(changed(CppTools::SemanticInfo)),
-            this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
 
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
@@ -829,23 +765,10 @@ void CPPEditorWidget::abortRename()
     semanticRehighlight(/* force = */ true);
 }
 
-void CPPEditorWidget::onDocumentUpdated(Document::Ptr doc)
+/// \brief Called by \c CppEditorSupport when the document corresponding to the
+///        file in this editor is updated.
+void CPPEditorWidget::onDocumentUpdated()
 {
-    if (doc->fileName() != editorDocument()->fileName())
-        return;
-
-    if (doc->editorRevision() != editorRevision())
-        return;
-
-    if (! m_initialized ||
-            (Core::EditorManager::currentEditor() == editor()
-             && (!m_lastSemanticInfo.doc
-                 || !m_lastSemanticInfo.doc->translationUnit()->ast()
-                 || m_lastSemanticInfo.doc->fileName() != editorDocument()->fileName()))) {
-        m_initialized = true;
-        semanticRehighlight(/* force = */ true);
-    }
-
     m_updateOutlineTimer->start();
 }
 
@@ -1018,7 +941,8 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
 
 void CPPEditorWidget::renameSymbolUnderCursor()
 {
-    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+    CppEditorSupport *edSup = m_modelManager->cppEditorSupport(editor());
+    updateSemanticInfo(edSup->recalculateSemanticInfo(/* emitSignalWhenFinished = */ false));
     abortRename();
 
     QTextCursor c = textCursor();
@@ -1246,7 +1170,7 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
 
     if (m_modelManager)
         m_modelManager->setExtraDiagnostics(m_lastSemanticInfo.doc->fileName(),
-                                            CppTools::CppModelManagerInterface::CppSemanticsDiagnostic,
+                                            QLatin1String("CppEditor.SemanticsDiagnostics"),
                                             m_lastSemanticInfo.doc->diagnosticMessages());
 }
 
@@ -2051,7 +1975,15 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
 
 void CPPEditorWidget::semanticRehighlight(bool force)
 {
-    m_semanticHighlighter->rehighlight(currentSource(force));
+    m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(force);
+}
+
+void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> highlighter,
+                                         unsigned revision)
+{
+    m_highlighter = highlighter;
+    m_highlightRevision = revision;
+    m_highlightWatcher.setFuture(m_highlighter);
 }
 
 void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
@@ -2062,7 +1994,6 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
         return;
     }
 
-    const SemanticInfo previousSemanticInfo = m_lastSemanticInfo;
     m_lastSemanticInfo = semanticInfo; // update the semantic info
 
     int line = 0, column = 0;
@@ -2103,20 +2034,6 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
         }
     }
 
-    if (m_lastSemanticInfo.forced || previousSemanticInfo.revision != semanticInfo.revision) {
-        m_highlighter.cancel();
-
-        if (! semanticHighlighterDisabled && semanticInfo.doc) {
-            if (isVisible()) {
-                if (m_highlightingSupport) {
-                    m_highlighter = m_highlightingSupport->highlightingFuture(semanticInfo.doc, semanticInfo.snapshot);
-                    m_highlightRevision = semanticInfo.revision;
-                    m_highlightWatcher.setFuture(m_highlighter);
-                }
-            }
-        }
-    }
-
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
 
     if (! m_renameSelections.isEmpty())
@@ -2129,129 +2046,6 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     // schedule a check for a decl/def link
     updateFunctionDeclDefLink();
-}
-
-SemanticHighlighter::Source CPPEditorWidget::currentSource(bool force)
-{
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
-
-    const Snapshot snapshot = m_modelManager->snapshot();
-    const QString fileName = editorDocument()->fileName();
-
-    QString code;
-    if (force || m_lastSemanticInfo.revision != editorRevision())
-        code = toPlainText(); // get the source code only when needed.
-
-    const unsigned revision = editorRevision();
-    SemanticHighlighter::Source source(snapshot, fileName, code,
-                                       line, column, revision);
-    source.force = force;
-    return source;
-}
-
-SemanticHighlighter::SemanticHighlighter(QObject *parent)
-        : QThread(parent),
-          m_done(false)
-{
-}
-
-SemanticHighlighter::~SemanticHighlighter()
-{
-}
-
-void SemanticHighlighter::abort()
-{
-    QMutexLocker locker(&m_mutex);
-    m_done = true;
-    m_condition.wakeOne();
-}
-
-void SemanticHighlighter::rehighlight(const Source &source)
-{
-    QMutexLocker locker(&m_mutex);
-    m_source = source;
-    m_condition.wakeOne();
-}
-
-bool SemanticHighlighter::isOutdated()
-{
-    QMutexLocker locker(&m_mutex);
-    const bool outdated = ! m_source.fileName.isEmpty() || m_done;
-    return outdated;
-}
-
-void SemanticHighlighter::run()
-{
-    setPriority(QThread::LowestPriority);
-
-    forever {
-        m_mutex.lock();
-
-        while (! (m_done || ! m_source.fileName.isEmpty()))
-            m_condition.wait(&m_mutex);
-
-        const bool done = m_done;
-        const Source source = m_source;
-        m_source.clear();
-
-        m_mutex.unlock();
-
-        if (done)
-            break;
-
-        const SemanticInfo info = semanticInfo(source);
-
-        if (! isOutdated()) {
-            m_mutex.lock();
-            m_lastSemanticInfo = info;
-            m_mutex.unlock();
-
-            emit changed(info);
-        }
-    }
-}
-
-SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
-{
-    SemanticInfo semanticInfo;
-    semanticInfo.revision = m_lastSemanticInfo.revision;
-    semanticInfo.forced = source.force;
-
-    m_mutex.lock();
-    if (! source.force
-            && m_lastSemanticInfo.revision == source.revision
-            && m_lastSemanticInfo.doc
-            && m_lastSemanticInfo.doc->translationUnit()->ast()
-            && m_lastSemanticInfo.doc->fileName() == source.fileName) {
-        semanticInfo.snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
-        semanticInfo.doc = m_lastSemanticInfo.doc;
-    }
-    m_mutex.unlock();
-
-    if (! semanticInfo.doc) {
-        semanticInfo.snapshot = source.snapshot;
-        if (source.snapshot.contains(source.fileName)) {
-            Document::Ptr doc = source.snapshot.preprocessedDocument(source.code, source.fileName);
-            doc->control()->setTopLevelDeclarationProcessor(this);
-            doc->check();
-            semanticInfo.doc = doc;
-        }
-    }
-
-    if (semanticInfo.doc) {
-        TranslationUnit *translationUnit = semanticInfo.doc->translationUnit();
-        AST * ast = translationUnit->ast();
-
-        FunctionDefinitionUnderCursor functionDefinitionUnderCursor(semanticInfo.doc->translationUnit());
-        DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
-
-        const LocalSymbols useTable(semanticInfo.doc, currentFunctionDefinition);
-        semanticInfo.revision = source.revision;
-        semanticInfo.localUses = useTable.uses;
-    }
-
-    return semanticInfo;
 }
 
 QModelIndex CPPEditorWidget::indexForPosition(int line, int column, const QModelIndex &rootIndex) const

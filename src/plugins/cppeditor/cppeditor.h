@@ -69,75 +69,6 @@ namespace Internal {
 
 class CPPEditorWidget;
 
-class SemanticHighlighter: public QThread, CPlusPlus::TopLevelDeclarationProcessor
-{
-    Q_OBJECT
-
-public:
-    SemanticHighlighter(QObject *parent = 0);
-    virtual ~SemanticHighlighter();
-
-    virtual bool processDeclaration(CPlusPlus::DeclarationAST *) { return m_done; }
-
-    void abort();
-
-    struct Source
-    {
-        CPlusPlus::Snapshot snapshot;
-        QString fileName;
-        QString code;
-        int line;
-        int column;
-        unsigned revision;
-        bool force;
-
-        Source()
-            : line(0), column(0), revision(0), force(false)
-        { }
-
-        Source(const CPlusPlus::Snapshot &snapshot,
-               const QString &fileName,
-               const QString &code,
-               int line, int column,
-               unsigned revision)
-            : snapshot(snapshot), fileName(fileName),
-              code(code), line(line), column(column),
-              revision(revision), force(false)
-        { }
-
-        void clear()
-        {
-            snapshot = CPlusPlus::Snapshot();
-            fileName.clear();
-            code.clear();
-            line = 0;
-            column = 0;
-            revision = 0;
-            force = false;
-        }
-    };
-
-    CppTools::SemanticInfo semanticInfo(const Source &source);
-
-    void rehighlight(const Source &source);
-
-Q_SIGNALS:
-    void changed(const CppTools::SemanticInfo &semanticInfo);
-
-protected:
-    virtual void run();
-
-private:
-    bool isOutdated();
-
-private:
-    QMutex m_mutex;
-    QWaitCondition m_condition;
-    bool m_done;
-    Source m_source;
-    CppTools::SemanticInfo m_lastSemanticInfo;
-};
-
 class CPPEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
@@ -210,6 +141,7 @@ public Q_SLOTS:
     void findUsages();
     void renameUsagesNow(const QString &replacement = QString());
     void semanticRehighlight(bool force = false);
+    void highlighterStarted(QFuture<TextEditor::HighlightingResult> highlighter, unsigned revision);
 
 protected:
     bool event(QEvent *e);
@@ -235,7 +167,7 @@ private Q_SLOTS:
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();
     void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
-    void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
+    void onDocumentUpdated();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
     void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo);
@@ -257,8 +189,6 @@ private:
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
-
-    SemanticHighlighter::Source currentSource(bool force = false);
 
     void highlightUses(const QList<TextEditor::HighlightingResult> &uses,
                        QList<QTextEdit::ExtraSelection> *selections);
@@ -310,11 +240,9 @@ private:
     QTextCursor m_currentRenameSelectionBegin;
     QTextCursor m_currentRenameSelectionEnd;
 
-    SemanticHighlighter *m_semanticHighlighter;
     CppTools::SemanticInfo m_lastSemanticInfo;
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
     bool m_objcEnabled;
-    bool m_initialized;
 
     QFuture<TextEditor::HighlightingResult> m_highlighter;
     QFutureWatcher<TextEditor::HighlightingResult> m_highlightWatcher;
@@ -331,7 +259,6 @@ private:
     CppTools::CommentsSettings m_commentsSettings;
 
     CppTools::CppCompletionSupport *m_completionSupport;
-    CppTools::CppHighlightingSupport *m_highlightingSupport;
 };
 
 

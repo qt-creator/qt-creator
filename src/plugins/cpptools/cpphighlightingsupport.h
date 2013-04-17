@@ -64,6 +64,10 @@ public:
     CppHighlightingSupport(TextEditor::ITextEditor *editor);
     virtual ~CppHighlightingSupport() = 0;
 
+    virtual bool requiresSemanticInfo() const = 0;
+
+    virtual bool hightlighterHandlesDiagnostics() const = 0;
+
     virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
             const CPlusPlus::Document::Ptr &doc,
             const CPlusPlus::Snapshot &snapshot) const = 0;
@@ -82,8 +86,6 @@ public:
     virtual ~CppHighlightingSupportFactory() = 0;
 
     virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor) = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
 };
 
 } // namespace CppTools

@@ -703,9 +703,9 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
     FindExportsVisitor finder(document);
     finder();
     if (CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance()) {
-        cppModelManager->setExtraDiagnostics(
-                    document->fileName(), CppTools::CppModelManagerInterface::ExportedQmlTypesDiagnostic,
-                    finder.messages());
+        static const QString kindKey = QLatin1String("QmlJSTools.ExportedQmlTypesDiagnostic");
+        cppModelManager->setExtraDiagnostics(document->fileName(), kindKey,
+                                             finder.messages());
     }
 
     // if nothing was found, done

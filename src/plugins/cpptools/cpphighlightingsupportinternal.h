@@ -43,6 +43,12 @@ public:
     CppHighlightingSupportInternal(TextEditor::ITextEditor *editor);
     virtual ~CppHighlightingSupportInternal();
 
+    virtual bool requiresSemanticInfo() const
+    { return true; }
+
+    virtual bool hightlighterHandlesDiagnostics() const
+    { return false; }
+
     virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
             const CPlusPlus::Document::Ptr &doc,
             const CPlusPlus::Snapshot &snapshot) const;
@@ -54,9 +60,6 @@ public:
     virtual ~CppHighlightingSupportInternalFactory();
 
     virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor);
-
-    virtual bool hightlighterHandlesDiagnostics() const
-    { return false; }
 };
 
 } // namespace Internal

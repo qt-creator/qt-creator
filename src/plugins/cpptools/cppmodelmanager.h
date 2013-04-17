@@ -59,11 +59,11 @@ namespace CPlusPlus { class ParseManager; }
 namespace CppTools {
 
 class CppCompletionSupportFactory;
+class CppEditorSupport;
 class CppHighlightingSupportFactory;
 
 namespace Internal {
 
-class CppEditorSupport;
 class CppPreprocessor;
 class CppFindReferences;
 
@@ -95,16 +95,11 @@ public:
 
     virtual bool isCppEditor(Core::IEditor *editor) const;
 
-    CppEditorSupport *editorSupport(TextEditor::ITextEditor *editor) const
-    { return m_editorSupport.value(editor); }
-
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
-
-    void stopEditorSelectionsUpdate()
-    { m_updateEditorSelectionsTimer->stop(); }
 
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
+    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *editor);
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
@@ -115,10 +110,8 @@ public:
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
-    virtual void setExtraDiagnostics(const QString &fileName, int key,
+    virtual void setExtraDiagnostics(const QString &fileName, const QString &key,
                                      const QList<Document::DiagnosticMessage> &diagnostics);
-    virtual QList<Document::DiagnosticMessage> extraDiagnostics(
-            const QString &fileName, int key = AllExtraDiagnostics) const;
 
     void finishedRefreshingSourceFiles(const QStringList &files);
 
@@ -161,24 +154,17 @@ Q_SIGNALS:
     void aboutToRemoveFiles(const QStringList &files);
 
 public Q_SLOTS:
-    void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
     virtual void updateModifiedSourceFiles();
 
 private Q_SLOTS:
     // this should be executed in the GUI thread.
-    void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void onExtraDiagnosticsUpdated(const QString &fileName);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onAboutToUnloadSession();
     void onCoreAboutToClose();
     void onProjectAdded(ProjectExplorer::Project *project);
-    void postEditorUpdate();
-    void updateEditorSelections();
 
 private:
-    void updateEditor(Document::Ptr doc);
-
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     WorkingCopy buildWorkingCopyList();
 
@@ -206,7 +192,8 @@ private:
     QByteArray m_definedMacros;
 
     // editor integration
-    QMap<TextEditor::ITextEditor *, CppEditorSupport *> m_editorSupport;
+    mutable QMutex m_editorSupportMutex;
+    QMap<TextEditor::BaseTextEditor *, CppEditorSupport *> m_editorSupport;
 
     QSet<AbstractEditorSupport *> m_addtionalEditorSupport;
 
@@ -216,27 +203,8 @@ private:
     mutable QMutex m_mutex;
     mutable QMutex m_protectSnapshot;
 
-    struct Editor {
-        Editor()
-            : revision(-1)
-            , updateSelections(true)
-        {}
-        int revision;
-        bool updateSelections;
-        QPointer<TextEditor::ITextEditor> textEditor;
-        QList<QTextEdit::ExtraSelection> selections;
-        QList<TextEditor::BaseTextEditorWidget::BlockRange> ifdefedOutBlocks;
-    };
-
-    QList<Editor> m_todo;
-
-    QTimer *m_updateEditorSelectionsTimer;
-
     CppFindReferences *m_findReferences;
     bool m_indexerEnabled;
-
-    mutable QMutex m_protectExtraDiagnostics;
-    QHash<QString, QHash<int, QList<Document::DiagnosticMessage> > > m_extraDiagnostics;
 
     QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_srcToProjectPart;
 

@@ -44,11 +44,13 @@
 namespace Core { class IEditor; }
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace CppTools {
 class AbstractEditorSupport;
 class CppCompletionSupport;
 class CppCompletionAssistProvider;
+class CppEditorSupport;
 class CppHighlightingSupport;
 class CppHighlightingSupportFactory;
 class CppIndexingSupport;
@@ -187,13 +189,6 @@ public:
         Table _elements;
     };
 
-    enum ExtraDiagnosticKind
-    {
-        AllExtraDiagnostics = -1,
-        ExportedQmlTypesDiagnostic,
-        CppSemanticsDiagnostic
-    };
-
 public:
     static const QString configurationFileName();
 
@@ -215,6 +210,7 @@ public:
 
     virtual void addEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual void removeEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
+    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *editor) = 0;
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol,
                                   const CPlusPlus::LookupContext &context) = 0;
@@ -226,10 +222,8 @@ public:
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement = QString()) = 0;
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
-    virtual void setExtraDiagnostics(const QString &fileName, int key,
+    virtual void setExtraDiagnostics(const QString &fileName, const QString &kind,
                                      const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics) = 0;
-    virtual QList<CPlusPlus::Document::DiagnosticMessage> extraDiagnostics(
-            const QString &fileName, int key = AllExtraDiagnostics) const = 0;
 
     virtual CppTools::CppCompletionSupport *completionSupport(Core::IEditor *editor) const = 0;
     virtual void setCppCompletionAssistProvider(CppTools::CppCompletionAssistProvider *completionAssistProvider) = 0;
@@ -243,7 +237,6 @@ public:
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);
     void sourceFilesRefreshed(const QStringList &files);
-    void extraDiagnosticsUpdated(QString fileName);
 
     /// \brief Emitted after updateProjectInfo method is called on the model-manager.
     ///

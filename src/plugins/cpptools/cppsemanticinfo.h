@@ -43,6 +43,33 @@ namespace CppTools {
 class CPPTOOLS_EXPORT SemanticInfo
 {
 public:
+    struct Source
+    {
+        const CPlusPlus::Snapshot snapshot;
+        const QString fileName;
+        const QString code;
+        const int line;
+        const int column;
+        const unsigned revision;
+        const bool force;
+
+        Source()
+            : line(0), column(0), revision(0), force(false)
+        { }
+
+        Source(const CPlusPlus::Snapshot &snapshot,
+               const QString &fileName,
+               const QString &code,
+               int line, int column,
+               unsigned revision,
+               bool force)
+            : snapshot(snapshot), fileName(fileName),
+              code(code), line(line), column(column),
+              revision(revision), force(force)
+        { }
+    };
+
+public:
     typedef TextEditor::HighlightingResult Use;
 
     typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;

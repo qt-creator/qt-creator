@@ -643,12 +643,6 @@ CppModelManager::CppModelManager(QObject *parent)
     QTC_ASSERT(pe, return);
 
     ProjectExplorer::SessionManager *session = pe->session();
-    m_updateEditorSelectionsTimer = new QTimer(this);
-    m_updateEditorSelectionsTimer->setInterval(500);
-    m_updateEditorSelectionsTimer->setSingleShot(true);
-    connect(m_updateEditorSelectionsTimer, SIGNAL(timeout()),
-            this, SLOT(updateEditorSelections()));
-
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
 
@@ -663,16 +657,7 @@ CppModelManager::CppModelManager(QObject *parent)
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
 
-    // thread connections
-    connect(this, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
-    connect(this, SIGNAL(extraDiagnosticsUpdated(QString)),
-            this, SLOT(onExtraDiagnosticsUpdated(QString)));
-
-    // Listen for editor closed and opened events so that we can keep track of changing files
-    connect(Core::ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
-        this, SLOT(editorOpened(Core::IEditor*)));
-
+    // Listen for editor closed events so that we can keep track of changing files
     connect(Core::ICore::editorManager(), SIGNAL(editorAboutToClose(Core::IEditor*)),
         this, SLOT(editorAboutToClose(Core::IEditor*)));
 
@@ -868,6 +853,22 @@ void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
     m_addtionalEditorSupport.remove(editorSupport);
 }
 
+/// \brief Returns the \c CppEditorSupport for the given text editor. It will
+///        create one when none exists yet.
+CppEditorSupport *CppModelManager::cppEditorSupport(TextEditor::BaseTextEditor *editor)
+{
+    Q_ASSERT(editor);
+
+    QMutexLocker locker(&m_editorSupportMutex);
+
+    CppEditorSupport *editorSupport = m_editorSupport.value(editor, 0);
+    if (!editorSupport) {
+        editorSupport = new CppEditorSupport(this, editor);
+        m_editorSupport.insert(editor, editorSupport);
+    }
+    return editorSupport;
+}
+
 QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol, const LookupContext &context)
 {
     return m_findReferences->references(symbol, context);
@@ -904,14 +905,17 @@ void CppModelManager::replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot)
 
 CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 {
+    QList<CppEditorSupport *> supporters;
+
+    {
+        QMutexLocker locker(&m_editorSupportMutex);
+        supporters = m_editorSupport.values();
+    }
+
     WorkingCopy workingCopy;
-    QMapIterator<TextEditor::ITextEditor *, CppEditorSupport *> it(m_editorSupport);
-    while (it.hasNext()) {
-        it.next();
-        TextEditor::ITextEditor *textEditor = it.key();
-        CppEditorSupport *editorSupport = it.value();
-        QString fileName = textEditor->document()->fileName();
-        workingCopy.insert(fileName, editorSupport->contents(), editorSupport->editorRevision());
+    foreach (const CppEditorSupport *editorSupport, supporters) {
+        workingCopy.insert(editorSupport->fileName(), editorSupport->contents(),
+                           editorSupport->editorRevision());
     }
 
     QSetIterator<AbstractEditorSupport *> jt(m_addtionalEditorSupport);
@@ -1009,36 +1013,19 @@ QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) co
     return parts;
 }
 
-/*!
-    \fn    void CppModelManager::editorOpened(Core::IEditor *editor)
-    \brief If a C++ editor is opened, the model manager listens to content changes
-           in order to update the CppCodeModel accordingly. It also updates the
-           CppCodeModel for the first time with this editor.
-
-    \sa    void CppModelManager::editorContentsChanged()
- */
-void CppModelManager::editorOpened(Core::IEditor *editor)
-{
-    if (isCppEditor(editor)) {
-        TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-        QTC_ASSERT(textEditor, return);
-
-        CppEditorSupport *editorSupport = new CppEditorSupport(this);
-        editorSupport->setTextEditor(textEditor);
-        m_editorSupport[textEditor] = editorSupport;
-    }
-}
-
+/// \brief Removes the CppEditorSupport for the closed editor.
 void CppModelManager::editorAboutToClose(Core::IEditor *editor)
 {
-    if (isCppEditor(editor)) {
-        TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-        QTC_ASSERT(textEditor, return);
+    if (!isCppEditor(editor))
+        return;
 
-        CppEditorSupport *editorSupport = m_editorSupport.value(textEditor);
-        m_editorSupport.remove(textEditor);
-        delete editorSupport;
-    }
+    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    QTC_ASSERT(textEditor, return);
+
+    QMutexLocker locker(&m_editorSupportMutex);
+    CppEditorSupport *editorSupport = m_editorSupport.value(textEditor, 0);
+    m_editorSupport.remove(textEditor);
+    delete editorSupport;
 }
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor) const
@@ -1048,140 +1035,8 @@ bool CppModelManager::isCppEditor(Core::IEditor *editor) const
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 {
-    emit documentUpdated(doc);
-}
-
-void CppModelManager::onDocumentUpdated(Document::Ptr doc)
-{
     if (replaceDocument(doc))
-        updateEditor(doc);
-}
-
-void CppModelManager::onExtraDiagnosticsUpdated(const QString &fileName)
-{
-    if (Document::Ptr doc = document(fileName))
-        updateEditor(doc);
-}
-
-void CppModelManager::updateEditor(Document::Ptr doc)
-{
-    const QString fileName = doc->fileName();
-
-    QList<Core::IEditor *> openedEditors = Core::ICore::editorManager()->openedEditors();
-    foreach (Core::IEditor *editor, openedEditors) {
-        if (editor->document()->fileName() == fileName) {
-            TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-            if (! textEditor)
-                continue;
-
-            TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(textEditor->widget());
-            if (! ed)
-                continue;
-
-            QList<TextEditor::BaseTextEditorWidget::BlockRange> blockRanges;
-
-            foreach (const Document::Block &block, doc->skippedBlocks()) {
-                blockRanges.append(TextEditor::BaseTextEditorWidget::BlockRange(block.begin(), block.end()));
-            }
-
-            // set up the format for the errors
-            QTextCharFormat errorFormat;
-            errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-            errorFormat.setUnderlineColor(Qt::red);
-
-            // set up the format for the warnings.
-            QTextCharFormat warningFormat;
-            warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-            warningFormat.setUnderlineColor(Qt::darkYellow);
-
-            QList<Editor> todo;
-            foreach (const Editor &e, m_todo) {
-                if (e.textEditor != textEditor)
-                    todo.append(e);
-            }
-            Editor e;
-
-            if (m_highlightingFactory->hightlighterHandlesDiagnostics()) {
-                e.updateSelections = false;
-            } else {
-                QSet<int> lines;
-                QList<Document::DiagnosticMessage> messages = doc->diagnosticMessages();
-                messages += extraDiagnostics(doc->fileName());
-                foreach (const Document::DiagnosticMessage &m, messages) {
-                    if (m.fileName() != fileName)
-                        continue;
-                    else if (lines.contains(m.line()))
-                        continue;
-
-                    lines.insert(m.line());
-
-                    QTextEdit::ExtraSelection sel;
-                    if (m.isWarning())
-                        sel.format = warningFormat;
-                    else
-                        sel.format = errorFormat;
-
-                    QTextCursor c(ed->document()->findBlockByNumber(m.line() - 1));
-                    const QString text = c.block().text();
-                    if (m.length() > 0 && m.column() + m.length() < (unsigned)text.size()) {
-                        int column = m.column() > 0 ? m.column() - 1 : 0;
-                        c.setPosition(c.position() + column);
-                        c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
-                    } else {
-                        for (int i = 0; i < text.size(); ++i) {
-                            if (! text.at(i).isSpace()) {
-                                c.setPosition(c.position() + i);
-                                break;
-                            }
-                        }
-                        c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-                    }
-                    sel.cursor = c;
-                    sel.format.setToolTip(m.text());
-                    e.selections.append(sel);
-                }
-            }
-
-
-            e.revision = ed->document()->revision();
-            e.textEditor = textEditor;
-            e.ifdefedOutBlocks = blockRanges;
-            todo.append(e);
-            m_todo = todo;
-            postEditorUpdate();
-            break;
-        }
-    }
-}
-
-void CppModelManager::postEditorUpdate()
-{
-    m_updateEditorSelectionsTimer->start(500);
-}
-
-void CppModelManager::updateEditorSelections()
-{
-    foreach (const Editor &ed, m_todo) {
-        if (! ed.textEditor)
-            continue;
-
-        TextEditor::ITextEditor *textEditor = ed.textEditor;
-        TextEditor::BaseTextEditorWidget *editor = qobject_cast<TextEditor::BaseTextEditorWidget *>(textEditor->widget());
-
-        if (! editor)
-            continue;
-        else if (editor->document()->revision() != ed.revision)
-            continue; // outdated
-
-        if (ed.updateSelections)
-            editor->setExtraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection,
-                                       ed.selections);
-
-        editor->setIfdefedOutBlocks(ed.ifdefedOutBlocks);
-    }
-
-    m_todo.clear();
-
+        emit documentUpdated(doc);
 }
 
 void CppModelManager::onProjectAdded(ProjectExplorer::Project *)
@@ -1308,26 +1163,20 @@ CppIndexingSupport *CppModelManager::indexingSupport()
     return m_indexingSupporter ? m_indexingSupporter : m_internalIndexingSupport;
 }
 
-void CppModelManager::setExtraDiagnostics(const QString &fileName, int kind,
+void CppModelManager::setExtraDiagnostics(const QString &fileName, const QString &kind,
                                           const QList<Document::DiagnosticMessage> &diagnostics)
 {
-    {
-        QMutexLocker locker(&m_protectExtraDiagnostics);
-        if (m_extraDiagnostics[fileName][kind] == diagnostics)
-            return;
-        m_extraDiagnostics[fileName].insert(kind, diagnostics);
-    }
-    emit extraDiagnosticsUpdated(fileName);
-}
+    QList<CppEditorSupport *> supporters;
 
-QList<Document::DiagnosticMessage> CppModelManager::extraDiagnostics(const QString &fileName, int kind) const
-{
-    QMutexLocker locker(&m_protectExtraDiagnostics);
-    if (kind == -1) {
-        QList<Document::DiagnosticMessage> messages;
-        foreach (const QList<Document::DiagnosticMessage> &list, m_extraDiagnostics.value(fileName))
-            messages += list;
-        return messages;
+    {
+        QMutexLocker locker(&m_editorSupportMutex);
+        supporters = m_editorSupport.values();
     }
-    return m_extraDiagnostics.value(fileName).value(kind);
+
+    foreach (CppEditorSupport *supporter, supporters) {
+        if (supporter->fileName() == fileName) {
+            supporter->setExtraDiagnostics(kind, diagnostics);
+            break;
+        }
+    }
 }
