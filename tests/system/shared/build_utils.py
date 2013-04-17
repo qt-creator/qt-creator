@@ -50,29 +50,20 @@ def checkLastBuild(expectedToFail=False):
     except LookupError:
         test.log("checkLastBuild called without a build")
         return
-    # get labels for errors and warnings
-    children = object.children(buildProg)
-    if len(children)<4:
-        test.fatal("Leaving checkLastBuild()", "Referred code seems to have changed - method has to get adjusted")
-        return
-    errors = children[2].text
-    if errors == "":
-        errors = "none"
-    warnings = children[4].text
-    if warnings == "":
-        warnings = "none"
-    gotErrors = errors != "none" and errors != "0"
+    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
+    model = waitForObject(":Qt Creator.Issues_QListView").model()
+    buildIssues = dumpBuildIssues(model)
+    errors = len(filter(lambda i: i[5] == "1", buildIssues))
+    warnings = len(filter(lambda i: i[5] == "2", buildIssues))
+    gotErrors = errors != 0
     if not (gotErrors ^ expectedToFail):
         test.passes("Errors: %s | Warnings: %s" % (errors, warnings))
     else:
         test.fail("Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
-    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
-    list=waitForObject(":Qt Creator.Issues_QListView")
-    model = list.model()
     test.log("Rows inside issues: %d" % model.rowCount())
     if gotErrors and createTasksFileOnError:
-        createTasksFile(list)
+        createTasksFile(buildIssues)
     return not gotErrors
 
 # helper function to check the compilation when build wasn't successful
@@ -93,10 +84,17 @@ def compileSucceeded(compileOutput):
     return None != re.match(".*exited normally\.\n\d\d:\d\d:\d\d: Elapsed time: "
                             "(\d:)?\d{2}:\d\d\.$", str(compileOutput), re.S)
 
-# helper method that parses the Issues output and writes a tasks file
-def createTasksFile(list):
+def dumpBuildIssues(listModel):
+    issueDump = []
+    for row in range(listModel.rowCount()):
+        index = listModel.index(row, 0)
+        issueDump.extend([map(lambda role: index.data(role).toString(),
+                              range(Qt.UserRole, Qt.UserRole + 6))])
+    return issueDump
+
+# helper method that writes a tasks file
+def createTasksFile(buildIssues):
     global tasksFileDir, tasksFileCount
-    model = list.model()
     if tasksFileDir == None:
             tasksFileDir = os.getcwd() + "/tasks"
             tasksFileDir = os.path.abspath(tasksFileDir)
@@ -111,18 +109,17 @@ def createTasksFile(list):
     outfile = os.path.join(tasksFileDir, os.path.basename(squishinfo.testCase)+"_%d.tasks" % tasksFileCount)
     file = codecs.open(outfile, "w", "utf-8")
     test.log("Writing tasks file - can take some time (according to number of issues)")
-    rows = model.rowCount()
+    rows = len(buildIssues)
     if os.environ.get("SYSTEST_DEBUG") == "1":
         firstrow = 0
     else:
         firstrow = max(0, rows - 100)
-    for row in range(firstrow, rows):
-        index = model.index(row,0)
+    for issue in buildIssues[firstrow:rows]:
         # the following is currently a bad work-around
-        fData = index.data(Qt.UserRole).toString() # file
-        lData = index.data(Qt.UserRole + 1).toString() # line -> linenumber or empty
-        tData = index.data(Qt.UserRole + 5).toString() # type -> 1==error 2==warning
-        dData = index.data(Qt.UserRole + 3).toString() # description
+        fData = issue[0] # file
+        lData = issue[1] # line -> linenumber or empty
+        tData = issue[5] # type -> 1==error 2==warning
+        dData = issue[3] # description
         if lData == "":
             lData = "-1"
         if tData == "1":
