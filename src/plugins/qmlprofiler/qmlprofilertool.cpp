@@ -48,11 +48,13 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
+#include <utils/tcpportsgatherer.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <texteditor/itexteditor.h>
 
@@ -305,7 +307,6 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
     Debugger::DebuggerRunConfigurationAspect *debugger
             = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     QTC_ASSERT(debugger, return sp);
-    sp.startMode = StartQml; // FIXME: The parameter struct is not needed/not used.
 
     // FIXME: This is only used to communicate the connParams settings.
     if (QmlProjectRunConfiguration *rc1 =
@@ -318,7 +319,6 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggeeArgs = rc1->viewerArguments();
         sp.displayName = rc1->displayName();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = debugger->qmlDebugServerPort();
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         if (environment)
@@ -328,7 +328,6 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggeeArgs = rc2->commandLineArguments();
         sp.displayName = rc2->displayName();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = debugger->qmlDebugServerPort();
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc3 =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc3->remoteExecutableFilePath();
@@ -341,6 +340,18 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         // What could that be?
         QTC_ASSERT(false, return sp);
     }
+    const ProjectExplorer::IDevice::ConstPtr device =
+            ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        Utils::TcpPortsGatherer portsGatherer;
+        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
+        Utils::PortList portList = device->freePorts();
+        int freePort = portsGatherer.getNextFreePort(&portList);
+        if (freePort == -1)
+            return sp;
+        sp.connParams.port = freePort;
+    }
+    sp.startMode = StartQml;
     return sp;
 }
 

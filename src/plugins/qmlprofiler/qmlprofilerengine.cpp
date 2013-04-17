@@ -37,6 +37,9 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <qmlprojectmanager/qmlprojectplugin.h>
 #include <projectexplorer/environmentaspect.h>
@@ -44,6 +47,7 @@
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <qmldebug/qmloutputparser.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
+#include <utils/tcpportsgatherer.h>
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -91,31 +95,40 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     ProjectExplorer::EnvironmentAspect *environment
             = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
     QTC_ASSERT(environment, return 0);
-    if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
-            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
-        // This is a "plain" .qmlproject.
-        LocalQmlProfilerRunner::Configuration conf;
-        conf.executable = rc1->observerPath();
-        conf.executableArguments = rc1->viewerArguments();
-        conf.workingDirectory = rc1->workingDirectory();
-        conf.environment = environment->environment();
-        conf.port = debugger->qmlDebugServerPort();
-        runner = new LocalQmlProfilerRunner(conf, parent);
-    } else if (LocalApplicationRunConfiguration *rc2 =
-            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        // FIXME: Check.
-        LocalQmlProfilerRunner::Configuration conf;
-        conf.executable = rc2->executable();
-        conf.executableArguments = rc2->commandLineArguments();
-        conf.workingDirectory = rc2->workingDirectory();
-        conf.environment = environment->environment();
-        conf.port = debugger->qmlDebugServerPort();
-        runner = new LocalQmlProfilerRunner(conf, parent);
-    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
+
+    if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
     } else {
-        QTC_CHECK(false);
+        LocalQmlProfilerRunner::Configuration conf;
+        if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
+                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
+            // This is a "plain" .qmlproject.
+            conf.executable = rc1->observerPath();
+            conf.executableArguments = rc1->viewerArguments();
+            conf.workingDirectory = rc1->workingDirectory();
+            conf.environment = environment->environment();
+        } else if (LocalApplicationRunConfiguration *rc2 =
+                   qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+            // FIXME: Check.
+            conf.executable = rc2->executable();
+            conf.executableArguments = rc2->commandLineArguments();
+            conf.workingDirectory = rc2->workingDirectory();
+            conf.environment = environment->environment();
+        } else {
+            QTC_CHECK(false);
+        }
+        const ProjectExplorer::IDevice::ConstPtr device =
+                ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
+        Utils::TcpPortsGatherer portsGatherer;
+        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
+        Utils::PortList portList = device->freePorts();
+        int freePort = portsGatherer.getNextFreePort(&portList);
+        if (freePort == -1)
+            return 0;
+        conf.port = freePort;
+        runner = new LocalQmlProfilerRunner(conf, parent);
     }
     return runner;
 }
