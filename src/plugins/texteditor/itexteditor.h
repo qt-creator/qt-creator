@@ -69,10 +69,15 @@ public:
     ITextEditor() {}
 
     virtual int find(const QString &string) const = 0;
+    /*! Returns the position at \a posOp in characters from the beginning of the document */
     virtual int position(PositionOperation posOp = Current, int at = -1) const = 0;
+    /*! Converts the \a pos in characters from beginning of document to \a line and \a column */
     virtual void convertPosition(int pos, int *line, int *column) const = 0;
+    /*! Returns the cursor rectangle in pixels at \a pos, or current position if \a pos = -1 */
     virtual QRect cursorRect(int pos = -1) const = 0;
+    /*! Returns the amount of visible columns (in characters) in the editor */
     virtual int columnCount() const = 0;
+    /*! Returns the amount of visible lines (in characters) in the editor */
     virtual int rowCount() const = 0;
 
     virtual QString contents() const = 0;
