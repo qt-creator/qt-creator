@@ -36,6 +36,9 @@
 #include "qt4buildconfiguration.h"
 #include "findqt4profiles.h"
 #include "buildconfigurationinfo.h"
+#include "qt4projectmanager/wizards/abstractmobileapp.h"
+#include "qt4projectmanager/wizards/qtquickapp.h"
+#include "qt4projectmanager/wizards/html5app.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -56,6 +59,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -80,6 +84,27 @@ Qt4BuildConfiguration *enableActiveQt4BuildConfiguration(ProjectExplorer::Target
     return bc;
 }
 
+void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &proFile)
+{
+    const QList<AbstractGeneratedFileInfo> updates =
+            app->fileUpdates(proFile);
+    if (!updates.empty()) {
+        const QString title = Qt4Manager::tr("Update of Generated Files");
+        QStringList fileNames;
+        foreach (const AbstractGeneratedFileInfo &info, updates)
+            fileNames.append(QDir::toNativeSeparators(info.fileInfo.fileName()));
+        const QString message =
+                Qt4Manager::tr("In project<br><br>%1<br><br>The following files are either "
+                               "outdated or have been modified:<br><br>%2<br><br>Do you want "
+                               "Qt Creator to update the files? Any changes will be lost.")
+                .arg(proFile, fileNames.join(QLatin1String(", ")));
+        if (QMessageBox::question(0, title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+            QString error;
+            if (!app->updateFiles(updates, error))
+                QMessageBox::critical(0, title, error);
+        }
+    }
+}
 } // namespace
 
 namespace Qt4ProjectManager {
@@ -430,6 +455,19 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
 
+    // // Update boiler plate code for subprojects.
+    QtQuickApp qtQuickApp;
+    const Html5App html5App;
+
+    foreach (Qt4ProFileNode *node, applicationProFiles()) {
+        const QString path = node->path();
+
+        qtQuickApp.setComponentSet(QtQuickApp::QtQuick10Components);
+        updateBoilerPlateCodeFiles(&qtQuickApp, path);
+        qtQuickApp.setComponentSet(QtQuickApp::QtQuick20Components);
+        updateBoilerPlateCodeFiles(&qtQuickApp, path);
+        updateBoilerPlateCodeFiles(&html5App, path);
+    }
     return true;
 }
 
