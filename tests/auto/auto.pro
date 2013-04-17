@@ -10,6 +10,7 @@ SUBDIRS += \
     fakevim \
     generichighlighter \
     profilewriter \
+    treeviewfind \
     ioutils \
     qtcprocess \
     utils \

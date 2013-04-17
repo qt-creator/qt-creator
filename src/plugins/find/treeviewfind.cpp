@@ -166,7 +166,7 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
                                                           Qt::CaseInsensitive));
                 if (searchExpr.indexIn(text) != -1
                         && d->m_view->model()->flags(index) & Qt::ItemIsSelectable
-                        && currentRow != index.row())
+                        && (index.row() != currentRow || index.parent() != currentIndex.parent()))
                     resultIndex = index;
             } else {
                 QTextDocument doc(text);
@@ -174,7 +174,7 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
                               flags & (Find::FindCaseSensitively |
                                        Find::FindWholeWords)).isNull()
                         && d->m_view->model()->flags(index) & Qt::ItemIsSelectable
-                        && currentRow != index.row())
+                        && (index.row() != currentRow || index.parent() != currentIndex.parent()))
                     resultIndex = index;
             }
         }
@@ -202,33 +202,35 @@ QModelIndex TreeViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
     if (!idx.isValid())
         return model->index(0, 0);
 
+    // same parent has more columns, go to next column
+    if (idx.column() + 1 < model->columnCount(idx.parent()))
+        return model->index(idx.row(), idx.column() + 1, idx.parent());
 
-    if (model->rowCount(idx) > 0) {
-        // node with children
-        return idx.child(0, 0);
+    // tree views have their children attached to first column
+    // make sure we are at first column
+    QModelIndex current = model->index(idx.row(), 0, idx.parent());
+
+    // check for children
+    if (model->rowCount(current) > 0) {
+        return current.child(0, 0);
     }
-    // leaf node
+
+    // no more children, go up and look for parent with more children
     QModelIndex nextIndex;
-    QModelIndex current = idx;
     while (!nextIndex.isValid()) {
         int row = current.row();
-        int column = current.column();
         current = current.parent();
 
-        if (column + 1 < model->columnCount(current)) {
-            nextIndex = model->index(row, column + 1, current);
+        if (row + 1 < model->rowCount(current)) {
+            // Same parent has another child
+            nextIndex = model->index(row + 1, 0, current);
         } else {
-            if (row + 1 < model->rowCount(current)) {
-                // Same parent has another child
-                nextIndex = model->index(row + 1, 0, current);
-            } else {
-                // go up one parent
-                if (!current.isValid()) {
-                    // we start from the beginning
-                    if (wrapped)
-                        *wrapped = true;
-                    nextIndex = model->index(0, 0);
-                }
+            // go up one parent
+            if (!current.isValid()) {
+                // we start from the beginning
+                if (wrapped)
+                    *wrapped = true;
+                nextIndex = model->index(0, 0);
             }
         }
     }
@@ -239,34 +241,34 @@ QModelIndex TreeViewFind::prevIndex(const QModelIndex &idx, bool *wrapped) const
 {
     if (wrapped)
         *wrapped = false;
+    QAbstractItemModel *model = d->m_view->model();
+    // if same parent has earlier columns, just move there
+    if (idx.column() > 0)
+        return model->index(idx.row(), idx.column() - 1, idx.parent());
+
     QModelIndex current = idx;
     bool checkForChildren = true;
-    QAbstractItemModel *model = d->m_view->model();
     if (current.isValid()) {
         int row = current.row();
-        int column = current.column();
-        if (column > 0) {
-            current = model->index(row, column - 1, current.parent());
+        if (row > 0) {
+            current = model->index(row - 1, 0, current.parent());
         } else {
-            if (row > 0) {
-                current = model->index(row - 1, model->columnCount(current.parent()) - 1,
-                                       current.parent());
-            } else {
-                current = current.parent();
-                checkForChildren = !current.isValid();
-                if (checkForChildren && wrapped) {
-                    // we start from the end
-                    *wrapped = true;
-                }
+            current = current.parent();
+            checkForChildren = !current.isValid();
+            if (checkForChildren && wrapped) {
+                // we start from the end
+                *wrapped = true;
             }
         }
     }
     if (checkForChildren) {
         // traverse down the hierarchy
         while (int rc = model->rowCount(current)) {
-            current = model->index(rc - 1, model->columnCount(current) - 1, current);
+            current = model->index(rc - 1, 0, current);
         }
     }
+    // set to last column
+    current = model->index(current.row(), model->columnCount(current.parent()) - 1, current.parent());
     return current;
 }
 
