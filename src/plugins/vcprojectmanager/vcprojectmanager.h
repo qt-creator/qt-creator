@@ -25,15 +25,22 @@ public:
     VcProjectBuildOptionsPage *buildOptionsPage();
 
 private slots:
-    void reparseActiveProject();
-    void reparseContextProject();
     void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
+    void onOptionsPageUpdate();
+
+private:
+    bool checkIfVersion2003(const QString &filePath) const;
+    bool checkIfVersion2005(const QString &filePath) const;
+    bool checkIfVersion2008(const QString &filePath) const;
+    void readSchemaPath();
 
 private:
     ProjectExplorer::Project *m_contextProject;
-    QAction *m_reparseAction;
-    QAction *m_reparseContextMenuAction;
     VcProjectBuildOptionsPage *m_configPage;
+
+    QString m_vc2003Schema;
+    QString m_vc2005Schema;
+    QString m_vc2008Schema;
 };
 
 } // namespace Internal

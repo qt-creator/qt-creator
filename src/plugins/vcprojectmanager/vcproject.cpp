@@ -1,12 +1,16 @@
 #include "vcproject.h"
 
 #include "vcprojectfile.h"
-#include "vcprojectnodes.h"
 #include "vcmakestep.h"
 #include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
-#include "vcprojectreader.h"
 #include "vcprojectbuildconfiguration.h"
+#include "vcprojectmodel/vcdocumentmodel.h"
+#include "vcprojectmodel/vcprojectdocument.h"
+#include "vcprojectmodel/configurations.h"
+#include "vcprojectmodel/tools/tool_constants.h"
+#include "vcprojectmodel/tools/candcpptool.h"
+#include "vcprojectmodel/vcdocprojectnodes.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -55,18 +59,19 @@ public:
     }
 };
 
-VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath)
+VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath, VcDocConstants::DocumentVersion docVersion)
     : m_projectManager(projectManager)
-    , m_projectFile(new VcProjectFile(projectFilePath))
-    , m_rootNode(new VcProjectNode(projectFilePath))
+    , m_projectFile(new VcProjectFile(projectFilePath, docVersion))
     , m_projectFileWatcher(new QFileSystemWatcher(this))
 {
     setProjectContext(Core::Context(Constants::VC_PROJECT_CONTEXT));
 
-    reparse();
+    m_rootNode = m_projectFile->createVcDocNode();
+    //    reparse();
 
     m_projectFileWatcher->addPath(projectFilePath);
-    connect(m_projectFileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(reparse()));
+    //    connect(m_projectFileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(reparse()));
+    connect(m_projectFileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(reloadProjectNodes()));
 }
 
 VcProject::~VcProject()
@@ -76,7 +81,9 @@ VcProject::~VcProject()
 
 QString VcProject::displayName() const
 {
-    return m_rootNode->displayName();
+    if (m_rootNode)
+        return m_rootNode->displayName();
+    return QString();
 }
 
 Core::Id VcProject::id() const
@@ -103,7 +110,10 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
 {
     Q_UNUSED(fileMode);
     // TODO: respect the mode
-    return m_rootNode->files();
+    QStringList sl;
+    m_projectFile->documentModel()->vcProjectDocument()->allProjectFiles(sl);
+    return sl;
+    //    return m_rootNode->files();
 }
 
 QString VcProject::defaultBuildDirectory() const
@@ -128,29 +138,19 @@ bool VcProject::supportsKit(Kit *k, QString *errorMessage) const
     return true;
 }
 
-void VcProject::reparse()
+void VcProject::reloadProjectNodes()
 {
-    QString projectFilePath = m_projectFile->filePath();
-    VcProjectInfo::Project *projInfo = reader.parse(projectFilePath);
-
     // If file saving is done by replacing the file with the new file
     // watcher will loose it from its list
     if (m_projectFileWatcher->files().isEmpty())
-        m_projectFileWatcher->addPath(projectFilePath);
+        m_projectFileWatcher->addPath(m_projectFile->filePath());
 
-    if (!projInfo) {
-        m_rootNode->setDisplayName(QFileInfo(projectFilePath).fileName());
-        m_rootNode->refresh(0);
-    } else {
-        m_rootNode->setDisplayName(projInfo->displayName);
-        m_rootNode->refresh(projInfo->files);
-    }
-
-    m_configurations = projInfo->configurations;
-    delete projInfo;
+    m_rootNode->deleteLater();
+    m_projectFile->reloadVcDoc();
+    m_rootNode = m_projectFile->createVcDocNode();
 
     updateCodeModels();
-    // TODO: can we (and is is important to) detect when the list really changed?
+
     emit fileListChanged();
 }
 
@@ -170,25 +170,26 @@ bool VcProject::fromMap(const QVariantMap &map)
 
 bool VcProject::setupTarget(ProjectExplorer::Target *t)
 {
-    foreach (const QString &name, m_configurations.keys()) {
+    QList<QSharedPointer<Configuration> > configsModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurations();
+
+    foreach (QSharedPointer<Configuration> configModel, configsModel) {
         VcProjectBuildConfigurationFactory *factory
                 = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
-        VcProjectBuildConfiguration *bc = factory->create(t, Constants::VC_PROJECT_BC_ID, name);
+        VcProjectBuildConfiguration *bc = factory->create(t, Constants::VC_PROJECT_BC_ID, configModel->name());
         if (!bc)
             continue;
-        bc->setInfo(m_configurations.value(name));
+        bc->setConfigurationName(configModel->name());
 
-        // build step
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         VcMakeStep *makeStep = new VcMakeStep(buildSteps);
-        QString argument(QLatin1String("/p:configuration=\"") + name + QLatin1String("\""));
+        QString argument(QLatin1String("/p:configuration=\"") + configModel->name() + QLatin1String("\""));
         makeStep->addBuildArgument(argument);
         buildSteps->insertStep(0, makeStep);
 
         //clean step
         ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
         makeStep = new VcMakeStep(cleanSteps);
-        argument = QLatin1String("/p:configuration=\"") + name + QLatin1String("\" /t:Clean");
+        argument = QLatin1String("/p:configuration=\"") + configModel->name() + QLatin1String("\" /t:Clean");
         makeStep->addBuildArgument(argument);
         cleanSteps->insertStep(0, makeStep);
 
@@ -236,7 +237,16 @@ void VcProject::updateCodeModels()
     if (bc) {
         VcProjectBuildConfiguration *vbc = qobject_cast<VcProjectBuildConfiguration*>(bc);
         QTC_ASSERT(vbc, return);
-        pPart->defines += vbc->info().defines.join(QLatin1String("\n")).toLatin1();
+
+        QString configName = vbc->configurationName();
+        QSharedPointer<Configuration> configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configuration(configName);
+
+        if (configModel) {
+            QSharedPointer<Tool> tl = configModel->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
+            QSharedPointer<CAndCppTool> tool = tl.staticCast<CAndCppTool>();
+            if (tool)
+                pPart->defines += tool->preprocessorDefinitions().join(QLatin1String("\n")).toLatin1();
+        }
     }
     // VS 2005-2008 has poor c++11 support, see http://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
     pPart->cxxVersion = CppTools::ProjectPart::CXX98;

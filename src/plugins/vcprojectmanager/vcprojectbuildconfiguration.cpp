@@ -53,20 +53,33 @@ ProjectExplorer::BuildConfiguration::BuildType VcProjectBuildConfiguration::buil
     return Debug;
 }
 
-const VcProjectInfo::ConfigurationInfo &VcProjectBuildConfiguration::info() const
+QString VcProjectBuildConfiguration::configurationName() const
 {
-    return m_info;
+    return m_vcConfigurationName;
 }
 
-void VcProjectBuildConfiguration::setInfo(const VcProjectInfo::ConfigurationInfo &info)
+void VcProjectBuildConfiguration::setConfigurationName(const QString &name)
 {
-    m_info = info;
+    m_vcConfigurationName = name;
+}
+
+QVariantMap VcProjectBuildConfiguration::toMap() const
+{
+    QVariantMap map = ProjectExplorer::BuildConfiguration::toMap();
+    map.insert(QLatin1String(Constants::VC_PROJECT_BUILD_CONFIGURATION_NAME), m_vcConfigurationName);
+    return map;
 }
 
 VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source)
     : BuildConfiguration(parent, source)
 {
     cloneSteps(source);
+}
+
+bool VcProjectBuildConfiguration::fromMap(const QVariantMap &map)
+{
+    m_vcConfigurationName = map.value(QLatin1String(Constants::VC_PROJECT_BUILD_CONFIGURATION_NAME)).toString();
+    return ProjectExplorer::BuildConfiguration::fromMap(map);
 }
 
 ///////////////////////////////////////////

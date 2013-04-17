@@ -3,8 +3,6 @@ include(../../qtcreatorplugin.pri)
 QT += xml xmlpatterns
 
 HEADERS = vcprojectmanagerplugin.h \
-    vcprojectreader.h \
-    vcprojectnodes.h \
     vcprojectmanagerconstants.h \
     vcprojectmanager_global.h \
     vcprojectmanager.h \
@@ -15,8 +13,6 @@ HEADERS = vcprojectmanagerplugin.h \
     vcprojectbuildoptionspage.h \
     msbuildoutputparser.h
 SOURCES = vcprojectmanagerplugin.cpp \
-    vcprojectreader.cpp \
-    vcprojectnodes.cpp \
     vcprojectmanager.cpp \
     vcprojectfile.cpp \
     vcproject.cpp \

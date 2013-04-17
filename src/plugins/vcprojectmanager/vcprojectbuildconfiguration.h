@@ -21,15 +21,19 @@ public:
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
 
-    const VcProjectInfo::ConfigurationInfo &info() const;
-    void setInfo(const VcProjectInfo::ConfigurationInfo &info);
+    QString configurationName() const;
+    void setConfigurationName(const QString &name);
+
+    QVariantMap toMap() const;
 
 protected:
     VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source);
 
+    bool fromMap(const QVariantMap &map);
+
 private:
     QString m_buildDirectory;
-    VcProjectInfo::ConfigurationInfo m_info;
+    QString m_vcConfigurationName;
 };
 
 class VcProjectBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

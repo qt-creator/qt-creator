@@ -1,7 +1,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECT_H
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECT_H
 
-#include "vcprojectreader.h"
+#include "vcprojectmodel/vcprojectdocument_constants.h"
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/namedwidget.h>
@@ -11,11 +11,15 @@
 
 class QFileSystemWatcher;
 
+namespace ProjectExplorer {
+class FolderNode;
+}
+
 namespace VcProjectManager {
 namespace Internal {
 
 class VcProjectFile;
-class VcProjectNode;
+class VcDocProjectNode;
 class VcManager;
 
 class VcProject : public ProjectExplorer::Project
@@ -23,7 +27,7 @@ class VcProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    VcProject(VcManager *projectManager, const QString &projectFilePath);
+    VcProject(VcManager *projectManager, const QString &projectFilePath, VcDocConstants::DocumentVersion docVersion);
     ~VcProject();
 
     QString displayName() const;
@@ -38,15 +42,7 @@ public:
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 
 public slots:
-    void reparse();
-
-//    virtual QString generatedUiHeader(const QString &formFile) const;
-//    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
-//    virtual QVariantMap toMap() const;
-//    virtual Core::Context projectContext() const;
-//    virtual Core::Context projectLanguage() const;
-//    virtual bool needsConfiguration() const;
-//    virtual void configureAsExampleProject(const QStringList &platforms);
+    void reloadProjectNodes();
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -59,12 +55,9 @@ private:
 
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;
-    VcProjectNode *m_rootNode;
-    VcProjectReader reader;
-    QString m_name;
+    VcDocProjectNode *m_rootNode;
     QFileSystemWatcher *m_projectFileWatcher;
     QFuture<void> m_codeModelFuture;
-    QMap<QString, VcProjectInfo::ConfigurationInfo> m_configurations;
 };
 
 class VcProjectBuildSettingsWidget : public ProjectExplorer::NamedWidget
