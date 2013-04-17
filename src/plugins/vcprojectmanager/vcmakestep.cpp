@@ -164,11 +164,18 @@ void VcMakeStep::removeBuildArgument(const QString &buildArgument)
 
 QVariantMap VcMakeStep::toMap() const
 {
-    return BuildStep::toMap();
+    QVariantMap map = BuildStep::toMap();
+    map.insert(QLatin1String(Constants::VC_PROJECT_MS_BUILD_EXECUTABLE), m_msBuildCommand);
+    map.insert(QLatin1String(Constants::VC_PROJECT_MS_BUILD_EXECUTABLE_VERSION), m_msBuildVersion);
+    map.insert(QLatin1String(Constants::VC_PROJECT_MS_BUILD_ARGUMENT_LIST), m_buildArguments);
+    return map;
 }
 
 bool VcMakeStep::fromMap(const QVariantMap &map)
 {
+    m_msBuildCommand = map.value(QLatin1String(Constants::VC_PROJECT_MS_BUILD_EXECUTABLE)).toString();
+    m_msBuildVersion = map.value(QLatin1String(Constants::VC_PROJECT_MS_BUILD_EXECUTABLE_VERSION)).toString();
+    m_buildArguments = map.value(QLatin1String(Constants::VC_PROJECT_MS_BUILD_ARGUMENT_LIST)).toStringList();
     return BuildStep::fromMap(map);
 }
 
@@ -211,6 +218,9 @@ VcMakeStepConfigWidget::VcMakeStepConfigWidget(VcMakeStep *makeStep) :
                     QString buildName = fileInfo.fileName() + QLatin1Char(' ') + msBuild->m_version;
                     QVariant msBuildFullPath(msBuild->m_executable + QLatin1Char(';') + msBuild->m_version);
                     m_msBuildComboBox->addItem(buildName, msBuildFullPath);
+
+                    if (msBuild->m_executable == m_makeStep->msBuildCommand() && m_msBuildComboBox->count() - 1 >= 0)
+                        m_msBuildComboBox->setCurrentIndex(m_msBuildComboBox->count() - 1);
                 }
             }
         }
@@ -226,10 +236,12 @@ VcMakeStepConfigWidget::VcMakeStepConfigWidget(VcMakeStep *makeStep) :
             onMsBuildSelectionChanged(0);
         }
 
+        m_msBuildPath->setText(m_makeStep->msBuildCommand());
+
         connect(m_msBuildComboBox, SIGNAL(currentIndexChanged(int)),
                 this, SLOT(onMsBuildSelectionChanged(int)));
 
-        connect(vcManager->buildOptionsPage(), SIGNAL(msBuildInfomationsUpdated()),
+        connect(vcManager->buildOptionsPage(), SIGNAL(vcOptionsUpdated()),
                 this, SLOT(onMsBuildInformationsUpdated()));
     }
 }
