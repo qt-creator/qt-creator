@@ -64,8 +64,6 @@ private:
     Debugger::DebuggerRunControl* m_runControl;
     AndroidRunner * const m_runner;
     const QString m_dumperLib;
-
-    int m_gdbServerPort;
 };
 
 } // namespace Internal

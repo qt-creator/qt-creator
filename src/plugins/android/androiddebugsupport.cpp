@@ -130,8 +130,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
 AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
     : QObject(runControl), m_runControl(runControl),
-      m_runner(new AndroidRunner(this, runConfig, true)),
-      m_gdbServerPort(5039)
+      m_runner(new AndroidRunner(this, runConfig, true))
 {
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
