@@ -37,7 +37,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcprocess.h>
-#include <utils/tcpportsgatherer.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
@@ -46,6 +45,8 @@
 #include <qtsupport/qmlobservertool.h>
 
 #include <qmlprojectmanager/qmlprojectplugin.h>
+
+#include <QTcpServer>
 
 using namespace ProjectExplorer;
 
@@ -219,17 +220,14 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
                 DeviceKitInformation::device(runConfig->target()->kit());
         params.qmlServerAddress = QLatin1String("127.0.0.1");
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-        Utils::TcpPortsGatherer portsGatherer;
-        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
-        Utils::PortList portList = device->freePorts();
-        int freePort = portsGatherer.getNextFreePort(&portList);
-        if (freePort == -1) {
+        QTcpServer server;
+        const bool canListen = server.listen(QHostAddress(params.qmlServerAddress));
+        if (!canListen) {
             if (errorMessage)
-                *errorMessage = tr("Not enough free ports for QML debugging. Increase the "
-                                   "port range for Desktop device in Device settings.");
+                *errorMessage = tr("Not enough free ports for QML debugging. ");
             return 0;
         }
-        params.qmlServerPort = freePort;
+        params.qmlServerPort = server.serverPort();
         params.languages |= Debugger::QmlLanguage;
 
         // Makes sure that all bindings go through the JavaScript engine, so that

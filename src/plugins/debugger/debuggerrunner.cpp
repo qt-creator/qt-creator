@@ -56,11 +56,10 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/portlist.h>
-#include <utils/tcpportsgatherer.h>
 #include <coreplugin/icore.h>
 
 #include <QErrorMessage>
+#include <QTcpServer>
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -385,18 +384,14 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
                 DeviceKitInformation::device(runConfiguration->target()->kit());
         sp.qmlServerAddress = _("127.0.0.1");
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
-        TcpPortsGatherer portsGatherer;
-        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
-        Utils::PortList portList = device->freePorts();
-        int freePort = portsGatherer.getNextFreePort(&portList);
-        if (freePort == -1) {
+        QTcpServer server;
+        const bool canListen = server.listen(QHostAddress(sp.qmlServerAddress));
+        if (!canListen) {
             if (errorMessage)
-                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging. "
-                                                   "Increase the port range for Desktop device in "
-                                                   "Device settings.");
+                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging. ");
             return sp;
         }
-        sp.qmlServerPort = freePort;
+        sp.qmlServerPort = server.serverPort();
         sp.languages |= QmlLanguage;
 
         // Makes sure that all bindings go through the JavaScript engine, so that
