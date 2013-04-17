@@ -53,13 +53,13 @@ const char PROFILE_LIST[] = "preferences.qtcreator.kit.";
 const char PROFILES_PREFIX[] = "profiles.";
 
 // Qt related settings:
-const char QTCORE_BINPATH[] = ".qt.core.binPath";
-const char QTCORE_INCPATH[] = ".qt.core.incPath";
-const char QTCORE_LIBPATH[] = ".qt.core.libPath";
-const char QTCORE_VERSION[] = ".qt.core.version";
-const char QTCORE_NAMESPACE[] = ".qt.core.namespace";
-const char QTCORE_LIBINFIX[] = ".qt.core.libInfix";
-const char QTCORE_MKSPEC[] = ".qt.core.mkspecPath";
+const char QTCORE_BINPATH[] = ".Qt.core.binPath";
+const char QTCORE_INCPATH[] = ".Qt.core.incPath";
+const char QTCORE_LIBPATH[] = ".Qt.core.libPath";
+const char QTCORE_VERSION[] = ".Qt.core.version";
+const char QTCORE_NAMESPACE[] = ".Qt.core.namespace";
+const char QTCORE_LIBINFIX[] = ".Qt.core.libInfix";
+const char QTCORE_MKSPEC[] = ".Qt.core.mkspecPath";
 
 
 // Toolchain related settings:
