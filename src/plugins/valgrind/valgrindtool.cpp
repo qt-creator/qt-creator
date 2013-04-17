@@ -37,9 +37,10 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
-#include <utils/tcpportsgatherer.h>
 
 #include <utils/qtcassert.h>
+
+#include <QTcpServer>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -77,13 +78,10 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
         const ProjectExplorer::IDevice::ConstPtr device =
                 ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
-        Utils::TcpPortsGatherer portsGatherer;
-        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
-        Utils::PortList portList = device->freePorts();
-        int freePort = portsGatherer.getNextFreePort(&portList);
-        if (freePort == -1)
+        QTcpServer server;
+        if (!server.listen(QHostAddress(sp.connParams.host)))
             return sp;
-        sp.connParams.port = freePort;
+        sp.connParams.port = server.serverPort();
         sp.startMode = Analyzer::StartLocal;
     } else if (RemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)) {
