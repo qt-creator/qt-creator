@@ -1863,7 +1863,7 @@
             \li  Creates getter and setter member functions for member variables.
             \li  Member variable in class definition
         \row
-            \li Move function definition
+            \li Move Function Definition
             \li Moves a function definition to the implementation file, outside the class or back to its declaration. For example, rewrites:
 
     \code
@@ -1889,6 +1889,29 @@
     \endcode
 
             \li Function signature
+        \row
+            \li Assign to Local Variable
+            \li Adds a local variable which stores the return value of a function call or a new expression. For example, rewrites:
+
+    \code
+    QString s;
+    s.loLatin1();
+    \endcode
+    as
+    \code
+    QString s;
+    QByteArray latin1 = s.toLatin1();
+    \endcode
+    and
+    \code
+    new Foo;
+    \endcode
+    as
+    \code
+    Foo * localFoo = new Foo;
+    \endcode
+
+            \li Function call or class name
 
     \endtable
 

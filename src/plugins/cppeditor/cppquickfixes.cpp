@@ -107,6 +107,8 @@ void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 
     plugIn->addAutoReleasedObject(new MoveFuncDefOutside);
     plugIn->addAutoReleasedObject(new MoveFuncDefToDecl);
+
+    plugIn->addAutoReleasedObject(new AssignToLocalVariable);
 }
 
 // In the following anonymous namespace all functions are collected, which could be of interest for
@@ -3969,4 +3971,197 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                                                      declFileName,
                                                                      funcAST, declText,
                                                                      declRange)));
+}
+
+namespace {
+
+class AssignToLocalVariableOperation : public CppQuickFixOperation
+{
+public:
+    explicit AssignToLocalVariableOperation(const CppQuickFixInterface &interface,
+                                            const int insertPos, const AST *ast, const Name *name)
+        : CppQuickFixOperation(interface)
+        , m_insertPos(insertPos)
+        , m_ast(ast)
+        , m_name(name)
+    {
+        setDescription(QApplication::translate("CppTools::QuickFix", "Assign to Local Variable"));
+    }
+
+    void perform()
+    {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr file = refactoring.file(assistInterface()->fileName());
+
+        // Determine return type and new variable name
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.init(assistInterface()->semanticInfo().doc, snapshot(),
+                              assistInterface()->context().bindings());
+        Scope *scope = file->scopeAt(m_ast->firstToken());
+        const QList<LookupItem> result = typeOfExpression(file->textOf(m_ast).toUtf8(),
+                                                          scope, TypeOfExpression::Preprocess);
+
+        if (!result.isEmpty()) {
+            SubstitutionEnvironment env;
+            env.setContext(assistInterface()->context());
+            env.switchScope(result.first().scope());
+            ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
+            if (!con)
+                con = typeOfExpression.context().globalNamespace();
+            UseMinimalNames q(con);
+            env.enter(&q);
+
+            Control *control = assistInterface()->context().control().data();
+            FullySpecifiedType type = rewriteType(result.first().type(), &env, control);
+
+            Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+            QString originalName = oo.prettyName(m_name);
+            QString newName = originalName;
+            if (newName.startsWith(QLatin1String("get"), Qt::CaseInsensitive)
+                    && newName.length() > 3
+                    && newName.at(3).isUpper()) {
+                newName.remove(0, 3);
+                newName.replace(0, 1, newName.at(0).toLower());
+            } else if (newName.startsWith(QLatin1String("to"), Qt::CaseInsensitive)
+                       && newName.length() > 2
+                       && newName.at(2).isUpper()) {
+                newName.remove(0, 2);
+                newName.replace(0, 1, newName.at(0).toLower());
+            } else {
+                newName.replace(0, 1, newName.at(0).toUpper());
+                newName.prepend(QLatin1String("local"));
+            }
+
+            const int nameLength = originalName.length();
+            QString tempType = oo.prettyType(type, m_name);
+            const QString insertString = tempType.replace(
+                        tempType.length() - nameLength, nameLength, newName + QLatin1String(" = "));
+            if (!tempType.isEmpty()) {
+                ChangeSet changes;
+                changes.insert(m_insertPos, insertString);
+                file->setChangeSet(changes);
+                file->apply();
+
+                // move cursor to new variable name
+                QTextCursor c = file->cursor();
+                c.setPosition(m_insertPos + insertString.length() - newName.length() - 3);
+                c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+                assistInterface()->editor()->setTextCursor(c);
+            }
+        }
+    }
+
+private:
+    const int m_insertPos;
+    const AST *m_ast;
+    const Name *m_name;
+};
+
+} // anonymous namespace
+
+void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface->path();
+    AST *outerAST = 0;
+    SimpleNameAST *nameAST = 0;
+    SimpleNameAST *visibleNameAST = 0;
+
+    for (int i = path.size() - 3; i >= 0; --i) {
+        if (CallAST *callAST = path.at(i)->asCall()) {
+            if (!interface->isCursorOn(callAST))
+                return;
+            if (i - 2 >= 0) {
+                const int idx = i - 2;
+                if (path.at(idx)->asSimpleDeclaration())
+                    return;
+                if (path.at(idx)->asExpressionStatement())
+                    return;
+                if (path.at(idx)->asMemInitializer())
+                    return;
+                if (path.at(i - 1)->asBinaryExpression())
+                    return;
+                if (path.at(i - 1)->asReturnStatement())
+                    return;
+            }
+
+            if (MemberAccessAST *member = path.at(i + 1)->asMemberAccess()) { // member
+                if (member->base_expression) {
+                    if (IdExpressionAST *idex = member->base_expression->asIdExpression()) {
+                        nameAST = idex->name->asSimpleName();
+                        visibleNameAST = member->member_name->asSimpleName();
+                    }
+                }
+            } else if (QualifiedNameAST *qname = path.at(i + 2)->asQualifiedName()) { // static or
+                nameAST = qname->unqualified_name->asSimpleName();                    // func in ns
+                visibleNameAST = nameAST;
+            } else { // normal
+                nameAST = path.at(i + 2)->asSimpleName();
+                visibleNameAST = nameAST;
+            }
+
+            if (nameAST && visibleNameAST) {
+                outerAST = callAST;
+                break;
+            }
+        } else if (NewExpressionAST *newexp = path.at(i)->asNewExpression()) {
+            if (!interface->isCursorOn(newexp))
+                return;
+            if (i - 2 >= 0) {
+                const int idx = i - 2;
+                if (path.at(idx)->asSimpleDeclaration())
+                    return;
+                if (path.at(idx)->asExpressionStatement())
+                    return;
+                if (path.at(idx)->asMemInitializer())
+                    return;
+                if (path.at(i-1)->asReturnStatement())
+                    return;
+            }
+            if (NamedTypeSpecifierAST *ts = path.at(i + 2)->asNamedTypeSpecifier()) {
+                nameAST = ts->name->asSimpleName();
+                visibleNameAST = nameAST;
+                outerAST = newexp;
+                break;
+            }
+        }
+    }
+
+    if (outerAST && nameAST && visibleNameAST) {
+        const CppRefactoringFilePtr file = interface->currentFile();
+        QList<LookupItem> items;
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.init(interface->semanticInfo().doc, interface->snapshot(),
+                              interface->context().bindings());
+        if (CallAST *callAST = outerAST->asCall()) {
+            Scope *scope = file->scopeAt(callAST->base_expression->firstToken());
+            items = typeOfExpression(file->textOf(callAST->base_expression).toUtf8(), scope,
+                                     TypeOfExpression::Preprocess);
+        } else {
+            Scope *scope = file->scopeAt(nameAST->firstToken());
+            items = typeOfExpression(file->textOf(nameAST).toUtf8(), scope,
+                                     TypeOfExpression::Preprocess);
+        }
+
+        foreach (const LookupItem &item, items) {
+            if (!item.declaration())
+                continue;
+
+            if (Function *func = item.declaration()->asFunction()) {
+                if (func->isSignal() || func->returnType()->isVoidType())
+                    return;
+            } else if (Declaration *dec = item.declaration()->asDeclaration()) {
+                if (Function *func = dec->type()->asFunctionType()) {
+                    if (func->isSignal() || func->returnType()->isVoidType())
+                      return;
+                }
+            }
+
+            const Name *name = visibleNameAST->name;
+            const int insertPos = interface->currentFile()->startOf(outerAST);
+            result.append(CppQuickFixOperation::Ptr(
+                              new AssignToLocalVariableOperation(interface, insertPos, outerAST,
+                                                                 name)));
+            return;
+        }
+    }
 }

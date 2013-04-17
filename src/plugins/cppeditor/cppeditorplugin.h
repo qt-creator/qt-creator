@@ -151,6 +151,18 @@ private slots:
     void test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS();
     void test_quickfix_MoveFuncDefToDecl_CtorWithInitialization();
 
+    void test_quickfix_AssignToLocalVariable_freeFunction();
+    void test_quickfix_AssignToLocalVariable_memberFunction();
+    void test_quickfix_AssignToLocalVariable_staticMemberFunction();
+    void test_quickfix_AssignToLocalVariable_newExpression();
+    void test_quickfix_AssignToLocalVariable_noInitializationList();
+    void test_quickfix_AssignToLocalVariable_noVoidFunction();
+    void test_quickfix_AssignToLocalVariable_noVoidMemberFunction();
+    void test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction();
+    void test_quickfix_AssignToLocalVariable_noFunctionInExpression();
+    void test_quickfix_AssignToLocalVariable_noReturnClass();
+    void test_quickfix_AssignToLocalVariable_noReturnFunc();
+
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.
     void test_openEachFile();

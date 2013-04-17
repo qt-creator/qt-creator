@@ -473,6 +473,15 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
+/*!
+  Assigns the return value of a function call or a new expression to a local variable
+ */
+class AssignToLocalVariable : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
 } // namespace Internal
 } // namespace CppEditor
 

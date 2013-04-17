@@ -1658,3 +1658,182 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
     TestCase data(testFiles);
     data.run(&factory);
 }
+
+/// Check: Add local variable for a free function.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_freeFunction()
+{
+    const QByteArray original =
+        "int foo() {return 1;}\n"
+        "void bar() {fo@o();}";
+    const QByteArray expected =
+        "int foo() {return 1;}\n"
+        "void bar() {int localFoo = foo();}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Add local variable for a member function.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_memberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: int* fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo *f = new Foo;\n"
+        "    @f->fooFunc();\n"
+        "}";
+    const QByteArray expected =
+        "class Foo {public: int* fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo *f = new Foo;\n"
+        "    int *localFooFunc = f->fooFunc();\n"
+        "}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Add local variable for a static member function.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_staticMemberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: static int* fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo::fooF@unc();\n"
+        "}";
+    const QByteArray expected =
+        "class Foo {public: static int* fooFunc();}\n"
+        "void bar() {\n"
+        "    int *localFooFunc = Foo::fooFunc();\n"
+        "}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Add local variable for a new Expression.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_newExpression()
+{
+    const QByteArray original =
+        "class Foo {}\n"
+        "void bar() {\n"
+        "    new Fo@o;\n"
+        "}";
+    const QByteArray expected =
+        "class Foo {}\n"
+        "void bar() {\n"
+        "    Foo *localFoo = new Foo;\n"
+        "}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for function inside member initialization list.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noInitializationList()
+{
+    const QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    public: Foo : m_i(fooF@unc()) {}\n"
+        "    int fooFunc() {return 2;}\n"
+        "    int m_i;\n"
+        "};";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for void functions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidFunction()
+{
+    const QByteArray original =
+        "void foo() {}\n"
+        "void bar() {fo@o();}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for void member functions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidMemberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: void fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo *f = new Foo;\n"
+        "    @f->fooFunc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for void static member functions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: static void fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo::fo@oFunc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in expressions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInExpression()
+{
+    const QByteArray original =
+        "int foo(int a) {return a;}\n"
+        "int bar() {return 1;}"
+        "void baz() {foo(@bar() + bar());}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (classes).
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass()
+{
+    const QByteArray original =
+        "class Foo {public: static void fooFunc();}\n"
+        "Foo* bar() {\n"
+        "    return new Fo@o;\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (functions).
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc()
+{
+    const QByteArray original =
+        "class Foo {public: int fooFunc();}\n"
+        "int bar() {\n"
+        "    return Foo::fooFu@nc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
