@@ -1,6 +1,6 @@
 #include "vcprojectbuildoptionspage.h"
 
-#include "vcprojectmanagerconstants.h"
+#include "Widgets/schemaoptionswidget.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -66,7 +66,8 @@ void VcProjectEditMsBuildDialog::showBrowseFileDialog()
 VcProjectBuildOptionsWidget::VcProjectBuildOptionsWidget(QWidget *parent) :
     QWidget(parent)
 {
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QVBoxLayout *mainlayout = new QVBoxLayout(this);
+    QHBoxLayout *msBuildMainLayout = new QHBoxLayout;
 
     QVBoxLayout *buttonLayout = new QVBoxLayout;
     m_addMsBuildButton = new QPushButton(tr("Add..."));
@@ -95,8 +96,13 @@ VcProjectBuildOptionsWidget::VcProjectBuildOptionsWidget(QWidget *parent) :
 
     tableLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
 
-    mainLayout->addLayout(tableLayout);
-    mainLayout->addLayout(buttonLayout);
+    msBuildMainLayout->addLayout(tableLayout);
+    msBuildMainLayout->addLayout(buttonLayout);
+
+    mainlayout->addLayout(msBuildMainLayout);
+
+    m_schemaOptionsWidget = new SchemaOptionsWidget;
+    mainlayout->addWidget(m_schemaOptionsWidget);
 
     connect(m_addMsBuildButton, SIGNAL(clicked()), this, SIGNAL(addNewButtonClicked()));
     connect(m_editBuildButton, SIGNAL(clicked()), this, SIGNAL(editButtonClicked()));
@@ -212,6 +218,11 @@ void VcProjectBuildOptionsWidget::updateMsBuild(const QString &exePath, const Ms
     }
 }
 
+SchemaOptionsWidget *VcProjectBuildOptionsWidget::schemaOptionsWidget() const
+{
+    return m_schemaOptionsWidget;
+}
+
 void VcProjectBuildOptionsWidget::onTableRowIndexChange(int index)
 {
     if (0 <= index && index < m_buildTableWidget->rowCount()) {
@@ -252,6 +263,9 @@ QWidget *VcProjectBuildOptionsPage::createPage(QWidget *parent)
     foreach (const MsBuildInformation *msBuildInfo, m_msBuildInformations)
         m_optionsWidget->insertMSBuild(*msBuildInfo);
 
+    foreach (const SchemaInformation schemaInfo, m_schemaInformations)
+        m_optionsWidget->schemaOptionsWidget()->setSchemaPath(schemaInfo.m_schemaFilePath, schemaInfo.m_schemaVersion);
+
     connect(m_optionsWidget, SIGNAL(addNewButtonClicked()), this, SLOT(addNewMsBuild()));
     connect(m_optionsWidget, SIGNAL(editButtonClicked()), this, SLOT(editMsBuild()));
     connect(m_optionsWidget, SIGNAL(deleteButtonClicked()), this, SLOT(deleteMsBuild()));
@@ -275,10 +289,16 @@ QVector<MsBuildInformation *> VcProjectBuildOptionsPage::msBuilds() const
     return m_msBuildInformations;
 }
 
+QList<SchemaInformation> VcProjectBuildOptionsPage::schemaInfos() const
+{
+    return m_schemaInformations;
+}
+
 void VcProjectBuildOptionsPage::loadSettings()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SETTINGS_GROUP));
+    QString msSchemaPathsData = settings->value(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH)).toString();
     QString msBuildInformationData = settings->value(QLatin1String(VcProjectManager::Constants::VC_PROJECT_MS_BUILD_INFORMATIONS)).toString();
     settings->endGroup();
 
@@ -298,6 +318,32 @@ void VcProjectBuildOptionsPage::loadSettings()
             m_msBuildInformations.append(msBuild);
         }
     }
+
+    QStringList schemaPaths = msSchemaPathsData.split(QLatin1Char(';'));
+
+    foreach (QString schema, schemaPaths) {
+        QStringList schemaData = schema.split(QLatin1String("::"));
+        if (schemaData.size() == 2) {
+            if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER)) {
+                SchemaInformation schemaInfo;
+                schemaInfo.m_schemaVersion = Constants::SV_2003;
+                schemaInfo.m_schemaFilePath = schemaData[1];
+                m_schemaInformations.append(schemaInfo);
+            }
+            else if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER)) {
+                SchemaInformation schemaInfo;
+                schemaInfo.m_schemaVersion = Constants::SV_2005;
+                schemaInfo.m_schemaFilePath = schemaData[1];
+                m_schemaInformations.append(schemaInfo);
+            }
+            else if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER)) {
+                SchemaInformation schemaInfo;
+                schemaInfo.m_schemaVersion = Constants::SV_2008;
+                schemaInfo.m_schemaFilePath = schemaData[1];
+                m_schemaInformations.append(schemaInfo);
+            }
+        }
+    }
 }
 
 void VcProjectBuildOptionsPage::saveSettings()
@@ -313,13 +359,28 @@ void VcProjectBuildOptionsPage::saveSettings()
                 msBuildInformations += QLatin1Char(';');
         }
 
+        QString schemas = QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER);
+        schemas.append(QLatin1String("::"));
+        schemas.append(m_optionsWidget->schemaOptionsWidget()->schemaPath(Constants::SV_2003));
+        schemas.append(QLatin1Char(';'));
+
+        schemas.append(QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER));
+        schemas.append(QLatin1String("::"));
+        schemas.append(m_optionsWidget->schemaOptionsWidget()->schemaPath(Constants::SV_2005));
+        schemas.append(QLatin1Char(';'));
+
+        schemas.append(QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER));
+        schemas.append(QLatin1String("::"));
+        schemas.append(m_optionsWidget->schemaOptionsWidget()->schemaPath(Constants::SV_2008));
+
         QSettings *settings = Core::ICore::settings();
         settings->beginGroup(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SETTINGS_GROUP));
         settings->setValue(QLatin1String(VcProjectManager::Constants::VC_PROJECT_MS_BUILD_INFORMATIONS), msBuildInformations);
+        settings->setValue(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH), schemas);
         settings->endGroup();
 
         loadSettings();
-        emit msBuildInfomationsUpdated();
+        emit vcOptionsUpdated();
     }
 }
 

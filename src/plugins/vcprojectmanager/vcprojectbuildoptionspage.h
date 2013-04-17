@@ -5,6 +5,8 @@
 
 #include <QDialog>
 
+#include "vcprojectmanagerconstants.h"
+
 class QLabel;
 class QLineEdit;
 class QProcess;
@@ -13,6 +15,8 @@ class QTableWidget;
 
 namespace VcProjectManager {
 namespace Internal {
+
+class SchemaOptionsWidget;
 
 struct VcProjectValidator {
     enum ValidationRequest {
@@ -29,6 +33,11 @@ struct VcProjectValidator {
 struct MsBuildInformation {
     QString m_executable;
     QString m_version;
+};
+
+struct SchemaInformation {
+    Constants::SchemaVersion m_schemaVersion;
+    QString m_schemaFilePath;
 };
 
 class VcProjectEditMsBuildDialog : public QDialog
@@ -66,6 +75,7 @@ public:
     void insertMSBuild(const MsBuildInformation &info);
     void removeBuild(int index);
     void updateMsBuild(const QString &exePath, const MsBuildInformation &newMsBuildInfo);
+    SchemaOptionsWidget *schemaOptionsWidget() const;
 
 private slots:
     void onTableRowIndexChange(int index);
@@ -81,6 +91,7 @@ private:
     QPushButton *m_editBuildButton;
     QPushButton *m_deleteBuildButton;
     QTableWidget *m_buildTableWidget;
+    SchemaOptionsWidget *m_schemaOptionsWidget;
 };
 
 class VcProjectBuildOptionsPage : public Core::IOptionsPage
@@ -96,6 +107,7 @@ public:
     void finish();
 
     QVector<MsBuildInformation *> msBuilds() const;
+    QList<SchemaInformation> schemaInfos() const;
     void loadSettings();
     void saveSettings();
     void startVersionCheck();
@@ -107,10 +119,12 @@ private slots:
     void versionCheckFinished();
 
 signals:
-    void msBuildInfomationsUpdated();
+    void vcOptionsUpdated();
 
 private:
     QVector<MsBuildInformation *> m_msBuildInformations;
+    QList<SchemaInformation> m_schemaInformations;
+    QStringList m_schemaPaths;
     VcProjectBuildOptionsWidget *m_optionsWidget;
     VcProjectValidator m_validator;
 };
