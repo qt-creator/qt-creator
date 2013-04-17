@@ -2113,15 +2113,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
                 }
             }
         }
-
-#if 0 // ### TODO: enable objc semantic highlighting
-        setExtraSelections(ObjCSelection, createSelections(document(),
-                                                           semanticInfo.objcKeywords,
-                                                           m_keywordFormat));
-#endif
     }
-
-
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
 
@@ -2136,100 +2128,6 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     // schedule a check for a decl/def link
     updateFunctionDeclDefLink();
 }
-
-namespace {
-
-class FindObjCKeywords: public ASTVisitor
-{
-public:
-    FindObjCKeywords(TranslationUnit *unit)
-        : ASTVisitor(unit)
-    {}
-
-    QList<SemanticInfo::Use> operator()()
-    {
-        _keywords.clear();
-        accept(translationUnit()->ast());
-        return _keywords;
-    }
-
-    virtual bool visit(ObjCClassDeclarationAST *ast)
-    {
-        addToken(ast->interface_token);
-        addToken(ast->implementation_token);
-        addToken(ast->end_token);
-        return true;
-    }
-
-    virtual bool visit(ObjCClassForwardDeclarationAST *ast)
-    { addToken(ast->class_token); return true; }
-
-    virtual bool visit(ObjCProtocolDeclarationAST *ast)
-    { addToken(ast->protocol_token); addToken(ast->end_token); return true; }
-
-    virtual bool visit(ObjCProtocolForwardDeclarationAST *ast)
-    { addToken(ast->protocol_token); return true; }
-
-    virtual bool visit(ObjCProtocolExpressionAST *ast)
-    { addToken(ast->protocol_token); return true; }
-
-    virtual bool visit(ObjCTypeNameAST *) { return true; }
-
-    virtual bool visit(ObjCEncodeExpressionAST *ast)
-    { addToken(ast->encode_token); return true; }
-
-    virtual bool visit(ObjCSelectorExpressionAST *ast)
-    { addToken(ast->selector_token); return true; }
-
-    virtual bool visit(ObjCVisibilityDeclarationAST *ast)
-    { addToken(ast->visibility_token); return true; }
-
-    virtual bool visit(ObjCPropertyAttributeAST *ast)
-    {
-        const Identifier *attrId = identifier(ast->attribute_identifier_token);
-        if (attrId == control()->objcAssignId()
-                || attrId == control()->objcCopyId()
-                || attrId == control()->objcGetterId()
-                || attrId == control()->objcNonatomicId()
-                || attrId == control()->objcReadonlyId()
-                || attrId == control()->objcReadwriteId()
-                || attrId == control()->objcRetainId()
-                || attrId == control()->objcSetterId())
-            addToken(ast->attribute_identifier_token);
-        return true;
-    }
-
-    virtual bool visit(ObjCPropertyDeclarationAST *ast)
-    { addToken(ast->property_token); return true; }
-
-    virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *ast)
-    { addToken(ast->synthesized_token); return true; }
-
-    virtual bool visit(ObjCDynamicPropertiesDeclarationAST *ast)
-    { addToken(ast->dynamic_token); return true; }
-
-    virtual bool visit(ObjCFastEnumerationAST *ast)
-    { addToken(ast->for_token); addToken(ast->in_token); return true; }
-
-    virtual bool visit(ObjCSynchronizedStatementAST *ast)
-    { addToken(ast->synchronized_token); return true; }
-
-protected:
-    void addToken(unsigned token)
-    {
-        if (token) {
-            SemanticInfo::Use use;
-            getTokenStartPosition(token, &use.line, &use.column);
-            use.length = tokenAt(token).length();
-            _keywords.append(use);
-        }
-    }
-
-private:
-    QList<SemanticInfo::Use> _keywords;
-};
-
-} // anonymous namespace
 
 SemanticHighlighter::Source CPPEditorWidget::currentSource(bool force)
 {
@@ -2326,7 +2224,6 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
             && m_lastSemanticInfo.doc->fileName() == source.fileName) {
         semanticInfo.snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
         semanticInfo.doc = m_lastSemanticInfo.doc;
-        semanticInfo.objcKeywords = m_lastSemanticInfo.objcKeywords;
     }
     m_mutex.unlock();
 
@@ -2337,13 +2234,6 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
             doc->control()->setTopLevelDeclarationProcessor(this);
             doc->check();
             semanticInfo.doc = doc;
-
-#if 0
-            if (TranslationUnit *unit = doc->translationUnit()) {
-                FindObjCKeywords findObjCKeywords(unit); // ### remove me
-                objcKeywords = findObjCKeywords();
-            }
-#endif
         }
     }
 

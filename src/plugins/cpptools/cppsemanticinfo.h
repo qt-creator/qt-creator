@@ -67,7 +67,6 @@ public:
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
-    QList<Use> objcKeywords;
 };
 
 } // namespace CppTools
