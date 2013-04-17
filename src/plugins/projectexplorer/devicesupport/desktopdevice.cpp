@@ -70,7 +70,10 @@ QString DesktopDevice::displayType() const
 
 IDeviceWidget *DesktopDevice::createWidget()
 {
-    return new DesktopDeviceConfigurationWidget(sharedFromThis());
+    return 0;
+    // DesktopDeviceConfigurationWidget currently has just one editable field viz. free ports.
+    // Querying for an available port is quite straightforward. Having a field for the port
+    // range can be confusing to the user. Hence, disabling the widget for now.
 }
 
 QList<Core::Id> DesktopDevice::actionIds() const
