@@ -131,12 +131,10 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
     : QObject(runControl), m_runControl(runControl),
       m_runner(new AndroidRunner(this, runConfig, true)),
-      m_gdbServerPort(5039),
-      m_qmlPort(0)
+      m_gdbServerPort(5039)
 {
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    m_qmlPort = aspect->qmlDebugServerPort();
     Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
 
     connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),

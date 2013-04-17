@@ -66,7 +66,6 @@ private:
     const QString m_dumperLib;
 
     int m_gdbServerPort;
-    int m_qmlPort;
 };
 
 } // namespace Internal
