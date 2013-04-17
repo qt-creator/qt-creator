@@ -34,6 +34,8 @@
 
 #include <api/projectdata.h>
 
+#include <QIcon>
+
 namespace qbs { class Project; }
 
 namespace QbsProjectManager {
@@ -128,6 +130,8 @@ private:
 
     const qbs::GroupData *m_group;
     QString m_productPath;
+
+    static QIcon m_groupIcon;
 };
 
 // --------------------------------------------------------------------
@@ -150,6 +154,7 @@ private:
     QbsGroupNode *findGroupNode(const QString &name);
 
     const qbs::ProductData *m_product;
+    static QIcon m_productIcon;
 };
 
 // ---------------------------------------------------------------------------
@@ -174,6 +179,7 @@ private:
 
     const qbs::Project *m_project;
     const qbs::ProjectData *m_projectData;
+    static QIcon m_projectIcon;
 };
 } // namespace Internal
 } // namespace QbsProjectManager
