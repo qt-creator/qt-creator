@@ -64,7 +64,6 @@ class ObjectNodeInstance
 public:
     typedef QSharedPointer<ObjectNodeInstance> Pointer;
     typedef QWeakPointer<ObjectNodeInstance> WeakPointer;
-    explicit ObjectNodeInstance(QObject *object);
 
     virtual ~ObjectNodeInstance();
     void destroy();
@@ -98,6 +97,8 @@ public:
     virtual bool isTransition() const;
     virtual bool isPositioner() const;
     virtual bool isQuickItem() const;
+    virtual bool isQuickWindow() const;
+    virtual bool isGraphical() const;
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
 
@@ -182,6 +183,7 @@ public:
     virtual void updateDirtyNodeRecursive();
 
 protected:
+    explicit ObjectNodeInstance(QObject *object);
     void doResetProperty(const PropertyName &propertyName);
     void removeFromOldProperty(QObject *object, QObject *oldParent, const PropertyName &oldParentProperty);
     void addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty);

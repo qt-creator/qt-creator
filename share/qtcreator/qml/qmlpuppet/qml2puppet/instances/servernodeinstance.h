@@ -196,7 +196,7 @@ private: // functions
 
     void setNodeSource(const QString &source);
 
-    bool holdsQuickItem() const;
+    bool holdsGraphical() const;
 
     void updateDirtyNodeRecursive();
 

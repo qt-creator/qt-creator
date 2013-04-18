@@ -65,7 +65,7 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
 
-    if (!rootNodeInstance().holdsQuickItem())
+    if (!rootNodeInstance().holdsGraphical())
         return;
 
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
