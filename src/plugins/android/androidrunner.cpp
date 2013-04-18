@@ -42,6 +42,7 @@
 #include <QTime>
 #include <QtConcurrentRun>
 #include <QTemporaryFile>
+#include <QTcpServer>
 
 namespace Android {
 namespace Internal {
@@ -60,7 +61,13 @@ AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig
     QTC_CHECK(channel.startsWith(QLatin1Char(':')));
     m_localGdbServerPort = channel.mid(1).toUShort();
     QTC_CHECK(m_localGdbServerPort);
-    m_qmlPort = aspect->qmlDebugServerPort();
+    if (m_useQmlDebugger) {
+        QTcpServer server;
+        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
+                   || server.listen(QHostAddress::LocalHostIPv6),
+                   qDebug() << tr("No free ports available on host for QML debugging."));
+        m_qmlPort = server.serverPort();
+    }
     ProjectExplorer::Target *target = runConfig->target();
     AndroidDeployStep *ds = runConfig->deployStep();
     if ((m_useLocalQtLibs = ds->useLocalQtLibs())) {
@@ -81,7 +88,6 @@ AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig
     m_gdbserverSocket = packageDir + _("/debug-socket");
     m_gdbserverPath = packageDir + _("/lib/gdbserver");
     m_gdbserverCommand = m_gdbserverPath + _(" --multi +") + m_gdbserverSocket;
-
     // Detect busybox, as we need to pass -w to ps to get wide output.
     QProcess psProc;
     psProc.start(m_adb, selector() << _("shell") << _("readlink") << _("$(which ps)"));
@@ -216,7 +222,7 @@ void AndroidRunner::asyncStart()
     }
     if (m_useQmlDebugger) {
         // currently forward to same port on device and host
-        QString port = QString::fromLatin1("tcp:%1").arg(m_qmlPort);
+        const QString port = QString::fromLatin1("tcp:%1").arg(m_qmlPort);
         QProcess adb;
         adb.start(m_adb, selector() << _("forward") << port << port);
         if (!adb.waitForStarted()) {
@@ -228,9 +234,8 @@ void AndroidRunner::asyncStart()
             return;
         }
         args << _("-e") << _("qml_debug") << _("true");
-        args << _("-e") << _("qmljsdebugger") << QString::fromLatin1("port:%1").arg(m_qmlPort);
+        args << _("-e") << _("qmljsdebugger") << QString::fromLatin1("port:%1,block").arg(m_qmlPort);
     }
-
     if (m_useLocalQtLibs) {
         args << _("-e") << _("use_local_qt_libs") << _("true");
         args << _("-e") << _("libs_prefix") << _("/data/local/tmp/qt/");
@@ -252,7 +257,7 @@ void AndroidRunner::asyncStart()
         return;
     }
 
-    if (m_useCppDebugger || m_useQmlDebugger) {
+    if (m_useCppDebugger) {
 
         // Handling ping.
         for (int i = 0; ; ++i) {
@@ -289,10 +294,15 @@ void AndroidRunner::asyncStart()
     }
 
     m_wasStarted = true;
-    if (m_useCppDebugger || m_useQmlDebugger) {
+    if (m_useCppDebugger) {
         // This will be funneled to the engine to actually start and attach
-        // gdb. Afterwards this ends up in handleGdbRunning() below.
+        // gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
         QByteArray serverChannel = ':' + QByteArray::number(m_localGdbServerPort);
+        emit remoteServerRunning(serverChannel, m_processPID);
+    } else if (m_useQmlDebugger) {
+        // This will be funneled to the engine to actually start and attach
+        // gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
+        QByteArray serverChannel = QByteArray::number(m_qmlPort);
         emit remoteServerRunning(serverChannel, m_processPID);
     } else {
         // Start without debugging.
@@ -300,17 +310,19 @@ void AndroidRunner::asyncStart()
     }
 }
 
-void AndroidRunner::handleGdbRunning()
+void AndroidRunner::handleRemoteDebuggerRunning()
 {
-    QTemporaryFile tmp(_("pingpong"));
-    tmp.open();
+    if (m_useCppDebugger) {
+        QTemporaryFile tmp(_("pingpong"));
+        tmp.open();
 
-    QProcess process;
-    process.start(m_adb, selector() << _("push") << tmp.fileName() << m_pongFile);
-    process.waitForFinished();
+        QProcess process;
+        process.start(m_adb, selector() << _("push") << tmp.fileName() << m_pongFile);
+        process.waitForFinished();
 
-    QTC_CHECK(m_processPID != -1);
-    emit remoteProcessStarted(m_localGdbServerPort, -1);
+        QTC_CHECK(m_processPID != -1);
+    }
+    emit remoteProcessStarted(m_localGdbServerPort, m_qmlPort);
 }
 
 void AndroidRunner::stop()

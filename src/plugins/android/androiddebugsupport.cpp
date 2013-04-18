@@ -49,6 +49,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <QDir>
+#include <QTcpServer>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -113,8 +114,11 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     }
     if (aspect->useQmlDebugger()) {
         params.languages |= QmlLanguage;
-        params.qmlServerAddress = QLatin1String("localhost");
-        params.qmlServerPort = aspect->qmlDebugServerPort();
+        QTcpServer server;
+        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
+                   || server.listen(QHostAddress::LocalHostIPv6), return 0);
+        params.qmlServerAddress = server.serverAddress().toString();
+        params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = project->projectDirectory();
         params.projectSourceFiles = project->files(Qt4Project::ExcludeGeneratedFiles);
@@ -141,7 +145,7 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
     connect(m_runControl->engine(), SIGNAL(aboutToNotifyInferiorSetupOk()),
-            m_runner, SLOT(handleGdbRunning()));
+            m_runner, SLOT(handleRemoteDebuggerRunning()));
 
     connect(m_runner, SIGNAL(remoteServerRunning(QByteArray,int)),
         SLOT(handleRemoteServerRunning(QByteArray,int)));

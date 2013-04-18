@@ -345,6 +345,12 @@ QmlEngine::~QmlEngine()
     Core::EditorManager::instance()->closeEditors(editorsToClose);
 }
 
+void QmlEngine::notifyInferiorSetupOk()
+{
+    emit aboutToNotifyInferiorSetupOk();
+    DebuggerEngine::notifyInferiorSetupOk();
+}
+
 void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
@@ -618,6 +624,25 @@ void QmlEngine::notifyEngineRemoteSetupFailed(const QString &message)
             tr("Application startup failed: %1").arg(message));
 
     notifyEngineSetupFailed();
+}
+
+void QmlEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int pid)
+{
+    bool ok = false;
+    quint16 qmlPort = serverChannel.toUInt(&ok);
+    if (ok)
+        startParameters().qmlServerPort = qmlPort;
+    else
+        qWarning() << tr("QML debugging port not set! Unable to convert %1 to unsigned int.").arg(QString::fromLatin1(serverChannel));
+
+    DebuggerEngine::notifyEngineRemoteServerRunning(serverChannel, pid);
+    notifyEngineSetupOk();
+
+    // The remote setup can take a while especially with mixed debugging.
+    // Just waiting for 8 seconds is not enough. Increase the timeout
+    // to 60 s
+    // In case we get an output the m_outputParser will start the connection.
+    m_noDebugOutputTimer.setInterval(60000);
 }
 
 void QmlEngine::shutdownInferior()

@@ -61,8 +61,10 @@ public:
                        DebuggerEngine *masterEngine = 0);
     ~QmlEngine();
 
+    void notifyInferiorSetupOk();
     void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
     void notifyEngineRemoteSetupFailed(const QString &message);
+    void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
 
     bool canDisplayTooltip() const;
 
@@ -90,6 +92,7 @@ public:
 signals:
     void tooltipRequested(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
+    void aboutToNotifyInferiorSetupOk();
 
 private slots:
     void disconnected();

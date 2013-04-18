@@ -84,6 +84,11 @@ void AndroidDevice::executeAction(Core::Id actionId, QWidget *parent) const
     Q_UNUSED(parent)
 }
 
+bool AndroidDevice::canAutoDetectPorts() const
+{
+    return true;
+}
+
 IDevice::Ptr AndroidDevice::clone() const
 {
     return IDevice::Ptr(new AndroidDevice(*this));

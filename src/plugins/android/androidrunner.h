@@ -56,7 +56,7 @@ public:
 public slots:
     void start();
     void stop();
-    void handleGdbRunning();
+    void handleRemoteDebuggerRunning();
 
 signals:
     void remoteServerRunning(const QByteArray &serverChannel, int pid);
@@ -93,7 +93,7 @@ private:
     bool m_useCppDebugger;
     bool m_useQmlDebugger;
     ushort m_localGdbServerPort; // Local end of forwarded debug socket.
-    uint m_qmlPort;
+    quint16 m_qmlPort;
     bool m_useLocalQtLibs;
     QString m_pingFile;
     QString m_pongFile;
