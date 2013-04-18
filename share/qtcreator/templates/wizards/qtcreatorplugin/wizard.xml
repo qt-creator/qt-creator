@@ -44,6 +44,7 @@ leave room for the Qt 4 target page.
     <displaycategory>Libraries</displaycategory>
     <files>
         <file source="myplugin.pro" target="%PluginName:l%.pro" openproject="true"/>
+        <file source="myplugin_dependencies.pri" target="%PluginName:l%_dependencies.pri" openeditor="true"/>
         <file source="MyPlugin.pluginspec.in" target="%PluginName%.pluginspec.in" openeditor="true"/>
         <file source="myplugin_global.h" target="%PluginName:l%_global.%CppHeaderSuffix%" openeditor="true"/>
         <file source="mypluginconstants.h" target="%PluginName:l%constants.%CppHeaderSuffix%" openeditor="true"/>

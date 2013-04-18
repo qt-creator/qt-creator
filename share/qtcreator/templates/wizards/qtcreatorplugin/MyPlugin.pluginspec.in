@@ -4,7 +4,5 @@
     <license>%License%</license>
     <description>%Description%</description>
     <url>%URL%</url>
-    <dependencyList>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
 </plugin>

@@ -1,6 +1,3 @@
-TARGET = %PluginName%
-TEMPLATE = lib
-
 DEFINES += %PluginName:u%_LIBRARY
 
 # %PluginName% files
@@ -32,6 +29,3 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=%QtCreatorBuild%
 PROVIDER = %VendorName%
 
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
-include($$QTCREATOR_SOURCES/src/plugins/coreplugin/coreplugin.pri)
-
-LIBS += -L$$IDE_PLUGIN_PATH/QtProject
