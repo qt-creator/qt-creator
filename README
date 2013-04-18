@@ -83,13 +83,13 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
        for example, c:\work. If you plan to use MinGW and Microsoft Visual
        Studio simultaneously or mix different Qt versions, we recommend
        creating a directory structure which reflects that. For example:
-       C:\work\qt4.7.1-vs10, C:\work\qt4.7.2-mingw.
+       C:\work\qt4.8.1-vs10, C:\work\qt4.8.4-mingw.
 
    4.  Download and install Perl from http://www.activestate.com/activeperl
        and check that perl.exe is added to the path.
 
    5.  In the working directory, check out the respective branch of Qt
-       (we recommend 4.7; see http://qt.gitorious.org/qt).
+       (we recommend 4.8; see http://qt.gitorious.org/qt).
 
    6.  Check out Qt Creator (master branch, see
        http://qt.gitorious.org/qt-creator).
@@ -97,9 +97,8 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
        directory.
 
    7.  Install a compiler:
-       - For MinGW (4.4 onwards), see http://www.mingw.org/. Note that gcc 4.5
-         produces insufficient debugging information, and therefore, we
-         recommend that you use gcc 4.4 for debugging.
+       - For a MinGW toolchain for Qt 4, see http://www.mingw.org. For a MinGW
+         toolchain for Qt 5, see http://mingwbuilds.sourceforge.net.
 
        - For Microsoft Visual C++, install the Windows SDK and the "Debugging
          Tools for Windows" from the SDK image. We strongly recommend using the
