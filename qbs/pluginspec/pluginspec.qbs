@@ -81,7 +81,7 @@ Module {
         Artifact {
             fileTags: ["qt_plugin_metadata"]
             fileName: {
-                var destdir = FileInfo.joinPaths(product.moduleProperty("qt/core", "generatedFilesDir"),
+                var destdir = FileInfo.joinPaths(product.moduleProperty("Qt/core", "generatedFilesDir"),
                                                  input.fileName);
                 return destdir.replace(/\.[^\.]*$/, '.json');
             }
@@ -89,7 +89,7 @@ Module {
 
         prepare: {
             var xslFile = project.path + "/src/pluginjsonmetadata.xsl";
-            var xmlPatternsPath = product.moduleProperty("qt/core", "binPath") + "/xmlpatterns";
+            var xmlPatternsPath = product.moduleProperty("Qt/core", "binPath") + "/xmlpatterns";
             var args = [
                 "-no-format",
                 "-output",
