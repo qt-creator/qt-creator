@@ -37,27 +37,28 @@ Installation ("make install") is not needed. It is however possible, using
 
     make install INSTALL_ROOT=$INSTALL_DIRECTORY
 
-Compiling Qt Quick Designer
+Private Header Dependencies
 ---------------------------
 
-Qt Quick Designer (QmlDesigner plugin) depends on "private" headers from Qt
-4.8.0, specifically from the QtDeclarative module. These private headers always
-end with an "_p.h". Digia does not promise to keep these files or APIs binary
-or source compatible between releases. This means that when compiled, the
-plugin has a dependency to the exact Qt version it was compiled with. Running
-Qt Creator with the plugin against updated Qt libraries (also for patch
-releases) might lead to link time failures, or even crashes.
+The Qt Quick Designer and the QNX plugin, and on Windows the Utils library,use
+private headers of Qt. These private headers always end with an "_p.h". Digia
+and the Qt Project do not promise to keep these files or APIs binary or source
+compatible between releases. This means that when compiled, Qt Creator has a
+dependency to the exact Qt version it was compiled with. Running Qt Creator
+against updated Qt libraries (also for patch releases) might lead to link time
+failures, or even crashes.
 
-If you want to disable the plugin, you can pass "QT_PRIVATE_HEADERS=" to qmake:
+If you want to disable the plugins on Linux and Mac OS X, you can pass
+"QT_PRIVATE_HEADERS=" to qmake:
 
   qmake "QT_PRIVATE_HEADERS=" $SOURCE_DIRECTORY/qtcreator.pro
 
-The plugin is not compiled if the private header files are not found. This
-might be the case when you use a Qt version from your distribution, or
-installed a self-compiled Qt to a separate directory via 'make install'. You
-can fix this by either re-building your Qt with the "-developer-build"
-configure option, or by passing the include directory in the source directory
-to qmake. For example:
+The plugins are also automatically omitted if the private header files are
+not found. This might be the case when you use a Qt version from your
+distribution, or installed a self-compiled Qt to a separate directory via
+'make install'. You can fix this by either re-building your Qt with the
+"-developer-build" configure option, or by passing the include directory in
+the source directory to qmake. For example:
 
   qmake "QT_PRIVATE_HEADERS=$$QT_BUILD_TREE/include" $SOURCE_DIRECTORY/qtcreator.pro
 
