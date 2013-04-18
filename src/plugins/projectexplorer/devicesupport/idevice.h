@@ -112,6 +112,9 @@ public:
     virtual void executeAction(Core::Id actionId, QWidget *parent = 0) const = 0;
 
     virtual DeviceProcessSupport::Ptr processSupport() const;
+    // Devices that can auto detect ports need not return a ports gathering method. Such devices can
+    // obtain a free port on demand. eg: Desktop device.
+    virtual bool canAutoDetectPorts() const { return false; }
     virtual PortsGatheringMethod::Ptr portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;

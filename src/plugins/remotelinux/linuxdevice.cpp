@@ -249,6 +249,11 @@ DeviceProcessSupport::Ptr LinuxDevice::processSupport() const
     return DeviceProcessSupport::Ptr(new LinuxDeviceProcessSupport);
 }
 
+bool LinuxDevice::canAutoDetectPorts() const
+{
+    return true;
+}
+
 PortsGatheringMethod::Ptr LinuxDevice::portsGatheringMethod() const
 {
     return LinuxPortsGatheringMethod::Ptr(new LinuxPortsGatheringMethod);

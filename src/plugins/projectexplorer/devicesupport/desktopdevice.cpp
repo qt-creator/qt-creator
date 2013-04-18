@@ -90,6 +90,11 @@ void DesktopDevice::executeAction(Core::Id actionId, QWidget *parent) const
     Q_UNUSED(parent);
 }
 
+bool DesktopDevice::canAutoDetectPorts() const
+{
+    return true;
+}
+
 bool DesktopDevice::canCreateProcessModel() const
 {
     return true;

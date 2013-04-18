@@ -288,7 +288,7 @@ bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
     ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
     if (dev.isNull())
         return false;
-    return dev->portsGatheringMethod().isNull(); // We know the free ports...
+    return dev->canAutoDetectPorts();
 }
 
 QString DebuggerRunConfigurationAspect::displayName() const

@@ -69,6 +69,7 @@ public:
     ProjectExplorer::IDevice::Ptr clone() const;
 
     ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
+    bool canAutoDetectPorts() const;
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
     bool canCreateProcessModel() const { return true; }
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
