@@ -82,7 +82,7 @@ QString QnxRunConfigurationFactory::displayNameForId(const Core::Id id) const
 
 bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
 {
-    if (!canHandle(parent) || id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
+    if (!canHandle(parent) || !id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
         return false;
 
     Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
