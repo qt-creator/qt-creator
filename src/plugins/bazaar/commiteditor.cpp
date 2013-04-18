@@ -43,12 +43,6 @@ CommitEditor::CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *paramet
     setDisplayName(tr("Commit Editor"));
 }
 
-const BazaarCommitWidget *CommitEditor::commitWidget() const
-{
-    CommitEditor *nonConstThis = const_cast<CommitEditor *>(this);
-    return static_cast<const BazaarCommitWidget *>(nonConstThis->widget());
-}
-
 BazaarCommitWidget *CommitEditor::commitWidget()
 {
     return static_cast<BazaarCommitWidget *>(widget());

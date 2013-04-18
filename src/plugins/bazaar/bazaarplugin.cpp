@@ -112,7 +112,7 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitEditorParameters = {
 BazaarPlugin *BazaarPlugin::m_instance = 0;
 
 BazaarPlugin::BazaarPlugin()
-    : VcsBase::VcsBasePlugin(Constants::COMMIT_ID),
+    : VcsBase::VcsBasePlugin(),
       m_optionsPage(0),
       m_client(0),
       m_commandLocator(0),
@@ -517,7 +517,7 @@ void BazaarPlugin::createSubmitEditorActions()
 
 void BazaarPlugin::commit()
 {
-    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
+    if (raiseSubmitEditor())
         return;
 
     const VcsBase::VcsBasePluginState state = currentState();
@@ -566,6 +566,7 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusIt
         outputWindow->appendError(tr("Unable to create a commit editor."));
         return;
     }
+    setSubmitEditor(commitEditor);
 
     commitEditor->registerActions(m_editorUndo, m_editorRedo, m_editorCommit, m_editorDiff);
     connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
@@ -653,12 +654,12 @@ void BazaarPlugin::commitFromEditor()
     Core::ICore::editorManager()->closeEditor();
 }
 
-bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
+bool BazaarPlugin::submitEditorAboutToClose()
 {
-    Core::IDocument *editorDocument = submitEditor->document();
-    const CommitEditor *commitEditor = qobject_cast<const CommitEditor *>(submitEditor);
-    if (!editorDocument || !commitEditor)
-        return true;
+    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor());
+    QTC_ASSERT(commitEditor, return true);
+    Core::IDocument *editorDocument = commitEditor->document();
+    QTC_ASSERT(editorDocument, return true);
 
     bool dummyPrompt = m_bazaarSettings.boolValue(BazaarSettings::promptOnSubmitKey);
     const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response =
@@ -690,7 +691,7 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
                 *iFile = parts.last();
         }
 
-        const BazaarCommitWidget *commitWidget = commitEditor->commitWidget();
+        BazaarCommitWidget *commitWidget = commitEditor->commitWidget();
         QStringList extraOptions;
         // Author
         if (!commitWidget->committer().isEmpty())

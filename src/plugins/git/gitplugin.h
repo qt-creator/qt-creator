@@ -149,7 +149,7 @@ private slots:
 #endif
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
+    bool submitEditorAboutToClose();
 
 private:
     inline ParameterActionCommandPair

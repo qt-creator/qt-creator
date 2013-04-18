@@ -127,7 +127,7 @@ class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 protected:
-    explicit VcsBasePlugin(const Core::Id submitEditorId);
+    explicit VcsBasePlugin();
 
     void initializeVcs(Core::IVersionControl *vc);
     virtual void extensionsInitialized();
@@ -207,10 +207,20 @@ public slots:
 protected:
     enum ActionState { NoVcsEnabled, OtherVcsEnabled, VcsEnabled };
 
+    // Sets the current submit editor for this specific version control plugin.
+    // The plugin automatically checks if the submit editor is closed and calls
+    // submitEditorAboutToClose().
+    // The method raiseSubmitEditor can be used to check for a running submit editor and raise it.
+    void setSubmitEditor(VcsBaseSubmitEditor *submitEditor);
+    // Current submit editor set through setSubmitEditor, if it wasn't closed inbetween
+    VcsBaseSubmitEditor *submitEditor() const;
+    // Tries to raise the submit editor set through setSubmitEditor. Returns true if that was found.
+    bool raiseSubmitEditor() const;
+
     // Implement to enable the plugin menu actions according to state.
     virtual void updateActions(ActionState as) = 0;
-    // Implement to start the submit process.
-    virtual bool submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor) = 0;
+    // Implement to start the submit process, use submitEditor() to get the submit editor instance.
+    virtual bool submitEditorAboutToClose() = 0;
 
     // A helper to enable the VCS menu action according to state:
     // NoVcsEnabled    -> visible, enabled if repository creation is supported

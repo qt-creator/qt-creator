@@ -589,12 +589,12 @@ VcsBaseSubmitEditor::PromptSubmitResult
                                           const QString &checkFailureQuestion,
                                           bool *promptSetting,
                                           bool forcePrompt,
-                                          bool canCommitOnFailure) const
+                                          bool canCommitOnFailure)
 {
-    SubmitEditorWidget *submitWidget =
-            static_cast<SubmitEditorWidget *>(const_cast<VcsBaseSubmitEditor *>(this)->widget());
+    SubmitEditorWidget *submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
-    raiseSubmitEditor();
+    Core::EditorManager::activateEditor(
+                this, Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
 
     QString errorMessage;
     QMessageBox::StandardButton answer = QMessageBox::Yes;
@@ -812,25 +812,6 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositor
         else
             it = untrackedFiles->erase(it);
     }
-}
-
-// Helper to raise an already open submit editor to prevent opening twice.
-bool VcsBaseSubmitEditor::raiseSubmitEditor()
-{
-    // Nothing to do?
-    if (Core::IEditor *ce = Core::EditorManager::currentEditor())
-        if (qobject_cast<VcsBaseSubmitEditor*>(ce))
-            return true;
-    // Try to activate a hidden one
-    Core::EditorManager *em = Core::EditorManager::instance();
-    foreach (Core::IEditor *e, em->openedEditors()) {
-        if (qobject_cast<VcsBaseSubmitEditor*>(e)) {
-            Core::EditorManager::activateEditor(e,
-                Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
-            return true;
-        }
-    }
-    return false;
 }
 
 } // namespace VcsBase

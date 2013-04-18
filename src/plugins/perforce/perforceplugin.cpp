@@ -176,7 +176,7 @@ PerforceResponse::PerforceResponse() :
 PerforcePlugin *PerforcePlugin::m_perforcePluginInstance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
-    VcsBase::VcsBasePlugin(Constants::PERFORCE_SUBMIT_EDITOR_ID),
+    VcsBase::VcsBasePlugin(),
     m_commandLocator(0),
     m_editAction(0),
     m_addAction(0),
@@ -596,7 +596,7 @@ void PerforcePlugin::printOpenedFileList()
 void PerforcePlugin::startSubmitProject()
 {
 
-    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
+    if (raiseSubmitEditor())
         return;
 
     if (isCommitEditorOpen()) {
@@ -661,6 +661,7 @@ Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName,
     Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID,
                                                       Core::EditorManager::ModeSwitch);
     PerforceSubmitEditor *submitEditor = static_cast<PerforceSubmitEditor*>(editor);
+    setSubmitEditor(submitEditor);
     submitEditor->restrictToProjectFiles(depotFileNames);
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentLogAction, m_diffSelectedFiles);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotSubmitDiff(QStringList)));
@@ -1321,14 +1322,14 @@ bool PerforcePlugin::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-bool PerforcePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
+bool PerforcePlugin::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
         return true;
-    Core::IDocument *editorDocument = submitEditor->document();
-    const PerforceSubmitEditor *perforceEditor = qobject_cast<PerforceSubmitEditor *>(submitEditor);
-    if (!editorDocument || !perforceEditor)
-        return true;
+    PerforceSubmitEditor *perforceEditor = qobject_cast<PerforceSubmitEditor *>(submitEditor());
+    QTC_ASSERT(perforceEditor, return true);
+    Core::IDocument *editorDocument = perforceEditor->document();
+    QTC_ASSERT(editorDocument, return true);
     // Prompt the user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
     bool wantsPrompt = m_settings.promptToSubmit();
@@ -1371,7 +1372,7 @@ bool PerforcePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *subm
     }
     VcsBase::VcsBaseOutputWindow::instance()->append(submitResponse.stdOut);
     if (submitResponse.stdOut.contains(QLatin1String("Out of date files must be resolved or reverted)")))
-        QMessageBox::warning(submitEditor->widget(), tr("Pending change"), tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
+        QMessageBox::warning(perforceEditor->widget(), tr("Pending change"), tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
 
     cleanCommitMessageFile();
     return true;

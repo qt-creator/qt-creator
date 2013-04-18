@@ -469,15 +469,15 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 }
 
 // called before closing the submit editor
-bool ClearCasePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
+bool ClearCasePlugin::submitEditorAboutToClose()
 {
     if (!isCheckInEditorOpen())
         return true;
 
-    Core::IDocument *editorDocument = submitEditor->document();
-    ClearCaseSubmitEditor *editor = qobject_cast<ClearCaseSubmitEditor *>(submitEditor);
-    if (!editorDocument || !editor)
-        return true;
+    ClearCaseSubmitEditor *editor = qobject_cast<ClearCaseSubmitEditor *>(submitEditor());
+    QTC_ASSERT(editor, return true);
+    Core::IDocument *editorDocument = editor->document();
+    QTC_ASSERT(editorDocument, return true);
 
     // Submit editor closing. Make it write out the check in message
     // and retrieve files
@@ -1030,7 +1030,7 @@ void ClearCasePlugin::startCheckInActivity()
  * check in will start. */
 void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList &files)
 {
-    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
+    if (raiseSubmitEditor())
         return;
     VcsBase::VcsBaseOutputWindow *outputwindow = VcsBase::VcsBaseOutputWindow::instance();
 
@@ -1059,6 +1059,7 @@ void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList 
     m_checkInView = workingDir;
     // Create a submit editor and set file list
     ClearCaseSubmitEditor *editor = openClearCaseSubmitEditor(m_checkInMessageFileName, m_viewData.isUcm);
+    setSubmitEditor(editor);
     editor->setStatusList(files);
 
     if (m_viewData.isUcm && (files.size() == 1)) {

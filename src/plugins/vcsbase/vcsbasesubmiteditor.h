@@ -92,7 +92,7 @@ public:
                                     const QString &checkFailureQuestion,
                                     bool *promptSetting,
                                     bool forcePrompt = false,
-                                    bool canCommitOnFailure = true) const;
+                                    bool canCommitOnFailure = true);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
@@ -144,9 +144,6 @@ public:
     // Reduce a list of untracked files reported by a VCS down to the files
     // that are actually part of the current project(s).
     static void filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles);
-
-    // Helper to raise an already open submit editor to prevent opening twice.
-    static bool raiseSubmitEditor();
 
 signals:
     void diffSelectedFiles(const QStringList &files);

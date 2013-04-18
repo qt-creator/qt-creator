@@ -125,7 +125,7 @@ private slots:
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
+    bool submitEditorAboutToClose();
 
 private:
     void createMenu();

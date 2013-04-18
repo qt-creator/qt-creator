@@ -125,7 +125,7 @@ using namespace Git::Internal;
 GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
-    VcsBase::VcsBasePlugin(Git::Constants::GITSUBMITEDITOR_ID),
+    VcsBase::VcsBasePlugin(),
     m_commandLocator(0),
     m_submitCurrentAction(0),
     m_diffSelectedFilesAction(0),
@@ -843,7 +843,7 @@ void GitPlugin::startCommit()
 
 void GitPlugin::startCommit(bool amend)
 {
-    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
+    if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
         VcsBase::VcsBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently being executed."));
@@ -904,6 +904,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
                                                 Core::EditorManager::ModeSwitch);
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
+    setSubmitEditor(submitEditor);
     // The actions are for some reason enabled by the context switching
     // mechanism. Disable them correctly.
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
@@ -924,14 +925,14 @@ void GitPlugin::submitCurrentLog()
     Core::ICore::editorManager()->closeEditor();
 }
 
-bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
+bool GitPlugin::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
         return false;
-    Core::IDocument *editorDocument = submitEditor->document();
-    const GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(submitEditor);
-    if (!editorDocument || !editor)
-        return true;
+    GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(submitEditor());
+    QTC_ASSERT(editor, return true);
+    Core::IDocument *editorDocument = editor->document();
+    QTC_ASSERT(editorDocument, return true);
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
     const QFileInfo editorFile(editorDocument->fileName());

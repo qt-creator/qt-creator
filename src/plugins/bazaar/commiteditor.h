@@ -54,10 +54,9 @@ public:
                    const QString &userName, const QString &email,
                    const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus);
 
-    const BazaarCommitWidget *commitWidget() const;
+    BazaarCommitWidget *commitWidget();
 
 private:
-    BazaarCommitWidget *commitWidget();
     VcsBase::SubmitFileModel *m_fileModel;
 };
 

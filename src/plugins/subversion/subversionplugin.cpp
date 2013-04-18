@@ -186,7 +186,7 @@ static inline QStringList svnDirectories()
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
-    VcsBase::VcsBasePlugin(Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID),
+    VcsBase::VcsBasePlugin(),
     m_svnDirectories(svnDirectories()),
     m_commandLocator(0),
     m_addAction(0),
@@ -455,15 +455,15 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     return true;
 }
 
-bool SubversionPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
+bool SubversionPlugin::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
         return true;
 
-    Core::IDocument *editorDocument = submitEditor->document();
-    const SubversionSubmitEditor *editor = qobject_cast<SubversionSubmitEditor *>(submitEditor);
-    if (!editorDocument || !editor)
-        return true;
+    SubversionSubmitEditor *editor = qobject_cast<SubversionSubmitEditor *>(submitEditor());
+    QTC_ASSERT(editor, return true);
+    Core::IDocument *editorDocument = editor->document();
+    QTC_ASSERT(editorDocument, return true);
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
@@ -623,6 +623,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
                                                             Core::EditorManager::ModeSwitch);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);
+    setSubmitEditor(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCommitFiles(QStringList)));
     submitEditor->setCheckScriptWorkingDirectory(m_commitRepository);
@@ -766,7 +767,7 @@ void SubversionPlugin::startCommitProject()
  * commit will start. */
 void SubversionPlugin::startCommit(const QString &workingDir, const QStringList &files)
 {
-    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
+    if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
         VcsBase::VcsBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));

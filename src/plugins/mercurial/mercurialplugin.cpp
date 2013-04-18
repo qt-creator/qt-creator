@@ -115,7 +115,7 @@ static const VcsBaseSubmitEditorParameters submitEditorParameters = {
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
 MercurialPlugin::MercurialPlugin() :
-        VcsBasePlugin(Constants::COMMIT_ID),
+    VcsBasePlugin(),
         optionsPage(0),
         m_client(0),
         core(0),
@@ -534,7 +534,7 @@ void MercurialPlugin::createSubmitEditorActions()
 
 void MercurialPlugin::commit()
 {
-    if (VcsBaseSubmitEditor::raiseSubmitEditor())
+    if (raiseSubmitEditor())
         return;
 
     const VcsBasePluginState state = currentState();
@@ -578,6 +578,7 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
 
     QTC_ASSERT(qobject_cast<CommitEditor *>(editor), return);
     CommitEditor *commitEditor = static_cast<CommitEditor *>(editor);
+    setSubmitEditor(commitEditor);
 
     commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
     connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
@@ -606,12 +607,12 @@ void MercurialPlugin::commitFromEditor()
     Core::ICore::editorManager()->closeEditor();
 }
 
-bool MercurialPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor)
+bool MercurialPlugin::submitEditorAboutToClose()
 {
-    Core::IDocument *editorFile = submitEditor->document();
-    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor);
-    if (!editorFile || !commitEditor)
-        return true;
+    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor());
+    QTC_ASSERT(commitEditor, return true);
+    Core::IDocument *editorFile = commitEditor->document();
+    QTC_ASSERT(editorFile, return true);
 
     bool dummyPrompt = mercurialSettings.boolValue(MercurialSettings::promptOnSubmitKey);
     const VcsBaseSubmitEditor::PromptSubmitResult response =

@@ -162,7 +162,7 @@ static inline bool messageBoxQuestion(const QString &title, const QString &quest
 CvsPlugin *CvsPlugin::m_cvsPluginInstance = 0;
 
 CvsPlugin::CvsPlugin() :
-    VcsBasePlugin(Constants::CVSCOMMITEDITOR_ID),
+    VcsBasePlugin(),
     m_commandLocator(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -450,15 +450,15 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     return true;
 }
 
-bool CvsPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor)
+bool CvsPlugin::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
         return true;
 
-    IDocument *editorDocument = submitEditor->document();
-    const CvsSubmitEditor *editor = qobject_cast<CvsSubmitEditor *>(submitEditor);
-    if (!editorDocument || !editor)
-        return true;
+    CvsSubmitEditor *editor = qobject_cast<CvsSubmitEditor *>(submitEditor());
+    QTC_ASSERT(editor, return true);
+    IDocument *editorDocument = editor->document();
+    QTC_ASSERT(editorDocument, return true);
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
@@ -759,7 +759,7 @@ void CvsPlugin::startCommitAll()
  * commit will start. */
 void CvsPlugin::startCommit(const QString &workingDir, const QStringList &files)
 {
-    if (VcsBaseSubmitEditor::raiseSubmitEditor())
+    if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
         VcsBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
@@ -804,6 +804,7 @@ void CvsPlugin::startCommit(const QString &workingDir, const QStringList &files)
     m_commitMessageFileName = saver.fileName();
     // Create a submit editor and set file list
     CvsSubmitEditor *editor = openCVSSubmitEditor(m_commitMessageFileName);
+    setSubmitEditor(editor);
     editor->setCheckScriptWorkingDirectory(m_commitRepository);
     editor->setStateList(statusOutput);
 }

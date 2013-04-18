@@ -490,11 +490,11 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 
 struct VcsBasePluginPrivate
 {
-    explicit VcsBasePluginPrivate(const Core::Id submitEditorId);
+    explicit VcsBasePluginPrivate();
 
     inline bool supportsRepositoryCreation() const;
 
-    const Core::Id m_submitEditorId;
+    QPointer<VcsBaseSubmitEditor> m_submitEditor;
     Core::IVersionControl *m_versionControl;
     VcsBasePluginState m_state;
     int m_actionState;
@@ -507,8 +507,7 @@ struct VcsBasePluginPrivate
     static Internal::StateListener *m_listener;
 };
 
-VcsBasePluginPrivate::VcsBasePluginPrivate(const Core::Id submitEditorId) :
-    m_submitEditorId(submitEditorId),
+VcsBasePluginPrivate::VcsBasePluginPrivate() :
     m_versionControl(0),
     m_actionState(-1),
     m_testSnapshotAction(0),
@@ -525,8 +524,8 @@ bool VcsBasePluginPrivate::supportsRepositoryCreation() const
 
 Internal::StateListener *VcsBasePluginPrivate::m_listener = 0;
 
-VcsBasePlugin::VcsBasePlugin(const Core::Id submitEditorId) :
-    d(new VcsBasePluginPrivate(submitEditorId))
+VcsBasePlugin::VcsBasePlugin() :
+    d(new VcsBasePluginPrivate())
 {
 }
 
@@ -561,9 +560,11 @@ void VcsBasePlugin::extensionsInitialized()
 void VcsBasePlugin::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result)
 {
     if (debug)
-        qDebug() << this << d->m_submitEditorId.name() << "Closing submit editor" << submitEditor << submitEditor->id().name();
-    if (submitEditor->id() == d->m_submitEditorId)
-        *result = submitEditorAboutToClose(submitEditor);
+        qDebug() << this << "plugin's submit editor"
+                 << d->m_submitEditor << (d->m_submitEditor ? d->m_submitEditor->id().name() : "")
+                 << "closing submit editor" << submitEditor << submitEditor->id().name();
+    if (submitEditor == d->m_submitEditor)
+        *result = submitEditorAboutToClose();
 }
 
 Core::IVersionControl *VcsBasePlugin::versionControl() const
@@ -671,6 +672,26 @@ void VcsBasePlugin::createRepository()
                                  tr("A version control repository could not be created in %1.").
                                  arg(nativeDir));
     }
+}
+
+void VcsBasePlugin::setSubmitEditor(VcsBaseSubmitEditor *submitEditor)
+{
+    d->m_submitEditor = submitEditor;
+}
+
+VcsBaseSubmitEditor *VcsBasePlugin::submitEditor() const
+{
+    return d->m_submitEditor;
+}
+
+bool VcsBasePlugin::raiseSubmitEditor() const
+{
+    if (!d->m_submitEditor)
+        return false;
+    Core::EditorManager::activateEditor(
+                d->m_submitEditor,
+                Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
+    return true;
 }
 
 // For internal tests: Create actions driving IVersionControl's snapshot interface.

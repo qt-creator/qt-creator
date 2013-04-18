@@ -201,7 +201,7 @@ private slots:
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
+    bool submitEditorAboutToClose();
     QString ccGet(const QString &workingDir, const QString &file, const QString &prefix = QString());
     QList<QStringPair> ccGetActivities() const;
 
