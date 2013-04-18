@@ -85,7 +85,8 @@ QWidget *DisplaySettingsPage::createPage(QWidget *parent)
           << ' ' << d->m_page->enableTextWrapping->text()
           << ' ' << d->m_page->autoFoldFirstComment->text()
           << ' ' << d->m_page->centerOnScroll->text()
-          << ' ' << d->m_page->openLinksInNextSplit->text();
+          << ' ' << d->m_page->openLinksInNextSplit->text()
+          << ' ' << d->m_page->displayFileEncoding->text();
         d->m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -125,6 +126,7 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
     displaySettings.m_autoFoldFirstComment = d->m_page->autoFoldFirstComment->isChecked();
     displaySettings.m_centerCursorOnScroll = d->m_page->centerOnScroll->isChecked();
     displaySettings.m_openLinksInNextSplit = d->m_page->openLinksInNextSplit->isChecked();
+    displaySettings.m_displayFileEncoding = d->m_page->displayFileEncoding->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -144,6 +146,7 @@ void DisplaySettingsPage::settingsToUI()
     d->m_page->autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
     d->m_page->centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
     d->m_page->openLinksInNextSplit->setChecked(displaySettings.m_openLinksInNextSplit);
+    d->m_page->displayFileEncoding->setChecked(displaySettings.m_displayFileEncoding);
 }
 
 const DisplaySettings &DisplaySettingsPage::displaySettings() const

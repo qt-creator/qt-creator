@@ -279,6 +279,7 @@ public slots:
     void fold();
     void unfold();
     void selectEncoding();
+    void updateTextCodecLabel();
 
     void gotoBlockStart();
     void gotoBlockEnd();
@@ -673,6 +674,8 @@ public:
 private slots:
     void updateCursorPosition();
     void openGotoLocator();
+    void setFileEncodingLabelVisible(bool visible);
+    void setFileEncodingLabelText(const QString &text);
 
 private:
     BaseTextEditorWidget *e;
@@ -680,6 +683,8 @@ private:
     QWidget *m_stretchWidget;
     QAction *m_cursorPositionLabelAction;
     Utils::LineColumnLabel *m_cursorPositionLabel;
+    QAction *m_fileEncodingLabelAction;
+    Utils::LineColumnLabel *m_fileEncodingLabel;
 };
 
 } // namespace TextEditor

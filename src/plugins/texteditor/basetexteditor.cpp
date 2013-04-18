@@ -541,10 +541,16 @@ void BaseTextEditorWidget::selectEncoding()
     case CodecSelector::Save:
         doc->setCodec(codecSelector.selectedCodec());
         Core::EditorManager::instance()->saveEditor(editor());
+        updateTextCodecLabel();
         break;
     case CodecSelector::Cancel:
         break;
     }
+}
+
+void BaseTextEditorWidget::updateTextCodecLabel()
+{
+    editor()->setFileEncodingLabelText(QString::fromLatin1(d->m_document->codec()->name()));
 }
 
 QString BaseTextEditorWidget::msgTextTooLarge(quint64 size)
@@ -584,6 +590,13 @@ bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName, c
     if (d->m_document->open(errorString, fileName, realFileName)) {
         moveCursor(QTextCursor::Start);
         updateCannotDecodeInfo();
+        if (editor()->m_fileEncodingLabel) {
+            connect(editor()->m_fileEncodingLabel, SIGNAL(clicked()), this,
+                    SLOT(selectEncoding()), Qt::UniqueConnection);
+            connect(d->m_document->document(), SIGNAL(modificationChanged(bool)), this,
+                    SLOT(updateTextCodecLabel()), Qt::UniqueConnection);
+            updateTextCodecLabel();
+        }
         return true;
     }
     return false;
@@ -5761,6 +5774,7 @@ void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
     setCenterOnScroll(ds.m_centerCursorOnScroll);
+    editor()->setFileEncodingLabelVisible(ds.m_displayFileEncoding);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
         if (SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
@@ -6277,6 +6291,9 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
     const int spacing = editor->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
 
+    m_fileEncodingLabel = new Utils::LineColumnLabel;
+    m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
+
     m_stretchWidget = new QWidget;
     m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
@@ -6284,7 +6301,9 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
     m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_toolBar->addWidget(m_stretchWidget);
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
+    m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
 
+    setFileEncodingLabelVisible(editor->displaySettings().m_displayFileEncoding);
     connect(editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateCursorPosition()));
     connect(m_cursorPositionLabel, SIGNAL(clicked()), this, SLOT(openGotoLocator()));
 }
@@ -6432,11 +6451,21 @@ void BaseTextEditor::openGotoLocator()
     }
 }
 
+void BaseTextEditor::setFileEncodingLabelVisible(bool visible)
+{
+    m_fileEncodingLabelAction->setVisible(visible);
+}
+
+void BaseTextEditor::setFileEncodingLabelText(const QString &text)
+{
+    m_fileEncodingLabel->setText(text, text);
+}
+
 QString BaseTextEditor::contextHelpId() const
 {
     if (m_contextHelpId.isEmpty())
         emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(e->editor(),
-                                                                               e->textCursor().position());
+                                                                       e->textCursor().position());
     return m_contextHelpId;
 }
 

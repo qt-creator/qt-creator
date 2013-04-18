@@ -61,6 +61,7 @@ public:
     bool m_centerCursorOnScroll;
     bool m_openLinksInNextSplit;
     bool m_forceOpenLinksInNextSplit;
+    bool m_displayFileEncoding;
 
     bool equals(const DisplaySettings &ds) const;
 };
