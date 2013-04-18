@@ -15,14 +15,14 @@ Building the sources requires Qt 4.8.0 or later.
 Compiling Qt Creator
 ====================
 Prerequisites:
-   * Qt 4.8.0
+   * Qt 4.8.0 or later
    * On Windows:
      -  ActiveState Active Perl
-     -  MinGW 4.4 or later, Visual Studio 2008 or later
+     -  MinGW or Visual Studio
      -  jom
-     The Qt SDK provides you with most of the required software.
-   * On Mac: XCode 2.5 or later, compiling on 10.4 requires setting the
-     environment variable QTC_TIGER_COMPAT before running qmake
+   * On Mac: Xcode
+
+The installed toolchains have to match the one Qt was compiled with.
 
 You can build Qt Creator with
 
