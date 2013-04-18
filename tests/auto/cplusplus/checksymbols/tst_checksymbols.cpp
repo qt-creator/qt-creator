@@ -75,7 +75,8 @@ static QString useKindToString(UseKind useKind)
     case CppHighlightingSupport::PseudoKeywordUse:
         return QLatin1String("CppHighlightingSupport::PseudoKeywordUse");
     default:
-        Q_UNREACHABLE();
+        QTest::qFail("Unknown UseKind", __FILE__, __LINE__);
+        return QLatin1String("Unknown UseKind");
     }
 }
 
