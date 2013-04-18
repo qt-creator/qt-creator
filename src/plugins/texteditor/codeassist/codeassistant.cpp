@@ -265,14 +265,15 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         }
     }
 
-    IAssistProposal *newProposal = processor->perform(assistInterface);
-    if (kind == QuickFix) {
-        TextEditor::BasicProposalItemListModel *proposalModel =
-                static_cast<TextEditor::BasicProposalItemListModel *>(newProposal->model());
-        proposalModel->setSortingAllowed(false);
-    }
+    if (IAssistProposal *newProposal = processor->perform(assistInterface)) {
+        if (kind == QuickFix) {
+            TextEditor::BasicProposalItemListModel *proposalModel =
+                    static_cast<TextEditor::BasicProposalItemListModel *>(newProposal->model());
+            proposalModel->setSortingAllowed(false);
+        }
 
-    displayProposal(newProposal, reason);
+        displayProposal(newProposal, reason);
+    }
     delete processor;
 }
 
