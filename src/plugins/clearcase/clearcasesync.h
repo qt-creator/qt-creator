@@ -40,7 +40,7 @@ class ClearCaseSync : public QObject
     Q_OBJECT
 public:
     explicit ClearCaseSync(ClearCasePlugin *plugin, QSharedPointer<StatusMap> statusMap);
-    void run(QFutureInterface<void> &future, const QString &topLevel, QStringList &files);
+    void run(QFutureInterface<void> &future, QStringList &files);
 
 signals:
     void updateStreamAndView();
