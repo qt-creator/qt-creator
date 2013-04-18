@@ -40,6 +40,7 @@
 #include "debugoutputcommand.h"
 
 #include "quickitemnodeinstance.h"
+#include "quickwindownodeinstance.h"
 
 #include "nodeinstanceserver.h"
 #include "instancecontainer.h"
@@ -194,6 +195,8 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
         instance = Internal::QmlTransitionNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickBehavior"))
         instance = Internal::BehaviorNodeInstance::create(objectToBeWrapped);
+    else if (isSubclassOf(objectToBeWrapped, "QQuickWindow"))
+        instance = Internal::QuickWindowNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QObject"))
         instance = Internal::ObjectNodeInstance::create(objectToBeWrapped);
     else

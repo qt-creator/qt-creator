@@ -92,7 +92,7 @@ public:
 
     static QString defaultTerminalEmulator();
     static QStringList availableTerminalEmulators();
-    static QString terminalEmulator(const QSettings *settings);
+    static QString terminalEmulator(const QSettings *settings, bool nonEmpty = true);
     static void setTerminalEmulator(QSettings *settings, const QString &term);
 
 signals:

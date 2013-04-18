@@ -89,12 +89,12 @@ void ViewManager::resetPropertyEditorView()
     m_propertyEditorView.resetView();
 }
 
-void ViewManager::registerFormEditorTool(AbstractCustomTool *tool)
+void ViewManager::registerFormEditorToolTakingOwnership(AbstractCustomTool *tool)
 {
     m_formEditorView.registerTool(tool);
 }
 
-void ViewManager::registerView(AbstractView *view)
+void ViewManager::registerViewTakingOwnership(AbstractView *view)
 {
     m_additionalViews.append(view);
 }

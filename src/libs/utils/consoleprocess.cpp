@@ -139,11 +139,11 @@ QString ConsoleProcess::msgCannotExecute(const QString & p, const QString &why)
     return tr("Cannot execute '%1': %2").arg(p, why);
 }
 
-QString ConsoleProcess::terminalEmulator(const QSettings *settings)
+QString ConsoleProcess::terminalEmulator(const QSettings *settings, bool nonEmpty)
 {
     if (settings) {
         const QString value = settings->value(QLatin1String("General/TerminalEmulator")).toString();
-        if (!value.isEmpty())
+        if (!nonEmpty || !value.isEmpty())
             return value;
     }
     return defaultTerminalEmulator();

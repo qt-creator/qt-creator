@@ -903,10 +903,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     }
 
     if (isComponentType(typeName) || isImplicitComponent)
-        setupComponentDelayed(modelNode, !differenceHandler.isValidator());
+        setupComponentDelayed(modelNode, differenceHandler.isValidator());
 
     if (isCustomParserType(typeName))
-        setupCustomParserNodeDelayed(modelNode, !differenceHandler.isValidator());
+        setupCustomParserNodeDelayed(modelNode, differenceHandler.isValidator());
 
     context->enterScope(astNode);
 
@@ -1001,7 +1001,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (!defaultPropertyItems.isEmpty()) {
         if (isComponentType(modelNode.type()))
-            setupComponentDelayed(modelNode, !differenceHandler.isValidator());
+            setupComponentDelayed(modelNode, differenceHandler.isValidator());
         if (defaultPropertyName.isEmpty()) {
             qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
         } else {
