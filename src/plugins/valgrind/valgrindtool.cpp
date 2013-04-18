@@ -74,13 +74,13 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
         sp.workingDirectory = rc1->workingDirectory();
         sp.debuggee = rc1->executable();
         sp.debuggeeArgs = rc1->commandLineArguments();
-        sp.connParams.host = QLatin1String("localhost");
         const ProjectExplorer::IDevice::ConstPtr device =
                 ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
         QTcpServer server;
-        if (!server.listen(QHostAddress(sp.connParams.host)))
+        if (!server.listen(QHostAddress::LocalHost) || !server.listen(QHostAddress::LocalHostIPv6))
             return sp;
+        sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
         sp.startMode = Analyzer::StartLocal;
     } else if (RemoteLinuxRunConfiguration *rc2 =
