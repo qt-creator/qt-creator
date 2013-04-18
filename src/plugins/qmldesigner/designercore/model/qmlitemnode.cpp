@@ -42,10 +42,24 @@
 
 namespace QmlDesigner {
 
+namespace {
+
+bool isItemOrWindow(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Item", -1, -1))
+        return true;
+
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Window.Window", -1, -1) && modelNode.isRootNode())
+        return true;
+
+    return false;
+}
+
+}
 
 bool QmlItemNode::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().isSubclassOf("QtQuick.Item", -1, -1);
+    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && isItemOrWindow(modelNode());
 }
 
 bool QmlItemNode::isRootNode() const
