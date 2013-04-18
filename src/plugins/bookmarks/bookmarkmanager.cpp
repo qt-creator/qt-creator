@@ -432,7 +432,10 @@ void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
 
 void BookmarkManager::updateBookmark(Bookmark *bookmark)
 {
-    int idx = m_bookmarksList.indexOf(bookmark);
+    const int idx = m_bookmarksList.indexOf(bookmark);
+    if (idx == -1)
+        return;
+
     emit dataChanged(index(idx, 0, QModelIndex()), index(idx, 2, QModelIndex()));
     saveBookmarks();
 }

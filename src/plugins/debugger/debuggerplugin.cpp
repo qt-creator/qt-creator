@@ -2283,7 +2283,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_attachToRemoteServerAction->setEnabled(true);
     m_attachToRunningApplication->setEnabled(true);
 
-    m_threadBox->setEnabled(state == InferiorStopOk);
+    m_threadBox->setEnabled(state == InferiorStopOk || state == InferiorUnrunnable);
 
     const bool isCore = engine->startParameters().startMode == AttachCore;
     const bool stopped = state == InferiorStopOk;

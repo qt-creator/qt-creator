@@ -54,13 +54,12 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    virtual void setPropertyVariant(const PropertyName &name, const QVariant &value);
-    virtual void setPropertyBinding(const PropertyName &name, const QString &expression);
-    virtual QVariant property(const PropertyName &name) const;
-    virtual void resetProperty(const PropertyName &name);
+    virtual void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
+    virtual void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
+    virtual QVariant property(const PropertyName &name) const Q_DECL_OVERRIDE;
+    virtual void resetProperty(const PropertyName &name) Q_DECL_OVERRIDE;
 
-    using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
-    void reparent(const ServerNodeInstance &oldParentInstance, const PropertyName &oldParentProperty, const ServerNodeInstance &newParentInstance, const PropertyName &newParentProperty);
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty) Q_DECL_OVERRIDE;
 
 protected:
     QmlPropertyChangesNodeInstance(QQuickPropertyChanges *object);

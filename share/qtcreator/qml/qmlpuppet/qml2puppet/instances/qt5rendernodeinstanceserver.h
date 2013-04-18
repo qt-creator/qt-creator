@@ -40,13 +40,13 @@ class Qt5RenderNodeInstanceServer : public Qt5NodeInstanceServer
 public:
     explicit Qt5RenderNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
-    void createScene(const CreateSceneCommand &command);
-    void clearScene(const ClearSceneCommand &command);
-    void completeComponent(const CompleteComponentCommand &command);
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
+    void createScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
+    void clearScene(const ClearSceneCommand &command) Q_DECL_OVERRIDE;
+    void completeComponent(const CompleteComponentCommand &command) Q_DECL_OVERRIDE;
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command) Q_DECL_OVERRIDE;
 
 protected:
-    void collectItemChangesAndSendChangeCommands();
+    void collectItemChangesAndSendChangeCommands() Q_DECL_OVERRIDE;
     ServerNodeInstance findNodeInstanceForItem(QQuickItem *item) const;
 
 private:

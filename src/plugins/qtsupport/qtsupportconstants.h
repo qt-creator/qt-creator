@@ -51,6 +51,7 @@ const char FEATURE_QMLPROJECT[] = "QtSupport.Wizards.FeatureQtQuickProject";
 const char FEATURE_QT_QUICK_1[] = "QtSupport.Wizards.FeatureQtQuick.1";
 const char FEATURE_QT_QUICK_1_1[] = "QtSupport.Wizards.FeatureQtQuick.1.1";
 const char FEATURE_QT_QUICK_2[] = "QtSupport.Wizards.FeatureQtQuick.2";
+const char FEATURE_QT_QUICK_CONTROLS[] = "QtSupport.Wizards.FeatureQtQuick.Controls";
 const char FEATURE_QT_WEBKIT[] = "QtSupport.Wizards.FeatureQtWebkit";
 const char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
 const char FEATURE_QTQUICK_COMPONENTS_MEEGO[] = "QtSupport.Wizards.FeatureQtQuickComponentsMeego";

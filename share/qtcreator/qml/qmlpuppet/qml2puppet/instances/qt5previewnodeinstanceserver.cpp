@@ -65,7 +65,7 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
 
-    if (rootNodeInstance().internalSGItem() == 0)
+    if (!rootNodeInstance().holdsQuickItem())
         return;
 
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
@@ -106,17 +106,14 @@ static void updateDirtyNodeRecursive(QQuickItem *parentItem)
 
 QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
 {
-    updateDirtyNodeRecursive(rootNodeInstance().internalSGItem());
+    rootNodeInstance().updateDirtyNodeRecursive();
 
     QRectF boundingRect = rootNodeInstance().boundingRect();
 
     QSize previewImageSize = boundingRect.size().toSize();
     previewImageSize.scale(QSize(100, 100), Qt::KeepAspectRatio);
 
-    QImage previewImage;
-
-    if (boundingRect.isValid() && rootNodeInstance().internalSGItem())
-        previewImage = designerSupport()->renderImageForItem(rootNodeInstance().internalSGItem(), boundingRect, previewImageSize);
+    QImage previewImage = rootNodeInstance().renderPreviewImage(previewImageSize);
 
     previewImage = previewImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 

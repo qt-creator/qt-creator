@@ -49,28 +49,28 @@ AnchorChangesNodeInstance::Pointer AnchorChangesNodeInstance::create(QObject *ob
     return instance;
 }
 
-void AnchorChangesNodeInstance::setPropertyVariant(const QString &/*name*/, const QVariant &/*value*/)
+void AnchorChangesNodeInstance::setPropertyVariant(const PropertyName &/*name*/, const QVariant &/*value*/)
 {
 }
 
-void AnchorChangesNodeInstance::setPropertyBinding(const QString &/*name*/, const QString &/*expression*/)
+void AnchorChangesNodeInstance::setPropertyBinding(const PropertyName &/*name*/, const QString &/*expression*/)
 {
 }
 
-QVariant AnchorChangesNodeInstance::property(const QString &/*name*/) const
+QVariant AnchorChangesNodeInstance::property(const PropertyName &/*name*/) const
 {
     return QVariant();
 }
 
-void AnchorChangesNodeInstance::resetProperty(const QString &/*name*/)
+void AnchorChangesNodeInstance::resetProperty(const PropertyName &/*name*/)
 {
 }
 
 
-void AnchorChangesNodeInstance::reparent(const ServerNodeInstance &/*oldParentInstance*/,
-                                         const QString &/*oldParentProperty*/,
-                                         const ServerNodeInstance &/*newParentInstance*/,
-                                         const QString &/*newParentProperty*/)
+void AnchorChangesNodeInstance::reparent(const ObjectNodeInstance::Pointer &/*oldParentInstance*/,
+                                         const PropertyName &/*oldParentProperty*/,
+                                         const ObjectNodeInstance::Pointer &/*newParentInstance*/,
+                                         const PropertyName &/*newParentProperty*/)
 {
 }
 

@@ -41,15 +41,15 @@ class Qt5InformationNodeInstanceServer : public Qt5NodeInstanceServer
 public:
     explicit Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
-    void reparentInstances(const ReparentInstancesCommand &command);
-    void clearScene(const ClearSceneCommand &command);
-    void createScene(const CreateSceneCommand &command);
-    void completeComponent(const CompleteComponentCommand &command);
-    void token(const TokenCommand &command);
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
+    void reparentInstances(const ReparentInstancesCommand &command) Q_DECL_OVERRIDE;
+    void clearScene(const ClearSceneCommand &command) Q_DECL_OVERRIDE;
+    void createScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
+    void completeComponent(const CompleteComponentCommand &command) Q_DECL_OVERRIDE;
+    void token(const TokenCommand &command) Q_DECL_OVERRIDE;
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command) Q_DECL_OVERRIDE;
 
 protected:
-    void collectItemChangesAndSendChangeCommands();
+    void collectItemChangesAndSendChangeCommands() Q_DECL_OVERRIDE;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
     void sendTokenBack();
 

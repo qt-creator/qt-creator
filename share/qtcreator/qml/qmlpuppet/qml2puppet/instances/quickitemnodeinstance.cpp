@@ -218,6 +218,14 @@ void QuickItemNodeInstance::updateDirtyNodeRecursive(QQuickItem *parentItem) con
     DesignerSupport::updateDirtyNode(parentItem);
 }
 
+void QuickItemNodeInstance::updateAllDirtyNodeRecursive(QQuickItem *parentItem) const
+{
+    foreach (QQuickItem *childItem, parentItem->childItems())
+            updateDirtyNodeRecursive(childItem);
+
+    DesignerSupport::updateDirtyNode(parentItem);
+}
+
 QImage QuickItemNodeInstance::renderImage() const
 {
     updateDirtyNodeRecursive(quickItem());
@@ -229,6 +237,16 @@ QImage QuickItemNodeInstance::renderImage() const
     renderImage = renderImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     return renderImage;
+}
+
+QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) const
+{
+    QRectF previewItemBoundingRect = boundingRect();
+
+    if (previewItemBoundingRect.isValid() && quickItem())
+        return designerSupport()->renderImageForItem(quickItem(), previewItemBoundingRect, previewImageSize);
+
+    return QImage();
 }
 
 bool QuickItemNodeInstance::isMovable() const
@@ -659,6 +677,11 @@ Qt5NodeInstanceServer *QuickItemNodeInstance::qt5NodeInstanceServer() const
 void QuickItemNodeInstance::createEffectItem(bool createEffectItem)
 {
     s_createEffectItem = createEffectItem;
+}
+
+void QuickItemNodeInstance::updateDirtyNodeRecursive()
+{
+    updateAllDirtyNodeRecursive(quickItem());
 }
 
 } // namespace Internal

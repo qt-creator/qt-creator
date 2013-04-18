@@ -10,6 +10,7 @@ SUBDIRS += \
     environment \
     generichighlighter \
     profilewriter \
+    treeviewfind \
     ioutils \
     qtcprocess \
     utils \

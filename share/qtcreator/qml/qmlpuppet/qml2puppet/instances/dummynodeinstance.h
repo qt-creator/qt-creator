@@ -45,20 +45,16 @@ public:
 
     static Pointer create();
 
-    void paint(QPainter *painter);
+    QRectF boundingRect() const Q_DECL_OVERRIDE;
+    QPointF position() const Q_DECL_OVERRIDE;
+    QSizeF size() const Q_DECL_OVERRIDE;
+    QTransform transform() const Q_DECL_OVERRIDE;
+    double opacity() const Q_DECL_OVERRIDE;
 
-    QRectF boundingRect() const;
-    QPointF position() const;
-    QSizeF size() const;
-    QTransform transform() const;
-    double opacity() const;
-
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyBinding(const QString &name, const QString &expression);
-    void setId(const QString &id);
-    QVariant property(const QString &name) const;
-    QStringList properties();
-    QStringList localProperties();
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
+    void setId(const QString &id) Q_DECL_OVERRIDE;
+    QVariant property(const PropertyName &name) const Q_DECL_OVERRIDE;
 
     void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
 

@@ -70,38 +70,25 @@ double DummyNodeInstance::opacity() const
     return 0.0;
 }
 
-void DummyNodeInstance::setPropertyVariant(const QString &/*name*/, const QVariant &/*value*/)
+void DummyNodeInstance::setPropertyVariant(const PropertyName &/*name*/, const QVariant &/*value*/)
 {
 }
 
-void DummyNodeInstance::setPropertyBinding(const QString &/*name*/, const QString &/*expression*/)
+void DummyNodeInstance::setPropertyBinding(const PropertyName &/*name*/, const QString &/*expression*/)
 {
-
 }
 
 void DummyNodeInstance::setId(const QString &/*id*/)
 {
-
 }
 
-QVariant DummyNodeInstance::property(const QString &/*name*/) const
+QVariant DummyNodeInstance::property(const PropertyName &/*name*/) const
 {
     return QVariant();
 }
 
-QStringList DummyNodeInstance::properties()
-{
-    return QStringList();
-}
-
-QStringList DummyNodeInstance::localProperties()
-{
-    return QStringList();
-}
-
 void DummyNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &/*objectNodeInstance*/)
 {
-
 }
 
 } // namespace Internal

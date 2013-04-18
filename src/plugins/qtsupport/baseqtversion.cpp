@@ -266,6 +266,8 @@ Core::FeatureSet BaseQtVersion::availableFeatures() const
          features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_1_1);
      if (qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
          features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_2);
+     if (qtVersion() >= QtSupport::QtVersionNumber(5, 1, 0))
+         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS);
 
      return features;
 }

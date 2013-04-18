@@ -431,6 +431,10 @@ QVariant ObjectNodeInstance::fixResourcePaths(const QVariant &value)
     return value;
 }
 
+void ObjectNodeInstance::updateDirtyNodeRecursive()
+{
+}
+
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     QQmlProperty property(object(), name, context());
@@ -1097,11 +1101,12 @@ void ObjectNodeInstance::setResetValue(const PropertyName &propertyName, const Q
     m_resetValueHash.insert(propertyName, value);
 }
 
-void ObjectNodeInstance::paint(QPainter * /*painter*/)
+QImage ObjectNodeInstance::renderImage() const
 {
+    return QImage();
 }
 
-QImage ObjectNodeInstance::renderImage() const
+QImage ObjectNodeInstance::renderPreviewImage(const QSize & /*previewImageSize*/) const
 {
     return QImage();
 }

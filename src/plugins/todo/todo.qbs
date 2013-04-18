@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "CPlusPlus" }
     Depends { name: "CppTools" }
-    Depends { name: "QmlJs" }
+    Depends { name: "QmlJS" }
 
     files: [
         "constants.h",

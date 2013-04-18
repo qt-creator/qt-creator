@@ -48,10 +48,15 @@
             press \key {Alt+Left}.
 
         \li To check that the application code can be compiled and linked for a
-            device, click the \gui {Kit Selector} and select a kit for the
+            device, click the \gui {Kit Selector} and select a
+            \l{glossary-buildandrun-kit}{kit} for the
             device.
 
             \image qtcreator-gs-build-example-kit-selector.png "Selecting a kit to build with"
+
+            If you installed \QC as part of a Qt installation, it should have
+            automatically detected the installed kit. If no kits are available,
+            see \l{Adding Kits}.
 
         \li Click
             \inlineimage qtcreator-run.png
@@ -59,6 +64,10 @@
 
         \li To see the compilation progress, press \key{Alt+4} to open the
             \gui {Compile Output} pane.
+
+            If build errors occur, check that a \l{Adding Qt Versions}
+            {Qt version} and \l{Adding Compilers}{compiler} are installed and
+            configured and that the necessary kits are configured.
 
             The \gui Build progress bar on the toolbar turns green when the
             project is successfully built. The application opens on the device.
