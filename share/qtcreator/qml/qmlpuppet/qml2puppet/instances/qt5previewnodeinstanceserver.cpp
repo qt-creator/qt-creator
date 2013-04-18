@@ -96,14 +96,6 @@ void Qt5PreviewNodeInstanceServer::changeState(const ChangeStateCommand &/*comma
 
 }
 
-static void updateDirtyNodeRecursive(QQuickItem *parentItem)
-{
-    foreach (QQuickItem *childItem, parentItem->childItems())
-        updateDirtyNodeRecursive(childItem);
-
-    DesignerSupport::updateDirtyNode(parentItem);
-}
-
 QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
 {
     rootNodeInstance().updateDirtyNodeRecursive();
