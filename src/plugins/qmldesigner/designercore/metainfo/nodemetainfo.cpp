@@ -782,6 +782,16 @@ static QString getUnqualifiedName(const QString &name)
     return nameComponents.last();
 }
 
+static QString getPackage(const QString &name)
+{
+    QStringList nameComponents = name.split('.');
+    if (nameComponents.size() < 2)
+        return QString();
+    nameComponents.removeLast();
+
+    return nameComponents.join(QLatin1String("."));
+}
+
 bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
 {
     if (otherType == qualfiedTypeName())
@@ -790,13 +800,9 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
     if (isFileComponent())
         return false;
 
-    QStringList split = otherType.split('.');
-    QString package;
-    QString typeName = otherType;
-    if (split.count() > 1) {
-        package = split.first();
-        typeName = split.at(1);
-    }
+    const QString typeName = getUnqualifiedName(otherType);
+    const QString package = getPackage(otherType);
+
     if (cppPackageName() == package)
         return QString(package + '.' + typeName) == cppPackageName() + '.' + getUnqualifiedName(qualfiedTypeName());
 
