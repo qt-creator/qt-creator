@@ -382,15 +382,16 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     if (debugger->useQmlDebugger()) {
         const ProjectExplorer::IDevice::ConstPtr device =
                 DeviceKitInformation::device(runConfiguration->target()->kit());
-        sp.qmlServerAddress = _("127.0.0.1");
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
         QTcpServer server;
-        const bool canListen = server.listen(QHostAddress(sp.qmlServerAddress));
+        const bool canListen = server.listen(QHostAddress::LocalHost)
+                || server.listen(QHostAddress::LocalHostIPv6);
         if (!canListen) {
             if (errorMessage)
                 *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging. ");
             return sp;
         }
+        sp.qmlServerAddress = server.serverAddress().toString();
         sp.qmlServerPort = server.serverPort();
         sp.languages |= QmlLanguage;
 

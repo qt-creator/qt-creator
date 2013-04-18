@@ -218,15 +218,16 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     if (debugger->useQmlDebugger()) {
         const ProjectExplorer::IDevice::ConstPtr device =
                 DeviceKitInformation::device(runConfig->target()->kit());
-        params.qmlServerAddress = QLatin1String("127.0.0.1");
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
         QTcpServer server;
-        const bool canListen = server.listen(QHostAddress(params.qmlServerAddress));
+        const bool canListen = server.listen(QHostAddress::LocalHost)
+                || server.listen(QHostAddress::LocalHostIPv6);
         if (!canListen) {
             if (errorMessage)
                 *errorMessage = tr("Not enough free ports for QML debugging. ");
             return 0;
         }
+        params.qmlServerAddress = server.serverAddress().toString();
         params.qmlServerPort = server.serverPort();
         params.languages |= Debugger::QmlLanguage;
 
