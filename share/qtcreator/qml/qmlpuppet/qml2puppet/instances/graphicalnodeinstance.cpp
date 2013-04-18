@@ -350,8 +350,8 @@ void GraphicalNodeInstance::setPropertyVariant(const PropertyName &name, const Q
 
     refresh();
 
-    if (isInPositioner())
-        parentInstance()->refreshPositioner();
+    if (isInLayoutable())
+        parentInstance()->refreshLayoutable();
 }
 
 void GraphicalNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
@@ -365,8 +365,8 @@ void GraphicalNodeInstance::setPropertyBinding(const PropertyName &name, const Q
 
     refresh();
 
-    if (isInPositioner())
-        parentInstance()->refreshPositioner();
+    if (isInLayoutable())
+        parentInstance()->refreshLayoutable();
 }
 
 QVariant GraphicalNodeInstance::property(const PropertyName &name) const
@@ -423,8 +423,8 @@ void GraphicalNodeInstance::resetProperty(const PropertyName &name)
 
     quickItem()->update();
 
-    if (isInPositioner())
-        parentInstance()->refreshPositioner();
+    if (isInLayoutable())
+        parentInstance()->refreshLayoutable();
 }
 
 

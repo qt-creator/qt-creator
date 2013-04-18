@@ -131,14 +131,14 @@ void QuickItemNodeInstance::setResizable(bool resizable)
 void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
     if (oldParentInstance && oldParentInstance->isPositioner()) {
-        setInPositioner(false);
+        setInLayoutable(false);
         setMovable(true);
     }
 
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 
     if (newParentInstance && newParentInstance->isPositioner()) {
-        setInPositioner(true);
+        setInLayoutable(true);
         setMovable(false);
     }
 
@@ -153,8 +153,8 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
     refresh();
     DesignerSupport::updateDirtyNode(quickItem());
 
-    if (parentInstance() && isInPositioner())
-        parentInstance()->refreshPositioner();
+    if (parentInstance() && isInLayoutable())
+        parentInstance()->refreshLayoutable();
 }
 
 bool QuickItemNodeInstance::isAnchoredBySibling() const

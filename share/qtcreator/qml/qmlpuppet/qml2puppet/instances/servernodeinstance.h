@@ -130,7 +130,7 @@ public:
     bool hasContent() const;
     bool isResizable() const;
     bool isMovable() const;
-    bool isInPositioner() const;
+    bool isInLayoutable() const;
 
     bool isSubclassOf(const QString &superTypeName) const;
     bool isRootNodeInstance() const;

@@ -73,7 +73,7 @@ ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     m_deleteHeldInstance(true),
     m_object(object),
     m_metaObject(0),
-    m_isInPositioner(false)
+    m_isInLayoutable(false)
 {
 
 }
@@ -202,6 +202,11 @@ bool ObjectNodeInstance::isQuickWindow() const
 bool ObjectNodeInstance::isGraphical() const
 {
     return false;
+}
+
+bool ObjectNodeInstance::isLayoutable() const
+{
+    return true;
 }
 
 bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
@@ -1033,17 +1038,17 @@ bool ObjectNodeInstance::isMovable() const
     return false;
 }
 
-bool ObjectNodeInstance::isInPositioner() const
+bool ObjectNodeInstance::isInLayoutable() const
 {
-    return m_isInPositioner;
+    return m_isInLayoutable;
 }
 
-void ObjectNodeInstance::setInPositioner(bool isInPositioner)
+void ObjectNodeInstance::setInLayoutable(bool isInLayoutable)
 {
-    m_isInPositioner = isInPositioner;
+    m_isInLayoutable = isInLayoutable;
 }
 
-void ObjectNodeInstance::refreshPositioner()
+void ObjectNodeInstance::refreshLayoutable()
 {
 }
 

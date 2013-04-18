@@ -47,7 +47,7 @@ enum InformationName
     InstanceTypeForProperty,
     PenWidth,
     Position,
-    IsInPositioner,
+    IsInLayoutable,
     SceneTransform,
     IsResizable,
     IsMovable,

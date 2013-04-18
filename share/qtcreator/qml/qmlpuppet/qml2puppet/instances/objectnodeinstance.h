@@ -99,6 +99,7 @@ public:
     virtual bool isQuickItem() const;
     virtual bool isQuickWindow() const;
     virtual bool isGraphical() const;
+    virtual bool isLayoutable() const;
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
 
@@ -155,9 +156,9 @@ public:
     virtual bool hasContent() const;
     virtual bool isResizable() const;
     virtual bool isMovable() const;
-    bool isInPositioner() const;
-    void setInPositioner(bool isInPositioner);
-    virtual void refreshPositioner();
+    bool isInLayoutable() const;
+    void setInLayoutable(bool isInLayoutable);
+    virtual void refreshLayoutable();
 
     bool hasBindingForProperty(const PropertyName &name, bool *hasChanged = 0) const;
 
@@ -204,7 +205,7 @@ private:
     QPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
     NodeInstanceSignalSpy m_signalSpy;
-    bool m_isInPositioner;
+    bool m_isInLayoutable;
 };
 
 } // namespace Internal

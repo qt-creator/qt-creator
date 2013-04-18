@@ -408,9 +408,9 @@ bool ServerNodeInstance::isMovable() const
     return m_nodeInstance->isMovable();
 }
 
-bool ServerNodeInstance::isInPositioner() const
+bool ServerNodeInstance::isInLayoutable() const
 {
-    return m_nodeInstance->isInPositioner();
+    return m_nodeInstance->isInLayoutable();
 }
 
 bool ServerNodeInstance::hasAnchor(const PropertyName &name) const

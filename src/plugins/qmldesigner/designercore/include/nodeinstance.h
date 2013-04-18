@@ -66,7 +66,7 @@ public:
     bool isResizable() const;
     QTransform transform() const;
     QTransform sceneTransform() const;
-    bool isInPositioner() const;
+    bool isInLayoutable() const;
     QPointF position() const;
     QSizeF size() const;
     int penWidth() const;
@@ -95,7 +95,7 @@ protected:
     InformationName setInformationTransform(const QTransform &transform);
     InformationName setInformationPenWith(int penWidth);
     InformationName setInformationPosition(const QPointF &position);
-    InformationName setInformationIsInPositioner(bool isInPositioner);
+    InformationName setInformationIsInLayoutable(bool isInLayoutable);
     InformationName setInformationSceneTransform(const QTransform &sceneTransform);
     InformationName setInformationIsResizable(bool isResizable);
     InformationName setInformationIsMovable(bool isMovable);

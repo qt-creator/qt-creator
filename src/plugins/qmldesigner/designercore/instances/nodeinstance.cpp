@@ -48,7 +48,7 @@ public:
           hasContent(false),
           isMovable(false),
           isResizable(false),
-          isInPositioner(false)
+          isInLayoutable(false)
     {}
 
     qint32 parentInstanceId;
@@ -64,7 +64,7 @@ public:
     bool hasContent;
     bool isMovable;
     bool isResizable;
-    bool isInPositioner;
+    bool isInLayoutable;
 
 
     QHash<PropertyName, QVariant> propertyValues;
@@ -198,10 +198,10 @@ QTransform NodeInstance::sceneTransform() const
     else
         return QTransform();
 }
-bool NodeInstance::isInPositioner() const
+bool NodeInstance::isInLayoutable() const
 {
     if (isValid())
-        return d->isInPositioner;
+        return d->isInLayoutable;
     else
         return false;
 }
@@ -355,11 +355,11 @@ InformationName NodeInstance::setInformationPosition(const QPointF &position)
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationIsInPositioner(bool isInPositioner)
+InformationName NodeInstance::setInformationIsInLayoutable(bool isInLayoutable)
 {
-    if (d->isInPositioner != isInPositioner) {
-        d->isInPositioner = isInPositioner;
-        return IsInPositioner;
+    if (d->isInLayoutable != isInLayoutable) {
+        d->isInLayoutable = isInLayoutable;
+        return IsInLayoutable;
     }
 
     return NoInformationChange;
@@ -474,7 +474,7 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
     case Transform: return setInformationTransform(information.value<QTransform>()); break;
     case PenWidth: return setInformationPenWith(information.toInt()); break;
     case Position: return setInformationPosition(information.toPointF()); break;
-    case IsInPositioner: return setInformationIsInPositioner(information.toBool()); break;
+    case IsInLayoutable: return setInformationIsInLayoutable(information.toBool()); break;
     case SceneTransform: return setInformationSceneTransform(information.value<QTransform>()); break;
     case IsResizable: return setInformationIsResizable(information.toBool()); break;
     case IsMovable: return setInformationIsMovable(information.toBool()); break;

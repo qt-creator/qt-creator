@@ -42,6 +42,11 @@ bool PositionerNodeInstance::isPositioner() const
     return true;
 }
 
+bool PositionerNodeInstance::isLayoutable() const
+{
+    return true;
+}
+
 bool PositionerNodeInstance::isResizable() const
 {
     return true;
@@ -87,7 +92,7 @@ QQuickBasePositioner *PositionerNodeInstance::positioner() const
     return static_cast<QQuickBasePositioner*>(object());
 }
 
-void PositionerNodeInstance::refreshPositioner()
+void PositionerNodeInstance::refreshLayoutable()
 {
     bool success = QMetaObject::invokeMethod(positioner(), "prePositioning");
     Q_ASSERT(success);

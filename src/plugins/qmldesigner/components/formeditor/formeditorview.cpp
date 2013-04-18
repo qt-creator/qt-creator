@@ -634,7 +634,7 @@ bool FormEditorView::isMoveToolAvailable() const
 {
     if (selectedQmlItemNodes().count() == 1)
         return selectedQmlItemNodes().first().instanceIsMovable() &&
-               !selectedQmlItemNodes().first().instanceIsInPositioner();
+               !selectedQmlItemNodes().first().instanceIsInLayoutable();
     return true;
 }
 

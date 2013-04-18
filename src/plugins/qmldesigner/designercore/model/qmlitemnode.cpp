@@ -224,9 +224,9 @@ bool QmlItemNode::instanceIsResizable() const
     return nodeInstance().isResizable();
 }
 
-bool QmlItemNode::instanceIsInPositioner() const
+bool QmlItemNode::instanceIsInLayoutable() const
 {
-     return nodeInstance().isInPositioner();
+     return nodeInstance().isInLayoutable();
 }
 
 bool QmlItemNode::instanceHasRotationTransform() const
