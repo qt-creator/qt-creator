@@ -165,14 +165,6 @@ void DeviceManager::load()
                 break;
             }
         }
-        // TODO: Remove this in 2.9; this code introduces a bug #QTCREATORBUG-9055
-        // Set default port for desktop devices.
-        if (device->type() == Constants::DESKTOP_DEVICE_TYPE
-                && device->freePorts().toString().isEmpty()) {
-            Utils::PortList freePorts;
-            freePorts.addRange(Constants::DESKTOP_PORT_START, Constants::DESKTOP_PORT_END);
-            device->setFreePorts(freePorts);
-        }
         addDevice(device);
     }
     // Append the new SDK devices to the model.
