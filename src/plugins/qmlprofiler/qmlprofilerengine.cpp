@@ -122,7 +122,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
                 ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
         QTcpServer server;
-        if (!server.listen(QHostAddress(QLatin1String("127.0.0.1"))))
+        if (!server.listen(QHostAddress::LocalHost) || !server.listen(QHostAddress::LocalHostIPv6))
             return 0;
         conf.port = server.serverPort();
         runner = new LocalQmlProfilerRunner(conf, parent);

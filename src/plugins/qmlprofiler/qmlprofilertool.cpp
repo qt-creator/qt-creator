@@ -318,7 +318,6 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggee = rc1->observerPath();
         sp.debuggeeArgs = rc1->viewerArguments();
         sp.displayName = rc1->displayName();
-        sp.connParams.host = QLatin1String("localhost");
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         if (environment)
@@ -327,7 +326,6 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggee = rc2->executable();
         sp.debuggeeArgs = rc2->commandLineArguments();
         sp.displayName = rc2->displayName();
-        sp.connParams.host = QLatin1String("localhost");
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc3 =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc3->remoteExecutableFilePath();
@@ -344,8 +342,9 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
             ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         QTcpServer server;
-        if (!server.listen(QHostAddress(sp.connParams.host)))
+        if (!server.listen(QHostAddress::LocalHost) || !server.listen(QHostAddress::LocalHostIPv6))
             return sp;
+        sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
     }
     sp.startMode = StartQml;
