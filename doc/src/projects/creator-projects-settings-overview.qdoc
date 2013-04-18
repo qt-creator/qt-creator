@@ -26,7 +26,7 @@
     \contentspage index.html
     \previouspage creator-version-control.html
     \page creator-configuring-projects.html
-    \nextpage creator-build-settings.html
+    \nextpage creator-targets.html
 
     \title Configuring Projects
 
@@ -41,11 +41,34 @@
     open projects and use the \gui Build menu commands to build, deploy, and
     run projects.
 
+    \section1 Selecting Kits
+
+    \image qtcreator-project-targets.png
+
+    To add kits for the project, select \gui {Add Kit}. The list displays kits
+    that are configured in \gui Tools > \gui Options > \gui {Build & Run} >
+    \gui Kits. To add kits to the list, select \gui {Manage Kits}.
+    For more information about adding kits, see \l{Adding Kits}.
+
+    Each kit consists of a set of values that define one environment, such as a
+    device, compiler, and Qt version. For more information, see
+    \l{Adding Qt Versions} and \l{Adding Compilers}.
+
+    To copy the build and run settings for a kit to another kit, select
+    \gui {Copy to Kit} in the kit menu.
+
+    To change the kit, while preserving the build and run settings, select
+    \gui {Change Kit}.
+
+    To remove a kit, select \gui {Remove Kit}.
+
+    \section1 Specifying Settings
+
     The project pane consists of the following tabs:
 
     \list
 
-        \li \l{Adding Kits}{Build & Run}
+        \li Build & Run
 
             \list
 
@@ -72,21 +95,5 @@
 
     If you have multiple projects open in \QC, use the tabs at the top of the
     window to navigate between their settings.
-
-    \section1 Selecting Kits
-
-    \image qtcreator-project-targets.png
-
-    To add kits for the project, select \gui {Add Kit}. The list displays kits
-    that are configured in \gui Tools > \gui Options > \gui {Build & Run} >
-    \gui Kits. To add kits to the list, select \gui {Manage Kits}.
-
-    To copy the build and run settings for a kit to another kit, select
-    \gui {Copy to Kit} in the kit menu.
-
-    To change the kit, while preserving the build and run settings, select
-    \gui {Change Kit}.
-
-    To remove a kit, select \gui {Remove Kit}
 
 */

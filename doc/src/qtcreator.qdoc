@@ -165,12 +165,10 @@
             \li \l{Using Version Control Systems}
             \li \l{Configuring Projects}
             \list
+                \li \l{Adding Kits}
+                \li \l{Adding Qt Versions}
+                \li \l{Adding Compilers}
                 \li \l{Specifying Build Settings}
-                \list
-                    \li \l{Adding Kits}
-                    \li \l{Adding Qt Versions}
-                    \li \l{Adding Compilers}
-                \endlist
                 \li \l{Specifying Run Settings}
                 \li \l{Specifying Editor Settings}
                 \li \l{Specifying Code Style Settings}
