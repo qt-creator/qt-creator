@@ -778,7 +778,7 @@ static QString getUnqualifiedName(const QString &name)
 {
     const QStringList nameComponents = name.split('.');
     if (nameComponents.size() < 2)
-        return QString();
+        return name;
     return nameComponents.last();
 }
 
