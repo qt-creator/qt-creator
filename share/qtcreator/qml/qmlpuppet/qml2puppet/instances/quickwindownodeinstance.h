@@ -73,7 +73,7 @@ public:
     bool hasContent() const Q_DECL_OVERRIDE;
 
     QList<ServerNodeInstance> childItems() const Q_DECL_OVERRIDE;
-    QList<ServerNodeInstance> childItemsForChild(QQuickItem *childItem) const Q_DECL_OVERRIDE;
+    QList<ServerNodeInstance> childItemsForChild(QQuickItem *childItem) const;
 
     bool isMovable() const Q_DECL_OVERRIDE;
 
