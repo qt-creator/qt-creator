@@ -35,6 +35,11 @@
 
 using namespace TextEditor;
 
+ITextEditorDocument::ITextEditorDocument(QObject *parent)
+    : Core::TextDocument(parent)
+{
+}
+
 QMap<QString, QString> ITextEditor::openedTextEditorsContents()
 {
     QMap<QString, QString> workingCopy;
@@ -43,7 +48,7 @@ QMap<QString, QString> ITextEditor::openedTextEditorsContents()
         if (!textEditor)
             continue;
         QString fileName = textEditor->document()->fileName();
-        workingCopy[fileName] = textEditor->contents();
+        workingCopy[fileName] = textEditor->textDocument()->contents();
     }
     return workingCopy;
 }
@@ -59,4 +64,10 @@ QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextEditorsEncodings(
         workingCopy[fileName] = textEditor->textCodec();
     }
     return workingCopy;
+}
+
+
+ITextEditorDocument *ITextEditor::textDocument()
+{
+    return qobject_cast<ITextEditorDocument *>(document());
 }

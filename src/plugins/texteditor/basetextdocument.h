@@ -32,7 +32,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/textdocument.h>
+#include "itexteditor.h"
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
@@ -49,13 +49,18 @@ class ExtraEncodingSettings;
 class SyntaxHighlighter;
 class BaseTextDocumentPrivate;
 
-class TEXTEDITOR_EXPORT BaseTextDocument : public Core::TextDocument
+class TEXTEDITOR_EXPORT BaseTextDocument : public ITextEditorDocument
 {
     Q_OBJECT
 
 public:
     BaseTextDocument();
     virtual ~BaseTextDocument();
+
+    // ITextEditorDocument
+    QString contents() const;
+    QString textAt(int pos, int length) const;
+    QChar characterAt(int pos) const;
 
     void setTypingSettings(const TypingSettings &typingSettings);
     void setStorageSettings(const StorageSettings &storageSettings);

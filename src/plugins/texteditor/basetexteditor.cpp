@@ -707,7 +707,7 @@ void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, 
     if (doc->isRedoAvailable())
         emit editor()->contentsChangedBecauseOfUndo();
 
-    if (charsAdded != 0 && characterAt(position + charsAdded - 1).isPrint())
+    if (charsAdded != 0 && document()->characterAt(position + charsAdded - 1).isPrint())
         d->m_assistRelevantContentAdded = true;
 }
 
@@ -1241,7 +1241,7 @@ bool BaseTextEditorWidget::camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveM
         return false;
 
     forever {
-        QChar c = characterAt(cursor.position());
+        QChar c = document()->characterAt(cursor.position());
         Input input = Input_other;
         if (c.isUpper())
             input = Input_U;
@@ -1348,7 +1348,7 @@ bool BaseTextEditorWidget::camelCaseRight(QTextCursor &cursor, QTextCursor::Move
     };
 
     forever {
-        QChar c = characterAt(cursor.position());
+        QChar c = document()->characterAt(cursor.position());
         Input input = Input_other;
         if (c.isUpper())
             input = Input_U;
@@ -2101,7 +2101,7 @@ void BaseTextEditorWidget::gotoLine(int line, int column)
             cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, column);
         } else {
             int pos = cursor.position();
-            while (characterAt(pos).category() == QChar::Separator_Space) {
+            while (document()->characterAt(pos).category() == QChar::Separator_Space) {
                 ++pos;
             }
             cursor.setPosition(pos);
@@ -2146,11 +2146,6 @@ int BaseTextEditorWidget::position(ITextEditor::PositionOperation posOp, int at)
 void BaseTextEditorWidget::convertPosition(int pos, int *line, int *column) const
 {
     Convenience::convertPosition(document(), pos, line, column);
-}
-
-QChar BaseTextEditorWidget::characterAt(int pos) const
-{
-    return document()->characterAt(pos);
 }
 
 bool BaseTextEditorWidget::event(QEvent *e)
@@ -4752,14 +4747,14 @@ void BaseTextEditorWidget::handleHomeKey(bool anchor)
 
     const int initpos = cursor.position();
     int pos = cursor.block().position();
-    QChar character = characterAt(pos);
+    QChar character = document()->characterAt(pos);
     const QLatin1Char tab = QLatin1Char('\t');
 
     while (character == tab || character.category() == QChar::Separator_Space) {
         ++pos;
         if (pos == initpos)
             break;
-        character = characterAt(pos);
+        character = document()->characterAt(pos);
     }
 
     // Go to the start of the block when we're already at the start of the text
@@ -4834,7 +4829,7 @@ void BaseTextEditorWidget::handleBackspaceKey()
             }
         }
     } else if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceUnindents) {
-        const QChar &c = characterAt(pos - 1);
+        const QChar &c = document()->characterAt(pos - 1);
         if (!(c == QLatin1Char(' ') || c == QLatin1Char('\t'))) {
             if (cursorWithinSnippet)
                 cursor.beginEditBlock();
@@ -5241,7 +5236,7 @@ void BaseTextEditorWidget::_q_matchParentheses()
         QPalette pal;
         pal.setBrush(QPalette::Text, d->m_matchFormat.foreground());
         pal.setBrush(QPalette::Base, d->m_matchFormat.background());
-        d->m_animator->setData(font(), pal, characterAt(d->m_animator->position()));
+        d->m_animator->setData(font(), pal, document()->characterAt(d->m_animator->position()));
         connect(d->m_animator, SIGNAL(updateRequest(int,QPointF,QRectF)),
                 this, SLOT(_q_animateUpdate(int,QPointF,QRectF)));
     }
@@ -6334,11 +6329,6 @@ void BaseTextEditor::insertExtraToolBarWidget(BaseTextEditor::Side side,
         m_toolBar->insertWidget(m_toolBar->actions().first(), widget);
 }
 
-int BaseTextEditor::find(const QString &) const
-{
-    return 0;
-}
-
 int BaseTextEditor::currentLine() const
 {
     return e->textCursor().blockNumber() + 1;
@@ -6370,21 +6360,11 @@ QRect BaseTextEditor::cursorRect(int pos) const
     return result;
 }
 
-QString BaseTextEditor::contents() const
-{
-    return e->toPlainText();
-}
-
 QString BaseTextEditor::selectedText() const
 {
     if (e->textCursor().hasSelection())
         return e->textCursor().selectedText();
     return QString();
-}
-
-QString BaseTextEditor::textAt(int pos, int length) const
-{
-    return Convenience::textAt(e->textCursor(), pos, length);
 }
 
 void BaseTextEditor::remove(int length)

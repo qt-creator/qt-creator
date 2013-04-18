@@ -340,7 +340,7 @@ static Document::Ptr addDefinition(const Snapshot &docTable,
                 //! \todo use the InsertionPointLocator to insert at the correct place.
                 // (we'll have to extend that class first to do definition insertions)
 
-                const QString contents = editable->contents();
+                const QString contents = editable->textDocument()->contents();
                 int column;
                 editable->convertPosition(contents.length(), line, &column);
                 editable->gotoLine(*line, column);

@@ -1482,10 +1482,10 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
     const Snapshot &snapshot = m_modelManager->snapshot();
 
     QTextCursor tc = cursor;
-    QChar ch = characterAt(tc.position());
+    QChar ch = document()->characterAt(tc.position());
     while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
         tc.movePosition(QTextCursor::NextCharacter);
-        ch = characterAt(tc.position());
+        ch = document()->characterAt(tc.position());
     }
 
     // Initially try to macth decl/def. For this we need the semantic doc with the AST.
@@ -1493,9 +1493,9 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
             && m_lastSemanticInfo.doc->translationUnit()
             && m_lastSemanticInfo.doc->translationUnit()->ast()) {
         int pos = tc.position();
-        while (characterAt(pos).isSpace())
+        while (document()->characterAt(pos).isSpace())
             ++pos;
-        if (characterAt(pos) == QLatin1Char('(')) {
+        if (document()->characterAt(pos) == QLatin1Char('(')) {
             link = attemptFuncDeclDef(cursor, m_lastSemanticInfo.doc, snapshot);
             if (link.hasValidLinkText())
                 return link;
@@ -1626,7 +1626,7 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
     QString expression = expressionUnderCursor(tc);
 
     for (int pos = tc.position();; ++pos) {
-        const QChar ch = characterAt(pos);
+        const QChar ch = document()->characterAt(pos);
         if (ch.isSpace())
             continue;
         else {
@@ -2488,9 +2488,9 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
 bool CPPEditorWidget::isStartOfDoxygenComment(const QTextCursor &cursor) const
 {
     const int pos = cursor.position();
-    QString comment = QString(characterAt(pos - 3))
-            + characterAt(pos - 2)
-            + characterAt(pos - 1);
+    QString comment = QString(document()->characterAt(pos - 3))
+            + document()->characterAt(pos - 2)
+            + document()->characterAt(pos - 1);
 
     if ((comment == QLatin1String("/**"))
             || (comment == QLatin1String("/*!"))

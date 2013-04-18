@@ -195,8 +195,9 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
     if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()) {
         m_proposalWidget->setReason(ExplicitlyInvoked);
         m_proposalWidget->updateProposal(
-            m_textEditor->textAt(m_proposal->basePosition(),
-                                 m_textEditor->position() - m_proposal->basePosition()));
+                    m_textEditor->textDocument()->textAt(
+                        m_proposal->basePosition(),
+                        m_textEditor->position() - m_proposal->basePosition()));
     } else {
         destroyContext();
         requestProposal(ExplicitlyInvoked, kind, provider);
@@ -334,7 +335,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         m_proposalWidget->setIsSynchronized(false);
     else
         m_proposalWidget->setIsSynchronized(true);
-    m_proposalWidget->showProposal(m_textEditor->textAt(
+    m_proposalWidget->showProposal(m_textEditor->textDocument()->textAt(
                                        m_proposal->basePosition(),
                                        m_textEditor->position() - m_proposal->basePosition()));
 }
@@ -393,7 +394,7 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
         const int length = provider->activationCharSequenceLength();
         if (length == 0)
             continue;
-        QString sequence = m_textEditor->textAt(m_textEditor->position() - length, length);
+        QString sequence = m_textEditor->textDocument()->textAt(m_textEditor->position() - length, length);
         // In pretty much all cases the sequence will have the appropriate length. Only in the
         // case of typing the very first characters in the document for providers that request a
         // length greater than 1 (currently only C++, which specifies 3), the sequence needs to
@@ -417,7 +418,7 @@ void CodeAssistantPrivate::notifyChange()
             destroyContext();
         } else {
             m_proposalWidget->updateProposal(
-                m_textEditor->textAt(m_proposal->basePosition(),
+                m_textEditor->textDocument()->textAt(m_proposal->basePosition(),
                                      m_textEditor->position() - m_proposal->basePosition()));
             if (m_proposal->isFragile())
                 startAutomaticProposalTimer();

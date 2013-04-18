@@ -242,7 +242,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 
                     // If the function doesn't return anything, automatically place the semicolon,
                     // unless we're doing a scope completion (then it might be function definition).
-                    const QChar characterAtCursor = editor->characterAt(editor->position());
+                    const QChar characterAtCursor = editor->textDocument()->characterAt(editor->position());
                     bool endWithSemicolon = m_typedChar == QLatin1Char(';')
                             || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON);
                     const QChar semicolon = m_typedChar.isNull() ? QLatin1Char(';') : m_typedChar;
@@ -260,7 +260,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
                             m_typedChar = QChar();
                         }
                     } else if (autoParenthesesEnabled) {
-                        const QChar lookAhead = editor->characterAt(editor->position() + 1);
+                        const QChar lookAhead = editor->textDocument()->characterAt(editor->position() + 1);
                         if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                             extraChars += QLatin1Char(')');
                             --cursorOffset;
@@ -299,7 +299,8 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     // Determine the length of characters that should just be kept on the editor, but do
     // not consider content that ends as an identifier (which could be undesired).
     const int lineEnd = editor->position(TextEditor::ITextEditor::EndOfLine);
-    const QString inEditor = editor->textAt(editor->position(), lineEnd - editor->position());
+    const QString inEditor = editor->textDocument()->textAt(editor->position(),
+                                                            lineEnd - editor->position());
     int preserveLength = 0;
     if (!inEditor.isEmpty()) {
         preserveLength = toInsert.length() - (editor->position() - basePosition);
@@ -317,7 +318,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = editor->characterAt(editor->position() + i + preserveLength);
+        const QChar b = editor->textDocument()->characterAt(editor->position() + i + preserveLength);
         if (a == b)
             ++extraLength;
         else

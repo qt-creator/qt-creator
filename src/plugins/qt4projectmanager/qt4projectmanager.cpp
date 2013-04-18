@@ -312,7 +312,7 @@ void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor
     // add extra \n in case the last line is not empty
     int line, column;
     editable->convertPosition(endOfDoc, &line, &column);
-    if (!editable->textAt(endOfDoc - column, column).simplified().isEmpty())
+    if (!editable->textDocument()->textAt(endOfDoc - column, column).simplified().isEmpty())
         snippet = QLatin1Char('\n') + snippet;
 
     editable->insert(snippet);

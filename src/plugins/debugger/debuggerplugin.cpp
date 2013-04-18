@@ -685,7 +685,7 @@ static bool currentTextEditorPosition(ContextData *data)
     data->fileName = document->fileName();
     if (textEditor->property("DisassemblerView").toBool()) {
         int lineNumber = textEditor->currentLine();
-        QString line = textEditor->contents()
+        QString line = textEditor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         data->address = DisassemblerLine::addressFromDisassemblyLine(line);
     } else {
@@ -1845,7 +1845,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     const QString fileName = editor->document()->fileName();
     if (editor->property("DisassemblerView").toBool()) {
         args.fileName = fileName;
-        QString line = editor->contents()
+        QString line = editor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
@@ -1959,7 +1959,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
     QTC_ASSERT(textEditor, return);
     const int lineNumber = textEditor->currentLine();
     if (textEditor->property("DisassemblerView").toBool()) {
-        QString line = textEditor->contents()
+        QString line = textEditor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
@@ -2016,7 +2016,7 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
         return;
 
     if (editor->property("DisassemblerView").toBool()) {
-        QString line = editor->contents()
+        QString line = editor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);

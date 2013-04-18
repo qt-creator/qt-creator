@@ -158,8 +158,6 @@ public:
     BaseTextEditor *editor() const;
     ITextMarkable *markableInterface() const;
 
-    QChar characterAt(int pos) const;
-
     void print(QPrinter *);
 
     void setSuggestedFileName(const QString &suggestedFileName);
@@ -621,8 +619,7 @@ public:
     friend class BaseTextEditorWidget;
     BaseTextEditorWidget *editorWidget() const { return e; }
 
-    // EditorInterface
-    //QWidget *widget() { return e; }
+    // IEditor
     Core::IDocument * document() { return e->editorDocument(); }
     bool createNew(const QString &contents) { return e->createNew(contents); }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName) { return e->open(errorString, fileName, realFileName); }
@@ -637,7 +634,6 @@ public:
     void insertExtraToolBarWidget(Side side, QWidget *widget);
 
     // ITextEditor
-    int find(const QString &string) const;
     int currentLine() const;
     int currentColumn() const;
     void gotoLine(int line, int column = 0) { e->gotoLine(line, column); }
@@ -650,10 +646,7 @@ public:
     { e->convertPosition(pos, line, column); }
     QRect cursorRect(int pos = -1) const;
 
-    QString contents() const;
     QString selectedText() const;
-    QString textAt(int pos, int length) const;
-    inline QChar characterAt(int pos) const { return e->characterAt(pos); }
 
     inline ITextMarkable *markableInterface() { return e->markableInterface(); }
 

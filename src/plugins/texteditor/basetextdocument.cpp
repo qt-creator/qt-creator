@@ -31,6 +31,7 @@
 
 #include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
+#include "convenience.h"
 #include "typingsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
@@ -88,6 +89,21 @@ BaseTextDocument::~BaseTextDocument()
     delete d->m_document;
     d->m_document = 0;
     delete d;
+}
+
+QString BaseTextDocument::contents() const
+{
+    return document()->toPlainText();
+}
+
+QString BaseTextDocument::textAt(int pos, int length) const
+{
+    return Convenience::textAt(QTextCursor(document()), pos, length);
+}
+
+QChar BaseTextDocument::characterAt(int pos) const
+{
+    return document()->characterAt(pos);
 }
 
 QString BaseTextDocument::mimeType() const

@@ -73,7 +73,7 @@ QString CppEditorSupport::contents()
     if (! _textEditor)
         return QString();
     else if (! _cachedContents.isEmpty())
-        _cachedContents = _textEditor->contents();
+        _cachedContents = _textEditor->textDocument()->contents();
 
     return _cachedContents;
 }
@@ -112,7 +112,7 @@ void CppEditorSupport::updateDocumentNow()
         _updateDocumentTimer->stop();
 
         QStringList sourceFiles(_textEditor->document()->fileName());
-        _cachedContents = _textEditor->contents();
+        _cachedContents = _textEditor->textDocument()->contents();
         _documentParser = _modelManager->updateSourceFiles(sourceFiles);
     }
 }

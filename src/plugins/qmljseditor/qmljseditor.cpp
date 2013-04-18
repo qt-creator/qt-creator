@@ -1001,7 +1001,7 @@ void QmlJSTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 QString QmlJSTextEditorWidget::wordUnderCursor() const
 {
     QTextCursor tc = textCursor();
-    const QChar ch = characterAt(tc.position() - 1);
+    const QChar ch = document()->characterAt(tc.position() - 1);
     // make sure that we're not at the start of the next word.
     if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
         tc.movePosition(QTextCursor::Left);

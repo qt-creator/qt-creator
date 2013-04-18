@@ -214,7 +214,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         i = j = pos;
         QString nameAtt;
         for (;;) {
-            QChar c = qmlEditor->characterAt(j);
+            QChar c = qmlEditor->document()->characterAt(j);
             if (!c.isLetterOrNumber()) break;
             nameAtt.append(c);
             ++j;
@@ -222,7 +222,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         QStringList qName;
         while (i>0) {
             --i;
-            QChar c = qmlEditor->characterAt(i);
+            QChar c = qmlEditor->document()->characterAt(i);
             if (c.isLetterOrNumber()) {
                 nameAtt.prepend(c);
             } else if (c == QLatin1Char('.')) {

@@ -34,6 +34,7 @@
 
 #include "itextmark.h"
 
+#include <coreplugin/textdocument.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QMap>
@@ -54,6 +55,17 @@ namespace Utils {
 
 namespace TextEditor {
 
+class TEXTEDITOR_EXPORT ITextEditorDocument : public Core::TextDocument
+{
+    Q_OBJECT
+public:
+    explicit ITextEditorDocument(QObject *parent = 0);
+
+    virtual QString contents() const = 0;
+    virtual QString textAt(int pos, int length) const = 0;
+    virtual QChar characterAt(int pos) const = 0;
+};
+
 class TEXTEDITOR_EXPORT ITextEditor : public Core::IEditor
 {
     Q_OBJECT
@@ -68,7 +80,8 @@ public:
 
     ITextEditor() {}
 
-    virtual int find(const QString &string) const = 0;
+    virtual ITextEditorDocument *textDocument();
+
     /*! Returns the position at \a posOp in characters from the beginning of the document */
     virtual int position(PositionOperation posOp = Current, int at = -1) const = 0;
     /*! Converts the \a pos in characters from beginning of document to \a line and \a column */
@@ -80,10 +93,7 @@ public:
     /*! Returns the amount of visible lines (in characters) in the editor */
     virtual int rowCount() const = 0;
 
-    virtual QString contents() const = 0;
     virtual QString selectedText() const = 0;
-    virtual QString textAt(int pos, int length) const = 0;
-    virtual QChar characterAt(int pos) const = 0;
 
     /*! Removes \a length characters to the right of the cursor. */
     virtual void remove(int length) = 0;

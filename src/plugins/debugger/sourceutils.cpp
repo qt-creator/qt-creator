@@ -340,7 +340,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         QTextCursor tc(plaintext->document());
         tc.setPosition(pos);
 
-        const QChar ch = editor->characterAt(pos);
+        const QChar ch = editor->textDocument()->characterAt(pos);
         if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
             tc.movePosition(QTextCursor::EndOfWord);
 
