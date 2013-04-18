@@ -1351,6 +1351,46 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
     data.run(&factory);
 }
 
+/// Check: Move Ctor with member initialization list (QTCREATORBUG-9157).
+void CppPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo {\n"
+        "public:\n"
+        "    Fo@o() : a(42), b(3.141) {}\n"
+        "private:\n"
+        "    int a;\n"
+        "    float b;\n"
+        "};";
+    expected =
+        "class Foo {\n"
+        "public:\n"
+        "    Foo();\n"
+        "private:\n"
+        "    int a;\n"
+        "    float b;\n"
+        "};\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original ="#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::Foo() : a(42), b(3.141) {}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
 {
@@ -1572,6 +1612,46 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
     expected =
         "#include \"file.h\"\n"
         "\n\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefToDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check: revert test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
+void CppPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo {\n"
+        "public:\n"
+        "    Foo();\n"
+        "private:\n"
+        "    int a;\n"
+        "    float b;\n"
+        "};";
+    expected =
+        "class Foo {\n"
+        "public:\n"
+        "    Foo() : a(42), b(3.141) {}\n"
+        "private:\n"
+        "    int a;\n"
+        "    float b;\n"
+        "};\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::F@oo() : a(42), b(3.141) {}"
+        ;
+    expected ="#include \"file.h\"\n\n\n";
     testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
 
     MoveFuncDefToDecl factory;

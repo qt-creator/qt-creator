@@ -140,6 +140,7 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs();
     void test_quickfix_MoveFuncDefOutside_FreeFuncToCpp();
     void test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS();
+    void test_quickfix_MoveFuncDefOutside_CtorWithInitialization();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();
@@ -148,6 +149,7 @@ private slots:
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs();
     void test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp();
     void test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS();
+    void test_quickfix_MoveFuncDefToDecl_CtorWithInitialization();
 
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.

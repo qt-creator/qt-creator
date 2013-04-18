@@ -3645,7 +3645,6 @@ public:
     {
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr fromFile = refactoring.file(m_headerFileName);
-        const QString textFuncBody = fromFile->textOf(m_funcDef->function_body);
         CppRefactoringFilePtr toFile;
         int insertPos = 0;
         Scope *scopeAtInsertPos = 0;
@@ -3666,6 +3665,10 @@ public:
         // construct definition
         const QString funcDec = getDefinitionSignature(assistInterface(), m_func, toFile,
                                                        scopeAtInsertPos);
+        QString textFuncBody;
+        if (m_funcDef->ctor_initializer)
+                textFuncBody = fromFile->textOf(m_funcDef->ctor_initializer) + QLatin1Char(' ');
+        textFuncBody += fromFile->textOf(m_funcDef->function_body);
         QString funcDef = QString::fromLatin1("\n%1 %2\n")
                 .arg(funcDec)
                 .arg(textFuncBody);
@@ -3792,8 +3795,11 @@ public:
         CppRefactoringFilePtr toFile = refactoring.file(m_toFileName);
         ChangeSet::Range fromRange = fromFile->range(m_funcAST);
         const QString definitionText = fromFile->textOf(m_funcAST->function_body);
-        const QString wholeFunctionText = QString::fromLatin1("%1 %2").arg(m_declarationText)
-                .arg(definitionText);
+        QString wholeFunctionText = m_declarationText;
+        if (m_funcAST->ctor_initializer)
+            wholeFunctionText += QLatin1Char(' ') + fromFile->textOf(m_funcAST->ctor_initializer);
+        wholeFunctionText +=  QLatin1Char(' ') + definitionText;
+
 
         // Replace declaration with function and delete old definition
         Utils::ChangeSet toTarget;
