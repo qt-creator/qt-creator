@@ -44,13 +44,7 @@ namespace Git {
 namespace Internal {
 
 // A dialog that lists SHA1 and subject of the changes
-// for reset --hard and --soft.
-
-enum ResetType {
-    HardReset,
-    SoftReset
-};
-
+// Used for reset and interactive rebased
 class LogChangeDialog : public QDialog
 {
     Q_OBJECT
@@ -60,7 +54,7 @@ public:
     bool runDialog(const QString &repository);
 
     QString commit() const;
-    ResetType resetType() const;
+    QString resetFlag() const;
 
 private:
     bool populateLog(const QString &repository);

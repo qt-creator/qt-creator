@@ -869,24 +869,12 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
     return true;
 }
 
-void GitClient::hardReset(const QString &workingDirectory, const QString &commit)
+void GitClient::reset(const QString &workingDirectory, const QString &argument, const QString &commit)
 {
     QStringList arguments;
-    arguments << QLatin1String("reset") << QLatin1String("--hard");
+    arguments << QLatin1String("reset") << argument;
     if (!commit.isEmpty())
         arguments << commit;
-
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    connectRepositoryChanged(workingDirectory, cmd);
-}
-
-void GitClient::softReset(const QString &workingDirectory, const QString &commit)
-{
-    if (commit.isEmpty())
-        return;
-
-    QStringList arguments;
-    arguments << QLatin1String("reset") << QLatin1String("--soft") << commit;
 
     VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
     connectRepositoryChanged(workingDirectory, cmd);

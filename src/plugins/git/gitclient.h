@@ -137,8 +137,7 @@ public:
              bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
     void blame(const QString &workingDirectory, const QStringList &args, const QString &fileName,
                const QString &revision = QString(), int lineNumber = -1);
-    void hardReset(const QString &workingDirectory, const QString &commit = QString());
-    void softReset(const QString &workingDirectory, const QString &commit);
+    void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory,
                         const QStringList &arguments,

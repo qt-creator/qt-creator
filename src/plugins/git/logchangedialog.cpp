@@ -72,8 +72,8 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent)
     if (isReset) {
         popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
         m_resetTypeComboBox = new QComboBox(this);
-        m_resetTypeComboBox->addItem(tr("Hard Reset"), HardReset);
-        m_resetTypeComboBox->addItem(tr("Soft Reset"), SoftReset);
+        m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
+        m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
     }
@@ -112,11 +112,11 @@ QString LogChangeDialog::commit() const
     return QString();
 }
 
-ResetType LogChangeDialog::resetType() const
+QString LogChangeDialog::resetFlag() const
 {
     if (!m_resetTypeComboBox)
-        return HardReset;
-    return static_cast<ResetType>(m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toInt());
+        return QString();
+    return m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toString();
 }
 
 bool LogChangeDialog::populateLog(const QString &repository)

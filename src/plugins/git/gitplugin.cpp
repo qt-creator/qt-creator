@@ -708,14 +708,7 @@ void GitPlugin::resetRepository()
     LogChangeDialog dialog(true);
     dialog.setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(topLevel)));
     if (dialog.runDialog(topLevel))
-        switch (dialog.resetType()) {
-        case HardReset:
-            m_gitClient->hardReset(topLevel, dialog.commit());
-            break;
-        case SoftReset:
-            m_gitClient->softReset(topLevel, dialog.commit());
-            break;
-        }
+        m_gitClient->reset(topLevel, dialog.resetFlag(), dialog.commit());
 }
 
 void GitPlugin::startRebase()
