@@ -82,7 +82,11 @@ void AndroidDeployStep::ctor()
     //: AndroidDeployStep default display name
     setDefaultDisplayName(tr("Deploy to Android device"));
     m_deployAction = NoDeploy;
+
     m_useLocalQtLibs = false;
+    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit()))
+        if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
+            m_useLocalQtLibs = true;
 }
 
 bool AndroidDeployStep::init()
@@ -197,22 +201,20 @@ void AndroidDeployStep::cleanLibsFinished()
 void AndroidDeployStep::setDeployAction(AndroidDeployStep::AndroidDeployAction deploy)
 {
     m_deployAction = deploy;
+
+    AndroidManager::updateDeploymentSettings(target());
 }
 
 void AndroidDeployStep::setDeployQASIPackagePath(const QString &package)
 {
     m_QASIPackagePath = package;
-    m_deployAction = InstallQASI;
+    setDeployAction(InstallQASI);
 }
 
 void AndroidDeployStep::setUseLocalQtLibs(bool useLocal)
 {
     m_useLocalQtLibs = useLocal;
-
-    // ### Passes -1 for API level, which means it won't work with setups that require
-    // library selection based on API level. Use the old approach (command line argument)
-    // in these cases.
-    AndroidManager::setUseLocalLibs(target(), useLocal, -1);
+    AndroidManager::updateDeploymentSettings(target());
 }
 
 bool AndroidDeployStep::runCommand(QProcess *buildProc,

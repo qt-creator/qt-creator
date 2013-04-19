@@ -45,6 +45,8 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
+class DeployItem;
+
 class AndroidPackageCreationStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
@@ -82,6 +84,8 @@ private slots:
     void showInGraphicalShell();
     void setQtLibs(const QStringList &qtLibs);
     void setPrebundledLibs(const QStringList &prebundledLibs);
+    void updateXmlForFiles(const QStringList &inLibList, const QStringList &inAssetsList);
+    void getBundleInformation();
 
 signals:
     void updateRequiredLibrariesModels();
@@ -99,6 +103,12 @@ private:
     bool runCommand(QProcess *buildProc, const QString &program, const QStringList &arguments);
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
+
+    QStringList collectRelativeFilePaths(const QString &parentPath);
+    void collectFiles(QList<DeployItem> *deployList, QList<DeployItem> *pluginsAndImports);
+    void removeManagedFilesFromPackage();
+    void copyFilesIntoPackage(const QList<DeployItem> &deployList);
+    void stripFiles(const QList<DeployItem> &deployList);
 
     static const Core::Id CreatePackageId;
 
@@ -126,8 +136,13 @@ private:
     Utils::FileName m_appPath;
     Utils::FileName m_readElf;
     QStringList m_qtLibs;
+    QStringList m_qtLibsWithDependencies;
     QVector<AndroidManager::Library> m_availableQtLibs;
     QStringList m_prebundledLibs;
+
+    QStringList m_bundledJars;
+    QStringList m_otherBundledFiles;
+    bool m_bundleQt;
 };
 
 } // namespace Internal

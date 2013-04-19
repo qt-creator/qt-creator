@@ -85,7 +85,8 @@ public:
     static bool setTargetApplication(ProjectExplorer::Target *target, const QString &name);
     static QString targetApplicationPath(ProjectExplorer::Target *target);
 
-    static bool setUseLocalLibs(ProjectExplorer::Target *target, bool useLocalLibs, int deviceAPILevel);
+    static bool updateDeploymentSettings(ProjectExplorer::Target *target);
+    static bool bundleQt(ProjectExplorer::Target *target);
 
     static QString targetSDK(ProjectExplorer::Target *target);
     static bool setTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
@@ -103,9 +104,10 @@ public:
                              const QString &name = QString());
 
     static Utils::FileName localLibsRulesFilePath(ProjectExplorer::Target *target);
-    static QString loadLocalLibs(ProjectExplorer::Target *target, int apiLevel);
-    static QString loadLocalJars(ProjectExplorer::Target *target, int apiLevel);
-    static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel);
+    static QString loadLocalLibs(ProjectExplorer::Target *target, int apiLevel = -1);
+    static QString loadLocalJars(ProjectExplorer::Target *target, int apiLevel = -1);
+    static QString loadLocalBundledFiles(ProjectExplorer::Target *target, int apiLevel = -1);
+    static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel = -1);
 
     class Library
     {
@@ -123,11 +125,17 @@ public:
     static QStringList qtLibs(ProjectExplorer::Target *target);
     static bool setQtLibs(ProjectExplorer::Target *target, const QStringList &libs);
 
+    static bool setBundledInLib(ProjectExplorer::Target *target,
+                                const QStringList &fileList);
+    static bool setBundledInAssets(ProjectExplorer::Target *target,
+                                   const QStringList &fileList);
+
     static QStringList availablePrebundledLibs(ProjectExplorer::Target *target);
     static QStringList prebundledLibs(ProjectExplorer::Target *target);
     static bool setPrebundledLibs(ProjectExplorer::Target *target, const QStringList &libs);
 
     static QString libGnuStl(const QString &arch, const QString &ndkToolChainVersion);
+    static QString libraryPrefix();
 
 private:
     static void raiseError(const QString &reason);
@@ -143,7 +151,9 @@ private:
     enum ItemType
     {
         Lib,
-        Jar
+        Jar,
+        BundledFile,
+        BundledJar
     };
     static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
 
