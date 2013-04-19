@@ -281,6 +281,8 @@ public:
                            QString *errorMessage = 0);
 
     CommandInProgress checkCommandInProgress(const QString &workingDirectory);
+    CommandInProgress checkCommandInProgressInGitDir(const QString &gitDir);
+
     void continueCommandIfNeeded(const QString &workingDirectory);
     void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,
                                     const QString &buttonName, const QString &gitCommand, bool requireChanges = true);

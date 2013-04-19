@@ -1264,6 +1264,20 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     if (!branch.isEmpty())
         return data.topic = branch;
 
+    switch (checkCommandInProgressInGitDir(gitDir)) {
+    case Rebase:
+    case RebaseMerge:
+        return data.topic = tr("Rebasing");
+    case Revert:
+        return data.topic = tr("Reverting");
+    case CherryPick:
+        return data.topic = tr("Cherry Picking");
+    case Merge:
+        return data.topic = tr("Merging");
+    default:
+        break;
+    }
+
     // Detached HEAD, try a tag or remote branch
     QStringList references;
     if (!synchronousHeadRefs(workingDirectory, &references))
@@ -1892,10 +1906,8 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     return StatusUnchanged;
 }
 
-GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &workingDirectory)
+GitClient::CommandInProgress GitClient::checkCommandInProgressInGitDir(const QString &gitDir)
 {
-    QString gitDir = findGitDirForRepository(workingDirectory);
-
     if (QFile::exists(gitDir + QLatin1String("/MERGE_HEAD")))
         return Merge;
     else if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing")))
@@ -1908,6 +1920,11 @@ GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &wo
         return CherryPick;
     else
         return NoCommand;
+}
+
+GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &workingDirectory)
+{
+    return checkCommandInProgressInGitDir(findGitDirForRepository(workingDirectory));
 }
 
 void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
