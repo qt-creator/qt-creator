@@ -47,6 +47,7 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
     m_nameLineEdit = new QLineEdit(this);
     m_nameLineEdit->setText(tc->displayName());
     m_mainLayout = new QFormLayout(this);
+    m_mainLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow); // for the Macs...
     m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
 
     connect(m_nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(dirty()));
