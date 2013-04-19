@@ -79,8 +79,6 @@ public:
     bool operator >=(const QtVersionNumber &b) const;
     bool operator !=(const QtVersionNumber &b) const;
     bool operator ==(const QtVersionNumber &b) const;
-private:
-    bool checkVersionString(const QString &version) const;
 };
 
 namespace Internal { class QtOptionsPageWidget; }

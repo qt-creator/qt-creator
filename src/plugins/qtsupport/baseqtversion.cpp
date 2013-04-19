@@ -76,15 +76,9 @@ QtVersionNumber::QtVersionNumber(int ma, int mi, int p)
 
 QtVersionNumber::QtVersionNumber(const QString &versionString)
 {
-    if (!checkVersionString(versionString)) {
+    if (::sscanf(versionString.toLatin1().constData(), "%d.%d.%d",
+           &majorVersion, &minorVersion, &patchVersion) != 3)
         majorVersion = minorVersion = patchVersion = -1;
-        return;
-    }
-
-    QStringList parts = versionString.split(QLatin1Char('.'));
-    majorVersion = parts.at(0).toInt();
-    minorVersion = parts.at(1).toInt();
-    patchVersion = parts.at(2).toInt();
 }
 
 QtVersionNumber::QtVersionNumber()
@@ -92,34 +86,13 @@ QtVersionNumber::QtVersionNumber()
     majorVersion = minorVersion = patchVersion = -1;
 }
 
-bool QtVersionNumber::checkVersionString(const QString &version) const
-{
-    int dots = 0;
-    const QString validChars = QLatin1String("0123456789.");
-    foreach (const QChar &c, version) {
-        if (!validChars.contains(c))
-            return false;
-        if (c == QLatin1Char('.'))
-            ++dots;
-    }
-    if (dots != 2)
-        return false;
-    return true;
-}
-
 bool QtVersionNumber::operator <(const QtVersionNumber &b) const
 {
-    if (majorVersion < b.majorVersion)
-        return true;
-    if (majorVersion > b.majorVersion)
-        return false;
-    if (minorVersion < b.minorVersion)
-        return true;
-    if (minorVersion > b.minorVersion)
-        return false;
-    if (patchVersion < b.patchVersion)
-        return true;
-    return false;
+    if (majorVersion != b.majorVersion)
+        return majorVersion < b.majorVersion;
+    if (minorVersion != b.minorVersion)
+        return minorVersion < b.minorVersion;
+    return patchVersion < b.patchVersion;
 }
 
 bool QtVersionNumber::operator >(const QtVersionNumber &b) const
