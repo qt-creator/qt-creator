@@ -118,7 +118,7 @@ struct ContentLessThan
 } // Anonymous
 
 BasicProposalItemListModel::BasicProposalItemListModel()
-    : m_isSortingAllowed(false)
+    : m_isSortingAllowed(true)
 {}
 
 BasicProposalItemListModel::BasicProposalItemListModel(const QList<BasicProposalItem *> &items)

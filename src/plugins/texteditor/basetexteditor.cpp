@@ -1111,7 +1111,7 @@ void BaseTextEditorWidget::moveLineUpDown(bool up)
 
     bool hasSelection = cursor.hasSelection();
 
-    if (cursor.hasSelection()) {
+    if (hasSelection) {
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
