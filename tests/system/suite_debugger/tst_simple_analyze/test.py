@@ -40,6 +40,12 @@ def main():
             allowAppThroughWinFW(workingDir, projectName, False)
             switchViewTo(ViewConstants.ANALYZE)
             selectFromCombo(":Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox", "QML Profiler")
+            recordButton = waitForObject("{container=':Qt Creator.Analyzer Toolbar_QDockWidget' "
+                                         "type='QToolButton' unnamed='1' visible='1' "
+                                         "toolTip?='*able profiling'}")
+            if not test.verify(recordButton.checked, "Verifying recording is enabled."):
+                test.log("Enabling recording for the test run")
+                clickButton(recordButton)
             clickButton(waitForObject(":Analyzer Toolbar.Start_QToolButton"))
             stopButton = waitForObject(":Qt Creator.Stop_QToolButton")
             elapsedLabel = waitForObject(":Analyzer Toolbar.Elapsed:_QLabel", 3000)
