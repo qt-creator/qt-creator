@@ -440,6 +440,18 @@ void QmlCppEngine::notifyInferiorShutdownOk()
     DebuggerEngine::notifyInferiorShutdownOk();
 }
 
+void QmlCppEngine::notifyInferiorSetupOk()
+{
+    EDEBUG("\nMASTER INFERIOR SETUP OK");
+    emit aboutToNotifyInferiorSetupOk();
+    DebuggerEngine::notifyInferiorSetupOk();
+}
+
+void QmlCppEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int pid)
+{
+    d->m_cppEngine->notifyEngineRemoteServerRunning(serverChannel, pid);
+}
+
 void QmlCppEngine::setupInferior()
 {
     EDEBUG("\nMASTER SETUP INFERIOR");
