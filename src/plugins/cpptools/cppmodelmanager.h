@@ -171,6 +171,7 @@ private Q_SLOTS:
     void onExtraDiagnosticsUpdated(const QString &fileName);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onAboutToUnloadSession();
+    void onCoreAboutToClose();
     void onProjectAdded(ProjectExplorer::Project *project);
     void postEditorUpdate();
     void updateEditorSelections();
@@ -195,6 +196,7 @@ private:
 
 private:
     CPlusPlus::Snapshot m_snapshot;
+    bool m_enableGC;
 
     // cache
     bool m_dirty;

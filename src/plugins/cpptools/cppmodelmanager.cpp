@@ -626,6 +626,7 @@ CppModelManager *CppModelManager::instance()
 
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
+    , m_enableGC(true)
     , m_completionAssistProvider(0)
     , m_highlightingFactory(0)
     , m_indexingSupporter(0)
@@ -655,6 +656,9 @@ CppModelManager::CppModelManager(QObject *parent)
 
     connect(session, SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(onAboutToUnloadSession()));
+
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
+            this, SLOT(onCoreAboutToClose()));
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
 
@@ -1209,8 +1213,16 @@ void CppModelManager::onAboutToUnloadSession()
     GC();
 }
 
+void CppModelManager::onCoreAboutToClose()
+{
+    m_enableGC = false;
+}
+
 void CppModelManager::GC()
 {
+    if (!m_enableGC)
+        return;
+
     Snapshot currentSnapshot = snapshot();
     QSet<QString> processed;
     QStringList todo = projectFiles();
