@@ -89,6 +89,8 @@ BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
 
+    emitEnvironmentChanged();
+
     connect(target, SIGNAL(kitChanged()),
             this, SLOT(handleKitUpdate()));
 }
@@ -103,6 +105,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     // Do not clone stepLists here, do that in the derived constructor instead
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
+
+    emitEnvironmentChanged();
 
     connect(target, SIGNAL(kitChanged()),
             this, SLOT(handleKitUpdate()));
@@ -159,7 +163,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
-    m_lastEnvironment = environment();
+    emitEnvironmentChanged();
 
     qDeleteAll(m_stepLists);
     m_stepLists.clear();
@@ -193,11 +197,12 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
 
 void BuildConfiguration::emitEnvironmentChanged()
 {
-   Utils::Environment env = environment();
-   if (env == m_lastEnvironment)
-       return;
-   m_lastEnvironment = env;
-   emit environmentChanged();
+    Utils::Environment env = baseEnvironment();
+    env.modify(userEnvironmentChanges());
+    if (env == m_cachedEnvironment)
+        return;
+    m_cachedEnvironment = env;
+    emit environmentChanged();
 }
 
 void BuildConfiguration::handleKitUpdate()
@@ -229,9 +234,7 @@ QString BuildConfiguration::baseEnvironmentText() const
 
 Utils::Environment BuildConfiguration::environment() const
 {
-    Utils::Environment env = baseEnvironment();
-    env.modify(userEnvironmentChanges());
-    return env;
+    return m_cachedEnvironment;
 }
 
 void BuildConfiguration::setUseSystemEnvironment(bool b)

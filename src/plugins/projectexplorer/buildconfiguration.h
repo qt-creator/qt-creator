@@ -111,7 +111,7 @@ private:
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
     Utils::AbstractMacroExpander *m_macroExpander;
-    Utils::Environment m_lastEnvironment;
+    mutable Utils::Environment m_cachedEnvironment;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :
