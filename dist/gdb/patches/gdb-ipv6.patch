@@ -1,7 +1,7 @@
-diff -rup gdb-7.4-clean/gdb/gdbserver/gdbreplay.c gdb-7.4/gdb/gdbserver/gdbreplay.c
---- gdb-7.4-clean/gdb/gdbserver/gdbreplay.c	2012-03-30 15:07:01.540553998 +0200
-+++ gdb-7.4/gdb/gdbserver/gdbreplay.c	2012-03-30 15:08:39.484553844 +0200
-@@ -188,14 +188,41 @@ remote_close (void)
+diff -Nru a/gdb-7.5.1/gdb/gdbserver/gdbreplay.c b/gdb-7.5.1/gdb/gdbserver/gdbreplay.c
+--- a/gdb-7.5.1/gdb/gdbserver/gdbreplay.c	2012-08-22 13:05:02 -0700
++++ b/gdb-7.5.1/gdb/gdbserver/gdbreplay.c	2013-04-15 03:20:40 -0700
+@@ -190,14 +190,41 @@
  static void
  remote_open (char *name)
  {
@@ -47,9 +47,9 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/gdbreplay.c gdb-7.4/gdb/gdbserver/gdbrepla
  #ifdef USE_WIN32API
        static int winsock_initialized;
  #endif
-diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remote-utils.c
---- gdb-7.4-clean/gdb/gdbserver/remote-utils.c	2012-03-30 15:07:01.540553998 +0200
-+++ gdb-7.4/gdb/gdbserver/remote-utils.c	2012-03-30 15:33:24.252551493 +0200
+diff -Nru a/gdb-7.5.1/gdb/gdbserver/remote-utils.c b/gdb-7.5.1/gdb/gdbserver/remote-utils.c
+--- a/gdb-7.5.1/gdb/gdbserver/remote-utils.c	2012-04-28 23:28:30 -0700
++++ b/gdb-7.5.1/gdb/gdbserver/remote-utils.c	2013-04-16 06:25:07 -0700
 @@ -16,6 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
@@ -59,17 +59,21 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  #include "server.h"
  #include "terminal.h"
  #include "target.h"
-@@ -63,6 +65,9 @@
+@@ -63,6 +65,13 @@
  
  #if USE_WIN32API
  #include <winsock2.h>
 +#include <ws2tcpip.h>
 +#else
 +#include <netinet/in.h>	/* sockaddr_in{} and other Internet defns */
++#endif
++
++#ifndef SOL_IPV6
++#define SOL_IPV6 IPPROTO_IPV6
  #endif
  
  #if __QNX__
-@@ -109,7 +114,7 @@ struct ui_file *gdb_stdlog;
+@@ -109,7 +118,7 @@
  static int remote_is_stdio = 0;
  
  static gdb_fildes_t remote_desc = INVALID_DESCRIPTOR;
@@ -78,7 +82,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  
  /* FIXME headerize? */
  extern int using_threads;
-@@ -156,15 +161,17 @@ enable_async_notification (int fd)
+@@ -156,15 +165,17 @@
  static int
  handle_accept_event (int err, gdb_client_data client_data)
  {
@@ -100,7 +104,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
      perror_with_name ("Accept failed");
  
    /* Enable TCP keep alive process. */
-@@ -178,27 +185,55 @@ handle_accept_event (int err, gdb_client
+@@ -178,27 +189,55 @@
    setsockopt (remote_desc, IPPROTO_TCP, TCP_NODELAY,
  	      (char *) &tmp, sizeof (tmp));
  
@@ -167,7 +171,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  
    enable_async_notification (remote_desc);
  
-@@ -224,12 +259,15 @@ remote_prepare (char *name)
+@@ -224,12 +263,15 @@
  {
    char *port_str;
  #ifdef USE_WIN32API
@@ -188,7 +192,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  
    remote_is_stdio = 0;
    if (strcmp (name, STDIO_CONNECTION_NAME) == 0)
-@@ -249,8 +287,24 @@ remote_prepare (char *name)
+@@ -249,8 +291,24 @@
        return;
      }
  
@@ -215,7 +219,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
      fatal ("Bad port argument: %s", name);
  
  #ifdef USE_WIN32API
-@@ -263,24 +317,181 @@ remote_prepare (char *name)
+@@ -263,24 +321,181 @@
      }
  #endif
  
@@ -334,14 +338,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +          s = -1;
 +          continue;
 +        }
- 
--  sockaddr.sin_family = PF_INET;
--  sockaddr.sin_port = htons (port);
--  sockaddr.sin_addr.s_addr = INADDR_ANY;
--
--  if (bind (listen_desc, (struct sockaddr *) &sockaddr, sizeof (sockaddr))
--      || listen (listen_desc, 1))
--    perror_with_name ("Can't bind address");
++
 +      {
 +        struct sockaddr_storage address;
 +        socklen_t alen = (socklen_t) sizeof (address);
@@ -381,6 +378,13 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +          }
 +      }
  
+-  sockaddr.sin_family = PF_INET;
+-  sockaddr.sin_port = htons (port);
+-  sockaddr.sin_addr.s_addr = INADDR_ANY;
+-
+-  if (bind (listen_desc, (struct sockaddr *) &sockaddr, sizeof (sockaddr))
+-      || listen (listen_desc, 1))
+-    perror_with_name ("Can't bind address");
 +      if (socktable_size < nsock + 3)
 +        {
 +          socktable = xrealloc (socktable,
@@ -399,11 +403,11 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +  /* Bound socktable from both ends, so an inner pointer can still
 +     find the whole array. */
 +  socktable[++nsock] = INVALID_DESCRIPTOR;
-+
-+  transport_is_reliable = 1;
+ 
+   transport_is_reliable = 1;
 +  fprintf (stderr, "Listening on port %d\n", port);
 +  fflush (stderr);
-   transport_is_reliable = 1;
++  transport_is_reliable = 1;
 +  if (listening_sockets)
 +    fatal ("Multiple concurrent remote_open not supported.");
 +
@@ -411,7 +415,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  }
  
  /* Open a connection to a remote debugger.
-@@ -290,8 +501,24 @@
+@@ -290,8 +505,24 @@
  remote_open (char *name)
  {
    char *port_str;
@@ -437,7 +441,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  #ifdef USE_WIN32API
    if (port_str == NULL)
      error ("Only <host>:<port> is supported on this platform.");
-@@ -381,22 +608,17 @@ remote_open (char *name)
+@@ -381,22 +612,17 @@
  #endif /* USE_WIN32API */
    else
      {
@@ -470,9 +474,9 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
      }
  }
  
-diff -rup gdb-7.4-clean/gdb/ser-tcp.c gdb-7.4/gdb/ser-tcp.c
---- gdb-7.4-clean/gdb/ser-tcp.c	2012-03-30 15:07:01.540553998 +0200
-+++ gdb-7.4/gdb/ser-tcp.c	2012-03-30 15:08:39.484553844 +0200
+diff -Nru a/gdb-7.5.1/gdb/ser-tcp.c b/gdb-7.5.1/gdb/ser-tcp.c
+--- a/gdb-7.5.1/gdb/ser-tcp.c	2012-01-04 00:17:10 -0800
++++ b/gdb-7.5.1/gdb/ser-tcp.c	2013-04-15 03:20:40 -0700
 @@ -38,7 +38,9 @@
  #include <sys/time.h>
  
@@ -491,7 +495,7 @@ diff -rup gdb-7.4-clean/gdb/ser-tcp.c gdb-7.4/gdb/ser-tcp.c
  #endif
  
  #include <signal.h>
-@@ -79,76 +82,49 @@ static int tcp_retry_limit = 15;
+@@ -79,76 +82,49 @@
  
  #define POLL_INTERVAL 5
  
@@ -605,7 +609,7 @@ diff -rup gdb-7.4-clean/gdb/ser-tcp.c gdb-7.4/gdb/ser-tcp.c
  }
  
  /* Open a tcp socket.  */
-@@ -156,18 +132,24 @@ wait_for_connect (struct serial *scb, in
+@@ -156,18 +132,24 @@
  int
  net_open (struct serial *scb, const char *name)
  {
@@ -633,7 +637,7 @@ diff -rup gdb-7.4-clean/gdb/ser-tcp.c gdb-7.4/gdb/ser-tcp.c
    use_udp = 0;
    if (strncmp (name, "udp:", 4) == 0)
      {
-@@ -177,134 +159,286 @@ net_open (struct serial *scb, const char
+@@ -177,134 +159,286 @@
    else if (strncmp (name, "tcp:", 4) == 0)
      name = name + 4;
  
