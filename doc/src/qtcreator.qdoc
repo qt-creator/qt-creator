@@ -46,6 +46,7 @@
                 \list
                     \li \l{IDE Overview}
                     \li \l{User Interface}
+                    \li \l{Configuring Qt Creator}
                     \li \l{Building and Running an Example}
                     \li \l{Tutorials}
                 \endlist
@@ -147,6 +148,7 @@
         \list
             \li \l{IDE Overview}
             \li \l{User Interface}
+            \li \l{Configuring Qt Creator}
             \li \l{Building and Running an Example}
             \li \l{Tutorials}
             \list
