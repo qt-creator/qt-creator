@@ -442,6 +442,40 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             createRepositoryAction(localRepositoryMenu,
                                    tr("Update Submodules"), Core::Id("Git.SubmoduleUpdate"),
                                    globalcontext, true, SLOT(updateSubmodules())).first;
+    m_abortMergeAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Abort Merge"), Core::Id("Git.MergeAbort"),
+                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+
+    m_abortRebaseAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Abort Rebase"), Core::Id("Git.RebaseAbort"),
+                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+
+    m_abortCherryPickAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Abort Cherry Pick"), Core::Id("Git.CherryPickAbort"),
+                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+
+    m_abortRevertAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Abort Revert"), Core::Id("Git.RevertAbort"),
+                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+
+    m_continueRebaseAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Continue Rebase"), Core::Id("Git.RebaseContinue"),
+                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+
+    m_continueCherryPickAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Continue Cherry Pick"), Core::Id("Git.CherryPickContinue"),
+                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+
+    m_continueRevertAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Continue Revert"), Core::Id("Git.RevertContinue"),
+                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
 
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
@@ -576,9 +610,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                      tr("Repository Browser"), Core::Id("Git.LaunchRepositoryBrowser"),
                                      globalcontext, true, &GitClient::launchRepositoryBrowser).first;
 
-    createRepositoryAction(gitToolsMenu,
-                           tr("Merge Tool"), Core::Id("Git.MergeTool"),
-                           globalcontext, true, SLOT(startMergeTool()));
+    m_mergeToolAction =
+            createRepositoryAction(gitToolsMenu,
+                                   tr("Merge Tool"), Core::Id("Git.MergeTool"),
+                                   globalcontext, true, SLOT(startMergeTool())).first;
 
     /* \"Git Tools" menu */
 
@@ -756,11 +791,11 @@ void GitPlugin::startChangeRelatedAction()
     switch (dialog->command()) {
     case CherryPick:
         command = QLatin1String("Cherry-pick");
-        commandFunction = &GitClient::cherryPickCommit;
+        commandFunction = &GitClient::synchronousCherryPick;
         break;
     case Revert:
         command = QLatin1String("Revert");
-        commandFunction = &GitClient::revertCommit;
+        commandFunction = &GitClient::synchronousRevert;
         break;
     case Checkout:
         command =  QLatin1String("Checkout");
@@ -1025,6 +1060,30 @@ void GitPlugin::startMergeTool()
     m_gitClient->merge(state.topLevel());
 }
 
+void GitPlugin::continueOrAbortCommand()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    QObject *action = QObject::sender();
+
+    if (action == m_abortMergeAction)
+        m_gitClient->synchronousMerge(state.topLevel(), QLatin1String("--abort"));
+    else if (action == m_abortRebaseAction)
+        m_gitClient->synchronousRebase(state.topLevel(), QLatin1String("--abort"));
+    else if (action == m_abortCherryPickAction)
+        m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--abort"));
+    else if (action == m_abortRevertAction)
+        m_gitClient->synchronousRevert(state.topLevel(), QLatin1String("--abort"));
+    else if (action == m_continueRebaseAction)
+        m_gitClient->synchronousRebase(state.topLevel(), QLatin1String("--continue"));
+    else if (action == m_continueCherryPickAction)
+        m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--continue"));
+    else if (action == m_continueRevertAction)
+        m_gitClient->synchronousRevert(state.topLevel(), QLatin1String("--continue"));
+
+    updateContinueAndAbortCommands();
+}
+
 // Retrieve member function of git client stored as user data of action
 static inline GitClientMemberFunc memberFunctionFromAction(const QObject *o)
 {
@@ -1239,9 +1298,39 @@ void GitPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
         repositoryAction->setEnabled(repositoryEnabled);
     m_submoduleUpdateAction->setVisible(repositoryEnabled
             && QFile::exists(currentState().topLevel() + QLatin1String("/.gitmodules")));
+
+    updateContinueAndAbortCommands();
     updateRepositoryBrowserAction();
 
     m_gerritPlugin->updateActions(repositoryEnabled);
+}
+
+void GitPlugin::updateContinueAndAbortCommands()
+{
+    if (currentState().hasTopLevel()) {
+        GitClient::CommandInProgress gitCommandInProgress =
+                m_gitClient->checkCommandInProgress(currentState().topLevel());
+
+        m_mergeToolAction->setVisible(gitCommandInProgress != GitClient::NoCommand);
+        m_abortMergeAction->setVisible(gitCommandInProgress == GitClient::Merge);
+        m_abortCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
+        m_abortRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
+        m_abortRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
+                                        || gitCommandInProgress == GitClient::RebaseMerge);
+        m_continueCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
+        m_continueRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
+        m_continueRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
+                                           || gitCommandInProgress == GitClient::RebaseMerge);
+    } else {
+        m_mergeToolAction->setVisible(false);
+        m_abortMergeAction->setVisible(false);
+        m_abortCherryPickAction->setVisible(false);
+        m_abortRevertAction->setVisible(false);
+        m_abortRebaseAction->setVisible(false);
+        m_continueCherryPickAction->setVisible(false);
+        m_continueRevertAction->setVisible(false);
+        m_continueRebaseAction->setVisible(false);
+    }
 }
 
 void GitPlugin::updateRepositoryBrowserAction()

@@ -1892,24 +1892,47 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     return StatusUnchanged;
 }
 
-void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
+GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &workingDirectory)
 {
     QString gitDir = findGitDirForRepository(workingDirectory);
 
-    if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
+    if (QFile::exists(gitDir + QLatin1String("/MERGE_HEAD")))
+        return Merge;
+    else if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing")))
+        return Rebase;
+    else if (QFile::exists(gitDir + QLatin1String("/rebase-merge")))
+        return RebaseMerge;
+    else if (QFile::exists(gitDir + QLatin1String("/REVERT_HEAD")))
+        return Revert;
+    else if (QFile::exists(gitDir + QLatin1String("/CHERRY_PICK_HEAD")))
+        return CherryPick;
+    else
+        return NoCommand;
+}
+
+void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
+{
+    switch (checkCommandInProgress(workingDirectory)) {
+    case Rebase:
         continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
                 tr("Continue rebase?"), tr("Continue"), QLatin1String("rebase"));
-    } else if (QFile::exists(gitDir + QLatin1String("/rebase-merge"))) {
+        break;
+    case RebaseMerge:
         continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
                 tr("Continue rebase?"), tr("Continue"), QLatin1String("rebase"), false);
-    } else if (QFile::exists(gitDir + QLatin1String("/REVERT_HEAD"))) {
+        break;
+    case Revert:
         continuePreviousGitCommand(workingDirectory, tr("Continue Revert"),
                 tr("You need to commit changes to finish revert.\nCommit now?"),
                 tr("Commit"), QLatin1String("revert"));
-    } else if (QFile::exists(gitDir + QLatin1String("/CHERRY_PICK_HEAD"))) {
+        break;
+    case CherryPick:
         continuePreviousGitCommand(workingDirectory, tr("Continue Cherry-Picking"),
                 tr("You need to commit changes to finish cherry-picking.\nCommit now?"),
                 tr("Commit"), QLatin1String("cherry-pick"));
+        break;
+    default:
+        break;
     }
 }
 
@@ -2568,7 +2591,7 @@ bool GitClient::synchronousRebase(const QString &workingDirectory, const QString
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 
-bool GitClient::revertCommit(const QString &workingDirectory, const QString &commit)
+bool GitClient::synchronousRevert(const QString &workingDirectory, const QString &commit)
 {
     QStringList arguments;
     QString command = QLatin1String("revert");
@@ -2577,7 +2600,7 @@ bool GitClient::revertCommit(const QString &workingDirectory, const QString &com
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 
-bool GitClient::cherryPickCommit(const QString &workingDirectory, const QString &commit)
+bool GitClient::synchronousCherryPick(const QString &workingDirectory, const QString &commit)
 {
     QStringList arguments;
     QString command = QLatin1String("cherry-pick");

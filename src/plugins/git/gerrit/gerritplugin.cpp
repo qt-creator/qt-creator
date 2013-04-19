@@ -309,7 +309,7 @@ void FetchContext::cherryPick()
     // Point user to errors.
     VcsBase::VcsBaseOutputWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
     VcsBase::VcsBaseOutputWindow::instance()->append(tr("Cherry-picking %1...").arg(m_patchFileName));
-    Git::Internal::GitPlugin::instance()->gitClient()->cherryPickCommit(
+    Git::Internal::GitPlugin::instance()->gitClient()->synchronousCherryPick(
                 m_repository, QLatin1String("FETCH_HEAD"));
 }
 

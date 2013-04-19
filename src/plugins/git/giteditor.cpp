@@ -213,14 +213,14 @@ void GitEditor::cherryPickChange()
 {
     const QFileInfo fi(source());
     const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    GitPlugin::instance()->gitClient()->cherryPickCommit(workingDirectory, m_currentChange);
+    GitPlugin::instance()->gitClient()->synchronousCherryPick(workingDirectory, m_currentChange);
 }
 
 void GitEditor::revertChange()
 {
     const QFileInfo fi(source());
     const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    GitPlugin::instance()->gitClient()->revertCommit(workingDirectory, m_currentChange);
+    GitPlugin::instance()->gitClient()->synchronousRevert(workingDirectory, m_currentChange);
 }
 
 QString GitEditor::decorateVersion(const QString &revision) const

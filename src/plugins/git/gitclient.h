@@ -90,6 +90,9 @@ public:
     enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                        Stashed, NotStashed /* User did not want it */ };
 
+    enum CommandInProgress { NoCommand, Revert, CherryPick,
+                             Rebase, Merge, RebaseMerge };
+
     class StashGuard
     {
     public:
@@ -232,8 +235,8 @@ public:
     bool synchronousRebase(const QString &workingDirectory,
                            const QString &baseBranch,
                            const QString &topicBranch = QString());
-    bool revertCommit(const QString &workingDirectory, const QString &commit);
-    bool cherryPickCommit(const QString &workingDirectory, const QString &commit);
+    bool synchronousRevert(const QString &workingDirectory, const QString &commit);
+    bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
     void interactiveRebase(const QString &workingDirectory, const QString &commit);
     void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
 
@@ -277,6 +280,7 @@ public:
                            QString *output = 0,
                            QString *errorMessage = 0);
 
+    CommandInProgress checkCommandInProgress(const QString &workingDirectory);
     void continueCommandIfNeeded(const QString &workingDirectory);
     void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,
                                     const QString &buttonName, const QString &gitCommand, bool requireChanges = true);
