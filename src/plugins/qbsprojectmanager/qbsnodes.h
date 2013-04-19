@@ -68,8 +68,6 @@ private:
 
 class QbsGroupNode;
 
-class QbsGroupNode;
-
 class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 {
     Q_OBJECT
@@ -100,9 +98,6 @@ public:
                      const QString &newFilePath);
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
-
-private:
-    friend class QbsGroupNode;
 };
 
 // --------------------------------------------------------------------
@@ -122,13 +117,10 @@ public:
 
     QString productPath() const;
 
-    static void setGroup(QbsBaseProjectNode *root, const qbs::GroupData *group,
-                         const QString &productPath, QList<Node *> keepers);
-
 private:
-    static void setupFolders(QbsBaseProjectNode *topLevel, FolderNode *root, FileTreeNode *node,
-                             const QString &baseDirPath,
-                             QList<ProjectExplorer::Node *> keepers = QList<ProjectExplorer::Node *>());
+    void setupFolders(ProjectExplorer::FolderNode *root, FileTreeNode *node,
+                      const QString &baseDirPath,
+                      QList<ProjectExplorer::Node *> keepers = QList<ProjectExplorer::Node *>());
 
     const qbs::GroupData *m_group;
     QString m_productPath;
