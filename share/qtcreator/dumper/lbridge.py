@@ -398,7 +398,7 @@ def executeDebuggerCommand(options, command):
 
 
 lldb.debugger.HandleCommand("settings set auto-confirm on")
-lldb.debugger.HandleCommand("settings set interpreter.prompt-on-quit off")
+#lldb.debugger.HandleCommand("settings set interpreter.prompt-on-quit off")
 lldb.debugger.HandleCommand("settings set frame-format ''")
 lldb.debugger.HandleCommand("settings set thread-format ''")
 
