@@ -194,7 +194,8 @@ void QbsManager::removeCreatorProfiles()
 void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
     QStringList usedProfileNames = profileNames();
-    const QString name = ProjectExplorer::Project::makeUnique(k->fileSystemFriendlyName(), usedProfileNames);
+    const QString name = ProjectExplorer::Project::makeUnique(
+                QString::fromLatin1("qtc_") + k->fileSystemFriendlyName(), usedProfileNames);
     setProfileForKit(name, k);
 
     QVariantMap data;
