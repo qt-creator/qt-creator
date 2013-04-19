@@ -24,9 +24,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-configuring-projects.html
+    \previouspage creator-tool-chains.html
     \page creator-build-settings.html
-    \nextpage creator-targets.html
+    \nextpage creator-run-settings.html
 
     \title Specifying Build Settings
 
@@ -191,15 +191,5 @@
     populates a clean system environment with the environment variables that the
     compilers and tools need. Therefore, the environment is never totally empty,
     even after you clear it.
-
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Adding Kits}
-        \li \l{Adding Qt Versions}
-        \li \l{Adding Compilers}
-
-    \endlist
 
 */

@@ -120,8 +120,10 @@ void ProxyAction::update(QAction *action, bool initialize)
         return;
     disconnectAction();
     disconnect(this, SIGNAL(changed()), this, SLOT(updateToolTipWithKeySequence()));
-    if (initialize)
+    if (initialize) {
         setSeparator(action->isSeparator());
+        setMenuRole(action->menuRole());
+    }
     if (hasAttribute(UpdateIcon) || initialize) {
         setIcon(action->icon());
         setIconText(action->iconText());
