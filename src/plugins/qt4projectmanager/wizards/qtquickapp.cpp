@@ -227,7 +227,7 @@ QByteArray QtQuickApp::generateFileExtended(int fileType,
 
 int QtQuickApp::stubVersionMinor() const
 {
-    return m_componentSet == QtQuick20Components ? 4 : 23;
+    return m_componentSet == QtQuick20Components ? 5 : 24;
 }
 
 QList<AbstractGeneratedFileInfo> QtQuickApp::updateableFiles(const QString &mainProFile) const
