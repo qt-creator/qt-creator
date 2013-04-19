@@ -118,8 +118,6 @@ void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
     if (AndroidConfigurations::instance().config().ndkLocation.isEmpty()
             || AndroidConfigurations::instance().config().sdkLocation.isEmpty())
         return;
-    if (AndroidConfigurations::instance().sdkTargets().isEmpty())
-        return;
 
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
             AndroidConfigurations::instance().bestMatch(AndroidManager::targetSDK(target)));

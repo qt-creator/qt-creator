@@ -64,6 +64,7 @@ const char DC_COUNT_KEY[] = "ProjectExplorer.Target.DeployConfigurationCount";
 const char ACTIVE_RC_KEY[] = "ProjectExplorer.Target.ActiveRunConfiguration";
 const char RC_KEY_PREFIX[] = "ProjectExplorer.Target.RunConfiguration.";
 const char RC_COUNT_KEY[] = "ProjectExplorer.Target.RunConfigurationCount";
+const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Target.PluginSettings";
 
 } // namespace
 
@@ -93,6 +94,7 @@ public:
     RunConfiguration* m_activeRunConfiguration;
     DeploymentData m_deploymentData;
     BuildTargetInfoList m_appTargets;
+    QVariantMap m_pluginSettings;
 
     QPixmap m_connectedPixmap;
     QPixmap m_readyToUsePixmap;
@@ -517,6 +519,8 @@ QVariantMap Target::toMap() const
     for (int i = 0; i < rcs.size(); ++i)
         map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
 
+    map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
+
     return map;
 }
 
@@ -661,6 +665,19 @@ void Target::updateDefaultRunConfigurations()
         addRunConfiguration(rc);
     foreach (RunConfiguration *rc, newUnconfigured)
         addRunConfiguration(rc);
+}
+
+QVariant Target::namedSettings(const QString &name) const
+{
+    return d->m_pluginSettings.value(name);
+}
+
+void Target::setNamedSettings(const QString &name, const QVariant &value)
+{
+    if (value.isNull())
+        d->m_pluginSettings.remove(name);
+    else
+        d->m_pluginSettings.insert(name, value);
 }
 
 static QString formatToolTip(const IDevice::DeviceInfo &input)
@@ -823,6 +840,9 @@ bool Target::fromMap(const QVariantMap &map)
         if (i == activeConfiguration)
             setActiveRunConfiguration(rc);
     }
+
+    if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
+        d->m_pluginSettings = map.value(QLatin1String(PLUGIN_SETTINGS_KEY)).toMap();
 
     return true;
 }

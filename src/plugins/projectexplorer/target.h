@@ -116,6 +116,8 @@ public:
     void updateDefaultDeployConfigurations();
     void updateDefaultRunConfigurations();
 
+    QVariant namedSettings(const QString &name) const;
+    void setNamedSettings(const QString &name, const QVariant &value);
 signals:
     void targetEnabled(bool);
     void iconChanged();
