@@ -221,6 +221,7 @@ public:
 
     QString qtNamespace() const;
     QString qtLibInfix() const;
+    bool isFrameworkBuild() const;
 
 protected:
     BaseQtVersion();
@@ -257,6 +258,7 @@ private:
     mutable bool m_mkspecReadUpToDate;
     mutable bool m_defaultConfigIsDebug;
     mutable bool m_defaultConfigIsDebugAndRelease;
+    mutable bool m_frameworkBuild;
     mutable bool m_versionInfoUpToDate;
     mutable bool m_installed;
     mutable bool m_hasExamples;

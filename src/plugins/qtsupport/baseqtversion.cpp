@@ -168,6 +168,7 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
       m_mkspecReadUpToDate(false),
       m_defaultConfigIsDebug(true),
       m_defaultConfigIsDebugAndRelease(true),
+      m_frameworkBuild(false),
       m_versionInfoUpToDate(false),
       m_installed(true),
       m_hasExamples(false),
@@ -371,6 +372,11 @@ QString QtSupport::BaseQtVersion::qtLibInfix() const
 {
     ensureMkSpecParsed();
     return m_mkspecValues.value(QLatin1String(MKSPEC_VALUE_LIBINFIX));
+}
+
+bool BaseQtVersion::isFrameworkBuild() const
+{
+    return m_frameworkBuild;
 }
 
 void BaseQtVersion::setId(int id)
@@ -818,6 +824,7 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     QStringList configValues = evaluator->values(QLatin1String("CONFIG"));
     m_defaultConfigIsDebugAndRelease = false;
+    m_frameworkBuild = false;
     foreach (const QString &value, configValues) {
         if (value == QLatin1String("debug"))
             m_defaultConfigIsDebug = true;
@@ -825,6 +832,8 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
             m_defaultConfigIsDebug = false;
         else if (value == QLatin1String("build_all"))
             m_defaultConfigIsDebugAndRelease = true;
+        else if (value == QLatin1String("qt_framework"))
+            m_frameworkBuild = true;
     }
     const QString designerBins = QLatin1String("QT.designer.bins");
     const QString qmlBins = QLatin1String("QT.qml.bins");

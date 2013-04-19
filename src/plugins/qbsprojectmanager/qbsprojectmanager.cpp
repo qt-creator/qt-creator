@@ -60,6 +60,7 @@ const char QTCORE_VERSION[] = ".Qt.core.version";
 const char QTCORE_NAMESPACE[] = ".Qt.core.namespace";
 const char QTCORE_LIBINFIX[] = ".Qt.core.libInfix";
 const char QTCORE_MKSPEC[] = ".Qt.core.mkspecPath";
+const char QTCORE_FRAMEWORKBUILD[] = ".Qt.core.frameworkBuild";
 
 
 // Toolchain related settings:
@@ -208,6 +209,7 @@ void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
         data.insert(QLatin1String(QTCORE_NAMESPACE), qt->qtNamespace());
         data.insert(QLatin1String(QTCORE_LIBINFIX), qt->qtLibInfix());
         data.insert(QLatin1String(QTCORE_VERSION), qt->qtVersionString());
+        data.insert(QLatin1String(QTCORE_FRAMEWORKBUILD), qt->isFrameworkBuild());
     }
 
     if (ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
