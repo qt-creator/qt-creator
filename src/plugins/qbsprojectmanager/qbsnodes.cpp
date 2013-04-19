@@ -31,15 +31,12 @@
 
 #include "qbsproject.h"
 
-#include <coreplugin/fileiconprovider.h>
-#include <qtsupport/qtsupportconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <qbs.h>
 
 #include <QDir>
-#include <QStyle>
 
 // ----------------------------------------------------------------------
 // Helpers:
@@ -47,24 +44,6 @@
 
 namespace QbsProjectManager {
 namespace Internal {
-
-QIcon generateIcon()
-{
-    const QSize desiredSize = QSize(16, 16);
-    const QIcon projectBaseIcon(QString::fromLatin1(QtSupport::Constants::ICON_QT_PROJECT));
-    const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-                                                                      projectBaseIcon,
-                                                                      desiredSize);
-
-    QIcon result;
-    result.addPixmap(projectPixmap);
-
-    return result;
-}
-
-QIcon QbsProjectNode::m_projectIcon = generateIcon();
-QIcon QbsProductNode::m_productIcon = generateIcon();
-QIcon QbsGroupNode::m_groupIcon = generateIcon();
 
 class FileTreeNode {
 public:
@@ -269,7 +248,6 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData *grp, const QString &productPath
     QbsBaseProjectNode(QString()),
     m_group(0)
 {
-    setIcon(m_groupIcon);
     setGroup(grp, productPath);
 }
 
@@ -390,7 +368,6 @@ QbsProductNode::QbsProductNode(const qbs::ProductData *prd) :
     QbsBaseProjectNode(prd->location().fileName),
     m_product(0)
 {
-    setIcon(m_productIcon);
     setProduct(prd);
 }
 
@@ -460,7 +437,6 @@ QbsProjectNode::QbsProjectNode(const QString &projectFile) :
     QbsBaseProjectNode(projectFile),
     m_project(0), m_projectData(0)
 {
-    setIcon(m_projectIcon);
     addFileNodes(QList<ProjectExplorer::FileNode *>()
                  << new ProjectExplorer::FileNode(projectFile, ProjectExplorer::ProjectFileType, false), this);
 }
