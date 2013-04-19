@@ -9,6 +9,6 @@ Product {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: "share/qtcreator/translations"
+        qbs.installDir: project.ide_data_path + "/translations"
     }
 }

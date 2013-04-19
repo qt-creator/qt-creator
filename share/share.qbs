@@ -5,7 +5,7 @@ Product {
 
     Group {
         qbs.install: true
-        qbs.installDir: "share/qtcreator"
+        qbs.installDir: project.ide_data_path
         prefix: "qtcreator/"
         files: [
             "designer",
@@ -26,7 +26,7 @@ Product {
 
     Group {
         qbs.install: true
-        qbs.installDir: "share/qtcreator/externaltools"
+        qbs.installDir: project.ide_data_path + "/externaltools"
         prefix: "../src/share/qtcreator/externaltools/"
         files: {
             var list = [

@@ -45,7 +45,7 @@ Product {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: "lib/qtcreator/plugins/" + provider
+        qbs.installDir: project.ide_plugin_path + "/" + provider
     }
 
     ProductModule {

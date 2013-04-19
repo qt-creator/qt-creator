@@ -5,7 +5,8 @@ Product {
 
     Group {
         qbs.install: true
-        qbs.installDir: "lib/qtcreator/qtcomponents/"
+        qbs.installDir: (qbs.targetOS == "windows" ? "lib/qtcreator" : project.ide_library_path)
+                        + "/qtcomponents"
         files: [
             "*.qml",
             "qmldir",

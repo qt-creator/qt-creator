@@ -12,6 +12,6 @@ Application {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: "bin"
+        qbs.installDir: project.ide_app_path
     }
 }

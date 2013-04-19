@@ -23,11 +23,6 @@ DynamicLibrary {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: {
-            if (qbs.targetOS == "windows")
-                return "bin"
-            else
-                return "lib/qtcreator"
-        }
+        qbs.installDir: project.ide_library_path
     }
 }
