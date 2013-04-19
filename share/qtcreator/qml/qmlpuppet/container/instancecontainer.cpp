@@ -33,16 +33,25 @@
 
 namespace QmlDesigner {
 
+static TypeName properDelemitingOfType(const TypeName &typeName)
+{
+    TypeName convertedTypeName = typeName;
+    int lastIndex = typeName.lastIndexOf('.');
+    if (lastIndex > 0)
+        convertedTypeName[lastIndex] = '/';
+
+    return convertedTypeName;
+}
+
 InstanceContainer::InstanceContainer()
     : m_instanceId(-1), m_majorNumber(-1), m_minorNumber(-1)
 {
 }
 
 InstanceContainer::InstanceContainer(qint32 instanceId, const TypeName &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType, NodeMetaType metaType)
-    : m_instanceId(instanceId), m_type(type), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath),
+    : m_instanceId(instanceId), m_type(properDelemitingOfType(type)), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath),
       m_nodeSource(nodeSource), m_nodeSourceType(nodeSourceType), m_metaType(metaType)
 {
-    m_type.replace('.', '/');
 }
 
 qint32 InstanceContainer::instanceId() const
