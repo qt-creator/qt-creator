@@ -176,7 +176,6 @@ PerforceResponse::PerforceResponse() :
 PerforcePlugin *PerforcePlugin::m_perforcePluginInstance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
-    VcsBase::VcsBasePlugin(),
     m_commandLocator(0),
     m_editAction(0),
     m_addAction(0),

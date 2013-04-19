@@ -115,7 +115,6 @@ static const VcsBaseSubmitEditorParameters submitEditorParameters = {
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
 MercurialPlugin::MercurialPlugin() :
-    VcsBasePlugin(),
         optionsPage(0),
         m_client(0),
         core(0),

@@ -112,8 +112,7 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitEditorParameters = {
 BazaarPlugin *BazaarPlugin::m_instance = 0;
 
 BazaarPlugin::BazaarPlugin()
-    : VcsBase::VcsBasePlugin(),
-      m_optionsPage(0),
+    : m_optionsPage(0),
       m_client(0),
       m_commandLocator(0),
       m_addAction(0),

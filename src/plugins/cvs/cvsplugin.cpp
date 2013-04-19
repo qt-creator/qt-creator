@@ -162,7 +162,6 @@ static inline bool messageBoxQuestion(const QString &title, const QString &quest
 CvsPlugin *CvsPlugin::m_cvsPluginInstance = 0;
 
 CvsPlugin::CvsPlugin() :
-    VcsBasePlugin(),
     m_commandLocator(0),
     m_addAction(0),
     m_deleteAction(0),

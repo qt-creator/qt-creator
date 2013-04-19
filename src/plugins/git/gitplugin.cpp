@@ -125,7 +125,6 @@ using namespace Git::Internal;
 GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
-    VcsBase::VcsBasePlugin(),
     m_commandLocator(0),
     m_submitCurrentAction(0),
     m_diffSelectedFilesAction(0),
