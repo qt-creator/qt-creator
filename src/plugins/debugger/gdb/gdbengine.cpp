@@ -4870,8 +4870,12 @@ void GdbEngine::startGdb(const QStringList &args)
             + " " + it.value().toLocal8Bit());
 
     // Spaces just will not work.
-    foreach (const QString &src, sp.debugSourceLocation)
-        postCommand("directory " + src.toLocal8Bit());
+    foreach (const QString &src, sp.debugSourceLocation) {
+        if (QDir(src).exists())
+            postCommand("directory " + src.toLocal8Bit());
+        else
+            showMessage(_("# directory does not exist: ") + src, LogInput);
+    }
 
     const QByteArray sysroot = sp.sysRoot.toLocal8Bit();
     if (!sysroot.isEmpty()) {

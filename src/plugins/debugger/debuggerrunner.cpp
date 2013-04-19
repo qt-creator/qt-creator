@@ -472,9 +472,9 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
 {
     TaskHub *th = ProjectExplorerPlugin::instance()->taskHub();
-    th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
-    th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST));
-    th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
+    th->clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
+    th->clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST);
+    th->clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
     DebuggerStartParameters sp = sp0;
     if (!debuggerCore()->boolSetting(AutoEnrichParameters)) {
@@ -486,8 +486,6 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
             sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));
             sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
             sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
-            sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/v8"));
-            sp.debugSourceLocation.append(base + QLatin1String("qt5declarative/src/qml"));
         }
     }
 
