@@ -969,13 +969,176 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
         "}\n"
         ;
     expected =
+        "#include \"file.h\"\n"
         "#include \"someheader.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check add include, ignoring any moc includes.
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        "#include \"file.moc\";\n"
+        ;
+    expected =
         "#include \"file.h\"\n"
         "\n"
         "void f()\n"
         "{\n"
         "    Foo foo;\n"
         "}\n"
+        "#include \"file.moc\";\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check add include sorting top
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"y.h\"\n"
+        "#include \"z.h\"\n"
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        "#include \"file.moc\";\n"
+        ;
+    expected =
+        "#include \"file.h\"\n"
+        "#include \"y.h\"\n"
+        "#include \"z.h\"\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "#include \"file.moc\";\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check add include sorting middle
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingMiddle()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"a.h\"\n"
+        "#include \"z.h\"\n"
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        "#include \"file.moc\";\n"
+        ;
+    expected =
+        "#include \"a.h\"\n"
+        "#include \"file.h\"\n"
+        "#include \"z.h\"\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "#include \"file.moc\";\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+
+
+/// Check add include sorting bottom
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingBottom()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"a.h\"\n"
+        "#include \"b.h\"\n"
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        "#include \"file.moc\";\n"
+        ;
+    expected =
+        "#include \"a.h\"\n"
+        "#include \"b.h\"\n"
+        "#include \"file.h\"\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "#include \"file.moc\";\n"
         "\n"
         ;
     testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));

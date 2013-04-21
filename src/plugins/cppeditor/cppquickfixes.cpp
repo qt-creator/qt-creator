@@ -1730,62 +1730,80 @@ public:
         CppRefactoringFilePtr file = refactoring.file(fileName());
 
         QList<Document::Include> includes = file->cppDocument()->includes();
-        if (includes.isEmpty()) {
-            // No includes, find possible first/multi line comment
-            int insertPos = 0;
-            QTextBlock block = file->document()->firstBlock();
-            while (block.isValid()) {
-                const QString trimmedText = block.text().trimmed();
-
-                // Only skip the first comment!
-                if (trimmedText.startsWith(QLatin1String("/*"))) {
-                    do {
-                        const int pos = block.text().indexOf(QLatin1String("*/"));
-                        if (pos > -1) {
-                            insertPos = block.position() + pos + 2;
-                            break;
-                        }
-                        block = block.next();
-                    } while (block.isValid());
-                    break;
-                } else if (trimmedText.startsWith(QLatin1String("//"))) {
-                    block = block.next();
-                    while (block.isValid()) {
-                        if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
-                            insertPos = block.position() - 1;
-                            break;
-                        }
-                        block = block.next();
-                    }
-                    break;
-                }
-
-                if (!trimmedText.isEmpty())
-                    break;
-                block = block.next();
-            }
-
-            ChangeSet changes;
-            if (insertPos != 0)
-                changes.insert(insertPos, QLatin1String("\n\n#include ") + m_include);
-            else
-                changes.insert(insertPos, QString::fromLatin1("#include %1\n\n").arg(m_include));
-            file->setChangeSet(changes);
-            file->apply();
-        } else {
-            // find location of last include in file
-            unsigned lastIncludeLine = 0;
+        if (!includes.isEmpty()) {
+            QHash<QString, unsigned> includePositions;
             foreach (const Document::Include &include, includes) {
-                if (include.line() > lastIncludeLine)
-                    lastIncludeLine = include.line();
+                if (include.fileName().endsWith(QLatin1String(".moc")))
+                    continue;
+                includePositions.insert(include.fileName(), include.line());
             }
 
-            const int insertPos = qMax(0, file->position(lastIncludeLine + 1, 1) - 1);
-            ChangeSet changes;
-            changes.insert(insertPos, QLatin1String("\n#include ") + m_include);
-            file->setChangeSet(changes);
-            file->apply();
+            if (!includePositions.isEmpty()) {
+                const QString include = m_include.mid(1, m_include.length() - 2);
+                QList<QString> keys = includePositions.keys();
+                keys << include;
+                qSort(keys);
+                const int pos = keys.indexOf(include);
+
+                ChangeSet changes;
+                if (pos + 1 != keys.count()) {
+                    const int insertPos = qMax(0, file->position(
+                                                   includePositions.value(keys.at(pos + 1)), 1));
+                    changes.insert(insertPos,
+                                   QLatin1String("#include ") + m_include + QLatin1String("\n"));
+
+                } else {
+                    const int insertPos = qMax(0, file->position(includePositions.value(
+                                                                     keys.at(pos - 1)) + 1, 1) - 1);
+                    changes.insert(insertPos, QLatin1String("\n#include ") + m_include);
+                }
+                file->setChangeSet(changes);
+                file->apply();
+                return;
+            }
         }
+
+        // No includes or no matching include, find possible first/multi line comment
+        int insertPos = 0;
+        QTextBlock block = file->document()->firstBlock();
+        while (block.isValid()) {
+            const QString trimmedText = block.text().trimmed();
+
+            // Only skip the first comment!
+            if (trimmedText.startsWith(QLatin1String("/*"))) {
+                do {
+                    const int pos = block.text().indexOf(QLatin1String("*/"));
+                    if (pos > -1) {
+                        insertPos = block.position() + pos + 2;
+                        break;
+                    }
+                    block = block.next();
+                } while (block.isValid());
+                break;
+            } else if (trimmedText.startsWith(QLatin1String("//"))) {
+                block = block.next();
+                while (block.isValid()) {
+                    if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
+                        insertPos = block.position() - 1;
+                        break;
+                    }
+                    block = block.next();
+                }
+                break;
+            }
+
+            if (!trimmedText.isEmpty())
+                break;
+            block = block.next();
+        }
+
+        ChangeSet changes;
+        if (insertPos != 0)
+            changes.insert(insertPos, QLatin1String("\n\n#include ") + m_include);
+        else
+            changes.insert(insertPos, QString::fromLatin1("#include %1\n\n").arg(m_include));
+        file->setChangeSet(changes);
+        file->apply();
     }
 
 private:

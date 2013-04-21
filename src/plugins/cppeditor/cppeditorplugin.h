@@ -161,6 +161,10 @@ private slots:
     void test_quickfix_InsertDeclFromDef();
 
     void test_quickfix_AddIncludeForUndefinedIdentifier_normal();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_sortingMiddle();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_sortingBottom();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02();
