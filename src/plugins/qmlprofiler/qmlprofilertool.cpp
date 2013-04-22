@@ -257,7 +257,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 
     // FIXME: Check that there's something sensible in sp.connParams
     if (isTcpConnection)
-        d->m_profilerConnections->setTcpConnection(sp.connParams.host, sp.connParams.port);
+        d->m_profilerConnections->setTcpConnection(sp.analyzerHost, sp.analyzerPort);
 
     d->m_runConfiguration = runConfiguration;
 
@@ -334,6 +334,8 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.analyzerCmdPrefix = rc3->commandPrefix();
         sp.displayName = rc3->displayName();
         sp.sysroot = sysroot(rc3);
+        sp.analyzerHost = sp.connParams.host;
+        sp.analyzerPort = sp.connParams.port;
     } else {
         // What could that be?
         QTC_ASSERT(false, return sp);
@@ -342,10 +344,12 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
             ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) || !server.listen(QHostAddress::LocalHostIPv6))
+        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
+            qWarning() << "Cannot open port on host for QML profiling.";
             return sp;
-        sp.connParams.host = server.serverAddress().toString();
-        sp.connParams.port = server.serverPort();
+        }
+        sp.analyzerHost = server.serverAddress().toString();
+        sp.analyzerPort = server.serverPort();
     }
     sp.startMode = StartQml;
     return sp;
@@ -550,6 +554,8 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     sp.connParams.host = host;
     sp.connParams.port = port;
     sp.sysroot = sysroot;
+    sp.analyzerHost = host;
+    sp.analyzerPort = port;
 
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));

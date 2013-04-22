@@ -66,12 +66,12 @@ namespace Internal {
 class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
-    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
+    QmlProfilerEnginePrivate(QmlProfilerEngine *qq, const AnalyzerStartParameters &sp) : q(qq), m_runner(0), sp(sp) {}
     ~QmlProfilerEnginePrivate() { delete m_runner; }
 
     bool attach(const QString &address, uint port);
-    static AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                   QObject *parent);
+    AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
+                                            QObject *parent);
 
     QmlProfilerEngine *q;
 
@@ -80,6 +80,7 @@ public:
     AbstractQmlProfilerRunner *m_runner;
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
+    const AnalyzerStartParameters sp;
 };
 
 AbstractQmlProfilerRunner *
@@ -121,10 +122,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         const ProjectExplorer::IDevice::ConstPtr device =
                 ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-        QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) || !server.listen(QHostAddress::LocalHostIPv6))
-            return 0;
-        conf.port = server.serverPort();
+        conf.port = sp.analyzerPort;
         runner = new LocalQmlProfilerRunner(conf, parent);
     }
     return runner;
@@ -138,7 +136,7 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
                                      const Analyzer::AnalyzerStartParameters &sp,
                                      ProjectExplorer::RunConfiguration *runConfiguration)
     : IAnalyzerEngine(tool, sp, runConfiguration)
-    , d(new QmlProfilerEnginePrivate(this))
+    , d(new QmlProfilerEnginePrivate(this, sp))
 {
     d->m_profilerState = 0;
 
@@ -185,7 +183,7 @@ bool QmlProfilerEngine::start()
         }
     }
 
-    d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), this);
+    d->m_runner = d->createRunner(runConfiguration(), this);
 
     if (LocalQmlProfilerRunner *qmlRunner = qobject_cast<LocalQmlProfilerRunner *>(d->m_runner)) {
         if (!qmlRunner->hasExecutable()) {
@@ -203,7 +201,7 @@ bool QmlProfilerEngine::start()
         d->m_runner->start();
         d->m_noDebugOutputTimer.start();
     } else {
-        emit processRunning(startParameters().connParams.port);
+        emit processRunning(startParameters().analyzerPort);
     }
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);

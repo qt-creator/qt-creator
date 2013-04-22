@@ -61,6 +61,8 @@ public:
     Utils::Environment environment;
     QString workingDirectory;
     QString sysroot;
+    QString analyzerHost;
+    quint16 analyzerPort;
 };
 
 } // namespace Analyzer
