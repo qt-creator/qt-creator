@@ -2226,6 +2226,9 @@ void EditorManager::gotoOtherSplit()
         splitSideBySide();
 
     SplitterOrView *view = currentSplitterOrView();
+    view = d->m_splitter->findNextView(view);
+    if (!view)
+        view = d->m_splitter->findFirstView();
     if (view) {
         if (IEditor *editor = view->editor()) {
             setCurrentEditor(editor, true);
