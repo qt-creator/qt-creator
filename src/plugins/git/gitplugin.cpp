@@ -766,7 +766,7 @@ void GitPlugin::startRebase()
 void GitPlugin::startChangeRelatedAction()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    const QString workingDirectory = state.currentDirectoryOrTopLevel();
+    const QString workingDirectory = state.topLevel();
     if (workingDirectory.isEmpty())
         return;
 
