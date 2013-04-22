@@ -84,9 +84,11 @@ class GccToolChainConfigWidget : public ToolChainConfigWidget
 
 public:
     GccToolChainConfigWidget(GccToolChain *);
-
+    static QStringList splitString(const QString &s);
 private slots:
     void handleCompilerCommandChange();
+    void handlePlatformCodeGenFlagsChange();
+    void handlePlatformLinkerFlagsChange();
 
 private:
     void applyImpl();
@@ -97,6 +99,8 @@ private:
     void setFromToolchain();
 
     Utils::PathChooser *m_compilerCommand;
+    QLineEdit *m_platformCodeGenFlagsLineEdit;
+    QLineEdit *m_platformLinkerFlagsLineEdit;
     AbiWidget *m_abiWidget;
 
     QList<Abi> m_abiList;

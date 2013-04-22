@@ -37,6 +37,7 @@
 #include "headerpath.h"
 
 #include <utils/fileutils.h>
+#include <QStringList>
 
 namespace ProjectExplorer {
 
@@ -83,6 +84,10 @@ public:
 
     void setCompilerCommand(const Utils::FileName &);
     Utils::FileName compilerCommand() const;
+    void setPlatformCodeGenFlags(const QStringList &);
+    QStringList platformCodeGenFlags() const;
+    void setPlatformLinkerFlags(const QStringList &);
+    QStringList platformLinkerFlags() const;
 
     ToolChain *clone() const;
 
@@ -121,6 +126,8 @@ private:
     void updateSupportedAbis() const;
 
     Utils::FileName m_compilerCommand;
+    QStringList m_platformCodeGenFlags;
+    QStringList m_platformLinkerFlags;
 
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;

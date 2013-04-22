@@ -39,6 +39,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcprocess.h>
 
 #include <QBuffer>
 #include <QCoreApplication>
@@ -46,6 +47,7 @@
 #include <QProcess>
 #include <QScopedPointer>
 
+#include <QLineEdit>
 #include <QFormLayout>
 
 using namespace Utils;
@@ -57,6 +59,8 @@ namespace ProjectExplorer {
 // --------------------------------------------------------------------------
 
 static const char compilerCommandKeyC[] = "ProjectExplorer.GccToolChain.Path";
+static const char compilerPlatformCodeGenFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformCodeGenFlags";
+static const char compilerPlatformLinkerFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformLinkerFlags";
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 
@@ -294,12 +298,14 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
     return abiList;
 }
 
-static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env)
+static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
+                              const QStringList &extraArgs = QStringList())
 {
     if (path.isEmpty())
         return QList<Abi>();
 
-    QStringList arguments(QLatin1String("-dumpmachine"));
+    QStringList arguments = extraArgs;
+    arguments << QLatin1String("-dumpmachine");
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
     QByteArray macros = gccPredefinedMacros(path, QStringList(), env);
     return guessGccAbi(machine, macros);
@@ -400,10 +406,11 @@ bool GccToolChain::isValid() const
  */
 QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
+    QStringList allCxxflags = m_platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
     typedef QPair<QStringList, QByteArray> CacheItem;
 
     for (GccCache::iterator it = m_predefinedMacros.begin(); it != m_predefinedMacros.end(); ++it)
-        if (it->first == cxxflags) {
+        if (it->first == allCxxflags) {
             // Increase cached item priority
             CacheItem pair = *it;
             m_predefinedMacros.erase(it);
@@ -413,12 +420,12 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
         }
 
     CacheItem runResults;
-    runResults.first = cxxflags;
+    runResults.first = allCxxflags;
 
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    runResults.second = gccPredefinedMacros(m_compilerCommand, cxxflags, env.toStringList());
+    runResults.second = gccPredefinedMacros(m_compilerCommand, allCxxflags, env.toStringList());
 
     m_predefinedMacros.push_back(runResults);
     if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
@@ -429,9 +436,10 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 
 ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags) const
 {
-    if (cxxflags.contains(QLatin1String("-std=c++0x")) || cxxflags.contains(QLatin1String("-std=gnu++0x")) ||
-        cxxflags.contains(QLatin1String("-std=c++11")) || cxxflags.contains(QLatin1String("-std=gnu++11")) ||
-        cxxflags.contains(QLatin1String("-std=c++1y")) || cxxflags.contains(QLatin1String("-std=gnu++1y")))
+    QStringList allCxxflags = m_platformCodeGenFlags + cxxflags; // add only cxxflags is empty?
+    if (allCxxflags.contains(QLatin1String("-std=c++0x")) || allCxxflags.contains(QLatin1String("-std=gnu++0x")) ||
+        allCxxflags.contains(QLatin1String("-std=c++11")) || allCxxflags.contains(QLatin1String("-std=gnu++11")) ||
+        allCxxflags.contains(QLatin1String("-std=c++1y")) || allCxxflags.contains(QLatin1String("-std=gnu++1y")))
         return STD_CXX11;
     return NO_FLAGS;
 }
@@ -487,7 +495,8 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, c
         // Using a clean environment breaks ccache/distcc/etc.
         Environment env = Environment::systemEnvironment();
         addToEnvironment(env);
-        m_headerPaths = gccHeaderPaths(m_compilerCommand, cxxflags, env.toStringList(), sysRoot);
+        m_headerPaths = gccHeaderPaths(m_compilerCommand, m_platformCodeGenFlags + cxxflags , // add only cxxflags is empty?
+                                       env.toStringList(), sysRoot);
     }
     return m_headerPaths;
 }
@@ -582,6 +591,40 @@ FileName GccToolChain::compilerCommand() const
     return m_compilerCommand;
 }
 
+void GccToolChain::setPlatformCodeGenFlags(const QStringList &flags)
+{
+    if (flags != m_platformCodeGenFlags) {
+        m_platformCodeGenFlags = flags;
+        toolChainUpdated();
+    }
+}
+
+/*!
+    \brief code gen flags that have to be passed to the compiler
+ */
+QStringList GccToolChain::platformCodeGenFlags() const
+{
+    return m_platformCodeGenFlags;
+}
+
+void GccToolChain::setPlatformLinkerFlags(const QStringList &flags)
+{
+    if (flags != m_platformLinkerFlags) {
+        m_platformLinkerFlags = flags;
+        toolChainUpdated();
+    }
+}
+
+/*!
+    \brief flags that have to be passed to the linker
+
+    for example -arch armv7...
+ */
+QStringList GccToolChain::platformLinkerFlags() const
+{
+    return m_platformLinkerFlags;
+}
+
 ToolChain *GccToolChain::clone() const
 {
     return new GccToolChain(*this);
@@ -591,6 +634,8 @@ QVariantMap GccToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
     data.insert(QLatin1String(compilerCommandKeyC), m_compilerCommand.toString());
+    data.insert(QLatin1String(compilerPlatformCodeGenFlagsKeyC), m_platformCodeGenFlags);
+    data.insert(QLatin1String(compilerPlatformLinkerFlagsKeyC), m_platformLinkerFlags);
     data.insert(QLatin1String(targetAbiKeyC), m_targetAbi.toString());
     QStringList abiList;
     foreach (const Abi &a, m_supportedAbis)
@@ -605,6 +650,8 @@ bool GccToolChain::fromMap(const QVariantMap &data)
         return false;
 
     m_compilerCommand = FileName::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
+    m_platformCodeGenFlags = data.value(QLatin1String(compilerPlatformCodeGenFlagsKeyC)).toStringList();
+    m_platformLinkerFlags = data.value(QLatin1String(compilerPlatformLinkerFlagsKeyC)).toStringList();
     m_targetAbi = Abi(data.value(QLatin1String(targetAbiKeyC)).toString());
     QStringList abiList = data.value(QLatin1String(supportedAbisKeyC)).toStringList();
     m_supportedAbis.clear();
@@ -623,7 +670,9 @@ bool GccToolChain::operator ==(const ToolChain &other) const
         return false;
 
     const GccToolChain *gccTc = static_cast<const GccToolChain *>(&other);
-    return m_compilerCommand == gccTc->m_compilerCommand && m_targetAbi == gccTc->m_targetAbi;
+    return m_compilerCommand == gccTc->m_compilerCommand && m_targetAbi == gccTc->m_targetAbi
+            && m_platformCodeGenFlags == gccTc->m_platformCodeGenFlags
+            && m_platformLinkerFlags == gccTc->m_platformLinkerFlags;
 }
 
 ToolChainConfigWidget *GccToolChain::configurationWidget()
@@ -641,7 +690,7 @@ QList<Abi> GccToolChain::detectSupportedAbis() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return guessGccAbi(m_compilerCommand, env.toStringList());
+    return guessGccAbi(m_compilerCommand, env.toStringList(), platformCodeGenFlags());
 }
 
 QString GccToolChain::detectVersion() const
@@ -768,13 +817,23 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
+    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));
+    m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
+    m_platformLinkerFlagsLineEdit = new QLineEdit(this);
+    m_platformLinkerFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformLinkerFlags()));
+    m_mainLayout->addRow(tr("Platform linker flags:"), m_platformLinkerFlagsLineEdit);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+
     m_abiWidget->setEnabled(false);
     addErrorLabel();
 
     setFromToolchain();
+    handleCompilerCommandChange();
 
     connect(m_compilerCommand, SIGNAL(changed(QString)), this, SLOT(handleCompilerCommandChange()));
+    connect(m_platformCodeGenFlagsLineEdit, SIGNAL(editingFinished()), this, SLOT(handlePlatformCodeGenFlagsChange()));
+    connect(m_platformLinkerFlagsLineEdit, SIGNAL(editingFinished()), this, SLOT(handlePlatformLinkerFlagsChange()));
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
 }
 
@@ -789,6 +848,8 @@ void Internal::GccToolChainConfigWidget::applyImpl()
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName); // reset display name
+    tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
+    tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
 }
 
 void Internal::GccToolChainConfigWidget::setFromToolchain()
@@ -797,6 +858,8 @@ void Internal::GccToolChainConfigWidget::setFromToolchain()
     bool blocked = blockSignals(true);
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
+    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));
+    m_platformLinkerFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformLinkerFlags()));
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
     if (!m_isReadOnly && !m_compilerCommand->path().isEmpty())
         m_abiWidget->setEnabled(true);
@@ -808,6 +871,8 @@ bool Internal::GccToolChainConfigWidget::isDirtyImpl() const
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
+            || m_platformCodeGenFlagsLineEdit->text() != QtcProcess::joinArgs(tc->platformCodeGenFlags())
+            || m_platformLinkerFlagsLineEdit->text() != QtcProcess::joinArgs(tc->platformLinkerFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 
@@ -816,6 +881,21 @@ void Internal::GccToolChainConfigWidget::makeReadOnlyImpl()
     m_compilerCommand->setEnabled(false);
     m_abiWidget->setEnabled(false);
     m_isReadOnly = true;
+}
+
+QStringList Internal::GccToolChainConfigWidget::splitString(const QString &s)
+{
+    QtcProcess::SplitError splitError;
+    QStringList res = QtcProcess::splitArgs(s, false, &splitError);
+    if (splitError != QtcProcess::SplitOk){
+        res = QtcProcess::splitArgs(s + QLatin1Char('\\'), false, &splitError);
+        if (splitError != QtcProcess::SplitOk){
+            res = QtcProcess::splitArgs(s + QLatin1Char('"'), false, &splitError);
+            if (splitError != QtcProcess::SplitOk)
+                res = QtcProcess::splitArgs(s + QLatin1Char('\''), false, &splitError);
+        }
+    }
+    return res;
 }
 
 void Internal::GccToolChainConfigWidget::handleCompilerCommandChange()
@@ -828,11 +908,32 @@ void Internal::GccToolChainConfigWidget::handleCompilerCommandChange()
         haveCompiler = fi.isExecutable() && fi.isFile();
     }
     if (haveCompiler)
-        abiList = guessGccAbi(path, Environment::systemEnvironment().toStringList());
+        abiList = guessGccAbi(path, Environment::systemEnvironment().toStringList(),
+                              splitString(m_platformCodeGenFlagsLineEdit->text()));
     m_abiWidget->setEnabled(haveCompiler);
     Abi currentAbi = m_abiWidget->currentAbi();
     m_abiWidget->setAbis(abiList, abiList.contains(currentAbi) ? currentAbi : Abi());
     emit dirty();
+}
+
+void Internal::GccToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
+{
+    QString str1 = m_platformCodeGenFlagsLineEdit->text();
+    QString str2 = QtcProcess::joinArgs(splitString(str1));
+    if (str1 != str2)
+        m_platformCodeGenFlagsLineEdit->setText(str2);
+    else
+        handleCompilerCommandChange();
+}
+
+void Internal::GccToolChainConfigWidget::handlePlatformLinkerFlagsChange()
+{
+    QString str1 = m_platformLinkerFlagsLineEdit->text();
+    QString str2 = QtcProcess::joinArgs(splitString(str1));
+    if (str1 != str2)
+        m_platformLinkerFlagsLineEdit->setText(str2);
+    else
+        emit dirty();
 }
 
 // --------------------------------------------------------------------------
