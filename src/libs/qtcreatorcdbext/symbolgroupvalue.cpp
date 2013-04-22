@@ -2556,6 +2556,11 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
         if (const SymbolGroupValue sv = dataV["shared"]["ptr"].pointerTypeCast(qtInfo.prependQtCoreModule("QPointF *").c_str()))
             dumpQPoint_F(sv, str);
         break;
+    case 65: // QPixmap
+        str << L"(QPixmap) ";
+        if (const SymbolGroupValue sv = qVariantCast(dataV, qtInfo.prependQtGuiModule("QPixmap").c_str()))
+            dumpQPixmap(sv, str);
+        break;
     default:
         str << L"Type " << typeId;
         break;
