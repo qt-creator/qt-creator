@@ -44,7 +44,7 @@ ClearCaseSync::ClearCaseSync(ClearCasePlugin *plugin, QSharedPointer<StatusMap> 
 {
 }
 
-void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel, QStringList &files)
+void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
 {
     ClearCaseSettings settings = m_plugin->settings();
     QString program = settings.ccBinaryPath;
@@ -65,19 +65,23 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
 
     if (settings.disableIndexer)
         return;
+
     QStringList vobs;
     if (!settings.indexOnlyVOBs.isEmpty())
         vobs = settings.indexOnlyVOBs.split(QLatin1Char(','));
     else
         vobs = m_plugin->ccGetActiveVobs();
-    QDir topLevelDir(topLevel);
+
+    const QString viewRoot = m_plugin->viewRoot();
+    const QDir viewRootDir(viewRoot);
+
     QStringList args(QLatin1String("ls"));
     if (hot) {
         // find all files whose permissions changed OR hijacked files
         // (might have become checked out)
         foreach (const QString &file, m_statusMap->keys()) {
             bool permChanged =
-                    m_statusMap->value(file).permissions != QFileInfo(topLevel, file).permissions();
+                    m_statusMap->value(file).permissions != QFileInfo(viewRoot, file).permissions();
             if (permChanged || m_statusMap->value(file).status == FileStatus::Hijacked) {
                 files.append(file);
                 (*m_statusMap)[file].status = FileStatus::Unknown;
@@ -87,7 +91,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
         args << files;
     } else {
         foreach (const QString &file, files)
-            m_plugin->setStatus(topLevelDir.relativeFilePath(file), FileStatus::Unknown, false);
+            m_plugin->setStatus(viewRootDir.absoluteFilePath(file), FileStatus::Unknown, false);
         args << QLatin1String("-recurse");
         args << vobs;
     }
@@ -96,7 +100,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
     // (we don't want it to become green)
     future.setProgressRange(0, total + 1);
     QProcess process;
-    process.setWorkingDirectory(topLevel);
+    process.setWorkingDirectory(viewRoot);
 
     process.start(program, args);
     if (!process.waitForStarted())
@@ -114,21 +118,24 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
                 if (atatpos != -1) { // probably managed file
                     // find first whitespace. anything before that is not interesting
                     int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
-                    const QString relFile = topLevelDir.relativeFilePath(QDir::fromNativeSeparators(buffer.left(atatpos)));
+                    const QString absFile =
+                            viewRootDir.absoluteFilePath(
+                                QDir::fromNativeSeparators(buffer.left(atatpos)));
+
                     QString ccState;
                     QRegExp reState(QLatin1String("^\\s*\\[[^\\]]*\\]")); // [hijacked]; [loaded but missing]
                     if (reState.indexIn(buffer, wspos + 1, QRegExp::CaretAtOffset) != -1) {
                         ccState = reState.cap();
                         if (ccState.indexOf(QLatin1String("hijacked")) != -1)
-                            m_plugin->setStatus(relFile, FileStatus::Hijacked, true);
+                            m_plugin->setStatus(absFile, FileStatus::Hijacked, true);
                         else if (ccState.indexOf(QLatin1String("loaded but missing")) != -1)
-                            m_plugin->setStatus(relFile, FileStatus::Missing, false);
+                            m_plugin->setStatus(absFile, FileStatus::Missing, false);
                     }
                     else if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
-                        m_plugin->setStatus(relFile, FileStatus::CheckedOut, true);
+                        m_plugin->setStatus(absFile, FileStatus::CheckedOut, true);
                     // don't care about checked-in files not listed in project
-                    else if (m_statusMap->contains(relFile))
-                        m_plugin->setStatus(relFile, FileStatus::CheckedIn, true);
+                    else if (m_statusMap->contains(absFile))
+                        m_plugin->setStatus(absFile, FileStatus::CheckedIn, true);
                 }
                 buffer.clear();
                 future.setProgressValue(qMin(total, ++processed));
@@ -138,9 +145,9 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
 
     if (!future.isCanceled()) {
         foreach (const QString &file, files) {
-            QString relFile = topLevelDir.relativeFilePath(file);
-            if (m_statusMap->value(relFile).status == FileStatus::Unknown)
-                m_plugin->setStatus(relFile, FileStatus::NotManaged, false);
+            QString absFile = QFileInfo(file).absoluteFilePath();
+            if (!m_statusMap->contains(absFile))
+                m_plugin->setStatus(absFile, FileStatus::NotManaged, false);
         }
         future.setProgressValue(total + 1);
         if (!hot) {

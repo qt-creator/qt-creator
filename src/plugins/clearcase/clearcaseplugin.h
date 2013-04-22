@@ -107,6 +107,7 @@ public:
     QString name;
     bool isDynamic;
     bool isUcm;
+    QString root;
 };
 
 class ClearCasePlugin : public VcsBase::VcsBasePlugin
@@ -156,6 +157,7 @@ public:
                   const QString &fileName, const QString &file2 = QString());
     FileStatus vcsStatus(const QString &file) const;
     QString currentView() const { return m_viewData.name; }
+    QString viewRoot() const { return m_viewData.root; }
     void refreshActivities();
     inline bool isUcm() const { return m_viewData.isUcm; }
     void setStatus(const QString &file, FileStatus::Status status, bool update = true);
@@ -206,6 +208,9 @@ protected:
 
 private:
     inline bool isCheckInEditorOpen() const;
+    QStringList getVobList() const;
+    QString ccManagesDirectory(const QString &directory) const;
+    QString ccViewRoot(const QString &directory) const;
     QString findTopLevel(const QString &directory) const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
                                       int editorType, const QString &source,
@@ -214,7 +219,7 @@ private:
     ClearCaseResponse runCleartool(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
                               unsigned flags, QTextCodec *outputCodec = 0) const;
-    static void sync(QFutureInterface<void> &future, QString topLevel, QStringList files);
+    static void sync(QFutureInterface<void> &future, QStringList files);
 
     void history(const QString &workingDir,
                  const QStringList &file = QStringList(),
@@ -233,6 +238,7 @@ private:
     static void rmdir(const QString &path);
     QString runExtDiff(const QString &workingDir, const QStringList &arguments,
                        int timeOut, QTextCodec *outputCodec = 0);
+    static QString getDriveLetterOfPath(const QString &directory);
 
     ClearCaseSettings m_settings;
 
