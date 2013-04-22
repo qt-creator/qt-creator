@@ -38,9 +38,9 @@
 #include <QTreeView>
 #include <QLabel>
 
-class QLabel;
-class QTreeView;
+QT_BEGIN_NAMESPACE
 class QVBoxLayout;
+QT_END_NAMESPACE
 
 namespace GenericProjectManager {
 namespace Internal {

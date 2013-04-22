@@ -32,10 +32,12 @@
 
 #include <QWizardPage>
 
+QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 class QLabel;
 class QTreeView;
 class QLineEdit;
+QT_END_NAMESPACE
 
 namespace GenericProjectManager {
 namespace Internal {
