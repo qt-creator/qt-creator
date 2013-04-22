@@ -87,15 +87,15 @@ class GitClient : public QObject
     Q_OBJECT
 
 public:
-    enum StashResult { StashUnchanged, StashCanceled, StashFailed,
-                       Stashed, NotStashed /* User did not want it */ };
-
     enum CommandInProgress { NoCommand, Revert, CherryPick,
                              Rebase, Merge, RebaseMerge };
 
     class StashGuard
     {
     public:
+        enum StashResult { StashUnchanged, StashCanceled, StashFailed,
+                           Stashed, NotStashed /* User did not want it */ };
+
         StashGuard(const QString &workingDirectory, const QString &keyword,
                    StashFlag flag = Default);
         ~StashGuard();
@@ -106,6 +106,9 @@ public:
         QString stashMessage() const { return message; }
 
     private:
+        void stashPrompt(const QString &keyword, QString *errorMessage);
+        void executeStash(const QString &keyword, QString *errorMessage);
+
         bool pop;
         StashResult stashResult;
         QString message;
@@ -259,9 +262,6 @@ public:
     QString readConfig(const QString &workingDirectory, const QStringList &configVar) const;
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
-
-    StashResult ensureStash(const QString &workingDirectory, const QString &keyword,
-                            StashFlag flag, QString *message, QString *errorMessage = 0);
 
     bool getCommitData(const QString &workingDirectory, bool amend,
                        QString *commitTemplate, CommitData *commitData,

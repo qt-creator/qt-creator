@@ -1220,9 +1220,12 @@ void GitPlugin::stash()
     // Simple stash without prompt, reset repo.
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    QString id;
-    gitClient()->ensureStash(state.topLevel(), QString(), NoPrompt, &id);
-    if (!id.isEmpty() && m_stashDialog)
+
+    GitClient::StashGuard stashGuard(state.topLevel(), QString(), NoPrompt);
+    if (stashGuard.stashingFailed())
+        return;
+    stashGuard.preventPop();
+    if (stashGuard.result() == GitClient::StashGuard::Stashed && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
 }
 

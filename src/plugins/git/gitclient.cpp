@@ -1756,69 +1756,6 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                                        logCommandToWindow);
 }
 
-// Ensure that changed files are stashed before a pull or similar
-GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory,
-                                              const QString &keyword,
-                                              StashFlag flag,
-                                              QString *message,
-                                              QString *errorMessage)
-{
-    QString statusOutput;
-    switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules),
-                      &statusOutput, errorMessage)) {
-    case StatusChanged:
-        break;
-    case StatusUnchanged:
-        return StashUnchanged;
-    case StatusFailed:
-        return StashFailed;
-    }
-
-    if (!(flag & NoPrompt)) {
-        QPointer<QMessageBox> msgBox = new QMessageBox(QMessageBox::Question,
-                              tr("Uncommited changes found"),
-                              tr("What would you like to do with local changes?"),
-                              QMessageBox::NoButton, Core::ICore::mainWindow());
-
-        msgBox->setDetailedText(statusOutput);
-
-        QPushButton *stashButton = msgBox->addButton(tr("Stash"), QMessageBox::AcceptRole);
-        stashButton->setToolTip(tr("Stash local changes and continue"));
-
-        QPushButton *discardButton = msgBox->addButton(tr("Discard"), QMessageBox::AcceptRole);
-        discardButton->setToolTip(tr("Discard (reset) local changes and continue"));
-
-        QPushButton *ignoreButton = 0;
-        if (flag & AllowUnstashed) {
-            ignoreButton = msgBox->addButton(QMessageBox::Ignore);
-            ignoreButton->setToolTip(tr("Continue with local changes in working directory"));
-        }
-
-        QPushButton *cancelButton = msgBox->addButton(QMessageBox::Cancel);
-        cancelButton->setToolTip(tr("Cancel current command"));
-
-        msgBox->exec();
-        if (msgBox.isNull())
-            return StashFailed;
-
-        if (msgBox->clickedButton() == discardButton) {
-            if (!synchronousReset(workingDirectory, QStringList(), errorMessage))
-                return StashFailed;
-            return StashUnchanged;
-        } else if (msgBox->clickedButton() == ignoreButton) { // At your own risk, so.
-            return NotStashed;
-        } else if (msgBox->clickedButton() == cancelButton) {
-            return StashCanceled;
-        }
-    }
-    const QString stashMessage = creatorStashMessage(keyword);
-    if (!executeSynchronousStash(workingDirectory, stashMessage, errorMessage))
-        return StashFailed;
-    if (message)
-        *message = stashMessage;
-    return Stashed;
- }
-
 void GitClient::submoduleUpdate(const QString &workingDirectory)
 {
     QStringList arguments;
@@ -2908,19 +2845,89 @@ GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString
 {
     client = GitPlugin::instance()->gitClient();
     QString errorMessage;
-    stashResult = client->ensureStash(workingDir, keyword, flags, &message, &errorMessage);
-    if (stashResult == GitClient::StashFailed)
+    if (flags & NoPrompt)
+        executeStash(keyword, &errorMessage);
+    else
+        stashPrompt(keyword, &errorMessage);
+
+    if (stashResult == StashFailed)
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
 }
 
 GitClient::StashGuard::~StashGuard()
 {
-    if (pop && stashResult == GitClient::Stashed) {
+    if (pop && stashResult == Stashed) {
         QString stashName;
         if (client->stashNameFromMessage(workingDir, message, &stashName))
             client->stashPop(workingDir, stashName);
     }
 }
+
+void GitClient::StashGuard::stashPrompt(const QString &keyword, QString *errorMessage)
+{
+    QString statusOutput;
+    switch (client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules),
+                              &statusOutput, errorMessage)) {
+    case GitClient::StatusChanged:
+        break;
+    case GitClient::StatusUnchanged:
+        stashResult = StashUnchanged;
+        return;
+    case GitClient::StatusFailed:
+        stashResult = StashFailed;
+        return;
+    }
+
+    QPointer<QMessageBox> msgBox = new QMessageBox(QMessageBox::Question,
+                                   tr("Uncommitted Changes Found"),
+                                   tr("What would you like to do with local changes in:")
+                                        + QLatin1String("\n\n\"") + workingDir + QLatin1Char('\"'),
+                                   QMessageBox::NoButton, Core::ICore::mainWindow());
+
+    msgBox->setDetailedText(statusOutput);
+
+    QPushButton *stashButton = msgBox->addButton(tr("Stash"), QMessageBox::AcceptRole);
+    stashButton->setToolTip(tr("Stash local changes and continue."));
+
+    QPushButton *discardButton = msgBox->addButton(tr("Discard"), QMessageBox::AcceptRole);
+    discardButton->setToolTip(tr("Discard (reset) local changes and continue."));
+
+    QPushButton *ignoreButton = 0;
+    if (flags & AllowUnstashed) {
+        ignoreButton = msgBox->addButton(QMessageBox::Ignore);
+        ignoreButton->setToolTip(tr("Continue with local changes in working directory."));
+    }
+
+    QPushButton *cancelButton = msgBox->addButton(QMessageBox::Cancel);
+    cancelButton->setToolTip(tr("Cancel current command."));
+
+    msgBox->exec();
+
+    if (msgBox.isNull())
+        return;
+
+    if (msgBox->clickedButton() == discardButton) {
+        if (!client->synchronousReset(workingDir, QStringList(), errorMessage))
+            stashResult = StashFailed;
+        else
+            stashResult = StashUnchanged;
+    } else if (msgBox->clickedButton() == ignoreButton) { // At your own risk, so.
+        stashResult = NotStashed;
+    } else if (msgBox->clickedButton() == cancelButton) {
+        stashResult = StashCanceled;
+    } else if (msgBox->clickedButton() == stashButton) {
+        executeStash(keyword, errorMessage);
+    }
+}
+
+void GitClient::StashGuard::executeStash(const QString &keyword, QString *errorMessage)
+{
+    message = creatorStashMessage(keyword);
+    if (!client->executeSynchronousStash(workingDir, message, errorMessage))
+        stashResult = StashFailed;
+    else
+        stashResult = Stashed;
+ }
 
 void GitClient::StashGuard::preventPop()
 {
@@ -2930,10 +2937,10 @@ void GitClient::StashGuard::preventPop()
 bool GitClient::StashGuard::stashingFailed() const
 {
     switch (stashResult) {
-    case GitClient::StashCanceled:
-    case GitClient::StashFailed:
+    case StashCanceled:
+    case StashFailed:
         return true;
-    case GitClient::NotStashed:
+    case NotStashed:
         return !(flags & AllowUnstashed);
     default:
         return false;

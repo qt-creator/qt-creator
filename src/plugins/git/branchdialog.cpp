@@ -187,9 +187,16 @@ void BranchDialog::checkout()
 
         QString stashMessage;
         if (branchCheckoutDialog.makeStashOfCurrentBranch()
-            || branchCheckoutDialog.moveLocalChangesToNextBranch()) {
-            gitClient->ensureStash(m_repository, currentBranch + QLatin1String("-AutoStash"),
-                                   NoPrompt, &stashMessage);
+                || branchCheckoutDialog.moveLocalChangesToNextBranch()) {
+
+            GitClient::StashGuard stashGuard(m_repository,
+                                             currentBranch + QLatin1String("-AutoStash"),
+                                             NoPrompt);
+            if (stashGuard.stashingFailed())
+                return;
+            stashGuard.preventPop();
+            stashMessage = stashGuard.stashMessage();
+
         } else if (branchCheckoutDialog.discardLocalChanges()) {
             gitClient->synchronousReset(m_repository);
         }
