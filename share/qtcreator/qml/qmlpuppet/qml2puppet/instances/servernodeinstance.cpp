@@ -37,6 +37,7 @@
 #include "qmlstatenodeinstance.h"
 #include "anchorchangesnodeinstance.h"
 #include "positionernodeinstance.h"
+#include "layoutnodeinstance.h"
 #include "debugoutputcommand.h"
 
 #include "quickitemnodeinstance.h"
@@ -181,6 +182,8 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
         instance = Internal::DummyNodeInstance::create();
     else if (isSubclassOf(objectToBeWrapped, "QQuickBasePositioner"))
         instance = Internal::PositionerNodeInstance::create(objectToBeWrapped);
+    else if (isSubclassOf(objectToBeWrapped, "QQuickLayout"))
+        instance = Internal::LayoutNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickItem"))
         instance = Internal::QuickItemNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQmlComponent"))

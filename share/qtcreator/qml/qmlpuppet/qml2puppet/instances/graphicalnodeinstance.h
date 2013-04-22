@@ -11,8 +11,8 @@ namespace Internal {
 class GraphicalNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<QuickItemNodeInstance> Pointer;
-    typedef QWeakPointer<QuickItemNodeInstance> WeakPointer;
+    typedef QSharedPointer<GraphicalNodeInstance> Pointer;
+    typedef QWeakPointer<GraphicalNodeInstance> WeakPointer;
 
     ~GraphicalNodeInstance();
 
