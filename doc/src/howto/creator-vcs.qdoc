@@ -267,9 +267,11 @@
         \li \gui Git > \gui {Local Repository} > \gui Reset opens a dialog
             where you can select the SHA-1 to reset the working directory to.
             This is useful after applying patches for review, for example. You
-            can choose between a \gui {Soft Reset} that does not touch the index
-            file nor the working tree at all and a \gui {Hard Reset} that
-            discards all changes to tracked files in working tree.
+            can choose between a \gui Soft reset that does not touch the index
+            file nor the working tree at all, a \gui Hard reset that discards
+            all changes to tracked files in working tree, and a \gui Mixed
+            reset that resets HEAD and the index (nothing remains staged)
+            without touching the working directory.
 
     \endlist
 
