@@ -7157,8 +7157,8 @@ void FakeVimHandler::Private::undoRedo(bool undo)
     ++m_editBlockLevel;
 
     // Do undo/redo [count] times to reach previous revision.
-    int count = m_undoState.isValid() ? m_undoState.revisions
-                                      : state.isValid() ? state.revisions : 1;
+    int count = qMax(1, m_undoState.isValid() ? m_undoState.revisions
+                                              : state.revisions);
     while (count-- > 0) {
         if (undo)
             EDITOR(undo());
