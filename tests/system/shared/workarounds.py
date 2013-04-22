@@ -48,22 +48,14 @@ class JIRA:
         tmpJIRA = JIRA(number, bugType)
         return tmpJIRA.isOpen()
 
-    # function similar to performWorkaroundForBug - but it will execute the
-    # workaround (function) only if the bug is still open
-    # returns True if the workaround function has been executed, False otherwise
-    @staticmethod
-    def performWorkaroundIfStillOpen(number, bugType=Bug.CREATOR, *args):
-        if JIRA.isBugStillOpen(number, bugType):
-            return JIRA.performWorkaroundForBug(number, bugType, *args)
-        else:
-            test.warning("Bug %s-%d is closed... skipping workaround!" % (bugType, number),
-                         "You should remove potential code inside performWorkaroundForBug()")
-            return False
-
     # function that performs the workaround (function) for the given bug
     # if the function needs additional arguments pass them as 3rd parameter
     @staticmethod
     def performWorkaroundForBug(number, bugType=Bug.CREATOR, *args):
+        if not JIRA.isBugStillOpen(number, bugType):
+            test.warning("Bug %s-%d is closed for version %s." %
+                         (bugType, number, JIRA(number, bugType)._fix),
+                         "You should probably remove potential code inside workarounds.py")
         functionToCall = JIRA.getInstance().__bugs__.get("%s-%d" % (bugType, number), None)
         if functionToCall:
             test.warning("Using workaround for %s-%d" % (bugType, number))
@@ -104,7 +96,8 @@ class JIRA:
             bug = "%s-%d" % (self._bugType, self._number)
             if bug in self._fetchResults_:
                 result = self._fetchResults_[bug]
-                self._resolution = result
+                self._resolution = result[0]
+                self._fix = result[1]
                 return
             data = None
             proxy = os.getenv("SYSTEST_PROXY", None)
@@ -136,6 +129,15 @@ class JIRA:
                 data = data.replace("\r", "").replace("\n", "")
                 resPattern = re.compile('<span\s+id="resolution-val".*?>(?P<resolution>.*?)</span>')
                 resolution = resPattern.search(data)
+                fixVersion = 'None'
+                fixPattern = re.compile('<span.*?id="fixfor-val".*?>(?P<fix>.*?)</span>')
+                fix = fixPattern.search(data)
+                titlePattern = re.compile('title="(?P<title>.*?)"')
+                if fix:
+                    fix = titlePattern.search(fix.group('fix').strip())
+                    if fix:
+                        fixVersion = fix.group('title').strip()
+                self._fix = fixVersion
                 if resolution:
                     self._resolution = resolution.group("resolution").strip()
                 else:
@@ -144,7 +146,7 @@ class JIRA:
                     self._resolution = None
             if self._resolution == None:
                 self.__cropAndLog__(data)
-            self._fetchResults_.update({bug:self._resolution})
+            self._fetchResults_.update({bug:[self._resolution, self._fix]})
 
         # simple helper function - used as fallback if python has no ssl support
         # tries to find curl or wget in PATH and fetches data with it instead of

@@ -65,7 +65,7 @@ def main():
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
         runControlFinished = False
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
-        JIRA.performWorkaroundIfStillOpen(6853, JIRA.Bug.CREATOR, config)
+        JIRA.performWorkaroundForBug(6853, JIRA.Bug.CREATOR, config)
         handleDebuggerWarnings(config, isMsvc)
         waitFor("runControlFinished==True", 20000)
         if not runControlFinished:
