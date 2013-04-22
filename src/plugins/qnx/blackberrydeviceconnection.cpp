@@ -71,6 +71,12 @@ void BlackBerryDeviceConnection::connectDevice(const ProjectExplorer::IDevice::C
     // Since killing the blackberry-connect script won't kill the java process it launches,
     // let's just call the java process directly instead.
     QString command = env.searchInPath(QLatin1String("java"));
+    if (command.isEmpty()) {
+        const QString line = tr("Error connecting to device: java could not be found in the environment.") + QLatin1Char('\n');
+        emit processOutput(line);
+        m_messageLog.append(line);
+        return;
+    }
 
     QStringList args;
     args << QLatin1String("-Xmx512M");
