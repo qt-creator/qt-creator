@@ -1574,33 +1574,22 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
     return result;
 }
 
-QMap<QString,QString> GitClient::synchronousSubmoduleList(const QString &workingDirectory,
-                                                          QString *errorMessage)
+// function returns submodules in format path=url
+QMap<QString,QString> GitClient::synchronousSubmoduleList(const QString &workingDirectory)
 {
-    QStringList args;
     QMap<QString,QString> result;
-    args << QLatin1String("config") << QLatin1String("-l");
-    QByteArray outputText;
-    QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
-    if (!rc) {
-        QString message = msgCannotRun(QLatin1String("git config -l"), workingDirectory, commandOutputFromLocal8Bit(errorText));
-
-        if (errorMessage)
-            *errorMessage = message;
-        else
-            outputWindow()->append(message);
+    if (!QFile::exists(workingDirectory + QLatin1String("/.gitmodules")))
         return result;
+
+    QSettings gitmodulesFile(workingDirectory + QLatin1String("/.gitmodules"), QSettings::IniFormat);
+
+    foreach (const QString &submoduleGroup, gitmodulesFile.childGroups()) {
+        gitmodulesFile.beginGroup(submoduleGroup);
+        result.insertMulti(gitmodulesFile.value(QLatin1String("path")).toString(),
+                           gitmodulesFile.value(QLatin1String("url")).toString());
+        gitmodulesFile.endGroup();
     }
 
-    QStringList outputList = commandOutputLinesFromLocal8Bit(outputText);
-    QString urlKey = QLatin1String(".url=");
-    foreach (const QString& line, outputList) {
-        if (line.startsWith(QLatin1String("submodule."))) {
-            result.insertMulti(line.mid(10, line.indexOf(urlKey) - 10),
-                               line.mid(line.indexOf(urlKey, 10) + 5));
-        }
-    }
     return result;
 }
 

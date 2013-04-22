@@ -198,8 +198,7 @@ public:
 
     QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
                                                  QString *errorMessage = 0);
-    QMap<QString,QString> synchronousSubmoduleList(const QString &workingDirectory,
-                                                   QString *errorMessage = 0);
+    QMap<QString,QString> synchronousSubmoduleList(const QString &workingDirectory);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
 
