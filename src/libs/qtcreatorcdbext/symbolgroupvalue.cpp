@@ -2473,8 +2473,15 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
         break;
     case 10: // String
         str << L"(QString) ";
-        if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QString *").c_str()))
-            dumpQString(sv, str);
+        if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QString *").c_str())) {
+            if (!dumpQString(sv, str)) {
+                // HACK:
+                // In some rare cases the the AddSymbol can't create a node with a given module name,
+                // but is able to add the symbol without any modulename.
+                if (const SymbolGroupValue svc = dataV.typeCast("QString *"))
+                    dumpQString(svc, str);
+            }
+        }
         break;
     case 11: //StringList: Dump container size
         str << L"(QStringList) ";
