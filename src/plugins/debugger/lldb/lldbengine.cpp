@@ -738,7 +738,8 @@ void LldbEngine::readLldbStandardError()
 
 static bool isEatable(char c)
 {
-    return c == 10 || c == 13;
+    //return c == 10 || c == 13;
+    return c == 13;
 }
 
 void LldbEngine::readLldbStandardOutput()
