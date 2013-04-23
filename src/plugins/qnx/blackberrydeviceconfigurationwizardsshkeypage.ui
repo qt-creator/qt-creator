@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>413</width>
-    <height>88</height>
+    <height>139</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,6 +42,16 @@
     <widget class="QLabel" name="publicKey">
      <property name="text">
       <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="maximum">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>-1</number>
      </property>
     </widget>
    </item>

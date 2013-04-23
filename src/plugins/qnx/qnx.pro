@@ -76,7 +76,8 @@ SOURCES += qnxplugin.cpp \
     blackberrycheckdevmodestepconfigwidget.cpp \
     blackberrydeviceconnection.cpp \
     blackberrydeviceconnectionmanager.cpp \
-    blackberrydeviceinformation.cpp
+    blackberrydeviceinformation.cpp \
+    blackberrysshkeysgenerator.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -152,7 +153,8 @@ HEADERS += qnxplugin.h\
     blackberrycheckdevmodestepconfigwidget.h \
     blackberrydeviceconnection.h \
     blackberrydeviceconnectionmanager.h \
-    blackberrydeviceinformation.h
+    blackberrydeviceinformation.h \
+    blackberrysshkeysgenerator.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

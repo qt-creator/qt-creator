@@ -31,6 +31,7 @@
 
 #include "blackberrydeviceconfigurationwizardpages.h"
 #include "blackberrydebugtokenrequestdialog.h"
+#include "blackberrysshkeysgenerator.h"
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
 #include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
 
@@ -150,28 +151,31 @@ void BlackBerryDeviceConfigurationWizardSetupPage::requestDebugToken()
 BlackBerryDeviceConfigurationWizardSshKeyPage::BlackBerryDeviceConfigurationWizardSshKeyPage(QWidget *parent)
     : QWizardPage(parent)
     , m_ui(new Ui::BlackBerryDeviceConfigurationWizardSshKeyPage)
-    , m_keyGen(0)
+    , m_sshKeysGenerator(new BlackBerrySshKeysGenerator(this))
     , m_isGenerated(false)
 {
     m_ui->setupUi(this);
 
     m_ui->privateKey->setExpectedKind(Utils::PathChooser::File);
+    m_ui->progressBar->hide();
 
     setTitle(tr("SSH Key Setup"));
     setSubTitle(tr("Please select an existing <b>4096</b>-bit key or click <b>Generate</b> to create a new one."));
 
     connect(m_ui->privateKey, SIGNAL(changed(QString)), this, SLOT(findMatchingPublicKey(QString)));
     connect(m_ui->privateKey, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
-    connect(m_ui->generate, SIGNAL(clicked()), this, SLOT(generateSshKey()));
+    connect(m_ui->generate, SIGNAL(clicked()), this, SLOT(generateSshKeys()));
+    connect(m_sshKeysGenerator, SIGNAL(sshKeysGenerationFinished(bool)), this, SLOT(processSshKeys(bool)));
 }
 
 BlackBerryDeviceConfigurationWizardSshKeyPage::~BlackBerryDeviceConfigurationWizardSshKeyPage()
 {
+    // Make sure the m_sshKeysGenerator thread is terminated before it's destroyed
+    m_sshKeysGenerator->terminate();
+    m_sshKeysGenerator->wait();
+
     delete m_ui;
     m_ui = 0;
-
-    delete m_keyGen;
-    m_keyGen = 0;
 }
 
 void BlackBerryDeviceConfigurationWizardSshKeyPage::initializePage()
@@ -203,7 +207,7 @@ bool BlackBerryDeviceConfigurationWizardSshKeyPage::isGenerated() const
 
 QSsh::SshKeyGenerator *BlackBerryDeviceConfigurationWizardSshKeyPage::keyGenerator() const
 {
-    return m_keyGen;
+    return m_sshKeysGenerator->keyGenerator();
 }
 
 void BlackBerryDeviceConfigurationWizardSshKeyPage::findMatchingPublicKey(const QString &privateKeyPath)
@@ -213,21 +217,14 @@ void BlackBerryDeviceConfigurationWizardSshKeyPage::findMatchingPublicKey(const 
         m_ui->publicKey->setText(candidate);
 }
 
-void BlackBerryDeviceConfigurationWizardSshKeyPage::generateSshKey()
+void BlackBerryDeviceConfigurationWizardSshKeyPage::processSshKeys(bool success)
 {
-    if (!m_keyGen)
-        m_keyGen = new QSsh::SshKeyGenerator;
-
-    const bool success = m_keyGen->generateKeys(QSsh::SshKeyGenerator::Rsa,
-                                                QSsh::SshKeyGenerator::Mixed, 4096,
-                                                QSsh::SshKeyGenerator::DoNotOfferEncryption);
-
-    if (!success) {
-        QMessageBox::critical(this, tr("Key Generation Failed"), m_keyGen->error());
-        m_isGenerated = false;
+    m_isGenerated = success;
+    if (!m_isGenerated) {
+        QMessageBox::critical(this, tr("Key Generation Failed"), m_sshKeysGenerator->error());
+        setBusy(false);
         return;
     }
-    m_isGenerated = true;
 
     const QString storeLocation = Core::ICore::userResourcePath() + QLatin1String("/qnx/")
             + field(QLatin1String(DEVICENAME_FIELD_ID)).toString();
@@ -237,8 +234,27 @@ void BlackBerryDeviceConfigurationWizardSshKeyPage::generateSshKey()
     m_ui->privateKey->setFileName(Utils::FileName::fromString(privKeyPath));
     m_ui->publicKey->setText(pubKeyPath);
     m_ui->privateKey->setEnabled(false);
+
+    setBusy(false);
 }
 
+void BlackBerryDeviceConfigurationWizardSshKeyPage::generateSshKeys()
+{
+    setBusy(true);
+    m_sshKeysGenerator->start();
+}
+
+void BlackBerryDeviceConfigurationWizardSshKeyPage::setBusy(bool busy)
+{
+    m_ui->privateKey->setEnabled(!busy);
+    m_ui->generate->setEnabled(!busy);
+    m_ui->progressBar->setVisible(busy);
+
+    wizard()->button(QWizard::BackButton)->setEnabled(!busy);
+    wizard()->button(QWizard::NextButton)->setEnabled(!busy);
+    wizard()->button(QWizard::FinishButton)->setEnabled(!busy);
+    wizard()->button(QWizard::CancelButton)->setEnabled(!busy);
+}
 // ----------------------------------------------------------------------------
 
 
@@ -251,3 +267,6 @@ BlackBerryDeviceConfigurationWizardFinalPage::BlackBerryDeviceConfigurationWizar
     QLabel *label = new QLabel(tr("The new device configuration will now be created."), this);
     layout->addWidget(label);
 }
+
+
+

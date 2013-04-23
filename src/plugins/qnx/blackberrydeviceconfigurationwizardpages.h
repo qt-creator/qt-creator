@@ -46,6 +46,7 @@ namespace Ui {
 class BlackBerryDeviceConfigurationWizardSetupPage;
 class BlackBerryDeviceConfigurationWizardSshKeyPage;
 }
+class BlackBerrySshKeysGenerator;
 
 class BlackBerryDeviceConfigurationWizardSetupPage : public QWizardPage
 {
@@ -89,14 +90,16 @@ public:
 
 private slots:
     void findMatchingPublicKey(const QString &privateKeyPath);
-    void generateSshKey();
+    void processSshKeys(bool success);
+    void generateSshKeys();
 
 private:
     void saveKeys();
+    void setBusy(bool busy);
 
     Ui::BlackBerryDeviceConfigurationWizardSshKeyPage *m_ui;
 
-    QSsh::SshKeyGenerator *m_keyGen;
+    BlackBerrySshKeysGenerator *m_sshKeysGenerator;
     bool m_isGenerated;
 };
 

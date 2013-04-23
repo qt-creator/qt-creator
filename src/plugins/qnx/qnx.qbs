@@ -140,6 +140,8 @@ QtcPlugin {
         "blackberrydebugtokenuploader.h",
         "blackberryndkprocess.cpp",
         "blackberryndkprocess.h",
+        "blackberrysshkeysgenerator.cpp",
+        "blackberrysshkeysgenerator.h",
         "pathchooserdelegate.cpp",
         "pathchooserdelegate.h",
         "qnx.qrc",
