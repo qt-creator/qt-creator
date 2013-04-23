@@ -46,7 +46,7 @@ def main():
         test.log("Running application")
         setRunInTerminal(len(checkedTargets), kit, False)
         runControlFinished = False
-        clickButton(waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}"))
+        clickButton(waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
         waitFor("runControlFinished==True", 20000)
         if not runControlFinished:
             test.warning("Waiting for runControlFinished timed out")
