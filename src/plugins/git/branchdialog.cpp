@@ -285,7 +285,7 @@ void BranchDialog::log()
     if (branchName.isEmpty())
         return;
     // Do not pass working dir by reference since it might change
-    GitPlugin::instance()->gitClient()->graphLog(QString(m_repository), branchName);
+    GitPlugin::instance()->gitClient()->log(QString(m_repository), QStringList(), false, QStringList(branchName));
 }
 
 void BranchDialog::merge()

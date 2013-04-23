@@ -46,6 +46,7 @@ const QLatin1String GitSettings::showPrettyFormatKey("DiffPrettyFormat");
 const QLatin1String GitSettings::gitkOptionsKey("GitKOptions");
 const QLatin1String GitSettings::logDiffKey("LogDiff");
 const QLatin1String GitSettings::repositoryBrowserCmd("RepositoryBrowserCmd");
+const QLatin1String GitSettings::graphLogKey("GraphLog");
 
 GitSettings::GitSettings()
 {
@@ -64,6 +65,7 @@ GitSettings::GitSettings()
     declareKey(showPrettyFormatKey, 2);
     declareKey(logDiffKey, false);
     declareKey(repositoryBrowserCmd, QString());
+    declareKey(graphLogKey, false);
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const

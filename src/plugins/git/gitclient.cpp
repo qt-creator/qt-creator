@@ -70,6 +70,7 @@
 #include <QTextCodec>
 
 static const char GIT_DIRECTORY[] = ".git";
+static const char graphLogFormatC[] = "%h %d %an %s %ci";
 
 namespace Git {
 namespace Internal {
@@ -265,13 +266,19 @@ public:
         m_enableAnnotationContextMenu(enableAnnotationContextMenu),
         m_fileNames(fileNames)
     {
-        QToolButton *button = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
+        QToolButton *diffButton = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
                                               tr("Show difference."));
-        mapSetting(button, m_client->settings()->boolPointer(GitSettings::logDiffKey));
-        connect(button, SIGNAL(toggled(bool)), m_patienceButton, SLOT(setEnabled(bool)));
-        connect(button, SIGNAL(toggled(bool)), m_ignoreWSButton, SLOT(setEnabled(bool)));
-        m_patienceButton->setEnabled(button->isChecked());
-        m_ignoreWSButton->setEnabled(button->isChecked());
+        mapSetting(diffButton, m_client->settings()->boolPointer(GitSettings::logDiffKey));
+        connect(diffButton, SIGNAL(toggled(bool)), m_patienceButton, SLOT(setVisible(bool)));
+        connect(diffButton, SIGNAL(toggled(bool)), m_ignoreWSButton, SLOT(setVisible(bool)));
+        m_patienceButton->setVisible(diffButton->isChecked());
+        m_ignoreWSButton->setVisible(diffButton->isChecked());
+        QStringList graphArguments(QLatin1String("--graph"));
+        graphArguments << QLatin1String("--oneline") << QLatin1String("--topo-order");
+        graphArguments << (QLatin1String("--pretty=format:") + QLatin1String(graphLogFormatC));
+        QToolButton *graphButton = addToggleButton(graphArguments, tr("Graph"),
+                                              tr("Show textual graph log."));
+        mapSetting(graphButton, m_client->settings()->boolPointer(GitSettings::graphLogKey));
     }
 
     void executeCommand()
@@ -664,35 +671,6 @@ void GitClient::status(const QString &workingDirectory)
     VcsBase::Command *command = executeGit(workingDirectory, statusArgs, 0, true);
     connect(command, SIGNAL(finished(bool,int,QVariant)), outwin, SLOT(clearRepository()),
             Qt::QueuedConnection);
-}
-
-static const char graphLogFormatC[] = "%h %d %an %s %ci";
-
-// Create a graphical log.
-void GitClient::graphLog(const QString &workingDirectory, const QString & branch)
-{
-    QStringList arguments;
-    arguments << QLatin1String("log") << QLatin1String(noColorOption);
-
-    int logCount = settings()->intValue(GitSettings::logCountKey);
-    if (logCount > 0)
-         arguments << QLatin1String("-n") << QString::number(logCount);
-    arguments << (QLatin1String("--pretty=format:") +  QLatin1String(graphLogFormatC))
-              << QLatin1String("--topo-order") <<  QLatin1String("--graph");
-
-    QString title;
-    if (branch.isEmpty()) {
-        title = tr("Git Log");
-    } else {
-        title = tr("Git Log \"%1\"").arg(branch);
-        arguments << branch;
-    }
-    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, QStringList());
-    VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
-    if (!editor)
-        editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile, 0);
-    executeGit(workingDirectory, arguments, editor);
 }
 
 void GitClient::log(const QString &workingDirectory, const QStringList &fileNames,

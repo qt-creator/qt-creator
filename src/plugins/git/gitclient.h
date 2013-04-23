@@ -137,8 +137,6 @@ public:
     void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
 
     void status(const QString &workingDirectory);
-    void graphLog(const QString &workingDirectory) { graphLog(workingDirectory, QString()); }
-    void graphLog(const QString &workingDirectory, const QString &branch);
     void log(const QString &workingDirectory, const QStringList &fileNames = QStringList(),
              bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
     void blame(const QString &workingDirectory, const QStringList &args, const QString &fileName,

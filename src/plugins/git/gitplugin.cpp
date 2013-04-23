@@ -401,7 +401,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Log"), Core::Id("Git.LogRepository"),
-                           globalcontext, true, &GitClient::graphLog);
+                           globalcontext, true,
+                           SLOT(logRepository()));
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Clean..."), Core::Id("Git.CleanRepository"),
@@ -718,6 +719,13 @@ void GitPlugin::logProject()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     m_gitClient->log(state.currentProjectTopLevel(), state.relativeCurrentProject());
+}
+
+void GitPlugin::logRepository()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient->log(state.topLevel());
 }
 
 void GitPlugin::undoFileChanges(bool revertStaging)
