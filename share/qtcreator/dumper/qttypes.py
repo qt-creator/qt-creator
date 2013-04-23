@@ -2574,7 +2574,8 @@ def qdump__Core__Id(d, value):
         d.putNumChild(0)
 
 def qdump__Debugger__Internal__GdbMi(d, value):
-    d.putByteArrayValue(value["m_data"])
+    str = encodeByteArray(value["m_name"]) + "3a20" + encodeByteArray(value["m_data"])
+    d.putValue(str, Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__WatchData(d, value):
@@ -2583,6 +2584,10 @@ def qdump__Debugger__Internal__WatchData(d, value):
 
 def qdump__Debugger__Internal__WatchItem(d, value):
     d.putByteArrayValue(value["iname"])
+    d.putPlainChildren(value)
+
+def qdump__Debugger__DebuggerEngine__BreakpointModelId(d, value):
+    d.putValue("%s.%s" % (value["m_majorPart"], value["m_minorPart"]))
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__ByteArrayRef(d, value):
