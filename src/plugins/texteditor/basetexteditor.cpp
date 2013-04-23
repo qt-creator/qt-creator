@@ -170,10 +170,8 @@ Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int l
     return editor;
 }
 
-QString BaseTextEditorWidget::plainTextFromSelection() const
+QString BaseTextEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
 {
-    QTextCursor cursor = textCursor();
-
     // Copy the selected text as plain text
     QString text = cursor.selectedText();
     return convertToPlainText(text);
@@ -2863,29 +2861,36 @@ QString BaseTextEditorWidgetPrivate::copyBlockSelection()
     const TabSettings &ts = q->tabSettings();
     QTextBlock block = m_blockSelection.firstBlock.block();
     QTextBlock lastBlock = m_blockSelection.lastBlock.block();
+    bool textInserted = false;
     for (;;) {
-        QString text = block.text();
-        int startOffset = 0;
-        int startPos = ts.positionAtColumn(text, m_blockSelection.firstVisualColumn, &startOffset);
-        int endOffset = 0;
-        int endPos = ts.positionAtColumn(text, m_blockSelection.lastVisualColumn, &endOffset);
+        if (q->selectionVisible(block.blockNumber())) {
+            if (textInserted)
+                selection += QLatin1Char('\n');
+            textInserted = true;
 
-        if (startPos == endPos) {
-            selection += QString(endOffset - startOffset, QLatin1Char(' '));
-        } else {
-            if (startOffset < 0)
-                selection += QString(-startOffset, QLatin1Char(' '));
-            if (endOffset < 0)
-                --endPos;
-            selection += text.mid(startPos, endPos - startPos);
-            if (endOffset < 0)
-                selection += QString(ts.m_tabSize + endOffset, QLatin1Char(' '));
-            else if (endOffset > 0)
-                selection += QString(endOffset, QLatin1Char(' '));
+            QString text = block.text();
+            int startOffset = 0;
+            int startPos = ts.positionAtColumn(text, m_blockSelection.firstVisualColumn, &startOffset);
+            int endOffset = 0;
+            int endPos = ts.positionAtColumn(text, m_blockSelection.lastVisualColumn, &endOffset);
+
+            if (startPos == endPos) {
+                selection += QString(endOffset - startOffset, QLatin1Char(' '));
+            } else {
+                if (startOffset < 0)
+                    selection += QString(-startOffset, QLatin1Char(' '));
+                if (endOffset < 0)
+                    --endPos;
+                selection += text.mid(startPos, endPos - startPos);
+                if (endOffset < 0)
+                    selection += QString(ts.m_tabSize + endOffset, QLatin1Char(' '));
+                else if (endOffset > 0)
+                    selection += QString(endOffset, QLatin1Char(' '));
+            }
         }
         if (block == lastBlock)
             break;
-        selection += QLatin1Char('\n');
+
         block = block.next();
     }
     return selection;
@@ -5977,7 +5982,7 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
         QTextCursor cursor = textCursor();
         QMimeData *mimeData = new QMimeData;
 
-        QString text = plainTextFromSelection();
+        QString text = plainTextFromSelection(cursor);
         mimeData->setText(text);
 
         // Copy the selected text as HTML
@@ -5989,21 +5994,33 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
 
             // Apply the additional formats set by the syntax highlighter
             QTextBlock start = document()->findBlock(cursor.selectionStart());
-            QTextBlock end = document()->findBlock(cursor.selectionEnd());
-            end = end.next();
+            QTextBlock last = document()->findBlock(cursor.selectionEnd());
+            QTextBlock end = last.next();
 
             const int selectionStart = cursor.selectionStart();
             const int endOfDocument = tempDocument->characterCount() - 1;
+            int removedCount = 0;
             for (QTextBlock current = start; current.isValid() && current != end; current = current.next()) {
-                const QTextLayout *layout = current.layout();
-                foreach (const QTextLayout::FormatRange &range, layout->additionalFormats()) {
-                    const int start = current.position() + range.start - selectionStart;
-                    const int end = start + range.length;
-                    if (end <= 0 || start >= endOfDocument)
-                        continue;
-                    tempCursor.setPosition(qMax(start, 0));
-                    tempCursor.setPosition(qMin(end, endOfDocument), QTextCursor::KeepAnchor);
-                    tempCursor.setCharFormat(range.format);
+                if (selectionVisible(current.blockNumber())) {
+                    const QTextLayout *layout = current.layout();
+                    foreach (const QTextLayout::FormatRange &range, layout->additionalFormats()) {
+                        const int startPosition = current.position() + range.start - selectionStart - removedCount;
+                        const int endPosition = startPosition + range.length;
+                        if (endPosition <= 0 || startPosition >= endOfDocument)
+                            continue;
+                        tempCursor.setPosition(qMax(startPosition, 0));
+                        tempCursor.setPosition(qMin(endPosition, endOfDocument), QTextCursor::KeepAnchor);
+                        tempCursor.setCharFormat(range.format);
+                    }
+                } else {
+                    const int startPosition = current.position() - start.position() - removedCount;
+                    int endPosition = startPosition + current.text().count();
+                    if (current != last)
+                        endPosition++;
+                    removedCount += endPosition - startPosition;
+                    tempCursor.setPosition(startPosition);
+                    tempCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+                    tempCursor.deleteChar();
                 }
             }
 
@@ -6041,7 +6058,7 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
                 selend.movePosition(QTextCursor::StartOfBlock);
             cursor.setPosition(selstart.position());
             cursor.setPosition(selend.position(), QTextCursor::KeepAnchor);
-            text = cursor.selectedText();
+            text = plainTextFromSelection(cursor);
             mimeData->setData(QLatin1String(kTextBlockMimeType), text.toUtf8());
         }
         return mimeData;

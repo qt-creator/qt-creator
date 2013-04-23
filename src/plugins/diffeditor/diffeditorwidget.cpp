@@ -97,6 +97,7 @@ protected:
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
     virtual bool replacementVisible(int blockNumber) const;
+    QString plainTextFromSelection(const QTextCursor &cursor) const;
     virtual void paintEvent(QPaintEvent *e);
     virtual void scrollContentsBy(int dx, int dy);
 
@@ -135,6 +136,41 @@ bool DiffViewEditorWidget::selectionVisible(int blockNumber) const
 bool DiffViewEditorWidget::replacementVisible(int blockNumber) const
 {
     return m_skippedLines.value(blockNumber);
+}
+
+QString DiffViewEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
+{
+    const int startPosition = cursor.selectionStart();
+    const int endPosition = cursor.selectionEnd();
+    if (startPosition == endPosition)
+        return QString(); // no selection
+
+    QTextBlock startBlock = document()->findBlock(startPosition);
+    QTextBlock endBlock = document()->findBlock(endPosition);
+    QTextBlock block = startBlock;
+    QString text;
+    bool textInserted = false;
+    while (block.isValid() && block.blockNumber() <= endBlock.blockNumber()) {
+        if (selectionVisible(block.blockNumber())) {
+            if (block == startBlock) {
+                if (block == endBlock)
+                    text = cursor.selectedText(); // just one line text
+                else
+                    text = block.text().mid(startPosition - block.position());
+            } else {
+                if (textInserted)
+                    text += QLatin1Char('\n');
+                if (block == endBlock)
+                    text += block.text().left(endPosition - block.position());
+                else
+                    text += block.text();
+            }
+            textInserted = true;
+        }
+        block = block.next();
+    }
+
+    return convertToPlainText(text);
 }
 
 void DiffViewEditorWidget::setLineNumber(int blockNumber, const QString &lineNumber)
