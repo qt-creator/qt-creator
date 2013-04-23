@@ -42,7 +42,7 @@
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
 #include <QQuickItem>
-
+#include <QQmlParserStatus>
 #include <QTextDocument>
 #include <QLibraryInfo>
 
@@ -1252,7 +1252,9 @@ bool ObjectNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &/
 
 void ObjectNodeInstance::doComponentComplete()
 {
-
+    QQmlParserStatus *qmlParserStatus = dynamic_cast< QQmlParserStatus*>(object());
+    if (qmlParserStatus)
+        qmlParserStatus->componentComplete();
 }
 
 bool ObjectNodeInstance::isRootNodeInstance() const
