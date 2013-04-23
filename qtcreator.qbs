@@ -170,7 +170,8 @@ Project {
         name: project.ide_app_target
         consoleApplication: qbs.debugInformation
 
-        cpp.rpaths: ["$ORIGIN/../lib/qtcreator"]
+        cpp.rpaths: qbs.targetOS == "mac" ? ["@executable_path/.."]
+                                          : ["$ORIGIN/../lib/qtcreator"]
         cpp.defines: Defaults.defines(qbs)
         cpp.linkerFlags: {
             if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))

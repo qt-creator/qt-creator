@@ -13,6 +13,9 @@ DynamicLibrary {
         if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
             return ["-Wl,-s"]
     }
+    cpp.installNamePrefix: "@rpath/PlugIns/"
+    cpp.rpaths: qbs.targetOS == "mac" ? ["@loader_path/..", "@executable_path/.."]
+                                      : ["$ORIGIN", "$ORIGIN/.."]
     cpp.includePaths: [ ".", ".." ]
 
     ProductModule {

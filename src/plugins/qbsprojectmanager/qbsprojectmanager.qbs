@@ -33,7 +33,7 @@ QtcPlugin {
     ])
 
     cpp.libraryPaths: base.concat([qbs_build_dir + "/lib"])
-    cpp.rpaths: cpp.libraryPaths
+    cpp.rpaths: base.concat([qbs_build_dir + "/lib"])
     cpp.dynamicLibraries: {
         var libs = []
         if (qbs.targetOS === "windows") {
