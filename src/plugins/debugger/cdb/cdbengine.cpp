@@ -36,6 +36,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerprotocol.h"
+#include "debuggermainwindow.h"
 #include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"
 #include "disassembleragent.h"
@@ -2235,9 +2236,9 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         // Fire off remaining commands asynchronously
         if (!m_pendingBreakpointMap.isEmpty())
             postCommandSequence(CommandListBreakPoints);
-        if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_REGISTER)))
+        if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
             postCommandSequence(CommandListRegisters);
-        if (debuggerCore()->isDockVisible(QLatin1String(Constants::DOCKWIDGET_MODULES)))
+        if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_MODULES)))
             postCommandSequence(CommandListModules);
     }
     // After the sequence has been sent off and CDB is pondering the commands,

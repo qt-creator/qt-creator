@@ -42,6 +42,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggermainwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerprotocol.h"
 #include "debuggerstringutils.h"
@@ -3831,7 +3832,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
 
 void GdbEngine::reloadRegisters()
 {
-    if (!debuggerCore()->isDockVisible(_(Constants::DOCKWIDGET_REGISTER)))
+    if (!debuggerCore()->isDockVisible(_(DOCKWIDGET_REGISTER)))
         return;
 
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)

@@ -1358,7 +1358,7 @@ WatchTreeView *QmlEngine::inspectorTreeView() const
 {
     DebuggerMainWindow *dw = qobject_cast<DebuggerMainWindow *>(debuggerCore()->mainWindow());
     LocalsAndExpressionsWindow *leW = qobject_cast<LocalsAndExpressionsWindow *>(
-                dw->dockWidget(QLatin1String(Constants::DOCKWIDGET_WATCHERS))->widget());
+                dw->dockWidget(_(DOCKWIDGET_WATCHERS))->widget());
     WatchWindow *inspectorWindow = qobject_cast<WatchWindow *>(leW->inspectorWidget());
     return qobject_cast<WatchTreeView *>(inspectorWindow->treeView());
 }
