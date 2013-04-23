@@ -42,19 +42,12 @@
 
 #include <QHash>
 #include <QMutex>
-#include <QTimer>
-#include <QTextEdit> // for QTextEdit::ExtraSelection
 
 namespace Core { class IEditor; }
 
 namespace TextEditor {
-class ITextEditor;
 class BaseTextEditorWidget;
 } // namespace TextEditor
-
-namespace ProjectExplorer { class ProjectExplorerPlugin; }
-
-namespace CPlusPlus { class ParseManager; }
 
 namespace CppTools {
 
@@ -64,7 +57,6 @@ class CppHighlightingSupportFactory;
 
 namespace Internal {
 
-class CppPreprocessor;
 class CppFindReferences;
 
 class CPPTOOLS_EXPORT CppModelManager : public CppTools::CppModelManagerInterface
@@ -149,8 +141,6 @@ public:
     }
 
 Q_SIGNALS:
-    void projectPathChanged(const QString &projectPath);
-
     void aboutToRemoveFiles(const QStringList &files);
 
 public Q_SLOTS:
@@ -181,10 +171,17 @@ private:
     static CppModelManager *m_modelManagerInstance;
 
 private:
+    // snapshot
+    mutable QMutex m_snapshotMutex;
     CPlusPlus::Snapshot m_snapshot;
+
     bool m_enableGC;
 
-    // cache
+    // project integration
+    mutable QMutex m_projectMutex;
+    QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
+    QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_srcToProjectPart;
+    // cached/calculated from the projects and/or their project-parts
     bool m_dirty;
     QStringList m_projectFiles;
     QStringList m_includePaths;
@@ -197,16 +194,8 @@ private:
 
     QSet<AbstractEditorSupport *> m_addtionalEditorSupport;
 
-    // project integration
-    QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
-
-    mutable QMutex m_mutex;
-    mutable QMutex m_protectSnapshot;
-
     CppFindReferences *m_findReferences;
     bool m_indexerEnabled;
-
-    QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_srcToProjectPart;
 
     CppCompletionAssistProvider *m_completionAssistProvider;
     CppCompletionAssistProvider *m_completionFallback;
