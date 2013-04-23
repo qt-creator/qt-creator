@@ -358,7 +358,6 @@ protected:
     static QString convertToPlainText(const QString &txt);
 
     virtual QString lineNumber(int blockNumber) const;
-    virtual int lineNumberTopPositionOffset(int blockNumber) const;
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
     virtual bool replacementVisible(int blockNumber) const;

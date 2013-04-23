@@ -641,7 +641,7 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
             ChunkData chunkData;
             int leftOffset = leftCharCounter;
             int rightOffset = rightCharCounter;
-            chunkData.alwaysShown = true;
+            chunkData.contextChunk = false;
             while (i < originalData.rows.count()) {
                 if (hiddenRows.contains(i))
                     break;
@@ -675,7 +675,7 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
             fileData.chunks.append(chunkData);
         } else {
             ChunkData chunkData;
-            chunkData.alwaysShown = false;
+            chunkData.contextChunk = true;
             while (i < originalData.rows.count()) {
                 if (!hiddenRows.contains(i))
                     break;
@@ -719,10 +719,8 @@ void DiffEditorWidget::showDiff()
     QChar separator = QLatin1Char('\n');
     for (int i = 0; i < m_contextFileData.chunks.count(); i++) {
         ChunkData chunkData = m_contextFileData.chunks.at(i);
-        if (!chunkData.alwaysShown) {
+        if (chunkData.contextChunk) {
             const int skippedLines = chunkData.rows.count();
-//            leftLineNumber += skippedLines;
-//            rightLineNumber += skippedLines;
             m_leftEditor->setSkippedLines(blockNumber, skippedLines);
             m_rightEditor->setSkippedLines(blockNumber, skippedLines);
             m_leftEditor->setSeparator(blockNumber, true);
@@ -769,7 +767,7 @@ void DiffEditorWidget::showDiff()
     blockNumber = 0;
     for (int i = 0; i < m_contextFileData.chunks.count(); i++) {
         ChunkData chunkData = m_contextFileData.chunks.at(i);
-        if (!chunkData.alwaysShown) {
+        if (chunkData.contextChunk) {
             blockNumber++;
             QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
             for (int j = 0; j < chunkData.rows.count(); j++) {
@@ -787,7 +785,7 @@ void DiffEditorWidget::showDiff()
     blockNumber = 0;
     for (int i = 0; i < m_contextFileData.chunks.count(); i++) {
         ChunkData chunkData = m_contextFileData.chunks.at(i);
-        if (!chunkData.alwaysShown) {
+        if (chunkData.contextChunk) {
             QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
             TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(leftBlock, false);
             QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
@@ -889,7 +887,7 @@ void DiffEditorWidget::colorDiff(const FileData &fileData)
 
     for (int i = 0; i < fileData.chunks.count(); i++) {
         ChunkData chunkData = fileData.chunks.at(i);
-        if (!chunkData.alwaysShown) {
+        if (chunkData.contextChunk) {
             leftChunkPos[leftPos] = leftPos + 1;
             rightChunkPos[rightPos] = rightPos + 1;
             leftPos++; // for chunk line

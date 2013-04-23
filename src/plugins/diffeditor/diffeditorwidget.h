@@ -72,34 +72,28 @@ struct RowData {
         : leftLine(l), rightLine(l), equal(true) {}
     RowData(const TextLineData &l, const TextLineData &r, bool e = false)
         : leftLine(l), rightLine(r), equal(e) {}
-    RowData(const QString &txt)
-        : text(txt), equal(true) {}
     TextLineData leftLine;
     TextLineData rightLine;
-    QString text; // file of context description
     bool equal; // true if left and right lines are equal, taking whitespaces into account (or both invalid)
 };
 
 struct ChunkData {
-    ChunkData() : alwaysShown(true) {}
+    ChunkData() : contextChunk(false) {}
     QList<RowData> rows;
-    bool alwaysShown;
+    bool contextChunk;
     // <absolute position in the file, absolute position in the file>
     QMap<int, int> changedLeftPositions; // counting from the beginning of the chunk
     QMap<int, int> changedRightPositions; // counting from the beginning of the chunk
-    QString text;
 };
 
 struct FileData {
     FileData() {}
     FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
-    QString text;
 };
 
 struct DiffData {
     QList<FileData> files;
-    QString text;
 };
 
 class DIFFEDITOR_EXPORT DiffEditorWidget : public QWidget
@@ -110,7 +104,6 @@ public:
     ~DiffEditorWidget();
 
     void setDiff(const QString &leftText, const QString &rightText);
-    void setDiff(const QList<Diff> &diffList);
     QTextCodec *codec() const;
 
 public slots:
@@ -128,6 +121,7 @@ private slots:
     void rightDocumentSizeChanged();
 
 private:
+    void setDiff(const QList<Diff> &diffList);
     bool isWhitespace(const QChar &c) const;
     bool isWhitespace(const Diff &diff) const;
     bool isEqual(const QList<Diff> &diffList, int diffNumber) const;

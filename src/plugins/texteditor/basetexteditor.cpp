@@ -3948,7 +3948,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                 painter.setFont(f);
                 painter.setPen(d->m_currentLineNumberFormat.foreground().color());
             }
-            painter.drawText(QRectF(markWidth, top + lineNumberTopPositionOffset(blockNumber), extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
+            painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
             if (selected)
                 painter.restore();
         }
@@ -6198,12 +6198,6 @@ QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source) cons
 QString BaseTextEditorWidget::lineNumber(int blockNumber) const
 {
     return QString::number(blockNumber + 1);
-}
-
-int BaseTextEditorWidget::lineNumberTopPositionOffset(int blockNumber) const
-{
-    Q_UNUSED(blockNumber)
-    return 0;
 }
 
 int BaseTextEditorWidget::lineNumberDigits() const
