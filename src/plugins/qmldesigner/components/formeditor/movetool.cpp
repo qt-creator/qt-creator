@@ -367,7 +367,7 @@ QList<FormEditorItem*> movalbeItems(const QList<FormEditorItem*> &itemList)
     QMutableListIterator<FormEditorItem*> listIterator(filteredItemList);
     while (listIterator.hasNext()) {
         FormEditorItem *item = listIterator.next();
-        if (!item->qmlItemNode().isValid() || !item->qmlItemNode().instanceIsMovable() || item->qmlItemNode().instanceIsInPositioner())
+        if (!item->qmlItemNode().isValid() || !item->qmlItemNode().instanceIsMovable() || item->qmlItemNode().instanceIsInLayoutable())
             listIterator.remove();
     }
 

@@ -885,7 +885,7 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
         informationVector.append(InformationContainer(instance.instanceId(), HasContent, instance.hasContent()));
         informationVector.append(InformationContainer(instance.instanceId(), IsMovable, instance.isMovable()));
         informationVector.append(InformationContainer(instance.instanceId(), IsResizable, instance.isResizable()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsInPositioner, instance.isInPositioner()));
+        informationVector.append(InformationContainer(instance.instanceId(), IsInLayoutable, instance.isInLayoutable()));
         informationVector.append(InformationContainer(instance.instanceId(), PenWidth, instance.penWidth()));
         informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
         informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));

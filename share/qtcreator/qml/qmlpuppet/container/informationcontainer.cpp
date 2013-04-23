@@ -81,8 +81,8 @@ QString InformationContainer::nameAsString() const
             return QLatin1String("PenWidth");
         case Position:
             return QLatin1String("Position");
-        case IsInPositioner:
-            return QLatin1String("IsInPositioner");
+        case IsInLayoutable:
+            return QLatin1String("IsInLayoutable");
         case SceneTransform:
             return QLatin1String("SceneTransform");
         case IsResizable:

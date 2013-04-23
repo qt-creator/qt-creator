@@ -53,6 +53,32 @@
 #include <private/qquickanimation_p.h>
 #include <private/qqmltimer_p.h>
 #include <private/qqmlengine_p.h>
+#include <designersupport.h>
+
+
+namespace {
+class ComponentCompleteDisabler
+{
+public:
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
+    ComponentCompleteDisabler()
+    {
+        DesignerSupport::disableComponentComplete();
+    }
+
+    ~ComponentCompleteDisabler()
+    {
+        DesignerSupport::enableComponentComplete();
+    }
+#else
+    ComponentCompleteDisabler()
+    {
+    //nothing not available yet
+    }
+#endif
+};
+
+} //namespace
 
 static bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
 {
@@ -73,7 +99,7 @@ ObjectNodeInstance::ObjectNodeInstance(QObject *object)
       m_metaObject(0),
       m_instanceId(-1),
       m_deleteHeldInstance(true),
-      m_isInPositioner(false)
+      m_isInLayoutable(false)
 {
 
 }
@@ -190,6 +216,21 @@ bool ObjectNodeInstance::isPositioner() const
 bool ObjectNodeInstance::isQuickItem() const
 {
     return false;
+}
+
+bool ObjectNodeInstance::isQuickWindow() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isGraphical() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isLayoutable() const
+{
+    return true;
 }
 
 bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
@@ -877,6 +918,10 @@ void tweakObjects(QObject *object)
 
 QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QStringList &imports, QQmlContext *context)
 {
+    ComponentCompleteDisabler disableComponentComplete;
+
+    Q_UNUSED(disableComponentComplete)
+
     QQmlComponent *component = new QQmlComponent(context->engine());
 
     QByteArray importArray;
@@ -932,6 +977,10 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
 
 QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlContext *context)
 {
+    ComponentCompleteDisabler disableComponentComplete;
+
+    Q_UNUSED(disableComponentComplete)
+
     QQmlComponent component(context->engine(), fixComponentPathForIncompatibleQt(componentPath));
     QObject *object = component.beginCreate(context);
 
@@ -951,6 +1000,10 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
 
 QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QStringList &imports, QQmlContext *context)
 {
+    ComponentCompleteDisabler disableComponentComplete;
+
+    Q_UNUSED(disableComponentComplete)
+
     QQmlComponent component(context->engine());
 
     QByteArray importArray;
@@ -1021,17 +1074,17 @@ bool ObjectNodeInstance::isMovable() const
     return false;
 }
 
-bool ObjectNodeInstance::isInPositioner() const
+bool ObjectNodeInstance::isInLayoutable() const
 {
-    return m_isInPositioner;
+    return m_isInLayoutable;
 }
 
-void ObjectNodeInstance::setInPositioner(bool isInPositioner)
+void ObjectNodeInstance::setInLayoutable(bool isInLayoutable)
 {
-    m_isInPositioner = isInPositioner;
+    m_isInLayoutable = isInLayoutable;
 }
 
-void ObjectNodeInstance::refreshPositioner()
+void ObjectNodeInstance::refreshLayoutable()
 {
 }
 

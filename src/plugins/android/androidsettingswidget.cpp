@@ -278,6 +278,7 @@ void AndroidSettingsWidget::sdkLocationEditingFinished()
         return;
     }
     m_androidConfig.sdkLocation = location;
+    searchForAnt(location.toString());
     saveSettings(true);
     m_AVDModel.setAvdList(AndroidConfigurations::instance().androidVirtualDevices());
     m_ui->AVDManagerFrame->setEnabled(true);
@@ -289,7 +290,26 @@ void AndroidSettingsWidget::ndkLocationEditingFinished()
     m_androidConfig.toolchainHost.clear(); // force toolchain host detection
     if (!checkNDK(location))
         return;
+    searchForAnt(location.toString());
     saveSettings(true);
+}
+
+void AndroidSettingsWidget::searchForAnt(const QString &location)
+{
+    if (!m_androidConfig.antLocation.isEmpty())
+            return;
+    if (location.isEmpty())
+        return;
+    QDir parentFolder = QFileInfo(location).absoluteDir();
+    foreach (const QString &file, parentFolder.entryList()) {
+        if (file.startsWith(QLatin1String("apache-ant"))) {
+            QString ant = parentFolder.absolutePath() + QLatin1Char('/') + file + QLatin1String("/bin/ant.bat");
+            if (QFileInfo(ant).exists()) {
+                m_androidConfig.antLocation = Utils::FileName::fromString(ant);
+                m_ui->AntLocationLineEdit->setText(ant);
+            }
+        }
+    }
 }
 
 void AndroidSettingsWidget::antLocationEditingFinished()

@@ -1,0 +1,161 @@
+/****************************************************************************
+**
+** Copyright (c) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-quick-tour.html
+    \page creator-configuring.html
+    \nextpage creator-build-example-application.html
+
+    \title Configuring Qt Creator
+
+    If you install \QC as part of a Qt installation, you should be able to use
+    it out-of-the-box, with the default settings and configuration options.
+
+    However, if you install the stand-alone \QC package, build \QC from sources,
+    or install several Qt versions, you may need to tell \QC where to find the
+    Qt versions and compilers by adding the paths to them and by creating
+    \l{glossary-buildandrun-kit}{kits} that use them.
+
+    To make \QC behave more like your favorite code editor or IDE, you can
+    change the settings for keyboard shortcuts, color schemes, generic
+    highlighting, code snippets, and version control systems. In addition, you
+    can enable experimental plugins and disable plugins that you do not need.
+
+    The following sections summarize the options that you have and point you to
+    detailed information to help you specify any required settings and to make
+    using \QC a better experience for you.
+
+    \section1 Checking Build and Run Settings
+
+    \QC is an integrated development environment (IDE) that you can use to
+    develop Qt applications. While Qt installers typically install \QC,
+    stand-alone \QC installers never install Qt or any Qt tools, such as qmake.
+    To use \QC for Qt development, you also need to have a Qt version and a
+    compiler installed.
+
+    Qt installers, such as SDKs, often attempt to auto-detect the installed
+    compilers and Qt versions. If they succeed, the relevant kits will
+    automatically become available in \QC. If they do not, you must add the kits
+    yourself to tell \QC where everything is.
+
+    To add kits, select \gui Tools > \gui Options > \gui {Build & Run} >
+    \gui Kits > \gui Add.
+
+    For more information, see \l{Adding Kits}.
+
+    Each kit consists of a set of values that define one environment, such as a
+    device, compiler, and Qt version. If you know you have installed a Qt
+    version, but it is not listed in \gui Tools > \gui Options >
+    \gui {Build & Run} > \gui {Qt Versions}, you must add it.
+
+    For more information, see \l{Adding Qt Versions}.
+
+    Also check that your compiler is listed in \gui Tools > \gui Options >
+    \gui {Build & Run} > \gui {Compilers}.
+
+    For more information, see \l{Adding Compilers}.
+
+    You can connect mobile devices to the development PC to run, debug,
+    and analyze applications on them from \QC. You can connect the device to the
+    development PC via USB. Additionally, you can connect Linux-based devices
+    over a WLAN. You must also configure a connection between \QC and the
+    development PC and specify the device in a kit.
+
+    To add devices, select \gui Tools > \gui Options > \gui Devices > \gui Add.
+
+    For more information, see \l{Connecting Mobile Devices}.
+
+    \section1 Changing Keyboard Shortcuts
+
+    You can use \QC with your favorite keyboard shortcuts.
+
+    To view and edit all keyboard shortcuts defined in \QC, select
+    \gui Tools > \gui Options > \gui Environment > \gui Keyboard.
+
+    For more information, see \l{Keyboard Shortcuts}.
+
+    \section1 Changing Color Schemes
+
+    You can use \QC with your favorite color scheme that defines how code
+    elements are highlighted and which background color is used. You can select
+    one of the predefined color schemes or create custom ones.
+    The color schemes apply to highlighting C++ files, QML files, and generic
+    files.
+
+    To change the color scheme, select \gui Tools > \gui Options >
+    \gui {Text Editor} > \gui {Fonts & Color}.
+
+    For more information, see \l{Defining Color Schemes}.
+
+    Generic highlighting is based on highlight definition files that are
+    provided by the
+    \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
+    {Kate Editor}. You can download highlight definition files for use with \QC.
+
+    To download and use highlight definition files, select \gui Tools >
+    \gui Options > \gui {Text Editor} > \gui {Generic Highlighter}.
+
+    For more information, see \l{Generic Highlighting}.
+
+    \section1 Adding Your Own Code Snippets
+
+    As you write code, \QC suggests properties, IDs, and code snippets to
+    complete the code. It provides a list of context-sensitive suggestions to
+    the statement currently under your cursor. You can add, modify,
+    and remove snippets in the snippet editor.
+
+    To open the snippet editor, select \gui Tools > \gui Options >
+    \gui {Text Editor} > \gui Snippets.
+
+    For more information, see \l{Editing Code Snippets}.
+
+    \section1 Configuring Version Control Systems
+
+    \QC supports several version control systems. In most cases, you do not need
+    to configure the version control in any special way to make it work with
+    \QC. Once it is set up correctly on the development PC, it should just work.
+
+    However, some configuration options are available and you can set them in
+    \gui Tools > \gui Options > \gui{Version Control} > \gui Common.
+
+    For more information about the supported functions, see
+    \l{Using Version Control Systems}.
+
+    \section1 Enabling and Disabling Plugins
+
+    New \QC plugins are often introduced as \e {experimental plugins} to let
+    you try them out before they are fully supported. Experimental plugins
+    are disabled by default and you must enable them for them to become visible
+    after you restart \QC.
+
+    You can also disable plugins that you do not use, to streamline \QC.
+    However, this might cause problems when using another plugin later if the
+    dependencies between plugins are changed between \QC versions. Once you
+    manually disable a plugin, it stays disabled even when you upgrade to a
+    new \QC version, and you must manually enable it to be able to use it.
+
+    To enable and disable plugins, select \gui Help > \gui {About Plugins}.
+
+*/

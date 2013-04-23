@@ -51,10 +51,11 @@ public:
     void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
 
     bool isPositioner() const Q_DECL_OVERRIDE;
+    bool isLayoutable() const Q_DECL_OVERRIDE;
 
     bool isResizable() const Q_DECL_OVERRIDE;
 
-    void refreshPositioner() Q_DECL_OVERRIDE;
+    void refreshLayoutable() Q_DECL_OVERRIDE;
 
 protected:
     PositionerNodeInstance(QQuickBasePositioner *item);

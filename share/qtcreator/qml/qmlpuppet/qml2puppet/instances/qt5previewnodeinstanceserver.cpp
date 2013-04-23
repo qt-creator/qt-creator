@@ -65,7 +65,7 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
 
-    if (!rootNodeInstance().holdsQuickItem())
+    if (!rootNodeInstance().holdsGraphical())
         return;
 
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
@@ -94,14 +94,6 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 void Qt5PreviewNodeInstanceServer::changeState(const ChangeStateCommand &/*command*/)
 {
 
-}
-
-static void updateDirtyNodeRecursive(QQuickItem *parentItem)
-{
-    foreach (QQuickItem *childItem, parentItem->childItems())
-        updateDirtyNodeRecursive(childItem);
-
-    DesignerSupport::updateDirtyNode(parentItem);
 }
 
 QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()

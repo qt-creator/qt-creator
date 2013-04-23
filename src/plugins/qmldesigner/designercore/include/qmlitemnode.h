@@ -70,7 +70,7 @@ public:
     bool instanceIsAnchoredByChildren() const;
     bool instanceIsMovable() const;
     bool instanceIsResizable() const;
-    bool instanceIsInPositioner() const;
+    bool instanceIsInLayoutable() const;
     bool instanceHasRotationTransform() const;
 
     QRectF instanceBoundingRect() const;

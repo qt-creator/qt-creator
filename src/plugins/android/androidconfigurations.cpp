@@ -45,6 +45,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/environment.h>
 
 #include <QDateTime>
 #include <QSettings>
@@ -734,6 +735,15 @@ void AndroidConfigurations::load()
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     m_config = AndroidConfig(*settings);
+
+    if (m_config.antLocation.isEmpty()) {
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        QString location = env.searchInPath(QLatin1String("ant"));
+        QFileInfo fi(location);
+        if (fi.exists() && fi.isExecutable() && !fi.isDir())
+            m_config.antLocation = Utils::FileName::fromString(location);
+    }
+
     settings->endGroup();
 }
 

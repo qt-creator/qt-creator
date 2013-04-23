@@ -130,7 +130,7 @@ public:
     bool hasContent() const;
     bool isResizable() const;
     bool isMovable() const;
-    bool isInPositioner() const;
+    bool isInLayoutable() const;
 
     bool isSubclassOf(const QString &superTypeName) const;
     bool isRootNodeInstance() const;
@@ -196,7 +196,7 @@ private: // functions
 
     void setNodeSource(const QString &source);
 
-    bool holdsQuickItem() const;
+    bool holdsGraphical() const;
 
     void updateDirtyNodeRecursive();
 

@@ -739,6 +739,7 @@ void MainWindow::registerDefaultActions()
     if (supportsFullScreen) {
         // Full Screen Action
         m_toggleFullScreenAction = new QAction(fullScreenActionText, this);
+        m_toggleFullScreenAction->setMenuRole(QAction::NoRole);
         m_toggleFullScreenAction->setCheckable(!Utils::HostOsInfo::isMacHost());
         cmd = ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
         cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));

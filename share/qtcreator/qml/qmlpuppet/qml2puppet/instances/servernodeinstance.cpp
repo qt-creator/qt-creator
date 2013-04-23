@@ -37,6 +37,7 @@
 #include "qmlstatenodeinstance.h"
 #include "anchorchangesnodeinstance.h"
 #include "positionernodeinstance.h"
+#include "layoutnodeinstance.h"
 #include "debugoutputcommand.h"
 
 #include "quickitemnodeinstance.h"
@@ -150,9 +151,9 @@ void ServerNodeInstance::setNodeSource(const QString &source)
     m_nodeInstance->setNodeSource(source);
 }
 
-bool ServerNodeInstance::holdsQuickItem() const
+bool ServerNodeInstance::holdsGraphical() const
 {
-    return m_nodeInstance->isQuickItem();
+    return m_nodeInstance->isGraphical();
 }
 
 void ServerNodeInstance::updateDirtyNodeRecursive()
@@ -181,6 +182,8 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
         instance = Internal::DummyNodeInstance::create();
     else if (isSubclassOf(objectToBeWrapped, "QQuickBasePositioner"))
         instance = Internal::PositionerNodeInstance::create(objectToBeWrapped);
+    else if (isSubclassOf(objectToBeWrapped, "QQuickLayout"))
+        instance = Internal::LayoutNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickItem"))
         instance = Internal::QuickItemNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQmlComponent"))
@@ -408,9 +411,9 @@ bool ServerNodeInstance::isMovable() const
     return m_nodeInstance->isMovable();
 }
 
-bool ServerNodeInstance::isInPositioner() const
+bool ServerNodeInstance::isInLayoutable() const
 {
-    return m_nodeInstance->isInPositioner();
+    return m_nodeInstance->isInLayoutable();
 }
 
 bool ServerNodeInstance::hasAnchor(const PropertyName &name) const

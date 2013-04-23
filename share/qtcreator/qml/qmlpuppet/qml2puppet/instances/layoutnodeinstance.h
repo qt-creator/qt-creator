@@ -27,36 +27,37 @@
 **
 ****************************************************************************/
 
-#ifndef COMMONDEFINES_H
-#define COMMONDEFINES_H
+#ifndef LAYOUTNODEINSTANCE_H
+#define LAYOUTNODEINSTANCE_H
 
-#include <QMetaType>
-#include <QPair>
+#include "quickitemnodeinstance.h"
 
 namespace QmlDesigner {
+namespace Internal {
 
-enum InformationName
+class LayoutNodeInstance : public QuickItemNodeInstance
 {
-    NoName,
-    NoInformationChange = NoName,
-    Size,
-    BoundingRect,
-    Transform,
-    HasAnchor,
-    Anchor,
-    InstanceTypeForProperty,
-    PenWidth,
-    Position,
-    IsInLayoutable,
-    SceneTransform,
-    IsResizable,
-    IsMovable,
-    IsAnchoredByChildren,
-    IsAnchoredBySibling,
-    HasContent,
-    HasBindingForProperty
+
+public:
+    typedef QSharedPointer<LayoutNodeInstance> Pointer;
+    typedef QWeakPointer<LayoutNodeInstance> WeakPointer;
+
+    static Pointer create(QObject *objectToBeWrapped);
+
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
+
+    bool isLayoutable() const Q_DECL_OVERRIDE;
+
+    bool isResizable() const Q_DECL_OVERRIDE;
+
+    void refreshLayoutable() Q_DECL_OVERRIDE;
+
+protected:
+    LayoutNodeInstance(QQuickItem *item);
 };
 
-}
+} // namespace Internal
+} // namespace QmlDesigner
 
-#endif // COMMONDEFINES_H
+#endif // LAYOUTNODEINSTANCE_H

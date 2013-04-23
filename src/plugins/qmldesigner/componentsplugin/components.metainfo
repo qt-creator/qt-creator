@@ -236,11 +236,44 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.Controls.ToolButton"
+        icon: ":/desktopplugin/images/button16.png"
+
+        ItemLibraryEntry {
+            name: "Tool Button"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/desktopplugin/images/button.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Controls"
+
+            Property { name: "width"; type: "int"; value: 360; }
+            Property { name: "height"; type: "int"; value: 50; }
+        }
+    }
+
+
+    Type {
         name: "QtQuick.Controls.ToolBar"
         icon: ":/desktopplugin/images/toolbar16.png"
 
         ItemLibraryEntry {
             name: "Tool Bar"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/desktopplugin/images/toolbar.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Controls"
+
+            Property { name: "width"; type: "int"; value: 360; }
+            Property { name: "height"; type: "int"; value: 50; }
+        }
+    }
+
+    Type {
+        name: "QtQuick.Controls.StatusBar"
+        icon: ":/desktopplugin/images/toolbar16.png"
+
+        ItemLibraryEntry {
+            name: "Status Bar"
             category: "Qt Quick - Controls"
             libraryIcon: ":/desktopplugin/images/toolbar.png"
             version: "1.0"
@@ -261,6 +294,54 @@ MetaInfo {
             //libraryIcon: ":/desktopplugin/images/progressbar.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+        }
+    }
+
+    Type {
+        name: "QtQuick.Layouts.RowLayout"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Row Layout"
+            category: "Qt Quick - Layouts"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Layouts"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+        }
+    }
+
+    Type {
+        name: "QtQuick.Layouts.ColumnLayout"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Column Layout"
+            category: "Qt Quick - Layouts"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Layouts"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+        }
+    }
+
+    Type {
+        name: "QtQuick.Layouts.GridLayout"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Grid Layout"
+            category: "Qt Quick - Layouts"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Layouts"
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }

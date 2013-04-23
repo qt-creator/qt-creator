@@ -26,33 +26,27 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "positionernodeinstance.h"
-#include <private/qquickpositioners_p.h>
+#include "layoutnodeinstance.h"
 
 namespace QmlDesigner {
 namespace Internal {
 
-PositionerNodeInstance::PositionerNodeInstance(QQuickBasePositioner *item)
+LayoutNodeInstance::LayoutNodeInstance(QQuickItem *item)
     : QuickItemNodeInstance(item)
 {
 }
 
-bool PositionerNodeInstance::isPositioner() const
+bool LayoutNodeInstance::isLayoutable() const
 {
     return true;
 }
 
-bool PositionerNodeInstance::isLayoutable() const
+bool LayoutNodeInstance::isResizable() const
 {
     return true;
 }
 
-bool PositionerNodeInstance::isResizable() const
-{
-    return true;
-}
-
-void PositionerNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
+void LayoutNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     if (name == "move" || name == "add" || name == "populate")
         return;
@@ -60,7 +54,7 @@ void PositionerNodeInstance::setPropertyVariant(const PropertyName &name, const 
     QuickItemNodeInstance::setPropertyVariant(name, value);
 }
 
-void PositionerNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
+void LayoutNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     if (name == "move" || name == "add" || name == "populate")
         return;
@@ -68,34 +62,32 @@ void PositionerNodeInstance::setPropertyBinding(const PropertyName &name, const 
     QuickItemNodeInstance::setPropertyBinding(name, expression);
 }
 
-PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
-{ 
-    QQuickBasePositioner *positioner = qobject_cast<QQuickBasePositioner*>(object);
+LayoutNodeInstance::Pointer LayoutNodeInstance::create(QObject *object)
+{
+    qDebug() << "layout" << object;
+    QQuickItem *item = qobject_cast<QQuickItem*>(object);
 
-    Q_ASSERT(positioner);
+    Q_ASSERT(item);
 
-    Pointer instance(new PositionerNodeInstance(positioner));
+    Pointer instance(new LayoutNodeInstance(item));
 
-    instance->setHasContent(anyItemHasContent(positioner));
-    positioner->setFlag(QQuickItem::ItemHasContents, true);
+    instance->setHasContent(anyItemHasContent(item));
+    item->setFlag(QQuickItem::ItemHasContents, true);
 
-    static_cast<QQmlParserStatus*>(positioner)->classBegin();
+    static_cast<QQmlParserStatus*>(item)->classBegin();
 
     instance->populateResetHashes();
 
     return instance;
 }
 
-QQuickBasePositioner *PositionerNodeInstance::positioner() const
+void LayoutNodeInstance::refreshLayoutable()
 {
-    Q_ASSERT(qobject_cast<QQuickBasePositioner*>(object()));
-    return static_cast<QQuickBasePositioner*>(object());
-}
+    qDebug() << "before";
+    if (quickItem()->parent())
+        QCoreApplication::postEvent(quickItem(), new QEvent(QEvent::LayoutRequest));
+    qDebug() << "refresh";
 
-void PositionerNodeInstance::refreshLayoutable()
-{
-    bool success = QMetaObject::invokeMethod(positioner(), "prePositioning");
-    Q_ASSERT(success);
 }
 
 }
