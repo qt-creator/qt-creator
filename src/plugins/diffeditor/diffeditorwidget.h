@@ -129,6 +129,10 @@ private:
             QTextCursor &cursor,
             const QMap<int, int> &positions) const;
     void colorDiff(const FileData &fileData);
+    QList<TextLineData> assemblyRows(const QStringList &lines,
+                                                       const QMap<int, int> &lineSpans,
+                                                       const QMap<int, int> &changedPositions,
+                                                       QMap<int, int> *outputChangedPositions) const;
     ChunkData calculateOriginalData(const QList<Diff> &diffList) const;
     FileData calculateContextData(const ChunkData &originalData) const;
     void showDiff();
