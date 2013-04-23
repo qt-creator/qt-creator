@@ -3382,8 +3382,7 @@ public:
         , m_signalName(signalName)
         , m_storageName(storageName)
     {
-        QString desc = InsertQtPropertyMembers::tr("Generate Missing Q_PROPERTY Members...");
-        setDescription(desc);
+        setDescription(QuickFixFactory::tr("Generate Missing Q_PROPERTY Members..."));
     }
 
     void perform()
