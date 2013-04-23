@@ -420,4 +420,4 @@ bbsetup()
 
 lldbLoaded = True
 
-print "result={state=\"enginesetupok\",dumpers=\"%s\"}" % qqDumpers.keys()
+print "result={state=\"enginesetupok\",dumpers=%s}" % str(qqDumpers.keys()).replace("'", '"')
