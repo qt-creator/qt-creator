@@ -1057,7 +1057,7 @@ static inline bool checkChunkLine(const QString &line, int *modifiedLineNumber, 
     if (endPos == -1)
         return false;
     // the first chunk range applies to the original file, the second one to
-    // the modified file, the one we're interested int
+    // the modified file, the one we're interested in
     const int plusPos = line.indexOf(QLatin1Char('+'), len);
     if (plusPos == -1 || plusPos > endPos)
         return false;
