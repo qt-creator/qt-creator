@@ -1263,11 +1263,11 @@ QSet<Utils::FileName> Qt4PriFileNode::filterFilesProVariables(ProjectExplorer::F
     QSet<Utils::FileName> result;
     if (fileType == ProjectExplorer::QMLType) {
         foreach (const Utils::FileName &file, files)
-            if (file.endsWith(QLatin1String(".qml")))
+            if (file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     } else {
         foreach (const Utils::FileName &file, files)
-            if (!file.endsWith(QLatin1String(".qml")))
+            if (!file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     }
     return result;
@@ -1280,11 +1280,11 @@ QSet<Utils::FileName> Qt4PriFileNode::filterFilesRecursiveEnumerata(ProjectExplo
         return result;
     if (fileType == ProjectExplorer::QMLType) {
         foreach (const Utils::FileName &file, files)
-            if (file.endsWith(QLatin1String(".qml")))
+            if (file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     } else {
         foreach (const Utils::FileName &file, files)
-            if (!file.endsWith(QLatin1String(".qml")))
+            if (!file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     }
     return result;
