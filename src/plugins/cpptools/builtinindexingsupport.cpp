@@ -1,6 +1,7 @@
 #include "builtinindexingsupport.h"
 
 #include "cppmodelmanager.h"
+#include "cpppreprocessor.h"
 #include "searchsymbols.h"
 #include "cpptoolsconstants.h"
 #include "cppprojectfile.h"

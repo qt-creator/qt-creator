@@ -105,7 +105,9 @@ QtcPlugin {
         "uicodecompletionsupport.cpp",
         "uicodecompletionsupport.h",
         "builtinindexingsupport.cpp",
-        "builtinindexingsupport.h"
+        "builtinindexingsupport.h",
+        "cpppreprocessor.cpp",
+        "cpppreprocessor.h"
     ]
 
     Group {

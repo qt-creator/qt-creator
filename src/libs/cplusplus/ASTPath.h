@@ -38,7 +38,7 @@
 #include <QList>
 #include <QTextCursor>
 
-#undef DEBUG_AST_PATH
+#undef WITH_AST_PATH_DUMP
 
 namespace CPlusPlus {
 
@@ -56,7 +56,7 @@ public:
     /// line and column are 1-based!
     QList<AST *> operator()(int line, int column);
 
-#ifdef DEBUG_AST_PATH
+#ifdef WITH_AST_PATH_DUMP
     static void dump(const QList<AST *> nodes);
 #endif
 

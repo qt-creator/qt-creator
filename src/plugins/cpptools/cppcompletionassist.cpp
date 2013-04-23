@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "cppcompletionassist.h"
-
 #include "cppmodelmanager.h"
+#include "cpptoolsconstants.h"
 #include "cppdoxygen.h"
 
 #include <coreplugin/icore.h>

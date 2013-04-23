@@ -29,7 +29,7 @@
 
 #include "cpptoolsplugin.h"
 
-#include "cppmodelmanager.h"
+#include "cpppreprocessor.h"
 #include "modelmanagertesthelper.h"
 
 #include <QtTest>

@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "symbolsfindfilter.h"
-
 #include "cppmodelmanager.h"
+#include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>

@@ -32,10 +32,10 @@
 #include <cplusplus/AST.h>
 #include <cplusplus/TranslationUnit.h>
 
-#ifdef DEBUG_AST_PATH
+#ifdef WITH_AST_PATH_DUMP
 #  include <QDebug>
 #  include <typeinfo>
-#endif // DEBUG_AST_PATH
+#endif // WITH_AST_PATH_DUMP
 
 using namespace CPlusPlus;
 
@@ -53,14 +53,14 @@ QList<AST *> ASTPath::operator()(int line, int column)
     return _nodes;
 }
 
-#ifdef DEBUG_AST_PATH
+#ifdef WITH_AST_PATH_DUMP
 void ASTPath::dump(const QList<AST *> nodes)
 {
     qDebug() << "ASTPath dump," << nodes.size() << "nodes:";
     for (int i = 0; i < nodes.size(); ++i)
         qDebug() << qPrintable(QString(i + 1, QLatin1Char('-'))) << typeid(*nodes.at(i)).name();
 }
-#endif // DEBUG_AST_PATH
+#endif // WITH_AST_PATH_DUMP
 
 bool ASTPath::preVisit(AST *ast)
 {

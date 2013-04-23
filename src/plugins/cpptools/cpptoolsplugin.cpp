@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
+#include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
-
 #include "cppfilesettingspage.h"
 #include "cppcodestylesettingspage.h"
 #include "cppclassesfilter.h"
