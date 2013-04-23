@@ -1082,6 +1082,41 @@ void FakeVimPlugin::test_vim_block_selection()
     data.setText("\"abc" X "\"\"def\"");
     KEYS("vi\"d", "\"" X "\"\"def\"");
 
+    /* QTCREATORBUG-9190 */
+    data.setText(" abcd" N " efgh" N " ijkl" N " mnop" N "");
+    data.doKeys("2lj" "<C-V>" "jl");
+    data.doKeys("x");
+    COMMAND("", " abcd" N " e" X "h" N " il" N " mnop" N "");
+    COMMAND(":undo", " abcd" N " e" X "fgh" N " ijkl" N " mnop" N "");
+    data.doKeys("<C-V>");
+    data.doKeys("j");
+    data.doKeys("l");
+    data.doKeys("x");
+    COMMAND("", " abcd" N " e" X "h" N " il" N " mnop" N "");
+    COMMAND(":undo", " abcd" N " e" X "fgh" N " ijkl" N " mnop" N "");
+    data.doKeys("gv");
+    data.doKeys("j");
+    data.doKeys("h");
+    data.doKeys("x");
+    COMMAND("", " abcd" N " e" X "gh" N " ikl" N " mop" N "");
+    COMMAND(":undo", " abcd" N " e" X "fgh" N " ijkl" N " mnop" N "");
+    data.doCommand("set passkeys");
+    data.doKeys("gv");
+    data.doKeys("k");
+    data.doKeys("l");
+    data.doKeys("r-");
+    COMMAND("", " abcd" N " e" X "--h" N " i--l" N " mnop" N "");
+    COMMAND(":undo", " abcd" N " e" X "fgh" N " ijkl" N " mnop" N "");
+    data.doKeys("gv");
+    data.doKeys("j");
+    data.doKeys("o");
+    data.doKeys("k");
+    data.doKeys("h");
+    data.doKeys("r9");
+    COMMAND("", " " X "999d" N " 999h" N " 999l" N " 999p" N "");
+    COMMAND(":undo", " " X "abcd" N " efgh" N " ijkl" N " mnop" N "");
+    data.doCommand("set nopasskeys");
+
     // repeat change inner
     data.setText("(abc)" N "def" N "(ghi)");
     KEYS("ci(xyz<esc>", "(xy" X "z)" N "def" N "(ghi)");

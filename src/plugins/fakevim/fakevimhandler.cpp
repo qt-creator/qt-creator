@@ -2236,6 +2236,7 @@ void FakeVimHandler::Private::exportSelection()
             setAnchorAndPosition(anc, pos + 1);
 
         if (m_visualMode == VisualBlockMode) {
+            commitCursor();
             emit q->requestSetBlockSelection(false);
             emit q->requestSetBlockSelection(true);
         } else if (m_visualMode == VisualLineMode) {
@@ -3934,6 +3935,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setCursorPosition(m_lastVisualModeInverted ? to : from);
             setAnchor();
             setCursorPosition(m_lastVisualModeInverted ? from : to);
+            setTargetColumn();
         }
     } else if (input.is('v')) {
         toggleVisualMode(VisualCharMode);
@@ -6534,7 +6536,7 @@ void FakeVimHandler::Private::insertText(QTextCursor &tc, const QString &text)
           passEventToEditor(event);
       }
 
-      updateCursorShape();
+      tc = m_cursor;
       m_cursor = oldTc;
   } else {
       tc.insertText(text);
@@ -6794,8 +6796,11 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event)
     removeEventFilter();
 
     commitCursor();
+
     EDITOR(setOverwriteMode(false));
+    emit q->requestSetBlockSelection(false);
     bool accepted = QApplication::sendEvent(editor(), &event);
+    updateCursorShape();
 
     installEventFilter();
 
