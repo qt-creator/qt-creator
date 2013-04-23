@@ -278,7 +278,7 @@ public:
                    << ComboBoxItem(tr("Moderately short"), QLatin1String("short"))
                    << ComboBoxItem(tr("One line"), QLatin1String("line"))
                    << ComboBoxItem(tr("GNU ChangeLog"), QLatin1String("gnu-changelog"));
-        mapSetting(addComboBox(QLatin1String("--log-format"), logChoices),
+        mapSetting(addComboBox(QStringList(QLatin1String("--log-format=%1")), logChoices),
                    m_client->settings()->stringPointer(BazaarSettings::logFormatKey));
     }
 

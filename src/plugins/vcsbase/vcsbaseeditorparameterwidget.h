@@ -67,14 +67,13 @@ public:
 
     QToolButton *addToggleButton(const QString &option, const QString &label,
                                  const QString &tooltip = QString());
-    QComboBox *addComboBox(const QString &option, const QList<ComboBoxItem> &items);
+    QToolButton *addToggleButton(const QStringList &options, const QString &label,
+                                 const QString &tooltip = QString());
+    QComboBox *addComboBox(const QStringList &options, const QList<ComboBoxItem> &items);
 
     void mapSetting(QToolButton *button, bool *setting);
     void mapSetting(QComboBox *comboBox, QString *setting);
     void mapSetting(QComboBox *comboBox, int *setting);
-
-    QStringList comboBoxOptionTemplate() const;
-    void setComboBoxOptionTemplate(const QStringList &optTemplate) const;
 
     // Return the effective arguments according to setting.
     virtual QStringList arguments() const;
@@ -91,8 +90,9 @@ protected:
     struct OptionMapping
     {
         OptionMapping();
-        OptionMapping(const QString &optName, QWidget *w);
-        QString optionName;
+        OptionMapping(const QString &option, QWidget *w);
+        OptionMapping(const QStringList &optionList, QWidget *w);
+        QStringList options;
         QWidget *widget;
     };
 

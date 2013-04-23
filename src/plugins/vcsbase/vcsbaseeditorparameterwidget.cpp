@@ -82,14 +82,13 @@ class VcsBaseEditorParameterWidgetPrivate
 {
 public:
     VcsBaseEditorParameterWidgetPrivate() :
-        m_layout(0), m_comboBoxOptionTemplate(QLatin1String("%{option}=%{value}"))
+        m_layout(0)
     { }
 
     QStringList m_baseArguments;
     QHBoxLayout *m_layout;
     QList<VcsBaseEditorParameterWidget::OptionMapping> m_optionMappings;
     QHash<QWidget*, SettingMappingData> m_settingMapping;
-    QStringList m_comboBoxOptionTemplate;
 };
 
 } // namespace Internal
@@ -147,19 +146,24 @@ QStringList VcsBaseEditorParameterWidget::arguments() const
 
 QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QString &option,
                                                            const QString &label,
-                                                           const QString &toolTip)
+                                                           const QString &tooltip)
+{
+    return addToggleButton(QStringList(option), label, tooltip);
+}
+
+QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QStringList &options, const QString &label, const QString &tooltip)
 {
     QToolButton *tb = new QToolButton;
     tb->setText(label);
-    tb->setToolTip(toolTip);
+    tb->setToolTip(tooltip);
     tb->setCheckable(true);
     connect(tb, SIGNAL(toggled(bool)), this, SIGNAL(argumentsChanged()));
     d->m_layout->addWidget(tb);
-    d->m_optionMappings.append(OptionMapping(option, tb));
+    d->m_optionMappings.append(OptionMapping(options, tb));
     return tb;
 }
 
-QComboBox *VcsBaseEditorParameterWidget::addComboBox(const QString &option,
+QComboBox *VcsBaseEditorParameterWidget::addComboBox(const QStringList &options,
                                                      const QList<ComboBoxItem> &items)
 {
     QComboBox *cb = new QComboBox;
@@ -167,7 +171,7 @@ QComboBox *VcsBaseEditorParameterWidget::addComboBox(const QString &option,
         cb->addItem(item.displayText, item.value);
     connect(cb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(argumentsChanged()));
     d->m_layout->addWidget(cb);
-    d->m_optionMappings.append(OptionMapping(option, cb));
+    d->m_optionMappings.append(OptionMapping(options, cb));
     return cb;
 }
 
@@ -212,30 +216,6 @@ void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
     comboBox->blockSignals(false);
 }
 
-/*!
-    \brief This property holds the format (template) of assignable command line
-    options (like --file=<file> for example)
-
-    The option's name and its actual value are specified with place markers
-    within the template :
-      \li %{option} for the option
-      \li %{value} for the actual value
-
-    \code
-    QStringList("%{option}=%{value}"); // eg --file=a.out
-    QStringList() << "%{option}" << "%{value}"; // eg --file a.out (two distinct arguments)
-    \endcode
-*/
-QStringList VcsBaseEditorParameterWidget::comboBoxOptionTemplate() const
-{
-    return d->m_comboBoxOptionTemplate;
-}
-
-void VcsBaseEditorParameterWidget::setComboBoxOptionTemplate(const QStringList &optTemplate) const
-{
-    d->m_comboBoxOptionTemplate = optTemplate;
-}
-
 void VcsBaseEditorParameterWidget::executeCommand()
 {
 }
@@ -251,8 +231,16 @@ VcsBaseEditorParameterWidget::OptionMapping::OptionMapping() :
 {
 }
 
-VcsBaseEditorParameterWidget::OptionMapping::OptionMapping(const QString &optName, QWidget *w) :
-    optionName(optName), widget(w)
+VcsBaseEditorParameterWidget::OptionMapping::OptionMapping(const QString &option, QWidget *w) :
+    widget(w)
+{
+    if (!option.isEmpty())
+        options << option;
+}
+
+VcsBaseEditorParameterWidget::OptionMapping::OptionMapping(const QStringList &optionList, QWidget *w) :
+    options(optionList),
+    widget(w)
 {
 }
 
@@ -264,23 +252,15 @@ const QList<VcsBaseEditorParameterWidget::OptionMapping> &VcsBaseEditorParameter
 QStringList VcsBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
 {
     const QToolButton *tb = qobject_cast<const QToolButton *>(mapping.widget);
-    if (tb && tb->isChecked()) {
-        if (!mapping.optionName.isEmpty())
-            return QStringList(mapping.optionName);
-        else
-            return QStringList();
-    }
+    if (tb && tb->isChecked())
+        return mapping.options;
 
     const QComboBox *cb = qobject_cast<const QComboBox *>(mapping.widget);
     if (cb) {
         const QString value = cb->itemData(cb->currentIndex()).toString();
         QStringList args;
-        foreach (const QString &t, d->m_comboBoxOptionTemplate) {
-            QString a = t;
-            a.replace(QLatin1String("%{option}"), mapping.optionName);
-            a.replace(QLatin1String("%{value}"), value);
-            args += a;
-        }
+        foreach (const QString &option, mapping.options)
+            args << option.arg(value);
         return args;
     }
 
