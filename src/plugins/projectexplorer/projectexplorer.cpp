@@ -237,6 +237,7 @@ struct ProjectExplorerPluginPrivate {
     KitManager *m_kitManager;
     ToolChainManager *m_toolChainManager;
     bool m_shuttingDown;
+    bool m_ignoreDocumentManagerChangedFile;
     QStringList m_arguments;
 };
 
@@ -248,7 +249,8 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_projectsMode(0),
     m_kitManager(0),
     m_toolChainManager(0),
-    m_shuttingDown(false)
+    m_shuttingDown(false),
+    m_ignoreDocumentManagerChangedFile(false)
 {
 }
 
@@ -1413,6 +1415,8 @@ void ProjectExplorerPlugin::setCurrentFile(Project *project, const QString &file
 
 void ProjectExplorerPlugin::setCurrentFile(const QString &filePath)
 {
+    if (d->m_ignoreDocumentManagerChangedFile)
+        return;
     Project *project = d->m_session->projectForFile(filePath);
     // If the file is not in any project, stay with the current project
     // e.g. on opening a git diff buffer, git log buffer, we don't change the project
@@ -1826,8 +1830,10 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         updateActions();
     }
 
+    d->m_ignoreDocumentManagerChangedFile = true;
     Core::DocumentManager::setCurrentFile(filePath);
     updateContext();
+    d->m_ignoreDocumentManagerChangedFile = false;
 }
 
 void ProjectExplorerPlugin::updateActions()
