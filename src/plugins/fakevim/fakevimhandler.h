@@ -143,7 +143,7 @@ signals:
     void indentRegion(int beginLine, int endLine, QChar typedChar);
     void completionRequested();
     void simpleCompletionRequested(const QString &needle, bool forward);
-    void windowCommandRequested(int key);
+    void windowCommandRequested(const QString &key, int count);
     void findRequested(bool reverse);
     void findNextRequested(bool reverse);
     void handleExCommandRequested(bool *handled, const ExCommand &cmd);

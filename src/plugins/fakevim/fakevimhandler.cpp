@@ -4196,8 +4196,7 @@ bool FakeVimHandler::Private::handleWindowSubMode(const Input &input)
     if (handleCount(input))
         return true;
 
-    for (int i = 0, repeat = count(); i < repeat; ++i)
-        emit q->windowCommandRequested(input.key());
+    emit q->windowCommandRequested(input.toString(), count());
 
     m_submode = NoSubMode;
     return true;

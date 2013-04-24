@@ -897,7 +897,7 @@ private slots:
     void quitFakeVim();
     void triggerCompletions();
     void triggerSimpleCompletions(const QString &needle, bool forward);
-    void windowCommand(int key);
+    void windowCommand(const QString &key, int count);
     void find(bool reverse);
     void findNext(bool reverse);
     void foldToggle(int depth);
@@ -946,7 +946,9 @@ private:
     void setActionChecked(const Id &id, bool check);
 
     typedef int (*DistFunction)(const QRect &cursor, const QRect &other);
-    void moveSomewhere(DistFunction f);
+    void moveSomewhere(DistFunction f, int count);
+
+    void keepOnlyWindow(); // :only
 
     ExCommandMap &exCommandMap() { return m_exCommandMap; }
     ExCommandMap &defaultExCommandMap() { return m_defaultExCommandMap; }
@@ -1268,7 +1270,7 @@ void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
 
 static int moveRightWeight(const QRect &cursor, const QRect &other)
 {
-    if (!cursor.adjusted(other.right(), 0, 0, 0).intersects(other))
+    if (!cursor.adjusted(999999, 0, 0, 0).intersects(other))
         return -1;
     const int dx = other.left() - cursor.right();
     const int dy = qAbs(cursor.center().y() - other.center().y());
@@ -1278,7 +1280,7 @@ static int moveRightWeight(const QRect &cursor, const QRect &other)
 
 static int moveLeftWeight(const QRect &cursor, const QRect &other)
 {
-    if (!cursor.adjusted(-other.right(), 0, 0, 0).intersects(other))
+    if (!cursor.adjusted(-999999, 0, 0, 0).intersects(other))
         return -1;
     const int dx = cursor.left() - other.right();
     const int dy = qAbs(cursor.center().y() -other.center().y());
@@ -1288,7 +1290,7 @@ static int moveLeftWeight(const QRect &cursor, const QRect &other)
 
 static int moveUpWeight(const QRect &cursor, const QRect &other)
 {
-    if (!cursor.adjusted(0, 0, 0, -other.bottom()).intersects(other))
+    if (!cursor.adjusted(0, 0, 0, -999999).intersects(other))
         return -1;
     const int dy = cursor.top() - other.bottom();
     const int dx = qAbs(cursor.center().x() - other.center().x());
@@ -1298,7 +1300,7 @@ static int moveUpWeight(const QRect &cursor, const QRect &other)
 
 static int moveDownWeight(const QRect &cursor, const QRect &other)
 {
-    if (!cursor.adjusted(0, 0, 0, other.bottom()).intersects(other))
+    if (!cursor.adjusted(0, 0, 0, 999999).intersects(other))
         return -1;
     const int dy = other.top() - cursor.bottom();
     const int dx = qAbs(cursor.center().x() - other.center().x());
@@ -1306,49 +1308,36 @@ static int moveDownWeight(const QRect &cursor, const QRect &other)
     return w;
 }
 
-void FakeVimPluginPrivate::windowCommand(int key)
+void FakeVimPluginPrivate::windowCommand(const QString &map, int count)
 {
-#    define control(n) (256 + n)
-    switch (key) {
-        case 'c': case 'C': case control('c'):
-            triggerAction(Core::Constants::CLOSE);
-            break;
-        case 'n': case 'N': case control('n'):
-            triggerAction(Core::Constants::GOTONEXT);
-            break;
-        case 'o': case 'O': case control('o'):
-            //triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
-            triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
-            break;
-        case 'p': case 'P': case control('p'):
-            triggerAction(Core::Constants::GOTOPREV);
-            break;
-        case 's': case 'S': case control('s'):
-            triggerAction(Core::Constants::SPLIT);
-            break;
-        case 'w': case 'W': case control('w'):
-            triggerAction(Core::Constants::GOTO_OTHER_SPLIT);
-            break;
-        case Qt::Key_Right:
-            moveSomewhere(&moveRightWeight);
-            break;
-        case Qt::Key_Left:
-            moveSomewhere(&moveLeftWeight);
-            break;
-        case Qt::Key_Up:
-            moveSomewhere(&moveUpWeight);
-            break;
-        case Qt::Key_Down:
-            moveSomewhere(&moveDownWeight);
-            break;
-        default:
-            qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;
-            break;
-    }
-#    undef control
+    // normalize mapping
+    const QString key = map.toUpper();
+
+    if (key == _("C") || key == _("<C-C>"))
+        triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
+    else if (key == _("N") || key == _("<C-N>"))
+        triggerAction(Core::Constants::GOTONEXT);
+    else if (key == _("O") || key == _("<C-O>"))
+        keepOnlyWindow();
+    else if (key == _("P") || key == _("<C-P>"))
+        triggerAction(Core::Constants::GOTOPREV);
+    else if (key == _("S") || key == _("<C-S>"))
+        triggerAction(Core::Constants::SPLIT);
+    else if (key == _("W") || key == _("<C-W>"))
+        triggerAction(Core::Constants::GOTO_OTHER_SPLIT);
+    else if (key.contains(_("RIGHT")) || key == _("L") || key == _("<S-L>"))
+        moveSomewhere(&moveRightWeight, key == _("<S-L>") ? -1 : count);
+    else if (key.contains(_("LEFT"))  || key == _("H") || key == _("<S-H>"))
+        moveSomewhere(&moveLeftWeight, key == _("<S-H>") ? -1 : count);
+    else if (key.contains(_("UP"))    || key == _("K") || key == _("<S-K>"))
+        moveSomewhere(&moveUpWeight, key == _("<S-K>") ? -1 : count);
+    else if (key.contains(_("DOWN"))  || key == _("J") || key == _("<S-J>"))
+        moveSomewhere(&moveDownWeight, key == _("<S-J>") ? -1 : count);
+    else
+        qDebug() << "UNKNOWN WINDOW COMMAND: <C-W>" << map;
 }
 
-void FakeVimPluginPrivate::moveSomewhere(DistFunction f)
+void FakeVimPluginPrivate::moveSomewhere(DistFunction f, int count)
 {
     IEditor *currentEditor = EditorManager::currentEditor();
     QWidget *w = currentEditor->widget();
@@ -1360,29 +1349,48 @@ void FakeVimPluginPrivate::moveSomewhere(DistFunction f)
     //qDebug() << "\nCURSOR: " << cursorRect;
 
     IEditor *bestEditor = 0;
-    int bestValue = 1 << 30;
+    int repeat = count;
 
-    foreach (IEditor *editor, EditorManager::instance()->visibleEditors()) {
-        if (editor == currentEditor)
-            continue;
-        QWidget *w = editor->widget();
-        QRect editorRect(w->mapToGlobal(w->geometry().topLeft()),
-                w->mapToGlobal(w->geometry().bottomRight()));
-        //qDebug() << "   EDITOR: " << editorRect << editor;
+    QList<IEditor *> editors = EditorManager::instance()->visibleEditors();
+    while (repeat < 0 || repeat-- > 0) {
+        editors.removeOne(currentEditor);
+        int bestValue = -1;
+        foreach (IEditor *editor, editors) {
+            QWidget *w = editor->widget();
+            QRect editorRect(w->mapToGlobal(w->geometry().topLeft()),
+                    w->mapToGlobal(w->geometry().bottomRight()));
+            //qDebug() << "   EDITOR: " << editorRect << editor;
 
-        int value = f(cursorRect, editorRect);
-        if (value != -1 && value < bestValue) {
-            bestValue = value;
-            bestEditor = editor;
-            //qDebug() << "          BEST SO FAR: " << bestValue << bestEditor;
+            int value = f(cursorRect, editorRect);
+            if (value != -1 && (bestValue == -1 || value < bestValue)) {
+                bestValue = value;
+                bestEditor = editor;
+                //qDebug() << "          BEST SO FAR: " << bestValue << bestEditor;
+            }
         }
+        if (bestValue == -1)
+            break;
+
+        currentEditor = bestEditor;
+        //qDebug() << "     BEST: " << bestValue << bestEditor;
     }
-    //qDebug() << "     BEST: " << bestValue << bestEditor;
 
     // FIME: This is know to fail as the EditorManager will fall back to
     // the current editor's view. Needs additional public API there.
     if (bestEditor)
         EditorManager::activateEditor(bestEditor);
+}
+
+void FakeVimPluginPrivate::keepOnlyWindow()
+{
+    IEditor *currentEditor = EditorManager::currentEditor();
+    QList<IEditor *> editors = EditorManager::instance()->visibleEditors();
+    editors.removeOne(currentEditor);
+
+    foreach (IEditor *editor, editors) {
+        EditorManager::activateEditor(editor);
+        triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
+    }
 }
 
 void FakeVimPluginPrivate::find(bool reverse)
@@ -1629,8 +1637,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(triggerCompletions()));
     connect(handler, SIGNAL(simpleCompletionRequested(QString,bool)),
         SLOT(triggerSimpleCompletions(QString,bool)));
-    connect(handler, SIGNAL(windowCommandRequested(int)),
-        SLOT(windowCommand(int)));
+    connect(handler, SIGNAL(windowCommandRequested(QString,int)),
+        SLOT(windowCommand(QString,int)));
     connect(handler, SIGNAL(findRequested(bool)),
         SLOT(find(bool)));
     connect(handler, SIGNAL(findNextRequested(bool)),
@@ -1823,8 +1831,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         switchToFile(currentFile() - cmd.count);
     } else if (cmd.matches(_("on"), _("only"))) {
         // :on[ly]
-        //triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
-        triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
+        keepOnlyWindow();
     } else if (cmd.cmd == _("AS")) {
         triggerAction(Core::Constants::SPLIT);
         triggerAction(CppTools::Constants::SWITCH_HEADER_SOURCE);
