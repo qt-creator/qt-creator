@@ -172,18 +172,11 @@ class JIRA:
                 return
             fetched = " ".join(fetched.split())
             resoInd = fetched.find('resolution-val')
-            statInd = fetched.find('status-val')
-            if resoInd == statInd == -1:
-                test.log("Neither resolution nor status found inside fetched data.",
+            if resoInd == -1:
+                test.log("Resolution not found inside fetched data.",
                          "%s[...]" % fetched[:200])
             else:
-                if resoInd == -1:
-                    test.log("Fetched and cropped data: [...]%s[...]" % fetched[statInd-20:statInd+800])
-                elif statInd == -1:
-                    test.log("Fetched and cropped data: [...]%s[...]" % fetched[resoInd-720:resoInd+100])
-                else:
-                    test.log("Fetched and cropped data (status): [...]%s[...]" % fetched[statInd-20:statInd+300],
-                             "Fetched and cropped data (resolution): [...]%s[...]" % fetched[resoInd-20:resoInd+100])
+                test.log("Fetched and cropped data: [...]%s[...]" % fetched[resoInd-20:resoInd+100])
 
         # this function initializes the bug dict for localOnly usage and
         # for later lookup which function to call for which bug
