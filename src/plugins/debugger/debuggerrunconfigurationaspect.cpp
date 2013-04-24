@@ -150,14 +150,8 @@ void DebuggerRunConfigWidget::update()
 
     m_useMultiProcess->setChecked(m_aspect->useMultiProcess());
 
-    m_useQmlDebugger->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed());
-    m_qmlDebuggerInfoLabel->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed());
-    m_debugServerPortLabel->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed()
-                                       && !m_aspect->isQmlDebuggingSpinboxSuppressed());
-    m_debugServerPort->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed()
-                                  && !m_aspect->isQmlDebuggingSpinboxSuppressed());
-
-    m_useCppDebugger->setVisible(!m_aspect->areCppDebuggingOptionsSuppressed());
+    m_debugServerPortLabel->setVisible(!m_aspect->isQmlDebuggingSpinboxSuppressed());
+    m_debugServerPort->setVisible(!m_aspect->isQmlDebuggingSpinboxSuppressed());
 }
 
 void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
@@ -237,13 +231,11 @@ void DebuggerRunConfigurationAspect::setUseCppDebugger(bool value)
 
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
-    return m_useCppDebugger && !areCppDebuggingOptionsSuppressed();
+    return m_useCppDebugger;
 }
 
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
-    if (areQmlDebuggingOptionsSuppressed())
-        return false;
     if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnableQmlDebugger)
         return m_runConfiguration->target()->project()->projectLanguages().contains(
                     ProjectExplorer::Constants::LANG_QMLJS);
@@ -268,18 +260,6 @@ bool DebuggerRunConfigurationAspect::useMultiProcess() const
 void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
 {
     m_useMultiProcess = value;
-}
-
-bool DebuggerRunConfigurationAspect::areQmlDebuggingOptionsSuppressed() const
-{
-    return !m_runConfiguration->target()->project()
-            ->projectLanguages().contains(ProjectExplorer::Constants::LANG_QMLJS);
-}
-
-bool DebuggerRunConfigurationAspect::areCppDebuggingOptionsSuppressed() const
-{
-    return !m_runConfiguration->target()->project()
-            ->projectLanguages().contains(ProjectExplorer::Constants::LANG_CXX);
 }
 
 bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
@@ -327,8 +307,6 @@ DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::clone(
 
 ProjectExplorer::RunConfigWidget *DebuggerRunConfigurationAspect::createConfigurationWidget()
 {
-    if (areCppDebuggingOptionsSuppressed() && areQmlDebuggingOptionsSuppressed())
-        return 0;
     return new Internal::DebuggerRunConfigWidget(this);
 }
 
@@ -336,8 +314,10 @@ void DebuggerRunConfigurationAspect::ctor()
 {
     connect(this, SIGNAL(debuggersChanged()),
             m_runConfiguration, SIGNAL(requestRunActionsUpdate()));
-    setUseCppDebugger(!areCppDebuggingOptionsSuppressed());
-    setUseQmlDebugger(!areQmlDebuggingOptionsSuppressed());
+    setUseCppDebugger(m_runConfiguration->target()->project()->projectLanguages().contains(
+                          ProjectExplorer::Constants::LANG_CXX));
+    setUseQmlDebugger(m_runConfiguration->target()->project()->projectLanguages().contains(
+                          ProjectExplorer::Constants::LANG_QMLJS));
 }
 
 } // namespace Debugger

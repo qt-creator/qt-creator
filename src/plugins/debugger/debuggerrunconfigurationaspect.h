@@ -70,8 +70,6 @@ public:
     void setQmllDebugServerPort(uint port);
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
-    bool areQmlDebuggingOptionsSuppressed() const;
-    bool areCppDebuggingOptionsSuppressed() const;
     bool isQmlDebuggingSpinboxSuppressed() const;
     ProjectExplorer::RunConfiguration *runConfiguration();
 
