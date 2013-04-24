@@ -137,9 +137,9 @@ QImage GraphicalNodeInstance::renderImage() const
 {
     updateDirtyNodeRecursive(quickItem());
 
-    QRectF boundingRect = boundingRectWithStepChilds(quickItem());
+    QRectF renderBoundingRect = boundingRect();
 
-    QImage renderImage = designerSupport()->renderImageForItem(quickItem(), boundingRect, boundingRect.size().toSize());
+    QImage renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, renderBoundingRect.size().toSize());
 
     renderImage = renderImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
