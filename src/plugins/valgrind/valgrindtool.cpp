@@ -78,8 +78,10 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
                 ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
         QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) || !server.listen(QHostAddress::LocalHostIPv6))
+        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
+            qWarning() << "Cannot open port on host for profiling.";
             return sp;
+        }
         sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
         sp.startMode = Analyzer::StartLocal;
