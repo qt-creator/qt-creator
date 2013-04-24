@@ -433,6 +433,8 @@ void PluginDumper::dump(const Plugin &plugin)
         if (ComponentVersion(plugin.importVersion).isValid())
             args << plugin.importVersion;
     } else {
+        if (info.qmlDumpHasRelocatableFlag)
+            args << QLatin1String("-relocatable");
         args << plugin.importUri;
         args << plugin.importVersion;
         args << plugin.importPath;

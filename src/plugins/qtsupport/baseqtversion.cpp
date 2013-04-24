@@ -1097,6 +1097,13 @@ bool BaseQtVersion::hasQmlDump() const
     return m_hasQmlDump;
 }
 
+bool BaseQtVersion::hasQmlDumpWithRelocatableFlag() const
+{
+    updateVersionInfo();
+    return ((qtVersion() > QtVersionNumber(4, 8, 4) && qtVersion() < QtVersionNumber(5, 0, 0))
+            || qtVersion() >= QtVersionNumber(5, 1, 0));
+}
+
 bool BaseQtVersion::needsQmlDump() const
 {
     updateVersionInfo();
