@@ -4368,44 +4368,49 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     if (input.isEscape()) {
         // Repeat insertion [count] times.
         // One instance was already physically inserted while typing.
-        const QString text = m_lastInsertion;
-        const int repeat = count();
-        m_lastInsertion.clear();
-        joinPreviousEditBlock();
-        replay(text.repeated(repeat - 1));
+        if (!m_lastInsertion.isEmpty()) {
+            const QString text = m_lastInsertion;
+            const int repeat = count();
+            m_lastInsertion.clear();
+            joinPreviousEditBlock();
+            replay(text.repeated(repeat - 1));
 
-        if (m_visualBlockInsert && !text.contains(QLatin1Char('\n'))) {
-            const CursorPosition lastAnchor = mark(QLatin1Char('<')).position;
-            const CursorPosition lastPosition = mark(QLatin1Char('>')).position;
-            CursorPosition startPos(lastAnchor.line, qMin(lastPosition.column, lastAnchor.column));
-            CursorPosition pos = startPos;
-            if (g.dotCommand.endsWith(QLatin1Char('A')))
-                pos.column = qMax(lastPosition.column, lastAnchor.column) + 1;
-            while (pos.line < lastPosition.line) {
-                ++pos.line;
-                QTextCursor tc = m_cursor;
-                setCursorPosition(&tc, pos);
-                if (pos.line != tc.blockNumber())
-                    break;
-                m_cursor = tc;
-                if (tc.positionInBlock() == pos.column)
-                    replay(text.repeated(repeat));
+            if (m_visualBlockInsert && !text.contains(QLatin1Char('\n'))) {
+                const CursorPosition lastAnchor = mark(QLatin1Char('<')).position;
+                const CursorPosition lastPosition = mark(QLatin1Char('>')).position;
+                CursorPosition startPos(lastAnchor.line,
+                    qMin(lastPosition.column, lastAnchor.column));
+                CursorPosition pos = startPos;
+                if (g.dotCommand.endsWith(QLatin1Char('A')))
+                    pos.column = qMax(lastPosition.column, lastAnchor.column) + 1;
+                while (pos.line < lastPosition.line) {
+                    ++pos.line;
+                    QTextCursor tc = m_cursor;
+                    setCursorPosition(&tc, pos);
+                    if (pos.line != tc.blockNumber())
+                        break;
+                    m_cursor = tc;
+                    if (tc.positionInBlock() == pos.column)
+                        replay(text.repeated(repeat));
+                }
+
+                setCursorPosition(startPos);
+            } else {
+                moveLeft(qMin(1, leftDist()));
             }
 
-            setCursorPosition(startPos);
+            endEditBlock();
+            breakEditBlock();
+
+            m_lastInsertion = text;
+
+            // If command is 'o' or 'O' don't include the first line feed in dot command.
+            if (g.dotCommand.endsWith(QLatin1Char('o'), Qt::CaseInsensitive))
+                m_lastInsertion.remove(0, 1);
+            g.dotCommand += m_lastInsertion + _("<ESC>");
         } else {
             moveLeft(qMin(1, leftDist()));
-            leaveVisualMode(); // TODO: Remove! Should not be requiered here!
         }
-
-        endEditBlock();
-        breakEditBlock();
-
-        m_lastInsertion = text;
-        // If command is 'o' or 'O' don't include the first line feed in dot command.
-        if (g.dotCommand.endsWith(QLatin1Char('o'), Qt::CaseInsensitive))
-            m_lastInsertion.remove(0, 1);
-        g.dotCommand += m_lastInsertion + _("<ESC>");
         enterCommandMode();
         setTargetColumn();
         m_ctrlVActive = false;
