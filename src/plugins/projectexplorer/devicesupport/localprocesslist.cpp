@@ -45,6 +45,7 @@
 
 #ifdef Q_OS_WIN
 // Enable Win API of XP SP1 and later
+#undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0502
 #include <windows.h>
 #include <utils/winutils.h>
