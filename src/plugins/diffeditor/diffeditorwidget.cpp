@@ -718,6 +718,8 @@ void DiffEditorWidget::showDiff()
     const int leftHorizontalValue = m_leftEditor->horizontalScrollBar()->value();
     const int rightHorizontalValue = m_rightEditor->horizontalScrollBar()->value();
 
+    m_leftEditor->setBlockSelection(false);
+    m_rightEditor->setBlockSelection(false);
     m_leftEditor->clear();
     m_rightEditor->clear();
     m_leftEditor->clearLineNumbers();
