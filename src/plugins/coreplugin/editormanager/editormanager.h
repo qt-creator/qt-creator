@@ -258,7 +258,6 @@ private:
     IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
         const Id &id = Id(), OpenEditorFlags flags = 0, bool *newEditor = 0);
     Internal::SplitterOrView *currentSplitterOrView() const;
-    Internal::SplitterOrView *topSplitterOrView() const;
 
     void closeEditor(IEditor *editor);
     void closeDuplicate(IEditor *editor);

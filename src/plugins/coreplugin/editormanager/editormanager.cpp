@@ -553,11 +553,6 @@ Core::Internal::SplitterOrView *EditorManager::currentSplitterOrView() const
     return view;
 }
 
-Core::Internal::SplitterOrView *EditorManager::topSplitterOrView() const
-{
-    return d->m_splitter;
-}
-
 Core::Internal::EditorView *EditorManager::currentEditorView() const
 {
     return currentSplitterOrView()->view();

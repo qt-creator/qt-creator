@@ -514,21 +514,6 @@ SplitterOrView *SplitterOrView::findFirstView()
     return this;
 }
 
-SplitterOrView *SplitterOrView::findEmptyView()
-{
-    if (m_splitter) {
-        for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
-                if (SplitterOrView *result = splitterOrView->findEmptyView())
-                    return result;
-        }
-        return 0;
-    }
-    if (!hasEditors())
-        return this;
-    return 0;
-}
-
 SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
 {
     if (!editor || hasEditor(editor))
@@ -538,21 +523,6 @@ SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 if (SplitterOrView *result = splitterOrView->findView(editor))
                     return result;
-        }
-    }
-    return 0;
-}
-
-SplitterOrView *SplitterOrView::findSplitter(Core::IEditor *editor)
-{
-    if (m_splitter) {
-        for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
-                if (splitterOrView->hasEditor(editor))
-                    return this;
-                if (SplitterOrView *result = splitterOrView->findSplitter(editor))
-                    return result;
-            }
         }
     }
     return 0;

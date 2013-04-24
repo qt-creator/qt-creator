@@ -182,8 +182,6 @@ public:
 
     SplitterOrView *findView(Core::IEditor *editor);
     SplitterOrView *findFirstView();
-    SplitterOrView *findEmptyView();
-    SplitterOrView *findSplitter(Core::IEditor *editor);
     SplitterOrView *findSplitter(SplitterOrView *child);
 
     SplitterOrView *findNextView(SplitterOrView *view);
