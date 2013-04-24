@@ -52,7 +52,7 @@ protected:
     void collectItemChangesAndSendChangeCommands() Q_DECL_OVERRIDE;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
     void sendTokenBack();
-
+    bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
 
 private:
     QSet<ServerNodeInstance> m_parentChangedSet;

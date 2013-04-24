@@ -86,6 +86,26 @@ void Qt5InformationNodeInstanceServer::token(const TokenCommand &command)
     startRenderTimer();
 }
 
+bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const
+{
+    static DesignerSupport::DirtyType informationsDirty = DesignerSupport::DirtyType(DesignerSupport::TransformUpdateMask
+                                                                              | DesignerSupport::ContentUpdateMask
+                                                                              | DesignerSupport::Visible
+                                                                              | DesignerSupport::ZValue
+                                                                              | DesignerSupport::OpacityValue);
+
+    if (DesignerSupport::isDirty(item, informationsDirty))
+        return true;
+
+    foreach (QQuickItem *childItem, item->childItems()) {
+        if (!hasInstanceForObject(childItem) && DesignerSupport::isDirty(childItem, informationsDirty))
+            return true;
+    }
+
+    return false;
+
+}
+
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
@@ -103,12 +123,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 if (item && hasInstanceForObject(item)) {
                     ServerNodeInstance instance = instanceForObject(item);
 
-                    DesignerSupport::DirtyType informationsDirty = DesignerSupport::DirtyType(DesignerSupport::TransformUpdateMask
-                                                                                              | DesignerSupport::ContentUpdateMask
-                                                                                              | DesignerSupport::Visible
-                                                                                              | DesignerSupport::ZValue
-                                                                                              | DesignerSupport::OpacityValue);
-                    if (DesignerSupport::isDirty(item, informationsDirty))
+                    if (isDirtyRecursiveForNonInstanceItems(item))
                         informationChangedInstanceSet.insert(instance);
 
 
