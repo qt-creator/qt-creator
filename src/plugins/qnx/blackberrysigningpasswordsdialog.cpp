@@ -29,42 +29,40 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCREATEPACKAGESTEPCONFIGWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYCREATEPACKAGESTEPCONFIGWIDGET_H
+#include "blackberrysigningpasswordsdialog.h"
+#include "ui_blackberrysigningpasswordsdialog.h"
 
-#include <projectexplorer/buildstep.h>
+using namespace Qnx;
+using namespace Qnx::Internal;
 
-namespace Qnx {
-namespace Internal {
-
-namespace Ui {
-class BlackBerryCreatePackageStepConfigWidget;
+BlackBerrySigningPasswordsDialog::BlackBerrySigningPasswordsDialog(QWidget *parent) :
+    QDialog(parent),
+    m_ui(new Ui::BlackBerrySigningPasswordsDialog)
+{
+    m_ui->setupUi(this);
 }
 
-class BlackBerryCreatePackageStep;
-
-class BlackBerryCreatePackageStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+BlackBerrySigningPasswordsDialog::~BlackBerrySigningPasswordsDialog()
 {
-    Q_OBJECT
-public:
-    explicit BlackBerryCreatePackageStepConfigWidget(BlackBerryCreatePackageStep *step);
-    ~BlackBerryCreatePackageStepConfigWidget();
+    delete m_ui;
+}
 
-    QString displayName() const;
-    QString summaryText() const;
+void BlackBerrySigningPasswordsDialog::setCskPassword(const QString &cskPassword)
+{
+    m_ui->cskPassword->setText(cskPassword);
+}
 
-    bool showWidget() const;
+void BlackBerrySigningPasswordsDialog::setStorePassword(const QString &storePassword)
+{
+    m_ui->storePassword->setText(storePassword);
+}
 
-private slots:
-    void setPackageMode(bool signPackagesChecked);
-    void showPasswords(bool show);
+QString BlackBerrySigningPasswordsDialog::cskPassword() const
+{
+    return m_ui->cskPassword->text();
+}
 
-private:
-    BlackBerryCreatePackageStep *m_step;
-    Ui::BlackBerryCreatePackageStepConfigWidget *m_ui;
-};
-
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYCREATEPACKAGESTEPCONFIGWIDGET_H
+QString BlackBerrySigningPasswordsDialog::storePassword() const
+{
+    return m_ui->storePassword->text();
+}

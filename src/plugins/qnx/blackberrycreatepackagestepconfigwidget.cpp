@@ -30,13 +30,41 @@
 ****************************************************************************/
 
 #include "blackberrycreatepackagestepconfigwidget.h"
+#include "ui_blackberrycreatepackagestepconfigwidget.h"
+#include "blackberrycreatepackagestep.h"
 
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BlackBerryCreatePackageStepConfigWidget::BlackBerryCreatePackageStepConfigWidget()
+BlackBerryCreatePackageStepConfigWidget::BlackBerryCreatePackageStepConfigWidget(BlackBerryCreatePackageStep *step)
     : ProjectExplorer::BuildStepConfigWidget()
+    , m_step(step)
 {
+    m_ui = new Ui::BlackBerryCreatePackageStepConfigWidget;
+    m_ui->setupUi(this);
+
+    m_ui->signPackages->setChecked(m_step->packageMode() == BlackBerryCreatePackageStep::SigningPackageMode);
+    m_ui->developmentMode->setChecked(m_step->packageMode() == BlackBerryCreatePackageStep::DevelopmentMode);
+
+    m_ui->cskPassword->setText(m_step->cskPassword());
+    m_ui->keystorePassword->setText(m_step->keystorePassword());
+    m_ui->savePasswords->setChecked(m_step->savePasswords());
+
+    connect(m_ui->signPackages, SIGNAL(toggled(bool)), this, SLOT(setPackageMode(bool)));
+    connect(m_ui->cskPassword, SIGNAL(textChanged(QString)), m_step, SLOT(setCskPassword(QString)));
+    connect(m_ui->keystorePassword, SIGNAL(textChanged(QString)), m_step, SLOT(setKeystorePassword(QString)));
+    connect(m_ui->showPasswords, SIGNAL(toggled(bool)), this, SLOT(showPasswords(bool)));
+    connect(m_ui->savePasswords, SIGNAL(toggled(bool)), m_step, SLOT(setSavePasswords(bool)));
+    connect(m_step, SIGNAL(cskPasswordChanged(QString)), m_ui->cskPassword, SLOT(setText(QString)));
+    connect(m_step, SIGNAL(keystorePasswordChanged(QString)), m_ui->keystorePassword, SLOT(setText(QString)));
+
+    m_ui->signPackagesWidget->setEnabled(m_ui->signPackages->isChecked());
+}
+
+BlackBerryCreatePackageStepConfigWidget::~BlackBerryCreatePackageStepConfigWidget()
+{
+    delete m_ui;
+    m_ui = 0;
 }
 
 QString BlackBerryCreatePackageStepConfigWidget::displayName() const
@@ -51,5 +79,16 @@ QString BlackBerryCreatePackageStepConfigWidget::summaryText() const
 
 bool BlackBerryCreatePackageStepConfigWidget::showWidget() const
 {
-    return false;
+    return true;
+}
+
+void BlackBerryCreatePackageStepConfigWidget::setPackageMode(bool signPackagesChecked)
+{
+    m_step->setPackageMode(signPackagesChecked ? BlackBerryCreatePackageStep::SigningPackageMode : BlackBerryCreatePackageStep::DevelopmentMode);
+}
+
+void BlackBerryCreatePackageStepConfigWidget::showPasswords(bool show)
+{
+    m_ui->cskPassword->setEchoMode(show ? QLineEdit::Normal : QLineEdit::Password);
+    m_ui->keystorePassword->setEchoMode(show ? QLineEdit::Normal : QLineEdit::Password);
 }

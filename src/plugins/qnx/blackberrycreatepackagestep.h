@@ -47,6 +47,11 @@ class BlackBerryCreatePackageStep : public BlackBerryAbstractDeployStep
     friend class BlackBerryCreatePackageStepFactory;
 
 public:
+    enum PackageMode {
+        SigningPackageMode,
+        DevelopmentMode
+    };
+
     explicit BlackBerryCreatePackageStep(ProjectExplorer::BuildStepList *bsl);
 
     bool init();
@@ -54,11 +59,38 @@ public:
 
     QString debugToken() const;
 
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
+    PackageMode packageMode() const;
+    QString cskPassword() const;
+    QString keystorePassword() const;
+    bool savePasswords() const;
+
+public slots:
+    void setPackageMode(PackageMode packageMode);
+    void setCskPassword(const QString &cskPassword);
+    void setKeystorePassword(const QString &keystorePassword);
+    void setSavePasswords(bool savePasswords);
+
+signals:
+    void cskPasswordChanged(QString);
+    void keystorePasswordChanged(QString);
+
 protected:
     BlackBerryCreatePackageStep(ProjectExplorer::BuildStepList *bsl, BlackBerryCreatePackageStep *bs);
 
+    void processStarted(const ProjectExplorer::ProcessParameters &params);
+
 private:
+    void ctor();
+
     bool prepareAppDescriptorFile(const QString &appDescriptorPath, const QString &preparedFilePath);
+
+    PackageMode m_packageMode;
+    QString m_cskPassword;
+    QString m_keystorePassword;
+    bool m_savePasswords;
 };
 
 } // namespace Internal

@@ -29,42 +29,37 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCREATEPACKAGESTEPCONFIGWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYCREATEPACKAGESTEPCONFIGWIDGET_H
+#ifndef QNX_INTERNAL_BLACKBERRYSIGNINGPASSWORDSDIALOG_H
+#define QNX_INTERNAL_BLACKBERRYSIGNINGPASSWORDSDIALOG_H
 
-#include <projectexplorer/buildstep.h>
+#include <QDialog>
 
 namespace Qnx {
 namespace Internal {
 
 namespace Ui {
-class BlackBerryCreatePackageStepConfigWidget;
+class BlackBerrySigningPasswordsDialog;
 }
 
-class BlackBerryCreatePackageStep;
-
-class BlackBerryCreatePackageStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+class BlackBerrySigningPasswordsDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    explicit BlackBerryCreatePackageStepConfigWidget(BlackBerryCreatePackageStep *step);
-    ~BlackBerryCreatePackageStepConfigWidget();
+    explicit BlackBerrySigningPasswordsDialog(QWidget *parent = 0);
+    ~BlackBerrySigningPasswordsDialog();
 
-    QString displayName() const;
-    QString summaryText() const;
+    void setCskPassword(const QString &cskPassword);
+    void setStorePassword(const QString &storePassword);
 
-    bool showWidget() const;
-
-private slots:
-    void setPackageMode(bool signPackagesChecked);
-    void showPasswords(bool show);
+    QString cskPassword() const;
+    QString storePassword() const;
 
 private:
-    BlackBerryCreatePackageStep *m_step;
-    Ui::BlackBerryCreatePackageStepConfigWidget *m_ui;
+    Ui::BlackBerrySigningPasswordsDialog *m_ui;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCREATEPACKAGESTEPCONFIGWIDGET_H
+#endif // QNX_INTERNAL_BLACKBERRYSIGNINGPASSWORDSDIALOG_H

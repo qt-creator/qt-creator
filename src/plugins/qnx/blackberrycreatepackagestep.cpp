@@ -38,6 +38,7 @@
 #include "blackberryqtversion.h"
 #include "blackberrydeviceconfiguration.h"
 #include "blackberrydeployinformation.h"
+#include "blackberrysigningpasswordsdialog.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -66,19 +67,31 @@ const char QT_INSTALL_IMPORTS_VAR[] = "%QT_INSTALL_IMPORTS%";
 const char QT_INSTALL_QML[]         = "QT_INSTALL_QML";
 const char QT_INSTALL_QML_VAR[]     = "%QT_INSTALL_QML%";
 const char SRC_DIR_VAR[]            = "%SRC_DIR%";
+
+const char PACKAGE_MODE_KEY[]      = "Qt4ProjectManager.BlackBerryCreatePackageStep.PackageMode";
+const char CSK_PASSWORD_KEY[]      = "Qt4ProjectManager.BlackBerryCreatePackageStep.CskPassword";
+const char KEYSTORE_PASSWORD_KEY[] = "Qt4ProjectManager.BlackBerryCreatePackageStep.KeystorePassword";
+const char SAVE_PASSWORDS_KEY[]    = "Qt4ProjectManager.BlackBerryCreatePackageStep.SavePasswords";
 }
 
 BlackBerryCreatePackageStep::BlackBerryCreatePackageStep(ProjectExplorer::BuildStepList *bsl)
     : BlackBerryAbstractDeployStep(bsl, Core::Id(Constants::QNX_CREATE_PACKAGE_BS_ID))
 {
-    setDisplayName(tr("Create BAR packages"));
+    ctor();
 }
 
 BlackBerryCreatePackageStep::BlackBerryCreatePackageStep(ProjectExplorer::BuildStepList *bsl,
                                            BlackBerryCreatePackageStep *bs)
     : BlackBerryAbstractDeployStep(bsl, bs)
 {
-    setDisplayName(tr("Create BAR packages"));
+    ctor();
+}
+
+void BlackBerryCreatePackageStep::ctor()
+{
+    setDisplayName(tr("Create packages"));
+
+    m_packageMode = DevelopmentMode;
 }
 
 bool BlackBerryCreatePackageStep::init()
@@ -129,9 +142,32 @@ bool BlackBerryCreatePackageStep::init()
 
 
         QStringList args;
-        args << QLatin1String("-devMode");
-        if (!debugToken().isEmpty())
-            args << QLatin1String("-debugToken") << QnxUtils::addQuotes(QDir::toNativeSeparators(debugToken()));
+        if (m_packageMode == DevelopmentMode) {
+            args << QLatin1String("-devMode");
+            if (!debugToken().isEmpty())
+                args << QLatin1String("-debugToken") << QnxUtils::addQuotes(QDir::toNativeSeparators(debugToken()));
+        } else if (m_packageMode == SigningPackageMode) {
+            if (m_cskPassword.isEmpty() || m_keystorePassword.isEmpty()) {
+                BlackBerrySigningPasswordsDialog dlg;
+                dlg.setCskPassword(m_cskPassword);
+                dlg.setStorePassword(m_keystorePassword);
+                if (dlg.exec() == QDialog::Rejected) {
+                    raiseError(tr("Missing passwords for signing packages"));
+                    return false;
+                }
+
+                m_cskPassword = dlg.cskPassword();
+                m_keystorePassword = dlg.storePassword();
+
+                emit cskPasswordChanged(m_cskPassword);
+                emit keystorePasswordChanged(m_keystorePassword);
+            }
+            args << QLatin1String("-sign");
+            args << QLatin1String("-cskpass");
+            args << m_cskPassword;
+            args << QLatin1String("-storepass");
+            args << m_keystorePassword;
+        }
         args << QLatin1String("-package") << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
         args << QnxUtils::addQuotes(QDir::toNativeSeparators(preparedFilePath));
         addCommand(packageCmd, args);
@@ -142,7 +178,7 @@ bool BlackBerryCreatePackageStep::init()
 
 ProjectExplorer::BuildStepConfigWidget *BlackBerryCreatePackageStep::createConfigWidget()
 {
-    return new BlackBerryCreatePackageStepConfigWidget();
+    return new BlackBerryCreatePackageStepConfigWidget(this);
 }
 
 QString BlackBerryCreatePackageStep::debugToken() const
@@ -152,6 +188,69 @@ QString BlackBerryCreatePackageStep::debugToken() const
         return QString();
 
     return device->debugToken();
+}
+
+bool BlackBerryCreatePackageStep::fromMap(const QVariantMap &map)
+{
+    m_packageMode = static_cast<PackageMode>(map.value(QLatin1String(PACKAGE_MODE_KEY), DevelopmentMode).toInt());
+    m_savePasswords = map.value(QLatin1String(SAVE_PASSWORDS_KEY), false).toBool();
+    if (m_savePasswords) {
+        m_cskPassword = map.value(QLatin1String(CSK_PASSWORD_KEY)).toString();
+        m_keystorePassword = map.value(QLatin1String(KEYSTORE_PASSWORD_KEY)).toString();
+    }
+    return BlackBerryAbstractDeployStep::fromMap(map);
+}
+
+QVariantMap BlackBerryCreatePackageStep::toMap() const
+{
+    QVariantMap map = BlackBerryAbstractDeployStep::toMap();
+    map.insert(QLatin1String(PACKAGE_MODE_KEY), m_packageMode);
+    map.insert(QLatin1String(SAVE_PASSWORDS_KEY), m_savePasswords);
+    if (m_savePasswords) {
+        map.insert(QLatin1String(CSK_PASSWORD_KEY), m_cskPassword);
+        map.insert(QLatin1String(KEYSTORE_PASSWORD_KEY), m_keystorePassword);
+    }
+    return map;
+}
+
+BlackBerryCreatePackageStep::PackageMode BlackBerryCreatePackageStep::packageMode() const
+{
+    return m_packageMode;
+}
+
+QString BlackBerryCreatePackageStep::cskPassword() const
+{
+    return m_cskPassword;
+}
+
+QString BlackBerryCreatePackageStep::keystorePassword() const
+{
+    return m_keystorePassword;
+}
+
+bool BlackBerryCreatePackageStep::savePasswords() const
+{
+    return m_savePasswords;
+}
+
+void BlackBerryCreatePackageStep::setPackageMode(BlackBerryCreatePackageStep::PackageMode packageMode)
+{
+    m_packageMode = packageMode;
+}
+
+void BlackBerryCreatePackageStep::setCskPassword(const QString &cskPassword)
+{
+    m_cskPassword = cskPassword;
+}
+
+void BlackBerryCreatePackageStep::setKeystorePassword(const QString &storePassword)
+{
+    m_keystorePassword = storePassword;
+}
+
+void BlackBerryCreatePackageStep::setSavePasswords(bool savePasswords)
+{
+    m_savePasswords = savePasswords;
 }
 
 bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDescriptorPath, const QString &preparedFilePath)
@@ -212,4 +311,23 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
     preparedFile.close();
 
     return true;
+}
+
+void BlackBerryCreatePackageStep::processStarted(const ProjectExplorer::ProcessParameters &params)
+{
+    if (m_packageMode == SigningPackageMode) {
+        QString arguments = params.prettyArguments();
+
+        const QString cskPasswordLine = QLatin1String(" -cskpass ") + m_cskPassword;
+        const QString hiddenCskPasswordLine = QLatin1String(" -cskpass <hidden>");
+        arguments.replace(cskPasswordLine, hiddenCskPasswordLine);
+
+        const QString storePasswordLine = QLatin1String(" -storepass ") + m_keystorePassword;
+        const QString hiddenStorePasswordLine = QLatin1String(" -storepass <hidden>");
+        arguments.replace(storePasswordLine, hiddenStorePasswordLine);
+
+        emitOutputInfo(params, arguments);
+    } else {
+        BlackBerryAbstractDeployStep::processStarted(params);
+    }
 }

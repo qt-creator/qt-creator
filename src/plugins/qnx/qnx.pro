@@ -78,7 +78,8 @@ SOURCES += qnxplugin.cpp \
     blackberrydeviceconnectionmanager.cpp \
     blackberrydeviceinformation.cpp \
     blackberrysshkeysgenerator.cpp \
-    blackberryprocessparser.cpp
+    blackberryprocessparser.cpp \
+    blackberrysigningpasswordsdialog.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -156,7 +157,8 @@ HEADERS += qnxplugin.h\
     blackberrydeviceconnectionmanager.h \
     blackberrydeviceinformation.h \
     blackberrysshkeysgenerator.h \
-    blackberryprocessparser.h
+    blackberryprocessparser.h \
+    blackberrysigningpasswordsdialog.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -171,7 +173,9 @@ FORMS += \
     blackberryregisterkeydialog.ui \
     blackberryimportcertificatedialog.ui \
     blackberrycreatecertificatedialog.ui \
-    blackberrydebugtokenrequestdialog.ui
+    blackberrydebugtokenrequestdialog.ui \
+    blackberrycreatepackagestepconfigwidget.ui \
+    blackberrysigningpasswordsdialog.ui
 
 include(../../private_headers.pri)
 
