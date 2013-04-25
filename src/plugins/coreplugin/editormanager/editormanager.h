@@ -251,19 +251,21 @@ private:
 
     IEditor *placeEditor(Internal::EditorView *view, IEditor *editor);
     IEditor *duplicateEditor(IEditor *editor);
-    void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
-    void setCurrentView(Internal::SplitterOrView *view);
     IEditor *activateEditor(Internal::EditorView *view, IEditor *editor, OpenEditorFlags flags = 0);
     void activateEditorForIndex(Internal::EditorView *view, const QModelIndex &index, OpenEditorFlags = 0);
     IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
         const Id &id = Id(), OpenEditorFlags flags = 0, bool *newEditor = 0);
+
+    void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
+    void setCurrentView(Internal::SplitterOrView *view);
     Internal::SplitterOrView *currentSplitterOrView() const;
+    Internal::EditorView *currentEditorView() const;
+    static Internal::EditorView *viewForEditor(IEditor *editor);
 
     void closeEditor(IEditor *editor);
     void closeDuplicate(IEditor *editor);
     void closeView(Internal::EditorView *view);
     void emptyView(Internal::EditorView *view);
-    Internal::EditorView *currentEditorView() const;
     IEditor *pickUnusedEditor() const;
     void addDocumentToRecentFiles(IDocument *document);
     void switchToPreferedMode();

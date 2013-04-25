@@ -514,20 +514,6 @@ SplitterOrView *SplitterOrView::findFirstView()
     return this;
 }
 
-SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
-{
-    if (!editor || hasEditor(editor))
-        return this;
-    if (m_splitter) {
-        for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
-                if (SplitterOrView *result = splitterOrView->findView(editor))
-                    return result;
-        }
-    }
-    return 0;
-}
-
 SplitterOrView *SplitterOrView::findSplitter(SplitterOrView *child)
 {
     if (m_splitter) {

@@ -512,8 +512,8 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
 
     d->m_currentEditor = editor;
     if (editor) {
-        if (SplitterOrView *splitterOrView = d->m_splitter->findView(editor))
-            splitterOrView->view()->setCurrentEditor(editor);
+        if (EditorView *view = viewForEditor(editor))
+            view->setCurrentEditor(editor);
         d->m_view->updateEditorHistory(editor); // the global view should have a complete history
     }
     updateActions();
@@ -545,9 +545,8 @@ Core::Internal::SplitterOrView *EditorManager::currentSplitterOrView() const
 {
     SplitterOrView *view = d->m_currentView;
     if (!view)
-        view = d->m_currentEditor?
-               d->m_splitter->findView(d->m_currentEditor):
-               d->m_splitter->findFirstView();
+        view = d->m_currentEditor ? viewForEditor(d->m_currentEditor)->parentSplitterOrView()
+                                  : d->m_splitter->findFirstView();
     if (!view)
         return d->m_splitter;
     return view;
@@ -556,6 +555,17 @@ Core::Internal::SplitterOrView *EditorManager::currentSplitterOrView() const
 Core::Internal::EditorView *EditorManager::currentEditorView() const
 {
     return currentSplitterOrView()->view();
+}
+
+EditorView *EditorManager::viewForEditor(IEditor *editor)
+{
+    QWidget *w = editor->widget();
+    while (w) {
+        w = w->parentWidget();
+        if (EditorView *view = qobject_cast<EditorView *>(w))
+            return view;
+    }
+    return 0;
 }
 
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
@@ -895,10 +905,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         }
 
         removeEditor(editor);
-        if (SplitterOrView *view = d->m_splitter->findView(editor)) {
-            if (editor == view->view()->currentEditor())
-                closedViews += view->view();
-            view->view()->removeEditor(editor);
+        if (EditorView *view = viewForEditor(editor)) {
+            if (editor == view->currentEditor())
+                closedViews += view;
+            view->removeEditor(editor);
         }
     }
 
@@ -960,8 +970,7 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
 
     emit editorAboutToClose(editor);
 
-    if (d->m_splitter->findView(editor)) {
-        EditorView *view = d->m_splitter->findView(editor)->view();
+    if (EditorView *view = viewForEditor(editor)) {
         removeEditor(editor);
         view->removeEditor(editor);
 
@@ -988,8 +997,8 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
 Core::IEditor *EditorManager::pickUnusedEditor() const
 {
     foreach (IEditor *editor, openedEditors()) {
-        SplitterOrView *view = d->m_splitter->findView(editor);
-        if (!view || view->editor() != editor)
+        EditorView *view = viewForEditor(editor);
+        if (!view || view->currentEditor() != editor)
             return editor;
     }
     return 0;
@@ -1024,14 +1033,14 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 
     if (!view->hasEditor(editor)) {
         bool duplicateSupported = editor->duplicateSupported();
-        if (SplitterOrView *sourceView = d->m_splitter->findView(editor)) {
-            if (editor != sourceView->editor() || !duplicateSupported) {
-                sourceView->view()->removeEditor(editor);
+        if (EditorView *sourceView = viewForEditor(editor)) {
+            if (editor != sourceView->currentEditor() || !duplicateSupported) {
+                sourceView->removeEditor(editor);
                 view->addEditor(editor);
                 view->setCurrentEditor(editor);
-                if (!sourceView->editor()) {
+                if (!sourceView->currentEditor()) {
                     if (IEditor *replacement = pickUnusedEditor())
-                        sourceView->view()->addEditor(replacement);
+                        sourceView->addEditor(replacement);
                 }
                 return editor;
             } else if (duplicateSupported) {
@@ -1047,8 +1056,7 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 
 void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
 {
-    SplitterOrView *splitterOrView = m_instance->d->m_splitter->findView(editor);
-    EditorView *view = (splitterOrView ? splitterOrView->view() : 0);
+    EditorView *view = viewForEditor(editor);
     // TODO an IEditor doesn't have to belong to a view, which makes this method a bit funny
     if (!view)
         view = m_instance->currentEditorView();

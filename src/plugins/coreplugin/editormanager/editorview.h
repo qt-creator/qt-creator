@@ -180,7 +180,6 @@ public:
     QByteArray saveState() const;
     void restoreState(const QByteArray &);
 
-    SplitterOrView *findView(Core::IEditor *editor);
     SplitterOrView *findFirstView();
     SplitterOrView *findSplitter(SplitterOrView *child);
 
