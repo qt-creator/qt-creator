@@ -178,7 +178,7 @@ struct EditorManagerPrivate
     Internal::EditorView *m_view;
     Internal::SplitterOrView *m_splitter;
     QPointer<IEditor> m_currentEditor;
-    QPointer<SplitterOrView> m_currentView;
+    QPointer<EditorView> m_currentView;
     QTimer *m_autoSaveTimer;
 
     // actions
@@ -522,12 +522,12 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
 }
 
 
-void EditorManager::setCurrentView(Core::Internal::SplitterOrView *view)
+void EditorManager::setCurrentView(Internal::EditorView *view)
 {
     if (view == d->m_currentView)
         return;
 
-    SplitterOrView *old = d->m_currentView;
+    EditorView *old = d->m_currentView;
     d->m_currentView = view;
 
     if (old)
@@ -535,26 +535,21 @@ void EditorManager::setCurrentView(Core::Internal::SplitterOrView *view)
     if (view)
         view->update();
 
-    if (view && !view->editor()) {
+    if (view && !view->currentEditor()) {
         view->setFocus();
         view->activateWindow();
     }
 }
 
-Core::Internal::SplitterOrView *EditorManager::currentSplitterOrView() const
+Internal::EditorView *EditorManager::currentEditorView() const
 {
-    SplitterOrView *view = d->m_currentView;
+    EditorView *view = d->m_currentView;
     if (!view)
-        view = d->m_currentEditor ? viewForEditor(d->m_currentEditor)->parentSplitterOrView()
+        view = d->m_currentEditor ? viewForEditor(d->m_currentEditor)
                                   : d->m_splitter->findFirstView();
     if (!view)
-        return d->m_splitter;
+        return d->m_splitter->view();
     return view;
-}
-
-Core::Internal::EditorView *EditorManager::currentEditorView() const
-{
-    return currentSplitterOrView()->view();
 }
 
 EditorView *EditorManager::viewForEditor(IEditor *editor)
@@ -656,10 +651,10 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 
     splitter->unsplit();
 
-    SplitterOrView *newCurrent = splitter->findFirstView();
+    EditorView *newCurrent = splitter->findFirstView();
     if (newCurrent) {
-        if (IEditor *e = newCurrent->editor())
-            activateEditor(newCurrent->view(), e);
+        if (IEditor *e = newCurrent->currentEditor())
+            activateEditor(newCurrent, e);
         else
             setCurrentView(newCurrent);
     }
@@ -845,7 +840,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     if (editorsToClose.isEmpty())
         return true;
 
-    SplitterOrView *currentSplitterOrView = this->currentSplitterOrView();
+    EditorView *currentView = currentEditorView();
 
     bool closingFailed = false;
     QList<IEditor*> acceptedEditors;
@@ -936,9 +931,9 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         delete editor;
     }
 
-    if (currentSplitterOrView) {
-        if (IEditor *editor = currentSplitterOrView->editor())
-            activateEditor(currentSplitterOrView->view(), editor);
+    if (currentView) {
+        if (IEditor *editor = currentView->currentEditor())
+            activateEditor(currentView, editor);
     }
 
     if (!currentEditor()) {
@@ -966,7 +961,7 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
     if (original== editor)
         d->m_editorModel->makeOriginal(duplicates.first());
 
-    SplitterOrView *currentSplitterOrView = this->currentSplitterOrView();
+    EditorView *currentView = currentEditorView();
 
     emit editorAboutToClose(editor);
 
@@ -988,9 +983,9 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
 
     emit editorsClosed(QList<IEditor*>() << editor);
     delete editor;
-    if (currentSplitterOrView) {
-        if (IEditor *currentEditor = currentSplitterOrView->editor())
-            activateEditor(currentSplitterOrView->view(), currentEditor);
+    if (currentView) {
+        if (IEditor *currentEditor = currentView->currentEditor())
+            activateEditor(currentView, currentEditor);
     }
 }
 
@@ -1870,12 +1865,12 @@ QList<IEditor*> EditorManager::visibleEditors() const
 {
     QList<IEditor *> editors;
     if (d->m_splitter->isSplitter()) {
-        SplitterOrView *firstView = d->m_splitter->findFirstView();
-        SplitterOrView *view = firstView;
+        EditorView *firstView = d->m_splitter->findFirstView();
+        EditorView *view = firstView;
         if (view) {
             do {
-                if (view->editor())
-                    editors.append(view->editor());
+                if (view->currentEditor())
+                    editors.append(view->currentEditor());
                 view = d->m_splitter->findNextView(view);
             } while (view && view != firstView);
         }
@@ -2026,11 +2021,11 @@ bool EditorManager::restoreState(const QByteArray &state)
     // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
     if (d->m_currentEditor) {
         d->m_currentEditor->widget()->setFocus();
-    } else if (Core::Internal::SplitterOrView *view = currentSplitterOrView()) {
-        if (IEditor *e = view->editor())
+    } else if (Internal::EditorView *view = currentEditorView()) {
+        if (IEditor *e = view->currentEditor())
             e->widget()->setFocus();
-        else if (view->view())
-            view->view()->setFocus();
+        else
+            view->setFocus();
     }
 
     QApplication::restoreOverrideCursor();
@@ -2179,10 +2174,10 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 
 void EditorManager::split(Qt::Orientation orientation)
 {
-    SplitterOrView *view = currentSplitterOrView();
+    EditorView *view = currentEditorView();
 
-    if (view && !view->splitter())
-        view->split(orientation);
+    if (view)
+        view->parentSplitterOrView()->split(orientation);
 
     updateActions();
 }
@@ -2199,12 +2194,12 @@ void EditorManager::splitSideBySide()
 
 void EditorManager::removeCurrentSplit()
 {
-    SplitterOrView *viewToClose = currentSplitterOrView();
+    EditorView *viewToClose = currentEditorView();
 
-    if (!viewToClose || viewToClose->isSplitter() || viewToClose == d->m_splitter)
+    if (!viewToClose || viewToClose == d->m_splitter->view())
         return;
 
-    closeView(viewToClose->view());
+    closeView(viewToClose);
     updateActions();
 }
 
@@ -2228,12 +2223,12 @@ void EditorManager::gotoOtherSplit()
     if (!d->m_splitter->isSplitter())
         splitSideBySide();
 
-    SplitterOrView *view = currentSplitterOrView();
+    EditorView *view = currentEditorView();
     view = d->m_splitter->findNextView(view);
     if (!view)
         view = d->m_splitter->findFirstView();
     if (view) {
-        if (IEditor *editor = view->editor()) {
+        if (IEditor *editor = view->currentEditor()) {
             setCurrentEditor(editor, true);
             editor->widget()->setFocus();
             editor->widget()->activateWindow();

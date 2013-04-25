@@ -169,8 +169,8 @@ void EditorView::setCloseSplitIcon(const QIcon &icon)
 
 void EditorView::paintEvent(QPaintEvent *)
 {
-    SplitterOrView *splitterOrView = ICore::editorManager()->currentSplitterOrView();
-    if (!splitterOrView || !splitterOrView->view() || splitterOrView->view() != this)
+    EditorView *editorView = ICore::editorManager()->currentEditorView();
+    if (editorView != this)
         return;
 
     if (editorCount() > 0)
@@ -498,20 +498,20 @@ void SplitterOrView::mousePressEvent(QMouseEvent *e)
     if (e->button() != Qt::LeftButton)
         return;
     setFocus(Qt::MouseFocusReason);
-    ICore::editorManager()->setCurrentView(this);
+    ICore::editorManager()->setCurrentView(view());
 }
 
-SplitterOrView *SplitterOrView::findFirstView()
+EditorView *SplitterOrView::findFirstView()
 {
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
-                if (SplitterOrView *result = splitterOrView->findFirstView())
+                if (EditorView *result = splitterOrView->findFirstView())
                     return result;
         }
         return 0;
     }
-    return this;
+    return m_view;
 }
 
 SplitterOrView *SplitterOrView::findSplitter(SplitterOrView *child)
@@ -529,10 +529,15 @@ SplitterOrView *SplitterOrView::findSplitter(SplitterOrView *child)
     return 0;
 }
 
-SplitterOrView *SplitterOrView::findNextView(SplitterOrView *view)
+EditorView *SplitterOrView::findNextView(EditorView *view)
 {
+    if (!view)
+        return 0;
     bool found = false;
-    return findNextView_helper(view, &found);
+    SplitterOrView *splitterOrView = findNextView_helper(view->parentSplitterOrView(), &found);
+    if (splitterOrView)
+        return splitterOrView->view();
+    return 0;
 }
 
 SplitterOrView *SplitterOrView::findNextView_helper(SplitterOrView *view, bool *found)
@@ -635,7 +640,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
     if (e)
         em->activateEditor(view->view(), e);
     else
-        em->setCurrentView(view);
+        em->setCurrentView(view->view());
 }
 
 void SplitterOrView::unsplitAll()

@@ -180,10 +180,10 @@ public:
     QByteArray saveState() const;
     void restoreState(const QByteArray &);
 
-    SplitterOrView *findFirstView();
+    EditorView *findFirstView();
     SplitterOrView *findSplitter(SplitterOrView *child);
 
-    SplitterOrView *findNextView(SplitterOrView *view);
+    EditorView *findNextView(EditorView *view);
 
     QSize sizeHint() const { return minimumSizeHint(); }
     QSize minimumSizeHint() const;
