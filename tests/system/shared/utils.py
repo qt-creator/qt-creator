@@ -610,8 +610,8 @@ def checkIfObjectExists(name, shouldExist = True, timeout = 3000, verboseOnFail 
 
 # wait for progress bar(s) to appear and disappear
 def progressBarWait(timeout=60000):
-    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", True, 2000)
-    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", False, timeout)
+    checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", True, 2000)
+    checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", False, timeout)
 
 def readFile(filename):
     f = open(filename, "r")
