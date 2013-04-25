@@ -124,6 +124,29 @@ SplitterOrView *EditorView::parentSplitterOrView() const
     return m_parentSplitterOrView;
 }
 
+EditorView *EditorView::findNextView()
+{
+    SplitterOrView *current = parentSplitterOrView();
+    QTC_ASSERT(current, return this);
+    SplitterOrView *parent = current->findParentSplitter();
+    while (parent) {
+        QSplitter *splitter = parent->splitter();
+        QTC_ASSERT(splitter, return this);
+        QTC_ASSERT(splitter->count() == 2, return this);
+        // is current the first child? then the next view is the first one in current's sibling
+        if (splitter->widget(0) == current) {
+            SplitterOrView *second = qobject_cast<SplitterOrView *>(splitter->widget(1));
+            QTC_ASSERT(second, return this);
+            return second->findFirstView();
+        }
+        // otherwise go up the hierarchy
+        current = parent;
+        parent = current->findParentSplitter();
+    }
+    // current has no parent, so just take the very first view
+    return current->findFirstView();
+}
+
 void EditorView::closeView()
 {
     EditorManager *em = ICore::editorManager();
@@ -523,38 +546,6 @@ SplitterOrView *SplitterOrView::findParentSplitter() const
             return splitter;
         }
         w = w->parentWidget();
-    }
-    return 0;
-}
-
-EditorView *SplitterOrView::findNextView(EditorView *view)
-{
-    if (!view)
-        return 0;
-    bool found = false;
-    SplitterOrView *splitterOrView = findNextView_helper(view->parentSplitterOrView(), &found);
-    if (splitterOrView)
-        return splitterOrView->view();
-    return 0;
-}
-
-SplitterOrView *SplitterOrView::findNextView_helper(SplitterOrView *view, bool *found)
-{
-    if (*found && m_view)
-        return this;
-
-    if (this == view) {
-        *found = true;
-        return 0;
-    }
-
-    if (m_splitter) {
-        for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
-                if (SplitterOrView *result = splitterOrView->findNextView_helper(view, found))
-                    return result;
-            }
-        }
     }
     return 0;
 }

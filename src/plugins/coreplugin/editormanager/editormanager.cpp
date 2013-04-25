@@ -1871,7 +1871,7 @@ QList<IEditor*> EditorManager::visibleEditors() const
             do {
                 if (view->currentEditor())
                     editors.append(view->currentEditor());
-                view = d->m_splitter->findNextView(view);
+                view = view->findNextView();
             } while (view && view != firstView);
         }
     } else {
@@ -2224,9 +2224,7 @@ void EditorManager::gotoOtherSplit()
         splitSideBySide();
 
     EditorView *view = currentEditorView();
-    view = d->m_splitter->findNextView(view);
-    if (!view)
-        view = d->m_splitter->findFirstView();
+    view = view->findNextView();
     if (view) {
         if (IEditor *editor = view->currentEditor()) {
             setCurrentEditor(editor, true);

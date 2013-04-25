@@ -80,6 +80,7 @@ public:
     virtual ~EditorView();
 
     SplitterOrView *parentSplitterOrView() const;
+    EditorView *findNextView();
 
     int editorCount() const;
     void addEditor(IEditor *editor);
@@ -184,8 +185,6 @@ public:
     EditorView *findFirstView();
     SplitterOrView *findParentSplitter() const;
 
-    EditorView *findNextView(EditorView *view);
-
     QSize sizeHint() const { return minimumSizeHint(); }
     QSize minimumSizeHint() const;
 
@@ -193,7 +192,6 @@ public:
 
 private:
     void unsplitAll_helper();
-    SplitterOrView *findNextView_helper(SplitterOrView *view, bool *found);
     bool m_isRoot;
     QStackedLayout *m_layout;
     EditorView *m_view;
