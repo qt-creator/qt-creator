@@ -49,6 +49,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>
@@ -127,7 +128,9 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     QAction *openInNextSplitAction = new QAction(tr("Open Corresponding Header/Source in Next Split"), this);
     command = Core::ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
-    command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F4));
+    command->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+                                                ? tr("Meta+E, F4")
+                                                : tr("Ctrl+E, F4")));
     mcpptools->addAction(command);
     connect(openInNextSplitAction, SIGNAL(triggered()), this, SLOT(switchHeaderSourceInNextSplit()));
 

@@ -231,7 +231,9 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
             new QAction(tr("Open Method Declaration/Definition in Next Split"), this);
     cmd = Core::ActionManager::registerAction(openDeclarationDefinitionInNextSplit,
         Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT, context, true);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Shift+F2")));
+    cmd->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+                                            ? tr("Meta+E, Shift+F2")
+                                            : tr("Ctrl+E, Shift+F2")));
     connect(openDeclarationDefinitionInNextSplit, SIGNAL(triggered()),
             this, SLOT(openDeclarationDefinitionInNextSplit()));
     cppToolsMenu->addAction(cmd);

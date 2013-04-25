@@ -40,6 +40,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -388,7 +389,9 @@ void TextEditorActionHandler::createActions()
 
     m_followSymbolInNextSplitAction = new QAction(tr("Follow Symbol Under Cursor in Next Split"), this);
     command = Core::ActionManager::registerAction(m_followSymbolInNextSplitAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F2));
+    command->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+                                                ? tr("Meta+E, F2")
+                                                : tr("Ctrl+E, F2")));
     connect(m_followSymbolInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
 
     m_jumpToFileAction = new QAction(tr("Jump To File Under Cursor"), this);
@@ -398,7 +401,9 @@ void TextEditorActionHandler::createActions()
 
     m_jumpToFileInNextSplitAction = new QAction(tr("Jump to File Under Cursor in Next Split"), this);
     command = Core::ActionManager::registerAction(m_jumpToFileInNextSplitAction, Constants::JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F2));
+    command->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+                                                ? tr("Meta+E, F2")
+                                                : tr("Ctrl+E, F2")));
     connect(m_jumpToFileInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
 
     QAction *a = 0;
