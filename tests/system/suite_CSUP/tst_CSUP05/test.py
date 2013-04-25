@@ -17,7 +17,7 @@ def main():
     # open example project
     openQmakeProject(examplePath)
     # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
+    progressBarWait(30000)
     # open .cpp file in editor
     if not openDocument("propertyanimation.Sources.main\\.cpp"):
         test.fatal("Could not open main.cpp")

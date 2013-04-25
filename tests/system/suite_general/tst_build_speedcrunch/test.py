@@ -21,7 +21,7 @@ def main():
     if platform.system() in ('Windows', 'Microsoft'):
         suitableKits |= Targets.DESKTOP_474_MSVC2008
     checkedTargets = openQmakeProject(SpeedCrunchPath, suitableKits)
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
+    progressBarWait(30000)
 
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
 

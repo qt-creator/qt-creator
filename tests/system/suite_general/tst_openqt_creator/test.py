@@ -12,10 +12,10 @@ def main():
 
     openQmakeProject(pathSpeedcrunch)
     # Wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
+    progressBarWait(30000)
     openQmakeProject(pathCreator)
     # Wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 300000)
+    progressBarWait(300000)
 
     naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s' type='QModelIndex'}"
     compareProjectTree(naviTreeView % "speedcrunch( \(\S+\))?", "projecttree_speedcrunch.tsv")
