@@ -3,13 +3,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/hostosinfo.h>
 
 #include "qmldesignerconstants.h"
-#include "designdocument.h"
 #include "qmldesignerplugin.h"
 #include "designmodewidget.h"
 

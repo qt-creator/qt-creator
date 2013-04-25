@@ -31,10 +31,11 @@
 #define NAVIGATORWIDGET_H
 
 #include <QFrame>
-#include <QAbstractItemModel>
-#include <QToolButton>
 
 #include "navigatortreeview.h"
+
+QT_FORWARD_DECLARE_CLASS(QToolButton)
+QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
 
 namespace QmlDesigner {
 

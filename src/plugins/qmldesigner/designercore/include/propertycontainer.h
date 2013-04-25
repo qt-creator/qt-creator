@@ -33,7 +33,6 @@
 #include "qmldesignercorelib_global.h"
 
 #include <QString>
-#include <QExplicitlySharedDataPointer>
 #include <QDataStream>
 #include <QVariant>
 

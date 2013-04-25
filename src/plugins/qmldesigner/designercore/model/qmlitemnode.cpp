@@ -30,15 +30,10 @@
 #include "qmlitemnode.h"
 #include <metainfo.h>
 #include "qmlchangeset.h"
-#include "variantproperty.h"
-#include "nodeproperty.h"
 #include "nodelistproperty.h"
-#include "nodeinstance.h"
 #include "qmlanchors.h"
 #include "invalidmodelnodeexception.h"
-#include "rewritertransaction.h"
 #include "qmlmodelview.h"
-#include "mathutils.h"
 
 namespace QmlDesigner {
 

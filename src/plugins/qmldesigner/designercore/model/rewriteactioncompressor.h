@@ -30,8 +30,6 @@
 #ifndef REWRITEACTIONCOMPRESSOR_H
 #define REWRITEACTIONCOMPRESSOR_H
 
-#include <QStringList>
-
 #include "rewriteaction.h"
 
 namespace QmlDesigner {

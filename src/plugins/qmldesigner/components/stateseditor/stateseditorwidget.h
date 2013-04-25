@@ -31,7 +31,6 @@
 #define STATESEDITORWIDGET_H
 
 #include <QWidget>
-#include <QListWidgetItem>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeView;

@@ -30,38 +30,24 @@
 #include "qmldesignerplugin.h"
 #include "exception.h"
 #include "qmldesignerconstants.h"
-#include "pluginmanager.h"
 #include "designmodewidget.h"
 #include "settingspage.h"
 #include "designmodecontext.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
-#include <coreplugin/dialogs/iwizard.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 
 #include <QAction>
 
-#include <QFileInfo>
 #include <QCoreApplication>
 #include <qplugin.h>
 #include <QDebug>

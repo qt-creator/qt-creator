@@ -40,7 +40,6 @@
 #include "viewmanager.h"
 #include "shortcutmanager.h"
 
-#include <QWeakPointer>
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE

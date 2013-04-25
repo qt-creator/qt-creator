@@ -33,9 +33,7 @@
 #include "abstractformeditortool.h"
 #include "movemanipulator.h"
 #include "selectionindicator.h"
-#include "resizeindicator.h"
 
-#include <QHash>
 #include <QObject>
 #include <QScopedPointer>
 

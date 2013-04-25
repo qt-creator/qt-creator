@@ -30,11 +30,7 @@
 #include "selectionindicator.h"
 
 #include <QPen>
-#include <cmath>
 #include <QGraphicsScene>
-#include <formeditorview.h>
-#include <formeditorwidget.h>
-#include <zoomaction.h>
 
 namespace QmlDesigner {
 

@@ -32,13 +32,10 @@
 #include "formeditorview.h"
 
 #include "resizehandleitem.h"
-#include "nodemetainfo.h"
 
 
-#include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
-#include <QClipboard>
 
 namespace QmlDesigner {
 

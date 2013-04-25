@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "componentsplugin.h"
-#include <widgetplugin_helper.h>
 #include <QtPlugin>
 
 namespace QmlDesigner {

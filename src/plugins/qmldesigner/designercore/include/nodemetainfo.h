@@ -32,7 +32,6 @@
 
 #include <QList>
 #include <QString>
-#include <QExplicitlySharedDataPointer>
 #include <QIcon>
 
 #include "qmldesignercorelib_global.h"

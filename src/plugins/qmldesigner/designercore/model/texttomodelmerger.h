@@ -35,7 +35,6 @@
 #include "nodelistproperty.h"
 #include "modelnode.h"
 
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscopechain.h>
 
 #include <QStringList>

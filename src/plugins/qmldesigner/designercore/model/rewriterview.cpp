@@ -34,17 +34,13 @@
 #include <filemanager/firstdefinitionfinder.h>
 #include <customnotifications.h>
 
-#include <qmljs/parser/qmljsengine_p.h>
 
 #include "rewritingexception.h"
-#include "textmodifier.h"
 #include "texttomodelmerger.h"
 #include "modelnodepositionstorage.h"
 #include "modeltotextmerger.h"
 #include "nodelistproperty.h"
-#include "nodeproperty.h"
 #include "signalhandlerproperty.h"
-#include "invalidmodelnodeexception.h"
 
 
 

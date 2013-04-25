@@ -32,7 +32,6 @@
 
 #include "nodeinstanceserverinterface.h"
 
-#include <QDataStream>
 #include <QWeakPointer>
 #include <QProcess>
 

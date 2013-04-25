@@ -33,7 +33,6 @@
 #include "qmldesignercorelib_global.h"
 #include <QWeakPointer>
 #include <QList>
-#include <QMetaType>
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE

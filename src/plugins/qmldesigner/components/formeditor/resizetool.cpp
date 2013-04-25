@@ -35,7 +35,6 @@
 
 #include "resizehandleitem.h"
 
-#include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QAction>
 #include <QDebug>

@@ -31,7 +31,6 @@
 #define FORMEDITORGRAPHICSVIEW_H
 
 #include <QGraphicsView>
-#include <qmlitemnode.h>
 
 namespace QmlDesigner {
 

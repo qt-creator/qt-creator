@@ -31,26 +31,13 @@
 #define DESIGNMODEWIDGET_H
 
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <utils/faketooltip.h>
-#include <texteditor/itexteditor.h>
 
 #include <designdocument.h>
-#include <itemlibraryview.h>
-#include <navigatorwidget.h>
-#include <navigatorview.h>
-#include <stateseditorview.h>
-#include <componentview.h>
 #include <modelnode.h>
-#include <formeditorview.h>
 #include <propertyeditor.h>
 
-#include <QWeakPointer>
-#include <QDeclarativeError>
-#include <QHash>
 #include <QWidget>
-#include <QToolBar>
-#include <QComboBox>
 #include <QLabel>
 #include <QScopedPointer>
 

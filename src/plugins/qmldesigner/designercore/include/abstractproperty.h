@@ -30,7 +30,6 @@
 #ifndef ABSTRACTPROPERTY_H
 #define ABSTRACTPROPERTY_H
 
-#include <QVariant>
 #include <QWeakPointer>
 #include <QSharedPointer>
 #include "qmldesignercorelib_global.h"

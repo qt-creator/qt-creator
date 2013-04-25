@@ -39,10 +39,6 @@
 #include <QTimer>
 #include <QTextStream>
 
-#include "propertyabstractcontainer.h"
-#include "propertyvaluecontainer.h"
-#include "propertybindingcontainer.h"
-#include "instancecontainer.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
 #include "changevaluescommand.h"
@@ -62,7 +58,6 @@
 #include "pixmapchangedcommand.h"
 #include "valueschangedcommand.h"
 #include "childrenchangedcommand.h"
-#include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
 #include "tokencommand.h"

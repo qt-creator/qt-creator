@@ -32,13 +32,11 @@
 
 
 #include "abstractformeditortool.h"
-#include "movemanipulator.h"
 #include "rubberbandselectionmanipulator.h"
 #include "singleselectionmanipulator.h"
 #include "selectionindicator.h"
 #include "resizeindicator.h"
 
-#include <QHash>
 #include <QTime>
 
 namespace QmlDesigner {

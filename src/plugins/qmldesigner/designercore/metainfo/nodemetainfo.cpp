@@ -29,24 +29,17 @@
 
 #include "nodemetainfo.h"
 #include "model.h"
-#include "invalidargumentexception.h"
 
 #include "metainfo.h"
 #include <rewriterview.h>
 #include <propertyparser.h>
 
 #include <QDir>
-#include <QSharedData>
 #include <QDebug>
-#include <QIcon>
 
-#include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljscontext.h>
-#include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <languageutils/fakemetaobject.h>
 
 namespace QmlDesigner {
 

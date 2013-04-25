@@ -31,7 +31,6 @@
 #define BASICLAYOUTS_H
 
 #include <qlayoutobject.h>
-#include <QHBoxLayout>
 
 QT_BEGIN_NAMESPACE
 

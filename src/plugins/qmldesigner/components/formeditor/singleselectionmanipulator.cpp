@@ -29,8 +29,6 @@
 
 #include "singleselectionmanipulator.h"
 
-#include "model.h"
-#include "nodemetainfo.h"
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include <QDebug>

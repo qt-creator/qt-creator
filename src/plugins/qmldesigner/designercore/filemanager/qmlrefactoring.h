@@ -32,8 +32,6 @@
 
 #include <import.h>
 #include <textmodifier.h>
-#include <qmljs/qmljsdocument.h>
-#include <QSet>
 #include <QString>
 
 namespace QmlDesigner {

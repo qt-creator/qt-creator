@@ -32,8 +32,6 @@
 
 #include "qmldesignercorelib_global.h"
 
-#include <QMultiHash>
-#include <QString>
 #include <QStringList>
 #include <QSharedPointer>
 

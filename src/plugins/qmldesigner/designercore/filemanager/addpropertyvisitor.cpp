@@ -30,7 +30,6 @@
 #include "addpropertyvisitor.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsengine_p.h>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

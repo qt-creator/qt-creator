@@ -28,21 +28,12 @@
 ****************************************************************************/
 
 #include "widgetpluginmanager.h"
-#include <iwidgetplugin.h>
 
-#include <QCoreApplication>
 #include <QObject>
-#include <QSharedData>
 #include <QDir>
-#include <QStringList>
 #include <QDebug>
-#include <QWeakPointer>
-#include <QPluginLoader>
-#include <QFileInfo>
-#include <QLibraryInfo>
 
 #include <QStandardItemModel>
-#include <QStandardItem>
 
 enum { debug = 0 };
 

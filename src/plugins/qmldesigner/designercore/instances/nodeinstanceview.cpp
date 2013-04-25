@@ -32,25 +32,17 @@
 #include <QUrl>
 #include <QGraphicsView>
 #include <QGraphicsScene>
-#include <QGraphicsObject>
-#include <QFileSystemWatcher>
 #include <QMultiHash>
-#include <QTimer>
 
 #include <model.h>
 #include <modelnode.h>
 #include <metainfo.h>
-
-#include <typeinfo>
-#include <iwidgetplugin.h>
 
 #include "abstractproperty.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
-
-#include <nodeinstanceserverinterface.h>
 
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
@@ -69,7 +61,6 @@
 #include "informationchangedcommand.h"
 #include "changestatecommand.h"
 #include "childrenchangedcommand.h"
-#include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"

@@ -33,7 +33,6 @@
 #include "formeditorscene.h"
 #include "qmlanchors.h"
 #include <QDebug>
-#include <model.h>
 #include "mathutils.h"
 
 #include <limits>

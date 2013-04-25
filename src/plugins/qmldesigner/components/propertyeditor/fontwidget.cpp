@@ -32,7 +32,6 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QFontDialog>
-#include <QApplication>
 #include <QComboBox>
 
 namespace QmlDesigner {

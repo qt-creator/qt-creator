@@ -31,7 +31,6 @@
 
 #include "modelnode.h"
 #include "abstractview.h"
-#include "model.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "nodelistproperty.h"
@@ -40,8 +39,6 @@
 #include "rewritertransaction.h"
 #include <rewritingexception.h>
 
-#include <QSet>
-#include <QStringList>
 #include <QUrl>
 
 #include <QDebug>

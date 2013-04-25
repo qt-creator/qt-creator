@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "stackedutilitypanelcontroller.h"
-#include "designdocument.h"
 
 #include <QStackedWidget>
 

@@ -28,10 +28,7 @@
 ****************************************************************************/
 
 #include "signalhandlerproperty.h"
-#include "nodeabstractproperty.h"
-#include "nodeproperty.h"
 #include "internalproperty.h"
-#include "internalsignalhandlerproperty.h"
 #include "invalidmodelnodeexception.h"
 #include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"

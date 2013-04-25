@@ -32,7 +32,6 @@
 
 #include <QMap>
 #include <QIcon>
-#include <QVariant>
 #include <QScriptEngine>
 #include <private/qdeclarativelistmodel_p.h>
 

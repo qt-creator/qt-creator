@@ -29,9 +29,7 @@
 
 #include "variantproperty.h"
 #include "internalproperty.h"
-#include "internalvariantproperty.h"
 #include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"
 #include "internalnode_p.h"
 #include "model.h"

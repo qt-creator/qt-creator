@@ -34,9 +34,6 @@
 #include <variantproperty.h>
 #include <bindingproperty.h>
 
-#include <QLineEdit>
-#include <QSpinBox>
-
 
 namespace QmlDesigner {
 

@@ -30,7 +30,6 @@
 #include "nodelistproperty.h"
 #include "internalproperty.h"
 #include "internalnodelistproperty.h"
-#include "invalidmodelnodeexception.h"
 #include "invalidpropertyexception.h"
 #include "internalnode_p.h"
 #include "model.h"

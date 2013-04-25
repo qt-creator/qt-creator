@@ -28,16 +28,11 @@
 ****************************************************************************/
 
 #include "toolbox.h"
-#include "utils/styledbar.h"
-#include "utils/crumblepath.h"
 
 #include <QToolBar>
 #include <QHBoxLayout>
-#include <QPainter>
 #include <QDebug>
-#include <QFile>
 #include <QFrame>
-#include <QVariant>
 
 namespace QmlDesigner {
 

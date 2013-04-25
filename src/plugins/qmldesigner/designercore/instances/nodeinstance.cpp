@@ -31,7 +31,6 @@
 
 #include <QPainter>
 #include <modelnode.h>
-#include "commondefines.h"
 
 #include <QDebug>
 

@@ -31,7 +31,6 @@
 
 #include <QDebug>
 
-#include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
 

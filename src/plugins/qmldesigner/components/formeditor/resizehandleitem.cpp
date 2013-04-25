@@ -29,9 +29,6 @@
 
 #include "resizehandleitem.h"
 
-#include <formeditoritem.h>
-#include <QCursor>
-
 namespace QmlDesigner {
 
 ResizeHandleItem::ResizeHandleItem(QGraphicsItem *parent, const ResizeController &resizeController)

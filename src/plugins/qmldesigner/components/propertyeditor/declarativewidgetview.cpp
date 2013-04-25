@@ -29,11 +29,9 @@
 
 #include "declarativewidgetview.h"
 
-#include <qdeclarative.h>
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
-#include <QPointer>
 
 namespace QmlDesigner {
 

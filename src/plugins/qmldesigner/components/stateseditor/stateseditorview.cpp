@@ -30,11 +30,8 @@
 #include "stateseditorview.h"
 #include "stateseditorwidget.h"
 #include "stateseditormodel.h"
-#include <customnotifications.h>
 #include <rewritingexception.h>
 
-#include <QPainter>
-#include <QTimerEvent>
 #include <QMessageBox>
 #include <QDebug>
 #include <math.h>

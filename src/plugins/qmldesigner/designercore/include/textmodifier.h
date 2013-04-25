@@ -34,7 +34,6 @@
 
 #include <qmljs/qmljsdocument.h>
 
-#include <QByteArray>
 #include <QObject>
 #include <QTextCursor>
 #include <QTextDocument>

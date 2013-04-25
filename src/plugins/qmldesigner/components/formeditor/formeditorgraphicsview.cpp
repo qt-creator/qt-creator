@@ -30,10 +30,7 @@
 #include "formeditorgraphicsview.h"
 
 #include <QWheelEvent>
-#include <QApplication>
 #include <QDebug>
-
-#include <qmlanchors.h>
 
 namespace QmlDesigner {
 

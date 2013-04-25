@@ -31,11 +31,6 @@
 #include "propertyparser.h"
 #include <QVariant>
 #include <QString>
-#include <QRegExp>
-#include <QSize>
-#include <QSizeF>
-#include <QPoint>
-#include <QPointF>
 #include <QDebug>
 
 namespace QmlDesigner {

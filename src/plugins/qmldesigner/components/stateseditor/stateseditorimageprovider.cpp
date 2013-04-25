@@ -27,7 +27,6 @@
 **
 ****************************************************************************/
 #include "stateseditorimageprovider.h"
-#include "stateseditorview.h"
 #include "nodeinstanceview.h"
 
 #include <QDebug>

@@ -29,8 +29,6 @@
 
 #include "basetexteditmodifier.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljseditor/qmljseditor.h>
 #include <texteditor/tabsettings.h>

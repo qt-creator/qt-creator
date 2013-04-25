@@ -36,8 +36,6 @@
 #include <QDeclarativePropertyMap>
 #include <qdeclarative.h>
 #include <modelnode.h>
-#include <qmlitemnode.h>
-#include <rewritertransaction.h>
 
 class PropertyEditorValue;
 

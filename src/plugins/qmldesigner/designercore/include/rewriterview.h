@@ -34,10 +34,7 @@
 #include "abstractview.h"
 #include "exception.h"
 #include <modelnodepositionstorage.h>
-#include <QHash>
 #include <QMap>
-#include <QPointer>
-#include <QWeakPointer>
 #include <QUrl>
 
 #include <modelnode.h>

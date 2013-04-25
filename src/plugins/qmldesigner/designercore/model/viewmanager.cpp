@@ -1,18 +1,12 @@
 #include "viewmanager.h"
 
-#include "designdocument.h"
 #include "componentaction.h"
-#include "itemlibrarywidget.h"
-#include "designmodewidget.h"
 #include "formeditorwidget.h"
 #include "toolbox.h"
 #include "designeractionmanager.h"
-#include "designersettings.h"
 
 #include <qmldesigner/qmldesignerplugin.h>
 
-#include <utils/crumblepath.h>
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 

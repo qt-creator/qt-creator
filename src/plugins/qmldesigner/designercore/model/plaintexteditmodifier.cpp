@@ -30,11 +30,9 @@
 #include "plaintexteditmodifier.h"
 
 #include <utils/changeset.h>
-#include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QPlainTextEdit>
-#include <QUndoStack>
 
 #include <QDebug>
 

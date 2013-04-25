@@ -31,8 +31,6 @@
 #include "resetwidget.h"
 #include "qdeclarative.h"
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QStringList>
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QPushButton>

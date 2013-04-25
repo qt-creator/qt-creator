@@ -32,13 +32,12 @@
 
 #include <iplugin.h>
 #include <QLibrary>
-#include <QWeakPointer>
 #include <QPluginLoader>
 #include <QFileInfo>
-#include <QLibraryInfo>
 #include <QCoreApplication>
+#include <QStandardItem>
+
 #include <QObject>
-#include <QSharedData>
 #include <QDebug>
 
 enum { debug = 1 };

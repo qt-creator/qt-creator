@@ -31,7 +31,6 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
-#include <QBrush>
 #include "layeritem.h"
 #include <QDebug>
 

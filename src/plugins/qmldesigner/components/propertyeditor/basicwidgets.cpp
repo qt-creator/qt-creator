@@ -31,7 +31,6 @@
 #include <utils/fileutils.h>
 #include <qlayoutobject.h>
 #include <QDeclarativeContext>
-#include <QDeclarativeEngine>
 #include <QDeclarativeComponent>
 #include <QDebug>
 #include <QFile>

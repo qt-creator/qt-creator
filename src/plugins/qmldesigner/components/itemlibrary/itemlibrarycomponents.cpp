@@ -33,12 +33,8 @@
 #include <QMimeData>
 #include <QDebug>
 
-#include <QImage>
 #include <QPixmap>
-#include <QDrag>
 #include <QPainter>
-#include <QLabel>
-#include <itemlibraryinfo.h>
 #include <QFileSystemModel>
 #include <QProxyStyle>
 

@@ -33,12 +33,6 @@
 #include "qmldesignercorelib_global.h"
 
 #include <QVariant>
-#include <QString>
-#include <QRegExp>
-#include <QSize>
-#include <QSizeF>
-#include <QPoint>
-#include <QPointF>
 #include <QSharedPointer>
 
 namespace QmlDesigner {

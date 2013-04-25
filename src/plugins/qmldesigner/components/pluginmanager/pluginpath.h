@@ -34,11 +34,11 @@
 #include <QWeakPointer>
 #include <QList>
 #include <QDir>
-#include <QStandardItem>
 
 QT_BEGIN_NAMESPACE
 class QString;
 class QAbstractItemModel;
+class QStandardItem;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {

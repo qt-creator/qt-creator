@@ -32,12 +32,10 @@
 
 #include <modelnodecontextmenu.h>
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <QDebug>
 #include <QGraphicsSceneDragDropEvent>
+#include <QMimeData>
 #include <nodemetainfo.h>
-#include <nodeproperty.h>
 
 namespace QmlDesigner {
 

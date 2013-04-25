@@ -32,13 +32,8 @@
 #include "designersettings.h"
 
 #include <QWheelEvent>
-#include <cmath>
-#include <QCoreApplication>
-#include <QPushButton>
-#include <QFile>
 #include <QVBoxLayout>
 #include <QActionGroup>
-#include <QGraphicsView>
 #include <toolbox.h>
 #include <zoomaction.h>
 #include <formeditorgraphicsview.h>

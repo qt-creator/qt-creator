@@ -31,7 +31,6 @@
 #include "debugviewwidget.h"
 
 #include <qmldesignerplugin.h>
-#include <designersettings.h>
 
 #include <bindingproperty.h>
 #include <signalhandlerproperty.h>

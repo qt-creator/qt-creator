@@ -29,8 +29,6 @@
 
 #include "snappinglinecreator.h"
 
-#include <QGraphicsItem>
-#include "onedimensionalcluster.h"
 #include "formeditoritem.h"
 #include "formeditorview.h"
 

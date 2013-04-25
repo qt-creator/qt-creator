@@ -30,9 +30,6 @@
 #include "zoomaction.h"
 
 #include <QComboBox>
-#include <QLineEdit>
-#include <QEvent>
-#include <QCoreApplication>
 
 namespace QmlDesigner {
 

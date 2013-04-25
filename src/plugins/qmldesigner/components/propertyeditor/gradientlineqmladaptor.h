@@ -31,7 +31,6 @@
 #define GRADIENTLINEQMLADAPTOR_H
 
 #include <qmleditorwidgets/gradientline.h>
-#include <propertyeditorvalue.h>
 #include <qmlitemnode.h>
 
 namespace QmlDesigner {

@@ -28,19 +28,14 @@
 ****************************************************************************/
 
 #include "movemanipulator.h"
-#include "itemutilfunctions.h"
 #include "layeritem.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 
 #include <QPointF>
 #include <QDebug>
-#include <QColor>
-#include <QPen>
-#include <QApplication>
 
 #include <limits>
-#include <model.h>
 #include <qmlanchors.h>
 #include <nodemetainfo.h>
 #include <variantproperty.h>

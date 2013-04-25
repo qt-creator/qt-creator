@@ -30,9 +30,7 @@
 #ifndef MODELNODECONTEXTMENU_HELPER_H
 #define MODELNODECONTEXTMENU_HELPER_H
 
-#include "modelnodecontextmenu.h"
 #include "modelnodeoperations.h"
-#include "designeractionmanager.h"
 #include "defaultdesigneraction.h"
 
 #include <QAction>

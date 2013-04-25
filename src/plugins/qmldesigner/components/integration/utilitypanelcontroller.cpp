@@ -30,9 +30,6 @@
 #include "utilitypanelcontroller.h"
 
 #include <QDebug>
-#include <QEvent>
-#include <QDockWidget>
-#include <QVBoxLayout>
 #include <QWidget>
 
 namespace QmlDesigner {

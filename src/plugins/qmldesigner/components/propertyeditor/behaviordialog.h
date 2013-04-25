@@ -35,9 +35,7 @@
 
 #include <QPushButton>
 #include <QDialog>
-#include <QWeakPointer>
 #include <QScopedPointer>
-#include <qdeclarative.h>
 
 #include "ui_behaviordialog.h"
 

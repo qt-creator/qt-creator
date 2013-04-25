@@ -36,7 +36,6 @@
 #include <qmljs/qmljssimplereader.h>
 
 #include <QString>
-#include <QFile>
 
 
 namespace QmlDesigner {

@@ -30,8 +30,6 @@
 #ifndef CHANGEIMPORTSVISITOR_H
 #define CHANGEIMPORTSVISITOR_H
 
-#include <QSet>
-
 #include "import.h"
 #include "qmlrewriter.h"
 

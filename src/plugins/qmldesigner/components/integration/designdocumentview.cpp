@@ -30,12 +30,11 @@
 #include "designdocumentview.h"
 #include <rewriterview.h>
 #include <basetexteditmodifier.h>
-#include <metainfo.h>
-#include <plaintexteditmodifier.h>
 
 #include <QApplication>
 #include <QPlainTextEdit>
 #include <QClipboard>
+#include <QMimeData>
 #include <QDebug>
 
 namespace QmlDesigner {

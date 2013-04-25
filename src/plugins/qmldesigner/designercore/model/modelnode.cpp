@@ -31,7 +31,6 @@
 #include <abstractproperty.h>
 #include <abstractview.h>
 #include <model.h>
-#include <metainfo.h>
 #include <nodemetainfo.h>
 #include "internalnode_p.h"
 #include <QHash>
@@ -39,8 +38,6 @@
 #include "invalidargumentexception.h"
 #include "invalididexception.h"
 #include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
-#include "invalidslideindexexception.h"
 #include "model_p.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"

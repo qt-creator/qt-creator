@@ -33,7 +33,6 @@
 
 #include "modelnode.h"
 #include "nodelistproperty.h"
-#include "nodeproperty.h"
 #include "qmltextgenerator.h"
 
 using namespace QmlDesigner;

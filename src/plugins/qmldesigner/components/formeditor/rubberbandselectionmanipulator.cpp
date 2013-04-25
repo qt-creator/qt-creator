@@ -29,7 +29,6 @@
 
 #include "rubberbandselectionmanipulator.h"
 
-#include "model.h"
 #include "formeditorscene.h"
 
 namespace QmlDesigner {

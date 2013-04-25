@@ -32,7 +32,6 @@
 #include <qmldesignerconstants.h>
 
 #include <nodemetainfo.h>
-#include <metainfo.h>
 
 #include <invalididexception.h>
 #include <rewritingexception.h>
@@ -65,16 +64,10 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QTimer>
-#include <QDeclarativeView>
 #include <QDeclarativeContext>
-#include <QVBoxLayout>
 #include <QShortcut>
-#include <QStackedWidget>
-#include <QDeclarativeEngine>
 #include <QMessageBox>
 #include <QApplication>
-#include <QGraphicsOpacityEffect>
-#include <QToolBar>
 
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>

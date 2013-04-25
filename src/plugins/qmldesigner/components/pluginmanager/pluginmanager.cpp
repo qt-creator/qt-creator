@@ -33,21 +33,14 @@
 
 #include <QCoreApplication>
 #include <QObject>
-#include <QSharedData>
 #include <QDir>
 #include <QStringList>
 #include <QDebug>
-#include <QWeakPointer>
-#include <QPluginLoader>
-#include <QFileInfo>
-#include <QLibraryInfo>
 
 #include <QStandardItemModel>
-#include <QStandardItem>
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QDialog>
-#include <QLabel>
 #include <QDialogButtonBox>
 
 enum { debug = 0 };

@@ -31,7 +31,6 @@
 #define QMLTEXTGENERATOR_H
 
 #include <QString>
-#include <QStringList>
 
 #include "abstractproperty.h"
 #include "modelnode.h"

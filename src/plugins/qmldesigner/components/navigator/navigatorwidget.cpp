@@ -31,9 +31,9 @@
 #include "navigatorview.h"
 
 #include <QBoxLayout>
-#include <QTreeView>
+#include <QToolButton>
+#include <QAbstractItemModel>
 #include <QHeaderView>
-#include <model.h>
 
 #include <utils/fileutils.h>
 

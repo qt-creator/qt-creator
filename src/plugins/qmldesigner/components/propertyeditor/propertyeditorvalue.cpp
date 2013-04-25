@@ -31,11 +31,8 @@
 #include <QRegExp>
 #include <QUrl>
 #include <abstractview.h>
-#include <nodeabstractproperty.h>
 #include <nodeproperty.h>
-#include <model.h>
 #include <nodemetainfo.h>
-#include <metainfo.h>
 #include <qmlobjectnode.h>
 
 //using namespace QmlDesigner;

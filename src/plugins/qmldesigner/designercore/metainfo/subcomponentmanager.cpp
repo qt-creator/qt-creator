@@ -32,23 +32,16 @@
 #include <qmldesignerconstants.h>
 
 #include "model.h"
-#include "metainfo.h"
 #include "metainforeader.h"
 
 #include <utils/hostosinfo.h>
 
 #include <QDir>
-#include <QMetaType>
 #include <QMessageBox>
 #include <QUrl>
 
-#include <qmljs/qmljsevaluate.h>
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljsscopebuilder.h>
-#include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 enum { debug = false };

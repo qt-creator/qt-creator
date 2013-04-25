@@ -34,7 +34,6 @@
 #include "nodeproperty.h"
 #include <invalidmodelnodeexception.h>
 #include "qmlmodelview.h"
-#include "nodeinstanceview.h"
 #include "nodeinstance.h"
 #include "nodemetainfo.h"
 #include "bindingproperty.h"

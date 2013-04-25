@@ -35,8 +35,6 @@
 #include "selectionindicator.h"
 #include "resizeindicator.h"
 
-#include <QHash>
-
 
 namespace QmlDesigner {
 

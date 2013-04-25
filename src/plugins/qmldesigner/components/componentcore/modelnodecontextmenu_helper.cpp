@@ -34,7 +34,6 @@
 #include <qmlitemnode.h>
 #include <bindingproperty.h>
 #include <nodeproperty.h>
-#include <designmodewidget.h>
 #include <qmldesignerplugin.h>
 
 namespace QmlDesigner {

@@ -32,11 +32,9 @@
 #include "internalvariantproperty.h"
 #include "internalnodeproperty.h"
 #include "internalnodelistproperty.h"
-#include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
+
 
 #include <QDebug>
-#include <qmldesignercorelib_global.h>
 
 namespace QmlDesigner {
 namespace Internal {

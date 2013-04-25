@@ -31,7 +31,6 @@
 #define SCALEMANIPULATOR_H
 
 #include <QPointF>
-#include <QList>
 
 
 

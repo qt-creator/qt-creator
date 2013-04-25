@@ -30,10 +30,7 @@
 #include "metainforeader.h"
 #include "metainfo.h"
 
-#include <propertyparser.h>
-#include <QXmlStreamReader>
 #include <QString>
-#include <QFile>
 #include <QFileInfo>
 #include <QDebug>
 #include <QIcon>

@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "propertyeditorcontextobject.h"
-#include <nodemetainfo.h>
 
 namespace QmlDesigner {
 

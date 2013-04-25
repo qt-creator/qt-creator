@@ -34,30 +34,21 @@
 #include "filemanager/objectlengthcalculator.h"
 #include "filemanager/qmlrefactoring.h"
 #include "filemanager/qmlwarningdialog.h"
-#include "rewriteaction.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
-#include "textmodifier.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
 #include "signalhandlerproperty.h"
 #include "nodemetainfo.h"
-#include "qmldesignercorelib_global.h"
 
-#include <languageutils/componentversion.h>
 #include <qmljs/qmljsevaluate.h>
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
-#include <qmljs/qmljsscopebuilder.h>
-#include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QSet>
-#include <QMessageBox>
 #include <QDir>
 
 using namespace LanguageUtils;

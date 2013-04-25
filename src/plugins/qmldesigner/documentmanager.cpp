@@ -29,10 +29,6 @@
 
 #include "documentmanager.h"
 
-#include <coreplugin/designmode.h>
-#include <coreplugin/modemanager.h>
-#include <qmljseditor/qmljseditorconstants.h>
-
 namespace QmlDesigner {
 
 DocumentManager::DocumentManager()

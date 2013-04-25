@@ -29,11 +29,7 @@
 
 #include "designeractionmanager.h"
 #include "modelnodecontextmenu_helper.h"
-#include "modelnodeoperations.h"
-#include "componentcore_constants.h"
 #include <nodeproperty.h>
-
-#include <QMenu>
 
 namespace QmlDesigner {
 

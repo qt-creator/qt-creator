@@ -31,7 +31,6 @@
 #define LAYERITEM_H
 
 #include <QGraphicsObject>
-#include <QWeakPointer>
 
 namespace QmlDesigner {
 

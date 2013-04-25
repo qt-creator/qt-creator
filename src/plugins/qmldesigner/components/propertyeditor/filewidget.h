@@ -32,7 +32,6 @@
 #define FILEWIDGET_H
 
 #include <QWidget>
-#include <QLabel>
 #include <QToolButton>
 #include <QLineEdit>
 #include <QComboBox>

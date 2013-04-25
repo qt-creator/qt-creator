@@ -32,7 +32,6 @@
 #include <QDebug>
 
 #include <limits>
-#include <cmath>
 #include <QLineF>
 #include <QPen>
 #include <QApplication>

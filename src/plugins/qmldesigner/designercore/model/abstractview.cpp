@@ -31,8 +31,6 @@
 
 #include "model.h"
 #include "model_p.h"
-#include "nodeproperty.h"
-#include "bindingproperty.h"
 #include "internalnode_p.h"
 #include <qmlmodelview.h>
 

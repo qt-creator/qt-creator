@@ -31,7 +31,6 @@
 #define ITEMUTILFUNCTIONS_H
 
 #include <QRectF>
-#include <QGraphicsItem>
 #include "formeditoritem.h"
 
 

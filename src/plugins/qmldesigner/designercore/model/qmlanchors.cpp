@@ -28,13 +28,10 @@
 ****************************************************************************/
 
 #include "qmlanchors.h"
-#include "variantproperty.h"
 #include "bindingproperty.h"
 #include "nodeabstractproperty.h"
-#include "nodeinstance.h"
 #include "rewritertransaction.h"
 #include "qmlmodelview.h"
-#include "mathutils.h"
 
 namespace QmlDesigner {
 

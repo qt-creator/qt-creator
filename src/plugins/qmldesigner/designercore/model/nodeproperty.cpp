@@ -28,9 +28,7 @@
 ****************************************************************************/
 
 #include "nodeproperty.h"
-#include "internalnodeproperty.h"
 #include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"
 #include "internalnode_p.h"
 #include "model.h"

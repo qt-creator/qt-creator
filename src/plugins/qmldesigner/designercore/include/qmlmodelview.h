@@ -31,7 +31,6 @@
 #define QMLMODELVIEW_H
 
 #include <qmldesignercorelib_global.h>
-#include <QPoint>
 #include <abstractview.h>
 #include "qmlitemnode.h"
 #include "qmlstate.h"

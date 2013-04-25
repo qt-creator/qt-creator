@@ -29,16 +29,8 @@
 
 #include "designdocument.h"
 #include "designdocumentview.h"
-#include "xuifiledialog.h"
-#include "componentview.h"
 
-#include <itemlibrarywidget.h>
-#include <formeditorwidget.h>
-#include <toolbox.h>
 #include <metainfo.h>
-#include <invalidargumentexception.h>
-#include <componentaction.h>
-#include <designeractionmanager.h>
 #include <qmlobjectnode.h>
 #include <rewritingexception.h>
 #include <nodelistproperty.h>
@@ -50,32 +42,15 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
-#include <utils/crumblepath.h>
-#include <utils/fileutils.h>
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFile>
 #include <QFileInfo>
 #include <QUrl>
-#include <QProcess>
-#include <QTemporaryFile>
 #include <QDebug>
-#include <QEvent>
 
-#include <QBoxLayout>
-#include <QComboBox>
-#include <QErrorMessage>
-#include <QFileDialog>
-#include <QLabel>
-#include <QMdiArea>
-#include <QMdiSubWindow>
 #include <QMessageBox>
-#include <QUndoStack>
 #include <QPlainTextEdit>
 #include <QApplication>
 

@@ -28,47 +28,28 @@
 ****************************************************************************/
 
 #include "designmodewidget.h"
-#include "qmldesignerconstants.h"
 #include "styledoutputpaneplaceholder.h"
 #include "qmldesignerplugin.h"
 
-#include <model.h>
 #include <rewriterview.h>
-#include <componentaction.h>
-#include <toolbox.h>
 #include <itemlibrarywidget.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/outputpane.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/parameteraction.h>
 #include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/crumblepath.h>
 
 #include <QSettings>
-#include <QEvent>
-#include <QDir>
-#include <QApplication>
-#include <QPlainTextEdit>
 #include <QVBoxLayout>
-#include <QScrollArea>
 #include <QToolButton>
-#include <QMenu>
-#include <QClipboard>
 #include <QLabel>
-#include <QProgressDialog>
 #include <QTabWidget>
 
 using Core::MiniSplitter;

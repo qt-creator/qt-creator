@@ -32,7 +32,6 @@
 
 #include <QMap>
 #include <QObject>
-#include <QSet>
 
 #include "modelnode.h"
 #include "modelnodepositionstorage.h"

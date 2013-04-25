@@ -33,11 +33,8 @@
 #include "rewriteactioncompressor.h"
 #include "rewriterview.h"
 
-#include <qmljs/qmljsdocument.h>
-#include <variantproperty.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
-#include <textmodifier.h>
 
 #include <QDebug>
 

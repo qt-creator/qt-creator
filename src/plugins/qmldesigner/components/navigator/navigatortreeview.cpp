@@ -33,10 +33,8 @@
 
 #include "navigatorview.h"
 #include "navigatortreemodel.h"
-#include "navigatorwidget.h"
 #include "qproxystyle.h"
 
-#include <nodeproperty.h>
 #include "metainfo.h"
 #include <QLineEdit>
 #include <QPen>

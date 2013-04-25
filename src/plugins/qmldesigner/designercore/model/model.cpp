@@ -34,29 +34,19 @@
 #include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"
 
-#include <QFile>
-#include <QByteArray>
 #include <QWeakPointer>
-#include <QFileInfo>
 
-#include <QUndoStack>
-#include <QXmlStreamReader>
-#include <QDebug>
-#include <QPlainTextEdit>
 #include <QHashIterator>
 
 #include "abstractview.h"
 #include "nodeinstanceview.h"
 #include "metainfo.h"
 #include "nodemetainfo.h"
-#include "subcomponentmanager.h"
 #include "internalproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalsignalhandlerproperty.h"
 #include "internalnodeabstractproperty.h"
 #include "invalidmodelnodeexception.h"
-#include "invalidmodelstateexception.h"
-#include "invalidslideindexexception.h"
 
 #include "abstractproperty.h"
 #include "variantproperty.h"
@@ -64,7 +54,6 @@
 #include "signalhandlerproperty.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
-#include "rewritertransaction.h"
 #include "rewriterview.h"
 #include "rewritingexception.h"
 #include "invalididexception.h"

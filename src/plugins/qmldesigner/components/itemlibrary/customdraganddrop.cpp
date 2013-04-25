@@ -31,7 +31,6 @@
 
 #include <QMimeData>
 #include <QPoint>
-#include <QLabel>
 
 #include <QMouseEvent>
 #include <QApplication>

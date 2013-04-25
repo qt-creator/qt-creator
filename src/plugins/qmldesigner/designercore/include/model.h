@@ -32,7 +32,6 @@
 
 #include <qmldesignercorelib_global.h>
 #include <QObject>
-#include <QMimeData>
 #include <QPair>
 
 #include <import.h>

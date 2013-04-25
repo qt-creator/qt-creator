@@ -32,17 +32,11 @@
 #include "stateseditorview.h"
 #include "stateseditorimageprovider.h"
 
-#include <qmlitemnode.h>
-#include <invalidargumentexception.h>
 #include <invalidqmlsourceexception.h>
 
-#include <QFile>
 #include <qapplication.h>
 
 #include <QBoxLayout>
-#include <QListWidget>
-#include <QPushButton>
-#include <QMessageBox>
 
 #include <QDeclarativeView>
 #include <QDeclarativeContext>

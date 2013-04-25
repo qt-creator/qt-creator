@@ -31,17 +31,13 @@
 
 #include "formeditorscene.h"
 #include "formeditorview.h"
-#include "formeditorwidget.h"
-#include "itemutilfunctions.h"
 #include <customdraganddrop.h>
 #include <metainfo.h>
 #include <rewritingexception.h>
 
-#include "resizehandleitem.h"
-
-#include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
+#include <QMimeData>
 #include <QMessageBox>
 #include <QTimer>
 

@@ -34,13 +34,6 @@
 #include "internalnodeproperty.h"
 #include "internalsignalhandlerproperty.h"
 #include "internalnode_p.h"
-#include <QVariant>
-#include <QString>
-#include <QRegExp>
-#include <QSize>
-#include <QSizeF>
-#include <QPoint>
-#include <QPointF>
 
 namespace QmlDesigner {
 

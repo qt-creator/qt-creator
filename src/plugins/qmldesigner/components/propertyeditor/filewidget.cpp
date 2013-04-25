@@ -29,7 +29,6 @@
 
 #include "filewidget.h"
 #include <QHBoxLayout>
-#include <QFont>
 #include <QFileDialog>
 #include <QDirIterator>
 #include <QDebug>

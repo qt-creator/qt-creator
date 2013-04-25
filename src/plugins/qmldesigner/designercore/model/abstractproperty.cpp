@@ -29,11 +29,9 @@
 
 #include "abstractproperty.h"
 #include "internalnode_p.h"
-#include "internalproperty.h"
 #include <model.h>
 #include "model_p.h"
 #include <modelnode.h>
-#include <metainfo.h>
 #include "invalidpropertyexception.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"

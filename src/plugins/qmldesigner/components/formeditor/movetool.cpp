@@ -32,11 +32,8 @@
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
-#include "itemutilfunctions.h"
 
 #include "resizehandleitem.h"
-
-#include "nodemetainfo.h"
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>

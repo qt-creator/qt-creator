@@ -34,8 +34,6 @@
 #include "abstractdesigneraction.h"
 #include "qmlmodelview.h"
 
-#include <QScopedPointer>
-
 namespace QmlDesigner {
 
 namespace Internal {

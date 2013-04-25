@@ -31,8 +31,8 @@
 #define UtilityPanelController_h
 
 #include <QObject>
-#include <QString>
-#include <QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace QmlDesigner {
 

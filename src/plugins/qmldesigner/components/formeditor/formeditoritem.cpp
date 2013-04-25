@@ -29,24 +29,17 @@
 
 #include "formeditoritem.h"
 #include "formeditorscene.h"
-#include "formeditornodeinstanceview.h"
-#include "selectiontool.h"
 
 #include <modelnode.h>
-#include <nodemetainfo.h>
-#include <qmlanchors.h>
 
 
-#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
-#include <QGraphicsView>
 #include <QTimeLine>
 
 #include <cmath>
 
-#include <invalidmodelnodeexception.h>
 
 namespace QmlDesigner {
 

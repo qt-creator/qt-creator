@@ -31,11 +31,6 @@
 #define ITEMLIBRARYCOMPONENTS_H
 
 #include <QTreeView>
-#include <QStandardItemModel>
-#include <QDrag>
-#include <QDebug>
-#include <QTimeLine>
-#include <QToolButton>
 #include <QStyledItemDelegate>
 
 QT_BEGIN_NAMESPACE

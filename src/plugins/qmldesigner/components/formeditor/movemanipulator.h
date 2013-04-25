@@ -32,12 +32,10 @@
 
 #include <QWeakPointer>
 #include <QGraphicsItem>
-#include <QGraphicsLineItem>
 #include <QHash>
 #include <QPointF>
 #include <QRectF>
 
-#include "controlelement.h"
 #include "formeditoritem.h"
 #include "rewritertransaction.h"
 #include "snapper.h"

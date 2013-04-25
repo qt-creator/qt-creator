@@ -31,7 +31,6 @@
 #define BASICWIDGETS_H
 
 #include <qdeclarative.h>
-#include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QLabel>
 #include <QPushButton>

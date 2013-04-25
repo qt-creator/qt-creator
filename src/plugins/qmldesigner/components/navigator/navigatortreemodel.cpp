@@ -34,7 +34,6 @@
 #include <nodeproperty.h>
 #include <variantproperty.h>
 #include <metainfo.h>
-#include <qgraphicswidget.h>
 #include <qmlmodelview.h>
 #include <rewriterview.h>
 #include <invalididexception.h>
@@ -44,7 +43,6 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include <QApplication>
-#include <QTransform>
 #include <QPointF>
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)

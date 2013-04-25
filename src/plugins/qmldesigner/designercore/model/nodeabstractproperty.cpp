@@ -29,10 +29,7 @@
 
 #include "nodeabstractproperty.h"
 #include "nodeproperty.h"
-#include "internalproperty.h"
-#include "internalnodelistproperty.h"
 #include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
 #include "invalidreparentingexception.h"
 #include "internalnode_p.h"
 #include "model.h"

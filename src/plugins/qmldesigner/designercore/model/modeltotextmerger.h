@@ -35,14 +35,10 @@
 #include "abstractview.h"
 #include "nodeabstractproperty.h"
 #include "variantproperty.h"
-#include "nodelistproperty.h"
 #include "bindingproperty.h"
 #include "rewriteaction.h"
 #include <filemanager/qmlrefactoring.h>
 #include <QMap>
-#include <QSet>
-#include <QHash>
-#include <QVariant>
 
 namespace QmlDesigner {
 

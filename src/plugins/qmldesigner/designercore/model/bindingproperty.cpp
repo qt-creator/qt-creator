@@ -28,10 +28,8 @@
 ****************************************************************************/
 
 #include "bindingproperty.h"
-#include "nodeabstractproperty.h"
 #include "nodeproperty.h"
 #include "internalproperty.h"
-#include "internalbindingproperty.h"
 #include "invalidmodelnodeexception.h"
 #include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"

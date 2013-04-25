@@ -31,12 +31,10 @@
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 #include "formeditoritem.h"
-#include "movemanipulator.h"
 #include "qmldesignerplugin.h"
 #include "designersettings.h"
 
 
-#include <metainfo.h>
 #include <QGraphicsSceneDragDropEvent>
 
 #include <QEvent>
@@ -44,13 +42,9 @@
 #include <QGraphicsSceneHoverEvent>
 #include <QGraphicsView>
 
-#include <QApplication>
 #include <QDebug>
 #include <QList>
 
-#include "formeditornodeinstanceview.h"
-
-#include "resizehandleitem.h"
 
 
 

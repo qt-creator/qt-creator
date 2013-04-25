@@ -32,7 +32,6 @@
 #define LAYOUTWIDGET_H
 
 #include <QFrame>
-#include <QLabel>
 #include <QPushButton>
 #include <QUrl>
 

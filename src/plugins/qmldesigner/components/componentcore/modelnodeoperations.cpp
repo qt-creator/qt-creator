@@ -31,20 +31,14 @@
 #include "modelnodecontextmenu_helper.h"
 
 #include <cmath>
-#include <QApplication>
 #include <QMessageBox>
-#include <coreplugin/editormanager/editormanager.h>
 #include <nodeabstractproperty.h>
-#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <modelnode.h>
 #include <qmlitemnode.h>
 #include <variantproperty.h>
-#include <bindingproperty.h>
-#include <nodeproperty.h>
 #include <rewritingexception.h>
 #include <rewritertransaction.h>
-#include <designmodewidget.h>
 #include <qmlanchors.h>
 
 namespace QmlDesigner {

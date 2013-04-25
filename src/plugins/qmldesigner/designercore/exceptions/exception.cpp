@@ -34,7 +34,6 @@
 #include <cxxabi.h>
 #endif
 
-#include <QRegExp>
 
 /*!
 \defgroup CoreExceptions

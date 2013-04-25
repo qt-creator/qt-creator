@@ -31,10 +31,8 @@
 #include "componentaction.h"
 #include <QDebug>
 
-#include <nodemetainfo.h>
 #include <nodeabstractproperty.h>
 #include <QStandardItemModel>
-#include <QAbstractItemView>
 
 // silence gcc warnings about unused parameters
 

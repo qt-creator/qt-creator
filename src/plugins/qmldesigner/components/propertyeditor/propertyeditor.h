@@ -33,7 +33,6 @@
 #include <qmlmodelview.h>
 #include <declarativewidgetview.h>
 #include <QHash>
-#include <QDeclarativePropertyMap>
 #include <QStackedWidget>
 #include <QTimer>
 

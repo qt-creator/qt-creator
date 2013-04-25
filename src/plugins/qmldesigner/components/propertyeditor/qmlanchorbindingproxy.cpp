@@ -32,7 +32,6 @@
 #include <qmlanchors.h>
 #include <nodeabstractproperty.h>
 #include <variantproperty.h>
-#include <nodeinstance.h>
 #include <QDebug>
 
 namespace QmlDesigner {

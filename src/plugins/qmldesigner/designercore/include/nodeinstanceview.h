@@ -39,7 +39,6 @@
 #include <nodeinstanceserverinterface.h>
 
 #include <QHash>
-#include <QSet>
 #include <QImage>
 #include <QWeakPointer>
 #include <QRectF>

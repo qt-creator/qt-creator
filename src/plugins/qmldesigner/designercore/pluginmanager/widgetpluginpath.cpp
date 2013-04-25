@@ -30,13 +30,10 @@
 #include "widgetpluginpath.h"
 #include <iwidgetplugin.h>
 #include <QLibrary>
-#include <QWeakPointer>
 #include <QPluginLoader>
 #include <QFileInfo>
-#include <QLibraryInfo>
 #include <QCoreApplication>
 #include <QObject>
-#include <QSharedData>
 #include <QDebug>
 
 enum { debug = 0 };

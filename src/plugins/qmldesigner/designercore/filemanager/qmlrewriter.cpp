@@ -30,7 +30,6 @@
 #include "qmlrewriter.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsengine_p.h>
 
 #include <QDebug>
 #include <QTextBlock>
