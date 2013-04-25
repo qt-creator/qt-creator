@@ -3649,6 +3649,11 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
     }
 }
 
+int BaseTextEditorWidget::visibleFoldedBlockNumber() const
+{
+    return d->visibleFoldedBlockNumber;
+}
+
 void BaseTextEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
                                              const QTextBlock &block,
                                              QPointF offset,
@@ -4617,8 +4622,7 @@ void BaseTextEditorWidget::toggleBlockVisible(const QTextBlock &block)
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(document()->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
-    bool visible = block.next().isVisible();
-    BaseTextDocumentLayout::doFoldOrUnfold(block, !visible);
+    BaseTextDocumentLayout::doFoldOrUnfold(block, BaseTextDocumentLayout::isFolded(block));
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
 }

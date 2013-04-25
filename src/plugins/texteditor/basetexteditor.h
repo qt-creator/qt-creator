@@ -539,6 +539,12 @@ protected:
       Reimplement this function to change the default replacement text.
       */
     virtual QString foldReplacementText(const QTextBlock &block) const;
+    virtual void drawCollapsedBlockPopup(QPainter &painter,
+                                         const QTextBlock &block,
+                                         QPointF offset,
+                                         const QRect &clip);
+    int visibleFoldedBlockNumber() const;
+
 
 protected slots:
     virtual void slotUpdateExtraArea();
@@ -569,11 +575,6 @@ private:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-
-    void drawCollapsedBlockPopup(QPainter &painter,
-                                 const QTextBlock &block,
-                                 QPointF offset,
-                                 const QRect &clip);
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();

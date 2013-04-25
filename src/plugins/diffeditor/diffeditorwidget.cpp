@@ -46,6 +46,10 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
 
+static const int BASE_LEVEL = 0;
+static const int FILE_LEVEL = 1;
+static const int CHUNK_LEVEL = 2;
+
 using namespace TextEditor;
 
 namespace DiffEditor {
@@ -83,11 +87,12 @@ public:
     QMap<int, int> skippedLines() const { return m_skippedLines; }
 
     void setLineNumber(int blockNumber, const QString &lineNumber);
-    void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; }
+    void setFileName(int blockNumber, const QString &fileName) { m_fileNames[blockNumber] = fileName; setSeparator(blockNumber, true); }
+    void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; setSeparator(blockNumber, true); }
     void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
-    void clearLineNumbers();
-    void clearSkippedLines() { m_skippedLines.clear(); }
-    void clearSeparators() { m_separators.clear(); }
+    bool isFileLine(int blockNumber) const { return m_fileNames.contains(blockNumber); }
+    bool isChunkLine(int blockNumber) const { return m_skippedLines.contains(blockNumber); }
+    void clearAllData();
     QTextBlock firstVisibleBlock() const { return SnippetEditorWidget::firstVisibleBlock(); }
 
 protected:
@@ -97,21 +102,31 @@ protected:
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
     virtual bool replacementVisible(int blockNumber) const;
-    QString plainTextFromSelection(const QTextCursor &cursor) const;
+    virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
+    virtual void drawCollapsedBlockPopup(QPainter &painter,
+                                 const QTextBlock &block,
+                                 QPointF offset,
+                                 const QRect &clip);
     virtual void paintEvent(QPaintEvent *e);
     virtual void scrollContentsBy(int dx, int dy);
 
 private:
+    void paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect);
+    void paintSeparator(QPainter &painter, const QString &text, const QTextBlock &block, int top);
+
     QMap<int, QString> m_lineNumbers;
     int m_lineNumberDigits;
+    // block number, fileName
+    QMap<int, QString> m_fileNames;
     // block number, skipped lines
     QMap<int, int> m_skippedLines;
     // block number, separator. Separator used as lines alignment and inside skipped lines
     QMap<int, bool> m_separators;
+    bool m_inPaintEvent;
 };
 
 DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
-    : SnippetEditorWidget(parent), m_lineNumberDigits(1)
+    : SnippetEditorWidget(parent), m_lineNumberDigits(1), m_inPaintEvent(false)
 {
     setLineNumbersVisible(true);
     setCodeFoldingSupported(true);
@@ -135,7 +150,8 @@ bool DiffViewEditorWidget::selectionVisible(int blockNumber) const
 
 bool DiffViewEditorWidget::replacementVisible(int blockNumber) const
 {
-    return m_skippedLines.value(blockNumber);
+    return isChunkLine(blockNumber) || (isFileLine(blockNumber)
+           && TextEditor::BaseTextDocumentLayout::isFolded(document()->findBlockByNumber(blockNumber)));
 }
 
 QString DiffViewEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
@@ -179,10 +195,13 @@ void DiffViewEditorWidget::setLineNumber(int blockNumber, const QString &lineNum
     m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumber.count());
 }
 
-void DiffViewEditorWidget::clearLineNumbers()
+void DiffViewEditorWidget::clearAllData()
 {
-    m_lineNumbers.clear();
     m_lineNumberDigits = 1;
+    m_lineNumbers.clear();
+    m_fileNames.clear();
+    m_skippedLines.clear();
+    m_separators.clear();
 }
 
 void DiffViewEditorWidget::scrollContentsBy(int dx, int dy)
@@ -192,16 +211,42 @@ void DiffViewEditorWidget::scrollContentsBy(int dx, int dy)
     viewport()->update();
 }
 
+void DiffViewEditorWidget::paintSeparator(QPainter &painter, const QString &text, const QTextBlock &block, int top)
+{
+    QPointF offset = contentOffset();
+    painter.save();
+    painter.setPen(palette().foreground().color());
+    const QString replacementText = QLatin1String(" {")
+            + foldReplacementText(block)
+            + QLatin1String("}; ");
+    const int replacementTextWidth = fontMetrics().width(replacementText) + 24;
+    int x = replacementTextWidth + offset.x();
+    if (x < document()->documentMargin() || !TextEditor::BaseTextDocumentLayout::isFolded(block))
+        x = document()->documentMargin();
+    const QString elidedText = fontMetrics().elidedText(text,
+                                                        Qt::ElideRight,
+                                                        viewport()->width() - x);
+    QTextLayout *layout = block.layout();
+    QTextLine textLine = layout->lineAt(0);
+    QRectF lineRect = textLine.naturalTextRect().translated(offset.x(), top);
+    QRect clipRect = contentsRect();
+    clipRect.setLeft(x);
+    painter.setClipRect(clipRect);
+    painter.drawText(QPointF(x, lineRect.top() + textLine.ascent()),
+                     elidedText);
+    painter.restore();
+}
+
 void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
 {
+    m_inPaintEvent = true;
     SnippetEditorWidget::paintEvent(e);
+    m_inPaintEvent = false;
     QPainter painter(viewport());
 
     QPointF offset = contentOffset();
     QTextBlock firstBlock = firstVisibleBlock();
     QTextBlock currentBlock = firstBlock;
-
-    QMap<int, int> skipped = skippedLines();
 
     while (currentBlock.isValid()) {
         if (currentBlock.isVisible()) {
@@ -212,28 +257,125 @@ void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
                 break;
 
             if (bottom >= e->rect().top()) {
-                QTextLayout *layout = currentBlock.layout();
+                const int blockNumber = currentBlock.blockNumber();
 
-                int skippedBefore = skipped.value(currentBlock.blockNumber());
+                const int skippedBefore = m_skippedLines.value(blockNumber);
                 if (skippedBefore) {
-                    painter.save();
-                    painter.setPen(palette().foreground().color());
-                    QTextLine textLine = layout->lineAt(0);
-                    QRectF lineRect = textLine.naturalTextRect().translated(0, top);
-                    QString skippedRowsText = tr("Skipped %n lines...", 0, skippedBefore);
-                    QFontMetrics fm(font());
-                    const int textWidth = fm.width(skippedRowsText);
-                    painter.drawText(QPointF(lineRect.right()
-                                             + (viewport()->width() - textWidth) / 2.0,
-                                             lineRect.top() + textLine.ascent()),
-                                     skippedRowsText);
-                    painter.restore();
+                    const QString skippedRowsText = tr("Skipped %n lines...", 0, skippedBefore);
+                    paintSeparator(painter, skippedRowsText, currentBlock, top);
+                }
+
+                const QString fileName = m_fileNames.value(blockNumber);
+                if (!fileName.isEmpty()) {
+                    paintSeparator(painter, fileName, currentBlock, top);
                 }
             }
         }
         currentBlock = currentBlock.next();
     }
+    paintCollapsedBlockPopup(painter, e->rect());
 }
+
+void DiffViewEditorWidget::paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect)
+{
+    QPointF offset(contentOffset());
+    QRect viewportRect = viewport()->rect();
+    QTextBlock block = firstVisibleBlock();
+    QTextBlock visibleCollapsedBlock;
+    QPointF visibleCollapsedBlockOffset;
+
+    while (block.isValid()) {
+
+        QRectF r = blockBoundingRect(block).translated(offset);
+
+        offset.ry() += r.height();
+
+        if (offset.y() > viewportRect.height())
+            break;
+
+        block = block.next();
+
+        if (!block.isVisible()) {
+            if (block.blockNumber() == visibleFoldedBlockNumber()) {
+                visibleCollapsedBlock = block;
+                visibleCollapsedBlockOffset = offset + QPointF(0,1);
+                break;
+            }
+
+            // invisible blocks do have zero line count
+            block = document()->findBlockByLineNumber(block.firstLineNumber());
+        }
+    }
+    if (visibleCollapsedBlock.isValid()) {
+        drawCollapsedBlockPopup(painter,
+                                visibleCollapsedBlock,
+                                visibleCollapsedBlockOffset,
+                                clipRect);
+    }
+}
+
+void DiffViewEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
+                                             const QTextBlock &block,
+                                             QPointF offset,
+                                             const QRect &clip)
+{
+    // We ignore the call coming from the BaseTextEditorWidget::paintEvent()
+    // since we will draw it later, after custom drawings of this paintEvent.
+    // We need to draw it after our custom drawings, otherwise custom
+    // drawings will appear in front of block popup.
+    if (m_inPaintEvent)
+        return;
+
+    int margin = block.document()->documentMargin();
+    qreal maxWidth = 0;
+    qreal blockHeight = 0;
+    QTextBlock b = block;
+
+    while (!b.isVisible()) {
+        if (!m_separators.contains(b.blockNumber())) {
+            b.setVisible(true); // make sure block bounding rect works
+            QRectF r = blockBoundingRect(b).translated(offset);
+
+            QTextLayout *layout = b.layout();
+            for (int i = layout->lineCount()-1; i >= 0; --i)
+                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2*margin);
+
+            blockHeight += r.height();
+
+            b.setVisible(false); // restore previous state
+            b.setLineCount(0); // restore 0 line count for invisible block
+        }
+        b = b.next();
+    }
+
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.translate(.5, .5);
+    QBrush brush = palette().base();
+    painter.setBrush(brush);
+    painter.drawRoundedRect(QRectF(offset.x(),
+                                   offset.y(),
+                                   maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
+    painter.restore();
+
+    QTextBlock end = b;
+    b = block;
+    while (b != end) {
+        if (!m_separators.contains(b.blockNumber())) {
+            b.setVisible(true); // make sure block bounding rect works
+            QRectF r = blockBoundingRect(b).translated(offset);
+            QTextLayout *layout = b.layout();
+            QVector<QTextLayout::FormatRange> selections;
+            layout->draw(&painter, offset, selections, clip);
+
+            b.setVisible(false); // restore previous state
+            b.setLineCount(0); // restore 0 line count for invisible block
+            offset.ry() += r.height();
+        }
+        b = b.next();
+    }
+}
+
 
 //////////////////
 
@@ -287,25 +429,36 @@ DiffEditorWidget::~DiffEditorWidget()
 
 }
 
-void DiffEditorWidget::setDiff(const QString &leftText, const QString &rightText)
+void DiffEditorWidget::setDiff(const QList<DiffFilesContents> &diffFileList)
 {
-//    QTime time;
-//    time.start();
     Differ differ;
-    QList<Diff> list = differ.cleanupSemantics(differ.diff(leftText, rightText));
-//    int ela = time.elapsed();
-//    qDebug() << "Time spend in diff:" << ela;
-    setDiff(list);
+    QList<DiffList> diffList;
+    for (int i = 0; i < diffFileList.count(); i++) {
+        DiffFilesContents dfc = diffFileList.at(i);
+        DiffList dl;
+        dl.leftFileName = dfc.leftFileName;
+        dl.rightFileName = dfc.rightFileName;
+        dl.diffList = differ.cleanupSemantics(differ.diff(dfc.leftText, dfc.rightText));
+        diffList.append(dl);
+    }
+    setDiff(diffList);
 }
 
-void DiffEditorWidget::setDiff(const QList<Diff> &diffList)
+void DiffEditorWidget::setDiff(const QList<DiffList> &diffList)
 {
     m_diffList = diffList;
+    m_originalChunkData.clear();
+    m_contextFileData.clear();
 
-    QList<Diff> transformedDiffList = m_diffList;
-
-    m_originalChunkData = calculateOriginalData(transformedDiffList);
-    m_contextFileData = calculateContextData(m_originalChunkData);
+    for (int i = 0; i < m_diffList.count(); i++) {
+        const DiffList &dl = m_diffList.at(i);
+        ChunkData chunkData = calculateOriginalData(dl.diffList);
+        m_originalChunkData.append(chunkData);
+        FileData fileData = calculateContextData(chunkData);
+        fileData.leftFileName = dl.leftFileName;
+        fileData.rightFileName = dl.rightFileName;
+        m_contextFileData.append(fileData);
+    }
     showDiff();
 }
 
@@ -315,7 +468,14 @@ void DiffEditorWidget::setContextLinesNumber(int lines)
         return;
 
     m_contextLinesNumber = lines;
-    m_contextFileData = calculateContextData(m_originalChunkData);
+    for (int i = 0; i < m_diffList.count(); i++) {
+        const FileData oldFileData = m_contextFileData.at(i);
+        FileData newFileData = calculateContextData(m_originalChunkData.at(i));
+        newFileData.leftFileName = oldFileData.leftFileName;
+        newFileData.rightFileName = oldFileData.rightFileName;
+        m_contextFileData[i] = newFileData;
+    }
+
     showDiff();
 }
 
@@ -526,11 +686,9 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
                     if (currentLeftLineOffset < currentRightLineOffset) {
                         const int spans = currentRightLineOffset - currentLeftLineOffset;
                         leftLineSpans[currentLeftLine] = spans;
-//                        currentLeftPos += spans;
                     } else if (currentRightLineOffset < currentLeftLineOffset) {
                         const int spans = currentLeftLineOffset - currentRightLineOffset;
                         rightLineSpans[currentRightLine] = spans;
-//                        currentRightPos += spans;
                     }
                     currentLeftLineOffset = 0;
                     currentRightLineOffset = 0;
@@ -560,11 +718,9 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
             if (currentLeftLineOffset < currentRightLineOffset) {
                 const int spans = currentRightLineOffset - currentLeftLineOffset;
                 leftLineSpans[currentLeftLine] = spans;
-                //                        currentLeftPos += spans;
             } else if (currentRightLineOffset < currentLeftLineOffset) {
                 const int spans = currentLeftLineOffset - currentRightLineOffset;
                 rightLineSpans[currentRightLine] = spans;
-                //                        currentRightPos += spans;
             }
         }
         if (lastLeftLineEqual && lastRightLineEqual) {
@@ -675,7 +831,7 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
 
                 const int startPos = leftChangedIt.key();
                 const int endPos = leftChangedIt.value();
-                chunkData.changedLeftPositions.insert(startPos, endPos);
+                chunkData.changedLeftPositions.insert(startPos - leftOffset, endPos - leftOffset);
                 leftChangedIt++;
             }
             while (rightChangedIt != originalData.changedRightPositions.constEnd()) {
@@ -685,7 +841,7 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
 
                 const int startPos = rightChangedIt.key();
                 const int endPos = rightChangedIt.value();
-                chunkData.changedRightPositions.insert(startPos, endPos);
+                chunkData.changedRightPositions.insert(startPos - rightOffset, endPos - rightOffset);
                 rightChangedIt++;
             }
             fileData.chunks.append(chunkData);
@@ -722,54 +878,58 @@ void DiffEditorWidget::showDiff()
     m_rightEditor->setBlockSelection(false);
     m_leftEditor->clear();
     m_rightEditor->clear();
-    m_leftEditor->clearLineNumbers();
-    m_rightEditor->clearLineNumbers();
-    m_leftEditor->clearSkippedLines();
-    m_rightEditor->clearSkippedLines();
-    m_leftEditor->clearSeparators();
-    m_rightEditor->clearSeparators();
+    m_leftEditor->clearAllData();
+    m_rightEditor->clearAllData();
 //    int ela1 = time.elapsed();
 
     QString leftText, rightText;
-    int leftLineNumber = 0;
-    int rightLineNumber = 0;
     int blockNumber = 0;
     QChar separator = QLatin1Char('\n');
-    for (int i = 0; i < m_contextFileData.chunks.count(); i++) {
-        ChunkData chunkData = m_contextFileData.chunks.at(i);
-        if (chunkData.contextChunk) {
-            const int skippedLines = chunkData.rows.count();
-            m_leftEditor->setSkippedLines(blockNumber, skippedLines);
-            m_rightEditor->setSkippedLines(blockNumber, skippedLines);
-            m_leftEditor->setSeparator(blockNumber, true);
-            m_rightEditor->setSeparator(blockNumber, true);
-            leftText += separator;
-            rightText += separator;
-            blockNumber++;
-        }
+    for (int i = 0; i < m_contextFileData.count(); i++) {
+        const FileData &contextFileData = m_contextFileData.at(i);
 
-        for (int j = 0; j < chunkData.rows.count(); j++) {
-            RowData rowData = chunkData.rows.at(j);
-            TextLineData leftLineData = rowData.leftLine;
-            TextLineData rightLineData = rowData.rightLine;
-            if (leftLineData.textLineType == TextLineData::TextLine) {
-                leftText += leftLineData.text;
-                leftLineNumber++;
-                m_leftEditor->setLineNumber(blockNumber, QString::number(leftLineNumber));
-            } else if (leftLineData.textLineType == TextLineData::Separator) {
-                m_leftEditor->setSeparator(blockNumber, true);
+        int leftLineNumber = 0;
+        int rightLineNumber = 0;
+        m_leftEditor->setFileName(blockNumber, contextFileData.leftFileName);
+        m_rightEditor->setFileName(blockNumber, contextFileData.rightFileName);
+        leftText += separator;
+        rightText += separator;
+        blockNumber++;
+
+        for (int j = 0; j < contextFileData.chunks.count(); j++) {
+            ChunkData chunkData = contextFileData.chunks.at(j);
+            if (chunkData.contextChunk) {
+                const int skippedLines = chunkData.rows.count();
+                m_leftEditor->setSkippedLines(blockNumber, skippedLines);
+                m_rightEditor->setSkippedLines(blockNumber, skippedLines);
+                leftText += separator;
+                rightText += separator;
+                blockNumber++;
             }
 
-            if (rightLineData.textLineType == TextLineData::TextLine) {
-                rightText += rightLineData.text;
-                rightLineNumber++;
-                m_rightEditor->setLineNumber(blockNumber, QString::number(rightLineNumber));
-            } else if (rightLineData.textLineType == TextLineData::Separator) {
-                m_rightEditor->setSeparator(blockNumber, true);
+            for (int k = 0; k < chunkData.rows.count(); k++) {
+                RowData rowData = chunkData.rows.at(k);
+                TextLineData leftLineData = rowData.leftLine;
+                TextLineData rightLineData = rowData.rightLine;
+                if (leftLineData.textLineType == TextLineData::TextLine) {
+                    leftText += leftLineData.text;
+                    leftLineNumber++;
+                    m_leftEditor->setLineNumber(blockNumber, QString::number(leftLineNumber));
+                } else if (leftLineData.textLineType == TextLineData::Separator) {
+                    m_leftEditor->setSeparator(blockNumber, true);
+                }
+
+                if (rightLineData.textLineType == TextLineData::TextLine) {
+                    rightText += rightLineData.text;
+                    rightLineNumber++;
+                    m_rightEditor->setLineNumber(blockNumber, QString::number(rightLineNumber));
+                } else if (rightLineData.textLineType == TextLineData::Separator) {
+                    m_rightEditor->setSeparator(blockNumber, true);
+                }
+                leftText += separator;
+                rightText += separator;
+                blockNumber++;
             }
-            leftText += separator;
-            rightText += separator;
-            blockNumber++;
         }
     }
 //    int ela2 = time.elapsed();
@@ -782,35 +942,44 @@ void DiffEditorWidget::showDiff()
 
     colorDiff(m_contextFileData);
 
-    blockNumber = 0;
-    for (int i = 0; i < m_contextFileData.chunks.count(); i++) {
-        ChunkData chunkData = m_contextFileData.chunks.at(i);
-        if (chunkData.contextChunk) {
-            blockNumber++;
-            QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
-            for (int j = 0; j < chunkData.rows.count(); j++) {
-                TextEditor::BaseTextDocumentLayout::setFoldingIndent(leftBlock, 1);
+    QTextBlock leftBlock = m_leftEditor->document()->firstBlock();
+    QTextBlock rightBlock = m_rightEditor->document()->firstBlock();
+    for (int i = 0; i < m_contextFileData.count(); i++) {
+        const FileData &contextFileData = m_contextFileData.at(i);
+        leftBlock = leftBlock.next();
+        rightBlock = rightBlock.next();
+        for (int j = 0; j < contextFileData.chunks.count(); j++) {
+            ChunkData chunkData = contextFileData.chunks.at(j);
+            if (chunkData.contextChunk) {
+                TextEditor::BaseTextDocumentLayout::setFoldingIndent(leftBlock, FILE_LEVEL);
+                TextEditor::BaseTextDocumentLayout::setFoldingIndent(rightBlock, FILE_LEVEL);
                 leftBlock = leftBlock.next();
+                rightBlock = rightBlock.next();
             }
-            QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
-            for (int j = 0; j < chunkData.rows.count(); j++) {
-                TextEditor::BaseTextDocumentLayout::setFoldingIndent(rightBlock, 1);
+            const int indent = chunkData.contextChunk ? CHUNK_LEVEL : FILE_LEVEL;
+            for (int k = 0; k < chunkData.rows.count(); k++) {
+                TextEditor::BaseTextDocumentLayout::setFoldingIndent(leftBlock, indent);
+                TextEditor::BaseTextDocumentLayout::setFoldingIndent(rightBlock, indent);
+                leftBlock = leftBlock.next();
                 rightBlock = rightBlock.next();
             }
         }
-        blockNumber += chunkData.rows.count();
     }
     blockNumber = 0;
-    for (int i = 0; i < m_contextFileData.chunks.count(); i++) {
-        ChunkData chunkData = m_contextFileData.chunks.at(i);
-        if (chunkData.contextChunk) {
-            QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
-            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(leftBlock, false);
-            QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
-            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(rightBlock, false);
-            blockNumber++;
+    for (int i = 0; i < m_contextFileData.count(); i++) {
+        const FileData &contextFileData = m_contextFileData.at(i);
+        blockNumber++;
+        for (int j = 0; j < contextFileData.chunks.count(); j++) {
+            ChunkData chunkData = contextFileData.chunks.at(j);
+            if (chunkData.contextChunk) {
+                QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
+                TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(leftBlock, false);
+                QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
+                TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(rightBlock, false);
+                blockNumber++;
+            }
+            blockNumber += chunkData.rows.count();
         }
-        blockNumber += chunkData.rows.count();
     }
     m_foldingBlocker = true;
     BaseTextDocumentLayout *leftLayout = qobject_cast<BaseTextDocumentLayout *>(m_leftEditor->document()->documentLayout());
@@ -833,6 +1002,8 @@ void DiffEditorWidget::showDiff()
     m_rightEditor->horizontalScrollBar()->setValue(rightHorizontalValue);
 //    int ela6 = time.elapsed();
 //    qDebug() << ela1 << ela2 << ela3 << ela4 << ela5 << ela6;
+    m_leftEditor->updateFoldingHighlight(QPoint(-1, -1));
+    m_rightEditor->updateFoldingHighlight(QPoint(-1, -1));
 }
 
 QList<QTextEdit::ExtraSelection> DiffEditorWidget::colorPositions(
@@ -858,7 +1029,7 @@ QList<QTextEdit::ExtraSelection> DiffEditorWidget::colorPositions(
     return lineSelections;
 }
 
-void DiffEditorWidget::colorDiff(const FileData &fileData)
+void DiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
 {
     QTextCharFormat leftLineFormat;
     leftLineFormat.setBackground(QColor(255, 223, 223));
@@ -886,6 +1057,11 @@ void DiffEditorWidget::colorDiff(const FileData &fileData)
     chunkLineFormat.setBackground(QColor(175, 215, 231));
     chunkLineFormat.setProperty(QTextFormat::FullWidthSelection, true);
 
+    QTextCharFormat fileLineFormat;
+    fileLineFormat.setBackground(QColor(255, 255, 0));
+//    fileLineFormat.setBackground(QColor(130, 60, 0));
+    fileLineFormat.setProperty(QTextFormat::FullWidthSelection, true);
+
     int leftPos = 0;
     int rightPos = 0;
     // startPos, endPos
@@ -897,66 +1073,76 @@ void DiffEditorWidget::colorDiff(const FileData &fileData)
     QMap<int, int> rightSkippedPos;
     QMap<int, int> leftChunkPos;
     QMap<int, int> rightChunkPos;
+    QMap<int, int> leftFilePos;
+    QMap<int, int> rightFilePos;
     int leftLastDiffBlockStartPos = 0;
     int rightLastDiffBlockStartPos = 0;
     int leftLastSkippedBlockStartPos = 0;
     int rightLastSkippedBlockStartPos = 0;
-    int chunkOffset = 0;
 
-    for (int i = 0; i < fileData.chunks.count(); i++) {
-        ChunkData chunkData = fileData.chunks.at(i);
-        if (chunkData.contextChunk) {
-            leftChunkPos[leftPos] = leftPos + 1;
-            rightChunkPos[rightPos] = rightPos + 1;
-            leftPos++; // for chunk line
-            rightPos++; // for chunk line
-            chunkOffset++;
-        }
-        leftLastDiffBlockStartPos = leftPos;
-        rightLastDiffBlockStartPos = rightPos;
-        leftLastSkippedBlockStartPos = leftPos;
-        rightLastSkippedBlockStartPos = rightPos;
+    for (int i = 0; i < fileDataList.count(); i++) {
+        leftFilePos[leftPos] = leftPos + 1;
+        rightFilePos[rightPos] = rightPos + 1;
+        leftPos++; // for file line
+        rightPos++; // for file line
+        const FileData &fileData = fileDataList.at(i);
 
-        QMapIterator<int, int> itLeft(chunkData.changedLeftPositions);
-        while (itLeft.hasNext()) {
-            itLeft.next();
+        for (int j = 0; j < fileData.chunks.count(); j++) {
+            ChunkData chunkData = fileData.chunks.at(j);
+            if (chunkData.contextChunk) {
+                leftChunkPos[leftPos] = leftPos + 1;
+                rightChunkPos[rightPos] = rightPos + 1;
+                leftPos++; // for chunk line
+                rightPos++; // for chunk line
+            }
+            const int leftFileOffset = leftPos;
+            const int rightFileOffset = rightPos;
+            leftLastDiffBlockStartPos = leftPos;
+            rightLastDiffBlockStartPos = rightPos;
+            leftLastSkippedBlockStartPos = leftPos;
+            rightLastSkippedBlockStartPos = rightPos;
 
-            leftCharPos[itLeft.key() + chunkOffset] = itLeft.value() + chunkOffset;
-        }
+            QMapIterator<int, int> itLeft(chunkData.changedLeftPositions);
+            while (itLeft.hasNext()) {
+                itLeft.next();
 
-        QMapIterator<int, int> itRight(chunkData.changedRightPositions);
-        while (itRight.hasNext()) {
-            itRight.next();
+                leftCharPos[itLeft.key() + leftFileOffset] = itLeft.value() + leftFileOffset;
+            }
 
-            rightCharPos[itRight.key() + chunkOffset] = itRight.value() + chunkOffset;
-        }
+            QMapIterator<int, int> itRight(chunkData.changedRightPositions);
+            while (itRight.hasNext()) {
+                itRight.next();
 
-        for (int j = 0; j < chunkData.rows.count(); j++) {
-            RowData rowData = chunkData.rows.at(j);
+                rightCharPos[itRight.key() + rightFileOffset] = itRight.value() + rightFileOffset;
+            }
 
-            leftPos += rowData.leftLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
-            rightPos += rowData.rightLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
+            for (int k = 0; k < chunkData.rows.count(); k++) {
+                RowData rowData = chunkData.rows.at(k);
 
-            if (!rowData.equal) {
-                if (rowData.leftLine.textLineType == TextLineData::TextLine) {
-                    leftLinePos[leftLastDiffBlockStartPos] = leftPos;
-                    leftLastSkippedBlockStartPos = leftPos;
+                leftPos += rowData.leftLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
+                rightPos += rowData.rightLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
+
+                if (!rowData.equal) {
+                    if (rowData.leftLine.textLineType == TextLineData::TextLine) {
+                        leftLinePos[leftLastDiffBlockStartPos] = leftPos;
+                        leftLastSkippedBlockStartPos = leftPos;
+                    } else {
+                        leftSkippedPos[leftLastSkippedBlockStartPos] = leftPos;
+                        leftLastDiffBlockStartPos = leftPos;
+                    }
+                    if (rowData.rightLine.textLineType == TextLineData::TextLine) {
+                        rightLinePos[rightLastDiffBlockStartPos] = rightPos;
+                        rightLastSkippedBlockStartPos = rightPos;
+                    } else {
+                        rightSkippedPos[rightLastSkippedBlockStartPos] = rightPos;
+                        rightLastDiffBlockStartPos = rightPos;
+                    }
                 } else {
-                    leftSkippedPos[leftLastSkippedBlockStartPos] = leftPos;
                     leftLastDiffBlockStartPos = leftPos;
-                }
-                if (rowData.rightLine.textLineType == TextLineData::TextLine) {
-                    rightLinePos[rightLastDiffBlockStartPos] = rightPos;
-                    rightLastSkippedBlockStartPos = rightPos;
-                } else {
-                    rightSkippedPos[rightLastSkippedBlockStartPos] = rightPos;
                     rightLastDiffBlockStartPos = rightPos;
+                    leftLastSkippedBlockStartPos = leftPos;
+                    rightLastSkippedBlockStartPos = rightPos;
                 }
-            } else {
-                leftLastDiffBlockStartPos = leftPos;
-                rightLastDiffBlockStartPos = rightPos;
-                leftLastSkippedBlockStartPos = leftPos;
-                rightLastSkippedBlockStartPos = rightPos;
             }
         }
     }
@@ -971,6 +1157,8 @@ void DiffEditorWidget::colorDiff(const FileData &fileData)
     leftSelections
             += colorPositions(chunkLineFormat, leftCursor, leftChunkPos);
     leftSelections
+            += colorPositions(fileLineFormat, leftCursor, leftFilePos);
+    leftSelections
             += colorPositions(leftCharFormat, leftCursor, leftCharPos);
 
     QList<QTextEdit::ExtraSelection> rightSelections
@@ -979,6 +1167,8 @@ void DiffEditorWidget::colorDiff(const FileData &fileData)
             += colorPositions(spanLineFormat, rightCursor, rightSkippedPos);
     rightSelections
             += colorPositions(chunkLineFormat, rightCursor, rightChunkPos);
+    rightSelections
+            += colorPositions(fileLineFormat, rightCursor, rightFilePos);
     rightSelections
             += colorPositions(rightCharFormat, rightCursor, rightCharPos);
 
@@ -1010,6 +1200,39 @@ void DiffEditorWidget::rightDocumentSizeChanged()
     synchronizeFoldings(m_rightEditor, m_leftEditor);
 }
 
+/* Special version of that method (original: TextEditor::BaseTextDocumentLayout::doFoldOrUnfold())
+   The hack lies in fact, that when unfolding all direct sub-blocks are made visible,
+   while some of them need to stay invisible (i.e. unfolded chunk lines)
+*/
+static void doFoldOrUnfold(DiffViewEditorWidget *editor, const QTextBlock &block, bool unfold)
+{
+    if (!TextEditor::BaseTextDocumentLayout::canFold(block))
+        return;
+    QTextBlock b = block.next();
+
+    int indent = TextEditor::BaseTextDocumentLayout::foldingIndent(block);
+    while (b.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(b) > indent && (unfold || b.next().isValid())) {
+        if (unfold && editor->isChunkLine(b.blockNumber()) && !TextEditor::BaseTextDocumentLayout::isFolded(b)) {
+            b.setVisible(false);
+            b.setLineCount(0);
+        } else {
+            b.setVisible(unfold);
+            b.setLineCount(unfold ? qMax(1, b.layout()->lineCount()) : 0);
+        }
+        if (unfold) { // do not unfold folded sub-blocks
+            if (TextEditor::BaseTextDocumentLayout::isFolded(b) && b.next().isValid()) {
+                int jndent = TextEditor::BaseTextDocumentLayout::foldingIndent(b);
+                b = b.next();
+                while (b.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(b) > jndent)
+                    b = b.next();
+                continue;
+            }
+        }
+        b = b.next();
+    }
+    TextEditor::BaseTextDocumentLayout::setFolded(block, !unfold);
+}
+
 void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination)
 {
     if (m_foldingBlocker)
@@ -1023,53 +1246,62 @@ void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffVie
             const bool isSourceFolded = TextEditor::BaseTextDocumentLayout::isFolded(sourceBlock);
             const bool isDestinationFolded = TextEditor::BaseTextDocumentLayout::isFolded(destinationBlock);
             if (isSourceFolded != isDestinationFolded) {
-                if (isSourceFolded) { // we fold the destination
-                    QTextBlock previousSource = sourceBlock.previous(); // skippedLines
-                    QTextBlock previousDestination = destinationBlock.previous(); // skippedLines
-                    QTextBlock firstVisibleDestinationBlock = destination->firstVisibleBlock();
-                    QTextBlock firstDestinationBlock = destination->document()->firstBlock();
-                    TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
-                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(sourceBlock, 1);
-                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(destinationBlock, 1);
-                    previousSource.setVisible(true);
-                    previousSource.setLineCount(1);
-                    previousDestination.setVisible(true);
-                    previousDestination.setLineCount(1);
-                    sourceBlock.setVisible(false);
-                    sourceBlock.setLineCount(0);
-                    destinationBlock.setVisible(false);
-                    destinationBlock.setLineCount(0);
-                    TextEditor::BaseTextDocumentLayout::setFolded(previousSource, true);
-                    TextEditor::BaseTextDocumentLayout::setFolded(previousDestination, true);
+                if (source->isFileLine(sourceBlock.blockNumber())) {
+                    doFoldOrUnfold(source, sourceBlock, !isSourceFolded);
+                    doFoldOrUnfold(destination, destinationBlock, !isSourceFolded);
+                } else {
+                    if (isSourceFolded) { // we fold the destination (shrinking)
+                        QTextBlock previousSource = sourceBlock.previous(); // skippedLines
+                        QTextBlock previousDestination = destinationBlock.previous(); // skippedLines
+                        if (source->isChunkLine(previousSource.blockNumber())) {
+                            QTextBlock firstVisibleDestinationBlock = destination->firstVisibleBlock();
+                            QTextBlock firstDestinationBlock = destination->document()->firstBlock();
+                            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
+                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(sourceBlock, CHUNK_LEVEL);
+                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(destinationBlock, CHUNK_LEVEL);
+                            previousSource.setVisible(true);
+                            previousSource.setLineCount(1);
+                            previousDestination.setVisible(true);
+                            previousDestination.setLineCount(1);
+                            sourceBlock.setVisible(false);
+                            sourceBlock.setLineCount(0);
+                            destinationBlock.setVisible(false);
+                            destinationBlock.setLineCount(0);
+                            TextEditor::BaseTextDocumentLayout::setFolded(previousSource, true);
+                            TextEditor::BaseTextDocumentLayout::setFolded(previousDestination, true);
 
-                    if (firstVisibleDestinationBlock == destinationBlock) {
-                        /*
-                        The following hack is completely crazy. That's the only way to scroll 1 line up
-                        in case destinationBlock was the top visible block.
-                        There is no need to scroll the source since this is in sync anyway
-                        (leftSliderChanged(), rightSliderChanged())
-                        */
-                        destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() - 1);
-                        destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() + 1);
-                        if (firstVisibleDestinationBlock.previous() == firstDestinationBlock) {
-                            /*
-                            Even more crazy case: the destinationBlock was the first top visible block.
-                            */
-                            destination->verticalScrollBar()->setValue(0);
+                            if (firstVisibleDestinationBlock == destinationBlock) {
+                                /*
+                                The following hack is completely crazy. That's the only way to scroll 1 line up
+                                in case destinationBlock was the top visible block.
+                                There is no need to scroll the source since this is in sync anyway
+                                (leftSliderChanged(), rightSliderChanged())
+                                */
+                                destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() - 1);
+                                destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() + 1);
+                                if (firstVisibleDestinationBlock.previous() == firstDestinationBlock) {
+                                    /*
+                                    Even more crazy case: the destinationBlock was the first top visible block.
+                                    */
+                                    destination->verticalScrollBar()->setValue(0);
+                                }
+                            }
+                        }
+                    } else { // we unfold the destination (expanding)
+                        if (source->isChunkLine(sourceBlock.blockNumber())) {
+                            QTextBlock nextSource = sourceBlock.next();
+                            QTextBlock nextDestination = destinationBlock.next();
+                            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
+                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextSource, FILE_LEVEL);
+                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextDestination, FILE_LEVEL);
+                            sourceBlock.setVisible(false);
+                            sourceBlock.setLineCount(0);
+                            destinationBlock.setVisible(false);
+                            destinationBlock.setLineCount(0);
+                            TextEditor::BaseTextDocumentLayout::setFolded(nextSource, false);
+                            TextEditor::BaseTextDocumentLayout::setFolded(nextDestination, false);
                         }
                     }
-                } else { // we unfold the destination
-                    QTextBlock nextSource = sourceBlock.next();
-                    QTextBlock nextDestination = destinationBlock.next();
-                    TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
-                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextSource, 0);
-                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextDestination, 0);
-                    sourceBlock.setVisible(false);
-                    sourceBlock.setLineCount(0);
-                    destinationBlock.setVisible(false);
-                    destinationBlock.setLineCount(0);
-                    TextEditor::BaseTextDocumentLayout::setFolded(nextSource, false);
-                    TextEditor::BaseTextDocumentLayout::setFolded(nextDestination, false);
                 }
                 break; // only one should be synchronized
             }
