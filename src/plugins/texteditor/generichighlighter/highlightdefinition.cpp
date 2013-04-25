@@ -39,6 +39,33 @@
 using namespace TextEditor;
 using namespace Internal;
 
+namespace {
+
+template <class Element, class Container>
+QSharedPointer<Element> createHelper(const QString &name, Container &container)
+{
+    if (name.isEmpty())
+        throw HighlighterException();
+
+    if (container.contains(name))
+        throw HighlighterException();
+
+    return container.insert(name, QSharedPointer<Element>(new Element)).value();
+}
+
+template <class Element, class Container>
+QSharedPointer<Element>
+findHelper(const QString &name, const Container &container)
+{
+    typename Container::const_iterator it = container.find(name);
+    if (it == container.end())
+        throw HighlighterException();
+
+    return it.value();
+}
+
+} // anon namespace
+
 HighlightDefinition::HighlightDefinition() :
     m_keywordCaseSensitivity(Qt::CaseSensitive),
     m_singleLineCommentAfterWhiteSpaces(false),
@@ -57,60 +84,50 @@ bool HighlightDefinition::isValid() const
     return !m_initialContext.isEmpty();
 }
 
-template <class Element, class Container>
-QSharedPointer<Element> HighlightDefinition::
-GenericHelper::create(const QString &name, Container &container)
-{
-    if (name.isEmpty())
-        throw HighlighterException();
-
-    if (container.contains(name))
-        throw HighlighterException();
-
-    return container.insert(name, QSharedPointer<Element>(new Element)).value();
-}
-
-template <class Element, class Container>
-QSharedPointer<Element> HighlightDefinition::
-GenericHelper::find(const QString &name, const Container &container) const
-{
-    typename Container::const_iterator it = container.find(name);
-    if (it == container.end())
-        throw HighlighterException();
-
-    return it.value();
-}
-
 QSharedPointer<KeywordList> HighlightDefinition::createKeywordList(const QString &list)
-{ return m_helper.create<KeywordList>(list, m_lists); }
+{
+    return createHelper<KeywordList>(list, m_lists);
+}
 
 QSharedPointer<KeywordList> HighlightDefinition::keywordList(const QString &list)
-{ return m_helper.find<KeywordList>(list, m_lists); }
+{
+    return findHelper<KeywordList>(list, m_lists);
+}
 
 QSharedPointer<Context> HighlightDefinition::createContext(const QString &context, bool initial)
 {
     if (initial)
         m_initialContext = context;
 
-    QSharedPointer<Context> newContext = m_helper.create<Context>(context, m_contexts);
+    QSharedPointer<Context> newContext = createHelper<Context>(context, m_contexts);
     newContext->setName(context);
     return newContext;
 }
 
 QSharedPointer<Context> HighlightDefinition::initialContext() const
-{ return m_helper.find<Context>(m_initialContext, m_contexts); }
+{
+    return findHelper<Context>(m_initialContext, m_contexts);
+}
 
 QSharedPointer<Context> HighlightDefinition::context(const QString &context) const
-{ return m_helper.find<Context>(context, m_contexts); }
+{
+    return findHelper<Context>(context, m_contexts);
+}
 
 const QHash<QString, QSharedPointer<Context> > &HighlightDefinition::contexts() const
-{ return m_contexts; }
+{
+    return m_contexts;
+}
 
 QSharedPointer<ItemData> HighlightDefinition::createItemData(const QString &itemData)
-{ return m_helper.create<ItemData>(itemData, m_itemsData); }
+{
+    return createHelper<ItemData>(itemData, m_itemsData);
+}
 
 QSharedPointer<ItemData> HighlightDefinition::itemData(const QString &itemData) const
-{ return m_helper.find<ItemData>(itemData, m_itemsData); }
+{
+    return findHelper<ItemData>(itemData, m_itemsData);
+}
 
 void HighlightDefinition::setSingleLineComment(const QString &start)
 { m_singleLineComment = start; }

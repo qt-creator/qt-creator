@@ -89,16 +89,6 @@ public:
 private:
     Q_DISABLE_COPY(HighlightDefinition)
 
-    struct GenericHelper
-    {
-        template <class Element, class Container>
-        QSharedPointer<Element> create(const QString &name, Container &container);
-
-        template <class Element, class Container>
-        QSharedPointer<Element> find(const QString &name, const Container &container) const;
-    };
-    GenericHelper m_helper;
-
     QHash<QString, QSharedPointer<KeywordList> > m_lists;
     QHash<QString, QSharedPointer<Context> > m_contexts;
     QHash<QString, QSharedPointer<ItemData> > m_itemsData;
