@@ -308,10 +308,8 @@ void GerritPlugin::addToLocator(Locator::CommandLocator *locator)
     locator->appendCommand(m_pushToGerritPair.second);
 }
 
-void GerritPlugin::push()
+void GerritPlugin::push(const QString &topLevel)
 {
-    const QString topLevel = Git::Internal::GitPlugin::instance()->currentState().topLevel();
-
     // QScopedPointer is required to delete the dialog when leaving the function
     GerritPushDialog dialog(topLevel, m_reviewers, ICore::mainWindow());
 
@@ -385,6 +383,11 @@ void GerritPlugin::openView()
         m_dialog.data()->setWindowState(state & ~Qt::WindowMinimized);
     m_dialog.data()->show();
     m_dialog.data()->raise();
+}
+
+void GerritPlugin::push()
+{
+    push(Git::Internal::GitPlugin::instance()->currentState().topLevel());
 }
 
 QString GerritPlugin::gitBinary()

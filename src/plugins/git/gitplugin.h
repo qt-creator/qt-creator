@@ -146,6 +146,7 @@ private slots:
     void startMergeTool();
     void continueOrAbortCommand();
     void updateContinueAndAbortCommands();
+    void delayedPushToGerrit();
 
 #ifdef WITH_TESTS
     void testStatusParsing_data();

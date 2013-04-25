@@ -121,6 +121,7 @@ protected:
     virtual QString cleanupDescription(const QString &) const;
     virtual QString commitName() const;
     void insertTopWidget(QWidget *w);
+    void addSubmitButtonMenu(QMenu *menu);
     void hideDescription();
 
 protected slots:

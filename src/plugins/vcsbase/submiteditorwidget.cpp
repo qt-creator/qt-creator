@@ -37,7 +37,6 @@
 #include <QTimer>
 #include <QScopedPointer>
 
-#include <QPushButton>
 #include <QMenu>
 #include <QHBoxLayout>
 #include <QToolButton>
@@ -75,7 +74,7 @@ namespace VcsBase {
 
 // QActionPushButton: A push button tied to an action
 // (similar to a QToolButton)
-class QActionPushButton : public QPushButton
+class QActionPushButton : public QToolButton
 {
     Q_OBJECT
 public:
@@ -86,8 +85,11 @@ private slots:
 };
 
 QActionPushButton::QActionPushButton(QAction *a) :
-     QPushButton(a->icon(), a->text())
+     QToolButton()
 {
+    setIcon(a->icon());
+    setText(a->text());
+    setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     connect(a, SIGNAL(changed()), this, SLOT(actionChanged()));
     connect(this, SIGNAL(clicked()), a, SLOT(trigger()));
     setEnabled(a->isEnabled());
@@ -153,6 +155,8 @@ struct SubmitEditorWidgetPrivate
     bool m_commitEnabled;
     bool m_ignoreChange;
     bool m_descriptionMandatory;
+
+    QActionPushButton *m_submitButton;
 };
 
 SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
@@ -164,7 +168,8 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_lineWidth(defaultLineWidth),
     m_commitEnabled(false),
     m_ignoreChange(false),
-    m_descriptionMandatory(true)
+    m_descriptionMandatory(true),
+    m_submitButton(0)
 {
 }
 
@@ -229,7 +234,8 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
         if (!actionSlotHelper)
             actionSlotHelper = new QActionSetTextSlotHelper(submitAction);
         connect(this, SIGNAL(submitActionTextChanged(QString)), actionSlotHelper, SLOT(setText(QString)));
-        d->m_ui.buttonLayout->addWidget(new QActionPushButton(submitAction));
+        d->m_submitButton = new QActionPushButton(submitAction);
+        d->m_ui.buttonLayout->addWidget(d->m_submitButton);
         if (!d->m_submitShortcut)
             d->m_submitShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return), this);
         connect(d->m_submitShortcut, SIGNAL(activated()), submitAction, SLOT(trigger()));
@@ -521,6 +527,11 @@ QString SubmitEditorWidget::cleanupDescription(const QString &input) const
 void SubmitEditorWidget::insertTopWidget(QWidget *w)
 {
     d->m_ui.vboxLayout->insertWidget(0, w);
+}
+
+void SubmitEditorWidget::addSubmitButtonMenu(QMenu *menu)
+{
+    d->m_submitButton->setMenu(menu);
 }
 
 void SubmitEditorWidget::hideDescription()

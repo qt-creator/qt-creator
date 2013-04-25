@@ -1121,6 +1121,14 @@ bool GitPlugin::submitEditorAboutToClose()
             m_gitClient->continueCommandIfNeeded(m_submitRepository);
         }
     }
+
+    if (m_gitClient->checkCommandInProgress(m_submitRepository) == GitClient::NoCommand) {
+        if (editor->panelData().pushAction == CommitAndPush)
+            m_gitClient->push(m_submitRepository);
+        else if (editor->panelData().pushAction == CommitAndPushToGerrit)
+            connect(editor, SIGNAL(destroyed()), this, SLOT(delayedPushToGerrit()));
+    }
+
     return closeEditor;
 }
 
@@ -1443,6 +1451,11 @@ void GitPlugin::updateContinueAndAbortCommands()
         m_continueRevertAction->setVisible(false);
         m_continueRebaseAction->setVisible(false);
     }
+}
+
+void GitPlugin::delayedPushToGerrit()
+{
+    m_gerritPlugin->push(m_submitRepository);
 }
 
 void GitPlugin::updateBranches(const QString &repository)

@@ -39,6 +39,7 @@
 #include <QGroupBox>
 #include <QRegExp>
 #include <QVBoxLayout>
+#include <QMenu>
 
 namespace Git {
 namespace Internal {
@@ -46,6 +47,7 @@ namespace Internal {
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
     VcsBase::SubmitEditorWidget(parent),
+    m_pushAction(CommitOnly),
     m_gitSubmitPanel(new QWidget),
     m_logChangeWidget(0),
     m_hasUnmerged(false),
@@ -105,6 +107,14 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
     insertTopWidget(m_gitSubmitPanel);
     setPanelData(data);
     setPanelInfo(info);
+
+    if (data.hasRemotes && commitType != FixupCommit) {
+        QMenu *menu = new QMenu(this);
+        menu->addAction(tr("Commit only"), this, SLOT(commitOnlySlot()));
+        menu->addAction(tr("Commit and Push"), this, SLOT(commitAndPushSlot()));
+        menu->addAction(tr("Commit and Push to Gerrit"), this, SLOT(commitAndPushToGerritSlot()));
+        addSubmitButtonMenu(menu);
+    }
 }
 
 void GitSubmitEditorWidget::refreshLog(const QString &repository)
@@ -119,6 +129,7 @@ GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
     rc.author = m_gitSubmitPanelUi.authorLineEdit->text();
     rc.email = m_gitSubmitPanelUi.emailLineEdit->text();
     rc.bypassHooks = m_gitSubmitPanelUi.bypassHooksCheckBox->isChecked();
+    rc.pushAction = m_pushAction;
     return rc;
 }
 
@@ -158,6 +169,16 @@ QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const
 
 }
 
+QString GitSubmitEditorWidget::commitName() const
+{
+    if (m_pushAction == CommitAndPush)
+        return tr("Commit and Push");
+    else if (m_pushAction == CommitAndPushToGerrit)
+        return tr("Commit and Push to Gerrit");
+
+    return tr("Commit");
+}
+
 void GitSubmitEditorWidget::authorInformationChanged()
 {
     bool bothEmpty = m_gitSubmitPanelUi.authorLineEdit->text().isEmpty() &&
@@ -168,6 +189,24 @@ void GitSubmitEditorWidget::authorInformationChanged()
     m_gitSubmitPanelUi.invalidEmailLabel->
             setVisible(!emailIsValid() && !bothEmpty);
 
+    updateSubmitAction();
+}
+
+void GitSubmitEditorWidget::commitOnlySlot()
+{
+    m_pushAction = CommitOnly;
+    updateSubmitAction();
+}
+
+void GitSubmitEditorWidget::commitAndPushSlot()
+{
+    m_pushAction = CommitAndPush;
+    updateSubmitAction();
+}
+
+void GitSubmitEditorWidget::commitAndPushToGerritSlot()
+{
+    m_pushAction = CommitAndPushToGerrit;
     updateSubmitAction();
 }
 

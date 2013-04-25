@@ -32,6 +32,7 @@
 
 #include "ui_gitsubmitpanel.h"
 #include "gitsettings.h"
+#include "commitdata.h"
 
 #include <texteditor/syntaxhighlighter.h>
 #include <vcsbase/submiteditorwidget.h>
@@ -77,18 +78,23 @@ public:
 protected:
     bool canSubmit() const;
     QString cleanupDescription(const QString &) const;
+    QString commitName() const;
 
 signals:
     void show(const QString &commit);
 
 private slots:
     void authorInformationChanged();
+    void commitOnlySlot();
+    void commitAndPushSlot();
+    void commitAndPushToGerritSlot();
 
 private:
     bool emailIsValid() const;
     void setPanelData(const GitSubmitEditorPanelData &data);
     void setPanelInfo(const GitSubmitEditorPanelInfo &info);
 
+    PushAction m_pushAction;
     QWidget *m_gitSubmitPanel;
     LogChangeWidget *m_logChangeWidget;
     Ui::GitSubmitPanel m_gitSubmitPanelUi;

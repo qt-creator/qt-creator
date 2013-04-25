@@ -52,6 +52,12 @@ struct GitSubmitEditorPanelInfo
 
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &);
 
+enum PushAction {
+    CommitOnly,
+    CommitAndPush,
+    CommitAndPushToGerrit
+};
+
 struct GitSubmitEditorPanelData
 {
     void clear();
@@ -61,6 +67,8 @@ struct GitSubmitEditorPanelData
     QString author;
     QString email;
     bool bypassHooks;
+    PushAction pushAction;
+    bool hasRemotes;
 };
 
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);

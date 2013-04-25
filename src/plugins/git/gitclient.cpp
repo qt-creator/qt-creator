@@ -3044,6 +3044,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     case FixupCommit:
         break;
     }
+
+    commitData.panelData.hasRemotes = !synchronousRemotesList(repoDirectory).isEmpty();
     return true;
 }
 

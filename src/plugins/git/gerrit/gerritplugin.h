@@ -67,6 +67,7 @@ public:
     static QString gitBinary();
     static QString branch(const QString &repository);
     void addToLocator(Locator::CommandLocator *locator);
+    void push(const QString &topLevel);
 
 public slots:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
