@@ -514,17 +514,15 @@ EditorView *SplitterOrView::findFirstView()
     return m_view;
 }
 
-SplitterOrView *SplitterOrView::findSplitter(SplitterOrView *child)
+SplitterOrView *SplitterOrView::findParentSplitter() const
 {
-    if (m_splitter) {
-        for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
-                if (splitterOrView == child)
-                    return this;
-                if (SplitterOrView *result = splitterOrView->findSplitter(child))
-                    return result;
-            }
+    QWidget *w = parentWidget();
+    while (w) {
+        if (SplitterOrView *splitter = qobject_cast<SplitterOrView *>(w)) {
+            QTC_CHECK(splitter->splitter());
+            return splitter;
         }
+        w = w->parentWidget();
     }
     return 0;
 }

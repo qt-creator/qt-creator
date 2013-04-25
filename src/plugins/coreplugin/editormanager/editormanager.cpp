@@ -644,7 +644,7 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
     SplitterOrView *splitterOrView = view->parentSplitterOrView();
     Q_ASSERT(splitterOrView);
     Q_ASSERT(splitterOrView->view() == view);
-    SplitterOrView *splitter = d->m_splitter->findSplitter(splitterOrView);
+    SplitterOrView *splitter = splitterOrView->findParentSplitter();
     Q_ASSERT(splitterOrView->hasEditors() == false);
     splitterOrView->hide();
     delete splitterOrView;

@@ -182,7 +182,7 @@ public:
     void restoreState(const QByteArray &);
 
     EditorView *findFirstView();
-    SplitterOrView *findSplitter(SplitterOrView *child);
+    SplitterOrView *findParentSplitter() const;
 
     EditorView *findNextView(EditorView *view);
 
