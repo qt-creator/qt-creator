@@ -833,11 +833,14 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
         list.append(propertiesWatch);
 
         foreach (const PropertyReference &property, obj.properties()) {
+            const QString propertyName = property.name();
+            if (propertyName.isEmpty())
+                continue;
             WatchData propertyWatch;
             propertyWatch.id = objDebugId;
-            propertyWatch.exp = property.name().toLatin1();
-            propertyWatch.name = property.name();
-            propertyWatch.iname = buildIName(propertiesWatch.iname, property.name());
+            propertyWatch.exp = propertyName.toLatin1();
+            propertyWatch.name = propertyName;
+            propertyWatch.iname = buildIName(propertiesWatch.iname, propertyName);
             propertyWatch.type = property.valueTypeName().toLatin1();
             propertyWatch.value = property.value().toString();
             propertyWatch.setAllUnneeded();
