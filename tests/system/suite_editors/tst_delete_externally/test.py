@@ -3,12 +3,6 @@ source("../../shared/suites_qtta.py")
 
 global templateDir
 
-def readFile(filename):
-    f = open(filename, "r")
-    content = f.read()
-    f.close()
-    return content
-
 def copyToTemplateDir(filepath):
     global templateDir
     dst = os.path.join(templateDir, os.path.basename(filepath))
