@@ -53,8 +53,6 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::R
     friend class RemoteLinuxRunConfigurationWidget;
 
 public:
-    enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
-
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
         const QString &projectFilePath);
     ~RemoteLinuxRunConfiguration();
