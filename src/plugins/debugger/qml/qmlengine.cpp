@@ -525,8 +525,7 @@ void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
 void QmlEngine::gotoLocation(const Location &location)
 {
     const QString fileName = location.fileName();
-    // TODO: QUrl::isLocalFile() once we depend on Qt 4.8
-    if (QUrl(fileName).scheme().compare(QLatin1String("file"), Qt::CaseInsensitive) == 0) {
+    if (QUrl(fileName).isLocalFile()) {
         // internal file from source files -> show generated .js
         QTC_ASSERT(m_sourceDocuments.contains(fileName), return);
         Core::IEditor *editor = 0;
