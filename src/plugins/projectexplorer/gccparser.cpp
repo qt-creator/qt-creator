@@ -35,7 +35,7 @@
 using namespace ProjectExplorer;
 
 // opt. drive letter + filename: (2 brackets)
-static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+\\.[^:]+):";
+static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+):";
 static const char COMMAND_PATTERN[] = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
 
 GccParser::GccParser()
@@ -782,6 +782,37 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                       "                         ^"),
                         Utils::FileName::fromUserInput(QLatin1String(".uic/ui_pluginerrorview.h")), 14,
                         categoryCompile))
+            << QString();
+
+    QTest::newRow("qtcreatorbug-9195")
+            << QString::fromLatin1("In file included from /usr/include/qt4/QtCore/QString:1:0,\n"
+                                   "                 from main.cpp:3:\n"
+                                   "/usr/include/qt4/QtCore/qstring.h: In function 'void foo()':\n"
+                                   "/usr/include/qt4/QtCore/qstring.h:597:5: error: 'QString::QString(const char*)' is private\n"
+                                   "main.cpp:7:22: error: within this context")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In file included from /usr/include/qt4/QtCore/QString:1:0,"),
+                        Utils::FileName::fromUserInput(QLatin1String("/usr/include/qt4/QtCore/QString")), 1,
+                        categoryCompile)
+                 << Task(Task::Unknown,
+                         QLatin1String("from main.cpp:3:"),
+                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 3,
+                         categoryCompile)
+                 << Task(Task::Unknown,
+                         QLatin1String("In function 'void foo()':"),
+                         Utils::FileName::fromUserInput(QLatin1String("/usr/include/qt4/QtCore/qstring.h")), -1,
+                         categoryCompile)
+                << Task(Task::Error,
+                        QLatin1String("'QString::QString(const char*)' is private"),
+                        Utils::FileName::fromUserInput(QLatin1String("/usr/include/qt4/QtCore/qstring.h")), 597,
+                        categoryCompile)
+                 << Task(Task::Error,
+                         QLatin1String("within this context"),
+                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 7,
+                         categoryCompile))
             << QString();
 
 }
