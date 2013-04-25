@@ -185,6 +185,14 @@ void EditorView::paintEvent(QPaintEvent *)
     painter.drawRoundedRect(m_container->geometry().adjusted(r , r, -r, -r), r * 2, r * 2);
 }
 
+void EditorView::mousePressEvent(QMouseEvent *e)
+{
+    if (e->button() != Qt::LeftButton)
+        return;
+    setFocus(Qt::MouseFocusReason);
+    ICore::editorManager()->setCurrentView(this);
+}
+
 void EditorView::addEditor(IEditor *editor)
 {
     if (m_editors.contains(editor))
@@ -491,14 +499,6 @@ SplitterOrView::~SplitterOrView()
     m_view = 0;
     delete m_splitter;
     m_splitter = 0;
-}
-
-void SplitterOrView::mousePressEvent(QMouseEvent *e)
-{
-    if (e->button() != Qt::LeftButton)
-        return;
-    setFocus(Qt::MouseFocusReason);
-    ICore::editorManager()->setCurrentView(view());
 }
 
 EditorView *SplitterOrView::findFirstView()

@@ -101,6 +101,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *e);
 
 private slots:
     void closeView();
@@ -189,9 +190,6 @@ public:
     QSize minimumSizeHint() const;
 
     void unsplitAll();
-
-protected:
-    void mousePressEvent(QMouseEvent *e);
 
 private:
     void unsplitAll_helper();
