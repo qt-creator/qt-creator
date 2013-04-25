@@ -44,7 +44,6 @@ public:
     explicit AnalyzerRunControlFactory(QObject *parent = 0);
 
     // IRunControlFactory implementation
-    QString displayName() const;
     bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
                                         ProjectExplorer::RunMode mode,

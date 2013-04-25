@@ -167,10 +167,5 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
         return AndroidDebugSupport::createDebugRunControl(rc, errorMessage);
 }
 
-QString AndroidRunControlFactory::displayName() const
-{
-    return tr("Run on Android device or emulator.");
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

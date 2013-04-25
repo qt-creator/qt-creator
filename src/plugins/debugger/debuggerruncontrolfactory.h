@@ -68,9 +68,6 @@ public:
 
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(
             ProjectExplorer::RunConfiguration *rc);
-
-private:
-    QString displayName() const;
 };
 
 } // namespace Internal

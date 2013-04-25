@@ -41,8 +41,6 @@ public:
     explicit RemoteLinuxRunControlFactory(QObject *parent = 0);
     ~RemoteLinuxRunControlFactory();
 
-    QString displayName() const;
-
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,

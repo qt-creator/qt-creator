@@ -125,11 +125,6 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
     return runControl;
 }
 
-QString BlackBerryRunControlFactory::displayName() const
-{
-    return tr("Run on BlackBerry Device");
-}
-
 Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
         const BlackBerryRunConfiguration *runConfig)
 {

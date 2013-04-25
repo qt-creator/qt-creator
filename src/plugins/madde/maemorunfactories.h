@@ -82,8 +82,6 @@ public:
     explicit MaemoRunControlFactory(QObject *parent = 0);
     ~MaemoRunControlFactory();
 
-    QString displayName() const;
-
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
     RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
                        ProjectExplorer::RunMode mode,

@@ -58,8 +58,6 @@ public:
                                         ProjectExplorer::RunMode mode,
                                         QString *errorMessage);
 
-    QString displayName() const;
-
 private:
     static Debugger::DebuggerStartParameters startParameters( const BlackBerryRunConfiguration *runConfig);
 

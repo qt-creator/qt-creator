@@ -325,11 +325,6 @@ bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMo
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
-QString DebuggerRunControlFactory::displayName() const
-{
-    return DebuggerPlugin::tr("Debug");
-}
-
 static DebuggerStartParameters localStartParameters(RunConfiguration *runConfiguration, QString *errorMessage)
 {
     DebuggerStartParameters sp;

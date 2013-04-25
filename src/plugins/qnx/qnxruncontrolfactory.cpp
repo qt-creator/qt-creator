@@ -154,8 +154,3 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
 
     return runControl;
 }
-
-QString QnxRunControlFactory::displayName() const
-{
-    return tr("Run on remote QNX device");
-}

@@ -192,11 +192,6 @@ RunControl *QmlProjectRunControlFactory::create(RunConfiguration *runConfigurati
     return runControl;
 }
 
-QString QmlProjectRunControlFactory::displayName() const
-{
-    return tr("Run");
-}
-
 RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig, QString *errorMessage)
 {
     Debugger::DebuggerStartParameters params;

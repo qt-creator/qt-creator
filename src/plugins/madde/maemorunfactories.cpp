@@ -239,10 +239,5 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode 
     QTC_ASSERT(false, return 0);
 }
 
-QString MaemoRunControlFactory::displayName() const
-{
-    return tr("Run on device");
-}
-
     } // namespace Internal
 } // namespace Madde

@@ -108,10 +108,5 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
     QTC_ASSERT(false, return 0);
 }
 
-QString RemoteLinuxRunControlFactory::displayName() const
-{
-    return tr("Run on remote Linux device");
-}
-
 } // namespace Internal
 } // namespace RemoteLinux

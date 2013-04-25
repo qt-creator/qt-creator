@@ -53,11 +53,6 @@ bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguratio
     return mode == NormalRunMode && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
-QString LocalApplicationRunControlFactory::displayName() const
-{
-    return tr("Run");
-}
-
 RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);

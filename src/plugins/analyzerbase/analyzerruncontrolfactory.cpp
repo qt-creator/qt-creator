@@ -48,11 +48,6 @@ AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent) :
 {
 }
 
-QString AnalyzerRunControlFactory::displayName() const
-{
-    return tr("Analyzer");
-}
-
 bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);

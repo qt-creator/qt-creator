@@ -44,8 +44,6 @@ class QnxRunControlFactory : public ProjectExplorer::IRunControlFactory
 public:
     explicit QnxRunControlFactory(QObject *parent = 0);
 
-    QString displayName() const;
-
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,

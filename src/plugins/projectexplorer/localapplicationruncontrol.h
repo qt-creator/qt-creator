@@ -45,7 +45,6 @@ public:
     LocalApplicationRunControlFactory ();
     virtual ~LocalApplicationRunControlFactory();
     virtual bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
-    virtual QString displayName() const;
     virtual RunControl* create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage);
 };
 
