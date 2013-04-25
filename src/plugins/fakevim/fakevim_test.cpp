@@ -575,6 +575,21 @@ void FakeVimPlugin::test_vim_insert()
     KEYS("<c-v>2jh" "2I" "XYZ<esc>", "abc" N "d" X "XYZXYZef" N "" N "jXYZXYZkl" N "mno");
     INTEGRITY(false);
 
+    // insert in visual mode
+    data.setText("  a" X "bcde" N "  fghij" N "  klmno");
+    KEYS("v2l" "2Ixyz<esc>", "xyzxy" X "z  abcde" N "  fghij" N "  klmno");
+    KEYS("u", X "  abcde" N "  fghij" N "  klmno");
+    KEYS("<c-r>", X "xyzxyz  abcde" N "  fghij" N "  klmno");
+    KEYS("$.", "xyzxyz  abcdxyzxy" X "ze" N "  fghij" N "  klmno");
+
+    // repeat only last insertion
+    data.setText("  abc" N "  def" N "  ghi");
+    KEYS("2l" "2i" "XYZ" "<C-O>j" "123<esc>", "  XYZabc" N "  def12" X "3" N "  ghi");
+    KEYS("0l.", "  XYZabc" N " 12" X "3 def123" N "  ghi");
+    // insert nothing
+    KEYS("i<esc>", "  XYZabc" N " 1" X "23 def123" N "  ghi");
+    KEYS(".", "  XYZabc" N " " X "123 def123" N "  ghi");
+
     // repeat insert with special characters
     data.setText("ab" X "c" N "def");
     KEYS("2i<lt>down><esc>", "ab<down><down" X ">c" N "def");
