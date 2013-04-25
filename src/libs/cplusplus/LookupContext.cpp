@@ -247,6 +247,33 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
     return n;
 }
 
+QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) const
+{
+    QList<LookupItem> candidates;
+    // if it is a nameId there can be a using declaration for it
+    if (name->isNameId()) {
+        for (unsigned i = 0, count = scope->memberCount(); i < count; ++i) {
+            if (UsingDeclaration *u = scope->memberAt(i)->asUsingDeclaration()) {
+                if (const QualifiedNameId *q = u->name()->asQualifiedNameId()) {
+                    if (q->name()->isEqualTo(name)) {
+                        candidates = bindings()->globalNamespace()->find(q);
+
+                        // if it is not a global scope(scope of scope is not equal 0)
+                        // then add current using declaration as a candidate
+                        if (scope->scope()) {
+                            LookupItem item;
+                            item.setDeclaration(u);
+                            item.setScope(scope);
+                            candidates.append(item);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return candidates;
+}
+
 
 QSharedPointer<CreateBindings> LookupContext::bindings() const
 {
@@ -365,6 +392,10 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 }
             }
 
+            candidates = lookupByUsing(name, scope);
+            if (! candidates.isEmpty())
+                return candidates;
+
         } else if (Function *fun = scope->asFunction()) {
             bindings()->lookupInScope(name, fun, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
@@ -390,7 +421,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 }
             }
 
-            // contunue, and look at the enclosing scope.
+            // continue, and look at the enclosing scope.
 
         } else if (ObjCMethod *method = scope->asObjCMethod()) {
             bindings()->lookupInScope(name, method, &candidates, /*templateId = */ 0, /*binding=*/ 0);
@@ -416,8 +447,12 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
             if (ClassOrNamespace *binding = bindings()->lookupType(scope))
                 candidates = binding->find(name);
 
-                if (! candidates.isEmpty())
-                    return candidates;
+            if (! candidates.isEmpty())
+                return candidates;
+
+            candidates = lookupByUsing(name, scope);
+            if (! candidates.isEmpty())
+                return candidates;
 
         } else if (scope->isObjCClass() || scope->isObjCProtocol()) {
             if (ClassOrNamespace *binding = bindings()->lookupType(scope))

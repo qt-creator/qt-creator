@@ -115,6 +115,9 @@ private slots:
     void test_FollowSymbolUnderCursor_baseClassFunctionIntroducedByUsingDeclaration();
     void test_FollowSymbolUnderCursor_funWithSameNameAsBaseClassFunIntroducedByUsingDeclaration();
     void test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass();
+    void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace();
+    void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_namespace();
+    void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_insideFunction();
 
     void test_doxygen_comments_qt_style();
     void test_doxygen_comments_qt_style_continuation();

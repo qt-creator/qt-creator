@@ -97,6 +97,9 @@ private Q_SLOTS:
     void operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006();
     void operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005();
     void anonymousClass_QTCREATORBUG8963();
+    void using_insideGlobalNamespace();
+    void using_insideNamespace();
+    void using_insideFunction();
 
 };
 
@@ -534,6 +537,129 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG8963()
     findUsages(isNotIntDeclaration);
 
     QCOMPARE(findUsages.usages().size(), 2);
+}
+
+void tst_FindUsages::using_insideGlobalNamespace()
+{
+    const QByteArray src =
+            "namespace NS\n"
+            "{\n"
+            "struct Struct\n"
+            "{\n"
+            "    int bar;\n"
+            "};\n"
+            "}\n"
+            "using NS::Struct;\n"
+            "void foo()\n"
+            "{\n"
+            "    Struct s;\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("using_insideGlobalNamespace");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Namespace *nsSymbol = doc->globalSymbolAt(0)->asNamespace();
+    QVERIFY(nsSymbol);
+    QCOMPARE(nsSymbol->memberCount(), 1U);
+    Class *structSymbol = nsSymbol->memberAt(0)->asClass();
+    QVERIFY(structSymbol);
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(structSymbol);
+
+    QCOMPARE(findUsages.usages().size(), 3);
+}
+
+void tst_FindUsages::using_insideNamespace()
+{
+    const QByteArray src =
+            "namespace NS\n"
+            "{\n"
+            "struct Struct\n"
+            "{\n"
+            "    int bar;\n"
+            "};\n"
+            "}\n"
+            "namespace NS1\n"
+            "{\n"
+            "using NS::Struct;\n"
+            "void foo()\n"
+            "{\n"
+            "    Struct s;\n"
+            "}\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("using_insideNamespace");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 2U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Namespace *nsSymbol = doc->globalSymbolAt(0)->asNamespace();
+    QVERIFY(nsSymbol);
+    QCOMPARE(nsSymbol->memberCount(), 1U);
+    Class *structSymbol = nsSymbol->memberAt(0)->asClass();
+    QVERIFY(structSymbol);
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(structSymbol);
+
+    QCOMPARE(findUsages.usages().size(), 3);
+}
+
+void tst_FindUsages::using_insideFunction()
+{
+    const QByteArray src =
+            "namespace NS\n"
+            "{\n"
+            "struct Struct\n"
+            "{\n"
+            "    int bar;\n"
+            "};\n"
+            "}\n"
+            "void foo()\n"
+            "{\n"
+            "    using NS::Struct;\n"
+            "    Struct s;\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("using_insideFunction");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 2U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Namespace *nsSymbol = doc->globalSymbolAt(0)->asNamespace();
+    QVERIFY(nsSymbol);
+    QCOMPARE(nsSymbol->memberCount(), 1U);
+    Class *structSymbol = nsSymbol->memberAt(0)->asClass();
+    QVERIFY(structSymbol);
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(structSymbol);
+
+    QCOMPARE(findUsages.usages().size(), 3);
 }
 
 void tst_FindUsages::operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005()

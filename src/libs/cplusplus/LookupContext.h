@@ -311,6 +311,8 @@ public:
     }
 
 private:
+    QList<LookupItem> lookupByUsing(const Name *name, Scope *scope) const;
+
     // The current expression.
     Document::Ptr _expressionDocument;
 

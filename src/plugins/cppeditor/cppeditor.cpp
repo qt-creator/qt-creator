@@ -1592,6 +1592,15 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
                             break;
                         }
                     }
+                } else if (d->isUsingDeclaration()) {
+                    int tokenBeginLineNumber = 0, tokenBeginColumnNumber = 0;
+                    convertPosition(beginOfToken, &tokenBeginLineNumber, &tokenBeginColumnNumber);
+                    if (unsigned(tokenBeginLineNumber) > d->line()
+                            || (unsigned(tokenBeginLineNumber) == d->line()
+                                && unsigned(tokenBeginColumnNumber) > d->column())) {
+                        result = r; // take the symbol under cursor.
+                        break;
+                    }
                 }
             }
         }

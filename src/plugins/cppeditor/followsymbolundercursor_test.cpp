@@ -706,6 +706,59 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass()
     data.run();
 }
 
+void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace()
+{
+    const QByteArray source =
+            "namespace NS {\n"
+            "class Foo {};\n"
+            "}\n"
+            "using NS::$Foo;\n"
+            "void fun()\n"
+            "{\n"
+            "    @Foo foo;\n"
+            "}\n"
+        ;
+
+    TestCase data(source);
+    data.run();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_namespace()
+{
+    const QByteArray source =
+            "namespace NS {\n"
+            "class Foo {};\n"
+            "}\n"
+            "namespace NS1 {\n"
+            "void fun()\n"
+            "{\n"
+            "    using NS::$Foo;\n"
+            "    @Foo foo;\n"
+            "}\n"
+            "}\n"
+        ;
+
+    TestCase data(source);
+    data.run();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_insideFunction()
+{
+    const QByteArray source =
+            "namespace NS {\n"
+            "class Foo {};\n"
+            "}\n"
+            "void fun()\n"
+            "{\n"
+            "    using NS::$Foo;\n"
+            "    @Foo foo;\n"
+            "}\n"
+        ;
+
+    TestCase data(source);
+    data.run();
+}
+
 /*
 Potential test cases improving name lookup.
 

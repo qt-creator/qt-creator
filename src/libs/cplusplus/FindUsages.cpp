@@ -210,7 +210,7 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
                 if (s->enclosingScope()->isTemplate()) {
                     if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope())
                         return false;
-                } else if (s->enclosingScope() != _declSymbol->enclosingScope()) {
+                } else if (! s->isUsingDeclaration() && s->enclosingScope() != _declSymbol->enclosingScope()) {
                     return false;
                 }
             }
