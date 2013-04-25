@@ -1962,21 +1962,59 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
     return result;
 }
 
-// function returns submodules in format path=url
-QMap<QString,QString> GitClient::synchronousSubmoduleList(const QString &workingDirectory)
+SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
 {
-    QMap<QString,QString> result;
-    if (!QFile::exists(workingDirectory + QLatin1String("/.gitmodules")))
+    SubmoduleDataMap result;
+    QString gitmodulesFileName = workingDirectory + QLatin1String("/.gitmodules");
+    if (!QFile::exists(gitmodulesFileName))
         return result;
 
-    QSettings gitmodulesFile(workingDirectory + QLatin1String("/.gitmodules"), QSettings::IniFormat);
+    static QMap<QString, SubmoduleDataMap> cachedSubmoduleData;
 
-    foreach (const QString &submoduleGroup, gitmodulesFile.childGroups()) {
-        gitmodulesFile.beginGroup(submoduleGroup);
-        result.insertMulti(gitmodulesFile.value(QLatin1String("path")).toString(),
-                           gitmodulesFile.value(QLatin1String("url")).toString());
-        gitmodulesFile.endGroup();
+    if (cachedSubmoduleData.contains(workingDirectory))
+        return cachedSubmoduleData.value(workingDirectory);
+    QStringList args(QLatin1String("-l"));
+
+    QStringList allConfigs = readConfig(workingDirectory, args).split(QLatin1Char('\n'));
+    const QString submoduleLineStart = QLatin1String("submodule.");
+    foreach (const QString &configLine, allConfigs) {
+        if (!configLine.startsWith(submoduleLineStart))
+            continue;
+
+        int nameStart = submoduleLineStart.size();
+        int nameEnd   = configLine.indexOf(QLatin1Char('.'), nameStart);
+
+        QString submoduleName = configLine.mid(nameStart, nameEnd - nameStart);
+
+        SubmoduleData submoduleData;
+        if (result.contains(submoduleName))
+            submoduleData = result[submoduleName];
+
+        if (configLine.mid(nameEnd, 5) == QLatin1String(".url="))
+            submoduleData.url = configLine.mid(nameEnd + 5);
+        else if (configLine.mid(nameEnd, 8) == QLatin1String(".ignore="))
+            submoduleData.ignore = configLine.mid(nameEnd + 8);
+        else
+            continue;
+
+        result.insert(submoduleName, submoduleData);
     }
+
+    // if config found submodules
+    if (!result.isEmpty()) {
+        QSettings gitmodulesFile(gitmodulesFileName, QSettings::IniFormat);
+
+        foreach (const QString &submoduleName, result.keys()) {
+            gitmodulesFile.beginGroup(QLatin1String("submodule \"") +
+                                      submoduleName + QLatin1Char('"'));
+            result[submoduleName].dir = gitmodulesFile.value(QLatin1String("path")).toString();
+            QString ignore = gitmodulesFile.value(QLatin1String("ignore")).toString();
+            if (!ignore.isEmpty() && result[submoduleName].ignore.isEmpty())
+                result[submoduleName].ignore = ignore;
+            gitmodulesFile.endGroup();
+        }
+    }
+    cachedSubmoduleData.insert(workingDirectory, result);
 
     return result;
 }
@@ -2172,7 +2210,7 @@ void GitClient::submoduleUpdate(const QString &workingDirectory)
 
 void GitClient::promptSubmoduleUpdate(const QString &workingDirectory)
 {
-    if (!QFile::exists(workingDirectory + QLatin1String("/.gitmodules")))
+    if (submoduleList(workingDirectory).isEmpty())
         return;
 
     if (QMessageBox::question(Core::ICore::mainWindow(), tr("Submodules Found"),

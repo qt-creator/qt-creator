@@ -511,21 +511,19 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
                 }
             }
 
-            if (!verifiedRepository && QFile::exists(repository + QLatin1String("/.gitmodules"))) {
-                QMap<QString,QString> submodules = gitClient->synchronousSubmoduleList(repository);
-
-                QMap<QString,QString>::const_iterator i = submodules.constBegin();
-                while (i != submodules.constEnd()) {
-                    QString remote = i.value();
+            if (!verifiedRepository) {
+                Git::Internal::SubmoduleDataMap submodules = gitClient->submoduleList(repository);
+                foreach (const Git::Internal::SubmoduleData &submoduleData, submodules) {
+                    QString remote = submoduleData.url;
                     if (remote.endsWith(QLatin1String(".git")))
                         remote.chop(4);
                     if (remote.contains(m_parameters->host) && remote.endsWith(change->project)
-                            && QFile::exists(repository + QLatin1Char('/') + i.key())) {
-                        repository = QDir::cleanPath(repository + QLatin1Char('/') + i.key());
+                            && QFile::exists(repository + QLatin1Char('/') + submoduleData.dir)) {
+                        repository = QDir::cleanPath(repository + QLatin1Char('/')
+                                                     + submoduleData.dir);
                         verifiedRepository = true;
                         break;
                     }
-                    ++i;
                 }
             }
 

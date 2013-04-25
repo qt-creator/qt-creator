@@ -1323,8 +1323,9 @@ void GitPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 
     foreach (QAction *repositoryAction, m_repositoryActions)
         repositoryAction->setEnabled(repositoryEnabled);
+
     m_submoduleUpdateAction->setVisible(repositoryEnabled
-            && QFile::exists(currentState().topLevel() + QLatin1String("/.gitmodules")));
+            && !m_gitClient->submoduleList(currentState().topLevel()).isEmpty());
 
     updateContinueAndAbortCommands();
     updateRepositoryBrowserAction();
