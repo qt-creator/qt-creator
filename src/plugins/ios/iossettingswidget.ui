@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IosSettingsWidget</class>
+ <widget class="QWidget" name="IosSettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>679</width>
+    <height>104</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>iOS Configuration</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="developerPathLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Xcode path:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="developerPathLineEdit"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="developerPathPushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QCheckBox" name="deviceAskCheckBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Ask about devices not in developer mode</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>sdkLocationEditingFinished()</slot>
+  <slot>ndkLocationEditingFinished()</slot>
+  <slot>browseSDKLocation()</slot>
+  <slot>browseNDKLocation()</slot>
+  <slot>antLocationEditingFinished()</slot>
+  <slot>browseAntLocation()</slot>
+  <slot>addAVD()</slot>
+  <slot>removeAVD()</slot>
+  <slot>startAVD()</slot>
+  <slot>avdActivated(QModelIndex)</slot>
+  <slot>dataPartitionSizeEditingFinished()</slot>
+  <slot>openJDKLocationEditingFinished()</slot>
+  <slot>browseOpenJDKLocation()</slot>
+  <slot>manageAVD()</slot>
+  <slot>createKitToggled()</slot>
+ </slots>
+</ui>

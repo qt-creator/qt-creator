@@ -33,6 +33,7 @@ Project {
         "helloworld/helloworld.qbs",
         "help/help.qbs",
         "imageviewer/imageviewer.qbs",
+        "ios/ios.qbs",
         "locator/locator.qbs",
         "macros/macros.qbs",
         "madde/madde.qbs",

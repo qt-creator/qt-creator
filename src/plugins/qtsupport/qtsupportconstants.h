@@ -69,6 +69,7 @@ const char DESKTOP_PLATFORM[] = "Desktop";
 const char EMBEDDED_LINUX_PLATFORM[] = "Embedded Linux";
 const char WINDOWS_CE_PLATFORM[] = "Windows CE";
 const char ANDROID_PLATFORM[] = "Android";
+const char IOS_PLATFORM[] = "Ios";
 
 const char MEEGO_HARMATTAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "MeeGo/Harmattan");
 const char MAEMO_FREMANTLE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Maemo/Fremantle");
@@ -76,6 +77,7 @@ const char DESKTOP_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Desktop");
 const char EMBEDDED_LINUX_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Embedded Linux");
 const char WINDOWS_CE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows CE");
 const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
+const char IOS_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Ios");
 
 // QML wizard icon
 // both the qt4projectmanager and the qmlprojectmanager do have qt quick wizards

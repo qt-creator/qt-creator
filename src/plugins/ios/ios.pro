@@ -1,0 +1,69 @@
+TEMPLATE = lib
+TARGET = Ios
+
+include(../../qtcreatorplugin.pri)
+
+QT += xml network
+
+HEADERS += \
+    iosconstants.h \
+    iosconfigurations.h \
+    iosmanager.h \
+    iosrunconfiguration.h \
+    iosruncontrol.h \
+    iosrunfactories.h \
+    iossettingspage.h \
+    iossettingswidget.h \
+    iosrunner.h \
+    iosdebugsupport.h \
+    iosqtversionfactory.h \
+    iosqtversion.h \
+    iosplugin.h \
+    iosdevicefactory.h \
+    iosdevice.h \
+    iossimulator.h \
+    iossimulatorfactory.h \
+    iosprobe.h \
+    iosbuildstep.h \
+    iostoolhandler.h \
+    iosdeployconfiguration.h \
+    iosdeploystep.h \
+    iosdeploystepfactory.h \
+    iosdeploystepwidget.h
+
+
+SOURCES += \
+    iosconfigurations.cpp \
+    iosmanager.cpp \
+    iosrunconfiguration.cpp \
+    iosruncontrol.cpp \
+    iosrunfactories.cpp \
+    iossettingspage.cpp \
+    iossettingswidget.cpp \
+    iosrunner.cpp \
+    iosdebugsupport.cpp \
+    iosqtversionfactory.cpp \
+    iosqtversion.cpp \
+    iosplugin.cpp \
+    iosdevicefactory.cpp \
+    iosdevice.cpp \
+    iossimulator.cpp \
+    iossimulatorfactory.cpp \
+    iosprobe.cpp \
+    iosbuildstep.cpp \
+    iostoolhandler.cpp \
+    iosdeployconfiguration.cpp \
+    iosdeploystep.cpp \
+    iosdeploystepfactory.cpp \
+    iosdeploystepwidget.cpp
+
+FORMS += \
+    iossettingswidget.ui \
+    iosbuildstep.ui \
+    iosrunconfiguration.ui \
+    iosdeploystepwidget.ui
+
+DEFINES += IOS_LIBRARY
+
+RESOURCES += ios.qrc
+

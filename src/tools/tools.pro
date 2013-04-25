@@ -4,11 +4,16 @@ SUBDIRS = qtpromaker \
      qmlpuppet \
      ../plugins/cpaster/frontend \
      sdktool \
-     valgrindfake
+     valgrindfake \
+     3rdparty
 
 win32 {
     SUBDIRS += qtcdebugger
     SUBDIRS += wininterrupt
+}
+
+mac {
+    SUBDIRS += iostool
 }
 
 QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)

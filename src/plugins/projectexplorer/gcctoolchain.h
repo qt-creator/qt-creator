@@ -148,6 +148,7 @@ private:
 class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
 public:
+    explicit ClangToolChain(Detection d);
     QString type() const;
     QString typeDisplayName() const;
     QString makeCommand(const Utils::Environment &environment) const;
@@ -166,8 +167,6 @@ protected:
     virtual CompilerFlags defaultCompilerFlags() const;
 
 private:
-    explicit ClangToolChain(Detection d);
-
     friend class Internal::ClangToolChainFactory;
     friend class ToolChainFactory;
 };

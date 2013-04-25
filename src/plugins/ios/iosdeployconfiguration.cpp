@@ -1,0 +1,138 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#include "iosconstants.h"
+#include "iosdeploystep.h"
+#include "iosdeployconfiguration.h"
+#include "iosmanager.h"
+
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/target.h>
+
+#include <qt4projectmanager/qt4project.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtsupportconstants.h>
+
+using namespace ProjectExplorer;
+
+namespace Ios {
+namespace Internal {
+
+IosDeployConfiguration::IosDeployConfiguration(Target *parent, Core::Id id)
+    : DeployConfiguration(parent, id)
+{
+    setDisplayName(tr("Deploy to iOS"));
+    setDefaultDisplayName(displayName());
+}
+
+IosDeployConfiguration::IosDeployConfiguration(Target *parent, DeployConfiguration *source)
+    : DeployConfiguration(parent, source)
+{
+    cloneSteps(source);
+}
+
+IosDeployConfigurationFactory::IosDeployConfigurationFactory(QObject *parent)
+    : DeployConfigurationFactory(parent)
+{
+    setObjectName(QLatin1String("IosDeployConfigurationFactory"));
+}
+
+bool IosDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+{
+    return availableCreationIds(parent).contains(id);
+}
+
+DeployConfiguration *IosDeployConfigurationFactory::create(Target *parent, const Core::Id id)
+{
+    IosDeployConfiguration *dc = new IosDeployConfiguration(parent, id);
+    if (!dc)
+        return 0;
+    dc->stepList()->insertStep(0, new IosDeployStep(dc->stepList()));
+    return dc;
+}
+
+bool IosDeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+{
+    return canCreate(parent, idFromMap(map));
+}
+
+DeployConfiguration *IosDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+
+    IosDeployConfiguration *dc = new IosDeployConfiguration(parent, idFromMap(map));
+    if (dc->fromMap(map))
+        return dc;
+
+    delete dc;
+    return 0;
+}
+
+bool IosDeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *source) const
+{
+    if (!IosManager::supportsIos(parent))
+        return false;
+    return source->id() == IOS_DEPLOYCONFIGURATION_ID;
+}
+
+DeployConfiguration *IosDeployConfigurationFactory::clone(Target *parent, DeployConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    return new IosDeployConfiguration(parent, source);
+}
+
+QList<Core::Id> IosDeployConfigurationFactory::availableCreationIds(Target *parent) const
+{
+    QList<Core::Id> ids;
+    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
+        return ids;
+    if (!parent->project()->supportsKit(parent->kit()))
+        return ids;
+    if (!IosManager::supportsIos(parent))
+        return ids;
+    ids << Core::Id(IOS_DEPLOYCONFIGURATION_ID);
+    return ids;
+}
+
+QString IosDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+{
+    if (id.name().startsWith(IOS_DC_PREFIX))
+        return tr("Deploy on iOS");
+    return QString();
+}
+
+bool IosDeployConfigurationFactory::canHandle(Target *parent) const
+{
+    return IosManager::supportsIos(parent);
+}
+
+} // namespace Internal
+} // namespace Ios
