@@ -77,7 +77,8 @@ SOURCES += qnxplugin.cpp \
     blackberrydeviceconnection.cpp \
     blackberrydeviceconnectionmanager.cpp \
     blackberrydeviceinformation.cpp \
-    blackberrysshkeysgenerator.cpp
+    blackberrysshkeysgenerator.cpp \
+    blackberryprocessparser.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -154,7 +155,8 @@ HEADERS += qnxplugin.h\
     blackberrydeviceconnection.h \
     blackberrydeviceconnectionmanager.h \
     blackberrydeviceinformation.h \
-    blackberrysshkeysgenerator.h
+    blackberrysshkeysgenerator.h \
+    blackberryprocessparser.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

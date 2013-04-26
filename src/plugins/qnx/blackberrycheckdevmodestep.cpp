@@ -42,11 +42,6 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-namespace {
-const char ERROR_MESSAGE_START[] = "Error: ";
-const char AUTHENTICATION_ERROR[] = "Authentication failed.";
-}
-
 BlackBerryCheckDevModeStep::BlackBerryCheckDevModeStep(ProjectExplorer::BuildStepList *bsl) :
     BlackBerryAbstractDeployStep(bsl, Core::Id(Constants::QNX_CHECK_DEVELOPMENT_MODE_BS_ID))
 {
@@ -94,26 +89,6 @@ bool BlackBerryCheckDevModeStep::init()
 ProjectExplorer::BuildStepConfigWidget *BlackBerryCheckDevModeStep::createConfigWidget()
 {
     return new BlackBerryCheckDevModeStepConfigWidget();
-}
-
-void BlackBerryCheckDevModeStep::stdOutput(const QString &line)
-{
-    handleErrorOutput(line);
-}
-
-void BlackBerryCheckDevModeStep::stdError(const QString &line)
-{
-    handleErrorOutput(line);
-}
-
-void BlackBerryCheckDevModeStep::handleErrorOutput(const QString &line)
-{
-    if (line.startsWith(QLatin1String(ERROR_MESSAGE_START))) {
-        if (line.contains(QLatin1String(AUTHENTICATION_ERROR)))
-            raiseError(tr("Authentication failed. Please make sure the password for the device is correct."));
-        else
-            raiseError(line);
-    }
 }
 
 QString BlackBerryCheckDevModeStep::password() const

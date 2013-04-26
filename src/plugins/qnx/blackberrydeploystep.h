@@ -55,7 +55,6 @@ public:
 protected:
     BlackBerryDeployStep(ProjectExplorer::BuildStepList *bsl, BlackBerryDeployStep *bs);
 
-    void stdOutput(const QString &line);
     void processStarted(const ProjectExplorer::ProcessParameters &params);
 
 private:

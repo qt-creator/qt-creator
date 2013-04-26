@@ -48,25 +48,6 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-namespace {
-int parseProgress(const QString &line)
-{
-    const QString startOfLine = QLatin1String("Info: Progress ");
-    if (!line.startsWith(startOfLine))
-        return -1;
-
-    const int percentPos = line.indexOf(QLatin1Char('%'));
-    const QString progressStr = line.mid(startOfLine.length(), percentPos - startOfLine.length());
-
-    bool ok;
-    const int progress = progressStr.toInt(&ok);
-    if (!ok)
-        return -1;
-
-    return progress;
-}
-}
-
 BlackBerryDeployStep::BlackBerryDeployStep(ProjectExplorer::BuildStepList *bsl)
     : BlackBerryAbstractDeployStep(bsl, Core::Id(Constants::QNX_DEPLOY_PACKAGE_BS_ID))
 {
@@ -142,15 +123,6 @@ void BlackBerryDeployStep::run(QFutureInterface<bool> &fi)
 
 void BlackBerryDeployStep::cleanup()
 {
-}
-
-void BlackBerryDeployStep::stdOutput(const QString &line)
-{
-    const int progress = parseProgress(line);
-    if (progress > -1)
-        reportProgress(progress);
-
-    BlackBerryAbstractDeployStep::stdOutput(line);
 }
 
 void BlackBerryDeployStep::processStarted(const ProjectExplorer::ProcessParameters &params)

@@ -29,35 +29,41 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEP_H
-#define QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEP_H
+#ifndef QNX_INTERNAL_BLACKBERRYPROCESSPARSER_H
+#define QNX_INTERNAL_BLACKBERRYPROCESSPARSER_H
 
-#include "blackberryabstractdeploystep.h"
+#include <projectexplorer/ioutputparser.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryCheckDevModeStep : public BlackBerryAbstractDeployStep
+class BlackBerryProcessParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
-    friend class BlackBerryCheckDevModeStepFactory;
 
 public:
-    explicit BlackBerryCheckDevModeStep(ProjectExplorer::BuildStepList *bsl);
+    BlackBerryProcessParser();
 
-    bool init();
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
 
-protected:
-    BlackBerryCheckDevModeStep(ProjectExplorer::BuildStepList *bsl, BlackBerryCheckDevModeStep *bs);
-
-    void processStarted(const ProjectExplorer::ProcessParameters &params);
+signals:
+    void progressParsed(int progress);
+    void pidParsed(qint64 pid);
+    void applicationIdParsed(const QString &applicationId);
 
 private:
-    QString password() const;
+    void parse(const QString &line);
+
+    void parseErrorAndWarningMessage(const QString &line, bool isErrorMessage);
+    void parseProgress(const QString &line);
+    void parsePid(const QString &line);
+    void parseApplicationId(const QString &line);
+
+    QMap<QString, QString> m_messageReplacements;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEP_H
+#endif // QNX_INTERNAL_BLACKBERRYPROCESSPARSER_H

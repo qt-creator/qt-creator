@@ -32,6 +32,8 @@
 #ifndef QNX_INTERNAL_BLACKBERRYABSTRACTDEPLOYSTEP_H
 #define QNX_INTERNAL_BLACKBERRYABSTRACTDEPLOYSTEP_H
 
+#include "blackberryprocessparser.h"
+
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/processparameters.h>
 
@@ -62,7 +64,6 @@ protected:
     BlackBerryAbstractDeployStep(ProjectExplorer::BuildStepList *bsl, BlackBerryAbstractDeployStep *bs);
 
     void addCommand(const QString &command, const QStringList &arguments);
-    void reportProgress(int progress);
 
     virtual void stdOutput(const QString &line);
     virtual void stdError(const QString &line);
@@ -74,6 +75,8 @@ protected:
     void raiseError(const QString &errorMessage);
 
 private slots:
+    void reportProgress(int progress);
+
     void processReadyReadStdOutput();
     void processReadyReadStdError();
 
@@ -97,6 +100,8 @@ private:
     QTimer *m_timer;
     QFutureInterface<bool> *m_futureInterface;
     QEventLoop *m_eventLoop;
+
+    BlackBerryProcessParser m_outputParser;
 };
 
 } // namespace Internal

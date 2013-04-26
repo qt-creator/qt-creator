@@ -33,6 +33,7 @@
 #define QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
 
 #include "blackberrydeviceconfiguration.h"
+#include "blackberryprocessparser.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -94,6 +95,9 @@ private slots:
     void handleSlog2InfoFound();
     void readLaunchTime();
 
+    void setPid(qint64 pid);
+    void setApplicationId(const QString &applicationId);
+
 private:
     void reset();
     void killTailProcess();
@@ -118,6 +122,8 @@ private:
 
     QProcess *m_launchProcess;
     QProcess *m_stopProcess;
+    BlackBerryProcessParser m_launchStopProcessParser;
+
     QSsh::SshRemoteProcessRunner *m_tailProcess;
     QSsh::SshRemoteProcessRunner *m_testSlog2Process;
     QSsh::SshRemoteProcessRunner *m_launchDateTimeProcess;

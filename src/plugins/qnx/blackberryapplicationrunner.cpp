@@ -44,31 +44,6 @@
 #include <QDir>
 
 namespace {
-qint64 parsePid(const QString &line)
-{
-    QTC_ASSERT(line.startsWith(QLatin1String("result::")), return -1);
-
-    int pidIndex = -1;
-    if (line.contains(QLatin1String("running"))) // "result::running,<pid>"
-        pidIndex = 16;
-    else // "result::<pid>"
-        pidIndex = 8;
-
-    bool ok;
-    const qint64 pid = line.mid(pidIndex).toInt(&ok);
-    if (!ok)
-        return -1;
-    return pid;
-}
-
-QString parseAppId(const QString &line)
-{
-    QTC_ASSERT(line.startsWith(QLatin1String("Info: Launching")), return QString());
-
-    const int endOfId = line.indexOf(QLatin1String("..."));
-    return line.mid(16, endOfId - 16);
-}
-
 bool parseRunningState(const QString &line)
 {
     QTC_ASSERT(line.startsWith(QLatin1String("result::")), return false);
@@ -115,6 +90,9 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     m_runningStateTimer->setSingleShot(true);
     connect(m_runningStateTimer, SIGNAL(timeout()), this, SLOT(determineRunningState()));
     connect(this, SIGNAL(started()), this, SLOT(checkSlog2Info()));
+
+    connect(&m_launchStopProcessParser, SIGNAL(pidParsed(qint64)), this, SLOT(setPid(qint64)));
+    connect(&m_launchStopProcessParser, SIGNAL(applicationIdParsed(QString)), this, SLOT(setApplicationId(QString)));
 }
 
 void BlackBerryApplicationRunner::start()
@@ -229,12 +207,8 @@ void BlackBerryApplicationRunner::readStandardOutput()
     process->setReadChannel(QProcess::StandardOutput);
     while (process->canReadLine()) {
         QString line = QString::fromLocal8Bit(process->readLine());
+        m_launchStopProcessParser.stdOutput(line);
         emit output(line, Utils::StdOutFormat);
-
-        if (line.startsWith(QLatin1String("result::")))
-            m_pid = parsePid(line);
-        else if (line.startsWith(QLatin1String("Info: Launching")))
-            m_appId = parseAppId(line);
     }
 }
 
@@ -244,6 +218,7 @@ void BlackBerryApplicationRunner::readStandardError()
     process->setReadChannel(QProcess::StandardError);
     while (process->canReadLine()) {
         const QString line = QString::fromLocal8Bit(process->readLine());
+        m_launchStopProcessParser.stdError(line);
         emit output(line, Utils::StdErrFormat);
     }
 }
@@ -316,6 +291,16 @@ void BlackBerryApplicationRunner::readLaunchTime()
             this, SLOT(tailApplicationLog()));
 
     m_launchDateTimeProcess->run("date +\"%d %H:%M:%S\"", m_sshParams);
+}
+
+void BlackBerryApplicationRunner::setPid(qint64 pid)
+{
+    m_pid = pid;
+}
+
+void BlackBerryApplicationRunner::setApplicationId(const QString &applicationId)
+{
+    m_appId = applicationId;
 }
 
 void BlackBerryApplicationRunner::handleTailOutput()

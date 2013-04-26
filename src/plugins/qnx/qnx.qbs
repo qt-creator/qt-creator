@@ -93,6 +93,8 @@ QtcPlugin {
         "blackberryqtversion.h",
         "blackberryqtversionfactory.cpp",
         "blackberryqtversionfactory.h",
+        "blackberryprocessparser.cpp",
+        "blackberryprocessparser.h",
         "blackberryrunconfiguration.cpp",
         "blackberryrunconfiguration.h",
         "blackberryrunconfigurationfactory.cpp",

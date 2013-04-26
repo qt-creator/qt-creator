@@ -53,6 +53,8 @@ BlackBerryAbstractDeployStep::BlackBerryAbstractDeployStep(ProjectExplorer::Buil
     , m_futureInterface(0)
     , m_eventLoop(0)
 {
+    connect(&m_outputParser, SIGNAL(addTask(ProjectExplorer::Task)), this, SIGNAL(addTask(ProjectExplorer::Task)));
+    connect(&m_outputParser, SIGNAL(progressParsed(int)), this, SLOT(reportProgress(int)));
 }
 
 BlackBerryAbstractDeployStep::BlackBerryAbstractDeployStep(ProjectExplorer::BuildStepList *bsl, BlackBerryAbstractDeployStep *bs)
@@ -63,6 +65,8 @@ BlackBerryAbstractDeployStep::BlackBerryAbstractDeployStep(ProjectExplorer::Buil
     , m_futureInterface(0)
     , m_eventLoop(0)
 {
+    connect(&m_outputParser, SIGNAL(addTask(ProjectExplorer::Task)), this, SIGNAL(addTask(ProjectExplorer::Task)));
+    connect(&m_outputParser, SIGNAL(progressParsed(int)), this, SLOT(reportProgress(int)));
 }
 
 BlackBerryAbstractDeployStep::~BlackBerryAbstractDeployStep()
@@ -196,6 +200,7 @@ void BlackBerryAbstractDeployStep::processReadyReadStdOutput()
 
 void BlackBerryAbstractDeployStep::stdOutput(const QString &line)
 {
+    m_outputParser.stdOutput(line);
     emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
 }
 
@@ -238,5 +243,6 @@ void BlackBerryAbstractDeployStep::handleProcessFinished(int exitCode, QProcess:
 
 void BlackBerryAbstractDeployStep::stdError(const QString &line)
 {
+    m_outputParser.stdError(line);
     emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
 }
