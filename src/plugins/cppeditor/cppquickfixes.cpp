@@ -1245,7 +1245,7 @@ void ConvertCStringToNSString::match(const CppQuickFixInterface &interface,
 {
     CppRefactoringFilePtr file = interface->currentFile();
 
-    if (interface->editor()->mimeType() != QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
+    if (!interface->editor()->isObjCEnabled())
         return;
 
     WrapStringLiteral::Type type = WrapStringLiteral::TypeNone;
