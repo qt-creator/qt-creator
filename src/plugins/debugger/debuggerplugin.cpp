@@ -1803,7 +1803,10 @@ void DebuggerPluginPrivate::attachToQmlPort()
     foreach (Project *project, projects)
         sourceFiles << project->files(Project::ExcludeGeneratedFiles);
 
+    sp.projectSourceDirectory =
+            !projects.isEmpty() ? projects.first()->projectDirectory() : QString();
     sp.projectSourceFiles = sourceFiles;
+    sp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
