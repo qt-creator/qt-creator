@@ -12,6 +12,8 @@
 #include <private/qquicktextinput_p.h>
 #include <private/qquicktextedit_p.h>
 
+#include <designersupport.h>
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -498,6 +500,10 @@ void GraphicalNodeInstance::doComponentComplete()
     doComponentCompleteRecursive(quickItem());
 
     disableTextCursor(quickItem());
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
+    DesignerSupport::emitComponentCompleteSignalForAttachedProperty(quickItem());
+#endif
 
     quickItem()->update();
 }
