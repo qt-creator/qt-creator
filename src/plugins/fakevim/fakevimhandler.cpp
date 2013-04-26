@@ -4376,6 +4376,7 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         // FIXME: Complete actual commands.
         g.commandBuffer.historyUp();
     } else if (input.isReturn()) {
+        editor()->focus();
         showMessage(MessageCommand, g.commandBuffer.display());
         handleExCommand(g.commandBuffer.contents());
         g.commandBuffer.clear();
