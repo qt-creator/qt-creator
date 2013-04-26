@@ -30,7 +30,6 @@ QtcPlugin {
         "qmlprofiler_global.h",
         "qmlprofilerattachdialog.cpp",
         "qmlprofilerattachdialog.h",
-        "qmlprofilerattachdialog.ui",
         "qmlprofilerclientmanager.cpp",
         "qmlprofilerclientmanager.h",
         "qmlprofilerconstants.h",

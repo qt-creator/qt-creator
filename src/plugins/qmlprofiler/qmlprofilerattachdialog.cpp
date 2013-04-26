@@ -28,51 +28,81 @@
 ****************************************************************************/
 
 #include "qmlprofilerattachdialog.h"
-#include "ui_qmlprofilerattachdialog.h"
+
+#include <projectexplorer/kitchooser.h>
+
+#include <coreplugin/id.h>
+
+#include <QSpinBox>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QPushButton>
+
+using namespace ProjectExplorer;
 
 namespace QmlProfiler {
 namespace Internal {
 
+class QmlProfilerAttachDialogPrivate
+{
+public:
+    QSpinBox *portSpinBox;
+    KitChooser *kitChooser;
+};
+
 QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::QmlProfilerAttachDialog)
+    d(new QmlProfilerAttachDialogPrivate)
 {
-    ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowTitle(tr("Start QML Profiler"));
+
+    d->kitChooser = new KitChooser(this);
+    d->kitChooser->populate();
+
+    d->portSpinBox = new QSpinBox(this);
+    d->portSpinBox->setMaximum(65535);
+    d->portSpinBox->setValue(3768);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    QFormLayout *formLayout = new QFormLayout();
+    formLayout->addRow(tr("Kit:"), d->kitChooser);
+    formLayout->addRow(tr("&Port:"), d->portSpinBox);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    verticalLayout->addLayout(formLayout);
+    verticalLayout->addWidget(buttonBox);
+
+    connect(buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), SLOT(reject()));
 }
 
 QmlProfilerAttachDialog::~QmlProfilerAttachDialog()
 {
-    delete ui;
+    delete d;
 }
 
-QString QmlProfilerAttachDialog::address() const
+int QmlProfilerAttachDialog::port() const
 {
-    return ui->addressLineEdit->text();
+    return d->portSpinBox->value();
 }
 
-uint QmlProfilerAttachDialog::port() const
+void QmlProfilerAttachDialog::setPort(const int port)
 {
-    return ui->portSpinBox->value();
+    d->portSpinBox->setValue(port);
 }
 
-QString QmlProfilerAttachDialog::sysroot() const
+ProjectExplorer::Kit *QmlProfilerAttachDialog::kit() const
 {
-    return ui->sysrootChooser->path();
+    return d->kitChooser->currentKit();
 }
 
-void QmlProfilerAttachDialog::setAddress(const QString &address)
+void QmlProfilerAttachDialog::setKitId(const Core::Id &id)
 {
-    ui->addressLineEdit->setText(address);
-}
-
-void QmlProfilerAttachDialog::setPort(uint port)
-{
-    ui->portSpinBox->setValue(port);
-}
-
-void QmlProfilerAttachDialog::setSysroot(const QString &sysroot)
-{
-    ui->sysrootChooser->setPath(sysroot);
+    d->kitChooser->setCurrentKitId(id);
 }
 
 } // namespace Internal

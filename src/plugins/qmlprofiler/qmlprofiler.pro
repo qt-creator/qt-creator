@@ -59,6 +59,3 @@ OTHER_FILES += \
     qml/SelectionRange.qml \
     qml/SelectionRangeDetails.qml \
     qml/Overview.qml
-
-FORMS += \
-    qmlprofilerattachdialog.ui

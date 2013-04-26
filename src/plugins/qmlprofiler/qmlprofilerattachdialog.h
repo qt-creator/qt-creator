@@ -32,13 +32,13 @@
 
 #include <QDialog>
 
+namespace Core { class Id; }
+namespace ProjectExplorer { class Kit; }
+
 namespace QmlProfiler {
 namespace Internal {
 
-namespace Ui {
-    class QmlProfilerAttachDialog;
-}
-
+class QmlProfilerAttachDialogPrivate;
 class QmlProfilerAttachDialog : public QDialog
 {
     Q_OBJECT
@@ -47,16 +47,14 @@ public:
     explicit QmlProfilerAttachDialog(QWidget *parent = 0);
     ~QmlProfilerAttachDialog();
 
-    QString address() const;
-    uint port() const;
-    QString sysroot() const;
+    int port() const;
+    void setPort(const int port);
 
-    void setAddress(const QString &address);
-    void setPort(uint port);
-    void setSysroot(const QString &sysroot);
+    ProjectExplorer::Kit *kit() const;
+    void setKitId(const Core::Id &id);
 
 private:
-    Ui::QmlProfilerAttachDialog *ui;
+    QmlProfilerAttachDialogPrivate *d;
 };
 
 } // namespace Internal
