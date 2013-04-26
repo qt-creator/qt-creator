@@ -1719,6 +1719,11 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     if (!handler)
         return;
 
+    // Focus editor first so actions can be executed in correct context.
+    QWidget *editor = handler->widget();
+    if (editor)
+        editor->setFocus();
+
     *handled = true;
     if (cmd.matches(_("w"), _("write")) || cmd.cmd == _("wq")) {
         // :w[rite]
