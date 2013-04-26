@@ -86,7 +86,7 @@ public:
 
     QMap<int, int> skippedLines() const { return m_skippedLines; }
 
-    void setLineNumber(int blockNumber, const QString &lineNumber);
+    void setLineNumber(int blockNumber, int lineNumber);
     void setFileName(int blockNumber, const QString &fileName) { m_fileNames[blockNumber] = fileName; setSeparator(blockNumber, true); }
     void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; setSeparator(blockNumber, true); }
     void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
@@ -107,14 +107,16 @@ protected:
                                  const QTextBlock &block,
                                  QPointF offset,
                                  const QRect &clip);
+    void mouseDoubleClickEvent(QMouseEvent *e);
     virtual void paintEvent(QPaintEvent *e);
     virtual void scrollContentsBy(int dx, int dy);
 
 private:
     void paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect);
     void paintSeparator(QPainter &painter, const QString &text, const QTextBlock &block, int top);
+    void jumpToOriginalFile(const QTextCursor &cursor);
 
-    QMap<int, QString> m_lineNumbers;
+    QMap<int, int> m_lineNumbers;
     int m_lineNumberDigits;
     // block number, fileName
     QMap<int, QString> m_fileNames;
@@ -135,7 +137,9 @@ DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
 
 QString DiffViewEditorWidget::lineNumber(int blockNumber) const
 {
-    return m_lineNumbers.value(blockNumber);
+    if (m_lineNumbers.contains(blockNumber))
+        return QString::number(m_lineNumbers.value(blockNumber));
+    return QString();
 }
 
 int DiffViewEditorWidget::lineNumberDigits() const
@@ -189,10 +193,11 @@ QString DiffViewEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
     return convertToPlainText(text);
 }
 
-void DiffViewEditorWidget::setLineNumber(int blockNumber, const QString &lineNumber)
+void DiffViewEditorWidget::setLineNumber(int blockNumber, int lineNumber)
 {
+    const QString lineNumberString = QString::number(lineNumber);
     m_lineNumbers.insert(blockNumber, lineNumber);
-    m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumber.count());
+    m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumberString.count());
 }
 
 void DiffViewEditorWidget::clearAllData()
@@ -235,6 +240,36 @@ void DiffViewEditorWidget::paintSeparator(QPainter &painter, const QString &text
     painter.drawText(QPointF(x, lineRect.top() + textLine.ascent()),
                      elidedText);
     painter.restore();
+}
+
+void DiffViewEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::LeftButton && !(e->modifiers() & Qt::ShiftModifier)) {
+        QTextCursor cursor = cursorForPosition(e->pos());
+        jumpToOriginalFile(cursor);
+    }
+    SnippetEditorWidget::mouseDoubleClickEvent(e);
+}
+
+void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
+{
+    if (m_fileNames.isEmpty())
+        return;
+
+    const int blockNumber = cursor.blockNumber();
+    const int position = cursor.positionInBlock();
+    if (!m_lineNumbers.contains(blockNumber))
+        return;
+
+    const int lineNr = m_lineNumbers.value(blockNumber);
+    QMap<int, QString>::const_iterator it = m_fileNames.upperBound(blockNumber);
+    if (it != m_fileNames.constBegin())
+        --it;
+    const QString fileName = it.value();
+
+    Core::IEditor *ed = Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
+    if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
+        editor->gotoLine(lineNr, position);
 }
 
 void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
@@ -914,7 +949,7 @@ void DiffEditorWidget::showDiff()
                 if (leftLineData.textLineType == TextLineData::TextLine) {
                     leftText += leftLineData.text;
                     leftLineNumber++;
-                    m_leftEditor->setLineNumber(blockNumber, QString::number(leftLineNumber));
+                    m_leftEditor->setLineNumber(blockNumber, leftLineNumber);
                 } else if (leftLineData.textLineType == TextLineData::Separator) {
                     m_leftEditor->setSeparator(blockNumber, true);
                 }
@@ -922,7 +957,7 @@ void DiffEditorWidget::showDiff()
                 if (rightLineData.textLineType == TextLineData::TextLine) {
                     rightText += rightLineData.text;
                     rightLineNumber++;
-                    m_rightEditor->setLineNumber(blockNumber, QString::number(rightLineNumber));
+                    m_rightEditor->setLineNumber(blockNumber, rightLineNumber);
                 } else if (rightLineData.textLineType == TextLineData::Separator) {
                     m_rightEditor->setSeparator(blockNumber, true);
                 }
