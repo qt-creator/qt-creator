@@ -92,6 +92,8 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <android/androidconstants.h>
+
 #include <texteditor/basetexteditor.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -1754,7 +1756,16 @@ void DebuggerPluginPrivate::attachToQmlPort()
     setConfigValue(_("LastQmlServerPort"), dlg.port());
     setConfigValue(_("LastProfile"), kit->id().toSetting());
 
-    sp.qmlServerAddress = sp.connParams.host;
+    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    if (device) {
+        sp.connParams = device->sshParameters();
+        if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
+                || device->type() == Android::Constants::ANDROID_DEVICE_TYPE) {
+            sp.qmlServerAddress = QLatin1String("localhost");
+        } else {
+            sp.qmlServerAddress = sp.connParams.host;
+        }
+    }
     sp.qmlServerPort = dlg.port();
     sp.startMode = AttachToRemoteProcess;
     sp.closeMode = KillAtClose;
