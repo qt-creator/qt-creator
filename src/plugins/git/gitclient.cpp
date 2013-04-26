@@ -1267,13 +1267,13 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     switch (checkCommandInProgressInGitDir(gitDir)) {
     case Rebase:
     case RebaseMerge:
-        return data.topic = tr("Rebasing");
+        return data.topic = tr("REBASING");
     case Revert:
-        return data.topic = tr("Reverting");
+        return data.topic = tr("REVERTING");
     case CherryPick:
-        return data.topic = tr("Cherry Picking");
+        return data.topic = tr("CHERRY-PICKING");
     case Merge:
-        return data.topic = tr("Merging");
+        return data.topic = tr("MERGING");
     default:
         break;
     }
