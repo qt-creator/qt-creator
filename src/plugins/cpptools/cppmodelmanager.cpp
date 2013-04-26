@@ -514,7 +514,8 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
         m_currentDoc->addIncludeFile(absoluteFileName, line);
     if (m_included.contains(absoluteFileName))
         return; // we've already seen this file.
-    m_included.insert(absoluteFileName);
+    if (absoluteFileName != modelManager()->configurationFileName())
+        m_included.insert(absoluteFileName);
 
     unsigned editorRevision = 0;
     QString contents;
