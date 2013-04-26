@@ -96,6 +96,7 @@ private slots:
     void test_SwitchMethodDeclarationDefinition_fromFunctionDeclarationSymbol();
     void test_SwitchMethodDeclarationDefinition_fromFunctionDefinitionSymbol();
     void test_SwitchMethodDeclarationDefinition_fromFunctionBody();
+    void test_SwitchMethodDeclarationDefinition_fromReturnType();
 
     void test_FollowSymbolUnderCursor_globalVarFromFunction();
     void test_FollowSymbolUnderCursor_funLocalVarHidesClassMember();

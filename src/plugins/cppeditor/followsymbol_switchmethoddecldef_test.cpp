@@ -420,6 +420,38 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionBody()
     test.run();
 }
 
+void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromReturnType()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    const QByteArray headerContents =
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    C();\n"
+        "    int $function();\n"
+        "};\n"
+        ;
+    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
+
+    const QByteArray sourceContents =
+        "#include \"file.h\"\n"
+        "\n"
+        "C::C()\n"
+        "{\n"
+        "}\n"                   // Line 5
+        "\n"
+        "@int C::function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"                   // Line 10
+        ;
+    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+
+    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinition, testFiles);
+    test.run();
+}
+
 /// Check ...
 void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromFunction()
 {

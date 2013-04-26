@@ -1180,60 +1180,70 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
 
 void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 {
-    if (! m_modelManager)
+    if (!m_modelManager)
         return;
 
-    const Snapshot snapshot = m_modelManager->snapshot();
+    if (!m_lastSemanticInfo.doc)
+        return;
 
-    if (Document::Ptr thisDocument = snapshot.document(editorDocument()->fileName())) {
-        int line = 0, positionInBlock = 0;
-        convertPosition(position(), &line, &positionInBlock);
+    // Find function declaration or definition under cursor
+    Function *functionDefinitionSymbol = 0;
+    Symbol *functionDeclarationSymbol = 0;
 
-        Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, positionInBlock + 1);
-        if (! lastVisibleSymbol)
-            return;
+    ASTPath astPathFinder(m_lastSemanticInfo.doc);
+    const QList<AST *> astPath = astPathFinder(textCursor());
 
-        Function *function = lastVisibleSymbol->asFunction();
-        if (! function)
-            function = lastVisibleSymbol->enclosingFunction();
-
-        CPPEditorWidget::Link symbolLink;
-
-        if (function) {
-            LookupContext context(thisDocument, snapshot);
-
-            Function *functionDefinition = function->asFunction();
-            ClassOrNamespace *binding = context.lookupType(functionDefinition);
-
-            const QList<LookupItem> declarations = context.lookup(functionDefinition->name(),
-                functionDefinition->enclosingScope());
-            QList<Symbol *> best;
-            foreach (const LookupItem &r, declarations) {
-                if (Symbol *decl = r.declaration()) {
-                    if (Function *funTy = decl->type()->asFunctionType()) {
-                        if (funTy->isEqualTo(function)) {
-                            if (decl != function && binding == r.binding())
-                                best.prepend(decl);
-                            else
-                                best.append(decl);
-                        }
+    for (int i = 0, size = astPath.size(); i < size; ++i) {
+        AST *ast = astPath.at(i);
+        if (FunctionDefinitionAST *functionDefinitionAST = ast->asFunctionDefinition()) {
+            if ((functionDefinitionSymbol = functionDefinitionAST->symbol))
+                break; // Function definition found!
+        } else if (SimpleDeclarationAST *simpleDeclaration = ast->asSimpleDeclaration()) {
+            if (List<Symbol *> *symbols = simpleDeclaration->symbols) {
+                if (Symbol *symbol = symbols->value) {
+                    if (symbol->isDeclaration() && symbol->type()->isFunctionType()) {
+                        functionDeclarationSymbol = symbol;
+                        break; // Function declaration found!
                     }
                 }
             }
-            if (best.isEmpty())
-                return;
+        }
+    }
 
-            symbolLink = linkToSymbol(best.first());
-        } else if (lastVisibleSymbol
-                   && lastVisibleSymbol->isDeclaration()
-                   && lastVisibleSymbol->type()->isFunctionType()) {
-            symbolLink = linkToSymbol(
-                symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot));
+    // Link to function definition/declaration
+    CPPEditorWidget::Link symbolLink;
+    if (functionDeclarationSymbol) {
+        symbolLink = linkToSymbol(symbolFinder()
+            ->findMatchingDefinition(functionDeclarationSymbol, modelManager()->snapshot()));
+    } else if (functionDefinitionSymbol) {
+        const Snapshot snapshot = m_modelManager->snapshot();
+        LookupContext context(m_lastSemanticInfo.doc, snapshot);
+        ClassOrNamespace *binding = context.lookupType(functionDefinitionSymbol);
+        const QList<LookupItem> declarations = context.lookup(functionDefinitionSymbol->name(),
+            functionDefinitionSymbol->enclosingScope());
+
+        QList<Symbol *> best;
+        foreach (const LookupItem &r, declarations) {
+            if (Symbol *decl = r.declaration()) {
+                if (Function *funTy = decl->type()->asFunctionType()) {
+                    if (funTy->isEqualTo(functionDefinitionSymbol)) {
+                        if (decl != functionDefinitionSymbol && binding == r.binding())
+                            best.prepend(decl);
+                        else
+                            best.append(decl);
+                    }
+                }
+            }
         }
 
-        if (symbolLink.hasValidTarget())
-            openCppEditorAt(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
+        if (best.isEmpty())
+            return;
+        symbolLink = linkToSymbol(best.first());
     }
+
+    // Open Editor at link position
+    if (symbolLink.hasValidTarget())
+        openCppEditorAt(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
 }
 
 static inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbols)
