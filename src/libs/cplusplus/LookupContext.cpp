@@ -309,6 +309,15 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                             return lookupType(namedTy->name(), scope);
                     }
                 }
+            } else if (UsingDeclaration *ud = m->asUsingDeclaration()) {
+                if (name->isNameId()) {
+                    if (const QualifiedNameId *q = ud->name()->asQualifiedNameId()) {
+                        if (q->name()->isEqualTo(name)) {
+                            return bindings()->globalNamespace()->lookupType(q);
+                        }
+                    }
+
+                }
             }
         }
         return lookupType(name, scope->enclosingScope());

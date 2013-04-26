@@ -1882,3 +1882,136 @@ void CppToolsPlugin::test_completion_QTCREATORBUG9098()
     QVERIFY(completions.contains(QLatin1String("c")));
     QVERIFY(completions.contains(QLatin1String("B")));
 }
+
+void CppToolsPlugin::test_completion_type_and_using_declaration()
+{
+    test_completion();
+}
+
+void CppToolsPlugin::test_completion_type_and_using_declaration_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "namespace NS\n"
+            "{\n"
+            "struct C { int m; };\n"
+            "}\n"
+            "void foo()\n"
+            "{\n"
+            "    using NS::C;\n"
+            "    C c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n";
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: type and using declaration inside function")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "namespace NS\n"
+            "{\n"
+            "struct C { int m; };\n"
+            "}\n"
+            "using NS::C;\n"
+            "void foo()\n"
+            "{\n"
+            "    C c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n";
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: type and using declaration in global namespace")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "struct C { int m; };\n"
+            "namespace NS\n"
+            "{\n"
+            "   using ::C;\n"
+            "   void foo()\n"
+            "   {\n"
+            "       C c;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n";
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: type in global namespace and using declaration in NS namespace")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "struct C { int m; };\n"
+            "namespace NS\n"
+            "{\n"
+            "   void foo()\n"
+            "   {\n"
+            "       using ::C;\n"
+            "       C c;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n";
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: type in global namespace and using declaration inside function in NS namespace")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "namespace NS1\n"
+            "{\n"
+            "struct C { int m; };\n"
+            "}\n"
+            "namespace NS2\n"
+            "{\n"
+            "   void foo()\n"
+            "   {\n"
+            "       using NS1::C;\n"
+            "       C c;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n";
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: type inside namespace NS1 and using declaration in function inside NS2 namespace")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "namespace NS1\n"
+            "{\n"
+            "struct C { int m; };\n"
+            "}\n"
+            "namespace NS2\n"
+            "{\n"
+            "   using NS1::C;\n"
+            "   void foo()\n"
+            "   {\n"
+            "       C c;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n";
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: type inside namespace NS1 and using declaration inside NS2 namespace")
+            << code << completions;
+
+}
