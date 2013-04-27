@@ -65,8 +65,10 @@ public:
     ChangeCommand command() const;
 
 private slots:
+    void chooseWorkingDirectory();
+    void selectCommitFromRecentHistory();
     void setDetails(int exitCode);
-    void recalculateDetails(const QString &ref);
+    void recalculateDetails();
     void acceptCheckout();
     void acceptCherryPick();
     void acceptRevert();
@@ -79,14 +81,16 @@ private:
     QString m_gitBinaryPath;
     QProcessEnvironment m_gitEnvironment;
 
-    QLabel *m_workingDirectoryLabel;
+    QLineEdit *m_workingDirEdit;
     QLineEdit *m_changeNumberEdit;
-    QPlainTextEdit *m_detailsText;
+    QPushButton *m_selectDirButton;
+    QPushButton *m_selectFromHistoryButton;
     QPushButton *m_showButton;
     QPushButton *m_cherryPickButton;
     QPushButton *m_revertButton;
     QPushButton *m_checkoutButton;
     QPushButton *m_cancelButton;
+    QPlainTextEdit *m_detailsText;
 
     ChangeCommand m_command;
 };

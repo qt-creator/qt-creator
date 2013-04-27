@@ -113,6 +113,14 @@ QString LogChangeDialog::commit() const
     return QString();
 }
 
+int LogChangeDialog::commitIndex() const
+{
+    const QModelIndex currentIndex = m_treeView->selectionModel()->currentIndex();
+    if (currentIndex.isValid())
+        return currentIndex.row();
+    return -1;
+}
+
 QString LogChangeDialog::resetFlag() const
 {
     if (!m_resetTypeComboBox)

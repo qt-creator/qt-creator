@@ -54,6 +54,7 @@ public:
     bool runDialog(const QString &repository);
 
     QString commit() const;
+    int commitIndex() const;
     QString resetFlag() const;
 
 private:
