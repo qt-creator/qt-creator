@@ -81,6 +81,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Perforce
+} // namespace Git
 
 #endif // GITSUBMITEDITORWIDGET_H
