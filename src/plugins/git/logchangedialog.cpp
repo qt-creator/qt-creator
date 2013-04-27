@@ -61,7 +61,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent)
     headers << tr("Sha1")<< tr("Subject");
     m_model->setHorizontalHeaderLabels(headers);
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(new QLabel(tr("Reset to:"), this));
+    layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));
     m_treeView->setModel(m_model);
     m_treeView->setMinimumWidth(300);
     m_treeView->setUniformRowHeights(true);
