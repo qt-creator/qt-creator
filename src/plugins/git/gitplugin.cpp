@@ -758,9 +758,9 @@ void GitPlugin::startRebase()
     dialog.setWindowTitle(tr("Interactive Rebase"));
     if (!dialog.runDialog(workingDirectory))
         return;
-    const QString change = dialog.commit() + QLatin1Char('^');
+    const QString change = dialog.commit();
     if (!change.isEmpty())
-        m_gitClient->interactiveRebase(workingDirectory, change);
+        m_gitClient->interactiveRebase(workingDirectory, change + QLatin1Char('^'));
 }
 
 void GitPlugin::startChangeRelatedAction()
