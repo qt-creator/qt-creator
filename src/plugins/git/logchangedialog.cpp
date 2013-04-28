@@ -128,7 +128,7 @@ bool LogChangeDialog::populateLog(const QString &repository)
     // Retrieve log using a custom format "Sha1:Subject [(refs)]"
     GitClient *client = GitPlugin::instance()->gitClient();
     QStringList arguments;
-    arguments << QLatin1String("--max-count=30") << QLatin1String("--format=%h:%s %d");
+    arguments << QLatin1String("--max-count=40") << QLatin1String("--format=%h:%s %d");
     QString output;
     if (!client->synchronousLog(repository, arguments, &output))
         return false;
