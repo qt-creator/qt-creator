@@ -440,13 +440,11 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
 
     ProjectExplorer::Kit *k = 0;
     QtSupport::BaseQtVersion *qtVersion = 0;
-    ProjectExplorer::ToolChain *tc = 0;
     if (ProjectExplorer::Target *target = activeTarget())
         k = target->kit();
     else
         k = ProjectExplorer::KitManager::instance()->defaultKit();
     qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-    tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
 
     CppTools::CppModelManagerInterface *modelmanager =
         CppTools::CppModelManagerInterface::instance();
@@ -470,32 +468,14 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
 
-            QStringList grpIncludePaths;
-            QStringList grpFrameworkPaths;
-            QByteArray grpDefines;
-            bool isCxx11;
             const QStringList cxxFlags = props.getModulePropertiesAsStringList(
                         QLatin1String(CONFIG_CPP_MODULE),
                         QLatin1String(CONFIG_CXXFLAGS));
 
-            // Toolchain specific stuff:
-            QList<ProjectExplorer::HeaderPath> includePaths;
-            if (tc) {
-                includePaths = tc->systemHeaderPaths(cxxFlags, ProjectExplorer::SysRootKitInformation::sysRoot(k));
-                grpDefines += tc->predefinedMacros(cxxFlags);
-                if (tc->compilerFlags(cxxFlags) | ProjectExplorer::ToolChain::StandardCxx11)
-                    isCxx11 = true;
-            }
-            foreach (const ProjectExplorer::HeaderPath &headerPath, includePaths) {
-                if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
-                    grpFrameworkPaths.append(headerPath.path());
-                else
-                    grpIncludePaths.append(headerPath.path());
-            }
-
             QStringList list = props.getModulePropertiesAsStringList(
                         QLatin1String(CONFIG_CPP_MODULE),
                         QLatin1String(CONFIG_DEFINES));
+            QByteArray grpDefines;
             foreach (const QString &def, list) {
                 QByteArray data = def.toUtf8();
                 int pos = data.indexOf('=');
@@ -506,6 +486,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_INCLUDEPATHS));
+            QStringList grpIncludePaths;
             foreach (const QString &p, list) {
                 const QString cp = Utils::FileName::fromUserInput(p).toString();
                 grpIncludePaths.append(cp);
@@ -513,6 +494,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
+            QStringList grpFrameworkPaths;
             foreach (const QString &p, list) {
                 const QString cp = Utils::FileName::fromUserInput(p).toString();
                 grpFrameworkPaths.append(cp);
@@ -522,6 +504,12 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
                     QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
 
             CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
+            // TODO: qbs has separate variable for CFLAGS
+            part->evaluateToolchain(ProjectExplorer::ToolChainKitInformation::toolChain(k),
+                                    cxxFlags,
+                                    cxxFlags,
+                                    ProjectExplorer::SysRootKitInformation::sysRoot(k));
+
             CppTools::ProjectFileAdder adder(part->files);
             foreach (const QString &file, grp.allFilePaths())
                 if (adder.maybeAdd(file))
@@ -530,14 +518,10 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
                                                   CppTools::ProjectFile::CXXHeader);
 
             part->qtVersion = qtVersionForPart;
-            // TODO: qbs has separate variable for CFLAGS
-            part->cVersion = CppTools::ProjectPart::C99;
-            part->cxxVersion = isCxx11 ? CppTools::ProjectPart::CXX11 : CppTools::ProjectPart::CXX98;
-            // TODO: get the exact cxxExtensions from toolchain
-            part->includePaths = grpIncludePaths;
-            part->frameworkPaths = grpFrameworkPaths;
+            part->includePaths += grpIncludePaths;
+            part->frameworkPaths += grpFrameworkPaths;
             part->precompiledHeaders = QStringList(pch);
-            part->defines = grpDefines;
+            part->defines += grpDefines;
             pinfo.appendProjectPart(part);
         }
     }
