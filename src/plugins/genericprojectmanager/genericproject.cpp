@@ -254,15 +254,8 @@ void GenericProject::refresh(RefreshOptions options)
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
             QStringList cxxflags; // FIXME: Can we do better?
-            part->defines = tc->predefinedMacros(cxxflags);
-            part->defines += '\n';
-
-            foreach (const HeaderPath &headerPath, tc->systemHeaderPaths(cxxflags, SysRootKitInformation::sysRoot(k))) {
-                if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-                    part->frameworkPaths.append(headerPath.path());
-                else
-                    part->includePaths.append(headerPath.path());
-            }
+            part->evaluateToolchain(tc, cxxflags, cxxflags,
+                                    SysRootKitInformation::sysRoot(k));
         }
 
         part->includePaths += allIncludePaths();
