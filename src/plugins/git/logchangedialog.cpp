@@ -141,7 +141,7 @@ bool LogChangeDialog::populateLog(const QString &repository)
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
                 if (line.endsWith(QLatin1Char(')'))) {
                     QFont font = item->font();
-                    font.setItalic(true);
+                    font.setBold(true);
                     item->setFont(font);
                 }
                 row.push_back(item);
