@@ -1311,7 +1311,6 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
                                          QByteArray &precedes, QByteArray &follows)
 {
     QStringList arguments;
-    QByteArray parents;
     arguments << QLatin1String("describe") << QLatin1String("--contains") << revision;
     fullySynchronousGit(workingDirectory, arguments, &precedes, 0, false);
     int tilde = precedes.indexOf('~');
@@ -1320,14 +1319,14 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     else
         precedes = precedes.trimmed();
 
-    arguments.clear();
-    arguments << QLatin1String("log") << QLatin1String("-n1") << QLatin1String("--pretty=format:%P") << revision;
-    fullySynchronousGit(workingDirectory, arguments, &parents, 0, false);
-    foreach (const QByteArray &p, parents.split(' ')) {
+    QStringList parents;
+    QString errorMessage;
+    synchronousParentRevisions(workingDirectory, QStringList(), revision, &parents, &errorMessage);
+    foreach (const QString &p, parents) {
         QByteArray pf;
         arguments.clear();
         arguments << QLatin1String("describe") << QLatin1String("--tags")
-                  << QLatin1String("--abbrev=0") << QLatin1String(p);
+                  << QLatin1String("--abbrev=0") << p;
         fullySynchronousGit(workingDirectory, arguments, &pf, 0, false);
         pf.truncate(pf.lastIndexOf('\n'));
         if (!pf.isEmpty()) {
