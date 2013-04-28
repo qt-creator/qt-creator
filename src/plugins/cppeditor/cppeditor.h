@@ -141,7 +141,7 @@ public Q_SLOTS:
     void findUsages();
     void renameUsagesNow(const QString &replacement = QString());
     void semanticRehighlight(bool force = false);
-    void highlighterStarted(QFuture<TextEditor::HighlightingResult> highlighter, unsigned revision);
+    void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter, unsigned revision);
 
 protected:
     bool event(QEvent *e);

@@ -290,13 +290,13 @@ void CppEditorSupport::startHighlighting()
 
         m_highlighter = m_highlightingSupport->highlightingFuture(doc, snapshot);
         m_lastHighlightRevision = revision;
-        emit highlighterStarted(m_highlighter, m_lastHighlightRevision);
+        emit highlighterStarted(&m_highlighter, m_lastHighlightRevision);
     } else {
         static const Document::Ptr dummyDoc;
         static const Snapshot dummySnapshot;
         m_highlighter = m_highlightingSupport->highlightingFuture(dummyDoc, dummySnapshot);
         m_lastHighlightRevision = editorRevision();
-        emit highlighterStarted(m_highlighter, m_lastHighlightRevision);
+        emit highlighterStarted(&m_highlighter, m_lastHighlightRevision);
     }
 }
 
