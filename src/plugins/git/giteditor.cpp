@@ -192,7 +192,7 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
     }
     case VcsBase::DiffOutput: {
         const QFileInfo fi(source());
-        const QString workingDirectory = fi.absolutePath();
+        const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
         QByteArray precedes, follows;
         if (array.startsWith("commit ")) { // show
             int lastHeaderLine = array.indexOf("\n\n") + 1;
