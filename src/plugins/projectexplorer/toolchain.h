@@ -82,10 +82,18 @@ public:
 
     virtual QByteArray predefinedMacros(const QStringList &cxxflags) const = 0;
 
-    enum CompilerFlags {
-        NO_FLAGS = 0,
-        STD_CXX11 = 1
+    enum CompilerFlag {
+        NoFlags = 0,
+        StandardCxx11 = 0x1,
+        StandardC99 = 0x2,
+        StandardC11 = 0x4,
+        GnuExtensions = 0x8,
+        MicrosoftExtensions = 0x10,
+        BorlandExtensions = 0x20,
+        OpenMP = 0x40
     };
+    Q_DECLARE_FLAGS(CompilerFlags, CompilerFlag)
+
     virtual CompilerFlags compilerFlags(const QStringList &cxxflags) const = 0;
 
     enum WarningFlag {

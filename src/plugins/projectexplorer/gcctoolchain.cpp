@@ -350,6 +350,11 @@ QString GccToolChain::defaultDisplayName() const
                                                                compilerCommand().parentDir().toUserOutput());
 }
 
+ToolChain::CompilerFlags GccToolChain::defaultCompilerFlags() const
+{
+    return CompilerFlags(GnuExtensions);
+}
+
 QString GccToolChain::type() const
 {
     return QLatin1String("gcc");
@@ -434,14 +439,57 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
     return runResults.second;
 }
 
+/**
+ * @brief Parses gcc flags -std=*, -fopenmp, -fms-extensions, -ansi.
+ * @see http://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
+ */
 ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags) const
 {
-    QStringList allCxxflags = m_platformCodeGenFlags + cxxflags; // add only cxxflags is empty?
-    if (allCxxflags.contains(QLatin1String("-std=c++0x")) || allCxxflags.contains(QLatin1String("-std=gnu++0x")) ||
-        allCxxflags.contains(QLatin1String("-std=c++11")) || allCxxflags.contains(QLatin1String("-std=gnu++11")) ||
-        allCxxflags.contains(QLatin1String("-std=c++1y")) || allCxxflags.contains(QLatin1String("-std=gnu++1y")))
-        return STD_CXX11;
-    return NO_FLAGS;
+    CompilerFlags flags = defaultCompilerFlags();
+
+    const QStringList allCxxflags = m_platformCodeGenFlags + cxxflags; // add only cxxflags is empty?
+    foreach (const QString &flag, allCxxflags) {
+        if (flag.startsWith(QLatin1String("-std="))) {
+            const QByteArray std = flag.mid(5).toAscii();
+            if (std == "c++98" || std == "c++03") {
+                flags &= ~CompilerFlags(StandardCxx11 | GnuExtensions);
+            } else if (std == "gnu++98" || std == "gnu++03") {
+                flags &= ~StandardCxx11;
+                flags |= GnuExtensions;
+            } else if (std == "c++0x" || std == "c++11" || std== "c++1y") {
+                flags |= StandardCxx11;
+                flags &= ~GnuExtensions;
+            } else if (std == "gnu++0x" || std == "gnu++11" || std== "gnu++1y") {
+                flags |= CompilerFlags(StandardCxx11 | GnuExtensions);
+            } else if (std == "c89" || std == "c90"
+                       || std == "iso9899:1990" | std == "iso9899:199409") {
+                flags &= ~CompilerFlags(StandardC99 | StandardC11);
+            } else if (std == "gnu89" || std == "gnu90") {
+                flags &= ~CompilerFlags(StandardC99 | StandardC11);
+                flags |= GnuExtensions;
+            } else if (std == "c99" || std == "c9x"
+                       || std == "iso9899:1999" || std == "iso9899:199x") {
+                flags |= StandardC99;
+                flags &= ~StandardC11;
+            } else if (std == "gnu99" || std == "gnu9x") {
+                flags |= CompilerFlags(StandardC99 | GnuExtensions);
+                flags &= ~StandardC11;
+            } else if (std == "c11" || std == "c1x" || std == "iso9899:2011") {
+                flags |= CompilerFlags(StandardC99 | StandardC11);
+            } else if (std == "gnu11" || std == "gnu1x") {
+                flags |= CompilerFlags(StandardC99 | StandardC11 | GnuExtensions);
+            }
+        } else if (flag == QLatin1String("-fopenmp")) {
+            flags |= OpenMP;
+        } else if (flag == QLatin1String("-fms-extensions")) {
+            flags |= MicrosoftExtensions;
+        } else if (flag == QLatin1String("-ansi")) {
+            flags &= ~CompilerFlags(StandardCxx11 | GnuExtensions
+                                    | StandardC99 | StandardC11);
+        }
+    }
+
+    return flags;
 }
 
 GccToolChain::WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
@@ -973,6 +1021,18 @@ QString ClangToolChain::makeCommand(const Utils::Environment &environment) const
     return makes.first();
 }
 
+/**
+ * @brief Similar to \a GccToolchain::compilerFlags, but recognizes
+ * "-fborland-extensions".
+ */
+ToolChain::CompilerFlags ClangToolChain::compilerFlags(const QStringList &cxxflags) const
+{
+    CompilerFlags flags = GccToolChain::compilerFlags(cxxflags);
+    if (cxxflags.contains(QLatin1String("-fborland-extensions")))
+        flags |= BorlandExtensions;
+    return flags;
+}
+
 ToolChain::WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
 {
     WarningFlags flags = GccToolChain::warningFlags(cflags);;
@@ -997,6 +1057,11 @@ QList<FileName> ClangToolChain::suggestedMkspecList() const
                 << FileName::fromString(QLatin1String("linux-clang"))
                 << FileName::fromString(QLatin1String("unsupported/linux-clang"));
     return QList<FileName>(); // Note: Not supported by Qt yet, so default to the mkspec the Qt was build with
+}
+
+ToolChain::CompilerFlags ClangToolChain::defaultCompilerFlags() const
+{
+    return CompilerFlags(GnuExtensions | StandardC99 | StandardCxx11);
 }
 
 IOutputParser *ClangToolChain::outputParser() const
@@ -1185,6 +1250,28 @@ QString LinuxIccToolChain::type() const
 QString LinuxIccToolChain::typeDisplayName() const
 {
     return Internal::LinuxIccToolChainFactory::tr("Linux ICC");
+}
+
+/**
+ * Similar to \a GccToolchain::compilerFlags, but uses "-openmp" instead of
+ * "-fopenmp" and "-fms-dialect[=ver]" instead of "-fms-extensions".
+ * @see UNIX manual for "icc"
+ */
+ToolChain::CompilerFlags LinuxIccToolChain::compilerFlags(const QStringList &cxxflags) const
+{
+    QStringList copy = cxxflags;
+    copy.removeAll(QLatin1String("-fopenmp"));
+    copy.removeAll(QLatin1String("-fms-extensions"));
+
+    CompilerFlags flags = GccToolChain::compilerFlags(cxxflags);
+    if (cxxflags.contains(QLatin1String("-openmp")))
+        flags |= OpenMP;
+    if (cxxflags.contains(QLatin1String("-fms-dialect"))
+            || cxxflags.contains(QLatin1String("-fms-dialect=8"))
+            || cxxflags.contains(QLatin1String("-fms-dialect=9"))
+            || cxxflags.contains(QLatin1String("-fms-dialect=10")))
+        flags |= MicrosoftExtensions;
+    return flags;
 }
 
 IOutputParser *LinuxIccToolChain::outputParser() const

@@ -406,7 +406,7 @@ bool CMakeProject::parseCMakeLists()
             part->frameworkPaths = allFrameworkPaths;
             part->cVersion = CppTools::ProjectPart::C99;
             if (tc)
-                part->cxxVersion = tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11
+                part->cxxVersion = (tc->compilerFlags(cxxflags) | ToolChain::StandardCxx11)
                         ? CppTools::ProjectPart::CXX11
                         : CppTools::ProjectPart::CXX98;
             else

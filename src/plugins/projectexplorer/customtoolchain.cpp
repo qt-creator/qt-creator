@@ -141,8 +141,8 @@ ToolChain::CompilerFlags CustomToolChain::compilerFlags(const QStringList &cxxfl
 {
     foreach (const QString &cxx11Flag, m_cxx11Flags)
         if (cxxflags.contains(cxx11Flag))
-            return STD_CXX11;
-    return NO_FLAGS;
+            return StandardCxx11;
+    return NoFlags;
 }
 
 ToolChain::WarningFlags CustomToolChain::warningFlags(const QStringList &cxxflags) const

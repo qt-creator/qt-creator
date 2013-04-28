@@ -483,7 +483,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
             if (tc) {
                 includePaths = tc->systemHeaderPaths(cxxFlags, ProjectExplorer::SysRootKitInformation::sysRoot(k));
                 grpDefines += tc->predefinedMacros(cxxFlags);
-                if (tc->compilerFlags(cxxFlags) == ProjectExplorer::ToolChain::STD_CXX11)
+                if (tc->compilerFlags(cxxFlags) | ProjectExplorer::ToolChain::StandardCxx11)
                     isCxx11 = true;
             }
             foreach (const ProjectExplorer::HeaderPath &headerPath, includePaths) {

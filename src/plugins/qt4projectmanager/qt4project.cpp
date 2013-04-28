@@ -587,7 +587,7 @@ void Qt4Project::updateCppCodeModel()
 
         // part->language
         if (tc)
-            part->cxxVersion = (tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11)
+            part->cxxVersion = (tc->compilerFlags(cxxflags) | ToolChain::StandardCxx11)
                     ? ProjectPart::CXX11 : ProjectPart::CXX98;
         else
             part->cxxVersion = ProjectPart::CXX11;

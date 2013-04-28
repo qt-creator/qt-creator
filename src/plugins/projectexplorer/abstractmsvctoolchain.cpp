@@ -90,15 +90,19 @@ QByteArray AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) 
 
 ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList &cxxflags) const
 {
-    Q_UNUSED(cxxflags);
+    CompilerFlags flags(MicrosoftExtensions);
+    if (cxxflags.contains(QLatin1String("/openmp")))
+        flags |= OpenMP;
 
-    switch (m_abi.osFlavor()) {
-    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
-    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
-        return STD_CXX11;
-    default:
-        return NO_FLAGS;
-    }
+    // see http://msdn.microsoft.com/en-us/library/0k0w269d%28v=vs.71%29.aspx
+    if (cxxflags.contains(QLatin1String("/Za")))
+        flags &= ~MicrosoftExtensions;
+
+    if (m_abi.osFlavor() == Abi::WindowsMsvc2010Flavor
+            || m_abi.osFlavor() == Abi::WindowsMsvc2012Flavor)
+        flags |= StandardCxx11;
+
+    return flags;
 }
 
 /**
