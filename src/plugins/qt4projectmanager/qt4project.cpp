@@ -515,13 +515,11 @@ void Qt4Project::updateCppCodeModel()
 
     Kit *k = 0;
     QtSupport::BaseQtVersion *qtVersion = 0;
-    ToolChain *tc = 0;
     if (ProjectExplorer::Target *target = activeTarget())
         k = target->kit();
     else
         k = KitManager::instance()->defaultKit();
     qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-    tc = ToolChainKitInformation::toolChain(k);
 
     CppTools::CppModelManagerInterface *modelmanager =
         CppTools::CppModelManagerInterface::instance();
@@ -552,46 +550,35 @@ void Qt4Project::updateCppCodeModel()
             part->qtVersion = ProjectPart::NoQt;
 
         const QStringList cxxflags = pro->variableValue(CppFlagsVar);
+        part->evaluateToolchain(ToolChainKitInformation::toolChain(k),
+                                cxxflags,
+                                cxxflags,
+                                SysRootKitInformation::sysRoot(k));
 
         // part->defines
-        if (tc)
-            part->defines = tc->predefinedMacros(cxxflags);
         part->defines += pro->cxxDefines();
 
-        // part->includePaths
+        // part->includePaths, part->frameworkPaths
         part->includePaths.append(pro->variableValue(IncludePathVar));
 
-        QList<HeaderPath> headers;
-        if (tc)
-            headers = tc->systemHeaderPaths(cxxflags, SysRootKitInformation::sysRoot(k));
-        if (qtVersion)
-            headers.append(qtVersion->systemHeaderPathes(k));
-
-        foreach (const HeaderPath &headerPath, headers) {
-            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-                part->frameworkPaths.append(headerPath.path());
-            else
-                part->includePaths.append(headerPath.path());
-        }
-
         if (qtVersion) {
+            foreach (const HeaderPath &header, qtVersion->systemHeaderPathes(k)) {
+                if (header.kind() == HeaderPath::FrameworkHeaderPath)
+                    part->frameworkPaths.append(header.path());
+                else
+                    part->includePaths.append(header.path());
+            }
             if (!qtVersion->frameworkInstallPath().isEmpty())
                 part->frameworkPaths.append(qtVersion->frameworkInstallPath());
-
         }
+
         if (Qt4ProFileNode *node = rootQt4ProjectNode())
             part->includePaths.append(node->resolvedMkspecPath());
 
         // part->precompiledHeaders
         part->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
-        // part->language
-        if (tc)
-            part->cxxVersion = (tc->compilerFlags(cxxflags) | ToolChain::StandardCxx11)
-                    ? ProjectPart::CXX11 : ProjectPart::CXX98;
-        else
-            part->cxxVersion = ProjectPart::CXX11;
-
+        // part->files
         foreach (const QString &file, pro->variableValue(CppSourceVar)) {
             allFiles << file;
             part->files << ProjectFile(file, ProjectFile::CXXSource);
