@@ -97,6 +97,25 @@ public:
     QStringList includePaths() const;
 
     /**
+     * @return Concatenated normalized defines, just like in code:
+     * @code
+     * #define X12_DEPRECATED __attribute__((deprecated))
+     * #define X12_HAS_DEPRECATED
+     * @endcode
+     */
+    QByteArray defines() const;
+
+    /**
+     * @return List of compiler flags for C.
+     */
+    QStringList cflags() const;
+
+    /**
+     * @return List of compiler flags for C++.
+     */
+    QStringList cxxflags() const;
+
+    /**
      * Cancels the parsing. Calling this method only makes sense, if the
      * parser runs in a different thread than the caller of this method.
      * The method is thread-safe.
@@ -211,6 +230,33 @@ private:
      */
     static QString parseIdentifierBeforeAssign(const QString &line);
 
+    /**
+     * Parses list of space-separated terms after "="
+     */
+    static QStringList parseTermsAfterAssign(const QString &line);
+
+    /**
+     * If term is compiler flag -D<macro>, adds macro to defines and returns true.
+     */
+    bool maybeParseDefine(const QString &term);
+
+    /**
+     * If term is compiler flag -I<path>, adds path to includes and returns true.
+     * @param term Term itself
+     * @param dirName Directory where Makefile placed
+     */
+    bool maybeParseInclude(const QString &term, const QString &dirName);
+
+    /**
+     * If term is compiler flag -<flag>, adds it to cflags and returns true.
+     */
+    bool maybeParseCFlag(const QString &term);
+
+    /**
+     * If term is compiler flag -<flag>, adds it to cxxflags and returns true.
+     */
+    bool maybeParseCXXFlag(const QString &term);
+
 private:
     bool m_success;             ///< Return value for MakefileParser::parse().
 
@@ -222,6 +268,9 @@ private:
     QStringList m_sources;      ///< Return value for MakefileParser::sources()
     QStringList m_makefiles;    ///< Return value for MakefileParser::makefiles()
     QStringList m_includePaths; ///< Return value for MakefileParser::includePaths()
+    QByteArray m_defines;       ///< Return value for MakefileParser::defines()
+    QStringList m_cflags;       ///< Return value for MakefileParser::cflags()
+    QStringList m_cxxflags;       ///< Return value for MakefileParser::cxxflags()
 
     QString m_line;             ///< Current line of the makefile
     QTextStream m_textStream;   ///< Textstream that represents the makefile

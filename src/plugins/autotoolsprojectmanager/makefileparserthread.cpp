@@ -72,6 +72,24 @@ QStringList MakefileParserThread::includePaths() const
     return m_includePaths;
 }
 
+QByteArray MakefileParserThread::defines() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_defines;
+}
+
+QStringList MakefileParserThread::cflags() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_cflags;
+}
+
+QStringList MakefileParserThread::cxxflags() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_cxxflags;
+}
+
 bool MakefileParserThread::hasError() const
 {
     QMutexLocker locker(&m_mutex);
@@ -102,4 +120,7 @@ void MakefileParserThread::run()
     m_sources = m_parser.sources();
     m_makefiles = m_parser.makefiles();
     m_includePaths = m_parser.includePaths();
+    m_defines = m_parser.defines();
+    m_cflags = m_parser.cflags();
+    m_cxxflags = m_parser.cxxflags();
 }

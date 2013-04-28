@@ -123,6 +123,21 @@ QStringList MakefileParser::includePaths() const
     return m_includePaths;
 }
 
+QByteArray MakefileParser::defines() const
+{
+    return m_defines;
+}
+
+QStringList MakefileParser::cflags() const
+{
+    return m_cflags;
+}
+
+QStringList MakefileParser::cxxflags() const
+{
+    return m_cxxflags;
+}
+
 void MakefileParser::cancel()
 {
     QMutexLocker locker(&m_mutex);
@@ -424,6 +439,59 @@ QString MakefileParser::parseIdentifierBeforeAssign(const QString &line)
     return (end < line.size() && line[end] == QLatin1Char('=')) ? ret : QString();
 }
 
+QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
+{
+    int assignPos = line.indexOf(QLatin1Char('=')) + 1;
+    if (assignPos >= line.size())
+        return QStringList();
+    return line.mid(assignPos).split(QLatin1Char(' '), QString::SkipEmptyParts);
+}
+
+bool MakefileParser::maybeParseDefine(const QString &term)
+{
+    if (term.startsWith(QLatin1String("-D"))) {
+        QString def = term.mid(2); // remove the "-D"
+        QByteArray data = def.toUtf8();
+        int pos = data.indexOf('=');
+        if (pos >= 0)
+            data[pos] = ' ';
+        m_defines += (QByteArray("#define ") + data + '\n');
+        return true;
+    }
+    return false;
+}
+
+bool MakefileParser::maybeParseInclude(const QString &term, const QString &dirName)
+{
+    if (term.startsWith(QLatin1String("-I"))) {
+        QString includePath = term.mid(2); // remove the "-I"
+        if (includePath == QLatin1String("."))
+            includePath = dirName;
+        if (!includePath.isEmpty())
+            m_includePaths += includePath;
+        return true;
+    }
+    return false;
+}
+
+bool MakefileParser::maybeParseCFlag(const QString &term)
+{
+    if (term.startsWith(QLatin1Char('-'))) {
+        m_cflags += term;
+        return true;
+    }
+    return false;
+}
+
+bool MakefileParser::maybeParseCXXFlag(const QString &term)
+{
+    if (term.startsWith(QLatin1Char('-'))) {
+        m_cxxflags += term;
+        return true;
+    }
+    return false;
+}
+
 void MakefileParser::addAllSources()
 {
     QStringList extensions;
@@ -446,25 +514,37 @@ void MakefileParser::parseIncludePaths()
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    // TODO: The parsing is done very poor. Comments are ignored and targets
-    // are ignored too. Whether it is worth to improve this, depends on whether
+    // TODO: Targets are ignored at this moment.
+    // Whether it is worth to improve this, depends on whether
     // we want to parse the generated Makefile at all or whether we want to
     // improve the Makefile.am parsing to be aware of variables.
     QTextStream textStream(&file);
     QString line;
     do {
         line = textStream.readLine();
-        QStringList terms = line.split(QLatin1Char(' '), QString::SkipEmptyParts);
-        foreach (const QString &term, terms) {
-            if (term.startsWith(QLatin1String("-I"))) {
-                QString includePath = term.right(term.length() - 2); // remove the "-I"
-                if (includePath == QLatin1String("."))
-                    includePath = dirName;
-                if (!includePath.isEmpty())
-                    m_includePaths += includePath;
-            }
+        const QString varName = parseIdentifierBeforeAssign(line);
+        if (varName.isEmpty())
+            continue;
+
+        if (varName == QLatin1String("DEFS")) {
+            foreach (const QString &term, parseTermsAfterAssign(line))
+                maybeParseDefine(term);
+        } else if (varName.endsWith(QLatin1String("INCLUDES"))) {
+            foreach (const QString &term, parseTermsAfterAssign(line))
+                maybeParseInclude(term, dirName);
+        } else if (varName.endsWith(QLatin1String("CFLAGS"))) {
+            foreach (const QString &term, parseTermsAfterAssign(line))
+                maybeParseDefine(term) || maybeParseInclude(term, dirName)
+                        || maybeParseCFlag(term);
+        } else if (varName.endsWith(QLatin1String("CPPFLAGS"))
+                   || varName.endsWith(QLatin1String("CXXFLAGS"))) {
+            foreach (const QString &term, parseTermsAfterAssign(line))
+                maybeParseDefine(term) || maybeParseInclude(term, dirName)
+                        || maybeParseCXXFlag(term);
         }
     } while (!line.isNull());
 
     m_includePaths.removeDuplicates();
+    m_cflags.removeDuplicates();
+    m_cxxflags.removeDuplicates();
 }

@@ -87,6 +87,24 @@ public:
     QStringList includePaths() const;
 
     /**
+     * @return Concatenated defines. Should be invoked, after the signal
+     *         finished() has been emitted.
+     */
+    QByteArray defines() const;
+
+    /**
+     * @return List of compiler flags for C. Should be invoked, after the signal
+     *         finished() has been emitted.
+     */
+    QStringList cflags() const;
+
+    /**
+     * @return List of compiler flags for C++. Should be invoked, after the
+     *         signal finished() has been emitted.
+     */
+    QStringList cxxflags() const;
+
+    /**
      * @return True, if an error occurred during the parsing. Should be invoked,
      *         after the signal finished() has been emitted.
      */
@@ -122,6 +140,9 @@ private:
     QStringList m_sources;      ///< Return value for MakefileParserThread::sources()
     QStringList m_makefiles;    ///< Return value for MakefileParserThread::makefiles()
     QStringList m_includePaths; ///< Return value for MakefileParserThread::includePaths()
+    QByteArray m_defines;       ///< Return value for MakefileParserThread::defines()
+    QStringList m_cflags;       ///< Return value for MakefileParserThread::cflags()
+    QStringList m_cxxflags;     ///< Return value for MakefileParserThread::cxxflags()
 };
 
 } // namespace Internal

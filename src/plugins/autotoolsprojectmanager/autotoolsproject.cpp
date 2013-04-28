@@ -411,7 +411,10 @@ void AutotoolsProject::updateCppCodeModel()
     if (!modelManager)
         return;
 
-    const QStringList cxxflags; // FIXME: Autotools should be able to do better than this!
+    const QStringList cflags = m_makefileParserThread->cflags();
+    QStringList cxxflags = m_makefileParserThread->cxxflags();
+    if (cxxflags.isEmpty())
+        cxxflags = cflags;
 
     CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
     pinfo.clearProjectParts();
@@ -420,7 +423,7 @@ void AutotoolsProject::updateCppCodeModel()
     if (activeTarget()) {
         ProjectExplorer::Kit *k = activeTarget()->kit();
         ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-        part->evaluateToolchain(tc, cxxflags, cxxflags,
+        part->evaluateToolchain(tc, cxxflags, cflags,
                                 SysRootKitInformation::sysRoot(k));
     }
 
@@ -428,6 +431,7 @@ void AutotoolsProject::updateCppCodeModel()
         part->files << CppTools::ProjectFile(file, CppTools::ProjectFile::CXXSource);
 
     part->includePaths += m_makefileParserThread->includePaths();
+    part->defines += m_makefileParserThread->defines();
     pinfo.appendProjectPart(part);
 
     modelManager->updateProjectInfo(pinfo);
