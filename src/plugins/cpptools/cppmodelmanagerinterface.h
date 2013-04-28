@@ -43,8 +43,12 @@
 
 namespace Core { class IEditor; }
 namespace CPlusPlus { class LookupContext; }
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class Project;
+class ToolChain;
+}
 namespace TextEditor { class BaseTextEditor; }
+namespace Utils { class FileName; }
 
 namespace CppTools {
 class AbstractEditorSupport;
@@ -64,6 +68,11 @@ public:
         , cxxExtensions(NoExtensions)
         , qtVersion(UnknownQt)
     {}
+
+    void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
+                           const QStringList &cxxflags,
+                           const QStringList &cflags,
+                           const Utils::FileName &sysRoot);
 
 public:
     enum CVersion {
