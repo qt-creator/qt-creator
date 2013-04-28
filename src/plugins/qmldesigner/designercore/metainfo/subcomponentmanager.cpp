@@ -75,6 +75,8 @@ static inline QStringList importPaths() {
                 .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
     }
 
+    paths.append(QmlJS::ModelManagerInterface::instance()->importPaths());
+
     return paths;
 }
 
