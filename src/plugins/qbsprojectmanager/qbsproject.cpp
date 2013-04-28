@@ -71,6 +71,7 @@
 
 static const char CONFIG_CPP_MODULE[] = "cpp";
 static const char CONFIG_CXXFLAGS[] = "cxxflags";
+static const char CONFIG_CFLAGS[] = "cflags";
 static const char CONFIG_DEFINES[] = "defines";
 static const char CONFIG_INCLUDEPATHS[] = "includePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
@@ -472,6 +473,10 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
                         QLatin1String(CONFIG_CPP_MODULE),
                         QLatin1String(CONFIG_CXXFLAGS));
 
+            const QStringList cFlags = props.getModulePropertiesAsStringList(
+                        QLatin1String(CONFIG_CPP_MODULE),
+                        QLatin1String(CONFIG_CFLAGS));
+
             QStringList list = props.getModulePropertiesAsStringList(
                         QLatin1String(CONFIG_CPP_MODULE),
                         QLatin1String(CONFIG_DEFINES));
@@ -504,10 +509,9 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
                     QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
 
             CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
-            // TODO: qbs has separate variable for CFLAGS
             part->evaluateToolchain(ProjectExplorer::ToolChainKitInformation::toolChain(k),
                                     cxxFlags,
-                                    cxxFlags,
+                                    cFlags,
                                     ProjectExplorer::SysRootKitInformation::sysRoot(k));
 
             CppTools::ProjectFileAdder adder(part->files);
