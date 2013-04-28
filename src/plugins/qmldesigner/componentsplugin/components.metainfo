@@ -80,6 +80,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/buttonrow.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
         }
     }
 
@@ -92,6 +93,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/buttoncolumn.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
         }
     }
 
@@ -104,6 +106,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/label.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "text"; type: "QString"; value: "Label"; }
         }
@@ -118,6 +121,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/textfield.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "placeholderText"; type: "QString"; value: "Text Field"; }
         }
@@ -132,6 +136,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/textarea.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
         }
     }
 
@@ -144,6 +149,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/progressbar.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
         }
     }
 
@@ -156,6 +162,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/sliderh.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
         }
 
         ItemLibraryEntry {
@@ -163,6 +170,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/sliderh.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
             Property { name: "orientation"; type: "int"; value: "0"; }
         }
     }
@@ -176,6 +184,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/scrollbarh.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
         }
 
         ItemLibraryEntry {
@@ -183,6 +192,7 @@ MetaInfo {
             category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/scrollbarv.png"
             version: "1.0"
+            requiredImport: "QtQuick.Controls"
             Property { name: "orientation"; type: "int"; value: "0"; }
         }
     }
