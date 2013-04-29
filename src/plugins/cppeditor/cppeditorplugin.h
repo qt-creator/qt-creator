@@ -199,6 +199,18 @@ private slots:
     void test_quickfix_AssignToLocalVariable_noReturnClass();
     void test_quickfix_AssignToLocalVariable_noReturnFunc();
 
+    void test_quickfix_InsertVirtualMethods_onlyDecl();
+    void test_quickfix_InsertVirtualMethods_onlyDeclWithoutVirtual();
+    void test_quickfix_InsertVirtualMethods_Access();
+    void test_quickfix_InsertVirtualMethods_Superclass();
+    void test_quickfix_InsertVirtualMethods_SuperclassOverride();
+    void test_quickfix_InsertVirtualMethods_PureVirtualOnlyDecl();
+    void test_quickfix_InsertVirtualMethods_PureVirtualInside();
+    void test_quickfix_InsertVirtualMethods_inside();
+    void test_quickfix_InsertVirtualMethods_outside();
+    void test_quickfix_InsertVirtualMethods_implementationFile();
+    void test_quickfix_InsertVirtualMethods_notrigger_allImplemented();
+
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.
     void test_openEachFile();

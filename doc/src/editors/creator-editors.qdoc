@@ -1957,6 +1957,19 @@
     \endcode
 
             \li Function call or class name
+        \row
+            \li Insert (Pure) Virtual Functions
+            \li Select an insertion mode:
+            \list
+                \li Insert only declarations.
+                \li Insert declarations and the corresponding definitions inside the class.
+                \li Insert declarations and the corresponding definitions outside the class.
+                \li Insert declarations and the corresponding definitions in the implementation file
+                (only if an implementation file exists).
+            \endlist
+            \image qtcreator-refactoring-virtual-function-dialog.png
+
+            \li Class or base class name
 
     \endtable
 

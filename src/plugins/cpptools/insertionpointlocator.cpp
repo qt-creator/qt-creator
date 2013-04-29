@@ -42,33 +42,6 @@ using namespace CppTools;
 
 namespace {
 
-static QString generate(InsertionPointLocator::AccessSpec xsSpec)
-{
-    switch (xsSpec) {
-    default:
-    case InsertionPointLocator::Public:
-        return QLatin1String("public:\n");
-
-    case InsertionPointLocator::Protected:
-        return QLatin1String("protected:\n");
-
-    case InsertionPointLocator::Private:
-        return QLatin1String("private:\n");
-
-    case InsertionPointLocator::PublicSlot:
-        return QLatin1String("public slots:\n");
-
-    case InsertionPointLocator::ProtectedSlot:
-        return QLatin1String("protected slots:\n");
-
-    case InsertionPointLocator::PrivateSlot:
-        return QLatin1String("private slots:\n");
-
-    case InsertionPointLocator::Signals:
-        return QLatin1String("signals:\n");
-    }
-}
-
 static int ordering(InsertionPointLocator::AccessSpec xsSpec)
 {
     static QList<InsertionPointLocator::AccessSpec> order = QList<InsertionPointLocator::AccessSpec>()
@@ -161,7 +134,7 @@ protected:
         if (needsLeadingEmptyLine)
             prefix += QLatin1String("\n");
         if (needsPrefix)
-            prefix += generate(_xsSpec);
+            prefix += InsertionPointLocator::accessSpecToString(_xsSpec);
 
         QString suffix;
         if (needsSuffix)
@@ -298,6 +271,33 @@ InsertionLocation::InsertionLocation(const QString &fileName,
     , m_line(line)
     , m_column(column)
 {}
+
+QString InsertionPointLocator::accessSpecToString(InsertionPointLocator::AccessSpec xsSpec)
+{
+    switch (xsSpec) {
+    default:
+    case InsertionPointLocator::Public:
+        return QLatin1String("public:\n");
+
+    case InsertionPointLocator::Protected:
+        return QLatin1String("protected:\n");
+
+    case InsertionPointLocator::Private:
+        return QLatin1String("private:\n");
+
+    case InsertionPointLocator::PublicSlot:
+        return QLatin1String("public slots:\n");
+
+    case InsertionPointLocator::ProtectedSlot:
+        return QLatin1String("protected slots:\n");
+
+    case InsertionPointLocator::PrivateSlot:
+        return QLatin1String("private slots:\n");
+
+    case InsertionPointLocator::Signals:
+        return QLatin1String("signals:\n");
+    }
+}
 
 InsertionPointLocator::InsertionPointLocator(const CppRefactoringChanges &refactoringChanges)
     : m_refactoringChanges(refactoringChanges)

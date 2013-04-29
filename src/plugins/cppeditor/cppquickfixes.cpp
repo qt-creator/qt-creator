@@ -33,6 +33,8 @@
 #include "cppfunctiondecldeflink.h"
 #include "cppquickfixassistant.h"
 
+#include <coreplugin/icore.h>
+
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpppointerdeclarationformatter.h>
@@ -49,16 +51,33 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QGroupBox>
+#include <QHBoxLayout>
 #include <QInputDialog>
+#include <QItemDelegate>
+#include <QLabel>
 #include <QMessageBox>
+#include <QPointer>
+#include <QPushButton>
+#include <QQueue>
 #include <QSharedPointer>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
 #include <QTextBlock>
 #include <QTextCursor>
+#include <QTreeView>
+#include <QVBoxLayout>
 
 #include <cctype>
 
@@ -109,6 +128,8 @@ void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new MoveFuncDefToDecl);
 
     plugIn->addAutoReleasedObject(new AssignToLocalVariable);
+
+    plugIn->addAutoReleasedObject(new InsertVirtualMethods);
 }
 
 // In the following anonymous namespace all functions are collected, which could be of interest for
@@ -2356,7 +2377,7 @@ public:
         targetFile->apply();
     }
 
-    static QString generateDeclaration(Function *function);
+    static QString generateDeclaration(const Function *function);
 
 private:
     QString m_targetFileName;
@@ -2450,7 +2471,7 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
     }
 }
 
-QString InsertDeclOperation::generateDeclaration(Function *function)
+QString InsertDeclOperation::generateDeclaration(const Function *function)
 {
     Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
     oo.showFunctionSignatures = true;
@@ -4284,3 +4305,735 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
         }
     }
 }
+
+namespace {
+
+class InsertVirtualMethodsOp : public CppQuickFixOperation
+{
+public:
+    InsertVirtualMethodsOp(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+                           InsertVirtualMethodsDialog *factory)
+        : CppQuickFixOperation(interface, 0)
+        , m_factory(factory)
+        , m_classAST(0)
+        , m_valid(false)
+        , m_cppFileName(QString::null)
+        , m_insertPosDecl(0)
+        , m_insertPosOutside(0)
+        , m_functionCount(0)
+        , m_implementedFunctionCount(0)
+    {
+        setDescription(QCoreApplication::translate(
+                           "CppEditor::QuickFix", "Insert Virtual Functions of Base Classes"));
+
+        const QList<AST *> &path = interface->path();
+        const int pathSize = path.size();
+        if (pathSize < 2)
+            return;
+
+        // Determine if cursor is on a class or a base class
+        if (SimpleNameAST *nameAST = path.at(pathSize - 1)->asSimpleName()) {
+            if (!interface->isCursorOn(nameAST))
+                return;
+
+            if (!(m_classAST = path.at(pathSize - 2)->asClassSpecifier())) { // normal class
+                int index = pathSize - 2;
+                const BaseSpecifierAST *baseAST = path.at(index)->asBaseSpecifier();// simple bclass
+                if (!baseAST) {
+                    if (index > 0 && path.at(index)->asQualifiedName()) // namespaced base class
+                        baseAST = path.at(--index)->asBaseSpecifier();
+                }
+                --index;
+                if (baseAST && index >= 0)
+                    m_classAST = path.at(index)->asClassSpecifier();
+            }
+        }
+        if (!m_classAST || !m_classAST->base_clause_list)
+            return;
+
+        // Determine insert positions
+        const int endOfClassAST = interface->currentFile()->endOf(m_classAST);
+        m_insertPosDecl = endOfClassAST - 1; // Skip last "}"
+        m_insertPosOutside = endOfClassAST + 1; // Step over ";"
+
+        // Determine base classes
+        QList<const Class *> baseClasses;
+        QQueue<ClassOrNamespace *> baseClassQueue;
+        QSet<ClassOrNamespace *> visitedBaseClasses;
+        if (ClassOrNamespace *clazz = interface->context().lookupType(m_classAST->symbol))
+            baseClassQueue.enqueue(clazz);
+        while (!baseClassQueue.isEmpty()) {
+            ClassOrNamespace *clazz = baseClassQueue.dequeue();
+            visitedBaseClasses.insert(clazz);
+            const QList<ClassOrNamespace *> bases = clazz->usings();
+            foreach (ClassOrNamespace *baseClass, bases) {
+                foreach (Symbol *symbol, baseClass->symbols()) {
+                    Class *base = symbol->asClass();
+                    if (base
+                            && (clazz = interface->context().lookupType(symbol))
+                            && !visitedBaseClasses.contains(clazz)
+                            && !baseClasses.contains(base)) {
+                        baseClasses << base;
+                        baseClassQueue.enqueue(clazz);
+                    }
+                }
+            }
+        }
+
+        // Determine virtual functions
+        m_factory->classFunctionModel->clear();
+        Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+        printer.showFunctionSignatures = true;
+        const TextEditor::FontSettings &fs =
+                TextEditor::TextEditorSettings::instance()->fontSettings();
+        const Format formatReimpFunc = fs.formatFor(C_DISABLED_CODE);
+        foreach (const Class *clazz, baseClasses) {
+            QStandardItem *itemBase = new QStandardItem(printer.prettyName(clazz->name()));
+            itemBase->setData(false, InsertVirtualMethodsDialog::Implemented);
+            itemBase->setData(qVariantFromValue((void *) clazz),
+                              InsertVirtualMethodsDialog::ClassOrFunction);
+            const QString baseClassName = printer.prettyName(clazz->name());
+            for (Scope::iterator it = clazz->firstMember(); it != clazz->lastMember(); ++it) {
+                if (const Function *func = (*it)->type()->asFunctionType()) {
+                    if (!func->isVirtual())
+                        continue;
+
+                    // Filter virtual destructors
+                    if (printer.prettyName(func->name()).startsWith(QLatin1Char('~')))
+                        continue;
+
+                    // Filter OQbject's
+                    //   - virtual const QMetaObject *metaObject() const;
+                    //   - virtual void *qt_metacast(const char *);
+                    //   - virtual int qt_metacall(QMetaObject::Call, int, void **);
+                    if (baseClassName == QLatin1String("QObject")) {
+                        if (printer.prettyName(func->name()) == QLatin1String("metaObject"))
+                            continue;
+                        if (printer.prettyName(func->name()) == QLatin1String("qt_metacast"))
+                            continue;
+                        if (printer.prettyName(func->name()) == QLatin1String("qt_metacall"))
+                            continue;
+                    }
+
+                    // Do not implement existing functions inside target class
+                    bool funcExistsInClass = false;
+                    const Name *funcName = func->name();
+                    for (Symbol *symbol = m_classAST->symbol->find(funcName->identifier());
+                         symbol; symbol = symbol->next()) {
+                        if (!symbol->name()
+                                || !funcName->identifier()->isEqualTo(symbol->identifier())) {
+                            continue;
+                        }
+                        if (symbol->type().isEqualTo(func->type())) {
+                            funcExistsInClass = true;
+                            break;
+                        }
+                    }
+
+                    // Do not show when reimplemented from an other class
+                    bool funcReimplemented = false;
+                    for (int i = baseClasses.count() - 1; i >= 0; --i) {
+                        const Class *prevClass = baseClasses.at(i);
+                        if (clazz == prevClass)
+                            break; // reached current class
+
+                        for (const Symbol *symbol = prevClass->find(funcName->identifier());
+                             symbol; symbol = symbol->next()) {
+                            if (!symbol->name()
+                                    || !funcName->identifier()->isEqualTo(symbol->identifier())) {
+                                continue;
+                            }
+                            if (symbol->type().isEqualTo(func->type())) {
+                                funcReimplemented = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (funcReimplemented)
+                        continue;
+
+                    // Construct function item
+                    const bool isPureVirtual = func->isPureVirtual();
+                    QString itemName = printer.prettyType(func->type(), func->name());
+                    if (isPureVirtual)
+                        itemName += QLatin1String(" = 0");
+                    const QString itemReturnTypeString = printer.prettyType(func->returnType());
+                    QStandardItem *funcItem = new QStandardItem(
+                                itemName + QLatin1String(" : ") + itemReturnTypeString);
+                    if (!funcExistsInClass) {
+                        funcItem->setCheckable(true);
+                        funcItem->setCheckState(Qt::Checked);
+                    } else {
+                        funcItem->setEnabled(false);
+                        funcItem->setData(formatReimpFunc.foreground(), Qt::ForegroundRole);
+                        if (formatReimpFunc.background().isValid())
+                            funcItem->setData(formatReimpFunc.background(), Qt::BackgroundRole);
+                    }
+
+                    funcItem->setData(qVariantFromValue((void *) func),
+                                      InsertVirtualMethodsDialog::ClassOrFunction);
+                    funcItem->setData(isPureVirtual, InsertVirtualMethodsDialog::PureVirtual);
+                    funcItem->setData(acessSpec(*it), InsertVirtualMethodsDialog::AccessSpec);
+                    funcItem->setData(funcExistsInClass, InsertVirtualMethodsDialog::Implemented);
+
+                    itemBase->appendRow(funcItem);
+
+                    // update internal counters
+                    if (funcExistsInClass)
+                        ++m_implementedFunctionCount;
+                    else
+                        ++m_functionCount;
+                }
+            }
+            if (itemBase->hasChildren()) {
+                for (int i = 0; i < itemBase->rowCount(); ++i) {
+                    if (itemBase->child(i, 0)->isCheckable()) {
+                        itemBase->setCheckable(true);
+                        itemBase->setTristate(true);
+                        itemBase->setCheckState(Qt::Checked);
+                        itemBase->setData(false, InsertVirtualMethodsDialog::Implemented);
+                        break;
+                    }
+                }
+                m_factory->classFunctionModel->invisibleRootItem()->appendRow(itemBase);
+            }
+        }
+        if (!m_factory->classFunctionModel->invisibleRootItem()->hasChildren()
+                || m_functionCount == 0) {
+            return;
+        }
+
+        bool isHeaderFile = false;
+        m_cppFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);
+        m_factory->setHasImplementationFile(isHeaderFile && !m_cppFileName.isEmpty());
+        m_factory->setHasReimplementedFunctions(m_implementedFunctionCount != 0);
+
+        m_valid = true;
+    }
+
+    bool isValid() const
+    {
+        return m_valid;
+    }
+
+    InsertionPointLocator::AccessSpec acessSpec(const Symbol *symbol)
+    {
+        const Function *func = symbol->type()->asFunctionType();
+        if (!func)
+            return InsertionPointLocator::Invalid;
+        if (func->isSignal())
+            return InsertionPointLocator::Signals;
+
+        InsertionPointLocator::AccessSpec spec = InsertionPointLocator::Invalid;
+        if (symbol->isPrivate())
+            spec = InsertionPointLocator::Private;
+        else if (symbol->isProtected())
+            spec = InsertionPointLocator::Protected;
+        else if (symbol->isPublic())
+            spec = InsertionPointLocator::Public;
+        else
+            return InsertionPointLocator::Invalid;
+
+        if (func->isSlot()) {
+            switch (spec) {
+            case InsertionPointLocator::Private:
+                return InsertionPointLocator::PrivateSlot;
+                break;
+            case InsertionPointLocator::Protected:
+                return InsertionPointLocator::ProtectedSlot;
+                break;
+            case InsertionPointLocator::Public:
+                return InsertionPointLocator::PublicSlot;
+                break;
+            default:
+                return spec;
+                break;
+            }
+        }
+        return spec;
+    }
+
+    void perform()
+    {
+        if (!m_factory->gather())
+            return;
+
+        Core::ICore::settings()->setValue(
+                    QLatin1String("QuickFix/InsertVirtualMethods/insertKeywordVirtual"),
+                    m_factory->insertKeywordVirtual());
+        Core::ICore::settings()->setValue(
+                    QLatin1String("QuickFix/InsertVirtualMethods/implementationMode"),
+                    m_factory->implementationMode());
+        Core::ICore::settings()->setValue(
+                    QLatin1String("QuickFix/InsertVirtualMethods/hideReimplementedFunctions"),
+                    m_factory->hideReimplementedFunctions());
+
+        // Insert declarations (and definition if InsideClass)
+        Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+        printer.showFunctionSignatures = true;
+        printer.showReturnTypes = true;
+        printer.showArgumentNames = true;
+        ChangeSet headerChangeSet;
+        for (int i = 0; i < m_factory->classFunctionModel->rowCount(); ++i) {
+            const QStandardItem *parent =
+                    m_factory->classFunctionModel->invisibleRootItem()->child(i, 0);
+            if (!parent->isCheckable() || parent->checkState() == Qt::Unchecked)
+                continue;
+            const Class *clazz = (const Class *)
+                    parent->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
+
+            // Add comment
+            const QString comment = QLatin1String("\n// ") + printer.prettyName(clazz->name()) +
+                    QLatin1String(" interface\n");
+            headerChangeSet.insert(m_insertPosDecl, comment);
+
+            // Insert Declarations (+ definitions)
+            QString lastAccessSpecString;
+            for (int j = 0; j < parent->rowCount(); ++j) {
+                const QStandardItem *item = parent->child(j, 0);
+                if (!item->isCheckable() || item->checkState() == Qt::Unchecked)
+                    continue;
+                const Function *func = (const Function *)
+                        item->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
+
+                // Construct declaration
+                QString declaration = InsertDeclOperation::generateDeclaration(func);
+                if (m_factory->insertKeywordVirtual())
+                    declaration = QLatin1String("virtual ") + declaration;
+                if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeInsideClass)
+                    declaration.replace(declaration.size() - 2, 2, QLatin1String("\n{\n}\n"));
+                const InsertionPointLocator::AccessSpec spec =
+                        static_cast<InsertionPointLocator::AccessSpec>(
+                            item->data(InsertVirtualMethodsDialog::AccessSpec).toInt());
+                const QString accessSpecString = InsertionPointLocator::accessSpecToString(spec);
+                if (accessSpecString != lastAccessSpecString) {
+                    declaration = accessSpecString + declaration;
+                    if (!lastAccessSpecString.isEmpty()) // separate if not direct after the comment
+                        declaration = QLatin1String("\n") + declaration;
+                    lastAccessSpecString = accessSpecString;
+                }
+                headerChangeSet.insert(m_insertPosDecl, declaration);
+            }
+        }
+
+        // Insert outside class
+        const QString filename = assistInterface()->currentFile()->fileName();
+        const CppRefactoringChanges refactoring(assistInterface()->snapshot());
+        const CppRefactoringFilePtr headerFile = refactoring.file(filename);
+        const Document::Ptr headerDoc = headerFile->cppDocument();
+        Class *targetClass = m_classAST->symbol;
+        if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeOutsideClass) {
+            // make target lookup context
+            unsigned line, column;
+            headerDoc->translationUnit()->getPosition(m_insertPosOutside, &line, &column);
+            Scope *targetScope = headerDoc->scopeAt(line, column);
+            const LookupContext targetContext(headerDoc, assistInterface()->snapshot());
+            ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
+            if (!targetCoN)
+                targetCoN = targetContext.globalNamespace();
+
+            // setup rewriting to get minimally qualified names
+            SubstitutionEnvironment env;
+            env.setContext(assistInterface()->context());
+            env.switchScope(targetClass);
+            UseMinimalNames q(targetCoN);
+            env.enter(&q);
+            Control *control = assistInterface()->context().control().data();
+            const QString fullClassName = printer.prettyName(LookupContext::minimalName(
+                                                                 targetClass, targetCoN, control));
+
+            for (int i = 0; i < m_factory->classFunctionModel->rowCount(); ++i) {
+                const QStandardItem *parent =
+                        m_factory->classFunctionModel->invisibleRootItem()->child(i, 0);
+                if (!parent->isCheckable() || parent->checkState() == Qt::Unchecked)
+                    continue;
+
+                for (int j = 0; j < parent->rowCount(); ++j) {
+                    const QStandardItem *item = parent->child(j, 0);
+                    if (!item->isCheckable() || item->checkState() == Qt::Unchecked)
+                        continue;
+                    const Function *func = (const Function *)
+                            item->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
+
+                    // rewrite the function type and name
+                    const FullySpecifiedType tn = rewriteType(func->type(), &env, control);
+                    const QString name = fullClassName + QLatin1String("::") +
+                            printer.prettyName(func->name());
+                    const QString defText = printer.prettyType(tn, name) + QLatin1String("\n{\n}");
+
+                    headerChangeSet.insert(m_insertPosOutside,  QLatin1String("\n\n") + defText);
+                }
+            }
+        }
+
+        // Write header file
+        headerFile->setChangeSet(headerChangeSet);
+        headerFile->appendIndentRange(ChangeSet::Range(m_insertPosDecl, m_insertPosDecl + 1));
+        headerFile->setOpenEditor(true, m_insertPosDecl);
+        headerFile->apply();
+
+        // Insert in implementation file
+        if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeImplementationFile) {
+            const Symbol *symbol = headerFile->cppDocument()->lastVisibleSymbolAt(
+                        targetClass->line(), targetClass->column());
+            if (!symbol)
+                return;
+            const Class *clazz = symbol->asClass();
+            if (!clazz)
+                return;
+
+            CppRefactoringFilePtr implementationFile = refactoring.file(m_cppFileName);
+            ChangeSet implementationChangeSet;
+            const int insertPos = qMax(0, implementationFile->document()->characterCount() - 1);
+
+            // make target lookup context
+            Document::Ptr implementationDoc = implementationFile->cppDocument();
+            unsigned line, column;
+            implementationDoc->translationUnit()->getPosition(insertPos, &line, &column);
+            Scope *targetScope = implementationDoc->scopeAt(line, column);
+            const LookupContext targetContext(implementationDoc, assistInterface()->snapshot());
+            ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
+            if (!targetCoN)
+                targetCoN = targetContext.globalNamespace();
+
+            // Loop through inserted declarations
+            for (unsigned i = targetClass->memberCount(); i < clazz->memberCount(); ++i) {
+                Declaration *decl = clazz->memberAt(i)->asDeclaration();
+                if (!decl)
+                    continue;
+
+                // setup rewriting to get minimally qualified names
+                SubstitutionEnvironment env;
+                env.setContext(assistInterface()->context());
+                env.switchScope(decl->enclosingScope());
+                UseMinimalNames q(targetCoN);
+                env.enter(&q);
+                Control *control = assistInterface()->context().control().data();
+
+                // rewrite the function type and name + create definition
+                const FullySpecifiedType type = rewriteType(decl->type(), &env, control);
+                const QString name = printer.prettyName(
+                            LookupContext::minimalName(decl, targetCoN, control));
+                const QString defText = printer.prettyType(type, name) + QLatin1String("\n{\n}");
+
+                implementationChangeSet.insert(insertPos,  QLatin1String("\n\n") + defText);
+            }
+
+            implementationFile->setChangeSet(implementationChangeSet);
+            implementationFile->appendIndentRange(ChangeSet::Range(insertPos, insertPos + 1));
+            implementationFile->apply();
+        }
+    }
+
+private:
+    InsertVirtualMethodsDialog *m_factory;
+    const ClassSpecifierAST *m_classAST;
+    bool m_valid;
+    QString m_cppFileName;
+    int m_insertPosDecl;
+    int m_insertPosOutside;
+    unsigned m_functionCount;
+    unsigned m_implementedFunctionCount;
+};
+
+class InsertVirtualMethodsFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    InsertVirtualMethodsFilterModel(QObject *parent = 0)
+        : QSortFilterProxyModel(parent)
+        , m_hideReimplemented(false)
+    {}
+
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+    {
+        QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+
+        // Handle base class
+        if (!sourceParent.isValid()) {
+            // check if any child is valid
+            if (!sourceModel()->hasChildren(index))
+                return false;
+            if (!m_hideReimplemented)
+                return true;
+
+            for (int i = 0; i < sourceModel()->rowCount(index); ++i) {
+                const QModelIndex child = sourceModel()->index(i, 0, index);
+                if (!child.data(InsertVirtualMethodsDialog::Implemented).toBool())
+                    return true;
+            }
+            return false;
+        }
+
+        if (m_hideReimplemented)
+            return !index.data(InsertVirtualMethodsDialog::Implemented).toBool();
+        return true;
+    }
+
+    bool hideReimplemented() const
+    {
+        return m_hideReimplemented;
+    }
+
+    void setHideReimplementedFunctions(bool show)
+    {
+        m_hideReimplemented = show;
+        invalidateFilter();
+    }
+
+private:
+    bool m_hideReimplemented;
+};
+
+} // anonymous namespace
+
+InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
+    : QDialog(parent)
+    , m_view(0)
+    , m_hideReimplementedFunctions(0)
+    , m_insertMode(0)
+    , m_virtualKeyword(0)
+    , m_buttons(0)
+    , m_hasImplementationFile(false)
+    , m_hasReimplementedFunctions(false)
+    , m_implementationMode(ModeOnlyDeclarations)
+    , m_insertKeywordVirtual(false)
+    , classFunctionModel(new QStandardItemModel(this))
+    , classFunctionFilterModel(new InsertVirtualMethodsFilterModel(this))
+{
+    classFunctionFilterModel->setSourceModel(classFunctionModel);
+}
+
+void InsertVirtualMethodsDialog::initGui()
+{
+    if (m_view)
+        return;
+
+    setWindowTitle(tr("Insert Virtual Functions"));
+    QVBoxLayout *globalVerticalLayout = new QVBoxLayout;
+
+    // View
+    QGroupBox *groupBoxView = new QGroupBox(tr("&Functions to insert:"), this);
+    QVBoxLayout *groupBoxViewLayout = new QVBoxLayout(groupBoxView);
+    m_view = new QTreeView(this);
+    m_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_view->setHeaderHidden(true);
+    groupBoxViewLayout->addWidget(m_view);
+    m_hideReimplementedFunctions =
+            new QCheckBox(tr("&Hide already implemented functions of current class"), this);
+    groupBoxViewLayout->addWidget(m_hideReimplementedFunctions);
+
+    // Insertion options
+    QGroupBox *groupBoxImplementation = new QGroupBox(tr("&Insertion options:"), this);
+    QVBoxLayout *groupBoxImplementationLayout = new QVBoxLayout(groupBoxImplementation);
+    m_insertMode = new QComboBox(this);
+    m_insertMode->addItem(tr("Insert only declarations"), ModeOnlyDeclarations);
+    m_insertMode->addItem(tr("Insert definitions inside class"), ModeInsideClass);
+    m_insertMode->addItem(tr("Insert definitions outside class"), ModeOutsideClass);
+    m_insertMode->addItem(tr("Insert definitions in implementation file"), ModeImplementationFile);
+    m_virtualKeyword = new QCheckBox(tr("&Add keyword 'virtual' to function declaration"), this);
+    groupBoxImplementationLayout->addWidget(m_insertMode);
+    groupBoxImplementationLayout->addWidget(m_virtualKeyword);
+    groupBoxImplementationLayout->addStretch(99);
+
+    // Bottom button box
+    m_buttons = new QDialogButtonBox(this);
+    m_buttons->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(m_buttons, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_buttons, SIGNAL(rejected()), this, SLOT(reject()));
+
+    globalVerticalLayout->addWidget(groupBoxView, 9);
+    globalVerticalLayout->addWidget(groupBoxImplementation, 0);
+    globalVerticalLayout->addWidget(m_buttons, 0);
+    setLayout(globalVerticalLayout);
+
+    connect(classFunctionModel, SIGNAL(itemChanged(QStandardItem *)),
+            this, SLOT(updateCheckBoxes(QStandardItem *)));
+    connect(m_hideReimplementedFunctions, SIGNAL(toggled(bool)),
+            this, SLOT(setHideReimplementedFunctions(bool)));
+}
+
+void InsertVirtualMethodsDialog::initData()
+{
+    m_insertKeywordVirtual = Core::ICore::settings()->value(
+                QLatin1String("QuickFix/InsertVirtualMethods/insertKeywordVirtual"),
+                false).toBool();
+    m_implementationMode = static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
+                Core::ICore::settings()->value(
+                    QLatin1String("QuickFix/InsertVirtualMethods/implementationMode"), 1).toInt());
+    m_hideReimplementedFunctions->setChecked(
+                Core::ICore::settings()->value(
+                    QLatin1String("QuickFix/InsertVirtualMethods/hideReimplementedFunctions"),
+                    false).toBool());
+
+    m_view->setModel(classFunctionFilterModel);
+    m_expansionStateNormal.clear();
+    m_expansionStateReimp.clear();
+    m_hideReimplementedFunctions->setVisible(m_hasReimplementedFunctions);
+    m_virtualKeyword->setChecked(m_insertKeywordVirtual);
+    m_insertMode->setCurrentIndex(m_insertMode->findData(m_implementationMode));
+
+    setHideReimplementedFunctions(m_hideReimplementedFunctions->isChecked());
+
+    if (m_hasImplementationFile) {
+        if (m_insertMode->count() == 3) {
+            m_insertMode->addItem(tr("Insert definitions in implementation file"),
+                                  ModeImplementationFile);
+        }
+    } else {
+        if (m_insertMode->count() == 4)
+            m_insertMode->removeItem(3);
+    }
+}
+
+bool InsertVirtualMethodsDialog::gather()
+{
+    initGui();
+    initData();
+
+    // Expand the dialog a little bit
+    adjustSize();
+    resize(size() * 1.5);
+
+    QPointer<InsertVirtualMethodsDialog> that(this);
+    const int ret = exec();
+    if (!that)
+        return false;
+
+    m_implementationMode = implementationMode();
+    m_insertKeywordVirtual = insertKeywordVirtual();
+    return (ret == QDialog::Accepted);
+}
+
+InsertVirtualMethodsDialog::ImplementationMode
+InsertVirtualMethodsDialog::implementationMode() const
+{
+    return static_cast<InsertVirtualMethodsDialog::ImplementationMode>(
+                m_insertMode->itemData(m_insertMode->currentIndex()).toInt());
+}
+
+void InsertVirtualMethodsDialog::setImplementationsMode(InsertVirtualMethodsDialog::ImplementationMode mode)
+{
+    m_implementationMode = mode;
+}
+
+bool InsertVirtualMethodsDialog::insertKeywordVirtual() const
+{
+    return m_virtualKeyword->isChecked();
+}
+
+void InsertVirtualMethodsDialog::setInsertKeywordVirtual(bool insert)
+{
+    m_insertKeywordVirtual = insert;
+}
+
+void InsertVirtualMethodsDialog::setHasImplementationFile(bool file)
+{
+    m_hasImplementationFile = file;
+}
+
+void InsertVirtualMethodsDialog::setHasReimplementedFunctions(bool functions)
+{
+    m_hasReimplementedFunctions = functions;
+}
+
+bool InsertVirtualMethodsDialog::hideReimplementedFunctions() const
+{
+    // Safty check necessary because of testing class
+    return (m_hideReimplementedFunctions && m_hideReimplementedFunctions->isChecked());
+}
+
+void InsertVirtualMethodsDialog::updateCheckBoxes(QStandardItem *item)
+{
+    if (item->hasChildren()) {
+        const Qt::CheckState state = item->checkState();
+        if (!item->isCheckable() || state == Qt::PartiallyChecked)
+            return;
+        for (int i = 0; i < item->rowCount(); ++i) {
+            if (item->child(i, 0)->isCheckable())
+                item->child(i, 0)->setCheckState(state);
+        }
+    } else {
+        QStandardItem *parent = item->parent();
+        if (!parent->isCheckable())
+            return;
+        const Qt::CheckState state = item->checkState();
+        for (int i = 0; i < parent->rowCount(); ++i) {
+            if (state != parent->child(i, 0)->checkState()) {
+                parent->setCheckState(Qt::PartiallyChecked);
+                return;
+            }
+        }
+        parent->setCheckState(state);
+    }
+}
+
+void InsertVirtualMethodsDialog::setHideReimplementedFunctions(bool hide)
+{
+    InsertVirtualMethodsFilterModel *model =
+            qobject_cast<InsertVirtualMethodsFilterModel *>(classFunctionFilterModel);
+
+    if (m_expansionStateNormal.isEmpty() && m_expansionStateReimp.isEmpty()) {
+        model->setHideReimplementedFunctions(hide);
+        m_view->expandAll();
+        saveExpansionState();
+        return;
+    }
+
+    if (model->hideReimplemented() == hide)
+        return;
+
+    saveExpansionState();
+    model->setHideReimplementedFunctions(hide);
+    restoreExpansionState();
+}
+
+void InsertVirtualMethodsDialog::saveExpansionState()
+{
+    InsertVirtualMethodsFilterModel *model =
+            qobject_cast<InsertVirtualMethodsFilterModel *>(classFunctionFilterModel);
+
+    QList<bool> &state = model->hideReimplemented() ? m_expansionStateReimp
+                                                    : m_expansionStateNormal;
+    state.clear();
+    for (int i = 0; i < model->rowCount(); ++i)
+        state << m_view->isExpanded(model->index(i, 0));
+}
+
+void InsertVirtualMethodsDialog::restoreExpansionState()
+{
+    InsertVirtualMethodsFilterModel *model =
+            qobject_cast<InsertVirtualMethodsFilterModel *>(classFunctionFilterModel);
+
+    const QList<bool> &state = model->hideReimplemented() ? m_expansionStateReimp
+                                                          : m_expansionStateNormal;
+    const int stateCount = state.count();
+    for (int i = 0; i < model->rowCount(); ++i) {
+        if (i < stateCount && !state.at(i)) {
+            m_view->collapse(model->index(i, 0));
+            continue;
+        }
+        m_view->expand(model->index(i, 0));
+    }
+}
+
+InsertVirtualMethods::InsertVirtualMethods(InsertVirtualMethodsDialog *dialog)
+    : m_dialog(dialog)
+{}
+
+InsertVirtualMethods::~InsertVirtualMethods()
+{
+    if (m_dialog)
+        m_dialog->deleteLater();
+}
+
+void InsertVirtualMethods::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    InsertVirtualMethodsOp *op = new InsertVirtualMethodsOp(interface, m_dialog);
+    if (op->isValid())
+        result.append(QuickFixOperation::Ptr(op));
+    else
+        delete op;
+}
+
+#include "cppquickfixes.moc"

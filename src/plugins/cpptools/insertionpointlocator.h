@@ -89,6 +89,7 @@ public:
         ProtectedSlot = Protected | SlotBit,
         PrivateSlot   = Private   | SlotBit
     };
+    static QString accessSpecToString(InsertionPointLocator::AccessSpec xsSpec);
 
 public:
     InsertionPointLocator(const CppRefactoringChanges &refactoringChanges);
