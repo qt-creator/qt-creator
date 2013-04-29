@@ -261,7 +261,7 @@ public:
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
-    bool getCommitData(const QString &workingDirectory, bool amend,
+    bool getCommitData(const QString &workingDirectory, CommitType commitType,
                        QString *commitTemplate, CommitData *commitData,
                        QString *errorMessage);
 

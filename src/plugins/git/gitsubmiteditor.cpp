@@ -85,7 +85,7 @@ private:
 GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
     VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
     m_model(0),
-    m_amend(false),
+    m_commitType(SimpleCommit),
     m_forceClose(false)
 {
     connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
@@ -128,10 +128,10 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     setFileModel(m_model, d.panelInfo.repository);
 }
 
-void GitSubmitEditor::setAmend(bool amend)
+void GitSubmitEditor::setCommitType(CommitType commitType)
 {
-    m_amend = amend;
-    setEmptyFileListEnabled(amend); // Allow for just correcting the message
+    m_commitType = commitType;
+    setEmptyFileListEnabled(commitType == AmendCommit); // Allow for just correcting the message
 }
 
 void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
@@ -163,7 +163,7 @@ void GitSubmitEditor::updateFileModel()
     GitClient *client = GitPlugin::instance()->gitClient();
     QString errorMessage, commitTemplate;
     CommitData data;
-    if (client->getCommitData(m_workingDirectory, m_amend, &commitTemplate, &data, &errorMessage)) {
+    if (client->getCommitData(m_workingDirectory, m_commitType, &commitTemplate, &data, &errorMessage)) {
         setCommitData(data);
     } else {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);

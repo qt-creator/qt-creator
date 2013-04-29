@@ -2018,7 +2018,7 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
-                              bool amend,
+                              CommitType commitType,
                               QString *commitTemplate,
                               CommitData *commitData,
                               QString *errorMessage)
@@ -2047,7 +2047,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     case  StatusChanged:
         break;
     case StatusUnchanged:
-        if (amend)
+        if (commitType == AmendCommit)
             break;
         *errorMessage = msgNoChangedFiles();
         return false;
@@ -2081,7 +2081,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
         commitData->files = filteredFiles;
 
-        if (commitData->files.isEmpty() && !amend) {
+        if (commitData->files.isEmpty() && commitType != AmendCommit) {
             *errorMessage = msgNoChangedFiles();
             return false;
         }
@@ -2090,7 +2090,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     commitData->commitEncoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
 
     // Get the commit template or the last commit message
-    if (amend) {
+    switch (commitType) {
+    case AmendCommit: {
         // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\t%an\t%ae\t%B");
@@ -2106,7 +2107,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         commitData->panelData.author = values.takeFirst();
         commitData->panelData.email = values.takeFirst();
         *commitTemplate = values.join(QLatin1String("\t"));
-    } else {
+        break;
+    }
+    case SimpleCommit: {
         commitData->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
         commitData->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
         // Commit: Get the commit template
@@ -2126,6 +2129,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
                 return false;
             *commitTemplate = QString::fromLocal8Bit(reader.data());
         }
+        break;
+    }
     }
     return true;
 }

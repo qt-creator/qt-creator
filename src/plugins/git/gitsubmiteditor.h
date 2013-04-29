@@ -30,6 +30,8 @@
 #ifndef GITSUBMITEDITOR_H
 #define GITSUBMITEDITOR_H
 
+#include "gitsettings.h" // CommitType
+
 #include <vcsbase/vcsbasesubmiteditor.h>
 
 #include <QStringList>
@@ -52,7 +54,7 @@ public:
     explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
 
     void setCommitData(const CommitData &);
-    void setAmend(bool amend);
+    void setCommitType(CommitType commitType);
     GitSubmitEditorPanelData panelData() const;
     bool forceClose() const { return m_forceClose; }
 
@@ -72,7 +74,7 @@ private:
 
     VcsBase::SubmitFileModel *m_model;
     QString m_commitEncoding;
-    bool m_amend;
+    CommitType m_commitType;
     bool m_forceClose;
     QString m_workingDirectory;
 };

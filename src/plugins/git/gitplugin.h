@@ -192,11 +192,11 @@ private:
     void updateContinueAndAbortCommands();
     void updateRepositoryBrowserAction();
     bool isCommitEditorOpen() const;
-    Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd, bool amend);
+    Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd, CommitType commitType);
     void cleanCommitMessageFile();
     void cleanRepository(const QString &directory);
     void applyPatch(const QString &workingDirectory, QString file = QString());
-    void startCommit(bool amend);
+    void startCommit(CommitType commitType);
     void updateVersionWarning();
 
     static GitPlugin *m_instance;

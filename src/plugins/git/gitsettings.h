@@ -35,6 +35,12 @@
 namespace Git {
 namespace Internal {
 
+enum CommitType
+{
+    SimpleCommit,
+    AmendCommit
+};
+
 // Todo: Add user name and password?
 class GitSettings : public VcsBase::VcsBaseClientSettings
 {

@@ -875,15 +875,15 @@ void GitPlugin::gitkForCurrentFolder()
 
 void GitPlugin::startAmendCommit()
 {
-    startCommit(true);
+    startCommit(AmendCommit);
 }
 
 void GitPlugin::startCommit()
 {
-    startCommit(false);
+    startCommit(SimpleCommit);
 }
 
-void GitPlugin::startCommit(bool amend)
+void GitPlugin::startCommit(CommitType commitType)
 {
     if (raiseSubmitEditor())
         return;
@@ -897,7 +897,7 @@ void GitPlugin::startCommit(bool amend)
 
     QString errorMessage, commitTemplate;
     CommitData data;
-    if (!m_gitClient->getCommitData(state.topLevel(), amend, &commitTemplate, &data, &errorMessage)) {
+    if (!m_gitClient->getCommitData(state.topLevel(), commitType, &commitTemplate, &data, &errorMessage)) {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
         return;
     }
@@ -917,7 +917,7 @@ void GitPlugin::startCommit(bool amend)
         return;
     }
     m_commitMessageFileName = saver.fileName();
-    openSubmitEditor(m_commitMessageFileName, data, amend);
+    openSubmitEditor(m_commitMessageFileName, data, commitType);
 }
 
 void GitPlugin::updateVersionWarning()
@@ -940,7 +940,7 @@ void GitPlugin::updateVersionWarning()
                         Core::InfoBarEntry::GlobalSuppressionEnabled));
 }
 
-Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd, bool amend)
+Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd, CommitType commitType)
 {
     Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
                                                 Core::EditorManager::ModeSwitch);
@@ -952,9 +952,9 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
     submitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
-    const QString title = amend ? tr("Amend %1").arg(cd.amendSHA1) : tr("Git Commit");
+    const QString title = (commitType == AmendCommit) ? tr("Amend %1").arg(cd.amendSHA1) : tr("Git Commit");
     submitEditor->setDisplayName(title);
-    submitEditor->setAmend(amend);
+    submitEditor->setCommitType(commitType);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));
     return editor;
