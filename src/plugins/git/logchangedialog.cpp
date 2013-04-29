@@ -50,62 +50,30 @@ enum Columns
     ColumnCount
 };
 
-LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent)
-    : QDialog(parent)
-    , m_treeView(new QTreeView(this))
+LogChangeWidget::LogChangeWidget(QWidget *parent)
+    : QTreeView(parent)
     , m_model(new QStandardItemModel(0, ColumnCount, this))
-    , m_dialogButtonBox(new QDialogButtonBox(this))
-    , m_resetTypeComboBox(0)
 {
     QStringList headers;
     headers << tr("Sha1")<< tr("Subject");
     m_model->setHorizontalHeaderLabels(headers);
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));
-    m_treeView->setModel(m_model);
-    m_treeView->setMinimumWidth(300);
-    m_treeView->setUniformRowHeights(true);
-    m_treeView->setRootIsDecorated(false);
-    m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    layout->addWidget(m_treeView);
-    QHBoxLayout *popUpLayout = new QHBoxLayout;
-    if (isReset) {
-        popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
-        m_resetTypeComboBox = new QComboBox(this);
-        m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
-        m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
-        m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
-        popUpLayout->addWidget(m_resetTypeComboBox);
-        popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
-    }
-
-    popUpLayout->addWidget(m_dialogButtonBox);
-    m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
-    QPushButton *okButton = m_dialogButtonBox->addButton(QDialogButtonBox::Ok);
-    layout->addLayout(popUpLayout);
-
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            okButton, SLOT(animateClick()));
-
-    connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    resize(600, 400);
+    setModel(m_model);
+    setMinimumWidth(300);
+    setUniformRowHeights(true);
+    setRootIsDecorated(false);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
-bool LogChangeDialog::runDialog(const QString &repository)
+bool LogChangeWidget::init(const QString &repository)
 {
     if (!populateLog(repository) || !m_model->rowCount())
-        return QDialog::Rejected;
-
-    m_treeView->selectionModel()->select(m_model->index(0, 0),
-                                         QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
-
-    return exec() == QDialog::Accepted;
+        return false;
+    selectionModel()->select(m_model->index(0, 0),
+                             QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+    return true;
 }
 
-QString LogChangeDialog::commit() const
+QString LogChangeWidget::commit() const
 {
     // Return Sha1, or empty for top commit.
     if (const QStandardItem *sha1Item = currentItem(Sha1Column))
@@ -113,22 +81,15 @@ QString LogChangeDialog::commit() const
     return QString();
 }
 
-int LogChangeDialog::commitIndex() const
+int LogChangeWidget::commitIndex() const
 {
-    const QModelIndex currentIndex = m_treeView->selectionModel()->currentIndex();
+    const QModelIndex currentIndex = selectionModel()->currentIndex();
     if (currentIndex.isValid())
         return currentIndex.row();
     return -1;
 }
 
-QString LogChangeDialog::resetFlag() const
-{
-    if (!m_resetTypeComboBox)
-        return QString();
-    return m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toString();
-}
-
-bool LogChangeDialog::populateLog(const QString &repository)
+bool LogChangeWidget::populateLog(const QString &repository)
 {
     if (const int rowCount = m_model->rowCount())
         m_model->removeRows(0, rowCount);
@@ -162,12 +123,71 @@ bool LogChangeDialog::populateLog(const QString &repository)
     return true;
 }
 
-const QStandardItem *LogChangeDialog::currentItem(int column) const
+const QStandardItem *LogChangeWidget::currentItem(int column) const
 {
-    const QModelIndex currentIndex = m_treeView->selectionModel()->currentIndex();
+    const QModelIndex currentIndex = selectionModel()->currentIndex();
     if (currentIndex.isValid())
         return m_model->item(currentIndex.row(), column);
     return 0;
+}
+
+LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
+    QDialog(parent)
+    , widget(new LogChangeWidget)
+    , m_dialogButtonBox(new QDialogButtonBox(this))
+    , m_resetTypeComboBox(0)
+{
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));
+    layout->addWidget(widget);
+    QHBoxLayout *popUpLayout = new QHBoxLayout;
+    if (isReset) {
+        popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
+        m_resetTypeComboBox = new QComboBox(this);
+        m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
+        m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
+        m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
+        popUpLayout->addWidget(m_resetTypeComboBox);
+        popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    }
+
+    popUpLayout->addWidget(m_dialogButtonBox);
+    m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
+    QPushButton *okButton = m_dialogButtonBox->addButton(QDialogButtonBox::Ok);
+    layout->addLayout(popUpLayout);
+
+    connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    connect(widget, SIGNAL(doubleClicked(QModelIndex)), okButton, SLOT(animateClick()));
+
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    resize(600, 400);
+}
+
+bool LogChangeDialog::runDialog(const QString &repository)
+{
+    if (!widget->init(repository))
+        return QDialog::Rejected;
+
+    return QDialog::exec() == QDialog::Accepted;
+}
+
+QString LogChangeDialog::commit() const
+{
+    return widget->commit();
+}
+
+int LogChangeDialog::commitIndex() const
+{
+    return widget->commitIndex();
+}
+
+QString LogChangeDialog::resetFlag() const
+{
+    if (!m_resetTypeComboBox)
+        return QString();
+    return m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toString();
 }
 
 } // namespace Internal

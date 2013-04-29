@@ -31,9 +31,9 @@
 #define LOGCHANGEDDIALOG_H
 
 #include <QDialog>
+#include <QTreeView>
 
 QT_BEGIN_NAMESPACE
-class QTreeView;
 class QDialogButtonBox;
 class QComboBox;
 class QStandardItemModel;
@@ -43,13 +43,31 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-// A dialog that lists SHA1 and subject of the changes
-// Used for reset and interactive rebased
+// A widget that lists SHA1 and subject of the changes
+// Used for reset and interactive rebase
+
+class LogChangeWidget : public QTreeView
+{
+    Q_OBJECT
+
+public:
+    explicit LogChangeWidget(QWidget *parent = 0);
+    bool init(const QString &repository);
+    QString commit() const;
+    int commitIndex() const;
+
+private:
+    bool populateLog(const QString &repository);
+    const QStandardItem *currentItem(int column = 0) const;
+
+    QStandardItemModel *m_model;
+};
+
 class LogChangeDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LogChangeDialog(bool isReset, QWidget *parent = 0);
+    LogChangeDialog(bool isReset, QWidget *parent = 0);
 
     bool runDialog(const QString &repository);
 
@@ -58,11 +76,7 @@ public:
     QString resetFlag() const;
 
 private:
-    bool populateLog(const QString &repository);
-    const QStandardItem *currentItem(int column = 0) const;
-
-    QTreeView *m_treeView;
-    QStandardItemModel *m_model;
+    LogChangeWidget *widget;
     QDialogButtonBox *m_dialogButtonBox;
     QComboBox *m_resetTypeComboBox;
 };
