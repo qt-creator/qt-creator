@@ -380,8 +380,12 @@ void GerritPlugin::push()
     QStringList args;
 
     args << dialog->selectedRemoteName();
-    args << QLatin1String("HEAD:refs/") + dialog->selectedPushType() +
+    QString target = QLatin1String("HEAD:refs/") + dialog->selectedPushType() +
             QLatin1Char('/') + dialog->selectedRemoteBranchName();
+    const QString topic = dialog->selectedTopic();
+    if (!topic.isEmpty())
+        target += QLatin1Char('/') + topic;
+    args << target;
 
     Git::Internal::GitPlugin::instance()->gitClient()->synchronousPush(topLevel, args);
 

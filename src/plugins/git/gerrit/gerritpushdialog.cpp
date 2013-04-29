@@ -197,5 +197,10 @@ QString GerritPushDialog::selectedPushType() const
     return m_ui->publicRadioButton->isChecked() ? QLatin1String("for") : QLatin1String("draft");
 }
 
+QString GerritPushDialog::selectedTopic() const
+{
+    return m_ui->topicLineEdit->text().trimmed();
+}
+
 } // namespace Internal
 } // namespace Gerrit
