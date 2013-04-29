@@ -88,6 +88,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
         return;
     } else if (text.startsWith(m_hashChar)) {
         setFormat(0, text.size(), m_commentFormat);
+        setCurrentBlockState(state);
         return;
     } else if (state == None) {
         state = Header;
