@@ -62,7 +62,7 @@ public:
     void highlightBlock(const QString &text);
 
 private:
-    enum State { Header, Comment, Other };
+    enum State { None = -1, Header, Other };
     const QTextCharFormat m_commentFormat;
     QRegExp m_keywordPattern;
     const QChar m_hashChar;
@@ -71,7 +71,7 @@ private:
 GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
     QSyntaxHighlighter(parent),
     m_commentFormat(commentFormat()),
-    m_keywordPattern(QLatin1String("^\\w+:")),
+    m_keywordPattern(QLatin1String("^[\\w-]+:")),
     m_hashChar(QLatin1Char('#'))
 {
     QTC_CHECK(m_keywordPattern.isValid());
@@ -80,25 +80,30 @@ GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
 void GitSubmitHighlighter::highlightBlock(const QString &text)
 {
     // figure out current state
-    State state = Other;
-    const QTextBlock block = currentBlock();
-    if (block.position() == 0) {
+    State state = static_cast<State>(previousBlockState());
+    if (text.isEmpty()) {
+        if (state == Header)
+            state = Other;
+        setCurrentBlockState(state);
+        return;
+    } else if (text.startsWith(m_hashChar)) {
+        setFormat(0, text.size(), m_commentFormat);
+        return;
+    } else if (state == None) {
         state = Header;
-    } else {
-        if (text.startsWith(m_hashChar))
-            state = Comment;
     }
+
+    setCurrentBlockState(state);
     // Apply format.
     switch (state) {
+    case None:
+        break;
     case Header: {
-            QTextCharFormat charFormat = format(0);
-            charFormat.setFontWeight(QFont::Bold);
-            setFormat(0, text.size(), charFormat);
+        QTextCharFormat charFormat = format(0);
+        charFormat.setFontWeight(QFont::Bold);
+        setFormat(0, text.size(), charFormat);
+        break;
     }
-        break;
-    case Comment:
-        setFormat(0, text.size(), m_commentFormat);
-        break;
     case Other:
         // Format key words ("Task:") italic
         if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
