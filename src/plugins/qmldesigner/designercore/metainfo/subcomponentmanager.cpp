@@ -108,7 +108,7 @@ static inline bool checkIfDerivedFromItem(const QString &fileName)
 
     snapshot.insert(document);
 
-    QmlJS::Link link(snapshot, QStringList(), QmlJS::ModelManagerInterface::instance()->builtins(document));
+    QmlJS::Link link(snapshot, modelManager->importPaths(), QmlJS::ModelManagerInterface::instance()->builtins(document));
 
     QList<QmlJS::DiagnosticMessage> diagnosticLinkMessages;
     QmlJS::ContextPtr context = link(document, &diagnosticLinkMessages);
@@ -123,15 +123,7 @@ static inline bool checkIfDerivedFromItem(const QString &fileName)
     if (!definition)
         return false;
 
-    QString fullTypeName;
-    for (QmlJS::AST::UiQualifiedId *iter = definition->qualifiedTypeNameId; iter; iter = iter->next)
-        if (!iter->name.isEmpty())
-            fullTypeName += iter->name.toString() + QLatin1Char('.');
-
-    if (fullTypeName.endsWith(QLatin1Char('.')))
-        fullTypeName.chop(1);
-
-    const QmlJS::ObjectValue *objectValue = context->lookupType(document.data(), fullTypeName.split('.'));
+    const QmlJS::ObjectValue *objectValue = context->lookupType(document.data(), definition->qualifiedTypeNameId);
 
     QList<const QmlJS::ObjectValue *> prototypes = QmlJS::PrototypeIterator(objectValue, context).all();
 
