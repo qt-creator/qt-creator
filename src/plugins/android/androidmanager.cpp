@@ -71,6 +71,50 @@ namespace {
             if (!legalChars.exactMatch(packageName.mid(i, 1)))
                 packageName[i] = QLatin1Char('_');
 
+        static QStringList keywords;
+        if (keywords.isEmpty())
+            keywords << QLatin1String("abstract") << QLatin1String("continue") << QLatin1String("for")
+                     << QLatin1String("new") << QLatin1String("switch") << QLatin1String("assert")
+                     << QLatin1String("default") << QLatin1String("if") << QLatin1String("package")
+                     << QLatin1String("synchronized") << QLatin1String("boolean") << QLatin1String("do")
+                     << QLatin1String("goto") << QLatin1String("private") << QLatin1String("this")
+                     << QLatin1String("break") << QLatin1String("double") << QLatin1String("implements")
+                     << QLatin1String("protected") << QLatin1String("throw") << QLatin1String("byte")
+                     << QLatin1String("else") << QLatin1String("import") << QLatin1String("public")
+                     << QLatin1String("throws") << QLatin1String("case") << QLatin1String("enum")
+                     << QLatin1String("instanceof") << QLatin1String("return") << QLatin1String("transient")
+                     << QLatin1String("catch") << QLatin1String("extends") << QLatin1String("int")
+                     << QLatin1String("short") << QLatin1String("try") << QLatin1String("char")
+                     << QLatin1String("final") << QLatin1String("interface") << QLatin1String("static")
+                     << QLatin1String("void") << QLatin1String("class") << QLatin1String("finally")
+                     << QLatin1String("long") << QLatin1String("strictfp") << QLatin1String("volatile")
+                     << QLatin1String("const") << QLatin1String("float") << QLatin1String("native")
+                     << QLatin1String("super") << QLatin1String("while");
+
+        // No keywords
+        int index = -1;
+        while (index != packageName.length()) {
+            int next = packageName.indexOf(QLatin1Char('.'), index + 1);
+            if (next == -1)
+                next = packageName.length();
+            QString word = packageName.mid(index + 1, next - index - 1);
+            if (!word.isEmpty()) {
+                QChar c = word[0];
+                if (c >= QChar(QLatin1Char('0')) && c<= QChar(QLatin1Char('9'))) {
+                    packageName.insert(index + 1, QLatin1Char('_'));
+                    index = next + 1;
+                    continue;
+                }
+            }
+            if (keywords.contains(word)) {
+                packageName.insert(next, QLatin1String("_"));
+                index = next + 1;
+            } else {
+                index = next;
+            }
+        }
+
+
         return packageName;
     }
 } // anonymous namespace
