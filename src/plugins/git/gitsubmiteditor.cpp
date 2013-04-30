@@ -164,7 +164,7 @@ void GitSubmitEditor::updateFileModel()
     GitClient *client = GitPlugin::instance()->gitClient();
     QString errorMessage, commitTemplate;
     CommitData data(m_commitType);
-    if (client->getCommitData(m_workingDirectory, &commitTemplate, &data, &errorMessage)) {
+    if (client->getCommitData(m_workingDirectory, &commitTemplate, data, &errorMessage)) {
         setCommitData(data);
     } else {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);

@@ -2019,10 +2019,10 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 
 bool GitClient::getCommitData(const QString &workingDirectory,
                               QString *commitTemplate,
-                              CommitData *commitData,
+                              CommitData &commitData,
                               QString *errorMessage)
 {
-    commitData->clear();
+    commitData.clear();
 
     // Find repo
     const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
@@ -2031,7 +2031,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         return false;
     }
 
-    commitData->panelInfo.repository = repoDirectory;
+    commitData.panelInfo.repository = repoDirectory;
 
     QString gitDir = findGitDirForRepository(repoDirectory);
     if (gitDir.isEmpty()) {
@@ -2046,7 +2046,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     case  StatusChanged:
         break;
     case StatusUnchanged:
-        if (commitData->commitType == AmendCommit) // amend might be run just for the commit message
+        if (commitData.commitType == AmendCommit) // amend might be run just for the commit message
             break;
         *errorMessage = msgNoChangedFiles();
         return false;
@@ -2062,39 +2062,39 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //     D deleted_file
     //    ?? untracked_file
     if (status != StatusUnchanged) {
-        if (!commitData->parseFilesFromStatus(output)) {
+        if (!commitData.parseFilesFromStatus(output)) {
             *errorMessage = msgParseFilesFailed();
             return false;
         }
 
         // Filter out untracked files that are not part of the project
-        QStringList untrackedFiles = commitData->filterFiles(UntrackedFile);
+        QStringList untrackedFiles = commitData.filterFiles(UntrackedFile);
 
         VcsBase::VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &untrackedFiles);
         QList<CommitData::StateFilePair> filteredFiles;
-        QList<CommitData::StateFilePair>::const_iterator it = commitData->files.constBegin();
-        for ( ; it != commitData->files.constEnd(); ++it) {
+        QList<CommitData::StateFilePair>::const_iterator it = commitData.files.constBegin();
+        for ( ; it != commitData.files.constEnd(); ++it) {
             if (it->first == UntrackedFile && !untrackedFiles.contains(it->second))
                 continue;
             filteredFiles.append(*it);
         }
-        commitData->files = filteredFiles;
+        commitData.files = filteredFiles;
 
-        if (commitData->files.isEmpty() && commitData->commitType != AmendCommit) {
+        if (commitData.files.isEmpty() && commitData.commitType != AmendCommit) {
             *errorMessage = msgNoChangedFiles();
             return false;
         }
     }
 
-    commitData->commitEncoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
+    commitData.commitEncoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
 
     // Get the commit template or the last commit message
-    switch (commitData->commitType) {
+    switch (commitData.commitType) {
     case AmendCommit: {
         // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\t%an\t%ae\t%B");
-        QTextCodec *codec = QTextCodec::codecForName(commitData->commitEncoding.toLocal8Bit());
+        QTextCodec *codec = QTextCodec::codecForName(commitData.commitEncoding.toLocal8Bit());
         const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0, codec);
         if (sp.result != Utils::SynchronousProcessResponse::Finished) {
             *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
@@ -2102,15 +2102,15 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
         QStringList values = sp.stdOut.split(QLatin1Char('\t'));
         QTC_ASSERT(values.size() >= 4, return false);
-        commitData->amendSHA1 = values.takeFirst();
-        commitData->panelData.author = values.takeFirst();
-        commitData->panelData.email = values.takeFirst();
+        commitData.amendSHA1 = values.takeFirst();
+        commitData.panelData.author = values.takeFirst();
+        commitData.panelData.email = values.takeFirst();
         *commitTemplate = values.join(QLatin1String("\t"));
         break;
     }
     case SimpleCommit: {
-        commitData->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
-        commitData->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
+        commitData.panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
+        commitData.panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
         // Commit: Get the commit template
         QDir gitDirectory(gitDir);
         QString templateFilename = gitDirectory.absoluteFilePath(QLatin1String("MERGE_MSG"));

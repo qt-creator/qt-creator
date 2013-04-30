@@ -897,7 +897,7 @@ void GitPlugin::startCommit(CommitType commitType)
 
     QString errorMessage, commitTemplate;
     CommitData data(commitType);
-    if (!m_gitClient->getCommitData(state.topLevel(), &commitTemplate, &data, &errorMessage)) {
+    if (!m_gitClient->getCommitData(state.topLevel(), &commitTemplate, data, &errorMessage)) {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
         return;
     }
