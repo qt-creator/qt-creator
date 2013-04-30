@@ -599,13 +599,12 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     if (editors.isEmpty()) {
         editor = EditorManager::openEditor(file, Core::Id(),
             EditorManager::IgnoreNavigationHistory);
-        if (editor) {
-            editors.append(editor);
-            editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
-        }
+        QTC_ASSERT(editor, return); // Unreadable file?
+        editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
     } else {
         editor = editors.back();
     }
+
     ITextEditor *texteditor = qobject_cast<ITextEditor *>(editor);
     if (texteditor)
         texteditor->gotoLine(line, 0);

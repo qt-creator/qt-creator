@@ -170,7 +170,7 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QTC_ASSERT(engine, return);
     RegisterHandler *handler = currentHandler();
     const bool actionsEnabled = engine->debuggerActionsEnabled();
-    const int state = engine->state();
+    const DebuggerState state = engine->state();
 
     QAction *actReload = menu.addAction(tr("Reload Register Listing"));
     actReload->setEnabled(engine->hasCapability(RegisterCapability)
@@ -178,10 +178,10 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 
+    Register aRegister;
     const QModelIndex idx = indexAt(ev->pos());
-    if (!idx.isValid())
-        return;
-    const Register &aRegister = handler->registers().at(idx.row());
+    if (idx.isValid())
+        aRegister = handler->registers().at(idx.row());
     const QVariant addressV = aRegister.editValue();
     const quint64 address = addressV.type() == QVariant::ULongLong
         ? addressV.toULongLong() : 0;

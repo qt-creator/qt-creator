@@ -1,7 +1,13 @@
+#!/usr/bin/env python
 
+import sys
+sys.path.append("/data/dev/llvm-git/build/Debug+Asserts/lib/python2.7/site-packages")
+
+import cmd
 import inspect
 import os
-#import traceback
+
+import lldb
 
 cdbLoaded = False
 lldbLoaded = False
@@ -17,7 +23,85 @@ currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 #print "DIR: %s " % currentDir
 
 def warn(message):
-    print "XXX: %s\n" % message.encode("latin1")
+    print 'XXX={"%s"}@\n' % message.encode("latin1").replace('"', "'")
+
+def showException(msg, exType, exValue, exTraceback):
+    warn("**** CAUGHT EXCEPTION: %s ****" % msg)
+    try:
+        import traceback
+        for line in traceback.format_exception(exType, exValue, exTraceback):
+            warn("%s" % line)
+    except:
+        pass
+
+def registerCommand(name, func):
+    pass
+
+class Type:
+    def __init__(self, var):
+        self.raw = var
+        if var.num_children == 0:
+            self.code = SimpleValueCode
+        else:
+            self.code = StructCode
+        self.value_type = var.value_type
+
+    def __str__(self):
+        #try:
+            return self.raw.type.name
+        #except:
+        #    return "<illegal type>"
+
+    def fieldCount(self):
+        return self.raw.num_children
+
+    def unqualified(self):
+        return self
+
+    def strip_typedefs(self):
+        return self
+
+class Value:
+    def __init__(self, var):
+        self.raw = var
+        self.is_optimized_out = False
+        self.address = var.addr
+        self.type = Type(var)
+        self.name = var.name
+
+    def __str__(self):
+        return str(self.raw.value)
+
+    def __getitem__(self, name):
+        return None if self.raw is None else  self.raw.GetChildMemberWithName(name)
+
+    def fields(self):
+        return [Value(self.raw.GetChildAtIndex(i)) for i in xrange(self.raw.num_children)]
+
+def currentFrame():
+    currentThread = self.process.GetThreadAtIndex(0)
+    return currentThread.GetFrameAtIndex(0)
+
+def fieldCount(type):
+    return type.fieldCount();
+
+def fileName(file):
+    return str(file) if file.IsValid() else ''
+
+def breakpoint_function_wrapper(baton, process, frame, bp_loc):
+    result = '*stopped'
+    result += ',line="%s"' % frame.line_entry.line
+    result += ',file="%s"' % frame.line_entry.file
+    warn("WRAPPER: %s " %result)
+    return result
+
+
+def onBreak():
+    db.debugger.HandleCommand("settings set frame-format ''")
+    db.debugger.HandleCommand("settings set thread-format ''")
+    result = "*stopped,frame={....}"
+    print result
+
 
 PointerCode = None
 ArrayCode = None
@@ -69,355 +153,660 @@ WatchpointAtExpression = 12
 BreakpointOnQmlSignalEmit = 13
 BreakpointAtJavaScriptThrow = 14
 
-
-def registerCommand(name, func):
-    pass
-
-class Type:
-    def __init__(self, var):
-        self.raw = var
-        if var.num_children == 0:
-            self.code = SimpleValueCode
-        else:
-            self.code = StructCode
-        self.value_type = var.value_type
-
-    def __str__(self):
-        #try:
-            return self.raw.type.name
-        #except:
-        #    return "<illegal type>"
-
-    def fieldCount(self):
-        return self.raw.num_children
-
-    def unqualified(self):
-        return self
-
-    def strip_typedefs(self):
-        return self
-
-class Value:
-    def __init__(self, var):
-        self.raw = var
-        self.is_optimized_out = False
-        self.address = var.addr
-        self.type = Type(var)
-        self.name = var.name
-
-    def __str__(self):
-        return str(self.raw.value)
-
-    def __getitem__(self, name):
-        return None if self.raw is None else  self.raw.GetChildMemberWithName(name)
-
-    def fields(self):
-        return [Value(self.raw.GetChildAtIndex(i)) for i in range(self.raw.num_children)]
-
-def currentFrame():
-    currentThread = lldb.process.GetThreadAtIndex(0)
-    return currentThread.GetFrameAtIndex(0)
-
-def listOfLocals(varList):
-    items = []
-    for var in currentFrame().variables:
-        item = LocalItem()
-        item.iname = "local." + var.name
-        item.name = var.name
-        item.value = Value(var)
-        items.append(item)
-    return items
-
-def extractFields(value):
-    return value.fields()
-
-def fieldCount(type):
-    return type.fieldCount();
-
-def threadsData(options):
-    result = "threads={threads=["
-    for thread in lldb.process.threads:
-        result += "{id=\"%d\"" % thread.id
-        result += ",target-id=\"%s\"" % thread.id
-        result += ",index=\"%s\"" % thread.idx
-        result += ",stop-reason=\"%s\"" % thread.stop_reason
-
-        if thread.IsSuspended():
-            result += ",state=\"stopped\""
-        else:
-            result += ",state=\"running\""
-
-        if not thread.name is None:
-            result += ",name=\"%s\"" % thread.name
-
-        result += ",frame={"
-        frame = thread.GetFrameAtIndex(0)
-        result += "pc=\"%s\"" % frame.pc
-        result += ",addr=\"%s\"" % frame.pc
-        result += ",fp=\"%s\"" % frame.fp
-        result += ",func=\"%s\"" % frame.function.name
-        result += ",line=\"%s\"" % frame.line_entry.line
-        result += ",fullname=\"%s\"" % frame.line_entry.file
-        result += ",file=\"%s\"" % frame.line_entry.file
-        result += "}},"
-
-    result += "],current-thread-id=\"%s\"}," % lldb.process.selected_thread.id
-    return result
-
-# See lldb.StateType
+# See db.StateType
 stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "stopped",
     "running", "stepping", "crashed", "detached", "exited", "suspended" ]
 
-def stateData(options):
-    state = lldb.process.GetState()
-    return "state=\"%s\"," % stateNames[state]
+def loggingCallback(args):
+    s = args.strip()
+    s = s.replace('"', "'")
+    sys.stdout.write('log="%s"@\n' % s)
 
-def locationData(options):
-    thread = lldb.process.GetSelectedThread()
-    frame = thread.GetFrameAtIndex(0)
-    return "location={file=\"%s\",line=\"%s\",addr=\"%s\"}," \
-        % (frame.line_entry.file, frame.line_entry.line, frame.pc)
+class Children:
+    def __init__(self, d, numChild = 1, childType = None, childNumChild = None,
+            maxNumChild = None, addrBase = None, addrStep = None):
+        self.d = d
 
-def stackData(options, threadId):
-    try:
-        thread = lldb.process.GetThreadById(threadId)
-    except:
-        thread = lldb.process.GetThreadAtIndex(0)
-    result = "stack={frames=["
-    for frame in thread.frames:
-        result += "{pc=\"%s\"" % frame.pc
-        result += ",level=\"%d\"" % frame.idx
-        result += ",addr=\"%s\"" % frame.pc
-        result += ",fp=\"%s\"" % frame.fp
-        result += ",func=\"%s\"" % frame.function.name
-        result += ",line=\"%s\"" % frame.line_entry.line
-        result += ",fullname=\"%s\"" % frame.line_entry.file
-        result += ",usable=\"1\""
-        result += ",file=\"%s\"}," % frame.line_entry.file
+    def __enter__(self):
+        self.d.put('children=[')
 
-    hasmore = "0"
-    result += "],hasmore=\"%s\"}, " % hasmore
-    return result
+    def __exit__(self, exType, exValue, exTraceBack):
+        if not exType is None:
+            if self.d.passExceptions:
+                showException("CHILDREN", exType, exValue, exTraceBack)
+        self.d.put(']')
+        return True
 
-def listModules():
-    result = "result={modules=["
-    for module in lldb.target.modules:
-        result += "{file=\"%s\"" % module.file.fullpath
-        result += ",name=\"%s\"" % module.file.basename
-        #result += ",addrsize=\"%s\"" % module.addr_size
-        #result += ",triple=\"%s\"" % module.triple
-        #result += ",sections={"
-        #for section in module.sections:
-        #    result += "[name=\"%s\"" % section.name
-        #    result += ",addr=\"%s\"" % section.addr
-        #    result += ",size=\"%s\"]," % section.size
-        #result += "}"
-        result += "},"
-    result += "]}"
-    return result
+class SubItem:
+    def __init__(self, d, component):
+        self.d = d
+        self.iname = "%s.%s" % (d.currentIName, component)
+        self.name = component
 
-def breakpoint_function_wrapper(baton, process, frame, bp_loc):
-    result = "*stopped"
-    result += ",line=\"%s\"" % frame.line_entry.line
-    result += ",file=\"%s\"" % frame.line_entry.file
-    warn("WRAPPER: %s " %result)
-    return result
+    def __enter__(self):
+        self.d.put('{')
+        #if not self.name is None:
+        if isinstance(self.name, str):
+            self.d.put('name="%s",' % self.name)
+        self.savedIName = self.d.currentIName
+        self.savedValue = self.d.currentValue
+        self.savedValuePriority = self.d.currentValuePriority
+        self.savedValueEncoding = self.d.currentValueEncoding
+        self.savedType = self.d.currentType
+        self.savedTypePriority = self.d.currentTypePriority
+        self.d.currentIName = self.iname
+        self.d.currentValuePriority = -100
+        self.d.currentValueEncoding = None
+        self.d.currentType = ""
+        self.d.currentTypePriority = -100
 
-def initLldb():
-    pass
+    def __exit__(self, exType, exValue, exTraceBack):
+        if not exType is None:
+            if self.d.passExceptions:
+                showException("SUBITEM", exType, exValue, exTraceBack)
+            self.d.putNumChild(0)
+            self.d.putValue("<not accessible>")
+        try:
+            typeName = self.d.currentType
+            if len(typeName) > 0 and typeName != self.d.currentChildType:
+                self.d.put('type="%s",' % typeName) # str(type.unqualified()) ?
+            if  self.d.currentValue is None:
+                self.d.put('value="<not accessible>",numchild="0",')
+            else:
+                if not self.d.currentValueEncoding is None:
+                    self.d.put('valueencoded="%d",' % self.d.currentValueEncoding)
+                self.d.put('value="%s",' % self.d.currentValue)
+        except:
+            pass
+        self.d.put('},')
+        self.d.currentIName = self.savedIName
+        self.d.currentValue = self.savedValue
+        self.d.currentValuePriority = self.savedValuePriority
+        self.d.currentValueEncoding = self.savedValueEncoding
+        self.d.currentType = self.savedType
+        self.d.currentTypePriority = self.savedTypePriority
+        return True
 
-def dumpBreakpoint(bp, modelId):
-    cond = bp.GetCondition()
-    result  = "{lldbid=\"%s\"" % bp.GetID()
-    result += ",modelid=\"%s\"" % modelId
-    result += ",hitcount=\"%s\"" % bp.GetHitCount()
-    result += ",threadid=\"%s\"" % bp.GetThreadID()
-    result += ",oneshot=\"%s\"" % (1 if bp.IsOneShot() else 0)
-    result += ",enabled=\"%s\"" % (1 if bp.IsEnabled() else 0)
-    result += ",valid=\"%s\"" % (1 if bp.IsValid() else 0)
-    result += ",condition=\"%s\"" % ("" if cond is None else cond)
-    result += ",ignorecount=\"%s\"" % bp.GetIgnoreCount()
-    result += ",locations=["
-    for i in range(bp.GetNumLocations()):
-        loc = bp.GetLocationAtIndex(i)
-        addr = loc.GetAddress()
-        result += "{locid=\"%s\"" % loc.GetID()
-        result += ",func=\"%s\"" % addr.GetFunction().GetName()
-        result += ",enabled=\"%s\"" % (1 if loc.IsEnabled() else 0)
-        result += ",resolved=\"%s\"" % (1 if loc.IsResolved() else 0)
-        result += ",valid=\"%s\"" % (1 if loc.IsValid() else 0)
-        result += ",ignorecount=\"%s\"" % loc.GetIgnoreCount()
-        result += ",addr=\"%s\"}," % loc.GetLoadAddress()
-    result += "]},"
-    return result
+class Debugger(cmd.Cmd):
+    def __init__(self):
+        cmd.Cmd.__init__(self)
+        self.prompt = ""
 
-def onBreak():
-    lldb.debugger.HandleCommand("settings set frame-format ''")
-    lldb.debugger.HandleCommand("settings set thread-format ''")
-    result = "*stopped,frame={....}"
-    print result
+        self.debugger = lldb.SBDebugger.Create()
+        self.debugger.SetLoggingCallback(loggingCallback)
+        #Same as: self.debugger.HandleCommand("log enable lldb dyld step")
+        #self.debugger.EnableLog("lldb", ["dyld", "step", "process", "state", "thread", "events",
+        #    "communication", "unwind", "commands"])
+        #self.debugger.EnableLog("lldb", ["all"])
+        self.debugger.Initialize()
+        self.debugger.HandleCommand("settings set auto-confirm on")
+        self.process = None
+        self.target = None
+        self.executable = None
+        self.pid = None
+        self.eventState = lldb.eStateInvalid
+        self.listener = None
+        self.options = {}
+        self.expandedINames = {}
+        self.passExceptions = True
 
-def handleBreakpoints(options, toAdd, toChange, toRemove):
-    #target = lldb.debugger.CreateTargetWithFileAndArch (exe, lldb.LLDB_ARCH_DEFAULT)
-    target = lldb.debugger.GetTargetAtIndex(0)
+        self.currentIName = None
+        self.currentValuePriority = -100
+        self.currentValueEncoding = None
+        self.currentType = ""
+        self.currentTypePriority = -100
+        self.currentValue = -100
 
-    result = "result={bkpts={added=["
+    def handleCommand(self, command):
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(command, result)
+        success = result.Succeeded()
+        if success:
+            self.report('output="%s"' % result.GetOutput())
+        else:
+            self.report('error="%s"' % result.GetError())
+        self.reportData()
 
-    for bp in toAdd:
-        bpType = bp["type"]
-        if bpType == BreakpointByFileAndLine:
-            bpNew = target.BreakpointCreateByLocation(str(bp["file"]), int(bp["line"]))
-        elif bpType == BreakpointByFunction:
-            bpNew = target.BreakpointCreateByName(bp["function"])
-        elif bpType == BreakpointAtMain:
-            bpNew = target.BreakpointCreateByName("main", target.GetExecutable().GetFilename())
-        bpNew.SetIgnoreCount(int(bp["ignorecount"]))
-        bpNew.SetCondition(str(bp["condition"]))
-        bpNew.SetEnabled(int(bp["enabled"]))
-        bpNew.SetOneShot(int(bp["oneshot"]))
-        #bpNew.SetCallback(breakpoint_function_wrapper, None)
-        #bpNew.SetCallback(breakpoint_function_wrapper, None)
-        #"breakpoint command add 1 -o \"import time; print time.asctime()\"
-        #cmd = "script print(11111111)"
-        cmd = "continue"
-        #lldb.debugger.HandleCommand(
-        #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
+    def put(self, stuff):
+        sys.stdout.write(stuff)
 
-        result += dumpBreakpoint(bpNew, bp["modelid"])
+    def putNumChild(self, numchild):
+        #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
+        if numchild != self.currentChildNumChild:
+            self.put('numchild="%s",' % numchild)
 
-    result += "],changed=["
+    def putValue(self, value, encoding = None, priority = 0):
+        # Higher priority values override lower ones.
+        if priority >= self.currentValuePriority:
+            self.currentValue = value
+            self.currentValuePriority = priority
+            self.currentValueEncoding = encoding
 
-    for bp in toChange:
-        bpChange = target.FindBreakpointByID(int(bp["lldbid"]))
-        bpChange.SetIgnoreCount(int(bp["ignorecount"]))
-        bpChange.SetCondition(str(bp["condition"]))
-        bpChange.SetEnabled(int(bp["enabled"]))
-        bpChange.SetOneShot(int(bp["oneshot"]))
-        result += dumpBreakpoint(bpChange, bp["modelid"])
+    def setupInferior(self, fileName):
+        error = lldb.SBError()
+        self.executable = fileName
+        self.target = self.debugger.CreateTarget(self.executable, None, None, True, error)
+        if self.target.IsValid():
+            self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, fileName))
+        else:
+            self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, fileName))
 
-    result += "],removed=["
+    def runEngine(self):
+        error = lldb.SBError()
+        #launchInfo = lldb.SBLaunchInfo(["-s"])
+        self.listener = lldb.SBListener("QTC-Listener1")
+        #self.process = self.target.Launch(self.listener, None, None,
+        #                                    None, '/tmp/stdout.txt', None,
+        #                                    None, 0, True, error)
+        self.process = self.target.Launch(self.listener, None, None,
+                                            None, None, None,
+                                            os.getcwd(),
+                  lldb.eLaunchFlagExec
+                + lldb.eLaunchFlagDebug
+                #+ lldb.eLaunchFlagDebug
+                #+ lldb.eLaunchFlagStopAtEntry
+                #+ lldb.eLaunchFlagDisableSTDIO
+                #+ lldb.eLaunchFlagLaunchInSeparateProcessGroup
+            , False, error)
+        self.reportError(error)
+        self.pid = self.process.GetProcessID()
+        self.processEvents(0)
+        self.report('pid="%s"' % self.pid)
+        #self.reportData()
+        #self.report('state="enginerunok"')
 
-    for bp in toRemove:
-        bpDead = target.BreakpointDelete(int(bp["lldbid"]))
-        result += "{modelid=\"%s\"}" % bp["modelid"]
+    def reportError(self, error):
+        desc = lldb.SBStream()
+        error.GetDescription(desc)
+        result = 'error={type="%s"' % error.GetType()
+        result += ',code="%s"' % error.GetError()
+        result += ',msg="%s"' % error.GetCString()
+        result += ',desc="%s"}' % desc.GetData()
+        self.report(result)
 
-    result += "]}}"
-    return result
+    def currentThread(self):
+        #return self.process.GetSelectedThread()
+        return self.process.GetThreadAtIndex(0)
 
-def createStoppedReport(options):
-    result = "result={"
-    result += bb(options["locals"]) + ","
-    result += stackData(options["stack"], lldb.process.selected_thread.id)
-    result += threadsData({})
-    result += stateData({})
-    result += locationData({})
-    result += "token=\"%s\"," % options["token"]
-    result += "}"
-    return result
+    def currentFrame(self):
+        return self.currentThread().GetSelectedFrame()
 
-def createRunReport(options):
-    result = "result={"
-    #result += stateData({})
-    result += "state=\"running\","
-    result += "token=\"%s\"," % options["token"]
-    result += "}"
-    return result
+    def reportLocation(self):
+        thread = self.currentThread()
+        frame = thread.GetFrameAtIndex(0)
+        file = fileName(frame.line_entry.file)
+        line = frame.line_entry.line
+        self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
 
-def createReport(options):
-    return createStoppedReport(options)
+    def reportThreads(self):
+        result = 'threads={threads=['
+        for thread in self.process.threads:
+            result += '{id="%d"' % thread.id
+            result += ',index="%s"' % thread.idx
+            result += ',stop-reason="%s"' % thread.stop_reason
 
-def executeNext(options):
-    lldb.thread.StepOver()
-    return createRunReport(options)
+            if not thread.name is None:
+                result += ',name="%s"' % thread.name
 
-def executeNextI(options):
-    lldb.thread.StepOver()
-    return createRunReport(options)
+            result += ',frame={'
+            frame = thread.GetFrameAtIndex(0)
+            result += 'pc="0x%x"' % frame.pc
+            result += ',addr="0x%x"' % frame.pc
+            result += ',fp="0x%x"' % frame.fp
+            result += ',func="%s"' % frame.function.name
+            result += ',line="%s"' % frame.line_entry.line
+            result += ',fullname="%s"' % fileName(frame.line_entry.file)
+            result += ',file="%s"' % fileName(frame.line_entry.file)
+            result += '}},'
 
-def executeStep(options):
-    lldb.thread.StepInto()
-    return createRunReport(options)
+        result += '],current-thread-id="%s"},' % self.currentThread().id
+        self.report(result)
 
-def executeStepI(options):
-    lldb.thread.StepInstOver()
-    return createRunReport(options)
+    def reportStack(self):
+        if self.process is None:
+            self.report('msg="No process"')
+        else:
+            thread = self.currentThread()
+            result = 'stack={current-thread="%s",frames=[' % thread.GetThreadID()
+            for frame in thread.frames:
+                result += '{pc="0x%x"' % frame.pc
+                result += ',level="%d"' % frame.idx
+                result += ',addr="0x%x"' % frame.pc
+                result += ',fp="0x%x"' % frame.fp
+                result += ',func="%s"' % frame.function.name
+                result += ',line="%d"' % frame.line_entry.line
+                result += ',fullname="%s"' % fileName(frame.line_entry.file)
+                result += ',usable="1"'
+                result += ',file="%s"},' % fileName(frame.line_entry.file)
 
-def executeStepOut(options):
-    #lldb.thread.StepOutOfFrame(None)
-    msg = lldb.debugger.HandleCommand("thread step-out")
-    # Currently results in
-    # "Couldn't find thread plan to implement step type"
-    return createRunReport(options)
+            hasmore = '0'
+            result += '],hasmore="%s"},' % hasmore
+            self.report(result)
 
-def executeRunToLine(options, file, line):
-    lldb.thread.StepOverUntil(file, line)
-    return createRunReport(options)
+    def reportState(self):
+        state = self.process.GetState()
+        self.report('state="%s"' % stateNames[state])
 
-def executeJumpToLine(options):
-    return "result={error={msg='Not implemented'},state='stopped'}"
+    def putItem(self, value, tryDynamic=True):
+        val = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
+        v = val.GetValue()
+        numchild = 1 if val.MightHaveChildren() else 0
+        self.put('iname="%s",' % self.currentIName)
+        self.put('type="%s",' % val.GetTypeName())
+        #self.put('vtype="%s",' % val.GetValueType())
+        self.put('value="%s",' % ("" if v is None else v))
+        self.put('numchild="%s",' % numchild)
+        self.put('addr="0x%x",' % val.GetLoadAddress())
+        if self.currentIName in self.expandedINames:
+            with Children(self):
+                self.putFields(value)
 
-def continueInferior(options):
-    lldb.process.Continue()
-    return "result={state=\"running\"}"
+    def putFields(self, value):
+        n = value.GetNumChildren()
+        if n > 10000:
+            n = 10000
+        for i in xrange(n):
+            field = value.GetChildAtIndex(i)
+            with SubItem(self, field.GetName()):
+                self.putItem(field)
 
-def interruptInferior(options):
-    lldb.process.Stop()
-    return "result={state=\"interrupting\"}"
+    def reportVariables(self):
+        frame = self.currentThread().GetSelectedFrame()
+        self.currentIName = "local"
+        self.put('data=[')
+        for value in frame.GetVariables(True, True, False, False):
+            with SubItem(self, value.GetName()):
+                self.putItem(value)
+        self.put(']')
+        self.report('')
 
-def setupInferior(options, fileName):
-    msg = lldb.debugger.HandleCommand("target create '%s'" % fileName)
-    return "result={state=\"inferiorsetupok\",msg=\"%s\"}" % msg
+    def reportData(self):
+        self.processEvents()
+        self.reportRegisters()
+        if self.process is None:
+            self.report('process="none"')
+        else:
+            state = self.process.GetState()
+            if state == lldb.eStateStopped:
+                self.reportStack()
+                self.reportThreads()
+                self.reportLocation()
+                self.reportVariables()
 
-def runEngine(options):
-    msg = lldb.debugger.HandleCommand("process launch")
-    return "result={state=\"enginerunok\",msg=\"%s\"}" % msg
+    def reportRegisters(self):
+        if self.process is None:
+            self.report('process="none"')
+        else:
+            frame = self.currentFrame()
+            result = 'registers=['
+            for group in frame.GetRegisters():
+                for reg in group:
+                    result += '{name="%s"' % reg.GetName()
+                    result += ',value="%s"' % reg.GetValue()
+                    result += ',type="%s"},' % reg.GetType()
+            result += ']'
+            self.report(result)
 
-def activateFrame(options, frame):
-    lldb.debugger.HandleCommand("frame select " + frame)
-    return createStoppedReport(options)
+    def report(self, stuff):
+        sys.stdout.write(stuff)
+        sys.stdout.write("@\n")
 
-def selectThread(options, thread):
-    lldb.debugger.HandleCommand("thread select " + thread)
-    return createStoppedReport(options)
+    def interruptInferior(self):
+        if self.process is None:
+            self.report('msg="No process"')
+        else:
+            #self.debugger.DispatchInputInterrupt()
+            error = self.process.Stop()
+            self.reportError(error)
+            #self.reportData()
+            #if error.GetError() == 0:
+            #    self.report('state="inferiorstopok"')
+            #else:
+            #    self.report('state="inferiorstopfailed"')
+        self.processEvents()
 
-def requestModuleSymbols(options, frame):
-    lldb.debugger.HandleCommand("target module list " + frame)
+    def detachInferior(self):
+        if self.process is None:
+            self.report('msg="No process"')
+        else:
+            error = self.process.Detach()
+            self.reportError(error)
+            self.reportData()
 
-def executeDebuggerCommand(options, command):
-    msg = lldb.debugger.HandleCommand(command)
-    result = "result={"
-    result += bb(options["locals"]) + ","
-    result += stackData(options["stack"], lldb.process.selected_thread.id)
-    result += threadsData({})
-    result += stateData({})
-    result += locationData({})
-    result += "token=\"%s\"," % options["token"]
-    result += "msg=\"%s\"" % msg
-    result += "}"
-    return result
+    def continueInferior(self):
+        if self.process is None:
+            self.report('msg="No process"')
+        else:
+            error = self.process.Continue()
+            self.reportError(error)
+            #if error.GetError() == 0:
+            #    self.report('state="running"')
+            #else:
+            #    self.report('state="inferiorrunfailed"')
+        self.processEvents()
 
+    def handleEvent(self, event):
+        out = lldb.SBStream()
+        event.GetDescription(out)
+        warn("EVENT: %s" % event)
+        type = event.GetType()
+        msg = lldb.SBEvent.GetCStringFromEvent(event)
+        flavor = event.GetDataFlavor()
+        self.eventState = lldb.SBProcess.GetStateFromEvent(event)
+        self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
+            % (type, out.GetData(), msg, flavor, self.eventState))
+        if type == lldb.SBProcess.eBroadcastBitStateChanged:
+            #self.report('state="%s"' % stateNames[self.eventState])
+            #if self.eventState == lldb.eStateStopped:
+            self.reportData()
+        elif type == lldb.SBProcess.eBroadcastBitInterrupt:
+            pass
+        elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
+            pass
+        elif type == lldb.SBProcess.eBroadcastBitSTDERR:
+            pass
+        elif type == lldb.SBProcess.eBroadcastBitProfileData:
+            pass
 
-lldb.debugger.HandleCommand("settings set auto-confirm on")
-#lldb.debugger.HandleCommand("settings set interpreter.prompt-on-quit off")
-lldb.debugger.HandleCommand("settings set frame-format ''")
-lldb.debugger.HandleCommand("settings set thread-format ''")
+    def processEvents(self, delay = 0):
+        #warn("PROCESS: %s" % self.process)
+        if self.process is None:
+            return
 
-execfile(os.path.join(currentDir, "dumper.py"))
-execfile(os.path.join(currentDir, "qttypes.py"))
+        state = self.process.GetState()
+        self.reportState()
+        if state == lldb.eStateInvalid or state == lldb.eStateExited:
+            return
 
-def importPlainDumpers(args):
-    pass
+        event = lldb.SBEvent()
+        while self.listener.PeekAtNextEvent(event):
+            self.listener.GetNextEvent(event)
+            self.handleEvent(event)
 
-def bbsetup(args = ''):
-    global qqDumpers, qqFormats, qqEditable
-    typeCache = {}
+    def describeBreakpoint(self, bp, modelId):
+        cond = bp.GetCondition()
+        result  = '{lldbid="%s"' % bp.GetID()
+        result += ',modelid="%s"' % modelId
+        result += ',hitcount="%s"' % bp.GetHitCount()
+        result += ',threadid="%s"' % bp.GetThreadID()
+        result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
+        result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
+        result += ',valid="%s"' % (1 if bp.IsValid() else 0)
+        result += ',condition="%s"' % ("" if cond is None else cond)
+        result += ',ignorecount="%s"' % bp.GetIgnoreCount()
+        result += ',locations=['
+        for i in xrange(bp.GetNumLocations()):
+            loc = bp.GetLocationAtIndex(i)
+            addr = loc.GetAddress()
+            result += '{locid="%s"' % loc.GetID()
+            result += ',func="%s"' % addr.GetFunction().GetName()
+            result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
+            result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
+            result += ',valid="%s"' % (1 if loc.IsValid() else 0)
+            result += ',ignorecount="%s"' % loc.GetIgnoreCount()
+            result += ',addr="%s"},' % loc.GetLoadAddress()
+        result += ']},'
+        return result
 
-    items = globals()
-    for key in items:
-        registerDumper(items[key])
+    def handleBreakpoints(self, toAdd, toChange, toRemove):
+        result = "bkpts={added=["
 
-bbsetup()
+        for bp in toAdd:
+            bpType = bp["type"]
+            if bpType == BreakpointByFileAndLine:
+                bpNew = self.target.BreakpointCreateByLocation(str(bp["file"]), int(bp["line"]))
+            elif bpType == BreakpointByFunction:
+                bpNew = self.target.BreakpointCreateByName(bp["function"])
+            elif bpType == BreakpointAtMain:
+                bpNew = self.target.BreakpointCreateByName("main", self.target.GetExecutable().GetFilename())
+            else:
+                warn("UNKNOWN TYPE")
+            bpNew.SetIgnoreCount(int(bp["ignorecount"]))
+            bpNew.SetCondition(str(bp["condition"]))
+            bpNew.SetEnabled(int(bp["enabled"]))
+            bpNew.SetOneShot(int(bp["oneshot"]))
+            #bpNew.SetCallback(breakpoint_function_wrapper, None)
+            #bpNew.SetCallback(breakpoint_function_wrapper, None)
+            #"breakpoint command add 1 -o \"import time; print time.asctime()\"
+            #cmd = "script print(11111111)"
+            #cmd = "continue"
+            #self.debugger.HandleCommand(
+            #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
+            result += self.describeBreakpoint(bpNew, bp["modelid"])
+
+        result += "],changed=["
+
+        for bp in toChange:
+            bpChange = self.target.FindBreakpointByID(int(bp["lldbid"]))
+            bpChange.SetIgnoreCount(int(bp["ignorecount"]))
+            bpChange.SetCondition(str(bp["condition"]))
+            bpChange.SetEnabled(int(bp["enabled"]))
+            bpChange.SetOneShot(int(bp["oneshot"]))
+            result += self.describeBreakpoint(bpChange, bp["modelid"])
+
+        result += "],removed=["
+
+        for bp in toRemove:
+            bpDead = self.target.BreakpointDelete(int(bp["lldbid"]))
+            result += '{modelid="%s"}' % bp["modelid"]
+
+        result += "]}"
+        self.report(result)
+
+    def listModules(self):
+        result = 'modules=['
+        for module in self.target.modules:
+            result += '{file="%s"' % module.file.fullpath
+            result += ',name="%s"' % module.file.basename
+            #result += ',addrsize="%s"' % module.addr_size
+            #result += ',triple="%s"' % module.triple
+            #result += ',sections={"
+            #for section in module.sections:
+            #    result += '[name="%s"' % section.name
+            #    result += ',addr="%s"' % section.addr
+            #    result += ',size="%s"]," % section.size
+            #result += '}'
+            result += '},'
+        result += ']'
+        self.report(result)
+
+    def executeNext(self):
+        self.currentThread().StepOver()
+        self.processEvents()
+        self.interruptInferior()
+        self.processEvents()
+        self.reportData()
+
+    def executeNextI(self):
+        self.currentThread().StepOver()
+        self.processEvents()
+        self.interruptInferior()
+        self.processEvents()
+        self.reportData()
+
+    def executeStep(self):
+        self.currentThread().StepInto()
+        self.processEvents()
+        self.interruptInferior()
+        self.processEvents()
+        self.reportData()
+
+    def quit(self):
+        self.debugger.Terminate()
+        self.processEvents()
+        self.interruptInferior()
+        self.processEvents()
+        self.reportData()
+
+    def executeStepI(self):
+        self.currentThread().StepInstOver()
+        self.processEvents()
+        #self.reportData()
+
+    def executeStepOut(self):
+        msg = self.debugger.HandleCommand("thread step-out")
+        # Currently results in
+        # "Couldn't find thread plan to implement step type"
+        #self.reportData()
+
+    def executeRunToLine(self, file, line):
+        self.thread.StepOverUntil(file, line)
+        self.reportData()
+
+    def executeJumpToLine(self):
+        self.report('error={msg="Not implemented"},state="stopped"')
+
+    def breakList(self):
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand("break list", result)
+        self.report('success="%d",output="%s",error="%s"'
+            % (result.Succeeded(), result.GetOutput(), result.GetError()))
+
+    def activateFrame(self, frame):
+        self.handleCommand("frame select " + frame)
+
+    def selectThread(self, thread):
+        self.handleCommand("thread select " + thread)
+
+    def requestModuleSymbols(self, frame):
+        self.handleCommand("target module list " + frame)
+
+    def executeDebuggerCommand(self, command):
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(command, result)
+        success = result.Succeeded()
+        if success:
+            output = result.GetOutput()
+            error = ''
+        else:
+            output = ''
+            error = str(result.GetError())
+        self.report('success="%d",output="%s",error="%s"' % (success, output, error))
+
+    def setOptions(self, options):
+        self.options = options
+
+    def do_interrupt(self, args):
+        self.interruptInferior()
+
+    def do_detach(self, args):
+        self.detachInferior()
+
+    def do_continue(self, args):
+        self.continueInferior()
+
+    def do_c(self, args):
+        self.continueInferior()
+
+    def do_backtrace(self, args):
+        self.reportStack()
+
+    def do_next(self, args):
+        self.executeNext()
+
+    def do_nexti(self, args):
+        self.executeNextI()
+
+    def do_step(self, args):
+        self.executeStep()
+
+    def do_stepi(self, args):
+        self.executeStepI()
+
+    def do_finish(self, args):
+        self.executeStepOut()
+
+    def do_EOF(self, line):
+        return True
+
+    # Qt Creator internal
+    def do_setupInferior(self, args):
+        fileName = eval(args)
+        self.setupInferior(fileName)
+
+    def do_handleBreakpoints(self, args):
+        toAdd, toChange, toRemove = eval(args)
+        self.handleBreakpoints(toAdd, toChange, toRemove)
+
+    def do_runEngine(self, args):
+        self.runEngine()
+
+    def do_interrupt(self, args):
+        self.interruptInferior()
+
+    def do_reloadRegisters(self, args):
+        self.reportRegisters()
+
+    def do_createReport(self, args):
+        self.reportData()
+
+    # Convenience
+    def do_r(self, args):
+        self.setupInferior(args)
+        self.target.BreakpointCreateByName("main", self.db.target.GetExecutable().GetFilename())
+        self.runEngine()
+
+    def do_i(self, args):
+        self.do_interrupt(args)
+
+    def do_b(self, args):
+        bps = eval(args)
+        self.handleBreakpoints(bps)
+
+    def do_bl(self, args):
+        self.breakList()
+
+    def do_db(self, args):
+        self.executeDebuggerCommand(args)
+
+    def do_p(self, args):
+        print eval(args)
+
+    def do_bt(self, args):
+        self.do_backtrace(args)
+
+    def do_n(self, args):
+        self.do_next(args)
+
+    def do_s(self, args):
+        self.do_step(args)
+
+    def do_q(self, args):
+        self.quit(args)
+
+    def do_pp(self, args):
+        self.reportData()
+
+    def do_pe(self, args):
+        self.processEvents()
+
+    def do_bb(self, args):
+        options = eval(args)
+        self.expandedINames = set(options['expanded'].split(','))
+        self.reportData()
+
+#execfile(os.path.join(currentDir, "dumper.py"))
+#execfile(os.path.join(currentDir, "qttypes.py"))
+
+#def importPlainDumpers(args):
+#    pass
+
+#def bbsetup(args = ''):
+#    global qqDumpers, qqFormats, qqEditable
+#    typeCache = {}
+#
+#    items = globals()
+#    for key in items:
+#        registerDumper(items[key])
+
+#bbsetup()
 
 lldbLoaded = True
 
-print "result={state=\"enginesetupok\",dumpers=%s}" % str(qqDumpers.keys()).replace("'", '"')
+if __name__ == '__main__':
+    db = Debugger()
+    sys.stdout.write('state="enginesetupok"@\n')
+    while True:
+        line = raw_input();
+        db.onecmd(line)
+

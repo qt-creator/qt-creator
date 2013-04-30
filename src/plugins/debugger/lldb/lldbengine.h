@@ -66,7 +66,6 @@ private:
     void setupEngine();
     void setupInferior();
     void runEngine();
-    void runEngine2();
     void shutdownInferior();
     void shutdownEngine();
 
@@ -95,15 +94,13 @@ private:
     void loadAllSymbols();
     void requestModuleSymbols(const QString &moduleName);
     void reloadModules();
-    void reloadRegisters() {}
+    void reloadRegisters();
     void reloadSourceFiles() {}
     void reloadFullStack() {}
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
-
-    void performContinuation();
 
 signals:
     void outputReady(const QByteArray &data);
@@ -120,6 +117,7 @@ private:
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
+    void refreshRegisters(const GdbMi &stack);
     void refreshLocals(const GdbMi &vars);
     void refreshTypeInfo(const GdbMi &typeInfo);
     void refreshState(const GdbMi &state);
@@ -153,10 +151,6 @@ private:
     void runSimpleCommand(const QByteArray &command);
     void runCommand(const QByteArray &function,
         const QByteArray &extraArgs = QByteArray());
-    GdbMi parseResultFromString(QByteArray out);
-
-    QQueue<LldbCommand> m_commands;
-    QStack<LldbCommandContinuation> m_continuations;
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;

@@ -68,27 +68,8 @@
 #include <stdio.h>
 
 
-#define CB(callback) &LldbEngine::callback, STRINGIFY(callback)
-
 namespace Debugger {
 namespace Internal {
-
-static QByteArray quoteUnprintable(const QByteArray &ba)
-{
-    QByteArray res;
-    char buf[10];
-    for (int i = 0, n = ba.size(); i != n; ++i) {
-        const unsigned char c = ba.at(i);
-        if (isprint(c)) {
-            res += c;
-        } else {
-            qsnprintf(buf, sizeof(buf) - 1, "\\x%02x", int(c));
-            res += buf;
-        }
-    }
-    return res;
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -114,7 +95,7 @@ void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguage
         showMessage(_("LLDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
-    runCommand("executeDebuggerCommand", '"' + command.toUtf8() + '"');
+    runCommand(command.toUtf8());
 }
 
 static int token = 1;
@@ -122,19 +103,12 @@ static int token = 1;
 void LldbEngine::runCommand(const QByteArray &functionName,
     const QByteArray &extraArgs)
 {
-    runSimpleCommand("script " + functionName + "({"
-        + currentOptions()
-        + ",\"token\":" + QByteArray::number(token) + '}'
-        + (extraArgs.isEmpty() ? "" : ',' + extraArgs) + ')');
+    runSimpleCommand(functionName + " " + extraArgs);
 }
 
 void LldbEngine::runSimpleCommand(const QByteArray &command)
 {
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
-    LldbCommand cmd;
-    cmd.token = token;
-    cmd.command = command;
-    m_commands.enqueue(cmd);
     showMessage(QString::number(token) + _(command), LogInput);
     m_lldbProc.write(command + '\n');
     ++token;
@@ -171,28 +145,17 @@ void LldbEngine::setupEngine()
     connect(this, SIGNAL(outputReady(QByteArray)),
         SLOT(handleResponse(QByteArray)), Qt::QueuedConnection);
 
-    // We will stop immediately, so setup a proper callback.
-
-    m_lldbProc.start(m_lldb);
+    //m_lldbProc.start(m_lldb);
+    m_lldbProc.start(_("/usr/bin/python"), QStringList() << _("-i") << m_lldb);
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start lldb '%1': %2")
             .arg(m_lldb, m_lldbProc.errorString());
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
-        if (!msg.isEmpty()) {
-            const QString title = tr("Adapter start failed");
-            Core::ICore::showWarningWithOptions(title, msg);
-        }
-        notifyEngineSetupFailed();
-        return;
+        if (!msg.isEmpty())
+            Core::ICore::showWarningWithOptions(tr("Adapter start failed"), msg);
     }
-
-    // Dummy callback for initial (lldb) prompt.
-    m_commands.enqueue(LldbCommand());
-
-    runSimpleCommand("script execfile(\"" + Core::ICore::resourcePath().toUtf8()
-               + "/dumper/lbridge.py\")");
 }
 
 void LldbEngine::setupInferior()
@@ -207,17 +170,8 @@ void LldbEngine::runEngine()
 
     QByteArray command;
     bool done = attemptBreakpointSynchronizationHelper(&command);
-    if (done) {
-        runEngine2();
-        return;
-    }
-
-    m_continuations.append(&LldbEngine::runEngine2);
-    runCommand("handleBreakpoints", command);
-}
-
-void LldbEngine::runEngine2()
-{
+    if (!done)
+        runCommand("handleBreakpoints", command);
     showStatusMessage(tr("Running requested..."), 5000);
     runCommand("runEngine");
 }
@@ -225,73 +179,67 @@ void LldbEngine::runEngine2()
 void LldbEngine::interruptInferior()
 {
     showStatusMessage(tr("Interrupt requested..."), 5000);
-    runCommand("interruptInferior");
+    runCommand("interrupt");
 }
-
-//void LldbEngine::handleInferiorInterrupt(const QByteArray &response)
-//{
-//    Q_UNUSED(response);
-//    notifyInferiorStopOk();
-//}
 
 void LldbEngine::executeStep()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeStep");
+    runCommand("step");
 }
 
 void LldbEngine::executeStepI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeStepI");
+    runCommand("stepi");
 }
 
 void LldbEngine::executeStepOut()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeStepOut");
+    runCommand("finish");
 }
 
 void LldbEngine::executeNext()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeNext");
+    runCommand("next");
 }
 
 void LldbEngine::executeNextI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeStepNextI");
+    runCommand("nexti");
 }
 
 void LldbEngine::continueInferior()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("continueInferior");
+    runCommand("continue");
 }
 
 void LldbEngine::handleResponse(const QByteArray &response)
 {
-    GdbMi all = parseResultFromString(response);
+    GdbMi all;
+    all.fromStringMultiple(response);
 
     int token = all.findChild("token").data().toInt();
     Q_UNUSED(token);
     refreshLocals(all.findChild("data"));
     refreshStack(all.findChild("stack"));
+    refreshRegisters(all.findChild("registers"));
     refreshThreads(all.findChild("threads"));
     refreshTypeInfo(all.findChild("typeinfo"));
     refreshState(all.findChild("state"));
     refreshLocation(all.findChild("location"));
     refreshModules(all.findChild("modules"));
     refreshBreakpoints(all.findChild("bkpts"));
-
-    performContinuation();
 }
 
 void LldbEngine::executeRunToLine(const ContextData &data)
@@ -432,14 +380,6 @@ void LldbEngine::attemptBreakpointSynchronization()
     }
 }
 
-void LldbEngine::performContinuation()
-{
-    if (!m_continuations.isEmpty()) {
-        LldbCommandContinuation cont = m_continuations.pop();
-        (this->*cont)();
-    }
-}
-
 void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
 {
     BreakHandler *handler = breakHandler();
@@ -494,17 +434,17 @@ void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
         GdbMi removed = bkpts.findChild("removed");
         foreach (const GdbMi &bkpt, added.children()) {
             BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
-            QTC_CHECK(handler->state(id) == BreakpointInsertRequested);
+            QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
             updateBreakpointData(bkpt, true);
         }
         foreach (const GdbMi &bkpt, changed.children()) {
             BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
-            QTC_CHECK(handler->state(id) == BreakpointChangeRequested);
+            QTC_CHECK(handler->state(id) == BreakpointChangeProceeding);
             updateBreakpointData(bkpt, false);
         }
         foreach (const GdbMi &bkpt, removed.children()) {
             BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
-            QTC_CHECK(handler->state(id) == BreakpointRemoveRequested);
+            QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
             handler->notifyBreakpointRemoveOk(id);
         }
     }
@@ -670,7 +610,8 @@ void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &
 {
     Q_UNUSED(data);
     Q_UNUSED(flags);
-    updateAll();
+    WatchHandler *handler = watchHandler();
+    runCommand("bb {'expanded':'" + handler->expansionRequests() +"'}");
 }
 
 void LldbEngine::handleLldbError(QProcess::ProcessError error)
@@ -736,97 +677,24 @@ void LldbEngine::readLldbStandardError()
     //handleOutput(err);
 }
 
-static bool isEatable(char c)
-{
-    //return c == 10 || c == 13;
-    return c == 13;
-}
-
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
-    //showMessage(_("Lldb stdout: " + out));
-    qDebug("\nLLDB RAW STDOUT: '%s'", quoteUnprintable(out).constData());
-    // Remove embedded backspace characters
-    int j = 1;
-    const int n = out.size();
-    for (int i = 1; i < n; ++i, ++j) {
-        const char c = out.at(i);
-        if (i != j)
-            out[j] = c;
-        if (c == 8)
-            j -= 2;
-        else if (isEatable(c))
-            --j;
-    }
-    if (j != n)
-        out.resize(j);
-
-    //qDebug("\n\nLLDB STDOUT: '%s'", quoteUnprintable(out).constData());
-    if (out.isEmpty())
-        return;
-
-    if (out.startsWith(8)) {
-        if (!m_inbuffer.isEmpty())
-            m_inbuffer.chop(1);
-        m_inbuffer.append(out.mid(1));
-    } else if (isEatable(out.at(0))) {
-        m_inbuffer.append(out.mid(1));
-    } else {
-        m_inbuffer.append(out);
-    }
-
-    //showMessage(_("Lldb stdout: " + out));
+    showMessage(_("Lldb stdout: " + out));
+    //qDebug("\nLLDB RAW STDOUT: '%s'", quoteUnprintable(out).constData());
     //qDebug("\nBUFFER FROM: '%s'", quoteUnprintable(m_inbuffer).constData());
+    m_inbuffer.append(out);
     while (true) {
-        int pos = m_inbuffer.indexOf("(lldb) ");
+        int pos = m_inbuffer.indexOf("@\n");
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
-        m_inbuffer = m_inbuffer.mid(pos + 7);
+        m_inbuffer = m_inbuffer.mid(pos + 2);
         //qDebug("\nBUFFER RECOGNIZED: '%s'", quoteUnprintable(response).constData());
-        showMessage(_(response));
-
-        if (m_commands.isEmpty()) {
-            QTC_ASSERT(false, qDebug() << "RESPONSE: " << response);
-            return;
-        }
-
-        LldbCommand cmd = m_commands.dequeue();
-        // FIXME: Find a way to tell LLDB to no echo input.
-        if (response.startsWith(cmd.command))
-            response = response.mid(cmd.command.size());
+        //showMessage(_(response));
         emit outputReady(response);
     }
     //qDebug("\nBUFFER LEFT: '%s'", quoteUnprintable(m_inbuffer).constData());
-
-    if (m_inbuffer.isEmpty())
-        return;
-
-    // Could be a 'stopped' message left.
-    // "<Esc>[KProcess 5564 stopped"
-    // "* thread #1: tid = 0x15bc, 0x0804a17d untitled11`main(argc=1,
-    // argv=0xbfffeff4) + 61 at main.cpp:52, stop reason = breakpoint 1.1 ..."
-    int pos = m_inbuffer.indexOf("\x1b[KProcess");
-    if (pos != -1) {
-        pos += 11;
-        const int pos1 = m_inbuffer.indexOf(' ', pos);
-        if (pos1 != -1) {
-            const int pid = m_inbuffer.mid(pos, pos1 - pos).toInt();
-            if (pid) {
-                if (m_inbuffer.mid(pos1 + 1).startsWith("stopped")) {
-                    m_inbuffer.clear();
-                    notifyInferiorSpontaneousStop();
-                    //gotoLocation(stackHandler()->currentFrame());
-                    updateAll();
-                } else if (m_inbuffer.mid(pos1 + 1).startsWith("exited")) {
-                    m_inbuffer.clear();
-                    notifyInferiorExited();
-                    //updateAll();
-                }
-            }
-        }
-    }
 }
 
 QByteArray LldbEngine::currentOptions() const
@@ -888,34 +756,6 @@ void LldbEngine::updateAll()
     runCommand("createReport");
 }
 
-GdbMi LldbEngine::parseResultFromString(QByteArray out)
-{
-    GdbMi all;
-
-    int pos = out.indexOf("result=");
-    if (pos == -1) {
-        showMessage(_("UNEXPECTED LOCALS OUTPUT:" + out));
-        return all;
-    }
-
-    // The value in 'out' should be single-quoted as this is
-    // what the command line does with strings.
-    if (pos != 1) {
-        showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
-            + out.left(pos)));
-    }
-    out = out.mid(pos);
-    if (out.endsWith('\''))
-        out.chop(1);
-    else if (out.endsWith('"'))
-        out.chop(1);
-    else
-        showMessage(_("JUNK AT END OF RESPONSE: " + out));
-
-    all.fromString(out);
-    return all;
-}
-
 void LldbEngine::refreshLocals(const GdbMi &vars)
 {
     if (!vars.isValid())
@@ -971,7 +811,25 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     bool canExpand = stack.findChild("hasmore").data().toInt();
     debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames);
- }
+}
+
+void LldbEngine::refreshRegisters(const GdbMi &registers)
+{
+    if (!registers.isValid())
+        return;
+
+    RegisterHandler *handler = registerHandler();
+    Registers regs;
+    foreach (const GdbMi &item, registers.children()) {
+        Register reg;
+        reg.name = item.findChild("name").data();
+        reg.value = item.findChild("value").data();
+        //reg.type = item.findChild("type").data();
+        regs.append(reg);
+    }
+    //handler->setRegisters(registers);
+    handler->setAndMarkRegisters(regs);
+}
 
 void LldbEngine::refreshThreads(const GdbMi &threads)
 {
@@ -1010,16 +868,26 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 {
     if (reportedState.isValid()) {
         QByteArray newState = reportedState.data();
-        if (state() == InferiorRunRequested && newState == "running")
+        if (newState == "running")
             notifyInferiorRunOk();
-        else if (state() == EngineSetupRequested && newState == "enginesetupok")
+        else if (newState == "inferiorrunfailed")
+            notifyInferiorRunFailed();
+        else if (newState == "stopped")
+            notifyInferiorSpontaneousStop();
+        else if (newState == "inferiorstopok")
+            notifyInferiorStopOk();
+        else if (newState == "inferiorstopfailed")
+            notifyInferiorStopFailed();
+        else if (newState == "enginesetupok")
             notifyEngineSetupOk();
-        else if (state() == InferiorSetupRequested && newState == "inferiorsetupok")
+        else if (newState == "enginesetupfailed")
+            notifyEngineSetupFailed();
+        else if (newState == "stopped")
+            notifyInferiorSpontaneousStop();
+        else if (newState == "inferiorsetupok")
             notifyInferiorSetupOk();
-        else if (state() == EngineRunRequested && newState == "enginerunok")
+        else if (newState == "enginerunok")
             notifyEngineRunAndInferiorRunOk();
-        else if (state() != InferiorStopOk && newState == "stopped")
-             notifyInferiorSpontaneousStop();
     }
 }
 
@@ -1030,6 +898,11 @@ void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
         int line = reportedLocation.findChild("line").data().toInt();
         gotoLocation(Location(QString::fromUtf8(file), line));
     }
+}
+
+void LldbEngine::reloadRegisters()
+{
+    runCommand("reloadRegisters");
 }
 
 bool LldbEngine::hasCapability(unsigned cap) const
