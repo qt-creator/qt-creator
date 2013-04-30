@@ -175,7 +175,7 @@ struct EditorManagerPrivate
 {
     explicit EditorManagerPrivate(QWidget *parent);
     ~EditorManagerPrivate();
-    Internal::EditorView *m_view;
+    QList<EditLocation> m_globalHistory;
     Internal::SplitterOrView *m_splitter;
     QPointer<IEditor> m_currentEditor;
     QPointer<EditorView> m_currentView;
@@ -227,7 +227,6 @@ struct EditorManagerPrivate
 }
 
 EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
-    m_view(0),
     m_splitter(0),
     m_autoSaveTimer(0),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
@@ -418,9 +417,7 @@ EditorManager::EditorManager(QWidget *parent) :
     advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_EDITOR);
 
     // other setup
-    d->m_splitter = new SplitterOrView(d->m_editorModel);
-    d->m_view = d->m_splitter->view();
-
+    d->m_splitter = new SplitterOrView();
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
@@ -514,7 +511,8 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
     if (editor) {
         if (EditorView *view = viewForEditor(editor))
             view->setCurrentEditor(editor);
-        d->m_view->updateEditorHistory(editor); // the global view should have a complete history
+        // update global history
+        EditorView::updateEditorHistory(editor, d->m_globalHistory);
     }
     updateActions();
     updateWindowTitle();
@@ -597,17 +595,30 @@ void EditorManager::emptyView(Core::Internal::EditorView *view)
     QList<IEditor *> editors = view->editors();
     foreach (IEditor *editor, editors) {
         if (!d->m_editorModel->isDuplicate(editor)) {
-            editors.removeAll(editor);
-            view->removeEditor(editor);
-            continue;
+            QList<IEditor *> duplicates = d->m_editorModel->duplicatesFor(editor);
+            if (!duplicates.isEmpty()) {
+                d->m_editorModel->makeOriginal(duplicates.first());
+            } else {
+                // it's the only editor for that file and it's not a duplicate,
+                // so we need to keep it around (--> in the editor model)
+                if (currentEditor() == editor) {
+                    // we don't want a current editor that is not open in a view
+                    setCurrentEditor(0);
+                }
+                editors.removeAll(editor);
+                view->removeEditor(editor);
+                continue; // don't close the editor
+            }
         }
         emit editorAboutToClose(editor);
         removeEditor(editor);
         view->removeEditor(editor);
     }
-    emit editorsClosed(editors);
-    foreach (IEditor *editor, editors) {
-        delete editor;
+    if (!editors.isEmpty()) {
+        emit editorsClosed(editors);
+        foreach (IEditor *editor, editors) {
+            delete editor;
+        }
     }
 }
 
@@ -615,29 +626,6 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 {
     if (!view)
         return;
-
-    if (view == d->m_view) {
-        if (IEditor *e = view->currentEditor())
-            closeEditors(QList<IEditor *>() << e);
-        return;
-    }
-
-    if (IEditor *e = view->currentEditor()) {
-        /*
-           when we are closing a view with an original editor which has
-           duplicates, then make one of the duplicates the original.
-           Otherwise the original would be kept around and the user might
-           experience jumping to a missleading position within the file when
-           visiting the file again. With the code below, the position within
-           the file will be the position of the first duplicate which is still
-           around.
-        */
-        if (!d->m_editorModel->isDuplicate(e)) {
-            QList<IEditor *> duplicates = d->m_editorModel->duplicatesFor(e);
-            if (!duplicates.isEmpty())
-                d->m_editorModel->makeOriginal(duplicates.first());
-        }
-    }
 
     emptyView(view);
 
@@ -1654,7 +1642,7 @@ void EditorManager::gotoNextDocHistory()
         dialog->selectNextEditor();
     } else {
         EditorView *view = currentEditorView();
-        dialog->setEditors(d->m_view, view, d->m_editorModel);
+        dialog->setEditors(d->m_globalHistory, view, d->m_editorModel);
         dialog->selectNextEditor();
         showPopupOrSelectDocument();
     }
@@ -1667,7 +1655,7 @@ void EditorManager::gotoPreviousDocHistory()
         dialog->selectPreviousEditor();
     } else {
         EditorView *view = currentEditorView();
-        dialog->setEditors(d->m_view, view, d->m_editorModel);
+        dialog->setEditors(d->m_globalHistory, view, d->m_editorModel);
         dialog->selectPreviousEditor();
         showPopupOrSelectDocument();
     }
@@ -2207,16 +2195,7 @@ void EditorManager::removeAllSplits()
 {
     if (!d->m_splitter->isSplitter())
         return;
-    IEditor *editor = d->m_currentEditor;
-    // trigger update below
-    d->m_currentEditor = 0;
-    if (editor && d->m_editorModel->isDuplicate(editor))
-        d->m_editorModel->makeOriginal(editor);
     d->m_splitter->unsplitAll();
-    if (!editor)
-        editor = pickUnusedEditor();
-    if (editor)
-        activateEditor(editor);
 }
 
 void EditorManager::gotoOtherSplit()

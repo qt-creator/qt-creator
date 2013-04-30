@@ -190,6 +190,34 @@ void EditorView::setCloseSplitIcon(const QIcon &icon)
     m_toolBar->setCloseSplitIcon(icon);
 }
 
+void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &history)
+{
+    if (!editor)
+        return;
+    IDocument *document = editor->document();
+
+    if (!document)
+        return;
+
+    QByteArray state = editor->saveState();
+
+    EditLocation location;
+    location.document = document;
+    location.fileName = document->fileName();
+    location.id = editor->id();
+    location.state = QVariant(state);
+
+    for (int i = 0; i < history.size(); ++i) {
+        if (history.at(i).document == 0
+            || history.at(i).document == document
+            ){
+            history.removeAt(i--);
+            continue;
+        }
+    }
+    history.prepend(location);
+}
+
 void EditorView::paintEvent(QPaintEvent *)
 {
     EditorView *editorView = ICore::editorManager()->currentEditorView();
@@ -332,30 +360,7 @@ QList<IEditor *> EditorView::editors() const
 
 void EditorView::updateEditorHistory(IEditor *editor)
 {
-    if (!editor)
-        return;
-    IDocument *document = editor->document();
-
-    if (!document)
-        return;
-
-    QByteArray state = editor->saveState();
-
-    EditLocation location;
-    location.document = document;
-    location.fileName = document->fileName();
-    location.id = editor->id();
-    location.state = QVariant(state);
-
-    for (int i = 0; i < m_editorHistory.size(); ++i) {
-        if (m_editorHistory.at(i).document == 0
-            || m_editorHistory.at(i).document == document
-            ){
-            m_editorHistory.removeAt(i--);
-            continue;
-        }
-    }
-    m_editorHistory.prepend(location);
+    updateEditorHistory(editor, m_editorHistory);
 }
 
 void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
@@ -492,20 +497,8 @@ void EditorView::goForwardInNavigationHistory()
 }
 
 
-SplitterOrView::SplitterOrView(OpenEditorsModel *model)
-{
-    Q_ASSERT(model);
-    Q_UNUSED(model); // For building in release mode.
-    m_isRoot = true;
-    m_layout = new QStackedLayout(this);
-    m_view = new EditorView(this);
-    m_splitter = 0;
-    m_layout->addWidget(m_view);
-}
-
 SplitterOrView::SplitterOrView(Core::IEditor *editor)
 {
-    m_isRoot = false;
     m_layout = new QStackedLayout(this);
     m_view = new EditorView(this);
     if (editor)
@@ -620,7 +613,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
         otherView->view()->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
     }
 
-    if (m_view && !m_isRoot) {
+    if (m_view) {
         em->emptyView(m_view);
         delete m_view;
         m_view = 0;
@@ -634,16 +627,26 @@ void SplitterOrView::split(Qt::Orientation orientation)
 
 void SplitterOrView::unsplitAll()
 {
+    QTC_ASSERT(m_splitter, return);
+    EditorView *currentView = EditorManager::instance()->currentEditorView();
+    if (currentView) {
+        currentView->parentSplitterOrView()->takeView();
+        currentView->setParentSplitterOrView(this);
+    } else {
+        currentView = new EditorView(this);
+    }
     m_splitter->hide();
     m_layout->removeWidget(m_splitter); // workaround Qt bug
     unsplitAll_helper();
+    m_view = currentView;
+    m_layout->addWidget(m_view);
     delete m_splitter;
     m_splitter = 0;
 }
 
 void SplitterOrView::unsplitAll_helper()
 {
-    if (!m_isRoot && m_view)
+    if (m_view)
         ICore::editorManager()->emptyView(m_view);
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {

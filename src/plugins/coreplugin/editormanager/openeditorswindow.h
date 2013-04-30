@@ -60,7 +60,7 @@ public:
 
     explicit OpenEditorsWindow(QWidget *parent = 0);
 
-    void setEditors(EditorView *mainView, EditorView *view, OpenEditorsModel *model);
+    void setEditors(const QList<EditLocation> &globalHistory, EditorView *view, OpenEditorsModel *model);
 
     bool eventFilter(QObject *src, QEvent *e);
     void focusInEvent(QFocusEvent *);

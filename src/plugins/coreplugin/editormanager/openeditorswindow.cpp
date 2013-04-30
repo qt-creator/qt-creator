@@ -193,15 +193,14 @@ void OpenEditorsWindow::centerOnItem(int selectedIndex)
     }
 }
 
-void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenEditorsModel *model)
+void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view, OpenEditorsModel *model)
 {
     m_editorList->clear();
 
     QSet<IDocument*> documentsDone;
     addHistoryItems(view->editorHistory(), view, model, documentsDone);
-    // add missing editors from the main view
-    if (mainView != view)
-        addHistoryItems(mainView->editorHistory(), view, model, documentsDone);
+    // add missing editors from the global history
+    addHistoryItems(globalHistory, view, model, documentsDone);
 
     // add purely restored editors which are not initialised yet
     foreach (const OpenEditorsModel::Entry &entry, model->entries()) {
