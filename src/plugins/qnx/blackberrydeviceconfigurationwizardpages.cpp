@@ -35,10 +35,12 @@
 #include "blackberrysshkeysgenerator.h"
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
 #include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
+#include "blackberryconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <ssh/sshkeygenerator.h>
 
+#include <QDir>
 #include <QFormLayout>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -67,6 +69,11 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
 
     m_ui->debugToken->setExpectedKind(Utils::PathChooser::File);
     m_ui->debugToken->setPromptDialogFilter(QLatin1String("*.bar"));
+
+    QString debugTokenBrowsePath = BlackBerryConfiguration::instance().dataDirPath();
+    if (!QFileInfo(debugTokenBrowsePath).exists())
+        debugTokenBrowsePath = QDir::homePath();
+    m_ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);
 
     connect(m_ui->deviceName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->deviceHostIp, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));

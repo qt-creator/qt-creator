@@ -33,6 +33,7 @@
 #include "blackberrydebugtokenuploader.h"
 #include "blackberrydebugtokenrequestdialog.h"
 #include "ui_blackberrydeviceconfigurationwidget.h"
+#include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "qnxconstants.h"
 
@@ -44,6 +45,8 @@
 
 #include <QProgressDialog>
 #include <QMessageBox>
+#include <QFileInfo>
+#include <QDir>
 #include <QAbstractButton>
 
 using namespace ProjectExplorer;
@@ -77,6 +80,11 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     ui->debugToken->addButton(tr("Request"), this, SLOT(requestDebugToken()));
     ui->debugToken->addButton(tr("Upload"), this, SLOT(uploadDebugToken()));
     uploadButton = ui->debugToken->buttonAtIndex(2);
+
+    QString debugTokenBrowsePath = BlackBerryConfiguration::instance().dataDirPath();
+    if (!QFileInfo(debugTokenBrowsePath).exists())
+        debugTokenBrowsePath = QDir::homePath();
+    ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);
 
     initGui();
 }
