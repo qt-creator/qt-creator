@@ -73,6 +73,7 @@ private slots:
     void updateRunQMakeAction();
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void buildStateChanged(ProjectExplorer::Project *pro);
+    void updateBuildFileAction();
 
 #ifdef WITH_TESTS
     void testQmakeOutputParsers_data();

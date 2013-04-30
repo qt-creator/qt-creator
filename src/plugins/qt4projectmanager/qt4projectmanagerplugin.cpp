@@ -63,8 +63,11 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/hostosinfo.h>
@@ -243,15 +246,16 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_CLEAN);
     connect(m_cleanSubProjectAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));
 
+    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
     m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE, projectContext);
+    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE, globalcontext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFileAction->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_buildFileAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildFileContextMenu()));
+    connect(m_buildFileAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildFile()));
 
     connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
@@ -286,6 +290,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     command = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(command);
+
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(updateBuildFileAction()));
 
     return true;
 }
@@ -401,7 +408,29 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
     if (pro == currentProject) {
         updateRunQMakeAction();
         updateContextActions(m_projectExplorer->currentNode(), pro);
+        updateBuildFileAction();
     }
+}
+
+void Qt4ProjectManagerPlugin::updateBuildFileAction()
+{
+    bool visible = false;
+    bool enabled = false;
+
+    QString file;
+    if (Core::IEditor *currentEditor = Core::EditorManager::currentEditor()) {
+        file = currentEditor->document()->fileName();
+        ProjectExplorer::SessionManager *session = m_projectExplorer->session();
+        ProjectExplorer::Node *node  = session->nodeForFile(file);
+        ProjectExplorer::Project *project = session->projectForFile(file);
+        m_buildFileAction->setParameter(file);
+        visible = qobject_cast<Qt4Project *>(project)
+                && qobject_cast<Qt4ProFileNode *>(node->projectNode());
+
+        enabled = !m_projectExplorer->buildManager()->isBuilding(project);
+    }
+    m_buildFileAction->setVisible(visible);
+    m_buildFileAction->setEnabled(enabled);
 }
 
 Q_EXPORT_PLUGIN(Qt4ProjectManagerPlugin)
