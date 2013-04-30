@@ -378,6 +378,12 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
 {
     QQmlProperty property(newParent, newParentProperty, context());
 
+    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
+
+    //The engine sets the QObject before it does reparent
+    if (object && !quickItem)
+        object->setParent(newParent);
+
     if (isList(property)) {
         QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
@@ -390,8 +396,6 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     } else if (isObject(property)) {
         property.write(objectToVariant(object));
     }
-
-    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
 
     if (object && !(quickItem && quickItem->parentItem()))
         object->setParent(newParent);
