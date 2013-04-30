@@ -304,7 +304,7 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
     overrideInstallLazySignalHandler()
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processStarted()", "__handleProcessStarted__")
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processExited(int)", "__handleProcessExited__")
-    runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}")
+    runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
         waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
@@ -388,8 +388,7 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
             switchViewTo(ViewConstants.EDIT)
             global processStarted
             processStarted = False
-            runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' "
-                                      "visible='1'}")
+            runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
             clickButton(runButton)
             if not waitFor("processStarted == True", 10000):
                 test.fatal("Something seems to be really wrong.", "Application output:"

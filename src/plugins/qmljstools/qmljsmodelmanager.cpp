@@ -124,9 +124,11 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
                                                    toolChain,
                                                    preferDebugDump, &projectInfo.qmlDumpPath,
                                                    &projectInfo.qmlDumpEnvironment);
+        projectInfo.qmlDumpHasRelocatableFlag = qtVersion->hasQmlDumpWithRelocatableFlag();
     } else {
         projectInfo.qmlDumpPath.clear();
         projectInfo.qmlDumpEnvironment.clear();
+        projectInfo.qmlDumpHasRelocatableFlag = true;
     }
     setupProjectInfoQmlBundles(projectInfo);
     return projectInfo;

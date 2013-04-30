@@ -647,7 +647,6 @@ void Qt4Project::updateQmlJSCodeModel()
             hasQmlLib = qtLibs.contains(QLatin1String("declarative")) ||
                     qtLibs.contains(QLatin1String("qml")) ||
                     qtLibs.contains(QLatin1String("quick"));
-            break;
         }
     }
 

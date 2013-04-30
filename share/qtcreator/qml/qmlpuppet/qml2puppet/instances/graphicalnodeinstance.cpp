@@ -137,9 +137,9 @@ QImage GraphicalNodeInstance::renderImage() const
 {
     updateDirtyNodeRecursive(quickItem());
 
-    QRectF boundingRect = boundingRectWithStepChilds(quickItem());
+    QRectF renderBoundingRect = boundingRect();
 
-    QImage renderImage = designerSupport()->renderImageForItem(quickItem(), boundingRect, boundingRect.size().toSize());
+    QImage renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, renderBoundingRect.size().toSize());
 
     renderImage = renderImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
@@ -238,13 +238,13 @@ static inline bool isRectangleSane(const QRectF &rect)
     return rect.isValid() && (rect.width() < 10000) && (rect.height() < 10000);
 }
 
-QRectF GraphicalNodeInstance::boundingRectWithStepChilds(QQuickItem *parentItem) const
+QRectF GraphicalNodeInstance::boundingRectWithStepChilds(QQuickItem *item) const
 {
-    QRectF boundingRect = parentItem->boundingRect();
+    QRectF boundingRect = item->boundingRect();
 
-    foreach (QQuickItem *childItem, parentItem->childItems()) {
+    foreach (QQuickItem *childItem, item->childItems()) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem)) {
-            QRectF transformedRect = childItem->mapRectToItem(parentItem, boundingRectWithStepChilds(childItem));
+            QRectF transformedRect = childItem->mapRectToItem(item, boundingRectWithStepChilds(childItem));
             if (isRectangleSane(transformedRect))
                 boundingRect = boundingRect.united(transformedRect);
         }

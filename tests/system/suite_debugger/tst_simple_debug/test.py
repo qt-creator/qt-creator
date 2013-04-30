@@ -1,9 +1,6 @@
 source("../../shared/qtcreator.py")
 
-workingDir = None
-
 def main():
-    global workingDir
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return

@@ -318,6 +318,7 @@ private:
 private slots:
     void va_args();
     void named_va_args();
+    void extra_va_args();
     void defined();
     void defined_data();
     void empty_macro_args();
@@ -412,6 +413,23 @@ void tst_Preprocessor::named_va_args()
 
     preprocessed = preprocessed.simplified();
     QCOMPARE(simplified(preprocessed), QString("int f();int f(int a);int f(int a,int b);"));
+}
+
+void tst_Preprocessor::extra_va_args()
+{
+    Client *client = 0; // no client.
+    Environment env;
+
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"),
+                                                "#define foo(ret, ...) ret f(__VA_ARGS__);\n"
+                                                "\nfoo(int)\n"
+                                                "\nfoo(float,int b)\n"
+                                                "\nfoo(long,int b,int c)\n",
+                                             true, false);
+
+    preprocessed = preprocessed.simplified();
+    QCOMPARE(simplified(preprocessed), QString("int f();float f(int b);long f(int b,int c);"));
 }
 
 void tst_Preprocessor::empty_macro_args()

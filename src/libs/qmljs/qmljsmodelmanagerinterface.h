@@ -57,12 +57,12 @@ public:
     {
     public:
         ProjectInfo()
-            : tryQmlDump(false)
+            : tryQmlDump(false), qmlDumpHasRelocatableFlag(true)
         { }
 
         ProjectInfo(QPointer<ProjectExplorer::Project> project)
             : project(project)
-            , tryQmlDump(false)
+            , tryQmlDump(false), qmlDumpHasRelocatableFlag(true)
         { }
 
         operator bool() const
@@ -83,6 +83,7 @@ public:
 
         // whether trying to run qmldump makes sense
         bool tryQmlDump;
+        bool qmlDumpHasRelocatableFlag;
         QString qmlDumpPath;
         ::Utils::Environment qmlDumpEnvironment;
 

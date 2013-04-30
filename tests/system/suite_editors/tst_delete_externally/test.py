@@ -3,12 +3,6 @@ source("../../shared/suites_qtta.py")
 
 global templateDir
 
-def readFile(filename):
-    f = open(filename, "r")
-    content = f.read()
-    f.close()
-    return content
-
 def copyToTemplateDir(filepath):
     global templateDir
     dst = os.path.join(templateDir, os.path.basename(filepath))
@@ -39,7 +33,7 @@ def main():
             continue
 
         if platform.system() == 'Darwin':
-            JIRA.performWorkaroundIfStillOpen(8735, JIRA.Bug.CREATOR, editor)
+            JIRA.performWorkaroundForBug(8735, JIRA.Bug.CREATOR, editor)
         contentBefore = readFile(currentFile)
         popupText = "The file %s was removed. Do you want to save it under a different name, or close the editor?"
         os.remove(currentFile)

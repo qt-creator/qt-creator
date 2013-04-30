@@ -464,7 +464,7 @@ void sigSegvHandler(int) {
 void printUsage(const QString &appName)
 {
     qWarning() << qPrintable(QString(
-                                 "Usage: %1 [-v] [-notrelocatable] module.uri version [module/import/path]\n"
+                                 "Usage: %1 [-v] [-[non]relocatable] module.uri version [module/import/path]\n"
                                  "       %1 [-v] -path path/to/qmldir/directory [version]\n"
                                  "       %1 [-v] -builtins\n"
                                  "Example: %1 Qt.labs.particles 4.7 /home/user/dev/qt-install/imports").arg(
@@ -511,8 +511,13 @@ int main(int argc, char *argv[])
             }
 
             if (arg == QLatin1String("--notrelocatable")
-                    || arg == QLatin1String("-notrelocatable")) {
+                    || arg == QLatin1String("-notrelocatable")
+                    || arg == QLatin1String("--nonrelocatable")
+                    || arg == QLatin1String("-nonrelocatable")) {
                 relocatable = false;
+            } else if (arg == QLatin1String("--relocatable")
+                        || arg == QLatin1String("-relocatable")) {
+                relocatable = true;
             } else if (arg == QLatin1String("--path")
                        || arg == QLatin1String("-path")) {
                 action = Path;

@@ -1001,6 +1001,8 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         bool hasMatchingArgs = false;
         if (hasArgs) {
             const int expectedArgCount = macro->formals().size();
+            if (macro->isVariadic() && allArgTks.size() == expectedArgCount - 1)
+                allArgTks.push_back(QVector<PPToken>());
             const int actualArgCount = allArgTks.size();
             if (expectedArgCount == actualArgCount
                     || (macro->isVariadic() && actualArgCount > expectedArgCount - 1)
