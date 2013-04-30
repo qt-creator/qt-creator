@@ -131,6 +131,7 @@ private slots:
     void gitClientMemberFuncRepositoryAction();
 
     void startAmendCommit();
+    void startFixupCommit();
     void stash();
     void stashSnapshot();
     void branchList();
@@ -231,7 +232,6 @@ private:
     QPointer<RemoteDialog>      m_remoteDialog;
     QString                     m_submitRepository;
     QString                     m_commitMessageFileName;
-    QString                     m_commitAmendSHA1;
     bool                        m_submitActionTriggered;
 
     GitSettings m_settings;

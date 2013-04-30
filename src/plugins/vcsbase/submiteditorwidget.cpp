@@ -534,6 +534,12 @@ void SubmitEditorWidget::insertTopWidget(QWidget *w)
     d->m_ui.vboxLayout->insertWidget(0, w);
 }
 
+void SubmitEditorWidget::hideDescription()
+{
+    d->m_ui.descriptionBox->hide();
+    setDescriptionMandatory(false);
+}
+
 void SubmitEditorWidget::descriptionTextChanged()
 {
 #if QT_VERSION < 0x050000 // Fix Qt-Bug, see QTCREATORBUG-5633 && QTCREATORBUG-6082

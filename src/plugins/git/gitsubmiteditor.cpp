@@ -103,14 +103,17 @@ const GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget() const
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
 {
+    m_commitEncoding = d.commitEncoding;
+    m_workingDirectory = d.panelInfo.repository;
+    m_commitType = d.commitType;
+    m_amendSHA1 = d.amendSHA1;
+
     GitSubmitEditorWidget *w = submitEditorWidget();
+    w->initialize(m_commitType, m_workingDirectory);
     w->setPanelData(d.panelData);
     w->setPanelInfo(d.panelInfo);
     w->setHasUnmerged(false);
 
-    m_commitEncoding = d.commitEncoding;
-    m_workingDirectory = d.panelInfo.repository;
-    m_commitType = d.commitType;
     setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message
 
     m_model = new GitSubmitFileModel(this);
@@ -176,6 +179,12 @@ void GitSubmitEditor::updateFileModel()
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
 {
     return submitEditorWidget()->panelData();
+}
+
+QString GitSubmitEditor::amendSHA1() const
+{
+    QString commit = submitEditorWidget()->amendSHA1();
+    return commit.isEmpty() ? m_amendSHA1 : commit;
 }
 
 QByteArray GitSubmitEditor::fileContents() const

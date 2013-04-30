@@ -437,7 +437,8 @@ GitClient::GitClient(GitSettings *settings) :
     m_cachedGitVersion(0),
     m_msgWait(tr("Waiting for data...")),
     m_repositoryChangedSignalMapper(0),
-    m_settings(settings)
+    m_settings(settings),
+    m_disableEditor(false)
 {
     QTC_CHECK(settings);
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
@@ -1701,7 +1702,7 @@ QProcessEnvironment GitClient::processEnvironment() const
             && settings()->boolValue(GitSettings::winSetHomeEnvironmentKey)) {
         environment.insert(QLatin1String("HOME"), QDir::toNativeSeparators(QDir::homePath()));
     }
-    environment.insert(QLatin1String("GIT_EDITOR"), m_gitQtcEditor);
+    environment.insert(QLatin1String("GIT_EDITOR"), m_disableEditor ? QLatin1String("true") : m_gitQtcEditor);
     // Set up SSH and C locale (required by git using perl).
     VcsBase::VcsBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
@@ -2139,6 +2140,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
         break;
     }
+    case FixupCommit:
+        break;
     }
     return true;
 }
@@ -2155,12 +2158,12 @@ static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
 
 bool GitClient::addAndCommit(const QString &repositoryDirectory,
                              const GitSubmitEditorPanelData &data,
+                             CommitType commitType,
                              const QString &amendSHA1,
                              const QString &messageFile,
                              VcsBase::SubmitFileModel *model)
 {
     const QString renameSeparator = QLatin1String(" -> ");
-    const bool amend = !amendSHA1.isEmpty();
 
     QStringList filesToAdd;
     QStringList filesToRemove;
@@ -2218,15 +2221,19 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
 
     // Do the final commit
     QStringList args;
-    args << QLatin1String("commit")
-         << QLatin1String("-F") << QDir::toNativeSeparators(messageFile);
-    if (amend)
-        args << QLatin1String("--amend");
-    const QString &authorString =  data.authorString();
-    if (!authorString.isEmpty())
-         args << QLatin1String("--author") << authorString;
-    if (data.bypassHooks)
-        args << QLatin1String("--no-verify");
+    args << QLatin1String("commit");
+    if (commitType == FixupCommit) {
+        args << QLatin1String("--fixup") << amendSHA1;
+    } else {
+        args << QLatin1String("-F") << QDir::toNativeSeparators(messageFile);
+        if (commitType == AmendCommit)
+            args << QLatin1String("--amend");
+        const QString &authorString =  data.authorString();
+        if (!authorString.isEmpty())
+             args << QLatin1String("--author") << authorString;
+        if (data.bypassHooks)
+            args << QLatin1String("--no-verify");
+    }
 
     QByteArray outputText;
     QByteArray errorText;
@@ -2544,11 +2551,16 @@ bool GitClient::synchronousCherryPick(const QString &workingDirectory, const QSt
 }
 
 void GitClient::interactiveRebase(const QString &workingDirectory, const QString &commit,
-                                  StashGuard &stashGuard)
+                                  StashGuard &stashGuard, bool fixup)
 {
     QStringList arguments;
-    arguments << QLatin1String("rebase") << QLatin1String("-i") << commit + QLatin1Char('^');
+    arguments << QLatin1String("rebase") << QLatin1String("-i");
+    if (fixup)
+        arguments << QLatin1String("--autosquash");
+    arguments << commit + QLatin1Char('^');
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
+    if (fixup)
+        m_disableEditor = true;
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
     command->addJob(arguments, -1);
     command->execute();
@@ -2557,6 +2569,8 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     connect(command, SIGNAL(errorText(QString)), rebaseManager, SLOT(readStdErr(QString)));
     connect(command, SIGNAL(finished(bool,int,QVariant)),
             rebaseManager, SLOT(finished(bool,int,QVariant)));
+    if (fixup)
+        m_disableEditor = false;
 }
 
 QString GitClient::msgNoChangedFiles()

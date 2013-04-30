@@ -38,7 +38,8 @@ namespace Internal {
 enum CommitType
 {
     SimpleCommit,
-    AmendCommit
+    AmendCommit,
+    FixupCommit
 };
 
 // Todo: Add user name and password?

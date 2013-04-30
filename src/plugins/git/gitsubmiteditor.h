@@ -56,6 +56,8 @@ public:
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
     bool forceClose() const { return m_forceClose; }
+    CommitType commitType() const { return m_commitType; }
+    QString amendSHA1() const;
 
 signals:
     void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
@@ -75,6 +77,7 @@ private:
     VcsBase::SubmitFileModel *m_model;
     QString m_commitEncoding;
     CommitType m_commitType;
+    QString m_amendSHA1;
     bool m_forceClose;
     QString m_workingDirectory;
 };

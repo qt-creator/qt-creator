@@ -238,7 +238,7 @@ public:
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
     void interactiveRebase(const QString &workingDirectory, const QString &commit,
-                           StashGuard &stashGuard);
+                           StashGuard &stashGuard, bool fixup);
     void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
 
     // git svn support (asynchronous).
@@ -267,6 +267,7 @@ public:
 
     bool addAndCommit(const QString &workingDirectory,
                       const GitSubmitEditorPanelData &data,
+                      CommitType commitType,
                       const QString &amendSHA1,
                       const QString &messageFile,
                       VcsBase::SubmitFileModel *model);
@@ -376,6 +377,7 @@ private:
     QSignalMapper *m_repositoryChangedSignalMapper;
     GitSettings *m_settings;
     QString m_gitQtcEditor;
+    bool m_disableEditor;
 };
 
 } // namespace Internal

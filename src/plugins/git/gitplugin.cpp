@@ -424,6 +424,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createRepositoryAction(localRepositoryMenu,
                            tr("Amend Last Commit..."), Core::Id("Git.AmendCommit"),
                            globalcontext, true, SLOT(startAmendCommit()));
+
+    createRepositoryAction(localRepositoryMenu,
+                           tr("Fixup Previous Commit..."), Core::Id("Git.FixupCommit"),
+                           globalcontext, true, SLOT(startFixupCommit()));
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
 
@@ -769,7 +773,7 @@ void GitPlugin::startRebase()
         return;
     const QString change = dialog.commit();
     if (!change.isEmpty())
-        m_gitClient->interactiveRebase(workingDirectory, change, *stashGuard.take());
+        m_gitClient->interactiveRebase(workingDirectory, change, *stashGuard.take(), false);
 }
 
 void GitPlugin::startChangeRelatedAction()
@@ -879,6 +883,11 @@ void GitPlugin::startAmendCommit()
     startCommit(AmendCommit);
 }
 
+void GitPlugin::startFixupCommit()
+{
+    startCommit(FixupCommit);
+}
+
 void GitPlugin::startCommit()
 {
     startCommit(SimpleCommit);
@@ -906,7 +915,6 @@ void GitPlugin::startCommit(CommitType commitType)
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
-    m_commitAmendSHA1 = data.amendSHA1;
 
     // Start new temp file with message template
     Utils::TempFileSaver saver;
@@ -1009,17 +1017,29 @@ bool GitPlugin::submitEditorAboutToClose()
     // Go ahead!
     VcsBase::SubmitFileModel *model = qobject_cast<VcsBase::SubmitFileModel *>(editor->fileModel());
     bool closeEditor = true;
-    if (model->hasCheckedFiles() || !m_commitAmendSHA1.isEmpty()) {
+    CommitType commitType = editor->commitType();
+    QString amendSHA1 = editor->amendSHA1();
+    if (model->hasCheckedFiles() || !amendSHA1.isEmpty()) {
         // get message & commit
         if (!Core::DocumentManager::saveDocument(editorDocument))
             return false;
 
         closeEditor = m_gitClient->addAndCommit(m_submitRepository, editor->panelData(),
-                                                m_commitAmendSHA1, m_commitMessageFileName, model);
+                                                commitType, amendSHA1,
+                                                m_commitMessageFileName, model);
     }
     if (closeEditor) {
         cleanCommitMessageFile();
-        m_gitClient->continueCommandIfNeeded(m_submitRepository);
+        if (commitType == FixupCommit) {
+            QScopedPointer<GitClient::StashGuard> stashGuard(
+                        new GitClient::StashGuard(m_submitRepository, QLatin1String("Rebase-fixup"),
+                                                  NoPrompt));
+            if (stashGuard->stashingFailed())
+                return false;
+            m_gitClient->interactiveRebase(m_submitRepository, amendSHA1, *stashGuard.take(), true);
+        } else {
+            m_gitClient->continueCommandIfNeeded(m_submitRepository);
+        }
     }
     return closeEditor;
 }

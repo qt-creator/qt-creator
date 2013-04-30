@@ -29,6 +29,7 @@
 
 #include "gitsubmiteditorwidget.h"
 #include "commitdata.h"
+#include "logchangedialog.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
@@ -40,7 +41,9 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QGroupBox>
 #include <QRegExp>
+#include <QVBoxLayout>
 
 namespace Git {
 namespace Internal {
@@ -120,10 +123,11 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
 GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
     VcsBase::SubmitEditorWidget(parent),
     m_gitSubmitPanel(new QWidget),
-    m_hasUnmerged(false)
+    m_logChangeWidget(0),
+    m_hasUnmerged(false),
+    m_isInitialized(false)
 {
     m_gitSubmitPanelUi.setupUi(m_gitSubmitPanel);
-    insertTopWidget(m_gitSubmitPanel);
     new GitSubmitHighlighter(descriptionEdit());
 
     m_emailValidator = new QRegExpValidator(QRegExp(QLatin1String("[^@ ]+@[^@ ]+\\.[a-zA-Z]+")), this);
@@ -144,9 +148,33 @@ void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
         m_gitSubmitPanelUi.branchLabel->setText(info.branch);
 }
 
+QString GitSubmitEditorWidget::amendSHA1() const
+{
+    return m_logChangeWidget ? m_logChangeWidget->commit() : QString();
+}
+
 void GitSubmitEditorWidget::setHasUnmerged(bool e)
 {
     m_hasUnmerged = e;
+}
+
+void GitSubmitEditorWidget::initialize(CommitType commitType, const QString &repository)
+{
+    if (m_isInitialized)
+        return;
+    m_isInitialized = true;
+    if (commitType == FixupCommit) {
+        QGroupBox *logChangeGroupBox = new QGroupBox(tr("Select Change"));
+        QVBoxLayout *logChangeLayout = new QVBoxLayout;
+        logChangeGroupBox->setLayout(logChangeLayout);
+        m_logChangeWidget = new LogChangeWidget;
+        m_logChangeWidget->init(repository);
+        logChangeLayout->addWidget(m_logChangeWidget);
+        insertTopWidget(logChangeGroupBox);
+        m_gitSubmitPanelUi.editGroup->hide();
+        hideDescription();
+    }
+    insertTopWidget(m_gitSubmitPanel);
 }
 
 GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
