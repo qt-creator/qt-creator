@@ -39,12 +39,12 @@
 
 #include <utils/uncommentselection.h>
 
-#include <QThread>
-#include <QMutex>
-#include <QWaitCondition>
 #include <QFutureWatcher>
 #include <QModelIndex>
+#include <QMutex>
+#include <QThread>
 #include <QVector>
+#include <QWaitCondition>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -141,7 +141,8 @@ public Q_SLOTS:
     void findUsages();
     void renameUsagesNow(const QString &replacement = QString());
     void semanticRehighlight(bool force = false);
-    void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter, unsigned revision);
+    void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
+                            unsigned revision);
 
 protected:
     bool event(QEvent *e);
@@ -185,7 +186,8 @@ private Q_SLOTS:
 private:
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
-    CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot) const;
+    CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol,
+                                      const CPlusPlus::Snapshot &snapshot) const;
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
@@ -206,12 +208,13 @@ private:
                             CPlusPlus::Snapshot snapshot) const;
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
     Link findMacroLink(const QByteArray &name) const;
-    Link findMacroLink(const QByteArray &name, CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot,
-                       QSet<QString> *processed) const;
+    Link findMacroLink(const QByteArray &name, CPlusPlus::Document::Ptr doc,
+                       const CPlusPlus::Snapshot &snapshot, QSet<QString> *processed) const;
     QString identifierUnderCursor(QTextCursor *macroCursor) const;
     bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
-    QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
+    QModelIndex indexForPosition(int line, int column,
+                                 const QModelIndex &rootIndex = QModelIndex()) const;
 
     bool handleDocumentationComment(QKeyEvent *e);
     bool isStartOfDoxygenComment(const QTextCursor &cursor) const;
@@ -260,7 +263,6 @@ private:
 
     CppTools::CppCompletionSupport *m_completionSupport;
 };
-
 
 } // namespace Internal
 } // namespace CppEditor

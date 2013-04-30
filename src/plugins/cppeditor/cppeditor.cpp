@@ -89,10 +89,6 @@ using namespace CppTools;
 using namespace CppEditor::Internal;
 
 namespace {
-bool semanticHighlighterDisabled = qstrcmp(qVersion(), "4.7.0") == 0;
-}
-
-namespace {
 
 class OverviewTreeView : public QTreeView
 {
@@ -215,7 +211,6 @@ protected:
     }
 };
 
-
 struct CanonicalSymbol
 {
     CPPEditorWidget *editor;
@@ -288,7 +283,8 @@ struct CanonicalSymbol
         return canonicalSymbol(scope, code, typeOfExpression);
     }
 
-    static Symbol *canonicalSymbol(Scope *scope, const QString &code, TypeOfExpression &typeOfExpression)
+    static Symbol *canonicalSymbol(Scope *scope, const QString &code,
+                                   TypeOfExpression &typeOfExpression)
     {
         const QList<LookupItem> results =
                 typeOfExpression(code.toUtf8(), scope, TypeOfExpression::Preprocess);
@@ -541,8 +537,10 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     }
 
     m_highlightRevision = 0;
-    connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)), SLOT(highlightSymbolUsages(int,int)));
-    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(finishHighlightSymbolUsages()));
+    connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)),
+            SLOT(highlightSymbolUsages(int,int)));
+    connect(&m_highlightWatcher, SIGNAL(finished()),
+            SLOT(finishHighlightSymbolUsages()));
 
     m_referencesRevision = 0;
     m_referencesCursorPosition = 0;
@@ -632,12 +630,14 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     m_updateFunctionDeclDefLinkTimer = new QTimer(this);
     m_updateFunctionDeclDefLinkTimer->setSingleShot(true);
     m_updateFunctionDeclDefLinkTimer->setInterval(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
-    connect(m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()), this, SLOT(updateFunctionDeclDefLinkNow()));
+    connect(m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()),
+            this, SLOT(updateFunctionDeclDefLinkNow()));
 
     connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateOutlineIndex()));
     connect(m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
-    connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(onContentsChanged(int,int,int)));
+    connect(document(), SIGNAL(contentsChange(int,int,int)),
+            this, SLOT(onContentsChanged(int,int,int)));
 
     connect(editorDocument(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
@@ -868,7 +868,8 @@ void CPPEditorWidget::markSymbolsNow()
     setExtraSelections(CodeSemanticsSelection, selections);
 }
 
-static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr doc, Snapshot snapshot)
+static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr doc,
+                                     Snapshot snapshot)
 {
     TypeOfExpression typeOfExpression;
     snapshot.insert(doc);
@@ -876,7 +877,8 @@ static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr d
     // make possible to instantiate templates
     typeOfExpression.setExpandTemplates(true);
     if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression))
-        return CppModelManagerInterface::instance()->references(canonicalSymbol, typeOfExpression.context());
+        return CppModelManagerInterface::instance()->references(canonicalSymbol,
+                                                                typeOfExpression.context());
     return QList<int>();
 }
 
@@ -894,7 +896,8 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
         if (macro->fileName() == info.doc->fileName()) {
             QTextCursor cursor(document());
             cursor.setPosition(macro->offset());
-            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, macro->name().length());
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,
+                                macro->name().length());
 
             QTextEdit::ExtraSelection sel;
             sel.format = m_occurrencesFormat;
@@ -928,7 +931,8 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
             m_references.cancel();
             m_referencesRevision = info.revision;
             m_referencesCursorPosition = position();
-            m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, info.doc, info.snapshot);
+            m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, info.doc,
+                                             info.snapshot);
             m_referencesWatcher.setFuture(m_references);
         } else {
             const QList<QTextEdit::ExtraSelection> selections = extraSelections(CodeSemanticsSelection);
@@ -956,7 +960,7 @@ void CPPEditorWidget::renameSymbolUnderCursor()
             m_currentRenameSelectionBegin = QTextCursor(c.document()->docHandle(),
                                                         m_renameSelections[i].cursor.selectionStart());
             m_currentRenameSelectionEnd = QTextCursor(c.document()->docHandle(),
-                                                        m_renameSelections[i].cursor.selectionEnd());
+                                                      m_renameSelections[i].cursor.selectionEnd());
             m_renameSelections[i].format = m_occurrenceRenameFormat;
             setExtraSelections(CodeSemanticsSelection, m_renameSelections);
             break;
@@ -969,18 +973,18 @@ void CPPEditorWidget::renameSymbolUnderCursor()
 
 void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int charsAdded)
 {
-    Q_UNUSED(position)
-
     if (m_currentRenameSelection == NoCurrentRenameSelection || m_inRename)
         return;
 
     if (position + charsAdded == m_currentRenameSelectionBegin.position()) {
         // we are inserting at the beginning of the rename selection => expand
         m_currentRenameSelectionBegin.setPosition(position);
-        m_renameSelections[m_currentRenameSelection].cursor.setPosition(position, QTextCursor::KeepAnchor);
+        m_renameSelections[m_currentRenameSelection].cursor.setPosition(position,
+                                                                        QTextCursor::KeepAnchor);
     }
 
-    // the condition looks odd, but keep in mind that the begin and end cursors do move automatically
+    // the condition looks odd, but keep in mind that the begin
+    // and end cursors do move automatically
     m_inRenameChanged = (position >= m_currentRenameSelectionBegin.position()
                          && position + charsAdded <= m_currentRenameSelectionEnd.position());
 
@@ -1104,7 +1108,6 @@ void CPPEditorWidget::updateOutlineIndexNow()
     m_outlineModelIndex = QModelIndex(); //invalidate
     QModelIndex comboIndex = outlineModelIndex();
 
-
     if (comboIndex.isValid()) {
         bool blocked = m_outlineCombo->blockSignals(true);
 
@@ -1174,7 +1177,6 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
                                             m_lastSemanticInfo.doc->diagnosticMessages());
 }
 
-
 void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 {
     if (! m_modelManager)
@@ -1202,7 +1204,8 @@ void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
             Function *functionDefinition = function->asFunction();
             ClassOrNamespace *binding = context.lookupType(functionDefinition);
 
-            const QList<LookupItem> declarations = context.lookup(functionDefinition->name(), functionDefinition->enclosingScope());
+            const QList<LookupItem> declarations = context.lookup(functionDefinition->name(),
+                functionDefinition->enclosingScope());
             QList<Symbol *> best;
             foreach (const LookupItem &r, declarations) {
                 if (Symbol *decl = r.declaration()) {
@@ -1223,7 +1226,8 @@ void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         } else if (lastVisibleSymbol
                    && lastVisibleSymbol->isDeclaration()
                    && lastVisibleSymbol->type()->isFunctionType()) {
-            symbolLink = linkToSymbol(symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot));
+            symbolLink = linkToSymbol(
+                symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot));
         }
 
         if (symbolLink.hasValidTarget())
@@ -1274,7 +1278,9 @@ static inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolv
     return result;
 }
 
-CPPEditorWidget::Link CPPEditorWidget::attemptFuncDeclDef(const QTextCursor &cursor, const Document::Ptr &doc, Snapshot snapshot) const
+CPPEditorWidget::Link CPPEditorWidget::attemptFuncDeclDef(const QTextCursor &cursor,
+                                                          const Document::Ptr &doc,
+                                                          Snapshot snapshot) const
 {
     snapshot.insert(doc);
 
@@ -1395,16 +1401,14 @@ QString CPPEditorWidget::identifierUnderCursor(QTextCursor *macroCursor) const
     return macroCursor->selectedText();
 }
 
-CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                      bool resolveTarget)
+CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, bool resolveTarget)
 {
     Link link;
 
     if (!m_modelManager)
         return link;
 
-    const Snapshot &snapshot = m_modelManager->snapshot();
-
+    // Move to end of identifier
     QTextCursor tc = cursor;
     QChar ch = document()->characterAt(tc.position());
     while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
@@ -1412,7 +1416,9 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
         ch = document()->characterAt(tc.position());
     }
 
-    // Initially try to macth decl/def. For this we need the semantic doc with the AST.
+    const Snapshot &snapshot = m_modelManager->snapshot();
+
+    // Try to macth decl/def. For this we need the semantic doc with the AST.
     if (m_lastSemanticInfo.doc
             && m_lastSemanticInfo.doc->translationUnit()
             && m_lastSemanticInfo.doc->translationUnit()->ast()) {
@@ -1426,26 +1432,20 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
         }
     }
 
-    // Now we prefer the doc from the snapshot with macros expanded.
-    Document::Ptr doc = snapshot.document(editorDocument()->fileName());
-    if (!doc) {
-        doc = m_lastSemanticInfo.doc;
-        if (!doc)
-            return link;
-    }
-
     int lineNumber = 0, positionInBlock = 0;
     convertPosition(cursor.position(), &lineNumber, &positionInBlock);
     const unsigned line = lineNumber;
     const unsigned column = positionInBlock + 1;
 
+    // Try to find a signal or slot inside SIGNAL() or SLOT()
     int beginOfToken = 0;
     int endOfToken = 0;
 
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(true);
     const QString blockText = cursor.block().text();
-    const QList<Token> tokens = tokenize(blockText, BackwardsScanner::previousBlockState(cursor.block()));
+    const QList<Token> tokens = tokenize(blockText,
+                                         BackwardsScanner::previousBlockState(cursor.block()));
 
     bool recognizedQtMethod = false;
 
@@ -1491,13 +1491,22 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
         }
     }
 
-    if (! recognizedQtMethod) {
+    // Now we prefer the doc from the snapshot with macros expanded.
+    Document::Ptr doc = snapshot.document(editorDocument()->fileName());
+    if (!doc) {
+        doc = m_lastSemanticInfo.doc;
+        if (!doc)
+            return link;
+    }
+
+    if (!recognizedQtMethod) {
         const QTextBlock block = tc.block();
         int pos = cursor.positionInBlock();
         QChar ch = document()->characterAt(cursor.position());
         if (pos > 0 && ! (ch.isLetterOrNumber() || ch == QLatin1Char('_')))
             --pos; // positionInBlock points to a delimiter character.
-        const Token tk = SimpleLexer::tokenAt(block.text(), pos, BackwardsScanner::previousBlockState(block), true);
+        const Token tk = SimpleLexer::tokenAt(block.text(), pos,
+                                              BackwardsScanner::previousBlockState(block), true);
 
         beginOfToken = block.position() + tk.begin();
         endOfToken = block.position() + tk.end();
@@ -1703,7 +1712,8 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QMenu *contextMenu = mcontext->menu();
 
     QMenu *quickFixMenu = new QMenu(tr("&Refactor"), menu);
-    quickFixMenu->addAction(Core::ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
+    quickFixMenu->addAction(Core::ActionManager::command(
+                                Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
 
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
@@ -1758,8 +1768,9 @@ void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
     // key handling for renames
 
     QTextCursor cursor = textCursor();
-    const QTextCursor::MoveMode moveMode =
-            (e->modifiers() & Qt::ShiftModifier) ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor;
+    const QTextCursor::MoveMode moveMode = (e->modifiers() & Qt::ShiftModifier)
+            ? QTextCursor::KeepAnchor
+            : QTextCursor::MoveAnchor;
 
     switch (e->key()) {
     case Qt::Key_Enter:
@@ -1848,7 +1859,8 @@ Core::Id CPPEditor::id() const
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
-    editorWidget()->setMimeType(Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    editorWidget()->setMimeType(
+        Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
 }
 
@@ -1860,7 +1872,8 @@ const Utils::CommentDefinition *CPPEditor::commentDefinition() const
 void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
-    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    CppHighlighter *highlighter
+        = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
 
@@ -1895,7 +1908,8 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
             fs.toTextCharFormat(TextEditor::C_KEYWORD);
     m_keywordFormat = fs.toTextCharFormat(TextEditor::C_KEYWORD);
 
-    // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
+    // only set the background, we do not want to modify foreground properties
+    // set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
     m_occurrenceRenameFormat.clearForeground();
 
@@ -2048,7 +2062,8 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     updateFunctionDeclDefLink();
 }
 
-QModelIndex CPPEditorWidget::indexForPosition(int line, int column, const QModelIndex &rootIndex) const
+QModelIndex CPPEditorWidget::indexForPosition(int line, int column,
+                                              const QModelIndex &rootIndex) const
 {
     QModelIndex lastIndex = rootIndex;
 
