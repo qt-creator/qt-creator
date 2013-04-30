@@ -30,8 +30,11 @@
 #ifndef OPENEDITORSWINDOW_H
 #define OPENEDITORSWINDOW_H
 
+#include "editorview.h"
+
 #include <QFrame>
 #include <QIcon>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
@@ -40,13 +43,13 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+class IDocument;
 class IEditor;
 class OpenEditorsModel;
 
 namespace Internal {
 
 class EditorHistoryItem;
-class EditorView;
 
 class OpenEditorsWindow : public QFrame
 {
@@ -74,6 +77,8 @@ private slots:
 
 private:
     static void updateItem(QTreeWidgetItem *item, IEditor *editor);
+    void addHistoryItems(const QList<EditLocation> &history, EditorView *view,
+                         OpenEditorsModel *model, QSet<IDocument*> &documentsDone);
     void ensureCurrentVisible();
     bool isCentering();
     void centerOnItem(int selectedIndex);
