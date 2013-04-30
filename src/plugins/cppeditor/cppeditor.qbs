@@ -61,7 +61,7 @@ QtcPlugin {
             "cppdoxygen_test.cpp",
             "cppquickfix_test.cpp",
             "fileandtokenactions_test.cpp",
-            "followsymbolundercursor_test.cpp"
+            "followsymbol_switchmethoddecldef_test.cpp"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

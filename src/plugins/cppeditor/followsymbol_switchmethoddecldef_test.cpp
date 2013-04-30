@@ -38,14 +38,14 @@
 
 
 /*!
-    Tests for Follow Symbol Under Cursor
+    Tests for Follow Symbol Under Cursor and Switch Between Method Declaration/Definition
 
     Section numbers refer to
 
         Working Draft, Standard for Programming Language C++
         Document Number: N3242=11-0012
 
-    You can find potential test code on the bottom of this file.
+    You can find potential test code for Follow Symbol Under Cursor on the bottom of this file.
  */
 using namespace CPlusPlus;
 using namespace CppEditor;
@@ -80,12 +80,16 @@ public:
         QVERIFY(initialCursorPosition != targetCursorPosition);
         if (initialCursorPosition > targetCursorPosition) {
             source.remove(initialCursorPosition, 1);
-            source.remove(targetCursorPosition, 1);
-            --initialCursorPosition;
+            if (targetCursorPosition != -1) {
+                source.remove(targetCursorPosition, 1);
+                --initialCursorPosition;
+            }
         } else {
             source.remove(targetCursorPosition, 1);
-            source.remove(initialCursorPosition, 1);
-            --targetCursorPosition;
+            if (initialCursorPosition != -1) {
+                source.remove(initialCursorPosition, 1);
+                --targetCursorPosition;
+            }
         }
     }
 
@@ -124,14 +128,19 @@ public:
 
 /**
  * Encapsulates the whole process of setting up several editors, positioning the cursor,
- * executing Follow Symbol Under Cursor and checking the result.
+ * executing Follow Symbol Under Cursor or Switch Between Method Declaration/Definition
+ * and checking the result.
  */
-struct TestCase
+class TestCase
 {
-    QList<TestDocumentPtr> testFiles;
+public:
+    enum CppEditorAction {
+        FollowSymbolUnderCursor,
+        SwitchBetweenMethodDeclarationDefinition
+    };
 
-    TestCase(const QByteArray &source);
-    TestCase(const QList<TestDocumentPtr> theTestFiles);
+    TestCase(CppEditorAction action, const QByteArray &source);
+    TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles);
     ~TestCase();
 
     void run();
@@ -144,13 +153,18 @@ private:
 
     TestDocumentPtr testFileWithInitialCursorMarker();
     TestDocumentPtr testFileWithTargetCursorMarker();
+
+private:
+    CppEditorAction m_action;
+    QList<TestDocumentPtr> m_testFiles;
 };
 
 /// Convenience function for creating a TestDocument.
 /// See TestDocument.
-TestCase::TestCase(const QByteArray &source)
+TestCase::TestCase(CppEditorAction action, const QByteArray &source)
+    : m_action(action)
 {
-    testFiles << TestDocument::create(source, QLatin1String("file.cpp"));
+    m_testFiles << TestDocument::create(source, QLatin1String("file.cpp"));
     init();
 }
 
@@ -158,8 +172,9 @@ TestCase::TestCase(const QByteArray &source)
 /// Exactly one test document must be provided that contains '@', the initial position marker.
 /// Exactly one test document must be provided that contains '$', the target position marker.
 /// It can be the same document.
-TestCase::TestCase(const QList<TestDocumentPtr> theTestFiles)
-    : testFiles(theTestFiles)
+TestCase::TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles)
+    : m_action(action)
+    , m_testFiles(theTestFiles)
 {
     init();
 }
@@ -174,14 +189,14 @@ void TestCase::init()
 
     // Write files to disk
     const QString directoryPath = QDir::tempPath();
-    foreach (TestDocumentPtr testFile, testFiles) {
+    foreach (TestDocumentPtr testFile, m_testFiles) {
         testFile->directoryPath = directoryPath;
         testFile->writeToDisk();
     }
 
     // Update Code Model
     QStringList filePaths;
-    foreach (const TestDocumentPtr &testFile, testFiles)
+    foreach (const TestDocumentPtr &testFile, m_testFiles)
         filePaths << testFile->filePath();
     CppTools::CppModelManagerInterface::instance()->updateSourceFiles(filePaths);
 
@@ -200,7 +215,7 @@ void TestCase::init()
     }
 
     // Open Files
-    foreach (TestDocumentPtr testFile, testFiles) {
+    foreach (TestDocumentPtr testFile, m_testFiles) {
         testFile->editor
             = dynamic_cast<CPPEditor *>(EditorManager::openEditor(testFile->filePath()));
         QVERIFY(testFile->editor);
@@ -232,7 +247,7 @@ TestCase::~TestCase()
 {
     // Close editors
     QList<Core::IEditor *> editorsToClose;
-    foreach (const TestDocumentPtr testFile, testFiles) {
+    foreach (const TestDocumentPtr testFile, m_testFiles) {
         if (testFile->editor)
             editorsToClose << testFile->editor;
     }
@@ -247,7 +262,7 @@ TestCase::~TestCase()
 
 TestDocumentPtr TestCase::testFileWithInitialCursorMarker()
 {
-    foreach (const TestDocumentPtr testFile, testFiles) {
+    foreach (const TestDocumentPtr testFile, m_testFiles) {
         if (testFile->hasInitialCursorMarker())
             return testFile;
     }
@@ -256,7 +271,7 @@ TestDocumentPtr TestCase::testFileWithInitialCursorMarker()
 
 TestDocumentPtr TestCase::testFileWithTargetCursorMarker()
 {
-    foreach (const TestDocumentPtr testFile, testFiles) {
+    foreach (const TestDocumentPtr testFile, m_testFiles) {
         if (testFile->hasTargetCursorMarker())
             return testFile;
     }
@@ -270,11 +285,25 @@ void TestCase::run()
     TestDocumentPtr targetTestFile = testFileWithTargetCursorMarker();
     QVERIFY(targetTestFile);
 
-    // Trigger Follow Symbol Under Cursor
+    // Activate editor of initial test file
+    EditorManager::activateEditor(initialTestFile->editor);
+
     initialTestFile->editor->setCursorPosition(initialTestFile->initialCursorPosition);
 //    qDebug() << "Initial line:" << initialTestFile->editor->currentLine();
 //    qDebug() << "Initial column:" << initialTestFile->editor->currentColumn() - 1;
-    initialTestFile->editorWidget->openLinkUnderCursor();
+
+    // Trigger the action
+    switch (m_action) {
+    case FollowSymbolUnderCursor:
+        initialTestFile->editorWidget->openLinkUnderCursor();
+        break;
+    case SwitchBetweenMethodDeclarationDefinition:
+        CppEditorPlugin::instance()->switchDeclarationDefinition();
+        break;
+    default:
+        QFAIL("Unknown test action");
+        break;
+    }
 
     QCoreApplication::processEvents();
 
@@ -295,6 +324,102 @@ void TestCase::run()
 
 } // anonymous namespace
 
+void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionDeclarationSymbol()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    const QByteArray headerContents =
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    C();\n"
+        "    int @function();\n"  // Line 5
+        "};\n"
+        ;
+    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
+
+    const QByteArray sourceContents =
+        "#include \"file.h\"\n"
+        "\n"
+        "C::C()\n"
+        "{\n"
+        "}\n"                   // Line 5
+        "\n"
+        "int C::$function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"                   // Line 10
+        ;
+    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+
+    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinition, testFiles);
+    test.run();
+}
+
+void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionDefinitionSymbol()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    const QByteArray headerContents =
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    C();\n"
+        "    int $function();\n"
+        "};\n"
+        ;
+    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
+
+    const QByteArray sourceContents =
+        "#include \"file.h\"\n"
+        "\n"
+        "C::C()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        "int C::@function()\n"
+        "{\n"
+        "    return 1 + 1;\n"
+        "}\n"
+        ;
+    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+
+    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinition, testFiles);
+    test.run();
+}
+
+void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionBody()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    const QByteArray headerContents =
+        "class C\n"
+        "{\n"
+        "public:\n"
+        "    C();\n"
+        "    int $function();\n"
+        "};\n"
+        ;
+    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
+
+    const QByteArray sourceContents =
+        "#include \"file.h\"\n"
+        "\n"
+        "C::C()\n"
+        "{\n"
+        "}\n"                   // Line 5
+        "\n"
+        "int C::function()\n"
+        "{\n"
+        "    return @1 + 1;\n"
+        "}\n"                   // Line 10
+        ;
+    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+
+    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinition, testFiles);
+    test.run();
+}
+
 /// Check ...
 void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromFunction()
 {
@@ -306,8 +431,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromFunction()
         "}\n"           // Line 5
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesClassMember()
@@ -324,8 +449,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesClassMember()
         "};\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesNamespaceMemberIntroducedByUsingDirective()
@@ -344,8 +469,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesNamespaceMemb
         "}\n"                                // Line 10
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVariable1()
@@ -362,8 +487,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVa
         "}\n";
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVariable2()
@@ -380,8 +505,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVa
         "}\n";
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_subsequentDefinedClassMember()
@@ -394,8 +519,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_subsequentDefinedClassMember(
         "};\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_classMemberHidesOuterTypeDef()
@@ -410,8 +535,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classMemberHidesOuterTypeDef(
         "};\n"                                                 // Line 5
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromEnum()
@@ -425,8 +550,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromEnum()
         "}\n"                                             // Line 5
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_selfInitialization()
@@ -440,8 +565,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_selfInitialization()
         "}\n"                                              // Line 5
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_pointerToClassInClassDefinition()
@@ -453,8 +578,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_pointerToClassInClassDefiniti
         "};\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_previouslyDefinedMemberFromArrayDefinition()
@@ -467,8 +592,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_previouslyDefinedMemberFromAr
         "};\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_outerStaticMemberVariableFromInsideSubclass()
@@ -489,8 +614,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_outerStaticMemberVariableFrom
         "};\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingDotOperator()
@@ -509,8 +634,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingDotOpe
         "}\n"                // Line 10
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingArrowOperator()
@@ -529,8 +654,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingArrowO
         "}\n"                   // Line 10
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowingScopeOperator()
@@ -548,8 +673,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowing
         "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowingDotOperator()
@@ -568,8 +693,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowing
         "}\n"                       // Line 10
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 
@@ -589,8 +714,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowing
         "}\n"                        // Line 10
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_previouslyDefinedEnumValueFromInsideEnum()
@@ -603,8 +728,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_previouslyDefinedEnumValueFro
         "};\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_nsMemberHidesNsMemberIntroducedByUsingDirective()
@@ -626,8 +751,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_nsMemberHidesNsMemberIntroduc
         "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_baseClassFunctionIntroducedByUsingDeclaration()
@@ -653,8 +778,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_baseClassFunctionIntroducedBy
         "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_funWithSameNameAsBaseClassFunIntroducedByUsingDeclaration()
@@ -680,8 +805,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funWithSameNameAsBaseClassFun
         "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass()
@@ -699,8 +824,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass()
         "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace()
@@ -716,8 +841,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_global
             "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_namespace()
@@ -735,8 +860,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_namesp
             "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_insideFunction()
@@ -752,8 +877,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_inside
             "}\n"
         ;
 
-    TestCase data(source);
-    data.run();
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
 }
 
 /*

@@ -93,6 +93,10 @@ private slots:
 #ifdef WITH_TESTS
 private slots:
     // The following tests expect that no projects are loaded on start-up.
+    void test_SwitchMethodDeclarationDefinition_fromFunctionDeclarationSymbol();
+    void test_SwitchMethodDeclarationDefinition_fromFunctionDefinitionSymbol();
+    void test_SwitchMethodDeclarationDefinition_fromFunctionBody();
+
     void test_FollowSymbolUnderCursor_globalVarFromFunction();
     void test_FollowSymbolUnderCursor_funLocalVarHidesClassMember();
     void test_FollowSymbolUnderCursor_funLocalVarHidesNamespaceMemberIntroducedByUsingDirective();

@@ -43,7 +43,7 @@ equals(TEST, 1) {
         cppquickfix_test.cpp \
         cppdoxygen_test.cpp \
         fileandtokenactions_test.cpp \
-        followsymbolundercursor_test.cpp
+        followsymbol_switchmethoddecldef_test.cpp
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
