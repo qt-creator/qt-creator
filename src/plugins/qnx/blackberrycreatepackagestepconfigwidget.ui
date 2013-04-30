@@ -76,7 +76,7 @@
         <item row="2" column="0" colspan="2">
          <widget class="QCheckBox" name="savePasswords">
           <property name="toolTip">
-           <string>Note: this will store the passwords in a world-readable file!</string>
+           <string>Note: This will store the passwords in a world-readable file.</string>
           </property>
           <property name="text">
            <string>Save passwords</string>
