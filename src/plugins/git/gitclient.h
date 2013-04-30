@@ -261,9 +261,8 @@ public:
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
-    bool getCommitData(const QString &workingDirectory, CommitType commitType,
-                       QString *commitTemplate, CommitData *commitData,
-                       QString *errorMessage);
+    bool getCommitData(const QString &workingDirectory, QString *commitTemplate,
+                       CommitData *commitData, QString *errorMessage);
 
     bool addAndCommit(const QString &workingDirectory,
                       const GitSubmitEditorPanelData &data,

@@ -54,7 +54,6 @@ public:
     explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
 
     void setCommitData(const CommitData &);
-    void setCommitType(CommitType commitType);
     GitSubmitEditorPanelData panelData() const;
     bool forceClose() const { return m_forceClose; }
 

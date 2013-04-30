@@ -30,6 +30,8 @@
 #ifndef COMMITDATA_H
 #define COMMITDATA_H
 
+#include "gitsettings.h" // CommitType
+
 #include <QStringList>
 #include <QPair>
 
@@ -85,6 +87,7 @@ Q_DECLARE_FLAGS(FileStates, FileState)
 class CommitData
 {
 public:
+    CommitData(CommitType type = SimpleCommit);
     // A pair of state string/file name ('modified', 'file.cpp').
     typedef QPair<FileStates, QString> StateFilePair;
 
@@ -99,6 +102,7 @@ public:
 
     static QString stateDisplayName(const FileStates &state);
 
+    CommitType commitType;
     QString amendSHA1;
     QString commitEncoding;
     GitSubmitEditorPanelInfo panelInfo;

@@ -76,6 +76,10 @@ QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &data)
     return d;
 }
 
+CommitData::CommitData(CommitType type) : commitType(type)
+{
+}
+
 void CommitData::clear()
 {
     panelInfo.clear();

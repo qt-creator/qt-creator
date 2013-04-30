@@ -2018,7 +2018,6 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
-                              CommitType commitType,
                               QString *commitTemplate,
                               CommitData *commitData,
                               QString *errorMessage)
@@ -2047,7 +2046,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     case  StatusChanged:
         break;
     case StatusUnchanged:
-        if (commitType == AmendCommit)
+        if (commitData->commitType == AmendCommit) // amend might be run just for the commit message
             break;
         *errorMessage = msgNoChangedFiles();
         return false;
@@ -2081,7 +2080,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
         commitData->files = filteredFiles;
 
-        if (commitData->files.isEmpty() && commitType != AmendCommit) {
+        if (commitData->files.isEmpty() && commitData->commitType != AmendCommit) {
             *errorMessage = msgNoChangedFiles();
             return false;
         }
@@ -2090,7 +2089,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     commitData->commitEncoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
 
     // Get the commit template or the last commit message
-    switch (commitType) {
+    switch (commitData->commitType) {
     case AmendCommit: {
         // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));

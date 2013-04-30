@@ -110,6 +110,8 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
 
     m_commitEncoding = d.commitEncoding;
     m_workingDirectory = d.panelInfo.repository;
+    m_commitType = d.commitType;
+    setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message
 
     m_model = new GitSubmitFileModel(this);
     if (!d.files.isEmpty()) {
@@ -131,12 +133,6 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
         }
     }
     setFileModel(m_model, d.panelInfo.repository);
-}
-
-void GitSubmitEditor::setCommitType(CommitType commitType)
-{
-    m_commitType = commitType;
-    setEmptyFileListEnabled(commitType == AmendCommit); // Allow for just correcting the message
 }
 
 void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
@@ -167,8 +163,8 @@ void GitSubmitEditor::updateFileModel()
         return;
     GitClient *client = GitPlugin::instance()->gitClient();
     QString errorMessage, commitTemplate;
-    CommitData data;
-    if (client->getCommitData(m_workingDirectory, m_commitType, &commitTemplate, &data, &errorMessage)) {
+    CommitData data(m_commitType);
+    if (client->getCommitData(m_workingDirectory, &commitTemplate, &data, &errorMessage)) {
         setCommitData(data);
     } else {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);

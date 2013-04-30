@@ -192,7 +192,7 @@ private:
     void updateContinueAndAbortCommands();
     void updateRepositoryBrowserAction();
     bool isCommitEditorOpen() const;
-    Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd, CommitType commitType);
+    Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
     void cleanRepository(const QString &directory);
     void applyPatch(const QString &workingDirectory, QString file = QString());
