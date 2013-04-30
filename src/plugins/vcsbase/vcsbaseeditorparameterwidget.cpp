@@ -148,7 +148,7 @@ QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QString &option
                                                            const QString &label,
                                                            const QString &tooltip)
 {
-    return addToggleButton(QStringList(option), label, tooltip);
+    return addToggleButton(option.isEmpty() ? QStringList() : QStringList(option), label, tooltip);
 }
 
 QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QStringList &options, const QString &label, const QString &tooltip)
