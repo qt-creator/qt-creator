@@ -36,7 +36,6 @@
 #include "qt4buildconfiguration.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
-#include "wizards/mobileappwizard.h"
 #include "wizards/librarywizard.h"
 #include "wizards/testwizard.h"
 #include "wizards/emptyprojectwizard.h"
@@ -130,7 +129,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new SubdirsProjectWizard);
     addAutoReleasedObject(new GuiAppWizard);
     addAutoReleasedObject(new ConsoleAppWizard);
-    addAutoReleasedObject(new MobileAppWizard);
     QtQuickAppWizard::createInstances(this); //creates several instances with different options
     addAutoReleasedObject(new Html5AppWizard);
     addAutoReleasedObject(new LibraryWizard);

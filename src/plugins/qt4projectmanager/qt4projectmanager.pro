@@ -19,7 +19,6 @@ HEADERS += \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
     wizards/mobileapp.h \
-    wizards/mobileappwizard.h \
     wizards/mobileappwizardpages.h \
     wizards/mobilelibrarywizardoptionpage.h \
     wizards/mobilelibraryparameters.h \
@@ -84,7 +83,6 @@ SOURCES += \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \
     wizards/mobileapp.cpp \
-    wizards/mobileappwizard.cpp \
     wizards/mobileappwizardpages.cpp \
     wizards/mobilelibrarywizardoptionpage.cpp \
     wizards/mobilelibraryparameters.cpp \

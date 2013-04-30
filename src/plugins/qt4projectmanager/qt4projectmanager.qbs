@@ -161,8 +161,6 @@ QtcPlugin {
         "wizards/librarywizarddialog.h",
         "wizards/mobileapp.cpp",
         "wizards/mobileapp.h",
-        "wizards/mobileappwizard.cpp",
-        "wizards/mobileappwizard.h",
         "wizards/mobileappwizardgenericoptionspage.ui",
         "wizards/mobileappwizardharmattanoptionspage.ui",
         "wizards/mobileappwizardmaemooptionspage.ui",
