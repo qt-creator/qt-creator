@@ -96,8 +96,6 @@ private:
 
     QToolBar *m_toolBar;
     QActionGroup *m_actionGroup;
-
-    ProjectExplorer::TaskHub *m_taskHub;
 };
 
 } // namespace Internal

@@ -49,7 +49,6 @@ using namespace Qnx::Internal;
 
 BarDescriptorEditor::BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget)
     : Core::IEditor()
-    , m_taskHub(0)
 {
     setWidget(editorWidget);
 
@@ -166,12 +165,7 @@ void BarDescriptorEditor::changeEditorPage(QAction *action)
 
 ProjectExplorer::TaskHub *BarDescriptorEditor::taskHub()
 {
-    if (m_taskHub == 0) {
-        m_taskHub = ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
-        m_taskHub->addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR, tr("Bar Descriptor"));
-    }
-
-    return m_taskHub;
+    return ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
 }
 
 void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
