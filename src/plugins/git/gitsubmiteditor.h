@@ -71,6 +71,7 @@ private slots:
 
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();
+    inline const GitSubmitEditorWidget *submitEditorWidget() const;
 
     VcsBase::SubmitFileModel *m_model;
     QString m_commitEncoding;

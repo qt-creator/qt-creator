@@ -96,6 +96,11 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
     return static_cast<GitSubmitEditorWidget *>(widget());
 }
 
+const GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget() const
+{
+    return static_cast<GitSubmitEditorWidget *>(widget());
+}
+
 void GitSubmitEditor::setCommitData(const CommitData &d)
 {
     GitSubmitEditorWidget *w = submitEditorWidget();
@@ -174,12 +179,12 @@ void GitSubmitEditor::updateFileModel()
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
 {
-    return const_cast<GitSubmitEditor*>(this)->submitEditorWidget()->panelData();
+    return submitEditorWidget()->panelData();
 }
 
 QByteArray GitSubmitEditor::fileContents() const
 {
-    const QString& text = const_cast<GitSubmitEditor*>(this)->submitEditorWidget()->descriptionText();
+    const QString &text = submitEditorWidget()->descriptionText();
 
     if (!m_commitEncoding.isEmpty()) {
         // Do the encoding convert, When use user-defined encoding

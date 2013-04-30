@@ -29,7 +29,7 @@
       <property name="flat">
        <bool>true</bool>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="descriptionLayout">
        <item>
         <widget class="Utils::CompletingTextEdit" name="description">
          <property name="acceptRichText">

@@ -568,9 +568,7 @@ void SubmitEditorWidget::addSubmitFieldWidget(SubmitFieldWidget *f)
         QHBoxLayout *outerLayout = new QHBoxLayout;
         outerLayout->addLayout(d->m_fieldLayout);
         outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
-        QBoxLayout *descrLayout = qobject_cast<QBoxLayout*>(d->m_ui.descriptionBox->layout());
-        Q_ASSERT(descrLayout);
-        descrLayout->addLayout(outerLayout);
+        d->m_ui.descriptionLayout->addLayout(outerLayout);
     }
     d->m_fieldLayout->addWidget(f);
     d->m_fieldWidgets.push_back(f);
