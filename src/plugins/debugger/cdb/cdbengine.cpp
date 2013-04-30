@@ -582,8 +582,8 @@ void CdbEngine::setupEngine()
 {
     if (debug)
         qDebug(">setupEngine");
-    // Nag to add symbol server
-    if (CdbSymbolPathListEditor::promptToAddSymbolServer(CdbOptions::settingsGroup(),
+    // Nag to add symbol server and cache
+    if (CdbSymbolPathListEditor::promptToAddSymbolPaths(CdbOptions::settingsGroup(),
                                                          &(m_options->symbolPaths)))
         m_options->toSettings(Core::ICore::settings());
 

@@ -72,24 +72,6 @@ private:
     QList<QLineEdit*> m_lineEdits;
 };
 
-class CdbPathDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    enum Mode {
-        SymbolPaths,
-        SourcePaths
-    };
-
-    explicit CdbPathDialog(QWidget *parent, Mode mode);
-
-    QStringList paths() const;
-    void setPaths(const QStringList &paths);
-
-private:
-    Utils::PathListEditor *m_pathListEditor;
-};
-
 class CdbOptionsPageWidget : public QWidget
 {
     Q_OBJECT
@@ -102,20 +84,13 @@ public:
 
     QString searchKeywords() const;
 
-private slots:
-    void showSymbolPathDialog();
-    void showSourcePathDialog();
-
 private:
-    void setSymbolPaths(const QStringList &);
-    void setSourcePaths(const QStringList &);
-
     inline QString path() const;
 
     Ui::CdbOptionsPageWidget m_ui;
     CdbBreakEventWidget *m_breakEventWidget;
-    QStringList m_symbolPaths;
-    QStringList m_sourcePaths;
+    CdbSymbolPathListEditor *m_symbolPathListEditor;
+    Utils::PathListEditor *m_sourcePathListEditor;
 };
 
 class CdbOptionsPage : public Core::IOptionsPage

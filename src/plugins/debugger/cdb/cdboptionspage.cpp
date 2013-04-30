@@ -154,48 +154,11 @@ QStringList CdbBreakEventWidget::breakEvents() const
     return rc;
 }
 
-CdbPathDialog::CdbPathDialog(QWidget *parent, Mode mode)
-    : QDialog(parent)
-    , m_pathListEditor(0)
-{
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setMinimumWidth(700);
-
-    switch (mode) {
-    case SymbolPaths:
-        setWindowTitle(tr("CDB Symbol Paths"));
-        m_pathListEditor = new CdbSymbolPathListEditor(this);
-        break;
-    case SourcePaths:
-        setWindowTitle(tr("CDB Source Paths"));
-        m_pathListEditor = new Utils::PathListEditor(this);
-        break;
-    }
-
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    QGroupBox *groupBox = new QGroupBox(this);
-    (new QVBoxLayout(groupBox))->addWidget(m_pathListEditor);
-    layout->addWidget(groupBox);
-    QDialogButtonBox *buttonBox =
-        new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                             Qt::Horizontal, this);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    layout->addWidget(buttonBox);
-}
-
-QStringList CdbPathDialog::paths() const
-{
-    return m_pathListEditor->pathList();
-}
-
-void CdbPathDialog::setPaths(const QStringList &paths)
-{
-    m_pathListEditor->setPathList(paths);
-}
-
-CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
-    QWidget(parent), m_breakEventWidget(new CdbBreakEventWidget)
+CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
+    : QWidget(parent)
+    , m_breakEventWidget(new CdbBreakEventWidget)
+    , m_symbolPathListEditor(new CdbSymbolPathListEditor)
+    , m_sourcePathListEditor(new Utils::PathListEditor)
 {
     m_ui.setupUi(this);
     // Squeeze the groupbox layouts vertically to
@@ -206,8 +169,6 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     const QMargins margins(margin, margin / 3, margin, margin / 3);
 
     m_ui.startupFormLayout->setContentsMargins(margins);
-    m_ui.pathGroupBox->layout()->setContentsMargins(margins);
-    m_ui.breakpointLayout->setContentsMargins(margins);
 
     QVBoxLayout *eventLayout = new QVBoxLayout;
     eventLayout->setContentsMargins(margins);
@@ -219,33 +180,15 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     m_ui.breakCrtDbgReportCheckBox
         ->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(CdbOptions::crtDbgReport, hint));
 
-    connect(m_ui.symbolPathButton, SIGNAL(clicked()), this, SLOT(showSymbolPathDialog()));
-    connect(m_ui.sourcePathButton, SIGNAL(clicked()), this, SLOT(showSourcePathDialog()));
-}
-
-void CdbOptionsPageWidget::setSymbolPaths(const QStringList &s)
-{
-    m_symbolPaths = s;
-    const QString summary =
-        tr("Symbol paths: %1").arg(m_symbolPaths.isEmpty() ?
-            tr("<none>") : QString::number(m_symbolPaths.size()));
-    m_ui.symbolPathLabel->setText(summary);
-}
-
-void CdbOptionsPageWidget::setSourcePaths(const QStringList &s)
-{
-    m_sourcePaths = s;
-    const QString summary =
-        tr("Source paths: %1").arg(m_sourcePaths.isEmpty() ?
-            tr("<none>") : QString::number(m_sourcePaths.size()));
-    m_ui.sourcePathLabel->setText(summary);
+    m_ui.symbolPathsGroupBox->layout()->addWidget(m_symbolPathListEditor);
+    m_ui.sourcePathsGroupBox->layout()->addWidget(m_sourcePathListEditor);
 }
 
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
     m_ui.additionalArgumentsLineEdit->setText(o.additionalArguments);
-    setSymbolPaths(o.symbolPaths);
-    setSourcePaths(o.sourcePaths);
+    m_symbolPathListEditor->setPathList(o.symbolPaths);
+    m_sourcePathListEditor->setPathList(o.sourcePaths);
     m_ui.ignoreFirstChanceAccessViolationCheckBox->setChecked(o.ignoreFirstChanceAccessViolation);
     m_breakEventWidget->setBreakEvents(o.breakEvents);
     m_ui.consoleCheckBox->setChecked(o.cdbConsole);
@@ -257,8 +200,8 @@ CdbOptions CdbOptionsPageWidget::options() const
 {
     CdbOptions  rc;
     rc.additionalArguments = m_ui.additionalArgumentsLineEdit->text().trimmed();
-    rc.symbolPaths  = m_symbolPaths;
-    rc.sourcePaths = m_sourcePaths;
+    rc.symbolPaths  = m_symbolPathListEditor->pathList();
+    rc.sourcePaths = m_sourcePathListEditor->pathList();
     rc.ignoreFirstChanceAccessViolation = m_ui.ignoreFirstChanceAccessViolationCheckBox->isChecked();
     rc.breakEvents = m_breakEventWidget->breakEvents();
     rc.cdbConsole = m_ui.consoleCheckBox->isChecked();
@@ -266,22 +209,6 @@ CdbOptions CdbOptionsPageWidget::options() const
     if (m_ui.breakCrtDbgReportCheckBox->isChecked())
         rc.breakFunctions.push_back(QLatin1String(CdbOptions::crtDbgReport));
     return rc;
-}
-
-void CdbOptionsPageWidget::showSymbolPathDialog()
-{
-    CdbPathDialog pathDialog(this, CdbPathDialog::SymbolPaths);
-    pathDialog.setPaths(m_symbolPaths);
-    if (pathDialog.exec() == QDialog::Accepted)
-        setSymbolPaths(pathDialog.paths());
-}
-
-void CdbOptionsPageWidget::showSourcePathDialog()
-{
-    CdbPathDialog pathDialog(this, CdbPathDialog::SourcePaths);
-    pathDialog.setPaths(m_sourcePaths);
-    if (pathDialog.exec() == QDialog::Accepted)
-        setSourcePaths(pathDialog.paths());
 }
 
 static QString stripColon(QString s)
@@ -297,10 +224,8 @@ QString CdbOptionsPageWidget::searchKeywords() const
     QString rc;
     QTextStream(&rc)
         << stripColon(m_ui.additionalArgumentsLabel->text()) << ' '
-        << stripColon(m_ui.breakFunctionGroupBox->title()) << ' '
-        << m_ui.breakpointsGroupBox->title() << ' '
-        << stripColon(m_ui.symbolPathLabel->text()) << ' '
-        << stripColon(m_ui.sourcePathLabel->text());
+        << m_ui.symbolPathsGroupBox->title() << ' '
+        << m_ui.sourcePathsGroupBox->title();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

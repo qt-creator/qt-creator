@@ -263,6 +263,9 @@ QtcPlugin {
         "shared/hostutils.h",
         "shared/peutils.cpp",
         "shared/peutils.h",
+        "shared/symbolpathsdialog.ui",
+        "shared/symbolpathsdialog.cpp",
+        "shared/symbolpathsdialog.h",
     ]
 
     Group {

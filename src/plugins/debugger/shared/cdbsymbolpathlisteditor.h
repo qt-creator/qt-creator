@@ -52,7 +52,7 @@ namespace Internal {
 // created. This is done here (suggest $TEMP\symbolcache
 // regardless of its existence).
 
-class CacheDirectoryDialog    : public QDialog {
+class CacheDirectoryDialog : public QDialog {
     Q_OBJECT
 public:
    explicit CacheDirectoryDialog(QWidget *parent = 0);
@@ -71,26 +71,38 @@ class CdbSymbolPathListEditor : public Utils::PathListEditor
 {
     Q_OBJECT
 public:
+    enum SymbolPathMode{
+        SymbolServerPath,
+        SymbolCachePath
+    };
+
     explicit CdbSymbolPathListEditor(QWidget *parent = 0);
 
-    static QString promptCacheDirectory(QWidget *parent);
+    static bool promptCacheDirectory(QWidget *parent, QString *cacheDirectory);
 
     // Pre- and Postfix used to build a symbol server path specification
     static const char *symbolServerPrefixC;
     static const char *symbolServerPostfixC;
+    static const char *symbolCachePrefixC;
 
-    // Format a symbol server specification with a local cache directory
-    static QString symbolServerPath(const QString &cacheDir);
+    // Format a symbol path specification
+    static QString symbolPath(const QString &cacheDir, SymbolPathMode mode);
     // Check for a symbol server path and extract local cache directory
     static bool isSymbolServerPath(const QString &path, QString *cacheDir = 0);
+    // Check for a symbol cache path and extract local cache directory
+    static bool isSymbolCachePath(const QString &path, QString *cacheDir = 0);
     // Check for symbol server in list of paths.
-    static int indexOfSymbolServerPath(const QStringList &paths, QString *cacheDir = 0);
+    static int indexOfSymbolPath(const QStringList &paths, SymbolPathMode mode, QString *cacheDir = 0);
 
-    // Nag user to add a symbol server to the path list on debugger startup.
-    static bool promptToAddSymbolServer(const QString &settingsGroup, QStringList *symbolPaths);
+    // Nag user to add a symbol cache and server to the path list on debugger startup.
+    static bool promptToAddSymbolPaths(const QString &settingsGroup, QStringList *symbolPaths);
+
+private:
+    void addSymbolPath(SymbolPathMode mode);
 
 private slots:
     void addSymbolServer();
+    void addSymbolCache();
 };
 
 } // namespace Internal

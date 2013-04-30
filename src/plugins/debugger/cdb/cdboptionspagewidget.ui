@@ -54,80 +54,6 @@
        </layout>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QGroupBox" name="pathGroupBox">
-       <property name="title">
-        <string>Paths</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="symbolPathLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="symbolPathButton">
-          <property name="text">
-           <string>Edit...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="sourcePathLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="sourcePathButton">
-          <property name="text">
-           <string>Edit...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QGroupBox" name="breakpointsGroupBox">
-       <property name="title">
-        <string>Breakpoints</string>
-       </property>
-       <layout class="QVBoxLayout" name="breakpointLayout">
-        <item>
-         <widget class="QCheckBox" name="breakpointCorrectionCheckBox">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="text">
-           <string>Correct breakpoint location</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QGroupBox" name="breakFunctionGroupBox">
-       <property name="title">
-        <string>Break on functions:</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QCheckBox" name="breakCrtDbgReportCheckBox"/>
-        </item>
-       </layout>
-      </widget>
-     </item>
      <item row="2" column="0" colspan="2">
       <widget class="QGroupBox" name="eventGroupBox">
        <property name="title">
@@ -135,22 +61,55 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="variousGroupBox">
+         <property name="title">
+          <string>Various</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QCheckBox" name="ignoreFirstChanceAccessViolationCheckBox">
+            <property name="text">
+             <string>Ignore first chance access violations</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="breakCrtDbgReportCheckBox"/>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="breakpointCorrectionCheckBox">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Correct breakpoint location</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="variousGroupBox">
+    <widget class="QGroupBox" name="symbolPathsGroupBox">
      <property name="title">
-      <string>Various</string>
+      <string>Symbol Paths</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QCheckBox" name="ignoreFirstChanceAccessViolationCheckBox">
-        <property name="text">
-         <string>Ignore first chance access violations</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <layout class="QGridLayout" name="gridLayout_3"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="sourcePathsGroupBox">
+     <property name="title">
+      <string>Source Paths</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4"/>
     </widget>
    </item>
    <item>
