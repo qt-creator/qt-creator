@@ -84,7 +84,7 @@ using namespace QmlJS;
 
 typedef QPair<PropertyName, TypeName> PropertyInfo;
 
-QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false);
+QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false, int rec = 0);
 
 static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context,  QList<PropertyInfo> &dotProperties)
 {
@@ -226,13 +226,16 @@ QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool ve
     return list;
 }
 
-QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local = false)
+QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0)
 {
     QList<PropertyInfo> propertyList;
 
     if (!objectValue)
         return propertyList;
     if (objectValue->className().isEmpty())
+        return propertyList;
+
+    if (rec > 2)
         return propertyList;
 
     PropertyMemberProcessor processor(context);
@@ -246,7 +249,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
             //dot property
             const CppComponentValue * qmlValue = value_cast<CppComponentValue>(objectValue->lookupMember(name, context));
             if (qmlValue) {
-                QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context);
+                QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context, false, rec + 1);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
                     PropertyName dotName = propertyInfo.first;
                     TypeName type = propertyInfo.second;
@@ -258,7 +261,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
         if (isValueType(objectValue->propertyType(name))) {
             const ObjectValue *dotObjectValue = value_cast<ObjectValue>(objectValue->lookupMember(name, context));
             if (dotObjectValue) {
-                QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context);
+                QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
                     PropertyName dotName = propertyInfo.first;
                     TypeName type = propertyInfo.second;
@@ -279,9 +282,9 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
         const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue)
-            propertyList.append(getQmlTypes(qmlObjectValue, context));
+            propertyList.append(getQmlTypes(qmlObjectValue, context, false, rec + 1));
         else
-            propertyList.append(getObjectTypes(prototype, context));
+            propertyList.append(getObjectTypes(prototype, context, false, rec + 1));
     }
 
     return propertyList;
@@ -327,13 +330,16 @@ QList<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &c
     return propertyList;
 }
 
-QList<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local)
+QList<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local, int rec)
 {
     QList<PropertyInfo> propertyList;
 
     if (!objectValue)
         return propertyList;
     if (objectValue->className().isEmpty())
+        return propertyList;
+
+    if (rec > 2)
         return propertyList;
 
     PropertyMemberProcessor processor(context);
@@ -350,9 +356,9 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Context
         const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue)
-            propertyList.append(getQmlTypes(qmlObjectValue, context));
+            propertyList.append(getQmlTypes(qmlObjectValue, context, local, rec + 1));
         else
-            propertyList.append(getObjectTypes(prototype, context));
+            propertyList.append(getObjectTypes(prototype, context, local, rec + 1));
     }
 
     return propertyList;
