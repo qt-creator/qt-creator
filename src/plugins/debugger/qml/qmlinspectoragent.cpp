@@ -60,7 +60,6 @@ QmlInspectorAgent::QmlInspectorAgent(DebuggerEngine *engine, QObject *parent)
     , m_engineQueryId(0)
     , m_rootContextQueryId(0)
     , m_objectToSelect(-1)
-    , m_newObjectsCreated(false)
 {
     m_debugIdToIname.insert(-1, QByteArray("inspect"));
     connect(debuggerCore()->action(ShowQmlObjectTree),
@@ -810,11 +809,6 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
         // element makes sure we're queried on expansion.
         if (obj.needsMoreData())
             return list;
-
-        // To improve performance, we do not insert data for items
-        // that have not been previously queried when the object tree is refreshed.
-        if (m_newObjectsCreated)
-            append = false;
     }
 
     // properties
@@ -882,10 +876,6 @@ void QmlInspectorAgent::clearObjectTree()
     m_debugIdToIname.clear();
     m_debugIdToIname.insert(-1, QByteArray("inspect"));
     m_objectStack.clear();
-    // reset only for qt > 4.8.3.
-    if (m_engineClient->objectName() != QLatin1String(QDECLARATIVE_ENGINE))
-        m_newObjectsCreated = false;
-
     removeAllObjectWatches();
 }
 } // Internal
