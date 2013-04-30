@@ -2550,6 +2550,21 @@ BreakpointPathUsage GdbEngine::defaultEngineBreakpointPathUsage() const
     // the source path isn't canonical
     if (m_gdbVersion < 70300)
         return BreakpointUseShortPath;
+
+    //don't set absolute breakpoints for remote targets
+    switch (startMode()) {
+    case AttachToRemoteServer:
+    case AttachToRemoteProcess:
+    case LoadRemoteCore:
+    case StartRemoteProcess:
+    case StartRemoteGdb:
+    case StartRemoteEngine:
+        return BreakpointUseShortPath;
+    default:
+        break;
+    }
+
+
     return BreakpointUseFullPath;
 }
 
