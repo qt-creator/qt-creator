@@ -78,6 +78,7 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QScopedPointer>
 
 static const unsigned minimumRequiredVersion = 0x010702;
 
@@ -758,17 +759,17 @@ void GitPlugin::startRebase()
     QString workingDirectory = currentState().currentDirectoryOrTopLevel();
     if (workingDirectory.isEmpty() || !m_gitClient->canRebase(workingDirectory))
         return;
-    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Rebase-i"));
-    if (stashGuard.stashingFailed())
+    QScopedPointer<GitClient::StashGuard> stashGuard(
+                new GitClient::StashGuard(workingDirectory, QLatin1String("Rebase-i")));
+    if (stashGuard->stashingFailed())
         return;
-    stashGuard.preventPop();
     LogChangeDialog dialog(false);
     dialog.setWindowTitle(tr("Interactive Rebase"));
     if (!dialog.runDialog(workingDirectory))
         return;
     const QString change = dialog.commit();
     if (!change.isEmpty())
-        m_gitClient->interactiveRebase(workingDirectory, change + QLatin1Char('^'));
+        m_gitClient->interactiveRebase(workingDirectory, change, *stashGuard.take());
 }
 
 void GitPlugin::startChangeRelatedAction()

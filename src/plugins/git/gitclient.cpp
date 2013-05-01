@@ -344,8 +344,15 @@ class RebaseManager : public QObject
     Q_OBJECT
 
 public:
-    RebaseManager(QObject *parent) : QObject(parent)
+    RebaseManager(GitClient::StashGuard &stashGuard, QObject *parent) :
+        QObject(parent),
+        m_stashGuard(&stashGuard)
     {
+    }
+
+    ~RebaseManager()
+    {
+        delete m_stashGuard;
     }
 
 public slots:
@@ -361,6 +368,7 @@ public slots:
     {
         Q_UNUSED(ok);
         if (exitCode != 0 && !m_commit.isEmpty()) {
+            m_stashGuard->preventPop();
             GitPlugin::instance()->gitClient()->handleMergeConflicts(
                         workingDirectory.toString(), m_commit, QLatin1String("rebase"));
         }
@@ -368,6 +376,7 @@ public slots:
 
 private:
     QString m_commit;
+    GitClient::StashGuard *m_stashGuard;
 };
 
 Core::IEditor *locateEditor(const char *property, const QString &entry)
@@ -2534,16 +2543,17 @@ bool GitClient::synchronousCherryPick(const QString &workingDirectory, const QSt
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 
-void GitClient::interactiveRebase(const QString &workingDirectory, const QString &commit)
+void GitClient::interactiveRebase(const QString &workingDirectory, const QString &commit,
+                                  StashGuard &stashGuard)
 {
     QStringList arguments;
-    arguments << QLatin1String("rebase") << QLatin1String("-i") << commit;
+    arguments << QLatin1String("rebase") << QLatin1String("-i") << commit + QLatin1Char('^');
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
     command->addJob(arguments, -1);
     command->execute();
     command->setCookie(workingDirectory);
-    RebaseManager *rebaseManager = new RebaseManager(command);
+    RebaseManager *rebaseManager = new RebaseManager(stashGuard, command);
     connect(command, SIGNAL(errorText(QString)), rebaseManager, SLOT(readStdErr(QString)));
     connect(command, SIGNAL(finished(bool,int,QVariant)),
             rebaseManager, SLOT(finished(bool,int,QVariant)));

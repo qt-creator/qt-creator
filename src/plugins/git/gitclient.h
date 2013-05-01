@@ -237,7 +237,8 @@ public:
                            const QString &topicBranch = QString());
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
-    void interactiveRebase(const QString &workingDirectory, const QString &commit);
+    void interactiveRebase(const QString &workingDirectory, const QString &commit,
+                           StashGuard &stashGuard);
     void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
 
     // git svn support (asynchronous).
