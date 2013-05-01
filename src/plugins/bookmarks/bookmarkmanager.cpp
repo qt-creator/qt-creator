@@ -246,6 +246,7 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
         moveUp->setEnabled(false);
         moveDown->setEnabled(false);
         remove->setEnabled(false);
+        editNote->setEnabled(false);
     }
 
     if (model()->rowCount() == 0)
