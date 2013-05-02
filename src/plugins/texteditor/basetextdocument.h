@@ -105,6 +105,7 @@ public:
 
 signals:
     void titleChanged(QString title);
+    void mimeTypeChanged();
 
 private:
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);

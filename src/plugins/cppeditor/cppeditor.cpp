@@ -1166,7 +1166,7 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
     if (editorRevision() != m_highlightRevision)
         return; // outdated
 
-    else if (m_highlighter.isCanceled())
+    if (m_highlighter.isCanceled())
         return; // aborted
 
     TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
@@ -1174,11 +1174,6 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
 
     TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
                 highlighter, m_highlighter);
-
-    if (m_modelManager)
-        m_modelManager->setExtraDiagnostics(m_lastSemanticInfo.doc->fileName(),
-                                            QLatin1String("CppEditor.SemanticsDiagnostics"),
-                                            m_lastSemanticInfo.doc->diagnosticMessages());
 }
 
 void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)

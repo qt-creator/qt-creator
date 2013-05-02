@@ -119,6 +119,8 @@ signals:
     void highlighterStarted(QFuture<TextEditor::HighlightingResult> *, unsigned revision);
 
 private slots:
+    void onMimeTypeChanged();
+
     void updateDocument();
     void updateDocumentNow();
 
