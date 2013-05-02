@@ -1193,7 +1193,8 @@ bool CppCompletionAssistProcessor::objcKeywordsWanted() const
 
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     const QString mt = mdb->findByFile(fileName).type();
-    return mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
+    return mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+            || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
 }
 
 int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName,

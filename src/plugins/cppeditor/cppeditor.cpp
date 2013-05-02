@@ -701,7 +701,8 @@ CppModelManagerInterface *CPPEditorWidget::modelManager() const
 void CPPEditorWidget::setMimeType(const QString &mt)
 {
     BaseTextEditorWidget::setMimeType(mt);
-    setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+                   || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 void CPPEditorWidget::setObjCEnabled(bool onoff)

@@ -92,6 +92,7 @@ Protocol::ContentType Protocol::contentType(const QString &mt)
         return C;
     if (mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
         || mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
         || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
         return Cpp;
     if (mt == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)

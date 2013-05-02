@@ -588,7 +588,9 @@ void Qt4Project::updateCppCodeModel()
                                         ProjectFile::CXXSource));
         foreach (const QString &file, pro->variableValue(ObjCSourceVar)) {
             allFiles << file;
-            part->files << ProjectFile(file, ProjectFile::ObjCSource);
+            // Although the enum constant is called ObjCSourceVar, it actually is ObjC++ source
+            // code, as qmake does not handle C (and ObjC).
+            part->files << ProjectFile(file, ProjectFile::ObjCXXSource);
         }
         foreach (const QString &file, pro->variableValue(ObjCHeaderVar)) {
             allFiles << file;

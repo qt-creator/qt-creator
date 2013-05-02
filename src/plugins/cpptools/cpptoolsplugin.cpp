@@ -201,6 +201,7 @@ static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
     case ProjectFile::ObjCXXHeader:
         return md->findByType(QLatin1String(Constants::C_SOURCE_MIMETYPE)).suffixes()
                 + md->findByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)).suffixes()
+                + md->findByType(QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)).suffixes()
                 + md->findByType(QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)).suffixes();
     case ProjectFile::CSource:
     case ProjectFile::ObjCSource:

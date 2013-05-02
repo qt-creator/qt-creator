@@ -63,10 +63,13 @@
     <mime-type type="text/x-objcsrc">
          <comment>Objective-C source code</comment>
          <sub-class-of type="text/x-csrc"/>
-         <magic priority="30">
-         <match value="#import" type="string" offset="0"/>
-         </magic>
          <glob pattern="*.m"/>
+    </mime-type>
+
+    <mime-type type="text/x-objc++src">
+         <comment>Objective-C++ source code</comment>
+         <sub-class-of type="text/x-c++src"/>
+         <sub-class-of type="text/x-objcsrc"/>
          <glob pattern="*.mm"/>
     </mime-type>
 
