@@ -30,8 +30,6 @@
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
 
-#include <cpptools/cpptoolseditorsupport.h>
-
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -78,7 +76,6 @@ public:
         , targetCursorPosition(source.indexOf('$'))
         , editor(0)
         , editorWidget(0)
-        , editorSupport(0)
     {
         QVERIFY(initialCursorPosition != targetCursorPosition);
         if (initialCursorPosition > targetCursorPosition) {
@@ -123,7 +120,6 @@ public:
 
     CPPEditor *editor;
     CPPEditorWidget *editorWidget;
-    CppEditorSupport *editorSupport;
 };
 
 /**
@@ -213,14 +209,15 @@ void TestCase::init()
         QVERIFY(testFile->editorWidget);
 
         // Wait until the indexer processed the just opened file.
-        // The file is "Full Checked" (it's in the working copy now),
+        // The file is "Full Checked" since it is in the working copy now,
         // that is the function bodies are processed.
-        CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-        testFile->editorSupport = mmi->cppEditorSupport(testFile->editor);
-        QVERIFY(testFile->editorSupport);
-        while (testFile->editorSupport->isDocumentBeingUpdated()
-               || testFile->editorSupport->isDocumentScheduledForUpdate()) {
-            QCoreApplication::processEvents();
+        forever {
+            Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+            if (Document::Ptr document = snapshot.document(testFile->filePath())) {
+                if (document->checkMode() == Document::FullCheck)
+                    break;
+                QCoreApplication::processEvents();
+            }
         }
 
         // Rehighlight
