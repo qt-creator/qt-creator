@@ -2160,12 +2160,13 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
 {
     QString message = commit.isEmpty() ? tr("Conflicts detected")
                                        : tr("Conflicts detected with commit %1").arg(commit);
-    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"),
-                             message, QMessageBox::Ignore | QMessageBox::Abort);
+    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message);
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
-                                                          QMessageBox::ActionRole);
+                                                          QMessageBox::AcceptRole);
+    mergeOrAbort.addButton(QMessageBox::Ignore);
     if (abortCommand == QLatin1String("rebase"))
-        mergeOrAbort.addButton(tr("&Skip"), QMessageBox::ActionRole);
+        mergeOrAbort.addButton(tr("&Skip"), QMessageBox::RejectRole);
+    mergeOrAbort.addButton(QMessageBox::Abort);
     switch (mergeOrAbort.exec()) {
     case QMessageBox::Abort:
         synchronousAbortCommand(workingDir, abortCommand);
