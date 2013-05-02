@@ -462,7 +462,7 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
             } else if (std == "gnu++0x" || std == "gnu++11" || std== "gnu++1y") {
                 flags |= CompilerFlags(StandardCxx11 | GnuExtensions);
             } else if (std == "c89" || std == "c90"
-                       || std == "iso9899:1990" | std == "iso9899:199409") {
+                       || std == "iso9899:1990" || std == "iso9899:199409") {
                 flags &= ~CompilerFlags(StandardC99 | StandardC11);
             } else if (std == "gnu89" || std == "gnu90") {
                 flags &= ~CompilerFlags(StandardC99 | StandardC11);
