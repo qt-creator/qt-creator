@@ -148,6 +148,12 @@ void QmlProject::addedTarget(ProjectExplorer::Target *target)
         addedRunConfiguration(rc);
 }
 
+void QmlProject::onActiveTargetChanged(ProjectExplorer::Target * /*target*/)
+{
+    // make sure e.g. the default qml imports are adapted
+    refresh(Configuration);
+}
+
 void QmlProject::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
     // The enabled state of qml runconfigurations can only be decided after
@@ -407,6 +413,9 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(addedTarget(ProjectExplorer::Target*)));
+
+    connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+            this, SLOT(onActiveTargetChanged(ProjectExplorer::Target*)));
 
     return true;
 }

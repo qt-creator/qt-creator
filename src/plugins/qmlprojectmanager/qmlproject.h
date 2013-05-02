@@ -98,6 +98,7 @@ public:
 private slots:
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
     void addedTarget(ProjectExplorer::Target *target);
+    void onActiveTargetChanged(ProjectExplorer::Target *target);
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
 
 protected:
