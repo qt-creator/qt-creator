@@ -130,8 +130,6 @@ NamespaceCode = None
 SimpleValueCode = None # LLDB only
 
 
-#warn("LOADING LLDB")
-
 # Data members
 SimpleValueCode = 100
 StructCode = 101
@@ -233,7 +231,7 @@ class Debugger(cmd.Cmd):
         self.prompt = ""
 
         self.debugger = lldb.SBDebugger.Create()
-        self.debugger.SetLoggingCallback(loggingCallback)
+        #self.debugger.SetLoggingCallback(loggingCallback)
         #Same as: self.debugger.HandleCommand("log enable lldb dyld step")
         #self.debugger.EnableLog("lldb", ["dyld", "step", "process", "state", "thread", "events",
         #    "communication", "unwind", "commands"])
@@ -294,10 +292,10 @@ class Debugger(cmd.Cmd):
     def runEngine(self):
         error = lldb.SBError()
         #launchInfo = lldb.SBLaunchInfo(["-s"])
-        self.listener = lldb.SBListener("QTC-Listener1")
         #self.process = self.target.Launch(self.listener, None, None,
         #                                    None, '/tmp/stdout.txt', None,
         #                                    None, 0, True, error)
+        self.listener = lldb.SBListener("event_Listener")
         self.process = self.target.Launch(self.listener, None, None,
                                             None, None, None,
                                             os.getcwd(),
@@ -310,10 +308,8 @@ class Debugger(cmd.Cmd):
             , False, error)
         self.reportError(error)
         self.pid = self.process.GetProcessID()
-        self.processEvents(0)
         self.report('pid="%s"' % self.pid)
-        #self.reportData()
-        #self.report('state="enginerunok"')
+        self.report('state="enginerunok"')
 
     def reportError(self, error):
         desc = lldb.SBStream()
@@ -383,10 +379,6 @@ class Debugger(cmd.Cmd):
             result += '],hasmore="%s"},' % hasmore
             self.report(result)
 
-    def reportState(self):
-        state = self.process.GetState()
-        self.report('state="%s"' % stateNames[state])
-
     def putItem(self, value, tryDynamic=True):
         val = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         v = val.GetValue()
@@ -421,7 +413,6 @@ class Debugger(cmd.Cmd):
         self.report('')
 
     def reportData(self):
-        self.processEvents()
         self.reportRegisters()
         if self.process is None:
             self.report('process="none"')
@@ -458,12 +449,6 @@ class Debugger(cmd.Cmd):
             #self.debugger.DispatchInputInterrupt()
             error = self.process.Stop()
             self.reportError(error)
-            #self.reportData()
-            #if error.GetError() == 0:
-            #    self.report('state="inferiorstopok"')
-            #else:
-            #    self.report('state="inferiorstopfailed"')
-        self.processEvents()
 
     def detachInferior(self):
         if self.process is None:
@@ -479,25 +464,25 @@ class Debugger(cmd.Cmd):
         else:
             error = self.process.Continue()
             self.reportError(error)
-            #if error.GetError() == 0:
-            #    self.report('state="running"')
-            #else:
-            #    self.report('state="inferiorrunfailed"')
-        self.processEvents()
 
     def handleEvent(self, event):
         out = lldb.SBStream()
         event.GetDescription(out)
-        warn("EVENT: %s" % event)
+        #warn("EVENT: %s" % event)
         type = event.GetType()
         msg = lldb.SBEvent.GetCStringFromEvent(event)
         flavor = event.GetDataFlavor()
-        self.eventState = lldb.SBProcess.GetStateFromEvent(event)
+        state = lldb.SBProcess.GetStateFromEvent(event)
         self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
-            % (type, out.GetData(), msg, flavor, self.eventState))
+            % (type, out.GetData(), msg, flavor, state))
+        if state != self.eventState:
+            self.report('state="%s"' % stateNames[state])
+            self.eventState = state
+            #if state == lldb.eStateExited:
+            #    warn("PROCESS EXITED. %d: %s"
+            #        % (self.process.GetExitStatus(), self.process.GetExitDescription()))
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
-            #self.report('state="%s"' % stateNames[self.eventState])
-            #if self.eventState == lldb.eStateStopped:
+            #if state == lldb.eStateStopped:
             self.reportData()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
@@ -509,12 +494,10 @@ class Debugger(cmd.Cmd):
             pass
 
     def processEvents(self, delay = 0):
-        #warn("PROCESS: %s" % self.process)
         if self.process is None:
             return
 
         state = self.process.GetState()
-        self.reportState()
         if state == lldb.eStateInvalid or state == lldb.eStateExited:
             return
 
@@ -523,13 +506,17 @@ class Debugger(cmd.Cmd):
             self.listener.GetNextEvent(event)
             self.handleEvent(event)
 
+
     def describeBreakpoint(self, bp, modelId):
         cond = bp.GetCondition()
         result  = '{lldbid="%s"' % bp.GetID()
         result += ',modelid="%s"' % modelId
         result += ',hitcount="%s"' % bp.GetHitCount()
         result += ',threadid="%s"' % bp.GetThreadID()
-        result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
+        try:
+            result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
+        except:
+            pass
         result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
         result += ',condition="%s"' % ("" if cond is None else cond)
@@ -564,7 +551,10 @@ class Debugger(cmd.Cmd):
             bpNew.SetIgnoreCount(int(bp["ignorecount"]))
             bpNew.SetCondition(str(bp["condition"]))
             bpNew.SetEnabled(int(bp["enabled"]))
-            bpNew.SetOneShot(int(bp["oneshot"]))
+            try:
+                bpNew.SetOneShot(int(bp["oneshot"]))
+            except:
+                pass
             #bpNew.SetCallback(breakpoint_function_wrapper, None)
             #bpNew.SetCallback(breakpoint_function_wrapper, None)
             #"breakpoint command add 1 -o \"import time; print time.asctime()\"
@@ -581,7 +571,10 @@ class Debugger(cmd.Cmd):
             bpChange.SetIgnoreCount(int(bp["ignorecount"]))
             bpChange.SetCondition(str(bp["condition"]))
             bpChange.SetEnabled(int(bp["enabled"]))
-            bpChange.SetOneShot(int(bp["oneshot"]))
+            try:
+                bpChange.SetOneShot(int(bp["oneshot"]))
+            except:
+                pass
             result += self.describeBreakpoint(bpChange, bp["modelid"])
 
         result += "],removed=["
@@ -612,42 +605,21 @@ class Debugger(cmd.Cmd):
 
     def executeNext(self):
         self.currentThread().StepOver()
-        self.processEvents()
-        self.interruptInferior()
-        self.processEvents()
-        self.reportData()
 
     def executeNextI(self):
         self.currentThread().StepOver()
-        self.processEvents()
-        self.interruptInferior()
-        self.processEvents()
-        self.reportData()
 
     def executeStep(self):
         self.currentThread().StepInto()
-        self.processEvents()
-        self.interruptInferior()
-        self.processEvents()
-        self.reportData()
 
     def quit(self):
         self.debugger.Terminate()
-        self.processEvents()
-        self.interruptInferior()
-        self.processEvents()
-        self.reportData()
 
     def executeStepI(self):
         self.currentThread().StepInstOver()
-        self.processEvents()
-        #self.reportData()
 
     def executeStepOut(self):
-        msg = self.debugger.HandleCommand("thread step-out")
-        # Currently results in
-        # "Couldn't find thread plan to implement step type"
-        #self.reportData()
+        self.debugger.HandleCommand("thread step-out")
 
     def executeRunToLine(self, file, line):
         self.thread.StepOverUntil(file, line)
@@ -746,40 +718,6 @@ class Debugger(cmd.Cmd):
         self.target.BreakpointCreateByName("main", self.db.target.GetExecutable().GetFilename())
         self.runEngine()
 
-    def do_i(self, args):
-        self.do_interrupt(args)
-
-    def do_b(self, args):
-        bps = eval(args)
-        self.handleBreakpoints(bps)
-
-    def do_bl(self, args):
-        self.breakList()
-
-    def do_db(self, args):
-        self.executeDebuggerCommand(args)
-
-    def do_p(self, args):
-        print eval(args)
-
-    def do_bt(self, args):
-        self.do_backtrace(args)
-
-    def do_n(self, args):
-        self.do_next(args)
-
-    def do_s(self, args):
-        self.do_step(args)
-
-    def do_q(self, args):
-        self.quit(args)
-
-    def do_pp(self, args):
-        self.reportData()
-
-    def do_pe(self, args):
-        self.processEvents()
-
     def do_bb(self, args):
         options = eval(args)
         self.expandedINames = set(options['expanded'].split(','))
@@ -801,12 +739,26 @@ class Debugger(cmd.Cmd):
 
 #bbsetup()
 
+import sys
+import select
+
 lldbLoaded = True
 
 if __name__ == '__main__':
     db = Debugger()
-    sys.stdout.write('state="enginesetupok"@\n')
+    db.report('state="enginesetupok"')
     while True:
-        line = raw_input();
-        db.onecmd(line)
+        rlist, _, _ = select.select([sys.stdin], [], [], 1)
+        if rlist:
+            line = sys.stdin.readline()
+            if line.startswith("db "):
+                (cmd, token, extra, cont) = eval(line[3:])
+                db.onecmd("%s %s" % (cmd, extra))
+                db.report('token="%s"' % token)
+                if len(cont):
+                    db.report('continuation="%s"' % cont)
+            else:
+                db.onecmd(line)
+        else:
+            db.processEvents()
 

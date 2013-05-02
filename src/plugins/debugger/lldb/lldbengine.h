@@ -114,6 +114,7 @@ private:
     Q_SLOT void readLldbStandardOutput();
     Q_SLOT void readLldbStandardError();
     Q_SLOT void handleResponse(const QByteArray &data);
+    Q_SLOT void runEngine2();
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
@@ -124,6 +125,7 @@ private:
     void refreshLocation(const GdbMi &location);
     void refreshModules(const GdbMi &modules);
     void refreshBreakpoints(const GdbMi &bkpts);
+    void runContinuation(const GdbMi &data);
 
     void updateAll();
 
@@ -148,9 +150,9 @@ private:
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
-    void runSimpleCommand(const QByteArray &command);
     void runCommand(const QByteArray &function,
-        const QByteArray &extraArgs = QByteArray());
+        const QByteArray &extraArgs = QByteArray(),
+        const QByteArray &continuation = QByteArray());
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;
