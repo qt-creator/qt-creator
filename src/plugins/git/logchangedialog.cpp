@@ -76,9 +76,8 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, boo
 
 QString LogChangeWidget::commit() const
 {
-    // Return Sha1, or empty for top commit.
     if (const QStandardItem *sha1Item = currentItem(Sha1Column))
-        return sha1Item->row() ? sha1Item->text() :  QString();
+        return sha1Item->text();
     return QString();
 }
 

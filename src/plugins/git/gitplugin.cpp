@@ -769,11 +769,8 @@ void GitPlugin::startRebase()
         return;
     LogChangeDialog dialog(false);
     dialog.setWindowTitle(tr("Interactive Rebase"));
-    if (!dialog.runDialog(workingDirectory, QString(), false))
-        return;
-    const QString change = dialog.commit();
-    if (!change.isEmpty())
-        m_gitClient->interactiveRebase(workingDirectory, change, *stashGuard.take(), false);
+    if (dialog.runDialog(workingDirectory, QString(), false))
+        m_gitClient->interactiveRebase(workingDirectory, dialog.commit(), *stashGuard.take(), false);
 }
 
 void GitPlugin::startChangeRelatedAction()
