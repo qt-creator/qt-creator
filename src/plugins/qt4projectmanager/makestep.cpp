@@ -30,6 +30,7 @@
 #include "makestep.h"
 #include "ui_makestep.h"
 
+#include "qmakeparser.h"
 #include "qt4project.h"
 #include "qt4nodes.h"
 #include "qt4buildconfiguration.h"
@@ -254,6 +255,7 @@ bool MakeStep::init()
     pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
+    appendOutputParser(new QMakeParser); // make may cause qmake to be run.
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);
