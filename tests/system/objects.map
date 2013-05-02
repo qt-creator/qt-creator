@@ -43,6 +43,7 @@
 :DebugModeWidget.Breakpoints_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.Break' type='QDockWidget' visible='1' windowTitle='Breakpoints'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.Output' type='QDockWidget' visible='1' windowTitle='Debugger Log'}
 :DebugModeWidget.Debugger Toolbar_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger Toolbar' type='QDockWidget' visible='1' windowTitle='Debugger Toolbar'}
+:DebugModeWidget.Locals and Expressions_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.LocalsAndWatchers' type='QDockWidget' visible='1' windowTitle='Locals and Expressions'}
 :DebugModeWidget.OK_QPushButton	{container=':Qt Creator.DebugModeWidget_QSplitter' text='OK' type='QPushButton' unnamed='1' visible='1'}
 :DebugModeWidget_QComboBox	{container=':Qt Creator.DebugModeWidget_QSplitter' occurrence='2' type='QComboBox' unnamed='1' visible='1'}
 :Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' text='Continue' type='QToolButton' unnamed='1' visible='1'}
@@ -69,6 +70,7 @@
 :JavaScript.QmlProfilerV8ProfileTable_QmlProfiler::Internal::QmlProfilerEventsMainView	{container=':*Qt Creator.JavaScript_QDockWidget' name='QmlProfilerV8ProfileTable' type='QmlProfiler::Internal::QmlProfilerEventsMainView' visible='1'}
 :Kits_Or_Compilers_QTreeView	{container=':qt_tabwidget_stackedwidget_QWidget' type='QTreeView' unnamed='1' visible='1'}
 :Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' occurrence='4' type='QComboBox' unnamed='1' visible='1'}
+:Locals and Expressions_Debugger::Internal::WatchTreeView	{container=':DebugModeWidget.Locals and Expressions_QDockWidget' name='WatchWindow' type='Debugger::Internal::WatchTreeView' visible='1' windowTitle='Locals and Expressions'}
 :New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
 :New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}

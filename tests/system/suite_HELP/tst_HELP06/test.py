@@ -44,12 +44,6 @@ def invokeContextMenuItemOnBookmarkFolder(view, item, menuItem):
     activateItem(waitForObject("{aboveWidget=%s type='QMenu' unnamed='1' visible='1' "
                                "window=':Add Bookmark_BookmarkDialog'}" % aboveWidget), menuItem)
 
-def getQModelIndexStr(textProperty, container):
-    if (container.startswith(":")):
-        container = "'%s'" % container
-    return ("{column='0' container=%s %s type='QModelIndex'}"
-            % (container, textProperty))
-
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():

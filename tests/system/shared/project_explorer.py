@@ -242,6 +242,18 @@ def __getTargetFromToolTip__(toolTip):
         return None
     return target.group(1).split("<br/>")[0].strip()
 
+def getExecutableAndTargetFromToolTip(toolTip):
+    target = __getTargetFromToolTip__(toolTip)
+    if toolTip == None or not isinstance(toolTip, (str, unicode)):
+        return None, target
+    pattern = re.compile('.*<b>Run:</b>(.*)</.*')
+    exe = pattern.match(toolTip)
+    if exe == None:
+        test.fatal("UI seems to have changed - expected ToolTip does not match.",
+                   "ToolTip: '%s'" % toolTip)
+        return None, target
+    return exe.group(1).strip(), target
+
 def __getMkspecFromQMakeCall__(qmakeCall):
     qCall = qmakeCall.split("</b>")[1].strip()
     tmp = qCall.split()
