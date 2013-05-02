@@ -202,5 +202,10 @@ QString GerritPushDialog::selectedTopic() const
     return m_ui->topicLineEdit->text().trimmed();
 }
 
+QString GerritPushDialog::reviewers() const
+{
+    return m_ui->reviewersLineEdit->text();
+}
+
 } // namespace Internal
 } // namespace Gerrit

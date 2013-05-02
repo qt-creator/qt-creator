@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>306</width>
-    <height>331</height>
+    <height>407</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,9 +69,9 @@
       <string>Remote Branch:</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
-      <item row="1" column="1">
-       <widget class="QComboBox" name="remoteComboBox"/>
-      </item>
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
       <item row="1" column="0">
        <widget class="QLabel" name="remoteLabel">
         <property name="text">
@@ -81,6 +81,9 @@
          <cstring>remoteComboBox</cstring>
         </property>
        </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="remoteComboBox"/>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="branchLabel">
@@ -98,7 +101,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="topicLabel">
         <property name="text">
-         <string>&amp;Topic</string>
+         <string>&amp;Topic:</string>
         </property>
         <property name="buddy">
          <cstring>topicLineEdit</cstring>
@@ -110,6 +113,29 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="reveiwersLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="reviewersLabel">
+       <property name="text">
+        <string>R&amp;eviewers:</string>
+       </property>
+       <property name="buddy">
+        <cstring>reviewersLineEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="reviewersLineEdit">
+       <property name="toolTip">
+        <string>Comma-separated list of reviewers.
+
+Partial names can be used if they are unambiguous.</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QLabel" name="infoLabel">

@@ -51,6 +51,7 @@ public:
     QString selectedRemoteBranchName() const;
     QString selectedPushType() const;
     QString selectedTopic() const;
+    QString reviewers() const;
     bool localChangesFound() const;
 
 private slots:

@@ -379,6 +379,18 @@ void GerritPlugin::push()
 
     QStringList args;
 
+    const QStringList reviewers = dialog->reviewers().split(QLatin1Char(','),
+                                                            QString::SkipEmptyParts);
+    if (!reviewers.isEmpty()) {
+        QString reviewersFlag(QLatin1String("--receive-pack=git receive-pack"));
+        foreach (const QString &reviewer, reviewers) {
+            const QString name = reviewer.trimmed();
+            if (!name.isEmpty())
+                reviewersFlag += QString::fromLatin1(" --reviewer=") + name;
+        }
+        args << reviewersFlag;
+    }
+
     args << dialog->selectedRemoteName();
     QString target = QLatin1String("HEAD:refs/") + dialog->selectedPushType() +
             QLatin1Char('/') + dialog->selectedRemoteBranchName();
