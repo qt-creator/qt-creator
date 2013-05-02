@@ -501,18 +501,10 @@ class Debugger(cmd.Cmd):
             pass
 
     def processEvents(self, delay = 0):
-        if self.process is None:
-            return
-
-        state = self.process.GetState()
-        if state == lldb.eStateInvalid or state == lldb.eStateExited:
-            return
-
         event = lldb.SBEvent()
         while self.listener.PeekAtNextEvent(event):
             self.listener.GetNextEvent(event)
             self.handleEvent(event)
-
 
     def describeBreakpoint(self, bp, modelId):
         cond = bp.GetCondition()
@@ -755,7 +747,7 @@ if __name__ == '__main__':
     db = Debugger()
     db.report('state="enginesetupok"')
     while True:
-        rlist, _, _ = select.select([sys.stdin], [], [], 1)
+        rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
         if rlist:
             line = sys.stdin.readline()
             if line.startswith("db "):
