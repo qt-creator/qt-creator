@@ -601,8 +601,8 @@ void SplitterOrView::split(Qt::Orientation orientation)
             m_splitter->addWidget((otherView = new SplitterOrView()));
         }
     } else {
-        m_splitter->addWidget((otherView = new SplitterOrView()));
         m_splitter->addWidget((view = new SplitterOrView()));
+        m_splitter->addWidget((otherView = new SplitterOrView()));
     }
 
     m_layout->setCurrentWidget(m_splitter);
