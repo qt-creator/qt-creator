@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append("/data/dev/llvm-git/build/Debug+Asserts/lib/python2.7/site-packages")
-
 import cmd
 import inspect
 import os
+import platform
+
+uname = platform.uname()[0]
+if uname == 'Linux':
+    sys.path.append('/data/dev/llvm-git/build/Debug+Asserts/lib/python2.7/site-packages')
+else:
+    base = '/Applications/Xcode.app/Contents/'
+    sys.path.append(base + 'SharedFrameworks/LLDB.framework/Resources/Python')
+    sys.path.append(base + 'Library/PrivateFrameworks/LLDB.framework/Resources/Python')
 
 import lldb
 
@@ -336,14 +343,12 @@ class Debugger(cmd.Cmd):
 
     def reportThreads(self):
         result = 'threads={threads=['
-        for thread in self.process.threads:
-            result += '{id="%d"' % thread.id
-            result += ',index="%s"' % thread.idx
-            result += ',stop-reason="%s"' % thread.stop_reason
-
-            if not thread.name is None:
-                result += ',name="%s"' % thread.name
-
+        for i in xrange(1, self.process.GetNumThreads()):
+            thread = self.process.GetThreadAtIndex(i)
+            result += '{id="%d"' % thread.GetThreadId()
+            result += ',index="%s"' % thread.GetThreadId()
+            result += ',stop-reason="%s"' % thread.GetStopReason()
+            result += ',name="%s"' % thread.GetName()
             result += ',frame={'
             frame = thread.GetFrameAtIndex(0)
             result += 'pc="0x%x"' % frame.pc
@@ -380,9 +385,11 @@ class Debugger(cmd.Cmd):
             self.report(result)
 
     def putItem(self, value, tryDynamic=True):
-        val = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
+        #val = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
+        val = value
         v = val.GetValue()
-        numchild = 1 if val.MightHaveChildren() else 0
+        #numchild = 1 if val.MightHaveChildren() else 0
+        numchild = val.GetNumChildren()
         self.put('iname="%s",' % self.currentIName)
         self.put('type="%s",' % val.GetTypeName())
         #self.put('vtype="%s",' % val.GetValueType())
