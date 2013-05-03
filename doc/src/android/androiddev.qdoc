@@ -70,16 +70,17 @@
             several options, such as the
             \l{http://developer.android.com/sdk/index.html}{Android SDK} and
             \l{http://developer.android.com/tools/sdk/ndk/index.html}
-            {Android NDK} from Google or the
+            {Android NDK} from Google (supported for development with Qt 5) or the
             \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
-            {Necessitas SDK}.
+            {Necessitas SDK} (supported for development with Qt 4).
 
     \endlist
 
-    \section1 Configuring Connections
+    \section1 Developing with Qt 4
 
-    The Qt for Android SDK automatically sets the paths to the required software
-    in \QC.
+    The Necessitas SDK automatically sets the paths to the required software
+    in \QC, but you need to add the Qt version. \QC can then create the
+    necessary kits for you.
 
     To configure connections between \QC and Android devices:
 
@@ -89,8 +90,8 @@
             \gui {Qt Versions} > \gui Add to add the path to \c qmake path in
             the Qt for Android SDK.
 
-        \li Select \gui Tools > \gui Options > \gui Android to view and edit
-            paths to the required software.
+        \li Select \gui Tools > \gui Options > \gui Android to check the paths
+            to the required software.
 
             \image qtcreator-options-android.png "Android options"
 
@@ -98,9 +99,12 @@
             check box to allow \QC to create the kits for you. \QC displays a
             warning if it cannot find a suitable Qt version.
 
-        \li Select \gui {Start Android AVD Manager} to create Android virtual
-            devices (AVD) that enable you to emulate device hardware and software
-            on the Android Emulator.
+        \li To create an application, select \gui File >
+            \gui {New File or Project} > \gui Applications >
+            \gui {Qt Quick Application 1 (Built-in Elements)} or
+            \gui {Qt Quick Application 2 (Built-in Elements)} > \gui Choose, and
+            follow the instructions of the wizard. For more information, see
+            \l{Creating Qt Quick Projects}.
 
         \li To specify information for the Android manifest file, select
             \gui Projects > \gui Run for the \gui Android kit.
@@ -116,6 +120,69 @@
             \l{Deploying Applications to Android Devices}.
 
     \endlist
+
+    \section1 Developing with Qt 5
+
+    You must download and install the latest Android NDK and SDK, and update the
+    SDK to get the API and tools packages needed for development. In addition,
+    you must install Qt for Android from the Qt 5.1 packages.
+
+    For more information, see
+    \l{http://qt-project.org/doc/qt-5.0/qtdoc/android-support.html}{Android}.
+
+    To configure connections between \QC and Android devices:
+
+    \list 1
+
+        \li Select \gui Tools > \gui Options > \gui Android to add paths to the
+            Android NDK and SDK.
+
+            \image qtcreator-options-android1.png "Android options"
+
+        \li Select the \gui {Automatically create kits for Android tool chains}
+            check box to allow \QC to create the kits for you. \QC displays a
+            warning if it cannot find a suitable Qt version.
+
+        \li Select \gui File > \gui {New File or Project} > \gui Applications >
+            \gui {Qt Quick Application 2 (Built-in Elements)} > \gui Choose, and
+            follow the instructions of the wizard. For more information, see
+            \l{Creating Qt Quick Projects}.
+
+        \li To specify information for the Android manifest file, select
+            \gui Projects > \gui Run for the \gui Android kit.
+
+        \li Select \gui Details to view the
+            \gui {Package configurations}. For more information about the
+            options you have, see
+            \l{Specifying Run Settings for Android Devices}.
+
+        \li To specify settings for deploying applications to Android, select
+            \gui Details to view the \gui {Deploy configurations}. For more
+            information about the options you have, see
+            \l{Deploying Applications to Android Devices}.
+
+        \li Enable debugging on your Android device and connect it to the PC.
+
+            Debugging is enabled in different ways on different Android devices.
+            Look for \gui {USB Debugging} under \gui {Developer Options}. On
+            some devices \gui {Developer Options} is hidden and becomes visible
+            when you tap the \gui {Build number} field in \gui Settings >
+            \gui About several times.
+
+    \endlist
+
+    \section1 Using the Android Emulator
+
+    To run your application on the Android Emulator, you must create Android
+    virtual devices (AVD). Select \gui Tools > \gui Options > \gui Android >
+    \gui Add. If you run an application without a device connected to the
+    development PC and without an AVD specified, \QC asks you to add an AVD.
+
+    To manage AVDs, select \gui {Start Android AVD Manager}.
+
+    \note The Android Emulator has a bug that prevents it from starting on some
+    systems. If the Android Emulator does not start, you can try starting it
+    manually by running the \c {emulator-arm} command from the command line.
 
     \section1 Debugging on Android Devices
 
