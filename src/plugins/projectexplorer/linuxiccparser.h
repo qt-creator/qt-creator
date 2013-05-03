@@ -43,11 +43,12 @@ class LinuxIccParser : public ProjectExplorer::IOutputParser
 
 public:
     LinuxIccParser();
-    ~LinuxIccParser();
 
     void stdError(const QString &line);
 
 private:
+    void doFlush();
+
     QRegExp m_firstLine;
     QRegExp m_continuationLines;
     QRegExp m_caretLine;

@@ -58,12 +58,6 @@ LinuxIccParser::LinuxIccParser()
     appendOutputParser(new LdParser);
 }
 
-LinuxIccParser::~LinuxIccParser()
-{
-    if (!m_temporary.isNull())
-        addTask(m_temporary);
-}
-
 void LinuxIccParser::stdError(const QString &line)
 {
     if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
@@ -105,6 +99,15 @@ void LinuxIccParser::stdError(const QString &line)
     } else {
         IOutputParser::stdError(line);
     }
+}
+
+void LinuxIccParser::doFlush()
+{
+    if (m_temporary.isNull())
+        return;
+    Task t = m_temporary;
+    m_temporary.clear();
+    emit addTask(t);
 }
 
 #ifdef WITH_TESTS

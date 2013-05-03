@@ -69,11 +69,6 @@ MsvcParser::MsvcParser()
     m_additionalInfoRegExp.setMinimal(true);
 }
 
-MsvcParser::~MsvcParser()
-{
-    sendQueuedTask();
-}
-
 void MsvcParser::stdOutput(const QString &line)
 {
     int infoPos = m_additionalInfoRegExp.indexIn(line);
@@ -141,7 +136,7 @@ void MsvcParser::stdError(const QString &line)
 
 bool MsvcParser::processCompileLine(const QString &line)
 {
-    sendQueuedTask();
+    doFlush();
 
     if (m_compileRegExp.indexIn(line) > -1) {
         QPair<Utils::FileName, int> position = parseFileName( m_compileRegExp.cap(1));
@@ -159,13 +154,14 @@ bool MsvcParser::processCompileLine(const QString &line)
     return false;
 }
 
-void MsvcParser::sendQueuedTask()
+void MsvcParser::doFlush()
 {
     if (m_lastTask.isNull())
         return;
 
-    addTask(m_lastTask);
-    m_lastTask = Task();
+    Task t = m_lastTask;
+    m_lastTask.clear();
+    emit addTask(t);
 }
 
 // Unit tests:

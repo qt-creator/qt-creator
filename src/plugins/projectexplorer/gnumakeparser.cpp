@@ -90,11 +90,11 @@ void GnuMakeParser::stdError(const QString &line)
         ++m_fatalErrorCount;
         if (!m_suppressIssues) {
             m_suppressIssues = true;
-            addTask(Task(Task::Error,
-                         m_makefileError.cap(3),
-                         Utils::FileName::fromUserInput(m_makefileError.cap(1)),
-                         m_makefileError.cap(2).toInt(),
-                         Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+            emit addTask(Task(Task::Error,
+                              m_makefileError.cap(3),
+                              Utils::FileName::fromUserInput(m_makefileError.cap(1)),
+                              m_makefileError.cap(2).toInt(),
+                              Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
         }
         return;
     }
@@ -110,10 +110,10 @@ void GnuMakeParser::stdError(const QString &line)
                 type = Task::Warning;
             }
 
-            addTask(Task(type, description,
-                         Utils::FileName() /* filename */,
-                         -1, /* line */
-                         Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+            emit addTask(Task(type, description,
+                              Utils::FileName() /* filename */,
+                              -1, /* line */
+                              Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
         }
         return;
     }

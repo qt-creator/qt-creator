@@ -44,15 +44,13 @@ class GccParser : public ProjectExplorer::IOutputParser
 
 public:
     GccParser();
-    ~GccParser();
+
     void stdError(const QString &line);
     void stdOutput(const QString &line);
 
 protected:
     void newTask(const Task &task);
-    void newTask(Task::TaskType type_, const QString &description_,
-                 const Utils::FileName &file_, int line_, const Core::Id &category_);
-    void emitTask();
+    void doFlush();
 
     void amendDescription(const QString &desc, bool monospaced);
 

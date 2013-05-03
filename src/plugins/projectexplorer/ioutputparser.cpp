@@ -108,6 +108,17 @@
    This method can be overwritten to change the task.
 */
 
+/*!
+   \fn void ProjectExplorer::IOutputParser::doFlush()
+
+   \brief This method is called whenever a parser is supposed to flush his state.
+   Parsers may have state (e.g. because they need to aggregate several lines into one task). This
+   method is called when this state needs to be flushed out to be visible.
+
+   doFlush() is called by flush(). flush() is called on childparsers whenever a new task is added.
+   It is also called once when all input has been parsed.
+*/
+
 namespace ProjectExplorer {
 
 IOutputParser::IOutputParser() : m_parser(0)
@@ -180,6 +191,9 @@ void IOutputParser::taskAdded(const ProjectExplorer::Task &task)
     emit addTask(task);
 }
 
+void IOutputParser::doFlush()
+{ }
+
 bool IOutputParser::hasFatalErrors() const
 {
     return false || (m_parser && m_parser->hasFatalErrors());
@@ -189,6 +203,13 @@ void IOutputParser::setWorkingDirectory(const QString &workingDirectory)
 {
     if (m_parser)
         m_parser->setWorkingDirectory(workingDirectory);
+}
+
+void IOutputParser::flush()
+{
+    doFlush();
+    if (m_parser)
+        m_parser->flush();
 }
 
 QString IOutputParser::rightTrimmed(const QString &in)

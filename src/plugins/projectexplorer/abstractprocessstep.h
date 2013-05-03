@@ -101,6 +101,7 @@ private:
     QEventLoop *m_eventLoop;
     ProjectExplorer::IOutputParser *m_outputParserChain;
     bool m_killProcess;
+    bool m_skipFlush;
 };
 
 } // namespace ProjectExplorer

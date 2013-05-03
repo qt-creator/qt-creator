@@ -44,14 +44,12 @@ class MsvcParser :  public ProjectExplorer::IOutputParser
 
 public:
     MsvcParser();
-    ~MsvcParser();
 
     void stdOutput(const QString &line);
     void stdError(const QString &line);
-    void flush();
 
 private:
-    void sendQueuedTask();
+    void doFlush();
     bool processCompileLine(const QString &line);
 
     QRegExp m_compileRegExp;

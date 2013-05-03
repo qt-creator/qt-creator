@@ -52,7 +52,7 @@ void ClangParser::stdError(const QString &line)
 {
     const QString lne = rightTrimmed(line);
     if (m_summaryRegExp.indexIn(lne) > -1) {
-        emitTask();
+        doFlush();
         m_expectSnippet = false;
         return;
     }
@@ -74,11 +74,11 @@ void ClangParser::stdError(const QString &line)
 
     if (m_inLineRegExp.indexIn(lne) > -1) {
         m_expectSnippet = true;
-        newTask(Task::Unknown,
-                lne.trimmed(),
-                Utils::FileName::fromUserInput(m_inLineRegExp.cap(2)), /* filename */
-                m_inLineRegExp.cap(3).toInt(), /* line */
-                Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        newTask(Task(Task::Unknown,
+                     lne.trimmed(),
+                     Utils::FileName::fromUserInput(m_inLineRegExp.cap(2)), /* filename */
+                     m_inLineRegExp.cap(3).toInt(), /* line */
+                     Core::Id(Constants::TASK_CATEGORY_COMPILE)));
         return;
     }
 

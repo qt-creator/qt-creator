@@ -60,11 +60,6 @@ GccParser::GccParser()
     appendOutputParser(new LdParser);
 }
 
-GccParser::~GccParser()
-{
-    emitTask();
-}
-
 void GccParser::stdError(const QString &line)
 {
     QString lne = rightTrimmed(line);
@@ -79,11 +74,11 @@ void GccParser::stdError(const QString &line)
     // Handle misc issues:
     if (lne.startsWith(QLatin1String("ERROR:")) ||
         lne == QLatin1String("* cpp failed")) {
-        newTask(Task::Error,
-                lne /* description */,
-                Utils::FileName() /* filename */,
-                -1 /* linenumber */,
-                Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        newTask(Task(Task::Error,
+                     lne /* description */,
+                     Utils::FileName() /* filename */,
+                     -1 /* linenumber */,
+                     Core::Id(Constants::TASK_CATEGORY_COMPILE)));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
@@ -121,44 +116,40 @@ void GccParser::stdError(const QString &line)
         newTask(task);
         return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
-        newTask(Task::Unknown,
-                lne.trimmed() /* description */,
-                Utils::FileName::fromUserInput(m_regExpIncluded.cap(1)) /* filename */,
-                m_regExpIncluded.cap(3).toInt() /* linenumber */,
-                Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        newTask(Task(Task::Unknown,
+                     lne.trimmed() /* description */,
+                     Utils::FileName::fromUserInput(m_regExpIncluded.cap(1)) /* filename */,
+                     m_regExpIncluded.cap(3).toInt() /* linenumber */,
+                     Core::Id(Constants::TASK_CATEGORY_COMPILE)));
         return;
     } else if (lne.startsWith(QLatin1Char(' '))) {
         amendDescription(lne, true);
         return;
     }
 
-    emitTask();
+    doFlush();
     IOutputParser::stdError(line);
 }
 
 void GccParser::stdOutput(const QString &line)
 {
-    emitTask();
+    doFlush();
     IOutputParser::stdOutput(line);
 }
 
 void GccParser::newTask(const Task &task)
 {
-    emitTask();
+    doFlush();
     m_currentTask = task;
 }
 
-void GccParser::newTask(Task::TaskType type_, const QString &description_,
-                          const Utils::FileName &file_, int line_, const Core::Id &category_)
+void GccParser::doFlush()
 {
-    newTask(Task(type_, description_, file_, line_, category_));
-}
-
-void GccParser::emitTask()
-{
-    if (!m_currentTask.isNull())
-        emit addTask(m_currentTask);
-    m_currentTask = Task();
+    if (m_currentTask.isNull())
+        return;
+    Task t = m_currentTask;
+    m_currentTask.clear();
+    emit addTask(t);
 }
 
 void GccParser::amendDescription(const QString &desc, bool monospaced)

@@ -58,6 +58,7 @@ void OutputParserTester::testParsing(const QString &lines,
         else
             childParser()->stdError(input + QLatin1Char('\n'));
     }
+    childParser()->flush();
 
      // first disconnect ourselves from the end of the parser chain again
     IOutputParser * parser = this;

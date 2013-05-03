@@ -44,7 +44,7 @@ class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
     Q_OBJECT
 public:
     IOutputParser();
-    virtual ~IOutputParser();
+    ~IOutputParser();
 
     virtual void appendOutputParser(IOutputParser *parser);
 
@@ -60,6 +60,8 @@ public:
     // For GnuMakeParser
     virtual void setWorkingDirectory(const QString &workingDirectory);
 
+    void flush(); // flush out pending tasks
+
     static QString rightTrimmed(const QString &in);
 
 signals:
@@ -71,6 +73,8 @@ public slots:
     virtual void taskAdded(const ProjectExplorer::Task &task);
 
 private:
+    virtual void doFlush();
+
     IOutputParser *m_parser;
 };
 
