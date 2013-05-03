@@ -57,6 +57,7 @@ public:
          const Utils::FileName &file_, int line_, const Core::Id &category_);
 
     bool isNull() const;
+    void clear();
 
     unsigned int taskId;
     TaskType type;

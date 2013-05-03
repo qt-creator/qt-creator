@@ -59,6 +59,17 @@ void Task::addMark(TextEditor::BaseTextMark *mark)
 bool Task::isNull() const
 { return taskId == 0; }
 
+void Task::clear()
+{
+    taskId = 0;
+    description.clear();
+    file = Utils::FileName();
+    line = -1;
+    movedLine = -1;
+    category = Core::Id();
+    type = Task::Unknown;
+}
+
 //
 // functions
 //
