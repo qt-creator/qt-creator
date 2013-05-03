@@ -115,6 +115,12 @@ void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 // different quick fixes.
 namespace {
 
+enum DefPos {
+    DefPosInsideClass,
+    DefPosOutsideClass,
+    DefPosImplementationFile
+};
+
 inline bool isQtStringLiteral(const QByteArray &id)
 {
     return id == "QLatin1String" || id == "QLatin1Literal" || id == "QStringLiteral";
@@ -2446,16 +2452,29 @@ class InsertDefOperation: public CppQuickFixOperation
 {
 public:
     InsertDefOperation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
-                       Declaration *decl, const InsertionLocation &loc)
+                       Declaration *decl, const InsertionLocation &loc, const DefPos defpos,
+                       bool freeFunction = false)
         : CppQuickFixOperation(interface, 0)
         , m_decl(decl)
         , m_loc(loc)
+        , m_defpos(defpos)
     {
-        const QString declFile = QString::fromUtf8(decl->fileName(), decl->fileNameLength());
-        const QDir dir = QFileInfo(declFile).dir();
-        setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
-                                                   "Add Definition in %1")
-                       .arg(dir.relativeFilePath(m_loc.fileName())));
+        if (m_defpos == DefPosImplementationFile) {
+            const QString declFile = QString::fromUtf8(decl->fileName(), decl->fileNameLength());
+            const QDir dir = QFileInfo(declFile).dir();
+            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
+                                                       "Add Definition in %1")
+                           .arg(dir.relativeFilePath(m_loc.fileName())));
+        } else if (freeFunction) {
+            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
+                                                       "Add Definition Here"));
+        } else if (m_defpos == DefPosInsideClass) {
+            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
+                                                       "Add Definition Inside Class"));
+        } else if (m_defpos == DefPosOutsideClass) {
+            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
+                                                       "Add Definition Outside Class"));
+        }
     }
 
     void perform()
@@ -2469,44 +2488,76 @@ public:
         oo.showReturnTypes = true;
         oo.showArgumentNames = true;
 
-        // make target lookup context
-        Document::Ptr targetDoc = targetFile->cppDocument();
-        Scope *targetScope = targetDoc->scopeAt(m_loc.line(), m_loc.column());
-        LookupContext targetContext(targetDoc, assistInterface()->snapshot());
-        ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
-        if (!targetCoN)
-            targetCoN = targetContext.globalNamespace();
+        if (m_defpos == DefPosInsideClass) {
+            const int targetPos = targetFile->position(m_loc.line(), m_loc.column());
+            ChangeSet target;
+            target.replace(targetPos - 1, targetPos, QLatin1String(" {\n\n}")); // replace ';'
+            targetFile->setChangeSet(target);
+            targetFile->appendIndentRange(ChangeSet::Range(targetPos, targetPos + 4));
+            targetFile->setOpenEditor(true, targetPos);
+            targetFile->apply();
 
-        // setup rewriting to get minimally qualified names
-        SubstitutionEnvironment env;
-        env.setContext(assistInterface()->context());
-        env.switchScope(m_decl->enclosingScope());
-        UseMinimalNames q(targetCoN);
-        env.enter(&q);
-        Control *control = assistInterface()->context().control().data();
+            // Move cursor inside definition
+            QTextCursor c = targetFile->cursor();
+            c.setPosition(targetPos);
+            c.movePosition(QTextCursor::Down);
+            c.movePosition(QTextCursor::EndOfLine);
+            assistInterface()->editor()->setTextCursor(c);
+        } else {
+            // make target lookup context
+            Document::Ptr targetDoc = targetFile->cppDocument();
+            Scope *targetScope = targetDoc->scopeAt(m_loc.line(), m_loc.column());
+            LookupContext targetContext(targetDoc, assistInterface()->snapshot());
+            ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
+            if (!targetCoN)
+                targetCoN = targetContext.globalNamespace();
 
-        // rewrite the function type
-        FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
+            // setup rewriting to get minimally qualified names
+            SubstitutionEnvironment env;
+            env.setContext(assistInterface()->context());
+            env.switchScope(m_decl->enclosingScope());
+            UseMinimalNames q(targetCoN);
+            env.enter(&q);
+            Control *control = assistInterface()->context().control().data();
 
-        // rewrite the function name
-        QString name = oo.prettyName(LookupContext::minimalName(m_decl, targetCoN, control));
+            // rewrite the function type
+            const FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
 
-        QString defText = oo.prettyType(tn, name) + QLatin1String("\n{\n}");
+            // rewrite the function name
+            const QString name = oo.prettyName(LookupContext::minimalName(m_decl, targetCoN,
+                                                                          control));
 
-        int targetPos = targetFile->position(m_loc.line(), m_loc.column());
-        int targetPos2 = qMax(0, targetFile->position(m_loc.line(), 1) - 1);
+            const QString defText = oo.prettyType(tn, name) + QLatin1String("\n{\n\n}");
 
-        ChangeSet target;
-        target.insert(targetPos,  m_loc.prefix() + defText + m_loc.suffix());
-        targetFile->setChangeSet(target);
-        targetFile->appendIndentRange(ChangeSet::Range(targetPos2, targetPos));
-        targetFile->setOpenEditor(true, targetPos);
-        targetFile->apply();
+            const int targetPos = targetFile->position(m_loc.line(), m_loc.column());
+            const int targetPos2 = qMax(0, targetFile->position(m_loc.line(), 1) - 1);
+
+            ChangeSet target;
+            target.insert(targetPos,  m_loc.prefix() + defText + m_loc.suffix());
+            targetFile->setChangeSet(target);
+            targetFile->appendIndentRange(ChangeSet::Range(targetPos2, targetPos));
+            targetFile->setOpenEditor(true, targetPos);
+            targetFile->apply();
+
+            // Move cursor inside definition
+            QTextCursor c = targetFile->cursor();
+            c.setPosition(targetPos);
+            c.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor,
+                           m_loc.prefix().count(QLatin1String("\n")) + 2);
+            c.movePosition(QTextCursor::EndOfLine);
+            if (m_defpos == DefPosImplementationFile) {
+                if (BaseTextEditorWidget *editor = refactoring.editorForFile(m_loc.fileName()))
+                    editor->setTextCursor(c);
+            } else {
+                assistInterface()->editor()->setTextCursor(c);
+            }
+        }
     }
 
 private:
     Declaration *m_decl;
-    InsertionLocation m_loc;
+    const InsertionLocation m_loc;
+    const DefPos m_defpos;
 };
 
 } // anonymous namespace
@@ -2525,12 +2576,62 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                         if (Function *func = decl->type()->asFunctionType()) {
                             if (func->isSignal())
                                 return;
-                            CppRefactoringChanges refactoring(interface->snapshot());
-                            InsertionPointLocator locator(refactoring);
-                            foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
-                                if (loc.isValid())
-                                    result.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, decl, loc)));
+
+                            InsertDefOperation *op = 0;
+                            bool isHeaderFile = false;
+                            const QString cppFileName = correspondingHeaderOrSource(
+                                        interface->fileName(), &isHeaderFile);
+
+                            // Insert Position: Implementation File
+                            if (isHeaderFile && !cppFileName.isEmpty()) {
+                                CppRefactoringChanges refactoring(interface->snapshot());
+                                InsertionPointLocator locator(refactoring);
+                                foreach (const InsertionLocation &loc,
+                                         locator.methodDefinition(decl)) {
+                                    if (loc.isValid()) {
+                                        op = new InsertDefOperation(interface, decl, loc,
+                                                                    DefPosImplementationFile);
+                                        result.append(CppQuickFixOperation::Ptr(op));
+                                        break;
+                                    }
+                                }
                             }
+
+                            // Dealing with a free function
+                            const CppRefactoringFilePtr file = interface->currentFile();
+                            unsigned line, column;
+                            if (func->enclosingClass() == 0) {
+                                file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
+                                InsertionLocation loc(interface->fileName(), QLatin1String(""),
+                                                      QLatin1String(""), line, column);
+                                op = new InsertDefOperation(interface, decl, loc,
+                                                            DefPosInsideClass, true);
+                                result.append(CppQuickFixOperation::Ptr(op));
+                                return;
+                            }
+
+                            // Insert Position: Outside Class
+                            --idx;
+                            for (; idx >= 0; --idx) {
+                                AST *node = path.at(idx);
+                                if (ClassSpecifierAST *ast = node->asClassSpecifier()) {
+                                    file->lineAndColumn(file->endOf(ast), &line, &column);
+                                    InsertionLocation loc(interface->fileName(),
+                                                          QLatin1String("\n\n"), QLatin1String(""),
+                                                          line, column + 1); // include ';'
+                                    op = new InsertDefOperation(interface, decl, loc,
+                                                                DefPosOutsideClass);
+                                    result.append(CppQuickFixOperation::Ptr(op));
+                                    break;
+                                }
+                            }
+
+                            // Insert Position: Inside Class
+                            file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
+                            InsertionLocation loc(interface->fileName(), QLatin1String(""),
+                                                  QLatin1String(""), line, column);
+                            op = new InsertDefOperation(interface, decl, loc, DefPosInsideClass);
+                            result.append(CppQuickFixOperation::Ptr(op));
                             return;
                         }
                     }

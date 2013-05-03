@@ -713,11 +713,10 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_basic()
         "\n"
         ;
     const QByteArray expected = original +
-        "\n"
         "Foo::Foo()\n"
-        "{\n"
+        "{\n\n"
         "}\n"
-        "\n"
+        "\n\n"
         ;
 
     InsertDefFromDecl factory;
@@ -747,7 +746,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
     expected =
         "\n"
         "Foo::Foo()\n"
-        "{\n"
+        "{\n\n"
         "}\n"
         "\n"
         ;
@@ -777,9 +776,8 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
         "};\n";
     expected = original +
         "\n"
-        "\n"
         "Foo::Foo()\n"
-        "{\n"
+        "{\n\n"
         "}\n"
         "\n"
         ;
@@ -815,7 +813,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
     expected =
         "\n"
         "N::Foo::Foo()\n"
-        "{\n"
+        "{\n\n"
         "}\n"
         "\n"
         ;
@@ -855,7 +853,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
     expected = original +
         "\n"
         "Foo::Foo()\n"
-        "{\n"
+        "{\n\n"
         "}\n"
         "\n"
         ;
@@ -869,11 +867,8 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
 {
     const QByteArray original = "void free()@;\n";
-    const QByteArray expected = original +
-        "\n"
-        "\n"
-        "void free()\n"
-        "{\n"
+    const QByteArray expected =
+        "void free() {\n\n"
         "}\n"
         "\n"
         ;
@@ -881,6 +876,25 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
     InsertDefFromDecl factory;
     TestCase data(original, expected);
     data.run(&factory);
+}
+
+/// Check definition insert inside class
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_insideClass()
+{
+    const QByteArray original =
+        "class Foo {\n"
+        "    void b@ar();\n"
+        "};";
+    const QByteArray expected =
+        "class Foo {\n"
+        "    void bar() {\n"
+        "\n"
+        "    }\n"
+        "};\n";
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory, 1);
 }
 
 // Function for one of InsertDeclDef section cases

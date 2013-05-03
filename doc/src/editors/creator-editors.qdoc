@@ -1758,11 +1758,56 @@
             \li  Adds the matching #include statement for a forward-declared class or struct
             \li  Forward-declared class or struct
         \row
-            \li  Add Definition in 'filename'
-            \li  Inserts a definition stub for a function declaration in the
-            implementation file. The definition is placed after that of the
-            preceding declaration. Qualified names are minimized when possible,
-            instead of always being fully expanded.
+            \li  Add Definition in ...
+            \li  Inserts a definition stub for a function declaration either in the header file
+            (inside or outside the class) or in the implementation file. For free functions, inserts
+            the definition after the declaration of the function or in the implementation file.
+            Qualified names are minimized when possible, instead of always being fully expanded.
+            For example, rewrites
+
+    \code
+    Class Foo {
+        void bar();
+    };
+    \endcode
+
+    as (inside class)
+
+    \code
+    Class Foo {
+        void bar() {
+
+        }
+    };
+    \endcode
+
+    as (outside class)
+
+    \code
+    Class Foo {
+        void bar();
+    };
+
+    void Foo::bar()
+    {
+
+    }
+    \endcode
+
+    as (in implementation file)
+
+    \code
+    // Header file
+    Class Foo {
+        void bar();
+    };
+
+    // Implementation file
+    void Foo::bar()
+    {
+
+    }
+    \endcode
 
             \li  Method name
         \row
