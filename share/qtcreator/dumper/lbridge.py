@@ -369,16 +369,17 @@ class Debugger(cmd.Cmd):
         else:
             thread = self.currentThread()
             result = 'stack={current-thread="%s",frames=[' % thread.GetThreadID()
-            for frame in thread.frames:
-                result += '{pc="0x%x"' % frame.pc
+            for i in xrange(thread.GetNumFrames()):
+                frame = thread.GetFrameAtIndex(i)
+                lineEntry = frame.GetLineEntry()
+                result += '{pc="0x%x"' % frame.GetPC()
                 result += ',level="%d"' % frame.idx
-                result += ',addr="0x%x"' % frame.pc
-                result += ',fp="0x%x"' % frame.fp
-                result += ',func="%s"' % frame.function.name
-                result += ',line="%d"' % frame.line_entry.line
-                result += ',fullname="%s"' % fileName(frame.line_entry.file)
+                result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
+                result += ',func="%s"' % frame.GetFunction().GetName()
+                result += ',line="%d"' % lineEntry.GetLine()
+                result += ',fullname="%s"' % fileName(lineEntry.file)
                 result += ',usable="1"'
-                result += ',file="%s"},' % fileName(frame.line_entry.file)
+                result += ',file="%s"},' % fileName(lineEntry.file)
 
             hasmore = '0'
             result += '],hasmore="%s"},' % hasmore

@@ -844,7 +844,7 @@ void LldbEngine::refreshStack(const GdbMi &stack)
         frame.function = QString::fromLatin1(item.findChild("func").data());
         frame.from = QString::fromLatin1(item.findChild("func").data());
         frame.line = item.findChild("line").data().toInt();
-        frame.address = item.findChild("addr").data().toULongLong();
+        frame.address = item.findChild("addr").toAddress();
         frame.usable = QFileInfo(frame.file).isReadable();
         frames.append(frame);
     }
