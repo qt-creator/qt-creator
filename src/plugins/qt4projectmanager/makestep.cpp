@@ -255,11 +255,12 @@ bool MakeStep::init()
     pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
-    appendOutputParser(new QMakeParser); // make may cause qmake to be run.
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
+    appendOutputParser(new QMakeParser); // make may cause qmake to be run, add last to make sure
+                                         // it has a low priority.
 
     m_scriptTarget = (static_cast<Qt4Project *>(bc->target()->project())->rootQt4ProjectNode()->projectType() == ScriptTemplate);
 
