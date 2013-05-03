@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QVector>
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
@@ -63,7 +64,7 @@ public:
 struct AndroidDeviceInfo
 {
     QString serialNumber;
-    QString cpuABI;
+    QStringList cpuABI;
     int sdk;
 
     static QStringList adbSelector(const QString &serialNumber);
@@ -90,7 +91,7 @@ public:
     Utils::FileName zipalignPath() const;
     Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    QString getDeployDeviceSerialNumber(int *apiLevel) const;
+    QString getDeployDeviceSerialNumber(int *apiLevel, const QString &abi) const;
     bool createAVD(const QString &target, const QString &name, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
     QVector<AndroidDeviceInfo> connectedDevices(int apiLevel = -1) const;
@@ -122,6 +123,7 @@ private:
     void save();
 
     int getSDKVersion(const QString &device) const;
+    QStringList getAbis(const QString &device) const;
     void updateAvailablePlatforms();
 
 

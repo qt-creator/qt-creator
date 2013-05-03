@@ -364,12 +364,12 @@ FileName AndroidConfigurations::zipalignPath() const
     return path.appendPath(QLatin1String("tools/zipalign" QTC_HOST_EXE_SUFFIX));
 }
 
-QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel) const
+QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const QString &abi) const
 {
     QVector<AndroidDeviceInfo> devices = connectedDevices();
 
     foreach (AndroidDeviceInfo device, devices) {
-        if (device.sdk >= *apiLevel) {
+        if (device.sdk >= *apiLevel && device.cpuABI.contains(abi)) {
             *apiLevel = device.sdk;
             return device.serialNumber;
         }
@@ -407,6 +407,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(int apiLevel)
 
         dev.serialNumber = serialNo;
         dev.sdk = getSDKVersion(dev.serialNumber);
+        dev.cpuABI = getAbis(dev.serialNumber);
         if (apiLevel != -1 && dev.sdk != apiLevel)
             continue;
         devices.push_back(dev);
@@ -496,7 +497,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
             if (line.contains(QLatin1String("Target:")))
                 dev.sdk = line.mid(line.lastIndexOf(QLatin1Char(' '))).remove(QLatin1Char(')')).toInt();
             if (line.contains(QLatin1String("ABI:")))
-                dev.cpuABI = line.mid(line.lastIndexOf(QLatin1Char(' '))).trimmed();
+                dev.cpuABI = QStringList() << line.mid(line.lastIndexOf(QLatin1Char(' '))).trimmed();
         }
         devices.push_back(dev);
     }
@@ -588,6 +589,33 @@ int AndroidConfigurations::getSDKVersion(const QString &device) const
         return -1;
     }
     return adbProc.readAll().trimmed().toInt();
+}
+
+QStringList AndroidConfigurations::getAbis(const QString &device) const
+{
+    QStringList result;
+    int i = 1;
+    while (true) {
+        QStringList arguments = AndroidDeviceInfo::adbSelector(device);
+        arguments << QLatin1String("shell") << QLatin1String("getprop");
+        if (i == 1)
+            arguments << QLatin1String("ro.product.cpu.abi");
+        else
+            arguments << QString::fromLatin1("ro.product.cpu.abi%1").arg(i);
+
+        QProcess adbProc;
+        adbProc.start(adbToolPath().toString(), arguments);
+        if (!adbProc.waitForFinished(-1)) {
+            adbProc.kill();
+            return result;
+        }
+        QString abi = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+        if (abi.isEmpty())
+            break;
+        result << abi;
+        ++i;
+    }
+    return result;
 }
 
 QString AndroidConfigurations::bestMatch(const QString &targetAPI) const

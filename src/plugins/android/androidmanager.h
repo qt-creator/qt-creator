@@ -90,6 +90,8 @@ public:
     static QString targetSDK(ProjectExplorer::Target *target);
     static bool setTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
 
+    static QString targetArch(ProjectExplorer::Target *target);
+
     static Utils::FileName dirPath(ProjectExplorer::Target *target);
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
     static Utils::FileName libsPath(ProjectExplorer::Target *target);

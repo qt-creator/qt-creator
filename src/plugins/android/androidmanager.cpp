@@ -310,6 +310,17 @@ bool AndroidManager::setTargetSDK(ProjectExplorer::Target *target, const QString
     return true;
 }
 
+QString AndroidManager::targetArch(ProjectExplorer::Target *target)
+{
+    Qt4ProjectManager::Qt4Project *pro = qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project());
+    if (!pro)
+        return QString();
+    Qt4ProjectManager::Qt4ProFileNode *node = pro->rootQt4ProjectNode();
+    if (!node)
+        return QString();
+    return node->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+}
+
 QIcon AndroidManager::highDpiIcon(ProjectExplorer::Target *target)
 {
     return icon(target, HighDPI);
