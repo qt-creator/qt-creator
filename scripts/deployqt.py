@@ -139,7 +139,7 @@ def copy_ignore_patterns_helper(dir, filenames):
     filenames = wrong_dlls + filter(windows_debug_files_filter, filenames)
     return filenames
 
-def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, plugins, imports):
+def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
     print "copying Qt libraries..."
 
     if sys.platform.startswith('win'):
@@ -175,7 +175,7 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, plugins
 
     print "Copying plugins:", plugins
     for plugin in plugins:
-        target = os.path.join(install_dir, 'bin', plugin)
+        target = os.path.join(install_dir, 'bin', 'plugins', plugin)
         if (os.path.exists(target)):
             shutil.rmtree(target)
         pluginPath = os.path.join(qt_plugin_dir, plugin)
@@ -184,16 +184,25 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, plugins
 
     print "Copying imports:", imports
     for qtimport in imports:
-        target = os.path.join(install_dir, 'bin', qtimport)
+        target = os.path.join(install_dir, 'bin', 'imports', qtimport)
         if (os.path.exists(target)):
             shutil.rmtree(target)
         shutil.copytree(os.path.join(qt_import_dir, qtimport), target, ignore=copy_ignore_func, symlinks=True)
+
+    print "Copying qt quick 2 imports"
+    target = os.path.join(install_dir, 'bin', 'qml')
+    if (os.path.exists(target)):
+        shutil.rmtree(target)
+    shutil.copytree(qt_qml_dir, target, ignore=copy_ignore_func, symlinks=True)
 
 def add_qt_conf(install_dir):
     print "Creating qt.conf:"
     f = open(install_dir + '/bin/qt.conf', 'w')
     f.write('[Paths]\n')
     f.write('Libraries=../lib/qtcreator\n')
+    f.write('Plugins=plugins\n')
+    f.write('Imports=imports\n')
+    f.write('Qml2Imports=qml\n')
     f.close()
 
 def copy_translations(install_dir, qt_tr_dir):
@@ -249,6 +258,7 @@ def main():
     QT_INSTALL_BINS = readQmakeVar(qmake_bin, 'QT_INSTALL_BINS')
     QT_INSTALL_PLUGINS = readQmakeVar(qmake_bin, 'QT_INSTALL_PLUGINS')
     QT_INSTALL_IMPORTS = readQmakeVar(qmake_bin, 'QT_INSTALL_IMPORTS')
+    QT_INSTALL_QML = readQmakeVar(qmake_bin, 'QT_INSTALL_QML')
     QT_INSTALL_TRANSLATIONS = readQmakeVar(qmake_bin, 'QT_INSTALL_TRANSLATIONS')
 
     plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platforms', 'printsupport', 'sqldrivers']
@@ -259,9 +269,9 @@ def main():
         debug_build = is_debug_build(install_dir)
 
     if sys.platform.startswith('win'):
-      copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
+      copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     else:
-      copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
+      copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
 
     if not sys.platform.startswith('win'):
