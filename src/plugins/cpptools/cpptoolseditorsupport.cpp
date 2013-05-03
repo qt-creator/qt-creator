@@ -422,6 +422,8 @@ void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &so
                 doc->control()->setTopLevelDeclarationProcessor(processor);
             doc->check();
             semanticInfo.doc = doc;
+        } else {
+            return;
         }
     }
 
