@@ -189,11 +189,12 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
             shutil.rmtree(target)
         shutil.copytree(os.path.join(qt_import_dir, qtimport), target, ignore=copy_ignore_func, symlinks=True)
 
-    print "Copying qt quick 2 imports"
-    target = os.path.join(install_dir, 'bin', 'qml')
-    if (os.path.exists(target)):
-        shutil.rmtree(target)
-    shutil.copytree(qt_qml_dir, target, ignore=copy_ignore_func, symlinks=True)
+    if (os.path.exists(qt_qml_dir)):
+        print "Copying qt quick 2 imports"
+        target = os.path.join(install_dir, 'bin', 'qml')
+        if (os.path.exists(target)):
+            shutil.rmtree(target)
+        shutil.copytree(qt_qml_dir, target, ignore=copy_ignore_func, symlinks=True)
 
 def add_qt_conf(install_dir):
     print "Creating qt.conf:"
