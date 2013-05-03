@@ -168,7 +168,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType, const QString &rep
         QVBoxLayout *logChangeLayout = new QVBoxLayout;
         logChangeGroupBox->setLayout(logChangeLayout);
         m_logChangeWidget = new LogChangeWidget;
-        m_logChangeWidget->init(repository);
+        m_logChangeWidget->init(repository, QString(), false);
         logChangeLayout->addWidget(m_logChangeWidget);
         insertTopWidget(logChangeGroupBox);
         m_gitSubmitPanelUi.editGroup->hide();

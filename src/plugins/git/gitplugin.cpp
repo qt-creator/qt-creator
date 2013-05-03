@@ -769,7 +769,7 @@ void GitPlugin::startRebase()
         return;
     LogChangeDialog dialog(false);
     dialog.setWindowTitle(tr("Interactive Rebase"));
-    if (!dialog.runDialog(workingDirectory))
+    if (!dialog.runDialog(workingDirectory, QString(), false))
         return;
     const QString change = dialog.commit();
     if (!change.isEmpty())

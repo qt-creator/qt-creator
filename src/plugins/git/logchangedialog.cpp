@@ -64,9 +64,9 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
-bool LogChangeWidget::init(const QString &repository)
+bool LogChangeWidget::init(const QString &repository, const QString &commit, bool includeRemote)
 {
-    if (!populateLog(repository) || !m_model->rowCount())
+    if (!populateLog(repository, commit, includeRemote) || !m_model->rowCount())
         return false;
     selectionModel()->select(m_model->index(0, 0),
                              QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
@@ -89,7 +89,7 @@ int LogChangeWidget::commitIndex() const
     return -1;
 }
 
-bool LogChangeWidget::populateLog(const QString &repository)
+bool LogChangeWidget::populateLog(const QString &repository, const QString &commit, bool includeRemote)
 {
     if (const int rowCount = m_model->rowCount())
         m_model->removeRows(0, rowCount);
@@ -98,6 +98,9 @@ bool LogChangeWidget::populateLog(const QString &repository)
     GitClient *client = GitPlugin::instance()->gitClient();
     QStringList arguments;
     arguments << QLatin1String("--max-count=40") << QLatin1String("--format=%h:%s %d");
+    arguments << (commit.isEmpty() ? QLatin1String("HEAD") : commit);
+    if (!includeRemote)
+        arguments << QLatin1String("--not") << QLatin1String("--remotes");
     QString output;
     if (!client->synchronousLog(repository, arguments, &output))
         return false;
@@ -165,9 +168,9 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     resize(600, 400);
 }
 
-bool LogChangeDialog::runDialog(const QString &repository)
+bool LogChangeDialog::runDialog(const QString &repository, const QString &commit, bool includeRemote)
 {
-    if (!widget->init(repository))
+    if (!widget->init(repository, commit, includeRemote))
         return QDialog::Rejected;
 
     return QDialog::exec() == QDialog::Accepted;

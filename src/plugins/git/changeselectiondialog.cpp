@@ -126,19 +126,22 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     if (workingDir.isEmpty())
         return;
 
+    QString commit = change();
+    int tilde = commit.indexOf(QLatin1Char('~'));
+    if (tilde != -1)
+        commit.truncate(tilde);
     QPointer<LogChangeDialog> dialog = new LogChangeDialog(false);
     dialog->setWindowTitle(tr("Select Commit"));
 
-    dialog->runDialog(workingDir);
+    dialog->runDialog(workingDir, commit);
 
     if (dialog->result() == QDialog::Rejected || dialog->commitIndex() == -1)
         return;
 
-    QString change = QLatin1String("HEAD");
     if (dialog->commitIndex() > 0)
-        change += QLatin1Char('~') + QString::number(dialog->commitIndex());
+        commit += QLatin1Char('~') + QString::number(dialog->commitIndex());
 
-    m_changeNumberEdit->setText(change);
+    m_changeNumberEdit->setText(commit);
 }
 
 void ChangeSelectionDialog::chooseWorkingDirectory()

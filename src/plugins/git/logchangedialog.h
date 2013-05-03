@@ -52,12 +52,13 @@ class LogChangeWidget : public QTreeView
 
 public:
     explicit LogChangeWidget(QWidget *parent = 0);
-    bool init(const QString &repository);
+    bool init(const QString &repository, const QString &commit = QString(),
+              bool includeRemote = true);
     QString commit() const;
     int commitIndex() const;
 
 private:
-    bool populateLog(const QString &repository);
+    bool populateLog(const QString &repository, const QString &commit, bool includeRemote);
     const QStandardItem *currentItem(int column = 0) const;
 
     QStandardItemModel *m_model;
@@ -69,7 +70,8 @@ class LogChangeDialog : public QDialog
 public:
     LogChangeDialog(bool isReset, QWidget *parent = 0);
 
-    bool runDialog(const QString &repository);
+    bool runDialog(const QString &repository, const QString &commit = QString(),
+                   bool includeRemote = true);
 
     QString commit() const;
     int commitIndex() const;
