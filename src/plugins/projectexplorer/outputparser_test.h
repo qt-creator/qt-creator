@@ -33,10 +33,14 @@
 #if defined(WITH_TESTS)
 
 #include "projectexplorer_export.h"
-#include "metatypedeclarations.h"
+
 #include "ioutputparser.h"
+#include "metatypedeclarations.h"
+#include "task.h"
 
 namespace ProjectExplorer {
+
+class TestTerminator;
 
 class PROJECTEXPLORER_EXPORT OutputParserTester : public IOutputParser
 {
@@ -49,7 +53,6 @@ public:
     };
 
     OutputParserTester();
-    ~OutputParserTester();
 
     // test methods:
     void testParsing(const QString &lines, Channel inputChannel,
@@ -63,10 +66,6 @@ public:
                             const QString &output);
 
     void setDebugEnabled(bool);
-
-    // IOutputParser interface:
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
 
     void appendOutputParser(IOutputParser *parser);
 
@@ -86,6 +85,22 @@ private:
     QString m_receivedStdOutChildLine;
     QList<Task> m_receivedTasks;
     QString m_receivedOutput;
+
+    friend class TestTerminator;
+};
+
+class TestTerminator : public IOutputParser
+{
+    Q_OBJECT
+
+public:
+    TestTerminator(OutputParserTester *t);
+
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
+
+private:
+    OutputParserTester *m_tester;
 };
 
 } // namespace ProjectExplorer

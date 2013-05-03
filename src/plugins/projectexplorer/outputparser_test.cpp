@@ -34,18 +34,11 @@
 
 #include <QtTest>
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 OutputParserTester::OutputParserTester() :
-        m_debug(false)
-{
-}
-
-OutputParserTester::~OutputParserTester()
-{
-    if (childParser())
-        childParser()->takeOutputParserChain();
-}
+    m_debug(false)
+{ }
 
 // test methods:
 void OutputParserTester::testParsing(const QString &lines,
@@ -65,6 +58,7 @@ void OutputParserTester::testParsing(const QString &lines,
         else
             childParser()->stdError(input + QLatin1Char('\n'));
     }
+
      // first disconnect ourselves from the end of the parser chain again
     IOutputParser * parser = this;
     while ( (parser = parser->childParser()) ) {
@@ -131,24 +125,11 @@ void OutputParserTester::setDebugEnabled(bool debug)
     m_debug = debug;
 }
 
-void OutputParserTester::stdOutput(const QString &line)
-{
-    QVERIFY(line.endsWith(QLatin1Char('\n')));
-    m_receivedStdOutChildLine.append(line);
-}
-
-void OutputParserTester::stdError(const QString &line)
-{
-    QVERIFY(line.endsWith(QLatin1Char('\n')));
-    m_receivedStdErrChildLine.append(line);
-}
-
 void OutputParserTester::appendOutputParser(IOutputParser *parser)
 {
     Q_ASSERT(!childParser());
-
+    parser->appendOutputParser(new TestTerminator(this));
     IOutputParser::appendOutputParser(parser);
-    parser->appendOutputParser(this);
 }
 
 void OutputParserTester::outputAdded(const QString &line, ProjectExplorer::BuildStep::OutputFormat format)
@@ -171,5 +152,23 @@ void OutputParserTester::reset()
     m_receivedTasks.clear();
     m_receivedOutput.clear();
 }
+
+TestTerminator::TestTerminator(OutputParserTester *t) :
+    m_tester(t)
+{ }
+
+void TestTerminator::stdOutput(const QString &line)
+{
+    QVERIFY(line.endsWith(QLatin1Char('\n')));
+    m_tester->m_receivedStdOutChildLine.append(line);
+}
+
+void TestTerminator::stdError(const QString &line)
+{
+    QVERIFY(line.endsWith(QLatin1Char('\n')));
+    m_tester->m_receivedStdErrChildLine.append(line);
+}
+
+} // namespace ProjectExplorer
 
 #endif
