@@ -331,9 +331,9 @@ void GdbMi::fromStringMultiple(const QByteArray &ba)
     parseTuple_helper(from, to);
 }
 
-GdbMi GdbMi::findChild(const char *name) const
+GdbMi GdbMi::operator[](const char *name) const
 {
-    for (int i = 0; i < m_children.size(); ++i)
+    for (int i = 0, n = m_children.size(); i < n; ++i)
         if (m_children.at(i).m_name == name)
             return m_children.at(i);
     return GdbMi();

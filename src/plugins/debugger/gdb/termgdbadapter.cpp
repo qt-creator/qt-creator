@@ -168,11 +168,11 @@ void GdbTermEngine::handleStubAttached(const GdbResponse &response)
         handleInferiorPrepared();
         break;
     case GdbResultError:
-        if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
             break;
         }
-        notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data["msg"].data()));
         break;
     default:
         notifyInferiorSetupFailed(QString::fromLatin1("Invalid response %1").arg(response.resultClass));

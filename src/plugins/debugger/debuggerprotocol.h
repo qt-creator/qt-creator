@@ -119,7 +119,7 @@ public:
 
     const GdbMi &childAt(int index) const { return m_children[index]; }
     GdbMi &childAt(int index) { return m_children[index]; }
-    GdbMi findChild(const char *name) const;
+    GdbMi operator[](const char *name) const;
 
     QByteArray toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;

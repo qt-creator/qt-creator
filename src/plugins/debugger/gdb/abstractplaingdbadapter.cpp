@@ -65,7 +65,7 @@ void GdbAbstractPlainEngine::handleFileExecAndSymbols(const GdbResponse &respons
     if (response.resultClass == GdbResultDone) {
         handleInferiorPrepared();
     } else {
-        QByteArray ba = response.data.findChild("msg").data();
+        QByteArray ba = response.data["msg"].data();
         QString msg = fromLocalEncoding(ba);
         // Extend the message a bit in unknown cases.
         if (!ba.endsWith("File format not recognized"))
@@ -92,7 +92,7 @@ void GdbAbstractPlainEngine::handleExecRun(const GdbResponse &response)
         if (debuggerCore()->boolSetting(EnableReverseDebugging))
             postCommand("target record");
     } else {
-        QString msg = fromLocalEncoding(response.data.findChild("msg").data());
+        QString msg = fromLocalEncoding(response.data["msg"].data());
         //QTC_CHECK(status() == InferiorRunOk);
         //interruptInferior();
         showMessage(msg);

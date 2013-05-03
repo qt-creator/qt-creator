@@ -190,7 +190,7 @@ void GdbCoreEngine::handleTargetCore(const GdbResponse &response)
     }
     QString msg = tr("Attach to core \"%1\" failed:\n")
         .arg(startParameters().coreFile)
-        + QString::fromLocal8Bit(response.data.findChild("msg").data());
+        + QString::fromLocal8Bit(response.data["msg"].data());
     notifyInferiorSetupFailed(msg);
 }
 

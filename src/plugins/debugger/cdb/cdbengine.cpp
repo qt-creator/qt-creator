@@ -1821,14 +1821,14 @@ void CdbEngine::handlePid(const CdbExtensionCommandPtr &reply)
 static Register parseRegister(const GdbMi &gdbmiReg)
 {
     Register reg;
-    reg.name = gdbmiReg.findChild("name").data();
-    const GdbMi description = gdbmiReg.findChild("description");
+    reg.name = gdbmiReg["name"].data();
+    const GdbMi description = gdbmiReg["description"];
     if (description.type() != GdbMi::Invalid) {
         reg.name += " (";
         reg.name += description.data();
         reg.name += ')';
     }
-    reg.value = gdbmiReg.findChild("value").data();
+    reg.value = gdbmiReg["value"].data();
     return reg;
 }
 
@@ -1842,11 +1842,11 @@ void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
             modules.reserve(value.childCount());
             foreach (const GdbMi &gdbmiModule, value.children()) {
                 Module module;
-                module.moduleName = QString::fromLatin1(gdbmiModule.findChild("name").data());
-                module.modulePath = QString::fromLatin1(gdbmiModule.findChild("image").data());
-                module.startAddress = gdbmiModule.findChild("start").data().toULongLong(0, 0);
-                module.endAddress = gdbmiModule.findChild("end").data().toULongLong(0, 0);
-                if (gdbmiModule.findChild("deferred").type() == GdbMi::Invalid)
+                module.moduleName = QString::fromLatin1(gdbmiModule["name"].data());
+                module.modulePath = QString::fromLatin1(gdbmiModule["image"].data());
+                module.startAddress = gdbmiModule["start"].data().toULongLong(0, 0);
+                module.endAddress = gdbmiModule["end"].data().toULongLong(0, 0);
+                if (gdbmiModule["deferred"].type() == GdbMi::Invalid)
                     module.symbolsRead = Module::ReadOk;
                 modules.push_back(module);
             }
@@ -1902,8 +1902,8 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
         // Courtesy of GDB engine
         foreach (const GdbMi &child, root.children()) {
             WatchData dummy;
-            dummy.iname = child.findChild("iname").data();
-            dummy.name = QLatin1String(child.findChild("name").data());
+            dummy.iname = child["iname"].data();
+            dummy.name = QLatin1String(child["name"].data());
             parseWatchData(watchHandler()->expandedINames(), dummy, child, &watchData);
         }
         // Fix the names of watch data.
@@ -2023,7 +2023,7 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         rc |= StopShutdownInProgress;
     if (debug)
         qDebug("%s", stopReason.toString(true, 4).constData());
-    const QByteArray reason = stopReason.findChild("reason").data();
+    const QByteArray reason = stopReason["reason"].data();
     if (reason.isEmpty()) {
         *message = tr("Malformed stop response received.");
         rc |= StopReportParseError|StopNotifyStop;
@@ -2036,12 +2036,12 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         rc |= StopReportLog;
         return rc;
     }
-    const int threadId = stopReason.findChild("threadId").data().toInt();
+    const int threadId = stopReason["threadId"].data().toInt();
     if (reason == "breakpoint") {
         // Note: Internal breakpoints (run to line) are reported with id=0.
         // Step out creates temporary breakpoints with id 10000.
         int number = 0;
-        BreakpointModelId id = cdbIdToBreakpointModelId(stopReason.findChild("breakpointId"));
+        BreakpointModelId id = cdbIdToBreakpointModelId(stopReason["breakpointId"]);
         if (id.isValid()) {
             if (breakHandler()->engineBreakpointIds(this).contains(id)) {
                 const BreakpointResponse parameters =  breakHandler()->response(id);
@@ -2211,7 +2211,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
             // Re-fetch stack again.
             postCommandSequence(CommandListStack);
         } else {
-            const GdbMi stack = stopReason.findChild("stack");
+            const GdbMi stack = stopReason["stack"];
             if (stack.isValid()) {
                 switch (parseStackTrace(stack, sourceStepInto)) {
                 case ParseStackStepInto: // Hit on a frame while step into, see parseStackTrace().
@@ -2222,16 +2222,16 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
                     return;
                 }
             } else {
-                showMessage(QString::fromLatin1(stopReason.findChild("stackerror").data()), LogError);
+                showMessage(QString::fromLatin1(stopReason["stackerror"].data()), LogError);
             }
         }
-        const GdbMi threads = stopReason.findChild("threads");
+        const GdbMi threads = stopReason["threads"];
         if (threads.isValid()) {
             threadsHandler()->updateThreads(threads);
             if (forcedThreadId.isValid())
                 threadsHandler()->setCurrentThread(forcedThreadId);
         } else {
-            showMessage(QString::fromLatin1(stopReason.findChild("threaderror").data()), LogError);
+            showMessage(QString::fromLatin1(stopReason["threaderror"].data()), LogError);
         }
         // Fire off remaining commands asynchronously
         if (!m_pendingBreakpointMap.isEmpty())
@@ -2839,15 +2839,15 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = 0)
         }
         StackFrame frame;
         frame.level = i;
-        const GdbMi fullName = frameMi.findChild("fullname");
+        const GdbMi fullName = frameMi["fullname"];
         if (fullName.isValid()) {
             frame.file = QFile::decodeName(fullName.data());
-            frame.line = frameMi.findChild("line").data().toInt();
+            frame.line = frameMi["line"].data().toInt();
             frame.usable = false; // To be decided after source path mapping.
         }
-        frame.function = QLatin1String(frameMi.findChild("func").data());
-        frame.from = QLatin1String(frameMi.findChild("from").data());
-        frame.address = frameMi.findChild("addr").data().toULongLong(0, 16);
+        frame.function = QLatin1String(frameMi["func"].data());
+        frame.from = QLatin1String(frameMi["from"].data());
+        frame.address = frameMi["addr"].data().toULongLong(0, 16);
         rc.push_back(frame);
     }
     return rc;

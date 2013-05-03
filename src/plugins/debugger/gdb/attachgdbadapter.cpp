@@ -96,13 +96,13 @@ void GdbAttachEngine::handleAttach(const GdbResponse &response)
         handleInferiorPrepared();
         break;
     case GdbResultError:
-        if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
             break;
         }
         // if msg != "ptrace: ..." fall through
     default:
-        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
+        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
         notifyInferiorSetupFailed(msg);
     }
 }

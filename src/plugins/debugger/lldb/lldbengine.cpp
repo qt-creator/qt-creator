@@ -411,36 +411,36 @@ void LldbEngine::attemptBreakpointSynchronization()
 void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
 {
     BreakHandler *handler = breakHandler();
-    BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
     BreakpointResponse response = handler->response(id);
-    BreakpointResponseId rid = BreakpointResponseId(bkpt.findChild("lldbid").data());
+    BreakpointResponseId rid = BreakpointResponseId(bkpt["lldbid"].data());
     if (added)
         response.id = rid;
     QTC_CHECK(response.id == rid);
     response.address = 0;
-    response.enabled = bkpt.findChild("enabled").data().toInt();
-    response.ignoreCount = bkpt.findChild("ignorecount").data().toInt();
-    response.condition = bkpt.findChild("condition").data();
-    response.hitCount = bkpt.findChild("hitcount").data().toInt();
+    response.enabled = bkpt["enabled"].data().toInt();
+    response.ignoreCount = bkpt["ignorecount"].data().toInt();
+    response.condition = bkpt["condition"].data();
+    response.hitCount = bkpt["hitcount"].data().toInt();
 
     if (added) {
         // Added.
-        GdbMi locations = bkpt.findChild("locations");
+        GdbMi locations = bkpt["locations"];
         const int numChild = locations.children().size();
         if (numChild > 1) {
             foreach (const GdbMi &location, locations.children()) {
                 BreakpointResponse sub;
                 sub.id = BreakpointResponseId(rid.majorPart(),
-                    location.findChild("subid").data().toUShort());
+                    location["subid"].data().toUShort());
                 sub.type = response.type;
-                sub.address = location.findChild("addr").toAddress();
-                sub.functionName = QString::fromUtf8(location.findChild("func").data());
+                sub.address = location["addr"].toAddress();
+                sub.functionName = QString::fromUtf8(location["func"].data());
                 handler->insertSubBreakpoint(id, sub);
             }
         } else if (numChild == 1) {
             const GdbMi location = locations.childAt(0);
-            response.address = location.findChild("addr").toAddress();
-            response.functionName = QString::fromUtf8(location.findChild("func").data());
+            response.address = location["addr"].toAddress();
+            response.functionName = QString::fromUtf8(location["func"].data());
         } else {
             QTC_CHECK(false);
         }
@@ -459,11 +459,11 @@ void LldbEngine::refreshDisassembly(const GdbMi &lines)
 
     foreach (const GdbMi &line, lines.children()) {
         DisassemblerLine dl;
-        QByteArray address = line.findChild("address").data();
+        QByteArray address = line["address"].data();
         dl.address = address.toULongLong(0, 0);
-        dl.data = _(line.findChild("inst").data());
-        dl.function = _(line.findChild("func-name").data());
-        dl.offset = line.findChild("offset").data().toUInt();
+        dl.data = _(line["inst"].data());
+        dl.function = _(line["func-name"].data());
+        dl.offset = line["offset"].data().toUInt();
         result.appendLine(dl);
     }
 
@@ -475,21 +475,21 @@ void LldbEngine::refreshDisassembly(const GdbMi &lines)
 void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
 {
     BreakHandler *handler = breakHandler();
-    GdbMi added = bkpts.findChild("added");
-    GdbMi changed = bkpts.findChild("changed");
-    GdbMi removed = bkpts.findChild("removed");
+    GdbMi added = bkpts["added"];
+    GdbMi changed = bkpts["changed"];
+    GdbMi removed = bkpts["removed"];
     foreach (const GdbMi &bkpt, added.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
+        BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
         QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
         updateBreakpointData(bkpt, true);
     }
     foreach (const GdbMi &bkpt, changed.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
+        BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
         QTC_CHECK(handler->state(id) == BreakpointChangeProceeding);
         updateBreakpointData(bkpt, false);
     }
     foreach (const GdbMi &bkpt, removed.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
+        BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
         QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
         handler->notifyBreakpointRemoveOk(id);
     }
@@ -514,8 +514,8 @@ void LldbEngine::refreshModules(const GdbMi &modules)
     Modules mods;
     foreach (const GdbMi &item, modules.children()) {
         Module module;
-        module.modulePath = QString::fromUtf8(item.findChild("file").data());
-        module.moduleName = QString::fromUtf8(item.findChild("name").data());
+        module.modulePath = QString::fromUtf8(item["file"].data());
+        module.moduleName = QString::fromUtf8(item["name"].data());
         module.symbolsRead = Module::UnknownReadState;
         module.startAddress = 0;
         //    item.findChild("loaded_addr").data().toULongLong(0, 0);
@@ -816,15 +816,15 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
 
     foreach (const GdbMi &child, vars.children()) {
         WatchData dummy;
-        dummy.iname = child.findChild("iname").data();
-        GdbMi wname = child.findChild("wname");
+        dummy.iname = child["iname"].data();
+        GdbMi wname = child["wname"];
         if (wname.isValid()) {
             // Happens (only) for watched expressions. They are encoded as
             // base64 encoded 8 bit data, without quotes
             dummy.name = decodeData(wname.data(), Base64Encoded8Bit);
             dummy.exp = dummy.name.toUtf8();
         } else {
-            dummy.name = _(child.findChild("name").data());
+            dummy.name = _(child["name"].data());
         }
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
@@ -837,18 +837,18 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     //    emit stackFrameCompleted();
     StackHandler *handler = stackHandler();
     StackFrames frames;
-    foreach (const GdbMi &item, stack.findChild("frames").children()) {
+    foreach (const GdbMi &item, stack["frames"].children()) {
         StackFrame frame;
-        frame.level = item.findChild("level").data().toInt();
-        frame.file = QString::fromLatin1(item.findChild("file").data());
-        frame.function = QString::fromLatin1(item.findChild("func").data());
-        frame.from = QString::fromLatin1(item.findChild("func").data());
-        frame.line = item.findChild("line").data().toInt();
-        frame.address = item.findChild("addr").toAddress();
+        frame.level = item["level"].data().toInt();
+        frame.file = QString::fromLatin1(item["file"].data());
+        frame.function = QString::fromLatin1(item["func"].data());
+        frame.from = QString::fromLatin1(item["func"].data());
+        frame.line = item["line"].data().toInt();
+        frame.address = item["addr"].toAddress();
         frame.usable = QFileInfo(frame.file).isReadable();
         frames.append(frame);
     }
-    bool canExpand = stack.findChild("hasmore").data().toInt();
+    bool canExpand = stack["hasmore"].data().toInt();
     debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames);
 }
@@ -859,8 +859,8 @@ void LldbEngine::refreshRegisters(const GdbMi &registers)
     Registers regs;
     foreach (const GdbMi &item, registers.children()) {
         Register reg;
-        reg.name = item.findChild("name").data();
-        reg.value = item.findChild("value").data();
+        reg.name = item["name"].data();
+        reg.value = item["value"].data();
         //reg.type = item.findChild("type").data();
         regs.append(reg);
     }
@@ -925,8 +925,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
-    QByteArray file = reportedLocation.findChild("file").data();
-    int line = reportedLocation.findChild("line").data().toInt();
+    QByteArray file = reportedLocation["file"].data();
+    int line = reportedLocation["line"].data().toInt();
     gotoLocation(Location(QString::fromUtf8(file), line));
 }
 

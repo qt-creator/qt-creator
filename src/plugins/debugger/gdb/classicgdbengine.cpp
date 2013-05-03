@@ -271,7 +271,7 @@ static QByteArray qClassName(const QByteArray &qtNamespace, const char *classNam
 
 static double getDumperVersion(const GdbMi &contents)
 {
-    const GdbMi dumperVersionG = contents.findChild("dumperversion");
+    const GdbMi dumperVersionG = contents["dumperversion"];
     if (dumperVersionG.type() != GdbMi::Invalid) {
         bool ok;
         const double v = QString::fromLatin1(dumperVersionG.data()).toDouble(&ok);
@@ -302,10 +302,10 @@ bool DumperHelper::parseQuery(const GdbMi &contents)
         qDebug() << "parseQuery" << contents.toString(true, 2);
 
     // Common info, dumper version, etc
-    QByteArray ns = contents.findChild("namespace").data();
+    QByteArray ns = contents["namespace"].data();
     setQtNamespace(ns);
     int qtv = 0;
-    const GdbMi qtversion = contents.findChild("qtversion");
+    const GdbMi qtversion = contents["qtversion"];
     if (qtversion.children().size() == 3) {
         qtv = (qtversion.childAt(0).data().toInt() << 16)
                     + (qtversion.childAt(1).data().toInt() << 8)
@@ -314,7 +314,7 @@ bool DumperHelper::parseQuery(const GdbMi &contents)
     m_qtVersion = qtv;
     // Get list of helpers
     QByteArrayList availableSimpleDebuggingHelpers;
-    foreach (const GdbMi &item, contents.findChild("dumpers").children())
+    foreach (const GdbMi &item, contents["dumpers"].children())
         availableSimpleDebuggingHelpers.append(item.data());
 
     // Parse types
@@ -326,7 +326,7 @@ bool DumperHelper::parseQuery(const GdbMi &contents)
 
     m_dumperVersion = getDumperVersion(contents);
     // Parse sizes
-    foreach (const GdbMi &sizesList, contents.findChild("sizes").children()) {
+    foreach (const GdbMi &sizesList, contents["sizes"].children()) {
         const int childCount = sizesList.childCount();
         if (childCount > 1) {
             const int size = sizesList.childAt(0).data().toInt();
@@ -335,7 +335,7 @@ bool DumperHelper::parseQuery(const GdbMi &contents)
         }
     }
     // Parse expressions
-    foreach (const GdbMi &exprList, contents.findChild("expressions").children())
+    foreach (const GdbMi &exprList, contents["expressions"].children())
         if (exprList.childCount() == 2)
             m_expressionCache.insert(exprList.childAt(0).data(),
                                      exprList.childAt(1).data());
@@ -1011,8 +1011,8 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
         return;
     }
 
-    data.updateType(response.data.findChild("type"));
-    data.updateDisplayedType(response.data.findChild("displaytype"));
+    data.updateType(response.data["type"]);
+    data.updateDisplayedType(response.data["displaytype"]);
     QList<WatchData> list;
     parseWatchData(watchHandler()->expandedINames(), data, contents, &list);
     //for (int i = 0; i != list.size(); ++i)
@@ -1198,9 +1198,9 @@ void GdbEngine::handleStackListArgumentsClassic(const GdbResponse &response)
     // is ok.
     m_currentFunctionArgs.clear();
     if (response.resultClass == GdbResultDone) {
-        const GdbMi list = response.data.findChild("stack-args");
-        const GdbMi frame = list.findChild("frame");
-        const GdbMi args = frame.findChild("args");
+        const GdbMi list = response.data["stack-args"];
+        const GdbMi frame = list["frame"];
+        const GdbMi args = frame["args"];
         m_currentFunctionArgs = args.children();
     } else {
         // Seems to occur on "RedHat 4 based Linux" gdb 7.0.1:
@@ -1215,7 +1215,7 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
     // stage 2/2
 
     // There could be shadowed variables
-    QList<GdbMi> locals = response.data.findChild("locals").children();
+    QList<GdbMi> locals = response.data["locals"].children();
     locals += m_currentFunctionArgs;
     QMap<QByteArray, int> seen;
     // If desired, retrieve list of uninitialized variables looking at
@@ -1346,7 +1346,7 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
 void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        QString value = _(response.data.findChild("value").data());
+        QString value = _(response.data["value"].data());
         QString debuggeeQtVersion = value.section(QLatin1Char('"'), 1, 1);
         QString dumperQtVersion = QLatin1String(m_dumperHelper.qtVersionString());
         if (debuggeeQtVersion.isEmpty()) {
@@ -1375,8 +1375,8 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
 {
     //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << parent.toString();
     //qDebug() <<  "VAR_LIST_CHILDREN: ITEM" << item.toString();
-    QByteArray exp = item.findChild("exp").data();
-    QByteArray name = item.findChild("name").data();
+    QByteArray exp = item["exp"].data();
+    QByteArray name = item["name"].data();
     if (isAccessSpecifier(exp)) {
         // Suppress 'private'/'protected'/'public' level.
         WatchData data;
@@ -1393,15 +1393,15 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         postCommand(cmd, Discardable,
             CB(handleVarListChildrenClassic), QVariant::fromValue(data));
     } else if (!startsWithDigit(QLatin1String(exp))
-            && item.findChild("numchild").data() == "0") {
+            && item["numchild"].data() == "0") {
         // Happens for structs without data, e.g. interfaces.
         WatchData data;
         data.name = _(exp);
         data.iname = parent.iname + '.' + data.name.toLatin1();
         data.variable = name;
-        data.updateType(item.findChild("type"));
+        data.updateType(item["type"]);
         data.updateValue(item);
-        data.updateAddress(item.findChild("addr"));
+        data.updateAddress(item["addr"]);
         data.setHasChildren(false);
         insertData(data);
     } else if (parent.iname.endsWith('.')) {
@@ -1423,10 +1423,10 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.iname = parent.iname + '.' + exp;
         data.variable = name;
         data.sortId = sortId;
-        data.updateType(item.findChild("type"));
+        data.updateType(item["type"]);
         data.updateValue(item);
-        data.updateAddress(item.findChild("addr"));
-        data.updateChildCount(item.findChild("numchild"));
+        data.updateAddress(item["addr"]);
+        data.updateChildCount(item["numchild"]);
         if (!watchHandler()->isExpandedIName(data.iname))
             data.setChildrenUnneeded();
 
@@ -1481,7 +1481,7 @@ void GdbEngine::handleVarListChildrenClassic(const GdbResponse &response)
         return;
     if (response.resultClass == GdbResultDone) {
         //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << data.toString();
-        QList<GdbMi> children = response.data.findChild("children").children();
+        QList<GdbMi> children = response.data["children"].children();
 
         if (children.isEmpty()) {
             // happens e.g. if no debug information is present or
@@ -1509,7 +1509,7 @@ void GdbEngine::handleVarListChildrenClassic(const GdbResponse &response)
                 handleVarListChildrenHelperClassic(children.at(i), data, i);
         }
     } else {
-        data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        data.setError(QString::fromLocal8Bit(response.data["msg"].data()));
     }
 }
 
@@ -1523,7 +1523,7 @@ void GdbEngine::handleEvaluateExpressionClassic(const GdbResponse &response)
         //else
             data.updateValue(response.data);
     } else {
-        data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        data.setError(QString::fromLocal8Bit(response.data["msg"].data()));
     }
     //qDebug() << "HANDLE EVALUATE EXPRESSION:" << data.toString();
     insertData(data);

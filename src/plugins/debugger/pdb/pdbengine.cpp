@@ -404,8 +404,8 @@ void PdbEngine::handleListModules(const PdbResponse &response)
     Modules modules;
     foreach (const GdbMi &item, out.children()) {
         Module module;
-        module.moduleName = _(item.findChild("name").data());
-        QString path = _(item.findChild("value").data());
+        module.moduleName = _(item["name"].data());
+        QString path = _(item["value"].data());
         int pos = path.indexOf(_("' from '"));
         if (pos != -1) {
             path = path.mid(pos + 8);
@@ -435,7 +435,7 @@ void PdbEngine::handleListSymbols(const PdbResponse &response)
     QString moduleName = response.cookie.toString();
     foreach (const GdbMi &item, out.children()) {
         Symbol symbol;
-        symbol.name = _(item.findChild("name").data());
+        symbol.name = _(item["name"].data());
         symbols.append(symbol);
     }
     debuggerCore()->showModuleSymbols(moduleName, symbols);
@@ -819,8 +819,8 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
     WatchHandler *handler = watchHandler();
     foreach (const GdbMi &child, all.children()) {
         WatchData dummy;
-        dummy.iname = child.findChild("iname").data();
-        dummy.name = _(child.findChild("name").data());
+        dummy.iname = child["iname"].data();
+        dummy.name = _(child["name"].data());
         //qDebug() << "CHILD: " << child.toString();
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }

@@ -298,7 +298,7 @@ static inline bool parseThread(QByteArray line, ThreadData *thread, bool *curren
 // Helper to retrieve an int child from GDBMI
 static inline bool gdbmiChildToInt(const GdbMi &parent, const char *childName, int *target)
 {
-    const GdbMi childBA = parent.findChild(childName);
+    const GdbMi childBA = parent[childName];
     if (childBA.isValid()) {
         bool ok;
         const int v = childBA.data().toInt(&ok);
@@ -313,7 +313,7 @@ static inline bool gdbmiChildToInt(const GdbMi &parent, const char *childName, i
 // Helper to retrieve an bool child from GDBMI
 static inline bool gdbmiChildToBool(const GdbMi &parent, const char *childName, bool *target)
 {
-    const GdbMi childBA = parent.findChild(childName);
+    const GdbMi childBA = parent[childName];
     if (childBA.isValid()) {
         *target = childBA.data() == "true";
         return true;
@@ -331,16 +331,16 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
     r->id = BreakpointResponseId();
     // Might not be valid if there is not id
-    r->id = cdbIdToBreakpointResponseId(gdbmi.findChild("id"));
-    const GdbMi moduleG = gdbmi.findChild("module");
+    r->id = cdbIdToBreakpointResponseId(gdbmi["id"]);
+    const GdbMi moduleG = gdbmi["module"];
     if (moduleG.isValid())
         r->module = QString::fromLocal8Bit(moduleG.data());
     if (expression) {
-        const GdbMi expressionG = gdbmi.findChild("expression");
+        const GdbMi expressionG = gdbmi["expression"];
         if (expressionG.isValid())
             *expression = QString::fromLocal8Bit(expressionG.data());
     }
-    const GdbMi addressG = gdbmi.findChild("address");
+    const GdbMi addressG = gdbmi["address"];
     if (addressG.isValid())
         r->address = addressG.data().toULongLong(0, 0);
     if (gdbmiChildToInt(gdbmi, "passcount", &(r->ignoreCount)))
@@ -410,23 +410,23 @@ WinException::WinException() :
 
 void WinException::fromGdbMI(const GdbMi &gdbmi)
 {
-    exceptionCode = gdbmi.findChild("exceptionCode").data().toUInt();
-    exceptionFlags = gdbmi.findChild("exceptionFlags").data().toUInt();
-    exceptionAddress = gdbmi.findChild("exceptionAddress").data().toULongLong();
-    firstChance = gdbmi.findChild("firstChance").data() != "0";
-    const GdbMi ginfo1 = gdbmi.findChild("exceptionInformation0");
+    exceptionCode = gdbmi["exceptionCode"].data().toUInt();
+    exceptionFlags = gdbmi["exceptionFlags"].data().toUInt();
+    exceptionAddress = gdbmi["exceptionAddress"].data().toULongLong();
+    firstChance = gdbmi["firstChance"].data() != "0";
+    const GdbMi ginfo1 = gdbmi["exceptionInformation0"];
     if (ginfo1.isValid()) {
         info1 = ginfo1.data().toULongLong();
-        const GdbMi ginfo2  = gdbmi.findChild("exceptionInformation1");
+        const GdbMi ginfo2  = gdbmi["exceptionInformation1"];
         if (ginfo2.isValid())
             info2 = ginfo1.data().toULongLong();
     }
-    const GdbMi gLineNumber = gdbmi.findChild("exceptionLine");
+    const GdbMi gLineNumber = gdbmi["exceptionLine"];
     if (gLineNumber.isValid()) {
         lineNumber = gLineNumber.data().toInt();
-        file = gdbmi.findChild("exceptionFile").data();
+        file = gdbmi["exceptionFile"].data();
     }
-    function = gdbmi.findChild("exceptionFunction").data();
+    function = gdbmi["exceptionFunction"].data();
 }
 
 QString WinException::toString(bool includeLocation) const

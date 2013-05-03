@@ -246,7 +246,7 @@ void GdbRemoteServerEngine::handleFileExecAndSymbols(const GdbResponse &response
     if (response.resultClass == GdbResultDone) {
         callTargetRemote();
     } else {
-        QByteArray reason = response.data.findChild("msg").data();
+        QByteArray reason = response.data["msg"].data();
         QString msg = tr("Reading debug information failed:\n");
         msg += QString::fromLocal8Bit(reason);
         if (reason.endsWith("No such file or directory.")) {
@@ -300,7 +300,7 @@ void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &response)
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data.findChild("msg").data()));
+            QString::fromLocal8Bit(response.data["msg"].data()));
         notifyInferiorSetupFailed(msg);
     }
 }
@@ -320,7 +320,7 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &respon
         postCommand("attach " + QByteArray::number(m_targetPid), CB(handleTargetExtendedAttach));
     } else {
         QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data.findChild("msg").data()));
+            QString::fromLocal8Bit(response.data["msg"].data()));
         notifyInferiorSetupFailed(msg);
     }
 }
@@ -333,7 +333,7 @@ void GdbRemoteServerEngine::handleTargetExtendedAttach(const GdbResponse &respon
         handleInferiorPrepared();
     } else {
         QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data.findChild("msg").data()));
+            QString::fromLocal8Bit(response.data["msg"].data()));
         notifyInferiorSetupFailed(msg);
     }
 }
@@ -361,7 +361,7 @@ void GdbRemoteServerEngine::handleTargetQnx(const GdbResponse &response)
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data.findChild("msg").data()));
+            QString::fromLocal8Bit(response.data["msg"].data()));
         notifyInferiorSetupFailed(msg);
     }
 }
@@ -378,13 +378,13 @@ void GdbRemoteServerEngine::handleAttach(const GdbResponse &response)
         break;
     }
     case GdbResultError:
-        if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
             break;
         }
         // if msg != "ptrace: ..." fall through
     default:
-        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
+        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
         notifyInferiorSetupFailed(msg);
     }
 }
@@ -418,7 +418,7 @@ void GdbRemoteServerEngine::handleExecRun(const GdbResponse &response)
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgInferiorSetupOk(), StatusBar);
     } else {
-        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
+        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
         showMessage(msg);
         notifyEngineRunFailed();
     }

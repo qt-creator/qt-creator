@@ -724,10 +724,10 @@ void tst_Dumpers::dumper()
     QList<WatchData> list;
     foreach (const GdbMi &child, actual.children()) {
         WatchData dummy;
-        dummy.iname = child.findChild("iname").data();
-        dummy.name = QLatin1String(child.findChild("name").data());
+        dummy.iname = child["iname").data();
+        dummy.name = QLatin1String(child["name").data());
         if (dummy.iname == "local.qtversion")
-            context.qtVersion = child.findChild("value").data().toInt();
+            context.qtVersion = child["value").data().toInt();
         else
             parseWatchData(expandedINames, dummy, child, &list);
     }

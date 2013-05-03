@@ -415,9 +415,9 @@ QByteArray WatchData::hexAddress() const
 
 void WatchData::updateValue(const GdbMi &item)
 {
-    GdbMi value = item.findChild("value");
+    GdbMi value = item["value"];
     if (value.isValid()) {
-        int encoding = item.findChild("valueencoded").data().toInt();
+        int encoding = item["valueencoded"].data().toInt();
         setValue(decodeData(value.data(), encoding));
     } else {
         setValueNeeded();
@@ -578,63 +578,63 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     if (!isExpanded)
         data.setChildrenUnneeded();
 
-    GdbMi children = item.findChild("children");
+    GdbMi children = item["children"];
     if (children.isValid() || !isExpanded)
         data.setChildrenUnneeded();
 
-    data.updateType(item.findChild("type"));
-    GdbMi mi = item.findChild("editvalue");
+    data.updateType(item["type"]);
+    GdbMi mi = item["editvalue"];
     if (mi.isValid())
         data.editvalue = mi.data();
 
-    mi = item.findChild("editformat");
+    mi = item["editformat"];
     if (mi.isValid())
         data.editformat = mi.data().toInt();
 
-    mi = item.findChild("typeformats");
+    mi = item["typeformats"];
     if (mi.isValid())
         data.typeFormats = QString::fromUtf8(mi.data());
 
-    mi = item.findChild("bitpos");
+    mi = item["bitpos"];
     if (mi.isValid())
         data.bitpos = mi.data().toInt();
 
-    mi = item.findChild("bitsize");
+    mi = item["bitsize"];
     if (mi.isValid())
         data.bitsize = mi.data().toInt();
 
-    mi = item.findChild("origaddr");
+    mi = item["origaddr"];
     if (mi.isValid())
         data.origaddr = mi.toAddress();
 
-    data.updateAddress(item.findChild("addr"));
+    data.updateAddress(item["addr"]);
     data.updateValue(item);
 
-    setWatchDataSize(data, item.findChild("size"));
+    setWatchDataSize(data, item["size"]);
 
-    mi = item.findChild("exp");
+    mi = item["exp"];
     if (mi.isValid())
         data.exp = mi.data();
 
-    setWatchDataValueEnabled(data, item.findChild("valueenabled"));
-    setWatchDataValueEditable(data, item.findChild("valueeditable"));
-    data.updateChildCount(item.findChild("numchild"));
+    setWatchDataValueEnabled(data, item["valueenabled"]);
+    setWatchDataValueEditable(data, item["valueeditable"]);
+    data.updateChildCount(item["numchild"]);
     //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
     list->append(data);
 
     bool ok = false;
-    qulonglong addressBase = item.findChild("addrbase").data().toULongLong(&ok, 0);
-    qulonglong addressStep = item.findChild("addrstep").data().toULongLong(&ok, 0);
+    qulonglong addressBase = item["addrbase"].data().toULongLong(&ok, 0);
+    qulonglong addressStep = item["addrstep"].data().toULongLong(&ok, 0);
 
     // Try not to repeat data too often.
     WatchData childtemplate;
-    childtemplate.updateType(item.findChild("childtype"));
-    childtemplate.updateChildCount(item.findChild("childnumchild"));
+    childtemplate.updateType(item["childtype"]);
+    childtemplate.updateChildCount(item["childnumchild"]);
     //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
-    mi = item.findChild("arraydata");
+    mi = item["arraydata"];
     if (mi.isValid()) {
-        int encoding = item.findChild("arrayencoding").data().toInt();
+        int encoding = item["arrayencoding"].data().toInt();
         childtemplate.iname = data.iname + '.';
         childtemplate.address = addressBase;
         decodeArray(list, childtemplate, mi.data(), encoding);
@@ -643,12 +643,12 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             const GdbMi &child = children.children().at(i);
             WatchData data1 = childtemplate;
             data1.sortId = i;
-            GdbMi name = child.findChild("name");
+            GdbMi name = child["name"];
             if (name.isValid())
                 data1.name = QString::fromLatin1(name.data());
             else
                 data1.name = QString::number(i);
-            GdbMi iname = child.findChild("iname");
+            GdbMi iname = child["iname"];
             if (iname.isValid()) {
                 data1.iname = iname.data();
             } else {
@@ -662,9 +662,9 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
                 setWatchDataAddress(data1, addressBase);
                 addressBase += addressStep;
             }
-            QByteArray key = child.findChild("key").data();
+            QByteArray key = child["key"].data();
             if (!key.isEmpty()) {
-                int encoding = child.findChild("keyencoded").data().toInt();
+                int encoding = child["keyencoded"].data().toInt();
                 QString skey = decodeData(key, encoding);
                 if (skey.size() > 13) {
                     skey = skey.left(12);
