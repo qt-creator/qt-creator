@@ -90,9 +90,6 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     AbstractQmlProfilerRunner *runner = 0;
     if (!runConfiguration) // attaching
         return 0;
-    Debugger::DebuggerRunConfigurationAspect *debugger
-            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    QTC_ASSERT(debugger, return 0);
     ProjectExplorer::EnvironmentAspect *environment
             = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
     QTC_ASSERT(environment, return 0);
