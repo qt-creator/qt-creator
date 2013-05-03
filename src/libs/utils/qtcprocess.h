@@ -60,6 +60,9 @@ public:
 #endif
     void start();
     void terminate();
+#ifdef Q_OS_WIN
+    void interrupt();
+#endif
 
     enum SplitError {
         SplitOk = 0, //! All went just fine
