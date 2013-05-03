@@ -90,14 +90,14 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     AbstractQmlProfilerRunner *runner = 0;
     if (!runConfiguration) // attaching
         return 0;
-    ProjectExplorer::EnvironmentAspect *environment
-            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-    QTC_ASSERT(environment, return 0);
 
     if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
     } else {
+        ProjectExplorer::EnvironmentAspect *environment
+                = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+        QTC_ASSERT(environment, return 0);
         LocalQmlProfilerRunner::Configuration conf;
         if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
                 qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
