@@ -160,8 +160,7 @@ def selectBuildConfig(targetCount, currentTarget, configName):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
     if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName):
-        waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
-                      "sourceFilesRefreshed(QStringList)")
+        progressBarWait(30000)
     return getQtInformationForBuildSettings(targetCount, True, ViewConstants.EDIT)
 
 # This will not trigger a rebuild. If needed, caller has to do this.

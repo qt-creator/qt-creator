@@ -45,10 +45,6 @@
       <description><![CDATA[This talk discusses various QML best practices and design patterns for building powerful and scalable Qt Quick applications with QML and C++ code.]]></description>
       <tags>qt quick, qml</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/ddays11.png" difficulty="" projectPath="" name="Meet Qt and Qt Quick" isVideo="true" videoUrl="http://qt-project.org/videos/watch/qt-quick-best-practices-and-design-patterns" videoLength="1:07:43">
-      <description><![CDATA[Are you fully aware of all you can really accomplish with Qt and Qt Quick? We’ll take you beyond the benefits of Qt and Qt Quick from a marketing standpoint and dive into the technical aspects of what they are and how they work together.]]></description>
-      <tags>qt quick, qml</tags>
-    </tutorial>
     <tutorial imageUrl="images/icons/ddays12.png" difficulty="" projectPath="" name="What is New in QtWebKit in 5.0" isVideo="true" videoUrl="http://www.youtube.com/watch?v=xEuapSGxaeU" videoLength="1:01:55">
       <description><![CDATA[The web platform continues to evolve at breakneck speed. With our WebKit port to Qt 5 we are bringing these latest web technologies to the Qt world.]]></description>
       <tags>qt, webkit</tags>

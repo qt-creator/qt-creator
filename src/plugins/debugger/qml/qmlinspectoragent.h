@@ -143,7 +143,6 @@ private:
     QList<int> m_objectWatches;
     QList<int> m_fetchDataIds;
     QTimer m_delayQueryTimer;
-    bool m_newObjectsCreated;
 };
 
 } // Internal

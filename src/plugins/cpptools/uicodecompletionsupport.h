@@ -42,6 +42,7 @@ namespace CppTools {
 
 class CPPTOOLS_EXPORT UiCodeModelSupport : public AbstractEditorSupport
 {
+    Q_OBJECT
 public:
     UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
                        const QString &sourceFile,
@@ -57,16 +58,18 @@ protected:
     virtual QString uicCommand() const = 0;
     virtual QStringList environment() const = 0;
 private:
+    enum State { BARE, RUNNING, FINISHED };
+
     void init() const;
     bool runUic(const QString &ui) const;
-    bool finishProcess() const;
+    Q_SLOT bool finishProcess() const;
     mutable QProcess m_process;
     QString m_sourceName;
     QString m_fileName;
-    mutable bool m_initialized;
+    mutable State m_state;
     mutable QByteArray m_contents;
     mutable QDateTime m_cacheTime;
-    mutable bool m_running;
+    static QList<UiCodeModelSupport *> m_waitingForStart;
 };
 
 } // CppTools

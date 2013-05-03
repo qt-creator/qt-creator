@@ -19,7 +19,7 @@ def main():
     openQmakeProject(examplePath)
     installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
     # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
+    progressBarWait(30000)
     # open .cpp file in editor
     if not openDocument("propertyanimation.Sources.main\\.cpp"):
         test.fatal("Could not open main.cpp")

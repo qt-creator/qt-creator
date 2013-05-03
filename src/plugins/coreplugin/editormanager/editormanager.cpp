@@ -2215,7 +2215,8 @@ void EditorManager::removeAllSplits()
     d->m_splitter->unsplitAll();
     if (!editor)
         editor = pickUnusedEditor();
-    activateEditor(editor);
+    if (editor)
+        activateEditor(editor);
 }
 
 void EditorManager::gotoOtherSplit()

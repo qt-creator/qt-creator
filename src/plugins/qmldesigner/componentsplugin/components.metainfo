@@ -256,8 +256,7 @@ MetaInfo {
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
-            Property { name: "width"; type: "int"; value: 360; }
-            Property { name: "height"; type: "int"; value: 50; }
+
         }
     }
 
@@ -288,9 +287,6 @@ MetaInfo {
             libraryIcon: ":/desktopplugin/images/toolbar.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
-
-            Property { name: "width"; type: "int"; value: 360; }
-            Property { name: "height"; type: "int"; value: 50; }
         }
     }
 

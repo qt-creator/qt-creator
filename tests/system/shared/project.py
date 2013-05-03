@@ -175,7 +175,7 @@ def createProject_Qt_GUI(path, projectName, checks = True):
         expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, pro_file]))
     __createProjectHandleLastPage__(expectedFiles)
 
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
+    progressBarWait(20000)
     __verifyFileCreation__(path, expectedFiles)
     return checkedTargets
 
@@ -199,7 +199,7 @@ def createProject_Qt_Console(path, projectName, checks = True):
         expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, pro_file]))
     __createProjectHandleLastPage__(expectedFiles)
 
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
+    progressBarWait(10000)
     __verifyFileCreation__(path, expectedFiles)
     return checkedTargets
 
@@ -224,7 +224,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     clickButton(nextButton)
     __createProjectHandleLastPage__()
 
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
+    progressBarWait(10000)
     return checkedTargets, projectName
 
 def createNewQtQuickUI(workingDir):

@@ -716,7 +716,7 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
 
     if (!m_showTutorialsOnly) {
         int type = sourceModel()->index(sourceRow, 0, sourceParent).data(Type).toInt();
-        if (type != Example)
+        if (type != Example && type != Demo)
             return false;
     }
 

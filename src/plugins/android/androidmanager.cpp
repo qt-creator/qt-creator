@@ -280,6 +280,10 @@ bool AndroidManager::ensureIconAttribute(ProjectExplorer::Target *target)
 
 QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
 {
+    QVariant v = target->namedSettings(QLatin1String("AndroidManager.TargetSdk"));
+    if (v.isValid())
+        return v.toString();
+
     QString fallback = QLatin1String("android-8");
     if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit()))
         if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
@@ -287,6 +291,7 @@ QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
 
     if (!createAndroidTemplatesIfNecessary(target))
         return AndroidConfigurations::instance().bestMatch(fallback);
+
     QFile file(defaultPropertiesPath(target).toString());
     if (!file.open(QIODevice::ReadOnly))
         return AndroidConfigurations::instance().bestMatch(fallback);
@@ -301,6 +306,7 @@ QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
 bool AndroidManager::setTargetSDK(ProjectExplorer::Target *target, const QString &sdk)
 {
     updateTarget(target, sdk, applicationName(target));
+    target->setNamedSettings(QLatin1String("AndroidManager.TargetSdk"), sdk);
     return true;
 }
 

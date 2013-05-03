@@ -21,7 +21,7 @@ def main():
         test.fatal("Could not open/create cmake project - leaving test")
         invokeMenuItem("File", "Exit")
         return
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
+    progressBarWait(30000)
 
     # Invoke a rebuild of the application
     invokeMenuItem("Build", "Rebuild All")

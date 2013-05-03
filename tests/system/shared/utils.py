@@ -609,9 +609,9 @@ def checkIfObjectExists(name, shouldExist = True, timeout = 3000, verboseOnFail 
     return result
 
 # wait for progress bar(s) to appear and disappear
-def progressBarWait():
+def progressBarWait(timeout=60000):
     checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", True, 2000)
-    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", False, 60000)
+    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", False, timeout)
 
 def readFile(filename):
     f = open(filename, "r")

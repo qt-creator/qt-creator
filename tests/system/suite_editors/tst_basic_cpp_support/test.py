@@ -19,9 +19,8 @@ def main():
     overrideInstallLazySignalHandler()
     installLazySignalHandler(":Qt Creator_CppEditor::Internal::CPPEditorWidget", "textChanged()",
                              "__handleTextChanged__")
-    prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     openQmakeProject(proFile)
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
+    progressBarWait(20000)
     selectFromLocator("dummy.cpp")
 
 ##   Waiting for a solution from Froglogic to make the below work.
