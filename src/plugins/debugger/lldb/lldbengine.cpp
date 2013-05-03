@@ -39,6 +39,7 @@
 #include "debuggertooltipmanager.h"
 
 #include "breakhandler.h"
+#include "disassemblerlines.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
@@ -81,6 +82,7 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
     setObjectName(QLatin1String("LldbEngine"));
+    m_disassemblerAgent = 0;
 }
 
 LldbEngine::~LldbEngine()
@@ -95,7 +97,8 @@ void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguage
         showMessage(_("LLDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
-    runCommand(command.toUtf8());
+    //runCommand(command.toUtf8());
+    m_lldbProc.write(command.toUtf8() + '\n');
 }
 
 static int token = 1;
@@ -105,10 +108,10 @@ void LldbEngine::runCommand(const QByteArray &functionName,
 {
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     ++token;
-    QByteArray cmd = "db ['" + functionName + "','"
-            + QByteArray::number(token) + "','"
-            + extraArgs + "','"
-            + continuation + "']\n";
+    QByteArray cmd = "db ['" + functionName + "',"
+            + QByteArray::number(token) + ","
+            + "'" + extraArgs + "',"
+            + "'" + continuation + "']\n";
     showMessage(QString::number(token) + _(cmd), LogInput);
     m_lldbProc.write(cmd);
 }
@@ -254,6 +257,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshModules(item);
         else if (name == "bkpts")
             refreshBreakpoints(item);
+        else if (name == "disassembly")
+            refreshDisassembly(item);
         else if (name == "continuation")
             runContinuation(item);
     }
@@ -446,6 +451,25 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
         handler->setResponse(id, response);
         handler->notifyBreakpointChangeOk(id);
     }
+}
+
+void LldbEngine::refreshDisassembly(const GdbMi &lines)
+{
+    DisassemblerLines result;
+
+    foreach (const GdbMi &line, lines.children()) {
+        DisassemblerLine dl;
+        QByteArray address = line.findChild("address").data();
+        dl.address = address.toULongLong(0, 0);
+        dl.data = _(line.findChild("inst").data());
+        dl.function = _(line.findChild("func-name").data());
+        dl.offset = line.findChild("offset").data().toUInt();
+        result.appendLine(dl);
+    }
+
+    QTC_ASSERT(m_disassemblerAgent, return);
+    m_disassemblerAgent->setContents(result);
+    m_disassemblerAgent = 0;
 }
 
 void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
@@ -909,6 +933,14 @@ void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 void LldbEngine::reloadRegisters()
 {
     runCommand("reloadRegisters");
+}
+
+void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
+{
+    QTC_CHECK(!m_disassemblerAgent);
+    m_disassemblerAgent = agent;
+    QByteArray cookie = QByteArray::number(qulonglong(agent));
+    runCommand("disassemble", "{'cookie':" + cookie + "}");
 }
 
 bool LldbEngine::hasCapability(unsigned cap) const

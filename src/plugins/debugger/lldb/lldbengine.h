@@ -31,10 +31,12 @@
 #define DEBUGGER_LLDBENGINE
 
 #include "debuggerengine.h"
+#include "disassembleragent.h"
 
+#include <QPointer>
 #include <QProcess>
-#include <QStack>
 #include <QQueue>
+#include <QStack>
 #include <QVariant>
 
 
@@ -97,6 +99,8 @@ private:
     void reloadRegisters();
     void reloadSourceFiles() {}
     void reloadFullStack() {}
+    void fetchDisassembler(Internal::DisassemblerAgent *);
+    void refreshDisassembly(const GdbMi &lines);
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
@@ -158,6 +162,7 @@ private:
     QString m_scriptFileName;
     QProcess m_lldbProc;
     QString m_lldb;
+    QPointer<DisassemblerAgent> m_disassemblerAgent;
 };
 
 } // namespace Internal

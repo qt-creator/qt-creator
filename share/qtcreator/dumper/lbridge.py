@@ -712,15 +712,28 @@ class Debugger(cmd.Cmd):
         self.reportData()
 
     # Convenience
-    def do_r(self, args):
-        self.setupInferior(args)
-        self.target.BreakpointCreateByName("main", self.db.target.GetExecutable().GetFilename())
-        self.runEngine()
-
     def do_bb(self, args):
         options = eval(args)
         self.expandedINames = set(options['expanded'].split(','))
         self.reportData()
+
+    def do_disassemble(self, args):
+        #options = eval(args)
+        frame = self.currentFrame();
+        function = frame.GetFunction()
+        name = function.GetName()
+        result = 'disassembly=['
+        base = function.GetStartAddress().GetLoadAddress(self.target)
+        for insn in function.GetInstructions(self.target):
+            comment = insn.GetComment(self.target)
+            addr = insn.GetAddress().GetLoadAddress(self.target)
+            result += '{address="%s"' % addr
+            result += ',inst="%s %s"' % (insn.GetMnemonic(self.target), insn.GetOperands(self.target))
+            result += ',func_name="%s"' % name
+            if comment:
+                result += ',comment="%s"' % comment
+            result += ',offset="%s"},' % (addr - base)
+        self.report(result + ']')
 
 #execfile(os.path.join(currentDir, "dumper.py"))
 #execfile(os.path.join(currentDir, "qttypes.py"))
