@@ -3,4 +3,5 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     debugger \
     projectexplorer \
-    qt4projectmanager
+    qt4projectmanager \
+    analyzerbase

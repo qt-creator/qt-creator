@@ -71,7 +71,6 @@ RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration
     sp.toolId = tool->id();
 
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
-    QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
     return rc;
 }
 

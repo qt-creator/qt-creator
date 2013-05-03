@@ -30,9 +30,12 @@
 #ifndef ANDROIDDEBUGSUPPORT_H
 #define ANDROIDDEBUGSUPPORT_H
 
-#include "androidrunconfiguration.h"
+#include "androidrunsupport.h"
 
-namespace Debugger { class DebuggerRunControl; }
+namespace Debugger {
+class DebuggerEngine;
+class DebuggerRunControl;
+}
 namespace ProjectExplorer { class RunControl; }
 
 namespace Android {
@@ -41,7 +44,7 @@ namespace Internal {
 class AndroidRunConfiguration;
 class AndroidRunner;
 
-class AndroidDebugSupport : public QObject
+class AndroidDebugSupport : public AndroidRunSupport
 {
     Q_OBJECT
 
@@ -61,9 +64,7 @@ private slots:
     void handleRemoteErrorOutput(const QByteArray &output);
 
 private:
-    Debugger::DebuggerRunControl* m_runControl;
-    AndroidRunner * const m_runner;
-    const QString m_dumperLib;
+    Debugger::DebuggerEngine *m_engine;
 };
 
 } // namespace Internal

@@ -38,6 +38,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <QDebug>
+#include <QAction>
 
 using namespace ProjectExplorer;
 
@@ -85,6 +86,8 @@ AnalyzerRunControl::AnalyzerRunControl(IAnalyzerTool *tool,
             SLOT(addTask(ProjectExplorer::Task::TaskType,QString,QString,int)));
     connect(d->m_engine, SIGNAL(finished()),
             SLOT(engineFinished()));
+
+    connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), SLOT(stopIt()));
 }
 
 AnalyzerRunControl::~AnalyzerRunControl()
@@ -157,6 +160,11 @@ QString AnalyzerRunControl::displayName() const
 QIcon AnalyzerRunControl::icon() const
 {
     return QIcon(QLatin1String(":/images/analyzer_start_small.png"));
+}
+
+IAnalyzerEngine *AnalyzerRunControl::engine() const
+{
+    return d->m_engine;
 }
 
 void AnalyzerRunControl::receiveOutput(const QString &text, Utils::OutputFormat format)

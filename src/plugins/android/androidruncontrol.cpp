@@ -45,7 +45,7 @@ namespace Internal {
 
 AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     : RunControl(rc, NormalRunMode)
-    , m_runner(new AndroidRunner(this, rc, false))
+    , m_runner(new AndroidRunner(this, rc, NormalRunMode))
     , m_running(false)
 {
 }

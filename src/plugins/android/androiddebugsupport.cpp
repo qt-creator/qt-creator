@@ -133,68 +133,70 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
 
 AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
-    : QObject(runControl), m_runControl(runControl),
-      m_runner(new AndroidRunner(this, runConfig, true))
+    : AndroidRunSupport(runConfig, runControl),
+      m_engine(0)
 {
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
 
-    connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
-            m_runner, SLOT(start()));
-    connect(m_runControl, SIGNAL(finished()),
-            m_runner, SLOT(stop()));
-    connect(m_runControl->engine(), SIGNAL(aboutToNotifyInferiorSetupOk()),
-            m_runner, SLOT(handleRemoteDebuggerRunning()));
+    if (runControl)
+        m_engine = runControl->engine();
 
-    connect(m_runner, SIGNAL(remoteServerRunning(QByteArray,int)),
-        SLOT(handleRemoteServerRunning(QByteArray,int)));
-    connect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
-        SLOT(handleRemoteProcessStarted(int,int)));
-    connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
-        SLOT(handleRemoteProcessFinished(QString)));
-
-    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)),
-        SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
-        SLOT(handleRemoteOutput(QByteArray)));
+    if (m_engine) {
+        connect(m_engine, SIGNAL(requestRemoteSetup()),
+                m_runner, SLOT(start()));
+        connect(m_engine, SIGNAL(aboutToNotifyInferiorSetupOk()),
+                m_runner, SLOT(handleRemoteDebuggerRunning()));
+    }
 }
 
 void AndroidDebugSupport::handleRemoteServerRunning(const QByteArray &serverChannel, int pid)
 {
-    m_runControl->engine()->notifyEngineRemoteServerRunning(serverChannel, pid);
+    if (m_engine)
+        m_engine->notifyEngineRemoteServerRunning(serverChannel, pid);
 }
 
 void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlPort)
 {
     disconnect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
         this, SLOT(handleRemoteProcessStarted(int,int)));
-    m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
+    if (m_engine)
+        m_engine->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
 }
 
 void AndroidDebugSupport::handleRemoteProcessFinished(const QString &errorMsg)
 {
-    if (m_runControl)
-        m_runControl->showMessage(errorMsg, AppStuff);
+    DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(m_runControl);
+    if (runControl)
+        runControl->showMessage(errorMsg, AppStuff);
+    else
+        AndroidRunSupport::handleRemoteProcessFinished(errorMsg);
 }
 
 void AndroidDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    if (m_runControl) {
-        if (m_runControl->engine())
-            m_runControl->engine()->showMessage(QString::fromUtf8(output), AppOutput);
+    if (m_engine) {
+        m_engine->showMessage(QString::fromUtf8(output), AppOutput);
+    } else {
+        DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(m_runControl);
+        if (runControl)
+            runControl->showMessage(QString::fromUtf8(output), AppOutput);
         else
-            m_runControl->showMessage(QString::fromUtf8(output), AppOutput);
+            AndroidRunSupport::handleRemoteOutput(output);
     }
 }
 
 void AndroidDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    if (m_runControl) {
-        if (m_runControl->engine())
-            m_runControl->engine()->showMessage(QString::fromUtf8(output), AppError);
+    if (m_engine) {
+        m_engine->showMessage(QString::fromUtf8(output), AppError);
+    } else {
+        DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(m_runControl);
+        if (runControl)
+            runControl->showMessage(QString::fromUtf8(output), AppError);
         else
-            m_runControl->showMessage(QString::fromUtf8(output), AppError);
+            AndroidRunSupport::handleRemoteErrorOutput(output);
     }
 }
 

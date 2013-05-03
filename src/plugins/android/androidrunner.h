@@ -32,6 +32,8 @@
 
 #include "androidconfigurations.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <QObject>
 #include <QTimer>
 #include <QThread>
@@ -48,7 +50,8 @@ class AndroidRunner : public QThread
     Q_OBJECT
 
 public:
-    AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, bool debuggingMode);
+    AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig,
+                  ProjectExplorer::RunMode runMode);
     ~AndroidRunner();
 
     QString displayName() const;
@@ -61,6 +64,7 @@ public slots:
 signals:
     void remoteServerRunning(const QByteArray &serverChannel, int pid);
     void remoteProcessStarted(int gdbServerPort, int qmlPort);
+    void remoteProcessStarted(int qmlPort);
     void remoteProcessFinished(const QString &errString = QString());
 
     void remoteOutput(const QByteArray &output);
@@ -92,6 +96,7 @@ private:
     qint64 m_processPID;
     bool m_useCppDebugger;
     bool m_useQmlDebugger;
+    bool m_useQmlProfiler;
     ushort m_localGdbServerPort; // Local end of forwarded debug socket.
     quint16 m_qmlPort;
     bool m_useLocalQtLibs;

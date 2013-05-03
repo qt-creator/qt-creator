@@ -40,6 +40,7 @@ namespace Analyzer {
 
 class AnalyzerStartParameters;
 class IAnalyzerTool;
+class IAnalyzerEngine;
 
 class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
 {
@@ -56,6 +57,8 @@ public:
     bool isRunning() const;
     QString displayName() const;
     QIcon icon() const;
+
+    IAnalyzerEngine *engine() const;
 
 private slots:
     void stopIt();

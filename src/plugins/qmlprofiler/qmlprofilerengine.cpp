@@ -197,6 +197,8 @@ bool QmlProfilerEngine::start()
                 this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
         d->m_runner->start();
         d->m_noDebugOutputTimer.start();
+    } else if (d->sp.startMode == StartQmlAndroid) {
+        d->m_noDebugOutputTimer.start();
     } else {
         emit processRunning(startParameters().analyzerPort);
     }
@@ -332,18 +334,19 @@ void QmlProfilerEngine::showNonmodalWarning(const QString &warningMsg)
     noExecWarning->show();
 }
 
+void QmlProfilerEngine::notifyRemoteSetupDone(quint16 port)
+{
+    d->m_noDebugOutputTimer.stop();
+    emit processRunning(port);
+}
+
 void QmlProfilerEngine::processIsRunning(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    QTC_ASSERT(port == 0
-               || port == d->m_runner->debugPort(),
-               qWarning() << "Port " << port << "from application output does not match"
-               << startParameters().connParams.port << "from start parameters.");
-
     if (port > 0)
         emit processRunning(port);
-    else
+    else if (d->m_runner)
         emit processRunning(d->m_runner->debugPort());
 }
 
@@ -366,8 +369,7 @@ void QmlProfilerEngine::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
-        if (d->m_runner)
-            cancelProcess();
+        cancelProcess();
         break;
     }
     case QmlProfilerStateManager::Idle : {

@@ -2,7 +2,6 @@
 **
 ** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -28,51 +27,46 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERCONSTANTS_H
-#define ANALYZERCONSTANTS_H
+#ifndef ANDROIDANALYZESUPPORT_H
+#define ANDROIDANALYZESUPPORT_H
 
-#include <QtGlobal>
+#include "androidrunsupport.h"
 
 namespace Analyzer {
+class IAnalyzerEngine;
+class AnalyzerRunControl;
+}
+namespace ProjectExplorer { class RunControl; }
 
-// Special values for currently used start modes.
-// Their meaning is interpreted by the individual tools.
-// FIXME: The plan is to remove this entirely from the
-// public interface and let the tools handle that internally.
+namespace Android {
+namespace Internal {
 
-enum StartMode
+class AndroidRunConfiguration;
+class AndroidRunner;
+
+class AndroidAnalyzeSupport : public AndroidRunSupport
 {
-    StartLocal = -1,
-    StartRemote = -2,
-    StartQml = -3,
-    StartQmlAndroid = -4 // TODO: remove this enum and make it generic
+    Q_OBJECT
+
+public:
+    static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
+                                                                ProjectExplorer::RunMode runMode,
+                                                                QString *errorMessage);
+
+    AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
+        Analyzer::AnalyzerRunControl *runControl);
+
+private slots:
+    void handleRemoteProcessStarted(int qmlPort);
+
+    void handleRemoteOutput(const QByteArray &output);
+    void handleRemoteErrorOutput(const QByteArray &output);
+
+private:
+    Analyzer::IAnalyzerEngine *m_engine;
 };
 
-namespace Constants {
+} // namespace Internal
+} // namespace Android
 
-// Mode and its priority.
-const char MODE_ANALYZE[] = "Mode.Analyze";
-const int  P_MODE_ANALYZE = 76;
-
-// Context.
-const char C_ANALYZEMODE[] = "Analyzer.AnalyzeMode";
-
-// Menu.
-const char M_DEBUG_ANALYZER[] = "Analyzer.Menu.StartAnalyzer";
-const char M_DEBUG_ANALYZER_QML_OPTIONS[] = "Analyzer.Menu.QMLOptions";
-
-const char G_ANALYZER_CONTROL[] = "Menu.Group.Analyzer.Control";
-const char G_ANALYZER_TOOLS[] = "Menu.Group.Analyzer.Tools";
-const char G_ANALYZER_REMOTE_TOOLS[] = "Menu.Group.Analyzer.RemoteTools";
-const char G_ANALYZER_OPTIONS[] = "Menu.Group.Analyzer.Options";
-
-// Manager controls.
-const char ANALYZER_CONTROL_START_ICON[] = ":/images/analyzer_start_small.png";
-const char ANALYZER_CONTROL_STOP_ICON[] = ":/debugger/images/debugger_stop_small.png";
-
-const char ANALYZERTASK_ID[] = "Analyzer.TaskId";
-
-} // namespace Constants
-} // namespace Analyzer
-
-#endif // ANALYZERCONSTANTS_H
+#endif // ANDROIDANALYZESUPPORT_H

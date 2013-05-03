@@ -20,6 +20,8 @@ QtcPlugin {
     files: [
         "addnewavddialog.ui",
         "android.qrc",
+        "androidanalyzesupport.cpp",
+        "androidanalyzesupport.h",
         "androidconfigurations.cpp",
         "androidconfigurations.h",
         "androidconstants.h",
@@ -71,6 +73,8 @@ QtcPlugin {
         "androidrunfactories.h",
         "androidrunner.cpp",
         "androidrunner.h",
+        "androidrunsupport.cpp",
+        "androidrunsupport.h",
         "androidsettingspage.cpp",
         "androidsettingspage.h",
         "androidsettingswidget.cpp",

@@ -54,6 +54,7 @@ Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
     case StartRemote:
         return id.withSuffix(".Remote");
     case StartQml:
+    case StartQmlAndroid:
         return id.withSuffix(".Qml");
     }
     return Id();

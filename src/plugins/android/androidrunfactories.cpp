@@ -31,6 +31,7 @@
 
 #include "androidconstants.h"
 #include "androiddebugsupport.h"
+#include "androidanalyzesupport.h"
 #include "androidrunconfiguration.h"
 #include "androidruncontrol.h"
 #include "androidmanager.h"
@@ -150,7 +151,7 @@ AndroidRunControlFactory::AndroidRunControlFactory(QObject *parent)
 bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode)
+    if (mode != NormalRunMode && mode != DebugRunMode && mode != QmlProfilerRunMode)
         return false;
     return qobject_cast<AndroidRunConfiguration *>(runConfiguration);
 }
@@ -161,10 +162,21 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
     Q_ASSERT(canRun(runConfig, mode));
     AndroidRunConfiguration *rc = qobject_cast<AndroidRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
-    if (mode == NormalRunMode)
+    switch (mode) {
+    case NormalRunMode:
         return new AndroidRunControl(rc);
-    else
+    case DebugRunMode:
         return AndroidDebugSupport::createDebugRunControl(rc, errorMessage);
+    case QmlProfilerRunMode:
+        return AndroidAnalyzeSupport::createAnalyzeRunControl(rc, mode, errorMessage);
+    case NoRunMode:
+    case DebugRunModeWithBreakOnMain:
+    case CallgrindRunMode:
+    case MemcheckRunMode:
+    default:
+        QTC_CHECK(false); // The other run modes are not supported
+    }
+    return 0;
 }
 
 } // namespace Internal

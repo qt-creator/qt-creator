@@ -49,19 +49,23 @@ namespace Internal {
 
 typedef QLatin1String _;
 
-AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, bool debuggingMode)
+AndroidRunner::AndroidRunner(QObject *parent,
+                             AndroidRunConfiguration *runConfig,
+                             ProjectExplorer::RunMode runMode)
     : QThread(parent)
 {
     m_wasStarted = false;
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    const bool debuggingMode = runMode == ProjectExplorer::DebugRunMode;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     m_useQmlDebugger = debuggingMode && aspect->useQmlDebugger();
     QString channel = runConfig->remoteChannel();
     QTC_CHECK(channel.startsWith(QLatin1Char(':')));
     m_localGdbServerPort = channel.mid(1).toUShort();
     QTC_CHECK(m_localGdbServerPort);
-    if (m_useQmlDebugger) {
+    m_useQmlProfiler = runMode == ProjectExplorer::QmlProfilerRunMode;
+    if (m_useQmlDebugger || m_useQmlProfiler) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6),
@@ -220,7 +224,8 @@ void AndroidRunner::asyncStart()
         args << _("-e") << _("gdbserver_command") << m_gdbserverCommand;
         args << _("-e") << _("gdbserver_socket") << m_gdbserverSocket;
     }
-    if (m_useQmlDebugger) {
+
+    if (m_useQmlDebugger || m_useQmlProfiler) {
         // currently forward to same port on device and host
         const QString port = QString::fromLatin1("tcp:%1").arg(m_qmlPort);
         QProcess adb;
@@ -304,6 +309,8 @@ void AndroidRunner::asyncStart()
         // gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
         QByteArray serverChannel = QByteArray::number(m_qmlPort);
         emit remoteServerRunning(serverChannel, m_processPID);
+    } else if (m_useQmlProfiler) {
+        emit remoteProcessStarted(m_qmlPort);
     } else {
         // Start without debugging.
         emit remoteProcessStarted(-1, -1);

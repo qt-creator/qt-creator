@@ -34,7 +34,9 @@ HEADERS += \
     androidplugin.h \
     androiddevicefactory.h \
     androiddevice.h \
-    androidgdbserverkitinformation.h
+    androidgdbserverkitinformation.h \
+    androidanalyzesupport.h \
+    androidrunsupport.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -63,7 +65,9 @@ SOURCES += \
     androidplugin.cpp \
     androiddevicefactory.cpp \
     androiddevice.cpp \
-    androidgdbserverkitinformation.cpp
+    androidgdbserverkitinformation.cpp \
+    androidanalyzesupport.cpp \
+    androidrunsupport.cpp
 
 FORMS += \
     androidsettingswidget.ui \
