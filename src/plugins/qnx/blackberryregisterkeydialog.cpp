@@ -142,7 +142,7 @@ void BlackBerryRegisterKeyDialog::validate()
 
     if (m_ui->cskPin->text() != m_ui->cskPin2->text()) {
         m_okButton->setEnabled(false);
-        m_ui->statusLabel->setText(tr("CSK PINs do not match."));
+        m_ui->statusLabel->setText(tr("CSK passwords do not match."));
         return;
     }
 

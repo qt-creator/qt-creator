@@ -187,7 +187,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>CSK PIN:</string>
+        <string>CSK password:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -197,7 +197,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Confirm CSK PIN:</string>
+        <string>Confirm CSK password:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -209,12 +209,18 @@
        <property name="text">
         <string>Keystore password:</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
       </widget>
      </item>
      <item row="7" column="0" colspan="2">
       <widget class="QLabel" name="label_8">
        <property name="text">
         <string>Confirm password:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
