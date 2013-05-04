@@ -1040,7 +1040,7 @@ static Input parseVimKeyName(const QString &keyName)
     const QStringList keys = keyName.split(QLatin1Char('-'));
     const int len = keys.length();
 
-    if (len == 1 && keys.at(0) == _("nop"))
+    if (len == 1 && keys.at(0).toUpper() == _("NOP"))
         return Nop;
 
     int mods = NoModifier;
