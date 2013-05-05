@@ -133,7 +133,7 @@ bool FormEditorScene::hasItemForQmlItemNode(const QmlItemNode &qmlItemNode) cons
 
 void FormEditorScene::removeItemFromHash(FormEditorItem *item)
 {
-   m_qmlItemNodeItemHash.remove(item->qmlItemNode());
+    m_qmlItemNodeItemHash.remove(item->qmlItemNode());
 }
 
 
@@ -316,7 +316,7 @@ void FormEditorScene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 FormEditorView *FormEditorScene::editorView() const
 {
-   return m_editorView;
+    return m_editorView;
 }
 
 LayerItem* FormEditorScene::manipulatorLayerItem() const

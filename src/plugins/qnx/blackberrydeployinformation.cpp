@@ -56,10 +56,10 @@ const char SOURCE_KEY[]         = "Qnx.BlackBerry.DeployInformation.Source";
 
 QString BarPackageDeployInformation::appDescriptorPath() const
 {
-   if (userAppDescriptorPath.isEmpty())
-       return sourceDir + QLatin1String("/bar-descriptor.xml");
+    if (userAppDescriptorPath.isEmpty())
+        return sourceDir + QLatin1String("/bar-descriptor.xml");
 
-   return userAppDescriptorPath;
+    return userAppDescriptorPath;
 }
 
 QString BarPackageDeployInformation::packagePath() const

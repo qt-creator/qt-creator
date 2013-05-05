@@ -48,7 +48,7 @@ class BlackBerryNDKSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-   explicit BlackBerryNDKSettingsWidget(QWidget *parent = 0);
+    explicit BlackBerryNDKSettingsWidget(QWidget *parent = 0);
 
 signals:
     void sdkPathChanged();

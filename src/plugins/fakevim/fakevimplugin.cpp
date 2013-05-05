@@ -1717,8 +1717,7 @@ void FakeVimPluginPrivate::triggerCompletions()
 //        CompletionSupport::instance()->complete(editor->editor(), TextCompletion, false);
 }
 
-void FakeVimPluginPrivate::triggerSimpleCompletions(const QString &needle,
-   bool forward)
+void FakeVimPluginPrivate::triggerSimpleCompletions(const QString &needle, bool forward)
 {
 //    m_wordCompletion->setActive(needle, forward, qobject_cast<FakeVimHandler *>(sender()));
     m_wordProvider->setActive(needle, forward, qobject_cast<FakeVimHandler *>(sender()));

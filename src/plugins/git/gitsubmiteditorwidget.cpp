@@ -232,7 +232,7 @@ void GitSubmitEditorWidget::authorInformationChanged()
     m_gitSubmitPanelUi.invalidEmailLabel->
             setVisible(!emailIsValid() && !bothEmpty);
 
-   updateSubmitAction();
+    updateSubmitAction();
 }
 
 bool GitSubmitEditorWidget::emailIsValid() const

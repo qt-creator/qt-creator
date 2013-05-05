@@ -1183,7 +1183,7 @@ void Qt4Project::unwatchFolders(const QStringList &l, Qt4PriFileNode *node)
 // All the folder have a trailing slash!
 
 namespace {
-   bool debugCFW = false;
+    bool debugCFW = false;
 }
 
 CentralizedFolderWatcher::CentralizedFolderWatcher(QObject *parent) : QObject(parent)

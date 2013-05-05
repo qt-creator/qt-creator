@@ -454,7 +454,7 @@ const Name *rewriteName(const Name *name,
 
 static QString chopConst(QString type)
 {
-   while (1) {
+    while (1) {
         if (type.startsWith(QLatin1String("const")))
             type = type.mid(5);
         else if (type.startsWith(QLatin1Char(' ')))
@@ -515,7 +515,7 @@ static inline QString fixNestedTemplates(QString s)
             && s.at(size - 1) == QLatin1Char('>')
             && s.at(size - 2) == QLatin1Char(' ')
             && s.at(size - 3) != QLatin1Char('>'))
-            s.remove(size - 2, 1);
+        s.remove(size - 2, 1);
     return s;
 }
 
@@ -607,14 +607,14 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
             const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
             const QString valueEsc = QRegExp::escape(value);
             QRegExp mapRE1(QString::fromLatin1("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
-                .arg(keyEsc, valueEsc, keyEsc, allocEsc));
+                           .arg(keyEsc, valueEsc, keyEsc, allocEsc));
             mapRE1.setMinimal(true);
             QTC_ASSERT(mapRE1.isValid(), return typeIn);
             if (mapRE1.indexIn(type) != -1) {
                 type.replace(mapRE1.cap(0), QString::fromLatin1("map<%1, %2>").arg(key, value));
             } else {
                 QRegExp mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
-                    .arg(keyEsc, valueEsc, keyEsc, allocEsc));
+                               .arg(keyEsc, valueEsc, keyEsc, allocEsc));
                 mapRE2.setMinimal(true);
                 if (mapRE2.indexIn(type) != -1)
                     type.replace(mapRE2.cap(0), QString::fromLatin1("map<const %1, %2>").arg(key, value));

@@ -8000,7 +8000,7 @@ void FakeVimHandler::handleInput(const QString &keys)
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)
 {
-   d->m_currentFileName = fileName;
+    d->m_currentFileName = fileName;
 }
 
 QString FakeVimHandler::currentFileName() const
@@ -8010,7 +8010,7 @@ QString FakeVimHandler::currentFileName() const
 
 void FakeVimHandler::showMessage(MessageLevel level, const QString &msg)
 {
-   d->showMessage(level, msg);
+    d->showMessage(level, msg);
 }
 
 QWidget *FakeVimHandler::widget()

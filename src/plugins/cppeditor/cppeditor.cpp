@@ -327,37 +327,37 @@ int numberOfClosedEditors = 0;
 /// Check if previous line is a CppStyle Doxygen Comment
 bool isPreviousLineCppStyleComment(const QTextCursor &cursor)
 {
-   const QTextBlock &currentBlock = cursor.block();
-   if (!currentBlock.isValid())
-      return false;
+    const QTextBlock &currentBlock = cursor.block();
+    if (!currentBlock.isValid())
+        return false;
 
-   const QTextBlock &actual = currentBlock.previous();
-   if (!actual.isValid())
-      return false;
+    const QTextBlock &actual = currentBlock.previous();
+    if (!actual.isValid())
+        return false;
 
-   const QString text = actual.text().trimmed();
-   if (text.startsWith(QLatin1String("///")) || text.startsWith(QLatin1String("//!")))
-      return true;
+    const QString text = actual.text().trimmed();
+    if (text.startsWith(QLatin1String("///")) || text.startsWith(QLatin1String("//!")))
+        return true;
 
-   return false;
+    return false;
 }
 
 /// Check if next line is a CppStyle Doxygen Comment
 bool isNextLineCppStyleComment(const QTextCursor &cursor)
 {
-   const QTextBlock &currentBlock = cursor.block();
-   if (!currentBlock.isValid())
-      return false;
+    const QTextBlock &currentBlock = cursor.block();
+    if (!currentBlock.isValid())
+        return false;
 
-   const QTextBlock &actual = currentBlock.next();
-   if (!actual.isValid())
-      return false;
+    const QTextBlock &actual = currentBlock.next();
+    if (!actual.isValid())
+        return false;
 
-   const QString text = actual.text().trimmed();
-   if (text.startsWith(QLatin1String("///")) || text.startsWith(QLatin1String("//!")))
-      return true;
+    const QString text = actual.text().trimmed();
+    if (text.startsWith(QLatin1String("///")) || text.startsWith(QLatin1String("//!")))
+        return true;
 
-   return false;
+    return false;
 }
 
 /// Check if line is a CppStyle Doxygen comment and the cursor is after the comment
@@ -416,8 +416,9 @@ bool handleDoxygenCppStyleContinuation(QTextCursor &cursor,
     // consider it as a continuation. Handles situations like:
     // void d(); ///<enter>
     if (!(text.trimmed().startsWith(QLatin1String("///"))
-        || text.startsWith(QLatin1String("//!"))))
-       return false;
+          || text.startsWith(QLatin1String("//!")))) {
+        return false;
+    }
 
     QString newLine(QLatin1Char('\n'));
     newLine.append(QString(offset, QLatin1Char(' '))); // indent correctly
@@ -1366,9 +1367,9 @@ CPPEditorWidget::Link CPPEditorWidget::findMacroLink(const QByteArray &name) con
 }
 
 CPPEditorWidget::Link CPPEditorWidget::findMacroLink(const QByteArray &name,
-                                         Document::Ptr doc,
-                                         const Snapshot &snapshot,
-                                         QSet<QString> *processed) const
+                                                     Document::Ptr doc,
+                                                     const Snapshot &snapshot,
+                                                     QSet<QString> *processed) const
 {
     if (doc && ! name.startsWith('<') && ! processed->contains(doc->fileName())) {
         processed->insert(doc->fileName());
@@ -1836,7 +1837,7 @@ void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
     startRename();
 
     bool wantEditBlock = (cursor.position() >= m_currentRenameSelectionBegin.position()
-            && cursor.position() <= m_currentRenameSelectionEnd.position());
+                          && cursor.position() <= m_currentRenameSelectionEnd.position());
 
     if (wantEditBlock) {
         // possible change inside rename selection
@@ -1869,7 +1870,7 @@ bool CPPEditor::open(QString *errorString, const QString &fileName, const QStrin
 {
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     editorWidget()->setMimeType(
-        Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+                Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
 }
 
@@ -1882,7 +1883,7 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
     CppHighlighter *highlighter
-        = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
+            = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
 

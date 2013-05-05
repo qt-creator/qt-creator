@@ -109,7 +109,7 @@ bool isIntType(const QByteArray &type)
 
 bool isFloatType(const QByteArray &type)
 {
-   return type == "float" || type == "double" || type == "qreal";
+    return type == "float" || type == "double" || type == "qreal";
 }
 
 bool isIntOrFloatType(const QByteArray &type)

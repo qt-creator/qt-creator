@@ -1285,7 +1285,7 @@ template <class NonModalDialog>
 
 void GitPlugin::branchList()
 {
-   showNonModalDialog(currentState().topLevel(), m_branchDialog);
+    showNonModalDialog(currentState().topLevel(), m_branchDialog);
 }
 
 void GitPlugin::remoteList()

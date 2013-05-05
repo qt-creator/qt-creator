@@ -90,7 +90,7 @@ QString ProjectFilesFactory::displayName() const
 ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
   : BaseTextEditor(editor)
 {
-   setContext(Core::Context(Constants::C_FILESEDITOR));
+    setContext(Core::Context(Constants::C_FILESEDITOR));
 }
 
 Core::Id ProjectFilesEditor::id() const

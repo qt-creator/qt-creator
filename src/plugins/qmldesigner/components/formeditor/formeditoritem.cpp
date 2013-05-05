@@ -198,7 +198,7 @@ void FormEditorItem::setFormEditorVisible(bool isVisible)
 
 FormEditorItem::~FormEditorItem()
 {
-   scene()->removeItemFromHash(this);
+    scene()->removeItemFromHash(this);
 }
 
 /* \brief returns the parent item skipping all proxyItem*/
