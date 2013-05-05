@@ -62,6 +62,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setUniformRowHeights(true);
     setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(emitDoubleClicked(QModelIndex)));
 }
 
 bool LogChangeWidget::init(const QString &repository, const QString &commit, bool includeRemote)
@@ -87,6 +88,15 @@ int LogChangeWidget::commitIndex() const
     if (currentIndex.isValid())
         return currentIndex.row();
     return -1;
+}
+
+void LogChangeWidget::emitDoubleClicked(const QModelIndex &index)
+{
+    if (index.isValid()) {
+        QString commit = index.sibling(index.row(), Sha1Column).data().toString();
+        if (!commit.isEmpty())
+            emit doubleClicked(commit);
+    }
 }
 
 bool LogChangeWidget::populateLog(const QString &repository, const QString &commit, bool includeRemote)

@@ -89,6 +89,7 @@ GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *p
     m_forceClose(false)
 {
     connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
+    connect(submitEditorWidget(), SIGNAL(show(QString)), this, SLOT(showCommit(QString)));
 }
 
 GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
@@ -158,6 +159,12 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
         emit diff(unstagedFiles, stagedFiles);
     if (!unmergedFiles.empty())
         emit merge(unmergedFiles);
+}
+
+void GitSubmitEditor::showCommit(const QString &commit)
+{
+    if (!m_workingDirectory.isEmpty())
+        emit show(m_workingDirectory, commit);
 }
 
 void GitSubmitEditor::updateFileModel()

@@ -62,6 +62,7 @@ public:
 signals:
     void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
     void merge(const QStringList &unmergedFiles);
+    void show(const QString &workingDirectory, const QString &commit);
 
 protected:
     QByteArray fileContents() const;
@@ -69,6 +70,7 @@ protected:
 
 private slots:
     void slotDiffSelected(const QList<int> &rows);
+    void showCommit(const QString &commit);
 
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();

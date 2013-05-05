@@ -57,6 +57,12 @@ public:
     QString commit() const;
     int commitIndex() const;
 
+signals:
+    void doubleClicked(const QString &commit);
+
+private slots:
+    void emitDoubleClicked(const QModelIndex &index);
+
 private:
     bool populateLog(const QString &repository, const QString &commit, bool includeRemote);
     const QStandardItem *currentItem(int column = 0) const;

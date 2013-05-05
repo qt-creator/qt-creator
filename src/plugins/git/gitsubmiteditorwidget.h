@@ -72,6 +72,9 @@ protected:
     bool canSubmit() const;
     QString cleanupDescription(const QString &) const;
 
+signals:
+    void show(const QString &commit);
+
 private slots:
     void authorInformationChanged();
 
