@@ -115,12 +115,16 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
             m_ui->remoteComboBox->setCurrentIndex(currIndex);
         ++currIndex;
     }
-    if (m_ui->remoteComboBox->count() < 1)
+    const int remoteCount = m_ui->remoteComboBox->count();
+    if (remoteCount < 1) {
         reject();
-
-    m_ui->remoteComboBox->setEnabled(m_ui->remoteComboBox->count() != 1);
-
-    connect(m_ui->remoteComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setRemoteBranches()));
+        return;
+    } else if (remoteCount == 1) {
+        m_ui->remoteLabel->hide();
+        m_ui->remoteComboBox->hide();
+    } else {
+        connect(m_ui->remoteComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setRemoteBranches()));
+    }
     connect(m_ui->branchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
     setRemoteBranches();
 }
