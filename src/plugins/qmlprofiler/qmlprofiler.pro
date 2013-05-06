@@ -3,7 +3,6 @@ DEFINES += QMLPROFILER_LIBRARY
 QT += network script declarative
 
 include(../../qtcreatorplugin.pri)
-include(qmlprofiler_dependencies.pri)
 include(canvas/canvas.pri)
 
 SOURCES += \
