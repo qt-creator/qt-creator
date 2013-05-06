@@ -143,7 +143,13 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
 }
 
 CppEditorSupport::~CppEditorSupport()
-{ }
+{
+    m_highlighter.cancel();
+    m_futureSemanticInfo.cancel();
+
+    m_highlighter.waitForFinished();
+    m_futureSemanticInfo.waitForFinished();
+}
 
 QString CppEditorSupport::fileName() const
 {
