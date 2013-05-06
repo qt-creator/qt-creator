@@ -53,6 +53,7 @@ public:
     QString selectedTopic() const;
     QString reviewers() const;
     bool localChangesFound() const;
+    bool valid() const;
 
 private slots:
     void setChangeRange();
@@ -66,6 +67,7 @@ private:
     Ui::GerritPushDialog *m_ui;
     QMap<QString,QString> *m_remoteBranches;
     bool m_localChangesFound;
+    bool m_valid;
 };
 
 

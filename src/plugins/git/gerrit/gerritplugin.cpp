@@ -366,8 +366,14 @@ void GerritPlugin::push()
     QPointer<GerritPushDialog> dialog = new GerritPushDialog(topLevel, Core::ICore::mainWindow());
 
     if (!dialog->localChangesFound()) {
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("No Local Changes"),
+        QMessageBox::warning(Core::ICore::mainWindow(), tr("No Local Changes"),
                               tr("Change from HEAD appears to be in remote branch already. Aborting."));
+        return;
+    }
+
+    if (!dialog->valid()) {
+        QMessageBox::warning(Core::ICore::mainWindow(), tr("Initialization Failed"),
+                              tr("Failed to initialize dialog. Aborting."));
         return;
     }
 

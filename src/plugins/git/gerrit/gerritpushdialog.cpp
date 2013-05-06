@@ -43,7 +43,8 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
     m_workingDir(workingDir),
     m_ui(new Ui::GerritPushDialog),
     m_remoteBranches(new QMap<QString,QString>()),
-    m_localChangesFound(true)
+    m_localChangesFound(false),
+    m_valid(false)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
@@ -59,21 +60,21 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
          << QLatin1String("HEAD") << QLatin1String("--not")<< QLatin1String("--remotes");
 
     if (!gitClient->synchronousLog(m_workingDir, args, &output) || output.isEmpty())
-        reject();
+        return;
 
     output.chop(1);
     if (output.isEmpty()) {
-        output = QLatin1String("HEAD");
-        m_localChangesFound = false;
+        return;
     } else {
         output = output.mid(output.lastIndexOf(QLatin1Char('\n')) + 1);
+        m_localChangesFound = true;
     }
 
     args.clear();
     args << QLatin1String("--remotes") << QLatin1String("--contains") << output;
 
     if (!gitClient->synchronousBranchCmd(m_workingDir, args, &output, &error))
-        reject();
+        return;
 
     QString head = QLatin1String("/HEAD");
     QStringList refs = output.split(QLatin1Char('\n'));
@@ -93,7 +94,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
     args << QLatin1String("--remotes");
 
     if (!gitClient->synchronousBranchCmd(m_workingDir, args, &output, &error))
-        reject();
+        return;
 
     refs.clear();
     refs = output.split(QLatin1String("\n"));
@@ -117,7 +118,6 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
     }
     const int remoteCount = m_ui->remoteComboBox->count();
     if (remoteCount < 1) {
-        reject();
         return;
     } else if (remoteCount == 1) {
         m_ui->remoteLabel->hide();
@@ -127,6 +127,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
     }
     connect(m_ui->branchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
     setRemoteBranches();
+    m_valid = true;
 }
 
 GerritPushDialog::~GerritPushDialog()
@@ -167,6 +168,11 @@ void GerritPushDialog::setChangeRange()
 bool GerritPushDialog::localChangesFound() const
 {
     return m_localChangesFound;
+}
+
+bool GerritPushDialog::valid() const
+{
+    return m_valid;
 }
 
 void GerritPushDialog::setRemoteBranches()
