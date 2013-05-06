@@ -77,13 +77,23 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
 
     QString head = QLatin1String("/HEAD");
     QStringList refs = output.split(QLatin1Char('\n'));
+    QString remoteTrackingBranch = gitClient->synchronousTrackingBranch(m_workingDir);
+    QString remoteBranch;
     foreach (const QString &reference, refs) {
-        if (reference.contains(head) || reference.isEmpty())
+        const QString ref = reference.trimmed();
+        if (ref.contains(head) || ref.isEmpty())
             continue;
 
-        m_suggestedRemoteName = reference.left(reference.indexOf(QLatin1Char('/'))).trimmed();
-        m_suggestedRemoteBranch = reference.mid(reference.indexOf(QLatin1Char('/')) + 1).trimmed();
-        break;
+        remoteBranch = ref;
+
+        // Prefer remote tracking branch if it exists and contains the latest remote commit
+        if (ref == remoteTrackingBranch)
+            break;
+    }
+
+    if (!remoteBranch.isEmpty()) {
+        m_suggestedRemoteName = remoteBranch.left(remoteBranch.indexOf(QLatin1Char('/')));
+        m_suggestedRemoteBranch = remoteBranch.mid(remoteBranch.indexOf(QLatin1Char('/')) + 1);
     }
 
     output.clear();

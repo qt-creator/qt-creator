@@ -2425,6 +2425,23 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
         outwin->appendError(commandOutputFromLocal8Bit(stdErr));
 }
 
+QString GitClient::synchronousTrackingBranch(const QString &workingDirectory, const QString &branch)
+{
+    QString remote;
+    QString localBranch = branch.isEmpty() ? synchronousCurrentLocalBranch(workingDirectory) : branch;
+    if (localBranch.isEmpty())
+        return QString();
+    localBranch.prepend(QLatin1String("branch."));
+    remote = readConfigValue(workingDirectory, localBranch + QLatin1String(".remote"));
+    if (remote.isEmpty())
+        return QString();
+    const QString rBranch = readConfigValue(workingDirectory, localBranch + QLatin1String(".merge"))
+            .replace(QLatin1String("refs/heads/"), QString());
+    if (rBranch.isEmpty())
+        return QString();
+    return remote + QLatin1Char('/') + rBranch;
+}
+
 void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand)
 {
     QString message = commit.isEmpty() ? tr("Conflicts detected")

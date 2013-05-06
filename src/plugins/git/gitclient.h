@@ -240,6 +240,8 @@ public:
     void interactiveRebase(const QString &workingDirectory, const QString &commit,
                            StashGuard &stashGuard, bool fixup);
     void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
+    QString synchronousTrackingBranch(const QString &workingDirectory,
+                                      const QString &branch = QString());
 
     // git svn support (asynchronous).
     void synchronousSubversionFetch(const QString &workingDirectory);
