@@ -429,9 +429,9 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
         const int numChild = locations.children().size();
         if (numChild > 1) {
             foreach (const GdbMi &location, locations.children()) {
+                const int locid = location["locid"].data().toUShort();
                 BreakpointResponse sub;
-                sub.id = BreakpointResponseId(rid.majorPart(),
-                    location["subid"].data().toUShort());
+                sub.id = BreakpointResponseId(rid.majorPart(), locid);
                 sub.type = response.type;
                 sub.address = location["addr"].toAddress();
                 sub.functionName = QString::fromUtf8(location["func"].data());
