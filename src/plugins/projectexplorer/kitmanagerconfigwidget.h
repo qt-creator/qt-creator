@@ -63,7 +63,7 @@ public:
     bool hasWarning() const;
     QString validityMessage() const;
     void addConfigWidget(ProjectExplorer::KitConfigWidget *widget);
-    void makeReadOnly();
+    void makeStickySubWidgetsReadOnly();
 
     Kit *workingCopy() const;
     bool configures(ProjectExplorer::Kit *k) const;

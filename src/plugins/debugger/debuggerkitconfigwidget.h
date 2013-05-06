@@ -60,7 +60,7 @@ class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy);
+    DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy, bool sticky);
 
     QString displayName() const;
     QString toolTip() const;

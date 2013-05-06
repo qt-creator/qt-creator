@@ -105,6 +105,7 @@ public:
     bool m_mustNotifyAboutDisplayName;
 
     QHash<Core::Id, QVariant> m_data;
+    QSet<Core::Id> m_sticky;
 };
 
 } // namespace Internal
@@ -161,6 +162,7 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_isValid = d->m_isValid;
     k->d->m_icon = d->m_icon;
     k->d->m_iconPath = d->m_iconPath;
+    k->d->m_sticky = d->m_sticky;
     return k;
 }
 
@@ -174,6 +176,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_displayName = k->d->m_displayName;
     d->m_mustNotify = true;
     d->m_mustNotifyAboutDisplayName = true;
+    d->m_sticky = k->d->m_sticky;
 }
 
 bool Kit::isValid() const
@@ -337,7 +340,13 @@ void Kit::removeKey(Id key)
     if (!d->m_data.contains(key))
         return;
     d->m_data.remove(key);
+    d->m_sticky.remove(key);
     kitUpdated();
+}
+
+bool Kit::isSticky(Core::Id id) const
+{
+    return d->m_sticky.contains(id);
 }
 
 bool Kit::isDataEqual(const Kit *other) const
@@ -451,6 +460,7 @@ bool Kit::fromMap(const QVariantMap &data)
     setIconPath(data.value(QLatin1String(ICON_KEY)).toString());
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
+    d->m_data.clear(); // remove default values
     const QVariantMap::ConstIterator cend = extra.constEnd();
     for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
         setValue(Id::fromString(it.key()), it.value());
@@ -466,6 +476,19 @@ void Kit::setAutoDetected(bool detected)
 void Kit::setSdkProvided(bool sdkProvided)
 {
     d->m_sdkProvided = sdkProvided;
+}
+
+void Kit::makeSticky()
+{
+    foreach (KitInformation *ki, KitManager::instance()->kitInformation()) {
+        if (hasValue(ki->dataId()))
+            makeSticky(ki->dataId());
+    }
+}
+
+void Kit::makeSticky(Core::Id id)
+{
+    d->m_sticky.insert(id);
 }
 
 void Kit::kitUpdated()

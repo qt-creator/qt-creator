@@ -112,7 +112,7 @@ void QmakeKitInformation::setup(ProjectExplorer::Kit *k)
 ProjectExplorer::KitConfigWidget *
 QmakeKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
 {
-    return new Internal::QmakeKitConfigWidget(k);
+    return new Internal::QmakeKitConfigWidget(k, isSticky(k));
 }
 
 ProjectExplorer::KitInformation::ItemList QmakeKitInformation::toUserOutput(const ProjectExplorer::Kit *k) const

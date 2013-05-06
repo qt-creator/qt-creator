@@ -183,6 +183,7 @@ void KitManager::restoreKits()
         foreach (Kit *k, system.kits) {
             k->setAutoDetected(true);
             k->setSdkProvided(true);
+            k->makeSticky();
             k->setup();
         }
 
@@ -215,8 +216,11 @@ void KitManager::restoreKits()
 
                 // Overwrite settings that the SDK sets to those values:
                 foreach (const KitInformation *ki, kitInformation()) {
-                    if (current->hasValue(ki->dataId()))
+                    // Copy sticky settings over:
+                    if (current->isSticky(ki->dataId())) {
                         toStore->setValue(ki->dataId(), current->value(ki->dataId()));
+                        toStore->makeSticky(ki->dataId());
+                    }
                 }
 
                 delete current;
@@ -568,6 +572,11 @@ QString KitInformation::displayNamePostfix(const Kit *k) const
 {
     Q_UNUSED(k);
     return QString();
+}
+
+bool KitInformation::isSticky(const Kit *k) const
+{
+    return k->isSticky(dataId());
 }
 
 void KitInformation::notifyAboutUpdate(Kit *k)

@@ -87,6 +87,7 @@ public:
     bool hasValue(Core::Id key) const;
     void setValue(Core::Id key, const QVariant &value);
     void removeKey(Core::Id key);
+    bool isSticky(Core::Id id) const;
 
     bool isDataEqual(const Kit *other) const;
     bool isEqual(const Kit *other) const;
@@ -99,8 +100,12 @@ public:
     void copyFrom(const Kit *k);
 
     void setAutoDetected(bool detected);
+
 private:
     void setSdkProvided(bool sdkProvided);
+    void makeSticky();
+    void makeSticky(Core::Id id);
+
     ~Kit();
 
     // Unimplemented.
@@ -115,6 +120,7 @@ private:
 
     Internal::KitPrivate *d;
 
+    friend class KitInformation;
     friend class KitManager;
     friend class Internal::KitModel; // needed for setAutoDetected() when cloning kits
 };

@@ -201,10 +201,12 @@ void KitManagerConfigWidget::updateVisibility()
     }
 }
 
-void KitManagerConfigWidget::makeReadOnly()
+void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    foreach (KitConfigWidget *w, m_widgets)
-        w->makeReadOnly();
+    foreach (KitConfigWidget *w, m_widgets) {
+        if (w->isSticky())
+            w->makeReadOnly();
+    }
     m_iconButton->setEnabled(false);
     m_nameEdit->setEnabled(false);
 }

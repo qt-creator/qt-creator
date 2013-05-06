@@ -45,7 +45,7 @@ class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit QtKitConfigWidget(ProjectExplorer::Kit *k);
+    explicit QtKitConfigWidget(ProjectExplorer::Kit *k, bool sticky);
 
     QString displayName() const;
 

@@ -47,6 +47,7 @@ class Task;
 class IOutputParser;
 class Kit;
 class KitConfigWidget;
+class KitManager;
 
 namespace Internal {
 class KitManagerConfigWidget;
@@ -90,6 +91,8 @@ public:
     virtual IOutputParser *createOutputParser(const Kit *k) const;
 
     virtual QString displayNamePostfix(const Kit *k) const;
+
+    bool isSticky(const Kit *k) const;
 
 protected:
     void notifyAboutUpdate(Kit *k);

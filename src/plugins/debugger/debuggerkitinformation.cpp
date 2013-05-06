@@ -274,7 +274,7 @@ QList<ProjectExplorer::Task> DebuggerKitInformation::validateDebugger(const Proj
 
 KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::DebuggerKitConfigWidget(k);
+    return new Internal::DebuggerKitConfigWidget(k, isSticky(k));
 }
 
 QString DebuggerKitInformation::userOutput(const DebuggerItem &item)

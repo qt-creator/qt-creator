@@ -81,7 +81,7 @@ ProjectExplorer::KitInformation::ItemList AndroidGdbServerKitInformation::toUser
 
 ProjectExplorer::KitConfigWidget *AndroidGdbServerKitInformation::createConfigWidget(ProjectExplorer::Kit *kit) const
 {
-    return new AndroidGdbServerKitInformationWidget(kit);
+    return new AndroidGdbServerKitInformationWidget(kit, isSticky(kit));
 }
 
 Utils::FileName AndroidGdbServerKitInformation::gdbServer(const ProjectExplorer::Kit *kit)
@@ -109,8 +109,8 @@ Utils::FileName AndroidGdbServerKitInformation::autoDetect(ProjectExplorer::Kit 
 ///////////////
 
 
-AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit)
-    : ProjectExplorer::KitConfigWidget(kit),
+AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit, bool sticky)
+    : ProjectExplorer::KitConfigWidget(kit, sticky),
       m_label(new Utils::ElidingLabel),
       m_button(new QPushButton(tr("Manage...")))
 {

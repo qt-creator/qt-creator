@@ -108,7 +108,7 @@ void QtKitInformation::fix(ProjectExplorer::Kit *k)
 
 ProjectExplorer::KitConfigWidget *QtKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
 {
-    return new Internal::QtKitConfigWidget(k);
+    return new Internal::QtKitConfigWidget(k, isSticky(k));
 }
 
 QString QtKitInformation::displayNamePostfix(const ProjectExplorer::Kit *k) const

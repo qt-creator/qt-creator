@@ -86,7 +86,7 @@ QList<Task> SysRootKitInformation::validate(const Kit *k) const
 
 KitConfigWidget *SysRootKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::SysRootInformationConfigWidget(k);
+    return new Internal::SysRootInformationConfigWidget(k, isSticky(k));
 }
 
 KitInformation::ItemList SysRootKitInformation::toUserOutput(const Kit *k) const
@@ -199,7 +199,7 @@ void ToolChainKitInformation::setup(Kit *k)
 
 KitConfigWidget *ToolChainKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::ToolChainInformationConfigWidget(k);
+    return new Internal::ToolChainInformationConfigWidget(k, isSticky(k));
 }
 
 QString ToolChainKitInformation::displayNamePostfix(const Kit *k) const
@@ -309,7 +309,7 @@ QList<Task> DeviceTypeKitInformation::validate(const Kit *k) const
 
 KitConfigWidget *DeviceTypeKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::DeviceTypeInformationConfigWidget(k);
+    return new Internal::DeviceTypeInformationConfigWidget(k, isSticky(k));
 }
 
 KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(const Kit *k) const
@@ -405,7 +405,7 @@ void DeviceKitInformation::setup(Kit *k)
 
 KitConfigWidget *DeviceKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::DeviceInformationConfigWidget(k);
+    return new Internal::DeviceInformationConfigWidget(k, isSticky(k));
 }
 
 QString DeviceKitInformation::displayNamePostfix(const Kit *k) const

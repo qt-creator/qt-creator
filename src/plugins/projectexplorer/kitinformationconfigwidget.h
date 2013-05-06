@@ -57,7 +57,7 @@ class SysRootInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit SysRootInformationConfigWidget(Kit *k);
+    explicit SysRootInformationConfigWidget(Kit *k, bool sticky);
 
     QString displayName() const;
     void refresh();
@@ -83,7 +83,7 @@ class ToolChainInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit ToolChainInformationConfigWidget(Kit *k);
+    explicit ToolChainInformationConfigWidget(Kit *k, bool sticky);
 
     QString displayName() const;
     void refresh();
@@ -117,7 +117,7 @@ class DeviceTypeInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceTypeInformationConfigWidget(Kit *workingCopy);
+    explicit DeviceTypeInformationConfigWidget(Kit *workingCopy, bool sticky);
 
     QWidget *mainWidget() const;
     QString displayName() const;
@@ -142,7 +142,7 @@ class DeviceInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceInformationConfigWidget(Kit *workingCopy);
+    explicit DeviceInformationConfigWidget(Kit *workingCopy, bool sticky);
 
     QWidget *mainWidget() const;
     QWidget *buttonWidget() const;

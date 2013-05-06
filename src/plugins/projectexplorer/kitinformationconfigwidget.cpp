@@ -55,8 +55,8 @@ namespace Internal {
 // SysRootInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k) :
-    KitConfigWidget(k),
+SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, bool sticky) :
+    KitConfigWidget(k, sticky),
     m_ignoreChange(false)
 {
     m_chooser = new Utils::PathChooser;
@@ -108,8 +108,8 @@ void SysRootInformationConfigWidget::pathWasChanged()
 // ToolChainInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k) :
-    KitConfigWidget(k), m_isReadOnly(false)
+ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, bool sticky) :
+    KitConfigWidget(k, sticky), m_isReadOnly(false)
 {
     ToolChainManager *tcm = ToolChainManager::instance();
 
@@ -232,8 +232,8 @@ int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)
 // DeviceTypeInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy) :
-    KitConfigWidget(workingCopy), m_isReadOnly(false), m_comboBox(new QComboBox)
+DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, bool sticky) :
+    KitConfigWidget(workingCopy, sticky), m_isReadOnly(false), m_comboBox(new QComboBox)
 {
     QList<IDeviceFactory *> factories
             = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
@@ -289,8 +289,8 @@ void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
 // DeviceInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy) :
-    KitConfigWidget(workingCopy),
+DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, bool sticky) :
+    KitConfigWidget(workingCopy, sticky),
     m_isReadOnly(false),
     m_ignoreChange(false),
     m_comboBox(new QComboBox),

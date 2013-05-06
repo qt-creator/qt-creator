@@ -44,8 +44,8 @@
 namespace QtSupport {
 namespace Internal {
 
-QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k) :
-    KitConfigWidget(k)
+QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, bool sticky) :
+    KitConfigWidget(k, sticky)
 {
     m_combo = new QComboBox;
     m_combo->addItem(tr("None"), -1);

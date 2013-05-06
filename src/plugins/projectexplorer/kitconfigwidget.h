@@ -47,7 +47,7 @@ class PROJECTEXPLORER_EXPORT KitConfigWidget : public QObject
     Q_OBJECT
 
 public:
-    KitConfigWidget(Kit *kit) : m_kit(kit)  { }
+    KitConfigWidget(Kit *kit, bool sticky) : m_kit(kit), m_isSticky(sticky) { }
 
     virtual QString displayName() const = 0;
     virtual QString toolTip() const { return QString(); }
@@ -58,11 +58,14 @@ public:
     virtual QWidget *mainWidget() const = 0;
     virtual QWidget *buttonWidget() const { return 0; }
 
+    bool isSticky() { return m_isSticky; }
+
 signals:
     void dirty();
 
 protected:
     ProjectExplorer::Kit *m_kit;
+    bool m_isSticky;
 };
 
 } // namespace ProjectExplorer
