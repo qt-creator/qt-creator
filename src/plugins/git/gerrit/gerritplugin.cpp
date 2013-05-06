@@ -363,7 +363,9 @@ void GerritPlugin::push()
 {
     const QString topLevel = Git::Internal::GitPlugin::instance()->currentState().topLevel();
 
-    QPointer<GerritPushDialog> dialog = new GerritPushDialog(topLevel, Core::ICore::mainWindow());
+    // QScopedPointer is required to delete the dialog when leaving the function
+    QScopedPointer<GerritPushDialog> dialog(
+                new GerritPushDialog(topLevel, Core::ICore::mainWindow()));
 
     if (!dialog->localChangesFound()) {
         QMessageBox::warning(Core::ICore::mainWindow(), tr("No Local Changes"),
@@ -377,11 +379,15 @@ void GerritPlugin::push()
         return;
     }
 
+    // QPointer is required to detect dialog deletion while in exec()
+    QPointer<GerritPushDialog> dlg = dialog.data();
     if (dialog->exec() == QDialog::Rejected)
         return;
 
-    if (dialog.isNull())
+    if (dlg.isNull()) {
+        dialog.take();
         return;
+    }
 
     QStringList args;
 
@@ -406,8 +412,6 @@ void GerritPlugin::push()
     args << target;
 
     Git::Internal::GitPlugin::instance()->gitClient()->synchronousPush(topLevel, args);
-
-    delete dialog;
 }
 
 // Open or raise the Gerrit dialog window.
