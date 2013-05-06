@@ -45,7 +45,7 @@ enum StartMode
     StartLocal = -1,
     StartRemote = -2,
     StartQml = -3,
-    StartQmlAndroid = -4 // TODO: remove this enum and make it generic
+    StartQmlRemote = -4 // TODO: remove this enum and make it generic
 };
 
 namespace Constants {

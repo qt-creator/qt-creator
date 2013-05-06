@@ -30,7 +30,6 @@
 #include "qmlprofilerengine.h"
 
 #include "localqmlprofilerrunner.h"
-#include "remotelinuxqmlprofilerrunner.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/icore.h>
@@ -46,7 +45,6 @@
 #include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <qmldebug/qmloutputparser.h>
-#include <remotelinux/remotelinuxrunconfiguration.h>
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -91,37 +89,36 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     if (!runConfiguration) // attaching
         return 0;
 
-    if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
-            qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
-        runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
+    QmlProjectManager::QmlProjectRunConfiguration *rc1 =
+                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
+    LocalApplicationRunConfiguration *rc2 =
+                   qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    // Supports only local run configurations
+    if (!rc1 && !rc2)
+        return 0;
+
+    ProjectExplorer::EnvironmentAspect *environment
+            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(environment, return 0);
+    LocalQmlProfilerRunner::Configuration conf;
+    if (rc1) {
+        // This is a "plain" .qmlproject.
+        conf.executable = rc1->observerPath();
+        conf.executableArguments = rc1->viewerArguments();
+        conf.workingDirectory = rc1->workingDirectory();
+        conf.environment = environment->environment();
     } else {
-        ProjectExplorer::EnvironmentAspect *environment
-                = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-        QTC_ASSERT(environment, return 0);
-        LocalQmlProfilerRunner::Configuration conf;
-        if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
-                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
-            // This is a "plain" .qmlproject.
-            conf.executable = rc1->observerPath();
-            conf.executableArguments = rc1->viewerArguments();
-            conf.workingDirectory = rc1->workingDirectory();
-            conf.environment = environment->environment();
-        } else if (LocalApplicationRunConfiguration *rc2 =
-                   qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-            // FIXME: Check.
-            conf.executable = rc2->executable();
-            conf.executableArguments = rc2->commandLineArguments();
-            conf.workingDirectory = rc2->workingDirectory();
-            conf.environment = environment->environment();
-        } else {
-            QTC_CHECK(false);
-        }
-        const ProjectExplorer::IDevice::ConstPtr device =
-                ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
-        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-        conf.port = sp.analyzerPort;
-        runner = new LocalQmlProfilerRunner(conf, parent);
+        // FIXME: Check.
+        conf.executable = rc2->executable();
+        conf.executableArguments = rc2->commandLineArguments();
+        conf.workingDirectory = rc2->workingDirectory();
+        conf.environment = environment->environment();
     }
+    const ProjectExplorer::IDevice::ConstPtr device =
+            ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
+    conf.port = sp.analyzerPort;
+    runner = new LocalQmlProfilerRunner(conf, parent);
     return runner;
 }
 
@@ -197,7 +194,7 @@ bool QmlProfilerEngine::start()
                 this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
         d->m_runner->start();
         d->m_noDebugOutputTimer.start();
-    } else if (d->sp.startMode == StartQmlAndroid) {
+    } else if (d->sp.startMode == StartQmlRemote) {
         d->m_noDebugOutputTimer.start();
     } else {
         emit processRunning(startParameters().analyzerPort);

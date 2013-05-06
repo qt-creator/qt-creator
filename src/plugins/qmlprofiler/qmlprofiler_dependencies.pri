@@ -7,5 +7,4 @@ QTC_PLUGIN_DEPENDS += \
     analyzerbase \
     qmlprojectmanager \
     qt4projectmanager \
-    qmljstools \
-    remotelinux
+    qmljstools

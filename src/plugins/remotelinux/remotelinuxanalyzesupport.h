@@ -27,30 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXDEBUGSUPPORT_H
-#define REMOTELINUXDEBUGSUPPORT_H
+#ifndef REMOTELINUXANALYZESUPPORT_H
+#define REMOTELINUXANALYZESUPPORT_H
 
 #include "iremotelinuxrunsupport.h"
 
-namespace Debugger {
-class DebuggerEngine;
-class DebuggerStartParameters;
+#include <projectexplorer/projectexplorerconstants.h>
+#include <utils/outputformat.h>
+
+namespace Analyzer {
+class AnalyzerStartParameters;
+class IAnalyzerEngine;
 }
 
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
 
-namespace Internal { class LinuxDeviceDebugSupportPrivate; }
+namespace Internal { class RemoteLinuxAnalyzeSupportPrivate; }
 
-class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public IRemoteLinuxRunSupport
+class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public IRemoteLinuxRunSupport
 {
     Q_OBJECT
 public:
-    static Debugger::DebuggerStartParameters startParameters(const RemoteLinuxRunConfiguration *runConfig);
+    static Analyzer::AnalyzerStartParameters startParameters(const RemoteLinuxRunConfiguration *runConfig,
+                                                             ProjectExplorer::RunMode runMode);
 
-    LinuxDeviceDebugSupport(RemoteLinuxRunConfiguration *runConfig,
-            Debugger::DebuggerEngine *engine);
-    ~LinuxDeviceDebugSupport();
+    RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration *runConfig,
+            Analyzer::IAnalyzerEngine *engine, ProjectExplorer::RunMode runMode);
+    ~RemoteLinuxAnalyzeSupport();
 
 protected:
     void startExecution();
@@ -66,14 +70,14 @@ private slots:
     void handleProgressReport(const QString &progressOutput);
 
     void handleRemoteProcessStarted();
-    void handleDebuggingFinished();
+    void handleProfilingFinished();
 
 private:
-    void showMessage(const QString &msg, int channel);
+    void showMessage(const QString &, Utils::OutputFormat);
 
-    Internal::LinuxDeviceDebugSupportPrivate * const d;
+    Internal::RemoteLinuxAnalyzeSupportPrivate * const d;
 };
 
 } // namespace RemoteLinux
 
-#endif // REMOTELINUXDEBUGSUPPORT_H
+#endif // REMOTELINUXANALYZESUPPORT_H

@@ -11,7 +11,6 @@ SOURCES += \
     qmlprofilerengine.cpp \
     qmlprofilerattachdialog.cpp \
     localqmlprofilerrunner.cpp \
-    remotelinuxqmlprofilerrunner.cpp \
     qmlprofilereventview.cpp \
     qmlprofilerdetailsrewriter.cpp \
     qmlprofilertraceview.cpp \
@@ -32,7 +31,6 @@ HEADERS += \
     qmlprofilerattachdialog.h \
     abstractqmlprofilerrunner.h \
     localqmlprofilerrunner.h \
-    remotelinuxqmlprofilerrunner.h \
     qmlprofilereventview.h \
     qmlprofilerdetailsrewriter.h \
     qmlprofilertraceview.h \

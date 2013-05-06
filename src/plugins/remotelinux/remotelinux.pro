@@ -46,7 +46,9 @@ HEADERS += \
     genericlinuxdeviceconfigurationwidget.h \
     remotelinuxcheckforfreediskspaceservice.h \
     remotelinuxcheckforfreediskspacestep.h \
-    remotelinuxdeploymentdatamodel.h
+    remotelinuxdeploymentdatamodel.h \
+    iremotelinuxrunsupport.h \
+    remotelinuxanalyzesupport.h
 
 SOURCES += \
     embeddedlinuxqtversion.cpp \
@@ -90,7 +92,9 @@ SOURCES += \
     genericlinuxdeviceconfigurationwidget.cpp \
     remotelinuxcheckforfreediskspaceservice.cpp \
     remotelinuxcheckforfreediskspacestep.cpp \
-    remotelinuxdeploymentdatamodel.cpp
+    remotelinuxdeploymentdatamodel.cpp \
+    iremotelinuxrunsupport.cpp \
+    remotelinuxanalyzesupport.cpp
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \

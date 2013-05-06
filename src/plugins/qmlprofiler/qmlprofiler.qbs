@@ -55,8 +55,6 @@ QtcPlugin {
         "qmlprofilerviewmanager.h",
         "qv8profilerdatamodel.cpp",
         "qv8profilerdatamodel.h",
-        "remotelinuxqmlprofilerrunner.cpp",
-        "remotelinuxqmlprofilerrunner.h",
         "timelinerenderer.cpp",
         "timelinerenderer.h",
         "canvas/qdeclarativecanvas.cpp",

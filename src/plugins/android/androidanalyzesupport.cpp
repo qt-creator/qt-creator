@@ -63,7 +63,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
 
     AnalyzerStartParameters params;
     params.toolId = tool->id();
-    params.startMode = StartQmlAndroid;
+    params.startMode = StartQmlRemote;
     Target *target = runConfig->target();
     params.displayName = AndroidManager::packageName(target);
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();

@@ -57,9 +57,6 @@
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <texteditor/itexteditor.h>
 
-#include <remotelinux/remotelinuxrunconfiguration.h>
-#include <remotelinux/linuxdevice.h>
-
 #include <android/androidconstants.h>
 
 #include <coreplugin/coreconstants.h>
@@ -97,7 +94,6 @@ using namespace QmlProfiler::Constants;
 using namespace QmlDebug;
 using namespace ProjectExplorer;
 using namespace QmlProjectManager;
-using namespace RemoteLinux;
 
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
@@ -284,7 +280,6 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)
-            || qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)
             || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration))
         return mode == runMode();
     return false;
@@ -328,16 +323,6 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggee = rc2->executable();
         sp.debuggeeArgs = rc2->commandLineArguments();
         sp.displayName = rc2->displayName();
-    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc3 =
-            qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp.debuggee = rc3->remoteExecutableFilePath();
-        sp.debuggeeArgs = rc3->arguments();
-        sp.connParams = ProjectExplorer::DeviceKitInformation::device(rc3->target()->kit())->sshParameters();
-        sp.analyzerCmdPrefix = rc3->commandPrefix();
-        sp.displayName = rc3->displayName();
-        sp.sysroot = sysroot(rc3);
-        sp.analyzerHost = sp.connParams.host;
-        sp.analyzerPort = sp.connParams.port;
     } else {
         // What could that be?
         QTC_ASSERT(false, return sp);
