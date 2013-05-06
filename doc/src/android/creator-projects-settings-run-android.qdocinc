@@ -1,10 +1,8 @@
-    \section2 Specifying Run Settings for Android Devices
+    To specify information for the Android manifest file, select \gui Projects >
+    \gui Run > \gui {Package configurations}. The Android system uses the
+    information from the file to start application components.
 
-    In \gui {Package configurations}, you can specify information for the
-    Android manifest file. The Android system uses the information from the file
-    to start application components.
-
-    \section3 Specifying Package Data
+    \section2 Specifying Package Data
 
     In the \gui Manifest tab, you can select the API level to use for the
     Android target SDK and the name and version number for the application
@@ -30,14 +28,14 @@
     \l{http://developer.android.com/guide/components/fundamentals.html}
     {Android Application Fundamentals}.
 
-    \section3 Specifying Application Data
+    \section2 Specifying Application Data
 
     In the \gui Application tab, you can select an icon for the application and
     give the application a name.
 
     \image qtcreator-android-application.png "Application tab"
 
-    \section3 Setting Permissions
+    \section2 Setting Permissions
 
     In the \gui Permissions tab, you can specify the permissions that your
     application needs. Users are asked to grant the permissions when they
@@ -49,7 +47,7 @@
     Select from existing Android permissions or add new ones to deploy the
     application to a particular Android OS.
 
-    \section3 Selecting Qt Libraries
+    \section2 Selecting Qt Libraries
 
     In the \gui Libraries tab, specify which Qt libraries the application uses.
     To automatically determine this, select \gui {Read Infomation from
@@ -66,7 +64,7 @@
     In addition, the Java Loader uses this list to determine which Qt Libraries
     and other prebundled libraries to load with your application.
 
-    \section3 Signing Android Packages
+    \section2 Signing Android Packages
 
     In the \gui {Sign Package} tab, you can sign the Android package by using
     a private key from the keystore. To create new keys, select \gui Create.
