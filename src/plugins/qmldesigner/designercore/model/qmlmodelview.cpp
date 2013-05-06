@@ -233,7 +233,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             QPlainTextEdit textEdit;
 
 
-            textEdit.setPlainText(Utils::FileReader::fetchQrc(itemLibraryEntry.qml()));
+            textEdit.setPlainText(itemLibraryEntry.qmlSource());
             NotIndentingTextEditModifier modifier(&textEdit);
 
             QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
