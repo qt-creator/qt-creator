@@ -18,6 +18,7 @@ HEADERS = \
     qbsbuildconfigurationwidget.h \
     qbsbuildstep.h \
     qbscleanstep.h \
+    qbsdeployconfigurationfactory.h \
     qbsinstallstep.h \
     qbslogsink.h \
     qbsnodes.h \
@@ -35,6 +36,7 @@ SOURCES = \
     qbsbuildconfigurationwidget.cpp \
     qbsbuildstep.cpp \
     qbscleanstep.cpp \
+    qbsdeployconfigurationfactory.cpp \
     qbsinstallstep.cpp \
     qbslogsink.cpp \
     qbsnodes.cpp \

@@ -32,6 +32,7 @@
 #include "qbsbuildconfiguration.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
+#include "qbsdeployconfigurationfactory.h"
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanager.h"
@@ -83,6 +84,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QbsBuildStepFactory);
     addAutoReleasedObject(new QbsCleanStepFactory);
     addAutoReleasedObject(new QbsInstallStepFactory);
+    addAutoReleasedObject(new QbsDeployConfigurationFactory);
 
     //menus
     // Build Menu:

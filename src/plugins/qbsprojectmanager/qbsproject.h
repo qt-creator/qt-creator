@@ -94,6 +94,8 @@ public:
     const qbs::Project *qbsProject() const;
     const qbs::ProjectData *qbsProjectData() const;
 
+    bool needsSpecialDeployment() const;
+
 public slots:
     void invalidate();
     void parseCurrentBuildConfiguration();

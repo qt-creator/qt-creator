@@ -239,6 +239,11 @@ const qbs::ProjectData *QbsProject::qbsProjectData() const
     return m_rootProjectNode->projectData();
 }
 
+bool QbsProject::needsSpecialDeployment() const
+{
+    return true;
+}
+
 void QbsProject::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsSetupProjectJob, return);
