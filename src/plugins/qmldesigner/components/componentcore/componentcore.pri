@@ -1,5 +1,5 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
+
 SOURCES += modelnodecontextmenu.cpp
 SOURCES += defaultdesigneraction.cpp
 SOURCES += modelnodecontextmenu_helper.cpp

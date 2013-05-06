@@ -1,6 +1,4 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
-INCLUDEPATH += $$PWD/../navigator
 SOURCES += formeditoritem.cpp \
     formeditorview.cpp \
     formeditorscene.cpp \

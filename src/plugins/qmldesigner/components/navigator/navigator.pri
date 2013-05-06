@@ -1,5 +1,5 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
+
 SOURCES += navigatorview.cpp \
     navigatortreemodel.cpp \
     navigatorwidget.cpp \

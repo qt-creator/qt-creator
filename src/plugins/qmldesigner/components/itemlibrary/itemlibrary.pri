@@ -1,5 +1,4 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
 
 # Input
 HEADERS += itemlibraryview.h itemlibrarywidget.h customdraganddrop.h itemlibrarymodel.h itemlibrarycomponents.h itemlibraryimageprovider.h

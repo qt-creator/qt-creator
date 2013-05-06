@@ -1,5 +1,5 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
+
 SOURCES += stateseditorwidget.cpp \
     stateseditormodel.cpp \
     stateseditorview.cpp \

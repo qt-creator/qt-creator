@@ -1,5 +1,5 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
+
 SOURCES += propertyeditor.cpp \
     qmlanchorbindingproxy.cpp \
     resetwidget.cpp \

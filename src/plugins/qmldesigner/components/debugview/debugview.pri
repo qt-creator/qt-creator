@@ -1,5 +1,4 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
 
 SOURCES += debugview.cpp \
            debugviewwidget.cpp

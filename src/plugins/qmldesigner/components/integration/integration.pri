@@ -1,5 +1,5 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
+
 SOURCES += \
     designdocument.cpp \
     designdocumentview.cpp \
