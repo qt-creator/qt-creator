@@ -42,7 +42,6 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
     QDialog(parent),
     m_workingDir(workingDir),
     m_ui(new Ui::GerritPushDialog),
-    m_remoteBranches(new QMap<QString,QString>()),
     m_localChangesFound(false),
     m_valid(false)
 {
@@ -103,12 +102,12 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
             continue;
 
         int refBranchIndex = reference.indexOf(QLatin1Char('/'));
-        m_remoteBranches->insertMulti(reference.left(refBranchIndex).trimmed(),
+        m_remoteBranches.insertMulti(reference.left(refBranchIndex).trimmed(),
                                      reference.mid(refBranchIndex + 1).trimmed());
     }
 
     int currIndex = 0;
-    QStringList remotes = m_remoteBranches->keys();
+    QStringList remotes = m_remoteBranches.keys();
     remotes.removeDuplicates();
     foreach (const QString &remote, remotes) {
         m_ui->remoteComboBox->addItem(remote);
@@ -133,7 +132,6 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
 GerritPushDialog::~GerritPushDialog()
 {
     delete m_ui;
-    delete m_remoteBranches;
 }
 
 
@@ -179,9 +177,10 @@ void GerritPushDialog::setRemoteBranches()
 {
     m_ui->branchComboBox->clear();
 
-    QMap<QString, QString>::const_iterator it;
     int i = 0;
-    for (it = m_remoteBranches->constBegin(); it != m_remoteBranches->constEnd(); ++it) {
+    for (RemoteBranchesMap::const_iterator it = m_remoteBranches.constBegin(),
+         end = m_remoteBranches.constEnd();
+         it != end; ++it) {
         if (it.key() == selectedRemoteName()) {
             m_ui->branchComboBox->addItem(it.value());
             if (it.value() == m_suggestedRemoteBranch)
