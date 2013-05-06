@@ -186,6 +186,7 @@ bool GerritPushDialog::valid() const
 
 void GerritPushDialog::setRemoteBranches()
 {
+    bool blocked = m_ui->branchComboBox->blockSignals(true);
     m_ui->branchComboBox->clear();
 
     int i = 0;
@@ -200,6 +201,7 @@ void GerritPushDialog::setRemoteBranches()
         }
     }
     setChangeRange();
+    m_ui->branchComboBox->blockSignals(blocked);
 }
 
 QString GerritPushDialog::selectedRemoteName() const
