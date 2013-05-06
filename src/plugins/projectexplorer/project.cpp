@@ -468,6 +468,11 @@ bool Project::supportsNoTargetPanel() const
     return false;
 }
 
+bool Project::needsSpecialDeployment() const
+{
+    return false;
+}
+
 void Project::onBuildDirectoryChanged()
 {
     Target *target = qobject_cast<Target *>(sender());

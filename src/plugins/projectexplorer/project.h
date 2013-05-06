@@ -123,6 +123,8 @@ public:
 
     virtual bool supportsNoTargetPanel() const;
 
+    virtual bool needsSpecialDeployment() const;
+
 signals:
     void displayNameChanged();
     void fileListChanged();

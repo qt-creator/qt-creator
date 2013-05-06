@@ -265,7 +265,7 @@ DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, Dep
 
 bool DeployConfigurationFactory::canHandle(Target *parent) const
 {
-    if (!parent->project()->supportsKit(parent->kit()))
+    if (!parent->project()->supportsKit(parent->kit()) || parent->project()->needsSpecialDeployment())
         return false;
     return DeviceTypeKitInformation::deviceTypeId(parent->kit()) == Constants::DESKTOP_DEVICE_TYPE;
 }
