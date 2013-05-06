@@ -84,7 +84,7 @@ void SysRootInformationConfigWidget::refresh()
 
 void SysRootInformationConfigWidget::makeReadOnly()
 {
-    m_chooser->setEnabled(false);
+    m_chooser->setReadOnly(true);
 }
 
 QWidget *SysRootInformationConfigWidget::mainWidget() const
