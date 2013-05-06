@@ -132,6 +132,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
             m_model->appendRow(row);
         }
     }
+    setCurrentIndex(m_model->index(0, 0));
     return true;
 }
 

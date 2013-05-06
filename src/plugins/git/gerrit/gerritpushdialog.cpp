@@ -47,9 +47,10 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
-    m_ui->repositoryLabel->setText(tr("Local Repository: %1").arg(
+    m_ui->repositoryLabel->setText(tr("<b>Local repository:</b> %1").arg(
                                        QDir::toNativeSeparators(workingDir)));
 
+    m_ui->commitView->init(workingDir, QString(), false);
     Git::Internal::GitClient *gitClient = Git::Internal::GitPlugin::instance()->gitClient();
     QString output;
     QString error;
@@ -145,6 +146,10 @@ GerritPushDialog::~GerritPushDialog()
     delete m_ui;
 }
 
+QString GerritPushDialog::selectedCommit() const
+{
+    return m_ui->commitView->commit();
+}
 
 QString GerritPushDialog::calculateChangeRange()
 {
@@ -216,7 +221,7 @@ QString GerritPushDialog::selectedRemoteBranchName() const
 
 QString GerritPushDialog::selectedPushType() const
 {
-    return m_ui->publicRadioButton->isChecked() ? QLatin1String("for") : QLatin1String("draft");
+    return m_ui->draftCheckBox->isChecked() ? QLatin1String("draft") : QLatin1String("for");
 }
 
 QString GerritPushDialog::selectedTopic() const

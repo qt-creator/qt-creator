@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>306</width>
-    <height>407</height>
+    <width>600</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,42 +31,16 @@
      <item>
       <widget class="QLabel" name="repositoryLabel">
        <property name="text">
-        <string>Local Repository:</string>
+        <string>&lt;b&gt;Local repository:&lt;/b&gt;</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="pushTypeGroupBox">
+    <widget class="QGroupBox" name="destinationGroupBox">
      <property name="title">
-      <string>Push Type:</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QRadioButton" name="publicRadioButton">
-        <property name="text">
-         <string>&amp;Public</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="draftRadioButton">
-        <property name="text">
-         <string>&amp;Draft</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="remoteGroupBox">
-     <property name="title">
-      <string>Remote Branch:</string>
+      <string>Destination:</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="fieldGrowthPolicy">
@@ -75,7 +49,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="remoteLabel">
         <property name="text">
-         <string>&amp;Remote Name:</string>
+         <string>R&amp;emote:</string>
         </property>
         <property name="buddy">
          <cstring>remoteComboBox</cstring>
@@ -88,7 +62,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="branchLabel">
         <property name="text">
-         <string>&amp;Branch Name:</string>
+         <string>&amp;Branch:</string>
         </property>
         <property name="buddy">
          <cstring>branchComboBox</cstring>
@@ -111,6 +85,36 @@
       <item row="3" column="1">
        <widget class="QLineEdit" name="topicLineEdit"/>
       </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="draftCheckBox">
+        <property name="text">
+         <string>&amp;Draft</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QLabel" name="infoLabel">
+        <property name="text">
+         <string>Number of commits</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="commitGroupBox">
+     <property name="title">
+      <string>&amp;Push up to commit:</string>
+     </property>
+     <layout class="QVBoxLayout" name="commitLayout">
+      <item>
+       <widget class="Git::Internal::LogChangeWidget" name="commitView">
+        <property name="toolTip">
+         <string>Pushes the selected commit and all dependent commits.</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -118,8 +122,14 @@
     <layout class="QFormLayout" name="reveiwersLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="reviewersLabel">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
-        <string>R&amp;eviewers:</string>
+        <string>&amp;Reviewers:</string>
        </property>
        <property name="buddy">
         <cstring>reviewersLineEdit</cstring>
@@ -136,13 +146,6 @@ Partial names can be used if they are unambiguous.</string>
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QLabel" name="infoLabel">
-     <property name="text">
-      <string>Number of commits</string>
-     </property>
-    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -169,6 +172,13 @@ Partial names can be used if they are unambiguous.</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Git::Internal::LogChangeWidget</class>
+   <extends>QTreeView</extends>
+   <header>../logchangedialog.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

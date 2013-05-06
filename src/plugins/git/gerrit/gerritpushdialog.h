@@ -48,6 +48,7 @@ public:
     GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent = 0);
     ~GerritPushDialog();
 
+    QString selectedCommit() const;
     QString selectedRemoteName() const;
     QString selectedRemoteBranchName() const;
     QString selectedPushType() const;

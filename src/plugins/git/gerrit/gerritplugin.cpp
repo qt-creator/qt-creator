@@ -405,7 +405,10 @@ void GerritPlugin::push()
     }
 
     args << dialog->selectedRemoteName();
-    QString target = QLatin1String("HEAD:refs/") + dialog->selectedPushType() +
+    QString target = dialog->selectedCommit();
+    if (target.isEmpty())
+        target = QLatin1String("HEAD");
+    target += QLatin1String(":refs/") + dialog->selectedPushType() +
             QLatin1Char('/') + dialog->selectedRemoteBranchName();
     const QString topic = dialog->selectedTopic();
     if (!topic.isEmpty())
