@@ -1132,7 +1132,10 @@ void CPPEditorWidget::updateUses()
 {
     if (editorRevision() != m_highlightRevision)
         m_highlighter.cancel();
-    m_updateUsesTimer->start();
+
+    // Block premature semantic info calculation when editor is created.
+    if (m_modelManager->cppEditorSupport(editor())->initialized())
+        m_updateUsesTimer->start();
 }
 
 void CPPEditorWidget::updateUsesNow()

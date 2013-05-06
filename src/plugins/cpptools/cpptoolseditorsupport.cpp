@@ -175,6 +175,11 @@ void CppEditorSupport::setExtraDiagnostics(const QString &key,
     emit diagnosticsChanged();
 }
 
+bool CppEditorSupport::initialized()
+{
+    return m_initialized;
+}
+
 SemanticInfo CppEditorSupport::recalculateSemanticInfo(bool emitSignalWhenFinished)
 {
     m_futureSemanticInfo.cancel();
@@ -186,6 +191,11 @@ SemanticInfo CppEditorSupport::recalculateSemanticInfo(bool emitSignalWhenFinish
 
 void CppEditorSupport::recalculateSemanticInfoDetached(bool force)
 {
+    // Block premature calculation caused by CppEditorPlugin::currentEditorChanged
+    // when the editor is created.
+    if (!m_initialized)
+        return;
+
     m_futureSemanticInfo.cancel();
     SemanticInfo::Source source = currentSource(force);
     m_futureSemanticInfo = QtConcurrent::run<CppEditorSupport, void>(

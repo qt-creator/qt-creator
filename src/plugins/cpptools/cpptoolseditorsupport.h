@@ -98,12 +98,17 @@ public:
     void setExtraDiagnostics(const QString &key,
                              const QList<CPlusPlus::Document::DiagnosticMessage> &messages);
 
+    /// True after the document was parsed/updated for the first time
+    /// and the first semantic info calculation was started.
+    bool initialized();
+
     /// Retrieve the semantic info, which will get recalculated on the current
     /// thread if it is outdate.
     SemanticInfo recalculateSemanticInfo(bool emitSignalWhenFinished = true);
 
-    /// Recalculates the semantic info in a future, and will emit the semanticInfoUpdated() signal
-    /// when finished.
+    /// Recalculates the semantic info in a future, and will emit the
+    /// semanticInfoUpdated() signal when finished.
+    /// Requires that initialized() is true.
     /// \param force do not check if the old semantic info is still valid
     void recalculateSemanticInfoDetached(bool force = false);
 
