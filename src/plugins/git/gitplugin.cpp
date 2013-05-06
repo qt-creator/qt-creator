@@ -776,19 +776,22 @@ void GitPlugin::startRebase()
 void GitPlugin::startChangeRelatedAction()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    const QString workingDirectory = state.topLevel();
-    if (workingDirectory.isEmpty())
+    if (!state.hasTopLevel())
         return;
 
     QPointer<ChangeSelectionDialog> dialog = new ChangeSelectionDialog
-            (workingDirectory, Core::ICore::mainWindow());
+            (state.topLevel(), Core::ICore::mainWindow());
 
     int result = dialog->exec();
 
-    if (dialog.isNull() || (result == QDialog::Rejected) || dialog->change().isEmpty())
+    if (dialog.isNull() || result == QDialog::Rejected)
         return;
 
+    const QString workingDirectory = dialog->workingDirectory();
     const QString change = dialog->change();
+
+    if (workingDirectory.isEmpty() || change.isEmpty())
+        return;
 
     if (dialog->command() == Show) {
         m_gitClient->show(workingDirectory, change);
