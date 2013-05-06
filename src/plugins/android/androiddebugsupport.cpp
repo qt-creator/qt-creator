@@ -149,6 +149,10 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         connect(m_engine, SIGNAL(aboutToNotifyInferiorSetupOk()),
                 m_runner, SLOT(handleRemoteDebuggerRunning()));
     }
+    connect(m_runner, SIGNAL(remoteServerRunning(QByteArray,int)),
+            SLOT(handleRemoteServerRunning(QByteArray,int)));
+    connect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
+            SLOT(handleRemoteProcessStarted(int,int)));
 }
 
 void AndroidDebugSupport::handleRemoteServerRunning(const QByteArray &serverChannel, int pid)

@@ -44,10 +44,6 @@ AndroidRunSupport::AndroidRunSupport(AndroidRunConfiguration *runConfig,
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
 
-    connect(m_runner, SIGNAL(remoteServerRunning(QByteArray,int)),
-            SLOT(handleRemoteServerRunning(QByteArray,int)));
-    connect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
-            SLOT(handleRemoteProcessStarted(int,int)));
     connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
             SLOT(handleRemoteProcessFinished(QString)));
 
