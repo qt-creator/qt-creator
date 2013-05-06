@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "Qt4ProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
+    Depends { name: "AnalyzerBase" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     property bool enable: false
