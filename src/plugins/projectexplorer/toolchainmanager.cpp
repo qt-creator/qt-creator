@@ -159,6 +159,16 @@ void ToolChainManager::restoreToolChains()
     }
     readTcs.clear();
 
+    // Remove TCs configured by the SDK:
+    foreach (ToolChain *tc, tcsToRegister) {
+        for (int i = tcsToCheck.count() - 1; i >= 0; --i) {
+            if (tcsToCheck.at(i)->id() == tc->id()) {
+                delete tcsToCheck.at(i);
+                tcsToCheck.removeAt(i);
+            }
+        }
+    }
+
     // Then auto detect
     QList<ToolChain *> detectedTcs;
     QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
@@ -179,7 +189,7 @@ void ToolChainManager::restoreToolChains()
                 break;
             }
         }
-        registerToolChain(toStore);
+        tcsToRegister += toStore;
     }
 
     // Keep toolchains that were not rediscovered but are still executable and delete the rest
@@ -189,7 +199,7 @@ void ToolChainManager::restoreToolChains()
                           .arg(tc->displayName()).arg(tc->id());
             delete tc;
         } else {
-            registerToolChain(tc);
+            tcsToRegister += tc;
         }
     }
 
@@ -337,6 +347,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
     foreach (ToolChain *current, d->m_toolChains) {
         if (*tc == *current && !tc->isAutoDetected())
             return false;
+        QTC_ASSERT(current->id() != tc->id(), return false);
     }
 
     d->m_toolChains.append(tc);
