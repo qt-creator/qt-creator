@@ -38,7 +38,7 @@
 namespace Gerrit {
 namespace Internal {
 
-GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
+GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent) :
     QDialog(parent),
     m_workingDir(workingDir),
     m_ui(new Ui::GerritPushDialog),
@@ -126,6 +126,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, QWidget *parent) :
     }
     connect(m_ui->branchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
     setRemoteBranches();
+    m_ui->reviewersLineEdit->setText(reviewerList);
     m_valid = true;
 }
 

@@ -89,6 +89,7 @@ private:
     QSharedPointer<GerritParameters> m_parameters;
     QPointer<GerritDialog> m_dialog;
     ActionCommandPair m_pushToGerritPair;
+    QString m_reviewers;
 };
 
 } // namespace Internal

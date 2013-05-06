@@ -45,7 +45,7 @@ class GerritPushDialog : public QDialog
     Q_OBJECT
 
 public:
-    GerritPushDialog(const QString &workingDir, QWidget *parent = 0);
+    GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent = 0);
     ~GerritPushDialog();
 
     QString selectedRemoteName() const;

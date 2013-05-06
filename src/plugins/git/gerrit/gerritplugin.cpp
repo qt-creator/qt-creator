@@ -365,7 +365,7 @@ void GerritPlugin::push()
 
     // QScopedPointer is required to delete the dialog when leaving the function
     QScopedPointer<GerritPushDialog> dialog(
-                new GerritPushDialog(topLevel, Core::ICore::mainWindow()));
+                new GerritPushDialog(topLevel, m_reviewers, Core::ICore::mainWindow()));
 
     if (!dialog->localChangesFound()) {
         QMessageBox::warning(Core::ICore::mainWindow(), tr("No Local Changes"),
@@ -391,7 +391,8 @@ void GerritPlugin::push()
 
     QStringList args;
 
-    const QStringList reviewers = dialog->reviewers().split(QLatin1Char(','),
+    m_reviewers = dialog->reviewers();
+    const QStringList reviewers = m_reviewers.split(QLatin1Char(','),
                                                             QString::SkipEmptyParts);
     if (!reviewers.isEmpty()) {
         QString reviewersFlag(QLatin1String("--receive-pack=git receive-pack"));
