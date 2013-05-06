@@ -5,14 +5,12 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "RemoteLinux"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "QtcSsh" }
-    cpp.defines: base.concat("REMOTELINUX_LIBRARY")
 
     files: [
         "abstractpackagingstep.cpp",
