@@ -89,7 +89,7 @@ private:
     QPushButton *m_cherryPickButton;
     QPushButton *m_revertButton;
     QPushButton *m_checkoutButton;
-    QPushButton *m_cancelButton;
+    QPushButton *m_closeButton;
     QPlainTextEdit *m_detailsText;
 
     ChangeCommand m_command;

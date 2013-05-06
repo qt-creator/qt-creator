@@ -56,7 +56,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     , m_cherryPickButton(new QPushButton(tr("Cherry &Pick"), this))
     , m_revertButton(new QPushButton(tr("&Revert"), this))
     , m_checkoutButton(new QPushButton(tr("Check&out"), this))
-    , m_cancelButton(new QPushButton(tr("&Cancel"), this))
+    , m_closeButton(new QPushButton(tr("&Close"), this))
     , m_detailsText(new QPlainTextEdit(this))
     , m_command(NoCommand)
 {
@@ -75,7 +75,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     layout->addWidget(m_detailsText, 2, 0, 1, 3);
 
     QHBoxLayout* buttonsLine = new QHBoxLayout();
-    buttonsLine->addWidget(m_cancelButton);
+    buttonsLine->addWidget(m_closeButton);
     buttonsLine->addStretch();
     buttonsLine->addWidget(m_checkoutButton);
     buttonsLine->addWidget(m_revertButton);
@@ -105,7 +105,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     connect(m_cherryPickButton, SIGNAL(clicked()), this, SLOT(acceptCherryPick()));
     connect(m_revertButton, SIGNAL(clicked()), this, SLOT(acceptRevert()));
     connect(m_checkoutButton, SIGNAL(clicked()), this, SLOT(acceptCheckout()));
-    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     recalculateDetails();
 }
