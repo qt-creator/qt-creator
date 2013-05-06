@@ -61,7 +61,7 @@ QWidget {
                                 backendValues.source.value = fileName;
                             }
                             itemNode: anchorBackend.itemNode
-                            filter: "*.png *.gif *.jpg *.bmp *.jpeg"
+                            filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg"
                             showComboBox: true
                         }
                     }
