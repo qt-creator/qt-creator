@@ -34,6 +34,9 @@
 
 #include <qt5nodeinstanceclientproxy.h>
 
+#include <QQmlComponent>
+#include <QQmlEngine>
+
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
 #endif
@@ -50,6 +53,25 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("qt-project.org");
     QCoreApplication::setApplicationName("Qml2Puppet");
     QCoreApplication::setApplicationVersion("1.0.0");
+
+    if (application.arguments().count() == 2 && application.arguments().at(1) == "--test") {
+        qDebug() << QCoreApplication::applicationVersion();
+        QQmlEngine engine;
+
+        QQmlComponent component(&engine);
+        component.setData("import QtQuick 2.0\nItem {\n}\n", QUrl::fromLocalFile("test.qml"));
+
+        QObject *object = component.create();
+
+        if (object) {
+            qDebug() << "Basic QtQuick 2.0 working...";
+        } else {
+            qDebug() << "Basic QtQuick 2.0 not working...";
+            qDebug() << component.errorString();
+        }
+        delete object;
+        return 0;
+    }
 
     if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
         qDebug() << QCoreApplication::applicationVersion();
