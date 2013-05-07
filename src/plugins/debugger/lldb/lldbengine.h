@@ -48,7 +48,8 @@ namespace Internal {
 class WatchData;
 class GdbMi;
 
-/* A debugger engine for using the lldb command line debugger.
+/* A debugger engine interfacing the LLDB debugger
+ * using its Python interface.
  */
 
 class LldbEngine : public DebuggerEngine
@@ -60,6 +61,25 @@ public:
     ~LldbEngine();
 
 private:
+    // Convenience struct to build up backend commands.
+    struct Command
+    {
+        Command() {}
+        Command(const char *f) : function(f) {}
+
+        const Command &arg(const char *name, int value) const;
+        const Command &arg(const char *name, const QString &value) const;
+        const Command &arg(const char *name, const QByteArray &value) const;
+        const Command &arg(const char *name, const char *value) const;
+        const Command &beginList(const char *name = 0) const;
+        void endList() const;
+        const Command &beginGroup(const char *name = 0) const;
+        void endGroup() const;
+
+        QByteArray function;
+        mutable QByteArray args;
+    };
+
     // DebuggerEngine implementation
     void executeStep();
     void executeStepOut();
@@ -88,7 +108,7 @@ private:
 
     bool acceptsBreakpoint(BreakpointModelId id) const;
     void attemptBreakpointSynchronization();
-    bool attemptBreakpointSynchronizationHelper(QByteArray *command);
+    bool attemptBreakpointSynchronizationHelper(Command *command);
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
@@ -142,13 +162,6 @@ private:
 
     typedef void (LldbEngine::*LldbCommandContinuation)();
 
-    struct LldbCommand
-    {
-        LldbCommand() : token(0) {}
-        QByteArray command;
-        int token;
-    };
-
     QByteArray currentOptions() const;
     void handleStop(const QByteArray &response);
     void handleListLocals(const QByteArray &response);
@@ -161,14 +174,13 @@ private:
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
-    void runCommand(const QByteArray &function,
-        const QByteArray &extraArgs = QByteArray(),
-        const QByteArray &continuation = QByteArray());
+
+    void runCommand(const Command &cmd);
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;
     QProcess m_lldbProc;
-    QString m_lldb;
+    QString m_lldbBridge;
 
     // FIXME: Make generic.
     int m_lastAgentId;

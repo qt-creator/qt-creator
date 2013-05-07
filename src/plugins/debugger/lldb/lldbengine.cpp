@@ -103,15 +103,12 @@ void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguage
 
 static int token = 1;
 
-void LldbEngine::runCommand(const QByteArray &functionName,
-    const QByteArray &extraArgs, const QByteArray &continuation)
+void LldbEngine::runCommand(const Command &command)
 {
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     ++token;
-    QByteArray cmd = "db ['" + functionName + "',"
-            + QByteArray::number(token) + ","
-            + "'" + extraArgs + "',"
-            + "'" + continuation + "']\n";
+    QByteArray cmd = "db {'cmd':'" + command.function + "',"
+        + command.args + "'token':" + QByteArray::number(token) + "}\n";
     showMessage(QString::number(token) + _(cmd), LogInput);
     m_lldbProc.write(cmd);
 }
@@ -132,8 +129,8 @@ void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    m_lldb = startParameters().debuggerCommand;
-    showMessage(_("STARTING LLDB ") + m_lldb);
+    m_lldbBridge = startParameters().debuggerCommand;
+    showMessage(_("STARTING LLDB ") + m_lldbBridge);
 
     connect(&m_lldbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleLldbError(QProcess::ProcessError)));
@@ -148,11 +145,11 @@ void LldbEngine::setupEngine()
         SLOT(handleResponse(QByteArray)), Qt::QueuedConnection);
 
     //m_lldbProc.start(m_lldb);
-    m_lldbProc.start(_("/usr/bin/python"), QStringList() << _("-i") << m_lldb);
+    m_lldbProc.start(_("/usr/bin/python"), QStringList() << _("-i") << m_lldbBridge);
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start lldb '%1': %2")
-            .arg(m_lldb, m_lldbProc.errorString());
+            .arg(m_lldbBridge, m_lldbProc.errorString());
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty())
@@ -162,20 +159,21 @@ void LldbEngine::setupEngine()
 
 void LldbEngine::setupInferior()
 {
-    QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
-    runCommand("setupInferior", '"' + fileName.toUtf8() + '"');
+    QString executable = QFileInfo(startParameters().executable).absoluteFilePath();
+    runCommand(Command("setupInferior").arg("executable", executable));
 }
 
 void LldbEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    QByteArray command;
-    bool done = attemptBreakpointSynchronizationHelper(&command);
-    if (done)
+    Command cmd("handleBreakpoints");
+    if (attemptBreakpointSynchronizationHelper(&cmd)) {
         runEngine2();
-    else
-        runCommand("handleBreakpoints", command, "runEngine2");
+    } else {
+        cmd.arg("continuation", "runEngine2");
+        runCommand(cmd);
+    }
 }
 
 void LldbEngine::runEngine2()
@@ -276,23 +274,23 @@ void LldbEngine::executeRunToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeRunToLine", QByteArray::number(data.address)
-               + ",'" + data.fileName.toUtf8() + "'");
+    runCommand(Command("executeRunToLine")
+        .arg("file", data.fileName).arg("line", data.address));
 }
 
 void LldbEngine::executeRunToFunction(const QString &functionName)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeRunToFunction", '"' + functionName.toUtf8() + '"');
+    runCommand(Command("executeRunToFunction").arg("function", functionName));
 }
 
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("executeJumpToLine", QByteArray::number(data.address)
-        + ',' + data.fileName.toUtf8());
+    runCommand(Command("executeJumpToLine")
+        .arg("file", data.fileName).arg("line", data.address));
 }
 
 void LldbEngine::activateFrame(int frameIndex)
@@ -301,12 +299,12 @@ void LldbEngine::activateFrame(int frameIndex)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    runCommand("activateFrame", QByteArray::number(frameIndex));
+    runCommand(Command("activateFrame").arg("index", frameIndex));
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
 {
-    runCommand("selectThread", QByteArray::number(threadId.raw()));
+    runCommand(Command("selectThread").arg("id", threadId.raw()));
 }
 
 bool LldbEngine::acceptsBreakpoint(BreakpointModelId id) const
@@ -315,7 +313,7 @@ bool LldbEngine::acceptsBreakpoint(BreakpointModelId id) const
         && startParameters().startMode != AttachCore;
 }
 
-bool LldbEngine::attemptBreakpointSynchronizationHelper(QByteArray *command)
+bool LldbEngine::attemptBreakpointSynchronizationHelper(Command *cmd)
 {
     BreakHandler *handler = breakHandler();
 
@@ -331,11 +329,8 @@ bool LldbEngine::attemptBreakpointSynchronizationHelper(QByteArray *command)
         }
     }
 
-    QByteArray toAdd;
-    QByteArray toChange;
-    QByteArray toRemove;
-
     bool done = true;
+    cmd->beginList("bkpts");
     foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
         const BreakpointResponse &response = handler->response(id);
         switch (handler->state(id)) {
@@ -345,35 +340,44 @@ bool LldbEngine::attemptBreakpointSynchronizationHelper(QByteArray *command)
             break;
         case BreakpointInsertRequested:
             done = false;
-            toAdd += "{\"modelid\":" + id.toByteArray();
-            toAdd += ",\"type\":" + QByteArray::number(handler->type(id));
-            toAdd += ",\"ignorecount\":" + QByteArray::number(handler->ignoreCount(id));
-            toAdd += ",\"condition\":\"" + handler->condition(id) + '"';
-            toAdd += ",\"function\":\"" + handler->functionName(id).toUtf8() + '"';
-            toAdd += ",\"oneshot\":" + QByteArray::number(int(handler->isOneShot(id)));
-            toAdd += ",\"enabled\":" + QByteArray::number(int(handler->isEnabled(id)));
-            toAdd += ",\"file\":\"" + handler->fileName(id).toUtf8() + '"';
-            toAdd += ",\"line\":" + QByteArray::number(handler->lineNumber(id)) + "},";
+            cmd->beginGroup()
+                    .arg("operation", "add")
+                    .arg("modelid", id.toByteArray())
+                    .arg("type", handler->type(id))
+                    .arg("ignorecount", handler->ignoreCount(id))
+                    .arg("condition", handler->condition(id))
+                    .arg("function", handler->functionName(id).toUtf8())
+                    .arg("oneshot", handler->isOneShot(id))
+                    .arg("enabled", handler->isEnabled(id))
+                    .arg("file", handler->fileName(id).toUtf8())
+                    .arg("line", handler->lineNumber(id))
+                    .endGroup();
             handler->notifyBreakpointInsertProceeding(id);
             break;
         case BreakpointChangeRequested:
             done = false;
-            toChange += "{\"modelid\":" + id.toByteArray();
-            toChange += ",\"lldbid\":" + response.id.toByteArray();
-            toChange += ",\"type\":" + QByteArray::number(handler->type(id));
-            toChange += ",\"ignorecount\":" + QByteArray::number(handler->ignoreCount(id));
-            toChange += ",\"condition\":\"" + handler->condition(id) + '"';
-            toChange += ",\"function\":\"" + handler->functionName(id).toUtf8() + '"';
-            toChange += ",\"oneshot\":" + QByteArray::number(int(handler->isOneShot(id)));
-            toChange += ",\"enabled\":" + QByteArray::number(int(handler->isEnabled(id)));
-            toChange += ",\"file\":\"" + handler->fileName(id).toUtf8() + '"';
-            toChange += ",\"line\":" + QByteArray::number(handler->lineNumber(id)) + "},";
+            cmd->beginGroup()
+                    .arg("operation", "change")
+                    .arg("modelid", id.toByteArray())
+                    .arg("lldbid", response.id.toByteArray())
+                    .arg("type", handler->type(id))
+                    .arg("ignorecount", handler->ignoreCount(id))
+                    .arg("condition", handler->condition(id))
+                    .arg("function", handler->functionName(id).toUtf8())
+                    .arg("oneshot", handler->isOneShot(id))
+                    .arg("enabled", handler->isEnabled(id))
+                    .arg("file", handler->fileName(id).toUtf8())
+                    .arg("line", handler->lineNumber(id))
+                    .endGroup();
             handler->notifyBreakpointChangeProceeding(id);
             break;
         case BreakpointRemoveRequested:
             done = false;
-            toRemove += "{\"modelid\":" + id.toByteArray();
-            toRemove += ",\"lldbid\":" + response.id.toByteArray() + "},";
+            cmd->beginGroup()
+                    .arg("operation", "remove")
+                    .arg("modelid", id.toByteArray())
+                    .arg("lldbid", response.id.toByteArray())
+                    .endGroup();
             handler->notifyBreakpointRemoveProceeding(id);
             break;
         case BreakpointChangeProceeding:
@@ -387,8 +391,7 @@ bool LldbEngine::attemptBreakpointSynchronizationHelper(QByteArray *command)
             QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
         }
     }
-    if (!done)
-        *command = '[' + toAdd + "],[" + toChange + "],[" + toRemove + ']';
+    cmd->endList();
     return done;
 }
 
@@ -400,11 +403,10 @@ void LldbEngine::attemptBreakpointSynchronization()
         return;
     }
 
-    QByteArray command;
-    bool done = attemptBreakpointSynchronizationHelper(&command);
-    if (!done) {
+    Command cmd("handleBreakpoints");
+    if (!attemptBreakpointSynchronizationHelper(&cmd)) {
         showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
-        runCommand("handleBreakpoints", command);
+        runCommand(cmd);
     } else {
         showMessage(_("BREAKPOINTS ARE SYNCHRONIZED"));
     }
@@ -491,23 +493,21 @@ void LldbEngine::refreshMemory(const GdbMi &data)
 void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
 {
     BreakHandler *handler = breakHandler();
-    GdbMi added = bkpts["added"];
-    GdbMi changed = bkpts["changed"];
-    GdbMi removed = bkpts["removed"];
-    foreach (const GdbMi &bkpt, added.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-        QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
-        updateBreakpointData(bkpt, true);
-    }
-    foreach (const GdbMi &bkpt, changed.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-        QTC_CHECK(handler->state(id) == BreakpointChangeProceeding);
-        updateBreakpointData(bkpt, false);
-    }
-    foreach (const GdbMi &bkpt, removed.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-        QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
-        handler->notifyBreakpointRemoveOk(id);
+    foreach (const GdbMi &bkpt, bkpts.children()) {
+        QByteArray op = bkpt["operation"].data();
+        if (op == "added") {
+            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+            QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
+            updateBreakpointData(bkpt, true);
+        } else if (op == "changed") {
+            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+            QTC_CHECK(handler->state(id) == BreakpointChangeProceeding);
+            updateBreakpointData(bkpt, false);
+        } else if (op == "removed") {
+            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+            QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
+            handler->notifyBreakpointRemoveOk(id);
+        }
     }
 }
 
@@ -544,7 +544,7 @@ void LldbEngine::refreshModules(const GdbMi &modules)
 
 void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    runCommand("requestModuleSymbols", '"' + moduleName.toUtf8() + '"');
+    runCommand(Command("requestModuleSymbols").arg("module", moduleName.toUtf8()));
 }
 
 void LldbEngine::handleListSymbols(const QByteArray &response)
@@ -672,7 +672,7 @@ void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &
     Q_UNUSED(data);
     Q_UNUSED(flags);
     WatchHandler *handler = watchHandler();
-    runCommand("bb", "{'expanded':'" + handler->expansionRequests() + "'}");
+    runCommand(Command("updateData").arg("expanded", handler->expansionRequests()));
 }
 
 void LldbEngine::handleLldbError(QProcess::ProcessError error)
@@ -702,7 +702,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("The Lldb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(m_lldb);
+                .arg(m_lldbBridge);
         case QProcess::Crashed:
             return tr("The Lldb process crashed some time after starting "
                 "successfully.");
@@ -742,8 +742,6 @@ void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
     showMessage(_("Lldb stdout: " + out));
-    //qDebug("\nLLDB RAW STDOUT: '%s'", quoteUnprintable(out).constData());
-    //qDebug("\nBUFFER FROM: '%s'", quoteUnprintable(m_inbuffer).constData());
     m_inbuffer.append(out);
     while (true) {
         int pos = m_inbuffer.indexOf("@\n");
@@ -751,11 +749,8 @@ void LldbEngine::readLldbStandardOutput()
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
         m_inbuffer = m_inbuffer.mid(pos + 2);
-        //qDebug("\nBUFFER RECOGNIZED: '%s'", quoteUnprintable(response).constData());
-        //showMessage(_(response));
         emit outputReady(response);
     }
-    //qDebug("\nBUFFER LEFT: '%s'", quoteUnprintable(m_inbuffer).constData());
 }
 
 QByteArray LldbEngine::currentOptions() const
@@ -959,7 +954,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
         id = ++m_lastAgentId;
         m_disassemblerAgents.insert(p, id);
     }
-    runCommand("disassemble", "{\"cookie\":" + QByteArray::number(id) + "}");
+    runCommand(Command("disassemble").arg("cookie", id));
 }
 
 
@@ -972,10 +967,10 @@ void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
         m_memoryAgentTokens.insert(id, editorToken);
     }
-    runCommand("readMemory",
-               "{\"address\":" + QByteArray::number(addr) +
-               ",\"length\":" + QByteArray::number(length) +
-               ",\"cookie\":" + QByteArray::number(id) + "}");
+    runCommand(Command("readMemory")
+               .arg("address", addr)
+               .arg("length", length)
+               .arg("cookie", id));
 }
 
 void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
@@ -987,16 +982,16 @@ void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
         m_memoryAgentTokens.insert(id, editorToken);
     }
-    runCommand("writeMemory",
-               "{\"address\":" + QByteArray::number(addr) + "" +
-               ",\"data\":\"" + data.toHex() + "\"" +
-               ",\"cookie\":" + QByteArray::number(id) + "}");
+    runCommand(Command("writeMemory")
+               .arg("address", addr)
+               .arg("data", data.toHex())
+               .arg("cookie", id));
 }
 
 void LldbEngine::setRegisterValue(int regnr, const QString &value)
 {
     Register reg = registerHandler()->registers().at(regnr);
-    runCommand("setRegister " + reg.name + ' ' + value.toLatin1());
+    runCommand(Command("setRegister").arg("name", reg.name).arg("value", value));
 }
 
 
@@ -1038,6 +1033,79 @@ bool LldbEngine::hasCapability(unsigned cap) const
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
 {
     return new LldbEngine(startParameters);
+}
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// Command
+//
+///////////////////////////////////////////////////////////////////////
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *name, int value) const
+{
+    args.append('\'');
+    args.append(name);
+    args.append("':");
+    args.append(QByteArray::number(value));
+    args.append(',');
+    return *this;
+}
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const QString &value) const
+{
+    return arg(name, value.toUtf8().data());
+}
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const QByteArray &value) const
+{
+    return arg(name, value.data());
+}
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const char *value) const
+{
+    args.append('\'');
+    args.append(name);
+    args.append("':'");
+    args.append(value);
+    args.append("',");
+    return *this;
+}
+
+const LldbEngine::Command &LldbEngine::Command::beginList(const char *name) const
+{
+    if (name) {
+        args += '\'';
+        args += name;
+        args += "':";
+    }
+    args += '[';
+    return *this;
+}
+
+void LldbEngine::Command::endList() const
+{
+    if (args.endsWith(','))
+        args.chop(1);
+    args += "],";
+}
+
+const LldbEngine::Command &LldbEngine::Command::beginGroup(const char *name) const
+{
+    if (name) {
+        args += '\'';
+        args += name;
+        args += "':";
+    }
+    args += '{';
+    return *this;
+}
+
+void LldbEngine::Command::endGroup() const
+{
+    if (args.endsWith(','))
+        args.chop(1);
+    args += "},";
 }
 
 } // namespace Internal

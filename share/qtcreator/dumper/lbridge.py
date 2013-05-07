@@ -297,7 +297,7 @@ class Debugger(cmd.Cmd):
         else:
             self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, fileName))
 
-    def runEngine(self):
+    def do_runEngine(self, args):
         error = lldb.SBError()
         #launchInfo = lldb.SBLaunchInfo(["-s"])
         #self.process = self.target.Launch(self.listener, None, None,
@@ -513,7 +513,7 @@ class Debugger(cmd.Cmd):
 
     def describeBreakpoint(self, bp, modelId):
         cond = bp.GetCondition()
-        result  = '{lldbid="%s"' % bp.GetID()
+        result  = 'lldbid="%s"' % bp.GetID()
         result += ',modelid="%s"' % modelId
         result += ',hitcount="%s"' % bp.GetHitCount()
         result += ',threadid="%s"' % bp.GetThreadID()
@@ -536,59 +536,59 @@ class Debugger(cmd.Cmd):
             result += ',valid="%s"' % (1 if loc.IsValid() else 0)
             result += ',ignorecount="%s"' % loc.GetIgnoreCount()
             result += ',addr="%s"},' % loc.GetLoadAddress()
-        result += ']},'
+        result += '],'
         return result
 
-    def handleBreakpoints(self, toAdd, toChange, toRemove):
-        result = "bkpts={added=["
+    def do_handleBreakpoints(self, args):
+        options = eval(args)
+        result = 'bkpts=['
+        for bp in options['bkpts']:
+            operation = bp['operation']
 
-        for bp in toAdd:
-            bpType = bp["type"]
-            if bpType == BreakpointByFileAndLine:
-                bpNew = self.target.BreakpointCreateByLocation(str(bp["file"]), int(bp["line"]))
-            elif bpType == BreakpointByFunction:
-                bpNew = self.target.BreakpointCreateByName(bp["function"])
-            elif bpType == BreakpointAtMain:
-                bpNew = self.target.BreakpointCreateByName("main", self.target.GetExecutable().GetFilename())
-            else:
-                warn("UNKNOWN TYPE")
-            bpNew.SetIgnoreCount(int(bp["ignorecount"]))
-            bpNew.SetCondition(str(bp["condition"]))
-            bpNew.SetEnabled(int(bp["enabled"]))
-            try:
-                bpNew.SetOneShot(int(bp["oneshot"]))
-            except:
-                pass
-            #bpNew.SetCallback(breakpoint_function_wrapper, None)
-            #bpNew.SetCallback(breakpoint_function_wrapper, None)
-            #"breakpoint command add 1 -o \"import time; print time.asctime()\"
-            #cmd = "script print(11111111)"
-            #cmd = "continue"
-            #self.debugger.HandleCommand(
-            #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
-            result += self.describeBreakpoint(bpNew, bp["modelid"])
+            if operation == 'add':
+                bpType = bp["type"]
+                if bpType == BreakpointByFileAndLine:
+                    bpNew = self.target.BreakpointCreateByLocation(str(bp["file"]), int(bp["line"]))
+                elif bpType == BreakpointByFunction:
+                    bpNew = self.target.BreakpointCreateByName(bp["function"])
+                elif bpType == BreakpointAtMain:
+                    bpNew = self.target.BreakpointCreateByName("main", self.target.GetExecutable().GetFilename())
+                else:
+                    warn("UNKNOWN TYPE")
+                bpNew.SetIgnoreCount(int(bp["ignorecount"]))
+                bpNew.SetCondition(str(bp["condition"]))
+                bpNew.SetEnabled(int(bp["enabled"]))
+                try:
+                    bpNew.SetOneShot(int(bp["oneshot"]))
+                except:
+                    pass
+                #bpNew.SetCallback(breakpoint_function_wrapper, None)
+                #bpNew.SetCallback(breakpoint_function_wrapper, None)
+                #"breakpoint command add 1 -o \"import time; print time.asctime()\"
+                #cmd = "script print(11111111)"
+                #cmd = "continue"
+                #self.debugger.HandleCommand(
+                #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
+                result += '{operation="added",%s}' % self.describeBreakpoint(bpNew, bp["modelid"])
 
-        result += "],changed=["
+            elif operation == 'change':
+                bpChange = self.target.FindBreakpointByID(int(bp["lldbid"]))
+                bpChange.SetIgnoreCount(int(bp["ignorecount"]))
+                bpChange.SetCondition(str(bp["condition"]))
+                bpChange.SetEnabled(int(bp["enabled"]))
+                try:
+                    bpChange.SetOneShot(int(bp["oneshot"]))
+                except:
+                    pass
+                result += '{operation="changed",%s' % self.describeBreakpoint(bpNew, bp["modelid"])
 
-        for bp in toChange:
-            bpChange = self.target.FindBreakpointByID(int(bp["lldbid"]))
-            bpChange.SetIgnoreCount(int(bp["ignorecount"]))
-            bpChange.SetCondition(str(bp["condition"]))
-            bpChange.SetEnabled(int(bp["enabled"]))
-            try:
-                bpChange.SetOneShot(int(bp["oneshot"]))
-            except:
-                pass
-            result += self.describeBreakpoint(bpChange, bp["modelid"])
+            elif operation == 'remove':
+                bpDead = self.target.BreakpointDelete(int(bp["lldbid"]))
+                result += '{operation="removed",modelid="%s"}' % bp["modelid"]
 
-        result += "],removed=["
-
-        for bp in toRemove:
-            bpDead = self.target.BreakpointDelete(int(bp["lldbid"]))
-            result += '{modelid="%s"}' % bp["modelid"]
-
-        result += "]}"
+        result += "]"
         self.report(result)
+
 
     def listModules(self):
         result = 'modules=['
@@ -697,15 +697,8 @@ class Debugger(cmd.Cmd):
 
     # Qt Creator internal
     def do_setupInferior(self, args):
-        fileName = eval(args)
-        self.setupInferior(fileName)
-
-    def do_handleBreakpoints(self, args):
-        toAdd, toChange, toRemove = eval(args)
-        self.handleBreakpoints(toAdd, toChange, toRemove)
-
-    def do_runEngine(self, args):
-        self.runEngine()
+        options = eval(args)
+        self.setupInferior(options['executable'])
 
     def do_interrupt(self, args):
         self.interruptInferior()
@@ -717,7 +710,7 @@ class Debugger(cmd.Cmd):
         self.reportData()
 
     # Convenience
-    def do_bb(self, args):
+    def do_updateData(self, args):
         options = eval(args)
         self.expandedINames = set(options['expanded'].split(','))
         self.reportData()
@@ -782,11 +775,15 @@ if __name__ == '__main__':
         if rlist:
             line = sys.stdin.readline()
             if line.startswith("db "):
-                (cmd, token, extra, cont) = eval(line[3:])
-                db.onecmd("%s %s" % (cmd, extra))
-                db.report('token="%s"' % token)
-                if len(cont):
+                options = eval(line[3:])
+                cmd = options['cmd']
+                db.onecmd("%s %s" % (cmd, line[3:]))
+                db.report('token="%s"' % options['token'])
+                try:
+                    cont = options['continuation']
                     db.report('continuation="%s"' % cont)
+                except:
+                    pass
             else:
                 db.onecmd(line)
         else:
