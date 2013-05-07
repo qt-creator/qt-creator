@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
-**
-** Contact: Research In Motion (blackberry-qt@qnx.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -29,27 +27,29 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEBUGSUPPORT_H
-#define QNX_INTERNAL_QNXDEBUGSUPPORT_H
+#ifndef QNXANALYZESUPPORT_H
+#define QNXANALYZESUPPORT_H
 
 #include "qnxabstractrunsupport.h"
 
-namespace Debugger { class DebuggerEngine; }
+#include <projectexplorer/projectexplorerconstants.h>
+#include <utils/outputformat.h>
+
+namespace Analyzer { class IAnalyzerEngine; }
 
 namespace Qnx {
 namespace Internal {
 
 class QnxRunConfiguration;
 
-class QnxDebugSupport : public QnxAbstractRunSupport
+class QnxAnalyzeSupport : public QnxAbstractRunSupport
 {
     Q_OBJECT
 public:
-    explicit QnxDebugSupport(QnxRunConfiguration *runConfig,
-                             Debugger::DebuggerEngine *engine);
+    QnxAnalyzeSupport(QnxRunConfiguration *runConfig, Analyzer::IAnalyzerEngine *engine);
 
 public slots:
-    void handleDebuggingFinished();
+    void handleProfilingFinished();
 
 private slots:
     void handleAdapterSetupRequested();
@@ -62,18 +62,13 @@ private slots:
 
 private:
     void startExecution();
+    void showMessage(const QString &, Utils::OutputFormat);
 
-    QString executable() const;
-
-    Debugger::DebuggerEngine *m_engine;
-    int m_pdebugPort;
+    Analyzer::IAnalyzerEngine *m_engine;
     int m_qmlPort;
-
-    bool m_useCppDebugger;
-    bool m_useQmlDebugger;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_QNXDEBUGSUPPORT_H
+#endif // QNXANALYZESUPPORT_H

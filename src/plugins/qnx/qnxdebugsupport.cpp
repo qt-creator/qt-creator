@@ -40,7 +40,6 @@
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -50,66 +49,44 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine)
-    : QObject(engine)
-    , m_remoteExecutable(runConfig->remoteExecutableFilePath())
-    , m_commandPrefix(runConfig->commandPrefix())
-    , m_device(DeviceKitInformation::device(runConfig->target()->kit()))
+    : QnxAbstractRunSupport(runConfig, engine)
     , m_engine(engine)
     , m_pdebugPort(-1)
     , m_qmlPort(-1)
     , m_useCppDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
     , m_useQmlDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger())
-    , m_state(Inactive)
 {
-    m_runner = new DeviceApplicationRunner(this);
-    m_portsGatherer = new DeviceUsedPortsGatherer(this);
-
-    connect(m_portsGatherer, SIGNAL(error(QString)), SLOT(handleError(QString)));
-    connect(m_portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
-
-    connect(m_runner, SIGNAL(reportError(QString)), SLOT(handleError(QString)));
-    connect(m_runner, SIGNAL(remoteProcessStarted()),        this, SLOT(handleRemoteProcessStarted()));
-    connect(m_runner, SIGNAL(finished(bool)), SLOT(handleRemoteProcessFinished(bool)));
-    connect(m_runner, SIGNAL(reportProgress(QString)),       this, SLOT(handleProgressReport(QString)));
-    connect(m_runner, SIGNAL(remoteStdout(QByteArray)),      this, SLOT(handleRemoteOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteStderr(QByteArray)),     this, SLOT(handleRemoteOutput(QByteArray)));
+    const DeviceApplicationRunner *runner = appRunner();
+    connect(runner, SIGNAL(reportError(QString)), SLOT(handleError(QString)));
+    connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
+    connect(runner, SIGNAL(finished(bool)), SLOT(handleRemoteProcessFinished(bool)));
+    connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
+    connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+    connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
 
     connect(m_engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleAdapterSetupRequested()));
 }
 
 void QnxDebugSupport::handleAdapterSetupRequested()
 {
-    QTC_ASSERT(m_state == Inactive, return);
+    QTC_ASSERT(state() == Inactive, return);
 
-    m_state = GatheringPorts;
     if (m_engine)
         m_engine->showMessage(tr("Preparing remote side...\n"), Debugger::AppStuff);
-    m_portsGatherer->start(m_device);
-}
-
-void QnxDebugSupport::handlePortListReady()
-{
-    QTC_ASSERT(m_state == GatheringPorts, return);
-    startExecution();
+    QnxAbstractRunSupport::handleAdapterSetupRequested();
 }
 
 void QnxDebugSupport::startExecution()
 {
-    if (m_state == Inactive)
+    if (state() == Inactive)
         return;
 
-    Utils::PortList portList = m_device->freePorts();
-    if (m_useCppDebugger)
-        m_pdebugPort = m_portsGatherer->getNextFreePort(&portList);
-    if (m_useQmlDebugger)
-        m_qmlPort = m_portsGatherer->getNextFreePort(&portList);
-
-    if ((m_useCppDebugger && m_pdebugPort == -1) || (m_useQmlDebugger && m_qmlPort == -1)) {
-        handleError(tr("Not enough free ports on device for debugging."));
+    if (m_useCppDebugger && !setPort(m_pdebugPort))
         return;
-    }
+    if (m_useQmlDebugger && !setPort(m_qmlPort))
+        return;
 
-    m_state = StartingRemoteProcess;
+    setState(StartingRemoteProcess);
 
     if (m_useQmlDebugger)
         m_engine->startParameters().processArgs += QString::fromLocal8Bit(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
@@ -117,27 +94,27 @@ void QnxDebugSupport::startExecution()
     QString remoteCommandLine;
     if (m_useCppDebugger)
         remoteCommandLine = QString::fromLatin1("%1 %2 %3")
-                .arg(m_commandPrefix, executable()).arg(m_pdebugPort);
+                .arg(commandPrefix(), executable()).arg(m_pdebugPort);
     else if (m_useQmlDebugger && !m_useCppDebugger)
         remoteCommandLine = QString::fromLatin1("%1 %2 %3")
-                .arg(m_commandPrefix, executable(), m_engine->startParameters().processArgs);
+                .arg(commandPrefix(), executable(), m_engine->startParameters().processArgs);
 
-    m_runner->start(m_device, remoteCommandLine.toUtf8());
+    appRunner()->start(device(), remoteCommandLine.toUtf8());
 }
 
 void QnxDebugSupport::handleRemoteProcessStarted()
 {
-    m_state = Debugging;
+    QnxAbstractRunSupport::handleRemoteProcessStarted();
     if (m_engine)
         m_engine->notifyEngineRemoteSetupDone(m_pdebugPort, m_qmlPort);
 }
 
 void QnxDebugSupport::handleRemoteProcessFinished(bool success)
 {
-    if (m_engine || m_state == Inactive)
+    if (m_engine || state() == Inactive)
         return;
 
-    if (m_state == Debugging) {
+    if (state() == Running) {
         if (!success)
             m_engine->notifyInferiorIll();
 
@@ -152,17 +129,9 @@ void QnxDebugSupport::handleDebuggingFinished()
     setFinished();
 }
 
-void QnxDebugSupport::setFinished()
-{
-    if (m_state != GatheringPorts && m_state != Inactive)
-        m_runner->stop(m_device->processSupport()->killProcessByNameCommandLine(executable()).toUtf8());
-
-    m_state = Inactive;
-}
-
 QString QnxDebugSupport::executable() const
 {
-    return m_useCppDebugger? QLatin1String(Constants::QNX_DEBUG_EXECUTABLE) : m_remoteExecutable;
+    return m_useCppDebugger? QLatin1String(Constants::QNX_DEBUG_EXECUTABLE) : QnxAbstractRunSupport::executable();
 }
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)
@@ -173,7 +142,7 @@ void QnxDebugSupport::handleProgressReport(const QString &progressOutput)
 
 void QnxDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    QTC_ASSERT(m_state == Inactive || m_state == Debugging, return);
+    QTC_ASSERT(state() == Inactive || state() == Running, return);
 
     if (m_engine)
         m_engine->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
@@ -181,12 +150,12 @@ void QnxDebugSupport::handleRemoteOutput(const QByteArray &output)
 
 void QnxDebugSupport::handleError(const QString &error)
 {
-    if (m_state == Debugging) {
+    if (state() == Running) {
         if (m_engine) {
             m_engine->showMessage(error, Debugger::AppError);
             m_engine->notifyInferiorIll();
         }
-    } else if (m_state != Inactive) {
+    } else if (state() != Inactive) {
         setFinished();
         if (m_engine)
             m_engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
