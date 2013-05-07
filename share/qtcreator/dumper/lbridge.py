@@ -2,7 +2,6 @@
 
 import sys
 import binascii
-import cmd
 import inspect
 import os
 import platform
@@ -233,11 +232,8 @@ class SubItem:
         self.d.currentTypePriority = self.savedTypePriority
         return True
 
-class Debugger(cmd.Cmd):
+class Debugger:
     def __init__(self):
-        cmd.Cmd.__init__(self)
-        self.prompt = ""
-
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
         #Same as: self.debugger.HandleCommand("log enable lldb dyld step")
@@ -288,7 +284,8 @@ class Debugger(cmd.Cmd):
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
 
-    def setupInferior(self, fileName):
+    def setupInferior(self, args):
+        fileName = args['executable']
         error = lldb.SBError()
         self.executable = fileName
         self.target = self.debugger.CreateTarget(self.executable, None, None, True, error)
@@ -297,7 +294,7 @@ class Debugger(cmd.Cmd):
         else:
             self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, fileName))
 
-    def do_runEngine(self, args):
+    def runEngine(self, _):
         error = lldb.SBError()
         #launchInfo = lldb.SBLaunchInfo(["-s"])
         #self.process = self.target.Launch(self.listener, None, None,
@@ -436,7 +433,7 @@ class Debugger(cmd.Cmd):
                 self.reportLocation()
                 self.reportVariables()
 
-    def reportRegisters(self):
+    def reportRegisters(self, _ = None):
         if self.process is None:
             self.report('process="none"')
         else:
@@ -539,10 +536,9 @@ class Debugger(cmd.Cmd):
         result += '],'
         return result
 
-    def do_handleBreakpoints(self, args):
-        options = eval(args)
+    def handleBreakpoints(self, args):
         result = 'bkpts=['
-        for bp in options['bkpts']:
+        for bp in args['bkpts']:
             operation = bp['operation']
 
             if operation == 'add':
@@ -606,9 +602,8 @@ class Debugger(cmd.Cmd):
         result += ']'
         self.report(result)
 
-    def do_listSymbols(self, args):
-        options = eval(args)
-        moduleName = options['module']
+    def listSymbols(self, args):
+        moduleName = args['module']
         #file = lldb.SBFileSpec(moduleName)
         #module = self.target.FindModule(file)
         for module in self.target.modules:
@@ -630,25 +625,27 @@ class Debugger(cmd.Cmd):
         result += ']}'
         self.report(result)
 
-    def executeNext(self):
+    def executeNext(self, _ = None):
         self.currentThread().StepOver()
 
-    def executeNextI(self):
+    def executeNextI(self, _ = None):
         self.currentThread().StepOver()
 
-    def executeStep(self):
+    def executeStep(self, _ = None):
         self.currentThread().StepInto()
 
-    def quit(self):
+    def quit(self, _ = None):
         self.debugger.Terminate()
 
-    def executeStepI(self):
+    def executeStepI(self, _ = None):
         self.currentThread().StepInstOver()
 
-    def executeStepOut(self):
+    def executeStepOut(self, _ = None):
         self.debugger.HandleCommand("thread step-out")
 
-    def executeRunToLine(self, file, line):
+    def executeRunToLine(self, args):
+        file = args['file']
+        line = int(args['line'])
         self.thread.StepOverUntil(file, line)
         self.reportData()
 
@@ -682,68 +679,18 @@ class Debugger(cmd.Cmd):
             error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
-    def setOptions(self, options):
-        self.options = options
+    def setOptions(self, args):
+        self.options = args
 
-    def do_interrupt(self, args):
-        self.interruptInferior()
-
-    def do_detach(self, args):
-        self.detachInferior()
-
-    def do_continue(self, args):
-        self.continueInferior()
-
-    def do_c(self, args):
-        self.continueInferior()
-
-    def do_backtrace(self, args):
-        self.reportStack()
-
-    def do_next(self, args):
-        self.executeNext()
-
-    def do_nexti(self, args):
-        self.executeNextI()
-
-    def do_step(self, args):
-        self.executeStep()
-
-    def do_stepi(self, args):
-        self.executeStepI()
-
-    def do_finish(self, args):
-        self.executeStepOut()
-
-    def do_EOF(self, line):
-        return True
-
-    # Qt Creator internal
-    def do_setupInferior(self, args):
-        options = eval(args)
-        self.setupInferior(options['executable'])
-
-    def do_interrupt(self, args):
-        self.interruptInferior()
-
-    def do_reloadRegisters(self, args):
-        self.reportRegisters()
-
-    def do_createReport(self, args):
+    def updateData(self, args):
+        self.expandedINames = set(args['expanded'].split(','))
         self.reportData()
 
-    # Convenience
-    def do_updateData(self, args):
-        options = eval(args)
-        self.expandedINames = set(options['expanded'].split(','))
-        self.reportData()
-
-    def do_disassemble(self, args):
-        options = eval(args)
+    def disassemble(self, args):
         frame = self.currentFrame();
         function = frame.GetFunction()
         name = function.GetName()
-        result = 'disassembly={cookie="%s",' % options['cookie']
+        result = 'disassembly={cookie="%s",' % args['cookie']
         result += ',lines=['
         base = function.GetStartAddress().GetLoadAddress(self.target)
         for insn in function.GetInstructions(self.target):
@@ -757,13 +704,12 @@ class Debugger(cmd.Cmd):
             result += ',offset="%s"},' % (addr - base)
         self.report(result + ']')
 
-    def do_readMemory(self, args):
-        options = eval(args)
-        address = options['address']
-        length = options['length']
+    def readMemory(self, args):
+        address = args['address']
+        length = args['length']
         error = lldb.SBError()
         contents = self.process.ReadMemory(address, length, error)
-        result = 'memory={cookie="%s",' % options['cookie']
+        result = 'memory={cookie="%s",' % args['cookie']
         result += ',address="%s",' % address
         result += self.describeError(error)
         result += ',contents="%s"}' % binascii.hexlify(contents)
@@ -798,17 +744,16 @@ if __name__ == '__main__':
         if rlist:
             line = sys.stdin.readline()
             if line.startswith("db "):
-                options = eval(line[3:])
-                cmd = options['cmd']
-                db.onecmd("%s %s" % (cmd, line[3:]))
-                db.report('token="%s"' % options['token'])
+                args = eval(line[3:])
+                getattr(db, args['cmd'])(args)
+                db.report('token="%s"' % args['token'])
                 try:
-                    cont = options['continuation']
+                    cont = args['continuation']
                     db.report('continuation="%s"' % cont)
                 except:
                     pass
-            else:
-                db.onecmd(line)
+            #else:
+            #    eval(line)
         else:
             db.processEvents()
 

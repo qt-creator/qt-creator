@@ -185,49 +185,49 @@ void LldbEngine::runEngine2()
 void LldbEngine::interruptInferior()
 {
     showStatusMessage(tr("Interrupt requested..."), 5000);
-    runCommand("interrupt");
+    runCommand("interruptInferior");
 }
 
 void LldbEngine::executeStep()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("step");
+    runCommand("executeStep");
 }
 
 void LldbEngine::executeStepI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("stepi");
+    runCommand("executeStepI");
 }
 
 void LldbEngine::executeStepOut()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("finish");
+    runCommand("executeStepOut");
 }
 
 void LldbEngine::executeNext()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("next");
+    runCommand("executeNext");
 }
 
 void LldbEngine::executeNextI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("nexti");
+    runCommand("executeNextI");
 }
 
 void LldbEngine::continueInferior()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand("continue");
+    runCommand("continueInferior");
 }
 
 void LldbEngine::handleResponse(const QByteArray &response)
@@ -810,7 +810,7 @@ QByteArray LldbEngine::currentOptions() const
 
 void LldbEngine::updateAll()
 {
-    runCommand("createReport");
+    runCommand("reportData");
 }
 
 void LldbEngine::refreshLocals(const GdbMi &vars)
@@ -944,7 +944,7 @@ void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 
 void LldbEngine::reloadRegisters()
 {
-    runCommand("reloadRegisters");
+    runCommand("reportRegisters");
 }
 
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
