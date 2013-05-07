@@ -174,7 +174,7 @@ void ToolChainKitInformation::fix(Kit *k)
     if (toolChain(k))
         return;
 
-    qWarning("Tool chain is no longer known, removing from kit \"%s\".",
+    qWarning("No tool chain set from kit \"%s\".",
              qPrintable(k->displayName()));
     setToolChain(k, 0); // make sure to clear out no longer known tool chains
 }
