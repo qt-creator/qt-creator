@@ -57,7 +57,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
     IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(runMode);
     if (!tool) {
         if (errorMessage)
-            *errorMessage = tr("No analyzer tool selected");
+            *errorMessage = tr("No analyzer tool selected.");
         return 0;
     }
 
