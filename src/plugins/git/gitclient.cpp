@@ -2659,8 +2659,8 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
 bool GitClient::synchronousFetch(const QString &workingDirectory, const QString &remote)
 {
     QStringList arguments(QLatin1String("fetch"));
-    if (!remote.isEmpty())
-        arguments << remote;
+    arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
+
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
                            |VcsBase::VcsBasePlugin::ShowSuccessMessage;
