@@ -1548,7 +1548,7 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
     QStringList remotes = output.split(QLatin1String("\n"));
 
     foreach (const QString &remote, remotes) {
-        if (!remote.endsWith(QLatin1String(" (fetch)")))
+        if (!remote.endsWith(QLatin1String(" (push)")))
             continue;
 
         QStringList tokens = remote.split(QRegExp(QLatin1String("\\s")),
