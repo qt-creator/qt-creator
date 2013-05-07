@@ -11,9 +11,6 @@ QtcPlugin {
     Depends { name: "CppTools" }
     Depends { name: "QtSupport" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "cpp" }
-
-    cpp.defines: base.concat(["PYEDITOR_LIBRARY"])
 
     files: [
         "pythoneditor.cpp",

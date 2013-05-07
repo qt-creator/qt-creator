@@ -1,4 +1,4 @@
-DEFINES += ANALYZER_LIBRARY
+DEFINES += ANALYZERBASE_LIBRARY
 
 include(../../qtcreatorplugin.pri)
 

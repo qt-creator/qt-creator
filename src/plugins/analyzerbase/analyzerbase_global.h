@@ -33,7 +33,7 @@
 
 #include <qglobal.h>
 
-#if defined(ANALYZER_LIBRARY)
+#if defined(ANALYZERBASE_LIBRARY)
 #  define ANALYZER_EXPORT Q_DECL_EXPORT
 #else
 #  define ANALYZER_EXPORT Q_DECL_IMPORT

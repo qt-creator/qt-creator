@@ -32,7 +32,7 @@
 
 #include <QtGlobal>
 
-#if defined(PYEDITOR_LIBRARY)
+#if defined(PYTHONEDITOR_LIBRARY)
 #  define PYEDITOR_EXPORT Q_DECL_EXPORT
 #else
 #  define PYEDITOR_EXPORT Q_DECL_IMPORT

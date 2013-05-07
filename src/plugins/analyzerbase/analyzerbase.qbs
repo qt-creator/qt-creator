@@ -12,9 +12,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 
-    Depends { name: "cpp" }
-    cpp.defines: base.concat("ANALYZER_LIBRARY")
-
     files: [
         "analyzerbase.qrc",
         "analyzerbase_global.h",
