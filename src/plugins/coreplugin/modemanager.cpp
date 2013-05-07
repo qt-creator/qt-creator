@@ -165,6 +165,7 @@ void ModeManager::activateModeType(Id type)
 void ModeManager::slotActivateMode(int id)
 {
     m_instance->activateMode(Id::fromUniqueIdentifier(id));
+    ICore::raiseWindow(d->m_modeStack);
 }
 
 void ModeManager::activateMode(Id id)
