@@ -82,34 +82,26 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
     m_lastAgentId = 0;
+    m_lastToken = 0;
     setObjectName(QLatin1String("LldbEngine"));
 }
 
 LldbEngine::~LldbEngine()
 {}
 
-void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
+void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages)
 {
-    if (!(languages & CppLanguage))
-        return;
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    if (state() == DebuggerNotReady) {
-        showMessage(_("LLDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
-        return;
-    }
-    //runCommand(command.toUtf8());
-    m_lldbProc.write(command.toUtf8() + '\n');
+    runCommand(Command("executeDebuggerCommand").arg("command", command));
 }
-
-static int token = 1;
 
 void LldbEngine::runCommand(const Command &command)
 {
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
-    ++token;
+    ++m_lastToken;
+    QByteArray token = QByteArray::number(m_lastToken);
     QByteArray cmd = "db {'cmd':'" + command.function + "',"
-        + command.args + "'token':" + QByteArray::number(token) + "}\n";
-    showMessage(QString::number(token) + _(cmd), LogInput);
+        + command.args + "'token':" + token + "}\n";
+    showMessage(_(token + cmd), LogInput);
     m_lldbProc.write(cmd);
 }
 

@@ -20,14 +20,110 @@ cdbLoaded = False
 lldbLoaded = False
 gdbLoaded = False
 
+# Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
+Unencoded8Bit, \
+Base64Encoded8BitWithQuotes, \
+Base64Encoded16BitWithQuotes, \
+Base64Encoded32BitWithQuotes, \
+Base64Encoded16Bit, \
+Base64Encoded8Bit, \
+Hex2EncodedLatin1, \
+Hex4EncodedLittleEndian, \
+Hex8EncodedLittleEndian, \
+Hex2EncodedUtf8, \
+Hex8EncodedBigEndian, \
+Hex4EncodedBigEndian, \
+Hex4EncodedLittleEndianWithoutQuotes, \
+Hex2EncodedLocal8Bit, \
+JulianDate, \
+MillisecondsSinceMidnight, \
+JulianDateAndMillisecondsSinceMidnight, \
+Hex2EncodedInt1, \
+Hex2EncodedInt2, \
+Hex2EncodedInt4, \
+Hex2EncodedInt8, \
+Hex2EncodedUInt1, \
+Hex2EncodedUInt2, \
+Hex2EncodedUInt4, \
+Hex2EncodedUInt8, \
+Hex2EncodedFloat4, \
+Hex2EncodedFloat8 \
+    = range(27)
+
+# Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
+StopDisplay, \
+DisplayImageData, \
+DisplayUtf16String, \
+DisplayImageFile, \
+DisplayProcess, \
+DisplayLatin1String, \
+DisplayUtf8String \
+    = range(7)
+
 #######################################################################
 #
 # Helpers
 #
 #######################################################################
 
-currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-#print "DIR: %s " % currentDir
+# This is a cache mapping from 'type name' to 'display alternatives'.
+qqFormats = {}
+
+# This is a cache of all known dumpers.
+qqDumpers = {}
+
+# This is a cache of all dumpers that support writing.
+qqEditable = {}
+
+# This keeps canonical forms of the typenames, without array indices etc.
+qqStripForFormat = {}
+
+def stripForFormat(typeName):
+    global qqStripForFormat
+    if typeName in qqStripForFormat:
+        return qqStripForFormat[typeName]
+    stripped = ""
+    inArray = 0
+    for c in stripClassTag(typeName):
+        if c == '<':
+            break
+        if c == ' ':
+            continue
+        if c == '[':
+            inArray += 1
+        elif c == ']':
+            inArray -= 1
+        if inArray and ord(c) >= 48 and ord(c) <= 57:
+            continue
+        stripped +=  c
+    qqStripForFormat[typeName] = stripped
+    return stripped
+
+
+def registerDumper(function):
+    global qqDumpers, qqFormats, qqEditable
+    try:
+        funcname = function.func_name
+        if funcname.startswith("qdump__"):
+            type = funcname[7:]
+            qqDumpers[type] = function
+            qqFormats[type] = qqFormats.get(type, "")
+        elif funcname.startswith("qform__"):
+            type = funcname[7:]
+            formats = ""
+            try:
+                formats = function()
+            except:
+                pass
+            qqFormats[type] = formats
+        elif funcname.startswith("qedit__"):
+            type = funcname[7:]
+            try:
+                qqEditable[type] = function
+            except:
+                pass
+    except:
+        pass
 
 def warn(message):
     print 'XXX={"%s"}@\n' % message.encode("latin1").replace('"', "'")
@@ -68,22 +164,6 @@ class Type:
     def strip_typedefs(self):
         return self
 
-class Value:
-    def __init__(self, var):
-        self.raw = var
-        self.is_optimized_out = False
-        self.address = var.addr
-        self.type = Type(var)
-        self.name = var.name
-
-    def __str__(self):
-        return str(self.raw.value)
-
-    def __getitem__(self, name):
-        return None if self.raw is None else  self.raw.GetChildMemberWithName(name)
-
-    def fields(self):
-        return [Value(self.raw.GetChildAtIndex(i)) for i in xrange(self.raw.num_children)]
 
 def currentFrame():
     currentThread = self.process.GetThreadAtIndex(0)
@@ -166,6 +246,33 @@ def loggingCallback(args):
     s = args.strip()
     s = s.replace('"', "'")
     sys.stdout.write('log="%s"@\n' % s)
+
+def check(exp):
+    if not exp:
+        raise RuntimeError("Check failed")
+
+def checkSimpleRef(ref):
+    count = ref["_q_value"]
+    check(count > 0)
+    check(count < 1000000)
+
+def checkRef(ref):
+    return True
+    try:
+        count = ref["atomic"]["_q_value"] # Qt 5.
+        minimum = -1
+    except:
+        count = ref["_q_value"] # Qt 4.
+        minimum = 0
+    # Assume there aren't a million references to any object.
+    check(count >= minimum)
+    check(count < 1000000)
+
+
+def valueChildAccess(self, name):
+    return self.GetChildMemberWithName(name)
+
+lldb.SBValue.__getitem__ = valueChildAccess
 
 class Children:
     def __init__(self, d, numChild = 1, childType = None, childNumChild = None,
@@ -272,10 +379,17 @@ class Debugger:
     def put(self, stuff):
         sys.stdout.write(stuff)
 
+    def currentItemFormat(self):
+        #format = self.formats.get(self.currentIName)
+        #if format is None:
+        #    format = self.typeformats.get(stripForFormat(str(self.currentType)))
+        #return format
+        return 0
+
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
-        if numchild != self.currentChildNumChild:
-            self.put('numchild="%s",' % numchild)
+        #if numchild != self.currentChildNumChild:
+        self.put('numchild="%s",' % numchild)
 
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
@@ -283,6 +397,7 @@ class Debugger:
             self.currentValue = value
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
+        #self.put('value="%s",' % value)
 
     def setupInferior(self, args):
         fileName = args['executable']
@@ -293,6 +408,7 @@ class Debugger:
             self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, fileName))
         else:
             self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, fileName))
+        self.importDumpers()
 
     def runEngine(self, _):
         error = lldb.SBError()
@@ -364,7 +480,7 @@ class Debugger:
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
-    def reportStack(self):
+    def reportStack(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
         else:
@@ -386,32 +502,89 @@ class Debugger:
             result += '],hasmore="%s"},' % hasmore
             self.report(result)
 
+    def putType(self, typeName):
+            self.put('type="%s",' % typeName)
+
+    def putStringValue(self, value, priority = 0):
+        if not value is None:
+            str = self.encodeString(value)
+            self.putValue(str, Hex4EncodedLittleEndian, priority)
+
+    def readRawMemory(self, base, size):
+        error = lldb.SBError()
+        contents = self.process.ReadMemory(base, size, error)
+        return binascii.hexlify(contents)
+
+    def computeLimit(self, size, limit):
+        if limit is None:
+            return size
+        if limit == 0:
+            #return min(size, qqStringCutOff)
+            return min(size, 100)
+        return min(size, limit)
+
+    def qStringData(self, value):
+        private = value['d']
+        checkRef(private['ref'])
+        try:
+            # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+            offset = private['offset']
+            data = int(private.GetValue(), 0) + int(offset.GetValue())
+            return data, int(private['size'].GetValue()), int(private['alloc'].GetValue())
+        except:
+            # Qt 4.
+            return private['data'], int(private['size']), int(private['alloc'])
+
+    def encodeString(self, value, limit = 0):
+        data, size, alloc = self.qStringData(value)
+        if alloc != 0:
+            check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+        limit = self.computeLimit(size, limit)
+        s = self.readRawMemory(data, 2 * limit)
+        if limit < size:
+            s += "2e002e002e00"
+        return s
+
+    def putValue(self, value, encoding = None, priority = 0):
+        # Higher priority values override lower ones.
+        #if priority >= self.currentValuePriority:
+        #    self.currentValue = value
+        #    self.currentValuePriority = priority
+        #    self.currentValueEncoding = encoding
+        if not encoding is None:
+            self.put('valueencoded="%d",' % encoding)
+        self.put('value="%s",' % value)
+
     def putItem(self, value, tryDynamic=True):
-        #val = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
-        val = value
-        v = val.GetValue()
-        #numchild = 1 if val.MightHaveChildren() else 0
-        numchild = val.GetNumChildren()
-        self.put('iname="%s",' % self.currentIName)
-        self.put('type="%s",' % val.GetTypeName())
-        #self.put('vtype="%s",' % val.GetValueType())
-        self.put('value="%s",' % ("" if v is None else v))
-        self.put('numchild="%s",' % numchild)
-        self.put('addr="0x%x",' % val.GetLoadAddress())
-        if self.currentIName in self.expandedINames:
-            with Children(self):
-                self.putFields(value)
+        global qqDumpers
+        #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
+        typeName = value.GetTypeName()
+        if typeName in qqDumpers:
+            self.putType(typeName)
+            qqDumpers[typeName](self, value)
+        else:
+            v = value.GetValue()
+            #numchild = 1 if value.MightHaveChildren() else 0
+            numchild = value.GetNumChildren()
+            self.put('iname="%s",' % self.currentIName)
+            self.put('type="%s",' % typeName)
+            self.put('value="%s",' % ("" if v is None else v))
+            self.put('numchild="%s",' % numchild)
+            self.put('addr="0x%x",' % value.GetLoadAddress())
+            if self.currentIName in self.expandedINames:
+                with Children(self):
+                    self.putFields(value)
 
     def putFields(self, value):
         n = value.GetNumChildren()
         if n > 10000:
             n = 10000
         for i in xrange(n):
-            field = value.GetChildAtIndex(i)
-            with SubItem(self, field.GetName()):
-                self.putItem(field)
+            child = value.GetChildAtIndex(i)
+            with SubItem(self, child.GetName()):
+                self.putItem(child)
 
-    def reportVariables(self):
+    def reportVariables(self, _ = None):
         frame = self.currentThread().GetSelectedFrame()
         self.currentIName = "local"
         self.put('data=[')
@@ -421,7 +594,7 @@ class Debugger:
         self.put(']')
         self.report('')
 
-    def reportData(self):
+    def reportData(self, _ = None):
         self.reportRegisters()
         if self.process is None:
             self.report('process="none"')
@@ -451,7 +624,7 @@ class Debugger:
         sys.stdout.write(stuff)
         sys.stdout.write("@\n")
 
-    def interruptInferior(self):
+    def interruptInferior(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
         else:
@@ -459,7 +632,7 @@ class Debugger:
             error = self.process.Stop()
             self.reportError(error)
 
-    def detachInferior(self):
+    def detachInferior(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
         else:
@@ -467,7 +640,7 @@ class Debugger:
             self.reportError(error)
             self.reportData()
 
-    def continueInferior(self):
+    def continueInferior(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
         else:
@@ -585,7 +758,7 @@ class Debugger:
         result += "]"
         self.report(result)
 
-    def do_listModules(self, args):
+    def listModules(self, args):
         result = 'modules=['
         for module in self.target.modules:
             result += '{file="%s"' % module.file.fullpath
@@ -667,8 +840,9 @@ class Debugger:
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)
 
-    def executeDebuggerCommand(self, command):
+    def executeDebuggerCommand(self, args):
         result = lldb.SBCommandReturnObject()
+        command = args['command']
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         success = result.Succeeded()
         if success:
@@ -715,21 +889,19 @@ class Debugger:
         result += ',contents="%s"}' % binascii.hexlify(contents)
         self.report(result)
 
+    def importDumpers(self, _ = None):
+        result = lldb.SBCommandReturnObject()
+        interpreter = self.debugger.GetCommandInterpreter()
+        global qqDumpers, qqFormats, qqEditable
+        items = globals()
+        for key in items:
+            registerDumper(items[key])
+
+
+currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+#warn("currentdir: %s" % currentDir)
 #execfile(os.path.join(currentDir, "dumper.py"))
-#execfile(os.path.join(currentDir, "qttypes.py"))
-
-#def importPlainDumpers(args):
-#    pass
-
-#def bbsetup(args = ''):
-#    global qqDumpers, qqFormats, qqEditable
-#    typeCache = {}
-#
-#    items = globals()
-#    for key in items:
-#        registerDumper(items[key])
-
-#bbsetup()
+execfile(os.path.join(currentDir, "qttypes.py"))
 
 import sys
 import select
@@ -739,6 +911,7 @@ lldbLoaded = True
 if __name__ == '__main__':
     db = Debugger()
     db.report('state="enginesetupok"')
+    #importPlainDumpers()
     while True:
         rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
         if rlist:
