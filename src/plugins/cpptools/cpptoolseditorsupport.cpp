@@ -31,6 +31,8 @@
 #include "cppmodelmanager.h"
 #include "cpplocalsymbols.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/runextensions.h>
 
 #include <QList>
@@ -275,7 +277,9 @@ void CppEditorSupport::startHighlighting()
     if (!m_highlightingSupport)
         return;
 
-    if (!m_textEditor->widget()->isVisible())
+    // Start highlighting only if the editor is or would be visible
+    // (in case another mode is active) in the edit mode.
+    if (!Core::EditorManager::instance()->visibleEditors().contains(m_textEditor))
         return;
 
     if (m_highlightingSupport->requiresSemanticInfo()) {
