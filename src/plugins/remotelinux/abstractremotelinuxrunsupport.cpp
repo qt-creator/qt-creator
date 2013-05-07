@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "iremotelinuxrunsupport.h"
+#include "abstractremotelinuxrunsupport.h"
 #include "remotelinuxrunconfiguration.h"
 
 #include <projectexplorer/target.h>
@@ -42,11 +42,11 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-class IRemoteLinuxRunSupportPrivate
+class AbstractRemoteLinuxRunSupportPrivate
 {
 public:
-    IRemoteLinuxRunSupportPrivate(const RemoteLinuxRunConfiguration *runConfig)
-        : state(IRemoteLinuxRunSupport::Inactive),
+    AbstractRemoteLinuxRunSupportPrivate(const RemoteLinuxRunConfiguration *runConfig)
+        : state(AbstractRemoteLinuxRunSupport::Inactive),
           device(DeviceKitInformation::device(runConfig->target()->kit())),
           remoteFilePath(runConfig->remoteExecutableFilePath()),
           arguments(runConfig->arguments()),
@@ -54,7 +54,7 @@ public:
     {
     }
 
-    IRemoteLinuxRunSupport::State state;
+    AbstractRemoteLinuxRunSupport::State state;
     DeviceApplicationRunner appRunner;
     DeviceUsedPortsGatherer portsGatherer;
     const ProjectExplorer::IDevice::ConstPtr device;
@@ -68,39 +68,39 @@ public:
 
 using namespace Internal;
 
-IRemoteLinuxRunSupport::IRemoteLinuxRunSupport(RemoteLinuxRunConfiguration *runConfig, QObject *parent)
+AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RemoteLinuxRunConfiguration *runConfig, QObject *parent)
     : QObject(parent),
-      d(new IRemoteLinuxRunSupportPrivate(runConfig))
+      d(new AbstractRemoteLinuxRunSupportPrivate(runConfig))
 {
 }
 
-IRemoteLinuxRunSupport::~IRemoteLinuxRunSupport()
+AbstractRemoteLinuxRunSupport::~AbstractRemoteLinuxRunSupport()
 {
     setFinished();
     delete d;
 }
 
-void IRemoteLinuxRunSupport::setApplicationRunnerPreRunAction(DeviceApplicationHelperAction *action)
+void AbstractRemoteLinuxRunSupport::setApplicationRunnerPreRunAction(DeviceApplicationHelperAction *action)
 {
     d->appRunner.setPreRunAction(action);
 }
 
-void IRemoteLinuxRunSupport::setApplicationRunnerPostRunAction(DeviceApplicationHelperAction *action)
+void AbstractRemoteLinuxRunSupport::setApplicationRunnerPostRunAction(DeviceApplicationHelperAction *action)
 {
     d->appRunner.setPostRunAction(action);
 }
 
-void IRemoteLinuxRunSupport::setState(IRemoteLinuxRunSupport::State state)
+void AbstractRemoteLinuxRunSupport::setState(AbstractRemoteLinuxRunSupport::State state)
 {
     d->state = state;
 }
 
-IRemoteLinuxRunSupport::State IRemoteLinuxRunSupport::state() const
+AbstractRemoteLinuxRunSupport::State AbstractRemoteLinuxRunSupport::state() const
 {
     return d->state;
 }
 
-void IRemoteLinuxRunSupport::handleRemoteSetupRequested()
+void AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested()
 {
     QTC_ASSERT(d->state == Inactive, return);
     d->state = GatheringPorts;
@@ -109,13 +109,13 @@ void IRemoteLinuxRunSupport::handleRemoteSetupRequested()
     d->portsGatherer.start(d->device);
 }
 
-void IRemoteLinuxRunSupport::handlePortsGathererError(const QString &message)
+void AbstractRemoteLinuxRunSupport::handlePortsGathererError(const QString &message)
 {
     QTC_ASSERT(d->state == GatheringPorts, return);
     handleAdapterSetupFailed(message);
 }
 
-void IRemoteLinuxRunSupport::handlePortListReady()
+void AbstractRemoteLinuxRunSupport::handlePortListReady()
 {
     QTC_ASSERT(d->state == GatheringPorts, return);
 
@@ -123,37 +123,37 @@ void IRemoteLinuxRunSupport::handlePortListReady()
     startExecution();
 }
 
-void IRemoteLinuxRunSupport::handleAppRunnerError(const QString &)
+void AbstractRemoteLinuxRunSupport::handleAppRunnerError(const QString &)
 {
 }
 
-void IRemoteLinuxRunSupport::handleRemoteOutput(const QByteArray &)
+void AbstractRemoteLinuxRunSupport::handleRemoteOutput(const QByteArray &)
 {
 }
 
-void IRemoteLinuxRunSupport::handleRemoteErrorOutput(const QByteArray &)
+void AbstractRemoteLinuxRunSupport::handleRemoteErrorOutput(const QByteArray &)
 {
 }
 
-void IRemoteLinuxRunSupport::handleAppRunnerFinished(bool)
+void AbstractRemoteLinuxRunSupport::handleAppRunnerFinished(bool)
 {
 }
 
-void IRemoteLinuxRunSupport::handleProgressReport(const QString &)
+void AbstractRemoteLinuxRunSupport::handleProgressReport(const QString &)
 {
 }
 
-void IRemoteLinuxRunSupport::handleAdapterSetupFailed(const QString &)
+void AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(const QString &)
 {
     setFinished();
 }
 
-void IRemoteLinuxRunSupport::handleAdapterSetupDone()
+void AbstractRemoteLinuxRunSupport::handleAdapterSetupDone()
 {
     d->state = Running;
 }
 
-void IRemoteLinuxRunSupport::setFinished()
+void AbstractRemoteLinuxRunSupport::setFinished()
 {
     if (d->state == Inactive)
         return;
@@ -167,7 +167,7 @@ void IRemoteLinuxRunSupport::setFinished()
     d->state = Inactive;
 }
 
-bool IRemoteLinuxRunSupport::setPort(int &port)
+bool AbstractRemoteLinuxRunSupport::setPort(int &port)
 {
     port = d->portsGatherer.getNextFreePort(&d->portList);
     if (port == -1) {
@@ -177,27 +177,27 @@ bool IRemoteLinuxRunSupport::setPort(int &port)
     return true;
 }
 
-QString IRemoteLinuxRunSupport::arguments() const
+QString AbstractRemoteLinuxRunSupport::arguments() const
 {
     return d->arguments;
 }
 
-QString IRemoteLinuxRunSupport::commandPrefix() const
+QString AbstractRemoteLinuxRunSupport::commandPrefix() const
 {
     return d->commandPrefix;
 }
 
-QString IRemoteLinuxRunSupport::remoteFilePath() const
+QString AbstractRemoteLinuxRunSupport::remoteFilePath() const
 {
     return d->remoteFilePath;
 }
 
-const IDevice::ConstPtr IRemoteLinuxRunSupport::device() const
+const IDevice::ConstPtr AbstractRemoteLinuxRunSupport::device() const
 {
     return d->device;
 }
 
-DeviceApplicationRunner *IRemoteLinuxRunSupport::appRunner() const
+DeviceApplicationRunner *AbstractRemoteLinuxRunSupport::appRunner() const
 {
     return &d->appRunner;
 }

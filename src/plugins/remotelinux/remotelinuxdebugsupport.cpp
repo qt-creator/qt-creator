@@ -120,7 +120,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
 
 LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RemoteLinuxRunConfiguration *runConfig,
         DebuggerEngine *engine)
-    : IRemoteLinuxRunSupport(runConfig, engine),
+    : AbstractRemoteLinuxRunSupport(runConfig, engine),
       d(new LinuxDeviceDebugSupportPrivate(static_cast<RemoteLinuxRunConfiguration *>(runConfig), engine))
 {
     connect(d->engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
@@ -142,7 +142,7 @@ void LinuxDeviceDebugSupport::handleRemoteSetupRequested()
     QTC_ASSERT(state() == Inactive, return);
 
     showMessage(tr("Checking available ports...\n"), LogStatus);
-    IRemoteLinuxRunSupport::handleRemoteSetupRequested();
+    AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
 }
 
 void LinuxDeviceDebugSupport::startExecution()
@@ -239,13 +239,13 @@ void LinuxDeviceDebugSupport::handleProgressReport(const QString &progressOutput
 
 void LinuxDeviceDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
-    IRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
+    AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
     d->engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
 }
 
 void LinuxDeviceDebugSupport::handleAdapterSetupDone()
 {
-    IRemoteLinuxRunSupport::handleAdapterSetupDone();
+    AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
     d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
 }
 

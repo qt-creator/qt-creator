@@ -30,7 +30,7 @@
 #ifndef REMOTELINUXANALYZESUPPORT_H
 #define REMOTELINUXANALYZESUPPORT_H
 
-#include "iremotelinuxrunsupport.h"
+#include "abstractremotelinuxrunsupport.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/outputformat.h>
@@ -45,7 +45,7 @@ class RemoteLinuxRunConfiguration;
 
 namespace Internal { class RemoteLinuxAnalyzeSupportPrivate; }
 
-class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public IRemoteLinuxRunSupport
+class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxRunSupport
 {
     Q_OBJECT
 public:

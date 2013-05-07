@@ -30,7 +30,7 @@
 #ifndef REMOTELINUXDEBUGSUPPORT_H
 #define REMOTELINUXDEBUGSUPPORT_H
 
-#include "iremotelinuxrunsupport.h"
+#include "abstractremotelinuxrunsupport.h"
 
 namespace Debugger {
 class DebuggerEngine;
@@ -42,7 +42,7 @@ class RemoteLinuxRunConfiguration;
 
 namespace Internal { class LinuxDeviceDebugSupportPrivate; }
 
-class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public IRemoteLinuxRunSupport
+class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public AbstractRemoteLinuxRunSupport
 {
     Q_OBJECT
 public:

@@ -90,7 +90,7 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RemoteL
 
 RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration *runConfig,
                                                      IAnalyzerEngine *engine, RunMode runMode)
-    : IRemoteLinuxRunSupport(runConfig, engine),
+    : AbstractRemoteLinuxRunSupport(runConfig, engine),
       d(new RemoteLinuxAnalyzeSupportPrivate(engine, runMode))
 {
     connect(d->engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
@@ -114,7 +114,7 @@ void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
     QTC_ASSERT(state() == Inactive, return);
 
     showMessage(tr("Checking available ports...\n"), Utils::NormalMessageFormat);
-    IRemoteLinuxRunSupport::handleRemoteSetupRequested();
+    AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
 }
 
 void RemoteLinuxAnalyzeSupport::startExecution()
@@ -186,13 +186,13 @@ void RemoteLinuxAnalyzeSupport::handleProgressReport(const QString &progressOutp
 
 void RemoteLinuxAnalyzeSupport::handleAdapterSetupFailed(const QString &error)
 {
-    IRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
+    AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
     showMessage(tr("Initial setup failed: %1").arg(error), Utils::NormalMessageFormat);
 }
 
 void RemoteLinuxAnalyzeSupport::handleAdapterSetupDone()
 {
-    IRemoteLinuxRunSupport::handleAdapterSetupDone();
+    AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
     d->engine->notifyRemoteSetupDone(d->qmlPort);
 }
 

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef IREMOTELINUXRUNSUPPORT_H
-#define IREMOTELINUXRUNSUPPORT_H
+#ifndef ABSTRACTREMOTELINUXRUNSUPPORT_H
+#define ABSTRACTREMOTELINUXRUNSUPPORT_H
 
 #include "remotelinux_export.h"
 
@@ -45,9 +45,9 @@ namespace RemoteLinux {
 
 class RemoteLinuxRunConfiguration;
 
-namespace Internal { class IRemoteLinuxRunSupportPrivate; }
+namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
 
-class REMOTELINUX_EXPORT IRemoteLinuxRunSupport : public QObject
+class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public QObject
 {
     Q_OBJECT
 protected:
@@ -59,9 +59,9 @@ protected:
         Running
     };
 public:
-    IRemoteLinuxRunSupport(RemoteLinuxRunConfiguration *runConfig,
+    AbstractRemoteLinuxRunSupport(RemoteLinuxRunConfiguration *runConfig,
                           QObject *parent = 0);
-    ~IRemoteLinuxRunSupport();
+    ~AbstractRemoteLinuxRunSupport();
 
     void setApplicationRunnerPreRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
     void setApplicationRunnerPostRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
@@ -97,10 +97,10 @@ private slots:
     void handlePortListReady();
 
 private:
-    friend class Internal::IRemoteLinuxRunSupportPrivate;
-    Internal::IRemoteLinuxRunSupportPrivate * const d;
+    friend class Internal::AbstractRemoteLinuxRunSupportPrivate;
+    Internal::AbstractRemoteLinuxRunSupportPrivate * const d;
 };
 
 } // namespace RemoteLinux
 
-#endif // IREMOTELINUXRUNSUPPORT_H
+#endif // ABSTRACTREMOTELINUXRUNSUPPORT_H
