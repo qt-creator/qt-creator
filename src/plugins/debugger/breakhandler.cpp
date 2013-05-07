@@ -1163,19 +1163,12 @@ void BreakHandler::saveSessionData()
 void BreakHandler::loadSessionData()
 {
     beginResetModel();
-    m_storage.clear();
-    endResetModel();
-    loadBreakpoints();
-}
-
-void BreakHandler::removeSessionData()
-{
-    beginResetModel();
     Iterator it = m_storage.begin(), et = m_storage.end();
     for ( ; it != et; ++it)
         it->destroyMarker();
     m_storage.clear();
     endResetModel();
+    loadBreakpoints();
 }
 
 void BreakHandler::breakByFunction(const QString &functionName)

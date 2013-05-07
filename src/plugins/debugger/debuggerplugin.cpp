@@ -2478,7 +2478,6 @@ void DebuggerPluginPrivate::sessionLoaded()
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
 {
-    m_breakHandler->removeSessionData();
     m_toolTipManager->sessionAboutToChange();
 }
 
