@@ -149,7 +149,7 @@ private slots:
     void checkForReload();
     void changedFile(const QString &file);
     void mainWindowActivated();
-    void syncWithEditor(Core::IContext *context);
+    void syncWithEditor(const QList<Core::IContext *> &context);
 };
 
 /*! The FileChangeBlocker blocks all change notifications to all IDocument * that

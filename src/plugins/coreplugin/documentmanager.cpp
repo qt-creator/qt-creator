@@ -218,8 +218,8 @@ DocumentManager::DocumentManager(QMainWindow *mw)
     m_instance = this;
     connect(d->m_mainWindow, SIGNAL(windowActivated()),
         this, SLOT(mainWindowActivated()));
-    connect(ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
-        this, SLOT(syncWithEditor(Core::IContext*)));
+    connect(ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
+        this, SLOT(syncWithEditor(QList<Core::IContext*>)));
 
     readSettings();
 }
@@ -1061,15 +1061,20 @@ void DocumentManager::checkForReload()
 //    dump();
 }
 
-void DocumentManager::syncWithEditor(Core::IContext *context)
+void DocumentManager::syncWithEditor(const QList<Core::IContext *> &context)
 {
-    if (!context)
+    if (context.isEmpty())
         return;
 
     Core::IEditor *editor = Core::EditorManager::currentEditor();
-    if (editor && editor->widget() == context->widget()
-            && !editor->isTemporary())
-        setCurrentFile(editor->document()->fileName());
+    if (!editor || editor->isTemporary())
+        return;
+    foreach (IContext *c, context) {
+        if (editor->widget() == c->widget()) {
+            setCurrentFile(editor->document()->fileName());
+            break;
+        }
+    }
 }
 
 /*!

@@ -76,7 +76,7 @@ private slots:
     void selectAllAction();
     void updateActions();
 
-    void updateCurrentEditor(Core::IContext *object);
+    void updateCurrentEditor(Core::IEditor *editor);
 
 private:
     Core::Context m_context;

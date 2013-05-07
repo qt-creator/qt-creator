@@ -507,8 +507,8 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    connect(Core::ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext*)),
-        this, SLOT(updateCurrentEditor(Core::IContext*)));
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+        this, SLOT(updateCurrentEditor(Core::IEditor*)));
 
     addAutoReleasedObject(new BinEditorFactory(this));
     addAutoReleasedObject(new BinEditorWidgetFactory);
@@ -519,31 +519,14 @@ void BinEditorPlugin::extensionsInitialized()
 {
 }
 
-void BinEditorPlugin::updateCurrentEditor(Core::IContext *object)
+void BinEditorPlugin::updateCurrentEditor(Core::IEditor *editor)
 {
-    do {
-        if (!object) {
-            if (!m_currentEditor)
-                return;
-
-            m_currentEditor = 0;
-            break;
-        }
-        BinEditor *editor = qobject_cast<BinEditor *>(object->widget());
-        if (!editor) {
-            if (!m_currentEditor)
-                return;
-
-            m_currentEditor = 0;
-            break;
-        }
-
-        if (editor == m_currentEditor)
-            return;
-
-        m_currentEditor = editor;
-
-    } while (false);
+    BinEditor *binEditor = 0;
+    if (editor)
+        binEditor = qobject_cast<BinEditor *>(editor->widget());
+    if (m_currentEditor == binEditor)
+        return;
+    m_currentEditor = binEditor;
     updateActions();
 }
 

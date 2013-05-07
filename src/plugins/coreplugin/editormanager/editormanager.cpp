@@ -177,6 +177,7 @@ struct EditorManagerPrivate
     ~EditorManagerPrivate();
     QList<EditLocation> m_globalHistory;
     QList<Internal::SplitterOrView *> m_root;
+    QList<IContext *> m_rootContext;
     QPointer<IEditor> m_currentEditor;
     QPointer<IEditor> m_scheduledCurrentEditor;
     QPointer<EditorView> m_currentView;
@@ -272,8 +273,8 @@ EditorManager::EditorManager(QWidget *parent) :
 {
     m_instance = this;
 
-    connect(ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext*)),
-            this, SLOT(handleContextChange(Core::IContext*)));
+    connect(ICore::instance(), SIGNAL(contextAboutToChange(QList<Core::IContext*>)),
+            this, SLOT(handleContextChange(QList<Core::IContext*>)));
 
     const Context editManagerContext(Constants::C_EDITORMANAGER);
     // combined context for edit & design modes
@@ -426,6 +427,7 @@ EditorManager::EditorManager(QWidget *parent) :
     // other setup
     SplitterOrView *firstRoot = new SplitterOrView();
     d->m_root.append(firstRoot);
+    d->m_rootContext.append(0);
     d->m_currentView = firstRoot->view();
 
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -458,9 +460,13 @@ EditorManager::~EditorManager()
     for (int i = 1; i < d->m_root.size(); ++i) {
         SplitterOrView *root = d->m_root.at(i);
         disconnect(root, SIGNAL(destroyed(QObject*)), this, SLOT(rootDestroyed(QObject*)));
+        IContext *rootContext = d->m_rootContext.at(i);
+        ICore::removeContextObject(rootContext);
         delete root;
+        delete rootContext;
     }
     d->m_root.clear();
+    d->m_rootContext.clear();
 
     delete d;
 }
@@ -504,12 +510,15 @@ void EditorManager::removeEditor(IEditor *editor)
     ICore::removeContextObject(editor);
 }
 
-void EditorManager::handleContextChange(Core::IContext *context)
+void EditorManager::handleContextChange(const QList<Core::IContext *> &context)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO;
     d->m_scheduledCurrentEditor = 0;
-    IEditor *editor = context ? qobject_cast<IEditor*>(context) : 0;
+    IEditor *editor = 0;
+    foreach (IContext *c, context)
+        if ((editor = qobject_cast<IEditor*>(c)))
+            break;
     if (editor && editor != d->m_currentEditor) {
         // Delay actually setting the current editor to after the current event queue has been handled
         // Without doing this, e.g. clicking into projects tree or locator would always open editors
@@ -681,6 +690,10 @@ void EditorManager::splitNewWindow(Internal::EditorView *view)
     splitter->setAttribute(Qt::WA_DeleteOnClose);
     splitter->setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     splitter->resize(QSize(800, 600));
+    IContext *context = new IContext;
+    context->setContext(Context(Constants::C_EDITORMANAGER));
+    context->setWidget(splitter);
+    ICore::addContextObject(context);
     splitter->show();
     ICore::raiseWindow(splitter);
     if (newEditor)
@@ -688,6 +701,7 @@ void EditorManager::splitNewWindow(Internal::EditorView *view)
     else
         splitter->view()->setFocus();
     m_instance->d->m_root.append(splitter);
+    m_instance->d->m_rootContext.append(context);
     connect(splitter, SIGNAL(destroyed(QObject*)), m_instance, SLOT(rootDestroyed(QObject*)));
     m_instance->updateActions();
 }
@@ -883,10 +897,15 @@ void EditorManager::rootDestroyed(QObject *root)
     SplitterOrView *newActiveRoot = 0;
     for (int i = 0; i < d->m_root.size(); ++i) {
         SplitterOrView *r = d->m_root.at(i);
-        if (r == root)
+        if (r == root) {
             d->m_root.removeAll(r);
-        else if (r->window() == activeWin)
+            IContext *context = d->m_rootContext.at(i);
+            ICore::removeContextObject(context);
+            delete context;
+
+        } else if (r->window() == activeWin) {
             newActiveRoot = r;
+        }
     }
     // check if the destroyed root had the current view or current editor
     if (d->m_currentEditor || (d->m_currentView && d->m_currentView->parentSplitterOrView() != root))
