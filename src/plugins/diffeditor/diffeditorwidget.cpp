@@ -35,9 +35,7 @@
 #include <QTextBlock>
 #include <QScrollBar>
 #include <QPainter>
-#include <QTime>
-
-#include <QDebug>
+#include <QDir>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/snippets/snippeteditor.h>
@@ -53,6 +51,46 @@ static const int CHUNK_LEVEL = 2;
 using namespace TextEditor;
 
 namespace DiffEditor {
+
+struct TextLineData {
+    enum TextLineType {
+        TextLine,
+        Separator,
+        Invalid
+    };
+    TextLineData() : textLineType(Invalid) {}
+    TextLineData(const QString &txt) : textLineType(TextLine), text(txt) {}
+    TextLineData(TextLineType t) : textLineType(t) {}
+    TextLineType textLineType;
+    QString text;
+};
+
+struct RowData {
+    RowData() : equal(true) {}
+    RowData(const TextLineData &l)
+        : leftLine(l), rightLine(l), equal(true) {}
+    RowData(const TextLineData &l, const TextLineData &r, bool e = false)
+        : leftLine(l), rightLine(r), equal(e) {}
+    TextLineData leftLine;
+    TextLineData rightLine;
+    bool equal; // true if left and right lines are equal, taking whitespaces into account (or both invalid)
+};
+
+struct ChunkData {
+    ChunkData() : contextChunk(false) {}
+    QList<RowData> rows;
+    bool contextChunk;
+    QMap<int, int> changedLeftPositions; // counting from the beginning of the chunk
+    QMap<int, int> changedRightPositions; // counting from the beginning of the chunk
+};
+
+struct FileData {
+    FileData() {}
+    FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
+    QList<ChunkData> chunks;
+    DiffEditorWidget::DiffFileInfo leftFileInfo;
+    DiffEditorWidget::DiffFileInfo rightFileInfo;
+};
 
 //////////////////////
 
@@ -86,12 +124,15 @@ public:
 
     QMap<int, int> skippedLines() const { return m_skippedLines; }
 
+    void setWorkingDirectory(const QString &workingDirectory) { m_workingDirectory = workingDirectory; }
     void setLineNumber(int blockNumber, int lineNumber);
-    void setFileName(int blockNumber, const QString &fileName) { m_fileNames[blockNumber] = fileName; setSeparator(blockNumber, true); }
+    void setFileInfo(int blockNumber, const DiffEditorWidget::DiffFileInfo &fileInfo) { m_fileInfo[blockNumber] = fileInfo; setSeparator(blockNumber, true); }
     void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; setSeparator(blockNumber, true); }
     void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
-    bool isFileLine(int blockNumber) const { return m_fileNames.contains(blockNumber); }
+    bool isFileLine(int blockNumber) const { return m_fileInfo.contains(blockNumber); }
     bool isChunkLine(int blockNumber) const { return m_skippedLines.contains(blockNumber); }
+    void clearAll();
+    void clearAll(const QString &message);
     void clearAllData();
     QTextBlock firstVisibleBlock() const { return SnippetEditorWidget::firstVisibleBlock(); }
 
@@ -116,10 +157,11 @@ private:
     void paintSeparator(QPainter &painter, const QString &text, const QTextBlock &block, int top);
     void jumpToOriginalFile(const QTextCursor &cursor);
 
+    QString m_workingDirectory;
     QMap<int, int> m_lineNumbers;
     int m_lineNumberDigits;
-    // block number, fileName
-    QMap<int, QString> m_fileNames;
+    // block number, fileInfo
+    QMap<int, DiffEditorWidget::DiffFileInfo> m_fileInfo;
     // block number, skipped lines
     QMap<int, int> m_skippedLines;
     // block number, separator. Separator used as lines alignment and inside skipped lines
@@ -200,11 +242,24 @@ void DiffViewEditorWidget::setLineNumber(int blockNumber, int lineNumber)
     m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumberString.count());
 }
 
+void DiffViewEditorWidget::clearAll()
+{
+    clearAll(tr("No difference"));
+}
+
+void DiffViewEditorWidget::clearAll(const QString &message)
+{
+    setBlockSelection(false);
+    clear();
+    clearAllData();
+    setPlainText(message);
+}
+
 void DiffViewEditorWidget::clearAllData()
 {
     m_lineNumberDigits = 1;
     m_lineNumbers.clear();
-    m_fileNames.clear();
+    m_fileInfo.clear();
     m_skippedLines.clear();
     m_separators.clear();
 }
@@ -253,7 +308,7 @@ void DiffViewEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
 
 void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 {
-    if (m_fileNames.isEmpty())
+    if (m_fileInfo.isEmpty())
         return;
 
     const int blockNumber = cursor.blockNumber();
@@ -262,10 +317,11 @@ void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
         return;
 
     const int lineNr = m_lineNumbers.value(blockNumber);
-    QMap<int, QString>::const_iterator it = m_fileNames.upperBound(blockNumber);
-    if (it != m_fileNames.constBegin())
+    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it = m_fileInfo.upperBound(blockNumber);
+    if (it != m_fileInfo.constBegin())
         --it;
-    const QString fileName = it.value();
+    const QDir dir(m_workingDirectory);
+    const QString fileName = dir.absoluteFilePath(it.value().fileName);
 
     Core::IEditor *ed = Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
@@ -300,9 +356,12 @@ void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
                     paintSeparator(painter, skippedRowsText, currentBlock, top);
                 }
 
-                const QString fileName = m_fileNames.value(blockNumber);
-                if (!fileName.isEmpty()) {
-                    paintSeparator(painter, fileName, currentBlock, top);
+                const DiffEditorWidget::DiffFileInfo fileInfo = m_fileInfo.value(blockNumber);
+                if (!fileInfo.fileName.isEmpty()) {
+                    const QString fileNameText = fileInfo.typeInfo.isEmpty()
+                            ? fileInfo.fileName
+                            : tr("[%1] %2").arg(fileInfo.typeInfo).arg(fileInfo.fileName);
+                    paintSeparator(painter, fileNameText, currentBlock, top);
                 }
             }
         }
@@ -416,7 +475,7 @@ void DiffViewEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
 
 DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     : QWidget(parent),
-      m_contextLinesNumber(1),
+      m_contextLinesNumber(3),
       m_ignoreWhitespaces(true),
       m_foldingBlocker(false)
 {
@@ -457,6 +516,8 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_splitter->addWidget(m_rightEditor);
     QVBoxLayout *l = new QVBoxLayout(this);
     l->addWidget(m_splitter);
+
+    clear();
 }
 
 DiffEditorWidget::~DiffEditorWidget()
@@ -464,15 +525,29 @@ DiffEditorWidget::~DiffEditorWidget()
 
 }
 
-void DiffEditorWidget::setDiff(const QList<DiffFilesContents> &diffFileList)
+void DiffEditorWidget::clear()
 {
+    m_leftEditor->clearAll();
+    m_rightEditor->clearAll();
+}
+
+void DiffEditorWidget::clear(const QString &message)
+{
+    m_leftEditor->clearAll(message);
+    m_rightEditor->clearAll(message);
+}
+
+void DiffEditorWidget::setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory)
+{
+    m_leftEditor->setWorkingDirectory(workingDirectory);
+    m_rightEditor->setWorkingDirectory(workingDirectory);
     Differ differ;
     QList<DiffList> diffList;
     for (int i = 0; i < diffFileList.count(); i++) {
         DiffFilesContents dfc = diffFileList.at(i);
         DiffList dl;
-        dl.leftFileName = dfc.leftFileName;
-        dl.rightFileName = dfc.rightFileName;
+        dl.leftFileInfo = dfc.leftFileInfo;
+        dl.rightFileInfo = dfc.rightFileInfo;
         dl.diffList = differ.cleanupSemantics(differ.diff(dfc.leftText, dfc.rightText));
         diffList.append(dl);
     }
@@ -490,8 +565,8 @@ void DiffEditorWidget::setDiff(const QList<DiffList> &diffList)
         ChunkData chunkData = calculateOriginalData(dl.diffList);
         m_originalChunkData.append(chunkData);
         FileData fileData = calculateContextData(chunkData);
-        fileData.leftFileName = dl.leftFileName;
-        fileData.rightFileName = dl.rightFileName;
+        fileData.leftFileInfo = dl.leftFileInfo;
+        fileData.rightFileInfo = dl.rightFileInfo;
         m_contextFileData.append(fileData);
     }
     showDiff();
@@ -506,8 +581,8 @@ void DiffEditorWidget::setContextLinesNumber(int lines)
     for (int i = 0; i < m_diffList.count(); i++) {
         const FileData oldFileData = m_contextFileData.at(i);
         FileData newFileData = calculateContextData(m_originalChunkData.at(i));
-        newFileData.leftFileName = oldFileData.leftFileName;
-        newFileData.rightFileName = oldFileData.rightFileName;
+        newFileData.leftFileInfo = oldFileData.leftFileInfo;
+        newFileData.rightFileInfo = oldFileData.rightFileInfo;
         m_contextFileData[i] = newFileData;
     }
 
@@ -855,8 +930,8 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
                 RowData rowData = originalData.rows.at(i);
                 chunkData.rows.append(rowData);
 
-                leftCharCounter += rowData.leftLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
-                rightCharCounter += rowData.rightLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
+                leftCharCounter += rowData.leftLine.text.count() + 1; // +1 for '\n'
+                rightCharCounter += rowData.rightLine.text.count() + 1; // +1 for '\n'
                 i++;
             }
             while (leftChangedIt != originalData.changedLeftPositions.constEnd()) {
@@ -889,8 +964,8 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
                 RowData rowData = originalData.rows.at(i);
                 chunkData.rows.append(rowData);
 
-                leftCharCounter += rowData.leftLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
-                rightCharCounter += rowData.rightLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
+                leftCharCounter += rowData.leftLine.text.count() + 1; // +1 for '\n'
+                rightCharCounter += rowData.rightLine.text.count() + 1; // +1 for '\n'
                 i++;
             }
             fileData.chunks.append(chunkData);
@@ -901,21 +976,12 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
 
 void DiffEditorWidget::showDiff()
 {
-//    QTime time;
-//    time.start();
-
     // TODO: remember the line number of the line in the middle
     const int verticalValue = m_leftEditor->verticalScrollBar()->value();
     const int leftHorizontalValue = m_leftEditor->horizontalScrollBar()->value();
     const int rightHorizontalValue = m_rightEditor->horizontalScrollBar()->value();
 
-    m_leftEditor->setBlockSelection(false);
-    m_rightEditor->setBlockSelection(false);
-    m_leftEditor->clear();
-    m_rightEditor->clear();
-    m_leftEditor->clearAllData();
-    m_rightEditor->clearAllData();
-//    int ela1 = time.elapsed();
+    clear();
 
     QString leftText, rightText;
     int blockNumber = 0;
@@ -925,8 +991,8 @@ void DiffEditorWidget::showDiff()
 
         int leftLineNumber = 0;
         int rightLineNumber = 0;
-        m_leftEditor->setFileName(blockNumber, contextFileData.leftFileName);
-        m_rightEditor->setFileName(blockNumber, contextFileData.rightFileName);
+        m_leftEditor->setFileInfo(blockNumber, contextFileData.leftFileInfo);
+        m_rightEditor->setFileInfo(blockNumber, contextFileData.rightFileInfo);
         leftText += separator;
         rightText += separator;
         blockNumber++;
@@ -967,13 +1033,12 @@ void DiffEditorWidget::showDiff()
             }
         }
     }
-//    int ela2 = time.elapsed();
+
+    if (leftText.isEmpty() && rightText.isEmpty())
+        return;
 
     m_leftEditor->setPlainText(leftText);
     m_rightEditor->setPlainText(rightText);
-//    int ela3 = time.elapsed();
-
-//    int ela4 = time.elapsed();
 
     colorDiff(m_contextFileData);
 
@@ -1029,14 +1094,10 @@ void DiffEditorWidget::showDiff()
     }
     m_foldingBlocker = false;
 
-//    int ela5 = time.elapsed();
-
     m_leftEditor->verticalScrollBar()->setValue(verticalValue);
     m_rightEditor->verticalScrollBar()->setValue(verticalValue);
     m_leftEditor->horizontalScrollBar()->setValue(leftHorizontalValue);
     m_rightEditor->horizontalScrollBar()->setValue(rightHorizontalValue);
-//    int ela6 = time.elapsed();
-//    qDebug() << ela1 << ela2 << ela3 << ela4 << ela5 << ela6;
     m_leftEditor->updateFoldingHighlight(QPoint(-1, -1));
     m_rightEditor->updateFoldingHighlight(QPoint(-1, -1));
 }
@@ -1099,7 +1160,6 @@ void DiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
 
     int leftPos = 0;
     int rightPos = 0;
-    // startPos, endPos
     QMap<int, int> leftLinePos;
     QMap<int, int> rightLinePos;
     QMap<int, int> leftCharPos;
@@ -1154,8 +1214,8 @@ void DiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
             for (int k = 0; k < chunkData.rows.count(); k++) {
                 RowData rowData = chunkData.rows.at(k);
 
-                leftPos += rowData.leftLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
-                rightPos += rowData.rightLine.text.count() + 1; // +1 for separator or for '\n', each line has one of it
+                leftPos += rowData.leftLine.text.count() + 1; // +1 for '\n'
+                rightPos += rowData.rightLine.text.count() + 1; // +1 for '\n'
 
                 if (!rowData.equal) {
                     if (rowData.leftLine.textLineType == TextLineData::TextLine) {

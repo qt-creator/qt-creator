@@ -271,19 +271,13 @@ void Command::run()
         }
     }
 
-    // Special hack: Always produce output for diff
-    if (ok && stdOut.isEmpty() && d->m_jobs.front().arguments.at(0) == QLatin1String("diff")) {
-        stdOut += "No difference to HEAD";
-    } else {
-        // @TODO: Remove, see below
-        if (ok && d->m_jobs.front().arguments.at(0) == QLatin1String("status"))
-            removeColorCodes(&stdOut);
-    }
+    if (ok && d->m_jobs.front().arguments.at(0) == QLatin1String("status"))
+        removeColorCodes(&stdOut);
 
     d->m_lastExecSuccess = ok;
     d->m_lastExecExitCode = exitCode;
 
-    if (ok && !stdOut.isEmpty())
+    if (ok)
         emit outputData(stdOut);
 
     if (!error.isEmpty())

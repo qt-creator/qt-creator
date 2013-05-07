@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Find" }
     Depends { name: "VcsBase" }
+    Depends { name: "DiffEditor" }
     Depends { name: "Locator" }
 
     files: [

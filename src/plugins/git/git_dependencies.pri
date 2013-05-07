@@ -5,4 +5,5 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     texteditor \
     coreplugin \
-    vcsbase
+    vcsbase \
+    diffeditor

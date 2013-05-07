@@ -27,68 +27,70 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORPLUGIN_H
-#define DIFFEDITORPLUGIN_H
-
-#include "diffeditor_global.h"
-
-#include <extensionsystem/iplugin.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/idocument.h>
-
-#include <QStringList>
-
-namespace Core { class IEditor; }
+#include "diffeditorfile.h"
 
 namespace DiffEditor {
-
-class DiffEditorWidget;
-
 namespace Internal {
 
-class DiffEditorPlugin : public ExtensionSystem::IPlugin
+///////////////////////////////// DiffFile //////////////////////////////////
+
+DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
+    Core::IDocument(parent),
+    m_mimeType(mimeType),
+    m_modified(false)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
+}
 
-public:
-    DiffEditorPlugin();
-    ~DiffEditorPlugin();
-
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-
-    // Connect editor to settings changed signals.
-    void initializeEditor(DiffEditorWidget *editor);
-
-private slots:
-    void diff();
-
-private:
-    DiffEditorWidget *getDiffEditorWidget(const Core::IEditor *editor) const;
-    QString getFileContents(const QString &fileName, QTextCodec *codec) const;
-
-};
-
-class DiffEditorFactory : public Core::IEditorFactory
+void DiffEditorFile::rename(const QString &newName)
 {
-    Q_OBJECT
+    Q_UNUSED(newName);
+    return;
+}
 
-public:
-    explicit DiffEditorFactory(DiffEditorPlugin *owner);
+void DiffEditorFile::setFileName(const QString &name)
+{
+    if (m_fileName == name)
+        return;
+    m_fileName = name;
+    emit changed();
+}
 
-    QStringList mimeTypes() const;
-    Core::IEditor *createEditor(QWidget *parent);
-    Core::Id id() const;
-    QString displayName() const;
+void DiffEditorFile::setModified(bool modified)
+{
+    if (m_modified == modified)
+        return;
+    m_modified = modified;
+    emit changed();
+}
 
-private:
-    const QStringList m_mimeTypes;
-    DiffEditorPlugin *m_owner;
-};
+bool DiffEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
+{
+    emit saveMe(errorString, fileName, autoSave);
+    if (!errorString->isEmpty())
+        return false;
+    emit changed();
+    return true;
+}
+
+QString DiffEditorFile::mimeType() const
+{
+    return m_mimeType;
+}
+
+Core::IDocument::ReloadBehavior DiffEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+{
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+bool DiffEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(errorString)
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
+    return true;
+}
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFEDITORPLUGIN_H

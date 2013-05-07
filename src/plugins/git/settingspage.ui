@@ -137,6 +137,13 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="3">
+       <widget class="QCheckBox" name="useDiffEditorCheckBox">
+        <property name="text">
+         <string>Use Diff Editor</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

@@ -179,6 +179,8 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
         break;
     }
     case VcsBase::DiffOutput: {
+        if (array.isEmpty())
+            array = QByteArray("No difference to HEAD");
         const QFileInfo fi(source());
         const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
         QByteArray precedes, follows;

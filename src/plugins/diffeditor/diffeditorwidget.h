@@ -52,59 +52,26 @@ QT_END_NAMESPACE
 namespace DiffEditor {
 
 class DiffViewEditorWidget;
-
-struct TextLineData {
-    enum TextLineType {
-        TextLine,
-        Separator,
-        Invalid
-    };
-    TextLineData() : textLineType(Invalid) {}
-    TextLineData(const QString &txt) : textLineType(TextLine), text(txt) {}
-    TextLineData(TextLineType t) : textLineType(t) {}
-    TextLineType textLineType;
-    QString text;
-};
-
-struct RowData {
-    RowData() : equal(true) {}
-    RowData(const TextLineData &l)
-        : leftLine(l), rightLine(l), equal(true) {}
-    RowData(const TextLineData &l, const TextLineData &r, bool e = false)
-        : leftLine(l), rightLine(r), equal(e) {}
-    TextLineData leftLine;
-    TextLineData rightLine;
-    bool equal; // true if left and right lines are equal, taking whitespaces into account (or both invalid)
-};
-
-struct ChunkData {
-    ChunkData() : contextChunk(false) {}
-    QList<RowData> rows;
-    bool contextChunk;
-    QMap<int, int> changedLeftPositions; // counting from the beginning of the chunk
-    QMap<int, int> changedRightPositions; // counting from the beginning of the chunk
-};
-
-struct FileData {
-    FileData() {}
-    FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
-    QList<ChunkData> chunks;
-    QString leftFileName;
-    QString rightFileName;
-};
-
-struct DiffData {
-    QList<FileData> files;
-};
+struct TextLineData;
+struct ChunkData;
+struct FileData;
 
 class DIFFEDITOR_EXPORT DiffEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
+    struct DiffFileInfo {
+        DiffFileInfo() {}
+        DiffFileInfo(const QString &file) : fileName(file) {}
+        DiffFileInfo(const QString &file, const QString &type) : fileName(file), typeInfo(type) {}
+        QString fileName;
+        QString typeInfo;
+    };
+
     struct DiffFilesContents {
-        QString leftFileName;
+        DiffFileInfo leftFileInfo;
         QString leftText;
-        QString rightFileName;
+        DiffFileInfo rightFileInfo;
         QString rightText;
     };
 
@@ -112,7 +79,8 @@ public:
     ~DiffEditorWidget();
 
     void clear();
-    void setDiff(const QList<DiffFilesContents> &diffFileList);
+    void clear(const QString &message);
+    void setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory = QString());
     QTextCodec *codec() const;
 
 public slots:
@@ -131,8 +99,8 @@ private slots:
 
 private:
     struct DiffList {
-        QString leftFileName;
-        QString rightFileName;
+        DiffFileInfo leftFileInfo;
+        DiffFileInfo rightFileInfo;
         QList<Diff> diffList;
     };
 

@@ -13,14 +13,18 @@ QtcPlugin {
     Depends { name: "cpp" }
 
     files: [
+        "diffeditor_global.h",
+        "diffeditorconstants.h",
+        "diffeditoreditable.cpp",
+        "diffeditoreditable.h",
+        "diffeditorfile.cpp",
+        "diffeditorfile.h",
         "diffeditorplugin.cpp",
         "diffeditorplugin.h",
-        "differ.cpp",
-        "differ.h",
         "diffeditorwidget.cpp",
         "diffeditorwidget.h",
-        "diffeditorconstants.h",
-        "diffeditor_global.h",
+        "differ.cpp",
+        "differ.h",
     ]
 }
 

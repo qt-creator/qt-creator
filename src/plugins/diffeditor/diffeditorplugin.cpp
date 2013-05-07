@@ -28,17 +28,14 @@
 ****************************************************************************/
 
 #include "diffeditorplugin.h"
+#include "diffeditoreditable.h"
 #include "diffeditorwidget.h"
 #include "diffeditorconstants.h"
 
-#include <coreplugin/icore.h>
 #include <QCoreApplication>
-#include <QToolButton>
-#include <QSpinBox>
-#include <QStyle>
-#include <QLabel>
 #include <QFileDialog>
 #include <QTextCodec>
+#include <QtPlugin>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -46,195 +43,14 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 namespace DiffEditor {
-namespace Internal {
-
-///////////////////////////////// DiffEditor //////////////////////////////////
-
-DiffEditorEditable::DiffEditorEditable(DiffEditorWidget *editorWidget)
-    :
-    IEditor(0),
-    m_file(new DiffFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this)),
-    m_editorWidget(editorWidget),
-    m_toolWidget(0)
-{
-    setWidget(editorWidget);
-}
-
-DiffEditorEditable::~DiffEditorEditable()
-{
-    delete m_toolWidget;
-    if (m_widget)
-        delete m_widget;
-}
-
-bool DiffEditorEditable::createNew(const QString &contents)
-{
-    Q_UNUSED(contents)
-//    setFileContents(contents);
-    return true;
-}
-
-bool DiffEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(fileName)
-    Q_UNUSED(realFileName)
-    const QString text = QLatin1String("Open");
-    if (!createNew(text))
-        return false;
-
-    return true;
-}
-
-Core::IDocument *DiffEditorEditable::document()
-{
-    return m_file;
-}
-
-QString DiffEditorEditable::displayName() const
-{
-    if (m_displayName.isEmpty())
-        m_displayName = QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME);
-    return m_displayName;
-}
-
-void DiffEditorEditable::setDisplayName(const QString &title)
-{
-    m_displayName = title;
-    emit changed();
-}
-
-bool DiffEditorEditable::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *DiffEditorEditable::duplicate(QWidget * /*parent*/)
-{
-    return 0;
-}
-
-Core::Id DiffEditorEditable::id() const
-{
-    return Constants::DIFF_EDITOR_ID;
-}
-
-static QToolBar *createToolBar(const QWidget *someWidget)
-{
-    // Create
-    QToolBar *toolBar = new QToolBar;
-    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    toolBar->setIconSize(QSize(size, size));
-    toolBar->addSeparator();
-
-    return toolBar;
-}
-
-QWidget *DiffEditorEditable::toolBar()
-{
-    if (m_toolWidget)
-        return m_toolWidget;
-
-    // Create
-    m_toolWidget = createToolBar(m_editorWidget);
-
-    QToolButton *whitespaceButton = new QToolButton(m_toolWidget);
-    whitespaceButton->setText(tr("Ignore Whitespaces"));
-    whitespaceButton->setCheckable(true);
-    whitespaceButton->setChecked(true);
-    connect(whitespaceButton, SIGNAL(clicked(bool)),
-            m_editorWidget, SLOT(setIgnoreWhitespaces(bool)));
-    m_toolWidget->addWidget(whitespaceButton);
-
-    QLabel *contextLabel = new QLabel(tr("Context Lines:"), m_toolWidget);
-    m_toolWidget->addWidget(contextLabel);
-
-    QSpinBox *contextSpinBox = new QSpinBox(m_toolWidget);
-    contextSpinBox->setRange(-1, 100);
-    contextSpinBox->setValue(1);
-    connect(contextSpinBox, SIGNAL(valueChanged(int)),
-            m_editorWidget, SLOT(setContextLinesNumber(int)));
-    m_toolWidget->addWidget(contextSpinBox);
-
-    return m_toolWidget;
-}
-
-QByteArray DiffEditorEditable::saveState() const
-{
-    return QByteArray();
-}
-
-bool DiffEditorEditable::restoreState(const QByteArray &/*state*/)
-{
-    return true;
-}
-
-///////////////////////////////// DiffFile //////////////////////////////////
-
-DiffFile::DiffFile(const QString &mimeType, QObject *parent) :
-    Core::IDocument(parent),
-    m_mimeType(mimeType),
-    m_modified(false)
-{
-}
-
-void DiffFile::rename(const QString &newName)
-{
-    Q_UNUSED(newName);
-    return;
-}
-
-void DiffFile::setFileName(const QString &name)
-{
-    if (m_fileName == name)
-        return;
-    m_fileName = name;
-    emit changed();
-}
-
-void DiffFile::setModified(bool modified)
-{
-    if (m_modified == modified)
-        return;
-    m_modified = modified;
-    emit changed();
-}
-
-bool DiffFile::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    emit saveMe(errorString, fileName, autoSave);
-    if (!errorString->isEmpty())
-        return false;
-    emit changed();
-    return true;
-}
-
-QString DiffFile::mimeType() const
-{
-    return m_mimeType;
-}
-
-Core::IDocument::ReloadBehavior DiffFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
-bool DiffFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-    return true;
-}
 
 ///////////////////////////////// DiffEditorFactory //////////////////////////////////
 
-DiffEditorFactory::DiffEditorFactory(DiffEditorPlugin *owner) :
-    m_mimeTypes(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE)),
-    m_owner(owner)
+namespace Internal {
+
+DiffEditorFactory::DiffEditorFactory(DiffEditorPlugin *owner)
+    : m_mimeTypes(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE)),
+      m_owner(owner)
 {
 }
 
@@ -329,9 +145,9 @@ void DiffEditorPlugin::diff()
         const QString text2 = getFileContents(fileName2, editorWidget->codec());
 
         DiffEditorWidget::DiffFilesContents dfc;
-        dfc.leftFileName = fileName1;
+        dfc.leftFileInfo = fileName1;
         dfc.leftText = text1;
-        dfc.rightFileName = fileName2;
+        dfc.rightFileInfo = fileName2;
         dfc.rightText = text2;
         QList<DiffEditorWidget::DiffFilesContents> list;
         list.append(dfc);

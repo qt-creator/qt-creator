@@ -60,11 +60,16 @@ namespace Utils {
     struct SynchronousProcessResponse;
 }
 
+namespace DiffEditor {
+    class DiffEditorWidget;
+}
+
 namespace Git {
 namespace Internal {
 
 class GitPlugin;
 class GitOutputWindow;
+class GitDiffEditorWidget;
 class CommitData;
 struct GitSubmitEditorPanelData;
 class Stash;
@@ -127,6 +132,8 @@ public:
 
     QString findRepositoryForDirectory(const QString &dir);
     QString findGitDirForRepository(const QString &repositoryDir) const;
+
+    DiffEditor::DiffEditorWidget *diffEditorWidget(const Core::IEditor *editor) const;
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
     void diff(const QString &workingDirectory, const QStringList &diffArgs,
@@ -319,6 +326,9 @@ private:
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
+    DiffEditor::DiffEditorWidget *findExistingDiffEditor(const char *registerDynamicProperty,
+                                               const QString &dynamicPropertyValue) const;
+
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
                                             QString title,

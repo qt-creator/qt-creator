@@ -56,6 +56,10 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
+#include <diffeditor/diffeditorwidget.h>
+#include <diffeditor/diffeditoreditable.h>
+#include <diffeditor/diffeditorconstants.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -74,6 +78,224 @@ static const char graphLogFormatC[] = "%h %d %an %s %ci";
 
 namespace Git {
 namespace Internal {
+
+class GitDiffHandler : public QObject
+{
+    Q_OBJECT
+
+public:
+    GitDiffHandler(const QString &gitPath,
+                   const QString &workingDirectory,
+                   const QProcessEnvironment &environment,
+                   DiffEditor::DiffEditorWidget *editor,
+                   int timeout);
+
+    // index -> working tree
+    void diffFile(const QString &fileName);
+    // stagedFileNames - files in index, diff will compare the state in HEAD to the one in the index
+    // unstagedFileNames - diff will compare the state in the index to the one in the working tree
+    void diffFiles(const QStringList &stagedFileNames, const QStringList &unstagedFileNames);
+    // index -> working tree
+    void diffProjects(const QStringList &projectPaths);
+    // index -> working tree
+    void diffRepository();
+
+private slots:
+    void slotFileListReceived(const QByteArray &data);
+    void slotFileContentsReceived(const QByteArray &data);
+
+private:
+    void collectFilesList(const QStringList &additionalArguments);
+    void collectFilesContents();
+    void feedEditor();
+    QString workingTreeContents(const QString &fileName) const;
+
+    const QString m_gitPath;
+    const QString m_workingDirectory;
+    const QProcessEnvironment m_processEnvironment;
+    QWeakPointer<DiffEditor::DiffEditorWidget> m_editor;
+    const int m_timeout;
+    const QString m_waitMessage;
+
+    enum RevisionType {
+        Head        = 0x01,
+        Index       = 0x02,
+        WorkingTree = 0x04
+    };
+
+    QStringList m_requestedHeadFileNames;
+    QStringList m_requestedIndexFileNames;
+
+    QStringList m_headFileNames;
+    QStringList m_indexFileNames;
+
+    QStringList m_headContents;
+    QStringList m_indexContents;
+};
+
+GitDiffHandler::GitDiffHandler(const QString &gitPath,
+               const QString &workingDirectory,
+               const QProcessEnvironment &environment,
+               DiffEditor::DiffEditorWidget *editor,
+               int timeout)
+    : m_gitPath(gitPath),
+      m_workingDirectory(workingDirectory),
+      m_processEnvironment(environment),
+      m_editor(editor),
+      m_timeout(timeout),
+      m_waitMessage(tr("Waiting for data..."))
+{
+}
+
+void GitDiffHandler::diffFile(const QString &fileName)
+{
+    m_requestedIndexFileNames << fileName;
+    collectFilesList(QStringList() << QLatin1String("--") << m_requestedIndexFileNames);
+}
+
+void GitDiffHandler::diffFiles(const QStringList &stagedFileNames, const QStringList &unstagedFileNames)
+{
+    m_requestedHeadFileNames = stagedFileNames;
+    m_requestedHeadFileNames.removeDuplicates();
+    m_requestedIndexFileNames = unstagedFileNames;
+    m_requestedIndexFileNames.removeDuplicates();
+
+    m_headFileNames = m_requestedHeadFileNames;
+    m_indexFileNames = m_requestedIndexFileNames;
+    for (int i = 0; i < m_headFileNames.count(); i++) {
+        const QString headFileName = m_headFileNames.at(i);
+        if (!m_indexFileNames.contains(headFileName))
+            m_indexFileNames.append(headFileName);
+    }
+    collectFilesContents();
+}
+
+void GitDiffHandler::diffProjects(const QStringList &projectPaths)
+{
+    collectFilesList(QStringList() << QLatin1String("--") << projectPaths);
+}
+
+void GitDiffHandler::diffRepository()
+{
+    collectFilesList(QStringList());
+}
+
+void GitDiffHandler::collectFilesList(const QStringList &additionalArguments)
+{
+    m_editor.data()->clear(m_waitMessage);
+    VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
+    connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotFileListReceived(QByteArray)));
+    QStringList arguments;
+    arguments << QLatin1String("diff") << QLatin1String("--name-only") << additionalArguments;
+    command->addJob(arguments, m_timeout);
+    command->execute();
+}
+
+void GitDiffHandler::slotFileListReceived(const QByteArray &data)
+{
+    if (m_editor.isNull())
+        return;
+
+    const QString fileList = m_editor.data()->codec()->toUnicode(data);
+    m_requestedIndexFileNames = fileList.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    m_requestedIndexFileNames.removeDuplicates();
+    m_indexFileNames = m_requestedIndexFileNames;
+
+    collectFilesContents();
+}
+
+void GitDiffHandler::collectFilesContents()
+{
+    const int headFilesReceived = m_headContents.count();
+    const int indexFilesReceived = m_indexContents.count();
+
+    if (headFilesReceived < m_headFileNames.count()) {
+        VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
+        connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotFileContentsReceived(QByteArray)));
+
+        QStringList arguments;
+        arguments << QLatin1String("show") << QLatin1String("HEAD:./") + m_headFileNames.at(headFilesReceived);
+        command->addJob(arguments, m_timeout);
+        command->execute();
+    } else if (indexFilesReceived < m_indexFileNames.count()) {
+        VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
+        connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotFileContentsReceived(QByteArray)));
+
+        QStringList arguments;
+        arguments << QLatin1String("show") << QLatin1String(":./") + m_indexFileNames.at(indexFilesReceived);
+        command->addJob(arguments, m_timeout);
+        command->execute();
+    } else {
+        feedEditor();
+    }
+}
+
+void GitDiffHandler::slotFileContentsReceived(const QByteArray &data)
+{
+    if (m_editor.isNull())
+        return;
+
+    const int headFilesReceived = m_headContents.count();
+    const int indexFilesReceived = m_indexContents.count();
+    const QString contents = m_editor.data()->codec()->toUnicode(data);
+    if (headFilesReceived < m_headFileNames.count())
+        m_headContents.append(contents);
+    else if (indexFilesReceived < m_indexFileNames.count())
+        m_indexContents.append(contents);
+
+    collectFilesContents();
+}
+
+void GitDiffHandler::feedEditor()
+{
+    QList<DiffEditor::DiffEditorWidget::DiffFilesContents> list;
+
+    for (int i = 0; i < m_requestedHeadFileNames.count(); i++) {
+        const QString fileName = m_requestedHeadFileNames.at(i);
+        const QString original = m_headContents.at(i);
+        const int idx = m_indexFileNames.indexOf(fileName);
+        if (idx >= 0) {
+            const QString modified = m_indexContents.at(idx);
+            if (original != modified) {
+                DiffEditor::DiffEditorWidget::DiffFilesContents dfc;
+                dfc.leftFileInfo = DiffEditor::DiffEditorWidget::DiffFileInfo(fileName, tr("Head"));
+                dfc.leftText = original;
+                dfc.rightFileInfo = DiffEditor::DiffEditorWidget::DiffFileInfo(fileName, tr("Index"));
+                dfc.rightText = modified;
+                list.append(dfc);
+            }
+        }
+    }
+    for (int i = 0; i < m_requestedIndexFileNames.count(); i++) {
+        const QString fileName = m_requestedIndexFileNames.at(i);
+        const QString original = m_indexContents.at(i);
+        const QString modified = workingTreeContents(fileName);
+        if (original != modified) {
+            DiffEditor::DiffEditorWidget::DiffFilesContents dfc;
+            dfc.leftFileInfo = DiffEditor::DiffEditorWidget::DiffFileInfo(fileName, tr("Index"));
+            dfc.leftText = original;
+            dfc.rightFileInfo = DiffEditor::DiffEditorWidget::DiffFileInfo(fileName, tr("Working tree"));
+            dfc.rightText = modified;
+            list.append(dfc);
+        }
+    }
+    m_editor.data()->setDiff(list, m_workingDirectory);
+    deleteLater();
+}
+
+QString GitDiffHandler::workingTreeContents(const QString &fileName) const
+{
+    QDir workingDir(m_workingDirectory);
+    QString absoluteFileName = workingDir.absoluteFilePath(fileName);
+
+    QFile file(absoluteFileName);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return m_editor.data()->codec()->toUnicode(file.readAll());
+    }
+    return QString();
+}
+
+///////////////////////////////////////////////////////////
 
 class BaseGitDiffArgumentsWidget : public VcsBase::VcsBaseEditorParameterWidget
 {
@@ -506,6 +728,22 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
     return rc;
 }
 
+DiffEditor::DiffEditorWidget *GitClient::findExistingDiffEditor(const char *registerDynamicProperty,
+                                                      const QString &dynamicPropertyValue) const
+{
+    DiffEditor::DiffEditorWidget *editorWidget = 0;
+    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
+    if (!outputEditor)
+        return 0;
+
+    // Exists already
+    Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    outputEditor->createNew(m_msgWait);
+    editorWidget = diffEditorWidget(outputEditor);
+
+    return editorWidget;
+}
+
 /* Create an editor associated to VCS output of a source file/directory
  * (using the file's codec). Makes use of a dynamic property to find an
  * existing instance and to reuse it (in case, say, 'git diff foo' is
@@ -549,94 +787,153 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     return rc;
 }
 
+DiffEditor::DiffEditorWidget *GitClient::diffEditorWidget(const Core::IEditor *editor) const
+{
+    if (const DiffEditor::DiffEditorEditable *de = qobject_cast<const DiffEditor::DiffEditorEditable *>(editor))
+        return de->editorWidget();
+    return 0;
+}
+
 void GitClient::diff(const QString &workingDirectory,
                      const QStringList &diffArgs,
                      const QStringList &unstagedFileNames,
                      const QStringList &stagedFileNames)
 {
-    const QString binary = settings()->stringValue(GitSettings::binaryPathKey);
-    const Core::Id editorId = Git::Constants::GIT_DIFF_EDITOR_ID;
-    const QString title = tr("Git Diff");
+    if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
+        const Core::Id editorId = DiffEditor::Constants::DIFF_EDITOR_ID;
+        QString title = tr("Git Diff");
 
-    VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("originalFileName", workingDirectory);
-    if (!editor) {
-        GitCommitDiffArgumentsWidget *argWidget =
-                new GitCommitDiffArgumentsWidget(this, workingDirectory, diffArgs,
-                                                 unstagedFileNames, stagedFileNames);
+        DiffEditor::DiffEditorWidget *editorWidget = findExistingDiffEditor("originalFileName", workingDirectory);
 
-        editor = createVcsEditor(editorId, title,
-                                 workingDirectory, CodecSource, "originalFileName", workingDirectory, argWidget);
-        connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));
-    }
+        if (!editorWidget) {
+            Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait);
+            outputEditor->document()->setProperty("originalFileName", workingDirectory);
+            Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch); // should probably go outside this block
 
-    GitCommitDiffArgumentsWidget *argWidget = qobject_cast<GitCommitDiffArgumentsWidget *>(editor->configurationWidget());
-    QStringList userDiffArgs = argWidget->arguments();
-    editor->setDiffBaseDirectory(workingDirectory);
+            editorWidget = diffEditorWidget(outputEditor);
+        }
 
-    // Create a batch of 2 commands to be run after each other in case
-    // we have a mixture of staged/unstaged files as is the case
-    // when using the submit dialog.
-    VcsBase::Command *command = createCommand(workingDirectory, editor);
-    // Directory diff?
+        int timeout = settings()->intValue(GitSettings::timeoutKey);
+        GitDiffHandler *handler = new GitDiffHandler(gitBinaryPath(), workingDirectory, processEnvironment(), editorWidget, timeout);
 
-    QStringList cmdArgs;
-    cmdArgs << QLatin1String("diff") << QLatin1String(noColorOption);
-
-    int timeout = settings()->intValue(GitSettings::timeoutKey);
-
-    if (unstagedFileNames.empty() && stagedFileNames.empty()) {
-       QStringList arguments(cmdArgs);
-       arguments << userDiffArgs;
-       outputWindow()->appendCommand(workingDirectory, binary, arguments);
-       command->addJob(arguments, timeout);
+        if (unstagedFileNames.empty() && stagedFileNames.empty()) {
+            // local repository diff
+            handler->diffRepository();
+        } else {
+            if (!stagedFileNames.empty()) {
+                // diff of selected files only with --cached option, used in commit editor
+                handler->diffFiles(stagedFileNames, unstagedFileNames);
+            } else if (!unstagedFileNames.empty()) {
+                // current project diff
+                handler->diffProjects(unstagedFileNames);
+            }
+        }
     } else {
-        // Files diff.
-        if (!unstagedFileNames.empty()) {
-           QStringList arguments(cmdArgs);
-           arguments << userDiffArgs;
-           arguments << QLatin1String("--") << unstagedFileNames;
-           outputWindow()->appendCommand(workingDirectory, binary, arguments);
-           command->addJob(arguments, timeout);
+        const QString binary = settings()->stringValue(GitSettings::binaryPathKey);
+        const Core::Id editorId = Git::Constants::GIT_DIFF_EDITOR_ID;
+        const QString title = tr("Git Diff");
+
+        VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("originalFileName", workingDirectory);
+        if (!editor) {
+            GitCommitDiffArgumentsWidget *argWidget =
+                    new GitCommitDiffArgumentsWidget(this, workingDirectory, diffArgs,
+                                                     unstagedFileNames, stagedFileNames);
+
+            editor = createVcsEditor(editorId, title,
+                                     workingDirectory, CodecSource, "originalFileName", workingDirectory, argWidget);
+            connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));
         }
-        if (!stagedFileNames.empty()) {
-           QStringList arguments(cmdArgs);
-           arguments << userDiffArgs;
-           arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
-           outputWindow()->appendCommand(workingDirectory, binary, arguments);
-           command->addJob(arguments, timeout);
+
+        GitCommitDiffArgumentsWidget *argWidget = qobject_cast<GitCommitDiffArgumentsWidget *>(editor->configurationWidget());
+        QStringList userDiffArgs = argWidget->arguments();
+        editor->setDiffBaseDirectory(workingDirectory);
+
+        // Create a batch of 2 commands to be run after each other in case
+        // we have a mixture of staged/unstaged files as is the case
+        // when using the submit dialog.
+        VcsBase::Command *command = createCommand(workingDirectory, editor);
+        // Directory diff?
+
+        QStringList cmdArgs;
+        cmdArgs << QLatin1String("diff") << QLatin1String(noColorOption);
+
+        int timeout = settings()->intValue(GitSettings::timeoutKey);
+
+        if (unstagedFileNames.empty() && stagedFileNames.empty()) {
+            QStringList arguments(cmdArgs);
+            arguments << userDiffArgs;
+            outputWindow()->appendCommand(workingDirectory, binary, arguments);
+            command->addJob(arguments, timeout);
+        } else {
+            // Files diff.
+            if (!unstagedFileNames.empty()) {
+                QStringList arguments(cmdArgs);
+                arguments << userDiffArgs;
+                arguments << QLatin1String("--") << unstagedFileNames;
+                outputWindow()->appendCommand(workingDirectory, binary, arguments);
+                command->addJob(arguments, timeout);
+            }
+            if (!stagedFileNames.empty()) {
+                QStringList arguments(cmdArgs);
+                arguments << userDiffArgs;
+                arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
+                outputWindow()->appendCommand(workingDirectory, binary, arguments);
+                command->addJob(arguments, timeout);
+            }
         }
+        command->execute();
     }
-    command->execute();
 }
 
 void GitClient::diff(const QString &workingDirectory,
                      const QStringList &diffArgs,
                      const QString &fileName)
 {
-    const Core::Id editorId = Git::Constants::GIT_DIFF_EDITOR_ID;
-    const QString title = tr("Git Diff \"%1\"").arg(fileName);
-    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
+    if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
+        const Core::Id editorId = DiffEditor::Constants::DIFF_EDITOR_ID;
+        QString title = tr("Git Diff \"%1\"").arg(fileName);
+        const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
 
-    VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("originalFileName", sourceFile);
-    if (!editor) {
-        GitFileDiffArgumentsWidget *argWidget =
-                new GitFileDiffArgumentsWidget(this, workingDirectory, diffArgs, fileName);
+        DiffEditor::DiffEditorWidget *editorWidget = findExistingDiffEditor("originalFileName", sourceFile);
+        if (!editorWidget) {
+            Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait);
+            outputEditor->document()->setProperty("originalFileName", sourceFile);
+            Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
 
-        editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "originalFileName", sourceFile, argWidget);
-        connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));
+            editorWidget = diffEditorWidget(outputEditor);
+        }
+
+        if (!fileName.isEmpty()) {
+            int timeout = settings()->intValue(GitSettings::timeoutKey);
+            GitDiffHandler *handler = new GitDiffHandler(gitBinaryPath(), workingDirectory, processEnvironment(), editorWidget, timeout);
+            handler->diffFile(fileName);
+        }
+    } else {
+        const Core::Id editorId = Git::Constants::GIT_DIFF_EDITOR_ID;
+        const QString title = tr("Git Diff \"%1\"").arg(fileName);
+        const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
+
+        VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("originalFileName", sourceFile);
+        if (!editor) {
+            GitFileDiffArgumentsWidget *argWidget =
+                    new GitFileDiffArgumentsWidget(this, workingDirectory, diffArgs, fileName);
+
+            editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "originalFileName", sourceFile, argWidget);
+            connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));
+        }
+        editor->setDiffBaseDirectory(workingDirectory);
+
+        GitFileDiffArgumentsWidget *argWidget = qobject_cast<GitFileDiffArgumentsWidget *>(editor->configurationWidget());
+        QStringList userDiffArgs = argWidget->arguments();
+
+        QStringList cmdArgs;
+        cmdArgs << QLatin1String("diff") << QLatin1String(noColorOption)
+                << userDiffArgs;
+
+        if (!fileName.isEmpty())
+            cmdArgs << QLatin1String("--") << fileName;
+        executeGit(workingDirectory, cmdArgs, editor);
     }
-    editor->setDiffBaseDirectory(workingDirectory);
-
-    GitFileDiffArgumentsWidget *argWidget = qobject_cast<GitFileDiffArgumentsWidget *>(editor->configurationWidget());
-    QStringList userDiffArgs = argWidget->arguments();
-
-    QStringList cmdArgs;
-    cmdArgs << QLatin1String("diff") << QLatin1String(noColorOption)
-              << userDiffArgs;
-
-    if (!fileName.isEmpty())
-        cmdArgs << QLatin1String("--") << fileName;
-    executeGit(workingDirectory, cmdArgs, editor);
 }
 
 void GitClient::diffBranch(const QString &workingDirectory,

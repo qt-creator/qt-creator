@@ -27,68 +27,56 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORPLUGIN_H
-#define DIFFEDITORPLUGIN_H
+#ifndef DIFFEDITOREDITABLE_H
+#define DIFFEDITOREDITABLE_H
 
 #include "diffeditor_global.h"
 
-#include <extensionsystem/iplugin.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icontext.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 
-#include <QStringList>
-
-namespace Core { class IEditor; }
+#include <QToolBar>
 
 namespace DiffEditor {
 
 class DiffEditorWidget;
 
 namespace Internal {
+class DiffEditorFile;
+}
 
-class DiffEditorPlugin : public ExtensionSystem::IPlugin
+class DIFFEDITOR_EXPORT DiffEditorEditable : public Core::IEditor
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
+public:
+    explicit DiffEditorEditable(DiffEditorWidget *editorWidget);
+    virtual ~DiffEditorEditable();
 
 public:
-    DiffEditorPlugin();
-    ~DiffEditorPlugin();
-
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-
-    // Connect editor to settings changed signals.
-    void initializeEditor(DiffEditorWidget *editor);
-
-private slots:
-    void diff();
-
-private:
-    DiffEditorWidget *getDiffEditorWidget(const Core::IEditor *editor) const;
-    QString getFileContents(const QString &fileName, QTextCodec *codec) const;
-
-};
-
-class DiffEditorFactory : public Core::IEditorFactory
-{
-    Q_OBJECT
-
-public:
-    explicit DiffEditorFactory(DiffEditorPlugin *owner);
-
-    QStringList mimeTypes() const;
-    Core::IEditor *createEditor(QWidget *parent);
-    Core::Id id() const;
+    // Core::IEditor
+    bool createNew(const QString &contents);
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    Core::IDocument *document();
     QString displayName() const;
+    void setDisplayName(const QString &title);
+    bool duplicateSupported() const;
+    Core::IEditor *duplicate(QWidget *parent);
+    Core::Id id() const;
+    bool isTemporary() const { return true; }
+    DiffEditorWidget *editorWidget() const { return m_editorWidget; }
+
+    QWidget *toolBar();
+
+    QByteArray saveState() const;
+    bool restoreState(const QByteArray &state);
 
 private:
-    const QStringList m_mimeTypes;
-    DiffEditorPlugin *m_owner;
+    Internal::DiffEditorFile *m_file;
+    DiffEditorWidget *m_editorWidget;
+    QToolBar *m_toolWidget;
+    mutable QString m_displayName;
 };
 
-} // namespace Internal
 } // namespace DiffEditor
 
-#endif // DIFFEDITORPLUGIN_H
+#endif // DIFFEDITOREDITABLE_H

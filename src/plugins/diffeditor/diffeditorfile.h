@@ -27,68 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORPLUGIN_H
-#define DIFFEDITORPLUGIN_H
+#ifndef DIFFEDITORFILE_H
+#define DIFFEDITORFILE_H
 
 #include "diffeditor_global.h"
 
-#include <extensionsystem/iplugin.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/idocument.h>
-
-#include <QStringList>
-
-namespace Core { class IEditor; }
 
 namespace DiffEditor {
 
 class DiffEditorWidget;
+class DiffEditorFile;
 
 namespace Internal {
 
-class DiffEditorPlugin : public ExtensionSystem::IPlugin
+class DiffEditorFile : public Core::IDocument
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
-
 public:
-    DiffEditorPlugin();
-    ~DiffEditorPlugin();
+    explicit DiffEditorFile(const QString &mimeType,
+                              QObject *parent = 0);
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    QString fileName() const { return m_fileName; }
+    QString defaultPath() const { return QString(); }
+    QString suggestedFileName() const { return QString(); }
 
-    // Connect editor to settings changed signals.
-    void initializeEditor(DiffEditorWidget *editor);
+    bool isModified() const { return m_modified; }
+    QString mimeType() const;
+    bool isSaveAsAllowed() const { return false; }
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    void rename(const QString &newName);
 
-private slots:
-    void diff();
+    void setFileName(const QString &name);
+    void setModified(bool modified = true);
+
+signals:
+    void saveMe(QString *errorString, const QString &fileName, bool autoSave);
 
 private:
-    DiffEditorWidget *getDiffEditorWidget(const Core::IEditor *editor) const;
-    QString getFileContents(const QString &fileName, QTextCodec *codec) const;
-
-};
-
-class DiffEditorFactory : public Core::IEditorFactory
-{
-    Q_OBJECT
-
-public:
-    explicit DiffEditorFactory(DiffEditorPlugin *owner);
-
-    QStringList mimeTypes() const;
-    Core::IEditor *createEditor(QWidget *parent);
-    Core::Id id() const;
-    QString displayName() const;
-
-private:
-    const QStringList m_mimeTypes;
-    DiffEditorPlugin *m_owner;
+    const QString m_mimeType;
+    bool m_modified;
+    QString m_fileName;
 };
 
 } // namespace Internal
 } // namespace DiffEditor
 
-#endif // DIFFEDITORPLUGIN_H
+#endif // DIFFEDITOREDITABLE_H
