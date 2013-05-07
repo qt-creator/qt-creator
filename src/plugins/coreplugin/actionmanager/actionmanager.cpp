@@ -278,6 +278,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, const Id &id, cons
         shortcut->setEnabled(false);
     shortcut->setObjectName(id.toString());
     shortcut->setParent(ICore::mainWindow());
+    shortcut->setContext(Qt::ApplicationShortcut);
     sc->setShortcut(shortcut);
     sc->setScriptable(scriptable);
     sc->setContext(context);

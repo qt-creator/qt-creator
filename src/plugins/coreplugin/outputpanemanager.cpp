@@ -275,7 +275,7 @@ void OutputPaneManager::init()
         Command *cmd = ActionManager::registerAction(action, id, globalContext);
 
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
-        m_actions.append(cmd->action());
+        m_actions.append(action);
         m_ids.append(id);
 
         cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
@@ -289,7 +289,7 @@ void OutputPaneManager::init()
         bool visible = outPane->priorityInStatusBar() != -1;
         button->setVisible(visible);
 
-        connect(cmd->action(), SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
+        connect(action, SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
     }
 
     m_titleLabel->setMinimumWidth(minTitleWidth + m_titleLabel->contentsMargins().left()
@@ -312,10 +312,12 @@ void OutputPaneManager::shortcutTriggered()
     // then just give it focus.
     int current = currentIndex();
     if (OutputPanePlaceHolder::isCurrentVisible() && current == idx) {
-        if (!outputPane->hasFocus() && outputPane->canFocus())
+        if (!outputPane->hasFocus() && outputPane->canFocus()) {
             outputPane->setFocus();
-        else
+            ICore::raiseWindow(m_outputWidgetPane);
+        } else {
             slotHide();
+        }
     } else {
         // Else do the same as clicking on the button does.
         buttonTriggered(idx);
@@ -476,8 +478,10 @@ void OutputPaneManager::showPage(int idx, int flags)
         ensurePageVisible(idx);
         IOutputPane *out = m_panes.at(idx);
         out->visibilityChanged(true);
-        if (flags & IOutputPane::WithFocus && out->canFocus())
+        if (flags & IOutputPane::WithFocus && out->canFocus()) {
             out->setFocus();
+            ICore::raiseWindow(m_outputWidgetPane);
+        }
 
         if (flags & IOutputPane::EnsureSizeHint)
             ph->ensureSizeHintAsMinimum();

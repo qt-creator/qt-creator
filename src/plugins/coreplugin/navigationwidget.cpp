@@ -30,6 +30,7 @@
 #include "navigationwidget.h"
 #include "navigationsubwidget.h"
 #include "icontext.h"
+#include "icore.h"
 #include "coreconstants.h"
 #include "inavigationwidgetfactory.h"
 #include "modemanager.h"
@@ -266,6 +267,7 @@ void NavigationWidget::activateSubWidget(const Id &factoryId)
     foreach (Internal::NavigationSubWidget *subWidget, d->m_subWidgets) {
         if (subWidget->factory()->id() == factoryId) {
             subWidget->setFocusWidget();
+            ICore::raiseWindow(this);
             return;
         }
     }
@@ -274,6 +276,7 @@ void NavigationWidget::activateSubWidget(const Id &factoryId)
     if (index >= 0) {
         d->m_subWidgets.first()->setFactoryIndex(index);
         d->m_subWidgets.first()->setFocusWidget();
+        ICore::raiseWindow(this);
     }
 }
 
