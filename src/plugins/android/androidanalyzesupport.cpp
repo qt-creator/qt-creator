@@ -95,6 +95,13 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
     }
     connect(m_runner, SIGNAL(remoteProcessStarted(int)),
             SLOT(handleRemoteProcessStarted(int)));
+    connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
+            SLOT(handleRemoteProcessFinished(QString)));
+
+    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)),
+            SLOT(handleRemoteErrorOutput(QByteArray)));
+    connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
+            SLOT(handleRemoteOutput(QByteArray)));
 }
 
 void AndroidAnalyzeSupport::handleRemoteProcessStarted(int qmlPort)
