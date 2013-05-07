@@ -164,7 +164,7 @@ void BinEditor::init()
 
 void BinEditor::addData(quint64 block, const QByteArray &data)
 {
-    Q_ASSERT(data.size() == m_blockSize);
+    QTC_ASSERT(data.size() == m_blockSize, return);
     const quint64 addr = block * m_blockSize;
     if (addr >= m_baseAddr && addr <= m_baseAddr + m_size - 1) {
         if (m_data.size() * m_blockSize >= 64 * 1024 * 1024)
