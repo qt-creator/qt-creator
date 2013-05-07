@@ -689,7 +689,7 @@ QStringList SettingsAccessor::findSettingsFiles(const QString &suffix) const
     return result;
 }
 
-QByteArray SettingsAccessor::creatorId() const
+QByteArray SettingsAccessor::creatorId()
 {
     return ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toByteArray();
 }
@@ -997,8 +997,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) con
     data.insert(QLatin1String(VERSION_KEY), m_accessor->m_lastVersion + 1);
 
     if (m_environmentSpecific)
-        data.insert(QLatin1String(ENVIRONMENT_ID_KEY),
-                    ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
+        data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
     return m_writer->save(data, Core::ICore::mainWindow());
 }
 

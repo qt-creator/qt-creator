@@ -60,7 +60,7 @@ private:
     void addVersionHandler(Internal::UserFileVersionHandler *handler);
 
     QStringList findSettingsFiles(const QString &suffix) const;
-    QByteArray creatorId() const;
+    static QByteArray creatorId();
     QString defaultFileName(const QString &suffix) const;
     int currentVersion() const;
     void backupUserFile() const;

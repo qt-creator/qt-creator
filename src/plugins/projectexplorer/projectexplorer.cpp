@@ -934,7 +934,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectExplorerSettings.maxAppOutputLines =
             s->value(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), 100000).toInt();
     d->m_projectExplorerSettings.environmentId =
-            QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toString());
+            QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toByteArray());
     if (d->m_projectExplorerSettings.environmentId.isNull())
         d->m_projectExplorerSettings.environmentId = QUuid::createUuid();
 
@@ -1303,7 +1303,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), d->m_projectExplorerSettings.autorestoreLastSession);
         s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), d->m_projectExplorerSettings.prompToStopRunControl);
         s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), d->m_projectExplorerSettings.maxAppOutputLines);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), d->m_projectExplorerSettings.environmentId.toString());
+        s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), d->m_projectExplorerSettings.environmentId.toByteArray());
     }
 }
 
