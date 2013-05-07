@@ -63,7 +63,14 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
 {
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))) {
         m_targetsPage = new TargetSetupPage;
-        m_targetsPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(selectedPlatform()));
+        QString platform = selectedPlatform();
+        if (platform.isEmpty()) {
+            m_targetsPage->setPreferredKitMatcher(
+                        new QtSupport::QtVersionKitMatcher(
+                            Core::FeatureSet( QtSupport::Constants::FEATURE_MOBILE)));
+        } else {
+            m_targetsPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
+        }
         m_targetsPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures(),
                                                                                 minimumQtVersionNumber,
                                                                                 maximumQtVersionNumber));
