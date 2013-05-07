@@ -155,6 +155,7 @@ private:
     void refreshState(const GdbMi &state);
     void refreshLocation(const GdbMi &location);
     void refreshModules(const GdbMi &modules);
+    void refreshSymbols(const GdbMi &symbols);
     void refreshBreakpoints(const GdbMi &bkpts);
     void runContinuation(const GdbMi &data);
 

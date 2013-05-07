@@ -253,6 +253,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshLocation(item);
         else if (name == "modules")
             refreshModules(item);
+        else if (name == "symbols")
+            refreshSymbols(item);
         else if (name == "bkpts")
             refreshBreakpoints(item);
         else if (name == "disassembly")
@@ -533,10 +535,8 @@ void LldbEngine::refreshModules(const GdbMi &modules)
         module.modulePath = QString::fromUtf8(item["file"].data());
         module.moduleName = QString::fromUtf8(item["name"].data());
         module.symbolsRead = Module::UnknownReadState;
-        module.startAddress = 0;
-        //    item.findChild("loaded_addr").data().toULongLong(0, 0);
+        module.startAddress = item["loaded_addr"].toAddress();
         module.endAddress = 0; // FIXME: End address not easily available.
-        //modulesHandler()->updateModule(module);
         mods.append(module);
     }
     modulesHandler()->setModules(mods);
@@ -544,22 +544,23 @@ void LldbEngine::refreshModules(const GdbMi &modules)
 
 void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    runCommand(Command("requestModuleSymbols").arg("module", moduleName.toUtf8()));
+    runCommand(Command("listSymbols").arg("module", moduleName));
 }
 
-void LldbEngine::handleListSymbols(const QByteArray &response)
+void LldbEngine::refreshSymbols(const GdbMi &symbols)
 {
-    Q_UNUSED(response);
-//    GdbMi out;
-//    out.fromString(response.trimmed());
-//    Symbols symbols;
-//    QString moduleName = response.cookie.toString();
-//    foreach (const GdbMi &item, out.children()) {
-//        Symbol symbol;
-//        symbol.name = _(item.findChild("name").data());
-//        symbols.append(symbol);
-//    }
-//   debuggerCore()->showModuleSymbols(moduleName, symbols);
+    QString moduleName = QString::fromUtf8(symbols["module"].data());
+    Symbols syms;
+    foreach (const GdbMi &item, symbols["symbols"].children()) {
+        Symbol symbol;
+        symbol.address = _(item["address"].data());
+        symbol.name = _(item["name"].data());
+        symbol.state = _(item["state"].data());
+        symbol.section = _(item["section"].data());
+        symbol.demangled = _(item["demangled"].data());
+        syms.append(symbol);
+    }
+   debuggerCore()->showModuleSymbols(moduleName, syms);
 }
 
 
@@ -872,7 +873,7 @@ void LldbEngine::refreshRegisters(const GdbMi &registers)
         Register reg;
         reg.name = item["name"].data();
         reg.value = item["value"].data();
-        //reg.type = item.findChild("type").data();
+        //reg.type = item["type"].data();
         regs.append(reg);
     }
     //handler->setRegisters(registers);
@@ -895,8 +896,8 @@ void LldbEngine::refreshTypeInfo(const GdbMi &typeInfo)
 {
     if (typeInfo.type() == GdbMi::List) {
 //        foreach (const GdbMi &s, typeInfo.children()) {
-//            const GdbMi name = s.findChild("name");
-//            const GdbMi size = s.findChild("size");
+//            const GdbMi name = s["name"];
+//            const GdbMi size = s["size"];
 //            if (name.isValid() && size.isValid())
 //                m_typeInfoCache.insert(QByteArray::fromBase64(name.data()),
 //                                       TypeInfo(size.data().toUInt()));

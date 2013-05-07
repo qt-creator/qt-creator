@@ -589,22 +589,45 @@ class Debugger(cmd.Cmd):
         result += "]"
         self.report(result)
 
-
-    def listModules(self):
+    def do_listModules(self, args):
         result = 'modules=['
         for module in self.target.modules:
             result += '{file="%s"' % module.file.fullpath
             result += ',name="%s"' % module.file.basename
-            #result += ',addrsize="%s"' % module.addr_size
-            #result += ',triple="%s"' % module.triple
-            #result += ',sections={"
+            result += ',addrsize="%s"' % module.addr_size
+            result += ',triple="%s"' % module.triple
+            #result += ',sections={'
             #for section in module.sections:
             #    result += '[name="%s"' % section.name
             #    result += ',addr="%s"' % section.addr
-            #    result += ',size="%s"]," % section.size
+            #    result += ',size="%s"],' % section.size
             #result += '}'
             result += '},'
         result += ']'
+        self.report(result)
+
+    def do_listSymbols(self, args):
+        options = eval(args)
+        moduleName = options['module']
+        #file = lldb.SBFileSpec(moduleName)
+        #module = self.target.FindModule(file)
+        for module in self.target.modules:
+            if module.file.fullpath == moduleName:
+                break
+        result = 'symbols={module="%s"' % moduleName
+        result += ',valid="%s"' % module.IsValid()
+        result += ',sections="%s"' % module.GetNumSections()
+        result += ',symbols=['
+        for symbol in module.symbols:
+            startAddress = symbol.GetStartAddress().GetLoadAddress(self.target)
+            endAddress = symbol.GetEndAddress().GetLoadAddress(self.target)
+            result += '{type="%s"' % symbol.GetType()
+            result += ',name="%s"' % symbol.GetName()
+            result += ',address="0x%x"' % startAddress
+            result += ',demangled="%s"' % symbol.GetMangledName()
+            result += ',size="%s"' % (endAddress - startAddress)
+            result += '},'
+        result += ']}'
         self.report(result)
 
     def executeNext(self):
