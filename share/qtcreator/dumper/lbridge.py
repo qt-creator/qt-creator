@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import binascii
 import cmd
 import inspect
 import os
@@ -318,14 +319,17 @@ class Debugger(cmd.Cmd):
         self.report('pid="%s"' % self.pid)
         self.report('state="enginerunok"')
 
-    def reportError(self, error):
+    def describeError(self, error):
         desc = lldb.SBStream()
         error.GetDescription(desc)
         result = 'error={type="%s"' % error.GetType()
         result += ',code="%s"' % error.GetError()
         result += ',msg="%s"' % error.GetCString()
         result += ',desc="%s"}' % desc.GetData()
-        self.report(result)
+        return result
+
+    def reportError(self, error):
+        self.report(self.describeError(error))
 
     def currentThread(self):
         #return self.process.GetSelectedThread()
@@ -719,11 +723,12 @@ class Debugger(cmd.Cmd):
         self.reportData()
 
     def do_disassemble(self, args):
-        #options = eval(args)
+        options = eval(args)
         frame = self.currentFrame();
         function = frame.GetFunction()
         name = function.GetName()
-        result = 'disassembly=['
+        result = 'disassembly={cookie="%s",' % options['cookie']
+        result += ',lines=['
         base = function.GetStartAddress().GetLoadAddress(self.target)
         for insn in function.GetInstructions(self.target):
             comment = insn.GetComment(self.target)
@@ -735,6 +740,18 @@ class Debugger(cmd.Cmd):
                 result += ',comment="%s"' % comment
             result += ',offset="%s"},' % (addr - base)
         self.report(result + ']')
+
+    def do_readMemory(self, args):
+        options = eval(args)
+        address = options['address']
+        length = options['length']
+        error = lldb.SBError()
+        contents = self.process.ReadMemory(address, length, error)
+        result = 'memory={cookie="%s",' % options['cookie']
+        result += ',address="%s",' % address
+        result += self.describeError(error)
+        result += ',contents="%s"}' % binascii.hexlify(contents)
+        self.report(result)
 
 #execfile(os.path.join(currentDir, "dumper.py"))
 #execfile(os.path.join(currentDir, "qttypes.py"))

@@ -32,10 +32,12 @@
 
 #include "debuggerengine.h"
 #include "disassembleragent.h"
+#include "memoryagent.h"
 
 #include <QPointer>
 #include <QProcess>
 #include <QQueue>
+#include <QMap>
 #include <QStack>
 #include <QVariant>
 
@@ -100,11 +102,16 @@ private:
     void reloadSourceFiles() {}
     void reloadFullStack() {}
     void fetchDisassembler(Internal::DisassemblerAgent *);
-    void refreshDisassembly(const GdbMi &lines);
+    void refreshDisassembly(const GdbMi &data);
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
+    void setRegisterValue(int regnr, const QString &value);
+
+    void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
+    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data);
+    void refreshMemory(const GdbMi &data);
 
 signals:
     void outputReady(const QByteArray &data);
@@ -162,7 +169,12 @@ private:
     QString m_scriptFileName;
     QProcess m_lldbProc;
     QString m_lldb;
-    QPointer<DisassemblerAgent> m_disassemblerAgent;
+
+    // FIXME: Make generic.
+    int m_lastAgentId;
+    QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
+    QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
+    QHash<int, QPointer<QObject> > m_memoryAgentTokens;
 };
 
 } // namespace Internal

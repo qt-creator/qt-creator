@@ -81,8 +81,8 @@ namespace Internal {
 LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
+    m_lastAgentId = 0;
     setObjectName(QLatin1String("LldbEngine"));
-    m_disassemblerAgent = 0;
 }
 
 LldbEngine::~LldbEngine()
@@ -259,6 +259,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshBreakpoints(item);
         else if (name == "disassembly")
             refreshDisassembly(item);
+        else if (name == "memory")
+            refreshMemory(item);
         else if (name == "continuation")
             runContinuation(item);
     }
@@ -453,23 +455,37 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
     }
 }
 
-void LldbEngine::refreshDisassembly(const GdbMi &lines)
+void LldbEngine::refreshDisassembly(const GdbMi &data)
 {
     DisassemblerLines result;
 
-    foreach (const GdbMi &line, lines.children()) {
-        DisassemblerLine dl;
-        QByteArray address = line["address"].data();
-        dl.address = address.toULongLong(0, 0);
-        dl.data = _(line["inst"].data());
-        dl.function = _(line["func-name"].data());
-        dl.offset = line["offset"].data().toUInt();
-        result.appendLine(dl);
+    int cookie = data["cookie"].data().toInt();
+    QPointer<DisassemblerAgent> agent = m_disassemblerAgents.key(cookie);
+    if (!agent.isNull()) {
+        foreach (const GdbMi &line, data["lines"].children()) {
+            DisassemblerLine dl;
+            QByteArray address = line["address"].data();
+            dl.address = address.toULongLong(0, 0);
+            dl.data = _(line["inst"].data());
+            dl.function = _(line["func-name"].data());
+            dl.offset = line["offset"].data().toUInt();
+            result.appendLine(dl);
+        }
+        agent->setContents(result);
     }
+}
 
-    QTC_ASSERT(m_disassemblerAgent, return);
-    m_disassemblerAgent->setContents(result);
-    m_disassemblerAgent = 0;
+void LldbEngine::refreshMemory(const GdbMi &data)
+{
+    int cookie = data["cookie"].data().toInt();
+    qulonglong addr = data["address"].data().toInt();
+    QPointer<MemoryAgent> agent = m_memoryAgents.key(cookie);
+    if (!agent.isNull()) {
+        QPointer<QObject> token = m_memoryAgentTokens.value(cookie);
+        QTC_ASSERT(!token.isNull(), return);
+        QByteArray ba = QByteArray::fromHex(data["contents"].data());
+        agent->addLazyData(token.data(), addr, ba);
+    }
 }
 
 void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
@@ -937,11 +953,52 @@ void LldbEngine::reloadRegisters()
 
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
-    QTC_CHECK(!m_disassemblerAgent);
-    m_disassemblerAgent = agent;
-    QByteArray cookie = QByteArray::number(qulonglong(agent));
-    runCommand("disassemble", "{'cookie':" + cookie + "}");
+    QPointer<DisassemblerAgent> p(agent);
+    int id = m_disassemblerAgents.value(p, -1);
+    if (id == -1) {
+        id = ++m_lastAgentId;
+        m_disassemblerAgents.insert(p, id);
+    }
+    runCommand("disassemble", "{\"cookie\":" + QByteArray::number(id) + "}");
 }
+
+
+void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
+        quint64 addr, quint64 length)
+{
+    int id = m_memoryAgents.value(agent, -1);
+    if (id == -1) {
+        id = ++m_lastAgentId;
+        m_memoryAgents.insert(agent, id);
+        m_memoryAgentTokens.insert(id, editorToken);
+    }
+    runCommand("readMemory",
+               "{\"address\":" + QByteArray::number(addr) +
+               ",\"length\":" + QByteArray::number(length) +
+               ",\"cookie\":" + QByteArray::number(id) + "}");
+}
+
+void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
+        quint64 addr, const QByteArray &data)
+{
+    int id = m_memoryAgents.value(agent, -1);
+    if (id == -1) {
+        id = ++m_lastAgentId;
+        m_memoryAgents.insert(agent, id);
+        m_memoryAgentTokens.insert(id, editorToken);
+    }
+    runCommand("writeMemory",
+               "{\"address\":" + QByteArray::number(addr) + "" +
+               ",\"data\":\"" + data.toHex() + "\"" +
+               ",\"cookie\":" + QByteArray::number(id) + "}");
+}
+
+void LldbEngine::setRegisterValue(int regnr, const QString &value)
+{
+    Register reg = registerHandler()->registers().at(regnr);
+    runCommand("setRegister " + reg.name + ' ' + value.toLatin1());
+}
+
 
 bool LldbEngine::hasCapability(unsigned cap) const
 {
