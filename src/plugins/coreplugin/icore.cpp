@@ -332,9 +332,9 @@
 */
 
 /*!
-    \fn void ICore::contextAboutToChange(Core::IContext *context)
+    \fn void ICore::contextAboutToChange(const QList<Core::IContext *> &context)
     \brief Sent just before a new \a context becomes the current context
-    (meaning that its widget got focus).
+    (meaning that itself or one of its child widgets got focus).
 */
 
 /*!

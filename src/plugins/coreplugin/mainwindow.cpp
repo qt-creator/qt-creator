@@ -143,7 +143,6 @@ MainWindow::MainWindow() :
     m_navigationWidget(0),
     m_rightPaneWidget(0),
     m_versionDialog(0),
-    m_activeContext(0),
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
     m_toolSettings(new ToolSettings),
@@ -457,7 +456,7 @@ void MainWindow::openDelayedFiles()
 
 IContext *MainWindow::currentContextObject() const
 {
-    return m_activeContext;
+    return m_activeContext.isEmpty() ? 0 : m_activeContext.first();
 }
 
 QStatusBar *MainWindow::statusBar() const
@@ -1094,8 +1093,8 @@ void MainWindow::removeContextObject(IContext *context)
         return;
 
     m_contextWidgets.remove(widget);
-    if (m_activeContext == context)
-        updateContextObject(0);
+    if (m_activeContext.removeAll(context) > 0)
+        updateContextObject(m_activeContext);
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -1129,46 +1128,39 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
     if (qobject_cast<QMenuBar*>(now) || qobject_cast<QMenu*>(now))
         return;
 
-    IContext *newContext = 0;
+    QList<IContext *> newContext;
     if (QWidget *p = qApp->focusWidget()) {
         IContext *context = 0;
         while (p) {
             context = m_contextWidgets.value(p);
-            if (context) {
-                newContext = context;
-                break;
-            }
+            if (context)
+                newContext.append(context);
             p = p->parentWidget();
         }
     }
 
     // ignore toplevels that define no context, like popups without parent
-    if (newContext || qApp->focusWidget() == focusWidget())
+    if (!newContext.isEmpty() || qApp->focusWidget() == focusWidget())
         updateContextObject(newContext);
 }
 
-void MainWindow::updateContextObject(IContext *context)
+void MainWindow::updateContextObject(const QList<IContext *> &context)
 {
-    if (context == m_activeContext)
-        return;
     emit m_coreImpl->contextAboutToChange(context);
     m_activeContext = context;
     updateContext();
-    if (debugMainWindow)
-        qDebug() << "new context object =" << context << (context ? context->widget() : 0)
-                 << (context ? context->widget()->metaObject()->className() : 0);
-}
-
-void MainWindow::resetContext()
-{
-    updateContextObject(0);
+    if (debugMainWindow) {
+        qDebug() << "new context objects =" << context;
+        foreach (IContext *c, context)
+            qDebug() << (c ? c->widget() : 0) << (c ? c->widget()->metaObject()->className() : 0);
+    }
 }
 
 void MainWindow::aboutToShutdown()
 {
     disconnect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
                this, SLOT(updateFocusWidget(QWidget*,QWidget*)));
-    m_activeContext = 0;
+    m_activeContext.clear();
     hide();
 }
 
@@ -1252,8 +1244,8 @@ void MainWindow::updateContext()
 {
     Context contexts;
 
-    if (m_activeContext)
-        contexts.add(m_activeContext->context());
+    foreach (IContext *context, m_activeContext)
+        contexts.add(context->context());
 
     contexts.add(m_additionalContexts);
 

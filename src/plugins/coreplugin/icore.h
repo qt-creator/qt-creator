@@ -146,8 +146,8 @@ signals:
     void saveSettingsRequested();
     void optionsDialogRequested();
     void coreAboutToClose();
-    void contextAboutToChange(Core::IContext *context);
-    void contextChanged(Core::IContext *context, const Core::Context &additionalContexts);
+    void contextAboutToChange(const QList<Core::IContext *> &context);
+    void contextChanged(const QList<Core::IContext *> &context, const Core::Context &additionalContexts);
 };
 
 } // namespace Core

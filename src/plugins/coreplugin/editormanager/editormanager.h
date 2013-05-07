@@ -212,7 +212,7 @@ public slots:
 private slots:
     void gotoNextDocHistory();
     void gotoPreviousDocHistory();
-    void handleContextChange(Core::IContext *context);
+    void handleContextChange(const QList<Core::IContext *> &context);
     void updateActions();
     void makeCurrentEditorWritable();
     void vcsOpenCurrentEditor();

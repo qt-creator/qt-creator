@@ -94,7 +94,6 @@ public:
     IContext *contextObject(QWidget *widget);
     void addContextObject(IContext *contex);
     void removeContextObject(IContext *contex);
-    void resetContext();
 
     Core::IDocument *openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
 
@@ -164,7 +163,7 @@ private slots:
     void openDelayedFiles();
 
 private:
-    void updateContextObject(IContext *context);
+    void updateContextObject(const QList<IContext *> &context);
     void updateContext();
 
     void registerDefaultContainers();
@@ -197,7 +196,7 @@ private:
     Core::StatusBarWidget *m_outputView;
     VersionDialog *m_versionDialog;
 
-    IContext *m_activeContext;
+    QList<IContext *> m_activeContext;
 
     QMap<QWidget *, IContext *> m_contextWidgets;
 
