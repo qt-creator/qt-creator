@@ -423,7 +423,7 @@ void WinException::fromGdbMI(const GdbMi &gdbmi)
     }
     const GdbMi gLineNumber = gdbmi["exceptionLine"];
     if (gLineNumber.isValid()) {
-        lineNumber = gLineNumber.data().toInt();
+        lineNumber = gLineNumber.toInt();
         file = gdbmi["exceptionFile"].data();
     }
     function = gdbmi["exceptionFunction"].data();

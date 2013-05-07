@@ -307,9 +307,9 @@ bool DumperHelper::parseQuery(const GdbMi &contents)
     int qtv = 0;
     const GdbMi qtversion = contents["qtversion"];
     if (qtversion.children().size() == 3) {
-        qtv = (qtversion.childAt(0).data().toInt() << 16)
-                    + (qtversion.childAt(1).data().toInt() << 8)
-                    + qtversion.childAt(2).data().toInt();
+        qtv = (qtversion.childAt(0).toInt() << 16)
+                    + (qtversion.childAt(1).toInt() << 8)
+                    + qtversion.childAt(2).toInt();
     }
     m_qtVersion = qtv;
     // Get list of helpers
@@ -329,7 +329,7 @@ bool DumperHelper::parseQuery(const GdbMi &contents)
     foreach (const GdbMi &sizesList, contents["sizes"].children()) {
         const int childCount = sizesList.childCount();
         if (childCount > 1) {
-            const int size = sizesList.childAt(0).data().toInt();
+            const int size = sizesList.childAt(0).toInt();
             for (int c = 1; c < childCount; c++)
                 addSize(sizesList.childAt(c).data(), size);
         }

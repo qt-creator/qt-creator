@@ -2036,7 +2036,7 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         rc |= StopReportLog;
         return rc;
     }
-    const int threadId = stopReason["threadId"].data().toInt();
+    const int threadId = stopReason["threadId"].toInt();
     if (reason == "breakpoint") {
         // Note: Internal breakpoints (run to line) are reported with id=0.
         // Step out creates temporary breakpoints with id 10000.

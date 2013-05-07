@@ -435,7 +435,7 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
         const GdbMi item = items.at(index);
         const GdbMi frame = item["frame"];
         ThreadData thread;
-        thread.id = ThreadId(item["id"].data().toInt());
+        thread.id = ThreadId(item["id"].toInt());
         thread.targetId = QString::fromLatin1(item["target-id"].data());
         thread.details = QString::fromLatin1(item["details"].data());
         thread.core = QString::fromLatin1(item["core"].data());
@@ -443,7 +443,7 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
         thread.address = frame["addr"].data().toULongLong(&ok, 0);
         thread.function = QString::fromLatin1(frame["func"].data());
         thread.fileName = QString::fromLatin1(frame["fullname"].data());
-        thread.lineNumber = frame["line"].data().toInt();
+        thread.lineNumber = frame["line"].toInt();
         thread.module = QString::fromLocal8Bit(frame["from"].data());
         thread.stopped = true;
         // Non-GDB (Cdb2) output name here.

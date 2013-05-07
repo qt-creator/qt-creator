@@ -417,7 +417,7 @@ void WatchData::updateValue(const GdbMi &item)
 {
     GdbMi value = item["value"];
     if (value.isValid()) {
-        int encoding = item["valueencoded"].data().toInt();
+        int encoding = item["valueencoded"].toInt();
         setValue(decodeData(value.data(), encoding));
     } else {
         setValueNeeded();
@@ -434,7 +434,7 @@ void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
 void WatchData::updateChildCount(const GdbMi &mi)
 {
     if (mi.isValid())
-        setHasChildren(mi.data().toInt() > 0);
+        setHasChildren(mi.toInt() > 0);
 }
 
 static void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi)
@@ -589,7 +589,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
 
     mi = item["editformat"];
     if (mi.isValid())
-        data.editformat = mi.data().toInt();
+        data.editformat = mi.toInt();
 
     mi = item["typeformats"];
     if (mi.isValid())
@@ -597,11 +597,11 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
 
     mi = item["bitpos"];
     if (mi.isValid())
-        data.bitpos = mi.data().toInt();
+        data.bitpos = mi.toInt();
 
     mi = item["bitsize"];
     if (mi.isValid())
-        data.bitsize = mi.data().toInt();
+        data.bitsize = mi.toInt();
 
     mi = item["origaddr"];
     if (mi.isValid())
@@ -634,7 +634,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
 
     mi = item["arraydata"];
     if (mi.isValid()) {
-        int encoding = item["arrayencoding"].data().toInt();
+        int encoding = item["arrayencoding"].toInt();
         childtemplate.iname = data.iname + '.';
         childtemplate.address = addressBase;
         decodeArray(list, childtemplate, mi.data(), encoding);
@@ -664,7 +664,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             }
             QByteArray key = child["key"].data();
             if (!key.isEmpty()) {
-                int encoding = child["keyencoded"].data().toInt();
+                int encoding = child["keyencoded"].toInt();
                 QString skey = decodeData(key, encoding);
                 if (skey.size() > 13) {
                     skey = skey.left(12);

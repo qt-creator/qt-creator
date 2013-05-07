@@ -1437,7 +1437,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (frame.isValid()) {
         const GdbMi lineNumberG = frame["line"];
         if (lineNumberG.isValid()) {
-            lineNumber = lineNumberG.data().toInt();
+            lineNumber = lineNumberG.toInt();
             fullName = cleanupFullName(QString::fromLocal8Bit(frame["fullname"].data()));
             if (fullName.isEmpty())
                 fullName = QString::fromLocal8Bit(frame["file"].data());
@@ -1864,7 +1864,7 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
             watchHandler()->addTypeFormats(type, formats);
         }
         const GdbMi hasInferiorThreadList = data["hasInferiorThreadList"];
-        m_hasInferiorThreadList = (hasInferiorThreadList.data().toInt() != 0);
+        m_hasInferiorThreadList = (hasInferiorThreadList.toInt() != 0);
     }
 }
 
@@ -2474,7 +2474,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
             // The line numbers here are the uncorrected ones. So don't
             // change it if we know better already.
             if (response.correctedLineNumber == 0)
-                response.lineNumber = child.data().toInt();
+                response.lineNumber = child.toInt();
         } else if (child.hasName("cond")) {
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
             response.condition = child.data();
@@ -2493,7 +2493,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
                 ba = ba.mid(1, ba.size() - 2);
             response.functionName = _(ba);
         } else if (child.hasName("thread")) {
-            response.threadSpec = child.data().toInt();
+            response.threadSpec = child.toInt();
         } else if (child.hasName("type")) {
             // "breakpoint", "hw breakpoint", "tracepoint", "hw watchpoint"
             // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
@@ -2845,7 +2845,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
         bkpts = table.children();
         // Remove the 'hdr' and artificial items.
         for (int i = bkpts.size(); --i >= 0; ) {
-            int num = bkpts.at(i)["number"].data().toInt();
+            int num = bkpts.at(i)["number"].toInt();
             if (num <= 0)
                 bkpts.removeAt(i);
         }
@@ -3663,7 +3663,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
         frame.file = QFile::decodeName(frameMi["file"].data());
     frame.function = _(frameMi["func"].data());
     frame.from = _(frameMi["from"].data());
-    frame.line = frameMi["line"].data().toInt();
+    frame.line = frameMi["line"].toInt();
     frame.address = frameMi["addr"].toAddress();
     frame.usable = QFileInfo(frame.file).isReadable();
     return frame;
@@ -3795,7 +3795,7 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
     const QList<GdbMi> items = response.data["thread-ids"].children();
     for (int index = 0, n = items.size(); index != n; ++index) {
         ThreadData thread;
-        thread.id = ThreadId(items.at(index).data().toInt());
+        thread.id = ThreadId(items.at(index).toInt());
         handler->updateThread(thread);
     }
     reloadStack(false); // Will trigger register reload.
@@ -3809,9 +3809,9 @@ void GdbEngine::handleThreadNames(const GdbResponse &response)
         names.fromString(response.consoleStreamOutput);
         foreach (const GdbMi &name, names.children()) {
             ThreadData thread;
-            thread.id = ThreadId(name["id"].data().toInt());
+            thread.id = ThreadId(name["id"].toInt());
             thread.name = decodeData(name["value"].data(),
-                name["valueencoded"].data().toInt());
+                name["valueencoded"].toInt());
             handler->updateThread(thread);
         }
         updateViews();
@@ -3935,7 +3935,7 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
     const GdbMi values = response.data["register-values"];
     QTC_ASSERT(registerCount == values.children().size(), return);
     foreach (const GdbMi &item, values.children()) {
-        const int number = item["number"].data().toInt();
+        const int number = item["number"].toInt();
         if (number >= 0 && number < gdbRegisterCount)
             registers[m_registerNumbers[number]].value = item["value"].data();
     }
@@ -4310,7 +4310,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
 
     GdbMi t = item["numchild"];
     if (t.isValid())
-        data.setHasChildren(t.data().toInt() > 0);
+        data.setHasChildren(t.toInt() > 0);
     else if (isPointerType(data.type) || data.name == QLatin1String("this"))
         data.setHasChildren(true);
     return data;

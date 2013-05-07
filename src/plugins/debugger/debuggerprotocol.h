@@ -123,6 +123,7 @@ public:
 
     QByteArray toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;
+    int toInt() const { return m_data.toInt(); }
     void fromString(const QByteArray &str);
     void fromStringMultiple(const QByteArray &str);
 

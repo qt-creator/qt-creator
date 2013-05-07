@@ -727,7 +727,7 @@ void tst_Dumpers::dumper()
         dummy.iname = child["iname").data();
         dummy.name = QLatin1String(child["name").data());
         if (dummy.iname == "local.qtversion")
-            context.qtVersion = child["value").data().toInt();
+            context.qtVersion = child["value").toInt();
         else
             parseWatchData(expandedINames, dummy, child, &list);
     }

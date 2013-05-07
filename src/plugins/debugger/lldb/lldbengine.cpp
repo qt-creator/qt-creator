@@ -424,10 +424,10 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
         response.id = rid;
     QTC_CHECK(response.id == rid);
     response.address = 0;
-    response.enabled = bkpt["enabled"].data().toInt();
-    response.ignoreCount = bkpt["ignorecount"].data().toInt();
+    response.enabled = bkpt["enabled"].toInt();
+    response.ignoreCount = bkpt["ignorecount"].toInt();
     response.condition = bkpt["condition"].data();
-    response.hitCount = bkpt["hitcount"].data().toInt();
+    response.hitCount = bkpt["hitcount"].toInt();
 
     if (added) {
         // Added.
@@ -463,7 +463,7 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
 {
     DisassemblerLines result;
 
-    int cookie = data["cookie"].data().toInt();
+    int cookie = data["cookie"].toInt();
     QPointer<DisassemblerAgent> agent = m_disassemblerAgents.key(cookie);
     if (!agent.isNull()) {
         foreach (const GdbMi &line, data["lines"].children()) {
@@ -481,8 +481,8 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
 
 void LldbEngine::refreshMemory(const GdbMi &data)
 {
-    int cookie = data["cookie"].data().toInt();
-    qulonglong addr = data["address"].data().toInt();
+    int cookie = data["cookie"].toInt();
+    qulonglong addr = data["address"].toInt();
     QPointer<MemoryAgent> agent = m_memoryAgents.key(cookie);
     if (!agent.isNull()) {
         QPointer<QObject> token = m_memoryAgentTokens.value(cookie);
@@ -851,16 +851,16 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     StackFrames frames;
     foreach (const GdbMi &item, stack["frames"].children()) {
         StackFrame frame;
-        frame.level = item["level"].data().toInt();
+        frame.level = item["level"].toInt();
         frame.file = QString::fromLatin1(item["file"].data());
         frame.function = QString::fromLatin1(item["func"].data());
         frame.from = QString::fromLatin1(item["func"].data());
-        frame.line = item["line"].data().toInt();
+        frame.line = item["line"].toInt();
         frame.address = item["addr"].toAddress();
         frame.usable = QFileInfo(frame.file).isReadable();
         frames.append(frame);
     }
-    bool canExpand = stack["hasmore"].data().toInt();
+    bool canExpand = stack["hasmore"].toInt();
     debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames);
 }
@@ -938,7 +938,7 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
     QByteArray file = reportedLocation["file"].data();
-    int line = reportedLocation["line"].data().toInt();
+    int line = reportedLocation["line"].toInt();
     gotoLocation(Location(QString::fromUtf8(file), line));
 }
 
