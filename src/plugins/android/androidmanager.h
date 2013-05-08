@@ -61,24 +61,8 @@ public:
     static QString applicationName(ProjectExplorer::Target *target);
     static bool setApplicationName(ProjectExplorer::Target *target, const QString &name);
 
-    static QStringList permissions(ProjectExplorer::Target *target);
-    static bool setPermissions(ProjectExplorer::Target *target, const QStringList &permissions);
-
     static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);
-
-    static int versionCode(ProjectExplorer::Target *target);
-    static bool setVersionCode(ProjectExplorer::Target *target, int version);
-    static QString versionName(ProjectExplorer::Target *target);
-    static bool setVersionName(ProjectExplorer::Target *target, const QString &version);
-
-    static QIcon highDpiIcon(ProjectExplorer::Target *target);
-    static bool setHighDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath);
-    static QIcon mediumDpiIcon(ProjectExplorer::Target *target);
-    static bool setMediumDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath);
-    static QIcon lowDpiIcon(ProjectExplorer::Target *target);
-    static bool setLowDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath);
-    static bool ensureIconAttribute(ProjectExplorer::Target *target);
 
     static QStringList availableTargetApplications(ProjectExplorer::Target *target);
     static QString targetApplication(ProjectExplorer::Target *target);
@@ -158,16 +142,6 @@ private:
         BundledJar
     };
     static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
-
-    enum IconType
-    {
-        HighDPI,
-        MediumDPI,
-        LowDPI
-    };
-    static QString iconPath(ProjectExplorer::Target *target, IconType type);
-    static QIcon icon(ProjectExplorer::Target *target, IconType type);
-    static bool setIcon(ProjectExplorer::Target *target, IconType type, const QString &iconFileName);
 
     static QStringList dependencies(const Utils::FileName &readelfPath, const QString &lib);
     static int setLibraryLevel(const QString &library, LibrariesMap &mapLibs);

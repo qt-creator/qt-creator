@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>649</width>
-    <height>384</height>
+    <width>688</width>
+    <height>553</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,285 +18,92 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="tabPosition">
-      <enum>QTabWidget::South</enum>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Application</string>
      </property>
-     <property name="currentIndex">
-      <number>0</number>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="editDebianFileLabel_4">
+        <property name="text">
+         <string>&lt;b&gt;Android target SDK:&lt;/b&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="targetSDKComboBox"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Libraries</string>
      </property>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Manifest</string>
-      </attribute>
-      <layout class="QFormLayout" name="formLayout">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::ExpandingFieldsGrow</enum>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="editDebianFileLabel_4">
-         <property name="text">
-          <string>&lt;b&gt;Android target SDK:&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="targetSDKComboBox"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="editDebianFileLabel_2">
-         <property name="text">
-          <string>&lt;b&gt;Package name:&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="packageNameLineEdit">
-         <property name="toolTip">
-          <string>&lt;p align=&quot;justify&quot;&gt;Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).&lt;/p&gt;
-&lt;p align=&quot;justify&quot;&gt;Packages are usually defined using a hierarchical naming pattern, with levels in the hierarchy separated by periods (.) (pronounced &quot;dot&quot;).&lt;/p&gt;
-&lt;p align=&quot;justify&quot;&gt;In general, a package name begins with the top level domain name of the organization and then the organization's domain and then any subdomains listed in reverse order. The organization can then choose a specific name for their package. Package names should be all lowercase characters whenever possible.&lt;/p&gt;
-&lt;p align=&quot;justify&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;b&gt;Version code:&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="versionCode">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximum">
-          <number>99</number>
-         </property>
-         <property name="value">
-          <number>1</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;b&gt;Version name:&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="versionNameLinedit">
-         <property name="text">
-          <string>1.0.0</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Application</string>
-      </attribute>
-      <layout class="QFormLayout" name="formLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="editDebianFileLabel_3">
-         <property name="text">
-          <string>&lt;b&gt;Application name:&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="appNameLineEdit"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="editDebianFileLabel_5">
-         <property name="text">
-          <string>&lt;b&gt;Run:&lt;/b&gt;</string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::AutoText</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="targetComboBox"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="packageManagerIconLabel_2">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>48</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>&lt;b&gt;Application icon:&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0" colspan="2">
+       <widget class="QPushButton" name="readInfoPushButton">
+        <property name="toolTip">
+         <string>Automatically check required Qt libraries from compiled application</string>
+        </property>
+        <property name="text">
+         <string>Read information from application (must be compiled)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QToolButton" name="lIconButton">
-           <property name="minimumSize">
-            <size>
-             <width>48</width>
-             <height>48</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>48</width>
-             <height>48</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Select low dpi icon</string>
-           </property>
+          <widget class="QLabel" name="label_4">
            <property name="text">
-            <string/>
+            <string>Required Qt libraries</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>28</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QToolButton" name="mIconButton">
-           <property name="minimumSize">
-            <size>
-             <width>48</width>
-             <height>48</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>48</width>
-             <height>48</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Select medium dpi icon</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>28</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QToolButton" name="hIconButton">
-           <property name="minimumSize">
-            <size>
-             <width>48</width>
-             <height>48</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>48</width>
-             <height>48</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Select high dpi icon</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
+          <widget class="QListView" name="qtLibsListView"/>
          </item>
         </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Permissions</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QListView" name="permissionsListView">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>200</height>
-            </size>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>&lt;center&gt;Prebundled libraries&lt;/center&gt;
+&lt;p align=&quot;justify&quot;&gt;Please be aware that the order is very important: If library &lt;i&gt;A&lt;/i&gt; depends on library &lt;i&gt;B&lt;/i&gt;, &lt;i&gt;B&lt;/i&gt; &lt;b&gt;must&lt;/b&gt; go before &lt;i&gt;A&lt;/i&gt;.&lt;/p&gt;</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item row="1" column="0">
+          <widget class="QListView" name="prebundledLibsListView"/>
+         </item>
+         <item row="1" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <widget class="QPushButton" name="addPermissionButton">
-             <property name="text">
-              <string>Add</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="removePermissionButton">
-             <property name="text">
-              <string>Remove</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
+            <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -309,859 +116,122 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="savePermissionsButton">
+            <widget class="QPushButton" name="upPushButton">
              <property name="enabled">
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Save</string>
+              <string>Up</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="discardPermissionsButton">
+            <widget class="QPushButton" name="downPushButton">
              <property name="enabled">
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Discard</string>
+              <string>Down</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>
         </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_3">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Name:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="permissionsComboBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_CHECKIN_PROPERTIES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_COARSE_LOCATION</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_FINE_LOCATION</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_LOCATION_EXTRA_COMMANDS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_MOCK_LOCATION</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_NETWORK_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_SURFACE_FLINGER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCESS_WIFI_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.ACCOUNT_MANAGER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.AUTHENTICATE_ACCOUNTS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BATTERY_STATS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BIND_APPWIDGET</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BIND_DEVICE_ADMIN</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BIND_INPUT_METHOD</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BIND_REMOTEVIEWS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BIND_WALLPAPER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BLUETOOTH</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BLUETOOTH_ADMIN</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BRICK</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BROADCAST_PACKAGE_REMOVED</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BROADCAST_SMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BROADCAST_STICKY</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.BROADCAST_WAP_PUSH</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CALL_PHONE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CALL_PRIVILEGED</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CAMERA</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CHANGE_COMPONENT_ENABLED_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CHANGE_CONFIGURATION</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CHANGE_NETWORK_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CHANGE_WIFI_MULTICAST_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CHANGE_WIFI_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CLEAR_APP_CACHE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CLEAR_APP_USER_DATA</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.CONTROL_LOCATION_UPDATES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.DELETE_CACHE_FILES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.DELETE_PACKAGES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.DEVICE_POWER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.DIAGNOSTIC</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.DISABLE_KEYGUARD</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.DUMP</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.EXPAND_STATUS_BAR</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.FACTORY_TEST</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.FLASHLIGHT</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.FORCE_BACK</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.GET_ACCOUNTS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.GET_PACKAGE_SIZE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.GET_TASKS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.GLOBAL_SEARCH</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.HARDWARE_TEST</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.INJECT_EVENTS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.INSTALL_LOCATION_PROVIDER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.INSTALL_PACKAGES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.INTERNAL_SYSTEM_WINDOW</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.INTERNET</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.KILL_BACKGROUND_PROCESSES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.MANAGE_ACCOUNTS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.MANAGE_APP_TOKENS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.MASTER_CLEAR</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.MODIFY_AUDIO_SETTINGS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.MODIFY_PHONE_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.MOUNT_FORMAT_FILESYSTEMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.MOUNT_UNMOUNT_FILESYSTEMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.NFC</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.PERSISTENT_ACTIVITY</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.PROCESS_OUTGOING_CALLS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_CALENDAR</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_CONTACTS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_FRAME_BUFFER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">com.android.browser.permission.READ_HISTORY_BOOKMARKS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_INPUT_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_LOGS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_OWNER_DATA</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_PHONE_STATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_SMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_SYNC_SETTINGS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.READ_SYNC_STATS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.REBOOT</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.RECEIVE_BOOT_COMPLETED</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.RECEIVE_MMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.RECEIVE_SMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.RECEIVE_WAP_PUSH</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.RECORD_AUDIO</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.REORDER_TASKS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.RESTART_PACKAGES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SEND_SMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_ACTIVITY_WATCHER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">com.android.alarm.permission.SET_ALARM</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_ALWAYS_FINISH</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_ANIMATION_SCALE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_DEBUG_APP</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_ORIENTATION</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_PREFERRED_APPLICATIONS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_PROCESS_LIMIT</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_TIME</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_TIME_ZONE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_WALLPAPER</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SET_WALLPAPER_HINTS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SIGNAL_PERSISTENT_PROCESSES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.STATUS_BAR</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SUBSCRIBED_FEEDS_READ</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SUBSCRIBED_FEEDS_WRITE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.SYSTEM_ALERT_WINDOW</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.UPDATE_DEVICE_STATS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.USE_CREDENTIALS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.USE_SIP</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.VIBRATE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WAKE_LOCK</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_APN_SETTINGS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_CALENDAR</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_CONTACTS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_EXTERNAL_STORAGE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_GSERVICES</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">com.android.browser.permission.WRITE_HISTORY_BOOKMARKS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_OWNER_DATA</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_SECURE_SETTINGS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_SETTINGS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_SMS</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string notr="true">android.permission.WRITE_SYNC_SETTINGS</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_4">
-      <attribute name="title">
-       <string>Libraries</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0" colspan="2">
-        <widget class="QPushButton" name="readInfoPushButton">
-         <property name="toolTip">
-          <string>Automatically check required Qt libraries from compiled application</string>
-         </property>
-         <property name="text">
-          <string>Read information from application (must be compiled)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QFrame" name="frame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Required Qt libraries</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QListView" name="qtLibsListView"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QFrame" name="frame_2">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>&lt;center&gt;Prebundled libraries&lt;/center&gt;
-&lt;p align=&quot;justify&quot;&gt;Please be aware that the order is very important: If library &lt;i&gt;A&lt;/i&gt; depends on library &lt;i&gt;B&lt;/i&gt;, &lt;i&gt;B&lt;/i&gt; &lt;b&gt;must&lt;/b&gt; go before &lt;i&gt;A&lt;/i&gt;.&lt;/p&gt;</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QListView" name="prebundledLibsListView"/>
-          </item>
-          <item row="1" column="1">
-           <layout class="QVBoxLayout" name="verticalLayout_5">
-            <item>
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="upPushButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Up</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="downPushButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Down</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_5">
-      <attribute name="title">
-       <string>Sign package</string>
-      </attribute>
-      <layout class="QFormLayout" name="formLayout_3">
-       <item row="0" column="0" colspan="2">
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QLabel" name="KeystoreLocationLabel">
-             <property name="text">
-              <string>Keystore:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="KeystoreLocationLineEdit">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="KeystoreCreatePushButton">
-             <property name="text">
-              <string>Create</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="KeystoreLocationPushButton">
-             <property name="text">
-              <string>Browse</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="signPackageCheckBox">
-           <property name="text">
-            <string>Sign package</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="openPackageLocationCheckBox">
-           <property name="text">
-            <string>Open package location after is complete</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <widget class="QLabel" name="KeystoreLocationLabel_2">
-             <property name="text">
-              <string>Certificate alias:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="certificatesAliasComboBox">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Sign package</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="KeystoreLocationLabel">
+          <property name="text">
+           <string>Keystore:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="KeystoreLocationLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="KeystoreCreatePushButton">
+          <property name="text">
+           <string>Create</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="KeystoreLocationPushButton">
+          <property name="text">
+           <string>Browse</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="signPackageCheckBox">
+        <property name="text">
+         <string>Sign package</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="openPackageLocationCheckBox">
+        <property name="text">
+         <string>Open package location after is complete</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="KeystoreLocationLabel_2">
+        <property name="text">
+         <string>Certificate alias:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="certificatesAliasComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

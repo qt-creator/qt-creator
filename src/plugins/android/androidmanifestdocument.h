@@ -1,6 +1,6 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (c) 2013 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,45 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDCONSTANTS_H
-#define ANDROIDCONSTANTS_H
+#ifndef ANDROIDMANIFESTDOCUMENT_H
+#define ANDROIDMANIFESTDOCUMENT_H
 
-#include <QtGlobal>
+#include <coreplugin/textdocument.h>
+#include <texteditor/basetextdocument.h>
 
 namespace Android {
 namespace Internal {
+class AndroidManifestEditorWidget;
 
-enum AndroidQemuStatus {
-    AndroidQemuStarting,
-    AndroidQemuFailedToStart,
-    AndroidQemuFinished,
-    AndroidQemuCrashed,
-    AndroidQemuUserReason
+class AndroidManifestDocument : public TextEditor::BaseTextDocument
+{
+public:
+    explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget);
+    bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
+
+    QString defaultPath() const;
+    QString suggestedFileName() const;
+
+    bool isModified() const;
+    bool isSaveAsAllowed() const;
+private:
+    AndroidManifestEditorWidget *m_editorWidget;
 };
 
-#ifdef Q_OS_WIN32
-#define ANDROID_BAT_SUFFIX ".bat"
-#else
-#define ANDROID_BAT_SUFFIX ""
-#endif
-
 } // namespace Internal
-
-namespace Constants {
-const char ANDROID_SETTINGS_ID[] = "ZZ.Android Configurations";
-const char ANDROID_SETTINGS_CATEGORY[] = "XA.Android";
-const char ANDROID_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Android", "Android");
-const char ANDROID_SETTINGS_CATEGORY_ICON[] = ":/android/images/QtAndroid.png";
-const char ANDROID_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Android";
-const char ANDROID_TOOLCHAIN_TYPE[] = "androidgcc";
-const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
-
-const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
-const char ANDROID_DEVICE_ID[] = "Android Device";
-const char ANDROID_MANIFEST_MIME_TYPE[] = "application/vnd.google.android.android_manifest";
-const char ANDROID_MANIFEST_EDITOR_ID[] = "Android.AndroidManifestEditor.Id";
-const char ANDROID_MANIFEST_EDITOR_CONTEXT[] = "Android.AndroidManifestEditor.Id";
-} // namespace Constants;
 } // namespace Android
 
-#endif  // ANDROIDCONSTANTS_H
+#endif // ANDROIDMANIFESTDOCUMENT_H

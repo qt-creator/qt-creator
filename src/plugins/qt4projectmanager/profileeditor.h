@@ -66,8 +66,6 @@ public:
     ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory,
                   TextEditor::TextEditorActionHandler *ah);
 
-    bool save(const QString &fileName = QString());
-
     ProFileEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 

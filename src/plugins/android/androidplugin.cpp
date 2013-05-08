@@ -43,6 +43,10 @@
 #include "androidqtversionfactory.h"
 #include "androiddeployconfiguration.h"
 #include "androidgdbserverkitinformation.h"
+#include "androidmanifesteditorfactory.h"
+
+#include <coreplugin/mimedatabase.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -73,6 +77,20 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     ProjectExplorer::KitManager::instance()->registerKitInformation(new Internal::AndroidGdbServerKitInformation);
+
+    // AndroidManifest.xml editor
+    Core::MimeGlobPattern androidManifestGlobPattern(QLatin1String("AndroidManifest.xml"), Core::MimeGlobPattern::MaxWeight);
+    Core::MimeType androidManifestMimeType;
+    androidManifestMimeType.setType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
+    androidManifestMimeType.setComment(tr("Android Manifest file"));
+    androidManifestMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << androidManifestGlobPattern);
+    androidManifestMimeType.setSubClassesOf(QStringList() << QLatin1String("application/xml"));
+
+    if (!Core::ICore::mimeDatabase()->addMimeType(androidManifestMimeType)) {
+        *errorMessage = tr("Could not add mime-type for AndroidManifest.xml editor.");
+        return false;
+    }
+    addAutoReleasedObject(new Internal::AndroidManifestEditorFactory);
 
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsRestored()));

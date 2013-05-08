@@ -57,13 +57,6 @@ namespace Internal {
 
 using namespace Qt4ProjectManager;
 
-const QLatin1String packageNameRegExp("^([a-z_]{1}[a-z0-9_]+(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$");
-
-bool checkPackageName(const QString &packageName)
-{
-    return QRegExp(packageNameRegExp).exactMatch(packageName);
-}
-
 ///////////////////////////// CheckModel /////////////////////////////
 
 CheckModel::CheckModel(QObject *parent)
@@ -140,87 +133,6 @@ Qt::ItemFlags CheckModel::flags(const QModelIndex &/*index*/) const
     return Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled;
 }
 
-
-///////////////////////////// PermissionsModel /////////////////////////////
-
-PermissionsModel::PermissionsModel(QObject *parent)
-    : QAbstractListModel(parent)
-{
-}
-
-void PermissionsModel::setPermissions(const QStringList &permissions)
-{
-    beginResetModel();
-    m_permissions = permissions;
-    qSort(m_permissions);
-    endResetModel();
-}
-
-const QStringList &PermissionsModel::permissions()
-{
-    return m_permissions;
-}
-
-QModelIndex PermissionsModel::addPermission(const QString &permission)
-{
-    const int idx = qLowerBound(m_permissions, permission) - m_permissions.constBegin();
-    beginInsertRows(QModelIndex(), idx, idx);
-    m_permissions.insert(idx, permission);
-    endInsertRows();
-    return index(idx);
-}
-
-bool PermissionsModel::updatePermission(QModelIndex index, const QString &permission)
-{
-    if (!index.isValid())
-        return false;
-    if (m_permissions[index.row()] == permission)
-        return false;
-
-    int newIndex = qLowerBound(m_permissions.constBegin(), m_permissions.constEnd(), permission) - m_permissions.constBegin();
-    if (newIndex == index.row() || newIndex == index.row() + 1) {
-        m_permissions[index.row()] = permission;
-        emit dataChanged(index, index);
-        return true;
-    }
-
-    beginMoveRows(QModelIndex(), index.row(), index.row(), QModelIndex(), newIndex);
-
-    if (newIndex > index.row()) {
-        m_permissions.insert(newIndex, permission);
-        m_permissions.removeAt(index.row());
-    } else {
-        m_permissions.removeAt(index.row());
-        m_permissions.insert(newIndex, permission);
-    }
-    endMoveRows();
-
-    return true;
-}
-
-void PermissionsModel::removePermission(int index)
-{
-    if (index >= m_permissions.size())
-        return;
-    beginRemoveRows(QModelIndex(), index, index);
-    m_permissions.removeAt(index);
-    endRemoveRows();
-}
-
-QVariant PermissionsModel::data(const QModelIndex &index, int role) const
-{
-    if (role != Qt::DisplayRole || !index.isValid())
-        return QVariant();
-    return m_permissions[index.row()];
-}
-
-int PermissionsModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-    return m_permissions.count();
-}
-
-
 ///////////////////////////// AndroidPackageCreationWidget /////////////////////////////
 
 AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreationStep *step)
@@ -231,7 +143,6 @@ AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreatio
 {
     m_qtLibsModel = new CheckModel(this);
     m_prebundledLibs = new CheckModel(this);
-    m_permissionsModel = new PermissionsModel(this);
 
     m_ui->setupUi(this);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -252,19 +163,7 @@ void AndroidPackageCreationWidget::initGui()
     connect(m_fileSystemWatcher, SIGNAL(fileChanged(QString)), this,
             SLOT(updateAndroidProjectInfo()));
 
-    m_ui->packageNameLineEdit->setValidator(new QRegExpValidator(QRegExp(packageNameRegExp), this));
-    connect(m_ui->packageNameLineEdit, SIGNAL(editingFinished()), SLOT(setPackageName()));
-    connect(m_ui->appNameLineEdit, SIGNAL(editingFinished()), SLOT(setApplicationName()));
-    connect(m_ui->versionCode, SIGNAL(editingFinished()), SLOT(setVersionCode()));
-    connect(m_ui->versionNameLinedit, SIGNAL(editingFinished()), SLOT(setVersionName()));
     connect(m_ui->targetSDKComboBox, SIGNAL(activated(QString)), SLOT(setTargetSDK(QString)));
-    connect(m_ui->permissionsListView, SIGNAL(activated(QModelIndex)), SLOT(permissionActivated(QModelIndex)));
-    connect(m_ui->addPermissionButton, SIGNAL(clicked()), SLOT(addPermission()));
-    connect(m_ui->removePermissionButton, SIGNAL(clicked()), SLOT(removePermission()));
-    connect(m_ui->permissionsComboBox->lineEdit(), SIGNAL(editingFinished()), SLOT(updatePermission()));
-    connect(m_ui->savePermissionsButton, SIGNAL(clicked()), SLOT(savePermissionsButton()));
-    connect(m_ui->discardPermissionsButton, SIGNAL(clicked()), SLOT(discardPermissionsButton()));
-    connect(m_ui->targetComboBox, SIGNAL(activated(QString)), SLOT(setTarget(QString)));
     connect(m_qtLibsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(setQtLibs(QModelIndex,QModelIndex)));
     connect(m_prebundledLibs, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(setPrebundledLibs(QModelIndex,QModelIndex)));
     connect(m_ui->prebundledLibsListView, SIGNAL(activated(QModelIndex)), SLOT(prebundledLibSelected(QModelIndex)));
@@ -273,13 +172,8 @@ void AndroidPackageCreationWidget::initGui()
     connect(m_ui->downPushButton, SIGNAL(clicked()), SLOT(prebundledLibMoveDown()));
     connect(m_ui->readInfoPushButton, SIGNAL(clicked()), SLOT(readElfInfo()));
 
-    connect(m_ui->hIconButton, SIGNAL(clicked()), SLOT(setHDPIIcon()));
-    connect(m_ui->mIconButton, SIGNAL(clicked()), SLOT(setMDPIIcon()));
-    connect(m_ui->lIconButton, SIGNAL(clicked()), SLOT(setLDPIIcon()));
-
     m_ui->qtLibsListView->setModel(m_qtLibsModel);
     m_ui->prebundledLibsListView->setModel(m_prebundledLibs);
-    m_ui->permissionsListView->setModel(m_permissionsModel);
     m_ui->KeystoreLocationLineEdit->setText(m_step->keystorePath().toUserOutput());
 
     // Make the buildconfiguration emit a evironmentChanged() signal
@@ -295,7 +189,6 @@ void AndroidPackageCreationWidget::initGui()
 void AndroidPackageCreationWidget::updateAndroidProjectInfo()
 {
     ProjectExplorer::Target *target = m_step->target();
-    const QString packageName = AndroidManager::packageName(target);
     m_ui->targetSDKComboBox->clear();
 
     int minApiLevel = 4;
@@ -306,59 +199,11 @@ void AndroidPackageCreationWidget::updateAndroidProjectInfo()
     QStringList targets = AndroidConfigurations::instance().sdkTargets(minApiLevel);
     m_ui->targetSDKComboBox->addItems(targets);
     m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::targetSDK(target)));
-    m_ui->packageNameLineEdit->setText(packageName);
-    m_ui->appNameLineEdit->setText(AndroidManager::applicationName(target));
-    if (!m_ui->appNameLineEdit->text().length()) {
-        QString applicationName = target->project()->displayName();
-        AndroidManager::setPackageName(target, packageName + QLatin1Char('.') + applicationName);
-        m_ui->packageNameLineEdit->setText(packageName);
-        if (!applicationName.isEmpty())
-            applicationName[0] = applicationName[0].toUpper();
-        m_ui->appNameLineEdit->setText(applicationName);
-        AndroidManager::setApplicationName(target, applicationName);
-    }
-    m_ui->versionCode->setValue(AndroidManager::versionCode(target));
-    m_ui->versionNameLinedit->setText(AndroidManager::versionName(target));
 
     m_qtLibsModel->setAvailableItems(AndroidManager::availableQtLibs(target));
     m_qtLibsModel->setCheckedItems(AndroidManager::qtLibs(target));
     m_prebundledLibs->setAvailableItems(AndroidManager::availablePrebundledLibs(target));
     m_prebundledLibs->setCheckedItems(AndroidManager::prebundledLibs(target));
-
-    m_permissionsModel->setPermissions(AndroidManager::permissions(target));
-    m_ui->removePermissionButton->setEnabled(m_permissionsModel->permissions().size());
-
-    targets = AndroidManager::availableTargetApplications(target);
-    m_ui->targetComboBox->clear();
-    m_ui->targetComboBox->addItems(targets);
-    m_ui->targetComboBox->setCurrentIndex(targets.indexOf(AndroidManager::targetApplication(target)));
-    if (m_ui->targetComboBox->currentIndex() == -1 && targets.count()) {
-        m_ui->targetComboBox->setCurrentIndex(0);
-        AndroidManager::setTargetApplication(target, m_ui->targetComboBox->currentText());
-    }
-    m_ui->hIconButton->setIcon(AndroidManager::highDpiIcon(target));
-    m_ui->mIconButton->setIcon(AndroidManager::mediumDpiIcon(target));
-    m_ui->lIconButton->setIcon(AndroidManager::lowDpiIcon(target));
-}
-
-void AndroidPackageCreationWidget::setPackageName()
-{
-    const QString packageName= m_ui->packageNameLineEdit->text();
-    if (!checkPackageName(packageName)) {
-        QMessageBox::critical(this, tr("Invalid Package Name") ,
-                              tr("The package name '%1' is not valid.\n"
-                                 "Please choose a valid package name for your application (e.g. \"org.example.myapplication\").")
-                              .arg(packageName));
-        m_ui->packageNameLineEdit->selectAll();
-        m_ui->packageNameLineEdit->setFocus();
-        return;
-    }
-    AndroidManager::setPackageName(m_step->target(), packageName);
-}
-
-void AndroidPackageCreationWidget::setApplicationName()
-{
-    AndroidManager::setApplicationName(m_step->target(), m_ui->appNameLineEdit->text());
 }
 
 void AndroidPackageCreationWidget::setTargetSDK(const QString &sdk)
@@ -383,21 +228,6 @@ void AndroidPackageCreationWidget::setTargetSDK(const QString &sdk)
     bool use = bc->useSystemEnvironment();
     bc->setUseSystemEnvironment(!use);
     bc->setUseSystemEnvironment(use);
-}
-
-void AndroidPackageCreationWidget::setVersionCode()
-{
-    AndroidManager::setVersionCode(m_step->target(), m_ui->versionCode->value());
-}
-
-void AndroidPackageCreationWidget::setVersionName()
-{
-    AndroidManager::setVersionName(m_step->target(), m_ui->versionNameLinedit->text());
-}
-
-void AndroidPackageCreationWidget::setTarget(const QString &target)
-{
-    AndroidManager::setTargetApplication(m_step->target(), target);
 }
 
 void AndroidPackageCreationWidget::setQtLibs(QModelIndex, QModelIndex)
@@ -442,78 +272,6 @@ void AndroidPackageCreationWidget::prebundledLibMoveDown()
         m_prebundledLibs->moveUp(index.row() + 1);
 }
 
-void AndroidPackageCreationWidget::setHDPIIcon()
-{
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose High DPI Icon"), QDir::homePath(), tr("PNG images (*.png)"));
-    if (!file.length())
-        return;
-    AndroidManager::setHighDpiIcon(m_step->target(), file);
-    m_ui->hIconButton->setIcon(AndroidManager::highDpiIcon(m_step->target()));
-}
-
-void AndroidPackageCreationWidget::setMDPIIcon()
-{
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose Medium DPI Icon"), QDir::homePath(), tr("PNG images (*.png)"));
-    if (!file.length())
-        return;
-    AndroidManager::setMediumDpiIcon(m_step->target(), file);
-    m_ui->mIconButton->setIcon(AndroidManager::mediumDpiIcon(m_step->target()));
-}
-
-void AndroidPackageCreationWidget::setLDPIIcon()
-{
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose Low DPI Icon"), QDir::homePath(), tr("PNG images (*.png)"));
-    if (!file.length())
-        return;
-    AndroidManager::setLowDpiIcon(m_step->target(), file);
-    m_ui->lIconButton->setIcon(AndroidManager::lowDpiIcon(m_step->target()));
-}
-
-void AndroidPackageCreationWidget::permissionActivated(QModelIndex index)
-{
-    m_ui->permissionsComboBox->setCurrentIndex(
-                m_ui->permissionsComboBox->findText(m_permissionsModel->data(index, Qt::DisplayRole).toString()));
-    m_ui->permissionsComboBox->lineEdit()->setText(m_permissionsModel->data(index, Qt::DisplayRole).toString());
-}
-
-void AndroidPackageCreationWidget::addPermission()
-{
-    setEnabledSaveDiscardButtons(true);
-    m_ui->permissionsListView->setCurrentIndex(m_permissionsModel->addPermission(tr("< Type or choose a permission >")));
-    m_ui->permissionsComboBox->lineEdit()->setText(tr("< Type or choose a permission >"));
-    m_ui->permissionsComboBox->setFocus();
-    m_ui->removePermissionButton->setEnabled(m_permissionsModel->permissions().size());
-}
-
-void AndroidPackageCreationWidget::updatePermission()
-{
-    if (m_permissionsModel->updatePermission(m_ui->permissionsListView->currentIndex(),
-                                             m_ui->permissionsComboBox->lineEdit()->text()))
-        setEnabledSaveDiscardButtons(true);
-}
-
-void AndroidPackageCreationWidget::removePermission()
-{
-    setEnabledSaveDiscardButtons(true);
-    if (m_ui->permissionsListView->currentIndex().isValid())
-        m_permissionsModel->removePermission(m_ui->permissionsListView->currentIndex().row());
-    m_ui->removePermissionButton->setEnabled(m_permissionsModel->permissions().size());
-}
-
-void AndroidPackageCreationWidget::savePermissionsButton()
-{
-    setEnabledSaveDiscardButtons(false);
-    AndroidManager::setPermissions(m_step->target(), m_permissionsModel->permissions());
-}
-
-void AndroidPackageCreationWidget::discardPermissionsButton()
-{
-    setEnabledSaveDiscardButtons(false);
-    m_permissionsModel->setPermissions(AndroidManager::permissions(m_step->target()));
-    m_ui->permissionsComboBox->setCurrentIndex(-1);
-    m_ui->removePermissionButton->setEnabled(m_permissionsModel->permissions().size());
-}
-
 void AndroidPackageCreationWidget::updateRequiredLibrariesModels()
 {
     m_qtLibsModel->setCheckedItems(AndroidManager::qtLibs(m_step->target()));
@@ -523,14 +281,6 @@ void AndroidPackageCreationWidget::updateRequiredLibrariesModels()
 void AndroidPackageCreationWidget::readElfInfo()
 {
     m_step->checkRequiredLibraries();
-}
-
-void AndroidPackageCreationWidget::setEnabledSaveDiscardButtons(bool enabled)
-{
-    if (!enabled)
-        m_ui->permissionsListView->setFocus();
-    m_ui->savePermissionsButton->setEnabled(enabled);
-    m_ui->discardPermissionsButton->setEnabled(enabled);
 }
 
 QString AndroidPackageCreationWidget::summaryText() const

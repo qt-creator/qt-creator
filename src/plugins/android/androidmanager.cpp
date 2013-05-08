@@ -182,41 +182,6 @@ bool AndroidManager::setApplicationName(ProjectExplorer::Target *target, const Q
     return saveXmlFile(target, doc, path);
 }
 
-QStringList AndroidManager::permissions(ProjectExplorer::Target *target)
-{
-    QStringList per;
-    QDomDocument doc;
-    if (!openManifest(target, doc))
-        return per;
-    QDomElement permissionElem = doc.documentElement().firstChildElement(QLatin1String("uses-permission"));
-    while (!permissionElem.isNull()) {
-        per << permissionElem.attribute(QLatin1String("android:name"));
-        permissionElem = permissionElem.nextSiblingElement(QLatin1String("uses-permission"));
-    }
-    return per;
-}
-
-bool AndroidManager::setPermissions(ProjectExplorer::Target *target, const QStringList &permissions)
-{
-    QDomDocument doc;
-    if (!openManifest(target, doc))
-        return false;
-    QDomElement docElement = doc.documentElement();
-    QDomElement permissionElem = docElement.firstChildElement(QLatin1String("uses-permission"));
-    while (!permissionElem.isNull()) {
-        docElement.removeChild(permissionElem);
-        permissionElem = docElement.firstChildElement(QLatin1String("uses-permission"));
-    }
-
-    foreach (const QString &permission, permissions ) {
-        permissionElem = doc.createElement(QLatin1String("uses-permission"));
-        permissionElem.setAttribute(QLatin1String("android:name"), permission);
-        docElement.appendChild(permissionElem);
-    }
-
-    return saveManifest(target, doc);
-}
-
 QString AndroidManager::intentName(ProjectExplorer::Target *target)
 {
     return packageName(target) + QLatin1Char('/') + activityName(target);
@@ -229,54 +194,6 @@ QString AndroidManager::activityName(ProjectExplorer::Target *target)
         return QString();
     QDomElement activityElem = doc.documentElement().firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity"));
     return activityElem.attribute(QLatin1String("android:name"));
-}
-
-int AndroidManager::versionCode(ProjectExplorer::Target *target)
-{
-    QDomDocument doc;
-    if (!openManifest(target, doc))
-        return 0;
-    QDomElement manifestElem = doc.documentElement();
-    return manifestElem.attribute(QLatin1String("android:versionCode")).toInt();
-}
-
-bool AndroidManager::setVersionCode(ProjectExplorer::Target *target, int version)
-{
-    QDomDocument doc;
-    if (!openManifest(target, doc))
-        return false;
-    QDomElement manifestElem = doc.documentElement();
-    manifestElem.setAttribute(QLatin1String("android:versionCode"), version);
-    return saveManifest(target, doc);
-}
-
-QString AndroidManager::versionName(ProjectExplorer::Target *target)
-{
-    QDomDocument doc;
-    if (!openManifest(target, doc))
-        return QString();
-    QDomElement manifestElem = doc.documentElement();
-    return manifestElem.attribute(QLatin1String("android:versionName"));
-}
-
-bool AndroidManager::setVersionName(ProjectExplorer::Target *target, const QString &version)
-{
-    QDomDocument doc;
-    if (!openManifest(target, doc))
-        return false;
-    QDomElement manifestElem = doc.documentElement();
-    manifestElem.setAttribute(QLatin1String("android:versionName"), version);
-    return saveManifest(target, doc);
-}
-
-bool AndroidManager::ensureIconAttribute(ProjectExplorer::Target *target)
-{
-    QDomDocument doc;
-    if (!openManifest(target, doc))
-        return false;
-    QDomElement applicationElem = doc.documentElement().firstChildElement(QLatin1String("application"));
-    applicationElem.setAttribute(QLatin1String("android:icon"), QLatin1String("@drawable/icon"));
-    return saveManifest(target, doc);
 }
 
 QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
@@ -320,39 +237,6 @@ QString AndroidManager::targetArch(ProjectExplorer::Target *target)
     if (!node)
         return QString();
     return node->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
-}
-
-QIcon AndroidManager::highDpiIcon(ProjectExplorer::Target *target)
-{
-    return icon(target, HighDPI);
-}
-
-bool AndroidManager::setHighDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
-{
-    return ensureIconAttribute(target) &&
-            setIcon(target, HighDPI, iconFilePath);
-}
-
-QIcon AndroidManager::mediumDpiIcon(ProjectExplorer::Target *target)
-{
-    return icon(target, MediumDPI);
-}
-
-bool AndroidManager::setMediumDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
-{
-    return ensureIconAttribute(target) &&
-            setIcon(target, MediumDPI, iconFilePath);
-}
-
-QIcon AndroidManager::lowDpiIcon(ProjectExplorer::Target *target)
-{
-    return icon(target, LowDPI);
-}
-
-bool AndroidManager::setLowDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
-{
-    return ensureIconAttribute(target) &&
-            setIcon(target, LowDPI, iconFilePath);
 }
 
 Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
@@ -1029,20 +913,6 @@ bool AndroidManager::saveManifest(ProjectExplorer::Target *target, QDomDocument 
     return saveXmlFile(target, doc, manifestPath(target));
 }
 
-QString AndroidManager::iconPath(ProjectExplorer::Target *target, AndroidManager::IconType type)
-{
-    switch (type) {
-    case HighDPI:
-        return dirPath(target).appendPath(QLatin1String("res/drawable-hdpi/icon.png")).toString();
-    case MediumDPI:
-        return dirPath(target).appendPath(QLatin1String("res/drawable-mdpi/icon.png")).toString();
-    case LowDPI:
-        return dirPath(target).appendPath(QLatin1String("res/drawable-ldpi/icon.png")).toString();
-    default:
-        return QString();
-    }
-}
-
 QStringList AndroidManager::libsXml(ProjectExplorer::Target *target, const QString &tag)
 {
     QStringList libs;
@@ -1088,23 +958,6 @@ bool AndroidManager::setLibsXml(ProjectExplorer::Target *target, const QStringLi
     return false;
 }
 
-
-QIcon AndroidManager::icon(ProjectExplorer::Target *target, IconType type)
-{
-    return QIcon(iconPath(target, type));
-}
-
-bool AndroidManager::setIcon(ProjectExplorer::Target *target, IconType type, const QString &iconFileName)
-{
-    if (!QFileInfo(iconFileName).exists())
-        return false;
-
-    const QString path = iconPath(target, type);
-    QFile::remove(path);
-    QDir dir;
-    dir.mkpath(QFileInfo(path).absolutePath());
-    return QFile::copy(iconFileName, path);
-}
 
 QStringList AndroidManager::dependencies(const Utils::FileName &readelfPath, const QString &lib)
 {

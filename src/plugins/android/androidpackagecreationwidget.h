@@ -65,25 +65,6 @@ private:
     QStringList m_checkedItems;
 };
 
-class PermissionsModel: public QAbstractListModel
-{
-    Q_OBJECT
-public:
-    PermissionsModel(QObject *parent = 0 );
-    void setPermissions(const QStringList &permissions);
-    const QStringList &permissions();
-    QModelIndex addPermission(const QString &permission);
-    bool updatePermission(QModelIndex index, const QString &permission);
-    void removePermission(int index);
-    QVariant data(const QModelIndex &index, int role) const;
-
-protected:
-    int rowCount(const QModelIndex &parent) const;
-
-private:
-    QStringList m_permissions;
-};
-
 class AndroidPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
@@ -104,12 +85,7 @@ private slots:
     void initGui();
     void updateAndroidProjectInfo();
 
-    void setPackageName();
-    void setApplicationName();
     void setTargetSDK(const QString &sdk);
-    void setVersionCode();
-    void setVersionName();
-    void setTarget(const QString &target);
 
     void setQtLibs(QModelIndex, QModelIndex);
     void setPrebundledLibs(QModelIndex, QModelIndex);
@@ -117,16 +93,6 @@ private slots:
     void prebundledLibMoveUp();
     void prebundledLibMoveDown();
 
-    void setHDPIIcon();
-    void setMDPIIcon();
-    void setLDPIIcon();
-
-    void permissionActivated(QModelIndex index);
-    void addPermission();
-    void updatePermission();
-    void removePermission();
-    void savePermissionsButton();
-    void discardPermissionsButton();
     void updateRequiredLibrariesModels();
     void on_signPackageCheckBox_toggled(bool checked);
     void on_KeystoreCreatePushButton_clicked();
@@ -141,7 +107,6 @@ private:
     Ui::AndroidPackageCreationWidget *const m_ui;
     CheckModel *m_qtLibsModel;
     CheckModel *m_prebundledLibs;
-    PermissionsModel *m_permissionsModel;
     QFileSystemWatcher *m_fileSystemWatcher;
 };
 

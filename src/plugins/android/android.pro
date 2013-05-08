@@ -36,7 +36,11 @@ HEADERS += \
     androiddevice.h \
     androidgdbserverkitinformation.h \
     androidanalyzesupport.h \
-    androidrunsupport.h
+    androidrunsupport.h \
+    androidmanifesteditorfactory.h \
+    androidmanifesteditor.h \
+    androidmanifesteditorwidget.h \
+    androidmanifestdocument.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -67,7 +71,11 @@ SOURCES += \
     androiddevice.cpp \
     androidgdbserverkitinformation.cpp \
     androidanalyzesupport.cpp \
-    androidrunsupport.cpp
+    androidrunsupport.cpp \
+    androidmanifesteditorfactory.cpp \
+    androidmanifesteditor.cpp \
+    androidmanifesteditorwidget.cpp \
+    androidmanifestdocument.cpp
 
 FORMS += \
     androidsettingswidget.ui \
