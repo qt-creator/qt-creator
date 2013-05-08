@@ -356,6 +356,7 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &option
     m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
     m_cdbIs64Bit(false),
+    m_wow64State(wow64Uninitialized),
     m_elapsedLogTime(0),
     m_sourceStepInto(false),
     m_watchPointX(0),
@@ -387,6 +388,7 @@ void CdbEngine::init()
     m_watchPointX = m_watchPointY = 0;
     m_ignoreCdbOutput = false;
     m_watchInameToName.clear();
+    m_wow64State = wow64Uninitialized;
 
     m_outputBuffer.clear();
     m_builtinCommandQueue.clear();
@@ -642,6 +644,8 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
 #else
             false;
 #endif
+    if (!m_cdbIs64Bit)
+        m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(m_cdbIs64Bit));
     if (!extensionFi.isFile()) {
         *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.").
@@ -2220,6 +2224,10 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
                 case ParseStackStepOut: // Hit on a frame with no source while step into.
                     executeStepOut();
                     return;
+                case ParseStackWow64:
+                    postBuiltinCommand("!wow64exts.info", 0, &CdbEngine::handleCheckWow64,
+                                       0, qVariantFromValue(stack));
+                    return;
                 }
             } else {
                 showMessage(QString::fromLatin1(stopReason["stackerror"].data()), LogError);
@@ -2245,6 +2253,52 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     // pop up a message box for exceptions.
     if (stopFlags & StopShowExceptionMessageBox)
         showStoppedByExceptionMessageBox(exceptionBoxMessage);
+}
+
+void CdbEngine::handleCheckWow64(const CdbBuiltinCommandPtr &cmd)
+{
+    // Using the stack command from the wow64exts cdb extension to
+    // check if there is a 32bit subsystem in this debuggee.
+    if (cmd->reply.first().startsWith("Could not get the address of the 32bit PEB")) {
+        m_wow64State = noWow64Stack;
+        if (cmd->cookie.canConvert<GdbMi>())
+            parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
+        return;
+    }
+    postBuiltinCommand("k", 0, &CdbEngine::ensureUsing32BitStackInWow64, 0, cmd->cookie);
+}
+
+void CdbEngine::ensureUsing32BitStackInWow64(const CdbEngine::CdbBuiltinCommandPtr &cmd)
+{
+    // Parsing the header of the stack output to check which bitness
+    // the cdb is currently using.
+    foreach (const QByteArray &line, cmd->reply) {
+        if (!line.startsWith("Child"))
+            continue;
+        if (line.startsWith("ChildEBP")) {
+            m_wow64State = wow64Stack32Bit;
+            return;
+        } else if (line.startsWith("Child-SP")) {
+            m_wow64State = wow64Stack64Bit;
+            postBuiltinCommand("!wow64exts.sw", 0, &CdbEngine::handleSwitchWow64Stack);
+            return;
+        }
+    }
+    m_wow64State = noWow64Stack;
+    if (cmd->cookie.canConvert<GdbMi>())
+        parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
+}
+
+void CdbEngine::handleSwitchWow64Stack(const CdbEngine::CdbBuiltinCommandPtr &cmd)
+{
+    if (cmd->reply.first() == "Switched to 32bit mode")
+        m_wow64State = wow64Stack32Bit;
+    else if (cmd->reply.first() == "Switched to 64bit mode")
+        m_wow64State = wow64Stack64Bit;
+    else
+        m_wow64State = noWow64Stack;
+    // reload threads and the stack after switching the mode
+    postCommandSequence(CommandListThreads | CommandListStack);
 }
 
 void CdbEngine::handleSessionAccessible(unsigned long cdbExState)
@@ -2866,17 +2920,21 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
     StackFrames frames = parseFrames(data, &incomplete);
     const int count = frames.size();
     for (int i = 0; i < count; i++) {
+        if (m_wow64State == wow64Uninitialized) {
+            showMessage(QString::fromLatin1("Checking for wow64 subsystem..."), LogMisc);
+            return ParseStackWow64;
+        }
         const bool hasFile = !frames.at(i).file.isEmpty();
         // jmp-frame hit by step into, do another 't' and abort sequence.
         if (!hasFile && i == 0 && sourceStepInto) {
-                if (frames.at(i).function.contains(QLatin1String("ILT+"))) {
-                    showMessage(QString::fromLatin1("Step into: Call instruction hit, "
-                                                    "performing additional step..."), LogMisc);
-                    return ParseStackStepInto;
-                }
-                showMessage(QString::fromLatin1("Step into: Hit frame with no source, "
-                                                "step out..."), LogMisc);
-                return ParseStackStepOut;
+            if (frames.at(i).function.contains(QLatin1String("ILT+"))) {
+                showMessage(QString::fromLatin1("Step into: Call instruction hit, "
+                                                "performing additional step..."), LogMisc);
+                return ParseStackStepInto;
+            }
+            showMessage(QString::fromLatin1("Step into: Hit frame with no source, "
+                                            "step out..."), LogMisc);
+            return ParseStackStepOut;
         }
         if (hasFile) {
             const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file);
@@ -2910,7 +2968,10 @@ void CdbEngine::handleStackTrace(const CdbExtensionCommandPtr &command)
     if (command->success) {
         GdbMi data;
         data.fromString(command->reply);
-        parseStackTrace(data, false);
+        if (parseStackTrace(data, false) == ParseStackWow64) {
+            postBuiltinCommand("!wow64exts.info", 0, &CdbEngine::handleCheckWow64,
+                               0, qVariantFromValue(data));
+        }
         postCommandSequence(command->commandSequence);
     } else {
         showMessage(QString::fromLocal8Bit(command->errorMessage), LogError);
@@ -3145,3 +3206,5 @@ void CdbEngine::handleCustomSpecialStop(const QVariant &v)
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::GdbMi)

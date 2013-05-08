@@ -177,7 +177,8 @@ private:
     enum ParseStackResultFlags // Flags returned by parseStackTrace
     {
         ParseStackStepInto = 1, // Need to execute a step, hit on a call frame in "Step into"
-        ParseStackStepOut = 2 // Need to step out, hit on a frame without debug information
+        ParseStackStepOut = 2, // Need to step out, hit on a frame without debug information
+        ParseStackWow64 = 3 // Hit on a frame with 32bit emulation, switch debugger to 32 bit mode
     };
 
 
@@ -219,6 +220,9 @@ private:
     void handleExpression(const CdbExtensionCommandPtr &);
     void handleResolveSymbol(const CdbBuiltinCommandPtr &command);
     void handleResolveSymbol(const QList<quint64> &addresses, const QVariant &cookie);
+    void handleCheckWow64(const CdbBuiltinCommandPtr &cmd);
+    void ensureUsing32BitStackInWow64(const CdbBuiltinCommandPtr &cmd);
+    void handleSwitchWow64Stack(const CdbBuiltinCommandPtr &cmd);
     void jumpToAddress(quint64 address);
 
     // Extension commands
@@ -263,6 +267,12 @@ private:
     bool m_notifyEngineShutdownOnTermination;
     bool m_hasDebuggee;
     bool m_cdbIs64Bit;
+    enum Wow64State {
+        wow64Uninitialized,
+        noWow64Stack,
+        wow64Stack32Bit,
+        wow64Stack64Bit
+    } m_wow64State;
     QTime m_logTime;
     mutable int m_elapsedLogTime;
     QByteArray m_extensionMessageBuffer;
