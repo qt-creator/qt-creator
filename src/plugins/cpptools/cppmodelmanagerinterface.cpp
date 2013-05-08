@@ -52,6 +52,16 @@
 using namespace CppTools;
 using namespace ProjectExplorer;
 
+ProjectPart::ProjectPart()
+    : cVersion(C89)
+    , cxxVersion(CXX11)
+    , cxxExtensions(NoExtensions)
+    , qtVersion(UnknownQt)
+    , cWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
+    , cxxWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
+{
+}
+
 /**
  * @brief Retrieves info from concrete compiler using it's flags.
  * @param tc Either nullptr or toolchain for project's active target.
@@ -89,6 +99,9 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
         cxxExtensions |= MicrosoftExtensions;
     if (cxx | ToolChain::OpenMP)
         cxxExtensions |= OpenMP;
+
+    cWarningFlags = tc->warningFlags(cflags);
+    cxxWarningFlags = tc->warningFlags(cxxflags);
 
     QList<HeaderPath> headers = tc->systemHeaderPaths(cxxflags, sysRoot);
     foreach (const HeaderPath &header, headers)

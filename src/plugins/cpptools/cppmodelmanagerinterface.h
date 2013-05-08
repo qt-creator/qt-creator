@@ -34,6 +34,7 @@
 #include "cppprojectfile.h"
 
 #include <cplusplus/CppDocument.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QObject>
 #include <QHash>
@@ -43,10 +44,7 @@
 
 namespace Core { class IEditor; }
 namespace CPlusPlus { class LookupContext; }
-namespace ProjectExplorer {
-class Project;
-class ToolChain;
-}
+namespace ProjectExplorer { class Project; }
 namespace TextEditor { class BaseTextEditor; }
 namespace Utils { class FileName; }
 
@@ -62,12 +60,7 @@ class CppIndexingSupport;
 class CPPTOOLS_EXPORT ProjectPart
 {
 public:
-    ProjectPart()
-        : cVersion(C89)
-        , cxxVersion(CXX11)
-        , cxxExtensions(NoExtensions)
-        , qtVersion(UnknownQt)
-    {}
+    ProjectPart();
 
     void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
                            const QStringList &cxxflags,
@@ -114,6 +107,8 @@ public: //attributes
     CXXVersion cxxVersion;
     CXXExtensions cxxExtensions;
     QtVersion qtVersion;
+    ProjectExplorer::ToolChain::WarningFlags cWarningFlags;
+    ProjectExplorer::ToolChain::WarningFlags cxxWarningFlags;
 };
 
 class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
