@@ -805,6 +805,16 @@ def encodeString(value, limit = 0):
         s += "2e002e002e00"
     return s
 
+def encodeByteArray(value, limit = None):
+    data, size, alloc = qByteArrayData(value)
+    if alloc != 0:
+        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    limit = computeLimit(size, limit)
+    s = readRawMemory(data, limit)
+    if limit < size:
+        s += "2e2e2e"
+    return s
+
 def stripTypedefs(type):
     type = type.unqualified()
     while type.code == TypedefCode:

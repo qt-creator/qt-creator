@@ -61,6 +61,8 @@ DisplayUtf8String \
     = range(7)
 
 def lookupType(name):
+    if name == "char":
+        return charType
     if name == "char *":
         return charPtrType
     #warn("LOOKUP: %s" % lldb.target.GetModuleAtIndex(0).FindFirstType(name))
@@ -147,6 +149,30 @@ def showException(msg, exType, exValue, exTraceback):
 
 def registerCommand(name, func):
     pass
+
+def qByteArrayData(value):
+    private = value['d']
+    checkRef(private['ref'])
+    try:
+        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+        offset = private['offset']
+        data = int(private) + int(offset)
+        return data, int(private['size']), int(private['alloc'])
+    except:
+        # Qt 4:
+        return private['data'], int(private['size']), int(private['alloc'])
+
+def qStringData(value):
+    private = value['d']
+    checkRef(private['ref'])
+    try:
+        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+        offset = private['offset']
+        data = int(private) + int(offset)
+        return data, int(private['size'].GetValue()), int(private['alloc'])
+    except:
+        # Qt 4.
+        return private['data'], int(private['size']), int(private['alloc'])
 
 class Type:
     def __init__(self, var):
@@ -687,20 +713,8 @@ class Debugger:
             return min(size, 100)
         return min(size, limit)
 
-    def qStringData(self, value):
-        private = value['d']
-        checkRef(private['ref'])
-        try:
-            # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-            offset = private['offset']
-            data = int(private.GetValue(), 0) + int(offset.GetValue())
-            return data, int(private['size'].GetValue()), int(private['alloc'].GetValue())
-        except:
-            # Qt 4.
-            return private['data'], int(private['size']), int(private['alloc'])
-
     def encodeString(self, value, limit = 0):
-        data, size, alloc = self.qStringData(value)
+        data, size, alloc = qStringData(value)
         if alloc != 0:
             check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
         limit = self.computeLimit(size, limit)
@@ -709,12 +723,26 @@ class Debugger:
             s += "2e002e002e00"
         return s
 
+    def encodeByteArray(self, value, limit = None):
+        data, size, alloc = qByteArrayData(value)
+        if alloc != 0:
+            check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+        limit = self.computeLimit(size, limit)
+        s = self.readRawMemory(data, limit)
+        if limit < size:
+            s += "2e2e2e"
+        return s
+
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:
             self.currentValue = value
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
+
+    def putByteArrayValue(self, value):
+        str = self.encodeByteArray(value)
+        self.putValue(str, Hex2EncodedLatin1)
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
@@ -776,8 +804,9 @@ class Debugger:
 
     def reportData(self, _ = None):
         # Hack.
-        global charPtrType
-        charPtrType = self.target.GetModuleAtIndex(0).FindFirstType('char').GetPointerType()
+        global charPtrType, charType
+        charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
+        charPtrType = charType.GetPointerType()
 
         self.reportRegisters()
         if self.process is None:
