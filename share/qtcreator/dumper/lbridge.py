@@ -101,8 +101,7 @@ def stripForFormat(typeName):
 
 
 def registerDumper(function):
-    global qqDumpers, qqFormats, qqEditable
-    try:
+    if hasattr(function, 'func_name'):
         funcname = function.func_name
         if funcname.startswith("qdump__"):
             type = funcname[7:]
@@ -122,8 +121,6 @@ def registerDumper(function):
                 qqEditable[type] = function
             except:
                 pass
-    except:
-        pass
 
 def warn(message):
     print 'XXX={"%s"}@\n' % message.encode("latin1").replace('"', "'")
@@ -547,16 +544,12 @@ class Debugger:
 
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
-        #if priority >= self.currentValuePriority:
-        #    self.currentValue = value
-        #    self.currentValuePriority = priority
-        #    self.currentValueEncoding = encoding
-        if not encoding is None:
-            self.put('valueencoded="%d",' % encoding)
-        self.put('value="%s",' % value)
+        if priority >= self.currentValuePriority:
+            self.currentValue = value
+            self.currentValuePriority = priority
+            self.currentValueEncoding = encoding
 
     def putItem(self, value, tryDynamic=True):
-        global qqDumpers
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
         if typeName in qqDumpers:
@@ -590,6 +583,7 @@ class Debugger:
         self.put('data=[')
         for value in frame.GetVariables(True, True, False, False):
             with SubItem(self, value.GetName()):
+                self.put('iname="%s",' % self.currentIName)
                 self.putItem(value)
         self.put(']')
         self.report('')
