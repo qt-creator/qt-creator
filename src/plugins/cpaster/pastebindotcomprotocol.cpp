@@ -97,6 +97,19 @@ static inline QByteArray format(Protocol::ContentType ct)
     return format;
 }
 
+// According to documentation, Pastebin.com accepts only fixed expiry specifications:
+// N = Never, 10M = 10 Minutes, 1H = 1 Hour, 1D = 1 Day, 1W = 1 Week, 2W = 2 Weeks, 1M = 1 Month,
+// however, 1W and 2W do not work.
+
+static inline QByteArray expirySpecification(int expiryDays)
+{
+    if (expiryDays <= 1)
+        return QByteArray("1D");
+    if (expiryDays <= 31)
+        return QByteArray("1M");
+    return QByteArray("N");
+}
+
 void PasteBinDotComProtocol::paste(const QString &text,
                                    ContentType ct, int expiryDays,
                                    const QString &username,
@@ -111,8 +124,8 @@ void PasteBinDotComProtocol::paste(const QString &text,
     QByteArray pasteData = API_KEY;
     pasteData += "api_option=paste&";
     pasteData += "api_paste_expire_date=";
-    pasteData += QByteArray::number(expiryDays);
-    pasteData += "D&";
+    pasteData += expirySpecification(expiryDays);
+    pasteData += '&';
     pasteData += format(ct);
     pasteData += "api_paste_name=";
     pasteData += QUrl::toPercentEncoding(username);
