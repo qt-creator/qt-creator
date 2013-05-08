@@ -60,6 +60,17 @@ DisplayLatin1String, \
 DisplayUtf8String \
     = range(7)
 
+def lookupType(name):
+    if name == "char *":
+        return charPtrType
+    #warn("LOOKUP: %s" % lldb.target.GetModuleAtIndex(0).FindFirstType(name))
+    return lldb.target.GetModuleAtIndex(0).FindFirstType(name)
+
+def isSimpleType(typeobj):
+    typeClass = typeobj.GetTypeClass()
+    #warn("TYPECLASS: %s" % typeClass)
+    return typeClass == lldb.eTypeClassBuiltin
+
 #######################################################################
 #
 # Helpers
@@ -77,6 +88,9 @@ qqEditable = {}
 
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
+
+def templateArgument(type, index):
+    return type.GetTemplateArgumentType(index)
 
 def stripForFormat(typeName):
     global qqStripForFormat
@@ -123,16 +137,13 @@ def registerDumper(function):
                 pass
 
 def warn(message):
-    print 'XXX={"%s"}@\n' % message.encode("latin1").replace('"', "'")
+    print 'XXX="%s",' % message.encode("latin1").replace('"', "'")
 
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
-    try:
-        import traceback
-        for line in traceback.format_exception(exType, exValue, exTraceback):
-            warn("%s" % line)
-    except:
-        pass
+    import traceback
+    lines = [line for line in traceback.format_exception(exType, exValue, exTraceback)]
+    warn('\n'.join(lines))
 
 def registerCommand(name, func):
     pass
@@ -249,42 +260,137 @@ def check(exp):
         raise RuntimeError("Check failed")
 
 def checkSimpleRef(ref):
-    count = ref["_q_value"]
+    count = int(ref["_q_value"])
     check(count > 0)
     check(count < 1000000)
 
 def checkRef(ref):
-    return True
     try:
-        count = ref["atomic"]["_q_value"] # Qt 5.
+        count = int(ref["atomic"]["_q_value"]) # Qt 5.
         minimum = -1
     except:
-        count = ref["_q_value"] # Qt 4.
+        count = int(ref["_q_value"]) # Qt 4.
         minimum = 0
     # Assume there aren't a million references to any object.
     check(count >= minimum)
     check(count < 1000000)
 
+def impl_SBValue__add__(self, offset):
+    if self.GetType().IsPointerType():
+        return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True).AddressOf()
+    return NotImplemented
 
-def valueChildAccess(self, name):
-    return self.GetChildMemberWithName(name)
+lldb.SBValue.__add__ = impl_SBValue__add__
 
-lldb.SBValue.__getitem__ = valueChildAccess
+lldb.SBValue.__getitem__ = lambda self, name: self.GetChildMemberWithName(name)
+lldb.SBValue.__int__ = lambda self: int(self.GetValue(), 0)
+lldb.SBValue.__long__ = lambda self: long(self.GetValue(), 0)
+
+lldb.SBValue.cast = lambda self, typeObj: self.Cast(typeObj)
+lldb.SBValue.dereference = lambda self: self.Dereference()
+
+lldb.SBType.pointer = lambda self: self.GetPointerType()
+lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
+
+def simpleEncoding(typeobj):
+    code = typeobj.GetTypeClass()
+    size = typeobj.sizeof
+    #if code == BoolCode or code == CharCode:
+    #    return Hex2EncodedInt1
+    #if code == IntCode:
+    if code == lldb.eTypeClassBuiltin:
+        if str(typeobj).find("unsigned") >= 0:
+            if size == 1:
+                return Hex2EncodedUInt1
+            if size == 2:
+                return Hex2EncodedUInt2
+            if size == 4:
+                return Hex2EncodedUInt4
+            if size == 8:
+                return Hex2EncodedUInt8
+        else:
+            if size == 1:
+                return Hex2EncodedInt1
+            if size == 2:
+                return Hex2EncodedInt2
+            if size == 4:
+                return Hex2EncodedInt4
+            if size == 8:
+                return Hex2EncodedInt8
+    #if code == FloatCode:
+    #    if size == 4:
+    #        return Hex2EncodedFloat4
+    #    if size == 8:
+    #        return Hex2EncodedFloat8
+    return None
 
 class Children:
     def __init__(self, d, numChild = 1, childType = None, childNumChild = None,
             maxNumChild = None, addrBase = None, addrStep = None):
         self.d = d
+        self.numChild = numChild
+        self.childNumChild = childNumChild
+        self.maxNumChild = maxNumChild
+        self.addrBase = addrBase
+        self.addrStep = addrStep
+        self.printsAddress = True
+        if childType is None:
+            self.childType = None
+        else:
+            #self.childType = stripClassTag(str(childType))
+            self.childType = childType
+            self.d.put('childtype="%s",' % self.childType)
+            if childNumChild is None:
+                pass
+                #if isSimpleType(childType):
+                #    self.d.put('childnumchild="0",')
+                #    self.childNumChild = 0
+                #elif childType.code == PointerCode:
+                #    self.d.put('childnumchild="1",')
+                #    self.childNumChild = 1
+            else:
+                self.d.put('childnumchild="%s",' % childNumChild)
+                self.childNumChild = childNumChild
+        try:
+            if not addrBase is None and not addrStep is None:
+                self.d.put('addrbase="0x%x",' % long(addrBase))
+                self.d.put('addrstep="0x%x",' % long(addrStep))
+                self.printsAddress = False
+        except:
+            warn("ADDRBASE: %s" % addrBase)
+        #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
 
     def __enter__(self):
-        self.d.put('children=[')
+        self.savedChildType = self.d.currentChildType
+        self.savedChildNumChild = self.d.currentChildNumChild
+        self.savedNumChild = self.d.currentNumChild
+        self.savedMaxNumChild = self.d.currentMaxNumChild
+        self.savedPrintsAddress = self.d.currentPrintsAddress
+        self.d.currentChildType = self.childType
+        self.d.currentChildNumChild = self.childNumChild
+        self.d.currentNumChild = self.numChild
+        self.d.currentMaxNumChild = self.maxNumChild
+        self.d.currentPrintsAddress = self.printsAddress
+        self.d.put("children=[")
 
     def __exit__(self, exType, exValue, exTraceBack):
         if not exType is None:
             if self.d.passExceptions:
                 showException("CHILDREN", exType, exValue, exTraceBack)
-        self.d.put(']')
+            self.d.putNumChild(0)
+            self.d.putValue("<not accessible>")
+        if not self.d.currentMaxNumChild is None:
+            if self.d.currentMaxNumChild < self.d.currentNumChild:
+                self.d.put('{name="<incomplete>",value="",type="",numchild="0"},')
+        self.d.currentChildType = self.savedChildType
+        self.d.currentChildNumChild = self.savedChildNumChild
+        self.d.currentNumChild = self.savedNumChild
+        self.d.currentMaxNumChild = self.savedMaxNumChild
+        self.d.currentPrintsAddress = self.savedPrintsAddress
+        self.d.put('],')
         return True
+
+
 
 class SubItem:
     def __init__(self, d, component):
@@ -362,6 +468,11 @@ class Debugger:
         self.currentType = ""
         self.currentTypePriority = -100
         self.currentValue = -100
+        self.currentNumChild = None
+        self.currentMaxNumChild = None
+        self.currentPrintsAddress = None
+        self.currentChildType = None
+        self.currentChildNumChild = None
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -395,6 +506,59 @@ class Debugger:
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
         #self.put('value="%s",' % value)
+
+    # Convenience function.
+    def putItemCount(self, count, maximum = 1000000000):
+        # This needs to override the default value, so don't use 'put' directly.
+        if count > maximum:
+            self.putValue('<>%s items>' % maximum)
+        else:
+            self.putValue('<%s items>' % count)
+
+    def isExpanded(self):
+        #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
+        #    self.expandedINames, self.currentIName in self.expandedINames))
+        return self.currentIName in self.expandedINames
+
+    def tryPutArrayContents(self, typeobj, base, n):
+        if not isSimpleType(typeobj):
+            return False
+        size = n * typeobj.sizeof
+        self.put('childtype="%s",' % typeobj)
+        self.put('addrbase="0x%x",' % long(base))
+        self.put('addrstep="0x%x",' % long(typeobj.sizeof))
+        self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
+        self.put('arraydata="')
+        self.put(self.readRawMemory(long(base), size))
+        self.put('",')
+        return True
+
+    def putPlotData(self, type, base, n, plotFormat):
+        if self.isExpanded():
+            self.putArrayData(type, base, n)
+
+    def putArrayData(self, type, base, n,
+            childNumChild = None, maxNumChild = 10000):
+        if not self.tryPutArrayContents(type, base, n):
+            base = base.cast(type.pointer())
+            with Children(self, n, type, childNumChild, maxNumChild,
+                    base, type.GetByteSize()):
+                for i in self.childRange():
+                    self.putSubItem(i, (base + i).dereference())
+
+    def childRange(self):
+        if self.currentMaxNumChild is None:
+            return xrange(0, self.currentNumChild)
+        return xrange(min(self.currentMaxNumChild, self.currentNumChild))
+
+    def lookupType(self, name):
+        #warn("LOOKUP: %s" % self.target.GetModuleAtIndex(0).FindFirstType(name))
+        return self.target.GetModuleAtIndex(0).FindFirstType(name)
+
+    def charPointerType(self):
+        charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
+        #return lldb.SBType().GetBasicType(lldb.eBasicTypeChar).GetPointerType()
+        return charType.GetPointerType()
 
     def setupInferior(self, args):
         fileName = args['executable']
@@ -483,7 +647,10 @@ class Debugger:
         else:
             thread = self.currentThread()
             result = 'stack={current-thread="%s",frames=[' % thread.GetThreadID()
-            for i in xrange(thread.GetNumFrames()):
+            n = thread.GetNumFrames()
+            if n > 4:
+                n = 4
+            for i in xrange(n):
                 frame = thread.GetFrameAtIndex(i)
                 lineEntry = frame.GetLineEntry()
                 result += '{pc="0x%x"' % frame.GetPC()
@@ -549,12 +716,31 @@ class Debugger:
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
 
+    def stripNamespaceFromType(self, typeName):
+        #type = stripClassTag(typeName)
+        type = typeName
+        #if len(self.ns) > 0 and type.startswith(self.ns):
+        #    type = type[len(self.ns):]
+        pos = type.find("<")
+        # FIXME: make it recognize  foo<A>::bar<B>::iterator?
+        while pos != -1:
+            pos1 = type.rfind(">", pos)
+            type = type[0:pos] + type[pos1+1:]
+            pos = type.find("<")
+        return type
+
+    def putSubItem(self, component, value, tryDynamic=True):
+        with SubItem(self, component):
+            self.putItem(value, tryDynamic)
+
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
-        if typeName in qqDumpers:
+        stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
+
+        if stripped in qqDumpers:
             self.putType(typeName)
-            qqDumpers[typeName](self, value)
+            qqDumpers[stripped](self, value)
         else:
             v = value.GetValue()
             #numchild = 1 if value.MightHaveChildren() else 0
@@ -589,6 +775,10 @@ class Debugger:
         self.report('')
 
     def reportData(self, _ = None):
+        # Hack.
+        global charPtrType
+        charPtrType = self.target.GetModuleAtIndex(0).FindFirstType('char').GetPointerType()
+
         self.reportRegisters()
         if self.process is None:
             self.report('process="none"')

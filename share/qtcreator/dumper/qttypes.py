@@ -1799,8 +1799,8 @@ def qform__QVector():
 def qdump__QVector(d, value):
     private = value["d"]
     checkRef(private["ref"])
-    alloc = private["alloc"]
-    size = private["size"]
+    alloc = int(private["alloc"])
+    size = int(private["size"])
     innerType = templateArgument(value.type, 0)
     charPointerType = lookupType("char *")
     try:
