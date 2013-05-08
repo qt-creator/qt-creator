@@ -56,7 +56,8 @@
 
         \li \gui {Library} pane (2) displays the building blocks that you can use to
             design applications: predefined QML elements, your own QML
-            components, Qt Quick components that you import to the project, and
+            components, Qt Quick components or Qt Quick Controls that you import
+            to the project, and
             other resources.
 
         \li \gui Canvas (3) is the working area where you create QML components and
@@ -154,18 +155,23 @@
     components, basic elements, positioner elements, and views.
 
     Sets of UI components with the look and feel of a particular mobile device
-    platform have been defined for Qt Quick. They are based on standard QML
-    elements. To view the UI components in the \gui {Library} pane, add import
+    platform have been defined for Qt Quick 1. Since Qt 5.1, a set of Qt Quick
+    Controls is available for creating classic desktop-style user interfaces
+    using Qt Quick 2.1. The Qt Quick Components and Controls are based on
+    standard QML elements. To view the components and controls in the
+    \gui {Library} pane, add import
     statements to the .pro file of your project. For example:
 
     \list
 
         \li \c {import com.nokia.meego 1.0} for MeeGo
+        \li \c {import QtQuick.Controls 1.0} for Qt Quick Controls
 
     \endlist
 
-    The Qt Quick Application wizard adds the import statements automatically
-    when you select the component set to use for your project.
+    The \gui {Qt Quick Application} wizards for a particular platform, such as
+    MeeGo Harmattan, and the \gui {Qt Quick 2 UI with Controls} wizard add the
+    import statements automatically.
 
     \image qmldesigner-qml-components.png "QML Components pane"
 

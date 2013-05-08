@@ -40,9 +40,12 @@
     in the \gui Library pane.
     \endif
 
-    You can also use ready-made Qt Quick Components that allow you to create
-    screens with a native look and feel for a particular target platform. You
-    can install the components as part of the Qt 4 SDK.
+    You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
+    screens with a native look and feel for a particular target platform.
+    Since Qt 5.1, a set of Qt Quick Controls is available for creating classic
+    desktop-style user interfaces using Qt Quick 2.1. You
+    can install Qt Quick 1 Components as part of the Qt 4 SDK and the Qt Quick
+    Controls as part of Qt 5.1, or later.
 
     \if defined(qcmanual)
     \section1 Adding Components to Screens
