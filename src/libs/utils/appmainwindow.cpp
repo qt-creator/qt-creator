@@ -36,7 +36,7 @@
 #include <QEvent>
 #include <QCoreApplication>
 
-#ifdef Q_WS_X11
+#ifdef QTC_USE_QX11INFO
 #include <X11/Xlib.h>
 #include <QX11Info>
 #endif
@@ -63,7 +63,7 @@ void AppMainWindow::raiseWindow()
 
     raise();
 
-#if defined(Q_WS_X11)
+#if defined(QTC_USE_QX11INFO)
     // Do the same as QWidget::activateWindow(), but with two differences
     // * set newest timestamp (instead of userTime()). See QTBUG-24932
     // * set source to 'pager'. This seems to do the trick e.g. on kwin even if
@@ -79,7 +79,7 @@ void AppMainWindow::raiseWindow()
     e.xclient.data.l[2] = None;
     e.xclient.data.l[3] = 0;
     e.xclient.data.l[4] = 0;
-    XSendEvent(QX11Info::display(), QX11Info::appRootWindow(x11Info().screen()),
+    XSendEvent(QX11Info::display(), QX11Info::appRootWindow(),
                false, SubstructureNotifyMask | SubstructureRedirectMask, &e);
 #else
     activateWindow();
