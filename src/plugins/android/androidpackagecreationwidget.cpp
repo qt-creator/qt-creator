@@ -152,6 +152,7 @@ void PermissionsModel::setPermissions(const QStringList &permissions)
 {
     beginResetModel();
     m_permissions = permissions;
+    qSort(m_permissions);
     endResetModel();
 }
 
@@ -162,9 +163,9 @@ const QStringList &PermissionsModel::permissions()
 
 QModelIndex PermissionsModel::addPermission(const QString &permission)
 {
-    const int idx = m_permissions.count();
+    const int idx = qLowerBound(m_permissions, permission) - m_permissions.constBegin();
     beginInsertRows(QModelIndex(), idx, idx);
-    m_permissions.push_back(permission);
+    m_permissions.insert(idx, permission);
     endInsertRows();
     return index(idx);
 }
@@ -175,8 +176,25 @@ bool PermissionsModel::updatePermission(QModelIndex index, const QString &permis
         return false;
     if (m_permissions[index.row()] == permission)
         return false;
-    m_permissions[index.row()] = permission;
-    emit dataChanged(index, index);
+
+    int newIndex = qLowerBound(m_permissions.constBegin(), m_permissions.constEnd(), permission) - m_permissions.constBegin();
+    if (newIndex == index.row() || newIndex == index.row() + 1) {
+        m_permissions[index.row()] = permission;
+        emit dataChanged(index, index);
+        return true;
+    }
+
+    beginMoveRows(QModelIndex(), index.row(), index.row(), QModelIndex(), newIndex);
+
+    if (newIndex > index.row()) {
+        m_permissions.insert(newIndex, permission);
+        m_permissions.removeAt(index.row());
+    } else {
+        m_permissions.removeAt(index.row());
+        m_permissions.insert(newIndex, permission);
+    }
+    endMoveRows();
+
     return true;
 }
 
