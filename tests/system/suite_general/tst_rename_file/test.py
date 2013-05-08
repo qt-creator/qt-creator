@@ -32,10 +32,6 @@ def main():
             tempFiletype = filetype
             if filetype == "QML" and filenames[i - 1][-4:] != ".qml":
                 tempFiletype = "Other files"
-                # workaround QTCREATORBUG-9191
-                if filenames[i - 1][-4:].lower() == ".qml" and platform.system() in ('Windows',
-                                                                                     'Microsoft'):
-                    tempFiletype = "QML"
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        filenames[i - 1], filenames[i])
     invokeMenuItem("File", "Exit")
