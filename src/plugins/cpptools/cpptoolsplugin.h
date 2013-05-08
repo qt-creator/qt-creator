@@ -126,6 +126,7 @@ private slots:
     void test_completion_QTCREATORBUG9098();
     void test_completion_type_and_using_declaration();
     void test_completion_type_and_using_declaration_data();
+    void test_completion_instantiate_template_with_anonymous_class();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();

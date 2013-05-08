@@ -2015,3 +2015,35 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             << code << completions;
 
 }
+
+void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
+{
+    TestData data;
+    data.srcText =
+            "template <typename T>\n"
+            "struct S\n"
+            "{\n"
+            "    union { int i; char c; };\n"
+            "};\n"
+            "void fun()\n"
+            "{\n"
+            "   S<int> s;\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("s.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 1);
+    QVERIFY(completions.contains(QLatin1String("S")));
+}

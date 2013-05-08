@@ -109,6 +109,7 @@ public:
 
 protected:
     virtual void visit(const Identifier *name);
+    virtual void visit(const AnonymousNameId *name);
     virtual void visit(const TemplateNameId *name);
     virtual void visit(const DestructorNameId *name);
     virtual void visit(const OperatorNameId *name);
