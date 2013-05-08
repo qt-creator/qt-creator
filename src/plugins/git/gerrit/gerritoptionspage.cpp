@@ -50,6 +50,11 @@ GerritOptionsPage::GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
     setDisplayName(tr("Gerrit"));
 }
 
+GerritOptionsPage::~GerritOptionsPage()
+{
+    delete m_widget;
+}
+
 QWidget *GerritOptionsPage::createPage(QWidget *parent)
 {
     GerritOptionsWidget *gow = new GerritOptionsWidget(parent);

@@ -139,7 +139,7 @@ void BranchDialog::add()
         ++i;
     }
 
-    BranchAddDialog branchAddDialog;
+    BranchAddDialog branchAddDialog(true, this);
     branchAddDialog.setBranchName(suggestedName);
     branchAddDialog.setTrackedBranchName(trackedBranch, !isLocal);
 
@@ -249,22 +249,22 @@ void BranchDialog::rename()
     QString oldBranchName = m_model->branchName(selected);
     QStringList localNames = m_model->localBranchNames();
 
-    QPointer<BranchAddDialog> branchAddDialog = new BranchAddDialog(this, false);
-    branchAddDialog->setBranchName(oldBranchName);
-    branchAddDialog->setTrackedBranchName(QString(), false);
+    BranchAddDialog branchAddDialog(false, this);
+    branchAddDialog.setBranchName(oldBranchName);
+    branchAddDialog.setTrackedBranchName(QString(), false);
 
-    branchAddDialog->exec();
+    branchAddDialog.exec();
 
-    if (!branchAddDialog.isNull() && branchAddDialog->result() == QDialog::Accepted && m_model) {
-        if (branchAddDialog->branchName() == oldBranchName)
+    if (branchAddDialog.result() == QDialog::Accepted && m_model) {
+        if (branchAddDialog.branchName() == oldBranchName)
             return;
-        if (localNames.contains(branchAddDialog->branchName())) {
+        if (localNames.contains(branchAddDialog.branchName())) {
             QMessageBox::critical(this, tr("Branch Exists"),
                                   tr("Local branch \'%1\' already exists.")
-                                  .arg(branchAddDialog->branchName()));
+                                  .arg(branchAddDialog.branchName()));
             return;
         }
-        m_model->renameBranch(oldBranchName, branchAddDialog->branchName());
+        m_model->renameBranch(oldBranchName, branchAddDialog.branchName());
         refresh();
     }
     enableButtons();

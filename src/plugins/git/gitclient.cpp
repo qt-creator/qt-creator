@@ -2178,7 +2178,8 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
     }
     if (!hasChanges)
         msgBoxText.prepend(tr("No changes found. "));
-    QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText);
+    QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText,
+                       QMessageBox::NoButton, Core::ICore::mainWindow());
     if (hasChanges || isRebase)
         msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
     msgBox.addButton(QMessageBox::Abort);
@@ -2746,7 +2747,8 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
 {
     QString message = commit.isEmpty() ? tr("Conflicts detected")
                                        : tr("Conflicts detected with commit %1").arg(commit);
-    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message);
+    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
+                             QMessageBox::NoButton, Core::ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
                                                           QMessageBox::AcceptRole);
     mergeOrAbort.addButton(QMessageBox::Ignore);
@@ -3201,44 +3203,40 @@ void GitClient::StashGuard::stashPrompt(const QString &keyword, QString *errorMe
         return;
     }
 
-    QPointer<QMessageBox> msgBox = new QMessageBox(QMessageBox::Question,
-                                   tr("Uncommitted Changes Found"),
-                                   tr("What would you like to do with local changes in:")
-                                        + QLatin1String("\n\n\"") + workingDir + QLatin1Char('\"'),
-                                   QMessageBox::NoButton, Core::ICore::mainWindow());
+    QMessageBox msgBox(QMessageBox::Question, tr("Uncommitted Changes Found"),
+                       tr("What would you like to do with local changes in:")
+                       + QLatin1String("\n\n\"") + workingDir + QLatin1Char('\"'),
+                       QMessageBox::NoButton, Core::ICore::mainWindow());
 
-    msgBox->setDetailedText(statusOutput);
+    msgBox.setDetailedText(statusOutput);
 
-    QPushButton *stashButton = msgBox->addButton(tr("Stash"), QMessageBox::AcceptRole);
+    QPushButton *stashButton = msgBox.addButton(tr("Stash"), QMessageBox::AcceptRole);
     stashButton->setToolTip(tr("Stash local changes and continue."));
 
-    QPushButton *discardButton = msgBox->addButton(tr("Discard"), QMessageBox::AcceptRole);
+    QPushButton *discardButton = msgBox.addButton(tr("Discard"), QMessageBox::AcceptRole);
     discardButton->setToolTip(tr("Discard (reset) local changes and continue."));
 
     QPushButton *ignoreButton = 0;
     if (flags & AllowUnstashed) {
-        ignoreButton = msgBox->addButton(QMessageBox::Ignore);
+        ignoreButton = msgBox.addButton(QMessageBox::Ignore);
         ignoreButton->setToolTip(tr("Continue with local changes in working directory."));
     }
 
-    QPushButton *cancelButton = msgBox->addButton(QMessageBox::Cancel);
+    QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
     cancelButton->setToolTip(tr("Cancel current command."));
 
-    msgBox->exec();
+    msgBox.exec();
 
-    if (msgBox.isNull())
-        return;
-
-    if (msgBox->clickedButton() == discardButton) {
+    if (msgBox.clickedButton() == discardButton) {
         if (!client->synchronousReset(workingDir, QStringList(), errorMessage))
             stashResult = StashFailed;
         else
             stashResult = StashUnchanged;
-    } else if (msgBox->clickedButton() == ignoreButton) { // At your own risk, so.
+    } else if (msgBox.clickedButton() == ignoreButton) { // At your own risk, so.
         stashResult = NotStashed;
-    } else if (msgBox->clickedButton() == cancelButton) {
+    } else if (msgBox.clickedButton() == cancelButton) {
         stashResult = StashCanceled;
-    } else if (msgBox->clickedButton() == stashButton) {
+    } else if (msgBox.clickedButton() == stashButton) {
         executeStash(keyword, errorMessage);
     }
 }

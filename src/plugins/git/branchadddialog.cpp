@@ -95,7 +95,7 @@ private:
 };
 
 
-BranchAddDialog::BranchAddDialog(QWidget *parent, bool addBranch) :
+BranchAddDialog::BranchAddDialog(bool addBranch, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::BranchAddDialog)
 {

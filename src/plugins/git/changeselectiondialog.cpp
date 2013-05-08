@@ -130,16 +130,16 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     int tilde = commit.indexOf(QLatin1Char('~'));
     if (tilde != -1)
         commit.truncate(tilde);
-    QPointer<LogChangeDialog> dialog = new LogChangeDialog(false);
-    dialog->setWindowTitle(tr("Select Commit"));
+    LogChangeDialog dialog(false, this);
+    dialog.setWindowTitle(tr("Select Commit"));
 
-    dialog->runDialog(workingDir, commit);
+    dialog.runDialog(workingDir, commit);
 
-    if (dialog->result() == QDialog::Rejected || dialog->commitIndex() == -1)
+    if (dialog.result() == QDialog::Rejected || dialog.commitIndex() == -1)
         return;
 
-    if (dialog->commitIndex() > 0)
-        commit += QLatin1Char('~') + QString::number(dialog->commitIndex());
+    if (dialog.commitIndex() > 0)
+        commit += QLatin1Char('~') + QString::number(dialog.commitIndex());
 
     m_changeNumberEdit->setText(commit);
 }

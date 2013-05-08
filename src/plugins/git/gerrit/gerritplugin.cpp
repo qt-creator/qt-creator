@@ -366,34 +366,26 @@ void GerritPlugin::push()
     const QString topLevel = Git::Internal::GitPlugin::instance()->currentState().topLevel();
 
     // QScopedPointer is required to delete the dialog when leaving the function
-    QScopedPointer<GerritPushDialog> dialog(
-                new GerritPushDialog(topLevel, m_reviewers, Core::ICore::mainWindow()));
+    GerritPushDialog dialog(topLevel, m_reviewers, Core::ICore::mainWindow());
 
-    if (!dialog->localChangesFound()) {
+    if (!dialog.localChangesFound()) {
         QMessageBox::warning(Core::ICore::mainWindow(), tr("No Local Changes"),
                               tr("Change from HEAD appears to be in remote branch already. Aborting."));
         return;
     }
 
-    if (!dialog->valid()) {
+    if (!dialog.valid()) {
         QMessageBox::warning(Core::ICore::mainWindow(), tr("Initialization Failed"),
                               tr("Failed to initialize dialog. Aborting."));
         return;
     }
 
-    // QPointer is required to detect dialog deletion while in exec()
-    QPointer<GerritPushDialog> dlg = dialog.data();
-    if (dialog->exec() == QDialog::Rejected)
+    if (dialog.exec() == QDialog::Rejected)
         return;
-
-    if (dlg.isNull()) {
-        dialog.take();
-        return;
-    }
 
     QStringList args;
 
-    m_reviewers = dialog->reviewers();
+    m_reviewers = dialog.reviewers();
     const QStringList reviewers = m_reviewers.split(QLatin1Char(','),
                                                             QString::SkipEmptyParts);
     if (!reviewers.isEmpty()) {
@@ -406,13 +398,13 @@ void GerritPlugin::push()
         args << reviewersFlag;
     }
 
-    args << dialog->selectedRemoteName();
-    QString target = dialog->selectedCommit();
+    args << dialog.selectedRemoteName();
+    QString target = dialog.selectedCommit();
     if (target.isEmpty())
         target = QLatin1String("HEAD");
-    target += QLatin1String(":refs/") + dialog->selectedPushType() +
-            QLatin1Char('/') + dialog->selectedRemoteBranchName();
-    const QString topic = dialog->selectedTopic();
+    target += QLatin1String(":refs/") + dialog.selectedPushType() +
+            QLatin1Char('/') + dialog.selectedRemoteBranchName();
+    const QString topic = dialog.selectedTopic();
     if (!topic.isEmpty())
         target += QLatin1Char('/') + topic;
     args << target;
