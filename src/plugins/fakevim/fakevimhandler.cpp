@@ -1526,6 +1526,9 @@ public:
         bool end, int count) const; // end or start position of current code block
     int lineNumber(const QTextBlock &block) const;
 
+    QTextBlock nextLine(const QTextBlock &block) const; // following line (respects wrapped parts)
+    QTextBlock previousLine(const QTextBlock &block) const; // previous line (respects wrapped parts)
+
     int linesOnScreen() const;
     int columnsOnScreen() const;
     int linesInDocument() const;
@@ -2705,14 +2708,25 @@ void FakeVimHandler::Private::pushUndoState(bool overwrite)
 
 void FakeVimHandler::Private::moveDown(int n)
 {
+    if (n == 0)
+        return;
+
     QTextBlock block = m_cursor.block();
     const int col = position() - block.position();
-    const int targetLine = qMax(0, lineNumber(block) + n);
 
-    block = document()->findBlockByLineNumber(qMax(0, targetLine - 1));
-    if (!block.isValid())
-        block = document()->lastBlock();
-    setPosition(block.position() + qMax(0, qMin(block.length() - 2, col)));
+    int lines = qAbs(n);
+    int position = 0;
+    while (block.isValid()) {
+        position = block.position() + qMax(0, qMin(block.length() - 2, col));
+        if (block.isVisible()) {
+            --lines;
+            if (lines < 0)
+                break;
+        }
+        block = n > 0 ? nextLine(block) : previousLine(block);
+    }
+
+    setPosition(position);
     moveToTargetColumn();
 }
 
@@ -4068,9 +4082,9 @@ bool FakeVimHandler::Private::handleChangeDeleteSubModes(const Input &input)
         || (m_submode == DeleteSubMode && input.is('d'))) {
         m_movetype = MoveLineWise;
         pushUndoState();
-        const int line = cursorLine() + 1;
-        const int anc = firstPositionInLine(line);
-        const int pos = lastPositionInLine(line + count() - 1);
+        const int anc = firstPositionInLine(cursorLine() + 1);
+        moveDown(count() - 1);
+        const int pos = lastPositionInLine(cursorLine() + 1);
         setAnchorAndPosition(anc, pos);
         if (m_submode == ChangeSubMode)
             setDotCommand(_("%1cc"), count());
@@ -6982,6 +6996,16 @@ int FakeVimHandler::Private::lineNumber(const QTextBlock &block) const
     return block2.firstLineNumber() + 1;
 }
 
+QTextBlock FakeVimHandler::Private::nextLine(const QTextBlock &block) const
+{
+    return document()->findBlock(block.position() + block.length());
+}
+
+QTextBlock FakeVimHandler::Private::previousLine(const QTextBlock &block) const
+{
+    return document()->findBlock(block.position() - 1);
+}
+
 int FakeVimHandler::Private::firstPositionInLine(int line, bool onlyVisibleLines) const
 {
     QTextBlock block = onlyVisibleLines ? document()->findBlockByLineNumber(line - 1)
@@ -6993,8 +7017,11 @@ int FakeVimHandler::Private::lastPositionInLine(int line, bool onlyVisibleLines)
 {
     QTextBlock block;
     if (onlyVisibleLines) {
-        // respect folds
-        block = document()->findBlockByLineNumber(line);
+        block = document()->findBlockByLineNumber(line - 1);
+        // respect folds and wrapped lines
+        do {
+            block = nextLine(block);
+        } while (block.isValid() && !block.isVisible());
         if (block.isValid()) {
             if (line > 0)
                 block = block.previous();
