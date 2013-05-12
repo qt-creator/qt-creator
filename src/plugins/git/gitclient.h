@@ -94,18 +94,16 @@ public:
     enum CommandInProgress { NoCommand, Revert, CherryPick,
                              Rebase, Merge, RebaseMerge };
 
-    class StashGuard
+    class StashInfo
     {
     public:
+        StashInfo();
         enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                            Stashed, NotStashed /* User did not want it */ };
 
-        StashGuard(const QString &workingDirectory, const QString &keyword,
-                   StashFlag flag = Default);
-        ~StashGuard();
-
-        void preventPop();
+        bool init(const QString &workingDirectory, const QString &keyword, StashFlag flag = Default);
         bool stashingFailed() const;
+        void end();
         StashResult result() const { return m_stashResult; }
         QString stashMessage() const { return m_message; }
 
@@ -113,7 +111,6 @@ public:
         void stashPrompt(const QString &keyword, const QString &statusOutput, QString *errorMessage);
         void executeStash(const QString &keyword, QString *errorMessage);
 
-        bool m_pop;
         StashResult m_stashResult;
         QString m_message;
         QString m_workingDir;
@@ -241,8 +238,7 @@ public:
                            const QString &topicBranch = QString());
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
-    void interactiveRebase(const QString &workingDirectory, const QString &commit,
-                           StashGuard &stashGuard, bool fixup);
+    void interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup);
     void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
     QString synchronousTrackingBranch(const QString &workingDirectory,
                                       const QString &branch = QString());
@@ -302,6 +298,9 @@ public:
 
     QProcessEnvironment processEnvironment() const;
 
+    bool beginStashScope(const QString &workingDirectory, const QString &keyword, StashFlag flag = Default);
+    StashInfo &stashInfo(const QString &workingDirectory);
+    void endStashScope(const QString &workingDirectory);
     bool isValidRevision(const QString &revision) const;
     void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
 
@@ -386,6 +385,7 @@ private:
     QSignalMapper *m_repositoryChangedSignalMapper;
     GitSettings *m_settings;
     QString m_gitQtcEditor;
+    QMap<QString, StashInfo> m_stashInfo;
     bool m_disableEditor;
 };
 

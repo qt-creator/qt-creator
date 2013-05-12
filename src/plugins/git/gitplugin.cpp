@@ -769,14 +769,14 @@ void GitPlugin::startRebase()
     QString workingDirectory = currentState().currentDirectoryOrTopLevel();
     if (workingDirectory.isEmpty() || !m_gitClient->canRebase(workingDirectory))
         return;
-    QScopedPointer<GitClient::StashGuard> stashGuard(
-                new GitClient::StashGuard(workingDirectory, QLatin1String("Rebase-i")));
-    if (stashGuard->stashingFailed())
+    if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Rebase-i")))
         return;
     LogChangeDialog dialog(false);
     dialog.setWindowTitle(tr("Interactive Rebase"));
     if (dialog.runDialog(workingDirectory, QString(), false))
-        m_gitClient->interactiveRebase(workingDirectory, dialog.commit(), *stashGuard.take(), false);
+        m_gitClient->interactiveRebase(workingDirectory, dialog.commit(), false);
+    else
+        m_gitClient->endStashScope(workingDirectory);
 }
 
 void GitPlugin::startChangeRelatedAction()
@@ -822,12 +822,10 @@ void GitPlugin::startChangeRelatedAction()
         return;
     }
 
-    GitClient::StashGuard stashGuard(workingDirectory, command);
-    if (stashGuard.stashingFailed())
+    if (!m_gitClient->beginStashScope(workingDirectory, command))
         return;
 
-    if (!(m_gitClient->*commandFunction)(workingDirectory, change))
-        stashGuard.preventPop();
+    (m_gitClient->*commandFunction)(workingDirectory, change);
 }
 
 void GitPlugin::stageFile()
@@ -1035,12 +1033,9 @@ bool GitPlugin::submitEditorAboutToClose()
     if (closeEditor) {
         cleanCommitMessageFile();
         if (commitType == FixupCommit) {
-            QScopedPointer<GitClient::StashGuard> stashGuard(
-                        new GitClient::StashGuard(m_submitRepository, QLatin1String("Rebase-fixup"),
-                                                  NoPrompt));
-            if (stashGuard->stashingFailed())
+            if (!m_gitClient->beginStashScope(m_submitRepository, QLatin1String("Rebase-fixup"), NoPrompt))
                 return false;
-            m_gitClient->interactiveRebase(m_submitRepository, amendSHA1, *stashGuard.take(), true);
+            m_gitClient->interactiveRebase(m_submitRepository, amendSHA1, true);
         } else {
             m_gitClient->continueCommandIfNeeded(m_submitRepository);
         }
@@ -1069,12 +1064,9 @@ void GitPlugin::pull()
         }
     }
 
-    GitClient::StashGuard stashGuard(topLevel, QLatin1String("Pull"),
-                                     rebase ? Default : AllowUnstashed);
-    if (stashGuard.stashingFailed())
+    if (!m_gitClient->beginStashScope(topLevel, QLatin1String("Pull"), rebase ? Default : AllowUnstashed))
         return;
-    if (!m_gitClient->synchronousPull(topLevel, rebase))
-        stashGuard.preventPop();
+    m_gitClient->synchronousPull(topLevel, rebase);
 }
 
 void GitPlugin::push()
@@ -1222,8 +1214,7 @@ void GitPlugin::promptApplyPatch()
 void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 {
     // Ensure user has been notified about pending changes
-    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Apply-Patch"), AllowUnstashed);
-    if (stashGuard.stashingFailed())
+    if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Apply-Patch"), AllowUnstashed))
         return;
     // Prompt for file
     if (file.isEmpty()) {
@@ -1231,8 +1222,10 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
         file =  QFileDialog::getOpenFileName(Core::ICore::mainWindow(),
                                              tr("Choose Patch"),
                                              QString(), filter);
-        if (file.isEmpty())
+        if (file.isEmpty()) {
+            m_gitClient->endStashScope(workingDirectory);
             return;
+        }
     }
     // Run!
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
@@ -1245,6 +1238,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
     } else {
         outwin->appendError(errorMessage);
     }
+    m_gitClient->endStashScope(workingDirectory);
 }
 
 void GitPlugin::stash()
@@ -1253,11 +1247,10 @@ void GitPlugin::stash()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    GitClient::StashGuard stashGuard(state.topLevel(), QString(), NoPrompt);
-    if (stashGuard.stashingFailed())
+    QString topLevel = state.topLevel();
+    if (!m_gitClient->beginStashScope(topLevel, QString(), NoPrompt))
         return;
-    stashGuard.preventPop();
-    if (stashGuard.result() == GitClient::StashGuard::Stashed && m_stashDialog)
+    if (m_gitClient->stashInfo(topLevel).result() == GitClient::StashInfo::Stashed && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
 }
 
