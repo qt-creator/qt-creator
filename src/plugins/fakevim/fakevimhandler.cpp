@@ -6297,28 +6297,28 @@ int FakeVimHandler::Private::linesInDocument() const
 
 void FakeVimHandler::Private::scrollToLine(int line)
 {
-    QScrollBar *scrollBar = EDITOR(verticalScrollBar());
+    const QTextCursor tc = EDITOR(textCursor());
 
-    // Convert line number to scroll bar value.
-    const int maxValue = scrollBar->maximum();
-    const int scrollLines = qMax(1, linesInDocument() - linesOnScreen() + 1);
-    const int value = maxValue >= scrollLines ? line * maxValue / scrollLines : line;
+    QTextCursor tc2 = tc;
+    tc2.setPosition(document()->lastBlock().position());
+    EDITOR(setTextCursor(tc2));
+    EDITOR(ensureCursorVisible());
 
-    scrollBar->setValue(value);
+    tc2.setPosition(document()->findBlockByLineNumber(line).position());
+    EDITOR(setTextCursor(tc2));
+    EDITOR(ensureCursorVisible());
 
-    updateFirstVisibleLine();
+    EDITOR(setTextCursor(tc));
+    if (isVisualBlockMode())
+        emit q->requestSetBlockSelection(true);
+
+    m_firstVisibleLine = line;
 }
 
 void FakeVimHandler::Private::updateFirstVisibleLine()
 {
-    QScrollBar *scrollBar = EDITOR(verticalScrollBar());
-
-    // Convert scroll bar value to line number.
-    const int maxValue = qMax(1, scrollBar->maximum());
-    const int scrollLines = qMax(1, linesInDocument() - linesOnScreen() + 1);
-    const int value = scrollBar->value();
-
-    m_firstVisibleLine = maxValue >= scrollLines ? value * scrollLines / maxValue : value;
+    const QTextCursor tc = EDITOR(cursorForPosition(QPoint(0,0)));
+    m_firstVisibleLine = tc.block().firstLineNumber();
 }
 
 int FakeVimHandler::Private::firstVisibleLine() const
@@ -6328,8 +6328,8 @@ int FakeVimHandler::Private::firstVisibleLine() const
 
 int FakeVimHandler::Private::lastVisibleLine() const
 {
-    const int blockNumber = lineToBlockNumber(m_firstVisibleLine + linesOnScreen());
-    const QTextBlock block = document()->findBlockByNumber(blockNumber);
+    const QTextBlock block =
+            document()->findBlockByLineNumber(m_firstVisibleLine + linesOnScreen());
     return block.isValid() ? block.firstLineNumber() : document()->lastBlock().firstLineNumber();
 }
 
@@ -6825,6 +6825,8 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event)
     EDITOR(setOverwriteMode(false));
     emit q->requestSetBlockSelection(false);
     bool accepted = QApplication::sendEvent(editor(), &event);
+    if (isVisualBlockMode())
+        emit q->requestSetBlockSelection(true);
     updateCursorShape();
 
     installEventFilter();
