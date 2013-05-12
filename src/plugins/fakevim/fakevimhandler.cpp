@@ -6375,7 +6375,7 @@ void FakeVimHandler::Private::alignViewportToCursor(AlignmentFlag align, int lin
     else if (align == Qt::AlignVCenter)
         scrollUp(linesOnScreen() / 2 - cursorLineOnScreen());
     else if (align == Qt::AlignBottom)
-        scrollUp(linesOnScreen() - cursorLineOnScreen());
+        scrollUp(linesOnScreen() - cursorLineOnScreen() - 1);
 }
 
 int FakeVimHandler::Private::lineToBlockNumber(int line) const
