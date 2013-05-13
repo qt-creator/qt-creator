@@ -29,7 +29,9 @@
 #include "NameVisitor.h"
 #include "Scope.h"
 #include "Templates.h"
-#include <cassert>
+
+#include "cppassert.h"
+
 
 using namespace CPlusPlus;
 
@@ -233,7 +235,7 @@ Scope *Symbol::enclosingScope() const
 
 void Symbol::setScope(Scope *scope)
 {
-    assert(! _scope);
+    CPP_CHECK(! _scope);
     _scope = scope;
 }
 

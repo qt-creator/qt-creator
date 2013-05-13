@@ -27,10 +27,13 @@
 #include "CoreTypes.h"
 #include "Literals.h"
 #include "Scope.h"
+
+#include "cppassert.h"
+
 #include <vector>
 #include <string>
 #include <memory>
-#include <cassert>
+
 
 using namespace CPlusPlus;
 
@@ -285,7 +288,7 @@ void Bind::postVisit(AST *)
 bool Bind::visit(ObjCSelectorArgumentAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -303,7 +306,7 @@ const Name *Bind::objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasAr
 bool Bind::visit(AttributeAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -331,7 +334,7 @@ void Bind::attribute(AttributeAST *ast)
 bool Bind::visit(DeclaratorAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -380,14 +383,14 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
 bool Bind::visit(QtPropertyDeclarationItemAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
 bool Bind::visit(QtInterfaceNameAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -405,7 +408,7 @@ void Bind::qtInterfaceName(QtInterfaceNameAST *ast)
 bool Bind::visit(BaseSpecifierAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -433,7 +436,7 @@ void Bind::baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *kla
 bool Bind::visit(CtorInitializerAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -452,7 +455,7 @@ void Bind::ctorInitializer(CtorInitializerAST *ast, Function *fun)
 bool Bind::visit(EnumeratorAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -482,7 +485,7 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
 bool Bind::visit(DynamicExceptionSpecificationAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -510,7 +513,7 @@ FullySpecifiedType Bind::exceptionSpecification(ExceptionSpecificationAST *ast, 
 bool Bind::visit(MemInitializerAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -529,7 +532,7 @@ void Bind::memInitializer(MemInitializerAST *ast, Function *fun)
 bool Bind::visit(NestedNameSpecifierAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -568,7 +571,7 @@ void Bind::newPlacement(ExpressionListParenAST *ast)
 bool Bind::visit(NewArrayDeclaratorAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -588,7 +591,7 @@ FullySpecifiedType Bind::newArrayDeclarator(NewArrayDeclaratorAST *ast, const Fu
 bool Bind::visit(NewTypeIdAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -615,7 +618,7 @@ FullySpecifiedType Bind::newTypeId(NewTypeIdAST *ast)
 bool Bind::visit(OperatorAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -807,7 +810,7 @@ OperatorNameId::Kind Bind::cppOperator(OperatorAST *ast)
 bool Bind::visit(ParameterDeclarationClauseAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -836,7 +839,7 @@ void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsign
 bool Bind::visit(TranslationUnitAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -853,7 +856,7 @@ void Bind::translationUnit(TranslationUnitAST *ast)
 bool Bind::visit(ObjCProtocolRefsAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -875,7 +878,7 @@ void Bind::objCProtocolRefs(ObjCProtocolRefsAST *ast, Symbol *objcClassOrProtoco
 bool Bind::visit(ObjCMessageArgumentAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -890,7 +893,7 @@ void Bind::objCMessageArgument(ObjCMessageArgumentAST *ast)
 bool Bind::visit(ObjCTypeNameAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -907,7 +910,7 @@ FullySpecifiedType Bind::objCTypeName(ObjCTypeNameAST *ast)
 bool Bind::visit(ObjCInstanceVariablesDeclarationAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -928,7 +931,7 @@ void Bind::objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarationAST 
 bool Bind::visit(ObjCPropertyAttributeAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -945,7 +948,7 @@ void Bind::objCPropertyAttribute(ObjCPropertyAttributeAST *ast)
 bool Bind::visit(ObjCMessageArgumentDeclarationAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -970,7 +973,7 @@ void Bind::objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAST *ast
 bool Bind::visit(ObjCMethodPrototypeAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -1013,7 +1016,7 @@ ObjCMethod *Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
 bool Bind::visit(ObjCSynthesizedPropertyAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -1030,7 +1033,7 @@ void Bind::objCSynthesizedProperty(ObjCSynthesizedPropertyAST *ast)
 bool Bind::visit(LambdaIntroducerAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -1047,7 +1050,7 @@ void Bind::lambdaIntroducer(LambdaIntroducerAST *ast)
 bool Bind::visit(LambdaCaptureAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -1065,7 +1068,7 @@ void Bind::lambdaCapture(LambdaCaptureAST *ast)
 bool Bind::visit(CaptureAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -1080,7 +1083,7 @@ void Bind::capture(CaptureAST *ast)
 bool Bind::visit(LambdaDeclaratorAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 
@@ -1111,7 +1114,7 @@ void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
 bool Bind::visit(TrailingReturnTypeAST *ast)
 {
     (void) ast;
-    assert(!"unreachable");
+    CPP_CHECK(!"unreachable");
     return false;
 }
 

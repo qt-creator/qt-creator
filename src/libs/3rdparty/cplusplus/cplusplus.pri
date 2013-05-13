@@ -3,6 +3,7 @@ DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD
 
 HEADERS += \
+    $$PWD/cppassert.h \
     $$PWD/CPlusPlus.h \
     $$PWD/AST.h \
     $$PWD/ASTVisitor.h \

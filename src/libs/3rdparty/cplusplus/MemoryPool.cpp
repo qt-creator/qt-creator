@@ -19,8 +19,10 @@
 // THE SOFTWARE.
 
 #include "MemoryPool.h"
+
+#include "cppassert.h"
+
 #include <cstring>
-#include <cassert>
 
 using namespace CPlusPlus;
 
@@ -52,7 +54,7 @@ void MemoryPool::reset()
 
 void *MemoryPool::allocate_helper(size_t size)
 {
-    assert(size < BLOCK_SIZE);
+    CPP_CHECK(size < BLOCK_SIZE);
 
     if (++_blockCount == _allocatedBlocks) {
         if (! _allocatedBlocks)

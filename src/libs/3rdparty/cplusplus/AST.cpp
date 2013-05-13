@@ -23,7 +23,8 @@
 #include "ASTMatcher.h"
 #include "MemoryPool.h"
 
-#include <cassert>
+#include "cppassert.h"
+
 #include <algorithm>
 
 
@@ -42,7 +43,7 @@ AST::AST()
 { }
 
 AST::~AST()
-{ assert(0); }
+{ CPP_CHECK(0); }
 
 void AST::accept(ASTVisitor *visitor)
 {

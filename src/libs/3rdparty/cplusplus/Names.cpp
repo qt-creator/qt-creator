@@ -21,9 +21,8 @@
 #include "Names.h"
 #include "NameVisitor.h"
 #include "Literals.h"
-#include <cstring>
-#include <cassert>
 #include <algorithm>
+#include <cstring>
 
 using namespace CPlusPlus;
 

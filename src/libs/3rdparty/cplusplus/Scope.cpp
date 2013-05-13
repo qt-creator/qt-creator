@@ -23,7 +23,9 @@
 #include "Names.h"
 #include "Literals.h"
 #include "Templates.h"
-#include <cassert>
+
+#include "cppassert.h"
+
 #include <cstring>
 
 using namespace CPlusPlus;
@@ -107,6 +109,8 @@ SymbolTable::~SymbolTable()
 
 void SymbolTable::enterSymbol(Symbol *symbol)
 {
+    CPP_ASSERT(! symbol->_scope || symbol->enclosingScope() == _owner, return);
+
     if (++_symbolCount == _allocatedSymbols) {
         _allocatedSymbols <<= 1;
         if (! _allocatedSymbols)
@@ -115,7 +119,6 @@ void SymbolTable::enterSymbol(Symbol *symbol)
         _symbols = reinterpret_cast<Symbol **>(realloc(_symbols, sizeof(Symbol *) * _allocatedSymbols));
     }
 
-    assert(! symbol->_scope || symbol->enclosingScope() == _owner);
     symbol->_index = _symbolCount;
     symbol->_scope = _owner;
     _symbols[_symbolCount] = symbol;

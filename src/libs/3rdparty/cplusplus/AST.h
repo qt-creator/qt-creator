@@ -47,7 +47,7 @@ public:
         if (value)
             return value->firstToken();
 
-        // ### assert(0);
+        // ### CPP_CHECK(0);
         return 0;
     }
 
@@ -58,7 +58,7 @@ public:
         if (lv)
             return lv->lastToken();
 
-        // ### assert(0);
+        // ### CPP_CHECK(0);
         return 0;
     }
 

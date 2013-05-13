@@ -25,7 +25,8 @@
 #include "Names.h"
 #include "Literals.h"
 
-#include <cassert>
+#include "cppassert.h"
+
 
 using namespace CPlusPlus;
 
@@ -184,7 +185,7 @@ Symbol *CloneSymbol::cloneSymbol(Symbol *symbol, Subst *subst)
     accept(symbol);
     std::swap(_symbol, r);
     std::swap(_subst, subst);
-    assert(r != 0);
+    CPP_CHECK(r != 0);
     return r;
 }
 
@@ -399,7 +400,7 @@ const Name *CloneName::cloneName(const Name *name, Subst *subst)
     accept(name);
     std::swap(_name, r);
     std::swap(_subst, subst);
-    assert(r != 0);
+    CPP_CHECK(r != 0);
     return r;
 }
 
@@ -448,7 +449,7 @@ void CloneName::visit(const QualifiedNameId *name)
 
 void CloneName::visit(const SelectorNameId *name)
 {
-    assert(name->nameCount() > 0);
+    CPP_CHECK(name->nameCount() > 0);
     std::vector<const Name *> names(name->nameCount());
     for (unsigned i = 0; i < names.size(); ++i)
         names[i] = _clone->name(name->nameAt(i), _subst);
