@@ -56,7 +56,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_executableChooser = new Utils::PathChooser(this);
     m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
-    layout->addRow(tr("Command:"), m_executableChooser);
+    layout->addRow(tr("Executable:"), m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit(this);
     m_commandLineArgumentsLineEdit->setMinimumWidth(200); // this shouldn't be fixed here...
