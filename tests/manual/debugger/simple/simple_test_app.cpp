@@ -225,9 +225,14 @@ void dummyStatement(...) {}
 #undef max
 #endif
 
-#ifdef __SSE__
+#if USE_SSE && !defined(__SSE__)
+#undef USE_SSE
+#endif
+
+#if USE_SSE
 #include <xmmintrin.h>
 #include <stddef.h>
+#else
 #endif
 
 #if USE_AUTOBREAK
@@ -5566,7 +5571,7 @@ namespace sse {
 
     void testSSE()
     {
-    #ifdef __SSE__
+    #if USE_SSE
         float a[4];
         float b[4];
         int i;
