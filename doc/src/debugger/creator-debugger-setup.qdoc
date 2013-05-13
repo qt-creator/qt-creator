@@ -229,13 +229,6 @@
                 see: \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
                 {Mac OS X Debugging Magic}.
 
-                You can download an experimental version of FSF GDB that
-                supports Python from
-                \l{ftp://ftp.qt.nokia.com/misc/gdb/7.2/gdb72_mac_platform.tar.bz2}.
-                To use FSF GDB on Mac OS, you must sign it and add it to the \QC
-                \l{glossary-buildandrun-kit}{kits}. For more information, see
-                \l{Setting up FSF GDB for Mac OS}.
-
               \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
               application to crash. For a workaround, see:
               \l{https://bugreports.qt-project.org/browse/QTBUG-4962}{QTBUG-4962}.
