@@ -39,8 +39,6 @@ QtcPlugin {
         "qmljseditor.h",
         "qmljseditor.qrc",
         "qmljseditor_global.h",
-        "qmljseditoractionhandler.cpp",
-        "qmljseditoractionhandler.h",
         "qmljseditorconstants.h",
         "qmljseditoreditable.cpp",
         "qmljseditoreditable.h",

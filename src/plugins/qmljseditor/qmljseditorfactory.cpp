@@ -30,7 +30,6 @@
 #include "qmljseditorfactory.h"
 #include "qmljseditoreditable.h"
 #include "qmljseditor.h"
-#include "qmljseditoractionhandler.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditorplugin.h"
 

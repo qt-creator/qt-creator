@@ -7,7 +7,6 @@ DEFINES += \
 HEADERS += \
     qmljseditor.h \
     qmljseditor_global.h \
-    qmljseditoractionhandler.h \
     qmljseditorconstants.h \
     qmljseditorfactory.h \
     qmljseditorplugin.h \
@@ -39,7 +38,6 @@ HEADERS += \
 
 SOURCES += \
     qmljseditor.cpp \
-    qmljseditoractionhandler.cpp \
     qmljseditorfactory.cpp \
     qmljseditorplugin.cpp \
     qmlexpressionundercursor.cpp \
