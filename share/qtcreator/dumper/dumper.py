@@ -19,6 +19,23 @@ except:
             return ucs
         return '?'
 
+
+def childAt(value, index):
+    field = value.type.fields()[index]
+    if len(field.name):
+        return value[field.name]
+    # FIXME: Cheat. There seems to be no official way to access
+    # the real item, so we pass back the value. That at least
+    # enables later ...["name"] style accesses as gdb handles
+    # them transparently.
+    return value
+
+def addressOf(value):
+    return gdb.Value(value.address).cast(value.type.pointer())
+
+
+#gdb.Value.child = impl_Value_child
+
 # Fails on SimulatorQt.
 tempFileCounter = 0
 try:
@@ -617,16 +634,7 @@ def isNull(p):
     except:
         return False
 
-movableTypes = set([
-    "QBrush", "QBitArray", "QByteArray", "QCustomTypeInfo", "QChar", "QDate",
-    "QDateTime", "QFileInfo", "QFixed", "QFixedPoint", "QFixedSize",
-    "QHashDummyValue", "QIcon", "QImage", "QLine", "QLineF", "QLatin1Char",
-    "QLocale", "QMatrix", "QModelIndex", "QPoint", "QPointF", "QPen",
-    "QPersistentModelIndex", "QResourceRoot", "QRect", "QRectF", "QRegExp",
-    "QSize", "QSizeF", "QString", "QTime", "QTextBlock", "QUrl", "QVariant",
-    "QXmlStreamAttribute", "QXmlStreamNamespaceDeclaration",
-    "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
-])
+Value = gdb.Value
 
 def stripClassTag(typeName):
     if typeName.startswith("class "):
@@ -838,15 +846,6 @@ class LocalItem:
 #
 #######################################################################
 
-# This is a cache mapping from 'type name' to 'display alternatives'.
-qqFormats = {}
-
-# This is a cache of all known dumpers.
-qqDumpers = {}
-
-# This is a cache of all dumpers that support writing.
-qqEditable = {}
-
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
 
@@ -872,30 +871,6 @@ def stripForFormat(typeName):
     return stripped
 
 
-def registerDumper(function):
-    global qqDumpers, qqFormats, qqEditable
-    try:
-        funcname = function.func_name
-        if funcname.startswith("qdump__"):
-            type = funcname[7:]
-            qqDumpers[type] = function
-            qqFormats[type] = qqFormats.get(type, "")
-        elif funcname.startswith("qform__"):
-            type = funcname[7:]
-            formats = ""
-            try:
-                formats = function()
-            except:
-                pass
-            qqFormats[type] = formats
-        elif funcname.startswith("qedit__"):
-            type = funcname[7:]
-            try:
-                qqEditable[type] = function
-            except:
-                pass
-    except:
-        pass
 
 #######################################################################
 #

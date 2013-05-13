@@ -63,6 +63,8 @@ DisplayUtf8String \
     = range(7)
 
 def lookupType(name):
+    if name == "void":
+        return voidType
     if name == "char":
         return charType
     if name == "char *":
@@ -176,37 +178,9 @@ def qStringData(value):
         # Qt 4.
         return private['data'], int(private['size']), int(private['alloc'])
 
-class Type:
-    def __init__(self, var):
-        self.raw = var
-        if var.num_children == 0:
-            self.code = SimpleValueCode
-        else:
-            self.code = StructCode
-        self.value_type = var.value_type
-
-    def __str__(self):
-        #try:
-            return self.raw.type.name
-        #except:
-        #    return "<illegal type>"
-
-    def fieldCount(self):
-        return self.raw.num_children
-
-    def unqualified(self):
-        return self
-
-    def strip_typedefs(self):
-        return self
-
-
 def currentFrame():
     currentThread = self.process.GetThreadAtIndex(0)
     return currentThread.GetFrameAtIndex(0)
-
-def fieldCount(type):
-    return type.fieldCount();
 
 def fileName(file):
     return str(file) if file.IsValid() else ''
@@ -287,6 +261,15 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
+def checkPointer(p, align = 1):
+    if not isNull(p):
+        p.Dereference()
+
+def isNull(p):
+    return long(p) == 0
+
+Value = lldb.SBValue
+
 def checkSimpleRef(ref):
     count = int(ref["_q_value"])
     check(count > 0)
@@ -306,24 +289,50 @@ def checkRef(ref):
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
         return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True).AddressOf()
+    raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
 
 def impl_SBValue__sub__(self, other):
     if self.GetType().IsPointerType() and other.GetType().IsPointerType():
-        return int(self) - int(other)
+        itemsize = self.GetType().GetDereferencedType().GetByteSize()
+        return (int(self) - int(other)) / itemsize
+    raise RuntimeError("SBValue.__sub__ not implemented")
     return NotImplemented
+
+def impl_SBValue__le__(self, other):
+    if self.GetType().IsPointerType() and other.GetType().IsPointerType():
+        return int(self) <= int(other)
+    raise RuntimeError("SBValue.__le__ not implemented")
+    return NotImplemented
+
+def impl_SBValue__int__(self):
+    return int(self.GetValue(), 0)
+
+def impl_SBValue__getitem__(self, name):
+    return self.GetChildMemberWithName(name)
+
+def childAt(value, index):
+    return value.GetChildAtIndex(index)
+
+def addressOf(value):
+    return value.address_of
 
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
+lldb.SBValue.__le__ = impl_SBValue__le__
 
-lldb.SBValue.__getitem__ = lambda self, name: self.GetChildMemberWithName(name)
-lldb.SBValue.__int__ = lambda self: int(self.GetValue(), 0)
+lldb.SBValue.__getitem__ = impl_SBValue__getitem__
+lldb.SBValue.__int__ = impl_SBValue__int__
 lldb.SBValue.__long__ = lambda self: long(self.GetValue(), 0)
 
+lldb.SBValue.code = lambda self: self.GetTypeClass()
 lldb.SBValue.cast = lambda self, typeObj: self.Cast(typeObj)
 lldb.SBValue.dereference = lambda self: self.Dereference()
+lldb.SBValue.address = property(lambda self: self.GetAddress())
 
+lldb.SBType.unqualified = lambda self: self.GetUnqualifiedType()
 lldb.SBType.pointer = lambda self: self.GetPointerType()
+lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
 
 def simpleEncoding(typeobj):
@@ -495,6 +504,7 @@ class Debugger:
         self.options = {}
         self.expandedINames = {}
         self.passExceptions = True
+        self.ns = ""
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -527,6 +537,13 @@ class Debugger:
         #    format = self.typeformats.get(stripForFormat(str(self.currentType)))
         #return format
         return 0
+
+    def isMovableType(self, type):
+        if type.code == PointerCode:
+            return True
+        if isSimpleType(type):
+            return True
+        return self.stripNamespaceFromType(type.GetName()) in movableTypes
 
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
@@ -777,6 +794,9 @@ class Debugger:
         return type
 
     def putSubItem(self, component, value, tryDynamic=True):
+        if not value.IsValid():
+            warn("INVALID")
+            return
         with SubItem(self, component):
             self.putItem(value, tryDynamic)
 
@@ -784,7 +804,7 @@ class Debugger:
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
 
-        if value.GetTypeSynthetic().IsValid():
+        if False and value.GetTypeSynthetic().IsValid():
             # FIXME: print "official" summary?
             summary = value.GetTypeSummary()
             if summary.IsValid():
@@ -808,6 +828,7 @@ class Debugger:
                             self.putItem(child)
             return
 
+        value.SetPreferSyntheticValue(False)
         stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
         #warn("VALUE: %s" % value)
         if stripped in qqDumpers:
@@ -850,7 +871,8 @@ class Debugger:
 
     def reportData(self, _ = None):
         # Hack.
-        global charPtrType, charType
+        global charPtrType, charType, voidType
+        voidType = self.target.GetModuleAtIndex(0).FindFirstType('void')
         charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
         charPtrType = charType.GetPointerType()
 

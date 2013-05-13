@@ -7,6 +7,16 @@
 
 from __future__ import with_statement
 
+movableTypes = set([
+    "QBrush", "QBitArray", "QByteArray", "QCustomTypeInfo", "QChar", "QDate",
+    "QDateTime", "QFileInfo", "QFixed", "QFixedPoint", "QFixedSize",
+    "QHashDummyValue", "QIcon", "QImage", "QLine", "QLineF", "QLatin1Char",
+    "QLocale", "QMatrix", "QModelIndex", "QPoint", "QPointF", "QPen",
+    "QPersistentModelIndex", "QResourceRoot", "QRect", "QRectF", "QRegExp",
+    "QSize", "QSizeF", "QString", "QTime", "QTextBlock", "QUrl", "QVariant",
+    "QXmlStreamAttribute", "QXmlStreamNamespaceDeclaration",
+    "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
+])
 
 def mapForms():
     return "Normal,Compact"
@@ -62,6 +72,19 @@ def qdump__QByteArray(d, value):
     if d.isExpanded():
         d.putArrayData(lookupType("char"), data, size)
 
+
+# Fails on Windows.
+try:
+    import curses.ascii
+    def printableChar(ucs):
+        if curses.ascii.isprint(ucs):
+            return ucs
+        return '?'
+except:
+    def printableChar(ucs):
+        if ucs >= 32 and ucs <= 126:
+            return ucs
+        return '?'
 
 def qdump__QChar(d, value):
     ucs = int(value["ucs"])
@@ -518,12 +541,11 @@ def qdump__QHostAddress(d, value):
         with Children(d):
            d.putFields(data)
 
-
 def qdump__QList(d, value):
-    d_ptr = value["d"]
-    begin = d_ptr["begin"]
-    end = d_ptr["end"]
-    array = d_ptr["array"]
+    d_ptr = childAt(value, 0)["d"].dereference()
+    begin = int(d_ptr["begin"])
+    end = int(d_ptr["end"])
+    array = addressOf(d_ptr["array"])
     check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
     size = end - begin
     check(size >= 0)
@@ -534,7 +556,7 @@ def qdump__QList(d, value):
     innerTypeIsPointer = innerType.code == PointerCode \
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
-        p = gdb.Value(array).cast(innerType.pointer()) + begin
+        p = array.cast(innerType.pointer()) + begin
         checkPointerRange(p, min(size, 100))
 
     d.putItemCount(size)
@@ -549,7 +571,7 @@ def qdump__QList(d, value):
         isInternal = innerSize <= d_ptr.type.sizeof and d.isMovableType(innerType)
         dummyType = lookupType("void").pointer().pointer()
         innerTypePointer = innerType.pointer()
-        p = gdb.Value(array).cast(dummyType) + begin
+        p = array.cast(dummyType) + begin
         if innerTypeIsPointer:
             inner = innerType.target()
         else:

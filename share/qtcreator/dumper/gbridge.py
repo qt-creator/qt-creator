@@ -333,6 +333,39 @@ class ScanStackCommand(gdb.Command):
 
 ScanStackCommand()
 
+# This is a cache mapping from 'type name' to 'display alternatives'.
+qqFormats = {}
+
+# This is a cache of all known dumpers.
+qqDumpers = {}
+
+# This is a cache of all dumpers that support writing.
+qqEditable = {}
+
+def registerDumper(function):
+    global qqDumpers, qqFormats, qqEditable
+    try:
+        funcname = function.func_name
+        if funcname.startswith("qdump__"):
+            type = funcname[7:]
+            qqDumpers[type] = function
+            qqFormats[type] = qqFormats.get(type, "")
+        elif funcname.startswith("qform__"):
+            type = funcname[7:]
+            formats = ""
+            try:
+                formats = function()
+            except:
+                pass
+            qqFormats[type] = formats
+        elif funcname.startswith("qedit__"):
+            type = funcname[7:]
+            try:
+                qqEditable[type] = function
+            except:
+                pass
+    except:
+        pass
 
 def bbsetup(args = ''):
     global qqDumpers, qqFormats, qqEditable, typeCache
