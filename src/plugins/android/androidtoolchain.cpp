@@ -202,9 +202,17 @@ QList<FileName> AndroidToolChain::suggestedMkspecList() const
 
 QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
 {
-    QString make = HostOsInfo::isWindowsHost()
-            ? QLatin1String("ma-make.exe") : QLatin1String("make");
-    QString tmp = env.searchInPath(make, AndroidConfigurations::instance().makeExtraSearchDirectories());
+    QStringList extraDirectories = AndroidConfigurations::instance().makeExtraSearchDirectories();
+    if (HostOsInfo::isWindowsHost()) {
+        QString tmp = env.searchInPath(QLatin1String("ma-make.exe"), extraDirectories);
+        if (!tmp.isEmpty())
+            return tmp;
+        tmp = env.searchInPath(QLatin1String("mingw32-make"), extraDirectories);
+        return tmp.isEmpty() ? QLatin1String("mingw32-make") : tmp;
+    }
+
+    QString make = QLatin1String("make");
+    QString tmp = env.searchInPath(make, extraDirectories);
     return tmp.isEmpty() ? make : tmp;
 }
 
