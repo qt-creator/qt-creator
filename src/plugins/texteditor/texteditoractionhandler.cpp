@@ -471,16 +471,8 @@ void TextEditorActionHandler::createActions()
 
 }
 
-bool TextEditorActionHandler::supportsAction(const Core::Id & /*id */) const
-{
-    return true;
-}
-
 QAction *TextEditorActionHandler::registerNewAction(const Core::Id &id, bool scriptable, const QString &title)
 {
-    if (!supportsAction(id))
-        return 0;
-
     QAction *result = new QAction(title, this);
     Core::ActionManager::registerAction(result, id, m_contextId, scriptable);
     return result;

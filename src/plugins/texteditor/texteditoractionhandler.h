@@ -86,9 +86,8 @@ protected:
     enum UpdateMode { ReadOnlyMode, WriteMode };
     UpdateMode updateMode() const;
 
-    virtual void createActions();
-    virtual bool supportsAction(const Core::Id &id) const;
-    virtual void updateActions(UpdateMode um);
+    void createActions();
+    void updateActions(UpdateMode um);
 
 private slots:
     void undoAction();
