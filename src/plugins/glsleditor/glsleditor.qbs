@@ -23,8 +23,6 @@ QtcPlugin {
         "glsleditor.h",
         "glsleditor.qrc",
         "glsleditor_global.h",
-        "glsleditoractionhandler.cpp",
-        "glsleditoractionhandler.h",
         "glsleditorconstants.h",
         "glsleditoreditable.cpp",
         "glsleditoreditable.h",

@@ -30,7 +30,6 @@
 #include "glsleditorfactory.h"
 #include "glsleditoreditable.h"
 #include "glsleditor.h"
-#include "glsleditoractionhandler.h"
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
 
