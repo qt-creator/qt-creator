@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-import sys
 import binascii
 import inspect
 import os
 import platform
+import threading
+import select
+import sys
 
 uname = platform.uname()[0]
 if uname == 'Linux':
@@ -306,7 +308,13 @@ def impl_SBValue__add__(self, offset):
         return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True).AddressOf()
     return NotImplemented
 
+def impl_SBValue__sub__(self, other):
+    if self.GetType().IsPointerType() and other.GetType().IsPointerType():
+        return int(self) - int(other)
+    return NotImplemented
+
 lldb.SBValue.__add__ = impl_SBValue__add__
+lldb.SBValue.__sub__ = impl_SBValue__sub__
 
 lldb.SBValue.__getitem__ = lambda self, name: self.GetChildMemberWithName(name)
 lldb.SBValue.__int__ = lambda self: int(self.GetValue(), 0)
@@ -493,7 +501,7 @@ class Debugger:
         self.currentValueEncoding = None
         self.currentType = ""
         self.currentTypePriority = -100
-        self.currentValue = -100
+        self.currentValue = None
         self.currentNumChild = None
         self.currentMaxNumChild = None
         self.currentPrintsAddress = None
@@ -619,6 +627,9 @@ class Debugger:
         self.report('pid="%s"' % self.pid)
         self.report('state="enginerunok"')
 
+        s = threading.Thread(target=self.loop, args=[])
+        s.start()
+
     def describeError(self, error):
         desc = lldb.SBStream()
         error.GetDescription(desc)
@@ -692,6 +703,14 @@ class Debugger:
             result += '],hasmore="%s"},' % hasmore
             self.report(result)
 
+    # Convenience function.
+    def putItemCount(self, count, maximum = 1000000000):
+        # This needs to override the default value, so don't use 'put' directly.
+        if count > maximum:
+            self.putValue('<>%s items>' % maximum)
+        else:
+            self.putValue('<%s items>' % count)
+
     def putType(self, typeName):
             self.put('type="%s",' % typeName)
 
@@ -764,23 +783,50 @@ class Debugger:
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
-        stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
 
+        if value.GetTypeSynthetic().IsValid():
+            # FIXME: print "official" summary?
+            summary = value.GetTypeSummary()
+            if summary.IsValid():
+                warn("DATA: %s" % summary.GetData())
+            value.SetPreferSyntheticValue(False)
+            provider = value.GetTypeSynthetic()
+            data = provider.GetData()
+            formatter = eval(data)(value, {})
+            formatter.update()
+            numchild = formatter.num_children()
+            self.put('iname="%s",' % self.currentIName)
+            self.put('type="%s",' % typeName)
+            self.put('numchild="%s",' % numchild)
+            self.put('addr="0x%x",' % value.GetLoadAddress())
+            self.putItemCount(numchild)
+            if self.currentIName in self.expandedINames:
+                with Children(self):
+                    for i in xrange(numchild):
+                        child = formatter.get_child_at_index(i)
+                        with SubItem(self, i):
+                            self.putItem(child)
+            return
+
+        stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
+        #warn("VALUE: %s" % value)
         if stripped in qqDumpers:
             self.putType(typeName)
             qqDumpers[stripped](self, value)
-        else:
-            v = value.GetValue()
-            #numchild = 1 if value.MightHaveChildren() else 0
-            numchild = value.GetNumChildren()
-            self.put('iname="%s",' % self.currentIName)
-            self.put('type="%s",' % typeName)
-            self.put('value="%s",' % ("" if v is None else v))
-            self.put('numchild="%s",' % numchild)
-            self.put('addr="0x%x",' % value.GetLoadAddress())
-            if self.currentIName in self.expandedINames:
-                with Children(self):
-                    self.putFields(value)
+            return
+
+        # Normal value
+        v = value.GetValue()
+        #numchild = 1 if value.MightHaveChildren() else 0
+        numchild = value.GetNumChildren()
+        self.put('iname="%s",' % self.currentIName)
+        self.put('type="%s",' % typeName)
+        self.putValue("" if v is None else v)
+        self.put('numchild="%s",' % numchild)
+        self.put('addr="0x%x",' % value.GetLoadAddress())
+        if self.currentIName in self.expandedINames:
+            with Children(self):
+                self.putFields(value)
 
     def putFields(self, value):
         n = value.GetNumChildren()
@@ -888,7 +934,10 @@ class Debugger:
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
-    def processEvents(self, delay = 0):
+    def processEvents(self):
+        if self.listener is None:
+            warn("NO LISTENER YET")
+            return
         event = lldb.SBEvent()
         while self.listener.PeekAtNextEvent(event):
             self.listener.GetNextEvent(event)
@@ -1084,7 +1133,8 @@ class Debugger:
             comment = insn.GetComment(self.target)
             addr = insn.GetAddress().GetLoadAddress(self.target)
             result += '{address="%s"' % addr
-            result += ',inst="%s %s"' % (insn.GetMnemonic(self.target), insn.GetOperands(self.target))
+            result += ',inst="%s %s"' % (insn.GetMnemonic(self.target),
+                insn.GetOperands(self.target))
             result += ',func_name="%s"' % name
             if comment:
                 result += ',comment="%s"' % comment
@@ -1110,36 +1160,45 @@ class Debugger:
         for key in items:
             registerDumper(items[key])
 
+    def loop(self):
+        event = lldb.SBEvent()
+        while True:
+            if self.listener.WaitForEvent(sys.maxsize, event):
+                self.handleEvent(event)
+            else:
+                warn('TIMEOUT')
+
+    def execute(self, args):
+        getattr(self, args['cmd'])(args)
+        self.report('token="%s"' % args['token'])
+        try:
+            cont = args['continuation']
+            self.report('continuation="%s"' % cont)
+        except:
+            pass
+
 
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 #warn("currentdir: %s" % currentDir)
 #execfile(os.path.join(currentDir, "dumper.py"))
 execfile(os.path.join(currentDir, "qttypes.py"))
 
-import sys
-import select
-
 lldbLoaded = True
 
-if __name__ == '__main__':
+
+def doit():
+
     db = Debugger()
     db.report('state="enginesetupok"')
-    #importPlainDumpers()
-    while True:
-        rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
-        if rlist:
-            line = sys.stdin.readline()
-            if line.startswith("db "):
-                args = eval(line[3:])
-                getattr(db, args['cmd'])(args)
-                db.report('token="%s"' % args['token'])
-                try:
-                    cont = args['continuation']
-                    db.report('continuation="%s"' % cont)
-                except:
-                    pass
-            #else:
-            #    eval(line)
-        else:
-            db.processEvents()
 
+    while True:
+        readable, _, _ = select.select([sys.stdin], [], [])
+        for reader in readable:
+            if reader == sys.stdin:
+                line = sys.stdin.readline()
+                #warn("READING LINE %s" % line)
+                if line.startswith("db "):
+                    db.execute(eval(line[3:]))
+
+if __name__ == '__main__':
+    doit()
