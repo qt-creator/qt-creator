@@ -487,7 +487,23 @@ void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
                 + qtLib
                 + QLatin1String(".so");
 
-        DeployItem deployItem(fullPath, 0, destinationPath, true);
+        // If the Qt lib/ folder contains libgnustl_shared.so, don't deploy it from there, since
+        // it will be deployed directly from the NDK instead.
+        if (qtLib != QLatin1String("gnustl_shared")) {
+            DeployItem deployItem(fullPath, 0, destinationPath, true);
+            deployList->append(deployItem);
+        }
+    }
+
+    if (!androidTargetArch.isEmpty()) {
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+        if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+            return;
+
+        AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+
+        QString libgnustl = AndroidManager::libGnuStl(androidTargetArch, atc->ndkToolChainVersion());
+        DeployItem deployItem(libgnustl, 0, androidLibPath + QLatin1String("/libgnustl_shared.so"), false);
         deployList->append(deployItem);
     }
 
