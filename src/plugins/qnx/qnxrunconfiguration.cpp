@@ -68,7 +68,7 @@ QString QnxRunConfiguration::environmentPreparationCommand() const
     foreach (const QString &filePath, filesToSource)
         command += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
     if (!workingDirectory().isEmpty())
-        command += QLatin1String("cd ") + workingDirectory() + QLatin1String(";");
+        command += QLatin1String("cd ") + workingDirectory() + QLatin1Char(';');
 
     if (!m_qtLibPath.isEmpty())
         command += QLatin1String("LD_LIBRARY_PATH=") + m_qtLibPath + QLatin1String(":$LD_LIBRARY_PATH");

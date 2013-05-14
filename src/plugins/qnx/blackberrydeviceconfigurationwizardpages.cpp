@@ -254,7 +254,7 @@ bool BlackBerryDeviceConfigurationWizardSshKeyPage::saveKeys(const QString &priv
     Utils::FileSaver pubSaver(publicKeyFile);
 
     // blackberry-connect requires an @ character to be included in the RSA comment
-    const QString atHost = QLatin1String("@") + QHostInfo::localHostName();
+    const QString atHost = QLatin1Char('@') + QHostInfo::localHostName();
     QByteArray pubKeyContent = m_sshKeysGenerator->keyGenerator()->publicKey();
     pubKeyContent.append(atHost.toLocal8Bit());
 

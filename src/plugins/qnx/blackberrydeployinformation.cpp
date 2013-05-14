@@ -65,7 +65,7 @@ QString BarPackageDeployInformation::appDescriptorPath() const
 QString BarPackageDeployInformation::packagePath() const
 {
     if (userPackagePath.isEmpty())
-        return buildDir + QLatin1String("/") + targetName + QLatin1String(".bar");
+        return buildDir + QLatin1Char('/') + targetName + QLatin1String(".bar");
 
     return userPackagePath;
 }

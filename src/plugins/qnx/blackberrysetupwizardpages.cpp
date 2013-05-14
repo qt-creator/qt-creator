@@ -189,15 +189,15 @@ void BlackBerrySetupWizardKeysPage::initUi()
     connect(m_ui->linkLabel, SIGNAL(linkActivated(QString)),
             this, SLOT(showKeysMessage(QString)));
 
-    registerField(QLatin1String(PbdtPathField) + QLatin1String("*"),
+    registerField(QLatin1String(PbdtPathField) + QLatin1Char('*'),
             m_ui->pbdtPath, "path", SIGNAL(changed(QString)));
-    registerField(QLatin1String(RdkPathField) + QLatin1String("*"),
+    registerField(QLatin1String(RdkPathField) + QLatin1Char('*'),
             m_ui->rdkPath, "path", SIGNAL(changed(QString)));
-    registerField(QLatin1String(CsjPinField) + QLatin1String("*"),
+    registerField(QLatin1String(CsjPinField) + QLatin1Char('*'),
             m_ui->csjPin);
-    registerField(QLatin1String(PasswordField) + QLatin1String("*"),
+    registerField(QLatin1String(PasswordField) + QLatin1Char('*'),
             m_ui->password);
-    registerField(QLatin1String(Password2Field) + QLatin1String("*"),
+    registerField(QLatin1String(Password2Field) + QLatin1Char('*'),
             m_ui->password2);
 }
 
@@ -263,8 +263,8 @@ BlackBerrySetupWizardDevicePage::BlackBerrySetupWizardDevicePage(QWidget *parent
     connect(m_ui->password, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SIGNAL(completeChanged()));
 
-    registerField(QLatin1String(NameField) + QLatin1String("*"), m_ui->deviceName);
-    registerField(QLatin1String(IpAddressField) + QLatin1String("*"), m_ui->ipAddress);
+    registerField(QLatin1String(NameField) + QLatin1Char('*'), m_ui->deviceName);
+    registerField(QLatin1String(IpAddressField) + QLatin1Char('*'), m_ui->ipAddress);
     registerField(QLatin1String(PasswordField), m_ui->password);
     registerField(QLatin1String(PhysicalDeviceField), m_ui->physicalDevice);
 }

@@ -185,7 +185,7 @@ void BlackBerryDebugTokenRequestDialog::expandPath()
 {
     const QString path = m_ui->debugTokenPath->path();
 
-    if (path.isEmpty() || path.startsWith(QLatin1String("/")))
+    if (path.isEmpty() || path.startsWith(QLatin1Char('/')))
             return;
 
     const QFileInfo fileInfo(path);

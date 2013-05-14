@@ -117,7 +117,7 @@ QString BlackBerryCertificate::author() const
 QString BlackBerryCertificate::id() const
 {
     QString tmpId = fileName();
-    return tmpId.replace(QLatin1String("/"), QLatin1String("-"));
+    return tmpId.replace(QLatin1Char('/'), QLatin1Char('-'));
 }
 
 void BlackBerryCertificate::storeFinished(int status)
