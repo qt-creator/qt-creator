@@ -530,8 +530,8 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
 
             if (!verifiedRepository) {
                 QMessageBox::StandardButton answer = QMessageBox::question(
-                            Core::ICore::mainWindow(), tr("Remote not Verified"),
-                            tr("Change host: %1\nand project: %2\n\nwere not verified among remotes"
+                            Core::ICore::mainWindow(), tr("Remote Not Verified"),
+                            tr("Change host %1\nand project %2\n\nwere not verified among remotes"
                                " in %3. Select different folder?")
                             .arg(m_parameters->host,
                                  change->project,

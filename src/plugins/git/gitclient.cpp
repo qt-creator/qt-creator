@@ -2829,8 +2829,8 @@ bool GitClient::canRebase(const QString &workingDirectory) const
     if (QFileInfo(gitDir + QLatin1String("/rebase-apply")).exists()
             || QFileInfo(gitDir + QLatin1String("/rebase-merge")).exists()) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(
-                    tr("Rebase, merge or am is in progress. Please finish "
-                       "or abort it then try again"));
+                    tr("Rebase, merge or am is in progress. Finish "
+                       "or abort it and then try again."));
         return false;
     }
     return true;

@@ -259,8 +259,8 @@ void BranchDialog::rename()
         if (branchAddDialog->branchName() == oldBranchName)
             return;
         if (localNames.contains(branchAddDialog->branchName())) {
-            QMessageBox::critical(this, tr("Branch exists"),
-                                  tr("Local Branch \'%1\' already exists.")
+            QMessageBox::critical(this, tr("Branch Exists"),
+                                  tr("Local branch \'%1\' already exists.")
                                   .arg(branchAddDialog->branchName()));
             return;
         }

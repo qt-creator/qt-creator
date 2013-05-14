@@ -66,7 +66,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
         return;
 
     QGridLayout* layout = new QGridLayout(this);
-    layout->addWidget(new QLabel(tr("Working Directory:"), this), 0, 0 , 1, 1);
+    layout->addWidget(new QLabel(tr("Working directory:"), this), 0, 0 , 1, 1);
     layout->addWidget(m_workingDirEdit, 0, 1, 1, 1);
     layout->addWidget(m_selectDirButton, 0, 2, 1, 1);
     layout->addWidget(new QLabel(tr("Change:"), this),1, 0, 1, 1);
