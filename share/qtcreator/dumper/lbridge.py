@@ -63,8 +63,6 @@ DisplayUtf8String \
     = range(7)
 
 def lookupType(name):
-    if name == "void":
-        return voidType
     if name == "char":
         return charType
     if name == "char *":
@@ -871,8 +869,7 @@ class Debugger:
 
     def reportData(self, _ = None):
         # Hack.
-        global charPtrType, charType, voidType
-        voidType = self.target.GetModuleAtIndex(0).FindFirstType('void')
+        global charPtrType, charType
         charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
         charPtrType = charType.GetPointerType()
 
