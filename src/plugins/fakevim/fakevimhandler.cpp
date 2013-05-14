@@ -1505,7 +1505,7 @@ public:
     bool atBlockStart() const { return m_cursor.atBlockStart(); }
     bool atBlockEnd() const { return m_cursor.atBlockEnd(); }
     bool atEndOfLine() const { return atBlockEnd() && block().length() > 1; }
-    bool atDocumentEnd() const { return position() >= lastPositionInDocument(); }
+    bool atDocumentEnd() const { return position() >= lastPositionInDocument(true); }
     bool atDocumentStart() const { return m_cursor.atStart(); }
 
     bool atEmptyLine(const QTextCursor &tc = QTextCursor()) const;
@@ -3507,6 +3507,11 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             m_movetype = MoveInclusive;
         } else {
             moveToNextWordStart(count, simple, true);
+            // Command 'dw' deletes to the next word on the same line or to end of line.
+            if (m_submode == DeleteSubMode && count == 1) {
+                const QTextBlock currentBlock = document()->findBlock(anchor());
+                setPosition(qMin(position(), currentBlock.position() + currentBlock.length()));
+            }
             m_movetype = MoveExclusive;
         }
         setTargetColumn();
