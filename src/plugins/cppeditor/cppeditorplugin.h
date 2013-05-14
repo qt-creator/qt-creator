@@ -157,6 +157,7 @@ private slots:
     void test_quickfix_InsertDefFromDecl_headerSource_namespace2();
     void test_quickfix_InsertDefFromDecl_freeFunction();
     void test_quickfix_InsertDefFromDecl_insideClass();
+    void test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists();
 
     void test_quickfix_InsertDeclFromDef();
 

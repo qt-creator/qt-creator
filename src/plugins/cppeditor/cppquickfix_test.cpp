@@ -893,6 +893,21 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_insideClass()
     data.run(&factory, 1);
 }
 
+/// Check not triggering when definition exists
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists()
+{
+    const QByteArray original =
+            "class Foo {\n"
+            "    void b@ar();\n"
+            "};\n"
+            "void Foo::bar() {}\n";
+    const QByteArray expected = original + "\n";
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory, 1);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {

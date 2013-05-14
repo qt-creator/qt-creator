@@ -2621,6 +2621,13 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             const QString cppFileName = correspondingHeaderOrSource(
                                         interface->fileName(), &isHeaderFile);
 
+                            // Check if there is already a definition
+                            CppTools::SymbolFinder symbolFinder;
+                            if (symbolFinder.findMatchingDefinition(decl, interface->snapshot(),
+                                                                    true)) {
+                                return;
+                            }
+
                             // Insert Position: Implementation File
                             if (isHeaderFile && !cppFileName.isEmpty()) {
                                 CppRefactoringChanges refactoring(interface->snapshot());
