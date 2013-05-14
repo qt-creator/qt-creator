@@ -32,7 +32,9 @@
 #ifndef QNX_INTERNAL_BLACKBERRYUTILS_H
 #define QNX_INTERNAL_BLACKBERRYUTILS_H
 
+QT_BEGIN_NAMESPACE
 class QString;
+QT_END_NAMESPACE
 
 namespace Qnx {
 namespace Internal {
