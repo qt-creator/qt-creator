@@ -801,6 +801,14 @@ void FakeVimPlugin::test_vim_delete()
     KEYS("dw", "abc" N X "def");
     KEYS("k$" "dw", "a" X "b" N "def");
     KEYS("j$h" "dw", "ab" N X "d");
+
+    data.setText("abc" N "def");
+    KEYS("2lvx", "a" X "b" N "def");
+    KEYS("vlx", "a" X "def");
+
+    data.setText("abc" N "def");
+    KEYS("2lvox", "a" X "b" N "def");
+    KEYS("vlox", "a" X "def");
 }
 
 void FakeVimPlugin::test_vim_delete_inner_word()

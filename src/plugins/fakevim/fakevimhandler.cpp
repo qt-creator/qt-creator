@@ -1501,7 +1501,7 @@ public:
     int count() const { return mvCount() * opCount(); }
     QTextBlock block() const { return m_cursor.block(); }
     int leftDist() const { return position() - block().position(); }
-    int rightDist() const { return block().length() - leftDist() - 1; }
+    int rightDist() const { return block().length() - leftDist() - (isVisualCharMode() ? 0 : 1); }
     bool atBlockStart() const { return m_cursor.atBlockStart(); }
     bool atBlockEnd() const { return m_cursor.atBlockEnd(); }
     bool atEndOfLine() const { return atBlockEnd() && block().length() > 1; }
@@ -1604,7 +1604,14 @@ public:
     }
     void moveRight(int n = 1) {
         //dump("RIGHT 1");
-        m_cursor.movePosition(Right, KeepAnchor, n);
+        if (isVisualCharMode()) {
+            const QTextBlock currentBlock = block();
+            const int max = currentBlock.position() + currentBlock.length() - 1;
+            const int pos = position() + n;
+            setPosition(qMin(pos, max));
+        } else {
+            m_cursor.movePosition(Right, KeepAnchor, n);
+        }
         if (atEndOfLine())
             emit q->fold(1, false);
         //dump("RIGHT 2");
@@ -2049,7 +2056,8 @@ void FakeVimHandler::Private::leaveFakeVim()
     // The command might have destroyed the editor.
     if (m_textedit || m_plaintextedit) {
         // We fake vi-style end-of-line behaviour
-        m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
+        m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode()
+            && !isVisualCharMode();
 
         //QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
         //        || !atBlockEnd() || block().length() <= 1,
@@ -2236,7 +2244,7 @@ void FakeVimHandler::Private::exportSelection()
         if (visualBlockInverted)
             setAnchorAndPosition(anc + 1, pos);
         else
-            setAnchorAndPosition(anc, pos + 1);
+            setAnchorAndPosition(anc, pos);
 
         if (m_visualMode == VisualBlockMode) {
             commitCursor();
@@ -2806,6 +2814,23 @@ void FakeVimHandler::Private::fixSelection()
 {
     if (m_rangemode == RangeBlockMode)
          return;
+
+    if (m_movetype == MoveInclusive) {
+        // If position or anchor is after end of non-empty line, include line break in selection.
+        if (document()->characterAt(position()) == ParagraphSeparator) {
+            if (!atEmptyLine()) {
+                setPosition(position() + 1);
+                return;
+            }
+        } else if (document()->characterAt(anchor()) == ParagraphSeparator) {
+            QTextCursor tc = m_cursor;
+            tc.setPosition(anchor());
+            if (!atEmptyLine(tc)) {
+                setAnchorAndPosition(anchor() + 1, position());
+                return;
+            }
+        }
+    }
 
     if (m_movetype == MoveExclusive) {
         if (anchor() < position() && atBlockStart()) {
@@ -7259,8 +7284,7 @@ void FakeVimHandler::Private::updateCursorShape()
     bool thinCursor = m_mode == ExMode
             || m_subsubmode == SearchSubSubMode
             || m_mode == InsertMode
-            || isVisualMode()
-            || m_cursor.hasSelection();
+            || (isVisualMode() && !isVisualCharMode());
     EDITOR(setOverwriteMode(!thinCursor));
 }
 
@@ -7336,7 +7360,7 @@ void FakeVimHandler::Private::initVisualInsertMode(QChar command)
 
 void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
 {
-    if (atEndOfLine())
+    if (isNoVisualMode() && atEndOfLine())
         moveLeft();
     m_mode = CommandMode;
     clearCommandMode();
