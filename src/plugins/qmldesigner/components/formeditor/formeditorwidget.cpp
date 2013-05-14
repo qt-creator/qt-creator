@@ -60,17 +60,23 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_toolActionGroup = new QActionGroup(this);
 
-    m_transformToolAction = m_toolActionGroup->addAction(tr("Transform Tool (Q)."));
-    m_transformToolAction->setShortcut(Qt::Key_Q);
-    m_transformToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_transformToolAction->setCheckable(true);
-    m_transformToolAction->setChecked(true);
-    m_transformToolAction->setIcon(QPixmap(":/icon/tool/transform.png"));
-    connect(m_transformToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeTransformTool(bool)));
-
-
     QActionGroup *layoutActionGroup = new QActionGroup(this);
-    layoutActionGroup->setExclusive(false);
+    layoutActionGroup->setExclusive(true);
+
+    m_noSnappingAction = layoutActionGroup->addAction(tr("No snapping (T)."));
+    m_noSnappingAction->setShortcut(Qt::Key_W);
+    m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_noSnappingAction->setCheckable(true);
+    m_noSnappingAction->setChecked(true);
+    m_noSnappingAction->setIcon(QPixmap(":/icon/layout/no_snapping.png"));
+
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snapping with anchoring (W)."));
+    m_snappingAndAnchoringAction->setShortcut(Qt::Key_W);
+    m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_snappingAndAnchoringAction->setCheckable(true);
+    m_snappingAndAnchoringAction->setChecked(true);
+    m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
+
     m_snappingAction = layoutActionGroup->addAction(tr("Snap to guides (E)."));
     m_snappingAction->setShortcut(Qt::Key_E);
     m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -78,14 +84,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAction->setChecked(true);
     m_snappingAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toggle snapping and anchoring (R)."));
-    m_snappingAndAnchoringAction->setShortcut(Qt::Key_R);
-    m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_snappingAndAnchoringAction->setCheckable(true);
-    m_snappingAndAnchoringAction->setChecked(false);
-    m_snappingAndAnchoringAction->setEnabled(false);
-    m_snappingAndAnchoringAction->setVisible(false);
-    m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
 
     addActions(layoutActionGroup->actions());
     upperActions.append(layoutActionGroup->actions());
@@ -124,8 +122,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_rootHeightAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemHeight(QString)));
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
-
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toggle snapping and anchoring (R)."));
 
     m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
@@ -244,11 +240,6 @@ FormEditorCrumbleBar *FormEditorWidget::formEditorCrumbleBar() const
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
-}
-
-QAction *FormEditorWidget::transformToolAction() const
-{
-    return m_transformToolAction.data();
 }
 
 QAction *FormEditorWidget::showBoundingRectAction() const

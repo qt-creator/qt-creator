@@ -275,8 +275,8 @@ void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         event->accept();
-        end(event->scenePos());
-        //Q_ASSERT(m_token.isValid());
+        end(generateUseSnapping(event->modifiers()));
+
         try {
             m_rewriterTransaction.commit();
         } catch (RewritingException &e) {
@@ -333,7 +333,9 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
         event->accept();
         if (m_dragNode.isValid())
             m_dragNode.destroy();
-        end(event->scenePos());
+
+        m_moveManipulator.end();
+        clear();
 
         try {
             m_rewriterTransaction.commit();
@@ -367,7 +369,7 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
 
             FormEditorItem *parentItem = calculateContainer(event->scenePos() + QPoint(2, 2));
             if (!parentItem) {      //if there is no parent any more - the use left the scene
-                end(event->scenePos());
+                end();
                 QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::show();
                 m_dragNode.destroy(); //delete the node then
                 return;
@@ -405,9 +407,15 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
     }
 }
 
-void  DragTool::end(QPointF scenePos)
+void  DragTool::end()
 {
-    m_moveManipulator.end(scenePos);
+    m_moveManipulator.end();
+    clear();
+}
+
+void DragTool::end(Snapper::Snapping useSnapping)
+{
+    m_moveManipulator.end(useSnapping);
     clear();
 }
 
@@ -424,7 +432,7 @@ void  DragTool::move(QPointF scenePos)
     }
 
     //MoveManipulator::Snapping useSnapping = MoveManipulator::NoSnapping;
-    MoveManipulator::Snapping useSnapping = MoveManipulator::UseSnapping;
+    Snapper::Snapping useSnapping = Snapper::UseSnapping;
    /* if (event->modifiers().testFlag(Qt::ControlModifier) != view()->isSnapButtonChecked())
         useSnapping = MoveManipulator::UseSnapping;*/
 

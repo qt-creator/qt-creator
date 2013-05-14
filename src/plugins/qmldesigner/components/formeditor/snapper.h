@@ -42,6 +42,12 @@ namespace QmlDesigner {
 class Snapper
 {
 public:
+    enum Snapping {
+        UseSnapping,
+        UseSnappingAndAnchoring,
+        NoSnapping
+    };
+
     Snapper();
 
     void setContainerFormEditorItem(FormEditorItem *formEditorItem);
@@ -73,6 +79,9 @@ public:
     QList<QGraphicsItem*> generateSnappingLines(const QRectF &boundingRect,
                                                 QGraphicsItem *layerItem,
                                                 const QTransform &transform);
+
+    void adjustAnchoringOfItem(FormEditorItem *formEditorItem);
+
 protected:
     double snappedOffsetForLines(const SnapLineMap &snappingLineMap,
                          double value) const;

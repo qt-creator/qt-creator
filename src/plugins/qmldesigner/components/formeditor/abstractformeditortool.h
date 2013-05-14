@@ -34,6 +34,8 @@
 
 #include <qmldesignercorelib_global.h>
 
+#include "snapper.h"
+
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 QT_END_NAMESPACE
@@ -99,6 +101,7 @@ public:
 protected:
     virtual void selectedItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
     virtual void showContextMenu(QGraphicsSceneMouseEvent *event);
+    Snapper::Snapping generateUseSnapping(Qt::KeyboardModifiers keyboardModifier) const;
 
     FormEditorView *view() const;
     void setView(FormEditorView *view);

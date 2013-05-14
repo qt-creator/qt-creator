@@ -103,18 +103,7 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
             }
         }
 
-        bool shouldSnapping = view()->formEditorWidget()->snappingAction()->isChecked();
-        bool shouldSnappingAndAnchoring = view()->formEditorWidget()->snappingAndAnchoringAction()->isChecked();
-
-        MoveManipulator::Snapping useSnapping = MoveManipulator::NoSnapping;
-        if (event->modifiers().testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {
-            if (shouldSnappingAndAnchoring)
-                useSnapping = MoveManipulator::UseSnappingAndAnchoring;
-            else
-                useSnapping = MoveManipulator::UseSnapping;
-        }
-
-        m_moveManipulator.update(event->scenePos(), useSnapping);
+        m_moveManipulator.update(event->scenePos(), generateUseSnapping(event->modifiers()));
     }
 }
 
@@ -214,25 +203,11 @@ void MoveTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
         if (m_movingItems.isEmpty())
             return;
 
-        QLineF moveVector(event->scenePos(), m_moveManipulator.beginPoint());
-        if (moveVector.length() < QApplication::startDragDistance())
-        {
-            QPointF beginPoint(m_moveManipulator.beginPoint());
+        m_moveManipulator.end(generateUseSnapping(event->modifiers()));
 
-            m_moveManipulator.end(beginPoint);
-
-            //        m_selectionIndicator.show();
-            m_resizeIndicator.show();
-            m_movingItems.clear();
-
-            view()->changeToSelectionTool(event);
-        } else {
-            m_moveManipulator.end(event->scenePos());
-
-            m_selectionIndicator.show();
-            m_resizeIndicator.show();
-            m_movingItems.clear();
-        }
+        m_selectionIndicator.show();
+        m_resizeIndicator.show();
+        m_movingItems.clear();
     }
 
     AbstractFormEditorTool::mouseReleaseEvent(itemList, event);

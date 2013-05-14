@@ -99,14 +99,14 @@ void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
 //    return QSizeF(sizeAsPoint.x(), sizeAsPoint.y());
 //}
 
-void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
+void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSnapping)
 {
     const double minimumWidth = 0.0;
     const double minimumHeight = 0.0;
 
     deleteSnapLines();
 
-    bool snap = useSnapping == UseSnapping || useSnapping == UseSnappingAndAnchoring;
+    bool snap = useSnapping == Snapper::UseSnapping || useSnapping == Snapper::UseSnappingAndAnchoring;
 
     if (m_resizeController.isValid()) {
 
@@ -376,8 +376,15 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
     }
 }
 
-void ResizeManipulator::end()
+void ResizeManipulator::end(Snapper::Snapping useSnapping)
 {
+    if (useSnapping == Snapper::UseSnappingAndAnchoring) {
+        deleteSnapLines();
+        m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
+        m_snapper.updateSnappingLines(m_resizeController.formEditorItem());
+        m_snapper.adjustAnchoringOfItem(m_resizeController.formEditorItem());
+    }
+
     m_isActive = false;
     m_rewriterTransaction.commit();
     clear();

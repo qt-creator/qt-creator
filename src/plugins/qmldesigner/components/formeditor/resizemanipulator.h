@@ -44,12 +44,6 @@ class Model;
 class ResizeManipulator
 {
 public:
-    enum Snapping {
-        UseSnapping,
-        UseSnappingAndAnchoring,
-        NoSnapping
-    };
-
     ResizeManipulator(LayerItem *layerItem, FormEditorView *view);
     ~ResizeManipulator();
 
@@ -57,8 +51,8 @@ public:
     void removeHandle();
 
     void begin(const QPointF& beginPoint);
-    void update(const QPointF& updatePoint, Snapping useSnapping);
-    void end();
+    void update(const QPointF& updatePoint, Snapper::Snapping useSnapping);
+    void end(Snapper::Snapping useSnapping);
 
     void moveBy(double deltaX, double deltaY);
 

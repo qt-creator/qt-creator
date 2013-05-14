@@ -49,12 +49,6 @@ class Model;
 class MoveManipulator
 {
 public:
-    enum Snapping {
-        UseSnapping,
-        UseSnappingAndAnchoring,
-        NoSnapping
-    };
-
     enum State {
         UseActualState,
         UseBaseState
@@ -68,9 +62,10 @@ public:
     void synchronizeParent(const QList<FormEditorItem*> &itemList, const ModelNode &parentNode);
 
     void begin(const QPointF& beginPoint);
-    void update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated = UseActualState);
+    void update(const QPointF& updatePoint, Snapper::Snapping useSnapping, State stateToBeManipulated = UseActualState);
     void reparentTo(FormEditorItem *newParent);
-    void end(const QPointF& endPoint);
+    void end();
+    void end(Snapper::Snapping useSnapping);
 
     void moveBy(double deltaX, double deltaY);
 
@@ -100,6 +95,8 @@ protected:
     bool itemsCanReparented() const;
 
     void setPosition(QmlItemNode itemNode, const QPointF &position);
+
+    void adjustAnchoringOfItem(FormEditorItem *item);
 
 private:
     Snapper m_snapper;

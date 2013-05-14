@@ -35,6 +35,7 @@
 #include <QLineF>
 #include <QPen>
 #include <QApplication>
+#include <qmlanchors.h>
 
 namespace QmlDesigner {
 
@@ -525,11 +526,6 @@ static QList<QLineF> mergedHorizontalLines(const QList<QLineF> &lineList)
     return mergedLineList;
 }
 
-
-
-
-
-
 static QList<QLineF> mergedVerticalLines(const QList<QLineF> &lineList)
 {
     QList<QLineF> mergedLineList;
@@ -565,6 +561,155 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QRectF &boundingRect,
     boundingRectList.append(boundingRect);
 
     return generateSnappingLines(boundingRectList, layerItem, transform);
+}
+
+static QmlItemNode findItemOnSnappingLine(const QmlItemNode &sourceQmlItemNode, const SnapLineMap &snappingLines, double anchorLine, AnchorLine::Type anchorLineType)
+{
+    QmlItemNode targetQmlItemNode;
+    double targetAnchorLine =  0.0;
+
+    targetAnchorLine = std::numeric_limits<double>::max();
+
+    AnchorLine::Type compareAnchorLineType;
+
+    if (anchorLineType == AnchorLine::Left
+            || anchorLineType == AnchorLine::Right)
+        compareAnchorLineType = AnchorLine::Top;
+    else
+        compareAnchorLineType = AnchorLine::Left;
+
+    SnapLineMapIterator  snapLineIterator(snappingLines);
+    while (snapLineIterator.hasNext()) {
+        snapLineIterator.next();
+        double snapLine = snapLineIterator.key();
+
+        if (qAbs(snapLine - anchorLine ) < 1.0) {
+            QmlItemNode possibleAchorItemNode = snapLineIterator.value().second->qmlItemNode();
+
+            double currentToAnchorLine = possibleAchorItemNode.anchors().instanceAnchorLine(compareAnchorLineType);
+
+            if (possibleAchorItemNode != sourceQmlItemNode) {
+                if (sourceQmlItemNode.instanceParent() == possibleAchorItemNode) {
+                    targetQmlItemNode = possibleAchorItemNode;
+                    targetAnchorLine = currentToAnchorLine;
+                    break;
+                } else if (currentToAnchorLine < targetAnchorLine) {
+                    targetQmlItemNode = possibleAchorItemNode;
+                    targetAnchorLine = currentToAnchorLine;
+                }
+            }
+        }
+    }
+
+    return targetQmlItemNode;
+}
+
+static void adjustAnchorLine(const QmlItemNode &sourceQmlItemNode,
+                             const QmlItemNode &containerQmlItemNode,
+                             const SnapLineMap &snappingLines,
+                             const SnapLineMap &snappingOffsets,
+                             AnchorLine::Type lineAnchorLineType,
+                             AnchorLine::Type offsetAnchorLineType)
+{
+    QmlAnchors qmlAnchors = sourceQmlItemNode.anchors();
+
+    double fromAnchorLine = sourceQmlItemNode.anchors().instanceAnchorLine(lineAnchorLineType);
+    QmlItemNode targetQmlItemNode = findItemOnSnappingLine(sourceQmlItemNode, snappingLines, fromAnchorLine, lineAnchorLineType);
+
+    if (targetQmlItemNode.isValid() && !targetQmlItemNode.anchors().checkForCycle(lineAnchorLineType, sourceQmlItemNode)) {
+        double margin = 0.0;
+
+        if (targetQmlItemNode == containerQmlItemNode) {
+            if (lineAnchorLineType == AnchorLine::Left
+                    || lineAnchorLineType == AnchorLine::Top)
+                margin = fromAnchorLine;
+            else if (lineAnchorLineType == AnchorLine::Right)
+                margin = targetQmlItemNode.instanceSize().width() - fromAnchorLine;
+            else if (lineAnchorLineType == AnchorLine::Bottom)
+                margin = targetQmlItemNode.instanceSize().height() - fromAnchorLine;
+
+        }
+
+        if (!qFuzzyIsNull(margin) || !qFuzzyIsNull(qmlAnchors.instanceMargin(lineAnchorLineType)))
+            qmlAnchors.setMargin(lineAnchorLineType, margin);
+
+        qmlAnchors.setAnchor(lineAnchorLineType, targetQmlItemNode, lineAnchorLineType);
+    } else if (!snappingOffsets.isEmpty()) {
+        targetQmlItemNode = findItemOnSnappingLine(sourceQmlItemNode, snappingOffsets, fromAnchorLine, lineAnchorLineType);
+        if (targetQmlItemNode.isValid() && !targetQmlItemNode.anchors().checkForCycle(lineAnchorLineType, sourceQmlItemNode)) {
+            double margin = fromAnchorLine - targetQmlItemNode.anchors().instanceAnchorLine(offsetAnchorLineType);
+
+            if (lineAnchorLineType == AnchorLine::Right
+                    || lineAnchorLineType == AnchorLine::Bottom)
+                    margin *= -1.;
+
+
+            if (!qFuzzyIsNull(margin) || !qFuzzyIsNull(qmlAnchors.instanceMargin(lineAnchorLineType)))
+                qmlAnchors.setMargin(lineAnchorLineType, margin);
+
+            qmlAnchors.setAnchor(lineAnchorLineType, targetQmlItemNode, offsetAnchorLineType);
+        }
+    }
+}
+
+void Snapper::adjustAnchoringOfItem(FormEditorItem *formEditorItem)
+{
+    QmlItemNode qmlItemNode = formEditorItem->qmlItemNode();
+    QmlAnchors qmlAnchors = qmlItemNode.anchors();
+
+    if (!qmlAnchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+        adjustAnchorLine(qmlItemNode,
+                         containerFormEditorItem()->qmlItemNode(),
+                         containerFormEditorItem()->leftSnappingLines(),
+                         containerFormEditorItem()->rightSnappingOffsets(),
+                         AnchorLine::Left,
+                         AnchorLine::Right);
+    }
+
+    if (!qmlAnchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+        adjustAnchorLine(qmlItemNode,
+                         containerFormEditorItem()->qmlItemNode(),
+                         containerFormEditorItem()->topSnappingLines(),
+                         containerFormEditorItem()->bottomSnappingOffsets(),
+                         AnchorLine::Top,
+                         AnchorLine::Bottom);
+    }
+
+    if (!qmlAnchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+        adjustAnchorLine(qmlItemNode,
+                         containerFormEditorItem()->qmlItemNode(),
+                         containerFormEditorItem()->bottomSnappingLines(),
+                         containerFormEditorItem()->topSnappingOffsets(),
+                         AnchorLine::Bottom,
+                         AnchorLine::Top);
+    }
+
+    if (!qmlAnchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+        adjustAnchorLine(qmlItemNode,
+                         containerFormEditorItem()->qmlItemNode(),
+                         containerFormEditorItem()->rightSnappingLines(),
+                         containerFormEditorItem()->leftSnappingOffsets(),
+                         AnchorLine::Right,
+                         AnchorLine::Left);
+    }
+
+    if (!qmlAnchors.instanceHasAnchor(AnchorLine::Left) && !qmlAnchors.instanceHasAnchor(AnchorLine::Right)) {
+        adjustAnchorLine(qmlItemNode,
+                         containerFormEditorItem()->qmlItemNode(),
+                         containerFormEditorItem()->verticalCenterSnappingLines(),
+                         SnapLineMap(),
+                         AnchorLine::HorizontalCenter,
+                         AnchorLine::HorizontalCenter);
+    }
+
+    if (!qmlAnchors.instanceHasAnchor(AnchorLine::Top) && !qmlAnchors.instanceHasAnchor(AnchorLine::Bottom)) {
+        adjustAnchorLine(qmlItemNode,
+                         containerFormEditorItem()->qmlItemNode(),
+                         containerFormEditorItem()->horizontalCenterSnappingLines(),
+                         SnapLineMap(),
+                         AnchorLine::VerticalCenter,
+                         AnchorLine::VerticalCenter);
+    }
 }
 
 //static void alignLine(QLineF &line)

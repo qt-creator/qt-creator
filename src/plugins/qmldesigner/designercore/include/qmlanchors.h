@@ -92,6 +92,14 @@ public:
     void removeAnchors();
     bool instanceHasAnchor(AnchorLine::Type sourceAnchorLineType) const;
     bool instanceHasAnchors() const;
+    double instanceLeftAnchorLine() const;
+    double instanceTopAnchorLine() const;
+    double instanceRightAnchorLine() const;
+    double instanceBottomAnchorLine() const;
+    double instanceHorizontalCenterAnchorLine() const;
+    double instanceVerticalCenterAnchorLine() const;
+    double instanceAnchorLine(AnchorLine::Type anchorLine) const;
+
     void setMargin(AnchorLine::Type sourceAnchorLineType, double margin) const;
     bool instanceHasMargin(AnchorLine::Type sourceAnchorLineType) const;
     double instanceMargin(AnchorLine::Type sourceAnchorLineType) const;
@@ -101,8 +109,13 @@ public:
     void fill();
     void centerIn();
 
-protected:
+    bool checkForCycle(AnchorLine::Type anchorLineTyp, const QmlItemNode &sourceItem) const;
+    bool checkForHorizontalCycle(const QmlItemNode &sourceItem) const;
+    bool checkForVerticalCycle(const QmlItemNode &sourceItem) const;
+
     QmlItemNode qmlItemNode() const;
+
+protected:
     void beautify();
 
 private:

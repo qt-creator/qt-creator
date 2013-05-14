@@ -393,7 +393,52 @@ bool QmlAnchors::instanceHasAnchors() const
            instanceHasAnchor(AnchorLine::Bottom) ||
            instanceHasAnchor(AnchorLine::HorizontalCenter) ||
            instanceHasAnchor(AnchorLine::VerticalCenter) ||
-           instanceHasAnchor(AnchorLine::Baseline);
+            instanceHasAnchor(AnchorLine::Baseline);
+}
+
+double QmlAnchors::instanceLeftAnchorLine() const
+{
+    return qmlItemNode().nodeInstance().position().x();
+}
+
+double QmlAnchors::instanceTopAnchorLine() const
+{
+    return qmlItemNode().nodeInstance().position().y();
+}
+
+double QmlAnchors::instanceRightAnchorLine() const
+{
+    return qmlItemNode().nodeInstance().position().x() + qmlItemNode().nodeInstance().size().width();
+}
+
+double QmlAnchors::instanceBottomAnchorLine() const
+{
+    return qmlItemNode().nodeInstance().position().y() + qmlItemNode().nodeInstance().size().height();
+}
+
+double QmlAnchors::instanceHorizontalCenterAnchorLine() const
+{
+    return (instanceLeftAnchorLine() + instanceRightAnchorLine()) / 2.0;
+}
+
+double QmlAnchors::instanceVerticalCenterAnchorLine() const
+{
+    return (instanceBottomAnchorLine() + instanceTopAnchorLine()) / 2.0;
+}
+
+double QmlAnchors::instanceAnchorLine(AnchorLine::Type anchorLine) const
+{
+    switch (anchorLine) {
+    case AnchorLine::Left: return instanceLeftAnchorLine();
+    case AnchorLine::Top: return instanceTopAnchorLine();
+    case AnchorLine::Bottom: return instanceBottomAnchorLine();
+    case AnchorLine::Right: return instanceRightAnchorLine();
+    case AnchorLine::HorizontalCenter: return instanceHorizontalCenterAnchorLine();
+    case AnchorLine::VerticalCenter: return instanceVerticalCenterAnchorLine();
+    default: return 0;
+    }
+
+    return 0.0;
 }
 
 void QmlAnchors::setMargin(AnchorLine::Type sourceAnchorLineType, double margin) const
@@ -405,6 +450,71 @@ void QmlAnchors::setMargin(AnchorLine::Type sourceAnchorLineType, double margin)
 bool QmlAnchors::instanceHasMargin(AnchorLine::Type sourceAnchorLineType) const
 {
     return !qIsNull(instanceMargin(sourceAnchorLineType));
+}
+
+static bool checkForHorizontalCycleRecusive(const QmlAnchors &anchors, QList<QmlItemNode> &visitedItems)
+{
+    visitedItems.append(anchors.qmlItemNode());
+    if (anchors.instanceHasAnchor(AnchorLine::Left)) {
+        AnchorLine leftAnchorLine = anchors.instanceAnchor(AnchorLine::Left);
+        if (visitedItems.contains(leftAnchorLine.qmlItemNode()) || checkForHorizontalCycleRecusive(leftAnchorLine.qmlItemNode().anchors(), visitedItems))
+            return true;
+    }
+
+    if (anchors.instanceHasAnchor(AnchorLine::Right)) {
+        AnchorLine rightAnchorLine = anchors.instanceAnchor(AnchorLine::Right);
+        if (visitedItems.contains(rightAnchorLine.qmlItemNode()) || checkForHorizontalCycleRecusive(rightAnchorLine.qmlItemNode().anchors(), visitedItems))
+            return true;
+    }
+
+    if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+        AnchorLine horizontalCenterAnchorLine = anchors.instanceAnchor(AnchorLine::HorizontalCenter);
+        if (visitedItems.contains(horizontalCenterAnchorLine.qmlItemNode()) || checkForHorizontalCycleRecusive(horizontalCenterAnchorLine.qmlItemNode().anchors(), visitedItems))
+            return true;
+    }
+
+    return false;
+}
+
+static bool checkForVerticalCycleRecusive(const QmlAnchors &anchors, QList<QmlItemNode> &visitedItems)
+{
+    visitedItems.append(anchors.qmlItemNode());
+
+    if (anchors.instanceHasAnchor(AnchorLine::Top)) {
+        AnchorLine topAnchorLine = anchors.instanceAnchor(AnchorLine::Top);
+        if (visitedItems.contains(topAnchorLine.qmlItemNode()) || checkForVerticalCycleRecusive(topAnchorLine.qmlItemNode().anchors(), visitedItems))
+            return true;
+    }
+
+    if (anchors.instanceHasAnchor(AnchorLine::Bottom)) {
+        AnchorLine bottomAnchorLine = anchors.instanceAnchor(AnchorLine::Bottom);
+        if (visitedItems.contains(bottomAnchorLine.qmlItemNode()) || checkForVerticalCycleRecusive(bottomAnchorLine.qmlItemNode().anchors(), visitedItems))
+            return true;
+    }
+
+    if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+        AnchorLine verticalCenterAnchorLine = anchors.instanceAnchor(AnchorLine::VerticalCenter);
+        if (visitedItems.contains(verticalCenterAnchorLine.qmlItemNode()) || checkForVerticalCycleRecusive(verticalCenterAnchorLine.qmlItemNode().anchors(), visitedItems))
+            return true;
+    }
+
+    return false;
+}
+
+bool QmlAnchors::checkForHorizontalCycle(const QmlItemNode &sourceItem) const
+{
+    QList<QmlItemNode> visitedItems;
+    visitedItems.append(sourceItem);
+
+    return checkForHorizontalCycleRecusive(*this, visitedItems);
+}
+
+bool QmlAnchors::checkForVerticalCycle(const QmlItemNode &sourceItem) const
+{
+    QList<QmlItemNode> visitedItems;
+    visitedItems.append(sourceItem);
+
+    return checkForVerticalCycleRecusive(*this, visitedItems);
 }
 
 double QmlAnchors::instanceMargin(AnchorLine::Type sourceAnchorLineType) const
@@ -450,6 +560,14 @@ void QmlAnchors::centerIn()
         removeAnchors();
 
     qmlItemNode().modelNode().bindingProperty("anchors.centerIn").setExpression("parent");
+}
+
+bool QmlAnchors::checkForCycle(AnchorLine::Type anchorLineTyp, const QmlItemNode &sourceItem) const
+{
+    if (anchorLineTyp & AnchorLine::HorizontalMask)
+        return checkForHorizontalCycle(sourceItem);
+    else
+        return checkForVerticalCycle(sourceItem);
 }
 
 } //QmlDesigner

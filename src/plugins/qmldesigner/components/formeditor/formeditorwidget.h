@@ -56,7 +56,6 @@ public:
     FormEditorWidget(FormEditorView *view);
 
     ZoomAction *zoomAction() const;
-    QAction *transformToolAction() const;
     QAction *showBoundingRectAction() const;
     QAction *selectOnlyContentItemsAction() const;
     QAction *snappingAction() const;

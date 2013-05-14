@@ -29,6 +29,7 @@
 
 #include "abstractformeditortool.h"
 #include "formeditorview.h"
+#include "formeditorwidget.h"
 
 #include <modelnodecontextmenu.h>
 
@@ -36,6 +37,7 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
 #include <nodemetainfo.h>
+#include <QAction>
 
 namespace QmlDesigner {
 
@@ -217,6 +219,22 @@ void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &
 void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
 {
     ModelNodeContextMenu::showContextMenu(view(), event->screenPos(), event->scenePos().toPoint(), true);
+}
+
+Snapper::Snapping AbstractFormEditorTool::generateUseSnapping(Qt::KeyboardModifiers keyboardModifier) const
+{
+    bool shouldSnapping = view()->formEditorWidget()->snappingAction()->isChecked();
+    bool shouldSnappingAndAnchoring = view()->formEditorWidget()->snappingAndAnchoringAction()->isChecked();
+
+    Snapper::Snapping useSnapping = Snapper::NoSnapping;
+    if (keyboardModifier.testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {
+        if (shouldSnappingAndAnchoring)
+            useSnapping = Snapper::UseSnappingAndAnchoring;
+        else
+            useSnapping = Snapper::UseSnapping;
+    }
+
+    return useSnapping;
 }
 
 void AbstractFormEditorTool::clear()

@@ -102,7 +102,7 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
     }
 
     if (!parentNode.metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
-        update(m_lastPosition, NoSnapping, UseBaseState);
+        update(m_lastPosition, Snapper::NoSnapping, UseBaseState);
 }
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
@@ -260,7 +260,7 @@ QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHa
 /*
   /brief updates the position of the items.
 */
-void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated)
+void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSnapping, State stateToBeManipulated)
 {
     m_lastPosition = updatePoint;
     deleteSnapLines(); //Since they position is changed and the item is moved the snapping lines are
@@ -275,12 +275,7 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, S
 
         QPointF offsetVector(updatePointInContainerSpace - beginPointInContainerSpace);
 
-        if (useSnapping == UseSnappingAndAnchoring)
-        {
-
-        }
-
-        if (useSnapping == UseSnapping || useSnapping == UseSnappingAndAnchoring) {
+        if (useSnapping == Snapper::UseSnapping || useSnapping == Snapper::UseSnappingAndAnchoring) {
             offsetVector -= findSnappingOffset(tanslatedBoundingRects(m_beginItemRectHash, offsetVector));
             generateSnappingLines(tanslatedBoundingRects(m_beginItemRectHash, offsetVector));
         }
@@ -386,13 +381,23 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     }
 }
 
-
-void MoveManipulator::end(const QPointF &/*endPoint*/)
+void MoveManipulator::end()
 {
     m_isActive = false;
     deleteSnapLines();
-//    setOpacityForAllElements(1.0);
     clear();
+}
+
+
+
+void MoveManipulator::end(Snapper::Snapping useSnapping)
+{
+    if (useSnapping == Snapper::UseSnappingAndAnchoring) {
+        foreach (FormEditorItem *formEditorItem, m_itemList)
+            m_snapper.adjustAnchoringOfItem(formEditorItem);
+    }
+
+    end();
 }
 
 void MoveManipulator::moveBy(double deltaX, double deltaY)
