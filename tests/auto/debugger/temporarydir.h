@@ -29,8 +29,10 @@
 
 // this file has been adapted from TemporaryDir implementation of Qt5
 
-#ifndef __QTEMPORARYDIR_H_INCLUDED__
-#define __QTEMPORARYDIR_H_INCLUDED__
+#ifndef TEMPORARYDIR_H_INCLUDED
+#define TEMPORARYDIR_H_INCLUDED
+
+#include <QtGlobal>
 
 #if QT_VERSION >= 0x050000
     #include <QTemporaryDir>
@@ -209,4 +211,4 @@ typedef TemporaryDir QTemporaryDir;
 
 #endif // QT_VERSION < 0x050000
 
-#endif // __QTEMPORARYDIR_H_INCLUDED__
+#endif // TEMPORARYDIR_H_INCLUDED
