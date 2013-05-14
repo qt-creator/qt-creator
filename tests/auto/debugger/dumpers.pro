@@ -1,4 +1,4 @@
-QTC_PLUGIN_DEPENDS += cpptools
+QTC_LIB_DEPENDS += cplusplus
 
 include(../qttest.pri)
 

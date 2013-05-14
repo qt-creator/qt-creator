@@ -32,11 +32,14 @@
 #include "watchutils.h"
 
 #include <cplusplus/CppRewriter.h>
-#include <projectexplorer/abstractmsvctoolchain.h>
 #include <utils/environment.h>
+#include <utils/qtcprocess.h>
+#include <utils/fileutils.h>
+#include <utils/synchronousprocess.h>
+
+#include "temporarydir.h"
 
 #include <QtTest>
-#include "temporarydir.h"
 
 #if  QT_VERSION >= 0x050000
 #define MSKIP_SINGLE(x) QSKIP(x)
@@ -47,6 +50,98 @@
 using namespace Debugger;
 using namespace Utils;
 using namespace Internal;
+
+// Copied from abstractmsvctoolchain.cpp to avoid plugin dependency.
+
+static bool generateEnvironmentSettings(Utils::Environment &env,
+                                        const QString &batchFile,
+                                        const QString &batchArgs,
+                                        QMap<QString, QString> &envPairs)
+{
+    // Create a temporary file name for the output. Use a temporary file here
+    // as I don't know another way to do this in Qt...
+    // Note, can't just use a QTemporaryFile all the way through as it remains open
+    // internally so it can't be streamed to later.
+    QString tempOutFile;
+    QTemporaryFile* pVarsTempFile = new QTemporaryFile(QDir::tempPath() + QLatin1String("/XXXXXX.txt"));
+    pVarsTempFile->setAutoRemove(false);
+    pVarsTempFile->open();
+    pVarsTempFile->close();
+    tempOutFile = pVarsTempFile->fileName();
+    delete pVarsTempFile;
+
+    // Create a batch file to create and save the env settings
+    Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/XXXXXX.bat"));
+
+    QByteArray call = "call ";
+    call += Utils::QtcProcess::quoteArg(batchFile).toLocal8Bit();
+    if (!batchArgs.isEmpty()) {
+        call += ' ';
+        call += batchArgs.toLocal8Bit();
+    }
+    saver.write(call + "\r\n");
+
+    const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
+                                    QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
+    saver.write(redirect);
+    if (!saver.finalize()) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+        return false;
+    }
+
+    Utils::QtcProcess run;
+    // As of WinSDK 7.1, there is logic preventing the path from being set
+    // correctly if "ORIGINALPATH" is already set. That can cause problems
+    // if Creator is launched within a session set up by setenv.cmd.
+    env.unset(QLatin1String("ORIGINALPATH"));
+    run.setEnvironment(env);
+    const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    // Windows SDK setup scripts require command line switches for environment expansion.
+    QString cmdArguments = QLatin1String(" /E:ON /V:ON /c \"");
+    cmdArguments += QDir::toNativeSeparators(saver.fileName());
+    cmdArguments += QLatin1Char('"');
+    run.setCommand(cmdPath, cmdArguments);
+    run.start();
+
+    if (!run.waitForStarted()) {
+        qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(batchFile),
+                 qPrintable(run.errorString()));
+        return false;
+    }
+    if (!run.waitForFinished()) {
+        qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(batchFile));
+        Utils::SynchronousProcess::stopProcess(run);
+        return false;
+    }
+    // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
+    const QByteArray stdOut = run.readAllStandardOutput();
+    if (!stdOut.isEmpty() && (stdOut.contains("Unknown") || stdOut.contains("Error")))
+        qWarning("%s: '%s' reports:\n%s", Q_FUNC_INFO, call.constData(), stdOut.constData());
+
+    //
+    // Now parse the file to get the environment settings
+    QFile varsFile(tempOutFile);
+    if (!varsFile.open(QIODevice::ReadOnly))
+        return false;
+
+    QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
+    while (!varsFile.atEnd()) {
+        const QString line = QString::fromLocal8Bit(varsFile.readLine()).trimmed();
+        if (regexp.exactMatch(line)) {
+            const QString varName = regexp.cap(1);
+            const QString varValue = regexp.cap(2);
+
+            if (!varValue.isEmpty())
+                envPairs.insert(varName, varValue);
+        }
+    }
+
+    // Tidy up and remove the file
+    varsFile.close();
+    varsFile.remove();
+
+    return true;
+}
 
 static QByteArray noValue = "\001";
 
@@ -452,9 +547,7 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
-        QVERIFY(ProjectExplorer::Internal::AbstractMsvcToolChain::generateEnvironmentSettings(
-                    utilsEnv, QString::fromLatin1(envBat), QString(), envPairs));
-
+        QVERIFY(generateEnvironmentSettings(utilsEnv, QString::fromLatin1(envBat), QString(), envPairs));
         for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt!=envPairs.end(); ++envIt)
                 utilsEnv.set(envIt.key(), envIt.value());
 
