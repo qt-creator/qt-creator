@@ -211,7 +211,8 @@ void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
         data.insert(QLatin1String(QTCORE_NAMESPACE), qt->qtNamespace());
         data.insert(QLatin1String(QTCORE_LIBINFIX), qt->qtLibInfix());
         data.insert(QLatin1String(QTCORE_VERSION), qt->qtVersionString());
-        data.insert(QLatin1String(QTCORE_FRAMEWORKBUILD), qt->isFrameworkBuild());
+        if (qt->isFrameworkBuild())
+            data.insert(QLatin1String(QTCORE_FRAMEWORKBUILD), true);
     }
 
     if (ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
