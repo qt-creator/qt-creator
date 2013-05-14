@@ -444,7 +444,7 @@ struct TempStuff
 {
     TempStuff() : buildTemp(QLatin1String("qt_tst_dumpers_"))
     {
-        buildPath = buildTemp.path();
+        buildPath = QDir::currentPath() + QLatin1Char('/')  + buildTemp.path();
         buildTemp.setAutoRemove(false);
         QVERIFY(!buildPath.isEmpty());
     }
@@ -510,7 +510,10 @@ void tst_Dumpers::initTestCase()
     m_debuggerEngine = DumpTestGdbEngine;
     if (m_debuggerBinary.endsWith("cdb.exe"))
         m_debuggerEngine = DumpTestCdbEngine;
-    if (m_debuggerBinary.endsWith("lldb") || m_debuggerBinary.contains("/lldb-"))
+
+    if (m_debuggerBinary.endsWith("lldb")
+            || m_debuggerBinary.endsWith("lbridge.py")
+            || m_debuggerBinary.contains("/lldb-"))
         m_debuggerEngine = DumpTestLldbEngine;
 
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH");
@@ -559,7 +562,8 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
         m_usePython = true;
         QProcess debugger;
-        debugger.start(QString::fromLatin1(m_debuggerBinary + " -v"));
+        QString cmd = QString::fromUtf8(m_debuggerBinary + " -v");
+        debugger.start(cmd);
         bool ok = debugger.waitForFinished(2000);
         QVERIFY(ok);
         QByteArray output = debugger.readAllStandardOutput();
@@ -686,10 +690,12 @@ void tst_Dumpers::dumper()
         expanded += iname;
     }
 
-    QByteArray cmds;
+    QByteArray exe;
     QStringList args;
+    QByteArray cmds;
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
+        exe = m_debuggerBinary;
         args << QLatin1String("-i")
              << QLatin1String("mi")
              << QLatin1String("-quiet")
@@ -720,6 +726,7 @@ void tst_Dumpers::dumper()
         cmds += "quit\n";
 
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
+        exe = m_debuggerBinary;
         args << QLatin1String("-aqtcreatorcdbext.dll")
              << QLatin1String("-lines")
              << QLatin1String("-G")
@@ -742,12 +749,17 @@ void tst_Dumpers::dumper()
             cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token) + " -c 0 " + iName.toLatin1() + "\n";
         cmds += "q\n";
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
-        cmds = "script execfile('" + dumperDir + "/lbridge.py')\n"
-               "run\n"
-               "up\n"
-               "script print('@%sS@%s@' % ('N', qtNamespace()))\n"
-               "script bb('options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:')\n"
-               "quit\n";
+        exe = "python";
+        args << QLatin1String("-i")
+             << QLatin1String(dumperDir + "/lbridge.py");
+        cmds = "db {'cmd':'setupInferior','executable':'"
+                    + t->buildPath.toUtf8() + "/doit','token':1}\n"
+               "db {'cmd':'handleBreakpoints',"
+                   "'bkpts':[{'operation':'add','modelid':'6','type':2,'ignorecount':0"
+                        ",'condition':'','function':'breakHere','oneshot':0"
+                        ",'enabled':1,'file':'','line':0}],"
+                   "'continuation':'runEngine2','token':2}\n"
+               "db {'cmd':'runEngine','token':3}\n";
     }
 
     t->input = cmds;
@@ -755,7 +767,7 @@ void tst_Dumpers::dumper()
     QProcess debugger;
     debugger.setProcessEnvironment(m_env);
     debugger.setWorkingDirectory(t->buildPath);
-    debugger.start(QString::fromLatin1(m_debuggerBinary), args);
+    debugger.start(QString::fromLatin1(exe), args);
     QVERIFY(debugger.waitForStarted());
     debugger.write(cmds);
     QVERIFY(debugger.waitForFinished());
