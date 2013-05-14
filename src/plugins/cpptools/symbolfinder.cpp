@@ -95,8 +95,8 @@ SymbolFinder::SymbolFinder()
 {}
 
 // strict means the returned symbol has to match exactly,
-// including argument count and argument types
-Symbol *SymbolFinder::findMatchingDefinition(Symbol *declaration,
+// including argument count, argument types, constness and volatileness.
+Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                                              const Snapshot &snapshot,
                                              bool strict)
 {
@@ -189,8 +189,11 @@ Symbol *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                             break;
                     }
 
-                    if (argIt == argc)
+                    if (argIt == argc
+                            && fun->isConst() == declaration->type().isConst()
+                            && fun->isVolatile() == declaration->type().isVolatile()) {
                         best = fun;
+                    }
                 }
             }
 

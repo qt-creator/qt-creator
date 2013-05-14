@@ -46,9 +46,9 @@ class CPPTOOLS_EXPORT SymbolFinder
 public:
     SymbolFinder();
 
-    CPlusPlus::Symbol *findMatchingDefinition(CPlusPlus::Symbol *symbol,
-                                              const CPlusPlus::Snapshot &snapshot,
-                                              bool strict = false);
+    CPlusPlus::Function *findMatchingDefinition(CPlusPlus::Symbol *symbol,
+                                                const CPlusPlus::Snapshot &snapshot,
+                                                bool strict = false);
 
     CPlusPlus::Class *findMatchingClassDeclaration(CPlusPlus::Symbol *declaration,
                                                    const CPlusPlus::Snapshot &snapshot);

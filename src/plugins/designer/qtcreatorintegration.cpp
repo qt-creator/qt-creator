@@ -257,11 +257,11 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
     if (CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance()) {
         const Snapshot snapshot = cppModelManager->snapshot();
         CppTools::SymbolFinder symbolFinder;
-        if (Symbol *def = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
+        if (Function *fun = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
             if (line)
-                *line = def->line();
+                *line = fun->line();
 
-            return snapshot.document(QString::fromUtf8(def->fileName(), def->fileNameLength()));
+            return snapshot.document(QString::fromUtf8(fun->fileName(), fun->fileNameLength()));
         }
     }
 

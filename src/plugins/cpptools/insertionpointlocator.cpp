@@ -516,56 +516,44 @@ static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, 
 
     // find the declaration's definition
     CppTools::SymbolFinder symbolFinder;
-    Symbol *definition = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
-                                                             changes.snapshot());
-    if (!definition)
+    Function *definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
+                                                                       changes.snapshot());
+    if (!definitionFunction)
         return noResult;
 
     unsigned line, column;
     if (suffix.isEmpty()) {
-        Function *definitionFunction = definition->asFunction();
-        if (!definitionFunction)
-            return noResult;
-
-        Document::Ptr targetDoc = changes.snapshot().document(QString::fromUtf8(definition->fileName()));
+        Document::Ptr targetDoc = changes.snapshot().document(QString::fromUtf8(definitionFunction->fileName()));
         if (!targetDoc)
             return noResult;
 
         targetDoc->translationUnit()->getPosition(definitionFunction->endOffset(), &line, &column);
     } else {
         // we don't have an offset to the start of the function definition, so we need to manually find it...
-        CppRefactoringFilePtr targetFile = changes.file(QString::fromUtf8(definition->fileName()));
+        CppRefactoringFilePtr targetFile = changes.file(QString::fromUtf8(definitionFunction->fileName()));
         if (!targetFile->isValid())
             return noResult;
 
         FindFunctionDefinition finder(targetFile->cppDocument()->translationUnit());
-        FunctionDefinitionAST *functionDefinition = finder(definition->line(), definition->column());
+        FunctionDefinitionAST *functionDefinition = finder(definitionFunction->line(), definitionFunction->column());
         if (!functionDefinition)
             return noResult;
 
         targetFile->cppDocument()->translationUnit()->getTokenStartPosition(functionDefinition->firstToken(), &line, &column);
     }
 
-    return InsertionLocation(QString::fromUtf8(definition->fileName()), prefix, suffix, line, column);
+    return InsertionLocation(QString::fromUtf8(definitionFunction->fileName()), prefix, suffix, line, column);
 }
 
-QList<InsertionLocation> InsertionPointLocator::methodDefinition(
-    Declaration *declaration) const
+QList<InsertionLocation> InsertionPointLocator::methodDefinition(Declaration *declaration) const
 {
     QList<InsertionLocation> result;
     if (!declaration)
         return result;
 
     CppTools::SymbolFinder symbolFinder;
-    if (Symbol *s = symbolFinder.findMatchingDefinition(declaration,
-                                                        m_refactoringChanges.snapshot(),
-                                                        true)) {
-        if (Function *f = s->asFunction()) {
-            if (f->isConst() == declaration->type().isConst()
-                    && f->isVolatile() == declaration->type().isVolatile())
-                return result;
-        }
-    }
+    if (symbolFinder.findMatchingDefinition(declaration, m_refactoringChanges.snapshot(), true))
+        return result;
 
     const InsertionLocation location = nextToSurroundingDefinitions(declaration, m_refactoringChanges);
     if (location.isValid()) {
