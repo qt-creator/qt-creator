@@ -205,7 +205,9 @@ void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
         data.insert(QLatin1String(QTCORE_BINPATH), qt->binPath().toUserOutput());
         data.insert(QLatin1String(QTCORE_INCPATH), qt->headerPath().toUserOutput());
         data.insert(QLatin1String(QTCORE_LIBPATH), qt->libraryPath().toUserOutput());
-        data.insert(QLatin1String(QTCORE_MKSPEC), qt->mkspecsPath().toUserOutput());
+        Utils::FileName mkspecPath = qt->mkspecsPath();
+        mkspecPath.appendPath(qt->mkspec().toString());
+        data.insert(QLatin1String(QTCORE_MKSPEC), mkspecPath.toUserOutput());
         data.insert(QLatin1String(QTCORE_NAMESPACE), qt->qtNamespace());
         data.insert(QLatin1String(QTCORE_LIBINFIX), qt->qtLibInfix());
         data.insert(QLatin1String(QTCORE_VERSION), qt->qtVersionString());
