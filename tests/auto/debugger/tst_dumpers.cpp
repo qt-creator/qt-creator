@@ -717,7 +717,7 @@ void tst_Dumpers::dumper()
     }
 
     GdbMi actual;
-    actual.fromStringMultiple(contents);
+    actual.fromString(contents);
     WatchData local;
     local.iname = "local";
 
