@@ -389,13 +389,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 void HelpPlugin::extensionsInitialized()
 {
     QStringList filesToRegister;
-    // Explicitly register qml.qch if located in creator directory. This is only
-    // needed for the creator-qml package, were we want to ship the documentation
-    // without a qt development version. TODO: is this still really needed, remove
-    const QString &appPath = QCoreApplication::applicationDirPath();
-    filesToRegister.append(QDir::cleanPath(QDir::cleanPath(appPath
-        + docPath() + QLatin1String("qml.qch"))));
-
     // we might need to register creators inbuild help
     filesToRegister.append(QDir::cleanPath(appPath
         + docPath() + QLatin1String("qtcreator.qch")));
