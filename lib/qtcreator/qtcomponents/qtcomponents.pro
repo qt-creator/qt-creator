@@ -2,7 +2,7 @@ include(../../../qtcreator.pri)
 
 TEMPLATE = app
 TARGET = phony_target3
-CONFIG -= qt separate_debug_info gdb_dwarf_index
+CONFIG -= qt sdk separate_debug_info gdb_dwarf_index
 QT =
 LIBS =
 macx:CONFIG -= app_bundle
