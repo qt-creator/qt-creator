@@ -188,10 +188,22 @@ void ItemLibraryEntry::setIconPath(const QString &iconPath)
     m_data->iconPath = iconPath;
 }
 
+static QString getSourceForUrl(const QString &fileURl)
+{
+    Utils::FileReader fileReader;
+
+    if (fileReader.fetch(fileURl)) {
+        return fileReader.data();
+    } else {
+        return Utils::FileReader::fetchQrc(fileURl);
+    }
+}
+
 void ItemLibraryEntry::setQml(const QString &qml)
 {
     m_data->qml = qml;
-    m_data->qmlSource = Utils::FileReader::fetchQrc(qml);
+
+    m_data->qmlSource = getSourceForUrl(qml);
 }
 
 void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
