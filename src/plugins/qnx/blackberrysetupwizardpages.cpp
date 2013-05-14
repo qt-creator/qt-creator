@@ -53,10 +53,11 @@ using namespace Qnx::Internal;
 BlackBerrySetupWizardWelcomePage::BlackBerrySetupWizardWelcomePage(QWidget *parent) :
     QWizardPage(parent)
 {
-    const QString welcomeMessage = tr("Welcome to the BlackBerry Development ")
-        + tr("Environment Setup Wizard.\nThis wizard will guide you through ")
-        + tr("the essential steps to deploy a ready to go development environment ")
-        + tr("for BlackBerry 10 devices.");
+    const QString welcomeMessage =
+        tr("Welcome to the BlackBerry Development "
+           "Environment Setup Wizard.\nThis wizard will guide you through "
+           "the essential steps to deploy a ready-to-go development environment "
+           "for BlackBerry 10 devices.");
 
     setTitle(tr("BlackBerry Development Environment Setup"));
 
@@ -287,7 +288,7 @@ BlackBerrySetupWizardFinishPage::BlackBerrySetupWizardFinishPage(QWidget *parent
     : QWizardPage(parent),
     m_ui(0)
 {
-    setSubTitle(tr("Your environment is ready to be configured!"));
+    setSubTitle(tr("Your environment is ready to be configured."));
 
     m_ui = new Ui::BlackBerrySetupWizardFinishPage;
     m_ui->setupUi(this);
