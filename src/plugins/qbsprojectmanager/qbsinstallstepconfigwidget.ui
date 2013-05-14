@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="installRootLabel">
      <property name="text">
-      <string>Install Root:</string>
+      <string>Install root:</string>
      </property>
     </widget>
    </item>
@@ -49,7 +49,7 @@
    <item row="1" column="0">
     <widget class="QCheckBox" name="removeFirstCheckBox">
      <property name="text">
-      <string>Remove First</string>
+      <string>Remove first</string>
      </property>
     </widget>
    </item>
@@ -63,7 +63,7 @@
    <item row="1" column="2">
     <widget class="QCheckBox" name="keepGoingCheckBox">
      <property name="text">
-      <string>Keep Going</string>
+      <string>Keep going</string>
      </property>
     </widget>
    </item>
