@@ -39,7 +39,7 @@ leave room for the Qt 4 target page.
         id="QtQuick1ExtensionPlugin" category="G.Libraries"
         featuresRequired="QtSupport.Wizards.FeatureQtQuick,QtSupport.Wizards.FeatureQtQuick.1">
     <icon>lib.png</icon>
-    <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.&lt;br&gt;&lt;br&gt;Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</description>
+    <description>Creates a C++ plugin to load extensions dynamically into applications using the QDeclarativeEngine class.&lt;br&gt;&lt;br&gt;Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</description>
     <displayname>Qt Quick 1 Extension Plugin</displayname>
     <displaycategory>Libraries</displaycategory>
     <files>
@@ -55,7 +55,7 @@ leave room for the Qt 4 target page.
     <fields>
         <field mandatory="true" name="ObjectName">
             <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="MyItem"/>
-            <fielddescription>Object Class-name:</fielddescription>
+            <fielddescription>Object class-name:</fielddescription>
         </field>
         <field mandatory="true" name="Uri">
             <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9]+([A-Za-z0-9-]*[A-Za-z0-9]+)?(\.[A-Za-z0-9]+([-A-Za-z0-9]*[A-Za-z0-9]+)?)*$' defaulttext="com.mycompany.qmlcomponents"/>
