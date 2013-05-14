@@ -106,7 +106,7 @@
       <item row="3" column="0">
        <widget class="QCheckBox" name="showCompileOutputCheckBox">
         <property name="text">
-         <string>Open compiler output pane when building</string>
+         <string>Open Compile Output pane when building</string>
         </property>
        </widget>
       </item>
@@ -161,14 +161,14 @@
       <item row="4" column="0">
        <widget class="QCheckBox" name="showRunOutputCheckBox">
         <property name="text">
-         <string>Open application output pane on output when running</string>
+         <string>Open Application Output pane on output when running</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0">
        <widget class="QCheckBox" name="showDebugOutputCheckBox">
         <property name="text">
-         <string>Open application output pane on output when debugging</string>
+         <string>Open Application Output pane on output when debugging</string>
         </property>
        </widget>
       </item>

@@ -148,11 +148,10 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         ".gdbinit file on debugger startup."));
 
     checkBoxLoadGdbDumpers = new QCheckBox(groupBoxGeneral);
-    checkBoxLoadGdbDumpers->setText(GdbOptionsPage::tr("Load system gdb pretty printers"));
+    checkBoxLoadGdbDumpers->setText(GdbOptionsPage::tr("Load system GDB pretty printers"));
     checkBoxLoadGdbDumpers->setToolTip(GdbOptionsPage::tr(
-        "Allows or inhibits using the default gdb pretty printers "
-        "installed in your system or linked to the libraries your "
-        "application uses.\n"));
+        "Uses the default GDB pretty printers installed in your "
+        "system or linked to the libraries your application uses.\n"));
 
     checkBoxIntelFlavor = new QCheckBox(groupBoxGeneral);
     checkBoxIntelFlavor->setText(GdbOptionsPage::tr("Use Intel style disassembly"));
@@ -163,8 +162,8 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     checkBoxIdentifyDebugInfoPackages = new QCheckBox(groupBoxGeneral);
     checkBoxIdentifyDebugInfoPackages->setText(GdbOptionsPage::tr("Create tasks from missing packages"));
     checkBoxIdentifyDebugInfoPackages->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Checking this option attempts to identify missing debug "
-        "info packages and lists them in the Issues output pane.</p><p>"
+        "<html><head/><body><p>Attempts to identify missing debug info packages "
+        "and lists them in the Issues output pane.</p><p>"
         "<b>Note:</b>This feature needs special support from the Linux "
         "distribution and GDB build and is not everywhere available.</p></body></html>"));
 

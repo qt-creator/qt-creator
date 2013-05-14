@@ -145,7 +145,7 @@ void LldbEngine::setupEngine()
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty())
-            Core::ICore::showWarningWithOptions(tr("Adapter start failed"), msg);
+            Core::ICore::showWarningWithOptions(tr("Adapter start failed."), msg);
     }
 }
 
@@ -602,7 +602,7 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
     if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier").arg(exp));
+        QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier.").arg(exp));
         return true;
     }
 
@@ -623,7 +623,7 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
             tr("Cowardly refusing to evaluate expression '%1' "
-               "with potential side effects").arg(exp));
+               "with potential side effects.").arg(exp));
         return true;
     }
 
