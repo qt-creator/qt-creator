@@ -291,9 +291,6 @@ void TestCase::run(CppQuickFixFactory *factory, int resultIndex)
     // Compare all files
     const int testFilesCount = testFiles.size();
     foreach (const TestDocumentPtr testFile, testFiles) {
-        if (testFilesCount >= 2)
-            qDebug() << "Checking" << testFile->filePath();
-
         // Check
         QByteArray result = testFile->editorWidget->document()->toPlainText().toUtf8();
         removeTrailingWhitespace(result);
