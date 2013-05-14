@@ -289,7 +289,6 @@ void TestCase::run(CppQuickFixFactory *factory, int resultIndex)
         qDebug() << "Quickfix was not triggered";
 
     // Compare all files
-    const int testFilesCount = testFiles.size();
     foreach (const TestDocumentPtr testFile, testFiles) {
         // Check
         QByteArray result = testFile->editorWidget->document()->toPlainText().toUtf8();
