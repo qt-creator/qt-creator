@@ -559,7 +559,7 @@ void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
                 destinationPath = androidLibPath + QLatin1Char('/') + garbledFileName;
                 shouldStrip = true;
             } else {
-                garbledFileName = AndroidManager::libraryPrefix() + fullFileName;
+                garbledFileName = AndroidManager::libraryPrefix() + QLatin1Char('/') + fullFileName;
                 destinationPath = androidAssetsPath + garbledFileName;
             }
 
@@ -591,6 +591,8 @@ void AndroidPackageCreationStep::removeManagedFilesFromPackage()
             }
         }
     }
+
+    removeDirectory(m_androidDir.toString() + QLatin1String("/assets/") + AndroidManager::libraryPrefix());
 }
 
 void AndroidPackageCreationStep::copyFilesIntoPackage(const QList<DeployItem> &deployList)
