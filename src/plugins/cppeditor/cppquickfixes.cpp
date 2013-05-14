@@ -3773,7 +3773,7 @@ public:
     {
         if (m_type == MoveOutside) {
             setDescription(QCoreApplication::translate("CppEditor::QuickFix",
-                                                       "Move Definition outside Class"));
+                                                       "Move Definition Outside Class"));
         } else {
             const QDir dir = QFileInfo(m_headerFileName).dir();
             setDescription(QCoreApplication::translate("CppEditor::QuickFix",
