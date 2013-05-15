@@ -2277,6 +2277,8 @@ void CdbEngine::ensureUsing32BitStackInWow64(const CdbEngine::CdbBuiltinCommandP
             continue;
         if (line.startsWith("ChildEBP")) {
             m_wow64State = wow64Stack32Bit;
+            if (cmd->cookie.canConvert<GdbMi>())
+                parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
             return;
         } else if (line.startsWith("Child-SP")) {
             m_wow64State = wow64Stack64Bit;
