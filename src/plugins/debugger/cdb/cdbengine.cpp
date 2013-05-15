@@ -317,7 +317,7 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *erro
 {
     if (Utils::HostOsInfo::isWindowsHost()) {
         CdbOptionsPage *op = CdbOptionsPage::instance();
-        if (!op || !op->options()->isValid() || !validMode(sp.startMode)) {
+        if (!op || !validMode(sp.startMode)) {
             *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
             return 0;
         }

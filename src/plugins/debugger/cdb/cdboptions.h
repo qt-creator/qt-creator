@@ -46,8 +46,6 @@ public:
 
     void clear();
 
-    bool isValid() { return true; }
-
     void fromSettings(QSettings *s); // Writes parameters on first-time autodetect
     void toSettings(QSettings *s) const;
 
