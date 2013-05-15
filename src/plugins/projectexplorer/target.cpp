@@ -671,6 +671,24 @@ void Target::updateDefaultRunConfigurations()
         addRunConfiguration(rc);
     foreach (RunConfiguration *rc, newUnconfigured)
         addRunConfiguration(rc);
+
+    // Make sure a configured RC is active:
+    if (activeRunConfiguration() && !activeRunConfiguration()->isConfigured()) {
+        if (!existingConfigured.isEmpty() && existingConfigured.at(0)->isConfigured())
+            setActiveRunConfiguration(existingConfigured.at(0));
+        else if (!newConfigured.isEmpty()) {
+            RunConfiguration *selected = newConfigured.at(0);
+            // Try to find a runconfiguration that matches the project name. That is a good
+            // candidate for something to run initially.
+            foreach (RunConfiguration *rc, newConfigured) {
+                if (rc->displayName() == project()->displayName()) {
+                    selected = rc;
+                    break;
+                }
+            }
+            setActiveRunConfiguration(selected);
+        }
+    }
 }
 
 QVariant Target::namedSettings(const QString &name) const
