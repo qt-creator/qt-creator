@@ -101,7 +101,7 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
         }
     }
 
-    if (!parentNode.metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
+    if (!parentNode.metaInfo().isLayoutable())
         update(m_lastPosition, Snapper::NoSnapping, UseBaseState);
 }
 
@@ -346,10 +346,10 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     if (!itemsCanReparented())
         return;
 
-    if (!newParent->qmlItemNode().modelNode().metaInfo().isPositioner()
+    if (!newParent->qmlItemNode().modelNode().metaInfo().isLayoutable()
             && newParent->qmlItemNode().modelNode().hasParentProperty()) {
         ModelNode grandParent = newParent->qmlItemNode().modelNode().parentProperty().parentModelNode();
-        if (grandParent.metaInfo().isPositioner())
+        if (grandParent.metaInfo().isLayoutable())
             newParent = m_view.data()->scene()->itemForQmlItemNode(QmlItemNode(grandParent));
     }
 

@@ -1279,11 +1279,11 @@ void NodeMetaInfo::clearCache()
     Internal::NodeMetaInfoPrivate::clearCache();
 }
 
-bool NodeMetaInfo::isPositioner() const
+bool NodeMetaInfo::isLayoutable() const
 {
     if (majorVersion() < 2)
         return isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1);
-    return isSubclassOf("QtQuick.Positioner", -1, -1);
+    return isSubclassOf("QtQuick.Positioner", -1, -1) || isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
 }
 
 } // namespace QmlDesigner

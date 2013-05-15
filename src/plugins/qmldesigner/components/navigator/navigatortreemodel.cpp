@@ -538,7 +538,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                             }
                         }
 
-                        if (parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isPositioner()) {
+                        if (parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isLayoutable()) {
                              ModelNode currentNode = node;
                              if (currentNode.hasProperty("x"))
                                  currentNode.removeProperty("x");
