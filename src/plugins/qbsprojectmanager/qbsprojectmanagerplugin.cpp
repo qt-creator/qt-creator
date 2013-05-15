@@ -37,6 +37,7 @@
 #include "qbsproject.h"
 #include "qbsprojectmanager.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsrunconfiguration.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -85,6 +86,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QbsCleanStepFactory);
     addAutoReleasedObject(new QbsInstallStepFactory);
     addAutoReleasedObject(new QbsDeployConfigurationFactory);
+    addAutoReleasedObject(new QbsRunConfigurationFactory);
 
     //menus
     // Build Menu:

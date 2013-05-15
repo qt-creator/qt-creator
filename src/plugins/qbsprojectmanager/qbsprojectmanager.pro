@@ -29,6 +29,7 @@ HEADERS = \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
     qbsprojectmanagerplugin.h \
+    qbsrunconfiguration.h \
     qbsstep.h
 
 SOURCES = \
@@ -45,6 +46,7 @@ SOURCES = \
     qbsprojectfile.cpp \
     qbsprojectmanager.cpp \
     qbsprojectmanagerplugin.cpp \
+    qbsrunconfiguration.cpp \
     qbsstep.cpp
 
 FORMS = \

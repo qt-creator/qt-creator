@@ -270,6 +270,9 @@ void QbsProject::handleQbsParsingDone(bool success)
     updateCppCodeModel(m_rootProjectNode->projectData());
     updateQmlJsCodeModel(m_rootProjectNode->projectData());
 
+    foreach (ProjectExplorer::Target *t, targets())
+        t->updateDefaultRunConfigurations();
+
     emit projectParsingDone(success);
 }
 
