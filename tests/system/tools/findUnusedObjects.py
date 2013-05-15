@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #############################################################################
 ##
 ## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
@@ -26,8 +27,6 @@
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
-
-#!/usr/bin/env python
 
 import os
 import sys
