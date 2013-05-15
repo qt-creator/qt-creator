@@ -147,6 +147,8 @@ public:
     {
 #if 1
         m_recordedIncludes.append(Include(includedFileName, mode, line));
+        Q_UNUSED(m_env);
+        Q_UNUSED(m_includeDepth);
 #else
         Q_UNUSED(line);
 
