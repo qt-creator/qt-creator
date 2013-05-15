@@ -138,8 +138,15 @@ bool SearchSymbols::visit(Namespace *symbol)
 
 bool SearchSymbols::visit(Declaration *symbol)
 {
-    if (!(symbolsToSearchFor & SymbolSearcher::Declarations))
-        return false;
+    if (!(symbolsToSearchFor & SymbolSearcher::Declarations)) {
+        // if we're searching for functions, still allow function declarations to show up.
+        if (symbolsToSearchFor & SymbolSearcher::Functions) {
+            if (!symbol->type()->asFunctionType())
+                return false;
+        } else {
+            return false;
+        }
+    }
 
     QString name = symbolName(symbol);
     QString scopedName = scopedSymbolName(name);
@@ -147,7 +154,9 @@ bool SearchSymbols::visit(Declaration *symbol)
                                        separateScope ? symbol->unqualifiedName() : 0);
     appendItem(separateScope ? type : scopedName,
                separateScope ? _scope : type,
-               ModelItemInfo::Declaration, symbol);
+               symbol->type()->asFunctionType() ? ModelItemInfo::Method
+                                                : ModelItemInfo::Declaration,
+               symbol);
     return false;
 }
 
