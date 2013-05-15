@@ -89,7 +89,7 @@ QRectF FormEditorItem::boundingRect() const
 void FormEditorItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_boundingRect = qmlItemNode().instancePaintedBoundingRect().adjusted(0, 0, 1., 1.);
+    m_boundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
     setTransform(qmlItemNode().instanceTransform());
     setTransform(m_attentionTransform, true);
     //the property for zValue is called z in QGraphicsObject
