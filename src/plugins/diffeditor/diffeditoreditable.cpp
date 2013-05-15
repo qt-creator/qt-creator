@@ -128,14 +128,14 @@ QWidget *DiffEditorEditable::toolBar()
     m_toolWidget = createToolBar(m_editorWidget);
 
     QToolButton *whitespaceButton = new QToolButton(m_toolWidget);
-    whitespaceButton->setText(tr("Ignore Whitespaces"));
+    whitespaceButton->setText(tr("Ignore Whitespace"));
     whitespaceButton->setCheckable(true);
     whitespaceButton->setChecked(true);
     connect(whitespaceButton, SIGNAL(clicked(bool)),
             m_editorWidget, SLOT(setIgnoreWhitespaces(bool)));
     m_toolWidget->addWidget(whitespaceButton);
 
-    QLabel *contextLabel = new QLabel(tr("Context Lines:"), m_toolWidget);
+    QLabel *contextLabel = new QLabel(tr("Context lines:"), m_toolWidget);
     m_toolWidget->addWidget(contextLabel);
 
     QSpinBox *contextSpinBox = new QSpinBox(m_toolWidget);
