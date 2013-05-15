@@ -2150,13 +2150,16 @@ def qdump__std__string(d, value):
         charType = lookupType("wchar_t")
     else:
         charType = templateArgument(baseType, 0)
-    repType = lookupType("%s::_Rep" % baseType).pointer()
-    rep = (data.cast(repType) - 1).dereference()
-    size = rep['_M_length']
-    alloc = rep['_M_capacity']
-    check(rep['_M_refcount'] >= -1) # Can be -1 accoring to docs.
+    # We can't lookup the std::string::_Rep type without crashing LLDB,
+    # so hard-code assumption on member position
+    # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
+    sizePtr = data.cast(lookupType("size_t").pointer())
+    size = int(sizePtr[-3])
+    alloc = int(sizePtr[-2])
+    refcount = int(sizePtr[-1])
+    check(refcount >= -1) # Can be -1 accoring to docs.
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    p = gdb.Value(data.cast(charType.pointer()))
+    p = data.cast(charType.pointer())
     # Override "std::basic_string<...>
     if str(charType) == "char":
         d.putType("std::string", 1)
