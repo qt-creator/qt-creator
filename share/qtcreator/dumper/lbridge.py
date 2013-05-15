@@ -63,6 +63,10 @@ DisplayUtf8String \
     = range(7)
 
 def lookupType(name):
+    if name == "int":
+        return intType
+    if name == "size_t":
+        return sizeTType
     if name == "char":
         return charType
     if name == "char *":
@@ -80,6 +84,8 @@ def isSimpleType(typeobj):
 # Helpers
 #
 #######################################################################
+
+qqStringCutOff = 1000
 
 # This is a cache mapping from 'type name' to 'display alternatives'.
 qqFormats = {}
@@ -291,10 +297,14 @@ def impl_SBValue__add__(self, offset):
     return NotImplemented
 
 def impl_SBValue__sub__(self, other):
-    if self.GetType().IsPointerType() and other.GetType().IsPointerType():
-        itemsize = self.GetType().GetDereferencedType().GetByteSize()
-        return (int(self) - int(other)) / itemsize
-    raise RuntimeError("SBValue.__sub__ not implemented")
+    if self.GetType().IsPointerType():
+        if isinstance(other, int):
+            return self.GetChildAtIndex(-other, lldb.eNoDynamicValues, True).AddressOf()
+        if other.GetType().IsPointerType():
+            itemsize = self.GetType().GetDereferencedType().GetByteSize()
+            return (int(self) - int(other)) / itemsize
+        return impl_SBValue__add__(self, -int(other))
+    raise RuntimeError("SBValue.__sub__ not implemented: %s" % self.GetType())
     return NotImplemented
 
 def impl_SBValue__le__(self, other):
@@ -307,6 +317,12 @@ def impl_SBValue__int__(self):
     return int(self.GetValue(), 0)
 
 def impl_SBValue__getitem__(self, name):
+    if self.GetType().IsPointerType() and isinstance(name, int):
+        innertype = self.Dereference().GetType()
+        address = self.GetValueAsUnsigned() + name * innertype.GetByteSize()
+        return self.CreateValueFromAddress("xx", address, innertype)
+        #return self.GetChildAtIndex(int(offset))
+        #return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True)
     return self.GetChildMemberWithName(name)
 
 def childAt(value, index):
@@ -332,6 +348,7 @@ lldb.SBType.unqualified = lambda self: self.GetUnqualifiedType()
 lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
+lldb.SBType.strip_typedefs = lambda self: self
 
 def simpleEncoding(typeobj):
     code = typeobj.GetTypeClass()
@@ -726,7 +743,7 @@ class Debugger:
         else:
             self.putValue('<%s items>' % count)
 
-    def putType(self, typeName):
+    def putType(self, typeName, priority = 0):
             self.put('type="%s",' % typeName)
 
     def putStringValue(self, value, priority = 0):
@@ -736,7 +753,7 @@ class Debugger:
 
     def readRawMemory(self, base, size):
         error = lldb.SBError()
-        contents = self.process.ReadMemory(base, size, error)
+        contents = self.process.ReadMemory(int(base), size, error)
         return binascii.hexlify(contents)
 
     def computeLimit(self, size, limit):
@@ -869,7 +886,9 @@ class Debugger:
 
     def reportData(self, _ = None):
         # Hack.
-        global charPtrType, charType
+        global charPtrType, charType, intType, sizeTType
+        intType = self.target.GetModuleAtIndex(0).FindFirstType('int')
+        sizeTType = self.target.GetModuleAtIndex(0).FindFirstType('size_t')
         charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
         charPtrType = charType.GetPointerType()
 
