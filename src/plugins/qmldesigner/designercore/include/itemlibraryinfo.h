@@ -70,6 +70,7 @@ public:
     QString category() const;
     QIcon dragIcon() const;
     QString qml() const;
+    QString qmlSource() const;
     QString requiredImport() const;
     bool forceImport() const;
 

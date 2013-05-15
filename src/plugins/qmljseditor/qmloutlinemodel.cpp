@@ -963,8 +963,11 @@ QString QmlOutlineModel::getAnnotation(AST::ExpressionNode *expression)
     if (!expression)
         return QString();
     QString source = m_semanticInfo.document->source();
-    return source.mid(expression->firstSourceLocation().begin(),
-                      expression->lastSourceLocation().end() - expression->firstSourceLocation().begin());
+    QString str = source.mid(expression->firstSourceLocation().begin(),
+                             expression->lastSourceLocation().end()
+                             - expression->firstSourceLocation().begin());
+    // only show first line
+    return str.left(str.indexOf(QLatin1Char('\n')));
 }
 
 QHash<QString,QString> QmlOutlineModel::getScriptBindings(AST::UiObjectInitializer *objectInitializer) {

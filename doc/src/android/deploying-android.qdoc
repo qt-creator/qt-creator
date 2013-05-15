@@ -25,31 +25,132 @@
 
     \title Deploying Applications to Android Devices
 
+    When you select a \gui {Qt for Android Kit} for a project, \QC creates and
+    maintains a set of files that are required to make your application run on
+    Android devices.
+
+    \QC adds the following files to your project:
+
+    \list
+
+        \li Java files, which serve as the entry point into your application and
+            that automatically load Qt and execute the native code in your
+            application.
+
+        \li AndroidManifest.xml, which provides meta-information about your
+            application.
+
+        \li Other XML files, which specify the dependencies of your application.
+
+        \li Resource files.
+
+        \li Libraries and QML files, which can be included in the project
+            depending on the deployment method that you select.
+
+    \endlist
+
+    \QC adds the files to the project to a subdirectory called \c android. The
+    contents of the \c android folder are used to create a distributable
+    application package.
+
+    \QC supports the following methods of deployment for Android applications:
+
+     \list
+
+        \li As a stand-alone, distributable application package (APK).
+
+        \li As a minimal APK that contains a dependency to the Ministro tool.
+            The Ministro tool downloads the necessary Qt libraries from a
+            repository of your choice.
+
+        \li As an incomplete APK that is suitable for testing and debugging
+            applications on a device connected to the development host. The APK
+            relies on the device containing the Qt libraries in the correct
+            location. \QC copies the libraries to that location the first time
+            you deploy the application.
+
+    \endlist
+
+    The default option depends on whether you are developing with Qt 4 or Qt 5.
+    The Necessitas SDK does not support bundling Qt libraries with applications,
+    so you must use Ministro when developing with Qt 4.
+
+    \section1 Specifying Settings for Application Packages
+
+    On Android, applications are distributed in packages called APK. \QC creates
+    the APK for you. If you want to do this manually, you must first make sure
+    that the appropriate packaging and build files are in place. \QC places the
+    files in the \c android subfolder of the project.
+
+    \include android/creator-projects-settings-run-android.qdocinc
+
+    \section1 Deploying Application Packages
+
     To specify settings for deploying applications to Android devices, select
-    \gui Projects > \gui Run.
+    \gui Projects > \gui Run > \gui {Deploy configurations} > \gui Details.
 
     \image qtcreator-deploy-android.png "Deploy configurations"
 
-    Select the \gui {Use Qt libraries from device} option to use Qt libraries installed
-    on the device. If you also select the \gui {Use local Qt libraries} check box, \QC passes
-    special parameters to the application, forcing it to use Qt libraries from the
-    \c{/data/local/tmp/qt} folder on the device. If you do not select it, the application needs
-    the Ministro package to run.
+    To copy Qt libraries and files to the project directory and to bundle them
+    as part of the APK, select the \gui {Use Qt libraries from device} option
+    and the \gui {Use local Qt libraries} check box. This is the default option
+    when developing with Qt 5.
 
-    Select the \gui {Deploy local Qt libraries} option to deploy Qt libraries from
-    the specified Qt for Android SDK (for example, android-lighthouse-4.8.0).
-    This option enables you to develop on the Qt framework to test it. This
-    option automatically selects the \gui {Use local Qt libraries} check box, but you
-    can use it also independently.
+    \section1 Using Ministro to Install Qt Libraries
+
+    To minimize the size of your APK, you can package the application with an
+    external dependency called Ministro. If a user downloads your application,
+    and it is the first application on their device to depend on Ministro, they
+    are asked to install Ministro before they can run your application.
+
+    Ministro serves as a central repository for Qt libraries. This enables
+    several applications to share the libraries, which only need to be installed
+    once. To use this deployment method, you must set up a repository for the
+    libraries that you want to distribute. To specify the
+    repository URL, edit the file \c {android/res/values/libs.xml}, which is
+    created by \QC.
+
+    To use Ministro to install the Qt libraries, select the
+    \gui {Use Qt libraries from device} option (without any other options).
+
+    This is the default option when developing with Qt 4.
+
+    \section1 Deploying Qt Libraries for Debugging
+
+    To test your application on a device that is physically connected to the
+    development host (or on an emulator), you can copy the Qt libraries into a
+    temporary directory on your device and run the application against them.
+
+    An APK built in this way is not distributable, since it relies on the device
+    containing the Qt libraries in the correct location. However, as the Qt
+    libraries are only copied into the device once, this method provides a fast
+    turn-around time, and is therefore convenient for testing the application
+    during development.
+
+    Select \gui Projects > \gui Run > \gui {Deploy configurations} >
+    \gui Details, and then select the \gui {Deploy local Qt libraries} option
+    and the \gui {Use local Qt libraries} check box to deploy Qt libraries to
+    the \c{/data/local/tmp/qt} folder on the device and to run the application
+    against them.
 
     \section1 Installing Ministro
 
-    To install Ministro, select the \gui {Install Ministro, system-wide Qt shared
-    libraries installer} option. You
-    can use this option also to install any Android package (.apk). You can use this
-    option to install applications on an Android Virtual Device (AVD). Download
-    the Ministro .apk from the Google Market or from the
+    The easiest way to install Ministro is to do it on the device via Google
+    Play. When you run the application for the first time, a dialog pops up and
+    guides you through the installation.
+
+    To use \QC to install Ministro, you must first download the Ministro .apk
+    from the Google Market or from the
     \l{http://necessitas.kde.org/necessitas/ministro.php}{Ministro} home page.
+
+    Then select the \gui {Install Ministro, system-wide Qt shared
+    libraries installer} option in \gui Projects > \gui Run >
+    \gui {Deploy configurations} > \gui Details.
+
+    You can use this option also to install any Android package (.apk).
+
+    You can use this option to install applications on an Android Virtual
+    Device (AVD).
 
 */
 

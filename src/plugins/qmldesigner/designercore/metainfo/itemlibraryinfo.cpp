@@ -32,6 +32,8 @@
 
 #include <QSharedData>
 
+#include <utils/fileutils.h>
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -51,6 +53,7 @@ public:
     QIcon dragIcon;
     QList<PropertyContainer> properties;
     QString qml;
+    QString qmlSource;
     QString requiredImport;
     bool forceImport;
 };
@@ -123,6 +126,11 @@ QString ItemLibraryEntry::qml() const
     return m_data->qml;
 }
 
+QString ItemLibraryEntry::qmlSource() const
+{
+    return m_data->qmlSource;
+}
+
 QString ItemLibraryEntry::requiredImport() const
 {
     return m_data->requiredImport;
@@ -180,9 +188,22 @@ void ItemLibraryEntry::setIconPath(const QString &iconPath)
     m_data->iconPath = iconPath;
 }
 
+static QString getSourceForUrl(const QString &fileURl)
+{
+    Utils::FileReader fileReader;
+
+    if (fileReader.fetch(fileURl)) {
+        return fileReader.data();
+    } else {
+        return Utils::FileReader::fetchQrc(fileURl);
+    }
+}
+
 void ItemLibraryEntry::setQml(const QString &qml)
 {
     m_data->qml = qml;
+
+    m_data->qmlSource = getSourceForUrl(qml);
 }
 
 void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
@@ -217,6 +238,7 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
 
     stream << itemLibraryEntry.m_data->properties;
     stream << itemLibraryEntry.m_data->qml;
+    stream << itemLibraryEntry.m_data->qmlSource;
 
     return stream;
 }
@@ -236,6 +258,7 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
 
     stream >> itemLibraryEntry.m_data->properties;
     stream >> itemLibraryEntry.m_data->qml;
+    stream >> itemLibraryEntry.m_data->qmlSource;
 
     return stream;
 }
@@ -255,6 +278,7 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
 
     debug << itemLibraryEntry.m_data->properties;
     debug << itemLibraryEntry.m_data->qml;
+    debug << itemLibraryEntry.m_data->qmlSource;
 
     return debug.space();
 }

@@ -78,7 +78,7 @@ DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConf
     params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
-    params.closeMode = DetachAtClose;
+    params.closeMode = KillAtClose;
     params.processArgs = runConfig->arguments();
 
     Debugger::DebuggerRunConfigurationAspect *aspect

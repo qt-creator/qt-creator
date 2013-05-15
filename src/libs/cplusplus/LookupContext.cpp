@@ -152,47 +152,42 @@ uint qHash(const FullyQualifiedName &fullyQualifiedName)
 // LookupContext
 /////////////////////////////////////////////////////////////////////
 LookupContext::LookupContext()
-    : _control(new Control())
-    , m_expandTemplates(false)
+    : m_expandTemplates(false)
 { }
 
 LookupContext::LookupContext(Document::Ptr thisDocument,
                              const Snapshot &snapshot)
-    : _expressionDocument(Document::create(QLatin1String("<LookupContext>"))),
-      _thisDocument(thisDocument),
-      _snapshot(snapshot),
-      _control(new Control()),
-      m_expandTemplates(false)
+    : _expressionDocument(Document::create(QLatin1String("<LookupContext>")))
+    , _thisDocument(thisDocument)
+    , _snapshot(snapshot)
+    , m_expandTemplates(false)
 {
 }
 
 LookupContext::LookupContext(Document::Ptr expressionDocument,
                              Document::Ptr thisDocument,
                              const Snapshot &snapshot)
-    : _expressionDocument(expressionDocument),
-      _thisDocument(thisDocument),
-      _snapshot(snapshot),
-      _control(new Control()),
-      m_expandTemplates(false)
+    : _expressionDocument(expressionDocument)
+    , _thisDocument(thisDocument)
+    , _snapshot(snapshot)
+    , m_expandTemplates(false)
 {
 }
 
 LookupContext::LookupContext(const LookupContext &other)
-    : _expressionDocument(other._expressionDocument),
-      _thisDocument(other._thisDocument),
-      _snapshot(other._snapshot),
-      _bindings(other._bindings),
-      _control(other._control),
-      m_expandTemplates(other.m_expandTemplates)
+    : _expressionDocument(other._expressionDocument)
+    , _thisDocument(other._thisDocument)
+    , _snapshot(other._snapshot)
+    , _bindings(other._bindings)
+    , m_expandTemplates(other.m_expandTemplates)
 { }
 
-LookupContext &LookupContext::operator = (const LookupContext &other)
+LookupContext &LookupContext::operator=(const LookupContext &other)
 {
     _expressionDocument = other._expressionDocument;
     _thisDocument = other._thisDocument;
     _snapshot = other._snapshot;
     _bindings = other._bindings;
-    _control = other._control;
     m_expandTemplates = other.m_expandTemplates;
     return *this;
 }
@@ -278,7 +273,7 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) c
 QSharedPointer<CreateBindings> LookupContext::bindings() const
 {
     if (! _bindings) {
-        _bindings = QSharedPointer<CreateBindings>(new CreateBindings(_thisDocument, _snapshot, control()));
+        _bindings = QSharedPointer<CreateBindings>(new CreateBindings(_thisDocument, _snapshot));
         _bindings->setExpandTemplates(m_expandTemplates);
     }
 
@@ -288,11 +283,6 @@ QSharedPointer<CreateBindings> LookupContext::bindings() const
 void LookupContext::setBindings(QSharedPointer<CreateBindings> bindings)
 {
     _bindings = bindings;
-}
-
-QSharedPointer<Control> LookupContext::control() const
-{
-    return _control;
 }
 
 Document::Ptr LookupContext::expressionDocument() const
@@ -694,7 +684,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             }
 
             if (templateId && (s->isDeclaration() || s->isFunction())) {
-                FullySpecifiedType ty = DeprecatedGenTemplateInstance::instantiate(templateId, s, _control);
+                FullySpecifiedType ty = DeprecatedGenTemplateInstance::instantiate(templateId, s, control());
                 item.setType(ty); // override the type.
             }
 
@@ -1278,8 +1268,10 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
     return 0;
 }
 
-CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot, QSharedPointer<Control> control)
-    : _snapshot(snapshot), _control(control), _expandTemplates(false)
+CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot)
+    : _snapshot(snapshot)
+    , _control(QSharedPointer<Control>(new Control))
+    , _expandTemplates(false)
 {
     _globalNamespace = allocClassOrNamespace(/*parent = */ 0);
     _currentClassOrNamespace = _globalNamespace;
@@ -1338,11 +1330,6 @@ void CreateBindings::process(Symbol *s, ClassOrNamespace *classOrNamespace)
 void CreateBindings::process(Symbol *symbol)
 {
     _currentClassOrNamespace->addTodo(symbol);
-}
-
-QSharedPointer<Control> CreateBindings::control() const
-{
-    return _control;
 }
 
 ClassOrNamespace *CreateBindings::allocClassOrNamespace(ClassOrNamespace *parent)

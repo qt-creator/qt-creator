@@ -44,6 +44,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4nodes.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/fileutils.h>
@@ -129,6 +130,7 @@ void AndroidPackageCreationStep::ctor()
 {
     setDefaultDisplayName(tr("Packaging for Android"));
     m_openPackageLocation = true;
+    m_bundleQt = false;
     connect(&m_outputParser, SIGNAL(addTask(ProjectExplorer::Task)), this, SIGNAL(addTask(ProjectExplorer::Task)));
 }
 
@@ -314,6 +316,17 @@ void AndroidPackageCreationStep::initCheckRequiredLibrariesForRun()
     m_prebundledLibs = AndroidManager::prebundledLibs(target());
 }
 
+void AndroidPackageCreationStep::getBundleInformation()
+{
+    m_bundleQt = AndroidManager::bundleQt(target());
+    if (m_bundleQt) {
+        m_bundledJars = AndroidManager::loadLocalJars(target()).split(QLatin1Char(':'),
+                                                                      QString::SkipEmptyParts);
+        m_otherBundledFiles = AndroidManager::loadLocalBundledFiles(target()).split(QLatin1Char(':'),
+                                                                                    QString::SkipEmptyParts);
+    }
+}
+
 void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
 {
     QProcess readelfProc;
@@ -329,8 +342,11 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
     QStringList libs;
     parseSharedLibs(readelfProc.readAll(), &libs);
 
+    m_qtLibsWithDependencies = requiredLibraries(m_availableQtLibs, m_qtLibs, libs);
     QMetaObject::invokeMethod(this, "setQtLibs",Qt::BlockingQueuedConnection,
-                              Q_ARG(QStringList, requiredLibraries(m_availableQtLibs, m_qtLibs, libs)));
+                              Q_ARG(QStringList, m_qtLibsWithDependencies));
+
+    QMetaObject::invokeMethod(this, "getBundleInformation");
 
     QStringList prebundledLibraries;
     foreach (const AndroidManager::Library &qtLib, m_availableQtLibs) {
@@ -429,6 +445,176 @@ QVariantMap AndroidPackageCreationStep::toMap() const
     return map;
 }
 
+QStringList AndroidPackageCreationStep::collectRelativeFilePaths(const QString &parentPath)
+{
+    QStringList relativeFilePaths;
+
+    QDirIterator libsIt(parentPath, QDir::NoFilter, QDirIterator::Subdirectories);
+    int pos = parentPath.size();
+    while (libsIt.hasNext()) {
+        libsIt.next();
+        if (!libsIt.fileInfo().isDir())
+            relativeFilePaths.append(libsIt.filePath().mid(pos));
+    }
+
+    return relativeFilePaths;
+}
+
+void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
+                                              QList<DeployItem> *pluginsAndImportsList)
+{
+    Q_ASSERT(deployList != 0);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (!version)
+        return;
+
+    Qt4Project *project = static_cast<Qt4Project *>(target()->project());
+    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+
+    QString androidAssetsPath = m_androidDir.toString() + QLatin1String("/assets/");
+    QString androidJarPath = m_androidDir.toString() + QLatin1String("/libs/");
+    QString androidLibPath = m_androidDir.toString() + QLatin1String("/libs/") + androidTargetArch;
+
+    QString qtVersionSourcePath = version->sourcePath().toString();
+
+    foreach (QString qtLib, m_qtLibsWithDependencies) {
+        QString fullPath = qtVersionSourcePath
+            + QLatin1String("/lib/lib")
+            + qtLib
+            + QLatin1String(".so");
+        QString destinationPath = androidLibPath
+                + QLatin1String("/lib")
+                + qtLib
+                + QLatin1String(".so");
+
+        // If the Qt lib/ folder contains libgnustl_shared.so, don't deploy it from there, since
+        // it will be deployed directly from the NDK instead.
+        if (qtLib != QLatin1String("gnustl_shared")) {
+            DeployItem deployItem(fullPath, 0, destinationPath, true);
+            deployList->append(deployItem);
+        }
+    }
+
+    if (!androidTargetArch.isEmpty()) {
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+        if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+            return;
+
+        AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+
+        QString libgnustl = AndroidManager::libGnuStl(androidTargetArch, atc->ndkToolChainVersion());
+        DeployItem deployItem(libgnustl, 0, androidLibPath + QLatin1String("/libgnustl_shared.so"), false);
+        deployList->append(deployItem);
+    }
+
+    foreach (QString jar, m_bundledJars) {
+        QString fullPath = qtVersionSourcePath + QLatin1Char('/') + jar;
+        QFileInfo fileInfo(fullPath);
+        if (fileInfo.exists()) {
+            QString destinationPath = androidJarPath
+                    + AndroidManager::libraryPrefix()
+                    + fileInfo.fileName();
+            deployList->append(DeployItem(fullPath, 0, destinationPath, true));
+        }
+    }
+
+    QSet<QString> alreadyListed;
+    foreach (QString bundledFile, m_otherBundledFiles) {
+        if (!bundledFile.endsWith(QLatin1Char('/')))
+            bundledFile.append(QLatin1Char('/'));
+
+        QStringList allFiles = collectRelativeFilePaths(qtVersionSourcePath + QLatin1Char('/') + bundledFile);
+        foreach (QString file, allFiles) {
+            QString fullPath = qtVersionSourcePath + QLatin1Char('/') + bundledFile + QLatin1Char('/') + file;
+            if (alreadyListed.contains(fullPath))
+                continue;
+
+            alreadyListed.insert(fullPath);
+
+            QString garbledFileName;
+            QString destinationPath;
+            bool shouldStrip = false;
+            if (file.endsWith(QLatin1String(".so"))) {
+                garbledFileName = QLatin1String("lib")
+                    + AndroidManager::libraryPrefix()
+                    + QString(bundledFile).replace(QLatin1Char('/'), QLatin1Char('_'))
+                    + QString(file).replace(QLatin1Char('/'), QLatin1Char('_'));
+                destinationPath = androidLibPath + QLatin1Char('/') + garbledFileName;
+                shouldStrip = true;
+            } else {
+                garbledFileName = AndroidManager::libraryPrefix() + bundledFile + file;
+                destinationPath = androidAssetsPath + garbledFileName;
+            }
+
+            deployList->append(DeployItem(fullPath, 0, destinationPath, shouldStrip));
+            pluginsAndImportsList->append(DeployItem(garbledFileName,
+                                                     0,
+                                                     bundledFile + file,
+                                                     shouldStrip));
+        }
+    }
+}
+
+void AndroidPackageCreationStep::removeManagedFilesFromPackage()
+{
+    // Clean up all files managed by Qt Creator
+    {
+        QString androidLibPath = m_androidDir.toString() + QLatin1String("/libs/");
+        QDirIterator dirIt(m_androidDir.toString(), QDirIterator::Subdirectories);
+        while (dirIt.hasNext()) {
+            dirIt.next();
+
+            if (!dirIt.fileInfo().isDir()) {
+                bool isQtLibrary = dirIt.fileInfo().path().startsWith(androidLibPath)
+                        && dirIt.fileName().startsWith(QLatin1String("libQt5"))
+                        && dirIt.fileName().endsWith(QLatin1String(".so"));
+
+                if (dirIt.filePath().contains(AndroidManager::libraryPrefix()) || isQtLibrary)
+                    QFile::remove(dirIt.filePath());
+            }
+        }
+    }
+}
+
+void AndroidPackageCreationStep::copyFilesIntoPackage(const QList<DeployItem> &deployList)
+{
+    foreach (DeployItem item, deployList) {
+        QFileInfo info(item.remoteFileName);
+        if (info.exists())
+            QFile::remove(item.remoteFileName);
+        else
+            QDir().mkpath(info.absolutePath());
+
+        QFile::copy(item.localFileName, item.remoteFileName);
+    }
+}
+
+void AndroidPackageCreationStep::stripFiles(const QList<DeployItem> &deployList)
+{
+
+    QStringList fileList;
+    foreach (DeployItem item, deployList)
+        if (item.needsStrip)
+            fileList.append(item.remoteFileName);
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+        return;
+
+    AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+    stripAndroidLibs(fileList,
+                     target()->activeRunConfiguration()->abi().architecture(),
+                     atc->ndkToolChainVersion());
+}
+
+void AndroidPackageCreationStep::updateXmlForFiles(const QStringList &inLibList,
+                                                   const QStringList &inAssetsList)
+{
+    AndroidManager::setBundledInLib(target(), inLibList);
+    AndroidManager::setBundledInAssets(target(), inAssetsList);
+}
+
+
 bool AndroidPackageCreationStep::createPackage()
 {
     checkRequiredLibrariesForRun();
@@ -449,6 +635,49 @@ bool AndroidPackageCreationStep::createPackage()
         }
     } else {
         build << QLatin1String("release");
+    }
+
+    QList<DeployItem> deployFiles;
+    QList<DeployItem> importsAndPlugins;
+
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+
+    // Qt 5 supports bundling libraries inside the apk. We guard the code for Qt 5 to be sure we
+    // do not disrupt existing projects.
+    if (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)) {
+        bool bundleQt = AndroidManager::bundleQt(target());
+
+        // Collect the files to bundle in the package
+        if (bundleQt)
+            collectFiles(&deployFiles, &importsAndPlugins);
+
+        // Remove files from package if they are not needed
+        removeManagedFilesFromPackage();
+
+        // Deploy files to package
+        if (bundleQt) {
+            copyFilesIntoPackage(deployFiles);
+            stripFiles(deployFiles);
+
+            QStringList inLibList;
+            QStringList inAssetsList;
+            foreach (DeployItem deployItem, importsAndPlugins) {
+                QString conversionInfo = deployItem.localFileName
+                        + QLatin1Char(':')
+                        + deployItem.remoteFileName;
+
+                if (deployItem.localFileName.endsWith(QLatin1String(".so")))
+                    inLibList.append(conversionInfo);
+                else
+                    inAssetsList.append(conversionInfo);
+            }
+
+            QMetaObject::invokeMethod(this,
+                                      "updateXmlForFiles",
+                                      Qt::BlockingQueuedConnection,
+                                      Q_ARG(QStringList, inLibList),
+                                      Q_ARG(QStringList, inAssetsList));
+        }
     }
 
     emit addOutput(tr("Creating package file ..."), MessageOutput);

@@ -64,6 +64,10 @@
             need to have the development environment installed on your
             computer to create and run this type of project.
 
+            \gui {Qt Quick 2 UI with Controls} imports the Qt Quick Controls.
+            This project requires that you have installed the Qt Quick Controls
+            for your Qt version (5.1 or later).
+
         \li \gui {Qt Quick Application (from Existing QML File)} converts
             existing Qt Quick applications to Qt Quick application projects.
             This enables you to run them from \QC and to deploy them to mobile
@@ -80,8 +84,10 @@
 
     \section1 Creating Qt Quick UI Projects
 
-    Select \gui File > \gui {New File or Project} > \gui Applications > \gui {Qt Quick 1 UI}
-    or \gui {Qt Quick 2 UI} > \gui Choose and follow the instructions of the wizard.
+    Select \gui File > \gui {New File or Project} > \gui Applications >
+    \gui {Qt Quick 1 UI}, \gui {Qt Quick 2 UI}, or
+    \gui {Qt Quick 2 UI with Controls} > \gui Choose and follow the instructions
+    of the wizard.
 
     \QC creates the following files:
 

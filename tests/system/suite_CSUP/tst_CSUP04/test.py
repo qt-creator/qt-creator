@@ -35,7 +35,7 @@ def main():
         invokeMenuItem("File", "Exit")
         return
     # wait until search finished and verify search results
-    waitFor("searchFinished")
+    waitFor("searchFinished", 20000)
     validateSearchResult(18)
     result = re.search("QmlApplicationViewer", str(editorWidget.plainText))
     test.verify(result, "Verifying if: The list of all usages of the selected text is displayed in Search Results. "
@@ -49,7 +49,7 @@ def main():
     searchFinished = False
     type(editorWidget, "<Ctrl+Shift+U>")
     # wait until search finished and verify search results
-    waitFor("searchFinished")
+    waitFor("searchFinished", 20000)
     validateSearchResult(3)
     # exit qt creator
     invokeMenuItem("File", "Save All")

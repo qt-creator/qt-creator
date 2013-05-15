@@ -62,6 +62,7 @@ namespace {
     const QLatin1String AndroidLibsFileName("/res/values/libs.xml");
     const QLatin1String AndroidStringsFileName("/res/values/strings.xml");
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
+    const QLatin1String AndroidLibraryPrefix("--Managed_by_Qt_Creator--");
 
     QString cleanPackageName(QString packageName)
     {
@@ -428,7 +429,20 @@ QString AndroidManager::targetApplication(ProjectExplorer::Target *target)
     return QString();
 }
 
-bool AndroidManager::setUseLocalLibs(ProjectExplorer::Target *target, bool useLocalLibs, int deviceAPILevel)
+bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
+{
+    ProjectExplorer::RunConfiguration *runConfiguration = target->activeRunConfiguration();
+    AndroidRunConfiguration *androidRunConfiguration = qobject_cast<AndroidRunConfiguration *>(runConfiguration);
+    if (androidRunConfiguration != 0) {
+        AndroidDeployStep *deployStep = androidRunConfiguration->deployStep();
+        return deployStep->deployAction() == AndroidDeployStep::NoDeploy
+               && deployStep->useLocalQtLibs();
+    }
+
+    return false;
+}
+
+bool AndroidManager::updateDeploymentSettings(ProjectExplorer::Target *target)
 {
     // For Qt 4, the "use local libs" options is handled by passing command line arguments to the
     // app, so no need to alter the AndroidManifest.xml
@@ -436,19 +450,32 @@ bool AndroidManager::setUseLocalLibs(ProjectExplorer::Target *target, bool useLo
     if (baseQtVersion == 0 || baseQtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
         return true;
 
+    ProjectExplorer::RunConfiguration *runConfiguration = target->activeRunConfiguration();
+    AndroidRunConfiguration *androidRunConfiguration = qobject_cast<AndroidRunConfiguration *>(runConfiguration);
+    if (androidRunConfiguration == 0)
+        return false;
+
+    AndroidDeployStep *deployStep = androidRunConfiguration->deployStep();
+    bool useLocalLibs = deployStep->useLocalQtLibs();
+    bool deployQtLibs = deployStep->deployAction() != AndroidDeployStep::NoDeploy;
+    bool bundleQtLibs = useLocalLibs && !deployQtLibs;
+
     QDomDocument doc;
     if (!openManifest(target, doc))
         return false;
 
     QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
 
+    // ### Passes -1 for API level, which means it won't work with setups that require
+    // library selection based on API level. Use the old approach (command line argument)
+    // in these cases. Hence the Qt version > 4 condition at the beginning of this function.
     QString localLibs;
     QString localJars;
     QString staticInitClasses;
     if (useLocalLibs) {
-        localLibs = loadLocalLibs(target, deviceAPILevel);
-        localJars = loadLocalJars(target, deviceAPILevel);
-        staticInitClasses = loadLocalJarsInitClasses(target, deviceAPILevel);
+        localLibs = loadLocalLibs(target, -1);
+        localJars = loadLocalJars(target, -1);
+        staticInitClasses = loadLocalJarsInitClasses(target, -1);
     }
 
     bool changedManifest = false;
@@ -471,6 +498,11 @@ bool AndroidManager::setUseLocalLibs(ProjectExplorer::Target *target, bool useLo
         } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.static_init_classes")) {
             if (metadataElem.attribute(QLatin1String("android:value")) != staticInitClasses) {
                 metadataElem.setAttribute(QLatin1String("android:value"), staticInitClasses);
+                changedManifest = true;
+            }
+        } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.bundle_local_qt_libs")) {
+            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != bundleQtLibs) {
+                metadataElem.setAttribute(QLatin1String("android:value"), int(bundleQtLibs));
                 changedManifest = true;
             }
         }
@@ -708,14 +740,21 @@ QString AndroidManager::loadLocalLibs(ProjectExplorer::Target *target, int apiLe
     return loadLocal(target, apiLevel, Lib);
 }
 
+QString AndroidManager::loadLocalBundledFiles(ProjectExplorer::Target *target, int apiLevel)
+{
+    return loadLocal(target, apiLevel, BundledFile);
+}
+
 QString AndroidManager::loadLocalJars(ProjectExplorer::Target *target, int apiLevel)
 {
-    return loadLocal(target, apiLevel, Jar);
+    ItemType type = bundleQt(target) ? BundledJar : Jar;
+    return loadLocal(target, apiLevel, type);
 }
 
 QString AndroidManager::loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel)
 {
-    return loadLocal(target, apiLevel, Jar, QLatin1String("initClass"));
+    ItemType type = bundleQt(target) ? BundledJar : Jar;
+    return loadLocal(target, apiLevel, type, QLatin1String("initClass"));
 }
 
 QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies(ProjectExplorer::Target *target)
@@ -815,6 +854,16 @@ bool AndroidManager::setQtLibs(ProjectExplorer::Target *target, const QStringLis
     return setLibsXml(target, libs, QLatin1String("qt_libs"));
 }
 
+bool AndroidManager::setBundledInAssets(ProjectExplorer::Target *target, const QStringList &fileList)
+{
+    return setLibsXml(target, fileList, QLatin1String("bundled_in_assets"));
+}
+
+bool AndroidManager::setBundledInLib(ProjectExplorer::Target *target, const QStringList &fileList)
+{
+    return setLibsXml(target, fileList, QLatin1String("bundled_in_lib"));
+}
+
 QStringList AndroidManager::availablePrebundledLibs(ProjectExplorer::Target *target)
 {
     QStringList libs;
@@ -858,7 +907,9 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
     QString itemType;
     if (item == Lib)
         itemType = QLatin1String("lib");
-    else
+    else if (item == BundledFile)
+        itemType = QLatin1String("bundled");
+    else // Jar or BundledJar
         itemType = QLatin1String("jar");
 
     QString localLibs;
@@ -900,16 +951,18 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
             if (libs.contains(element.attribute(QLatin1String("name")))) {
                 QDomElement libElement = element.firstChildElement(QLatin1String("depends")).firstChildElement(itemType);
                 while (!libElement.isNull()) {
-                    if (libElement.hasAttribute(attribute)) {
-                        QString dependencyLib = libElement.attribute(attribute).arg(apiLevel);
-                        if (!dependencyLibs.contains(dependencyLib))
-                            dependencyLibs << dependencyLib;
-                    }
+                    if (libElement.attribute(QLatin1String("bundling")).toInt() == (item == BundledJar ? 1 : 0)) {
+                        if (libElement.hasAttribute(attribute)) {
+                            QString dependencyLib = libElement.attribute(attribute).arg(apiLevel);
+                            if (!dependencyLibs.contains(dependencyLib))
+                                dependencyLibs << dependencyLib;
+                        }
 
-                    if (libElement.hasAttribute(QLatin1String("replaces"))) {
-                        QString replacedLib = libElement.attribute(QLatin1String("replaces")).arg(apiLevel);
-                        if (!replacedLibs.contains(replacedLib))
-                            replacedLibs << replacedLib;
+                        if (libElement.hasAttribute(QLatin1String("replaces"))) {
+                            QString replacedLib = libElement.attribute(QLatin1String("replaces")).arg(apiLevel);
+                            if (!replacedLibs.contains(replacedLib))
+                                replacedLibs << replacedLib;
+                        }
                     }
 
                     libElement = libElement.nextSiblingElement(itemType);
@@ -1115,6 +1168,11 @@ QString AndroidManager::libGnuStl(const QString &arch, const QString &ndkToolCha
             + ndkToolChainVersion + QLatin1String("/libs/")
             + arch
             + QLatin1String("/libgnustl_shared.so");
+}
+
+QString AndroidManager::libraryPrefix()
+{
+    return AndroidLibraryPrefix;
 }
 
 } // namespace Internal

@@ -38,6 +38,8 @@ exists(src/shared/qbs/qbs.pro) {
     system("echo CONFIG += qbs_no_dev_install >> $$qmake_cache")
 }
 
+_QMAKE_CACHE_ = $$qmake_cache # Qt 4 support prevents us from using cache(), so tell Qt 5 about the cache
+
 contains(QT_ARCH, i386): ARCHITECTURE = x86
 else: ARCHITECTURE = $$QT_ARCH
 

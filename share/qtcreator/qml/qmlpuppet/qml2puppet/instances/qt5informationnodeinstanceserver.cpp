@@ -97,12 +97,15 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuic
         return true;
 
     foreach (QQuickItem *childItem, item->childItems()) {
-        if (!hasInstanceForObject(childItem) && DesignerSupport::isDirty(childItem, informationsDirty))
-            return true;
+        if (!hasInstanceForObject(childItem)) {
+            if (DesignerSupport::isDirty(childItem, informationsDirty))
+                return true;
+            else if (isDirtyRecursiveForNonInstanceItems(childItem))
+                return true;
+        }
     }
 
     return false;
-
 }
 
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()

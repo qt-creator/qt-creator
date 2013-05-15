@@ -615,7 +615,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);
         env.enter(&q);
-        Control *control = sourceContext.control().data();
+        Control *control = sourceContext.bindings()->control().data();
 
         // get return type start position and declarator info from declaration
         DeclaratorAST *declarator = 0;
@@ -661,7 +661,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames q(targetCoN);
         env.enter(&q);
-        Control *control = sourceContext.control().data();
+        Control *control = sourceContext.bindings()->control().data();
         Overview overview = overviewFromCurrentProjectStyle;
 
         // make a easy to access list of the target parameter declarations

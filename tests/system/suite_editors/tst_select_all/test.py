@@ -2,13 +2,6 @@ source("../../shared/qtcreator.py")
 
 # This tests for QTCREATORBUG-5757
 
-# Results can differ from actual size on disk (different line endings on Windows)
-def charactersInFile(filename):
-    f = open(filename,"r")
-    content = f.read()
-    f.close()
-    return len(content)
-
 def main():
     files = map(lambda record: os.path.join(srcPath, testData.field(record, "filename")),
                 testData.dataset("files.tsv"))
@@ -21,7 +14,7 @@ def main():
         return
     for currentFile in files:
         test.log("Opening file %s" % currentFile)
-        size = charactersInFile(currentFile)
+        size = len(readFile(currentFile))
         invokeMenuItem("File", "Open File or Project...")
         selectFromFileDialog(currentFile, True)
         editor = getEditorForFileSuffix(currentFile)

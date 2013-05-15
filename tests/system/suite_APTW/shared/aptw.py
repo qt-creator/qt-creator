@@ -9,7 +9,7 @@ def verifyBuildAndRun():
     # check application output log
     appOutput = logApplicationOutput()
     if appOutput:
-        test.verify(re.search(".*([Pp]rogram).*(unexpectedly).*([Ff]inished).*", str(appOutput)) and
+        test.verify(re.search(".* exited with code \d+", str(appOutput)) and
                     re.search('[Ss]tarting.*', str(appOutput)),
                     "Verifying if built app started and closed successfully.")
 

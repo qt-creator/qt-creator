@@ -63,7 +63,8 @@ QByteArray LocalGdbProcess::readAllStandardError()
 
 void LocalGdbProcess::start(const QString &cmd, const QStringList &args)
 {
-    m_gdbProc.start(cmd, args);
+    m_gdbProc.setCommand(cmd, Utils::QtcProcess::joinArgs(args));
+    m_gdbProc.start();
 }
 
 bool LocalGdbProcess::waitForStarted()
@@ -92,6 +93,18 @@ bool LocalGdbProcess::interrupt()
     return interruptProcess(pid, GdbEngineType, &m_errorString);
 }
 
+#ifdef Q_OS_WIN
+void LocalGdbProcess::setUseCtrlCStub(bool enable)
+{
+    m_gdbProc.setUseCtrlCStub(enable);
+}
+
+void LocalGdbProcess::winInterruptByCtrlC()
+{
+    m_gdbProc.interrupt();
+}
+#endif
+
 QProcess::ProcessState LocalGdbProcess::state() const
 {
     return m_gdbProc.state();
@@ -114,7 +127,7 @@ void LocalGdbProcess::setProcessEnvironment(const QProcessEnvironment &env)
 
 void LocalGdbProcess::setEnvironment(const QStringList &env)
 {
-    m_gdbProc.setEnvironment(env);
+    m_gdbProc.setEnvironment(Utils::Environment(env));
 }
 
 void LocalGdbProcess::setWorkingDirectory(const QString &dir)

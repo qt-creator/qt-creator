@@ -1177,7 +1177,7 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
 
     QString trContext;
 
-    QSharedPointer<Control> control = interface->context().control();
+    QSharedPointer<Control> control = interface->context().bindings()->control();
     const Name *trName = control->identifier("tr");
 
     // Check whether we are in a method:
@@ -1597,7 +1597,7 @@ public:
             UseMinimalNames q(con);
             env.enter(&q);
 
-            Control *control = assistInterface()->context().control().data();
+            Control *control = assistInterface()->context().bindings()->control().data();
             FullySpecifiedType tn = rewriteType(result.first().type(), &env, control);
 
             Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -2557,7 +2557,7 @@ public:
             env.switchScope(m_decl->enclosingScope());
             UseMinimalNames q(targetCoN);
             env.enter(&q);
-            Control *control = assistInterface()->context().control().data();
+            Control *control = assistInterface()->context().bindings()->control().data();
 
             // rewrite the function type
             const FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
@@ -3017,7 +3017,7 @@ public:
         env.enter(&subs);
 
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
-        Control *control = assistInterface()->context().control().data();
+        Control *control = assistInterface()->context().bindings()->control().data();
         QString funcDef;
         QString funcDecl; // We generate a declaration only in the case of a member function.
         QString funcCall;
@@ -3739,7 +3739,7 @@ QString getDefinitionSignature(const CppQuickFixAssistInterface *assist, Functio
     env.switchScope(func->enclosingScope());
     UseMinimalNames q(cppCoN);
     env.enter(&q);
-    Control *control = assist->context().control().data();
+    Control *control = assist->context().bindings()->control().data();
     Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
     oo.showFunctionSignatures = true;
     oo.showReturnTypes = true;
@@ -4151,7 +4151,7 @@ public:
             UseMinimalNames q(con);
             env.enter(&q);
 
-            Control *control = assistInterface()->context().control().data();
+            Control *control = assistInterface()->context().bindings()->control().data();
             FullySpecifiedType type = rewriteType(result.first().type(), &env, control);
 
             Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -4638,7 +4638,7 @@ public:
             env.switchScope(targetClass);
             UseMinimalNames q(targetCoN);
             env.enter(&q);
-            Control *control = assistInterface()->context().control().data();
+            Control *control = assistInterface()->context().bindings()->control().data();
             const QString fullClassName = printer.prettyName(LookupContext::minimalName(
                                                                  targetClass, targetCoN, control));
 
@@ -4708,7 +4708,7 @@ public:
                 env.switchScope(decl->enclosingScope());
                 UseMinimalNames q(targetCoN);
                 env.enter(&q);
-                Control *control = assistInterface()->context().control().data();
+                Control *control = assistInterface()->context().bindings()->control().data();
 
                 // rewrite the function type and name + create definition
                 const FullySpecifiedType type = rewriteType(decl->type(), &env, control);

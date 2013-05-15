@@ -50,10 +50,12 @@
 const wchar_t szTitle[] = L"qtcctrlcstub";
 const wchar_t szWindowClass[] = L"wcqtcctrlcstub";
 UINT uiShutDownWindowMessage;
+UINT uiInterruptMessage;
 HWND hwndMain = 0;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-BOOL WINAPI ctrlHandler(DWORD dwCtrlType);
+BOOL WINAPI shutdownHandler(DWORD dwCtrlType);
+BOOL WINAPI interruptHandler(DWORD dwCtrlType);
 bool isSpaceOrTab(const wchar_t c);
 bool startProcess(wchar_t pCommandLine[]);
 
@@ -64,8 +66,8 @@ int main(int argc, char **)
         return 1;
     }
 
-    SetConsoleCtrlHandler(ctrlHandler, TRUE);
     uiShutDownWindowMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
+    uiInterruptMessage = RegisterWindowMessage(L"qtcctrlcstub_interrupt");
 
     WNDCLASSEX wcex = {0};
     wcex.cbSize = sizeof(wcex);
@@ -117,8 +119,15 @@ int main(int argc, char **)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (message == uiShutDownWindowMessage) {
+        SetConsoleCtrlHandler(interruptHandler, FALSE);
+        SetConsoleCtrlHandler(shutdownHandler, TRUE);
         GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
         PostQuitMessage(0);
+        return 0;
+    } else if (message == uiInterruptMessage) {
+        SetConsoleCtrlHandler(interruptHandler, TRUE);
+        SetConsoleCtrlHandler(shutdownHandler, FALSE);
+        GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
         return 0;
     }
 
@@ -138,9 +147,14 @@ bool isSpaceOrTab(const wchar_t c)
     return c == L' ' || c == L'\t';
 }
 
-BOOL WINAPI ctrlHandler(DWORD /*dwCtrlType*/)
+BOOL WINAPI shutdownHandler(DWORD /*dwCtrlType*/)
 {
     PostMessage(hwndMain, WM_DESTROY, 0, 0);
+    return TRUE;
+}
+
+BOOL WINAPI interruptHandler(DWORD /*dwCtrlType*/)
+{
     return TRUE;
 }
 

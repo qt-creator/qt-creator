@@ -60,6 +60,9 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &star
 {
     m_isMulti = false;
     m_targetPid = -1;
+#ifdef Q_OS_WIN
+    m_gdbProc.setUseCtrlCStub(!startParameters.remoteExecutable.isEmpty()); // This is only set for QNX
+#endif
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(uploadProcError(QProcess::ProcessError)));
     connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
@@ -430,6 +433,10 @@ void GdbRemoteServerEngine::interruptInferior2()
     if (debuggerCore()->boolSetting(TargetAsync)) {
         postCommand("-exec-interrupt", GdbEngine::Immediate,
             CB(handleInterruptInferior));
+#ifdef Q_OS_WIN
+    } else if (m_isQnxGdb) {
+        m_gdbProc.winInterruptByCtrlC();
+#endif
     } else {
         bool ok = m_gdbProc.interrupt();
         if (!ok) {

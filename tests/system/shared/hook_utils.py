@@ -17,9 +17,7 @@ def modifyRunSettingsForHookInto(projectName, kitCount, port):
     switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.RUN)
     result = __configureCustomExecutable__(projectName, port, mkspec, qtVersion)
     if result:
-        clickButton(waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' text='Details' "
-                                  "type='Utils::DetailsButton' unnamed='1' visible='1' "
-                                  "leftWidget={type='QLabel' text~='Us(e|ing) <b>Build Environment</b>' unnamed='1' visible='1'}}"))
+        ensureChecked(":RunSettingsEnvironmentDetails_Utils::DetailsButton")
         envVarsTableView = waitForObject("{type='QTableView' visible='1' unnamed='1'}")
         model = envVarsTableView.model()
         changingVars = []
@@ -41,16 +39,22 @@ def modifyRunSettingsForHookInto(projectName, kitCount, port):
                     changingVars.append("SQUISH_LIBQTDIR=%s" % replacement)
                 else:
                     changingVars.append(varName)
-                    #test.log("Unsetting %s for run" % varName)
-        clickButton(waitForObject("{text='Batch Edit...' type='QPushButton' unnamed='1' visible='1' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}"))
-        editor = waitForObject("{type='TextEditor::SnippetEditorWidget' unnamed='1' visible='1' "
-                               "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}")
-        typeLines(editor, changingVars)
-        clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' "
-                                  "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}"))
+        batchEditRunEnvironment(kitCount, 0, changingVars, True)
     switchViewTo(ViewConstants.EDIT)
     return result
+
+def batchEditRunEnvironment(kitCount, currentTarget, modifications, alreadyOnRunSettings=False):
+    if not alreadyOnRunSettings:
+        switchViewTo(ViewConstants.PROJECTS)
+        switchToBuildOrRunSettingsFor(kitCount, currentTarget, ProjectSettings.RUN)
+    ensureChecked(":RunSettingsEnvironmentDetails_Utils::DetailsButton")
+    clickButton(waitForObject("{text='Batch Edit...' type='QPushButton' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    editor = waitForObject("{type='TextEditor::SnippetEditorWidget' unnamed='1' visible='1' "
+                           "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}")
+    typeLines(editor, modifications)
+    clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' "
+                              "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}"))
 
 def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port):
     switchViewTo(ViewConstants.PROJECTS)

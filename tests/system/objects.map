@@ -138,6 +138,8 @@
 :Restart required_QMessageBox	{text='The language change will take effect after a restart of Qt Creator.' type='QMessageBox' unnamed='1' visible='1'}
 :Revert to Saved.Proceed_QPushButton	{text='Proceed' type='QPushButton' unnamed='1' visible='1' window=':Revert to Saved_QMessageBox'}
 :Revert to Saved_QMessageBox	{text?='You will lose your current changes if you proceed reverting*' type='QMessageBox' unnamed='1' visible='1'}
+:RunSettingsEnvironmentDetails_Utils::DetailsButton	{leftWidget=':RunSettingsUseBuildEnvironment_QLabel' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:RunSettingsUseBuildEnvironment_QLabel	{text~='Us(e|ing) <b>Build Environment</b>' type='QLabel' unnamed='1' visible='1'}
 :Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
 :Symbol Server_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Symbol Server'}
 :User Interface.languageBox_QComboBox	{container=':Core__Internal__GeneralSettings.User Interface_QGroupBox' name='languageBox' type='QComboBox' visible='1'}

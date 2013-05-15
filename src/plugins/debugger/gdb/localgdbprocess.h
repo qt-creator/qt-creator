@@ -32,6 +32,8 @@
 
 #include "abstractgdbprocess.h"
 
+#include <utils/qtcprocess.h>
+
 namespace Debugger {
 namespace Internal {
 
@@ -48,6 +50,10 @@ public:
     virtual qint64 write(const QByteArray &data);
     virtual void kill();
     virtual bool interrupt();
+#ifdef Q_OS_WIN
+    void setUseCtrlCStub(bool enable);
+    void winInterruptByCtrlC();
+#endif
 
     virtual QProcess::ProcessState state() const;
     virtual QString errorString() const;
@@ -58,7 +64,7 @@ public:
     virtual void setWorkingDirectory(const QString &dir);
 
 private:
-    QProcess m_gdbProc;
+    Utils::QtcProcess m_gdbProc;
     QString m_errorString;
 };
 

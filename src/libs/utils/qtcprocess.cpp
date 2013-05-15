@@ -30,6 +30,8 @@
 #include "qtcprocess.h"
 #include "stringutils.h"
 
+#include <utils/qtcassert.h>
+
 #include <QDir>
 #include <QDebug>
 #include <QCoreApplication>
@@ -699,16 +701,27 @@ void QtcProcess::start()
 }
 
 #ifdef Q_OS_WIN
-BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
+static BOOL sendMessage(UINT message, HWND hwnd, LPARAM lParam)
 {
-    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
     DWORD dwProcessID;
     GetWindowThreadProcessId(hwnd, &dwProcessID);
     if ((DWORD)lParam == dwProcessID) {
-        SendNotifyMessage(hwnd, uiShutDownMessage, 0, 0);
+        SendNotifyMessage(hwnd, message, 0, 0);
         return FALSE;
     }
     return TRUE;
+}
+
+BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
+{
+    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
+    return sendMessage(uiShutDownMessage, hwnd, lParam);
+}
+
+BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
+{
+    static UINT uiInterruptMessage = RegisterWindowMessage(L"qtcctrlcstub_interrupt");
+    return sendMessage(uiInterruptMessage, hwnd, lParam);
 }
 #endif
 
@@ -723,6 +736,11 @@ void QtcProcess::terminate()
 }
 
 #ifdef Q_OS_WIN
+void QtcProcess::interrupt()
+{
+    QTC_ASSERT(m_useCtrlCStub, return);
+    EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, pid()->dwProcessId);
+}
 
 // This function assumes that the resulting string will be quoted.
 // That's irrelevant if it does not contain quotes itself.

@@ -147,6 +147,14 @@
                 installed on your computer to create and run this type of
                 projects
 
+            \li Qt Quick 2 UI with Controls
+
+                Uses a single QML file that contains the main view and that
+                imports the Qt Quick Controls. You can view the UI in the QML
+                Scene and you need not build it. This project requires that
+                you have installed the Qt Quick Controls for your Qt version
+                (5.1 or later)
+
         \endlist
 
         \li Libraries
