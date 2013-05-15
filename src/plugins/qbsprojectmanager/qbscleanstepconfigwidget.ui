@@ -40,7 +40,7 @@
    <item>
     <widget class="QCheckBox" name="keepGoingCheckBox">
      <property name="text">
-      <string>Keep Going</string>
+      <string>Keep going</string>
      </property>
     </widget>
    </item>
