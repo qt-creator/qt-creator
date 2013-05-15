@@ -77,11 +77,19 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
             const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
             if (!isDiagnosticTooltip())
                 setToolTip(cppElement->tooltip);
-            foreach (const QString &helpId, cppElement->helpIdCandidates) {
-                if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
+            QStringList candidates = cppElement->helpIdCandidates;
+            candidates.removeDuplicates();
+            HelpManager *hm = HelpManager::instance();
+            foreach (const QString &helpId, candidates) {
+                if (helpId.isEmpty())
+                    continue;
+
+                const QMap<QString, QUrl> helpLinks = hm->linksForIdentifier(helpId);
+                if (!helpLinks.isEmpty()) {
                     setLastHelpItemIdentified(TextEditor::HelpItem(helpId,
                                                                    cppElement->helpMark,
-                                                                   cppElement->helpCategory));
+                                                                   cppElement->helpCategory,
+                                                                   helpLinks));
                     break;
                 }
             }

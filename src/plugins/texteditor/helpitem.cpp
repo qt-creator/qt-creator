@@ -32,9 +32,6 @@
 #include <coreplugin/helpmanager.h>
 #include <utils/htmldocextractor.h>
 
-#include <QUrl>
-#include <QMap>
-
 using namespace TextEditor;
 
 HelpItem::HelpItem()
@@ -46,6 +43,11 @@ HelpItem::HelpItem(const QString &helpId, Category category) :
 
 HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category) :
     m_helpId(helpId), m_docMark(docMark), m_category(category)
+{}
+
+HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category,
+                   const QMap<QString, QUrl> &helpLinks) :
+    m_helpId(helpId), m_docMark(docMark), m_category(category), m_helpLinks(helpLinks)
 {}
 
 HelpItem::~HelpItem()
@@ -71,7 +73,9 @@ HelpItem::Category HelpItem::category() const
 
 bool HelpItem::isValid() const
 {
-    if (!Core::HelpManager::instance()->linksForIdentifier(m_helpId).isEmpty())
+    if (m_helpId.isEmpty())
+        return false;
+    if (!retrieveHelpLinks().isEmpty())
         return true;
     if (QUrl(m_helpId).isValid())
         return true;
@@ -87,7 +91,7 @@ QString HelpItem::extractContent(bool extended) const
         htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
 
     QString contents;
-    QMap<QString, QUrl> helpLinks = Core::HelpManager::instance()->linksForIdentifier(m_helpId);
+    QMap<QString, QUrl> helpLinks = retrieveHelpLinks();
     if (helpLinks.isEmpty()) {
         // Maybe this is already an URL...
         QUrl url(m_helpId);
@@ -133,4 +137,11 @@ QString HelpItem::extractContent(bool extended) const
             break;
     }
     return contents;
+}
+
+QMap<QString, QUrl> HelpItem::retrieveHelpLinks() const
+{
+    if (m_helpLinks.isEmpty())
+        m_helpLinks = Core::HelpManager::instance()->linksForIdentifier(m_helpId);
+    return m_helpLinks;
 }

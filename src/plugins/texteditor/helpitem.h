@@ -32,7 +32,9 @@
 
 #include "texteditor_global.h"
 
+#include <QMap>
 #include <QString>
+#include <QUrl>
 
 namespace TextEditor {
 
@@ -55,6 +57,8 @@ public:
     HelpItem();
     HelpItem(const QString &helpId, Category category);
     HelpItem(const QString &helpId, const QString &docMark, Category category);
+    HelpItem(const QString &helpId, const QString &docMark, Category category,
+             const QMap<QString, QUrl> &helpLinks);
     ~HelpItem();
 
     void setHelpId(const QString &id);
@@ -71,9 +75,13 @@ public:
     QString extractContent(bool extended) const;
 
 private:
+    QMap<QString, QUrl> retrieveHelpLinks() const;
+
+private:
     QString m_helpId;
     QString m_docMark;
     Category m_category;
+    mutable QMap<QString, QUrl> m_helpLinks; // cached help links
 };
 
 } // namespace TextEditor
