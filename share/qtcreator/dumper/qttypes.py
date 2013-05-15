@@ -1523,7 +1523,7 @@ def qdump__QStringRef(d, value):
     data, size, alloc = qStringData(s)
     data += int(value["m_position"])
     size = value["m_size"]
-    s = readRawMemory(data, 2 * size)
+    s = d.readRawMemory(data, 2 * size)
     d.putValue(s, Hex4EncodedLittleEndian)
     d.putNumChild(3)
     if d.isExpanded():
@@ -1893,7 +1893,7 @@ def qdump____c_style_array__(d, value):
     format = d.currentItemFormat()
     isDefault = format == None and str(targetType.unqualified()) == "char"
     if isDefault or (format >= 0 and format <= 2):
-        blob = readRawMemory(value.address, type.sizeof)
+        blob = d.readRawMemory(value.address, type.sizeof)
 
     if isDefault:
         # Use Latin1 as default for char [].
@@ -2167,7 +2167,7 @@ def qdump__std__string(d, value):
         d.putType("std::wstring", 1)
 
     n = min(size, qqStringCutOff)
-    mem = readRawMemory(p, n * charType.sizeof)
+    mem = d.readRawMemory(p, n * charType.sizeof)
     if charType.sizeof == 1:
         encodingType = Hex2EncodedLatin1
         displayType = DisplayLatin1String
@@ -2188,7 +2188,7 @@ def qdump__std__string(d, value):
     elif format == 2:
         d.putField("editformat", displayType)
         if n != size:
-            mem = readRawMemory(p, size * charType.sizeof)
+            mem = d.readRawMemory(p, size * charType.sizeof)
         d.putField("editvalue", mem)
 
 
