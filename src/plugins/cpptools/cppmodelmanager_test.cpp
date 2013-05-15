@@ -74,6 +74,12 @@ public:
         return testDataDir(QLatin1String("sources")) + fileName;
     }
 
+    /// File from the test data directory (top leve)
+    QString file(const QString &fileName) const
+    {
+        return testDataDir(QString()) + fileName;
+    }
+
 private:
     QString testDataDir(const QString& subdir, bool cleaned = true) const
     {
@@ -166,7 +172,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
 }
 
 /// QTCREATORBUG-9056
-void CppToolsPlugin::test_modelmanager_refresh()
+void CppToolsPlugin::test_modelmanager_refresh_1()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -178,7 +184,7 @@ void CppToolsPlugin::test_modelmanager_refresh()
     const QString testHeader(testDataDir.fileFromSourcesDir(
         QLatin1String("test_modelmanager_refresh.h")));
 
-    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh"));
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_1"));
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
@@ -215,4 +221,60 @@ void CppToolsPlugin::test_modelmanager_refresh()
     snapshot = mm->snapshot();
     QVERIFY(snapshot.contains(testHeader));
     QVERIFY(snapshot.contains(testCpp));
+}
+
+/// QTCREATORBUG-9205
+void CppToolsPlugin::test_modelmanager_refresh_2()
+{
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    const TestDataDirectory testDataDir(QLatin1String("testdata_refresh"));
+
+    const QString testHeader1(testDataDir.file(QLatin1String("defines.h")));
+    const QString testHeader2(testDataDir.file(QLatin1String("header.h")));
+    const QString testCpp(testDataDir.file(QLatin1String("source.cpp")));
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_2"));
+    ProjectInfo pi = mm->projectInfo(project);
+    QCOMPARE(pi.project().data(), project);
+
+    ProjectPart::Ptr part(new ProjectPart);
+    pi.appendProjectPart(part);
+    part->cxxVersion = ProjectPart::CXX98;
+    part->qtVersion = ProjectPart::Qt5;
+    part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
+    part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
+    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+
+    mm->updateProjectInfo(pi);
+
+    CPlusPlus::Snapshot snapshot;
+    QStringList refreshedFiles;
+    CPlusPlus::Document::Ptr document;
+
+    for (int i = 0; i < 2; ++i) {
+        mm->updateSourceFiles(QStringList() << testHeader1 << testHeader2 << testCpp);
+        refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+        QCOMPARE(refreshedFiles.size(), 3);
+        QVERIFY(refreshedFiles.contains(testHeader1));
+        QVERIFY(refreshedFiles.contains(testHeader2));
+        QVERIFY(refreshedFiles.contains(testCpp));
+
+        snapshot = mm->snapshot();
+        QVERIFY(snapshot.contains(testHeader1));
+        QVERIFY(snapshot.contains(testHeader2));
+        QVERIFY(snapshot.contains(testCpp));
+
+        // No diagnostic messages expected
+        document = snapshot.document(testHeader1);
+        QVERIFY(document->diagnosticMessages().isEmpty());
+
+        document = snapshot.document(testHeader2);
+        QVERIFY(document->diagnosticMessages().isEmpty());
+
+        document = snapshot.document(testCpp);
+        QVERIFY(document->diagnosticMessages().isEmpty());
+    }
 }

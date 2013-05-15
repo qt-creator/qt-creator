@@ -138,6 +138,7 @@ void CppPreprocessor::resetEnvironment()
 {
     m_env.reset();
     m_processed.clear();
+    m_included.clear();
 }
 
 void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
