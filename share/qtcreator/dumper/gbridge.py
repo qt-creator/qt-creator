@@ -2207,6 +2207,9 @@ class Dumper:
         except:
             pass
 
+    def readRawMemory(self, base, size):
+        return readRawMemory(base, size)
+
     def putFields(self, value, dumpBase = True):
         fields = extractFields(value)
 
