@@ -11,6 +11,9 @@ QTC_PLUGIN_DEPENDS += \
     qmlprojectmanager \
     projectexplorer
 INCLUDEPATH *= \
+    $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces \
+    $$PWD/designercore \
+    $$PWD/designercore/include \
     $$PWD/components/componentcore \
     $$PWD/components/formeditor \
     $$PWD/components/itemlibrary \
