@@ -136,7 +136,7 @@ QString QbsInstallStep::absoluteInstallRoot() const
 {
     const qbs::ProjectData *data = static_cast<QbsProject *>(project())->qbsProjectData();
     QString path = installRoot();
-    if (data)
+    if (data && !data->buildDirectory().isEmpty() && !path.isEmpty())
         path = QDir(data->buildDirectory()).absoluteFilePath(path);
     return path;
 }
