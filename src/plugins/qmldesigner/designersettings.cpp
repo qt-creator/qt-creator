@@ -54,9 +54,9 @@ void DesignerSettings::fromSettings(QSettings *settings)
             QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY),
             bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)).toBool();
     itemSpacing = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), QVariant(0)).toInt();
+            QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), QVariant(6)).toInt();
     snapMargin = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), QVariant(0)).toInt();
+            QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), QVariant(4)).toInt();
     canvasWidth = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), QVariant(10000)).toInt();
     canvasHeight = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), QVariant(10000)).toInt();
     warningsInDesigner = settings->value(
