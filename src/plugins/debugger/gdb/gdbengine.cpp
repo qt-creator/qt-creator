@@ -2553,6 +2553,10 @@ BreakpointPathUsage GdbEngine::defaultEngineBreakpointPathUsage() const
     // the source path isn't canonical
     if (m_gdbVersion < 70300)
         return BreakpointUseShortPath;
+    // Use short path for file systems with symbolic links. On Windows, main.cpp
+    // is potentially ambiguous (ANGLE, DLL).
+    if (startParameters().toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS)
+        return BreakpointUseShortPath;
 
     //don't set absolute breakpoints for remote targets
     switch (startMode()) {
