@@ -608,10 +608,9 @@ public:
     static BuiltinObjects defaultLibraryObjects;
 
     // parses the contents of a qmltypes file and fills the newObjects map
-    static void parseQmlTypeDescriptions(
-        const QByteArray &qmlTypes,
+    static void parseQmlTypeDescriptions(const QByteArray &contents,
         BuiltinObjects *newObjects,
-        QList<ModuleApiInfo> *newModuleApis, QString *errorMessage, QString *warningMessage);
+        QList<ModuleApiInfo> *newModuleApis, QString *errorMessage, QString *warningMessage, const QString &fileName);
 };
 
 class QMLJS_EXPORT CppQmlTypes

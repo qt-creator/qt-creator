@@ -39,6 +39,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QApplication>
 #include <QFile>
 #include <QDir>
 #include <QString>
@@ -1253,7 +1254,8 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
             QByteArray contents = file.readAll();
             file.close();
 
-            parseQmlTypeDescriptions(contents, &newObjects, 0, &error, &warning);
+
+            parseQmlTypeDescriptions(contents, &newObjects, 0, &error, &warning, qmlTypeFile.absoluteFilePath());
         } else {
             error = file.errorString();
         }
@@ -1272,15 +1274,28 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
     return newObjects;
 }
 
-void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml,
+void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &contents,
                                                  BuiltinObjects *newObjects,
                                                  QList<ModuleApiInfo> *newModuleApis,
                                                  QString *errorMessage,
-                                                 QString *warningMessage)
+                                                 QString *warningMessage, const QString &fileName)
 {
+    if (!contents.isEmpty()) {
+        unsigned char c = contents.at(0);
+        switch (c) {
+        case 0xfe:
+        case 0xef:
+        case 0xff:
+        case 0xee:
+        case 0x00:
+            qWarning() << QApplication::translate("CppQmlTypesLoader", "%1 seems not to be encoded in UTF8 or has a BOM.").arg(fileName);
+        default: break;
+        }
+    }
+
     errorMessage->clear();
     warningMessage->clear();
-    TypeDescriptionReader reader(QString::fromUtf8(xml));
+    TypeDescriptionReader reader(QString::fromUtf8(contents));
     if (!reader(newObjects, newModuleApis)) {
         if (reader.errorMessage().isEmpty())
             *errorMessage = QLatin1String("unknown error");
