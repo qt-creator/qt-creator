@@ -273,16 +273,22 @@ RunSettingsWidget::~RunSettingsWidget()
 {
 }
 
+static bool actionLessThan(const QAction *action1, const QAction *action2)
+{
+    return action1->text() < action2->text();
+}
 
 void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addRunMenu->clear();
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
+
+    QList<QAction *> menuActions;
     foreach (IRunConfigurationFactory *factory, factories) {
         QList<Core::Id> ids = factory->availableCreationIds(m_target);
         foreach (Core::Id id, ids) {
-            QAction *action = m_addRunMenu->addAction(factory->displayNameForId(id));;
+            QAction *action = new QAction(factory->displayNameForId(id), m_addRunMenu);
             FactoryAndId fai;
             fai.factory = factory;
             fai.id = id;
@@ -291,8 +297,13 @@ void RunSettingsWidget::aboutToShowAddMenu()
             action->setData(v);
             connect(action, SIGNAL(triggered()),
                     this, SLOT(addRunConfiguration()));
+            menuActions.append(action);
         }
     }
+
+    qSort(menuActions.begin(), menuActions.end(), actionLessThan);
+    foreach (QAction *action, menuActions)
+        m_addRunMenu->addAction(action);
 }
 
 void RunSettingsWidget::addRunConfiguration()
