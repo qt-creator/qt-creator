@@ -115,12 +115,12 @@ public:
     QbsGroupNode(const qbs::GroupData *grp, const QString &productPath);
 
     bool isEnabled() const;
-    void setGroup(const qbs::GroupData *group, const QString &productPath);
-    const qbs::GroupData *group() const { return m_group; }
+    void setQbsGroupData(const qbs::GroupData *qbsGroupData, const QString &productPath);
+    const qbs::GroupData *qbsGroupData() const { return m_qbsGroupData; }
 
     QString productPath() const;
 
-    static void setGroup(QbsBaseProjectNode *root, const qbs::GroupData *group,
+    static void setQbsGroupData(QbsBaseProjectNode *root, const qbs::GroupData *qbsGroupData,
                          const QString &productPath, QList<Node *> keepers);
 
 private:
@@ -128,7 +128,7 @@ private:
                              const QString &baseDirPath,
                              QList<ProjectExplorer::Node *> keepers = QList<ProjectExplorer::Node *>());
 
-    const qbs::GroupData *m_group;
+    const qbs::GroupData *m_qbsGroupData;
     QString m_productPath;
 
     static QIcon m_groupIcon;
@@ -147,13 +147,13 @@ public:
 
     bool isEnabled() const;
 
-    void setProduct(const qbs::ProductData *prd);
-    const qbs::ProductData *product() const { return m_product; }
+    void setQbsProductData(const qbs::ProductData *prd);
+    const qbs::ProductData *qbsProductData() const { return m_qbsProductData; }
 
 private:
     QbsGroupNode *findGroupNode(const QString &name);
 
-    const qbs::ProductData *m_product;
+    const qbs::ProductData *m_qbsProductData;
     static QIcon m_productIcon;
 };
 
@@ -171,14 +171,14 @@ public:
 
     void update(const qbs::Project *prj);
 
-    const qbs::Project *project() const;
-    const qbs::ProjectData *projectData() const;
+    const qbs::Project *qbsProject() const;
+    const qbs::ProjectData *qbsProjectData() const;
 
 private:
     QbsProductNode *findProductNode(const QString &name);
 
-    const qbs::Project *m_project;
-    const qbs::ProjectData *m_projectData;
+    const qbs::Project *m_qbsProject;
+    const qbs::ProjectData *m_qbsProjectData;
     static QIcon m_projectIcon;
 };
 } // namespace Internal

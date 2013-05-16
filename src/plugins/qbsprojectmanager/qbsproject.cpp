@@ -97,7 +97,9 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
-    m_manager(manager), m_projectName(QFileInfo(fileName).completeBaseName()), m_fileName(fileName),
+    m_manager(manager),
+    m_projectName(QFileInfo(fileName).completeBaseName()),
+    m_fileName(fileName),
     m_rootProjectNode(new QbsProjectNode(fileName)),
     m_qbsSetupProjectJob(0),
     m_qbsUpdateFutureInterface(0),
@@ -155,8 +157,8 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
 {
     Q_UNUSED(fileMode);
     QSet<QString> result;
-    if (m_rootProjectNode && m_rootProjectNode->projectData()) {
-        foreach (const qbs::ProductData &prd, m_rootProjectNode->projectData()->products()) {
+    if (m_rootProjectNode && m_rootProjectNode->qbsProjectData()) {
+        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData()->products()) {
             foreach (const qbs::GroupData &grp, prd.groups()) {
                 foreach (const QString &file, grp.allFilePaths())
                     result.insert(file);
@@ -164,7 +166,7 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
             }
             result.insert(prd.location().fileName);
         }
-        result.insert(m_rootProjectNode->projectData()->location().fileName);
+        result.insert(m_rootProjectNode->qbsProjectData()->location().fileName);
     }
     return result.toList();
 }
@@ -229,14 +231,14 @@ const qbs::Project *QbsProject::qbsProject() const
 {
     if (!m_rootProjectNode)
         return 0;
-    return m_rootProjectNode->project();
+    return m_rootProjectNode->qbsProject();
 }
 
 const qbs::ProjectData *QbsProject::qbsProjectData() const
 {
     if (!m_rootProjectNode)
         return 0;
-    return m_rootProjectNode->projectData();
+    return m_rootProjectNode->qbsProjectData();
 }
 
 bool QbsProject::needsSpecialDeployment() const
@@ -265,10 +267,10 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     m_rootProjectNode->update(project);
 
-    updateDocuments(m_rootProjectNode->projectData());
+    updateDocuments(m_rootProjectNode->qbsProjectData());
 
-    updateCppCodeModel(m_rootProjectNode->projectData());
-    updateQmlJsCodeModel(m_rootProjectNode->projectData());
+    updateCppCodeModel(m_rootProjectNode->qbsProjectData());
+    updateQmlJsCodeModel(m_rootProjectNode->qbsProjectData());
 
     foreach (ProjectExplorer::Target *t, targets())
         t->updateDefaultRunConfigurations();
