@@ -385,7 +385,7 @@ bool AndroidManager::updateDeploymentSettings(ProjectExplorer::Target *target)
                 changedManifest = true;
             }
         } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.bundle_local_qt_libs")) {
-            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != bundleQtLibs) {
+            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != int(bundleQtLibs)) {
                 metadataElem.setAttribute(QLatin1String("android:value"), int(bundleQtLibs));
                 changedManifest = true;
             }

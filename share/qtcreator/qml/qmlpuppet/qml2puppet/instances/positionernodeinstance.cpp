@@ -96,6 +96,7 @@ void PositionerNodeInstance::refreshLayoutable()
 {
     bool success = QMetaObject::invokeMethod(positioner(), "prePositioning");
     Q_ASSERT(success);
+    Q_UNUSED(success)
 }
 
 }

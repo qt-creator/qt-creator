@@ -92,6 +92,7 @@ void PositionerNodeInstance::refreshPositioner()
 {
     bool success = QMetaObject::invokeMethod(positioner(), "prePositioning");
     Q_ASSERT(success);
+    Q_UNUSED(success)
 }
 
 }
