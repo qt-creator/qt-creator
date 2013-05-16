@@ -85,9 +85,7 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
                               "unnamed='1' visible='1'}")
     clickButton(addRunConfig)
     activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
-    exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
-                                   "text='Command:' type='QLabel' unnamed='1' visible='1'} "
-                                   "type='Utils::PathChooser' unnamed='1' visible='1'}")
+    exePathChooser = waitForObject(":Executable:_Utils::PathChooser")
     exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
     argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
@@ -206,8 +204,7 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
     clickButton(addButton)
     addMenu = addButton.menu()
     activateItem(waitForObjectItem(objectMap.realName(addMenu), 'Custom Executable'))
-    exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Command:' type='QLabel' unnamed='1' visible='1'} "
-                                   "type='Utils::PathChooser' unnamed='1' visible='1'}", 2000)
+    exePathChooser = waitForObject(":Executable:_Utils::PathChooser", 2000)
     exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
     argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
