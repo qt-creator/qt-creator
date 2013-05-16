@@ -210,6 +210,12 @@ ProFile *QMakeParser::parsedProBlock(
     return pro;
 }
 
+void QMakeParser::discardFileFromCache(const QString &fileName)
+{
+    if (m_cache)
+        m_cache->discardFile(fileName);
+}
+
 bool QMakeParser::read(ProFile *pro)
 {
     QFile file(pro->fileName());

@@ -308,6 +308,7 @@ QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::Open
                   .arg(ctx, QDir::toNativeSeparators(qfi.filePath()), errStr));
         return ReturnFalse;
     }
+    m_parser->discardFileFromCache(qfi.filePath());
     return ReturnTrue;
 }
 

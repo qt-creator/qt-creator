@@ -82,6 +82,8 @@ public:
     ProFile *parsedProBlock(const QString &contents, const QString &name, int line = 0,
                             SubGrammar grammar = FullGrammar);
 
+    void discardFileFromCache(const QString &fileName);
+
 private:
     enum ScopeNesting {
         NestNone = 0,
