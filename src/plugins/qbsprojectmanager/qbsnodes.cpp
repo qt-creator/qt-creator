@@ -32,6 +32,7 @@
 #include "qbsproject.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/idocument.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -473,17 +474,19 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 // QbsProjectNode:
 // --------------------------------------------------------------------
 
-QbsProjectNode::QbsProjectNode(const QString &projectFile) :
-    QbsBaseProjectNode(projectFile),
-    m_qbsProject(0), m_qbsProjectData(0)
+QbsProjectNode::QbsProjectNode(QbsProject *project) :
+    QbsBaseProjectNode(project->document()->fileName()),
+    m_project(project), m_qbsProject(0), m_qbsProjectData(0)
 {
+    Q_ASSERT(project);
     setIcon(m_projectIcon);
     addFileNodes(QList<ProjectExplorer::FileNode *>()
-                 << new ProjectExplorer::FileNode(projectFile, ProjectExplorer::ProjectFileType, false), this);
+                 << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false), this);
 }
 
 QbsProjectNode::~QbsProjectNode()
 {
+    // do not delete m_project
     delete m_qbsProjectData;
     delete m_qbsProject;
 }
@@ -516,6 +519,11 @@ void QbsProjectNode::update(const qbs::Project *prj)
 
     removeProjectNodes(toRemove);
     addProjectNodes(toAdd);
+}
+
+QbsProject *QbsProjectNode::project() const
+{
+    return m_project;
 }
 
 const qbs::Project *QbsProjectNode::qbsProject() const

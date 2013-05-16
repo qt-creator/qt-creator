@@ -42,6 +42,7 @@ namespace QbsProjectManager {
 namespace Internal {
 
 class FileTreeNode;
+class QbsProject;
 class QbsProjectFile;
 
 // ----------------------------------------------------------------------
@@ -121,7 +122,7 @@ public:
     QString productPath() const;
 
     static void setQbsGroupData(QbsBaseProjectNode *root, const qbs::GroupData *qbsGroupData,
-                         const QString &productPath, QList<Node *> keepers);
+                                const QString &productPath, QList<Node *> keepers);
 
 private:
     static void setupFolders(QbsBaseProjectNode *topLevel, FolderNode *root, FileTreeNode *node,
@@ -166,16 +167,19 @@ class QbsProjectNode : public QbsBaseProjectNode
     Q_OBJECT
 
 public:
-    explicit QbsProjectNode(const QString &projectFile);
+    explicit QbsProjectNode(QbsProject *project);
     ~QbsProjectNode();
 
     void update(const qbs::Project *prj);
 
+    QbsProject *project() const;
     const qbs::Project *qbsProject() const;
     const qbs::ProjectData *qbsProjectData() const;
 
 private:
     QbsProductNode *findProductNode(const QString &name);
+
+    QbsProject *m_project;
 
     const qbs::Project *m_qbsProject;
     const qbs::ProjectData *m_qbsProjectData;

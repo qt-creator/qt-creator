@@ -100,7 +100,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_manager(manager),
     m_projectName(QFileInfo(fileName).completeBaseName()),
     m_fileName(fileName),
-    m_rootProjectNode(new QbsProjectNode(fileName)),
+    m_rootProjectNode(0),
     m_qbsSetupProjectJob(0),
     m_qbsUpdateFutureInterface(0),
     m_currentBc(0)
@@ -117,6 +117,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
             this, SLOT(targetWasAdded(ProjectExplorer::Target*)));
 
     updateDocuments(0);
+    m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
 }
 
 QbsProject::~QbsProject()
