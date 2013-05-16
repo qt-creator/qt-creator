@@ -30,9 +30,11 @@
 #include "qbsnodes.h"
 
 #include "qbsproject.h"
+#include "qbsrunconfiguration.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
+#include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -458,6 +460,25 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData *prd)
 
     m_qbsProductData = prd;
     emitNodeUpdated();
+}
+
+QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurationsFor(ProjectExplorer::Node *node)
+{
+    Q_UNUSED(node);
+    QList<ProjectExplorer::RunConfiguration *> result;
+    QbsProjectNode *pn = qobject_cast<QbsProjectNode *>(projectNode());
+    if (!isEnabled() || !pn || pn->qbsProject()->targetExecutable(*m_qbsProductData).isEmpty())
+        return result;
+
+    foreach (ProjectExplorer::RunConfiguration *rc, pn->project()->activeTarget()->runConfigurations()) {
+        QbsRunConfiguration *qbsRc = qobject_cast<QbsRunConfiguration *>(rc);
+        if (!qbsRc)
+            continue;
+        if (qbsRc->qbsProduct() == qbsProductData()->name())
+            result << qbsRc;
+    }
+
+    return result;
 }
 
 QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)

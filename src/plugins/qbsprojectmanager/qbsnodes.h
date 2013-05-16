@@ -151,6 +151,8 @@ public:
     void setQbsProductData(const qbs::ProductData *prd);
     const qbs::ProductData *qbsProductData() const { return m_qbsProductData; }
 
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
+
 private:
     QbsGroupNode *findGroupNode(const QString &name);
 
