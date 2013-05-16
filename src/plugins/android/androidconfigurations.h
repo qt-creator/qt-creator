@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QVector>
 #include <projectexplorer/abi.h>
 
@@ -55,6 +56,7 @@ public:
     Utils::FileName openJDKLocation;
     Utils::FileName keystoreLocation;
     QString toolchainHost;
+    QStringList makeExtraSearchDirectories;
     unsigned partitionSize;
     bool automaticKitCreation;
 };
@@ -96,6 +98,8 @@ public:
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
     QString startAVD(int *apiLevel, const QString &name = QString()) const;
     QString bestMatch(const QString &targetAPI) const;
+
+    QStringList makeExtraSearchDirectories() const;
 
     static ProjectExplorer::Abi::Architecture architectureForToolChainPrefix(const QString &toolchainprefix);
     static QLatin1String toolchainPrefix(ProjectExplorer::Abi::Architecture architecture);

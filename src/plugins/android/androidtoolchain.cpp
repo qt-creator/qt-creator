@@ -204,7 +204,7 @@ QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
 {
     QString make = HostOsInfo::isWindowsHost()
             ? QLatin1String("ma-make.exe") : QLatin1String("make");
-    QString tmp = env.searchInPath(make);
+    QString tmp = env.searchInPath(make, AndroidConfigurations::instance().makeExtraSearchDirectories());
     return tmp.isEmpty() ? make : tmp;
 }
 
