@@ -1,4 +1,5 @@
 
+import atexit
 import binascii
 import inspect
 import os
@@ -11,11 +12,10 @@ import subprocess
 
 uname = platform.uname()[0]
 if uname == 'Linux':
-    for arg in sys.argv[1:]:
-        # /data/dev/llvm-git-2/build/lib/python2.7/site-packages
-        proc = subprocess.Popen(args=[arg, "-P"], stdout=subprocess.PIPE)
-        path = proc.stdout.read().strip()
-        sys.path.append(path)
+    # /data/dev/llvm-git-2/build/lib/python2.7/site-packages
+    proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
+    path = proc.stdout.read().strip()
+    sys.path.append(path)
 else:
     base = '/Applications/Xcode.app/Contents/'
     sys.path.append(base + 'SharedFrameworks/LLDB.framework/Resources/Python')
@@ -24,7 +24,7 @@ else:
 import lldb
 
 cdbLoaded = False
-lldbLoaded = False
+lldbLoaded = True
 gdbLoaded = False
 
 # Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
@@ -76,8 +76,7 @@ def lookupType(name):
         return charType
     if name == "char *":
         return charPtrType
-    #warn("LOOKUP: %s" % lldb.target.GetModuleAtIndex(0).FindFirstType(name))
-    return lldb.target.GetModuleAtIndex(0).FindFirstType(name)
+    return None
 
 def isSimpleType(typeobj):
     typeClass = typeobj.GetTypeClass()
@@ -517,7 +516,6 @@ class Debugger:
         self.debugger.HandleCommand("settings set auto-confirm on")
         self.process = None
         self.target = None
-        self.executable = None
         self.pid = None
         self.eventState = lldb.eStateInvalid
         self.listener = None
@@ -626,16 +624,10 @@ class Debugger:
         #warn("LOOKUP: %s" % self.target.GetModuleAtIndex(0).FindFirstType(name))
         return self.target.GetModuleAtIndex(0).FindFirstType(name)
 
-    def charPointerType(self):
-        charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
-        #return lldb.SBType().GetBasicType(lldb.eBasicTypeChar).GetPointerType()
-        return charType.GetPointerType()
-
     def setupInferior(self, args):
         fileName = args['executable']
         error = lldb.SBError()
-        self.executable = fileName
-        self.target = self.debugger.CreateTarget(self.executable, None, None, True, error)
+        self.target = self.debugger.CreateTarget(fileName, None, None, True, error)
         if self.target.IsValid():
             self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, fileName))
         else:
@@ -1014,50 +1006,64 @@ class Debugger:
         result += '],'
         return result
 
+    def addBreakpoint(self, args):
+        bpType = args["type"]
+        if bpType == BreakpointByFileAndLine:
+            bpNew = self.target.BreakpointCreateByLocation(
+                str(args["file"]), int(args["line"]))
+        elif bpType == BreakpointByFunction:
+            bpNew = self.target.BreakpointCreateByName(args["function"])
+        elif bpType == BreakpointAtMain:
+            bpNew = self.target.BreakpointCreateByName(
+                "main", self.target.GetExecutable().GetFilename())
+        else:
+            warn("UNKNOWN TYPE")
+        bpNew.SetIgnoreCount(int(args["ignorecount"]))
+        bpNew.SetCondition(str(args["condition"]))
+        bpNew.SetEnabled(int(args["enabled"]))
+        try:
+            bpNew.SetOneShot(int(args["oneshot"]))
+        except:
+            pass
+        #bpNew.SetCallback(breakpoint_function_wrapper, None)
+        #bpNew.SetCallback(breakpoint_function_wrapper, None)
+        #"breakpoint command add 1 -o \"import time; print time.asctime()\"
+        #cmd = "script print(11111111)"
+        #cmd = "continue"
+        #self.debugger.HandleCommand(
+        #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
+        return bpNew
+
+    def changeBreakpoint(self, args):
+        bpChange = self.target.FindBreakpointByID(int(args["lldbid"]))
+        bpChange.SetIgnoreCount(int(args["ignorecount"]))
+        bpChange.SetCondition(str(args["condition"]))
+        bpChange.SetEnabled(int(args["enabled"]))
+        try:
+            bpChange.SetOneShot(int(args["oneshot"]))
+        except:
+            pass
+
+    def removeBreakpoint(self, args):
+        return self.target.BreakpointDelete(int(args["lldbid"]))
+
     def handleBreakpoints(self, args):
         result = 'bkpts=['
         for bp in args['bkpts']:
             operation = bp['operation']
 
             if operation == 'add':
-                bpType = bp["type"]
-                if bpType == BreakpointByFileAndLine:
-                    bpNew = self.target.BreakpointCreateByLocation(str(bp["file"]), int(bp["line"]))
-                elif bpType == BreakpointByFunction:
-                    bpNew = self.target.BreakpointCreateByName(bp["function"])
-                elif bpType == BreakpointAtMain:
-                    bpNew = self.target.BreakpointCreateByName("main", self.target.GetExecutable().GetFilename())
-                else:
-                    warn("UNKNOWN TYPE")
-                bpNew.SetIgnoreCount(int(bp["ignorecount"]))
-                bpNew.SetCondition(str(bp["condition"]))
-                bpNew.SetEnabled(int(bp["enabled"]))
-                try:
-                    bpNew.SetOneShot(int(bp["oneshot"]))
-                except:
-                    pass
-                #bpNew.SetCallback(breakpoint_function_wrapper, None)
-                #bpNew.SetCallback(breakpoint_function_wrapper, None)
-                #"breakpoint command add 1 -o \"import time; print time.asctime()\"
-                #cmd = "script print(11111111)"
-                #cmd = "continue"
-                #self.debugger.HandleCommand(
-                #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
-                result += '{operation="added",%s}' % self.describeBreakpoint(bpNew, bp["modelid"])
+                bpNew = self.addBreakpoint(bp)
+                result += '{operation="added",%s}' \
+                    % self.describeBreakpoint(bpNew, bp["modelid"])
 
             elif operation == 'change':
-                bpChange = self.target.FindBreakpointByID(int(bp["lldbid"]))
-                bpChange.SetIgnoreCount(int(bp["ignorecount"]))
-                bpChange.SetCondition(str(bp["condition"]))
-                bpChange.SetEnabled(int(bp["enabled"]))
-                try:
-                    bpChange.SetOneShot(int(bp["oneshot"]))
-                except:
-                    pass
-                result += '{operation="changed",%s' % self.describeBreakpoint(bpNew, bp["modelid"])
+                bpNew = self.changeBreakpoint(bp)
+                result += '{operation="changed",%s' \
+                    % self.describeBreakpoint(bpNew, bp["modelid"])
 
             elif operation == 'remove':
-                bpDead = self.target.BreakpointDelete(int(bp["lldbid"]))
+                bpDead = self.removeBreakpoint(bp)
                 result += '{operation="removed",modelid="%s"}' % bp["modelid"]
 
         result += "]"
@@ -1220,13 +1226,8 @@ class Debugger:
         except:
             pass
 
-
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-#warn("currentdir: %s" % currentDir)
-#execfile(os.path.join(currentDir, "dumper.py"))
 execfile(os.path.join(currentDir, "qttypes.py"))
-
-lldbLoaded = True
 
 
 def doit():
@@ -1243,5 +1244,45 @@ def doit():
                 if line.startswith("db "):
                     db.execute(eval(line[3:]))
 
-if __name__ == '__main__':
+
+
+def testit():
+    db = Debugger()
+
+    error = lldb.SBError()
+    db.target = db.debugger.CreateTarget(sys.argv[2], None, None, True, error)
+    #db.importDumpers()
+
+    bpNew = db.target.BreakpointCreateByName('breakHere', 'doit')
+
+    db.listener = lldb.SBListener("event_Listener")
+    db.process = db.target.LaunchSimple(None, None, os.getcwd())
+    broadcaster = db.process.GetBroadcaster()
+    listener = lldb.SBListener("event_Listener 2")
+    rc = broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
+    event = lldb.SBEvent()
+
+    while True:
+        event = lldb.SBEvent()
+        if db.listener.WaitForEvent(1, event):
+            out = lldb.SBStream()
+            event.GetDescription(out)
+            warn("EVENT: %s" % event)
+            type = event.GetType()
+            msg = lldb.SBEvent.GetCStringFromEvent(event)
+            flavor = event.GetDataFlavor()
+            state = lldb.SBProcess.GetStateFromEvent(event)
+            db.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
+                % (type, out.GetData(), msg, flavor, state))
+            db.report('state="%s"' % stateNames[state])
+            if type == lldb.SBProcess.eBroadcastBitStateChanged:
+                #if state == lldb.eStateStopped:
+                #db.reportData()
+                pass
+        else:
+            warn('TIMEOUT')
+
+if len(sys.argv) > 2:
+    testit()
+else:
     doit()

@@ -751,16 +751,9 @@ void tst_Dumpers::dumper()
         cmds += "q\n";
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
         exe = "python";
-        args << QLatin1String("-i")
-             << QLatin1String(dumperDir + "/lbridge.py");
-        cmds = "db {'cmd':'setupInferior','executable':'"
-                    + t->buildPath.toUtf8() + "/doit','token':1}\n"
-               "db {'cmd':'handleBreakpoints',"
-                   "'bkpts':[{'operation':'add','modelid':'6','type':2,'ignorecount':0"
-                        ",'condition':'','function':'breakHere','oneshot':0"
-                        ",'enabled':1,'file':'','line':0}],"
-                   "'continuation':'runEngine2','token':2}\n"
-               "db {'cmd':'runEngine','token':3}\n";
+        args << QLatin1String(dumperDir + "/lbridge.py")
+             << QString::fromUtf8(m_debuggerBinary)
+             << t->buildPath + QLatin1String("/doit");
     }
 
     t->input = cmds;
