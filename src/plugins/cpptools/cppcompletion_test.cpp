@@ -1908,7 +1908,6 @@ void CppToolsPlugin::test_completion_typedef_using_templates1()
     QVERIFY(completions.contains(QLatin1String("bar")));
 }
 
-
 void CppToolsPlugin::test_completion_typedef_using_templates2()
 {
     TestData data;

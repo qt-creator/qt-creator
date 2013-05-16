@@ -175,6 +175,14 @@ protected:
     virtual bool visit(Block *symbol)
     { return process(symbol); }
 
+    virtual bool visit(Template *symbol)
+    {
+        if (symbol->declaration() && symbol->declaration()->isFunction())
+            return process(symbol);
+        else
+            return true;
+    }
+
     // Objective-C
     virtual bool visit(ObjCBaseClass *) { return false; }
     virtual bool visit(ObjCBaseProtocol *) { return false; }

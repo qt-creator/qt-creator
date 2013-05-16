@@ -195,6 +195,7 @@ private slots:
     void test_checksymbols_highlightingTypeWhenUsingNamespaceClass_QTCREATORBUG7903_namespace();
     void test_checksymbols_highlightingTypeWhenUsingNamespaceClass_QTCREATORBUG7903_insideFunction();
     void test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_globalNamespace();
+    void test_checksymbols_highlightingUsedTemplateFunctionParameter_QTCREATORBUG6861();
     void test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_namespace();
     void test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_insideFunction();
 };
@@ -1702,6 +1703,7 @@ void tst_CheckSymbols::test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORB
 
     TestData::check(source, expectedUses);
 }
+
 void tst_CheckSymbols::test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_insideFunction()
 {
     const QByteArray source =
@@ -1720,6 +1722,31 @@ void tst_CheckSymbols::test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORB
             << Use(2, 7, 3, CppHighlightingSupport::TypeUse)
             << Use(4, 6, 3, CppHighlightingSupport::FunctionUse)
             << Use(7, 9, 3, CppHighlightingSupport::LocalUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_highlightingUsedTemplateFunctionParameter_QTCREATORBUG6861()
+{
+    const QByteArray source =
+            "template<class TEMP>\n"
+            "TEMP \n"
+            "foo(TEMP in)\n"
+            "{\n"
+            "    typename TEMP::type type;\n"
+            "}\n"
+           ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 16, 4, CppHighlightingSupport::TypeUse)
+            << Use(2, 1, 4, CppHighlightingSupport::TypeUse)
+            << Use(3, 1, 3, CppHighlightingSupport::FunctionUse)
+            << Use(3, 5, 4, CppHighlightingSupport::TypeUse)
+            << Use(3, 10, 2, CppHighlightingSupport::LocalUse)
+            << Use(5, 14, 4, CppHighlightingSupport::TypeUse)
+            << Use(5, 20, 4, CppHighlightingSupport::TypeUse)
+            << Use(5, 25, 4, CppHighlightingSupport::LocalUse)
             ;
 
     TestData::check(source, expectedUses);
