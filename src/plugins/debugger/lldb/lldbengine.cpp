@@ -121,8 +121,8 @@ void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    m_lldbBridge = startParameters().debuggerCommand;
-    showMessage(_("STARTING LLDB ") + m_lldbBridge);
+    m_lldbCmd = startParameters().debuggerCommand;
+    showMessage(_("STARTING LLDB ") + m_lldbCmd);
 
     connect(&m_lldbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleLldbError(QProcess::ProcessError)));
@@ -136,12 +136,12 @@ void LldbEngine::setupEngine()
     connect(this, SIGNAL(outputReady(QByteArray)),
         SLOT(handleResponse(QByteArray)), Qt::QueuedConnection);
 
-    //m_lldbProc.start(m_lldb);
-    m_lldbProc.start(_("/usr/bin/python"), QStringList() << _("-i") << m_lldbBridge);
+    m_lldbProc.start(_("python"), QStringList() << _("-i")
+        << (Core::ICore::resourcePath() + _("/dumper/lbridge.py")) << m_lldbCmd);
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start lldb '%1': %2")
-            .arg(m_lldbBridge, m_lldbProc.errorString());
+            .arg(m_lldbCmd, m_lldbProc.errorString());
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty())
@@ -695,7 +695,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("The Lldb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(m_lldbBridge);
+                .arg(m_lldbCmd);
         case QProcess::Crashed:
             return tr("The Lldb process crashed some time after starting "
                 "successfully.");

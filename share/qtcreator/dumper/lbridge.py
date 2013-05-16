@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import binascii
 import inspect
@@ -7,10 +6,16 @@ import platform
 import threading
 import select
 import sys
+import subprocess
+
 
 uname = platform.uname()[0]
 if uname == 'Linux':
-    sys.path.append('/data/dev/llvm-git/build/Debug+Asserts/lib/python2.7/site-packages')
+    for arg in sys.argv[1:]:
+        # /data/dev/llvm-git-2/build/lib/python2.7/site-packages
+        proc = subprocess.Popen(args=[arg, "-P"], stdout=subprocess.PIPE)
+        path = proc.stdout.read().strip()
+        sys.path.append(path)
 else:
     base = '/Applications/Xcode.app/Contents/'
     sys.path.append(base + 'SharedFrameworks/LLDB.framework/Resources/Python')
