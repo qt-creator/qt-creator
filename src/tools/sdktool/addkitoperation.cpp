@@ -218,7 +218,7 @@ int AddKitOperation::execute() const
     QVariantMap result = addKit(map, m_id, m_displayName, m_icon, m_debuggerEngine, m_debugger,
                                 m_deviceType.toUtf8(), m_sysRoot, m_tc, m_qt, m_mkspec, m_extra);
 
-    if (map.isEmpty() || map == result)
+    if (result.isEmpty() || map == result)
         return -2;
 
     return save(result, QLatin1String("profiles")) ? 0 : -3;
