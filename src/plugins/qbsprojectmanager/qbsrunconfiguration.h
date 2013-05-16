@@ -90,6 +90,8 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
+    QString qbsProduct() const;
+
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
@@ -116,7 +118,7 @@ private:
 
     void updateTarget();
 
-    QString m_product;
+    QString m_qbsProduct;
     QString m_commandLineArguments;
 
     // Cached startup sub project information

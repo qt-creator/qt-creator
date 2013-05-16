@@ -94,7 +94,7 @@ namespace Internal {
 
 QbsRunConfiguration::QbsRunConfiguration(ProjectExplorer::Target *parent, Core::Id id) :
     LocalApplicationRunConfiguration(parent, id),
-    m_product(productFromId(id)),
+    m_qbsProduct(productFromId(id)),
     m_runMode(Gui),
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
@@ -104,7 +104,7 @@ QbsRunConfiguration::QbsRunConfiguration(ProjectExplorer::Target *parent, Core::
 
 QbsRunConfiguration::QbsRunConfiguration(ProjectExplorer::Target *parent, QbsRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
-    m_product(source->m_product),
+    m_qbsProduct(source->m_qbsProduct),
     m_commandLineArguments(source->m_commandLineArguments),
     m_runMode(source->m_runMode),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
@@ -197,7 +197,7 @@ void QbsRunConfiguration::installStepChanged()
 QString QbsRunConfiguration::executable() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData *product = findProduct(pro->qbsProjectData(), m_product);
+    const qbs::ProductData *product = findProduct(pro->qbsProjectData(), m_qbsProduct);
 
     if (!product)
         return QString();
@@ -281,6 +281,11 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
 }
 
+QString QbsRunConfiguration::qbsProduct() const
+{
+    return m_qbsProduct;
+}
+
 QString QbsRunConfiguration::dumperLibrary() const
 {
     return QtSupport::QtKitInformation::dumperLibrary(target()->kit());
@@ -294,8 +299,8 @@ QStringList QbsRunConfiguration::dumperLibraryLocations() const
 QString QbsRunConfiguration::defaultDisplayName()
 {
     QString defaultName;
-    if (!m_product.isEmpty())
-        defaultName = m_product;
+    if (!m_qbsProduct.isEmpty())
+        defaultName = m_qbsProduct;
     else
         defaultName = tr("Qbs Run Configuration");
     return defaultName;
