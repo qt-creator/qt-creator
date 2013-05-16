@@ -154,6 +154,8 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     connect(&m_process, SIGNAL(readyReadStandardOutput()),
             this, SLOT(processReadyReadStandardOutput()));
     m_process.setWorkingDirectory(repository);
+    m_process.setProcessEnvironment(Git::Internal::GitPlugin::instance()->
+                                    gitClient()->processEnvironment());
 }
 
 FetchContext::~FetchContext()
