@@ -697,6 +697,14 @@ bool ResolveExpression::visit(CallAST *ast)
             // Constructor call
             FullySpecifiedType ctorTy = control()->namedType(classTy->name());
             addResult(ctorTy, scope);
+        } else if (Template *templateTy = ty->asTemplateType()) {
+            // template function
+            if (Symbol *declaration = templateTy->declaration()) {
+                if (Function *funTy = declaration->asFunction()) {
+                    if (maybeValidPrototype(funTy, actualArgumentCount))
+                        addResult(funTy->returnType().simplified(), scope);
+                }
+            }
         }
     }
 

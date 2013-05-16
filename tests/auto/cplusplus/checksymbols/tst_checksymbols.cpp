@@ -1702,7 +1702,6 @@ void tst_CheckSymbols::test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORB
 
     TestData::check(source, expectedUses);
 }
-
 void tst_CheckSymbols::test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_insideFunction()
 {
     const QByteArray source =

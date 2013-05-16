@@ -692,6 +692,16 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 item.setType(ty); // override the type.
             }
 
+            // instantiate function template
+            if (name->isTemplateNameId() && s->isTemplate() && s->asTemplate()->declaration()
+                    && s->asTemplate()->declaration()->isFunction()) {
+                const TemplateNameId *instantiation = name->asTemplateNameId();
+                Template *specialization = s->asTemplate();
+                Symbol *instantiatedFunctionTemplate = instantiateTemplateFunction(instantiation,
+                                                                                   specialization);
+                item.setType(instantiatedFunctionTemplate->type()); // override the type.
+            }
+
             result->append(item);
         }
     }
@@ -1601,5 +1611,31 @@ bool CreateBindings::visit(ObjCForwardProtocolDeclaration *proto)
 bool CreateBindings::visit(ObjCMethod *)
 {
     return false;
+}
+
+Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instantiation,
+                                                    Template *specialization) const
+{
+    const unsigned argumentCountOfInitialization = instantiation->templateArgumentCount();
+    const unsigned argumentCountOfSpecialization = specialization->templateParameterCount();
+
+    Clone cloner(_control.data());
+    Subst subst(_control.data());
+    for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+        const TypenameArgument *tParam
+                = specialization->templateParameterAt(i)->asTypenameArgument();
+        if (!tParam)
+            continue;
+        const Name *name = tParam->name();
+        if (!name)
+            continue;
+
+        FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
+                    instantiation->templateArgumentAt(i):
+                    cloner.type(tParam->type(), &subst);
+
+        subst.bind(cloner.name(name, &subst), ty);
+    }
+    return cloner.symbol(specialization, &subst);
 }
 

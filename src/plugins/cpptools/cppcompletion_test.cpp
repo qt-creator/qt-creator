@@ -2047,3 +2047,32 @@ void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
     QCOMPARE(completions.size(), 1);
     QVERIFY(completions.contains(QLatin1String("S")));
 }
+
+void CppToolsPlugin::test_completion_instantiate_template_function()
+{
+    TestData data;
+    data.srcText =
+            "template <typename T>\n"
+            "T* templateFunction() { return 0; }\n"
+            "struct A { int a; };\n"
+            "void foo()\n"
+            "{\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("templateFunction<A>()->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("A")));
+    QVERIFY(completions.contains(QLatin1String("a")));
+}
