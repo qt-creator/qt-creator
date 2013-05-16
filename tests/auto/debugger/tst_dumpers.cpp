@@ -503,7 +503,8 @@ private:
 
 void tst_Dumpers::initTestCase()
 {
-    m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH");
+    m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH_FOR_TEST");
+
     if (m_debuggerBinary.isEmpty())
         m_debuggerBinary = "gdb";
 
