@@ -127,8 +127,8 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
     m_lastKitState = LastKitState(target()->kit());
 
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain *)),
-            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain *)));
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
+            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
     return true;

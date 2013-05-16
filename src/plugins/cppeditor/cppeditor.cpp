@@ -531,8 +531,8 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
                 this, SLOT(onDocumentUpdated()));
         connect(editorSupport, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
                 this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
-        connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult> *, unsigned)),
-                this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult> *, unsigned)));
+        connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)),
+                this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)));
 
         m_completionSupport = m_modelManager->completionSupport(editor());
     }

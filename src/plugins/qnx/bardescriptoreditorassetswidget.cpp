@@ -160,15 +160,15 @@ void BarDescriptorEditorAssetsWidget::updateEntryCheckState(QStandardItem *item)
 void BarDescriptorEditorAssetsWidget::connectAssetsModel()
 {
     connect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    connect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SIGNAL(changed()));
-    connect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SIGNAL(changed()));
+    connect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(changed()));
+    connect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(changed()));
 }
 
 void BarDescriptorEditorAssetsWidget::disconnectAssetsModel()
 {
     disconnect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    disconnect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SIGNAL(changed()));
-    disconnect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SIGNAL(changed()));
+    disconnect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(changed()));
+    disconnect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(changed()));
 }
 
 void BarDescriptorEditorAssetsWidget::addAssetInternal(const BarDescriptorAsset &asset)

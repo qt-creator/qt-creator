@@ -1649,8 +1649,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(foldAll(bool)));
     connect(handler, SIGNAL(fold(int,bool)),
         SLOT(fold(int,bool)));
-    connect(handler, SIGNAL(foldGoTo(int, bool)),
-        SLOT(foldGoTo(int, bool)));
+    connect(handler, SIGNAL(foldGoTo(int,bool)),
+        SLOT(foldGoTo(int,bool)));
     connect(handler, SIGNAL(jumpToGlobalMark(QChar,bool,QString)),
         SLOT(jumpToGlobalMark(QChar,bool,QString)));
 
