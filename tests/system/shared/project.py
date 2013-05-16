@@ -243,7 +243,7 @@ def createNewQmlExtension(workingDir):
     checkedTargets = __chooseTargets__(Targets.DESKTOP_474_GCC, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
-    nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
+    nameLineEd = waitForObject("{buddy={type='QLabel' text='Object class-name:' unnamed='1' visible='1'} "
                                "type='QLineEdit' unnamed='1' visible='1'}")
     replaceEditorContent(nameLineEd, "TestItem")
     uriLineEd = waitForObject("{buddy={type='QLabel' text='URI:' unnamed='1' visible='1'} "
