@@ -2794,7 +2794,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                 postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
             }
             if (!parameters.enabled)
-                postCommand("bd " + QByteArray::number(id.majorPart()), 0);
+                postCommand("bd " + QByteArray::number(breakPointIdToCdbId(id)), 0);
             handler->notifyBreakpointInsertProceeding(id);
             handler->notifyBreakpointInsertOk(id);
             m_pendingBreakpointMap.insert(id, response);
