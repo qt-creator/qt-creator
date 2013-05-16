@@ -98,7 +98,7 @@ void formatWindowsException(unsigned long code, quint64 address,
     case winExceptionCppException:
         str << "C++ exception";
         break;
-    case winExceptionStartupCompleteTrap:
+    case winExceptionSetThreadName:
         str << "Startup complete";
         break;
     case winExceptionDllNotFound:
@@ -202,7 +202,7 @@ bool isFatalWinException(long code)
     switch (code) {
     case EXCEPTION_BREAKPOINT:
     case EXCEPTION_SINGLE_STEP:
-    case winExceptionStartupCompleteTrap: // Mysterious exception at start of application
+    case winExceptionSetThreadName:
     case winExceptionRpcServerUnavailable:
     case winExceptionRpcServerInvalid:
     case winExceptionDllNotFound:

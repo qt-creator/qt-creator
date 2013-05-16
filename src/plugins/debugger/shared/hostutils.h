@@ -48,7 +48,7 @@ bool isWinProcessBeingDebugged(unsigned long pid);
 enum
 {
     winExceptionCppException = 0xe06d7363,
-    winExceptionStartupCompleteTrap = 0x406d1388,
+    winExceptionSetThreadName = 0x406d1388,
     winExceptionRpcServerUnavailable = 0x6ba,
     winExceptionRpcServerInvalid = 0x6a6,
     winExceptionDllNotFound = 0xc0000135,
