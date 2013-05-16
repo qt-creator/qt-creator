@@ -2227,7 +2227,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
                 case ParseStackWow64:
                     postBuiltinCommand("!wow64exts.info", 0, &CdbEngine::handleCheckWow64,
                                        0, qVariantFromValue(stack));
-                    return;
+                    break;
                 }
             } else {
                 showMessage(QString::fromLatin1(stopReason["stackerror"].data()), LogError);
