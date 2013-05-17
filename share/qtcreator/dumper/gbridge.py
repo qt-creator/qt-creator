@@ -25,14 +25,12 @@ gdbLoaded = True
 def warn(message):
     print "XXX: %s\n" % message.encode("latin1")
 
-def valueAddressAsInt(value):
-    return long(value.address)
+def directBaseClass(typeobj, index = 0):
+    # FIXME: Check it's really a base.
+    return typeobj.fields()[index]
 
-def pointerAsInt(value):
-    return long(value)
-
-def asInt(value):
-    return int(value)
+def createPointerValue(context, address, pointeeType):
+    return gdb.Value(address).cast(pointeeType.pointer())
 
 def savePrint(output):
     try:
@@ -470,9 +468,6 @@ def childAt(value, index):
     # enables later ...["name"] style accesses as gdb handles
     # them transparently.
     return value
-
-def addressOf(value):
-    return gdb.Value(value.address).cast(value.type.pointer())
 
 
 #gdb.Value.child = impl_Value_child
@@ -1589,6 +1584,9 @@ class Dumper:
     def voidPtrSize(self):
         return self.voidPtrType().sizeof
 
+    def addressOf(self, value):
+        return long(value.address)
+
     def put(self, value):
         self.output.append(value)
 
@@ -1624,7 +1622,7 @@ class Dumper:
         self.putNumChild(0)
         self.currentValue = None
 
-    def putBetterType(self, type, priority = 0):
+    def putBetterType(self, type):
         self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
 

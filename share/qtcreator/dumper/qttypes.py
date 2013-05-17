@@ -67,14 +67,15 @@ def qdump__QBasicAtomicPointer(d, value):
            d.putItem(value["_q_value"])
 
 def qByteArrayData(d, value):
-    private = value['d']
+    private = value['d'].dereference()
     checkRef(private['ref'])
     size = int(private['size'])
     alloc = int(private['alloc'])
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private['offset']
-        data = private.cast(d.charPtrType()) + offset
+        offset = int(private['offset'])
+        addr = d.addressOf(private) + offset
+        data = createPointerValue(value, addr, d.charType())
         return data, size, alloc
     except:
         # Qt 4:
@@ -597,22 +598,17 @@ def qdump__QHostAddress(d, value):
            d.putFields(data)
 
 def qdump__QList(d, value):
-    d_ptr = childAt(value, 0)["d"].dereference()
-    begin = int(d_ptr["begin"])
-    end = int(d_ptr["end"])
-    array = addressOf(d_ptr["array"])
+    dptr = childAt(value, 0)["d"]
+    private = dptr.dereference()
+    begin = int(private["begin"])
+    end = int(private["end"])
+    array = private["array"]
     check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
     size = end - begin
     check(size >= 0)
-    checkRef(d_ptr["ref"])
+    checkRef(private["ref"])
 
-    # Additional checks on pointer arrays.
     innerType = templateArgument(value.type, 0)
-    innerTypeIsPointer = innerType.code == PointerCode \
-        and str(innerType.target().unqualified()) != "char"
-    if innerTypeIsPointer:
-        p = array.cast(innerType.pointer()) + begin
-        checkPointerRange(p, min(size, 100))
 
     d.putItemCount(size)
     d.putNumChild(size)
@@ -623,21 +619,25 @@ def qdump__QList(d, value):
         # but this data is available neither in the compiled binary nor
         # in the frontend.
         # So as first approximation only do the 'isLarge' check:
-        isInternal = innerSize <= d_ptr.type.sizeof and d.isMovableType(innerType)
-        innerTypePointer = innerType.pointer()
-        p = array.cast(d.charPtrType().pointer()) + begin
-        if innerTypeIsPointer:
-            inner = innerType.target()
+        stepSize = dptr.type.sizeof
+        isInternal = innerSize <= stepSize and d.isMovableType(innerType)
+        addr = d.addressOf(array) + begin * stepSize
+        if isInternal:
+            if innerSize == stepSize:
+                p = createPointerValue(value, addr, innerType)
+                d.putArrayData(innerType, p, size)
+            else:
+                with Children(d, size, childType=innerType):
+                    for i in d.childRange():
+                        p = createPointerValue(value, addr + i * stepSize, innerType)
+                        d.putSubItem(i, p.dereference())
         else:
-            inner = innerType
-        # about 0.5s / 1000 items
-        with Children(d, size, maxNumChild=2000, childType=inner):
-            for i in d.childRange():
-                if isInternal:
-                    d.putSubItem(i, p.cast(innerTypePointer).dereference())
-                else:
-                    d.putSubItem(i, p.cast(innerTypePointer.pointer()).dereference())
-                p += 1
+            p = createPointerValue(value, addr, innerType.pointer())
+            # about 0.5s / 1000 items
+            with Children(d, size, maxNumChild=2000, childType=innerType):
+                for i in d.childRange():
+                    d.putSubItem(i, p.dereference().dereference())
+                    p += 1
 
 def qform__QImage():
     return "Normal,Displayed"
@@ -1585,19 +1585,9 @@ def qdump__QStringRef(d, value):
 
 
 def qdump__QStringList(d, value):
-    d_ptr = value['d']
-    begin = d_ptr['begin']
-    end = d_ptr['end']
-    size = end - begin
-    check(size >= 0)
-    check(size <= 10 * 1000 * 1000)
-    checkRef(d_ptr["ref"])
-    d.putItemCount(size)
-    d.putNumChild(size)
-    if d.isExpanded():
-        innerType = d.lookupType(d.ns + "QString")
-        innerTypePP = innerType.pointer().pointer()
-        d.putArrayData(innerType, d_ptr["array"].cast(innerTypePP) + begin, size, 0)
+    listType = directBaseClass(value.type).type
+    qdump__QList(d, value.cast(listType))
+    d.putBetterType(value.type)
 
 
 def qdump__QTemporaryFile(d, value):
@@ -2199,7 +2189,7 @@ def qdump__std__string(d, value):
     sizePtr = data.cast(d.sizetType().pointer())
     size = int(sizePtr[-3])
     alloc = int(sizePtr[-2])
-    refcount = int(sizePtr[-1]) & 0xffffffff
+    refcount = int(sizePtr[-1])
     check(refcount >= -1) # Can be -1 accoring to docs.
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
 

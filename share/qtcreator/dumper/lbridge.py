@@ -95,14 +95,11 @@ qqEditable = {}
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
 
-def valueAddressAsInt(value):
-    return value.AddressOf().GetValueAsUnsigned()
+def templateArgument(typeobj, index):
+    return typeobj.GetTemplateArgumentType(index)
 
-def pointerAsInt(value):
-    return value.GetValueAsUnsigned()
-
-def templateArgument(type, index):
-    return type.GetTemplateArgumentType(index)
+def directBaseClass(typeobj, index = 0):
+    return typeobj.GetDirectBaseClassAtIndex(index)
 
 def stripForFormat(typeName):
     global qqStripForFormat
@@ -268,22 +265,32 @@ def checkRef(ref):
     check(count >= minimum)
     check(count < 1000000)
 
+def createPointerValue(context, address, pointeeType):
+    addr = int(address) & 0xFFFFFFFFFFFFFFFF
+    return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
+
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
-        address = self.GetValueAsUnsigned() + offset.GetValueAsSigned()
+        if isinstance(offset, int) or isinstance(offset, long):
+            pass
+        else:
+            offset = offset.GetValueAsSigned()
+        itemsize = self.GetType().GetDereferencedType().GetByteSize()
+        address = self.GetValueAsUnsigned() + offset * itemsize
         address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-        return self.CreateValueFromAddress(None, address, self.GetType())
+        return createPointerValue(self, address, self.GetType().GetPointeeType())
     raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
 
 def impl_SBValue__sub__(self, other):
     if self.GetType().IsPointerType():
-        if isinstance(other, int):
-            return self.GetChildAtIndex(-other, lldb.eNoDynamicValues, True).AddressOf()
+        if isinstance(other, int) or isinstance(other, long):
+            address = self.GetValueAsUnsigned() - offset.GetValueAsSigned()
+            address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+            return self.CreateValueFromAddress(None, address, self.GetType())
         if other.GetType().IsPointerType():
             itemsize = self.GetType().GetDereferencedType().GetByteSize()
             return (int(self) - int(other)) / itemsize
-        return impl_SBValue__add__(self, -int(other))
     raise RuntimeError("SBValue.__sub__ not implemented: %s" % self.GetType())
     return NotImplemented
 
@@ -294,7 +301,8 @@ def impl_SBValue__le__(self, other):
     return NotImplemented
 
 def impl_SBValue__int__(self):
-    return int(self.GetValue(), 0)
+    return self.GetValueAsSigned()
+    #return int(self.GetValue(), 0)
 
 def impl_SBValue__long__(self):
     return int(self.GetValue(), 0)
@@ -309,9 +317,6 @@ def impl_SBValue__getitem__(self, name):
 
 def childAt(value, index):
     return value.GetChildAtIndex(index)
-
-def addressOf(value):
-    return value.address_of
 
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
@@ -547,6 +552,9 @@ class Dumper:
              self.sizetType_ = self.lookupType('size_t')
         return self.sizetType_
 
+    def addressOf(self, value):
+        return int(value.GetLoadAddress())
+
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
@@ -757,14 +765,23 @@ class Dumper:
             self.currentType = str(type)
             self.currentTypePriority = priority
 
-    def putBetterType(self, type, priority = 0):
-        self.currentType = str(type)
+    def putBetterType(self, type):
+        try:
+            self.currentType = type.GetName()
+        except:
+            self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
 
 
     def readRawMemory(self, base, size):
         error = lldb.SBError()
-        contents = self.process.ReadMemory(base.GetLoadAddress(), size, error)
+        #warn("BASE: %s " % base)
+        #warn("SIZE: %s " % size)
+        base = int(base) & 0xFFFFFFFFFFFFFFFF
+        size = int(size) & 0xFFFFFFFF
+        #warn("BASEX: %s " % base)
+        #warn("SIZEX: %s " % size)
+        contents = self.process.ReadMemory(base, size, error)
         return binascii.hexlify(contents)
 
     def computeLimit(self, size, limit):
