@@ -238,8 +238,6 @@ QString Environment::searchInPath(const QString &executable,
 {
     QString exec = QDir::cleanPath(expandVariables(executable));
     QFileInfo fi(exec);
-    if (fi.isAbsolute())
-        return exec;
 
     if (executable.isEmpty())
         return QString();
@@ -251,10 +249,20 @@ QString Environment::searchInPath(const QString &executable,
         if (fi.suffix().isEmpty()) {
             QStringList extensions = value(QLatin1String("PATHEXT")).split(QLatin1Char(';'));
 
-            foreach (const QString &ext, extensions)
-                execs << executable + ext.toLower();
+            foreach (const QString &ext, extensions) {
+                QString tmp = executable + ext.toLower();
+                if (fi.isAbsolute()) {
+                    if (QFile::exists(tmp))
+                        return tmp;
+                } else {
+                    execs << tmp;
+                }
+            }
         }
     }
+
+    if (fi.isAbsolute())
+        return exec;
 
     foreach (const QString &dir, additionalDirs) {
         QString tmp = searchInDirectory(execs, dir);
