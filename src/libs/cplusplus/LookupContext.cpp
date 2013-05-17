@@ -249,17 +249,19 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) c
     if (name->isNameId()) {
         for (unsigned i = 0, count = scope->memberCount(); i < count; ++i) {
             if (UsingDeclaration *u = scope->memberAt(i)->asUsingDeclaration()) {
-                if (const QualifiedNameId *q = u->name()->asQualifiedNameId()) {
-                    if (q->name()->isEqualTo(name)) {
-                        candidates = bindings()->globalNamespace()->find(q);
+                if (const Name *usingDeclarationName = u->name()) {
+                    if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
+                        if (q->name() && q->name()->isEqualTo(name)) {
+                            candidates = bindings()->globalNamespace()->find(q);
 
-                        // if it is not a global scope(scope of scope is not equal 0)
-                        // then add current using declaration as a candidate
-                        if (scope->scope()) {
-                            LookupItem item;
-                            item.setDeclaration(u);
-                            item.setScope(scope);
-                            candidates.append(item);
+                            // if it is not a global scope(scope of scope is not equal 0)
+                            // then add current using declaration as a candidate
+                            if (scope->scope()) {
+                                LookupItem item;
+                                item.setDeclaration(u);
+                                item.setScope(scope);
+                                candidates.append(item);
+                            }
                         }
                     }
                 }
@@ -328,9 +330,11 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                 }
             } else if (UsingDeclaration *ud = m->asUsingDeclaration()) {
                 if (name->isNameId()) {
-                    if (const QualifiedNameId *q = ud->name()->asQualifiedNameId()) {
-                        if (q->name()->isEqualTo(name)) {
-                            return bindings()->globalNamespace()->lookupType(q);
+                    if (const Name *usingDeclarationName = ud->name()) {
+                        if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
+                            if (q->name() && q->name()->isEqualTo(name)) {
+                                return bindings()->globalNamespace()->lookupType(q);
+                            }
                         }
                     }
 
