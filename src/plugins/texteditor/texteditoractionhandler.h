@@ -43,6 +43,7 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 namespace Core {
 class ICore;
 class IEditor;
+class ActionContainer;
 }
 
 namespace TextEditor {
@@ -79,9 +80,14 @@ public slots:
 
 protected:
     const QPointer<BaseTextEditorWidget> &currentEditor() const;
-    QAction *registerNewAction(const Core::Id &id, bool scriptable = false, const QString &title = QString());
-    QAction *registerNewAction(const Core::Id &id, QObject *receiver, const char *slot, bool scriptable = false,
-                               const QString &title = QString());
+
+    QAction *registerAction(const Core::Id &id,
+                            const char *slot,
+                            bool scriptable = false,
+                            const QString &title = QString(),
+                            const QKeySequence &keySequence = QKeySequence(),
+                            const char *menueGroup = 0,
+                            Core::ActionContainer *container = 0);
 
     enum UpdateMode { ReadOnlyMode, WriteMode };
     UpdateMode updateMode() const;

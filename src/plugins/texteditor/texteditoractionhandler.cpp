@@ -135,361 +135,260 @@ void TextEditorActionHandler::initializeActions()
 
 void TextEditorActionHandler::createActions()
 {
-    m_undoAction      = registerNewAction(Core::Constants::UNDO,      this, SLOT(undoAction()),
-                                          true, tr("&Undo"));
-    m_redoAction      = registerNewAction(Core::Constants::REDO,      this, SLOT(redoAction()),
-                                          true, tr("&Redo"));
-    m_copyAction      = registerNewAction(Core::Constants::COPY,      this, SLOT(copyAction()), true);
-    m_cutAction       = registerNewAction(Core::Constants::CUT,       this, SLOT(cutAction()), true);
-    m_pasteAction     = registerNewAction(Core::Constants::PASTE,     this, SLOT(pasteAction()), true);
-    m_modifyingActions << m_pasteAction;
-    m_selectAllAction = registerNewAction(Core::Constants::SELECTALL, this, SLOT(selectAllAction()), true);
-    m_gotoAction      = registerNewAction(Core::Constants::GOTO,      this, SLOT(gotoAction()));
-    m_printAction     = registerNewAction(Core::Constants::PRINT,     this, SLOT(printAction()));
+    using namespace Core::Constants;
+    using namespace TextEditor::Constants;
 
-    Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
-    Core::ActionContainer *advancedMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
+    m_undoAction = registerAction(UNDO,
+            SLOT(undoAction()), true, tr("&Undo"));
+    m_redoAction = registerAction(REDO,
+            SLOT(redoAction()), true, tr("&Redo"));
+    m_copyAction = registerAction(COPY,
+            SLOT(copyAction()), true);
+    m_cutAction = registerAction(CUT,
+            SLOT(cutAction()), true);
+    m_pasteAction = registerAction(PASTE,
+            SLOT(pasteAction()), true);
+    m_selectAllAction = registerAction(SELECTALL,
+            SLOT(selectAllAction()), true);
+    m_gotoAction = registerAction(GOTO,
+            SLOT(gotoAction()));
+    m_printAction = registerAction(PRINT,
+            SLOT(printAction()));
+    m_cutLineAction = registerAction(CUT_LINE,
+            SLOT(cutLine()), true, tr("Cut &Line"),
+            QKeySequence(tr("Shift+Del")));
+    m_copyLineAction = registerAction(COPY_LINE,
+            SLOT(copyLine()), false, tr("Copy &Line"),
+            QKeySequence(tr("Ctrl+Ins")));
+    m_deleteLineAction = registerAction(DELETE_LINE,
+            SLOT(deleteLine()), true, tr("Delete &Line"));
+    m_deleteEndOfWordAction = registerAction(DELETE_END_OF_WORD,
+            SLOT(deleteEndOfWord()), true, tr("Delete Word from Cursor On"));
+    m_deleteEndOfWordCamelCaseAction = registerAction(DELETE_END_OF_WORD_CAMEL_CASE,
+            SLOT(deleteEndOfWordCamelCase()), true, tr("Delete Word Camel Case from Cursor On"));
+    m_deleteStartOfWordAction = registerAction(DELETE_START_OF_WORD,
+            SLOT(deleteStartOfWord()), true, tr("Delete Word up to Cursor"));
+    m_deleteStartOfWordCamelCaseAction = registerAction(DELETE_START_OF_WORD_CAMEL_CASE,
+            SLOT(deleteStartOfWordCamelCase()), true, tr("Delete Word Camel Case up to Cursor"));
+    m_gotoBlockStartWithSelectionAction = registerAction(GOTO_BLOCK_START_WITH_SELECTION,
+            SLOT(gotoBlockStartWithSelection()), true, tr("Go to Block Start with Selection"),
+            QKeySequence(tr("Ctrl+{")));
+    m_gotoBlockEndWithSelectionAction = registerAction(GOTO_BLOCK_END_WITH_SELECTION,
+            SLOT(gotoBlockEndWithSelection()), true, tr("Go to Block End with Selection"),
+            QKeySequence(tr("Ctrl+}")));
+    m_moveLineUpAction = registerAction(MOVE_LINE_UP,
+            SLOT(moveLineUp()), true, tr("Move Line Up"),
+            QKeySequence(tr("Ctrl+Shift+Up")));
+    m_moveLineDownAction = registerAction(MOVE_LINE_DOWN,
+            SLOT(moveLineDown()), true, tr("Move Line Down"),
+            QKeySequence(tr("Ctrl+Shift+Down")));
+    m_copyLineUpAction = registerAction(COPY_LINE_UP,
+            SLOT(copyLineUp()), true, tr("Copy Line Up"),
+            QKeySequence(tr("Ctrl+Alt+Up")));
+    m_copyLineDownAction = registerAction(COPY_LINE_DOWN,
+            SLOT(copyLineDown()), true, tr("Copy Line Down"),
+            QKeySequence(tr("Ctrl+Alt+Down")));
+    m_joinLinesAction = registerAction(JOIN_LINES,
+            SLOT(joinLines()), true, tr("Join Lines"),
+            QKeySequence(tr("Ctrl+J")));
+    m_insertLineAboveAction = registerAction(INSERT_LINE_ABOVE,
+            SLOT(insertLineAbove()), true, tr("Insert Line Above Current Line"),
+            QKeySequence(tr("Ctrl+Shift+Return")));
+    m_insertLineBelowAction = registerAction(INSERT_LINE_BELOW,
+            SLOT(insertLineBelow()), true, tr("Insert Line Below Current Line"),
+            QKeySequence(tr("Ctrl+Return")));
+    m_upperCaseSelectionAction = registerAction(UPPERCASE_SELECTION,
+            SLOT(uppercaseSelection()), true, tr("Uppercase Selection"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")));
+    m_lowerCaseSelectionAction = registerAction(LOWERCASE_SELECTION,
+            SLOT(lowercaseSelection()), true, tr("Lowercase Selection"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")));
+    m_switchUtf8bomAction = registerAction(SWITCH_UTF8BOM,
+            SLOT(switchUtf8bomAction()), true);
+    m_indentAction = registerAction(INDENT,
+            SLOT(indent()), true, tr("Indent"));
+    m_unindentAction = registerAction(UNINDENT,
+            SLOT(unindent()), true, tr("Unindent"));
+    m_followSymbolAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR,
+            SLOT(openLinkUnderCursor()), true, tr("Follow Symbol Under Cursor"),
+            QKeySequence(Qt::Key_F2));
+    m_followSymbolInNextSplitAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT,
+            SLOT(openLinkUnderCursorInNextSplit()), true, tr("Follow Symbol Under Cursor in Next Split"),
+            QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
+    m_jumpToFileAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR,
+            SLOT(openLinkUnderCursor()), true, tr("Jump To File Under Cursor"),
+            QKeySequence(Qt::Key_F2));
+    m_jumpToFileInNextSplitAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT,
+            SLOT(openLinkUnderCursorInNextSplit()), true,
+            QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
 
-    m_selectEncodingAction = new QAction(tr("Select Encoding..."), this);
-    Core::Command *command = Core::ActionManager::registerAction(m_selectEncodingAction, Constants::SELECT_ENCODING, m_contextId);
-    connect(m_selectEncodingAction, SIGNAL(triggered()), this, SLOT(selectEncoding()));
-    medit->addAction(command, Core::Constants::G_EDIT_OTHER);
+    // register "Edit" Menu Actions
+    Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(M_EDIT);
+    m_selectEncodingAction = registerAction(SELECT_ENCODING,
+            SLOT(selectEncoding()), false, tr("Select Encoding..."),
+            QKeySequence(), G_EDIT_OTHER, editMenu);
+    m_circularPasteAction = registerAction(CIRCULAR_PASTE,
+            SLOT(circularPasteAction()), false, tr("Paste from Clipboard History"),
+            QKeySequence(tr("Ctrl+Shift+V")), G_EDIT_COPYPASTE, editMenu);
 
-
-    m_formatAction = new QAction(tr("Auto-&indent Selection"), this);
-    m_modifyingActions << m_formatAction;
-    command = Core::ActionManager::registerAction(m_formatAction, TextEditor::Constants::AUTO_INDENT_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+I")));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
-    connect(m_formatAction, SIGNAL(triggered(bool)), this, SLOT(formatAction()));
-
-    m_rewrapParagraphAction = new QAction(tr("&Rewrap Paragraph"), this);
-    m_modifyingActions << m_rewrapParagraphAction;
-    command = Core::ActionManager::registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, R") : tr("Ctrl+E, R")));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
-    connect(m_rewrapParagraphAction, SIGNAL(triggered(bool)), this, SLOT(rewrapParagraphAction()));
-
-
-    m_visualizeWhitespaceAction = new QAction(tr("&Visualize Whitespace"), this);
-    m_visualizeWhitespaceAction->setCheckable(true);
-    command = Core::ActionManager::registerAction(m_visualizeWhitespaceAction,
-                                 TextEditor::Constants::VISUALIZE_WHITESPACE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+V") : tr("Ctrl+E, Ctrl+V")));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
-    connect(m_visualizeWhitespaceAction, SIGNAL(triggered(bool)), this, SLOT(setVisualizeWhitespace(bool)));
-
-    m_cleanWhitespaceAction = new QAction(tr("Clean Whitespace"), this);
-    m_modifyingActions << m_cleanWhitespaceAction;
-    command = Core::ActionManager::registerAction(m_cleanWhitespaceAction,
-                                 TextEditor::Constants::CLEAN_WHITESPACE, m_contextId, true);
-
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
-    connect(m_cleanWhitespaceAction, SIGNAL(triggered()), this, SLOT(cleanWhitespace()));
-
-    m_textWrappingAction = new QAction(tr("Enable Text &Wrapping"), this);
+    // register "Edit -> Advanced" Menu Actions
+    Core::ActionContainer *advancedEditMenu = Core::ActionManager::actionContainer(M_EDIT_ADVANCED);
+    m_formatAction = registerAction(AUTO_INDENT_SELECTION,
+            SLOT(formatAction()), true, tr("Auto-&indent Selection"),
+            QKeySequence(tr("Ctrl+I")),
+            G_EDIT_FORMAT, advancedEditMenu);
+    m_rewrapParagraphAction = registerAction(REWRAP_PARAGRAPH,
+            SLOT(rewrapParagraphAction()), true, tr("&Rewrap Paragraph"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, R") : tr("Ctrl+E, R")),
+            G_EDIT_FORMAT, advancedEditMenu);
+    m_visualizeWhitespaceAction = registerAction(VISUALIZE_WHITESPACE,
+            SLOT(setVisualizeWhitespace(bool)), false, tr("&Visualize Whitespace"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+V") : tr("Ctrl+E, Ctrl+V")),
+            G_EDIT_FORMAT, advancedEditMenu);
+    m_cleanWhitespaceAction = registerAction(CLEAN_WHITESPACE,
+            SLOT(setTextWrapping(bool)), true, tr("Clean Whitespace"),
+            QKeySequence(),
+            G_EDIT_FORMAT, advancedEditMenu);;
+    m_textWrappingAction = registerAction(TEXT_WRAPPING,
+            SLOT(setTextWrapping(bool)), false, tr("Enable Text &Wrapping"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+W") : tr("Ctrl+E, Ctrl+W")),
+            G_EDIT_FORMAT, advancedEditMenu);
     m_textWrappingAction->setCheckable(true);
-    command = Core::ActionManager::registerAction(m_textWrappingAction, TextEditor::Constants::TEXT_WRAPPING, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+W") : tr("Ctrl+E, Ctrl+W")));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
-    connect(m_textWrappingAction, SIGNAL(triggered(bool)), this, SLOT(setTextWrapping(bool)));
+    m_unCommentSelectionAction = registerAction(UN_COMMENT_SELECTION,
+            SLOT(unCommentSelection()), true, tr("Toggle Comment &Selection"),
+            QKeySequence(tr("Ctrl+/")),
+            G_EDIT_FORMAT, advancedEditMenu);
+    m_foldAction = registerAction(FOLD,
+            SLOT(fold()), true, tr("Fold"),
+            QKeySequence(tr("Ctrl+<")),
+            G_EDIT_COLLAPSING, advancedEditMenu);
+    m_unfoldAction = registerAction(UNFOLD,
+            SLOT(unfold()), true, tr("Unfold"),
+            QKeySequence(tr("Ctrl+>")),
+            G_EDIT_COLLAPSING, advancedEditMenu);
+    m_unfoldAllAction = registerAction(UNFOLD_ALL,
+            SLOT(unfoldAll()), true, tr("Toggle &Fold All"),
+            QKeySequence(),
+            G_EDIT_COLLAPSING, advancedEditMenu);
+    m_increaseFontSizeAction = registerAction(INCREASE_FONT_SIZE,
+            SLOT(increaseFontSize()), false, tr("Increase Font Size"),
+            QKeySequence(tr("Ctrl++")),
+            G_EDIT_FONT, advancedEditMenu);
+    m_decreaseFontSizeAction = registerAction(DECREASE_FONT_SIZE,
+            SLOT(decreaseFontSize()), false, tr("Decrease Font Size"),
+            QKeySequence(tr("Ctrl+-")),
+            G_EDIT_FONT, advancedEditMenu);
+    m_resetFontSizeAction = registerAction(RESET_FONT_SIZE,
+            SLOT(resetFontSize()), false, tr("Reset Font Size"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")),
+            G_EDIT_FONT, advancedEditMenu);
+    m_gotoBlockStartAction = registerAction(GOTO_BLOCK_START,
+            SLOT(gotoBlockStart()), true, tr("Go to Block Start"),
+            QKeySequence(tr("Ctrl+[")),
+            G_EDIT_BLOCKS, advancedEditMenu);
+    m_gotoBlockEndAction = registerAction(GOTO_BLOCK_END,
+            SLOT(gotoBlockEnd()), true, tr("Go to Block End"),
+            QKeySequence(tr("Ctrl+]")),
+            G_EDIT_BLOCKS, advancedEditMenu);
+    m_selectBlockUpAction = registerAction(SELECT_BLOCK_UP,
+            SLOT(selectBlockUp()), true, tr("Select Block Up"),
+            QKeySequence(tr("Ctrl+U")),
+            G_EDIT_BLOCKS, advancedEditMenu);
+    m_selectBlockDownAction = registerAction(SELECT_BLOCK_DOWN,
+            SLOT(selectBlockDown()), true, tr("Select Block Down"),
+            QKeySequence(),
+            G_EDIT_BLOCKS, advancedEditMenu);
 
+    // register GOTO Actions
+    registerAction(GOTO_LINE_START,
+            SLOT(gotoLineStart()), true, tr("Go to Line Start"));
+    registerAction(GOTO_LINE_END,
+            SLOT(gotoLineEnd()), true, tr("Go to Line End"));
+    registerAction(GOTO_NEXT_LINE,
+            SLOT(gotoNextLine()), true, tr("Go to Next Line"));
+    registerAction(GOTO_PREVIOUS_LINE,
+            SLOT(gotoPreviousLine()), true, tr("Go to Previous Line"));
+    registerAction(GOTO_PREVIOUS_CHARACTER,
+            SLOT(gotoPreviousCharacter()), true, tr("Go to Previous Character"));
+    registerAction(GOTO_NEXT_CHARACTER,
+            SLOT(gotoNextCharacter()), true, tr("Go to Next Character"));
+    registerAction(GOTO_PREVIOUS_WORD,
+            SLOT(gotoPreviousWord()), true, tr("Go to Previous Word"));
+    registerAction(GOTO_NEXT_WORD,
+            SLOT(gotoNextWord()), true, tr("Go to Next Word"));
+    registerAction(GOTO_PREVIOUS_WORD_CAMEL_CASE,
+            SLOT(gotoPreviousWordCamelCase()), false, tr("Go to Previous Word Camel Case"));
+    registerAction(GOTO_NEXT_WORD_CAMEL_CASE,
+            SLOT(gotoNextWordCamelCase()), false, tr("Go to Next Word Camel Case"));
 
-    m_unCommentSelectionAction = new QAction(tr("Toggle Comment &Selection"), this);
+    // register GOTO actions with selection
+    registerAction(GOTO_LINE_START_WITH_SELECTION,
+            SLOT(gotoLineStartWithSelection()), true, tr("Go to Line Start with Selection"));
+    registerAction(GOTO_LINE_END_WITH_SELECTION,
+            SLOT(gotoLineEndWithSelection()), true, tr("Go to Line End with Selection"));
+    registerAction(GOTO_NEXT_LINE_WITH_SELECTION,
+            SLOT(gotoNextLineWithSelection()), true, tr("Go to Next Line with Selection"));
+    registerAction(GOTO_PREVIOUS_LINE_WITH_SELECTION,
+            SLOT(gotoPreviousLineWithSelection()), true, tr("Go to Previous Line with Selection"));
+    registerAction(GOTO_PREVIOUS_CHARACTER_WITH_SELECTION,
+            SLOT(gotoPreviousCharacterWithSelection()), true, tr("Go to Previous Character with Selection"));
+    registerAction(GOTO_NEXT_CHARACTER_WITH_SELECTION,
+            SLOT(gotoNextCharacterWithSelection()), true, tr("Go to Next Character with Selection"));
+    registerAction(GOTO_PREVIOUS_WORD_WITH_SELECTION,
+            SLOT(gotoPreviousWordWithSelection()), true, tr("Go to Previous Word with Selection"));
+    registerAction(GOTO_NEXT_WORD_WITH_SELECTION,
+            SLOT(gotoNextWordWithSelection()), true, tr("Go to Next Word with Selection"));
+    registerAction(GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION,
+            SLOT(gotoPreviousWordCamelCaseWithSelection()), false, tr("Go to Previous Word Camel Case with Selection"));
+    registerAction(GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION,
+            SLOT(gotoNextWordCamelCaseWithSelection()), false, tr("Go to Next Word Camel Case with Selection"));
+
+    // Collect all modifying actions so we can check for them inside a readonly file
+    // and disable them
+    m_modifyingActions << m_pasteAction;
+    m_modifyingActions << m_formatAction;
+    m_modifyingActions << m_rewrapParagraphAction;
+    m_modifyingActions << m_cleanWhitespaceAction;
     m_modifyingActions << m_unCommentSelectionAction;
-    command = Core::ActionManager::registerAction(m_unCommentSelectionAction, Constants::UN_COMMENT_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+/")));
-    connect(m_unCommentSelectionAction, SIGNAL(triggered()), this, SLOT(unCommentSelection()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
-
-    m_cutLineAction = new QAction(tr("Cut &Line"), this);
     m_modifyingActions << m_cutLineAction;
-    command = Core::ActionManager::registerAction(m_cutLineAction, Constants::CUT_LINE, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Shift+Del")));
-    connect(m_cutLineAction, SIGNAL(triggered()), this, SLOT(cutLine()));
-
-    m_copyLineAction = new QAction(tr("Copy &Line"), this);
-    command = Core::ActionManager::registerAction(m_copyLineAction, Constants::COPY_LINE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Ins")));
-    connect(m_copyLineAction, SIGNAL(triggered()), this, SLOT(copyLine()));
-
-    m_deleteLineAction = new QAction(tr("Delete &Line"), this);
     m_modifyingActions << m_deleteLineAction;
-    command = Core::ActionManager::registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId, true);
-    connect(m_deleteLineAction, SIGNAL(triggered()), this, SLOT(deleteLine()));
-
-    m_deleteEndOfWordAction = new QAction(tr("Delete Word from Cursor On"), this);
     m_modifyingActions << m_deleteEndOfWordAction;
-    Core::ActionManager::registerAction(m_deleteEndOfWordAction, Constants::DELETE_END_OF_WORD, m_contextId, true);
-    connect(m_deleteEndOfWordAction, SIGNAL(triggered()), this, SLOT(deleteEndOfWord()));
-
-    m_deleteEndOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case from Cursor On"), this);
     m_modifyingActions << m_deleteEndOfWordCamelCaseAction;
-    Core::ActionManager::registerAction(m_deleteEndOfWordCamelCaseAction, Constants::DELETE_END_OF_WORD_CAMEL_CASE, m_contextId, true);
-    connect(m_deleteEndOfWordCamelCaseAction, SIGNAL(triggered()), this, SLOT(deleteEndOfWordCamelCase()));
-
-    m_deleteStartOfWordAction = new QAction(tr("Delete Word up to Cursor"), this);
     m_modifyingActions << m_deleteStartOfWordAction;
-    Core::ActionManager::registerAction(m_deleteStartOfWordAction, Constants::DELETE_START_OF_WORD, m_contextId, true);
-    connect(m_deleteStartOfWordAction, SIGNAL(triggered()), this, SLOT(deleteStartOfWord()));
-
-    m_deleteStartOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case up to Cursor"), this);
     m_modifyingActions << m_deleteStartOfWordCamelCaseAction;
-    Core::ActionManager::registerAction(m_deleteStartOfWordCamelCaseAction, Constants::DELETE_START_OF_WORD_CAMEL_CASE, m_contextId, true);
-    connect(m_deleteStartOfWordCamelCaseAction, SIGNAL(triggered()), this, SLOT(deleteStartOfWordCamelCase()));
-
-    m_foldAction = new QAction(tr("Fold"), this);
-    command = Core::ActionManager::registerAction(m_foldAction, Constants::FOLD, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+<")));
-    connect(m_foldAction, SIGNAL(triggered()), this, SLOT(fold()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
-
-    m_unfoldAction = new QAction(tr("Unfold"), this);
-    command = Core::ActionManager::registerAction(m_unfoldAction, Constants::UNFOLD, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+>")));
-    connect(m_unfoldAction, SIGNAL(triggered()), this, SLOT(unfold()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
-
-    m_unfoldAllAction = new QAction(tr("Toggle &Fold All"), this);
-    command = Core::ActionManager::registerAction(m_unfoldAllAction, Constants::UNFOLD_ALL, m_contextId, true);
-    connect(m_unfoldAllAction, SIGNAL(triggered()), this, SLOT(unfoldAll()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
-
-    m_increaseFontSizeAction = new QAction(tr("Increase Font Size"), this);
-    command = Core::ActionManager::registerAction(m_increaseFontSizeAction, Constants::INCREASE_FONT_SIZE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
-    connect(m_increaseFontSizeAction, SIGNAL(triggered()), this, SLOT(increaseFontSize()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
-
-    m_decreaseFontSizeAction = new QAction(tr("Decrease Font Size"), this);
-    command = Core::ActionManager::registerAction(m_decreaseFontSizeAction, Constants::DECREASE_FONT_SIZE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
-    connect(m_decreaseFontSizeAction, SIGNAL(triggered()), this, SLOT(decreaseFontSize()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
-
-    m_resetFontSizeAction = new QAction(tr("Reset Font Size"), this);
-    command = Core::ActionManager::registerAction(m_resetFontSizeAction, Constants::RESET_FONT_SIZE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
-    connect(m_resetFontSizeAction, SIGNAL(triggered()), this, SLOT(resetFontSize()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
-
-    m_gotoBlockStartAction = new QAction(tr("Go to Block Start"), this);
-    command = Core::ActionManager::registerAction(m_gotoBlockStartAction, Constants::GOTO_BLOCK_START, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+[")));
-    connect(m_gotoBlockStartAction, SIGNAL(triggered()), this, SLOT(gotoBlockStart()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
-
-    m_gotoBlockEndAction = new QAction(tr("Go to Block End"), this);
-    command = Core::ActionManager::registerAction(m_gotoBlockEndAction, Constants::GOTO_BLOCK_END, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+]")));
-    connect(m_gotoBlockEndAction, SIGNAL(triggered()), this, SLOT(gotoBlockEnd()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
-
-    m_gotoBlockStartWithSelectionAction = new QAction(tr("Go to Block Start with Selection"), this);
-    command = Core::ActionManager::registerAction(m_gotoBlockStartWithSelectionAction, Constants::GOTO_BLOCK_START_WITH_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+{")));
-    connect(m_gotoBlockStartWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockStartWithSelection()));
-
-    m_gotoBlockEndWithSelectionAction = new QAction(tr("Go to Block End with Selection"), this);
-    command = Core::ActionManager::registerAction(m_gotoBlockEndWithSelectionAction, Constants::GOTO_BLOCK_END_WITH_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+}")));
-    connect(m_gotoBlockEndWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockEndWithSelection()));
-
-    m_selectBlockUpAction = new QAction(tr("Select Block Up"), this);
-    command = Core::ActionManager::registerAction(m_selectBlockUpAction, Constants::SELECT_BLOCK_UP, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+U")));
-    connect(m_selectBlockUpAction, SIGNAL(triggered()), this, SLOT(selectBlockUp()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
-
-    m_selectBlockDownAction = new QAction(tr("Select Block Down"), this);
-    command = Core::ActionManager::registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId, true);
-    connect(m_selectBlockDownAction, SIGNAL(triggered()), this, SLOT(selectBlockDown()));
-    advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
-
-    m_moveLineUpAction = new QAction(tr("Move Line Up"), this);
     m_modifyingActions << m_moveLineUpAction;
-    command = Core::ActionManager::registerAction(m_moveLineUpAction, Constants::MOVE_LINE_UP, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Up")));
-    connect(m_moveLineUpAction, SIGNAL(triggered()), this, SLOT(moveLineUp()));
-
-    m_moveLineDownAction = new QAction(tr("Move Line Down"), this);
     m_modifyingActions << m_moveLineDownAction;
-    command = Core::ActionManager::registerAction(m_moveLineDownAction, Constants::MOVE_LINE_DOWN, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Down")));
-    connect(m_moveLineDownAction, SIGNAL(triggered()), this, SLOT(moveLineDown()));
-
-    m_copyLineUpAction = new QAction(tr("Copy Line Up"), this);
     m_modifyingActions << m_copyLineUpAction;
-    command = Core::ActionManager::registerAction(m_copyLineUpAction, Constants::COPY_LINE_UP, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Up")));
-    connect(m_copyLineUpAction, SIGNAL(triggered()), this, SLOT(copyLineUp()));
-
-    m_copyLineDownAction = new QAction(tr("Copy Line Down"), this);
     m_modifyingActions << m_copyLineDownAction;
-    command = Core::ActionManager::registerAction(m_copyLineDownAction, Constants::COPY_LINE_DOWN, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Down")));
-    connect(m_copyLineDownAction, SIGNAL(triggered()), this, SLOT(copyLineDown()));
-
-    m_joinLinesAction = new QAction(tr("Join Lines"), this);
     m_modifyingActions << m_joinLinesAction;
-    command = Core::ActionManager::registerAction(m_joinLinesAction, Constants::JOIN_LINES, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+J")));
-    connect(m_joinLinesAction, SIGNAL(triggered()), this, SLOT(joinLines()));
-
-    m_insertLineAboveAction = new QAction(tr("Insert Line Above Current Line"), this);
     m_modifyingActions << m_insertLineAboveAction;
-    command = Core::ActionManager::registerAction(m_insertLineAboveAction, Constants::INSERT_LINE_ABOVE, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Return")));
-    connect(m_insertLineAboveAction, SIGNAL(triggered()), this, SLOT(insertLineAbove()));
-
-    m_insertLineBelowAction = new QAction(tr("Insert Line Below Current Line"), this);
     m_modifyingActions << m_insertLineBelowAction;
-    command = Core::ActionManager::registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Return")));
-    connect(m_insertLineBelowAction, SIGNAL(triggered()), this, SLOT(insertLineBelow()));
-
-    m_upperCaseSelectionAction = new QAction(tr("Uppercase Selection"), this);
     m_modifyingActions << m_upperCaseSelectionAction;
-    command = Core::ActionManager::registerAction(m_upperCaseSelectionAction, Constants::UPPERCASE_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")));
-    connect(m_upperCaseSelectionAction, SIGNAL(triggered()), this, SLOT(uppercaseSelection()));
-
-    m_lowerCaseSelectionAction = new QAction(tr("Lowercase Selection"), this);
     m_modifyingActions << m_lowerCaseSelectionAction;
-    command = Core::ActionManager::registerAction(m_lowerCaseSelectionAction, Constants::LOWERCASE_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")));
-    connect(m_lowerCaseSelectionAction, SIGNAL(triggered()), this, SLOT(lowercaseSelection()));
-
-    m_circularPasteAction = new QAction(tr("Paste from Clipboard History"), this);
     m_modifyingActions << m_circularPasteAction;
-    command = Core::ActionManager::registerAction(m_circularPasteAction, Constants::CIRCULAR_PASTE, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+V")));
-    connect(m_circularPasteAction, SIGNAL(triggered()), this, SLOT(circularPasteAction()));
-    medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
-
-    m_switchUtf8bomAction = new QAction(this);
     m_modifyingActions << m_switchUtf8bomAction;
-    command = Core::ActionManager::registerAction(m_switchUtf8bomAction, Constants::SWITCH_UTF8BOM, m_contextId, true);
-    connect(m_switchUtf8bomAction, SIGNAL(triggered()), this, SLOT(switchUtf8bomAction()));
-
-    m_indentAction = new QAction(tr("Indent"), this);
     m_modifyingActions << m_indentAction;
-    command = Core::ActionManager::registerAction(m_indentAction, Constants::INDENT, m_contextId, true);
-    connect(m_indentAction, SIGNAL(triggered()), this, SLOT(indent()));
-
-    m_unindentAction = new QAction(tr("Unindent"), this);
     m_modifyingActions << m_unindentAction;
-    command = Core::ActionManager::registerAction(m_unindentAction, Constants::UNINDENT, m_contextId, true);
-    connect(m_unindentAction, SIGNAL(triggered()), this, SLOT(unindent()));
-
-    m_followSymbolAction = new QAction(tr("Follow Symbol Under Cursor"), this);
-    command = Core::ActionManager::registerAction(m_followSymbolAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    connect(m_followSymbolAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursor()));
-
-    m_followSymbolInNextSplitAction = new QAction(tr("Follow Symbol Under Cursor in Next Split"), this);
-    command = Core::ActionManager::registerAction(m_followSymbolInNextSplitAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
-                                                ? tr("Meta+E, F2")
-                                                : tr("Ctrl+E, F2")));
-    connect(m_followSymbolInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
-
-    m_jumpToFileAction = new QAction(tr("Jump To File Under Cursor"), this);
-    command = Core::ActionManager::registerAction(m_jumpToFileAction, Constants::JUMP_TO_FILE_UNDER_CURSOR, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    connect(m_jumpToFileAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursor()));
-
-    m_jumpToFileInNextSplitAction = new QAction(tr("Jump to File Under Cursor in Next Split"), this);
-    command = Core::ActionManager::registerAction(m_jumpToFileInNextSplitAction, Constants::JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
-                                                ? tr("Meta+E, F2")
-                                                : tr("Ctrl+E, F2")));
-    connect(m_jumpToFileInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
-
-    QAction *a = 0;
-    a = new QAction(tr("Go to Line Start"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_LINE_START, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStart()));
-    a = new QAction(tr("Go to Line End"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_LINE_END, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEnd()));
-    a = new QAction(tr("Go to Next Line"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_LINE, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLine()));
-    a = new QAction(tr("Go to Previous Line"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_LINE, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLine()));
-    a = new QAction(tr("Go to Previous Character"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacter()));
-    a = new QAction(tr("Go to Next Character"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_CHARACTER, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacter()));
-    a = new QAction(tr("Go to Previous Word"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_WORD, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWord()));
-    a = new QAction(tr("Go to Next Word"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_WORD, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWord()));
-    a = new QAction(tr("Go to Previous Word Camel Case"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE, m_contextId);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordCamelCase()));
-    a = new QAction(tr("Go to Next Word Camel Case"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_WORD_CAMEL_CASE, m_contextId);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordCamelCase()));
-
-    a = new QAction(tr("Go to Line Start with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_LINE_START_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStartWithSelection()));
-    a = new QAction(tr("Go to Line End with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_LINE_END_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEndWithSelection()));
-    a = new QAction(tr("Go to Next Line with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_LINE_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLineWithSelection()));
-    a = new QAction(tr("Go to Previous Line with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_LINE_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLineWithSelection()));
-    a = new QAction(tr("Go to Previous Character with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacterWithSelection()));
-    a = new QAction(tr("Go to Next Character with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_CHARACTER_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacterWithSelection()));
-    a = new QAction(tr("Go to Previous Word with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_WORD_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordWithSelection()));
-    a = new QAction(tr("Go to Next Word with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_WORD_WITH_SELECTION, m_contextId, true);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordWithSelection()));
-    a = new QAction(tr("Go to Previous Word Camel Case with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION, m_contextId);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordCamelCaseWithSelection()));
-    a = new QAction(tr("Go to Next Word Camel Case with Selection"), this);
-    command = Core::ActionManager::registerAction(a, Constants::GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION, m_contextId);
-    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordCamelCaseWithSelection()));
-
 }
 
-QAction *TextEditorActionHandler::registerNewAction(const Core::Id &id, bool scriptable, const QString &title)
+QAction *TextEditorActionHandler::registerAction(const Core::Id &id,
+                                                 const char *slot,
+                                                 bool scriptable,
+                                                 const QString &title,
+                                                 const QKeySequence &keySequence,
+                                                 const char *menueGroup,
+                                                 Core::ActionContainer *container)
 {
     QAction *result = new QAction(title, this);
-    Core::ActionManager::registerAction(result, id, m_contextId, scriptable);
+    Core::Command *command = Core::ActionManager::registerAction(result, id, m_contextId, scriptable);
+    if (!keySequence.isEmpty())
+        command->setKeySequence(keySequence);
+
+    if (container && menueGroup)
+        container->addAction(command, menueGroup);
+
+    connect(result, SIGNAL(triggered(bool)), this, slot);
     return result;
-}
-
-QAction *TextEditorActionHandler::registerNewAction(const Core::Id &id,
-                                                    QObject *receiver,
-                                                    const char *slot,
-                                                    bool scriptable,
-                                                    const QString &title)
-{
-    QAction *rc = registerNewAction(id, scriptable, title);
-    if (!rc)
-        return 0;
-
-    connect(rc, SIGNAL(triggered()), receiver, slot);
-    return rc;
 }
 
 TextEditorActionHandler::UpdateMode TextEditorActionHandler::updateMode() const
