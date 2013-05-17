@@ -2139,46 +2139,30 @@ def qform__std__string():
 
 def qdump__std__string(d, value):
     data = value["_M_dataplus"]["_M_p"]
-    baseType = value.type.unqualified().strip_typedefs()
-    if baseType.code == ReferenceCode:
-        baseType = baseType.target().unqualified().strip_typedefs()
-    # We might encounter 'std::string' or 'std::basic_string<>'
-    # or even 'std::locale::string' on MinGW due to some type lookup glitch.
-    if str(baseType) == 'std::string' or str(baseType) == 'std::locale::string':
-        charType = lookupType("char")
-    elif str(baseType) == 'std::wstring':
-        charType = lookupType("wchar_t")
-    else:
-        charType = templateArgument(baseType, 0)
+    baseType = value.type.strip_typedefs()
+    charSize = templateArgument(baseType, 0).sizeof
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position
     # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
     sizePtr = data.cast(lookupType("size_t").pointer())
     size = int(sizePtr[-3])
     alloc = int(sizePtr[-2])
-    refcount = int(sizePtr[-1])
+    refcount = int(sizePtr[-1]) & 0xffffffff
     check(refcount >= -1) # Can be -1 accoring to docs.
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    p = data.cast(charType.pointer())
-    # Override "std::basic_string<...>
-    if str(charType) == "char":
-        d.putType("std::string", 1)
-    elif str(charType) == "wchar_t":
-        d.putType("std::wstring", 1)
 
     n = min(size, qqStringCutOff)
-    mem = d.readRawMemory(p, n * charType.sizeof)
-    if charType.sizeof == 1:
+    mem = d.readRawMemory(data, n * charSize)
+    if charSize == 1:
         encodingType = Hex2EncodedLatin1
         displayType = DisplayLatin1String
-    elif charType.sizeof == 2:
+    elif charSize == 2:
         encodingType = Hex4EncodedLittleEndian
         displayType = DisplayUtf16String
     else:
         encodingType = Hex8EncodedLittleEndian
         displayType = DisplayUtf16String
 
-    #d.putAddress(value.address)
     d.putNumChild(0)
     d.putValue(mem, encodingType)
 
