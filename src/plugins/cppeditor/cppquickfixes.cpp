@@ -4279,13 +4279,21 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(interface->semanticInfo().doc, interface->snapshot(),
                               interface->context().bindings());
+
+        // If items are empty, AssignToLocalVariableOperation will fail.
+        items = typeOfExpression(file->textOf(outerAST).toUtf8(),
+                                 file->scopeAt(outerAST->firstToken()),
+                                 TypeOfExpression::Preprocess);
+        if (items.isEmpty())
+            return;
+
         if (CallAST *callAST = outerAST->asCall()) {
-            Scope *scope = file->scopeAt(callAST->base_expression->firstToken());
-            items = typeOfExpression(file->textOf(callAST->base_expression).toUtf8(), scope,
+            items = typeOfExpression(file->textOf(callAST->base_expression).toUtf8(),
+                                     file->scopeAt(callAST->base_expression->firstToken()),
                                      TypeOfExpression::Preprocess);
         } else {
-            Scope *scope = file->scopeAt(nameAST->firstToken());
-            items = typeOfExpression(file->textOf(nameAST).toUtf8(), scope,
+            items = typeOfExpression(file->textOf(nameAST).toUtf8(),
+                                     file->scopeAt(nameAST->firstToken()),
                                      TypeOfExpression::Preprocess);
         }
 

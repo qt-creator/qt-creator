@@ -2026,6 +2026,23 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc()
     data.run(&factory);
 }
 
+/// Check: No trigger for functions which does not match in signature.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noSignatureMatch()
+{
+    const QByteArray original =
+        "int someFunc(int);\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    some@Func();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Test dialog for insert virtual functions
 class InsertVirtualMethodsDialogTest : public InsertVirtualMethodsDialog
 {
