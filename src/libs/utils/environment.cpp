@@ -236,11 +236,11 @@ QString Environment::searchInDirectory(const QStringList &execs, QString directo
 QString Environment::searchInPath(const QString &executable,
                                   const QStringList &additionalDirs) const
 {
-    QString exec = QDir::cleanPath(expandVariables(executable));
-    QFileInfo fi(exec);
-
     if (executable.isEmpty())
         return QString();
+
+    QString exec = QDir::cleanPath(expandVariables(executable));
+    QFileInfo fi(exec);
 
     QStringList execs(exec);
     if (HostOsInfo::isWindowsHost()) {
