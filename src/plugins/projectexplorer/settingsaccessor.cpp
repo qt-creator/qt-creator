@@ -2451,10 +2451,9 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             QVariantMap debugger;
             QString mkspec;
             if (m_toolChainExtras.contains(origTcId)) {
-                Utils::Environment env = Utils::Environment::systemEnvironment();
                 debuggerPath = m_toolChainExtras.value(origTcId).m_debugger;
                 if (!debuggerPath.isEmpty() && !QFileInfo(debuggerPath).isAbsolute())
-                    debuggerPath = env.searchInPath(debuggerPath);
+                    debuggerPath = Utils::Environment::systemEnvironment().searchInPath(debuggerPath);
                 if (debuggerPath.contains(QLatin1String("cdb")))
                     debuggerEngine = 4; // CDB
                 mkspec = m_toolChainExtras.value(origTcId).m_mkspec;
