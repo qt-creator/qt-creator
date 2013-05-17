@@ -68,14 +68,6 @@ DisplayUtf8String \
     = range(7)
 
 def lookupType(name):
-    if name == "int":
-        return intType
-    if name == "size_t":
-        return sizeTType
-    if name == "char":
-        return charType
-    if name == "char *":
-        return charPtrType
     return None
 
 def isSimpleType(typeobj):
@@ -89,7 +81,7 @@ def isSimpleType(typeobj):
 #
 #######################################################################
 
-qqStringCutOff = 1000
+qqStringCutOff = 10000
 
 # This is a cache mapping from 'type name' to 'display alternatives'.
 qqFormats = {}
@@ -102,6 +94,12 @@ qqEditable = {}
 
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
+
+def valueAddressAsInt(value):
+    return value.AddressOf().GetValueAsUnsigned()
+
+def pointerAsInt(value):
+    return value.GetValueAsUnsigned()
 
 def templateArgument(type, index):
     return type.GetTemplateArgumentType(index)
@@ -161,30 +159,6 @@ def showException(msg, exType, exValue, exTraceback):
 
 def registerCommand(name, func):
     pass
-
-def qByteArrayData(value):
-    private = value['d']
-    checkRef(private['ref'])
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private['offset']
-        data = int(private) + int(offset)
-        return data, int(private['size']), int(private['alloc'])
-    except:
-        # Qt 4:
-        return private['data'], int(private['size']), int(private['alloc'])
-
-def qStringData(value):
-    private = value['d']
-    checkRef(private['ref'])
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private['offset']
-        data = int(private) + int(offset)
-        return data, int(private['size'].GetValue()), int(private['alloc'])
-    except:
-        # Qt 4.
-        return private['data'], int(private['size']), int(private['alloc'])
 
 def currentFrame():
     currentThread = self.process.GetThreadAtIndex(0)
@@ -296,7 +270,9 @@ def checkRef(ref):
 
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
-        return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True).AddressOf()
+        address = self.GetValueAsUnsigned() + offset.GetValueAsSigned()
+        address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+        return self.CreateValueFromAddress(None, address, self.GetType())
     raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
 
@@ -320,13 +296,15 @@ def impl_SBValue__le__(self, other):
 def impl_SBValue__int__(self):
     return int(self.GetValue(), 0)
 
+def impl_SBValue__long__(self):
+    return int(self.GetValue(), 0)
+
 def impl_SBValue__getitem__(self, name):
     if self.GetType().IsPointerType() and isinstance(name, int):
         innertype = self.Dereference().GetType()
         address = self.GetValueAsUnsigned() + name * innertype.GetByteSize()
-        return self.CreateValueFromAddress("xx", address, innertype)
-        #return self.GetChildAtIndex(int(offset))
-        #return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True)
+        address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+        return self.CreateValueFromAddress(None, address, innertype)
     return self.GetChildMemberWithName(name)
 
 def childAt(value, index):
@@ -504,7 +482,7 @@ class SubItem:
         self.d.currentTypePriority = self.savedTypePriority
         return True
 
-class Debugger:
+class Dumper:
     def __init__(self):
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
@@ -535,6 +513,38 @@ class Debugger:
         self.currentPrintsAddress = None
         self.currentChildType = None
         self.currentChildNumChild = None
+
+        self.charType_ = None
+        self.intType_ = None
+        self.sizetType_ = None
+        self.charPtrType_ = None
+        self.voidType_ = None
+
+    def intType(self):
+        if self.intType_ is None:
+             self.intType_ = self.target.GetModuleAtIndex(0).FindFirstType('int')
+        return self.intType_
+
+    def charType(self):
+        if self.charType_ is None:
+             self.charType_ = self.target.GetModuleAtIndex(0).FindFirstType('char')
+        return self.charType_
+
+    def charPtrType(self):
+        if self.charPtrType_ is None:
+             self.charPtrType_ = self.charType().GetPointerType()
+        return self.charPtrType_
+
+    def voidPtrType(self):
+        return self.charPtrType()  # FIXME
+
+    def voidPtrSize(self):
+        return self.charPtrType().GetByteSize()
+
+    def sizetType(self):
+        if self.sizetType_ is None:
+             self.sizetType_ = self.lookupType('size_t')
+        return self.sizetType_
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -594,11 +604,11 @@ class Debugger:
             return False
         size = n * typeobj.sizeof
         self.put('childtype="%s",' % typeobj)
-        self.put('addrbase="0x%x",' % long(base))
-        self.put('addrstep="0x%x",' % long(typeobj.sizeof))
+        self.put('addrbase="0x%x",' % int(base))
+        self.put('addrstep="%d",' % typeobj.sizeof)
         self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
         self.put('arraydata="')
-        self.put(self.readRawMemory(long(base), size))
+        self.put(self.readRawMemory(base, size))
         self.put('",')
         return True
 
@@ -750,14 +760,10 @@ class Debugger:
         self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
 
-    def putStringValue(self, value, priority = 0):
-        if not value is None:
-            str = self.encodeString(value)
-            self.putValue(str, Hex4EncodedLittleEndian, priority)
 
     def readRawMemory(self, base, size):
         error = lldb.SBError()
-        contents = self.process.ReadMemory(int(base), size, error)
+        contents = self.process.ReadMemory(base.GetLoadAddress(), size, error)
         return binascii.hexlify(contents)
 
     def computeLimit(self, size, limit):
@@ -768,36 +774,12 @@ class Debugger:
             return min(size, 100)
         return min(size, limit)
 
-    def encodeString(self, value, limit = 0):
-        data, size, alloc = qStringData(value)
-        if alloc != 0:
-            check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-        limit = self.computeLimit(size, limit)
-        s = self.readRawMemory(data, 2 * limit)
-        if limit < size:
-            s += "2e002e002e00"
-        return s
-
-    def encodeByteArray(self, value, limit = None):
-        data, size, alloc = qByteArrayData(value)
-        if alloc != 0:
-            check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-        limit = self.computeLimit(size, limit)
-        s = self.readRawMemory(data, limit)
-        if limit < size:
-            s += "2e2e2e"
-        return s
-
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:
             self.currentValue = value
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
-
-    def putByteArrayValue(self, value):
-        str = self.encodeByteArray(value)
-        self.putValue(str, Hex2EncodedLatin1)
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
@@ -901,13 +883,6 @@ class Debugger:
         self.report('')
 
     def reportData(self, _ = None):
-        # Hack.
-        global charPtrType, charType, intType, sizeTType
-        intType = self.target.GetModuleAtIndex(0).FindFirstType('int')
-        sizeTType = self.target.GetModuleAtIndex(0).FindFirstType('size_t')
-        charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
-        charPtrType = charType.GetPointerType()
-
         self.reportRegisters()
         if self.process is None:
             self.report('process="none"')
@@ -1251,7 +1226,7 @@ execfile(os.path.join(currentDir, "qttypes.py"))
 
 def doit():
 
-    db = Debugger()
+    db = Dumper()
     db.report('state="enginesetupok"')
 
     while True:
@@ -1266,7 +1241,7 @@ def doit():
 
 
 def testit():
-    db = Debugger()
+    db = Dumper()
 
     error = lldb.SBError()
     db.target = db.debugger.CreateTarget(sys.argv[2], None, None, True, error)

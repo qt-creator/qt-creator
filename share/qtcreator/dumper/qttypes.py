@@ -18,6 +18,20 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
+# Compatibility with earlier versions
+Dumper.encodeByteArray = \
+    lambda d, value, limit = None: qEncodeByteArray(d, value, limit)
+Dumper.byteArrayData = \
+    lambda d, value: qByteArrayData(d, value)
+Dumper.putByteArrayValue = \
+    lambda d, value: qPutByteArrayValue(d, value)
+Dumper.encodeString = \
+    lambda d, value, limit = None: qString(d, value, limit)
+Dumper.stringData = \
+    lambda d, value: qStringData(d, value)
+Dumper.putStringValue = \
+    lambda d, value: qPutStringValue(d, value)
+
 def mapForms():
     return "Normal,Compact"
 
@@ -52,25 +66,66 @@ def qdump__QBasicAtomicPointer(d, value):
         with Children(d):
            d.putItem(value["_q_value"])
 
+def qByteArrayData(d, value):
+    private = value['d']
+    checkRef(private['ref'])
+    size = int(private['size'])
+    alloc = int(private['alloc'])
+    try:
+        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+        offset = private['offset']
+        data = private.cast(d.charPtrType()) + offset
+        return data, size, alloc
+    except:
+        # Qt 4:
+        return private['data'], size, alloc
+
+qStringData = qByteArrayData
+
+def qEncodeByteArray(d, value, limit = None):
+    data, size, alloc = qByteArrayData(d, value)
+    if alloc != 0:
+        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    limit = d.computeLimit(size, limit)
+    s = d.readRawMemory(data, limit)
+    if limit < size:
+        s += "2e2e2e"
+    return s
+
+def qEncodeString(d, value, limit = 0):
+    data, size, alloc = qStringData(d, value)
+    if alloc != 0:
+        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    limit = d.computeLimit(size, limit)
+    s = d.readRawMemory(data, 2 * limit)
+    if limit < size:
+        s += "2e002e002e00"
+    return s
+
+def qPutByteArrayValue(d, value):
+    d.putValue(qEncodeByteArray(d, value), Hex2EncodedLatin1)
+
+def qPutStringValue(d, value):
+    d.putValue(qEncodeString(d, value), Hex4EncodedLittleEndian)
 
 def qform__QByteArray():
     return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
 
 def qdump__QByteArray(d, value):
     d.putByteArrayValue(value)
-    data, size, alloc = qByteArrayData(value)
+    data, size, alloc = qByteArrayData(d, value)
     d.putNumChild(size)
     format = d.currentItemFormat()
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayLatin1String)
-        d.putField("editvalue", encodeByteArray(value, None))
+        d.putField("editvalue", qEncodeByteArray(d, value, None))
     elif format == 3:
         d.putField("editformat", DisplayUtf8String)
-        d.putField("editvalue", encodeByteArray(value, None))
+        d.putField("editvalue", qEncodeByteArray(d, value, None))
     if d.isExpanded():
-        d.putArrayData(lookupType("char"), data, size)
+        d.putArrayData(d.charType(), data, size)
 
 
 # Fails on Windows.
@@ -282,7 +337,7 @@ def qdump__QDir(d, value):
 
 def qdump__QFile(d, value):
     try:
-        ptype = lookupType(d.ns + "QFilePrivate").pointer()
+        ptype = d.lookupType(d.ns + "QFilePrivate").pointer()
         d_ptr = value["d_ptr"]["d"]
         d.putStringValue(d_ptr.cast(ptype).dereference()["fileName"])
     except:
@@ -304,7 +359,7 @@ def qdump__QFileInfo(d, value):
         return
     d.putNumChild(1)
     if d.isExpanded():
-        with Children(d, childType=lookupType(d.ns + "QString")):
+        with Children(d, childType=d.lookupType(d.ns + "QString")):
             d.putCallItem("absolutePath", value, "absolutePath")
             d.putCallItem("absoluteFilePath", value, "absoluteFilePath")
             d.putCallItem("canonicalPath", value, "canonicalPath")
@@ -506,7 +561,7 @@ def qdump__QHashNode(d, value):
 
 def qHashIteratorHelper(d, value):
     typeName = str(value.type)
-    hashType = lookupType(typeName[0:typeName.rfind("::")])
+    hashType = d.lookupType(typeName[0:typeName.rfind("::")])
     keyType = templateArgument(hashType, 0)
     valueType = templateArgument(hashType, 1)
     d.putNumChild(1)
@@ -514,7 +569,7 @@ def qHashIteratorHelper(d, value):
     if d.isExpanded():
         with Children(d):
             typeName = "%sQHash<%s,%s>::Node" % (d.ns, keyType, valueType)
-            node = value["i"].cast(lookupType(typeName).pointer())
+            node = value["i"].cast(d.lookupType(typeName).pointer())
             d.putSubItem("key", node["key"])
             d.putSubItem("value", node["value"])
 
@@ -569,9 +624,8 @@ def qdump__QList(d, value):
         # in the frontend.
         # So as first approximation only do the 'isLarge' check:
         isInternal = innerSize <= d_ptr.type.sizeof and d.isMovableType(innerType)
-        dummyType = lookupType("void").pointer().pointer()
         innerTypePointer = innerType.pointer()
-        p = array.cast(dummyType) + begin
+        p = array.cast(d.charPtrType().pointer()) + begin
         if innerTypeIsPointer:
             inner = innerType.target()
         else:
@@ -623,7 +677,7 @@ def qdump__QImage(d, value):
             d.put("%08x" % int(d_ptr["width"]))
             d.put("%08x" % int(d_ptr["height"]))
             d.put("%08x" % int(d_ptr["format"]))
-            p = bits.cast(lookupType("unsigned int").pointer())
+            p = bits.cast(d.intType().pointer())
             for i in xrange(nbytes / 4):
                 d.put("%08x" % int(p.dereference()))
                 p += 1
@@ -632,7 +686,7 @@ def qdump__QImage(d, value):
             # Write to an external file. Much faster ;-(
             file = tempfile.mkstemp(prefix="gdbpy_")
             filename = file[1].replace("\\", "\\\\")
-            p = bits.cast(lookupType("unsigned char").pointer())
+            p = bits.cast(d.charType().pointer())
             gdb.execute("dump binary memory %s %s %s" %
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
             d.putDisplay(DisplayImageFile, " %d %d %d %s"
@@ -679,7 +733,7 @@ def qdump__QLocale(d, value):
     return
     # FIXME: Poke back for variants.
     if d.isExpanded():
-        with Children(d, childType=lookupType(d.ns + "QChar"), childNumChild=0):
+        with Children(d, childType=d.lookupType(d.ns + "QChar"), childNumChild=0):
             d.putCallItem("country", value, "country")
             d.putCallItem("language", value, "language")
             d.putCallItem("measurementSystem", value, "measurementSystem")
@@ -727,9 +781,8 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # QMapPayloadNode is QMapNode except for the 'forward' member, so
         # its size is most likely the offset of the 'forward' member therein.
         # Or possibly 2 * sizeof(void *)
-        nodeType = lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
-        payloadSize = nodeType.sizeof - 2 * lookupType("void").pointer().sizeof
-        charPtr = lookupType("char").pointer()
+        nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
+        payloadSize = nodeType.sizeof - 2 * d.voidPtrSize
 
         if isCompact:
             innerType = valueType
@@ -739,7 +792,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         with Children(d, n, childType=innerType):
             for i in xrange(n):
                 itd = it.dereference()
-                base = it.cast(charPtr) - payloadSize
+                base = it.cast(d.charPtr()) - payloadSize
                 node = base.cast(nodeType.pointer()).dereference()
                 with SubItem(d, i):
                     d.putField("iname", d.currentIName)
@@ -770,7 +823,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
         keyType = templateArgument(value.type, 0)
         valueType = templateArgument(value.type, 1)
         isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
-        nodeType = lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
+        nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
         if isCompact:
             innerType = valueType
         else:
@@ -846,7 +899,7 @@ def qdump__QObject(d, value):
 
     try:
         privateTypeName = self.ns + "QObjectPrivate"
-        privateType = lookupType(privateTypeName)
+        privateType = d.lookupType(privateTypeName)
         staticMetaObject = value["staticMetaObject"]
     except:
         d.putPlainChildren(value)
@@ -883,7 +936,7 @@ def qdump__QObject(d, value):
     # Force it to the char * data in the Qt 5 case.
     try:
         offset = metaStringData["offset"]
-        metaStringData = metaStringData.cast(lookupType('char*')) + int(offset)
+        metaStringData = metaStringData.cast(d.charPtrType()) + int(offset)
     except:
         pass
 
@@ -924,7 +977,7 @@ def qdump__QObject(d, value):
             if isNull(extraData):
                 dynamicPropertyCount = 0
             else:
-                extraDataType = lookupType(
+                extraDataType = d.lookupType(
                     d.ns + "QObjectPrivate::ExtraData").pointer()
                 extraData = extraData.cast(extraDataType)
                 ed = extraData.dereference()
@@ -956,18 +1009,18 @@ def qdump__QObject(d, value):
                 with Children(d):
                     # Dynamic properties.
                     if dynamicPropertyCount != 0:
-                        dummyType = lookupType("void").pointer().pointer()
-                        namesType = lookupType(d.ns + "QByteArray")
+                        dummyType = d.voidPtrType().pointer()
+                        namesType = d.lookupType(d.ns + "QByteArray")
                         valuesBegin = values["d"]["begin"]
                         valuesEnd = values["d"]["end"]
                         valuesArray = values["d"]["array"]
-                        valuesType = lookupType(d.ns + "QVariant")
+                        valuesType = d.lookupType(d.ns + "QVariant")
                         p = namesArray.cast(dummyType) + namesBegin
                         q = valuesArray.cast(dummyType) + valuesBegin
                         for i in xrange(dynamicPropertyCount):
                             with SubItem(d, i):
                                 pp = p.cast(namesType.pointer()).dereference();
-                                d.putField("key", encodeByteArray(pp))
+                                d.putField("key", qEncodeByteArray(d, pp))
                                 d.putField("keyencoded", Hex2EncodedLatin1)
                                 qq = q.cast(valuesType.pointer().pointer())
                                 qq = qq.dereference();
@@ -1030,7 +1083,7 @@ def qdump__QObject(d, value):
                            #    type = type[type.find('"') + 1 : type.rfind('"')]
                            #    type = type.replace("Q", d.ns + "Q") # HACK!
                            #    data = call(value, "constData")
-                           #    tdata = data.cast(lookupType(type).pointer())
+                           #    tdata = data.cast(d.lookupType(type).pointer())
                            #      .dereference()
                            #    d.putValue("(%s)" % tdata.type)
                            #    d.putType(tdata.type)
@@ -1515,13 +1568,13 @@ def qdump__QString(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayUtf16String)
-        d.putField("editvalue", encodeString(value, None))
+        d.putField("editvalue", qEncodeString(d, value, None))
 
 
 def qdump__QStringRef(d, value):
     s = value["m_string"].dereference()
-    data, size, alloc = qStringData(s)
-    data += int(value["m_position"])
+    data, size, alloc = qStringData(d, s)
+    data += 2 * int(value["m_position"])
     size = value["m_size"]
     s = d.readRawMemory(data, 2 * size)
     d.putValue(s, Hex4EncodedLittleEndian)
@@ -1542,7 +1595,7 @@ def qdump__QStringList(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        innerType = lookupType(d.ns + "QString")
+        innerType = d.lookupType(d.ns + "QString")
         innerTypePP = innerType.pointer().pointer()
         d.putArrayData(innerType, d_ptr["array"].cast(innerTypePP) + begin, size, 0)
 
@@ -1553,7 +1606,7 @@ def qdump__QTemporaryFile(d, value):
 
 def qdump__QTextCodec(d, value):
     name = call(value, "name")
-    d.putValue(encodeByteArray(name), 6)
+    d.putValue(d.encodeByteArray(d, name), 6)
     d.putNumChild(2)
     if d.isExpanded():
         with Children(d):
@@ -1602,10 +1655,10 @@ def qdump__QUrl(d, value):
         try:
             # Qt 5
             data = value["d"].dereference()
-            str = encodeString(data["scheme"])
+            str = qEncodeString(d, data["scheme"])
             str += "3a002f002f00"
-            str += encodeString(data["host"])
-            str += encodeString(data["path"])
+            str += qEncodeString(d, data["host"])
+            str += qEncodeString(d, data["path"])
             d.putValue(str, Hex4EncodedLittleEndian)
         except:
             d.putPlainChildren(value)
@@ -1749,11 +1802,11 @@ def qdumpHelper__QVariant(d, value):
         innert = inner
 
     if len(inner):
-        innerType = lookupType(inner)
-        sizePD = lookupType(d.ns + 'QVariant::Private::Data').sizeof
+        innerType = d.lookupType(inner)
+        sizePD = d.lookupType(d.ns + 'QVariant::Private::Data').sizeof
         if innerType.sizeof > sizePD:
-            sizePS = lookupType(d.ns + 'QVariant::PrivateShared').sizeof
-            val = (sizePS + data.cast(lookupType('char').pointer())) \
+            sizePS = d.lookupType(d.ns + 'QVariant::PrivateShared').sizeof
+            val = (sizePS + data.cast(d.charPtrType())) \
                 .cast(innerType.pointer()).dereference()
         else:
             val = data.cast(innerType)
@@ -1771,7 +1824,7 @@ def qdump__QVariant(d, value):
         return
 
     if len(inner):
-        innerType = lookupType(inner)
+        innerType = d.lookupType(inner)
         # FIXME: Why "shared"?
         if innerType.sizeof > d_data.type.sizeof:
             v = d_data["shared"]["ptr"].cast(innerType.pointer()).dereference()
@@ -1795,7 +1848,7 @@ def qdump__QVariant(d, value):
     d.putEmptyValue(-99)
     d.putType("%sQVariant (%s)" % (d.ns, type))
     d.putNumChild(1)
-    tdata = data.cast(lookupType(type).pointer()).dereference()
+    tdata = data.cast(d.lookupType(type).pointer()).dereference()
     if d.isExpanded():
         with Children(d):
             with NoAddress(d):
@@ -1809,7 +1862,7 @@ def qedit__QVector(expr, value):
     cmd = "call (%s).resize(%d)" % (expr, len(values))
     gdb.execute(cmd)
     innerType = templateArgument(ob.type, 0)
-    ptr = ob["p"]["array"].cast(lookupType("void").pointer())
+    ptr = ob["p"]["array"].cast(d.voidPtrType())
     cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), long(ptr), value)
     gdb.execute(cmd)
 
@@ -1824,11 +1877,10 @@ def qdump__QVector(d, value):
     alloc = int(private["alloc"])
     size = int(private["size"])
     innerType = templateArgument(value.type, 0)
-    charPointerType = lookupType("char *")
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
         offset = private["offset"]
-        data = private.cast(charPointerType) + offset
+        data = private.cast(d.charPtrType()) + offset
     except:
         # Qt 4.
         data = value["p"]["array"]
@@ -2065,7 +2117,7 @@ def stdTreeIteratorHelper(d, value):
     d.putEmptyValue()
     if d.isExpanded():
         dataType = templateArgument(value.type, 0)
-        nodeType = lookupType("std::_Rb_tree_node<%s>" % dataType)
+        nodeType = d.lookupType("std::_Rb_tree_node<%s>" % dataType)
         data = pnode.cast(nodeType.pointer()).dereference()["_M_value_field"]
         with Children(d):
             try:
@@ -2144,7 +2196,7 @@ def qdump__std__string(d, value):
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position
     # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
-    sizePtr = data.cast(lookupType("size_t").pointer())
+    sizePtr = data.cast(d.sizetType().pointer())
     size = int(sizePtr[-3])
     alloc = int(sizePtr[-2])
     refcount = int(sizePtr[-1]) & 0xffffffff
@@ -2236,7 +2288,7 @@ def qdump__std__vector(d, value):
         start = impl["_M_start"]["_M_p"]
         finish = impl["_M_finish"]["_M_p"]
         # FIXME: 8 is CHAR_BIT
-        storage = lookupType("unsigned long")
+        storage = d.lookupType("unsigned long")
         storagesize = storage.sizeof * 8
         size = (finish - start) * storagesize
         size += impl["_M_finish"]["_M_offset"]
@@ -2408,9 +2460,9 @@ def qdump____m128(d, value):
     if d.isExpanded():
         format = d.currentItemFormat()
         if format == 2: # As Double
-            d.putArrayData(lookupType("double"), value.address, 2)
+            d.putArrayData(d.lookupType("double"), value.address, 2)
         else: # Default, As float
-            d.putArrayData(lookupType("float"), value.address, 4)
+            d.putArrayData(d.lookupType("float"), value.address, 4)
 
 
 #######################################################################
@@ -2464,12 +2516,12 @@ def qdump__QTJSC__JSValue(d, value):
             d.putFields(value["u"])
 
             if tag == -2:
-                cellType = lookupType("QTJSC::JSCell").pointer()
+                cellType = d.lookupType("QTJSC::JSCell").pointer()
                 d.putSubItem("cell", payload.cast(cellType))
 
             try:
                 # FIXME: This might not always be a variant.
-                delegateType = lookupType(d.ns + "QScript::QVariantDelegate").pointer()
+                delegateType = d.lookupType(d.ns + "QScript::QVariantDelegate").pointer()
                 delegate = scriptObject["d"]["delegate"].cast(delegateType)
                 #d.putSubItem("delegate", delegate)
                 variant = delegate["m_value"]
@@ -2516,7 +2568,7 @@ def qdump__QScriptValue(d, value):
     #if isCell:
     #    # isCell() && asCell()->isObject();
     #    # in cell: m_structure->typeInfo().type() == ObjectType;
-    #    cellType = lookupType("QTJSC::JSCell").pointer()
+    #    cellType = d.lookupType("QTJSC::JSCell").pointer()
     #    cell = payload.cast(cellType).dereference()
     #    dtype = "NO DYNAMIC TYPE"
     #    try:
@@ -2538,11 +2590,11 @@ def qdump__QScriptValue(d, value):
 
     try:
         # This might already fail for "native" payloads.
-        scriptObjectType = lookupType(d.ns + "QScriptObject").pointer()
+        scriptObjectType = d.lookupType(d.ns + "QScriptObject").pointer()
         scriptObject = payload.cast(scriptObjectType)
 
         # FIXME: This might not always be a variant.
-        delegateType = lookupType(d.ns + "QScript::QVariantDelegate").pointer()
+        delegateType = d.lookupType(d.ns + "QScript::QVariantDelegate").pointer()
         delegate = scriptObject["d"]["delegate"].cast(delegateType)
         #d.putSubItem("delegate", delegate)
 
@@ -2583,7 +2635,8 @@ def qdump__Core__Id(d, value):
         d.putNumChild(0)
 
 def qdump__Debugger__Internal__GdbMi(d, value):
-    str = encodeByteArray(value["m_name"]) + "3a20" + encodeByteArray(value["m_data"])
+    str = d.encodeByteArray(value["m_name"]) + "3a20" \
+        + d.encodeByteArray(value["m_data"])
     d.putValue(str, Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
@@ -2654,7 +2707,7 @@ def qdump__CPlusPlus__Token(d, value):
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
     k = value["f"]["kind"];
-    data, size, alloc = qByteArrayData(value["m_src"])
+    data, size, alloc = d.byteArrayData(value["m_src"])
     length = long(value["f"]["length"])
     offset = long(value["offset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
@@ -2795,9 +2848,9 @@ if False:
     def qdump__basic__Function(d, value):
         min = value["min"]
         max = value["max"]
-        data, size, alloc = qByteArrayData(value["var"])
+        data, size, alloc = qByteArrayData(d, value["var"])
         var = extractCString(data, 0)
-        data, size, alloc = qByteArrayData(value["f"])
+        data, size, alloc = qByteArrayData(d, value["f"])
         f = extractCString(data, 0)
         d.putValue("%s, %s=%f..%f" % (f, var, min, max))
         d.putNumChild(0)
@@ -2819,7 +2872,7 @@ if False:
     def qdump__tree(d, value):
         count = value["count"]
         entries = value["entries"]
-        base = value["base"].cast(lookupType("char").pointer())
+        base = value["base"].cast(d.charPtrType())
         d.putItemCount(count)
         d.putNumChild(count)
         if d.isExpanded():
@@ -2857,7 +2910,7 @@ if False:
                         d.putNumChild(length)
                         if d.isExpanded():
                            with Children(d):
-                              t = lookupType(innerType).pointer()
+                              t = d.lookupType(innerType).pointer()
                               p = (base + offset).cast(t)
                               for j in range(length):
                                 d.putSubItem(j, p.dereference())
@@ -2881,7 +2934,7 @@ if False:
     def qdump__KRBase(d, value):
         if getattr(value, "__nested__", None) is None:
             base = ["KRA", "KRB"][int(value["type"])]
-            nest = value.cast(lookupType(base))
+            nest = value.cast(d.lookupType(base))
             nest.__nested__ = True
             warn("NEST %s " % dir(nest))
             d.putItem(nest)
