@@ -128,9 +128,10 @@ protected:
     void clearError();
 private:
     struct LineEditData {
-        explicit LineEditData(QLineEdit* le = 0, const QString &defText = QString());
+        explicit LineEditData(QLineEdit* le = 0, const QString &defText = QString(), const QString &pText = QString());
         QLineEdit* lineEdit;
         QString defaultText;
+        QString placeholderText;
         QString userChange;
     };
     struct TextEditData {

@@ -153,8 +153,8 @@ void TextFieldCheckBox::slotStateChanged(int cs)
     \sa ProjectExplorer::CustomWizard
 */
 
-CustomWizardFieldPage::LineEditData::LineEditData(QLineEdit* le, const QString &defText) :
-    lineEdit(le), defaultText(defText)
+CustomWizardFieldPage::LineEditData::LineEditData(QLineEdit* le, const QString &defText, const QString &pText) :
+    lineEdit(le), defaultText(defText), placeholderText(pText)
 {
 }
 
@@ -380,7 +380,8 @@ QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
     connect(lineEdit, SIGNAL(textEdited(QString)), SIGNAL(completeChanged()));
 
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
-    m_lineEdits.push_back(LineEditData(lineEdit, defaultText));
+    const QString placeholderText = field.controlAttributes.value(QLatin1String("placeholdertext"));
+    m_lineEdits.push_back(LineEditData(lineEdit, defaultText, placeholderText));
     return lineEdit;
 }
 
@@ -396,6 +397,8 @@ void CustomWizardFieldPage::initializePage()
             CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
             led.lineEdit->setText(defaultText);
         }
+        if (!led.placeholderText.isEmpty())
+            led.lineEdit->setPlaceholderText(led.placeholderText);
     }
     foreach (const TextEditData &ted, m_textEdits) {
         if (!ted.userChange.isNull()) {
