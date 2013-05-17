@@ -305,7 +305,7 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
     // pasting from Bug tracker, etc.
     const bool acceptRichText = field.controlAttributes.value(QLatin1String("acceptRichText")) == QLatin1String("true");
     textEdit->setAcceptRichText(acceptRichText);
-    registerField(fieldName, textEdit, "plainText", SIGNAL(textChanged(QString)));
+    registerField(fieldName, textEdit, "plainText", SIGNAL(textChanged()));
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
     m_textEdits.push_back(TextEditData(textEdit, defaultText));
     return textEdit;
