@@ -116,19 +116,18 @@ public:
     QbsGroupNode(const qbs::GroupData *grp, const QString &productPath);
 
     bool isEnabled() const;
-    void setQbsGroupData(const qbs::GroupData *qbsGroupData, const QString &productPath);
+    void updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath);
+
     const qbs::GroupData *qbsGroupData() const { return m_qbsGroupData; }
 
     QString productPath() const;
 
-    static void setQbsGroupData(QbsBaseProjectNode *root, const qbs::GroupData *qbsGroupData,
-                                const QString &productPath, QList<Node *> keepers);
+    static void setupFiles(QbsBaseProjectNode *root, const QStringList &files,
+                             const QString &productPath);
 
 private:
-    static void setupFolders(QbsBaseProjectNode *topLevel, FolderNode *root, FileTreeNode *node,
-                             const QString &baseDirPath,
-                             QList<ProjectExplorer::Node *> keepers = QList<ProjectExplorer::Node *>());
-
+    static void setupFolder(ProjectExplorer::FolderNode *folder,
+                            const FileTreeNode *subFileTree, const QString &baseDir);
     const qbs::GroupData *m_qbsGroupData;
     QString m_productPath;
 
