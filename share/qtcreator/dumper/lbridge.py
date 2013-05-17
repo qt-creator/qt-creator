@@ -379,7 +379,7 @@ class Children:
         else:
             #self.childType = stripClassTag(str(childType))
             self.childType = childType
-            self.d.put('childtype="%s",' % self.childType)
+            self.d.put('childtype="%s",' % self.childType.GetName())
             if childNumChild is None:
                 pass
                 #if isSimpleType(childType):
@@ -501,6 +501,7 @@ class Dumper:
         self.expandedINames = {}
         self.passExceptions = True
         self.ns = ""
+        self.autoDerefPointers = True
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -840,6 +841,11 @@ class Dumper:
             #value = value.cast(value.dynamic_type)
             self.putItem(value)
             self.putBetterType("%s &" % value.GetTypeName())
+            return
+
+        # Pointers
+        if value.GetType().IsPointerType() and self.autoDerefPointers:
+            self.putItem(value.Dereference())
             return
 
         stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
