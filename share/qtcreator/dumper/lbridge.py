@@ -740,8 +740,15 @@ class Debugger:
         else:
             self.putValue('<%s items>' % count)
 
-    def putType(self, typeName, priority = 0):
-            self.put('type="%s",' % typeName)
+    def putType(self, type, priority = 0):
+        # Higher priority values override lower ones.
+        if priority >= self.currentTypePriority:
+            self.currentType = str(type)
+            self.currentTypePriority = priority
+
+    def putBetterType(self, type, priority = 0):
+        self.currentType = str(type)
+        self.currentTypePriority = self.currentTypePriority + 1
 
     def putStringValue(self, value, priority = 0):
         if not value is None:
@@ -841,6 +848,18 @@ class Debugger:
             return
 
         value.SetPreferSyntheticValue(False)
+
+        # References
+        if value.GetType().IsReferenceType():
+            type = value.GetType().GetDereferencedType().GetPointerType()
+            # FIXME: Find something more direct.
+            value = value.CreateValueFromAddress(value.GetName(),
+                value.AddressOf().GetValueAsUnsigned(), type).Dereference()
+            #value = value.cast(value.dynamic_type)
+            self.putItem(value)
+            self.putBetterType("%s &" % value.GetTypeName())
+            return
+
         stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
         #warn("VALUE: %s" % value)
         if stripped in qqDumpers:
