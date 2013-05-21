@@ -929,7 +929,8 @@ void PropertyEditor::instanceInformationsChange(const QMultiHash<ModelNode, Info
 
     m_locked = true;
     QList<InformationName> informationNameList = informationChangeHash.values(m_selectedNode);
-    if (informationNameList.contains(Anchor))
+    if (informationNameList.contains(Anchor)
+            || informationNameList.contains(HasAnchor))
         m_currentType->m_backendAnchorBinding.setup(QmlItemNode(m_selectedNode));
     m_locked = false;
 }
