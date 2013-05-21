@@ -44,7 +44,7 @@ using namespace ResourceEditor::Constants;
 
 ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     Core::IEditorFactory(plugin),
-    m_mimeTypes(QStringList(QLatin1String("application/vnd.nokia.xml.qt.resource"))),
+    m_mimeTypes(QStringList(QLatin1String(C_RESOURCE_MIMETYPE))),
     m_plugin(plugin)
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();

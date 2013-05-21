@@ -39,7 +39,7 @@ const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editor
 
 const char REFRESH[] = "ResourceEditor.Refresh";
 
-const char C_RESOURCE_MIMETYPE[] = "application/vnd.nokia.xml.qt.resource";
+const char C_RESOURCE_MIMETYPE[] = "application/vnd.qt.xml.resource";
 
 } // namespace Constants
 } // namespace ResourceEditor

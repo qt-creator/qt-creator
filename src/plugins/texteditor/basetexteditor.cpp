@@ -201,8 +201,8 @@ QString BaseTextEditorWidget::convertToPlainText(const QString &txt)
     return ret;
 }
 
-static const char kTextBlockMimeType[] = "application/vnd.nokia.qtcreator.blocktext";
-static const char kVerticalTextBlockMimeType[] = "application/vnd.nokia.qtcreator.vblocktext";
+static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
+static const char kVerticalTextBlockMimeType[] = "application/vnd.qtcreator.vblocktext";
 
 
 BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)

@@ -53,7 +53,7 @@ const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";
 const char GITSUBMITEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Submit Editor");
 const char SUBMIT_CURRENT[] = "Git.SubmitCurrentLog";
 const char DIFF_SELECTED[] = "Git.DiffSelectedFilesInLog";
-const char SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.git.submit";
+const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.git.submit";
 
 } // namespace Constants
 } // namespace Git

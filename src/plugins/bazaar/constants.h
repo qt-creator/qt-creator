@@ -49,12 +49,12 @@ const char ANNOTATE_CHANGESET_ID[] = "([.0-9]+)";
 const char FILELOG_ID[] = "Bazaar File Log Editor";
 const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar File Log Editor");
 const char FILELOG[] = "Bazaar File Log Editor";
-const char LOGAPP[] = "application/vnd.nokia.text.scs_bazaar_log";
+const char LOGAPP[] = "text/vnd.qtcreator.bazaar.log";
 
 const char ANNOTATELOG_ID[] = "Bazaar Annotation Editor";
 const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Annotation Editor");
 const char ANNOTATELOG[] = "Bazaar Annotation Editor";
-const char ANNOTATEAPP[] = "application/vnd.nokia.text.scs_bazaar_annotatelog";
+const char ANNOTATEAPP[] = "text/vnd.qtcreator.bazaar.annotation";
 
 const char DIFFLOG_ID[] = "Bazaar Diff Editor";
 const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Diff Editor");
@@ -64,7 +64,7 @@ const char DIFFAPP[] = "text/x-patch";
 // Submit editor parameters
 const char COMMIT_ID[] = "Bazaar Commit Log Editor";
 const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Commit Log Editor");
-const char COMMITMIMETYPE[] = "application/vnd.nokia.text.scs_bazaar_commitlog";
+const char COMMITMIMETYPE[] = "text/vnd.qtcreator.bazaar.commit";
 
 // Menu items
 // File menu actions

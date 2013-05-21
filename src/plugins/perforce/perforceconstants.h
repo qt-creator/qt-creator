@@ -53,7 +53,7 @@ const char PERFORCE_ANNOTATION_EDITOR_CONTEXT[] = "Perforce Annotation Editor";
 
 const char SUBMIT_CURRENT[] = "Perforce.SubmitCurrentLog";
 const char DIFF_SELECTED[] = "Perforce.DiffSelectedFilesInLog";
-const char SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.p4.submit";
+const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.p4.submit";
 
 enum { debug = 0 };
 

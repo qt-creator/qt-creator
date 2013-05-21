@@ -125,12 +125,12 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     "ClearCase File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase File Log Editor"),   // display_name
     "ClearCase File Log Editor",   // context
-    "application/vnd.audc.text.scs_cc_filelog"},
+    "text/vnd.qtcreator.clearcase.log"},
 {    VcsBase::AnnotateOutput,
     "ClearCase Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Annotation Editor"),   // display_name
     "ClearCase Annotation Editor",  // context
-    "application/vnd.audc.text.scs_cc_annotation"},
+    "text/vnd.qtcreator.clearcase.annotation"},
 {   VcsBase::DiffOutput,
     "ClearCase Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Diff Editor"),   // display_name

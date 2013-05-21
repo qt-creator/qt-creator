@@ -116,12 +116,12 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     "Subversion File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
     "Subversion File Log Editor",   // context
-    "application/vnd.nokia.text.scs_svn_filelog"},
+    "text/vnd.qtcreator.svn.log"},
 {    VcsBase::AnnotateOutput,
     "Subversion Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
     "Subversion Annotation Editor",  // context
-    "application/vnd.nokia.text.scs_svn_annotation"},
+    "text/vnd.qtcreator.svn.annotation"},
 {   VcsBase::DiffOutput,
     "Subversion Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "Subversion Diff Editor"),   // display_name

@@ -120,17 +120,17 @@ static const VcsBaseEditorParameters editorParameters[] = {
     "CVS Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
     "CVS Command Log Editor", // context
-    "application/vnd.nokia.text.scs_cvs_commandlog"},
+    "text/vnd.qtcreator.cvs.commandlog"},
 {   LogOutput,
     "CVS File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
     "CVS File Log Editor",   // context
-    "application/vnd.nokia.text.scs_cvs_filelog"},
+    "text/vnd.qtcreator.cvs.log"},
 {    AnnotateOutput,
     "CVS Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
     "CVS Annotation Editor",  // context
-    "application/vnd.nokia.text.scs_cvs_annotation"},
+    "text/vnd.qtcreator.cvs.annotation"},
 {   DiffOutput,
     "CVS Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name

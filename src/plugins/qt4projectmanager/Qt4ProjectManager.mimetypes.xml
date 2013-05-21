@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-  <mime-type type="application/vnd.nokia.qt.qmakeprofile">
+  <mime-type type="application/vnd.qt.qmakeprofile">
     <sub-class-of type="text/plain"/>
     <comment>Qt Project file</comment>
     <glob pattern="*.pro"/>
   </mime-type>
-  <mime-type type="application/vnd.nokia.qt.qmakeproincludefile">
+  <mime-type type="application/vnd.qt.qmakeproincludefile">
     <sub-class-of type="text/plain"/>
     <comment>Qt Project include file</comment>
     <glob pattern="*.pri"/>
   </mime-type>
-  <mime-type type="application/vnd.nokia.qt.qmakeprofeaturefile">
+  <mime-type type="application/vnd.qt.qmakeprofeaturefile">
     <sub-class-of type="text/plain"/>
     <comment>Qt Project feature file</comment>
     <glob pattern="*.prf"/>

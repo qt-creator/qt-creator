@@ -2548,7 +2548,7 @@ QString GdbEngine::breakLocation(const QString &file) const
 
 BreakpointPathUsage GdbEngine::defaultEngineBreakpointPathUsage() const
 {
-    // e.g. MinGW gdb 70200 (part of Nokia Qt SDK)
+    // e.g. MinGW gdb 70200 (part of Qt SDK)
     // fails to set breakpoints with absolute paths if
     // the source path isn't canonical
     if (m_gdbVersion < 70300)
