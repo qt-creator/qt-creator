@@ -925,6 +925,7 @@ void ModelManager::updateCppQmlTypes(QFutureInterface<void> &interface,
 
     FindExportedCppTypes finder(snapshot);
 
+    bool hasNewInfo = false;
     typedef QPair<CPlusPlus::Document::Ptr, bool> DocScanPair;
     foreach (const DocScanPair &pair, documents) {
         if (interface.isCanceled())
@@ -934,7 +935,7 @@ void ModelManager::updateCppQmlTypes(QFutureInterface<void> &interface,
         const bool scan = pair.second;
         const QString fileName = doc->fileName();
         if (!scan) {
-            newData.remove(fileName);
+            hasNewInfo = hasNewInfo || newData.remove(fileName) > 0;
             continue;
         }
 
@@ -943,9 +944,11 @@ void ModelManager::updateCppQmlTypes(QFutureInterface<void> &interface,
         QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder.exportedTypes();
         QHash<QString, QString> contextProperties = finder.contextProperties();
         if (exported.isEmpty() && contextProperties.isEmpty()) {
-            newData.remove(fileName);
+            hasNewInfo = hasNewInfo || newData.remove(fileName) > 0;
         } else {
             CppData &data = newData[fileName];
+            // currently we have no simple way to compare, so we assume the worse
+            hasNewInfo = true;
             data.exportedTypes = exported;
             data.contextProperties = contextProperties;
         }
@@ -955,6 +958,9 @@ void ModelManager::updateCppQmlTypes(QFutureInterface<void> &interface,
 
     QMutexLocker locker(&qmlModelManager->m_cppDataMutex);
     qmlModelManager->m_cppDataHash = newData;
+    if (hasNewInfo)
+        // one could get away with re-linking the cpp types...
+        QMetaObject::invokeMethod(qmlModelManager, "resetCodeModel");
 }
 
 ModelManager::CppDataHash ModelManager::cppData() const
