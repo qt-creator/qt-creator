@@ -239,7 +239,8 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     d->m_formatRange = true;
     d->m_matchFormat.setForeground(Qt::red);
     d->m_matchFormat.setBackground(QColor(0xb4, 0xee, 0xb4));
-    d->m_mismatchFormat.setBackground(Qt::magenta);
+    d->m_mismatchFormat.setBackground(palette().color(QPalette::Base).value() < 128
+                                      ? Qt::darkMagenta : Qt::magenta);
     d->m_parenthesesMatchingTimer.setSingleShot(true);
     connect(&d->m_parenthesesMatchingTimer, SIGNAL(timeout()), this, SLOT(_q_matchParentheses()));
 
