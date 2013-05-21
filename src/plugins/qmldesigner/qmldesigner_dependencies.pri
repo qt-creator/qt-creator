@@ -7,8 +7,7 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     texteditor \
     qmljseditor \
-    qt4projectmanager \
-    qmlprojectmanager \
+    qtsupport \
     projectexplorer
 INCLUDEPATH *= \
     $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces \

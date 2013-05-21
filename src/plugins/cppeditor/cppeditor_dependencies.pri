@@ -5,4 +5,5 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     texteditor \
     coreplugin \
-    cpptools
+    cpptools \
+    projectexplorer
