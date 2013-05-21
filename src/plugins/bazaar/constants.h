@@ -50,25 +50,21 @@ const char COMMANDLOG_ID[] = "Bazaar Command Log Editor";
 const char COMMANDLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Command Log Editor");
 const char COMMANDLOG[] = "Bazaar Command Log Editor";
 const char COMMANDAPP[] = "application/vnd.nokia.text.scs_bazaar_commandlog";
-const char COMMANDEXT[] = "vcsBazaarCommand";
 
 const char FILELOG_ID[] = "Bazaar File Log Editor";
 const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar File Log Editor");
 const char FILELOG[] = "Bazaar File Log Editor";
 const char LOGAPP[] = "application/vnd.nokia.text.scs_bazaar_log";
-const char LOGEXT[] = "vcsBazaarLog";
 
 const char ANNOTATELOG_ID[] = "Bazaar Annotation Editor";
 const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Annotation Editor");
 const char ANNOTATELOG[] = "Bazaar Annotation Editor";
 const char ANNOTATEAPP[] = "application/vnd.nokia.text.scs_bazaar_annotatelog";
-const char ANNOTATEEXT[] = "vcsBazaarAnnotate";
 
 const char DIFFLOG_ID[] = "Bazaar Diff Editor";
 const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Diff Editor");
 const char DIFFLOG[] = "Bazaar Diff Editor";
 const char DIFFAPP[] = "text/x-patch";
-const char DIFFEXT[] = "diff";
 
 // Submit editor parameters
 const char COMMIT_ID[] = "Bazaar Commit Log Editor";

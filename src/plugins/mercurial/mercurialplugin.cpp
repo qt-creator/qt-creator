@@ -79,29 +79,25 @@ static const VcsBaseEditorParameters editorParameters[] = {
     Constants::COMMANDLOG_ID, // id
     Constants::COMMANDLOG_DISPLAY_NAME, // display name
     Constants::COMMANDLOG, // context
-    Constants::COMMANDAPP, // mime type
-    Constants::COMMANDEXT}, //extension
+    Constants::COMMANDAPP}, // mime type
 
 {   LogOutput,
     Constants::FILELOG_ID,
     Constants::FILELOG_DISPLAY_NAME,
     Constants::FILELOG,
-    Constants::LOGAPP,
-    Constants::LOGEXT},
+    Constants::LOGAPP},
 
 {   AnnotateOutput,
     Constants::ANNOTATELOG_ID,
     Constants::ANNOTATELOG_DISPLAY_NAME,
     Constants::ANNOTATELOG,
-    Constants::ANNOTATEAPP,
-    Constants::ANNOTATEEXT},
+    Constants::ANNOTATEAPP},
 
 {   DiffOutput,
     Constants::DIFFLOG_ID,
     Constants::DIFFLOG_DISPLAY_NAME,
     Constants::DIFFLOG,
-    Constants::DIFFAPP,
-    Constants::DIFFEXT}
+    Constants::DIFFAPP}
 };
 
 static const VcsBaseSubmitEditorParameters submitEditorParameters = {

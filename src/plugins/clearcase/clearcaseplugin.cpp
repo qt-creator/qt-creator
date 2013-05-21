@@ -125,25 +125,22 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     "ClearCase Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Command Log Editor"), // display name
     "ClearCase Command Log Editor", // context
-    "application/vnd.audc.text.scs_cc_commandlog",
-    "scslog"},
+    "application/vnd.audc.text.scs_cc_commandlog"},
 {   VcsBase::LogOutput,
     "ClearCase File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase File Log Editor"),   // display_name
     "ClearCase File Log Editor",   // context
-    "application/vnd.audc.text.scs_cc_filelog",
-    "scsfilelog"},
+    "application/vnd.audc.text.scs_cc_filelog"},
 {    VcsBase::AnnotateOutput,
     "ClearCase Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Annotation Editor"),   // display_name
     "ClearCase Annotation Editor",  // context
-    "application/vnd.audc.text.scs_cc_annotation",
-    "scsannotate"},
+    "application/vnd.audc.text.scs_cc_annotation"},
 {   VcsBase::DiffOutput,
     "ClearCase Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Diff Editor"),   // display_name
     "ClearCase Diff Editor",  // context
-    "text/x-patch","diff"}
+    "text/x-patch"}
 };
 
 // Utility to find a parameter set by type

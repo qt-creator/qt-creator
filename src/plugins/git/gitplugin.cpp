@@ -88,25 +88,22 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMAND_LOG_EDITOR,
-    "application/vnd.nokia.text.scs_git_commandlog",
-    "gitlog"},
+    "application/vnd.nokia.text.scs_git_commandlog"},
 {   VcsBase::LogOutput,
     Git::Constants::GIT_LOG_EDITOR_ID,
     Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_LOG_EDITOR,
-    "application/vnd.nokia.text.scs_git_filelog",
-    "gitfilelog"},
+    "application/vnd.nokia.text.scs_git_filelog"},
 {   VcsBase::AnnotateOutput,
     Git::Constants::GIT_BLAME_EDITOR_ID,
     Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_BLAME_EDITOR,
-    "application/vnd.nokia.text.scs_git_annotation",
-    "gitsannotate"},
+    "application/vnd.nokia.text.scs_git_annotation"},
 {   VcsBase::DiffOutput,
     Git::Constants::GIT_DIFF_EDITOR_ID,
     Git::Constants::GIT_DIFF_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_DIFF_EDITOR,
-    "text/x-patch","diff"}
+    "text/x-patch"}
 };
 
 // Utility to find a parameter set by type

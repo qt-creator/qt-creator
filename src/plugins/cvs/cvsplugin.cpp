@@ -120,25 +120,22 @@ static const VcsBaseEditorParameters editorParameters[] = {
     "CVS Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
     "CVS Command Log Editor", // context
-    "application/vnd.nokia.text.scs_cvs_commandlog",
-    "scslog"},
+    "application/vnd.nokia.text.scs_cvs_commandlog"},
 {   LogOutput,
     "CVS File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
     "CVS File Log Editor",   // context
-    "application/vnd.nokia.text.scs_cvs_filelog",
-    "scsfilelog"},
+    "application/vnd.nokia.text.scs_cvs_filelog"},
 {    AnnotateOutput,
     "CVS Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
     "CVS Annotation Editor",  // context
-    "application/vnd.nokia.text.scs_cvs_annotation",
-    "scsannotate"},
+    "application/vnd.nokia.text.scs_cvs_annotation"},
 {   DiffOutput,
     "CVS Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
     "CVS Diff Editor",  // context
-    "text/x-patch","diff"}
+    "text/x-patch"}
 };
 
 // Utility to find a parameter set by type

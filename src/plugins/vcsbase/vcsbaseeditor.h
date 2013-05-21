@@ -72,7 +72,6 @@ public:
     const char *displayName;
     const char *context;
     const char *mimeType;
-    const char *extension;
 };
 
 class VCSBASE_EXPORT DiffChunk
