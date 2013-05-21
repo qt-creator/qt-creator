@@ -460,11 +460,15 @@ QPair<PropertyName, ServerNodeInstance> GraphicalNodeInstance::anchor(const Prop
     QObject *targetObject = nameObjectPair.second;
     PropertyName targetName = nameObjectPair.first.toUtf8();
 
-    if (targetObject && nodeInstanceServer()->hasInstanceForObject(targetObject)) {
-        return qMakePair(targetName, nodeInstanceServer()->instanceForObject(targetObject));
-    } else {
-        return ObjectNodeInstance::anchor(name);
+    while (targetObject) {
+        if (nodeInstanceServer()->hasInstanceForObject(targetObject))
+            return qMakePair(targetName, nodeInstanceServer()->instanceForObject(targetObject));
+        else
+            targetObject = parentObject(targetObject);
     }
+
+    return ObjectNodeInstance::anchor(name);
+
 }
 
 static void doComponentCompleteRecursive(QQuickItem *item)

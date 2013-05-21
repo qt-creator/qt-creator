@@ -190,6 +190,7 @@ protected:
     void addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty);
     void deleteObjectsInList(const QQmlProperty &metaProperty);
     QVariant convertSpecialCharacter(const QVariant& value) const;
+    static QObject *parentObject(QObject *object);
 
 private:
     QHash<PropertyName, QVariant> m_resetValueHash;

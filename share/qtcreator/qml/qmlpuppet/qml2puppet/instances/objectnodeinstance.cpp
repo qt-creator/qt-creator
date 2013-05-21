@@ -1172,7 +1172,7 @@ QObject *ObjectNodeInstance::parent() const
     return object()->parent();
 }
 
-QObject *parentObject(QObject *object)
+QObject *ObjectNodeInstance::parentObject(QObject *object)
 {
     QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
     if (quickItem && quickItem->parentItem()) {
