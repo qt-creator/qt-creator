@@ -317,8 +317,7 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
         }
     }
 
-    if (metaCallReturnValue >= 0
-            && call == QMetaObject::WriteProperty
+    if (call == QMetaObject::WriteProperty
             && !propertyById.hasNotifySignal()
             && oldValue != propertyById.read(myObject()))
         notifyPropertyChange(id);
