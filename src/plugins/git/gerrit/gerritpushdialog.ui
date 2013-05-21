@@ -176,7 +176,7 @@ Partial names can be used if they are unambiguous.</string>
   <customwidget>
    <class>Git::Internal::LogChangeWidget</class>
    <extends>QTreeView</extends>
-   <header>../logchangedialog.h</header>
+   <header location="global">git/logchangedialog.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
