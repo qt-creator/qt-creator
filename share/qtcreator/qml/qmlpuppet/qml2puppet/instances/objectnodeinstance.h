@@ -32,6 +32,7 @@
 
 #include "nodeinstanceserver.h"
 #include "nodeinstancemetaobject.h"
+#include "nodeinstancesignalspy.h"
 
 #include <QPainter>
 #include <QSharedPointer>
@@ -202,6 +203,7 @@ private:
 
     QPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
+    NodeInstanceSignalSpy m_signalSpy;
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;
