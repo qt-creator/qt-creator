@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "Qt4ProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
+    Depends { name: "TextEditor" }
     Depends { name: "AnalyzerBase" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
@@ -49,6 +50,14 @@ QtcPlugin {
         "androidglobal.h",
         "androidmanager.cpp",
         "androidmanager.h",
+        "androidmanifestdocument.cpp",
+        "androidmanifestdocument.h",
+        "androidmanifesteditor.cpp",
+        "androidmanifesteditor.h",
+        "androidmanifesteditorfactory.cpp",
+        "androidmanifesteditorfactory.h",
+        "androidmanifesteditorwidget.cpp",
+        "androidmanifesteditorwidget.h",
         "androidpackagecreationfactory.cpp",
         "androidpackagecreationfactory.h",
         "androidpackagecreationstep.cpp",
