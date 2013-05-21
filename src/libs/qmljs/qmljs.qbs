@@ -12,7 +12,7 @@ QtcLibrary {
 
     Depends { name: "Utils" }
     Depends { name: "LanguageUtils" }
-    Depends { name: "Qt"; submodules: ["widgets", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets", "script", "xml"] }
 
     files: [
         "jsoncheck.cpp",
@@ -52,6 +52,8 @@ QtcLibrary {
         "qmljsmodelmanagerinterface.h",
         "qmljspropertyreader.cpp",
         "qmljspropertyreader.h",
+        "qmljsqrcparser.cpp",
+        "qmljsqrcparser.h",
         "qmljsreformatter.cpp",
         "qmljsreformatter.h",
         "qmljsrewriter.cpp",

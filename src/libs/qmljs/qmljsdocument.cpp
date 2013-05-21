@@ -115,6 +115,22 @@ bool Document::isFullySupportedLanguage(Document::Language language)
     return false;
 }
 
+bool Document::isQmlLikeOrJsLanguage(Document::Language language)
+{
+    switch (language) {
+    case QmlLanguage:
+    case QmlQtQuick1Language:
+    case QmlQtQuick2Language:
+    case QmlQbsLanguage:
+    case QmlProjectLanguage:
+    case QmlTypeInfoLanguage:
+    case JavaScriptLanguage:
+        return true;
+    default:
+        return false;
+    }
+}
+
 Document::Document(const QString &fileName, Language language)
     : _engine(0)
     , _ast(0)

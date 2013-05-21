@@ -30,6 +30,7 @@
 #include "qmljsscopechain.h"
 #include "qmljsbind.h"
 #include "qmljsevaluate.h"
+#include "qmljsmodelmanagerinterface.h"
 
 using namespace QmlJS;
 
@@ -310,7 +311,10 @@ void ScopeChain::initializeRootScope()
         if (!m_document->bind()->isJsLibrary()) {
             foreach (Document::Ptr otherDoc, snapshot) {
                 foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
-                    if (import.type() == ImportInfo::FileImport && m_document->fileName() == import.path()) {
+                    if ((import.type() == ImportInfo::FileImport && m_document->fileName() == import.path())
+                            || (import.type() == ImportInfo::QrcFileImport
+                                && ModelManagerInterface::instance()->filesAtQrcPath(import.path())
+                                .contains(m_document->fileName()))) {
                         QmlComponentChain *component = new QmlComponentChain(otherDoc);
                         componentScopes.insert(otherDoc.data(), component);
                         chain->addInstantiatingComponent(component);

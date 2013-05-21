@@ -53,6 +53,11 @@ class QMLJS_EXPORT ModelManagerInterface: public QObject
     Q_OBJECT
 
 public:
+    enum QrcResourceSelector {
+        ActiveQrcResources,
+        AllQrcResources
+    };
+
     class ProjectInfo
     {
     public:
@@ -80,6 +85,8 @@ public:
         QPointer<ProjectExplorer::Project> project;
         QStringList sourceFiles;
         QStringList importPaths;
+        QStringList activeResourceFiles;
+        QStringList allResourceFiles;
 
         // whether trying to run qmldump makes sense
         bool tryQmlDump;
@@ -142,6 +149,14 @@ public:
                                    bool emitDocumentOnDiskChanged) = 0;
     virtual void fileChangedOnDisk(const QString &path) = 0;
     virtual void removeFiles(const QStringList &files) = 0;
+    virtual QStringList filesAtQrcPath(const QString &path, const QLocale *locale = 0,
+                                       ProjectExplorer::Project *project = 0,
+                                       QrcResourceSelector resources = AllQrcResources) = 0;
+    virtual QMap<QString,QStringList> filesInQrcPath(const QString &path,
+                                                     const QLocale *locale = 0,
+                                                     ProjectExplorer::Project *project = 0,
+                                                     bool addDirs = false,
+                                                     QrcResourceSelector resources = AllQrcResources) = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;

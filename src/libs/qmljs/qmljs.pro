@@ -1,5 +1,5 @@
 DEFINES += QMLJS_BUILD_DIR
 
-QT +=script
+QT +=script xml
 include(../../qtcreatorlibrary.pri)
 include(qmljs-lib.pri)

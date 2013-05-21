@@ -58,6 +58,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QRegExp>
+#include <QtAlgorithms>
 
 #include <QDebug>
 
@@ -406,6 +407,114 @@ void ModelManager::removeFiles(const QStringList &files)
     }
 }
 
+namespace {
+bool pInfoLessThanActive(const ModelManager::ProjectInfo &p1, const ModelManager::ProjectInfo &p2)
+{
+    QStringList s1 = p1.activeResourceFiles;
+    QStringList s2 = p2.activeResourceFiles;
+    if (s1.size() < s2.size())
+        return true;
+    if (s1.size() > s2.size())
+        return false;
+    for (int i = 0; i < s1.size(); ++i) {
+        if (s1.at(i) < s2.at(i))
+            return true;
+        else if (s1.at(i) > s2.at(i))
+            return false;
+    }
+    return false;
+}
+
+bool pInfoLessThanAll(const ModelManager::ProjectInfo &p1, const ModelManager::ProjectInfo &p2)
+{
+    QStringList s1 = p1.allResourceFiles;
+    QStringList s2 = p2.allResourceFiles;
+    if (s1.size() < s2.size())
+        return true;
+    if (s1.size() > s2.size())
+        return false;
+    for (int i = 0; i < s1.size(); ++i) {
+        if (s1.at(i) < s2.at(i))
+            return true;
+        else if (s1.at(i) > s2.at(i))
+            return false;
+    }
+    return false;
+}
+}
+
+QStringList ModelManager::filesAtQrcPath(const QString &path, const QLocale *locale,
+                                         ProjectExplorer::Project *project,
+                                         QrcResourceSelector resources)
+{
+    QString normPath = QrcParser::normalizedQrcFilePath(path);
+    QList<ProjectInfo> pInfos;
+    if (project)
+        pInfos.append(projectInfo(project));
+    else
+        pInfos = projectInfos();
+
+    QStringList res;
+    QSet<QString> pathsChecked;
+    foreach (const ModelManager::ProjectInfo &pInfo, pInfos) {
+        QStringList qrcFilePaths;
+        if (resources == ActiveQrcResources)
+            qrcFilePaths = pInfo.activeResourceFiles;
+        else
+            qrcFilePaths = pInfo.allResourceFiles;
+        foreach (const QString &qrcFilePath, qrcFilePaths) {
+            if (pathsChecked.contains(qrcFilePath))
+                continue;
+            pathsChecked.insert(qrcFilePath);
+            QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath);
+            if (qrcFile.isNull())
+                continue;
+            qrcFile->collectFilesAtPath(normPath, &res, locale);
+        }
+    }
+    res.sort(); // make the result predictable
+    return res;
+}
+
+QMap<QString, QStringList> ModelManager::filesInQrcPath(const QString &path,
+                                                        const QLocale *locale,
+                                                        ProjectExplorer::Project *project,
+                                                        bool addDirs,
+                                                        QrcResourceSelector resources)
+{
+    QString normPath = QrcParser::normalizedQrcDirectoryPath(path);
+    QList<ProjectInfo> pInfos;
+    if (project) {
+        pInfos.append(projectInfo(project));
+    } else {
+        pInfos = projectInfos();
+        if (resources == ActiveQrcResources) // make the result predictable
+            qSort(pInfos.begin(), pInfos.end(), &pInfoLessThanActive);
+        else
+            qSort(pInfos.begin(), pInfos.end(), &pInfoLessThanAll);
+    }
+    QMap<QString, QStringList> res;
+    QSet<QString> pathsChecked;
+    foreach (const ModelManager::ProjectInfo &pInfo, pInfos) {
+        QStringList qrcFilePaths;
+        if (resources == ActiveQrcResources)
+            qrcFilePaths = pInfo.activeResourceFiles;
+        else
+            qrcFilePaths = pInfo.allResourceFiles;
+        foreach (const QString &qrcFilePath, qrcFilePaths) {
+            if (pathsChecked.contains(qrcFilePath))
+                continue;
+            pathsChecked.insert(qrcFilePath);
+            QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath);
+
+            if (qrcFile.isNull())
+                continue;
+            qrcFile->collectFilesInPath(normPath, &res, addDirs, locale);
+        }
+    }
+    return res;
+}
+
 QList<ModelManager::ProjectInfo> ModelManager::projectInfos() const
 {
     QMutexLocker locker(&m_mutex);
@@ -462,6 +571,12 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
     }
     updateSourceFiles(newFiles, false);
 
+    // update qrc cache
+    foreach (const QString &newQrc, pinfo.allResourceFiles)
+        m_qrcCache.addPath(newQrc);
+    foreach (const QString &oldQrc, oldInfo.allResourceFiles)
+        m_qrcCache.removePath(oldQrc);
+
     // dump builtin types if the shipped definitions are probably outdated and the
     // Qt version ships qmlplugindump
     if (QtSupport::QtVersionNumber(pinfo.qtVersionString) > QtSupport::QtVersionNumber(4, 8, 5))
@@ -496,6 +611,11 @@ ModelManagerInterface::ProjectInfo ModelManager::projectInfoForPath(QString path
 
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)
 { emit documentChangedOnDisk(doc); }
+
+void ModelManager::updateQrcFile(const QString &path)
+{
+    m_qrcCache.updatePath(path);
+}
 
 void ModelManager::updateDocument(Document::Ptr doc)
 {
@@ -558,6 +678,23 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
                 if (! scannedPaths->contains(importName)) {
                     *importedFiles += qmlFilesInDirectory(importName);
                     scannedPaths->insert(importName);
+                }
+            }
+        } else if (import.type() == ImportInfo::QrcFileImport) {
+            QStringList importPaths = ModelManagerInterface::instance()->filesAtQrcPath(importName);
+            foreach (const QString &importPath, importPaths) {
+                if (! snapshot.document(importPath))
+                    *importedFiles += importPath;
+            }
+        } else if (import.type() == ImportInfo::QrcDirectoryImport) {
+            QMapIterator<QString,QStringList> dirContents(ModelManagerInterface::instance()->filesInQrcPath(importName));
+            while (dirContents.hasNext()) {
+                dirContents.next();
+                if (Document::isQmlLikeOrJsLanguage(Document::guessLanguageFromSuffix(dirContents.key()))) {
+                    foreach (const QString &filePath, dirContents.value()) {
+                        if (! snapshot.document(filePath))
+                            *importedFiles += filePath;
+                    }
                 }
             }
         }
@@ -697,8 +834,11 @@ void ModelManager::parse(QFutureInterface<void> &future,
         const QString fileName = files.at(i);
 
         Document::Language language = languageOfFile(fileName);
-        if (language == Document::UnknownLanguage)
+        if (language == Document::UnknownLanguage) {
+            if (fileName.endsWith(QLatin1String(".qrc")))
+                modelManager->updateQrcFile(fileName);
             continue;
+        }
 
         QString contents;
         int documentRevision = 0;

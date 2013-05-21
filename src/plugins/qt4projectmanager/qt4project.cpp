@@ -627,6 +627,8 @@ void Qt4Project::updateQmlJSCodeModel()
     bool hasQmlLib = false;
     foreach (Qt4ProFileNode *node, proFiles) {
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
+        projectInfo.activeResourceFiles.append(node->variableValue(ExactResourceVar));
+        projectInfo.allResourceFiles.append(node->variableValue(ResourceVar));
         if (!hasQmlLib) {
             QStringList qtLibs = node->variableValue(QtVar);
             hasQmlLib = qtLibs.contains(QLatin1String("declarative")) ||
@@ -645,6 +647,8 @@ void Qt4Project::updateQmlJSCodeModel()
     setProjectLanguages(pl);
 
     projectInfo.importPaths.removeDuplicates();
+    projectInfo.activeResourceFiles.removeDuplicates();
+    projectInfo.allResourceFiles.removeDuplicates();
 
     setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
 

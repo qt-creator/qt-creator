@@ -35,6 +35,7 @@
 #include "qmljstypedescriptionreader.h"
 #include "qmljsvalueowner.h"
 #include "qmljscontext.h"
+#include "qmljsmodelmanagerinterface.h"
 #include "parser/qmljsast_p.h"
 
 #include <utils/qtcassert.h>
@@ -2107,13 +2108,19 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
         importFileInfo = QFileInfo(docPath + QDir::separator() + path);
     info._path = importFileInfo.absoluteFilePath();
 
-    if (importFileInfo.isFile())
+    if (importFileInfo.isFile()) {
         info._type = FileImport;
-    else if (importFileInfo.isDir())
+    } else if (importFileInfo.isDir()) {
         info._type = DirectoryImport;
-    else
+    } else if (path.startsWith(QLatin1String("qrc:"))) {
+        info._path = path;
+        if (ModelManagerInterface::instance()->filesAtQrcPath(info.path()).isEmpty())
+            info._type = QrcDirectoryImport;
+        else
+            info._type = QrcFileImport;
+    } else {
         info._type = UnknownFileImport;
-
+    }
     info._version = version;
     info._as = as;
     info._ast = ast;
@@ -2192,7 +2199,7 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
         const ImportInfo &info = i.info;
 
         // JS import has no types
-        if (info.type() == ImportInfo::FileImport)
+        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport)
             continue;
 
         if (!info.as().isEmpty()) {
@@ -2222,7 +2229,7 @@ void TypeScope::processMembers(MemberProcessor *processor) const
         const ImportInfo &info = i.info;
 
         // JS import has no types
-        if (info.type() == ImportInfo::FileImport)
+        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport)
             continue;
 
         if (!info.as().isEmpty())
@@ -2249,7 +2256,7 @@ const Value *JSImportScope::lookupMember(const QString &name, const Context *,
         const ImportInfo &info = i.info;
 
         // JS imports are always: import "somefile.js" as Foo
-        if (info.type() != ImportInfo::FileImport)
+        if (info.type() != ImportInfo::FileImport && info.type() != ImportInfo::QrcFileImport)
             continue;
 
         if (info.as() == name) {
@@ -2272,7 +2279,7 @@ void JSImportScope::processMembers(MemberProcessor *processor) const
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        if (info.type() == ImportInfo::FileImport)
+        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport)
             processor->processProperty(info.as(), import);
     }
 }
@@ -2329,7 +2336,7 @@ ImportInfo Imports::info(const QString &name, const Context *context) const
             continue;
         }
 
-        if (info.type() == ImportInfo::FileImport) {
+        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport) {
             if (import->className() == firstId)
                 return info;
         } else {
@@ -2349,7 +2356,7 @@ QString Imports::nameForImportedObject(const ObjectValue *value, const Context *
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        if (info.type() == ImportInfo::FileImport) {
+        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport) {
             if (import == value)
                 return import->className();
         } else {

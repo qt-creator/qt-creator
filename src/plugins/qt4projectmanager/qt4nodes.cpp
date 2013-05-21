@@ -1886,6 +1886,10 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                                                      QLatin1String("OBJECTIVE_HEADERS"), m_projectDir, buildDirectory);
         newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
         newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
+        newVarValues[ResourceVar] = fileListForVar(m_readerExact, m_readerCumulative,
+                                                   QLatin1String("RESOURCES"), m_projectDir, buildDirectory);
+        newVarValues[ExactResourceVar] = fileListForVar(m_readerExact, 0,
+                                                        QLatin1String("RESOURCES"), m_projectDir, buildDirectory);
         newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));
         newVarValues[PrecompiledHeaderVar] =
                 m_readerExact->absoluteFileValues(QLatin1String("PRECOMPILED_HEADER"),

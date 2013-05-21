@@ -39,7 +39,8 @@ HEADERS += \
     $$PWD/consoleitem.h \
     $$PWD/iscriptevaluator.h \
     $$PWD/qmljssimplereader.h \
-    $$PWD/persistenttrie.h
+    $$PWD/persistenttrie.h \
+    $$PWD/qmljsqrcparser.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -69,7 +70,8 @@ SOURCES += \
     $$PWD/consolemanagerinterface.cpp \
     $$PWD/consoleitem.cpp \
     $$PWD/qmljssimplereader.cpp \
-    $$PWD/persistenttrie.cpp
+    $$PWD/persistenttrie.cpp \
+    $$PWD/qmljsqrcparser.cpp
 
 RESOURCES += \
     $$PWD/qmljs.qrc
