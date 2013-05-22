@@ -536,6 +536,7 @@ void tst_Dumpers::initTestCase()
         //qDebug() << "stdout: " << output;
         m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
         qDebug() << (m_usePython ? "Python is available" : "Python is not available");
+        qDebug() << "Dumper dir: " << DUMPERDIR;
 
         QString version = QString::fromLocal8Bit(output);
         int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
@@ -847,7 +848,8 @@ void tst_Dumpers::dumper()
             if (!check.expectedValue.matches(item.value, context)) {
                 qDebug() << "INAME         : " << item.iname;
                 qDebug() << "VALUE ACTUAL  : " << item.value << toHex(item.value);
-                qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
+                qDebug() << "VALUE EXPECTED: "
+                    << check.expectedValue.value << toHex(check.expectedValue.value);
                 ok = false;
             }
             if (!check.expectedType.matches(item.type, context)) {
@@ -871,8 +873,11 @@ void tst_Dumpers::dumper()
         qDebug() << "EXPANDED     : " << expanded;
         ok = false;
     }
-    if (!ok)
+    if (!ok) {
         qDebug() << "CONTENTS     : " << contents;
+        qDebug() << "Qt VERSION   : "
+            << qPrintable(QString::number(context.qtVersion, 16));
+    }
     QVERIFY(ok);
     t->buildTemp.setAutoRemove(m_keepTemp);
 }
