@@ -47,6 +47,9 @@ const char C_GIT_BLAME_EDITOR[] = "Git Annotation Editor";
 const char GIT_DIFF_EDITOR_ID[] = "Git Diff Editor";
 const char GIT_DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Diff Editor");
 const char C_GIT_DIFF_EDITOR[] = "Git Diff Editor";
+const char GIT_COMMIT_TEXT_EDITOR_ID[] = "Git Commit Editor";
+const char GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Commit Editor");
+const char C_GIT_COMMIT_TEXT_EDITOR[] = "Git Commit Editor";
 
 const char C_GITSUBMITEDITOR[]  = "Git Submit Editor";
 const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";
@@ -54,6 +57,7 @@ const char GITSUBMITEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Submit
 const char SUBMIT_CURRENT[] = "Git.SubmitCurrentLog";
 const char DIFF_SELECTED[] = "Git.DiffSelectedFilesInLog";
 const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.git.submit";
+const char C_GITEDITORID[]  = "Git Editor";
 
 } // namespace Constants
 } // namespace Git

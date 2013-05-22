@@ -14,6 +14,7 @@ QtcPlugin {
     Depends { name: "Locator" }
 
     files: [
+        "Git.mimetypes.xml",
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
         "branchadddialog.cpp",

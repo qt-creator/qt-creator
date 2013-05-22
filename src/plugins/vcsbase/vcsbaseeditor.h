@@ -105,7 +105,7 @@ protected:
     void setLogEntryPattern(const QRegExp &pattern);
 
 public:
-    void init();
+    virtual void init();
 
     ~VcsBaseEditorWidget();
 
