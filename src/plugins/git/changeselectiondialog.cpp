@@ -60,6 +60,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     , m_detailsText(new QPlainTextEdit(this))
     , m_command(NoCommand)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     bool ok;
     m_gitBinaryPath = GitPlugin::instance()->gitClient()->gitBinaryPath(&ok);
     if (!ok)
@@ -89,8 +90,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     m_changeNumberEdit->selectAll();
 
     setWindowTitle(tr("Select a Git Commit"));
-    setGeometry(0, 0, 550, 350);
-    adjustPosition(parent);
+    setMinimumSize(QSize(550, 350));
 
     m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
     connect(m_changeNumberEdit, SIGNAL(textChanged(QString)),
