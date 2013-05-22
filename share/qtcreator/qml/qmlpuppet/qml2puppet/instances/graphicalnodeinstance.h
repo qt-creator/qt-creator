@@ -1,6 +1,8 @@
 #ifndef QMLDESIGNER_GRAPHICALNODEINSTANCE_H
 #define QMLDESIGNER_GRAPHICALNODEINSTANCE_H
 
+#include <QtGlobal>
+
 #include "objectnodeinstance.h"
 
 #include <designersupport.h>
@@ -23,6 +25,7 @@ public:
 
     QRectF boundingRect() const;
     QTransform customTransform() const;
+    QTransform contentTransform() const Q_DECL_OVERRIDE;
     QTransform sceneTransform() const;
     double opacity() const;
     double rotation() const;

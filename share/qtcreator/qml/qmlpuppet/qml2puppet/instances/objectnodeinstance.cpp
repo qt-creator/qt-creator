@@ -245,6 +245,11 @@ QTransform ObjectNodeInstance::transform() const
     return QTransform();
 }
 
+QTransform ObjectNodeInstance::contentTransform() const
+{
+    return QTransform();
+}
+
 QTransform ObjectNodeInstance::customTransform() const
 {
     return QTransform();

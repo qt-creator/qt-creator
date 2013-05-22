@@ -108,6 +108,7 @@ public:
     virtual QPointF position() const;
     virtual QSizeF size() const;
     virtual QTransform transform() const;
+    virtual QTransform contentTransform() const;
     virtual QTransform customTransform() const;
     virtual QTransform sceneTransform() const;
     virtual double opacity() const;

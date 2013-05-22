@@ -56,6 +56,7 @@ public:
     QPointF position;
     QSizeF size;
     QTransform transform;
+    QTransform contentTransform;
     QTransform sceneTransform;
     int penWidth;
     bool isAnchoredBySibling;
@@ -187,6 +188,14 @@ QTransform NodeInstance::transform() const
 {
     if (isValid())
         return d->transform;
+    else
+        return QTransform();
+}
+
+QTransform NodeInstance::contentTransform() const
+{
+    if (isValid())
+        return d->contentTransform;
     else
         return QTransform();
 }
@@ -334,6 +343,16 @@ InformationName NodeInstance::setInformationTransform(const QTransform &transfor
     return NoInformationChange;
 }
 
+InformationName NodeInstance::setInformationContentTransform(const QTransform &contentTransform)
+{
+    if (d->contentTransform != contentTransform) {
+        d->contentTransform = contentTransform;
+        return ContentTransform;
+    }
+
+    return NoInformationChange;
+}
+
 InformationName NodeInstance::setInformationPenWith(int penWidth)
 {
     if (d->penWidth != penWidth) {
@@ -468,22 +487,23 @@ InformationName NodeInstance::setInformationHasBindingForProperty(const Property
 InformationName NodeInstance::setInformation(InformationName name, const QVariant &information, const QVariant &secondInformation, const QVariant &thirdInformation)
 {
     switch (name) {
-    case Size: return setInformationSize(information.toSizeF()); break;
-    case BoundingRect: return setInformationBoundingRect(information.toRectF()); break;
-    case Transform: return setInformationTransform(information.value<QTransform>()); break;
-    case PenWidth: return setInformationPenWith(information.toInt()); break;
-    case Position: return setInformationPosition(information.toPointF()); break;
-    case IsInLayoutable: return setInformationIsInLayoutable(information.toBool()); break;
-    case SceneTransform: return setInformationSceneTransform(information.value<QTransform>()); break;
-    case IsResizable: return setInformationIsResizable(information.toBool()); break;
-    case IsMovable: return setInformationIsMovable(information.toBool()); break;
-    case IsAnchoredByChildren: return setInformationIsAnchoredByChildren(information.toBool()); break;
-    case IsAnchoredBySibling: return setInformationIsAnchoredBySibling(information.toBool()); break;
-    case HasContent: return setInformationHasContent(information.toBool()); break;
+    case Size: return setInformationSize(information.toSizeF());
+    case BoundingRect: return setInformationBoundingRect(information.toRectF());
+    case Transform: return setInformationTransform(information.value<QTransform>());
+    case ContentTransform: return setInformationContentTransform(information.value<QTransform>());
+    case PenWidth: return setInformationPenWith(information.toInt());
+    case Position: return setInformationPosition(information.toPointF());
+    case IsInLayoutable: return setInformationIsInLayoutable(information.toBool());
+    case SceneTransform: return setInformationSceneTransform(information.value<QTransform>());
+    case IsResizable: return setInformationIsResizable(information.toBool());
+    case IsMovable: return setInformationIsMovable(information.toBool());
+    case IsAnchoredByChildren: return setInformationIsAnchoredByChildren(information.toBool());
+    case IsAnchoredBySibling: return setInformationIsAnchoredBySibling(information.toBool());
+    case HasContent: return setInformationHasContent(information.toBool());
     case HasAnchor: return setInformationHasAnchor(information.toByteArray(), secondInformation.toBool());break;
-    case Anchor: return setInformationAnchor(information.toByteArray(), secondInformation.toByteArray(), thirdInformation.value<qint32>()); break;
-    case InstanceTypeForProperty: return setInformationInstanceTypeForProperty(information.toByteArray(), secondInformation.toByteArray()); break;
-    case HasBindingForProperty: return setInformationHasBindingForProperty(information.toByteArray(), secondInformation.toBool()); break;
+    case Anchor: return setInformationAnchor(information.toByteArray(), secondInformation.toByteArray(), thirdInformation.value<qint32>());
+    case InstanceTypeForProperty: return setInformationInstanceTypeForProperty(information.toByteArray(), secondInformation.toByteArray());
+    case HasBindingForProperty: return setInformationHasBindingForProperty(information.toByteArray(), secondInformation.toBool());
     case NoName:
     default: break;
     }

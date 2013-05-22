@@ -396,24 +396,30 @@ bool QmlAnchors::instanceHasAnchors() const
             instanceHasAnchor(AnchorLine::Baseline);
 }
 
+QRectF contentRect(const NodeInstance &nodeInstance)
+{
+    QRectF contentRect(nodeInstance.position(), nodeInstance.size());
+    return nodeInstance.contentTransform().mapRect(contentRect);
+}
+
 double QmlAnchors::instanceLeftAnchorLine() const
 {
-    return qmlItemNode().nodeInstance().position().x();
+    return contentRect(qmlItemNode().nodeInstance()).x();
 }
 
 double QmlAnchors::instanceTopAnchorLine() const
 {
-    return qmlItemNode().nodeInstance().position().y();
+    return contentRect(qmlItemNode().nodeInstance()).y();
 }
 
 double QmlAnchors::instanceRightAnchorLine() const
 {
-    return qmlItemNode().nodeInstance().position().x() + qmlItemNode().nodeInstance().size().width();
+    return contentRect(qmlItemNode().nodeInstance()).x() + contentRect(qmlItemNode().nodeInstance()).width();
 }
 
 double QmlAnchors::instanceBottomAnchorLine() const
 {
-    return qmlItemNode().nodeInstance().position().y() + qmlItemNode().nodeInstance().size().height();
+    return contentRect(qmlItemNode().nodeInstance()).y() + contentRect(qmlItemNode().nodeInstance()).height();
 }
 
 double QmlAnchors::instanceHorizontalCenterAnchorLine() const

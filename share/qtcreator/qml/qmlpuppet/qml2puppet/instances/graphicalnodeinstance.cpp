@@ -183,6 +183,22 @@ QTransform GraphicalNodeInstance::customTransform() const
     return QTransform();
 }
 
+static QTransform contentTransformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
+{
+    QTransform contentTransform;
+    if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem())) {
+        contentTransform = DesignerSupport::parentTransform(item->parentItem());
+        return contentTransformForItem(item->parentItem(), nodeInstanceServer) * contentTransform;
+    }
+
+    return contentTransform;
+}
+
+QTransform GraphicalNodeInstance::contentTransform() const
+{
+    return contentTransformForItem(quickItem(), nodeInstanceServer());
+}
+
 QTransform GraphicalNodeInstance::sceneTransform() const
 {
     return DesignerSupport::windowTransform(quickItem());
