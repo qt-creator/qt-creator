@@ -1324,7 +1324,7 @@ void FakeVimPluginPrivate::windowCommand(const QString &map, int count)
     else if (key == _("S") || key == _("<C-S>"))
         triggerAction(Core::Constants::SPLIT);
     else if (key == _("W") || key == _("<C-W>"))
-        triggerAction(Core::Constants::GOTO_OTHER_SPLIT);
+        triggerAction(Core::Constants::GOTO_NEXT_SPLIT);
     else if (key.contains(_("RIGHT")) || key == _("L") || key == _("<S-L>"))
         moveSomewhere(&moveRightWeight, key == _("<S-L>") ? -1 : count);
     else if (key.contains(_("LEFT"))  || key == _("H") || key == _("<S-H>"))

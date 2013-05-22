@@ -4910,8 +4910,6 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     if (inNextSplit) {
-        if (!editorManager->hasSplitter())
-            editorManager->splitSideBySide();
         editorManager->gotoOtherSplit();
     } else if (baseTextDocument()->fileName() == link.targetFileName) {
         editorManager->addCurrentPositionToNavigationHistory();

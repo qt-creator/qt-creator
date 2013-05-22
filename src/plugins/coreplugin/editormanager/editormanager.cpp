@@ -196,7 +196,7 @@ struct EditorManagerPrivate
     QAction *m_splitNewWindowAction;
     QAction *m_removeCurrentSplitAction;
     QAction *m_removeAllSplitsAction;
-    QAction *m_gotoOtherSplitAction;
+    QAction *m_gotoNextSplitAction;
 
     QAction *m_saveCurrentEditorContextAction;
     QAction *m_saveAsCurrentEditorContextAction;
@@ -399,11 +399,11 @@ EditorManager::EditorManager(QWidget *parent) :
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
 
-    d->m_gotoOtherSplitAction = new QAction(tr("Go to Next Split"), this);
-    cmd = ActionManager::registerAction(d->m_gotoOtherSplitAction, Constants::GOTO_OTHER_SPLIT, editManagerContext);
+    d->m_gotoNextSplitAction = new QAction(tr("Go to Next Split"), this);
+    cmd = ActionManager::registerAction(d->m_gotoNextSplitAction, Constants::GOTO_NEXT_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(d->m_gotoOtherSplitAction, SIGNAL(triggered()), this, SLOT(gotoOtherSplit()));
+    connect(d->m_gotoNextSplitAction, SIGNAL(triggered()), this, SLOT(gotoNextSplit()));
 
     ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = ActionManager::createMenu(Constants::M_EDIT_ADVANCED);
@@ -604,13 +604,20 @@ EditorView *EditorManager::viewForEditor(IEditor *editor)
     return 0;
 }
 
-SplitterOrView *EditorManager::findRoot(EditorView *view)
+SplitterOrView *EditorManager::findRoot(const EditorView *view, int *rootIndex)
 {
     SplitterOrView *current = view->parentSplitterOrView();
-    while (current && !m_instance->d->m_root.contains(current)) {
+    while (current) {
+        int index = m_instance->d->m_root.indexOf(current);
+        if (index >= 0) {
+            if (rootIndex)
+                *rootIndex = index;
+            return current;
+        }
         current = current->findParentSplitter();
     }
-    return current;
+    QTC_CHECK(false); // we should never have views without a root
+    return 0;
 }
 
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
@@ -1151,6 +1158,18 @@ void EditorManager::activateEditorForIndex(Internal::EditorView *view, const QMo
         d->m_editorModel->removeEditor(index);
 }
 
+void EditorManager::activateView(EditorView *view)
+{
+    QTC_ASSERT(view, return);
+    if (IEditor *editor = view->currentEditor()) {
+        setCurrentEditor(editor, true);
+        editor->widget()->setFocus();
+        ICore::raiseWindow(editor->widget());
+    } else {
+        setCurrentView(view);
+    }
+}
+
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
 {
     Q_ASSERT(view && editor);
@@ -1398,11 +1417,8 @@ IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
                                   fileName, editorId, flags, newEditor);
 }
 
-IEditor *EditorManager::openEditorInNextSplit(const QString &fileName, const Id &editorId, OpenEditorFlags flags, bool *newEditor)
+IEditor *EditorManager::openEditorInOtherSplit(const QString &fileName, const Id &editorId, OpenEditorFlags flags, bool *newEditor)
 {
-    if (!m_instance->hasSplitter())
-        m_instance->splitSideBySide();
-
     m_instance->gotoOtherSplit();
     return m_instance->openEditor(m_instance->currentEditorView(),
                                   fileName, editorId, flags, newEditor);
@@ -1973,7 +1989,7 @@ void EditorManager::updateActions()
     bool hasSplitter = parentSplitter && parentSplitter->isSplitter();
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
-    d->m_gotoOtherSplitAction->setEnabled(hasSplitter);
+    d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_root.size() > 1);
 }
 
 void EditorManager::setCloseSplitEnabled(SplitterOrView *splitterOrView, bool enable)
@@ -2010,7 +2026,8 @@ QList<IEditor*> EditorManager::visibleEditors() const
                     if (view->currentEditor())
                         editors.append(view->currentEditor());
                     view = view->findNextView();
-                } while (view && view != firstView);
+                    QTC_ASSERT(view != firstView, break); // we start with firstView and shouldn't have cycles
+                } while (view);
             }
         } else {
             if (root->editor())
@@ -2375,26 +2392,77 @@ void EditorManager::removeAllSplits()
     root->unsplitAll();
 }
 
+/*!
+ * Moves focus to the next split, cycling through windows.
+ */
+void EditorManager::gotoNextSplit()
+{
+    EditorView *view = currentEditorView();
+    if (!view)
+        return;
+    EditorView *nextView = view->findNextView();
+    if (!nextView) {
+        // we are in the "last" view in this root
+        int rootIndex = -1;
+        SplitterOrView *root = findRoot(view, &rootIndex);
+        QTC_ASSERT(root, return);
+        QTC_ASSERT(rootIndex >= 0 && rootIndex < d->m_root.size(), return);
+        // find next root. this might be the same root if there's only one.
+        int nextRootIndex = rootIndex + 1;
+        if (nextRootIndex >= d->m_root.size())
+            nextRootIndex = 0;
+        nextView = d->m_root.at(nextRootIndex)->findFirstView();
+        QTC_CHECK(nextView);
+    }
+
+    if (nextView)
+        activateView(nextView);
+}
+
+/*!
+ * Moves focus to "other" split, possibly creating a split if necessary.
+ * If there's no split and no other window, a side-by-side split is created.
+ * If the current window is split, focus is moved to the next split within this window, cycling.
+ * If the current window is not split, focus is moved to the next window.
+ */
 void EditorManager::gotoOtherSplit()
 {
     EditorView *view = currentEditorView();
     if (!view)
         return;
-    SplitterOrView *root = findRoot(view);
-    QTC_ASSERT(root, return);
-    if (!root->isSplitter())
-        splitSideBySide();
-
-    view = view->findNextView();
-    if (view) {
-        if (IEditor *editor = view->currentEditor()) {
-            setCurrentEditor(editor, true);
-            editor->widget()->setFocus();
-            ICore::raiseWindow(editor->widget());
+    EditorView *nextView = view->findNextView();
+    if (!nextView) {
+        // we are in the "last" view in this root
+        int rootIndex = -1;
+        SplitterOrView *root = findRoot(view, &rootIndex);
+        QTC_ASSERT(root, return);
+        QTC_ASSERT(rootIndex >= 0 && rootIndex < d->m_root.size(), return);
+        // stay in same window if it is split
+        if (root->isSplitter()) {
+            nextView = root->findFirstView();
+            QTC_CHECK(nextView != view);
         } else {
-            setCurrentView(view);
+            // find next root. this might be the same root if there's only one.
+            int nextRootIndex = rootIndex + 1;
+            if (nextRootIndex >= d->m_root.size())
+                nextRootIndex = 0;
+            nextView = d->m_root.at(nextRootIndex)->findFirstView();
+            QTC_CHECK(nextView);
+            // if we had only one root with only one view, we end up at the startpoint
+            // in that case we need to split
+            if (nextView == view) {
+                QTC_CHECK(!root->isSplitter());
+                splitSideBySide(); // that deletes 'view'
+                view = root->findFirstView();
+                nextView = view->findNextView();
+                QTC_CHECK(nextView != view);
+                QTC_CHECK(nextView);
+            }
         }
     }
+
+    if (nextView)
+        activateView(nextView);
 }
 
 qint64 EditorManager::maxTextFileSize()

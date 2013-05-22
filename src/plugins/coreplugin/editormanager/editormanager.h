@@ -117,7 +117,7 @@ public:
     static QString splitLineNumber(QString *fileName);
     static IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
         OpenEditorFlags flags = 0, bool *newEditor = 0);
-    static IEditor *openEditorInNextSplit(const QString &fileName, const Id &editorId = Id(),
+    static IEditor *openEditorInOtherSplit(const QString &fileName, const Id &editorId = Id(),
         OpenEditorFlags flags = 0, bool *newEditor = 0);
     static IEditor *openEditorWithContents(const Id &editorId,
         QString *titlePattern = 0, const QString &contents = QString());
@@ -234,6 +234,8 @@ private slots:
     void rootDestroyed(QObject *root);
     void setCurrentEditorFromContextChange();
 
+    void gotoNextSplit();
+
 public slots:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
@@ -257,6 +259,7 @@ private:
     IEditor *duplicateEditor(IEditor *editor);
     IEditor *activateEditor(Internal::EditorView *view, IEditor *editor, OpenEditorFlags flags = 0);
     void activateEditorForIndex(Internal::EditorView *view, const QModelIndex &index, OpenEditorFlags = 0);
+    void activateView(Internal::EditorView *view);
     IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
         const Id &id = Id(), OpenEditorFlags flags = 0, bool *newEditor = 0);
 
@@ -264,7 +267,7 @@ private:
     void setCurrentView(Internal::EditorView *view);
     Internal::EditorView *currentEditorView() const;
     static Internal::EditorView *viewForEditor(IEditor *editor);
-    static Internal::SplitterOrView *findRoot(Internal::EditorView *view);
+    static Internal::SplitterOrView *findRoot(const Internal::EditorView *view, int *rootIndex = 0);
 
     void closeEditor(IEditor *editor);
     void closeDuplicate(IEditor *editor);

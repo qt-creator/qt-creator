@@ -144,8 +144,8 @@ EditorView *EditorView::findNextView()
         current = parent;
         parent = current->findParentSplitter();
     }
-    // current has no parent, so just take the very first view
-    return current->findFirstView();
+    // current has no parent, so we are at the top and there is no "next" view
+    return 0;
 }
 
 void EditorView::closeView()
