@@ -1413,7 +1413,10 @@ void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffVie
         sourceLayout->requestUpdate();
         sourceLayout->emitDocumentSizeChanged();
     }
-    source->updateFoldingHighlight(source->mapFromGlobal(QCursor::pos()));
+
+    QWidget *ea = source->extraArea();
+    if (ea->contentsRect().contains(ea->mapFromGlobal(QCursor::pos())))
+        source->updateFoldingHighlight(source->mapFromGlobal(QCursor::pos()));
 
     BaseTextDocumentLayout *destinationLayout = qobject_cast<BaseTextDocumentLayout *>(destination->document()->documentLayout());
     if (destinationLayout) {
