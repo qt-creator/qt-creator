@@ -42,6 +42,7 @@
 using namespace Utils;
 
 static const char debugModeSettingsGroupC[] = "DebugMode";
+static const char cdbSettingsGroupC[] = "CDB2";
 static const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
 static const char sourcePathMappingSourceKeyC[] = "Source";
 static const char sourcePathMappingTargetKeyC[] = "Target";
@@ -91,6 +92,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
 {
     m_settings = settings;
     const QString debugModeGroup = QLatin1String(debugModeSettingsGroupC);
+    const QString cdbSettingsGroup = QLatin1String(cdbSettingsGroupC);
 
     SavedAction *item = 0;
 
@@ -223,6 +225,54 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
         "tree view, but also loses data for the now-missing intermediate "
         "level."));
     insertItem(AutoDerefPointers, item);
+
+    //
+    // Cdb Options
+    //
+
+    item = new SavedAction(this);
+    item->setDefaultValue(QString());
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("AdditionalArguments"));
+    insertItem(CdbAdditionalArguments, item);
+
+    item = new SavedAction(this);
+    item->setDefaultValue(QStringList());
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("SymbolPaths"));
+    insertItem(CdbSymbolPaths, item);
+
+    item = new SavedAction(this);
+    item->setDefaultValue(QStringList());
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("SourcePaths"));
+    insertItem(CdbSourcePaths, item);
+
+    item = new SavedAction(this);
+    item->setDefaultValue(QStringList());
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("BreakEvent"));
+    insertItem(CdbBreakEvents, item);
+
+    item = new SavedAction(this);
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("BreakOnCrtDbgReport"));
+    insertItem(CdbBreakOnCrtDbgReport, item);
+
+    item = new SavedAction(this);
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("CDB_Console"));
+    insertItem(UseCdbConsole, item);
+
+    item = new SavedAction(this);
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("BreakpointCorrection"));
+    insertItem(CdbBreakPointCorrection, item);
+
+    item = new SavedAction(this);
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("IgnoreFirstChanceAccessViolation"));
+    insertItem(IgnoreFirstChanceAccessViolation, item);
 
     //
     // Locals & Watchers

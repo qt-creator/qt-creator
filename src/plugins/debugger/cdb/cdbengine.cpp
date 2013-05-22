@@ -195,9 +195,9 @@ Q_DECLARE_METATYPE(Debugger::Internal::ConditionalBreakPointCookie)
 namespace Debugger {
 namespace Internal {
 
-static inline bool isCreatorConsole(const DebuggerStartParameters &sp, const CdbOptions &o)
+static inline bool isCreatorConsole(const DebuggerStartParameters &sp)
 {
-    return !o.cdbConsole && sp.useTerminal
+    return !debuggerCore()->boolSetting(UseCdbConsole) && sp.useTerminal
            && (sp.startMode == StartInternal || sp.startMode == StartExternal);
 }
 
@@ -316,35 +316,29 @@ static inline bool validMode(DebuggerStartMode sm)
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
 {
     if (Utils::HostOsInfo::isWindowsHost()) {
-        CdbOptionsPage *op = CdbOptionsPage::instance();
-        if (!op || !validMode(sp.startMode)) {
-            *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
-            return 0;
-        }
-        return new CdbEngine(sp, op->options());
+        if (validMode(sp.startMode))
+            return new CdbEngine(sp);
+        *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
+    } else {
+        *errorMessage = QString::fromLatin1("Unsupported debug mode");
     }
-    *errorMessage = QString::fromLatin1("Unsupported debug mode");
     return 0;
 }
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::isWindowsHost()) {
         opts->push_back(new CdbOptionsPage);
+        opts->push_back(new CdbPathsPage);
+    }
 }
 
 #define QT_CREATOR_CDB_EXT "qtcreatorcdbext"
 
-static inline Utils::SavedAction *theAssemblerAction()
-{
-    return debuggerCore()->action(OperateByInstruction);
-}
-
-CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &options) :
+CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     DebuggerEngine(sp),
     m_creatorExtPrefix("<qtcreatorcdbext>|"),
     m_tokenPrefix("<token>"),
-    m_options(options),
     m_effectiveStartMode(NoStartMode),
     m_accessible(false),
     m_specialStopMode(NoSpecialStop),
@@ -363,7 +357,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &option
     m_watchPointY(0),
     m_ignoreCdbOutput(false)
 {
-    connect(theAssemblerAction(), SIGNAL(triggered(bool)), this, SLOT(operateByInstructionTriggered(bool)));
+    connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered(bool)),
+            this, SLOT(operateByInstructionTriggered(bool)));
 
     setObjectName(QLatin1String("CdbEngine"));
     connect(&m_process, SIGNAL(finished(int)), this, SLOT(processFinished()));
@@ -380,7 +375,7 @@ void CdbEngine::init()
     m_specialStopMode = NoSpecialStop;
     m_nextCommandToken  = 0;
     m_currentBuiltinCommandIndex = -1;
-    m_operateByInstructionPending = theAssemblerAction()->isChecked();
+    m_operateByInstructionPending = debuggerCore()->action(OperateByInstruction)->isChecked();
     m_operateByInstruction = true; // Default CDB setting
     m_notifyEngineShutdownOnTermination = false;
     m_hasDebuggee = false;
@@ -583,9 +578,9 @@ void CdbEngine::setupEngine()
     if (debug)
         qDebug(">setupEngine");
     // Nag to add symbol server and cache
-    if (CdbSymbolPathListEditor::promptToAddSymbolPaths(CdbOptions::settingsGroup(),
-                                                         &(m_options->symbolPaths)))
-        m_options->toSettings(Core::ICore::settings());
+    QStringList symbolPaths = debuggerCore()->stringListSetting(CdbSymbolPaths);
+    if (CdbSymbolPathListEditor::promptToAddSymbolPaths(&symbolPaths))
+        debuggerCore()->action(CdbSymbolPaths)->setValue(symbolPaths);
 
     init();
     if (!m_logTime.elapsed())
@@ -596,7 +591,7 @@ void CdbEngine::setupEngine()
     // console, too, but that immediately closes when the debuggee quits.
     // Use the Creator stub instead.
     const DebuggerStartParameters &sp = startParameters();
-    const bool launchConsole = isCreatorConsole(sp, *m_options);
+    const bool launchConsole = isCreatorConsole(sp);
     m_effectiveStartMode = launchConsole ? AttachExternal : sp.startMode;
     const bool ok = launchConsole ?
                 startConsole(startParameters(), &errorMessage) :
@@ -668,14 +663,18 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
               << QLatin1String(".idle_cmd ") + QString::fromLatin1(m_extensionCommandPrefixBA) + QLatin1String("idle");
     if (sp.useTerminal) // Separate console
         arguments << QLatin1String("-2");
-    if (m_options->ignoreFirstChanceAccessViolation)
+    if (debuggerCore()->boolSetting(IgnoreFirstChanceAccessViolation))
         arguments << QLatin1String("-x");
-    if (!m_options->symbolPaths.isEmpty())
-        arguments << QLatin1String("-y") << m_options->symbolPaths.join(QString(QLatin1Char(';')));
-    if (!m_options->sourcePaths.isEmpty())
-        arguments << QLatin1String("-srcpath") << m_options->sourcePaths.join(QString(QLatin1Char(';')));
+
+    const QStringList &symbolPaths = debuggerCore()->stringListSetting(CdbSymbolPaths);
+    if (!symbolPaths.isEmpty())
+        arguments << QLatin1String("-y") << symbolPaths.join(QString(QLatin1Char(';')));
+    const QStringList &sourcePaths = debuggerCore()->stringListSetting(CdbSourcePaths);
+    if (!sourcePaths.isEmpty())
+        arguments << QLatin1String("-srcpath") << sourcePaths.join(QString(QLatin1Char(';')));
+
     // Compile argument string preserving quotes
-    QString nativeArguments = m_options->additionalArguments;
+    QString nativeArguments = debuggerCore()->stringSetting(CdbAdditionalArguments);
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:
@@ -692,7 +691,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         if (sp.startMode == AttachCrashedExternal) {
             arguments << QLatin1String("-e") << sp.crashParameter << QLatin1String("-g");
         } else {
-            if (isCreatorConsole(startParameters(), *m_options))
+            if (isCreatorConsole(startParameters()))
                 arguments << QLatin1String("-pr") << QLatin1String("-pb");
         }
         break;
@@ -808,25 +807,21 @@ void CdbEngine::runEngine()
 {
     if (debug)
         qDebug("runEngine");
-    foreach (const QString &breakEvent, m_options->breakEvents)
-            postCommand(QByteArray("sxe ") + breakEvent.toLatin1(), 0);
+
+    const QStringList &breakEvents =
+            debuggerCore()->stringListSetting(CdbBreakEvents);
+    foreach (const QString &breakEvent, breakEvents)
+        postCommand(QByteArray("sxe ") + breakEvent.toLatin1(), 0);
     // Break functions: each function must be fully qualified,
     // else the debugger will slow down considerably.
-    foreach (const QString &breakFunctionS, m_options->breakFunctions) {
-        const QByteArray breakFunction = breakFunctionS.toLatin1();
-        if (breakFunction == CdbOptions::crtDbgReport) {
-            // CrtDbgReport(): Add MSVC runtime (debug, release)
-            // and stop at Wide character version as well
-            const QByteArray module = msvcRunTime(startParameters().toolChainAbi.osFlavor());
-            const QByteArray debugModule = module + 'D';
-            const QByteArray wideFunc = breakFunction + 'W';
-            postCommand(breakAtFunctionCommand(breakFunction, module), 0);
-            postCommand(breakAtFunctionCommand(wideFunc, module), 0);
-            postCommand(breakAtFunctionCommand(breakFunction, debugModule), 0);
-            postCommand(breakAtFunctionCommand(wideFunc, debugModule), 0);
-        } else {
-            postCommand(breakAtFunctionCommand(breakFunction), 0);
-        }
+    if (debuggerCore()->boolSetting(CdbBreakOnCrtDbgReport)) {
+        const QByteArray module = msvcRunTime(startParameters().toolChainAbi.osFlavor());
+        const QByteArray debugModule = module + 'D';
+        const QByteArray wideFunc = CdbOptionsPage::crtDbgReport + 'W';
+        postCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, module), 0);
+        postCommand(breakAtFunctionCommand(wideFunc, module), 0);
+        postCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, debugModule), 0);
+        postCommand(breakAtFunctionCommand(wideFunc, debugModule), 0);
     }
     if (debuggerCore()->boolSetting(BreakOnWarning)) {
         postCommand("bm /( QtCored4!qWarning", 0); // 'bm': All overloads.
@@ -2785,7 +2780,7 @@ void CdbEngine::attemptBreakpointSynchronization()
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
             if (parameters.type == BreakpointByFileAndLine
-                && m_options->breakpointCorrection) {
+                && debuggerCore()->boolSetting(CdbBreakPointCorrection)) {
                 if (lineCorrection.isNull())
                     lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
                                                                          CppTools::CppModelManagerInterface::instance()->workingCopy()));
