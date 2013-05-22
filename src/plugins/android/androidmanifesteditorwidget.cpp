@@ -32,6 +32,7 @@
 #include "androidconstants.h"
 #include "androidmanifestdocument.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <texteditor/plaintexteditor.h>
 #include <projectexplorer/projectwindow.h>
@@ -60,6 +61,7 @@
 namespace {
 const QLatin1String packageNameRegExp("^([a-z_]{1}[a-z0-9_]+(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
+const char androidManifestEditorGeneralPaneContextId[] = "AndroidManifestEditorWidget.GeneralWidget";
 
 bool checkPackageName(const QString &packageName)
 {
@@ -109,6 +111,14 @@ void AndroidManifestEditorWidget::initializePage()
 {
     QWidget *mainWidget = new QWidget(this);
     mainWidget->setAutoFillBackground(true);
+    // If the user clicks on the mainwidget it gets focus, even though that's not visible
+    // This is to prevent the parent, the actual basetexteditorwidget from getting focus
+    mainWidget->setFocusPolicy(Qt::WheelFocus);
+
+    Core::IContext *myContext = new Core::IContext(this);
+    myContext->setWidget(mainWidget);
+    myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId));
+    Core::ICore::addContextObject(myContext);
 
     QVBoxLayout *topLayout = new QVBoxLayout(mainWidget);
 
@@ -448,10 +458,17 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
 
     if (page == Source) {
         syncToEditor();
-    } else if (prevPage == Source) {
+        setFocus();
+    } else {
         if (!syncToWidgets()) {
             return false;
         }
+
+        QWidget *fw = m_overlayWidget->focusWidget();
+        if (fw && fw != m_overlayWidget)
+            fw->setFocus();
+        else
+            m_packageNameLineEdit->setFocus();
     }
 
     m_overlayWidget->setVisible(page == General);
