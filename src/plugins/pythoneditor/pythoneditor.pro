@@ -1,5 +1,4 @@
 include(../../qtcreatorplugin.pri)
-include(pythoneditor_dependencies.pri)
 
 DEFINES += \
     PYTHONEDITOR_LIBRARY
