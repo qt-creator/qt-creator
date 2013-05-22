@@ -319,8 +319,7 @@ bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
     AndroidRunConfiguration *androidRunConfiguration = qobject_cast<AndroidRunConfiguration *>(runConfiguration);
     if (androidRunConfiguration != 0) {
         AndroidDeployStep *deployStep = androidRunConfiguration->deployStep();
-        return deployStep->deployAction() == AndroidDeployStep::NoDeploy
-               && deployStep->useLocalQtLibs();
+        return deployStep->deployAction() == AndroidDeployStep::BundleLibraries;
     }
 
     return false;
@@ -340,9 +339,10 @@ bool AndroidManager::updateDeploymentSettings(ProjectExplorer::Target *target)
         return false;
 
     AndroidDeployStep *deployStep = androidRunConfiguration->deployStep();
-    bool useLocalLibs = deployStep->useLocalQtLibs();
-    bool deployQtLibs = deployStep->deployAction() != AndroidDeployStep::NoDeploy;
-    bool bundleQtLibs = useLocalLibs && !deployQtLibs;
+    AndroidDeployStep::AndroidDeployAction deployAction = deployStep->deployAction();
+    bool useLocalLibs = deployAction == AndroidDeployStep::DeployLocal
+            || deployAction == AndroidDeployStep::BundleLibraries;
+    bool bundleQtLibs = deployAction == AndroidDeployStep::BundleLibraries;
 
     QDomDocument doc;
     if (!openManifest(target, doc))

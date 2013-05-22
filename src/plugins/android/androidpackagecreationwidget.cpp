@@ -234,7 +234,8 @@ void AndroidPackageCreationWidget::setQtLibs(QModelIndex, QModelIndex)
 {
     AndroidManager::setQtLibs(m_step->target(), m_qtLibsModel->checkedItems());
     AndroidDeployStep * const deployStep = AndroidGlobal::buildStep<AndroidDeployStep>(m_step->target()->activeDeployConfiguration());
-    if (deployStep->useLocalQtLibs())
+    if (deployStep->deployAction() == AndroidDeployStep::DeployLocal
+            || deployStep->deployAction() == AndroidDeployStep::BundleLibraries)
         AndroidManager::updateDeploymentSettings(m_step->target());
 }
 
@@ -242,7 +243,8 @@ void AndroidPackageCreationWidget::setPrebundledLibs(QModelIndex, QModelIndex)
 {
     AndroidManager::setPrebundledLibs(m_step->target(), m_prebundledLibs->checkedItems());
     AndroidDeployStep * const deployStep = AndroidGlobal::buildStep<AndroidDeployStep>(m_step->target()->activeDeployConfiguration());
-    if (deployStep->useLocalQtLibs())
+    if (deployStep->deployAction() == AndroidDeployStep::DeployLocal
+            || deployStep->deployAction() == AndroidDeployStep::BundleLibraries)
         AndroidManager::updateDeploymentSettings(m_step->target());
 }
 

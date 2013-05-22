@@ -75,9 +75,10 @@ class AndroidDeployStep : public ProjectExplorer::BuildStep
 public:
     enum AndroidDeployAction
     {
-        NoDeploy,
+        NoDeploy, // use ministro
         DeployLocal,
-        InstallQASI
+        InstallQASI, // unused old value
+        BundleLibraries
     };
 
 public:
@@ -89,28 +90,25 @@ public:
     int deviceAPILevel();
 
     AndroidDeployAction deployAction();
-    bool useLocalQtLibs();
 
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
     void cleanLibsOnDevice();
+    void installQASIPackage(const QString &packagePath);
 
 public slots:
     void setDeployAction(AndroidDeployAction deploy);
-    void setDeployQASIPackagePath(const QString &package);
-    void setUseLocalQtLibs(bool useLocal);
 
 signals:
     void done();
     void error();
-    void resetDelopyAction();
 
 private slots:
     bool deployPackage();
     void handleBuildOutput();
     void handleBuildError();
-    void cleanLibsFinished();
+    void processFinished();
 
 private:
     AndroidDeployStep(ProjectExplorer::BuildStepList *bc,
@@ -140,7 +138,6 @@ private:
 
     QString m_QASIPackagePath;
     AndroidDeployAction m_deployAction;
-    bool m_useLocalQtLibs;
 
     // members to transfer data from init() to run
     QString m_packageName;
