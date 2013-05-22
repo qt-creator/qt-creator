@@ -92,10 +92,13 @@ protected:
     TextEditor::SnippetEditorWidget *rightEditor() const;
 
 private slots:
-    void leftSliderChanged();
-    void rightSliderChanged();
+    void leftVSliderChanged();
+    void rightVSliderChanged();
+    void leftHSliderChanged();
+    void rightHSliderChanged();
     void leftDocumentSizeChanged();
     void rightDocumentSizeChanged();
+    void toggleScrollBarSynchronization(bool on);
 
 private:
     struct DiffList {
@@ -130,6 +133,7 @@ private:
     QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
     int m_contextLinesNumber;
     bool m_ignoreWhitespaces;
+    bool m_syncScrollBars;
 
     bool m_foldingBlocker;
 };

@@ -36,6 +36,7 @@
 #include <QScrollBar>
 #include <QPainter>
 #include <QDir>
+#include <QToolButton>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/snippets/snippeteditor.h>
@@ -477,9 +478,19 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     : QWidget(parent),
       m_contextLinesNumber(3),
       m_ignoreWhitespaces(true),
+      m_syncScrollBars(true),
       m_foldingBlocker(false)
 {
     TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
+
+    QToolButton *toggleSync = new QToolButton();
+    toggleSync = new QToolButton;
+    toggleSync->setText(QLatin1String("S"));
+    toggleSync->setCheckable(true);
+    toggleSync->setChecked(m_syncScrollBars);
+    toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
+    toggleSync->setAutoRaise(true);
+    connect(toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleScrollBarSynchronization(bool)));
 
     m_leftEditor = new DiffViewEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -490,6 +501,7 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_leftEditor->setCodeStyle(settings->codeStyle());
 
     m_rightEditor = new DiffViewEditorWidget(this);
+    m_rightEditor->setCornerWidget(toggleSync);
     m_rightEditor->setReadOnly(true);
     m_rightEditor->setHighlightCurrentLine(false);
     m_rightEditor->setWordWrapMode(QTextOption::NoWrap);
@@ -497,19 +509,36 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_rightEditor->setCodeStyle(settings->codeStyle());
 
     connect(m_leftEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            this, SLOT(leftSliderChanged()));
+            this, SLOT(leftVSliderChanged()));
     connect(m_leftEditor->verticalScrollBar(), SIGNAL(actionTriggered(int)),
-            this, SLOT(leftSliderChanged()));
+            this, SLOT(leftVSliderChanged()));
     connect(m_leftEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(leftSliderChanged()));
+            this, SLOT(leftVSliderChanged()));
+
+    connect(m_leftEditor->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(leftHSliderChanged()));
+    connect(m_leftEditor->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
+            this, SLOT(leftHSliderChanged()));
+    connect(m_leftEditor, SIGNAL(cursorPositionChanged()),
+            this, SLOT(leftHSliderChanged()));
+
     connect(m_leftEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
             this, SLOT(leftDocumentSizeChanged()));
+
     connect(m_rightEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            this, SLOT(rightSliderChanged()));
+            this, SLOT(rightVSliderChanged()));
     connect(m_rightEditor->verticalScrollBar(), SIGNAL(actionTriggered(int)),
-            this, SLOT(rightSliderChanged()));
+            this, SLOT(rightVSliderChanged()));
     connect(m_rightEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(rightSliderChanged()));
+            this, SLOT(rightVSliderChanged()));
+
+    connect(m_rightEditor->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(rightHSliderChanged()));
+    connect(m_rightEditor->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
+            this, SLOT(rightHSliderChanged()));
+    connect(m_rightEditor, SIGNAL(cursorPositionChanged()),
+            this, SLOT(rightHSliderChanged()));
+
     connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
             this, SLOT(rightDocumentSizeChanged()));
 
@@ -517,6 +546,7 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_splitter->addWidget(m_leftEditor);
     m_splitter->addWidget(m_rightEditor);
     QVBoxLayout *l = new QVBoxLayout(this);
+    l->setMargin(0);
     l->addWidget(m_splitter);
 
     clear();
@@ -1277,14 +1307,26 @@ void DiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
                                       + rightSelections);
 }
 
-void DiffEditorWidget::leftSliderChanged()
+void DiffEditorWidget::leftVSliderChanged()
 {
     m_rightEditor->verticalScrollBar()->setValue(m_leftEditor->verticalScrollBar()->value());
 }
 
-void DiffEditorWidget::rightSliderChanged()
+void DiffEditorWidget::rightVSliderChanged()
 {
     m_leftEditor->verticalScrollBar()->setValue(m_rightEditor->verticalScrollBar()->value());
+}
+
+void DiffEditorWidget::leftHSliderChanged()
+{
+    if (m_syncScrollBars)
+        m_rightEditor->horizontalScrollBar()->setValue(m_leftEditor->horizontalScrollBar()->value());
+}
+
+void DiffEditorWidget::rightHSliderChanged()
+{
+    if (m_syncScrollBars)
+        m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
 }
 
 void DiffEditorWidget::leftDocumentSizeChanged()
@@ -1295,6 +1337,11 @@ void DiffEditorWidget::leftDocumentSizeChanged()
 void DiffEditorWidget::rightDocumentSizeChanged()
 {
     synchronizeFoldings(m_rightEditor, m_leftEditor);
+}
+
+void DiffEditorWidget::toggleScrollBarSynchronization(bool on)
+{
+    m_syncScrollBars = on;
 }
 
 /* Special version of that method (original: TextEditor::BaseTextDocumentLayout::doFoldOrUnfold())
