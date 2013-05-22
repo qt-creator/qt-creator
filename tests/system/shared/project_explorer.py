@@ -184,7 +184,7 @@ def getQtInformationForQmlProject():
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     targetsTreeView = waitForObject(":Kits_Or_Compilers_QTreeView")
     if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % kit, True):
         test.fatal("Found no matching kit - this shouldn't happen.")
@@ -192,7 +192,7 @@ def getQtInformationForQmlProject():
         return None, None, None, None
     qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
     test.log("Kit '%s' uses Qt Version '%s'" % (kit, qtVersionStr))
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Qt Versions")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
     if not __selectTreeItemOnBuildAndRun__(treeWidget, qtVersionStr):
         test.fatal("Found no matching Qt Version for kit - this shouldn't happen.")

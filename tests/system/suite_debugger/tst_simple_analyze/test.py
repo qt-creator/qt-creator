@@ -127,7 +127,7 @@ def safeClickTab(tab):
     for bar in [":*Qt Creator.JavaScript_QTabBar",
                 ":*Qt Creator.Events_QTabBar"]:
         try:
-            clickTab(waitForObject(bar, 1000), tab)
+            clickOnTab(bar, tab, 1000)
             return True
         except:
             pass

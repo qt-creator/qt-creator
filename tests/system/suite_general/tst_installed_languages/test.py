@@ -38,7 +38,7 @@ def main():
         invokeMenuItem("Tools", "Options...")
         waitForObjectItem(":Options_QListView", "Environment")
         clickItem(":Options_QListView", "Environment", 14, 15, 0, Qt.LeftButton)
-        clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "General")
+        clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
         languageName = testData.field(lang, "language")
         selectFromCombo(":User Interface.languageBox_QComboBox", languageName)
         clickButton(waitForObject(":Options.OK_QPushButton"))

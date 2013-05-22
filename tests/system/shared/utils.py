@@ -294,7 +294,7 @@ def addHelpDocumentationFromSDK():
     waitForObjectItem(":Options_QListView", "Help")
     clickItem(":Options_QListView", "Help", 14, 15, 0, Qt.LeftButton)
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Documentation")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
     # get rid of all docs already registered
     listWidget = waitForObject("{type='QListWidget' name='docsListWidget' visible='1'}")
     if listWidget.count > 0:
@@ -485,7 +485,7 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
         invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Qt Versions")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     pattern = re.compile("Qt version (?P<version>.*?) for (?P<target>.*)")
     treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
     root = treeWidget.invisibleRootItem()
@@ -546,7 +546,7 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
         invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     treeView = waitForObject(":Kits_Or_Compilers_QTreeView")
     model = treeView.model()
     test.compare(model.rowCount(), 2, "Verifying expected target section count")
@@ -589,7 +589,7 @@ def setAlwaysStartFullHelp():
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Help")
     clickItem(":Options_QListView", "Help", 5, 5, 0, Qt.LeftButton)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "General")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
     selectFromCombo(":Startup.contextHelpComboBox_QComboBox", "Always Start Full Help")
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
@@ -651,3 +651,13 @@ def readFile(filename):
 
 def simpleFileName(navigatorFileName):
     return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")
+
+def clickOnTab(tabBarStr, tabText, timeout=5000):
+    if platform.system() == 'Darwin':
+        if not waitFor("object.exists(tabBarStr)", timeout):
+            raise LookupError("Could not find QTabBar: %s" % objectMap.realName(tabBarStr))
+        tabBar = findObject(tabBarStr)
+        if not tabBar.visible:
+            test.log("Using workaround for Mac.")
+            setWindowState(tabBar, WindowState.Normal)
+    clickTab(waitForObject(tabBarStr, timeout), tabText)
