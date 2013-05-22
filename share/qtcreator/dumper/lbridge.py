@@ -1212,7 +1212,9 @@ class Dumper:
     def loop(self):
         event = lldb.SBEvent()
         while True:
-            if self.listener.WaitForEvent(sys.maxsize, event):
+            # Mac LLDB doesn't like sys.maxsize
+            # if self.listener.WaitForEvent(sys.maxsize, event):
+            if self.listener.WaitForEvent(10000000, event):
                 self.handleEvent(event)
             else:
                 warn('TIMEOUT')
