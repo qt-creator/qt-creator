@@ -113,8 +113,17 @@ private slots:
     void test_completion_instantiate_template_with_default_argument_type();
     void test_completion_instantiate_template_with_default_argument_type_as_template();
     void test_completion_member_access_operator_1();
-    void test_completion_typedef_of_type_and_replace_access_operator();
-    void test_completion_typedef_of_pointer_of_type_and_replace_access_operator();
+
+    void test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator();
+    void test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator();
+    void test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator();
+    void test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator();
+
+    void test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator();
+    void test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator();
+    void test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator();
+    void test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator();
+
     void test_completion_typedef_of_pointer();
     void test_completion_typedef_of_pointer_inside_function();
     void test_completion_typedef_is_inside_function_before_declaration_block();

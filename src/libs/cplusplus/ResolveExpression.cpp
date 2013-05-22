@@ -946,6 +946,18 @@ private:
     ClassOrNamespace *_binding;
 };
 
+static bool isTypeTypedefed(const FullySpecifiedType &originalTy,
+                            const FullySpecifiedType &typedefedTy)
+{
+    return ! originalTy.isEqualTo(typedefedTy);
+}
+
+static bool areOriginalAndTypedefedTypePointer(const FullySpecifiedType &originalTy,
+                                               const FullySpecifiedType &typedefedTy)
+{
+    return originalTy->isPointerType() && typedefedTy->isPointerType();
+}
+
 ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &baseResults,
                                                     int accessOp,
                                                     bool *replacedDotOperator) const
@@ -1035,23 +1047,12 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
             }
         } else if (accessOp == T_DOT) {
             if (replacedDotOperator) {
-                *replacedDotOperator = originalType->isPointerType() || ty->isPointerType();
-                // replace . with ->
-                if (PointerType *ptrTy = originalType->asPointerType()) {
-                    // case when original type is a pointer and
-                    // typedef is for type
-                    // e.g.:
-                    // typedef S SType;
-                    // SType *p;
-                    ty = ptrTy->elementType();
-                }
-                else if (PointerType *ptrTy = ty->asPointerType()) {
-                    // case when original type is a type and
-                    // typedef is for pointer of type
-                    // e.g.:
-                    // typedef S* SPTR;
-                    // SPTR p;
-                    ty = ptrTy->elementType();
+                if (! isTypeTypedefed(originalType, ty)
+                        || ! areOriginalAndTypedefedTypePointer(originalType, ty)) {
+                    *replacedDotOperator = originalType->isPointerType() || ty->isPointerType();
+                    if (PointerType *ptrTy = ty->asPointerType()) {
+                        ty = ptrTy->elementType();
+                    }
                 }
             }
 

@@ -1473,7 +1473,61 @@ void CppToolsPlugin::test_completion_member_access_operator_1()
     QVERIFY(replaceAccessOperator);
 }
 
-void CppToolsPlugin::test_completion_typedef_of_type_and_replace_access_operator()
+void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct S { int m; };\n"
+            "typedef S SType;\n"
+            "SType p;\n"
+            "@\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    bool replaceAccessOperator = false;
+    QStringList completions = getCompletions(data, &replaceAccessOperator);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(! replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct S { int m; };\n"
+            "typedef S *SType;\n"
+            "SType *p;\n"
+            "@\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    bool replaceAccessOperator = false;
+    QStringList completions = getCompletions(data, &replaceAccessOperator);
+
+    QCOMPARE(completions.size(), 0);
+    QVERIFY(! replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator()
 {
     TestData data;
     data.srcText = "\n"
@@ -1501,13 +1555,123 @@ void CppToolsPlugin::test_completion_typedef_of_type_and_replace_access_operator
     QVERIFY(replaceAccessOperator);
 }
 
-void CppToolsPlugin::test_completion_typedef_of_pointer_of_type_and_replace_access_operator()
+void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator()
 {
     TestData data;
     data.srcText = "\n"
             "struct S { int m; };\n"
             "typedef S* SPtr;\n"
             "SPtr p;\n"
+            "@\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    bool replaceAccessOperator = false;
+    QStringList completions = getCompletions(data, &replaceAccessOperator);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator()
+{
+    TestData data;
+    data.srcText = "\n"
+            "typedef struct S SType;\n"
+            "struct S { int m; };\n"
+            "SType *p;\n"
+            "@\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    bool replaceAccessOperator = false;
+    QStringList completions = getCompletions(data, &replaceAccessOperator);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator()
+{
+    TestData data;
+    data.srcText = "\n"
+            "typedef struct S SType;\n"
+            "struct S { int m; };\n"
+            "SType p;\n"
+            "@\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    bool replaceAccessOperator = false;
+    QStringList completions = getCompletions(data, &replaceAccessOperator);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(! replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
+{
+    TestData data;
+    data.srcText = "\n"
+            "typedef struct S *SType;\n"
+            "struct S { int m; };\n"
+            "SType *p;\n"
+            "@\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    bool replaceAccessOperator = false;
+    QStringList completions = getCompletions(data, &replaceAccessOperator);
+
+    QCOMPARE(completions.size(), 0);
+    QVERIFY(! replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator()
+{
+    TestData data;
+    data.srcText = "\n"
+            "typedef struct S *SType;\n"
+            "struct S { int m; };\n"
+            "SType p;\n"
             "@\n"
             "}\n"
             ;
