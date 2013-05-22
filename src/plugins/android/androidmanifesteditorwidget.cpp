@@ -719,7 +719,7 @@ void AndroidManifestEditorWidget::syncToEditor()
     }
 
 
-    QString newText = doc.toString();
+    QString newText = doc.toString(4);
     if (newText == toPlainText())
         return;
 
