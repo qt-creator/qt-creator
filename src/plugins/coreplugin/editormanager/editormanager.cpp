@@ -895,11 +895,11 @@ void EditorManager::rootDestroyed(QObject *root)
     for (int i = 0; i < d->m_root.size(); ++i) {
         SplitterOrView *r = d->m_root.at(i);
         if (r == root) {
-            d->m_root.removeAll(r);
-            IContext *context = d->m_rootContext.at(i);
+            d->m_root.removeAt(i);
+            IContext *context = d->m_rootContext.takeAt(i);
             ICore::removeContextObject(context);
             delete context;
-
+            --i; // we removed the current one
         } else if (r->window() == activeWin) {
             newActiveRoot = r;
         }
