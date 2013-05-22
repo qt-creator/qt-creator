@@ -147,6 +147,3 @@ def verifyOutline(outlinePseudoTree, datasetFileName):
            return
     test.passes("All nodes (%d) inside outline match expected nodes for '%s'."
                 % (len(expected), fileName))
-
-def simpleFileName(navigatorFileName):
-    return ".".join(navigatorFileName.split(".")[-2:]).replace("\\", "")

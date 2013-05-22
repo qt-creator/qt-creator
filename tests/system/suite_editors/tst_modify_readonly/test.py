@@ -149,9 +149,6 @@ def checkUnsavedChangesContains(model, filePaths):
     test.compare(set(foundItems), set(filePaths),
                  "Verifying whether modified (unsaved) files do match expected.")
 
-def simpleFileName(navigatorFileName):
-    return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")
-
 def cleanup():
     global testFolder
     if testFolder:

@@ -166,6 +166,3 @@ def revertChanges(files):
                              "Maybe it has not been changed at all.")
         else:
             test.fail("Could not open %s for reverting changes" % simpleName)
-
-def simpleFileName(navigatorFileName):
-    return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")
