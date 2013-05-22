@@ -70,18 +70,11 @@ using namespace Bazaar::Internal;
 using namespace Bazaar;
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
-    {
-        VcsBase::RegularCommandOutput, //type
-        Constants::COMMANDLOG_ID, // id
-        Constants::COMMANDLOG_DISPLAY_NAME, // display name
-        Constants::COMMANDLOG, // context
-        Constants::COMMANDAPP}, // mime type
-
-    {   VcsBase::LogOutput,
-        Constants::FILELOG_ID,
-        Constants::FILELOG_DISPLAY_NAME,
-        Constants::FILELOG,
-        Constants::LOGAPP},
+    {   VcsBase::LogOutput, // type
+        Constants::FILELOG_ID, // id
+        Constants::FILELOG_DISPLAY_NAME, // display name
+        Constants::FILELOG, // context
+        Constants::LOGAPP}, // mime type
 
     {    VcsBase::AnnotateOutput,
          Constants::ANNOTATELOG_ID,

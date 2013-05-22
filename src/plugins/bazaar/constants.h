@@ -46,11 +46,6 @@ const char CHANGESET_ID_EXACT[] = "([.0-9]+)";
 const char ANNOTATE_CHANGESET_ID[] = "([.0-9]+)";
 
 // Base editor parameters
-const char COMMANDLOG_ID[] = "Bazaar Command Log Editor";
-const char COMMANDLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Command Log Editor");
-const char COMMANDLOG[] = "Bazaar Command Log Editor";
-const char COMMANDAPP[] = "application/vnd.nokia.text.scs_bazaar_commandlog";
-
 const char FILELOG_ID[] = "Bazaar File Log Editor";
 const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar File Log Editor");
 const char FILELOG[] = "Bazaar File Log Editor";

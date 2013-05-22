@@ -39,10 +39,6 @@ const char PERFORCE_SUBMIT_EDITOR_ID[] = "Perforce.SubmitEditor";
 const char PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce.SubmitEditor");
 const char PERFORCESUBMITEDITOR_CONTEXT[] = "Perforce Submit Editor";
 
-const char PERFORCE_COMMANDLOG_EDITOR_ID[] = "Perfoirce.CommandLogEditor";
-const char PERFORCE_COMMANDLOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce CommandLog Editor");
-const char PERFORCE_COMMANDLOG_EDITOR_CONTEXT[] = "Perforce Command Log Editor";
-
 const char PERFORCE_LOG_EDITOR_ID[] = "Perforce.LogEditor";
 const char PERFORCE_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce Log Editor");
 const char PERFORCE_LOG_EDITOR_CONTEXT[] = "Perforce Log Editor";

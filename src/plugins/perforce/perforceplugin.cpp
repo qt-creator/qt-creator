@@ -74,12 +74,7 @@
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
-    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_ID,
-    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_DISPLAY_NAME,
-    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_CONTEXT,
-    "application/vnd.nokia.text.scs_commandlog"},
-{   VcsBase::LogOutput,
+    VcsBase::LogOutput,
     Perforce::Constants::PERFORCE_LOG_EDITOR_ID,
     Perforce::Constants::PERFORCE_LOG_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCE_LOG_EDITOR_CONTEXT,

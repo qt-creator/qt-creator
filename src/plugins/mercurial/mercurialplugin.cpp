@@ -75,13 +75,7 @@ using namespace Utils;
 
 static const VcsBaseEditorParameters editorParameters[] = {
 {
-    RegularCommandOutput, //type
-    Constants::COMMANDLOG_ID, // id
-    Constants::COMMANDLOG_DISPLAY_NAME, // display name
-    Constants::COMMANDLOG, // context
-    Constants::COMMANDAPP}, // mime type
-
-{   LogOutput,
+    LogOutput,
     Constants::FILELOG_ID,
     Constants::FILELOG_DISPLAY_NAME,
     Constants::FILELOG,

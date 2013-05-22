@@ -121,12 +121,7 @@ static const char CMD_ID_STATUS[]             = "ClearCase.Status";
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
-    "ClearCase Command Log Editor", // id
-    QT_TRANSLATE_NOOP("VCS", "ClearCase Command Log Editor"), // display name
-    "ClearCase Command Log Editor", // context
-    "application/vnd.audc.text.scs_cc_commandlog"},
-{   VcsBase::LogOutput,
+    VcsBase::LogOutput,
     "ClearCase File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase File Log Editor"),   // display_name
     "ClearCase File Log Editor",   // context

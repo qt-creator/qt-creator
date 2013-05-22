@@ -46,11 +46,6 @@ const char CHANGEIDEXACT40[] = "[a-f0-9]{40,40}";
 const char DIFFIDENTIFIER[] = "^(?:diff --git a/|[+-]{3} (?:/dev/null|[ab]/(.+$)))";
 
 // Base editor parameters
-const char COMMANDLOG_ID[] = "Mercurial Command Log Editor";
-const char COMMANDLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Command Log Editor");
-const char COMMANDLOG[] = "Mercurial Command Log Editor";
-const char COMMANDAPP[] = "application/vnd.nokia.text.scs_mercurial_commandlog";
-
 const char FILELOG_ID[] = "Mercurial File Log Editor";
 const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial File Log Editor");
 const char FILELOG[] = "Mercurial File Log Editor";

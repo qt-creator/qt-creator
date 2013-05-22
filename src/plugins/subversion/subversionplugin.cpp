@@ -112,12 +112,7 @@ static const char nonInteractiveOptionC[] = "--non-interactive";
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
-    "Subversion Command Log Editor", // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion Command Log Editor"), // display name
-    "Subversion Command Log Editor", // context
-    "application/vnd.nokia.text.scs_svn_commandlog"},
-{   VcsBase::LogOutput,
+    VcsBase::LogOutput,
     "Subversion File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
     "Subversion File Log Editor",   // context
