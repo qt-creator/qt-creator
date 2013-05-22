@@ -985,8 +985,12 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyInferiorSpontaneousStop();
     else if (newState == "inferiorsetupok")
         notifyInferiorSetupOk();
-    else if (newState == "enginerunok")
+    else if (newState == "enginerunandinferiorrunok")
         notifyEngineRunAndInferiorRunOk();
+    else if (newState == "enginerunandinferiorstopok")
+        notifyEngineRunAndInferiorStopOk();
+    else if (newState == "inferiorexited")
+        notifyInferiorExited();
 }
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
