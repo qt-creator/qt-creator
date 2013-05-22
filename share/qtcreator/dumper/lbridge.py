@@ -505,6 +505,7 @@ class Dumper:
         self.options = {}
         self.expandedINames = {}
         self.passExceptions = True
+        self.useLldbDumpers = False
         self.ns = ""
         self.autoDerefPointers = True
 
@@ -706,10 +707,10 @@ class Dumper:
 
     def reportThreads(self):
         result = 'threads={threads=['
-        for i in xrange(1, self.process.GetNumThreads()):
+        for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
-            result += '{id="%d"' % thread.GetThreadId()
-            result += ',index="%s"' % thread.GetThreadId()
+            result += '{id="%d"' % thread.GetThreadID()
+            result += ',index="%s"' % i
             result += ',stop-reason="%s"' % thread.GetStopReason()
             result += ',name="%s"' % thread.GetName()
             result += ',frame={'
@@ -823,7 +824,10 @@ class Dumper:
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
 
-        if False and value.GetTypeSynthetic().IsValid():
+        # Handle build-in LLDB visualizers if wanted.
+        hasSynth = hasattr(value, 'SetPreferSyntheticValue')
+
+        if self.useLldbDumpers and hasSynth and value.GetTypeSynthetic().IsValid():
             # FIXME: print "official" summary?
             summary = value.GetTypeSummary()
             if summary.IsValid():
@@ -847,7 +851,9 @@ class Dumper:
                             self.putItem(child)
             return
 
-        value.SetPreferSyntheticValue(False)
+        # Our turf now.
+        if hasSynth:
+            value.SetPreferSyntheticValue(False)
 
         # References
         if value.GetType().IsReferenceType():
