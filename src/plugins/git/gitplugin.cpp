@@ -84,7 +84,7 @@ static const unsigned minimumRequiredVersion = 0x010702;
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
+    VcsBase::OtherContent,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMAND_LOG_EDITOR,

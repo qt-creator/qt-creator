@@ -101,7 +101,7 @@ QString CvsEditor::changeUnderCursor(const QTextCursor &c) const
     //    Check if we are at the beginning of a line within a reasonable offset.
     // 2) Log: check for lines like "revision 1.1", cursor past "revision"
     switch (contentType()) {
-    case VcsBase::RegularCommandOutput:
+    case VcsBase::OtherContent:
     case VcsBase::DiffOutput:
         break;
     case VcsBase::AnnotateOutput: {

@@ -58,10 +58,10 @@ class BaseAnnotationHighlighter;
 // Documentation inside
 enum EditorContentType
 {
-    RegularCommandOutput,
     LogOutput,
     AnnotateOutput,
-    DiffOutput
+    DiffOutput,
+    OtherContent
 };
 
 class VCSBASE_EXPORT VcsBaseEditorParameters

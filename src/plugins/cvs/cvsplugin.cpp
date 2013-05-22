@@ -116,7 +116,7 @@ static const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
 static const VcsBaseEditorParameters editorParameters[] = {
 {
-    RegularCommandOutput,
+    OtherContent,
     "CVS Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
     "CVS Command Log Editor", // context
@@ -1022,7 +1022,7 @@ bool CvsPlugin::status(const QString &topLevel, const QStringList &files, const 
             runCvs(topLevel, args, m_settings.timeOutMS(), 0);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
-        showOutputInEditor(title, response.stdOut, RegularCommandOutput, topLevel, 0);
+        showOutputInEditor(title, response.stdOut, OtherContent, topLevel, 0);
     return ok;
 }
 
