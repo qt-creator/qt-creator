@@ -70,7 +70,6 @@ Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
 Q_DECLARE_METATYPE(ExtensionSystem::PluginCollection*)
 
 /*!
-    \fn PluginView::PluginView(PluginManager *manager, QWidget *parent)
     Constructs a PluginView that gets the list of plugins from the
     given plugin \a manager with a given \a parent widget.
 */
@@ -105,7 +104,6 @@ PluginView::PluginView(QWidget *parent)
 }
 
 /*!
-    \fn PluginView::~PluginView()
     \internal
 */
 PluginView::~PluginView()
@@ -114,7 +112,6 @@ PluginView::~PluginView()
 }
 
 /*!
-    \fn PluginSpec *PluginView::currentPlugin() const
     Returns the current selection in the list of plugins.
 */
 PluginSpec *PluginView::currentPlugin() const

@@ -201,7 +201,7 @@
 */
 
 /*!
-    \fn void IFindFilter::changed()
+    \fn void IFindFilter::enabledChanged(bool enabled)
     \brief Signals that the enabled state of this find filter has changed.
 */
 

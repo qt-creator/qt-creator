@@ -101,15 +101,15 @@
 */
 
 /*!
-    \fn  void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
-              ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting)
+    \fn  void ProjectExplorer::BuildStep::addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
+              ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline) const
 
     The string is added to the generated output, usually in the output window.
     It should be in plain text, with the format in the parameter.
 */
 
 /*!
-    \fn void ProjectExplorer::BuildStep::cancel() const
+    \fn void ProjectExplorer::BuildStep::cancel()
 
     This function needs to be reimplemented only for BuildSteps that return false from \sa runInGuiThread.
 */

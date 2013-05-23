@@ -57,7 +57,8 @@
 /*!
     \fn void ICore::showNewItemDialog(const QString &title,
                                       const QList<IWizard *> &wizards,
-                                      const QString &defaultLocation = QString())
+                                      const QString &defaultLocation = QString(),
+                                      const QVariantMap &extraVariables = QVariantMap())
     \brief Opens a dialog where the user can choose from a set of \a wizards that
     create new files/classes/projects.
 
@@ -70,9 +71,7 @@
 */
 
 /*!
-    \fn bool ICore::showOptionsDialog(const QString &group = QString(),
-                                      const QString &page = QString(),
-                                      QWidget *parent = 0)
+    \fn bool ICore::showOptionsDialog(Id group, Id page, QWidget *parent = 0);
     \brief Opens the application options/preferences dialog with preselected
     \a page in a specified \a group.
 
@@ -82,9 +81,9 @@
 /*!
     \fn bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details = QString(),
-                                   const QString &settingsCategory = QString(),
-                                   const QString &settingsId = QString(),
-                                   QWidget *parent = 0);
+                                   Id settingsCategory = Id(),
+                                   Id settingsId = Id(),
+                                   QWidget *parent = 0)
 
     \brief Show a warning message with a button that opens a settings page.
 
@@ -94,22 +93,21 @@
 
 
 /*!
-    \fn ActionManager *ICore::actionManager() const
-    \brief Returns the application's action manager.
+    \fn ActionManager *ICore::actionManager()
+    \obsolete
 
-    The action manager is responsible for registration of menus and
-    menu items and keyboard shortcuts.
+    Use \c ActionManager::actionManager() directly.
 */
 
 /*!
-    \fn DocumentManager *ICore::fileManager() const
-    \brief Returns the application's file manager.
+    \fn DocumentManager *ICore::documentManager()
+    \obsolete
 
-    The file manager keeps track of files for changes outside the application.
+    Use \c DocumentManager::documentManager() directly.
 */
 
 /*!
-    \fn MessageManager *ICore::messageManager() const
+    \fn MessageManager *ICore::messageManager()
     \brief Returns the application's message manager.
 
     The message manager is the interface to the "General" output pane for
@@ -117,7 +115,7 @@
 */
 
 /*!
-    \fn EditorManager *ICore::editorManager() const
+    \fn EditorManager *ICore::editorManager()
     \brief Returns the application's editor manager.
 
     The editor manager handles all editor related tasks like opening
@@ -126,7 +124,7 @@
 */
 
 /*!
-    \fn ProgressManager *ICore::progressManager() const
+    \fn ProgressManager *ICore::progressManager()
     \brief Returns the application's progress manager.
 
     Use the progress manager to register a concurrent task to
@@ -134,21 +132,19 @@
 */
 
 /*!
-    \fn ScriptManager *ICore::scriptManager() const
+    \fn ScriptManager *ICore::scriptManager()
     \internal
 */
 
 /*!
-    \fn VariableManager *ICore::variableManager() const
-    \brief Returns the application's variable manager.
+    \fn VariableManager *ICore::variableManager()
+    \obsolete
 
-    The variable manager is used to register application wide string variables
-    like \c MY_PROJECT_DIR such that strings like \c{somecommand ${MY_PROJECT_DIR}/sub}
-    can be resolved/expanded from anywhere in the application.
+    Use \c VariableManager::variableManager() directly.
 */
 
 /*!
-    \fn VcsManager *ICore::vcsManager() const
+    \fn VcsManager *ICore::vcsManager()
     \brief Returns the application's vcs manager.
 
     The vcs manager can be used to e.g. retrieve information about
@@ -159,24 +155,21 @@
 */
 
 /*!
-    \fn ModeManager *ICore::modeManager() const
-    \brief Returns the application's mode manager.
+    \fn ModeManager *ICore::modeManager()
+    \obsolete
 
-    The mode manager handles everything related to the instances of IMode
-    that were added to the plugin manager's object pool as well as their
-    buttons and the tool bar with the round buttons in the lower left
-    corner of Qt Creator.
+    Use \c ModeManager::modeManager() directly.
 */
 
 /*!
-    \fn MimeDatabase *ICore::mimeDatabase() const
+    \fn MimeDatabase *ICore::mimeDatabase()
     \brief Returns the application's mime database.
 
     Use the mime database to manage mime types.
 */
 
 /*!
-    \fn QSettings *ICore::settings(QSettings::Scope scope = QSettings::UserScope) const
+    \fn QSettings *ICore::settings(QSettings::Scope scope = QSettings::UserScope)
     \brief Returns the application's main settings object.
 
     You can use it to retrieve or set application wide settings
@@ -194,7 +187,7 @@
 */
 
 /*!
-    \fn SettingsDatabase *ICore::settingsDatabase() const
+    \fn SettingsDatabase *ICore::settingsDatabase()
     \brief Returns the application's settings database.
 
     The settings database is meant as an alternative to the regular settings
@@ -205,7 +198,7 @@
 */
 
 /*!
-    \fn QPrinter *ICore::printer() const
+    \fn QPrinter *ICore::printer()
     \brief Returns the application's printer object.
 
     Always use this printer object for printing, so the different parts of the
@@ -213,7 +206,7 @@
 */
 
 /*!
-    \fn QString ICore::resourcePath() const
+    \fn QString ICore::resourcePath()
     \brief Returns the absolute path that is used for resources like
     project templates and the debugger macros.
 
@@ -223,7 +216,7 @@
 
 
 /*!
-    \fn QString ICore::userResourcePath() const
+    \fn QString ICore::userResourcePath()
     \brief Returns the absolute path in the users directory that is used for
     resources like project templates.
 
@@ -232,14 +225,14 @@
 */
 
 /*!
-    \fn QMainWindow *ICore::mainWindow() const
+    \fn QWidget *ICore::mainWindow()
     \brief Returns the main application window.
 
     For use as dialog parent etc.
 */
 
 /*!
-    \fn IContext *ICore::currentContextObject() const
+    \fn IContext *ICore::currentContextObject()
     \brief Returns the context object of the current main context.
 
     \sa ICore::updateAdditionalContexts()
@@ -294,7 +287,7 @@
 */
 
 /*!
-    \fn ICore::ICore()
+    \fn ICore::ICore(Internal::MainWindow *mw)
     \internal
 */
 

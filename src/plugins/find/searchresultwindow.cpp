@@ -265,7 +265,6 @@ using namespace Find::Internal;
 SearchResultWindow *SearchResultWindow::m_instance = 0;
 
 /*!
-    \fn SearchResultWindow::SearchResultWindow()
     \internal
 */
 SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
@@ -305,7 +304,6 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
 }
 
 /*!
-    \fn SearchResultWindow::~SearchResultWindow()
     \internal
 */
 SearchResultWindow::~SearchResultWindow()
@@ -318,7 +316,6 @@ SearchResultWindow::~SearchResultWindow()
 }
 
 /*!
-    \fn SearchResultWindow *SearchResultWindow::instance()
     \brief Returns the single shared instance of the Search Results window.
 */
 SearchResultWindow *SearchResultWindow::instance()
@@ -327,7 +324,6 @@ SearchResultWindow *SearchResultWindow::instance()
 }
 
 /*!
-    \fn void SearchResultWindow::visibilityChanged(bool)
     \internal
 */
 void SearchResultWindow::visibilityChanged(bool visible)
@@ -337,7 +333,6 @@ void SearchResultWindow::visibilityChanged(bool visible)
 }
 
 /*!
-    \fn QWidget *SearchResultWindow::outputWidget(QWidget *)
     \internal
 */
 QWidget *SearchResultWindow::outputWidget(QWidget *)
@@ -346,7 +341,6 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 }
 
 /*!
-    \fn QList<QWidget*> SearchResultWindow::toolBarWidgets() const
     \internal
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
@@ -413,7 +407,6 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
 }
 
 /*!
-    \fn void SearchResultWindow::clearContents()
     \brief Clears the current contents in the search result window.
 */
 void SearchResultWindow::clearContents()
@@ -434,7 +427,6 @@ void SearchResultWindow::clearContents()
 }
 
 /*!
-    \fn bool SearchResultWindow::hasFocus()
     \internal
 */
 bool SearchResultWindow::hasFocus() const
@@ -443,7 +435,6 @@ bool SearchResultWindow::hasFocus() const
 }
 
 /*!
-    \fn bool SearchResultWindow::canFocus()
     \internal
 */
 bool SearchResultWindow::canFocus() const
@@ -454,7 +445,6 @@ bool SearchResultWindow::canFocus() const
 }
 
 /*!
-    \fn void SearchResultWindow::setFocus()
     \internal
 */
 void SearchResultWindow::setFocus()
@@ -466,7 +456,6 @@ void SearchResultWindow::setFocus()
 }
 
 /*!
-    \fn void SearchResultWindow::setTextEditorFont(const QFont &font)
     \internal
 */
 void SearchResultWindow::setTextEditorFont(const QFont &font,
@@ -497,7 +486,6 @@ void SearchResultWindow::openNewSearchPanel()
 }
 
 /*!
-    \fn void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
     \internal
 */
 void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
@@ -515,7 +503,6 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 }
 
 /*!
-    \fn void SearchResultWindow::readSettings()
     \internal
 */
 void SearchResultWindow::readSettings()
@@ -529,7 +516,6 @@ void SearchResultWindow::readSettings()
 }
 
 /*!
-    \fn void SearchResultWindow::writeSettings()
     \internal
 */
 void SearchResultWindow::writeSettings()
@@ -543,7 +529,6 @@ void SearchResultWindow::writeSettings()
 }
 
 /*!
-    \fn int SearchResultWindow::priorityInStatusBar() const
     \internal
 */
 int SearchResultWindow::priorityInStatusBar() const
@@ -552,7 +537,6 @@ int SearchResultWindow::priorityInStatusBar() const
 }
 
 /*!
-    \fn bool SearchResultWindow::canNext()
     \internal
 */
 bool SearchResultWindow::canNext() const
@@ -563,7 +547,6 @@ bool SearchResultWindow::canNext() const
 }
 
 /*!
-    \fn bool SearchResultWindow::canPrevious()
     \internal
 */
 bool SearchResultWindow::canPrevious() const
@@ -572,7 +555,6 @@ bool SearchResultWindow::canPrevious() const
 }
 
 /*!
-    \fn void SearchResultWindow::goToNext()
     \internal
 */
 void SearchResultWindow::goToNext()
@@ -583,7 +565,6 @@ void SearchResultWindow::goToNext()
 }
 
 /*!
-    \fn void SearchResultWindow::goToPrev()
     \internal
 */
 void SearchResultWindow::goToPrev()
@@ -594,7 +575,6 @@ void SearchResultWindow::goToPrev()
 }
 
 /*!
-    \fn bool SearchResultWindow::canNavigate()
     \internal
 */
 bool SearchResultWindow::canNavigate() const
@@ -603,7 +583,6 @@ bool SearchResultWindow::canNavigate() const
 }
 
 /*!
-    \fn SearchResult::SearchResult(SearchResultWidget *widget)
     \internal
 */
 SearchResult::SearchResult(SearchResultWidget *widget)
@@ -624,7 +603,6 @@ SearchResult::SearchResult(SearchResultWidget *widget)
 }
 
 /*!
-    \fn void SearchResult::setUserData(const QVariant &data)
     \brief Attach some random \a data to this search, that you can use later.
 
     \sa userData()
@@ -635,7 +613,6 @@ void SearchResult::setUserData(const QVariant &data)
 }
 
 /*!
-    \fn void SearchResult::userData()
     \brief Return the data that was attached to this search by calling setUserData().
 
     \sa setUserData()
@@ -646,7 +623,6 @@ QVariant SearchResult::userData() const
 }
 
 /*!
-    \fn QString SearchResult::textToReplace() const
     \brief Returns the text that should replace the text in search results.
 */
 QString SearchResult::textToReplace() const
@@ -665,7 +641,6 @@ void SearchResult::setSearchAgainSupported(bool supported)
 }
 
 /*!
-    \fn void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart, int searchTermLength, const QVariant &userData)
     \brief Adds a single result line to the search results.
 
     The \a fileName, \a lineNumber and \a rowText are shown in the result line.
@@ -685,7 +660,6 @@ void SearchResult::addResult(const QString &fileName, int lineNumber, const QStr
 }
 
 /*!
-    \fn void SearchResult::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
     \brief Adds all of the given search result \a items to the search
     results window.
 
@@ -698,7 +672,6 @@ void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode
 }
 
 /*!
-    \fn void SearchResult::finishSearch()
     \brief Notifies the search result window that the current search
     has finished, and the UI should reflect that.
 */
@@ -708,7 +681,6 @@ void SearchResult::finishSearch(bool canceled)
 }
 
 /*!
-    \fn void SearchResult::setTextToReplace(const QString &textToReplace)
     \brief Sets the value in the UI element that allows the user to type
     the text that should replace text in search results to \a textToReplace.
 */

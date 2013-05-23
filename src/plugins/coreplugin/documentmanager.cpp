@@ -273,8 +273,6 @@ static void addFileInfo(IDocument *document)
 }
 
 /*!
-    \fn bool DocumentManager::addFiles(const QList<IDocument *> &documents, bool addWatcher)
-
     Adds a list of IDocument's to the collection. If \a addWatcher is true (the default),
     the files are added to a file system watcher that notifies the file manager
     about file changes.
@@ -362,7 +360,6 @@ static void dump()
 */
 
 /*!
-    \fn void DocumentManager::renamedFile(const QString &from, const QString &to)
     \brief Tells the file manager that a file has been renamed on disk from within Qt Creator.
 
     Needs to be called right after the actual renaming on disk (i.e. before the file system
@@ -406,8 +403,6 @@ void DocumentManager::fileNameChanged(const QString &oldName, const QString &new
 }
 
 /*!
-    \fn bool DocumentManager::addFile(IDocument *document, bool addWatcher)
-
     Adds a IDocument object to the collection. If \a addWatcher is true (the default),
     the file is added to a file system watcher that notifies the file manager
     about file changes.
@@ -426,8 +421,6 @@ void DocumentManager::documentDestroyed(QObject *obj)
 }
 
 /*!
-    \fn bool DocumentManager::removeFile(IDocument *document)
-
     Removes a IDocument object from the collection.
 
     Returns true if the file specified by \a document had the addWatcher argument to addDocument() set.
@@ -466,7 +459,6 @@ void DocumentManager::checkForNewFileName()
 }
 
 /*!
-    \fn QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
     Returns a guaranteed cleaned path in native form. If the file exists,
     it will either be a cleaned absolute file path (fixmode == KeepLinks), or
     a cleaned canonical file path (fixmode == ResolveLinks).
@@ -490,8 +482,6 @@ QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
 }
 
 /*!
-    \fn QList<IDocument*> DocumentManager::modifiedFiles() const
-
     Returns the list of IDocument's that have been modified.
 */
 QList<IDocument *> DocumentManager::modifiedDocuments()
@@ -512,8 +502,6 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
 }
 
 /*!
-    \fn void DocumentManager::expectFileChange(const QString &fileName)
-
     Any subsequent change to \a fileName is treated as a expected file change.
 
     \see DocumentManager::unexpectFileChange(const QString &fileName)
@@ -538,8 +526,6 @@ static void updateExpectedState(const QString &fileName)
 }
 
 /*!
-    \fn void DocumentManager::unexpectFileChange(const QString &fileName)
-
     Any change to \a fileName are unexpected again.
 
     \see DocumentManager::expectFileChange(const QString &fileName)
@@ -562,8 +548,6 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
 }
 
 /*!
-    \fn QList<IDocument*> DocumentManager::saveModifiedFilesSilently(const QList<IDocument*> &documents)
-
     Tries to save the files listed in \a documents. The \a cancelled argument is set to true
     if the user cancelled the dialog. Returns the files that could not be saved. If the files
     listed in documents have no write permissions an additional dialog will be prompted to
@@ -575,8 +559,6 @@ QList<IDocument *> DocumentManager::saveModifiedDocumentsSilently(const QList<ID
 }
 
 /*!
-    \fn QList<IDocument*> DocumentManager::saveModifiedFiles(const QList<IDocument *> &documents, bool *cancelled, const QString &message, const QString &alwaysSaveMessage, bool *alwaysSave)
-
     Asks the user whether to save the files listed in \a documents .
     Opens a dialog with the given \a message, and a additional
     text that should be used to ask if the user wants to enabled automatic save
@@ -758,8 +740,6 @@ QString DocumentManager::getSaveFileNameWithExtension(const QString &title, cons
 }
 
 /*!
-    \fn QString DocumentManager::getSaveAsFileName(IDocument *document, const QString &filter, QString *selectedFilter)
-
     Asks the user for a new file name (Save File As) for /arg document.
 */
 QString DocumentManager::getSaveAsFileName(const IDocument *document, const QString &filter, QString *selectedFilter)
@@ -794,10 +774,6 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
 }
 
 /*!
-    \fn QStringList DocumentManager::getOpenFileNames(const QString &filters,
-                                                  const QString pathIn,
-                                                  QString *selectedFilter)
-
     Asks the user for a set of file names to be opened. The \a filters
     and \a selectedFilter parameters is interpreted like in
     QFileDialog::getOpenFileNames(), \a pathIn specifies a path to open the dialog
@@ -1078,8 +1054,6 @@ void DocumentManager::syncWithEditor(const QList<Core::IContext *> &context)
 }
 
 /*!
-    \fn void DocumentManager::addToRecentFiles(const QString &fileName, const QString &editorId)
-
     Adds the \a fileName to the list of recent files. Associates the file to
     be reopened with an editor of the given \a editorId, if possible.
     \a editorId defaults to the empty id, which means to let the system figure out
@@ -1103,8 +1077,6 @@ void DocumentManager::addToRecentFiles(const QString &fileName, const Id &editor
 }
 
 /*!
-    \fn void DocumentManager::clearRecentFiles()
-
     Clears the list of recent files. Should only be called by
     the core plugin when the user chooses to clear it.
 */
@@ -1114,8 +1086,6 @@ void DocumentManager::clearRecentFiles()
 }
 
 /*!
-    \fn QStringList DocumentManager::recentFiles() const
-
     Returns the list of recent files.
 */
 QList<DocumentManager::RecentFile> DocumentManager::recentFiles()

@@ -559,8 +559,7 @@ Core::IWizard::WizardFlags BaseFileWizard::flags() const
 
 /*!
     \fn virtual QWizard *Core::BaseFileWizard::createWizardDialog(QWidget *parent,
-                                                                  const QString &defaultPath,
-                                                                  const WizardPageList &extensionPages) const = 0
+                                                                  const WizardDialogParameters &wizardDialogParameters) const
     \brief Implement to create the wizard dialog on the parent, adding the extension pages.
 */
 

@@ -298,7 +298,7 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
 */
 
 /*!
-    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(const QString &id) const
+    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(const Core::Id id) const
     \brief Used to translate the types to names to display to the user.
 */
 
@@ -375,7 +375,7 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 */
 
 /*!
-    \fn IRunConfigurationAspect *ProjectExplorer::IRunControlFactory::createRunConfigurationAspect()
+    \fn IRunConfigurationAspect *ProjectExplorer::IRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
     \brief Return an IRunConfigurationAspect to carry options for RunControls this factory can create.
 
     If no extra options are required it is allowed to return null like the default implementation does.
@@ -384,7 +384,7 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 */
 
 /*!
-    \fn RunConfigWidget *ProjectExplorer::IRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
+    \fn RunConfigWidget *ProjectExplorer::IRunConfigurationAspect::createConfigurationWidget()
 
     \brief Return a widget used to configure this runner. Ownership is transferred to the caller.
 

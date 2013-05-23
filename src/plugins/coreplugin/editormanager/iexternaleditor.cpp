@@ -43,11 +43,6 @@
 */
 
 /*!
-    \fn IExternalEditor::~IExternalEditor()
-    \internal
-*/
-
-/*!
     \fn QStringList IExternalEditor::mimeTypes() const
     Returns the mime type the editor supports
 */

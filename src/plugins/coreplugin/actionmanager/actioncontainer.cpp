@@ -117,13 +117,13 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn QAction *ActionContainer::insertLocation(const Core::Id &group) const
+    \fn QAction *ActionContainer::insertLocation(const Id &group) const
     Returns an action representing the \a group,
     that could be used with \c{QWidget::insertAction}.
 */
 
 /*!
-    \fn void ActionContainer::appendGroup(const QString &identifier)
+    \fn void ActionContainer::appendGroup(const Id &group)
     Adds a group with the given \a identifier to the action container. Using groups
     you can segment your action container into logical parts and add actions and
     menus directly to these parts.
@@ -132,7 +132,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addAction(Core::Command *action, const Core::Id &group)
+    \fn void ActionContainer::addAction(Command *action, const Id &group = Id())
     Add the \a action as a menu item to this action container. The action is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -140,16 +140,11 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addMenu(Core::ActionContainer *menu, const Core::Id &group)
+    \fn void ActionContainer::addMenu(ActionContainer *menu, const Id &group = Id())
     Add the \a menu as a submenu to this action container. The menu is added as the
     last item of the specified \a group.
     \sa appendGroup()
     \sa addAction()
-*/
-
-/*!
-    \fn ActionContainer::~ActionContainer()
-    \internal
 */
 
 // ---------- ActionContainerPrivate ------------
@@ -290,8 +285,6 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
 }
 
 /*!
- * \fn Command *ActionContainer::addSeparator(const Context &context, const Id &group, QAction **outSeparator)
- *
  * Adds a separator to the end of the given \a group to the action container, which is enabled
  * for a given \a context. The created separator action is returned through \a outSeparator.
  *

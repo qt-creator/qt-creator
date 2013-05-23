@@ -200,11 +200,6 @@
     interact with it.
 */
 
-/*!
-    \fn Command::~Command()
-    \internal
-*/
-
 using namespace Core;
 using namespace Core::Internal;
 

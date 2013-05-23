@@ -75,13 +75,13 @@ IAssistInterface::~IAssistInterface()
 */
 
 /*!
-    \fn const Core::IDocument *TextEditor::IAssistInterface::file() const
+    \fn QString TextEditor::IAssistInterface::fileName() const
 
     Returns the file associated.
 */
 
 /*!
-    \fn QTextDocument *TextEditor::IAssistInterface::document() const
+    \fn QTextDocument *TextEditor::IAssistInterface::textDocument() const
     Returns the document.
 */
 

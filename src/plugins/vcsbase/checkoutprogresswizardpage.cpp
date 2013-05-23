@@ -36,7 +36,7 @@
 #include <QApplication>
 
 /*!
-    \class VcsBase::CheckoutProgressWizardPage
+    \class VcsBase::Internal::CheckoutProgressWizardPage
 
     \brief Page showing the progress of an initial project checkout. Turns complete when the job
            succeeds.

@@ -134,7 +134,7 @@ static int theId(const QByteArray &ba)
 }
 
 /*!
-    \fn Core::Id(int uid)
+    \fn Core::Id::Id(int uid)
 
     \brief Constructs an id given a UID.
 

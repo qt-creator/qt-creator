@@ -60,7 +60,7 @@
 */
 
 /*!
-    \fn FeatureProvider::Features availableFeatures() const;
+    \fn FetureSet IFeatureProvider::availableFeatures(const QString &platform) const
     Returns available features provided by this manager.
     \sa FeatureProvider::Features
 */
@@ -96,13 +96,13 @@
 
 
 /*!
-    \fn bool Features::~contains(const Feature &feature)()
+    \fn bool FeatureSet::contains(const Feature &feature) const
 
     \returns true if the \param features is available.
 */
 
 /*!
-    \fn bool Features::~contains(const Features &features)()
+    \fn bool FeatureSet::contains(const FeatureSet &features) const
 
     \returns true if all \param features are available.
 */

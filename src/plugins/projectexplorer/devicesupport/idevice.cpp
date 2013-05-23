@@ -96,7 +96,7 @@
  */
 
 /*!
- * \fn ProjectExplorer::IDeviceWidget *ProjectExplorer::IDevice::createWidget() const
+ * \fn ProjectExplorer::IDeviceWidget *ProjectExplorer::IDevice::createWidget()
  * \brief Creates a widget that displays device information not part of the IDevice base class.
  *        The widget can also be used to let the user change these attributes.
  */
@@ -108,13 +108,13 @@
  */
 
 /*!
- * \fn QString ProjectExplorer::IDevice::displayNameForActionId(const QString &actionId) const
+ * \fn QString ProjectExplorer::IDevice::displayNameForActionId(Core::Id actionId) const
  * \brief A human-readable string for the given id. Will be displayed on a button which,
  *        when clicked, starts the respective action.
  */
 
 /*!
- * \fn void ProjectExplorer::IDevice::executeAction(Core::Id actionId, QWidget *parent)
+ * \fn void ProjectExplorer::IDevice::executeAction(Core::Id actionId, QWidget *parent) const
  * \brief Executes the respective action. This is typically done via some sort of dialog or
  *        wizard, so a parent widget argument is provided.
  */
@@ -125,14 +125,14 @@
  */
 
 /*!
- * \fn void fromMap(const QVariantMap &map)
+ * \fn void ProjectExplorer::IDevice::fromMap(const QVariantMap &map)
  * \brief Restores a device object from a serialized state as written by \c toMap().
  * If subclasses override this to restore additional state, they must call the base class
  * implementation.
  */
 
 /*!
- * \fn QVariantMap toMap() const
+ * \fn ProjectExplorer::IDevice::toMap() const
  * \brief Serializes a device object, e.g. to save it to a file.
  * If subclasses override this to save additional state, they must call the base class
  * implementation.

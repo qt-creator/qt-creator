@@ -79,7 +79,7 @@ IAssistProposalWidget::~IAssistProposalWidget()
 */
 
 /*!
-    \fn void TextEditor::IAssistProposalWidget::setModel(IAssistModel *model)
+    \fn void TextEditor::IAssistProposalWidget::setModel(IAssistProposalModel *model)
 
     Sets the model.
 */
