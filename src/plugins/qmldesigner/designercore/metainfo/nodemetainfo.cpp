@@ -282,9 +282,9 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
         const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue)
-            propertyList.append(getQmlTypes(qmlObjectValue, context, false, rec + 1));
+            propertyList.append(getQmlTypes(qmlObjectValue, context, false, rec));
         else
-            propertyList.append(getObjectTypes(prototype, context, false, rec + 1));
+            propertyList.append(getObjectTypes(prototype, context, false, rec));
     }
 
     return propertyList;
@@ -356,9 +356,9 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Context
         const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue)
-            propertyList.append(getQmlTypes(qmlObjectValue, context, local, rec + 1));
+            propertyList.append(getQmlTypes(qmlObjectValue, context, local, rec));
         else
-            propertyList.append(getObjectTypes(prototype, context, local, rec + 1));
+            propertyList.append(getObjectTypes(prototype, context, local, rec));
     }
 
     return propertyList;
