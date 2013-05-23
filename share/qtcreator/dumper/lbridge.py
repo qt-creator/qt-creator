@@ -430,8 +430,11 @@ class Children:
 class SubItem:
     def __init__(self, d, component):
         self.d = d
-        self.iname = "%s.%s" % (d.currentIName, component)
-        self.name = component
+        if isinstance(component, lldb.SBValue):
+            self.name = component.GetName()
+        else:
+            self.name = component
+        self.iname = "%s.%s" % (d.currentIName, self.name)
 
     def __enter__(self):
         self.d.put('{')
@@ -887,7 +890,7 @@ class Dumper:
             n = 10000
         for i in xrange(n):
             child = value.GetChildAtIndex(i)
-            with SubItem(self, child.GetName()):
+            with SubItem(self, child):
                 self.putItem(child)
 
     def reportVariables(self, _ = None):
@@ -895,7 +898,7 @@ class Dumper:
         self.currentIName = "local"
         self.put('data=[')
         for value in frame.GetVariables(True, True, False, False):
-            with SubItem(self, value.GetName()):
+            with SubItem(self, value):
                 self.put('iname="%s",' % self.currentIName)
                 self.putItem(value)
         self.put(']')
