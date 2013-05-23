@@ -73,6 +73,7 @@ public:
 
     bool createSession(const QString &session);
 
+    bool confirmSessionDelete(const QString &session);
     bool deleteSession(const QString &session);
 
     bool cloneSession(const QString &original, const QString &clone);
