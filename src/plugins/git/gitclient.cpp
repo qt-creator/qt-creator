@@ -819,14 +819,12 @@ void GitClient::diff(const QString &workingDirectory,
         if (unstagedFileNames.empty() && stagedFileNames.empty()) {
             // local repository diff
             handler->diffRepository();
+        } else if (!stagedFileNames.empty()) {
+            // diff of selected files only with --cached option, used in commit editor
+            handler->diffFiles(stagedFileNames, unstagedFileNames);
         } else {
-            if (!stagedFileNames.empty()) {
-                // diff of selected files only with --cached option, used in commit editor
-                handler->diffFiles(stagedFileNames, unstagedFileNames);
-            } else if (!unstagedFileNames.empty()) {
-                // current project diff
-                handler->diffProjects(unstagedFileNames);
-            }
+            // current project diff
+            handler->diffProjects(unstagedFileNames);
         }
     } else {
         const QString binary = settings()->stringValue(GitSettings::binaryPathKey);
