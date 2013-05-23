@@ -1028,6 +1028,11 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         if (EditorView *view = viewForEditor(editor)) {
             if (editor == view->currentEditor())
                 closedViews += view;
+            if (d->m_currentEditor == editor) {
+                // avoid having a current editor without view
+                setCurrentView(view);
+                setCurrentEditor(0);
+            }
             view->removeEditor(editor);
         }
     }
@@ -1494,9 +1499,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     // back to the default editor:
     if (!editor)
         editor = createEditor(Id(), fn);
-    if (!editor) // Internal error
-        return 0;
-
+    QTC_ASSERT(editor, return 0);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QString errorString;
     if (!editor->open(&errorString, fn, realFn)) {
