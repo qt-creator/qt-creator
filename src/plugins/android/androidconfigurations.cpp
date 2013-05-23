@@ -81,6 +81,7 @@ namespace {
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
+    const QLatin1String MakeExtraSearchDirectory("MakeExtraSearchDirectory");
     const QLatin1String PartitionSizeKey("PartitionSize");
     const QLatin1String ToolchainHostKey("ToolchainHost");
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
@@ -156,6 +157,11 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
     keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
     toolchainHost = settings.value(ToolchainHostKey).toString();
     automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
+    QString extraDirectory = settings.value(MakeExtraSearchDirectory).toString();
+    if (extraDirectory.isEmpty())
+        makeExtraSearchDirectories = QStringList();
+    else
+        makeExtraSearchDirectories << extraDirectory;
 
     PersistentSettingsReader reader;
     if (reader.load(FileName::fromString(sdkSettingsFileName()))
@@ -170,6 +176,11 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
         QVariant v = reader.restoreValue(AutomaticKitCreationKey);
         if (v.isValid())
             automaticKitCreation = v.toBool();
+        QString extraDirectory = reader.restoreValue(MakeExtraSearchDirectory).toString();
+        if (extraDirectory.isEmpty())
+            makeExtraSearchDirectories = QStringList();
+        else
+            makeExtraSearchDirectories << extraDirectory;
         // persistent settings
     }
 
@@ -626,6 +637,11 @@ QString AndroidConfigurations::bestMatch(const QString &targetAPI) const
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
     return QLatin1String("android-8");
+}
+
+QStringList AndroidConfigurations::makeExtraSearchDirectories() const
+{
+    return m_config.makeExtraSearchDirectories;
 }
 
 bool equalKits(Kit *a, Kit *b)

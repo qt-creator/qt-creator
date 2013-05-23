@@ -82,7 +82,7 @@ int AddKeysOperation::execute() const
     QVariantMap map = load(m_file);
 
     QVariantMap result = addKeys(map, m_data);
-    if (map.isEmpty() || map == result)
+    if (result.isEmpty() || map == result)
         return -4;
 
     // Write data again:

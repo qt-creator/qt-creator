@@ -520,12 +520,20 @@ void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
 
     QSet<QString> alreadyListed;
     foreach (QString bundledFile, m_otherBundledFiles) {
-        if (!bundledFile.endsWith(QLatin1Char('/')))
-            bundledFile.append(QLatin1Char('/'));
+        QStringList allFiles;
+        if (QFileInfo(qtVersionSourcePath + QLatin1Char('/') + bundledFile).isDir()) {
+            if (!bundledFile.endsWith(QLatin1Char('/')))
+                bundledFile.append(QLatin1Char('/'));
 
-        QStringList allFiles = collectRelativeFilePaths(qtVersionSourcePath + QLatin1Char('/') + bundledFile);
+            allFiles = collectRelativeFilePaths(qtVersionSourcePath + QLatin1Char('/') + bundledFile);
+        } else {
+            // If we need to bundle a specific file, we just add an empty string and the file
+            // names and data will be prepared correctly in the loop below.
+            allFiles = QStringList(QString());
+        }
+
         foreach (QString file, allFiles) {
-            QString fullPath = qtVersionSourcePath + QLatin1Char('/') + bundledFile + QLatin1Char('/') + file;
+            QString fullPath = qtVersionSourcePath + QLatin1Char('/') + bundledFile + file;
             if (alreadyListed.contains(fullPath))
                 continue;
 
@@ -534,22 +542,31 @@ void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
             QString garbledFileName;
             QString destinationPath;
             bool shouldStrip = false;
-            if (file.endsWith(QLatin1String(".so"))) {
-                garbledFileName = QLatin1String("lib")
-                    + AndroidManager::libraryPrefix()
-                    + QString(bundledFile).replace(QLatin1Char('/'), QLatin1Char('_'))
-                    + QString(file).replace(QLatin1Char('/'), QLatin1Char('_'));
+
+            QString fullFileName = bundledFile + file;
+            if (fullFileName.endsWith(QLatin1String(".so"))) {
+                if (fullFileName.startsWith(QLatin1String("lib/"))) {
+                    // Special case when the destination folder is lib/
+                    // Since this is also the source folder, there is no need to garble the file
+                    // name and copy it. We also won't have write access to this folder, so we
+                    // couldn't if we wanted to.
+                    garbledFileName = fullFileName.mid(sizeof("lib/") - 1);
+                } else {
+                    garbledFileName = QLatin1String("lib")
+                        + AndroidManager::libraryPrefix()
+                        + QString(fullFileName).replace(QLatin1Char('/'), QLatin1Char('_'));
+                }
                 destinationPath = androidLibPath + QLatin1Char('/') + garbledFileName;
                 shouldStrip = true;
             } else {
-                garbledFileName = AndroidManager::libraryPrefix() + bundledFile + file;
+                garbledFileName = AndroidManager::libraryPrefix() + QLatin1Char('/') + fullFileName;
                 destinationPath = androidAssetsPath + garbledFileName;
             }
 
             deployList->append(DeployItem(fullPath, 0, destinationPath, shouldStrip));
             pluginsAndImportsList->append(DeployItem(garbledFileName,
                                                      0,
-                                                     bundledFile + file,
+                                                     fullFileName,
                                                      shouldStrip));
         }
     }
@@ -574,6 +591,8 @@ void AndroidPackageCreationStep::removeManagedFilesFromPackage()
             }
         }
     }
+
+    removeDirectory(m_androidDir.toString() + QLatin1String("/assets/") + AndroidManager::libraryPrefix());
 }
 
 void AndroidPackageCreationStep::copyFilesIntoPackage(const QList<DeployItem> &deployList)

@@ -150,7 +150,7 @@ int AddToolChainOperation::execute() const
         map = initializeToolChains();
 
     QVariantMap result = addToolChain(map, m_id, m_displayName, m_path, m_targetAbi, m_supportedAbis, m_extra);
-    if (map.isEmpty() || map == result)
+    if (result.isEmpty() || map == result)
         return -2;
 
     return save(result, QLatin1String("toolchains")) ? 0 : -3;
