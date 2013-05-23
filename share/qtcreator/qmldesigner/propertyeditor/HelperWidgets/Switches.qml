@@ -33,9 +33,13 @@ import Bauhaus 1.0
 QFrame {
     styleSheetFile: "switch.css";
     property variant specialModeIcon;
+    property bool showLayoutModeButton: true
+    property bool showExtendedModeButton: true
+
     specialModeIcon: "images/standard.png";
     maximumWidth: 300;
     minimumWidth: 300;
+
     layout: QHBoxLayout {
         topMargin: 0;
         bottomMargin: 0;
@@ -58,6 +62,9 @@ QFrame {
                 extendedPane.visible = false;
                 layoutPane.visible = false;
             }
+            Component.onCompleted: {
+                standardMode.checked = true;
+            }
         }
 
         QPushButton {
@@ -66,6 +73,7 @@ QFrame {
             checked: false;
             toolTip: qsTr("Layout");
             text: qsTr("Layout");
+            visible: showLayoutModeButton
             onClicked: {
                 extendedMode.checked = false;
                 standardMode.checked = false;
@@ -82,6 +90,7 @@ QFrame {
             checkable: true;
             checked: false;
             text: qsTr("Advanced")
+            visible: showExtendedModeButton
             onClicked: {
                 standardMode.checked = false;
                 layoutMode.checked = false;
