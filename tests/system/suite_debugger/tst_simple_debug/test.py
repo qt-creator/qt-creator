@@ -91,3 +91,9 @@ def main():
         else:
             test.fatal("Setting breakpoints failed - leaving without testing.")
     invokeMenuItem("File", "Exit")
+
+def init():
+    removeQmlDebugFolderIfExists()
+
+def cleanup():
+    removeQmlDebugFolderIfExists()

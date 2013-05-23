@@ -248,3 +248,16 @@ def verifyBreakPoint(bpToVerify):
     else:
         test.fatal("Expected a dict for bpToVerify - got '%s'" % className(bpToVerify))
     return False
+
+# this function removes the compiled qml-debug library from QtSDK (only necessary for Qt < 4.8)
+def removeQmlDebugFolderIfExists():
+    paths = [os.path.join(sdkPath, "Desktop", "Qt", "474", "gcc", "qtc-qmldbg"),
+             os.path.join(sdkPath, "Desktop", "Qt", "4.7.4", "mingw", "qtc-qmldbg"),
+             os.path.join(sdkPath, "Desktop", "Qt", "4.7.4", "msvc2008", "qtc-qmldbg")
+             ]
+    for path in paths:
+        if os.path.exists(path):
+            try:
+                shutil.rmtree(path)
+            except:
+                test.warning("Error while removing '%s'" % path)
