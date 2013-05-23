@@ -5,5 +5,6 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     analyzerbase \
     coreplugin \
+    projectexplorer \
     texteditor \
     remotelinux

@@ -553,7 +553,7 @@ void FormEditorW::setupActions()
     addToolAction(actionFormSettings, m_contexts, Core::Id("FormEditor.FormSettings"), mformtools);
 
     mformtools->addSeparator(m_contexts);
-    m_actionAboutPlugins = new QAction(tr("About Qt Designer plugins..."), this);
+    m_actionAboutPlugins = new QAction(tr("About Qt Designer Plugins..."), this);
     m_actionAboutPlugins->setMenuRole(QAction::NoRole);
     addToolAction(m_actionAboutPlugins, m_contexts,
                    Core::Id("FormEditor.AboutPlugins"), mformtools);

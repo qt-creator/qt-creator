@@ -76,6 +76,7 @@ class GerritOptionsPage : public VcsBase::VcsBaseOptionsPage
 public:
     GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
                       QObject *parent = 0);
+    ~GerritOptionsPage();
 
     QWidget *createPage(QWidget *parent);
     void apply();

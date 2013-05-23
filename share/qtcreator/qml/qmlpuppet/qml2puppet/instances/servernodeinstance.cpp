@@ -510,6 +510,11 @@ QTransform ServerNodeInstance::sceneTransform() const
     return m_nodeInstance->sceneTransform();
 }
 
+QTransform ServerNodeInstance::contentTransform() const
+{
+    return m_nodeInstance->contentTransform();
+}
+
 double ServerNodeInstance::rotation() const
 {
     return m_nodeInstance->rotation();

@@ -60,13 +60,14 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     , m_detailsText(new QPlainTextEdit(this))
     , m_command(NoCommand)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     bool ok;
     m_gitBinaryPath = GitPlugin::instance()->gitClient()->gitBinaryPath(&ok);
     if (!ok)
         return;
 
     QGridLayout* layout = new QGridLayout(this);
-    layout->addWidget(new QLabel(tr("Working Directory:"), this), 0, 0 , 1, 1);
+    layout->addWidget(new QLabel(tr("Working directory:"), this), 0, 0 , 1, 1);
     layout->addWidget(m_workingDirEdit, 0, 1, 1, 1);
     layout->addWidget(m_selectDirButton, 0, 2, 1, 1);
     layout->addWidget(new QLabel(tr("Change:"), this),1, 0, 1, 1);
@@ -89,8 +90,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     m_changeNumberEdit->selectAll();
 
     setWindowTitle(tr("Select a Git Commit"));
-    setGeometry(0, 0, 550, 350);
-    adjustPosition(parent);
+    setMinimumSize(QSize(550, 350));
 
     m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
     connect(m_changeNumberEdit, SIGNAL(textChanged(QString)),
@@ -130,16 +130,16 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     int tilde = commit.indexOf(QLatin1Char('~'));
     if (tilde != -1)
         commit.truncate(tilde);
-    QPointer<LogChangeDialog> dialog = new LogChangeDialog(false);
-    dialog->setWindowTitle(tr("Select Commit"));
+    LogChangeDialog dialog(false, this);
+    dialog.setWindowTitle(tr("Select Commit"));
 
-    dialog->runDialog(workingDir, commit);
+    dialog.runDialog(workingDir, commit);
 
-    if (dialog->result() == QDialog::Rejected || dialog->commitIndex() == -1)
+    if (dialog.result() == QDialog::Rejected || dialog.commitIndex() == -1)
         return;
 
-    if (dialog->commitIndex() > 0)
-        commit += QLatin1Char('~') + QString::number(dialog->commitIndex());
+    if (dialog.commitIndex() > 0)
+        commit += QLatin1Char('~') + QString::number(dialog.commitIndex());
 
     m_changeNumberEdit->setText(commit);
 }

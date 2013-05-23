@@ -43,12 +43,12 @@
      </property>
      <column>
       <property name="text">
-       <string>Make Writeable</string>
+       <string>Make Writable</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Open With VCS</string>
+       <string>Open with VCS</string>
       </property>
      </column>
      <column>
@@ -58,7 +58,7 @@
      </column>
      <column>
       <property name="text">
-       <string notr="true">File Name</string>
+       <string notr="true">Filename</string>
       </property>
      </column>
      <column>

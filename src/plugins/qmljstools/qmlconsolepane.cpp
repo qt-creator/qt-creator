@@ -71,7 +71,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_proxyModel = new QmlConsoleProxyModel(this);
     m_proxyModel->setSourceModel(QmlConsoleModel::qmlConsoleItemModel());
     connect(QmlConsoleModel::qmlConsoleItemModel(),
-            SIGNAL(selectEditableRow(QModelIndex, QItemSelectionModel::SelectionFlags)),
+            SIGNAL(selectEditableRow(QModelIndex,QItemSelectionModel::SelectionFlags)),
             m_proxyModel,
             SLOT(selectEditableRow(QModelIndex,QItemSelectionModel::SelectionFlags)));
 

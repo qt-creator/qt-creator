@@ -83,13 +83,14 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
-    return m_boundingRect;
+    return m_paintedBoundingRect;
 }
 
 void FormEditorItem::updateGeometry()
 {
     prepareGeometryChange();
     m_boundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
+    m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect().united(m_boundingRect);
     setTransform(qmlItemNode().instanceTransform());
     setTransform(m_attentionTransform, true);
     //the property for zValue is called z in QGraphicsObject
@@ -225,11 +226,11 @@ FormEditorItem* FormEditorItem::fromQGraphicsItem(QGraphicsItem *graphicsItem)
 
 void FormEditorItem::paintBoundingRect(QPainter *painter) const
 {
-    if (!boundingRect().isValid()
+    if (!m_boundingRect.isValid()
         || (QGraphicsItem::parentItem() == scene()->formLayerItem() && qFuzzyIsNull(m_borderWidth)))
           return;
 
-     if (boundingRect().width() < 8 || boundingRect().height() < 8)
+     if (m_boundingRect.width() < 8 || m_boundingRect.height() < 8)
          return;
 
     QPen pen;
@@ -253,19 +254,19 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     painter->setPen(pen);
 //    int offset =  m_borderWidth / 2;
 
-    painter->drawRect(boundingRect().adjusted(0., 0., -1., -1.));
+    painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
 }
 
 void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 {
     qreal stripesWidth = 12;
 
-    QRegion innerRegion = QRegion(boundingRect().adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
-    QRegion outerRegion  = QRegion(boundingRect().toRect()) - innerRegion;
+    QRegion innerRegion = QRegion(m_boundingRect.adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
+    QRegion outerRegion  = QRegion(m_boundingRect.toRect()) - innerRegion;
 
     painter->setClipRegion(outerRegion);
     painter->setClipping(true);
-    painter->fillRect(boundingRect().adjusted(1, 1, -1, -1), Qt::BDiagPattern);
+    painter->fillRect(m_boundingRect.adjusted(1, 1, -1, -1), Qt::BDiagPattern);
     painter->setClipping(false);
 
     QString displayText = qmlItemNode().id();
@@ -277,7 +278,7 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
     textOption.setAlignment(Qt::AlignTop);
     textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 
-    if (boundingRect().height() > 60) {
+    if (m_boundingRect.height() > 60) {
         painter->save();
 
         QFont font;
@@ -288,15 +289,15 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 
         QFontMetrics fm(font);
         painter->rotate(90);
-        if (fm.width(displayText) > (boundingRect().height() - 32) && displayText.length() > 4) {
+        if (fm.width(displayText) > (m_boundingRect.height() - 32) && displayText.length() > 4) {
 
-            displayText = fm.elidedText(displayText, Qt::ElideRight, boundingRect().height() - 32, Qt::TextShowMnemonic);
+            displayText = fm.elidedText(displayText, Qt::ElideRight, m_boundingRect.height() - 32, Qt::TextShowMnemonic);
         }
 
         QRectF rotatedBoundingBox;
-        rotatedBoundingBox.setWidth(boundingRect().height());
+        rotatedBoundingBox.setWidth(m_boundingRect.height());
         rotatedBoundingBox.setHeight(12);
-        rotatedBoundingBox.setY(-boundingRect().width() + 12);
+        rotatedBoundingBox.setY(-m_boundingRect.width() + 12);
         rotatedBoundingBox.setX(20);
 
         painter->setFont(font);
@@ -319,7 +320,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
     painter->save();
 
     if (qmlItemNode().instanceIsRenderPixmapNull() || !isContentVisible()) {
-        if (scene()->showBoundingRects() && boundingRect().width() > 15 && boundingRect().height() > 15)
+        if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
             paintPlaceHolderForInvisbleItem(painter);
     } else {
         qmlItemNode().paintInstance(painter);

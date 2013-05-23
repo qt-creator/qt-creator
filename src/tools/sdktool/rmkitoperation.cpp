@@ -89,7 +89,7 @@ int RmKitOperation::execute() const
 
     QVariantMap result = rmKit(map, m_id);
 
-    if (result.isEmpty() || result == map)
+    if (result == map)
         return -2;
 
     return save(result, QLatin1String("profiles")) ? 0 : -3;

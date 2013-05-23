@@ -32,6 +32,7 @@
 #include "androidconstants.h"
 #include "androidmanifestdocument.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <texteditor/plaintexteditor.h>
 #include <projectexplorer/projectwindow.h>
@@ -42,6 +43,7 @@
 #include <QFileInfo>
 #include <QDomDocument>
 #include <QDir>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QFormLayout>
@@ -50,6 +52,7 @@
 #include <QDebug>
 #include <QToolButton>
 #include <utils/fileutils.h>
+#include <utils/stylehelper.h>
 #include <QListView>
 #include <QPushButton>
 #include <QFileDialog>
@@ -58,6 +61,7 @@
 namespace {
 const QLatin1String packageNameRegExp("^([a-z_]{1}[a-z0-9_]+(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
+const char androidManifestEditorGeneralPaneContextId[] = "AndroidManifestEditorWidget.GeneralWidget";
 
 bool checkPackageName(const QString &packageName)
 {
@@ -105,19 +109,39 @@ TextEditor::BaseTextEditor *AndroidManifestEditorWidget::createEditor()
 
 void AndroidManifestEditorWidget::initializePage()
 {
-    ProjectExplorer::PanelsWidget *generalPanel = new ProjectExplorer::PanelsWidget(this);
-    generalPanel->widget()->setMinimumWidth(0);
-    generalPanel->widget()->setMaximumWidth(900);
+    QWidget *mainWidget = new QWidget(this);
+    mainWidget->setAutoFillBackground(true);
+    // If the user clicks on the mainwidget it gets focus, even though that's not visible
+    // This is to prevent the parent, the actual basetexteditorwidget from getting focus
+    mainWidget->setFocusPolicy(Qt::WheelFocus);
 
-    // Package
-    ProjectExplorer::PropertiesPanel *manifestPanel = new ProjectExplorer::PropertiesPanel;
-    manifestPanel->setDisplayName(tr("Package"));
+    Core::IContext *myContext = new Core::IContext(this);
+    myContext->setWidget(mainWidget);
+    myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId));
+    Core::ICore::addContextObject(myContext);
+
+    QVBoxLayout *topLayout = new QVBoxLayout(mainWidget);
+
+    QGroupBox *packageGroupBox = new QGroupBox(mainWidget);
+    topLayout->addWidget(packageGroupBox);
+
+    packageGroupBox->setTitle(tr("Package"));
     {
-        QWidget *mainWidget = new QWidget();
+        QFormLayout *formLayout = new QFormLayout();
 
-        QFormLayout *formLayout = new QFormLayout(mainWidget);
-
-        m_packageNameLineEdit = new QLineEdit(mainWidget);
+        m_packageNameLineEdit = new QLineEdit(packageGroupBox);
+        m_packageNameLineEdit->setToolTip(tr(
+                    "<p align=\"justify\">Please choose a valid package name "
+                    "for your application (e.g. \"org.example.myapplication\").</p>"
+                    "<p align=\"justify\">Packages are usually defined using a hierarchical naming pattern, "
+                    "with levels in the hierarchy separated by periods (.) (pronounced \"dot\").</p>"
+                    "<p align=\"justify\">In general, a package name begins with the top level domain name"
+                    " of the organization and then the organization's domain and then any subdomains listed"
+                    "in reverse order. The organization can then choose a specific name for their package."
+                    " Package names should be all lowercase characters whenever possible.</p>"
+                    "<p align=\"justify\">Complete conventions for disambiguating package names and rules for"
+                    " naming packages when the Internet domain name cannot be directly used as a package name"
+                    " are described in section 7.7 of the Java Language Specification.</p>"));
         formLayout->addRow(tr("Package name:"), m_packageNameLineEdit);
 
         m_packageNameWarning = new QLabel;
@@ -137,15 +161,16 @@ void AndroidManifestEditorWidget::initializePage()
         formLayout->addRow(QString(), warningRow);
 
 
-        m_versionCode = new QSpinBox(mainWidget);
+        m_versionCode = new QSpinBox(packageGroupBox);
         m_versionCode->setMaximum(99);
         m_versionCode->setValue(1);
+        m_versionCode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         formLayout->addRow(tr("Version code:"), m_versionCode);
 
-        m_versionNameLinedit = new QLineEdit(mainWidget);
+        m_versionNameLinedit = new QLineEdit(packageGroupBox);
         formLayout->addRow(tr("Version name:"), m_versionNameLinedit);
 
-        manifestPanel->setWidget(mainWidget);
+        packageGroupBox->setLayout(formLayout);
 
         connect(m_packageNameLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(setPackageName()));
@@ -155,44 +180,47 @@ void AndroidManifestEditorWidget::initializePage()
                 this, SLOT(setDirty()));
 
     }
-    generalPanel->addPropertiesPanel(manifestPanel);
 
     // Application
-    ProjectExplorer::PropertiesPanel *applicationPanel = new ProjectExplorer::PropertiesPanel;
-    applicationPanel->setDisplayName(tr("Application"));
-    {
-        QWidget *mainWidget = new QWidget();
-        QFormLayout *formLayout = new QFormLayout(mainWidget);
+    QGroupBox *applicationGroupBox = new QGroupBox(mainWidget);
+    topLayout->addWidget(applicationGroupBox);
 
-        m_appNameLineEdit = new QLineEdit(mainWidget);
+    applicationGroupBox->setTitle(tr("Application"));
+    {
+        QFormLayout *formLayout = new QFormLayout();
+
+        m_appNameLineEdit = new QLineEdit(applicationGroupBox);
         formLayout->addRow(tr("Application name:"), m_appNameLineEdit);
 
-        m_targetLineEdit = new QLineEdit(mainWidget);
+        m_targetLineEdit = new QLineEdit(applicationGroupBox);
         formLayout->addRow(tr("Run:"), m_targetLineEdit);
 
         QHBoxLayout *iconLayout = new QHBoxLayout();
-        m_lIconButton = new QToolButton(mainWidget);
+        m_lIconButton = new QToolButton(applicationGroupBox);
         m_lIconButton->setMinimumSize(QSize(48, 48));
         m_lIconButton->setMaximumSize(QSize(48, 48));
+        m_lIconButton->setToolTip(tr("Select low dpi icon"));
         iconLayout->addWidget(m_lIconButton);
 
         iconLayout->addItem(new QSpacerItem(28, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-        m_mIconButton = new QToolButton(mainWidget);
+        m_mIconButton = new QToolButton(applicationGroupBox);
         m_mIconButton->setMinimumSize(QSize(48, 48));
         m_mIconButton->setMaximumSize(QSize(48, 48));
+        m_mIconButton->setToolTip(tr("Select medium dpi icon"));
         iconLayout->addWidget(m_mIconButton);
 
         iconLayout->addItem(new QSpacerItem(28, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-        m_hIconButton = new QToolButton(mainWidget);
+        m_hIconButton = new QToolButton(applicationGroupBox);
         m_hIconButton->setMinimumSize(QSize(48, 48));
         m_hIconButton->setMaximumSize(QSize(48, 48));
+        m_hIconButton->setToolTip(tr("Select high dpi icon"));
         iconLayout->addWidget(m_hIconButton);
 
         formLayout->addRow(tr("Application icon:"), iconLayout);
 
-        applicationPanel->setWidget(mainWidget);
+        applicationGroupBox->setLayout(formLayout);
 
         connect(m_appNameLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(setAppName()));
@@ -203,28 +231,28 @@ void AndroidManifestEditorWidget::initializePage()
         connect(m_mIconButton, SIGNAL(clicked()), SLOT(setMDPIIcon()));
         connect(m_hIconButton, SIGNAL(clicked()), SLOT(setHDPIIcon()));
     }
-    generalPanel->addPropertiesPanel(applicationPanel);
 
 
     // Permissions
-    ProjectExplorer::PropertiesPanel *permissionsPanel = new ProjectExplorer::PropertiesPanel;
-    permissionsPanel->setDisplayName(tr("Permissions"));
+    QGroupBox *permissionsGroupBox = new QGroupBox(mainWidget);
+    topLayout->addWidget(permissionsGroupBox);
+
+    permissionsGroupBox->setTitle(tr("Permissions"));
     {
-        QWidget *mainWidget = new QWidget();
-        QGridLayout *layout = new QGridLayout(mainWidget);
+        QGridLayout *layout = new QGridLayout(permissionsGroupBox);
 
         m_permissionsModel = new PermissionsModel(this);
 
-        m_permissionsListView = new QListView(mainWidget);
+        m_permissionsListView = new QListView(permissionsGroupBox);
         m_permissionsListView->setModel(m_permissionsModel);
         m_permissionsListView->setMinimumSize(QSize(0, 200));
         layout->addWidget(m_permissionsListView, 0, 0, 3, 1);
 
-        m_removePermissionButton = new QPushButton(mainWidget);
+        m_removePermissionButton = new QPushButton(permissionsGroupBox);
         m_removePermissionButton->setText(tr("Remove"));
         layout->addWidget(m_removePermissionButton, 0, 1);
 
-        m_permissionsComboBox = new QComboBox(mainWidget);
+        m_permissionsComboBox = new QComboBox(permissionsGroupBox);
         m_permissionsComboBox->insertItems(0, QStringList()
          << QLatin1String("android.permission.ACCESS_CHECKIN_PROPERTIES")
          << QLatin1String("android.permission.ACCESS_COARSE_LOCATION")
@@ -348,11 +376,11 @@ void AndroidManifestEditorWidget::initializePage()
         m_permissionsComboBox->setEditable(true);
         layout->addWidget(m_permissionsComboBox, 4, 0);
 
-        m_addPermissionButton = new QPushButton(mainWidget);
+        m_addPermissionButton = new QPushButton(permissionsGroupBox);
         m_addPermissionButton->setText(tr("Add"));
         layout->addWidget(m_addPermissionButton, 4, 1);
 
-        permissionsPanel->setWidget(mainWidget);
+        permissionsGroupBox->setLayout(layout);
 
         connect(m_addPermissionButton, SIGNAL(clicked()),
                 this, SLOT(addPermission()));
@@ -361,9 +389,10 @@ void AndroidManifestEditorWidget::initializePage()
         connect(m_permissionsComboBox, SIGNAL(currentTextChanged(QString)),
                 this, SLOT(updateAddRemovePermissionButtons()));
     }
-    generalPanel->addPropertiesPanel(permissionsPanel);
 
-    m_overlayWidget = generalPanel;
+    topLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
+
+    m_overlayWidget = mainWidget;
 }
 
 void AndroidManifestEditorWidget::resizeEvent(QResizeEvent *event)
@@ -429,10 +458,17 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
 
     if (page == Source) {
         syncToEditor();
-    } else if (prevPage == Source) {
+        setFocus();
+    } else {
         if (!syncToWidgets()) {
             return false;
         }
+
+        QWidget *fw = m_overlayWidget->focusWidget();
+        if (fw && fw != m_overlayWidget)
+            fw->setFocus();
+        else
+            m_packageNameLineEdit->setFocus();
     }
 
     m_overlayWidget->setVisible(page == General);
@@ -683,7 +719,7 @@ void AndroidManifestEditorWidget::syncToEditor()
     }
 
 
-    QString newText = doc.toString();
+    QString newText = doc.toString(4);
     if (newText == toPlainText())
         return;
 

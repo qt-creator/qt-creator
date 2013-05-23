@@ -34,17 +34,7 @@
 
 static const char eventContextC[] = "event";
 
-// Special exception codes (see dbgwinutils.cpp).
-enum { winExceptionCppException = 0xe06d7363,
-       winExceptionStartupCompleteTrap = 0x406d1388,
-       winExceptionRpcServerUnavailable = 0x6ba,
-       winExceptionRpcServerInvalid = 0x6a6,
-       winExceptionDllNotFound = 0xc0000135,
-       winExceptionDllEntryPointNoFound = 0xc0000139,
-       winExceptionDllInitFailed = 0xc0000142,
-       winExceptionMissingSystemFile = 0xc0000143,
-       winExceptionAppInitFailed = 0xc0000143
-};
+const static int winExceptionCppException = 0xe06d7363;
 
 typedef ExtensionContext::StopReasonMap StopReasonMap;
 

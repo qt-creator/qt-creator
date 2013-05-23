@@ -139,6 +139,7 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
+    Q_UNUSED(aspect)
 
     if (runControl)
         m_engine = runControl->engine();

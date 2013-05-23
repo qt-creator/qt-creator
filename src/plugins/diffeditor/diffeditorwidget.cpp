@@ -487,12 +487,14 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_leftEditor->setHighlightCurrentLine(false);
     m_leftEditor->setWordWrapMode(QTextOption::NoWrap);
     m_leftEditor->setFontSettings(settings->fontSettings());
+    m_leftEditor->setCodeStyle(settings->codeStyle());
 
     m_rightEditor = new DiffViewEditorWidget(this);
     m_rightEditor->setReadOnly(true);
     m_rightEditor->setHighlightCurrentLine(false);
     m_rightEditor->setWordWrapMode(QTextOption::NoWrap);
     m_rightEditor->setFontSettings(settings->fontSettings());
+    m_rightEditor->setCodeStyle(settings->codeStyle());
 
     connect(m_leftEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(leftSliderChanged()));
@@ -1411,7 +1413,10 @@ void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffVie
         sourceLayout->requestUpdate();
         sourceLayout->emitDocumentSizeChanged();
     }
-    source->updateFoldingHighlight(source->mapFromGlobal(QCursor::pos()));
+
+    QWidget *ea = source->extraArea();
+    if (ea->contentsRect().contains(ea->mapFromGlobal(QCursor::pos())))
+        source->updateFoldingHighlight(source->mapFromGlobal(QCursor::pos()));
 
     BaseTextDocumentLayout *destinationLayout = qobject_cast<BaseTextDocumentLayout *>(destination->document()->documentLayout());
     if (destinationLayout) {

@@ -161,6 +161,7 @@ void FormEditorScene::synchronizeTransformation(const QmlItemNode &qmlItemNode)
 {
     FormEditorItem *item = itemForQmlItemNode(qmlItemNode);
     item->updateGeometry();
+    item->update();
 
     if (qmlItemNode.isRootNode()) {
         formLayerItem()->update();

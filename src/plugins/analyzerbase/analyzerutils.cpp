@@ -68,6 +68,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (!textEditor)
         return 0;
+
     TextEditor::BaseTextEditorWidget *editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
     if (!editorWidget)
         return 0;

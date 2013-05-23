@@ -59,7 +59,9 @@ namespace {
 
 #if QT_VERSION >= 0x050000
 
+QT_BEGIN_NAMESPACE
 Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);
+QT_END_NAMESPACE
 
 static inline QWindow *windowOfWidget(const QWidget *widget)
 {

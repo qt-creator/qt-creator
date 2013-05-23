@@ -183,6 +183,22 @@ QTransform GraphicalNodeInstance::customTransform() const
     return QTransform();
 }
 
+static QTransform contentTransformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
+{
+    QTransform contentTransform;
+    if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem())) {
+        contentTransform = DesignerSupport::parentTransform(item->parentItem());
+        return contentTransformForItem(item->parentItem(), nodeInstanceServer) * contentTransform;
+    }
+
+    return contentTransform;
+}
+
+QTransform GraphicalNodeInstance::contentTransform() const
+{
+    return contentTransformForItem(quickItem(), nodeInstanceServer());
+}
+
 QTransform GraphicalNodeInstance::sceneTransform() const
 {
     return DesignerSupport::windowTransform(quickItem());
@@ -460,11 +476,15 @@ QPair<PropertyName, ServerNodeInstance> GraphicalNodeInstance::anchor(const Prop
     QObject *targetObject = nameObjectPair.second;
     PropertyName targetName = nameObjectPair.first.toUtf8();
 
-    if (targetObject && nodeInstanceServer()->hasInstanceForObject(targetObject)) {
-        return qMakePair(targetName, nodeInstanceServer()->instanceForObject(targetObject));
-    } else {
-        return ObjectNodeInstance::anchor(name);
+    while (targetObject) {
+        if (nodeInstanceServer()->hasInstanceForObject(targetObject))
+            return qMakePair(targetName, nodeInstanceServer()->instanceForObject(targetObject));
+        else
+            targetObject = parentObject(targetObject);
     }
+
+    return ObjectNodeInstance::anchor(name);
+
 }
 
 static void doComponentCompleteRecursive(QQuickItem *item)

@@ -6,6 +6,7 @@ QtcPlugin {
     name: "RemoteLinux"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }

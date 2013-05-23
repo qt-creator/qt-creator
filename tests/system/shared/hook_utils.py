@@ -1,3 +1,32 @@
+#############################################################################
+##
+## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Contact: http://www.qt-project.org/legal
+##
+## This file is part of Qt Creator.
+##
+## Commercial License Usage
+## Licensees holding valid commercial Qt licenses may use this file in
+## accordance with the commercial license agreement provided with the
+## Software or, alternatively, in accordance with the terms contained in
+## a written agreement between you and Digia.  For licensing terms and
+## conditions see http://qt.digia.com/licensing.  For further information
+## use the contact form at http://qt.digia.com/contact-us.
+##
+## GNU Lesser General Public License Usage
+## Alternatively, this file may be used under the terms of the GNU Lesser
+## General Public License version 2.1 as published by the Free Software
+## Foundation and appearing in the file LICENSE.LGPL included in the
+## packaging of this file.  Please review the following information to
+## ensure the GNU Lesser General Public License version 2.1 requirements
+## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+##
+## In addition, as a special exception, Digia gives you certain additional
+## rights.  These rights are described in the Digia Qt LGPL Exception
+## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+##
+#############################################################################
+
 import re
 
 # this function modifies all necessary run settings to make it possible to hook into
@@ -85,9 +114,7 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
                               "unnamed='1' visible='1'}")
     clickButton(addRunConfig)
     activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
-    exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
-                                   "text='Command:' type='QLabel' unnamed='1' visible='1'} "
-                                   "type='Utils::PathChooser' unnamed='1' visible='1'}")
+    exePathChooser = waitForObject(":Executable:_Utils::PathChooser")
     exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
     argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
@@ -206,8 +233,7 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
     clickButton(addButton)
     addMenu = addButton.menu()
     activateItem(waitForObjectItem(objectMap.realName(addMenu), 'Custom Executable'))
-    exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Command:' type='QLabel' unnamed='1' visible='1'} "
-                                   "type='Utils::PathChooser' unnamed='1' visible='1'}", 2000)
+    exePathChooser = waitForObject(":Executable:_Utils::PathChooser", 2000)
     exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
     argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "

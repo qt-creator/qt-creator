@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 
+import atexit
 import binascii
 import inspect
 import os
@@ -7,10 +7,15 @@ import platform
 import threading
 import select
 import sys
+import subprocess
+
 
 uname = platform.uname()[0]
 if uname == 'Linux':
-    sys.path.append('/data/dev/llvm-git/build/Debug+Asserts/lib/python2.7/site-packages')
+    # /data/dev/llvm-git-2/build/lib/python2.7/site-packages
+    proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
+    path = proc.stdout.read().strip()
+    sys.path.append(path)
 else:
     base = '/Applications/Xcode.app/Contents/'
     sys.path.append(base + 'SharedFrameworks/LLDB.framework/Resources/Python')
@@ -19,7 +24,7 @@ else:
 import lldb
 
 cdbLoaded = False
-lldbLoaded = False
+lldbLoaded = True
 gdbLoaded = False
 
 # Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
@@ -63,16 +68,7 @@ DisplayUtf8String \
     = range(7)
 
 def lookupType(name):
-    if name == "int":
-        return intType
-    if name == "size_t":
-        return sizeTType
-    if name == "char":
-        return charType
-    if name == "char *":
-        return charPtrType
-    #warn("LOOKUP: %s" % lldb.target.GetModuleAtIndex(0).FindFirstType(name))
-    return lldb.target.GetModuleAtIndex(0).FindFirstType(name)
+    return None
 
 def isSimpleType(typeobj):
     typeClass = typeobj.GetTypeClass()
@@ -85,7 +81,7 @@ def isSimpleType(typeobj):
 #
 #######################################################################
 
-qqStringCutOff = 1000
+qqStringCutOff = 10000
 
 # This is a cache mapping from 'type name' to 'display alternatives'.
 qqFormats = {}
@@ -99,8 +95,11 @@ qqEditable = {}
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
 
-def templateArgument(type, index):
-    return type.GetTemplateArgumentType(index)
+def templateArgument(typeobj, index):
+    return typeobj.GetTemplateArgumentType(index)
+
+def directBaseClass(typeobj, index = 0):
+    return typeobj.GetDirectBaseClassAtIndex(index)
 
 def stripForFormat(typeName):
     global qqStripForFormat
@@ -157,30 +156,6 @@ def showException(msg, exType, exValue, exTraceback):
 
 def registerCommand(name, func):
     pass
-
-def qByteArrayData(value):
-    private = value['d']
-    checkRef(private['ref'])
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private['offset']
-        data = int(private) + int(offset)
-        return data, int(private['size']), int(private['alloc'])
-    except:
-        # Qt 4:
-        return private['data'], int(private['size']), int(private['alloc'])
-
-def qStringData(value):
-    private = value['d']
-    checkRef(private['ref'])
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private['offset']
-        data = int(private) + int(offset)
-        return data, int(private['size'].GetValue()), int(private['alloc'])
-    except:
-        # Qt 4.
-        return private['data'], int(private['size']), int(private['alloc'])
 
 def currentFrame():
     currentThread = self.process.GetThreadAtIndex(0)
@@ -290,20 +265,32 @@ def checkRef(ref):
     check(count >= minimum)
     check(count < 1000000)
 
+def createPointerValue(context, address, pointeeType):
+    addr = int(address) & 0xFFFFFFFFFFFFFFFF
+    return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
+
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
-        return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True).AddressOf()
+        if isinstance(offset, int) or isinstance(offset, long):
+            pass
+        else:
+            offset = offset.GetValueAsSigned()
+        itemsize = self.GetType().GetDereferencedType().GetByteSize()
+        address = self.GetValueAsUnsigned() + offset * itemsize
+        address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+        return createPointerValue(self, address, self.GetType().GetPointeeType())
     raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
 
 def impl_SBValue__sub__(self, other):
     if self.GetType().IsPointerType():
-        if isinstance(other, int):
-            return self.GetChildAtIndex(-other, lldb.eNoDynamicValues, True).AddressOf()
+        if isinstance(other, int) or isinstance(other, long):
+            address = self.GetValueAsUnsigned() - offset.GetValueAsSigned()
+            address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+            return self.CreateValueFromAddress(None, address, self.GetType())
         if other.GetType().IsPointerType():
             itemsize = self.GetType().GetDereferencedType().GetByteSize()
             return (int(self) - int(other)) / itemsize
-        return impl_SBValue__add__(self, -int(other))
     raise RuntimeError("SBValue.__sub__ not implemented: %s" % self.GetType())
     return NotImplemented
 
@@ -314,22 +301,22 @@ def impl_SBValue__le__(self, other):
     return NotImplemented
 
 def impl_SBValue__int__(self):
+    return self.GetValueAsSigned()
+    #return int(self.GetValue(), 0)
+
+def impl_SBValue__long__(self):
     return int(self.GetValue(), 0)
 
 def impl_SBValue__getitem__(self, name):
     if self.GetType().IsPointerType() and isinstance(name, int):
         innertype = self.Dereference().GetType()
         address = self.GetValueAsUnsigned() + name * innertype.GetByteSize()
-        return self.CreateValueFromAddress("xx", address, innertype)
-        #return self.GetChildAtIndex(int(offset))
-        #return self.GetChildAtIndex(int(offset), lldb.eNoDynamicValues, True)
+        address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+        return self.CreateValueFromAddress(None, address, innertype)
     return self.GetChildMemberWithName(name)
 
 def childAt(value, index):
     return value.GetChildAtIndex(index)
-
-def addressOf(value):
-    return value.address_of
 
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
@@ -397,7 +384,7 @@ class Children:
         else:
             #self.childType = stripClassTag(str(childType))
             self.childType = childType
-            self.d.put('childtype="%s",' % self.childType)
+            self.d.put('childtype="%s",' % self.childType.GetName())
             if childNumChild is None:
                 pass
                 #if isSimpleType(childType):
@@ -500,7 +487,7 @@ class SubItem:
         self.d.currentTypePriority = self.savedTypePriority
         return True
 
-class Debugger:
+class Dumper:
     def __init__(self):
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
@@ -512,14 +499,15 @@ class Debugger:
         self.debugger.HandleCommand("settings set auto-confirm on")
         self.process = None
         self.target = None
-        self.executable = None
         self.pid = None
         self.eventState = lldb.eStateInvalid
         self.listener = None
         self.options = {}
         self.expandedINames = {}
         self.passExceptions = True
+        self.useLldbDumpers = False
         self.ns = ""
+        self.autoDerefPointers = True
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -532,6 +520,41 @@ class Debugger:
         self.currentPrintsAddress = None
         self.currentChildType = None
         self.currentChildNumChild = None
+
+        self.charType_ = None
+        self.intType_ = None
+        self.sizetType_ = None
+        self.charPtrType_ = None
+        self.voidType_ = None
+
+    def intType(self):
+        if self.intType_ is None:
+             self.intType_ = self.target.GetModuleAtIndex(0).FindFirstType('int')
+        return self.intType_
+
+    def charType(self):
+        if self.charType_ is None:
+             self.charType_ = self.target.GetModuleAtIndex(0).FindFirstType('char')
+        return self.charType_
+
+    def charPtrType(self):
+        if self.charPtrType_ is None:
+             self.charPtrType_ = self.charType().GetPointerType()
+        return self.charPtrType_
+
+    def voidPtrType(self):
+        return self.charPtrType()  # FIXME
+
+    def voidPtrSize(self):
+        return self.charPtrType().GetByteSize()
+
+    def sizetType(self):
+        if self.sizetType_ is None:
+             self.sizetType_ = self.lookupType('size_t')
+        return self.sizetType_
+
+    def addressOf(self, value):
+        return int(value.GetLoadAddress())
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -591,11 +614,11 @@ class Debugger:
             return False
         size = n * typeobj.sizeof
         self.put('childtype="%s",' % typeobj)
-        self.put('addrbase="0x%x",' % long(base))
-        self.put('addrstep="0x%x",' % long(typeobj.sizeof))
+        self.put('addrbase="0x%x",' % int(base))
+        self.put('addrstep="%d",' % typeobj.sizeof)
         self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
         self.put('arraydata="')
-        self.put(self.readRawMemory(long(base), size))
+        self.put(self.readRawMemory(base, size))
         self.put('",')
         return True
 
@@ -621,16 +644,10 @@ class Debugger:
         #warn("LOOKUP: %s" % self.target.GetModuleAtIndex(0).FindFirstType(name))
         return self.target.GetModuleAtIndex(0).FindFirstType(name)
 
-    def charPointerType(self):
-        charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
-        #return lldb.SBType().GetBasicType(lldb.eBasicTypeChar).GetPointerType()
-        return charType.GetPointerType()
-
     def setupInferior(self, args):
         fileName = args['executable']
         error = lldb.SBError()
-        self.executable = fileName
-        self.target = self.debugger.CreateTarget(self.executable, None, None, True, error)
+        self.target = self.debugger.CreateTarget(fileName, None, None, True, error)
         if self.target.IsValid():
             self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, fileName))
         else:
@@ -690,10 +707,10 @@ class Debugger:
 
     def reportThreads(self):
         result = 'threads={threads=['
-        for i in xrange(1, self.process.GetNumThreads()):
+        for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
-            result += '{id="%d"' % thread.GetThreadId()
-            result += ',index="%s"' % thread.GetThreadId()
+            result += '{id="%d"' % thread.GetThreadID()
+            result += ',index="%s"' % i
             result += ',stop-reason="%s"' % thread.GetStopReason()
             result += ',name="%s"' % thread.GetName()
             result += ',frame={'
@@ -743,17 +760,29 @@ class Debugger:
         else:
             self.putValue('<%s items>' % count)
 
-    def putType(self, typeName, priority = 0):
-            self.put('type="%s",' % typeName)
+    def putType(self, type, priority = 0):
+        # Higher priority values override lower ones.
+        if priority >= self.currentTypePriority:
+            self.currentType = str(type)
+            self.currentTypePriority = priority
 
-    def putStringValue(self, value, priority = 0):
-        if not value is None:
-            str = self.encodeString(value)
-            self.putValue(str, Hex4EncodedLittleEndian, priority)
+    def putBetterType(self, type):
+        try:
+            self.currentType = type.GetName()
+        except:
+            self.currentType = str(type)
+        self.currentTypePriority = self.currentTypePriority + 1
+
 
     def readRawMemory(self, base, size):
         error = lldb.SBError()
-        contents = self.process.ReadMemory(int(base), size, error)
+        #warn("BASE: %s " % base)
+        #warn("SIZE: %s " % size)
+        base = int(base) & 0xFFFFFFFFFFFFFFFF
+        size = int(size) & 0xFFFFFFFF
+        #warn("BASEX: %s " % base)
+        #warn("SIZEX: %s " % size)
+        contents = self.process.ReadMemory(base, size, error)
         return binascii.hexlify(contents)
 
     def computeLimit(self, size, limit):
@@ -764,36 +793,12 @@ class Debugger:
             return min(size, 100)
         return min(size, limit)
 
-    def encodeString(self, value, limit = 0):
-        data, size, alloc = qStringData(value)
-        if alloc != 0:
-            check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-        limit = self.computeLimit(size, limit)
-        s = self.readRawMemory(data, 2 * limit)
-        if limit < size:
-            s += "2e002e002e00"
-        return s
-
-    def encodeByteArray(self, value, limit = None):
-        data, size, alloc = qByteArrayData(value)
-        if alloc != 0:
-            check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-        limit = self.computeLimit(size, limit)
-        s = self.readRawMemory(data, limit)
-        if limit < size:
-            s += "2e2e2e"
-        return s
-
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:
             self.currentValue = value
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
-
-    def putByteArrayValue(self, value):
-        str = self.encodeByteArray(value)
-        self.putValue(str, Hex2EncodedLatin1)
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
@@ -819,7 +824,10 @@ class Debugger:
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
 
-        if False and value.GetTypeSynthetic().IsValid():
+        # Handle build-in LLDB visualizers if wanted.
+        hasSynth = hasattr(value, 'SetPreferSyntheticValue')
+
+        if self.useLldbDumpers and hasSynth and value.GetTypeSynthetic().IsValid():
             # FIXME: print "official" summary?
             summary = value.GetTypeSummary()
             if summary.IsValid():
@@ -843,7 +851,26 @@ class Debugger:
                             self.putItem(child)
             return
 
-        value.SetPreferSyntheticValue(False)
+        # Our turf now.
+        if hasSynth:
+            value.SetPreferSyntheticValue(False)
+
+        # References
+        if value.GetType().IsReferenceType():
+            type = value.GetType().GetDereferencedType().GetPointerType()
+            # FIXME: Find something more direct.
+            value = value.CreateValueFromAddress(value.GetName(),
+                value.AddressOf().GetValueAsUnsigned(), type).Dereference()
+            #value = value.cast(value.dynamic_type)
+            self.putItem(value)
+            self.putBetterType("%s &" % value.GetTypeName())
+            return
+
+        # Pointers
+        if value.GetType().IsPointerType() and self.autoDerefPointers:
+            self.putItem(value.Dereference())
+            return
+
         stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
         #warn("VALUE: %s" % value)
         if stripped in qqDumpers:
@@ -885,13 +912,6 @@ class Debugger:
         self.report('')
 
     def reportData(self, _ = None):
-        # Hack.
-        global charPtrType, charType, intType, sizeTType
-        intType = self.target.GetModuleAtIndex(0).FindFirstType('int')
-        sizeTType = self.target.GetModuleAtIndex(0).FindFirstType('size_t')
-        charType = self.target.GetModuleAtIndex(0).FindFirstType('char')
-        charPtrType = charType.GetPointerType()
-
         self.reportRegisters()
         if self.process is None:
             self.report('process="none"')
@@ -1009,50 +1029,64 @@ class Debugger:
         result += '],'
         return result
 
+    def addBreakpoint(self, args):
+        bpType = args["type"]
+        if bpType == BreakpointByFileAndLine:
+            bpNew = self.target.BreakpointCreateByLocation(
+                str(args["file"]), int(args["line"]))
+        elif bpType == BreakpointByFunction:
+            bpNew = self.target.BreakpointCreateByName(args["function"])
+        elif bpType == BreakpointAtMain:
+            bpNew = self.target.BreakpointCreateByName(
+                "main", self.target.GetExecutable().GetFilename())
+        else:
+            warn("UNKNOWN TYPE")
+        bpNew.SetIgnoreCount(int(args["ignorecount"]))
+        bpNew.SetCondition(str(args["condition"]))
+        bpNew.SetEnabled(int(args["enabled"]))
+        try:
+            bpNew.SetOneShot(int(args["oneshot"]))
+        except:
+            pass
+        #bpNew.SetCallback(breakpoint_function_wrapper, None)
+        #bpNew.SetCallback(breakpoint_function_wrapper, None)
+        #"breakpoint command add 1 -o \"import time; print time.asctime()\"
+        #cmd = "script print(11111111)"
+        #cmd = "continue"
+        #self.debugger.HandleCommand(
+        #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
+        return bpNew
+
+    def changeBreakpoint(self, args):
+        bpChange = self.target.FindBreakpointByID(int(args["lldbid"]))
+        bpChange.SetIgnoreCount(int(args["ignorecount"]))
+        bpChange.SetCondition(str(args["condition"]))
+        bpChange.SetEnabled(int(args["enabled"]))
+        try:
+            bpChange.SetOneShot(int(args["oneshot"]))
+        except:
+            pass
+
+    def removeBreakpoint(self, args):
+        return self.target.BreakpointDelete(int(args["lldbid"]))
+
     def handleBreakpoints(self, args):
         result = 'bkpts=['
         for bp in args['bkpts']:
             operation = bp['operation']
 
             if operation == 'add':
-                bpType = bp["type"]
-                if bpType == BreakpointByFileAndLine:
-                    bpNew = self.target.BreakpointCreateByLocation(str(bp["file"]), int(bp["line"]))
-                elif bpType == BreakpointByFunction:
-                    bpNew = self.target.BreakpointCreateByName(bp["function"])
-                elif bpType == BreakpointAtMain:
-                    bpNew = self.target.BreakpointCreateByName("main", self.target.GetExecutable().GetFilename())
-                else:
-                    warn("UNKNOWN TYPE")
-                bpNew.SetIgnoreCount(int(bp["ignorecount"]))
-                bpNew.SetCondition(str(bp["condition"]))
-                bpNew.SetEnabled(int(bp["enabled"]))
-                try:
-                    bpNew.SetOneShot(int(bp["oneshot"]))
-                except:
-                    pass
-                #bpNew.SetCallback(breakpoint_function_wrapper, None)
-                #bpNew.SetCallback(breakpoint_function_wrapper, None)
-                #"breakpoint command add 1 -o \"import time; print time.asctime()\"
-                #cmd = "script print(11111111)"
-                #cmd = "continue"
-                #self.debugger.HandleCommand(
-                #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
-                result += '{operation="added",%s}' % self.describeBreakpoint(bpNew, bp["modelid"])
+                bpNew = self.addBreakpoint(bp)
+                result += '{operation="added",%s}' \
+                    % self.describeBreakpoint(bpNew, bp["modelid"])
 
             elif operation == 'change':
-                bpChange = self.target.FindBreakpointByID(int(bp["lldbid"]))
-                bpChange.SetIgnoreCount(int(bp["ignorecount"]))
-                bpChange.SetCondition(str(bp["condition"]))
-                bpChange.SetEnabled(int(bp["enabled"]))
-                try:
-                    bpChange.SetOneShot(int(bp["oneshot"]))
-                except:
-                    pass
-                result += '{operation="changed",%s' % self.describeBreakpoint(bpNew, bp["modelid"])
+                bpNew = self.changeBreakpoint(bp)
+                result += '{operation="changed",%s' \
+                    % self.describeBreakpoint(bpNew, bp["modelid"])
 
             elif operation == 'remove':
-                bpDead = self.target.BreakpointDelete(int(bp["lldbid"]))
+                bpDead = self.removeBreakpoint(bp)
                 result += '{operation="removed",modelid="%s"}' % bp["modelid"]
 
         result += "]"
@@ -1201,7 +1235,9 @@ class Debugger:
     def loop(self):
         event = lldb.SBEvent()
         while True:
-            if self.listener.WaitForEvent(sys.maxsize, event):
+            # Mac LLDB doesn't like sys.maxsize
+            # if self.listener.WaitForEvent(sys.maxsize, event):
+            if self.listener.WaitForEvent(10000000, event):
                 self.handleEvent(event)
             else:
                 warn('TIMEOUT')
@@ -1215,18 +1251,13 @@ class Debugger:
         except:
             pass
 
-
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-#warn("currentdir: %s" % currentDir)
-#execfile(os.path.join(currentDir, "dumper.py"))
 execfile(os.path.join(currentDir, "qttypes.py"))
-
-lldbLoaded = True
 
 
 def doit():
 
-    db = Debugger()
+    db = Dumper()
     db.report('state="enginesetupok"')
 
     while True:
@@ -1238,5 +1269,45 @@ def doit():
                 if line.startswith("db "):
                     db.execute(eval(line[3:]))
 
-if __name__ == '__main__':
+
+
+def testit():
+    db = Dumper()
+
+    error = lldb.SBError()
+    db.target = db.debugger.CreateTarget(sys.argv[2], None, None, True, error)
+    #db.importDumpers()
+
+    bpNew = db.target.BreakpointCreateByName('breakHere', 'doit')
+
+    db.listener = lldb.SBListener("event_Listener")
+    db.process = db.target.LaunchSimple(None, None, os.getcwd())
+    broadcaster = db.process.GetBroadcaster()
+    listener = lldb.SBListener("event_Listener 2")
+    rc = broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
+    event = lldb.SBEvent()
+
+    while True:
+        event = lldb.SBEvent()
+        if db.listener.WaitForEvent(1, event):
+            out = lldb.SBStream()
+            event.GetDescription(out)
+            warn("EVENT: %s" % event)
+            type = event.GetType()
+            msg = lldb.SBEvent.GetCStringFromEvent(event)
+            flavor = event.GetDataFlavor()
+            state = lldb.SBProcess.GetStateFromEvent(event)
+            db.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
+                % (type, out.GetData(), msg, flavor, state))
+            db.report('state="%s"' % stateNames[state])
+            if type == lldb.SBProcess.eBroadcastBitStateChanged:
+                #if state == lldb.eStateStopped:
+                #db.reportData()
+                pass
+        else:
+            warn('TIMEOUT')
+
+if len(sys.argv) > 2:
+    testit()
+else:
     doit()

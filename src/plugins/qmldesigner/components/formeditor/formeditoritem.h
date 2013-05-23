@@ -127,6 +127,7 @@ private: // variables
     QTransform m_attentionTransform; // make item larger in anchor mode
     QTransform m_inverseAttentionTransform;
     QRectF m_boundingRect;
+    QRectF m_paintedBoundingRect;
     double m_borderWidth;
     bool m_highlightBoundingRect;
     bool m_isContentVisible;

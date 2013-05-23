@@ -51,8 +51,7 @@ QmlJSPreviewRunner::QmlJSPreviewRunner(QObject *parent) :
                                + QString::fromLocal8Bit(qgetenv("PATH"));
     m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
 
-    Utils::Environment environment = Utils::Environment::systemEnvironment();
-    m_applicationLauncher.setEnvironment(environment);
+    m_applicationLauncher.setEnvironment(Utils::Environment::systemEnvironment());
 }
 
 bool QmlJSPreviewRunner::isReady() const

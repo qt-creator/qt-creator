@@ -32,6 +32,7 @@
 
 #include "nodeinstanceserver.h"
 #include "nodeinstancemetaobject.h"
+#include "nodeinstancesignalspy.h"
 
 #include <QPainter>
 #include <QSharedPointer>
@@ -107,6 +108,7 @@ public:
     virtual QPointF position() const;
     virtual QSizeF size() const;
     virtual QTransform transform() const;
+    virtual QTransform contentTransform() const;
     virtual QTransform customTransform() const;
     virtual QTransform sceneTransform() const;
     virtual double opacity() const;
@@ -189,6 +191,7 @@ protected:
     void addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty);
     void deleteObjectsInList(const QQmlProperty &metaProperty);
     QVariant convertSpecialCharacter(const QVariant& value) const;
+    static QObject *parentObject(QObject *object);
 
 private:
     QHash<PropertyName, QVariant> m_resetValueHash;
@@ -202,6 +205,7 @@ private:
 
     QPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
+    NodeInstanceSignalSpy m_signalSpy;
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;

@@ -3,7 +3,9 @@ QTC_LIB_DEPENDS += \
     qmljs \
     utils
 QTC_PLUGIN_DEPENDS += \
-    projectexplorer
+    coreplugin \
+    projectexplorer \
+    texteditor
 DEFINES *= \
     QMAKE_AS_LIBRARY \
     PROPARSER_THREAD_SAFE \

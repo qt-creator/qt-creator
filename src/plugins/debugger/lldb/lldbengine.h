@@ -181,7 +181,7 @@ private:
     QByteArray m_inbuffer;
     QString m_scriptFileName;
     QProcess m_lldbProc;
-    QString m_lldbBridge;
+    QString m_lldbCmd;
 
     // FIXME: Make generic.
     int m_lastAgentId;

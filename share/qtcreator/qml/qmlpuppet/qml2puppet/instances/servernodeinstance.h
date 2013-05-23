@@ -110,6 +110,7 @@ public:
     QTransform transform() const;
     QTransform customTransform() const;
     QTransform sceneTransform() const;
+    QTransform contentTransform() const;
     double rotation() const;
     double scale() const;
     QList<QGraphicsTransform *> transformations() const;

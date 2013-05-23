@@ -279,8 +279,7 @@ CMakeSettingsPage::~CMakeSettingsPage()
 
 QString CMakeSettingsPage::findCmakeExecutable() const
 {
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    return env.searchInPath(QLatin1String("cmake"));
+    return Utils::Environment::systemEnvironment().searchInPath(QLatin1String("cmake"));
 }
 
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)

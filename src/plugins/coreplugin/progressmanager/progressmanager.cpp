@@ -312,7 +312,7 @@ void ProgressManagerPrivate::init()
     ExtensionSystem::PluginManager::addObject(m_statusBarWidgetContainer);
     m_statusBarWidget->installEventFilter(this);
 
-    QAction *toggleProgressView = new QAction(tr("Toggle progress details"), this);
+    QAction *toggleProgressView = new QAction(tr("Toggle Progress Details"), this);
     toggleProgressView->setCheckable(true);
     toggleProgressView->setChecked(m_progressViewPinned);
     // we have to set an transparent icon to prevent the tool button to show text

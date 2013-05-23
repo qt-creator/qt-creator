@@ -38,6 +38,7 @@
 #include <QSpinBox>
 #include <QStyle>
 #include <QLabel>
+#include <QHBoxLayout>
 
 namespace DiffEditor {
 
@@ -126,6 +127,13 @@ QWidget *DiffEditorEditable::toolBar()
 
     // Create
     m_toolWidget = createToolBar(m_editorWidget);
+
+    QWidget *spacerWidget = new QWidget();
+    QLayout *spacerLayout = new QHBoxLayout();
+    spacerLayout->setMargin(0);
+    spacerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+    spacerWidget->setLayout(spacerLayout);
+    m_toolWidget->addWidget(spacerWidget);
 
     QToolButton *whitespaceButton = new QToolButton(m_toolWidget);
     whitespaceButton->setText(tr("Ignore Whitespace"));

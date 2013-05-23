@@ -29,6 +29,8 @@
 
 #include "gerritmodel.h"
 #include "gerritparameters.h"
+#include "../gitplugin.h"
+#include "../gitclient.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -294,6 +296,8 @@ QueryContext::QueryContext(const QStringList &queries,
             this, SLOT(processFinished(int,QProcess::ExitStatus)));
     connect(&m_process, SIGNAL(error(QProcess::ProcessError)),
             this, SLOT(processError(QProcess::ProcessError)));
+    m_process.setProcessEnvironment(Git::Internal::GitPlugin::instance()->
+                                    gitClient()->processEnvironment());
     m_progress.setProgressRange(0, m_queries.size());
 
     // Determine binary and common command line arguments.

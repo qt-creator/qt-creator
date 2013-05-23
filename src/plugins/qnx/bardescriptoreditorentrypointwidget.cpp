@@ -76,7 +76,7 @@ BarDescriptorEditorEntryPointWidget::BarDescriptorEditorEntryPointWidget(QWidget
     connect(m_ui->addSplashScreen, SIGNAL(clicked()), this, SLOT(browseForSplashScreen()));
     connect(m_ui->removeSplashScreen, SIGNAL(clicked()), this, SLOT(removeSelectedSplashScreen()));
     connect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    connect(m_ui->splashScreensView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(handleSplashScreenSelectionChanged(QItemSelection, QItemSelection)));
+    connect(m_ui->splashScreensView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(handleSplashScreenSelectionChanged(QItemSelection,QItemSelection)));
 }
 
 BarDescriptorEditorEntryPointWidget::~BarDescriptorEditorEntryPointWidget()

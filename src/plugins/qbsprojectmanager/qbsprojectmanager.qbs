@@ -80,6 +80,8 @@ QtcPlugin {
         "qbsprojectmanagerconstants.h",
         "qbsprojectmanagerplugin.cpp",
         "qbsprojectmanagerplugin.h",
+        "qbsrunconfiguration.cpp",
+        "qbsrunconfiguration.h",
         "qbsstep.cpp",
         "qbsstep.h",
         "qbsstepconfigwidget.ui"

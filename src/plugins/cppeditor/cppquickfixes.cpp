@@ -4854,8 +4854,8 @@ void InsertVirtualMethodsDialog::initGui()
     globalVerticalLayout->addWidget(m_buttons, 0);
     setLayout(globalVerticalLayout);
 
-    connect(classFunctionModel, SIGNAL(itemChanged(QStandardItem *)),
-            this, SLOT(updateCheckBoxes(QStandardItem *)));
+    connect(classFunctionModel, SIGNAL(itemChanged(QStandardItem*)),
+            this, SLOT(updateCheckBoxes(QStandardItem*)));
     connect(m_hideReimplementedFunctions, SIGNAL(toggled(bool)),
             this, SLOT(setHideReimplementedFunctions(bool)));
 }

@@ -46,7 +46,7 @@ Custom class wizard example configuration file. -->
     <fieldpagetitle xml:lang="de">Parameter des ListModel</fieldpagetitle>
     <fields>
         <field name="ClassName">
-            <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$" defaulttext="MyListModel" />
+            <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$" defaulttext="MyListModel" placeholdertext="Enter a class name"/>
             <fielddescription>Class name:</fielddescription>
             <fielddescription xml:lang="de">Klassenname:</fielddescription>
         </field>

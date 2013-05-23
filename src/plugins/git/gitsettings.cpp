@@ -62,7 +62,7 @@ GitSettings::GitSettings()
     declareKey(ignoreSpaceChangesInDiffKey, true);
     declareKey(ignoreSpaceChangesInBlameKey, true);
     declareKey(diffPatienceKey, true);
-    declareKey(winSetHomeEnvironmentKey, false);
+    declareKey(winSetHomeEnvironmentKey, true);
     declareKey(gitkOptionsKey, QString());
     declareKey(showPrettyFormatKey, 2);
     declareKey(logDiffKey, false);

@@ -178,6 +178,8 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
             }
         }
     }
+
+    m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
@@ -239,6 +241,11 @@ bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
 }
 
 QTransform ObjectNodeInstance::transform() const
+{
+    return QTransform();
+}
+
+QTransform ObjectNodeInstance::contentTransform() const
 {
     return QTransform();
 }
@@ -1170,7 +1177,7 @@ QObject *ObjectNodeInstance::parent() const
     return object()->parent();
 }
 
-QObject *parentObject(QObject *object)
+QObject *ObjectNodeInstance::parentObject(QObject *object)
 {
     QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
     if (quickItem && quickItem->parentItem()) {

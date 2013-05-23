@@ -779,28 +779,27 @@ void GitPlugin::startChangeRelatedAction()
     if (!state.hasTopLevel())
         return;
 
-    QPointer<ChangeSelectionDialog> dialog = new ChangeSelectionDialog
-            (state.topLevel(), Core::ICore::mainWindow());
+    ChangeSelectionDialog dialog(state.topLevel(), Core::ICore::mainWindow());
 
-    int result = dialog->exec();
+    int result = dialog.exec();
 
-    if (dialog.isNull() || result == QDialog::Rejected)
+    if (result == QDialog::Rejected)
         return;
 
-    const QString workingDirectory = dialog->workingDirectory();
-    const QString change = dialog->change();
+    const QString workingDirectory = dialog.workingDirectory();
+    const QString change = dialog.change();
 
     if (workingDirectory.isEmpty() || change.isEmpty())
         return;
 
-    if (dialog->command() == Show) {
+    if (dialog.command() == Show) {
         m_gitClient->show(workingDirectory, change);
         return;
     }
 
     QString command;
     bool (GitClient::*commandFunction)(const QString&, const QString&);
-    switch (dialog->command()) {
+    switch (dialog.command()) {
     case CherryPick:
         command = QLatin1String("Cherry-pick");
         commandFunction = &GitClient::synchronousCherryPick;
@@ -823,8 +822,6 @@ void GitPlugin::startChangeRelatedAction()
 
     if (!(m_gitClient->*commandFunction)(workingDirectory, change))
         stashGuard.preventPop();
-
-    delete dialog;
 }
 
 void GitPlugin::stageFile()

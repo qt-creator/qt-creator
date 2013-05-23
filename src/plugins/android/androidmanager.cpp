@@ -385,7 +385,7 @@ bool AndroidManager::updateDeploymentSettings(ProjectExplorer::Target *target)
                 changedManifest = true;
             }
         } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.bundle_local_qt_libs")) {
-            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != bundleQtLibs) {
+            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != int(bundleQtLibs)) {
                 metadataElem.setAttribute(QLatin1String("android:value"), int(bundleQtLibs));
                 changedManifest = true;
             }
@@ -838,8 +838,14 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
                     if (libElement.attribute(QLatin1String("bundling")).toInt() == (item == BundledJar ? 1 : 0)) {
                         if (libElement.hasAttribute(attribute)) {
                             QString dependencyLib = libElement.attribute(attribute).arg(apiLevel);
-                            if (!dependencyLibs.contains(dependencyLib))
+                            if (libElement.hasAttribute(QLatin1String("extends"))) {
+                                const QString extends = libElement.attribute(QLatin1String("extends"));
+                                if (libs.contains(extends)) {
+                                    dependencyLibs << dependencyLib;
+                                }
+                            } else if (!dependencyLibs.contains(dependencyLib)) {
                                 dependencyLibs << dependencyLib;
+                            }
                         }
 
                         if (libElement.hasAttribute(QLatin1String("replaces"))) {

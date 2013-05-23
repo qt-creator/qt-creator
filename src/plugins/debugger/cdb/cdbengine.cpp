@@ -2086,9 +2086,9 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         WinException exception;
         exception.fromGdbMI(stopReason);
         QString description = exception.toString();
-        // It is possible to hit on a startup trap or WOW86 exception while stepping (if something
+        // It is possible to hit on a set thread name or WOW86 exception while stepping (if something
         // pulls DLLs. Avoid showing a 'stopped' Message box.
-        if (exception.exceptionCode == winExceptionStartupCompleteTrap
+        if (exception.exceptionCode == winExceptionSetThreadName
             || exception.exceptionCode == winExceptionWX86Breakpoint)
             return StopNotifyStop;
         if (exception.exceptionCode == winExceptionCtrlPressed) {
@@ -2227,7 +2227,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
                 case ParseStackWow64:
                     postBuiltinCommand("!wow64exts.info", 0, &CdbEngine::handleCheckWow64,
                                        0, qVariantFromValue(stack));
-                    return;
+                    break;
                 }
             } else {
                 showMessage(QString::fromLatin1(stopReason["stackerror"].data()), LogError);
@@ -2448,7 +2448,8 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
         // Report C++ exception in application output as well.
         if (exception.exceptionCode == winExceptionCppException)
             showMessage(message + QLatin1Char('\n'), AppOutput);
-        if (!isDebuggerWinException(exception.exceptionCode)) {
+        if (!isDebuggerWinException(exception.exceptionCode)
+                && exception.exceptionCode != winExceptionSetThreadName) {
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
             const Utils::FileName fileName = exception.file.isEmpty() ?
@@ -2794,7 +2795,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                 postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
             }
             if (!parameters.enabled)
-                postCommand("bd " + QByteArray::number(id.majorPart()), 0);
+                postCommand("bd " + QByteArray::number(breakPointIdToCdbId(id)), 0);
             handler->notifyBreakpointInsertProceeding(id);
             handler->notifyBreakpointInsertOk(id);
             m_pendingBreakpointMap.insert(id, response);

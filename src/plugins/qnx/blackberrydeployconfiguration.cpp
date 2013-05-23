@@ -91,6 +91,16 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
     QString projectName = target()->project()->displayName();
 
+    QString targetName;
+    Qt4ProjectManager::Qt4Project *project =  static_cast<Qt4ProjectManager::Qt4Project *>(target()->project());
+    foreach (Qt4ProjectManager::Qt4ProFileNode *node, project->applicationProFiles()) {
+        QString target = node->targetInformation().target;
+        if (!target.isEmpty()) {
+            targetName = target;
+            break;
+        }
+    }
+
     if (deviceType == Constants::QNX_BB_OS_TYPE) {
         const QLatin1String barDescriptorFileName("bar-descriptor.xml");
         Utils::FileName barDescriptorPath = Utils::FileName::fromString(target()->project()->projectDirectory()).appendPath(barDescriptorFileName);
@@ -130,7 +140,7 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
 
         QString content = QString::fromUtf8(reader.data());
         content.replace(QLatin1String("PROJECTNAME"), projectName);
-        content.replace(QLatin1String("PROJECTPATH"), projectName);
+        content.replace(QLatin1String("PROJECTPATH"), targetName);
         content.replace(QLatin1String("ID"), QLatin1String("com.example.") + projectName);
 
         if (Utils::FileName::fromString(target()->project()->projectDirectory())

@@ -14,7 +14,7 @@ import traceback
 
 cdbLoaded = False
 lldbLoaded = False
-gdbLoaded = False
+gdbLoaded = True
 
 #######################################################################
 #
@@ -24,6 +24,13 @@ gdbLoaded = False
 
 def warn(message):
     print "XXX: %s\n" % message.encode("latin1")
+
+def directBaseClass(typeobj, index = 0):
+    # FIXME: Check it's really a base.
+    return typeobj.fields()[index]
+
+def createPointerValue(context, address, pointeeType):
+    return gdb.Value(address).cast(pointeeType.pointer())
 
 def savePrint(output):
     try:
@@ -226,7 +233,7 @@ def readRawMemory(base, size):
         pass
     s = ""
     t = lookupType("unsigned char").pointer()
-    base = base.cast(t)
+    base = gdb.Value(base).cast(t)
     for i in xrange(size):
         s += "%02x" % int(base.dereference())
         base += 1
@@ -461,9 +468,6 @@ def childAt(value, index):
     # enables later ...["name"] style accesses as gdb handles
     # them transparently.
     return value
-
-def addressOf(value):
-    return gdb.Value(value.address).cast(value.type.pointer())
 
 
 #gdb.Value.child = impl_Value_child
@@ -1192,68 +1196,12 @@ def encodeChar2Array(p):
 def encodeChar4Array(p):
     return encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
 
-def qByteArrayData(value):
-    private = value['d']
-    checkRef(private['ref'])
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private['offset']
-        charPointerType = lookupType('char *')
-        data = private.cast(charPointerType) + private['offset']
-        return data, int(private['size']), int(private['alloc'])
-    except:
-        # Qt 4:
-        return private['data'], int(private['size']), int(private['alloc'])
-
 def computeLimit(size, limit):
     if limit is None:
         return size
     if limit == 0:
         return min(size, qqStringCutOff)
     return min(size, limit)
-
-def encodeByteArray(value, limit = None):
-    data, size, alloc = qByteArrayData(value)
-    if alloc != 0:
-        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    limit = computeLimit(size, limit)
-    s = readRawMemory(data, limit)
-    if limit < size:
-        s += "2e2e2e"
-    return s
-
-def qStringData(value):
-    private = value['d']
-    checkRef(private['ref'])
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private['offset']
-        ushortPointerType = lookupType('ushort *')
-        data = private.cast(ushortPointerType) + offset / 2
-        return data, int(private['size']), int(private['alloc'])
-    except:
-        # Qt 4.
-        return private['data'], int(private['size']), int(private['alloc'])
-
-def encodeString(value, limit = 0):
-    data, size, alloc = qStringData(value)
-    if alloc != 0:
-        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    limit = computeLimit(size, limit)
-    s = readRawMemory(data, 2 * limit)
-    if limit < size:
-        s += "2e002e002e00"
-    return s
-
-def encodeByteArray(value, limit = None):
-    data, size, alloc = qByteArrayData(value)
-    if alloc != 0:
-        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    limit = computeLimit(size, limit)
-    s = readRawMemory(data, limit)
-    if limit < size:
-        s += "2e2e2e"
-    return s
 
 def stripTypedefs(type):
     type = type.unqualified()
@@ -1398,6 +1346,13 @@ class Dumper:
         self.formats = {}
         self.useDynamicType = True
         self.expandedINames = {}
+
+        self.charType_ = None
+        self.intType_ = None
+        self.sizetType_ = None
+        self.charPtrType_ = None
+        self.voidType_ = None
+        self.voidPtrType_ = None
 
     def __init__(self, args):
         self.defaultInit()
@@ -1552,6 +1507,8 @@ class Dumper:
 
         #print('data=[' + locals + sep + watchers + ']\n')
 
+    def lookupType(self, typeName):
+        return lookupType(typeName)
 
     def handleWatch(self, exp, iname):
         exp = str(exp)
@@ -1599,6 +1556,36 @@ class Dumper:
                     self.currentNumChild = 0
                     self.putNumChild(0)
 
+    def intType(self):
+        if self.intType_ is None:
+             self.intType_ = self.lookupType('int')
+        return self.intType_
+
+    def charType(self):
+        if self.charType_ is None:
+             self.charType_ = self.lookupType('char')
+        return self.charType_
+
+    def sizetType(self):
+        if self.sizetType_ is None:
+             self.sizetType_ = self.lookupType('size_t')
+        return self.sizetType_
+
+    def charPtrType(self):
+        if self.charPtrType_ is None:
+             self.charPtrType_ = self.lookupType('char*')
+        return self.charPtrType_
+
+    def voidPtrType(self):
+        if self.voidPtrType_ is None:
+             self.voidType_ = self.lookupType('void*')
+        return self.voidPtrType_
+
+    def voidPtrSize(self):
+        return self.voidPtrType().sizeof
+
+    def addressOf(self, value):
+        return long(value.address)
 
     def put(self, value):
         self.output.append(value)
@@ -1635,7 +1622,7 @@ class Dumper:
         self.putNumChild(0)
         self.currentValue = None
 
-    def putBetterType(self, type, priority = 0):
+    def putBetterType(self, type):
         self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
 
@@ -1674,11 +1661,6 @@ class Dumper:
             self.putValue("0x%x" % value.cast(
                 lookupType("unsigned long")), None, -1)
 
-    def putStringValue(self, value, priority = 0):
-        if not value is None:
-            str = encodeString(value)
-            self.putValue(str, Hex4EncodedLittleEndian, priority)
-
     def putDisplay(self, format, value = None, cmd = None):
         self.put('editformat="%s",' % format)
         if cmd is None:
@@ -1687,9 +1669,13 @@ class Dumper:
         else:
             self.put('editvalue="%s|%s",' % (cmd, value))
 
-    def putByteArrayValue(self, value):
-        str = encodeByteArray(value)
-        self.putValue(str, Hex2EncodedLatin1)
+    def computeLimit(self, size, limit):
+        if limit is None:
+            return size
+        if limit == 0:
+            #return min(size, qqStringCutOff)
+            return min(size, 100)
+        return min(size, limit)
 
     def putName(self, name):
         self.put('name="%s",' % name)
@@ -1700,7 +1686,7 @@ class Dumper:
             self.put('key="%s",' % encodeString(value))
             self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
         elif str(value.type) == ns + "QByteArray":
-            self.put('key="%s",' % encodeByteArray(value))
+            self.put('key="%s",' % self.encodeByteArray(value))
             self.put('keyencoded="%s",' % Hex2EncodedLatin1)
         else:
             self.put('name="%s",' % value)
@@ -1770,7 +1756,7 @@ class Dumper:
         self.put('addrstep="0x%x",' % long(typeobj.sizeof))
         self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
         self.put('arraydata="')
-        self.put(readRawMemory(base, size))
+        self.put(self.readRawMemory(base, size))
         self.put('",')
         return True
 
@@ -1817,8 +1803,8 @@ class Dumper:
 
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
-        base = base.cast(type.pointer())
         if not self.tryPutArrayContents(type, base, n):
+            base = base.cast(type.pointer())
             with Children(self, n, type, childNumChild, maxNumChild,
                     base, type.sizeof):
                 for i in self.childRange():
@@ -2200,7 +2186,7 @@ class Dumper:
                 if not isNull(p):
                     objectName = p.dereference()["objectName"]
             if not objectName is None:
-                data, size, alloc = qStringData(objectName)
+                data, size, alloc = qStringData(self, objectName)
                 if size > 0:
                     str = readRawMemory(data, 2 * size)
                     self.putValue(str, Hex4EncodedLittleEndian, 1)
@@ -2211,18 +2197,8 @@ class Dumper:
         return readRawMemory(base, size)
 
     def putFields(self, value, dumpBase = True):
-        fields = extractFields(value)
+            fields = extractFields(value)
 
-        # FIXME: Merge into this function.
-        if gdbLoaded:
-            self.putFieldsGdb(fields, value, dumpBase)
-            return
-
-        for field in fields:
-            with SubItem(self, field.name):
-                self.putItem(field)
-
-    def putFieldsGdb(self, fields, value, dumpBase):
             #warn("TYPE: %s" % type)
             #warn("FIELDS: %s" % fields)
             baseNumber = 0
@@ -2377,7 +2353,6 @@ def qmlb(args):
     return bp
 
 registerCommand("qmlb", qmlb)
-gdbLoaded = True
 
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 execfile(os.path.join(currentDir, "qttypes.py"))

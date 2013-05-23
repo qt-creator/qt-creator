@@ -210,6 +210,12 @@ ProFile *QMakeParser::parsedProBlock(
     return pro;
 }
 
+void QMakeParser::discardFileFromCache(const QString &fileName)
+{
+    if (m_cache)
+        m_cache->discardFile(fileName);
+}
+
 bool QMakeParser::read(ProFile *pro)
 {
     QFile file(pro->fileName());
@@ -328,9 +334,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     int argc = 0;
     int wordCount = 0; // Number of words in currently accumulated expression
     int lastIndent = 0; // Previous line's indentation, to detect accidental continuation abuse
-    bool putSpace = false; // Only ever true inside quoted string
     bool lineMarked = true; // For in-expression markers
-    ushort needSep = TokNewStr; // Complementary to putSpace: separator outside quotes
+    ushort needSep = TokNewStr; // Met unquoted whitespace
     ushort quote = 0;
     ushort term = 0;
 
@@ -482,10 +487,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                 if (c == '$') {
                     if (*cur == '$') { // may be EOF, EOL, WS, '#' or '\\' if past end
                         cur++;
-                        if (putSpace) {
-                            putSpace = false;
-                            *ptr++ = ' ';
-                        }
                         FLUSH_LITERAL();
                         if (!lineMarked) {
                             lineMarked = true;
@@ -607,13 +608,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                 } else if (quote) {
                     if (c == quote) {
                         quote = 0;
-                        if (putSpace) {
-                            putSpace = false;
-                            *ptr++ = ' ';
-                        }
-                        goto nextChr;
-                    } else if ((c == ' ' || c == '\t') && context != CtxPureValue) {
-                        putSpace = true;
                         goto nextChr;
                     } else if (c == '!' && ptr == xprPtr && context == CtxTest) {
                         m_invert ^= true;
@@ -781,10 +775,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                             languageWarning(fL1S("Possible accidental line continuation"));
                     }
                 }
-                if (putSpace) {
-                    putSpace = false;
-                    *ptr++ = ' ';
-                }
                 *ptr++ = c;
               nextChr:
                 if (cur == end)
@@ -795,7 +785,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
           lineEnd:
             if (lineCont) {
                 if (quote) {
-                    putSpace = true;
+                    *ptr++ = ' ';
                 } else {
                     FLUSH_LITERAL();
                     needSep = TokNewStr;
@@ -1022,7 +1012,6 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
             m_tmp.setRawData((QChar *)uc + 4, nlen);
             const QString *defName;
             ushort defType;
-            uchar nest;
             if (m_tmp == statics.strfor) {
                 if (m_invert || m_operator == OrOperator) {
                     // '|' could actually work reasonably, but qmake does nonsense here.
@@ -1099,13 +1088,20 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 parseError(fL1S("%1(function) requires one literal argument.").arg(*defName));
                 return;
             } else if (m_tmp == statics.strreturn) {
-                if (argc > 1) {
-                    parseError(fL1S("return() requires zero or one argument."));
-                    bogusTest(tokPtr);
-                    return;
+                if (m_blockstack.top().nest & NestFunction) {
+                    if (argc > 1) {
+                        parseError(fL1S("return() requires zero or one argument."));
+                        bogusTest(tokPtr);
+                        return;
+                    }
+                } else {
+                    if (*uce != TokFuncTerminator) {
+                        parseError(fL1S("Top-level return() requires zero arguments."));
+                        bogusTest(tokPtr);
+                        return;
+                    }
                 }
                 defType = TokReturn;
-                nest = NestFunction;
                 goto ctrlstm2;
             } else if (m_tmp == statics.strnext) {
                 defType = TokNext;
@@ -1118,15 +1114,14 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                     bogusTest(tokPtr);
                     return;
                 }
-                nest = NestLoop;
-              ctrlstm2:
-                if (m_invert) {
-                    parseError(fL1S("Unexpected NOT operator in front of %1().").arg(m_tmp));
+                if (!(m_blockstack.top().nest & NestLoop)) {
+                    parseError(fL1S("Unexpected %1().").arg(m_tmp));
                     bogusTest(tokPtr);
                     return;
                 }
-                if (!(m_blockstack.top().nest & nest)) {
-                    parseError(fL1S("Unexpected %1().").arg(m_tmp));
+              ctrlstm2:
+                if (m_invert) {
+                    parseError(fL1S("Unexpected NOT operator in front of %1().").arg(m_tmp));
                     bogusTest(tokPtr);
                     return;
                 }

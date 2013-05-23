@@ -56,8 +56,8 @@ bool sortByPriority(QtVersionFactory *a, QtVersionFactory *b)
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
 {
     QHash<QString, QString> versionInfo;
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    if (!BaseQtVersion::queryQMakeVariables(qmakePath, env, &versionInfo, error))
+    if (!BaseQtVersion::queryQMakeVariables(qmakePath, Utils::Environment::systemEnvironment(),
+                                            &versionInfo, error))
         return 0;
     Utils::FileName mkspec = BaseQtVersion::mkspecFromVersionInfo(versionInfo);
 

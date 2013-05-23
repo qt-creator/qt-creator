@@ -2195,6 +2195,7 @@ static bool dumpQImage(const SymbolGroupValue &v, std::wostream &str, MemoryHand
             memcpy(creatorImageData + sizeof(CreatorImageHeader), imageData, nbytes);
             delete [] imageData;
             *memoryHandle = new MemoryHandle(creatorImageData, sizeof(CreatorImageHeader) + nbytes);
+            // cppcheck: don't delete[] creatorImageData here, it's taken over by MemoryHandle
         }
     }
     return true;

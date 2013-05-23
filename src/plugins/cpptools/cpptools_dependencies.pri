@@ -3,6 +3,7 @@ QTC_LIB_DEPENDS += \
     languageutils \
     cplusplus
 QTC_PLUGIN_DEPENDS += \
+    coreplugin \
     projectexplorer \
     texteditor \
     locator \

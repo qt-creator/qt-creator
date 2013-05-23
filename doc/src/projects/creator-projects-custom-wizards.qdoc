@@ -257,7 +257,7 @@
             <fieldpagetitle xml:lang="de">Hallo Welt Parameter</fieldpagetitle>
             <fields>
                 <field mandatory="true" name="MESSAGE">
-                    <fieldcontrol class="QLineEdit" validator='^[^"]+$'  defaulttext="Hello world!" />
+                    <fieldcontrol class="QLineEdit" validator='^[^"]+$'  defaulttext="Hello world!" placeholdertext="Enter a message"/>
                     <fielddescription>Hello world message:</fielddescription>
                     <fielddescription xml:lang="de">Hallo-Welt-Nachricht:</fielddescription>
                 </field>
@@ -289,6 +289,9 @@
 
             \li \c defaulttext specifies text that appears in the field by
                 default.
+
+            \li For a QLineEdit, \c placeholdertext specifies placeholder text that appears in the
+                field.
 
             \li \c fielddescription specifies the field name that appears on the
                 wizard page.

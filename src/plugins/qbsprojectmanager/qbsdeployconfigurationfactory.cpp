@@ -55,6 +55,15 @@ static Core::Id genericQbsDeployConfigurationId()
 // QbsDeployConfiguration:
 // --------------------------------------------------------------------
 
+QbsInstallStep *QbsDeployConfiguration::qbsInstallStep() const
+{
+    foreach (ProjectExplorer::BuildStep *bs, stepList()->steps()) {
+        if (QbsInstallStep *install = qobject_cast<QbsInstallStep *>(bs))
+            return install;
+    }
+    return 0;
+}
+
 QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id) :
     ProjectExplorer::DeployConfiguration(target, id)
 { }

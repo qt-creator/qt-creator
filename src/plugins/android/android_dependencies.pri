@@ -4,4 +4,6 @@ QTC_PLUGIN_DEPENDS += \
     debugger \
     projectexplorer \
     qt4projectmanager \
+    qtsupport \
+    texteditor \
     analyzerbase

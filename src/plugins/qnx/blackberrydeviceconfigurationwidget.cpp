@@ -72,8 +72,8 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(ui->debugToken, SIGNAL(browsingFinished()), this, SLOT(debugTokenEditingFinished()));
     connect(uploader, SIGNAL(finished(int)), this, SLOT(uploadFinished(int)));
 
-    connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id, QString)),
-            this, SLOT(appendConnectionLog(Core::Id, QString)));
+    connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
+            this, SLOT(appendConnectionLog(Core::Id,QString)));
     connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceAboutToConnect(Core::Id)),
             this, SLOT(clearConnectionLog(Core::Id)));
 

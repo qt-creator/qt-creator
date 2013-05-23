@@ -66,8 +66,8 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
     QtVersionManager *mgr = QtVersionManager::instance();
 
     // find "Qt in PATH":
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    Utils::FileName qmake = Utils::FileName::fromString(env.searchInPath(QLatin1String("qmake")));
+    Utils::FileName qmake = Utils::FileName::fromString(Utils::Environment::systemEnvironment()
+                                                        .searchInPath(QLatin1String("qmake")));
 
     if (qmake.isEmpty())
         return -1;

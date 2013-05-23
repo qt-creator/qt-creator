@@ -129,7 +129,7 @@ private:
     const QString m_projectName;
     const QString m_fileName;
     QSet<Core::IDocument *> m_qbsDocuments;
-    QbsProjectNode *const m_rootProjectNode;
+    QbsProjectNode *m_rootProjectNode;
 
     qbs::SetupProjectJob *m_qbsSetupProjectJob;
     QVariantMap m_qbsBuildConfig;
