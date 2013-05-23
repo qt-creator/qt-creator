@@ -1274,7 +1274,7 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
     QStringList arguments;
     arguments << QLatin1String("add") << fileName;
 
-    executeGit(workingDirectory, arguments, 0, true);
+    executeGit(workingDirectory, arguments, 0);
 }
 
 bool GitClient::synchronousLog(const QString &workingDirectory, const QStringList &arguments,
