@@ -117,7 +117,7 @@ void QbsBuildStep::run(QFutureInterface<bool> &fi)
 
     QbsProject *pro = static_cast<QbsProject *>(project());
     qbs::BuildOptions options(m_qbsBuildOptions);
-    options.changedFiles = m_changedFiles;
+    options.setChangedFiles(m_changedFiles);
 
     m_job = pro->build(options);
 
@@ -180,17 +180,17 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
 
 bool QbsBuildStep::dryRun() const
 {
-    return m_qbsBuildOptions.dryRun;
+    return m_qbsBuildOptions.dryRun();
 }
 
 bool QbsBuildStep::keepGoing() const
 {
-    return m_qbsBuildOptions.keepGoing;
+    return m_qbsBuildOptions.keepGoing();
 }
 
 int QbsBuildStep::maxJobs() const
 {
-    return m_qbsBuildOptions.maxJobCount;
+    return m_qbsBuildOptions.maxJobCount();
 }
 
 bool QbsBuildStep::fromMap(const QVariantMap &map)
@@ -199,9 +199,9 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
         return false;
 
     setQbsConfiguration(map.value(QLatin1String(QBS_CONFIG)).toMap());
-    m_qbsBuildOptions.dryRun = map.value(QLatin1String(QBS_DRY_RUN)).toBool();
-    m_qbsBuildOptions.keepGoing = map.value(QLatin1String(QBS_KEEP_GOING)).toBool();
-    m_qbsBuildOptions.maxJobCount = map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt();
+    m_qbsBuildOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
+    m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
+    m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
     return true;
 }
 
@@ -209,9 +209,9 @@ QVariantMap QbsBuildStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
     map.insert(QLatin1String(QBS_CONFIG), m_qbsConfiguration);
-    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun);
-    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing);
-    map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount);
+    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun());
+    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing());
+    map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount());
     return map;
 }
 
@@ -220,7 +220,7 @@ void QbsBuildStep::buildingDone(bool success)
     // Report errors:
     foreach (const qbs::ErrorData &data, m_job->error().entries())
         createTaskAndOutput(ProjectExplorer::Task::Error, data.description(),
-                            data.codeLocation().fileName, data.codeLocation().line);
+                            data.codeLocation().fileName(), data.codeLocation().line());
 
     QTC_ASSERT(m_fi, return);
     m_fi->reportResult(success);
@@ -250,7 +250,7 @@ void QbsBuildStep::handleWarningReport(const qbs::Error &error)
 {
     foreach (const qbs::ErrorData &data, error.entries()) {
         createTaskAndOutput(ProjectExplorer::Task::Warning, data.description(),
-                            data.codeLocation().fileName, data.codeLocation().line);
+                            data.codeLocation().fileName(), data.codeLocation().line());
     }
 }
 
@@ -262,17 +262,17 @@ void QbsBuildStep::handleCommandDescriptionReport(const QString &highlight, cons
 
 void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
 {
-    bool hasOutput = !result.stdOut.isEmpty() || !result.stdErr.isEmpty();
+    bool hasOutput = !result.stdOut().isEmpty() || !result.stdErr().isEmpty();
 
-    if (result.success && !hasOutput && !m_showCompilerOutput)
+    if (result.success() && !hasOutput && !m_showCompilerOutput)
         return;
 
-    m_parser->setWorkingDirectory(result.workingDirectory);
-    foreach (const QString &line, result.stdErr) {
+    m_parser->setWorkingDirectory(result.workingDirectory());
+    foreach (const QString &line, result.stdErr()) {
         m_parser->stdError(line);
         addOutput(line, ErrorOutput);
     }
-    foreach (const QString &line, result.stdOut) {
+    foreach (const QString &line, result.stdOut()) {
         m_parser->stdOutput(line);
         addOutput(line, NormalOutput);
     }
@@ -307,25 +307,25 @@ QString QbsBuildStep::profile() const
 
 void QbsBuildStep::setDryRun(bool dr)
 {
-    if (m_qbsBuildOptions.dryRun == dr)
+    if (m_qbsBuildOptions.dryRun() == dr)
         return;
-    m_qbsBuildOptions.dryRun = dr;
+    m_qbsBuildOptions.setDryRun(dr);
     emit qbsBuildOptionsChanged();
 }
 
 void QbsBuildStep::setKeepGoing(bool kg)
 {
-    if (m_qbsBuildOptions.keepGoing == kg)
+    if (m_qbsBuildOptions.keepGoing() == kg)
         return;
-    m_qbsBuildOptions.keepGoing = kg;
+    m_qbsBuildOptions.setKeepGoing(kg);
     emit qbsBuildOptionsChanged();
 }
 
 void QbsBuildStep::setMaxJobs(int jobcount)
 {
-    if (m_qbsBuildOptions.maxJobCount == jobcount)
+    if (m_qbsBuildOptions.maxJobCount() == jobcount)
         return;
-    m_qbsBuildOptions.maxJobCount = jobcount;
+    m_qbsBuildOptions.setMaxJobCount(jobcount);
     emit qbsBuildOptionsChanged();
 }
 
@@ -381,7 +381,7 @@ void QbsBuildStepConfigWidget::updateState()
         command += QLatin1String("--dryRun ");
     if (m_step->keepGoing())
         command += QLatin1String("--keepGoing ");
-    if (m_step->maxJobs() != defaultOptions.maxJobCount)
+    if (m_step->maxJobs() != defaultOptions.maxJobCount())
         command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     command += QString::fromLatin1("build profile:%1 %2").arg(m_step->profile(), buildVariant);
 

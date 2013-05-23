@@ -134,12 +134,12 @@ void QbsCleanStep::cancel()
 
 bool QbsCleanStep::dryRun() const
 {
-    return m_qbsCleanOptions.dryRun;
+    return m_qbsCleanOptions.dryRun();
 }
 
 bool QbsCleanStep::keepGoing() const
 {
-    return m_qbsCleanOptions.keepGoing;
+    return m_qbsCleanOptions.keepGoing();
 }
 
 int QbsCleanStep::maxJobs() const
@@ -149,7 +149,7 @@ int QbsCleanStep::maxJobs() const
 
 bool QbsCleanStep::cleanAll() const
 {
-    return m_qbsCleanOptions.cleanType == qbs::CleanOptions::CleanupAll;
+    return m_qbsCleanOptions.cleanType() == qbs::CleanOptions::CleanupAll;
 }
 
 bool QbsCleanStep::fromMap(const QVariantMap &map)
@@ -157,10 +157,10 @@ bool QbsCleanStep::fromMap(const QVariantMap &map)
     if (!ProjectExplorer::BuildStep::fromMap(map))
         return false;
 
-    m_qbsCleanOptions.dryRun = map.value(QLatin1String(QBS_DRY_RUN)).toBool();
-    m_qbsCleanOptions.keepGoing = map.value(QLatin1String(QBS_KEEP_GOING)).toBool();
-    m_qbsCleanOptions.cleanType = map.value(QLatin1String(QBS_CLEAN_ALL)).toBool()
-            ? qbs::CleanOptions::CleanupAll : qbs::CleanOptions::CleanupTemporaries;
+    m_qbsCleanOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
+    m_qbsCleanOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
+    m_qbsCleanOptions.setCleanType(map.value(QLatin1String(QBS_CLEAN_ALL)).toBool()
+            ? qbs::CleanOptions::CleanupAll : qbs::CleanOptions::CleanupTemporaries);
 
     return true;
 }
@@ -168,10 +168,10 @@ bool QbsCleanStep::fromMap(const QVariantMap &map)
 QVariantMap QbsCleanStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsCleanOptions.dryRun);
-    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsCleanOptions.keepGoing);
+    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsCleanOptions.dryRun());
+    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsCleanOptions.keepGoing());
     map.insert(QLatin1String(QBS_CLEAN_ALL),
-               m_qbsCleanOptions.cleanType == qbs::CleanOptions::CleanupAll);
+               m_qbsCleanOptions.cleanType() == qbs::CleanOptions::CleanupAll);
 
     return map;
 }
@@ -181,7 +181,7 @@ void QbsCleanStep::cleaningDone(bool success)
     // Report errors:
     foreach (const qbs::ErrorData &data, m_job->error().entries()) {
         createTaskAndOutput(ProjectExplorer::Task::Error, data.description(),
-                            data.codeLocation().fileName, data.codeLocation().line);
+                            data.codeLocation().fileName(), data.codeLocation().line());
     }
 
     QTC_ASSERT(m_fi, return);
@@ -217,17 +217,17 @@ void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, con
 
 void QbsCleanStep::setDryRun(bool dr)
 {
-    if (m_qbsCleanOptions.dryRun == dr)
+    if (m_qbsCleanOptions.dryRun() == dr)
         return;
-    m_qbsCleanOptions.dryRun = dr;
+    m_qbsCleanOptions.setDryRun(dr);
     emit changed();
 }
 
 void QbsCleanStep::setKeepGoing(bool kg)
 {
-    if (m_qbsCleanOptions.keepGoing == kg)
+    if (m_qbsCleanOptions.keepGoing() == kg)
         return;
-    m_qbsCleanOptions.keepGoing = kg;
+    m_qbsCleanOptions.setKeepGoing(kg);
     emit changed();
 }
 
@@ -241,9 +241,9 @@ void QbsCleanStep::setCleanAll(bool ca)
 {
     qbs::CleanOptions::CleanType newType = ca
             ? qbs::CleanOptions::CleanupAll : qbs::CleanOptions::CleanupTemporaries;
-    if (m_qbsCleanOptions.cleanType == newType)
+    if (m_qbsCleanOptions.cleanType() == newType)
         return;
-    m_qbsCleanOptions.cleanType = newType;
+    m_qbsCleanOptions.setCleanType(newType);
     emit changed();
 }
 
@@ -295,7 +295,7 @@ void QbsCleanStepConfigWidget::updateState()
         command += QLatin1String("--dryRun ");
     if (m_step->keepGoing())
         command += QLatin1String("--keepGoing ");
-    if (m_step->maxJobs() != defaultOptions.maxJobCount)
+    if (m_step->maxJobs() != defaultOptions.maxJobCount())
         command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     if (m_step->cleanAll())
         command += QLatin1String(" --all-artifacts");

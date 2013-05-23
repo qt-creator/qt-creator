@@ -237,20 +237,20 @@ void QbsGroupNode::setGroup(const qbs::GroupData *group)
     if (group == m_group)
         return;
 
-    setPath(group->location().fileName);
+    setPath(group->location().fileName());
     setDisplayName(group->name());
 
     // Set Product file node used to jump to the product
     QbsFileNode *indexFile = 0;
     if (!m_group) {
-        indexFile = new QbsFileNode(group->location().fileName,
+        indexFile = new QbsFileNode(group->location().fileName(),
                                     ProjectExplorer::ProjectFileType, false,
-                                    group->location().line);
+                                    group->location().line());
         addFileNodes(QList<ProjectExplorer::FileNode *>() << indexFile, this);
     } else {
         indexFile = static_cast<QbsFileNode *>(fileNodes().first());
-        indexFile->setPath(group->location().fileName);
-        indexFile->setLine(group->location().line);
+        indexFile->setPath(group->location().fileName());
+        indexFile->setLine(group->location().line());
         indexFile->emitNodeUpdated();
     }
 
@@ -328,7 +328,7 @@ void QbsGroupNode::setupFolders(ProjectExplorer::FolderNode *root, FileTreeNode 
 // --------------------------------------------------------------------
 
 QbsProductNode::QbsProductNode(const qbs::ProductData *prd) :
-    QbsBaseProjectNode(prd->location().fileName),
+    QbsBaseProjectNode(prd->location().fileName()),
     m_product(0)
 {
     setProduct(prd);
@@ -345,20 +345,20 @@ void QbsProductNode::setProduct(const qbs::ProductData *prd)
         return;
 
     setDisplayName(prd->name());
-    setPath(prd->location().fileName);
+    setPath(prd->location().fileName());
 
     // Set Product file node used to jump to the product
     QList<ProjectExplorer::FileNode *> files = fileNodes();
     if (files.isEmpty()) {
         addFileNodes(QList<ProjectExplorer::FileNode *>()
-                     << new QbsFileNode(prd->location().fileName,
+                     << new QbsFileNode(prd->location().fileName(),
                                         ProjectExplorer::ProjectFileType, false,
-                                        prd->location().line),
+                                        prd->location().line()),
                      this);
     } else {
         QbsFileNode *qbsFile = static_cast<QbsFileNode *>(files.at(0));
-        qbsFile->setPath(prd->location().fileName);
-        qbsFile->setLine(prd->location().line);
+        qbsFile->setPath(prd->location().fileName());
+        qbsFile->setLine(prd->location().line());
     }
 
     QList<ProjectExplorer::ProjectNode *> toAdd;
