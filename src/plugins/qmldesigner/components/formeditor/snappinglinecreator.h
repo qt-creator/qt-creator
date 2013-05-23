@@ -63,7 +63,7 @@ public:
     SnapLineMap leftOffsets() const;
     SnapLineMap rightOffsets() const;
 
-    void setMargins(double margin);
+    void setContainerPadding(double containerPadding);
     void setSpacing(double spacing);
 
 protected:
@@ -92,10 +92,10 @@ private:
     double m_bottomOffset;
     double m_leftOffset;
     double m_rightOffset;
-    double m_topMargin;
-    double m_bottomMargin;
-    double m_leftMargin;
-    double m_rightMargin;
+    double m_topPadding;
+    double m_bottomPadding;
+    double m_leftPadding;
+    double m_rightPadding;
 };
 
 }

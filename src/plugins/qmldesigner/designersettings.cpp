@@ -37,7 +37,7 @@ using namespace QmlDesigner;
 DesignerSettings::DesignerSettings()
     : openDesignMode(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT),
     itemSpacing(0),
-    snapMargin(0),
+    containerPadding(0),
     canvasWidth(10000),
     canvasHeight(10000),
     warningsInDesigner(true),
@@ -55,8 +55,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
             bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)).toBool();
     itemSpacing = settings->value(
             QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), QVariant(6)).toInt();
-    snapMargin = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), QVariant(8)).toInt();
+    containerPadding = settings->value(
+            QLatin1String(QmlDesigner::Constants::QML_CONTAINERPADDING_KEY), QVariant(8)).toInt();
     canvasWidth = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), QVariant(10000)).toInt();
     canvasHeight = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), QVariant(10000)).toInt();
     warningsInDesigner = settings->value(
@@ -78,7 +78,7 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY), openDesignMode);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), itemSpacing);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), snapMargin);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTAINERPADDING_KEY), containerPadding);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), canvasWidth);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), canvasHeight);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY), warningsInDesigner);
@@ -93,7 +93,7 @@ void DesignerSettings::toSettings(QSettings *settings) const
 bool DesignerSettings::equals(const DesignerSettings &other) const
 {
     return openDesignMode == other.openDesignMode
-            && snapMargin == other.snapMargin
+            && containerPadding == other.containerPadding
             && canvasWidth == other.canvasWidth
             && canvasHeight == other.canvasHeight
             && warningsInDesigner == other.warningsInDesigner

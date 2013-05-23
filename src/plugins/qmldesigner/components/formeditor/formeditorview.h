@@ -119,7 +119,7 @@ public:
     void rewriterBeginTransaction() QTC_OVERRIDE;
     void rewriterEndTransaction() QTC_OVERRIDE;
 
-    double margins() const;
+    double containerPadding() const;
     double spacing() const;
     void deActivateItemCreator();
 

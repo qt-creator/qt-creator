@@ -290,10 +290,10 @@ double FormEditorWidget::spacing() const
     return settings.itemSpacing;
 }
 
-double FormEditorWidget::margins() const
+double FormEditorWidget::containerPadding() const
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.snapMargin;
+    return settings.containerPadding;
 }
 
 
