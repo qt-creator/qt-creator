@@ -190,16 +190,18 @@ void AndroidDeployStep::cleanLibsOnDevice()
                                                         + arguments.join(QLatin1String(" ")),
                                                         Core::MessageManager::NoModeSwitch);
     process->start(adb, arguments);
+    if (!process->waitForStarted(500))
+        delete process;
 }
 
 void AndroidDeployStep::cleanLibsFinished()
 {
     QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
+    QTC_ASSERT(process, return);
     Core::MessageManager::instance()->printToOutputPane(QString::fromLocal8Bit(process->readAll()), Core::MessageManager::NoModeSwitch);
     Core::MessageManager::instance()->printToOutputPane(tr("adb finished with exit code %1.").arg(process->exitCode()),
                                                         Core::MessageManager::NoModeSwitch);
+    process->deleteLater();
 }
 
 void AndroidDeployStep::setDeployAction(AndroidDeployStep::AndroidDeployAction deploy)
