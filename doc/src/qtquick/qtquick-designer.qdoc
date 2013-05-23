@@ -494,23 +494,26 @@
     coordinates of an item, or \l{Setting Anchors and Margins}{anchor} it to
     its parent and sibling items.
 
-    \section2 Snap to Margins
+    \section2 Snapping to Parent and Sibling Items
 
-    When you are working on a design, you can use snap and guides to align
+    When you are working on a design, you can use snapping to align
     items on the canvas. Click the
     \inlineimage qmldesigner-snap-to-guides-button.png
-    button to have the items snap to the guides.
+    button to have the items snap to their parent or sibling items. Snapping
+    lines automatically appear to help you position the items.
+    Click the \inlineimage qmldesigner-snap-to-anchors-button.png
+    button to anchor the item to the items that you snap to.
 
     Choose \gui {Tools > Options > Qt Quick > Qt Quick Designer} to specify
-    settings for snap to
-    margins. In the \gui {Snap margin} field, specify the position of the guides
-    as pixels  from the edge of the canvas. In the \gui {Item spacing} field,
-    specify the space in pixels to leave between items on the screen.
+    settings for snapping. In the \gui {Parent item padding} field, specify the
+    distance in pixels between the parent item and the snapping lines. In the
+    \gui {Sibling item spacing} field, specify the distance in pixels between
+    sibling items and the snapping lines.
 
-    The following image shows the position of the guides when \gui {Snap margin}
+    The following image shows the snapping lines when \gui {Parent item padding}
     is set to 5 pixels.
 
-    \image qmldesigner-snap-margins.png "Snap margins on canvas"
+    \image qmldesigner-snap-margins.png "Snapping lines on canvas"
 
     \section2 Hiding Item Boundaries
 
