@@ -131,6 +131,8 @@ void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new AssignToLocalVariable);
 
     plugIn->addAutoReleasedObject(new InsertVirtualMethods);
+
+    plugIn->addAutoReleasedObject(new OptimizeForLoop);
 }
 
 // In the following anonymous namespace all functions are collected, which could be of interest for
@@ -5049,6 +5051,189 @@ void InsertVirtualMethods::match(const CppQuickFixInterface &interface, QuickFix
         result.append(QuickFixOperation::Ptr(op));
     else
         delete op;
+}
+
+namespace {
+
+class OptimizeForLoopOperation: public CppQuickFixOperation
+{
+public:
+    OptimizeForLoopOperation(const CppQuickFixInterface &interface, const ForStatementAST *forAst,
+                             const bool optimizePostcrement, const ExpressionAST *expression,
+                             const FullySpecifiedType type)
+        : CppQuickFixOperation(interface)
+        , m_forAst(forAst)
+        , m_optimizePostcrement(optimizePostcrement)
+        , m_expression(expression)
+        , m_type(type)
+    {
+        setDescription(QApplication::translate("CppTools::QuickFix", "Optimize for-Loop"));
+    }
+
+    void perform()
+    {
+        QTC_ASSERT(m_forAst, return);
+
+        const QString filename = assistInterface()->currentFile()->fileName();
+        const CppRefactoringChanges refactoring(assistInterface()->snapshot());
+        const CppRefactoringFilePtr file = refactoring.file(filename);
+        ChangeSet change;
+
+        // Optimize post (in|de)crement operator to pre (in|de)crement operator
+        if (m_optimizePostcrement && m_forAst->expression) {
+            PostIncrDecrAST *incrdecr = m_forAst->expression->asPostIncrDecr();
+            if (incrdecr && incrdecr->base_expression && incrdecr->incr_decr_token) {
+                change.flip(file->range(incrdecr->base_expression),
+                            file->range(incrdecr->incr_decr_token));
+            }
+        }
+
+        // Optimize Condition
+        int renamePos = -1;
+        if (m_expression) {
+            QString varName = QLatin1String("total");
+
+            if (file->textOf(m_forAst->initializer).length() == 1) {
+                Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+                const QString typeAndName = oo.prettyType(m_type, varName);
+                renamePos = file->endOf(m_forAst->initializer) - 1 + typeAndName.length();
+                change.insert(file->endOf(m_forAst->initializer) - 1, // "-1" because of ";"
+                              typeAndName + QLatin1String(" = ") + file->textOf(m_expression));
+            } else {
+                // Check if varName is already used
+                if (DeclarationStatementAST *ds = m_forAst->initializer->asDeclarationStatement()) {
+                    if (DeclarationAST *decl = ds->declaration) {
+                        if (SimpleDeclarationAST *sdecl = decl->asSimpleDeclaration()) {
+                            for (;;) {
+                                bool match = false;
+                                for (DeclaratorListAST *it = sdecl->declarator_list; it;
+                                     it = it->next) {
+                                    if (file->textOf(it->value->core_declarator) == varName) {
+                                        varName += QLatin1Char('X');
+                                        match = true;
+                                        break;
+                                    }
+                                }
+                                if (!match)
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                renamePos = file->endOf(m_forAst->initializer) + 1 + varName.length();
+                change.insert(file->endOf(m_forAst->initializer) - 1, // "-1" because of ";"
+                              QLatin1String(", ") + varName + QLatin1String(" = ")
+                              + file->textOf(m_expression));
+            }
+
+            ChangeSet::Range exprRange(file->startOf(m_expression), file->endOf(m_expression));
+            change.replace(exprRange, varName);
+        }
+
+        file->setChangeSet(change);
+        file->apply();
+
+        // Select variable name and trigger symbol rename
+        if (renamePos != -1) {
+            QTextCursor c = file->cursor();
+            c.setPosition(renamePos);
+            assistInterface()->editor()->setTextCursor(c);
+            assistInterface()->editor()->renameSymbolUnderCursor();
+            c.select(QTextCursor::WordUnderCursor);
+            assistInterface()->editor()->setTextCursor(c);
+        }
+    }
+
+private:
+    const ForStatementAST *m_forAst;
+    const bool m_optimizePostcrement;
+    const ExpressionAST *m_expression;
+    const FullySpecifiedType m_type;
+};
+
+} // anonymous namespace
+
+void OptimizeForLoop::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<AST *> path = interface->path();
+    ForStatementAST *forAst = 0;
+    if (!path.isEmpty())
+        forAst = path.last()->asForStatement();
+    if (!forAst || !interface->isCursorOn(forAst))
+        return;
+
+    // Check for optimizing a postcrement
+    const CppRefactoringFilePtr file = interface->currentFile();
+    bool optimizePostcrement = false;
+    if (forAst->expression) {
+        if (PostIncrDecrAST *incrdecr = forAst->expression->asPostIncrDecr()) {
+            const Token t = file->tokenAt(incrdecr->incr_decr_token);
+            if (t.is(T_PLUS_PLUS) || t.is(T_MINUS_MINUS))
+                optimizePostcrement = true;
+        }
+    }
+
+    // Check for optimizing condition
+    bool optimizeCondition = false;
+    FullySpecifiedType conditionType;
+    ExpressionAST *conditionExpression = 0;
+    if (forAst->initializer && forAst->condition) {
+        if (BinaryExpressionAST *binary = forAst->condition->asBinaryExpression()) {
+            // Get the expression against which we should evaluate
+            IdExpressionAST *conditionId = binary->left_expression->asIdExpression();
+            if (conditionId) {
+                conditionExpression = binary->right_expression;
+            } else {
+                conditionId = binary->right_expression->asIdExpression();
+                conditionExpression = binary->left_expression;
+            }
+
+            if (conditionId && conditionExpression
+                    && !(conditionExpression->asNumericLiteral()
+                         || conditionExpression->asStringLiteral()
+                         || conditionExpression->asIdExpression()
+                         || conditionExpression->asUnaryExpression())) {
+                // Determine type of for initializer
+                FullySpecifiedType initializerType;
+                if (DeclarationStatementAST *stmt = forAst->initializer->asDeclarationStatement()) {
+                    if (stmt->declaration) {
+                        if (SimpleDeclarationAST *decl = stmt->declaration->asSimpleDeclaration()) {
+                            if (decl->symbols) {
+                                if (Symbol *symbol = decl->symbols->value)
+                                    initializerType = symbol->type();
+                            }
+                        }
+                    }
+                }
+
+                // Determine type of for condition
+                TypeOfExpression typeOfExpression;
+                typeOfExpression.init(interface->semanticInfo().doc, interface->snapshot(),
+                                      interface->context().bindings());
+                typeOfExpression.setExpandTemplates(true);
+                Scope *scope = file->scopeAt(conditionId->firstToken());
+                const QList<LookupItem> conditionItems = typeOfExpression(
+                            conditionId, interface->semanticInfo().doc, scope);
+                if (!conditionItems.isEmpty())
+                    conditionType = conditionItems.first().type();
+
+                if (conditionType.isValid()
+                        && (file->textOf(forAst->initializer) == QLatin1String(";")
+                            || initializerType == conditionType)) {
+                    optimizeCondition = true;
+                }
+            }
+        }
+    }
+
+    if (optimizePostcrement || optimizeCondition) {
+        OptimizeForLoopOperation *op
+                = new OptimizeForLoopOperation(interface, forAst, optimizePostcrement,
+                                               (optimizeCondition) ? conditionExpression : 0,
+                                               conditionType);
+        result.append(QuickFixOperation::Ptr(op));
+    }
 }
 
 #include "cppquickfixes.moc"

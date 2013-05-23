@@ -584,6 +584,16 @@ private:
     InsertVirtualMethodsDialog *m_dialog;
 };
 
+/*!
+  Optimizes a for loop to avoid permanent condition check and forces to use preincrement
+  or predecrement operators in the expression of the for loop.
+ */
+class OptimizeForLoop : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
 } // namespace Internal
 } // namespace CppEditor
 

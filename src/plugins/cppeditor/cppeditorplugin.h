@@ -252,6 +252,16 @@ private slots:
     void test_quickfix_InsertVirtualMethods_notrigger_allImplemented();
     void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
 
+    void test_quickfix_OptimizeForLoop_postcrement();
+    void test_quickfix_OptimizeForLoop_condition();
+    void test_quickfix_OptimizeForLoop_flipedCondition();
+    void test_quickfix_OptimizeForLoop_alterVariableName();
+    void test_quickfix_OptimizeForLoop_optimizeBoth();
+    void test_quickfix_OptimizeForLoop_emptyInitializer();
+    void test_quickfix_OptimizeForLoop_wrongInitializer();
+    void test_quickfix_OptimizeForLoop_noTriggerNumeric1();
+    void test_quickfix_OptimizeForLoop_noTriggerNumeric2();
+
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.
     void test_openEachFile();

@@ -1978,6 +1978,21 @@
             \image qtcreator-refactoring-virtual-function-dialog.png
 
             \li Class or base class name
+        \row
+            \li Optimize for-Loop
+            \li Rewrites post increment operators as pre increment operators and post decrement
+            operators as pre decrement operators. It also moves other than string or numeric
+            literals and id expressions from the condition of a for loop to its initializer.
+            For example, rewrites:
+
+    \code
+    for (int i = 0; i < 3 * 2; i++)
+    \endcode
+    as
+    \code
+    for (int i = 0, total = 3 * 2; i < total; ++i)
+    \endcode
+            \li for
 
     \endtable
 

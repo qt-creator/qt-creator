@@ -3768,3 +3768,93 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
     TestCase data(testFiles);
     data.run(&factory);
 }
+
+/// Check: optimize postcrement
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_postcrement()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; i < 3; i++) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0; i < 3; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: optimize condition
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_condition()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; i < total; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: optimize fliped condition
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_flipedCondition()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; 3 + 5 > i; ++i) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; total > i; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: if "total" used, create other name.
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_alterVariableName()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0, total = 0; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 0, totalX = 3 + 5; i < totalX; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: optimize postcrement and condition
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_optimizeBoth()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; i < 3 + 5; i++) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; i < total; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: empty initializier
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_emptyInitializer()
+{
+    const QByteArray original = "int i; void foo() {f@or (; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "int i; void foo() {for (int total = 3 + 5; i < total; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: wrong initializier type -> no trigger
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_wrongInitializer()
+{
+    const QByteArray original = "int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger when numeric
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_noTriggerNumeric1()
+{
+    const QByteArray original = "void foo() {fo@r (int i = 0; i < 3; ++i) {}}\n";
+    const QByteArray expected = original + "\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger when numeric
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_noTriggerNumeric2()
+{
+    const QByteArray original = "void foo() {fo@r (int i = 0; i < -3; ++i) {}}\n";
+    const QByteArray expected = original + "\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
