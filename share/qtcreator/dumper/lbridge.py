@@ -3,29 +3,22 @@ import atexit
 import binascii
 import inspect
 import os
-import platform
 import threading
 import select
 import sys
 import subprocess
 
 
-uname = platform.uname()[0]
-if uname == 'Linux':
-    # /data/dev/llvm-git-2/build/lib/python2.7/site-packages
-    proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
-    path = proc.stdout.read().strip()
-    sys.path.append(path)
-else:
-    base = '/Applications/Xcode.app/Contents/'
-    sys.path.append(base + 'SharedFrameworks/LLDB.framework/Resources/Python')
-    sys.path.append(base + 'Library/PrivateFrameworks/LLDB.framework/Resources/Python')
+proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
+path = proc.stdout.read().strip()
+#sys.path.append(path)
+sys.path.insert(1, path)
 
 import lldb
 
 cdbLoaded = False
-lldbLoaded = True
 gdbLoaded = False
+lldbLoaded = True
 
 # Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
 Unencoded8Bit, \
@@ -825,9 +818,7 @@ class Dumper:
         typeName = value.GetTypeName()
 
         # Handle build-in LLDB visualizers if wanted.
-        hasSynth = hasattr(value, 'SetPreferSyntheticValue')
-
-        if self.useLldbDumpers and hasSynth and value.GetTypeSynthetic().IsValid():
+        if self.useLldbDumpers and value.GetTypeSynthetic().IsValid():
             # FIXME: print "official" summary?
             summary = value.GetTypeSummary()
             if summary.IsValid():
@@ -852,8 +843,7 @@ class Dumper:
             return
 
         # Our turf now.
-        if hasSynth:
-            value.SetPreferSyntheticValue(False)
+        value.SetPreferSyntheticValue(False)
 
         # References
         if value.GetType().IsReferenceType():
