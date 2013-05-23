@@ -265,7 +265,7 @@ def impl_SBValue__add__(self, offset):
             pass
         else:
             offset = offset.GetValueAsSigned()
-        itemsize = self.GetType().GetDereferencedType().GetByteSize()
+        itemsize = self.GetType().GetPointeeType().GetByteSize()
         address = self.GetValueAsUnsigned() + offset * itemsize
         address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
         return createPointerValue(self, address, self.GetType().GetPointeeType())
@@ -279,8 +279,8 @@ def impl_SBValue__sub__(self, other):
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return self.CreateValueFromAddress(None, address, self.GetType())
         if other.GetType().IsPointerType():
-            itemsize = self.GetType().GetDereferencedType().GetByteSize()
-            return (int(self) - int(other)) / itemsize
+            itemsize = self.GetType().GetPointeeType().GetByteSize()
+            return (self.GetValueAsUnsigned() - other.GetValueAsUnsigned()) / itemsize
     raise RuntimeError("SBValue.__sub__ not implemented: %s" % self.GetType())
     return NotImplemented
 
@@ -431,7 +431,10 @@ class SubItem:
     def __init__(self, d, component):
         self.d = d
         if isinstance(component, lldb.SBValue):
-            self.name = component.GetName()
+            # Avoid $$__synth__ suffix on Mac.
+            value = component
+            value.SetPreferSyntheticValue(False)
+            self.name = value.GetName()
         else:
             self.name = component
         self.iname = "%s.%s" % (d.currentIName, self.name)
@@ -520,8 +523,44 @@ class Dumper:
         self.charPtrType_ = None
         self.voidType_ = None
 
+    def extractTemplateArgument(self, typename, index):
+        level = 0
+        skipSpace = False
+        inner = ""
+        for c in typename[typename.find('<') + 1 : -1]:
+            if c == '<':
+                inner += c
+                level += 1
+            elif c == '>':
+                level -= 1
+                inner += c
+            elif c == ',':
+                if level == 0:
+                    if index == 0:
+                        return inner
+                    index -= 1
+                    inner = ""
+                else:
+                    inner += c
+                    skipSpace = True
+            else:
+                if skipSpace and c == ' ':
+                    pass
+                else:
+                    inner += c
+                    skipSpace = False
+        return inner
+
     def templateArgument(self, typeobj, index):
-        return typeobj.GetTemplateArgumentType(index)
+        type = typeobj.GetTemplateArgumentType(index)
+        if len(type.GetName()):
+            return type
+        inner = self.extractTemplateArgument(typeobj.GetName(), index)
+        return self.lookupType(inner)
+
+    def numericTemplateArgument(self, typeobj, index):
+        inner = self.extractTemplateArgument(typeobj.GetName(), index)
+        return int(inner)
 
     def intType(self):
         if self.intType_ is None:

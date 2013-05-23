@@ -2271,7 +2271,7 @@ def qedit__std__vector(expr, value):
 
 def qdump__std__vector(d, value):
     impl = value["_M_impl"]
-    type = templateArgument(value.type, 0)
+    type = d.templateArgument(value.type, 0)
     alloc = impl["_M_end_of_storage"]
     isBool = str(type) == 'bool'
     if isBool:
