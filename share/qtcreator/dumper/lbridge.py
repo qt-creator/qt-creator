@@ -88,9 +88,6 @@ qqEditable = {}
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
 
-def templateArgument(typeobj, index):
-    return typeobj.GetTemplateArgumentType(index)
-
 def directBaseClass(typeobj, index = 0):
     return typeobj.GetDirectBaseClassAtIndex(index)
 
@@ -519,6 +516,9 @@ class Dumper:
         self.sizetType_ = None
         self.charPtrType_ = None
         self.voidType_ = None
+
+    def templateArgument(self, typeobj, index):
+        return typeobj.GetTemplateArgumentType(index)
 
     def intType(self):
         if self.intType_ is None:

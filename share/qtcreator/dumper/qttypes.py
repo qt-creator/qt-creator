@@ -439,7 +439,7 @@ def qdump__QFiniteStack(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        innerType = templateArgument(value.type, 0)
+        innerType = d.templateArgument(value.type, 0)
         d.putArrayData(innerType, value["_array"], size)
 
 # Stock gdb 7.2 seems to have a problem with types here:
@@ -467,7 +467,7 @@ def qdump__QFiniteStack(d, value):
 def qdump__QFlags(d, value):
     i = value["i"]
     try:
-        enumType = templateArgument(value.type.unqualified(), 0)
+        enumType = d.templateArgument(value.type.unqualified(), 0)
         d.putValue("%s (%s)" % (i.cast(enumType), i))
     except:
         d.putValue("%s" % i)
@@ -506,8 +506,8 @@ def qdump__QHash(d, value):
             bucket += 1
         return node
 
-    keyType = templateArgument(value.type, 0)
-    valueType = templateArgument(value.type, 1)
+    keyType = d.templateArgument(value.type, 0)
+    valueType = d.templateArgument(value.type, 1)
 
     d_ptr = value["d"]
     e_ptr = value["e"]
@@ -542,8 +542,8 @@ def qdump__QHash(d, value):
 
 
 def qdump__QHashNode(d, value):
-    keyType = templateArgument(value.type, 0)
-    valueType = templateArgument(value.type, 1)
+    keyType = d.templateArgument(value.type, 0)
+    valueType = d.templateArgument(value.type, 1)
     key = value["key"]
     val = value["value"]
 
@@ -563,8 +563,8 @@ def qdump__QHashNode(d, value):
 def qHashIteratorHelper(d, value):
     typeName = str(value.type)
     hashType = d.lookupType(typeName[0:typeName.rfind("::")])
-    keyType = templateArgument(hashType, 0)
-    valueType = templateArgument(hashType, 1)
+    keyType = d.templateArgument(hashType, 0)
+    valueType = d.templateArgument(hashType, 1)
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
@@ -608,7 +608,7 @@ def qdump__QList(d, value):
     check(size >= 0)
     checkRef(private["ref"])
 
-    innerType = templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
 
     d.putItemCount(size)
     d.putNumChild(size)
@@ -702,7 +702,7 @@ def qdump__QLinkedList(d, value):
     d.putItemCount(n)
     d.putNumChild(n)
     if d.isExpanded():
-        innerType = templateArgument(value.type, 0)
+        innerType = d.templateArgument(value.type, 0)
         with Children(d, n, maxNumChild=1000, childType=innerType):
             p = e_ptr["n"]
             for i in d.childRange():
@@ -772,8 +772,8 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         if n > 10000:
             n = 10000
 
-        keyType = templateArgument(value.type, 0)
-        valueType = templateArgument(value.type, 1)
+        keyType = d.templateArgument(value.type, 0)
+        valueType = d.templateArgument(value.type, 1)
         isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
 
         it = e_ptr["forward"].dereference()
@@ -820,8 +820,8 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
         if n > 10000:
             n = 10000
 
-        keyType = templateArgument(value.type, 0)
-        valueType = templateArgument(value.type, 1)
+        keyType = d.templateArgument(value.type, 0)
+        valueType = d.templateArgument(value.type, 1)
         isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
         nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
         if isCompact:
@@ -1110,7 +1110,7 @@ def qdump__QObject(d, value):
                 pp = 0
                 with Children(d):
                     vectorType = connections.type.target().fields()[0].type
-                    innerType = templateArgument(vectorType, 0)
+                    innerType = d.templateArgument(vectorType, 0)
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
                     p = gdb.Value(connections["p"]["array"]).cast(innerType.pointer())
                     for i in xrange(connectionListCount):
@@ -1459,7 +1459,7 @@ def qdump__QSet(d, value):
             bucket += 1
         return node
 
-    keyType = templateArgument(value.type, 0)
+    keyType = d.templateArgument(value.type, 0)
 
     d_ptr = value["q_hash"]["d"]
     e_ptr = value["q_hash"]["e"]
@@ -1505,7 +1505,7 @@ def qdump__QSharedDataPointer(d, value):
         # This replaces the pointer by the pointee, making the
         # pointer transparent.
         try:
-            innerType = templateArgument(value.type, 0)
+            innerType = d.templateArgument(value.type, 0)
         except:
             d.putValue(d_ptr)
             d.putPlainChildren(value)
@@ -1851,7 +1851,7 @@ def qedit__QVector(expr, value):
     ob = gdb.parse_and_eval(expr)
     cmd = "call (%s).resize(%d)" % (expr, len(values))
     gdb.execute(cmd)
-    innerType = templateArgument(ob.type, 0)
+    innerType = d.templateArgument(ob.type, 0)
     ptr = ob["p"]["array"].cast(d.voidPtrType())
     cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), long(ptr), value)
     gdb.execute(cmd)
@@ -1866,7 +1866,7 @@ def qdump__QVector(d, value):
     checkRef(private["ref"])
     alloc = int(private["alloc"])
     size = int(private["size"])
-    innerType = templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
         offset = private["offset"]
@@ -1909,7 +1909,7 @@ def qdump__QWeakPointer(d, value):
     d.putNumChild(3)
     if d.isExpanded():
         with Children(d):
-            innerType = templateArgument(value.type, 0)
+            innerType = d.templateArgument(value.type, 0)
             d.putSubItem("data", val.dereference().cast(innerType))
             d.putIntItem("weakref", weakref)
             d.putIntItem("strongref", strongref)
@@ -1962,16 +1962,16 @@ def qdump____c_style_array__(d, value):
 
 
 def qdump__std__array(d, value):
-    size = numericTemplateArgument(value.type, 1)
+    size = d.numericTemplateArgument(value.type, 1)
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        innerType = templateArgument(value.type, 0)
+        innerType = d.templateArgument(value.type, 0)
         d.putArrayData(innerType, value.address, size)
 
 
 def qdump__std__complex(d, value):
-    innerType = templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     base = value.address.cast(innerType.pointer())
     real = base.dereference()
     imag = (base + 1).dereference()
@@ -2032,7 +2032,7 @@ def qdump__std__list(d, value):
 
     if d.isExpanded():
         p = node["_M_next"]
-        innerType = templateArgument(value.type, 0)
+        innerType = d.templateArgument(value.type, 0)
         with Children(d, size, maxNumChild=1000, childType=innerType):
             for i in d.childRange():
                 innerPointer = innerType.pointer()
@@ -2051,16 +2051,16 @@ def qdump__std__map(d, value):
     d.putNumChild(size)
 
     if d.isExpanded():
-        keyType = templateArgument(value.type, 0)
-        valueType = templateArgument(value.type, 1)
+        keyType = d.templateArgument(value.type, 0)
+        valueType = d.templateArgument(value.type, 1)
         try:
             # Does not work on gcc 4.4, the allocator type (fourth template
             # argument) seems not to be available.
-            pairType = templateArgument(templateArgument(value.type, 3), 0)
+            pairType = d.templateArgument(d.templateArgument(value.type, 3), 0)
             pairPointer = pairType.pointer()
         except:
             # So use this as workaround:
-            pairType = templateArgument(impl.type, 1)
+            pairType = d.templateArgument(impl.type, 1)
             pairPointer = pairType.pointer()
         isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
         innerType = pairType
@@ -2106,7 +2106,7 @@ def stdTreeIteratorHelper(d, value):
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
-        dataType = templateArgument(value.type, 0)
+        dataType = d.templateArgument(value.type, 0)
         nodeType = d.lookupType("std::_Rb_tree_node<%s>" % dataType)
         data = pnode.cast(nodeType.pointer()).dereference()["_M_value_field"]
         with Children(d):
@@ -2154,7 +2154,7 @@ def qdump__std__set(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        valueType = templateArgument(value.type, 0)
+        valueType = d.templateArgument(value.type, 0)
         node = impl["_M_header"]["_M_left"]
         with Children(d, size, maxNumChild=1000, childType=valueType):
             for i in d.childRange():
@@ -2182,7 +2182,7 @@ def qform__std__string():
 def qdump__std__string(d, value):
     data = value["_M_dataplus"]["_M_p"]
     baseType = value.type.strip_typedefs()
-    charSize = templateArgument(baseType, 0).sizeof
+    charSize = d.templateArgument(baseType, 0).sizeof
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position
     # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
@@ -2225,7 +2225,7 @@ def qdump__std__shared_ptr(d, value):
         d.putNumChild(0)
         return
 
-    if isSimpleType(templateArgument(value.type, 0)):
+    if isSimpleType(d.templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (i.dereference(), long(i)))
     else:
         i = expensiveDowncast(i)
@@ -2246,7 +2246,7 @@ def qdump__std__unique_ptr(d, value):
         d.putNumChild(0)
         return
 
-    if isSimpleType(templateArgument(value.type, 0)):
+    if isSimpleType(d.templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (i.dereference(), long(i)))
     else:
         i = expensiveDowncast(i)
@@ -2261,7 +2261,7 @@ def qedit__std__vector(expr, value):
     values = value.split(',')
     n = len(values)
     ob = gdb.parse_and_eval(expr)
-    innerType = templateArgument(ob.type, 0)
+    innerType = d.templateArgument(ob.type, 0)
     cmd = "set $d = (%s*)calloc(sizeof(%s)*%s,1)" % (innerType, innerType, n)
     gdb.execute(cmd)
     cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (ob.address, n, n)
@@ -2332,7 +2332,7 @@ def qdump____gnu_cxx__hash_set(d, value):
     check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
-    type = templateArgument(value.type, 0)
+    type = d.templateArgument(value.type, 0)
     d.putType("__gnu__cxx::hash_set<%s>" % type)
     if d.isExpanded():
         with Children(d, size, maxNumChild=1000, childType=type):
@@ -2359,8 +2359,8 @@ def qdump____gnu_cxx__hash_set(d, value):
 #######################################################################
 
 def qdump__boost__bimaps__bimap(d, value):
-    leftType = templateArgument(value.type, 0)
-    rightType = templateArgument(value.type, 1)
+    leftType = d.templateArgument(value.type, 0)
+    rightType = d.templateArgument(value.type, 1)
     size = value["core"]["node_count"]
     d.putItemCount(size)
     d.putNumChild(size)
@@ -2374,7 +2374,7 @@ def qdump__boost__optional(d, value):
         d.putNumChild(0)
     else:
         d.putBetterType(value.type)
-        type = templateArgument(value.type, 0)
+        type = d.templateArgument(value.type, 0)
         storage = value["m_storage"]
         if type.code == ReferenceCode:
             d.putItem(storage.cast(type.target().pointer()).dereference())
@@ -2717,12 +2717,12 @@ def qdump__CPlusPlus__Internal__PPToken(d, value):
 #    return "Transposed"
 
 def qdump__Eigen__Matrix(d, value):
-    innerType = templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     storage = value["m_storage"]
-    options = numericTemplateArgument(value.type, 3)
+    options = d.numericTemplateArgument(value.type, 3)
     rowMajor = (int(options) & 0x1)
-    argRow = numericTemplateArgument(value.type, 1)
-    argCol = numericTemplateArgument(value.type, 2)
+    argRow = d.numericTemplateArgument(value.type, 1)
+    argCol = d.numericTemplateArgument(value.type, 2)
     nrows = value["m_storage"]["m_rows"] if argRow == -1 else int(argRow)
     ncols = value["m_storage"]["m_cols"] if argCol == -1 else int(argCol)
     p = storage["m_data"]
