@@ -39,6 +39,9 @@
 #include <QStyle>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QToolBar>
+#include <QComboBox>
+#include <QFileInfo>
 
 namespace DiffEditor {
 
@@ -48,9 +51,12 @@ DiffEditorEditable::DiffEditorEditable(DiffEditorWidget *editorWidget)
     : IEditor(0),
       m_file(new Internal::DiffEditorFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this)),
       m_editorWidget(editorWidget),
-      m_toolWidget(0)
+      m_toolWidget(0),
+      m_entriesComboBox(0)
 {
     setWidget(editorWidget);
+    connect(m_editorWidget, SIGNAL(navigatedToDiffFile(int)),
+            this, SLOT(activateEntry(int)));
 }
 
 DiffEditorEditable::~DiffEditorEditable()
@@ -115,7 +121,6 @@ static QToolBar *createToolBar(const QWidget *someWidget)
     toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
     toolBar->setIconSize(QSize(size, size));
-    toolBar->addSeparator();
 
     return toolBar;
 }
@@ -128,12 +133,15 @@ QWidget *DiffEditorEditable::toolBar()
     // Create
     m_toolWidget = createToolBar(m_editorWidget);
 
-    QWidget *spacerWidget = new QWidget();
-    QLayout *spacerLayout = new QHBoxLayout();
-    spacerLayout->setMargin(0);
-    spacerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
-    spacerWidget->setLayout(spacerLayout);
-    m_toolWidget->addWidget(spacerWidget);
+    m_entriesComboBox = new QComboBox;
+    m_entriesComboBox->setMinimumContentsLength(20);
+    // Make the combo box prefer to expand
+    QSizePolicy policy = m_entriesComboBox->sizePolicy();
+    policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    m_entriesComboBox->setSizePolicy(policy);
+    connect(m_entriesComboBox, SIGNAL(activated(int)),
+            this, SLOT(entryActivated(int)));
+    m_toolWidget->addWidget(m_entriesComboBox);
 
     QToolButton *whitespaceButton = new QToolButton(m_toolWidget);
     whitespaceButton->setText(tr("Ignore Whitespace"));
@@ -154,6 +162,78 @@ QWidget *DiffEditorEditable::toolBar()
     m_toolWidget->addWidget(contextSpinBox);
 
     return m_toolWidget;
+}
+
+void DiffEditorEditable::setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,
+                                 const QString &workingDirectory)
+{
+    m_entriesComboBox->clear();
+    const int count = diffFileList.count();
+    for (int i = 0; i < count; i++) {
+        const DiffEditorWidget::DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
+        const DiffEditorWidget::DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
+        const QString leftShortFileName = QFileInfo(leftEntry.fileName).fileName();
+        const QString rightShortFileName = QFileInfo(rightEntry.fileName).fileName();
+        QString itemText;
+        QString itemToolTip;
+        if (leftEntry.fileName == rightEntry.fileName) {
+            itemText = leftShortFileName;
+
+            if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
+                itemToolTip = leftEntry.fileName;
+            } else {
+                itemToolTip = tr("[%1] vs. [%2] %3")
+                        .arg(leftEntry.typeInfo, rightEntry.typeInfo, leftEntry.fileName);
+            }
+        } else {
+            if (leftShortFileName == rightShortFileName) {
+                itemText = leftShortFileName;
+            } else {
+                itemText = tr("%1 vs. %2")
+                        .arg(leftShortFileName, rightShortFileName);
+            }
+
+            if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
+                itemToolTip = tr("%1 vs. %2")
+                        .arg(leftEntry.fileName, rightEntry.fileName);
+            } else {
+                itemToolTip = tr("[%1] %2 vs. [%3] %4")
+                        .arg(leftEntry.typeInfo, leftEntry.fileName, rightEntry.typeInfo, rightEntry.fileName);
+            }
+        }
+        m_entriesComboBox->addItem(itemText);
+        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1, itemToolTip, Qt::ToolTipRole);
+    }
+    updateEntryToolTip();
+    m_editorWidget->setDiff(diffFileList, workingDirectory);
+}
+
+void DiffEditorEditable::clear(const QString &message)
+{
+    m_entriesComboBox->clear();
+    updateEntryToolTip();
+    m_editorWidget->clear(message);
+}
+
+void DiffEditorEditable::updateEntryToolTip()
+{
+    const QString &toolTip = m_entriesComboBox->itemData(
+                m_entriesComboBox->currentIndex(), Qt::ToolTipRole).toString();
+    m_entriesComboBox->setToolTip(toolTip);
+}
+
+void DiffEditorEditable::entryActivated(int index)
+{
+    updateEntryToolTip();
+    m_editorWidget->navigateToDiffFile(index);
+}
+
+void DiffEditorEditable::activateEntry(int index)
+{
+    m_entriesComboBox->blockSignals(true);
+    m_entriesComboBox->setCurrentIndex(index);
+    m_entriesComboBox->blockSignals(false);
+    updateEntryToolTip();
 }
 
 QByteArray DiffEditorEditable::saveState() const

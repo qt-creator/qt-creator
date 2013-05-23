@@ -86,6 +86,10 @@ public:
 public slots:
     void setContextLinesNumber(int lines);
     void setIgnoreWhitespaces(bool ignore);
+    void navigateToDiffFile(int diffFileIndex);
+
+signals:
+    void navigatedToDiffFile(int diffFileIndex);
 
 protected:
     TextEditor::SnippetEditorWidget *leftEditor() const;
@@ -96,6 +100,8 @@ private slots:
     void rightVSliderChanged();
     void leftHSliderChanged();
     void rightHSliderChanged();
+    void leftCursorPositionChanged();
+    void rightCursorPositionChanged();
     void leftDocumentSizeChanged();
     void rightDocumentSizeChanged();
     void toggleScrollBarSynchronization(bool on);

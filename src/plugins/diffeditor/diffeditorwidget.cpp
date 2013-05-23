@@ -131,6 +131,8 @@ public:
     void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; setSeparator(blockNumber, true); }
     void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
     bool isFileLine(int blockNumber) const { return m_fileInfo.contains(blockNumber); }
+    int blockNumberForFileIndex(int fileIndex) const;
+    int fileIndexForBlockNumber(int blockNumber) const;
     bool isChunkLine(int blockNumber) const { return m_skippedLines.contains(blockNumber); }
     void clearAll();
     void clearAll(const QString &message);
@@ -241,6 +243,36 @@ void DiffViewEditorWidget::setLineNumber(int blockNumber, int lineNumber)
     const QString lineNumberString = QString::number(lineNumber);
     m_lineNumbers.insert(blockNumber, lineNumber);
     m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumberString.count());
+}
+
+int DiffViewEditorWidget::blockNumberForFileIndex(int fileIndex) const
+{
+    if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
+        return -1;
+
+    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it
+            = m_fileInfo.constBegin();
+    for (int i = 0; i < fileIndex; i++)
+        ++it;
+
+    return it.key();
+}
+
+int DiffViewEditorWidget::fileIndexForBlockNumber(int blockNumber) const
+{
+    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it
+            = m_fileInfo.constBegin();
+    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator itEnd
+            = m_fileInfo.constEnd();
+
+    int i = -1;
+    while (it != itEnd) {
+        if (it.key() > blockNumber)
+            break;
+        ++it;
+        ++i;
+    }
+    return i;
 }
 
 void DiffViewEditorWidget::clearAll()
@@ -512,16 +544,14 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
             this, SLOT(leftVSliderChanged()));
     connect(m_leftEditor->verticalScrollBar(), SIGNAL(actionTriggered(int)),
             this, SLOT(leftVSliderChanged()));
-    connect(m_leftEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(leftVSliderChanged()));
 
     connect(m_leftEditor->horizontalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(leftHSliderChanged()));
     connect(m_leftEditor->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
             this, SLOT(leftHSliderChanged()));
-    connect(m_leftEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(leftHSliderChanged()));
 
+    connect(m_leftEditor, SIGNAL(cursorPositionChanged()),
+            this, SLOT(leftCursorPositionChanged()));
     connect(m_leftEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
             this, SLOT(leftDocumentSizeChanged()));
 
@@ -529,16 +559,14 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
             this, SLOT(rightVSliderChanged()));
     connect(m_rightEditor->verticalScrollBar(), SIGNAL(actionTriggered(int)),
             this, SLOT(rightVSliderChanged()));
-    connect(m_rightEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(rightVSliderChanged()));
 
     connect(m_rightEditor->horizontalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(rightHSliderChanged()));
     connect(m_rightEditor->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
             this, SLOT(rightHSliderChanged()));
-    connect(m_rightEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(rightHSliderChanged()));
 
+    connect(m_rightEditor, SIGNAL(cursorPositionChanged()),
+            this, SLOT(rightCursorPositionChanged()));
     connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
             this, SLOT(rightDocumentSizeChanged()));
 
@@ -628,6 +656,24 @@ void DiffEditorWidget::setIgnoreWhitespaces(bool ignore)
 
     m_ignoreWhitespaces = ignore;
     setDiff(m_diffList);
+}
+
+void DiffEditorWidget::navigateToDiffFile(int diffFileIndex)
+{
+    const int blockNumber = m_leftEditor->blockNumberForFileIndex(diffFileIndex);
+
+    QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
+    QTextCursor leftCursor = m_leftEditor->textCursor();
+    leftCursor.setPosition(leftBlock.position());
+    m_leftEditor->setTextCursor(leftCursor);
+
+    QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
+    QTextCursor rightCursor = m_rightEditor->textCursor();
+    rightCursor.setPosition(rightBlock.position());
+    m_rightEditor->setTextCursor(rightCursor);
+
+    m_leftEditor->centerCursor();
+    m_rightEditor->centerCursor();
 }
 
 QTextCodec *DiffEditorWidget::codec() const
@@ -1327,6 +1373,20 @@ void DiffEditorWidget::rightHSliderChanged()
 {
     if (m_syncScrollBars)
         m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
+}
+
+void DiffEditorWidget::leftCursorPositionChanged()
+{
+    leftVSliderChanged();
+    leftHSliderChanged();
+    emit navigatedToDiffFile(m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
+}
+
+void DiffEditorWidget::rightCursorPositionChanged()
+{
+    rightVSliderChanged();
+    rightHSliderChanged();
+    emit navigatedToDiffFile(m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
 }
 
 void DiffEditorWidget::leftDocumentSizeChanged()

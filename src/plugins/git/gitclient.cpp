@@ -84,10 +84,10 @@ class GitDiffHandler : public QObject
     Q_OBJECT
 
 public:
-    GitDiffHandler(const QString &gitPath,
+    GitDiffHandler(DiffEditor::DiffEditorEditable *editor,
+                   const QString &gitPath,
                    const QString &workingDirectory,
                    const QProcessEnvironment &environment,
-                   DiffEditor::DiffEditorWidget *editor,
                    int timeout);
 
     // index -> working tree
@@ -110,10 +110,10 @@ private:
     void feedEditor();
     QString workingTreeContents(const QString &fileName) const;
 
+    QPointer<DiffEditor::DiffEditorEditable> m_editor;
     const QString m_gitPath;
     const QString m_workingDirectory;
     const QProcessEnvironment m_processEnvironment;
-    QWeakPointer<DiffEditor::DiffEditorWidget> m_editor;
     const int m_timeout;
     const QString m_waitMessage;
 
@@ -133,15 +133,15 @@ private:
     QStringList m_indexContents;
 };
 
-GitDiffHandler::GitDiffHandler(const QString &gitPath,
+GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorEditable *editor,
+               const QString &gitPath,
                const QString &workingDirectory,
                const QProcessEnvironment &environment,
-               DiffEditor::DiffEditorWidget *editor,
                int timeout)
-    : m_gitPath(gitPath),
+    : m_editor(editor),
+      m_gitPath(gitPath),
       m_workingDirectory(workingDirectory),
       m_processEnvironment(environment),
-      m_editor(editor),
       m_timeout(timeout),
       m_waitMessage(tr("Waiting for data..."))
 {
@@ -182,7 +182,7 @@ void GitDiffHandler::diffRepository()
 
 void GitDiffHandler::collectFilesList(const QStringList &additionalArguments)
 {
-    m_editor.data()->clear(m_waitMessage);
+    m_editor->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
     connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotFileListReceived(QByteArray)));
     QStringList arguments;
@@ -196,7 +196,7 @@ void GitDiffHandler::slotFileListReceived(const QByteArray &data)
     if (m_editor.isNull())
         return;
 
-    const QString fileList = m_editor.data()->codec()->toUnicode(data);
+    const QString fileList = m_editor->editorWidget()->codec()->toUnicode(data);
     m_requestedIndexFileNames = fileList.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     m_requestedIndexFileNames.removeDuplicates();
     m_indexFileNames = m_requestedIndexFileNames;
@@ -237,7 +237,7 @@ void GitDiffHandler::slotFileContentsReceived(const QByteArray &data)
 
     const int headFilesReceived = m_headContents.count();
     const int indexFilesReceived = m_indexContents.count();
-    const QString contents = m_editor.data()->codec()->toUnicode(data);
+    const QString contents = m_editor->editorWidget()->codec()->toUnicode(data);
     if (headFilesReceived < m_headFileNames.count())
         m_headContents.append(contents);
     else if (indexFilesReceived < m_indexFileNames.count())
@@ -279,7 +279,7 @@ void GitDiffHandler::feedEditor()
             list.append(dfc);
         }
     }
-    m_editor.data()->setDiff(list, m_workingDirectory);
+    m_editor->setDiff(list, m_workingDirectory);
     deleteLater();
 }
 
@@ -290,7 +290,7 @@ QString GitDiffHandler::workingTreeContents(const QString &fileName) const
 
     QFile file(absoluteFileName);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return m_editor.data()->codec()->toUnicode(file.readAll());
+        return m_editor->editorWidget()->codec()->toUnicode(file.readAll());
     }
     return QString();
 }
@@ -728,10 +728,9 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
     return rc;
 }
 
-DiffEditor::DiffEditorWidget *GitClient::findExistingDiffEditor(const char *registerDynamicProperty,
+DiffEditor::DiffEditorEditable *GitClient::findExistingDiffEditor(const char *registerDynamicProperty,
                                                       const QString &dynamicPropertyValue) const
 {
-    DiffEditor::DiffEditorWidget *editorWidget = 0;
     Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     if (!outputEditor)
         return 0;
@@ -739,9 +738,8 @@ DiffEditor::DiffEditorWidget *GitClient::findExistingDiffEditor(const char *regi
     // Exists already
     Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     outputEditor->createNew(m_msgWait);
-    editorWidget = diffEditorWidget(outputEditor);
 
-    return editorWidget;
+    return qobject_cast<DiffEditor::DiffEditorEditable *>(outputEditor);
 }
 
 /* Create an editor associated to VCS output of a source file/directory
@@ -787,13 +785,6 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     return rc;
 }
 
-DiffEditor::DiffEditorWidget *GitClient::diffEditorWidget(const Core::IEditor *editor) const
-{
-    if (const DiffEditor::DiffEditorEditable *de = qobject_cast<const DiffEditor::DiffEditorEditable *>(editor))
-        return de->editorWidget();
-    return 0;
-}
-
 void GitClient::diff(const QString &workingDirectory,
                      const QStringList &diffArgs,
                      const QStringList &unstagedFileNames,
@@ -803,18 +794,17 @@ void GitClient::diff(const QString &workingDirectory,
         const Core::Id editorId = DiffEditor::Constants::DIFF_EDITOR_ID;
         QString title = tr("Git Diff");
 
-        DiffEditor::DiffEditorWidget *editorWidget = findExistingDiffEditor("originalFileName", workingDirectory);
+        DiffEditor::DiffEditorEditable *editorEditable = findExistingDiffEditor("originalFileName", workingDirectory);
 
-        if (!editorWidget) {
-            Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait);
-            outputEditor->document()->setProperty("originalFileName", workingDirectory);
-            Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch); // should probably go outside this block
-
-            editorWidget = diffEditorWidget(outputEditor);
+        if (!editorEditable) {
+            editorEditable = qobject_cast<DiffEditor::DiffEditorEditable *>(
+                        Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait));
+            editorEditable->document()->setProperty("originalFileName", workingDirectory);
+            Core::EditorManager::activateEditor(editorEditable, Core::EditorManager::ModeSwitch); // should probably go outside this block
         }
 
         int timeout = settings()->intValue(GitSettings::timeoutKey);
-        GitDiffHandler *handler = new GitDiffHandler(gitBinaryPath(), workingDirectory, processEnvironment(), editorWidget, timeout);
+        GitDiffHandler *handler = new GitDiffHandler(editorEditable, gitBinaryPath(), workingDirectory, processEnvironment(), timeout);
 
         if (unstagedFileNames.empty() && stagedFileNames.empty()) {
             // local repository diff
@@ -892,18 +882,17 @@ void GitClient::diff(const QString &workingDirectory,
         QString title = tr("Git Diff \"%1\"").arg(fileName);
         const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
 
-        DiffEditor::DiffEditorWidget *editorWidget = findExistingDiffEditor("originalFileName", sourceFile);
-        if (!editorWidget) {
-            Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait);
-            outputEditor->document()->setProperty("originalFileName", sourceFile);
-            Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
-
-            editorWidget = diffEditorWidget(outputEditor);
+        DiffEditor::DiffEditorEditable *editorEditable = findExistingDiffEditor("originalFileName", sourceFile);
+        if (!editorEditable) {
+            editorEditable = qobject_cast<DiffEditor::DiffEditorEditable *>(
+                        Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait));
+            editorEditable->document()->setProperty("originalFileName", sourceFile);
+            Core::EditorManager::activateEditor(editorEditable, Core::EditorManager::ModeSwitch);
         }
 
         if (!fileName.isEmpty()) {
             int timeout = settings()->intValue(GitSettings::timeoutKey);
-            GitDiffHandler *handler = new GitDiffHandler(gitBinaryPath(), workingDirectory, processEnvironment(), editorWidget, timeout);
+            GitDiffHandler *handler = new GitDiffHandler(editorEditable, gitBinaryPath(), workingDirectory, processEnvironment(), timeout);
             handler->diffFile(fileName);
         }
     } else {
