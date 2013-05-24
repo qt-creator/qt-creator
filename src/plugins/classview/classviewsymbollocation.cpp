@@ -34,6 +34,14 @@
 namespace ClassView {
 namespace Internal {
 
+/*!
+    \class SymbolLocation
+    \brief The SymbolLocation class stores information about symbol location
+    to know the exact location to open when the user clicks on a tree item.
+
+    This class might be used in QSet and QHash.
+*/
+
 SymbolLocation::SymbolLocation() :
     m_line(0),
     m_column(0),

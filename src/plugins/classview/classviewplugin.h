@@ -35,11 +35,6 @@
 namespace ClassView {
 namespace Internal {
 
-/*!
-   \class Plugin
-   \brief Base class for Class View plugin (class/namespaces in the navigation pane)
- */
-
 class Plugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT

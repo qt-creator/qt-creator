@@ -40,8 +40,9 @@ namespace Internal {
 ///////////////////////////////// TreeItemModelPrivate //////////////////////////////////
 
 /*!
-   \struct TreeItemModelPrivate
-   \brief Private class data for \a TreeItemModel
+   \class TreeItemModelPrivate
+   \brief The TreeItemModelPrivate class contains private class data for
+   the TreeItemModel class.
    \sa TreeItemModel
  */
 class TreeItemModelPrivate
@@ -52,6 +53,11 @@ public:
 };
 
 ///////////////////////////////// TreeItemModel //////////////////////////////////
+
+/*!
+   \class TreeItemModel
+   \brief The TreeItemModel class provides a model for the Class View tree.
+*/
 
 TreeItemModel::TreeItemModel(QObject *parent)
     : QStandardItemModel(parent),
@@ -117,6 +123,10 @@ void TreeItemModel::fetchMore(const QModelIndex &parent)
 
     return Manager::instance()->fetchMore(itemFromIndex(parent));
 }
+
+/*!
+   Moves the root item to the \a target item.
+*/
 
 void TreeItemModel::moveRootToTarget(const QStandardItem *target)
 {

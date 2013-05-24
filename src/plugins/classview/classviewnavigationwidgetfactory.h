@@ -35,15 +35,6 @@
 namespace ClassView {
 namespace Internal {
 
-/*!
-   \class NavigationWidgetFactory
-   \brief INavigationWidgetFactory implementation for Class View
-
-   INavigationWidgetFactory implementation for Class View. Singleton instance.
-   Supports \a setState publc slot to add/remove factory to \a ExtensionSystem::PluginManager.
-   Also supports some additional signals, \a widgetIsCreated and \a stateChanged.
- */
-
 class NavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
@@ -81,9 +72,6 @@ public:
     void restoreSettings(int position, QWidget *widget);
 
 signals:
-    /*!
-       \brief Signal which informs that the widget factory creates a widget.
-     */
     void widgetIsCreated();
 };
 

@@ -49,8 +49,10 @@ namespace Internal {
 ///////////////////////////////// NavigationWidgetPrivate //////////////////////////////////
 
 /*!
-   \struct NavigationWidgetPrivate
-   \brief Internal data structures / methods for NavigationWidget
+    \class NavigationWidgetPrivate
+
+    The NavigationWidgetPrivate class provides internal data structures and
+    methods for NavigationWidget.
  */
 
 class NavigationWidgetPrivate
@@ -70,6 +72,47 @@ public:
 
 ///////////////////////////////// NavigationWidget //////////////////////////////////
 
+/*!
+    \class NavigationWidget
+
+    The NavigationWidget class is a widget for the class view tree.
+*/
+
+
+/*!
+    \fn void NavigationWidget::visibilityChanged(bool visibility)
+
+    Emits a signal when the widget visibility is changed. \a visibility returns
+    true if plugin becames visible, otherwise it returns false.
+*/
+
+/*!
+    \fn void NavigationWidget::requestGotoLocation(const QString &name,
+                                                   int line,
+                                                   int column)
+
+    Emits a signal that requests to open the file with \a name at \a line
+    and \a column.
+
+   \sa Manager::gotoLocation
+*/
+
+/*!
+    \fn void NavigationWidget::requestGotoLocations(const QList<QVariant> &locations)
+
+    Emits a signal to request to go to any of the Symbol \a locations in the
+    list.
+
+   \sa Manager::gotoLocations
+*/
+
+/*!
+    \fn void NavigationWidget::requestTreeDataUpdate()
+
+    Emits a signal that the widget wants to receive the latest tree info.
+
+   \sa Manager::onRequestTreeDataUpdate
+*/
 
 NavigationWidget::NavigationWidget(QWidget *parent) :
     QWidget(parent),
@@ -128,6 +171,14 @@ void NavigationWidget::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 }
 
+/*!
+    Creates QToolbuttons for the Navigation Pane widget.
+
+    Returns the list of created QToolButtons.
+
+   \sa NavigationWidgetFactory::createWidget
+*/
+
 QList<QToolButton *> NavigationWidget::createToolButtons()
 {
     QList<QToolButton *> list;
@@ -154,6 +205,10 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
     return list;
 }
 
+/*!
+    Returns flat mode state.
+*/
+
 bool NavigationWidget::flatMode() const
 {
     QTC_ASSERT(d->fullProjectsModeButton, return false);
@@ -161,6 +216,10 @@ bool NavigationWidget::flatMode() const
     // button is 'full projects mode' - so it has to be inverted
     return !d->fullProjectsModeButton->isChecked();
 }
+
+/*!
+   Sets the flat mode state to \a flatMode.
+*/
 
 void NavigationWidget::setFlatMode(bool flatMode)
 {
@@ -170,11 +229,20 @@ void NavigationWidget::setFlatMode(bool flatMode)
     d->fullProjectsModeButton->setChecked(!flatMode);
 }
 
+/*!
+    Full projects mode button has been toggled. \a state holds the full
+    projects mode.
+*/
+
 void NavigationWidget::onFullProjectsModeToggled(bool state)
 {
     // button is 'full projects mode' - so it has to be inverted
     Manager::instance()->setFlatMode(!state);
 }
+
+/*!
+    Activates the item with the \a index in the tree view.
+*/
 
 void NavigationWidget::onItemActivated(const QModelIndex &index)
 {
@@ -185,6 +253,11 @@ void NavigationWidget::onItemActivated(const QModelIndex &index)
 
     emit requestGotoLocations(list);
 }
+
+/*!
+    Receives new data for the tree. \a result is a pointer to the Class View
+    model root item. The method does nothing if null is passed.
+*/
 
 void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)
 {
@@ -212,6 +285,11 @@ void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)
         qDebug() << "Class View:" << QDateTime::currentDateTime().toString()
             << "TreeView is updated in" << timer.elapsed() << "msecs";
 }
+
+/*!
+    Fetches data for expanded items to make sure that the content will exist.
+    \a item and \a target do nothing if null is passed.
+*/
 
 void NavigationWidget::fetchExpandedItems(QStandardItem *item, const QStandardItem *target) const
 {

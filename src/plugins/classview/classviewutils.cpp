@@ -40,6 +40,11 @@
 namespace ClassView {
 namespace Constants {
 
+/*!
+   \class Utils
+   \brief The Utils class provides some common utilities.
+*/
+
 //! Default icon sort order
 const int IconSortOrder[] = {
     CPlusPlus::Icons::NamespaceIconType,
@@ -69,6 +74,13 @@ Utils::Utils()
 {
 }
 
+/*!
+    Converts internal location container to QVariant compatible.
+    \a locations specifies a set of symbol locations.
+    Returns a list of variant locations that can be added to the data of an
+    item.
+*/
+
 QList<QVariant> Utils::locationsToRole(const QSet<SymbolLocation> &locations)
 {
     QList<QVariant> locationsVar;
@@ -77,6 +89,13 @@ QList<QVariant> Utils::locationsToRole(const QSet<SymbolLocation> &locations)
 
     return locationsVar;
 }
+
+/*!
+    Converts QVariant location container to internal.
+    \a locationsVar contains a list of variant locations from the data of an
+    item.
+    Returns a set of symbol locations.
+ */
 
 QSet<SymbolLocation> Utils::roleToLocations(const QList<QVariant> &locationsVar)
 {
@@ -88,6 +107,10 @@ QSet<SymbolLocation> Utils::roleToLocations(const QList<QVariant> &locationsVar)
 
     return locations;
 }
+
+/*!
+    Returns sort order value for the \a icon.
+*/
 
 int Utils::iconTypeSortOrder(int icon)
 {
@@ -107,6 +130,12 @@ int Utils::iconTypeSortOrder(int icon)
     return sortOrder[icon];
 }
 
+/*!
+    Sets symbol information specified by \a information to \a item.
+    \a information provides the name, type, and icon for the item.
+    Returns the filled item.
+*/
+
 QStandardItem *Utils::setSymbolInformationToItem(const SymbolInformation &information,
                                                  QStandardItem *item)
 {
@@ -118,6 +147,10 @@ QStandardItem *Utils::setSymbolInformationToItem(const SymbolInformation &inform
 
     return item;
 }
+
+/*!
+    Returns symbol information for \a item.
+*/
 
 SymbolInformation Utils::symbolInformationFromItem(const QStandardItem *item)
 {
@@ -140,6 +173,10 @@ SymbolInformation Utils::symbolInformationFromItem(const QStandardItem *item)
 
     return SymbolInformation(name, type, iconType);
 }
+
+/*!
+   Updates \a item to \a target, so that it is sorted and can be fetched.
+*/
 
 void Utils::fetchItemToTarget(QStandardItem *item, const QStandardItem *target)
 {
@@ -178,6 +215,9 @@ void Utils::fetchItemToTarget(QStandardItem *item, const QStandardItem *target)
     }
 }
 
+/*!
+   Moves \a item to \a target (sorted).
+*/
 void Utils::moveItemToTarget(QStandardItem *item, const QStandardItem *target)
 {
     if (!item || !target)

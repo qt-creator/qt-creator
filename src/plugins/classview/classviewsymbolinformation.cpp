@@ -36,6 +36,12 @@
 namespace ClassView {
 namespace Internal {
 
+/*!
+    \class SymbolInformation
+    \brief The SymbolInformation class provides the name, type, and icon for a
+    single item in the Class View tree.
+*/
+
 SymbolInformation::SymbolInformation() :
     m_iconType(INT_MIN),
     m_hash(0)
@@ -51,6 +57,11 @@ SymbolInformation::SymbolInformation(const QString &valueName, const QString &va
     // calculate hash
     m_hash = qHash(qMakePair(m_iconType, qMakePair(m_name, m_type)));
 }
+
+/*!
+    Returns an icon type sort order number. It is not pre-calculated, as it is
+    needed for converting to standard item only.
+*/
 
 int SymbolInformation::iconTypeSortOrder() const
 {

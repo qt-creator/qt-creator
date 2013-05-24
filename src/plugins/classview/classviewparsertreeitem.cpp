@@ -49,8 +49,9 @@ namespace Internal {
 ///////////////////////////////// ParserTreeItemPrivate //////////////////////////////////
 
 /*!
-   \struct ParserTreeItemPrivate
-   \brief Private class data for \a ParserTreeItem
+    \class ParserTreeItemPrivate
+    \brief The ParserTreeItemPrivate class defines private class data for
+    the ParserTreeItem class.
    \sa ParserTreeItem
  */
 class ParserTreeItemPrivate
@@ -67,6 +68,13 @@ public:
 };
 
 ///////////////////////////////// ParserTreeItem //////////////////////////////////
+
+/*!
+    \class ParserTreeItem
+    \brief The ParserTreeItem class is an item for the internal Class View tree.
+
+    Not virtual - to speed up its work.
+*/
 
 ParserTreeItem::ParserTreeItem() :
     d(new ParserTreeItemPrivate())
@@ -86,6 +94,11 @@ ParserTreeItem &ParserTreeItem::operator=(const ParserTreeItem &other)
     return *this;
 }
 
+/*!
+    Copies a parser tree item from the location specified by \a from to this
+    item.
+*/
+
 void ParserTreeItem::copy(const ParserTreeItem::ConstPtr &from)
 {
     if (from.isNull())
@@ -95,6 +108,12 @@ void ParserTreeItem::copy(const ParserTreeItem::ConstPtr &from)
     d->icon = from->d->icon;
     d->symbolInformations = from->d->symbolInformations;
 }
+
+/*!
+    \fn void copyTree(const ParserTreeItem::ConstPtr &from)
+    Copies a parser tree item with children from the location specified by
+    \a from to this item.
+*/
 
 void ParserTreeItem::copyTree(const ParserTreeItem::ConstPtr &target)
 {
@@ -123,30 +142,59 @@ void ParserTreeItem::copyTree(const ParserTreeItem::ConstPtr &target)
     }
 }
 
+/*!
+    Adds information about symbol location from a \location.
+    \sa SymbolLocation, removeSymbolLocation, symbolLocations
+*/
+
 void ParserTreeItem::addSymbolLocation(const SymbolLocation &location)
 {
     d->symbolLocations.insert(location);
 }
+
+/*!
+    Adds information about symbol locations from \a locations.
+    \sa SymbolLocation, removeSymbolLocation, symbolLocations
+*/
 
 void ParserTreeItem::addSymbolLocation(const QSet<SymbolLocation> &locations)
 {
     d->symbolLocations.unite(locations);
 }
 
+/*!
+    Removes information about \a location.
+    \sa SymbolLocation, addSymbolLocation, symbolLocations
+*/
+
 void ParserTreeItem::removeSymbolLocation(const SymbolLocation &location)
 {
     d->symbolLocations.remove(location);
 }
+
+/*!
+    Removes information about \a locations.
+    \sa SymbolLocation, addSymbolLocation, symbolLocations
+*/
 
 void ParserTreeItem::removeSymbolLocations(const QSet<SymbolLocation> &locations)
 {
     d->symbolLocations.subtract(locations);
 }
 
+/*!
+    Gets information about symbol positions.
+    \sa SymbolLocation, addSymbolLocation, removeSymbolLocation
+*/
+
 QSet<SymbolLocation> ParserTreeItem::symbolLocations() const
 {
     return d->symbolLocations;
 }
+
+/*!
+    Appends the child item \a item to \a inf symbol information.
+*/
 
 void ParserTreeItem::appendChild(const ParserTreeItem::Ptr &item, const SymbolInformation &inf)
 {
@@ -157,10 +205,18 @@ void ParserTreeItem::appendChild(const ParserTreeItem::Ptr &item, const SymbolIn
     d->symbolInformations[inf] = item;
 }
 
+/*!
+    Removes the \a inf symbol information.
+*/
+
 void ParserTreeItem::removeChild(const SymbolInformation &inf)
 {
     d->symbolInformations.remove(inf);
 }
+
+/*!
+    Returns the child item specified by \a inf symbol information.
+*/
 
 ParserTreeItem::Ptr ParserTreeItem::child(const SymbolInformation &inf) const
 {
@@ -169,20 +225,37 @@ ParserTreeItem::Ptr ParserTreeItem::child(const SymbolInformation &inf) const
     return d->symbolInformations[inf];
 }
 
+/*!
+    Returns the amount of children of the tree item.
+*/
+
 int ParserTreeItem::childCount() const
 {
     return d->symbolInformations.count();
 }
+
+/*!
+    \property QIcon::icon
+    \brief the icon assigned to the tree item
+*/
 
 QIcon ParserTreeItem::icon() const
 {
     return d->icon;
 }
 
+/*!
+    Sets the \a icon for the tree item.
+ */
 void ParserTreeItem::setIcon(const QIcon &icon)
 {
     d->icon = icon;
 }
+
+/*!
+    Adds an internal state with \a target, which contains the correct current
+    state.
+*/
 
 void ParserTreeItem::add(const ParserTreeItem::ConstPtr &target)
 {
@@ -221,6 +294,10 @@ void ParserTreeItem::add(const ParserTreeItem::ConstPtr &target)
     }
 }
 
+/*!
+    Subtracts an internal state with \a target, which contains the subtrahend.
+*/
+
 void ParserTreeItem::subtract(const ParserTreeItem::ConstPtr &target)
 {
     if (target.isNull())
@@ -245,6 +322,12 @@ void ParserTreeItem::subtract(const ParserTreeItem::ConstPtr &target)
         ++cur;
     }
 }
+
+/*!
+    Appends this item to the QStandardIten item \a item.
+    \a recursive does it recursively for the tree items (might be needed for
+    lazy data population.
+*/
 
 void ParserTreeItem::convertTo(QStandardItem *item, bool recursive) const
 {
@@ -288,6 +371,10 @@ void ParserTreeItem::convertTo(QStandardItem *item, bool recursive) const
     }
 }
 
+/*!
+    Checks \a item in a QStandardItemModel for lazy data population.
+*/
+
 bool ParserTreeItem::canFetchMore(QStandardItem *item) const
 {
     if (!item)
@@ -327,6 +414,10 @@ bool ParserTreeItem::canFetchMore(QStandardItem *item) const
     return false;
 }
 
+/*!
+    Performs lazy data population for \a item in a QStandardItemModel if needed.
+*/
+
 void ParserTreeItem::fetchMore(QStandardItem *item) const
 {
     if (!item)
@@ -352,6 +443,10 @@ void ParserTreeItem::fetchMore(QStandardItem *item) const
         }
     }
 }
+
+/*!
+    Debug dump.
+*/
 
 void ParserTreeItem::debugDump(int ident) const
 {

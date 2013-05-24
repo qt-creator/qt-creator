@@ -42,11 +42,6 @@ namespace Internal {
 
 class NavigationWidgetPrivate;
 
-/*!
-   \class NavigationWidget
-   \brief A widget for the class view tree
- */
-
 class NavigationWidget : public QWidget
 {
     Q_OBJECT
@@ -55,79 +50,29 @@ public:
     explicit NavigationWidget(QWidget *parent = 0);
     ~NavigationWidget();
 
-    /*!
-       \brief Create QToolbuttons for Navigation Pane Widget
-       \return List with created QToolButtons
-       \sa NavigationWidgetFactory::createWidget
-     */
     QList<QToolButton *> createToolButtons();
 
-    /*!
-       \brief Get flat mode state
-       \return Flat mode state
-     */
     bool flatMode() const;
 
-    /*!
-       \brief Set flat mode state
-       \param flatMode Flat mode state
-     */
     void setFlatMode(bool flatMode);
 
 signals:
-    /*!
-       \brief Widget visibility is changed
-       \param visibility true is plugin becames visible, false otherwise
-     */
     void visibilityChanged(bool visibility);
 
-    /*!
-       \brief Signal to request to go to location
-       \param name File which has to be open
-       \param line Line
-       \param column Column
-       \sa Manager::gotoLocation
-     */
     void requestGotoLocation(const QString &name, int line, int column);
 
-    /*!
-       \brief Signal to request to go to any of location in the list
-       \param locations Symbol locations
-       \sa Manager::gotoLocations
-     */
     void requestGotoLocations(const QList<QVariant> &locations);
 
-    /*!
-       \brief Signal that the widget wants to receive the latest tree info
-       \sa Manager::onRequestTreeDataUpdate
-     */
     void requestTreeDataUpdate();
 
 public slots:
-    /*!
-       \brief Item is activated in the tree view
-       \param index Item index
-     */
     void onItemActivated(const QModelIndex &index);
 
-    /*!
-       \brief Receive a new data for the tree
-       \param result Pointer to the Class View model root item, method does nothing if null passed
-     */
     void onDataUpdate(QSharedPointer<QStandardItem> result);
 
-    /*!
-       \brief Full projects' mode button has been toggled
-       \param state Full projects' mode
-     */
     void onFullProjectsModeToggled(bool state);
 
 protected:
-    /*!
-       \brief Fetch data for expanded items - to be sure that content will exist
-       \param item - does nothing if null
-       \param target - does nothing if null
-     */
     void fetchExpandedItems(QStandardItem *item, const QStandardItem *target) const;
 
     //! implements QWidget::hideEvent

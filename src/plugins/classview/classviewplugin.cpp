@@ -38,6 +38,14 @@ namespace Internal {
 
 ///////////////////////////////// Plugin //////////////////////////////////
 
+/*!
+    \class Plugin
+    \brief The Plugin class is the base class for the Class View plugin.
+
+    The Class View shows the namespace and class hierarchy of the currently open
+    projects in the sidebar.
+*/
+
 bool Plugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)

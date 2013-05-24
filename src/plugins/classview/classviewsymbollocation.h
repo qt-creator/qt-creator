@@ -36,11 +36,6 @@
 namespace ClassView {
 namespace Internal {
 
-/*!
-   \class SymbolLocation
-   \brief Special struct to store information about symbol location (to find which exactly location
-   has to be open when the user clicks on any tree item. It might be used in QSet/QHash.
- */
 class SymbolLocation
 {
 public:

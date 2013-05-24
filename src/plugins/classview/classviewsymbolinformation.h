@@ -38,11 +38,6 @@
 namespace ClassView {
 namespace Internal {
 
-/*!
-   \class SymbolInformation
-   \brief Provides name, type and icon for single item in Class View tree
- */
-
 class SymbolInformation
 {
 public:
@@ -61,11 +56,6 @@ public:
             && type() == other.type();
     }
 
-    /*!
-       \brief Get an icon type sort order. Not pre-calculated - is needed for converting
-              to Standard Item only.
-       \return Sort order number.
-     */
     int iconTypeSortOrder() const;
 
 private:
