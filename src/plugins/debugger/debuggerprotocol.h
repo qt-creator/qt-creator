@@ -124,6 +124,8 @@ public:
     QByteArray toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;
     int toInt() const { return m_data.toInt(); }
+    QString toUtf8() const { return QString::fromUtf8(m_data); }
+    QString toLatin1() const { return QString::fromLatin1(m_data); }
     void fromString(const QByteArray &str);
     void fromStringMultiple(const QByteArray &str);
 
