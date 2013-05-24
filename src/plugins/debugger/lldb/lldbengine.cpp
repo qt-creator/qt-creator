@@ -460,11 +460,10 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
     if (!agent.isNull()) {
         foreach (const GdbMi &line, data["lines"].children()) {
             DisassemblerLine dl;
-            QByteArray address = line["address"].data();
-            dl.address = address.toULongLong(0, 0);
+            dl.address = line["address"].toAddress();
             dl.data = _(line["inst"].data());
             dl.function = _(line["func-name"].data());
-            dl.offset = line["offset"].data().toUInt();
+            dl.offset = line["offset"].toInt();
             result.appendLine(dl);
         }
         agent->setContents(result);
@@ -474,7 +473,7 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
 void LldbEngine::refreshMemory(const GdbMi &data)
 {
     int cookie = data["cookie"].toInt();
-    qulonglong addr = data["address"].toInt();
+    qulonglong addr = data["address"].toAddress();
     QPointer<MemoryAgent> agent = m_memoryAgents.key(cookie);
     if (!agent.isNull()) {
         QPointer<QObject> token = m_memoryAgentTokens.value(cookie);
@@ -1038,14 +1037,29 @@ DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
 //
 ///////////////////////////////////////////////////////////////////////
 
-const LldbEngine::Command &LldbEngine::Command::arg(const char *name, int value) const
+const LldbEngine::Command &LldbEngine::Command::argHelper(const char *name, const QByteArray &data) const
 {
     args.append('\'');
     args.append(name);
     args.append("':");
-    args.append(QByteArray::number(value));
-    args.append(',');
+    args.append(data);
+    args.append(",");
     return *this;
+}
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *name, int value) const
+{
+    return argHelper(name, QByteArray::number(value));
+}
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *name, qlonglong value) const
+{
+    return argHelper(name, QByteArray::number(value));
+}
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *name, qulonglong value) const
+{
+    return argHelper(name, QByteArray::number(value));
 }
 
 const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const QString &value) const

@@ -68,6 +68,8 @@ private:
         Command(const char *f) : function(f) {}
 
         const Command &arg(const char *name, int value) const;
+        const Command &arg(const char *name, qlonglong value) const;
+        const Command &arg(const char *name, qulonglong value) const;
         const Command &arg(const char *name, const QString &value) const;
         const Command &arg(const char *name, const QByteArray &value) const;
         const Command &arg(const char *name, const char *value) const;
@@ -78,6 +80,8 @@ private:
 
         QByteArray function;
         mutable QByteArray args;
+        private:
+        const Command &argHelper(const char *name, const QByteArray &value) const;
     };
 
     // DebuggerEngine implementation
