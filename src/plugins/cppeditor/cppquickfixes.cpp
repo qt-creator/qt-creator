@@ -4585,12 +4585,23 @@ public:
                     QLatin1String("QuickFix/InsertVirtualMethods/hideReimplementedFunctions"),
                     m_factory->hideReimplementedFunctions());
 
-        // Insert declarations (and definition if InsideClass)
+        // Insert declarations (and definition if Inside-/OutsideClass)
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         printer.showFunctionSignatures = true;
         printer.showReturnTypes = true;
         printer.showArgumentNames = true;
         ChangeSet headerChangeSet;
+        const CppRefactoringChanges refactoring(assistInterface()->snapshot());
+        const QString filename = assistInterface()->currentFile()->fileName();
+        const CppRefactoringFilePtr headerFile = refactoring.file(filename);
+        const LookupContext targetContext(headerFile->cppDocument(), assistInterface()->snapshot());
+
+        const Class *targetClass = m_classAST->symbol;
+        ClassOrNamespace *targetCoN = targetContext.lookupType(targetClass->scope());
+        if (!targetCoN)
+            targetCoN = targetContext.globalNamespace();
+        UseMinimalNames useMinimalNames(targetCoN);
+        Control *control = assistInterface()->context().bindings()->control().data();
         for (int i = 0; i < m_factory->classFunctionModel->rowCount(); ++i) {
             const QStandardItem *parent =
                     m_factory->classFunctionModel->invisibleRootItem()->child(i, 0);
@@ -4614,11 +4625,23 @@ public:
                         item->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
 
                 // Construct declaration
-                QString declaration = InsertDeclOperation::generateDeclaration(func);
+                // setup rewriting to get minimally qualified names
+                SubstitutionEnvironment env;
+                env.setContext(assistInterface()->context());
+                env.switchScope(clazz->enclosingScope());
+                env.enter(&useMinimalNames);
+
+                QString declaration;
+                const FullySpecifiedType tn = rewriteType(func->type(), &env, control);
+                declaration += printer.prettyType(tn, func->unqualifiedName());
+
                 if (m_factory->insertKeywordVirtual())
                     declaration = QLatin1String("virtual ") + declaration;
                 if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeInsideClass)
-                    declaration.replace(declaration.size() - 2, 2, QLatin1String("\n{\n}\n"));
+                    declaration += QLatin1String("\n{\n}\n");
+                else
+                    declaration += QLatin1String(";\n");
+
                 const InsertionPointLocator::AccessSpec spec =
                         static_cast<InsertionPointLocator::AccessSpec>(
                             item->data(InsertVirtualMethodsDialog::AccessSpec).toInt());
@@ -4630,54 +4653,12 @@ public:
                     lastAccessSpecString = accessSpecString;
                 }
                 headerChangeSet.insert(m_insertPosDecl, declaration);
-            }
-        }
 
-        // Insert outside class
-        const QString filename = assistInterface()->currentFile()->fileName();
-        const CppRefactoringChanges refactoring(assistInterface()->snapshot());
-        const CppRefactoringFilePtr headerFile = refactoring.file(filename);
-        const Document::Ptr headerDoc = headerFile->cppDocument();
-        Class *targetClass = m_classAST->symbol;
-        if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeOutsideClass) {
-            // make target lookup context
-            unsigned line, column;
-            headerDoc->translationUnit()->getPosition(m_insertPosOutside, &line, &column);
-            Scope *targetScope = headerDoc->scopeAt(line, column);
-            const LookupContext targetContext(headerDoc, assistInterface()->snapshot());
-            ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
-            if (!targetCoN)
-                targetCoN = targetContext.globalNamespace();
-
-            // setup rewriting to get minimally qualified names
-            SubstitutionEnvironment env;
-            env.setContext(assistInterface()->context());
-            env.switchScope(targetClass);
-            UseMinimalNames q(targetCoN);
-            env.enter(&q);
-            Control *control = assistInterface()->context().bindings()->control().data();
-            const QString fullClassName = printer.prettyName(LookupContext::minimalName(
-                                                                 targetClass, targetCoN, control));
-
-            for (int i = 0; i < m_factory->classFunctionModel->rowCount(); ++i) {
-                const QStandardItem *parent =
-                        m_factory->classFunctionModel->invisibleRootItem()->child(i, 0);
-                if (!parent->isCheckable() || parent->checkState() == Qt::Unchecked)
-                    continue;
-
-                for (int j = 0; j < parent->rowCount(); ++j) {
-                    const QStandardItem *item = parent->child(j, 0);
-                    if (!item->isCheckable() || item->checkState() == Qt::Unchecked)
-                        continue;
-                    const Function *func = (const Function *)
-                            item->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
-
-                    // rewrite the function type and name
-                    const FullySpecifiedType tn = rewriteType(func->type(), &env, control);
-                    const QString name = fullClassName + QLatin1String("::") +
-                            printer.prettyName(func->name());
+                // Insert definition outside class
+                if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeOutsideClass) {
+                    const QString name = printer.prettyName(targetClass->name()) +
+                            QLatin1String("::") + printer.prettyName(func->name());
                     const QString defText = printer.prettyType(tn, name) + QLatin1String("\n{\n}");
-
                     headerChangeSet.insert(m_insertPosOutside,  QLatin1String("\n\n") + defText);
                 }
             }

@@ -2477,3 +2477,56 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_notrigger_allImplemente
     TestCase data(original, expected);
     data.run(&factory);
 }
+
+/// Check: Qualified names.
+void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace BaseNS {enum BaseEnum {EnumA = 1};}\n"
+        "namespace BaseNS {\n"
+        "class Base {\n"
+        "public:\n"
+        "    virtual BaseEnum a(BaseEnum e);\n"
+        "};\n"
+        "}\n"
+        "class Deri@ved : public BaseNS::Base {\n"
+        "public:\n"
+        "    Derived();\n"
+        "};";
+    expected =
+        "namespace BaseNS {enum BaseEnum {EnumA = 1};}\n"
+        "namespace BaseNS {\n"
+        "class Base {\n"
+        "public:\n"
+        "    virtual BaseEnum a(BaseEnum e);\n"
+        "};\n"
+        "}\n"
+        "class Deri@ved : public BaseNS::Base {\n"
+        "public:\n"
+        "    Derived();\n"
+        "\n"
+        "    // Base interface\n"
+        "public:\n"
+        "    virtual BaseNS::BaseEnum a(BaseNS::BaseEnum e);\n"
+        "};\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original = "#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n\n"
+        "BaseNS::BaseEnum Derived::a(BaseNS::BaseEnum e)\n"
+        "{\n}\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
+                                     InsertVirtualMethodsDialog::ModeImplementationFile, true));
+    TestCase data(testFiles);
+    data.run(&factory);
+}

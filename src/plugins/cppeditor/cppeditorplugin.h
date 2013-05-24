@@ -213,6 +213,7 @@ private slots:
     void test_quickfix_InsertVirtualMethods_outside();
     void test_quickfix_InsertVirtualMethods_implementationFile();
     void test_quickfix_InsertVirtualMethods_notrigger_allImplemented();
+    void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
 
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.
