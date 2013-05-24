@@ -734,7 +734,7 @@ class Dumper:
 
     def reportLocation(self):
         thread = self.currentThread()
-        frame = thread.GetFrameAtIndex(0)
+        frame = thread.GetSelectedFrame()
         file = fileName(frame.line_entry.file)
         line = frame.line_entry.line
         self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
@@ -766,7 +766,9 @@ class Dumper:
             self.report('msg="No process"')
         else:
             thread = self.currentThread()
-            result = 'stack={current-thread="%s",frames=[' % thread.GetThreadID()
+            result = 'stack={current-frame="%s"' % thread.GetSelectedFrame().GetFrameID()
+            result += ',current-thread="%s"' % thread.GetThreadID()
+            result += ',frames=['
             n = thread.GetNumFrames()
             if n > 4:
                 n = 4
@@ -1196,8 +1198,9 @@ class Dumper:
         self.report('success="%d",output="%s",error="%s"'
             % (result.Succeeded(), result.GetOutput(), result.GetError()))
 
-    def activateFrame(self, frame):
-        self.handleCommand("frame select " + frame)
+    def activateFrame(self, args):
+        self.currentThread().SetSelectedFrame(args['index'])
+        self.reportData()
 
     def selectThread(self, thread):
         self.handleCommand("thread select " + thread)

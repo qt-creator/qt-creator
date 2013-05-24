@@ -855,6 +855,9 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     bool canExpand = stack["hasmore"].toInt();
     debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames);
+
+    int index = stack["current-frame"].toInt();
+    handler->setCurrentIndex(index);
 }
 
 void LldbEngine::refreshRegisters(const GdbMi &registers)
