@@ -62,4 +62,6 @@ include(gitorious/gitorious.pri)
 RESOURCES += \
     git.qrc
 
+OTHER_FILES += Git.mimetypes.xml
+
 include(gerrit/gerrit.pri)

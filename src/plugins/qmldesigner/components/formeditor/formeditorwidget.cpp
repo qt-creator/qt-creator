@@ -70,14 +70,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_noSnappingAction->setChecked(true);
     m_noSnappingAction->setIcon(QPixmap(":/icon/layout/no_snapping.png"));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snapping with anchoring (W)."));
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items and generate anchors (W)."));
     m_snappingAndAnchoringAction->setShortcut(Qt::Key_W);
     m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
     m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
 
-    m_snappingAction = layoutActionGroup->addAction(tr("Snap to guides (E)."));
+    m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items but do not generate anchors (E)."));
     m_snappingAction->setShortcut(Qt::Key_E);
     m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAction->setCheckable(true);
@@ -290,10 +290,10 @@ double FormEditorWidget::spacing() const
     return settings.itemSpacing;
 }
 
-double FormEditorWidget::margins() const
+double FormEditorWidget::containerPadding() const
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.snapMargin;
+    return settings.containerPadding;
 }
 
 

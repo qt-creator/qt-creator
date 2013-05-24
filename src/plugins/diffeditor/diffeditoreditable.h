@@ -31,15 +31,17 @@
 #define DIFFEDITOREDITABLE_H
 
 #include "diffeditor_global.h"
+#include "diffeditorwidget.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 
-#include <QToolBar>
+QT_BEGIN_NAMESPACE
+class QToolBar;
+class QComboBox;
+QT_END_NAMESPACE
 
 namespace DiffEditor {
-
-class DiffEditorWidget;
 
 namespace Internal {
 class DiffEditorFile;
@@ -53,6 +55,10 @@ public:
     virtual ~DiffEditorEditable();
 
 public:
+    void setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,
+                 const QString &workingDirectory = QString());
+    void clear(const QString &message);
+
     // Core::IEditor
     bool createNew(const QString &contents);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
@@ -69,11 +75,19 @@ public:
 
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
+public slots:
+    void activateEntry(int index);
+
+private slots:
+    void entryActivated(int index);
 
 private:
+    void updateEntryToolTip();
+
     Internal::DiffEditorFile *m_file;
     DiffEditorWidget *m_editorWidget;
     QToolBar *m_toolWidget;
+    QComboBox *m_entriesComboBox;
     mutable QString m_displayName;
 };
 

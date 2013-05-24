@@ -149,15 +149,12 @@ EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
 
 void EditorManagerPlaceHolder::currentModeChanged(Core::IMode *mode)
 {
-    if (m_current == this) {
-        m_current = 0;
-        EditorManager::instance()->setParent(0);
-        EditorManager::instance()->hide();
-    }
     if (m_mode == mode) {
         m_current = this;
         layout()->addWidget(EditorManager::instance());
         EditorManager::instance()->show();
+    } else if (m_current == this) {
+        m_current = 0;
     }
 }
 
@@ -898,11 +895,11 @@ void EditorManager::rootDestroyed(QObject *root)
     for (int i = 0; i < d->m_root.size(); ++i) {
         SplitterOrView *r = d->m_root.at(i);
         if (r == root) {
-            d->m_root.removeAll(r);
-            IContext *context = d->m_rootContext.at(i);
+            d->m_root.removeAt(i);
+            IContext *context = d->m_rootContext.takeAt(i);
             ICore::removeContextObject(context);
             delete context;
-
+            --i; // we removed the current one
         } else if (r->window() == activeWin) {
             newActiveRoot = r;
         }
@@ -2065,12 +2062,27 @@ void EditorManager::showPopupOrSelectDocument() const
     if (QApplication::keyboardModifiers() == Qt::NoModifier) {
         windowPopup()->selectAndHide();
     } else {
-        // EditorManager is invisible when invoked from Design Mode.
-        const QPoint p = isVisible() ?
-                         mapToGlobal(QPoint(0, 0)) :
-                         ICore::mainWindow()->mapToGlobal(QPoint(0, 0));
-        windowPopup()->move((width()-d->m_windowPopup->width())/2 + p.x(),
-                            (height()-d->m_windowPopup->height())/2 + p.y());
+        QWidget *activeWindow = qApp->activeWindow();
+        // decide where to show the popup
+        // if the active window has editors, we want that root as a reference
+        SplitterOrView *activeRoot = 0;
+        foreach (SplitterOrView *root, d->m_root) {
+            if (root->window() == activeWindow) {
+                activeRoot = root;
+                break;
+            }
+        }
+        // otherwise we take the "current" root
+        if (!activeRoot)
+            activeRoot = findRoot(currentEditorView());
+        QTC_ASSERT(activeRoot, activeRoot = d->m_root.first());
+
+        // root in main window is invisible when invoked from Design Mode.
+        QWidget *referenceWidget = activeRoot->isVisible() ? activeRoot : activeRoot->window();
+        QTC_CHECK(referenceWidget->isVisible());
+        const QPoint p = referenceWidget->mapToGlobal(QPoint(0, 0));
+        windowPopup()->move((referenceWidget->width() - d->m_windowPopup->width()) / 2 + p.x(),
+                            (referenceWidget->height() - d->m_windowPopup->height()) / 2 + p.y());
         windowPopup()->setVisible(true);
     }
 }

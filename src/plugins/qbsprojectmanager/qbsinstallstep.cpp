@@ -126,8 +126,8 @@ void QbsInstallStep::cancel()
 
 QString QbsInstallStep::installRoot() const
 {
-    if (!m_qbsInstallOptions.installRoot.isEmpty())
-        return m_qbsInstallOptions.installRoot;
+    if (!m_qbsInstallOptions.installRoot().isEmpty())
+        return m_qbsInstallOptions.installRoot();
 
     return qbs::InstallOptions::defaultInstallRoot();
 }
@@ -143,17 +143,17 @@ QString QbsInstallStep::absoluteInstallRoot() const
 
 bool QbsInstallStep::removeFirst() const
 {
-    return m_qbsInstallOptions.removeFirst;
+    return m_qbsInstallOptions.removeExistingInstallation();
 }
 
 bool QbsInstallStep::dryRun() const
 {
-    return m_qbsInstallOptions.dryRun;
+    return m_qbsInstallOptions.dryRun();
 }
 
 bool QbsInstallStep::keepGoing() const
 {
-    return m_qbsInstallOptions.keepGoing;
+    return m_qbsInstallOptions.keepGoing();
 }
 
 bool QbsInstallStep::fromMap(const QVariantMap &map)
@@ -162,9 +162,9 @@ bool QbsInstallStep::fromMap(const QVariantMap &map)
         return false;
 
     setInstallRoot(map.value(QLatin1String(QBS_INSTALL_ROOT)).toString());
-    m_qbsInstallOptions.removeFirst = map.value(QLatin1String(QBS_REMOVE_FIRST), false).toBool();
-    m_qbsInstallOptions.dryRun = map.value(QLatin1String(QBS_DRY_RUN), false).toBool();
-    m_qbsInstallOptions.keepGoing = map.value(QLatin1String(QBS_KEEP_GOING), false).toBool();
+    m_qbsInstallOptions.setRemoveExistingInstallation(map.value(QLatin1String(QBS_REMOVE_FIRST), false).toBool());
+    m_qbsInstallOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN), false).toBool());
+    m_qbsInstallOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING), false).toBool());
 
     return true;
 }
@@ -172,12 +172,17 @@ bool QbsInstallStep::fromMap(const QVariantMap &map)
 QVariantMap QbsInstallStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(QLatin1String(QBS_INSTALL_ROOT), m_qbsInstallOptions.installRoot);
-    map.insert(QLatin1String(QBS_REMOVE_FIRST), m_qbsInstallOptions.removeFirst);
-    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsInstallOptions.dryRun);
-    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsInstallOptions.keepGoing);
+    map.insert(QLatin1String(QBS_INSTALL_ROOT), m_qbsInstallOptions.installRoot());
+    map.insert(QLatin1String(QBS_REMOVE_FIRST), m_qbsInstallOptions.removeExistingInstallation());
+    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsInstallOptions.dryRun());
+    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsInstallOptions.keepGoing());
 
     return map;
+}
+
+qbs::InstallOptions QbsInstallStep::installOptions() const
+{
+    return m_qbsInstallOptions;
 }
 
 void QbsInstallStep::installDone(bool success)
@@ -185,7 +190,7 @@ void QbsInstallStep::installDone(bool success)
     // Report errors:
     foreach (const qbs::ErrorData &data, m_job->error().entries()) {
         createTaskAndOutput(ProjectExplorer::Task::Error, data.description(),
-                            data.codeLocation().fileName, data.codeLocation().line);
+                            data.codeLocation().fileName(), data.codeLocation().line());
     }
 
     QTC_ASSERT(m_fi, return);
@@ -222,33 +227,33 @@ void QbsInstallStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type,
 
 void QbsInstallStep::setInstallRoot(const QString &ir)
 {
-    if (m_qbsInstallOptions.installRoot == ir)
+    if (m_qbsInstallOptions.installRoot() == ir)
         return;
-    m_qbsInstallOptions.installRoot = ir;
+    m_qbsInstallOptions.installRoot() = ir;
     emit changed();
 }
 
 void QbsInstallStep::setRemoveFirst(bool rf)
 {
-    if (m_qbsInstallOptions.removeFirst == rf)
+    if (m_qbsInstallOptions.removeExistingInstallation() == rf)
         return;
-    m_qbsInstallOptions.removeFirst = rf;
+    m_qbsInstallOptions.setRemoveExistingInstallation(rf);
     emit changed();
 }
 
 void QbsInstallStep::setDryRun(bool dr)
 {
-    if (m_qbsInstallOptions.dryRun == dr)
+    if (m_qbsInstallOptions.dryRun() == dr)
         return;
-    m_qbsInstallOptions.dryRun = dr;
+    m_qbsInstallOptions.setDryRun(dr);
     emit changed();
 }
 
 void QbsInstallStep::setKeepGoing(bool kg)
 {
-    if (m_qbsInstallOptions.keepGoing == kg)
+    if (m_qbsInstallOptions.keepGoing() == kg)
         return;
-    m_qbsInstallOptions.keepGoing = kg;
+    m_qbsInstallOptions.setKeepGoing(kg);
     emit changed();
 }
 

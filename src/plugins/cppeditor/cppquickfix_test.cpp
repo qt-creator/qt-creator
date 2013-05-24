@@ -908,6 +908,24 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitio
     data.run(&factory, 1);
 }
 
+/// Check not triggering when it is a statement
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringStatement()
+{
+    const QByteArray original =
+            "class Foo {\n"
+            "public:\n"
+            "    Foo() {}\n"
+            "};\n"
+            "void freeFunc() {\n"
+            "    Foo @f();"
+            "}\n";
+    const QByteArray expected = original + "\n";
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {
@@ -2026,6 +2044,23 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc()
     data.run(&factory);
 }
 
+/// Check: No trigger for functions which does not match in signature.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noSignatureMatch()
+{
+    const QByteArray original =
+        "int someFunc(int);\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    some@Func();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Test dialog for insert virtual functions
 class InsertVirtualMethodsDialogTest : public InsertVirtualMethodsDialog
 {
@@ -2440,5 +2475,58 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_notrigger_allImplemente
     InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeOutsideClass, true));
     TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Qualified names.
+void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace BaseNS {enum BaseEnum {EnumA = 1};}\n"
+        "namespace BaseNS {\n"
+        "class Base {\n"
+        "public:\n"
+        "    virtual BaseEnum a(BaseEnum e);\n"
+        "};\n"
+        "}\n"
+        "class Deri@ved : public BaseNS::Base {\n"
+        "public:\n"
+        "    Derived();\n"
+        "};";
+    expected =
+        "namespace BaseNS {enum BaseEnum {EnumA = 1};}\n"
+        "namespace BaseNS {\n"
+        "class Base {\n"
+        "public:\n"
+        "    virtual BaseEnum a(BaseEnum e);\n"
+        "};\n"
+        "}\n"
+        "class Deri@ved : public BaseNS::Base {\n"
+        "public:\n"
+        "    Derived();\n"
+        "\n"
+        "    // Base interface\n"
+        "public:\n"
+        "    virtual BaseNS::BaseEnum a(BaseNS::BaseEnum e);\n"
+        "};\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original = "#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n\n"
+        "BaseNS::BaseEnum Derived::a(BaseNS::BaseEnum e)\n"
+        "{\n}\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
+                                     InsertVirtualMethodsDialog::ModeImplementationFile, true));
+    TestCase data(testFiles);
     data.run(&factory);
 }

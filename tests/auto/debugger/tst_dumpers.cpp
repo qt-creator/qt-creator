@@ -4297,8 +4297,6 @@ void tst_Dumpers::dumper_data()
 //         % Check("m.1.second.2 "3" std::string");
 
 
-//    // http://codepaster.europe.nokia.com/?id=42895
-
 //    QTest::newRow("42895()
 //    "void g(int c, int d)\n"
 //    "{\n"

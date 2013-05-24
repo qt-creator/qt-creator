@@ -49,7 +49,7 @@ public:
     bool equals(const DesignerSettings &other) const;
     bool openDesignMode;
     int itemSpacing;
-    int snapMargin;
+    int containerPadding;
     int canvasWidth;
     int canvasHeight;
     bool warningsInDesigner;

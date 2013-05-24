@@ -290,14 +290,6 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
     parseSharedLibs(readelfProc.readAll(), &libs);
     AndroidManager::setQtLibs(target(), requiredLibraries(AndroidManager::availableQtLibsWithDependencies(target()),
                                                           AndroidManager::qtLibs(target()), libs));
-
-    QStringList checkedLibs = AndroidManager::prebundledLibs(target());
-    QStringList prebundledLibraries;
-    foreach (const QString &qtLib, AndroidManager::availableQtLibs(target())) {
-        if (libs.contains(qtLib) || checkedLibs.contains(qtLib))
-            prebundledLibraries << qtLib;
-    }
-    AndroidManager::setPrebundledLibs(target(), prebundledLibraries);
     emit updateRequiredLibrariesModels();
 }
 
@@ -348,14 +340,6 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
 
     QMetaObject::invokeMethod(this, "getBundleInformation");
 
-    QStringList prebundledLibraries;
-    foreach (const AndroidManager::Library &qtLib, m_availableQtLibs) {
-        if (libs.contains(qtLib.name) || m_prebundledLibs.contains(qtLib.name))
-            prebundledLibraries << qtLib.name;
-    }
-
-    QMetaObject::invokeMethod(this, "setPrebundledLibs", Qt::BlockingQueuedConnection,
-                              Q_ARG(QStringList, prebundledLibraries));
     emit updateRequiredLibrariesModels();
 }
 

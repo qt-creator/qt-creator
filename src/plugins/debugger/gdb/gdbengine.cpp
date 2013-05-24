@@ -2546,35 +2546,6 @@ QString GdbEngine::breakLocation(const QString &file) const
     return where;
 }
 
-BreakpointPathUsage GdbEngine::defaultEngineBreakpointPathUsage() const
-{
-    // e.g. MinGW gdb 70200 (part of Nokia Qt SDK)
-    // fails to set breakpoints with absolute paths if
-    // the source path isn't canonical
-    if (m_gdbVersion < 70300)
-        return BreakpointUseShortPath;
-    // Use short path for file systems with symbolic links. On Windows, main.cpp
-    // is potentially ambiguous (ANGLE, DLL).
-    if (startParameters().toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS)
-        return BreakpointUseShortPath;
-
-    //don't set absolute breakpoints for remote targets
-    switch (startMode()) {
-    case AttachToRemoteServer:
-    case AttachToRemoteProcess:
-    case LoadRemoteCore:
-    case StartRemoteProcess:
-    case StartRemoteGdb:
-    case StartRemoteEngine:
-        return BreakpointUseShortPath;
-    default:
-        break;
-    }
-
-
-    return BreakpointUseFullPath;
-}
-
 QByteArray GdbEngine::breakpointLocation(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
@@ -2596,7 +2567,7 @@ QByteArray GdbEngine::breakpointLocation(BreakpointModelId id)
 
     BreakpointPathUsage usage = data.pathUsage;
     if (usage == BreakpointPathUsageEngineDefault)
-        usage = defaultEngineBreakpointPathUsage();
+        usage = BreakpointUseShortPath;
 
     const QString fileName = usage == BreakpointUseFullPath
         ? data.fileName : breakLocation(data.fileName);
@@ -2614,7 +2585,7 @@ QByteArray GdbEngine::breakpointLocation2(BreakpointModelId id)
 
     BreakpointPathUsage usage = data.pathUsage;
     if (usage == BreakpointPathUsageEngineDefault)
-        usage = defaultEngineBreakpointPathUsage();
+        usage = BreakpointUseShortPath;
 
     const QString fileName = usage == BreakpointUseFullPath
         ? data.fileName : breakLocation(data.fileName);
@@ -3778,7 +3749,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
                 selectThread(other);
         }
         updateViews(); // Adjust Threads combobox.
-        if (false && m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
+        if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
                 Discardable, CB(handleThreadNames));

@@ -245,10 +245,6 @@ CppModelManager::CppModelManager(QObject *parent)
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
 
-    // Listen for editor closed events so that we can keep track of changing files
-    connect(Core::ICore::editorManager(), SIGNAL(editorAboutToClose(Core::IEditor*)),
-        this, SLOT(editorAboutToClose(Core::IEditor*)));
-
     m_completionFallback = new InternalCompletionAssistProvider;
     m_completionAssistProvider = m_completionFallback;
     ExtensionSystem::PluginManager::addObject(m_completionAssistProvider);
@@ -602,13 +598,12 @@ QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) co
 }
 
 /// \brief Removes the CppEditorSupport for the closed editor.
-void CppModelManager::editorAboutToClose(Core::IEditor *editor)
+void CppModelManager::deleteEditorSupport(TextEditor::BaseTextEditor *textEditor)
 {
-    if (!isCppEditor(editor))
-        return;
-
-    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     QTC_ASSERT(textEditor, return);
+
+    if (!isCppEditor(textEditor))
+        return;
 
     QMutexLocker locker(&m_editorSupportMutex);
     CppEditorSupport *editorSupport = m_editorSupport.value(textEditor, 0);

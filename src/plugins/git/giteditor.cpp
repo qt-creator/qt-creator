@@ -33,9 +33,12 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 #include "gitsettings.h"
+#include "gitsubmiteditorwidget.h"
+#include "gitconstants.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <texteditor/basetextdocument.h>
 #include <QDebug>
 #include <QFileInfo>
 #include <QRegExp>
@@ -223,6 +226,13 @@ void GitEditor::revertChange()
     const QFileInfo fi(source());
     const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
     GitPlugin::instance()->gitClient()->synchronousRevert(workingDirectory, m_currentChange);
+}
+
+void GitEditor::init()
+{
+    VcsBase::VcsBaseEditorWidget::init();
+    if (editor()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
+        new GitSubmitHighlighter(baseTextDocument().data());
 }
 
 QString GitEditor::decorateVersion(const QString &revision) const

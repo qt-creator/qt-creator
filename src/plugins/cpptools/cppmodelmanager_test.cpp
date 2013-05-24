@@ -32,8 +32,9 @@
 #include "cpppreprocessor.h"
 #include "modelmanagertesthelper.h"
 
-#include <QtTest>
 #include <QDebug>
+#include <QFileInfo>
+#include <QtTest>
 
 using namespace CppTools::Internal;
 
@@ -44,37 +45,65 @@ typedef CppTools::ProjectFile ProjectFile;
 typedef ProjectExplorer::Project Project;
 
 namespace {
-QString testDataDir(const QString& subdir, bool cleaned = true)
-{
-    QString path = QLatin1String(SRCDIR "/../../../tests/cppmodelmanager/testdata");
-    if (!subdir.isEmpty())
-        path += QLatin1String("/") + subdir;
-    if (cleaned)
-        return CppPreprocessor::cleanPath(path);
-    else
-        return path;
-}
 
-QString testIncludeDir(bool cleaned = true)
+class TestDataDirectory
 {
-    return testDataDir(QLatin1String("include"), cleaned);
-}
+public:
+    TestDataDirectory(const QString &testDataDirectory)
+        : m_testDataDirectory(QLatin1String(SRCDIR "/../../../tests/cppmodelmanager/")
+                              + testDataDirectory)
+    {
+        QFileInfo testDataDir(m_testDataDirectory);
+        QVERIFY(testDataDir.exists());
+        QVERIFY(testDataDir.isDir());
+    }
 
-QString testFrameworksDir(bool cleaned = true)
-{
-    return testDataDir(QLatin1String("frameworks"), cleaned);
-}
 
-QString testSource(const QString &fileName)
-{
-    return testDataDir(QLatin1String("sources")) + fileName;
-}
+    QString includeDir(bool cleaned = true) const
+    {
+        return testDataDir(QLatin1String("include"), cleaned);
+    }
+
+    QString frameworksDir(bool cleaned = true) const
+    {
+        return testDataDir(QLatin1String("frameworks"), cleaned);
+    }
+
+    QString fileFromSourcesDir(const QString &fileName) const
+    {
+        return testDataDir(QLatin1String("sources")) + fileName;
+    }
+
+    /// File from the test data directory (top leve)
+    QString file(const QString &fileName) const
+    {
+        return testDataDir(QString()) + fileName;
+    }
+
+private:
+    QString testDataDir(const QString& subdir, bool cleaned = true) const
+    {
+        QString path = m_testDataDirectory;
+        if (!subdir.isEmpty())
+            path += QLatin1String("/") + subdir;
+        if (cleaned)
+            return CppPreprocessor::cleanPath(path);
+        else
+            return path;
+    }
+
+private:
+    const QString m_testDataDirectory;
+};
+
 } // anonymous namespace
 
 void CppToolsPlugin::test_modelmanager_paths()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
+
+    const TestDataDirectory testDataDir(QLatin1String("testdata"));
 
     Project *project = helper.createProject(QLatin1String("test_modelmanager_paths"));
     ProjectInfo pi = mm->projectInfo(project);
@@ -85,24 +114,26 @@ void CppToolsPlugin::test_modelmanager_paths()
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
-    part->includePaths = QStringList() << testIncludeDir(false);
-    part->frameworkPaths = QStringList() << testFrameworksDir(false);
+    part->includePaths = QStringList() << testDataDir.includeDir(false);
+    part->frameworkPaths = QStringList() << testDataDir.frameworksDir(false);
 
     mm->updateProjectInfo(pi);
 
     QStringList includePaths = mm->includePaths();
     QCOMPARE(includePaths.size(), 1);
-    QVERIFY(includePaths.contains(testIncludeDir()));
+    QVERIFY(includePaths.contains(testDataDir.includeDir()));
 
     QStringList frameworkPaths = mm->frameworkPaths();
     QCOMPARE(frameworkPaths.size(), 1);
-    QVERIFY(frameworkPaths.contains(testFrameworksDir()));
+    QVERIFY(frameworkPaths.contains(testDataDir.frameworksDir()));
 }
 
 void CppToolsPlugin::test_modelmanager_framework_headers()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
+
+    const TestDataDirectory testDataDir(QLatin1String("testdata"));
 
     Project *project = helper.createProject(QLatin1String("test_modelmanager_framework_headers"));
     ProjectInfo pi = mm->projectInfo(project);
@@ -113,9 +144,10 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
-    part->includePaths << testIncludeDir();
-    part->frameworkPaths << testFrameworksDir();
-    const QString &source = testSource(QLatin1String("test_modelmanager_framework_headers.cpp"));
+    part->includePaths << testDataDir.includeDir();
+    part->frameworkPaths << testDataDir.frameworksDir();
+    const QString &source = testDataDir.fileFromSourcesDir(
+        QLatin1String("test_modelmanager_framework_headers.cpp"));
     part->files << ProjectFile(source, ProjectFile::CXXSource);
 
     mm->updateProjectInfo(pi);
@@ -140,15 +172,19 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
 }
 
 /// QTCREATORBUG-9056
-void CppToolsPlugin::test_modelmanager_refresh()
+void CppToolsPlugin::test_modelmanager_refresh_1()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
 
-    const QString testCpp(testSource(QLatin1String("test_modelmanager_refresh.cpp")));
-    const QString testHeader(testSource(QLatin1String("test_modelmanager_refresh.h")));
+    const TestDataDirectory testDataDir(QLatin1String("testdata"));
 
-    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh"));
+    const QString testCpp(testDataDir.fileFromSourcesDir(
+        QLatin1String("test_modelmanager_refresh.cpp")));
+    const QString testHeader(testDataDir.fileFromSourcesDir(
+        QLatin1String("test_modelmanager_refresh.h")));
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_1"));
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
@@ -157,7 +193,7 @@ void CppToolsPlugin::test_modelmanager_refresh()
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
-    part->includePaths = QStringList() << testIncludeDir(false);
+    part->includePaths = QStringList() << testDataDir.includeDir(false);
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
 
     mm->updateProjectInfo(pi);
@@ -185,4 +221,60 @@ void CppToolsPlugin::test_modelmanager_refresh()
     snapshot = mm->snapshot();
     QVERIFY(snapshot.contains(testHeader));
     QVERIFY(snapshot.contains(testCpp));
+}
+
+/// QTCREATORBUG-9205
+void CppToolsPlugin::test_modelmanager_refresh_2()
+{
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    const TestDataDirectory testDataDir(QLatin1String("testdata_refresh"));
+
+    const QString testHeader1(testDataDir.file(QLatin1String("defines.h")));
+    const QString testHeader2(testDataDir.file(QLatin1String("header.h")));
+    const QString testCpp(testDataDir.file(QLatin1String("source.cpp")));
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_2"));
+    ProjectInfo pi = mm->projectInfo(project);
+    QCOMPARE(pi.project().data(), project);
+
+    ProjectPart::Ptr part(new ProjectPart);
+    pi.appendProjectPart(part);
+    part->cxxVersion = ProjectPart::CXX98;
+    part->qtVersion = ProjectPart::Qt5;
+    part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
+    part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
+    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+
+    mm->updateProjectInfo(pi);
+
+    CPlusPlus::Snapshot snapshot;
+    QStringList refreshedFiles;
+    CPlusPlus::Document::Ptr document;
+
+    for (int i = 0; i < 2; ++i) {
+        mm->updateSourceFiles(QStringList() << testHeader1 << testHeader2 << testCpp);
+        refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+        QCOMPARE(refreshedFiles.size(), 3);
+        QVERIFY(refreshedFiles.contains(testHeader1));
+        QVERIFY(refreshedFiles.contains(testHeader2));
+        QVERIFY(refreshedFiles.contains(testCpp));
+
+        snapshot = mm->snapshot();
+        QVERIFY(snapshot.contains(testHeader1));
+        QVERIFY(snapshot.contains(testHeader2));
+        QVERIFY(snapshot.contains(testCpp));
+
+        // No diagnostic messages expected
+        document = snapshot.document(testHeader1);
+        QVERIFY(document->diagnosticMessages().isEmpty());
+
+        document = snapshot.document(testHeader2);
+        QVERIFY(document->diagnosticMessages().isEmpty());
+
+        document = snapshot.document(testCpp);
+        QVERIFY(document->diagnosticMessages().isEmpty());
+    }
 }

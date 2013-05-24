@@ -241,21 +241,21 @@ public:
 
     bool isEnabled() const { return true; }
 
-protected:
-    // this is just the in-memory representation, a subclass
-    // will add the persistent stuff
-    explicit ProjectNode(const QString &projectFilePath);
+    void addFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder);
+    void removeFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder);
+
+    void addFileNodes(const QList<FileNode*> &files, FolderNode *parentFolder);
+    void removeFileNodes(const QList<FileNode*> &files, FolderNode *parentFolder);
 
     // to be called in implementation of
     // the corresponding public methods
     void addProjectNodes(const QList<ProjectNode*> &subProjects);
     void removeProjectNodes(const QList<ProjectNode*> &subProjects);
 
-    void addFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder);
-    void removeFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder);
-
-    void addFileNodes(const QList<FileNode*> &files, FolderNode *parentFolder);
-    void removeFileNodes(const QList<FileNode*> &files, FolderNode *parentFolder);
+protected:
+    // this is just the in-memory representation, a subclass
+    // will add the persistent stuff
+    explicit ProjectNode(const QString &projectFilePath);
 
 private slots:
     void watcherDestroyed(QObject *watcher);

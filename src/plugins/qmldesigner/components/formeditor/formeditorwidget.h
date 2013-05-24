@@ -65,7 +65,7 @@ public:
     ToolBox *toolBox() const;
 
     double spacing() const;
-    double margins() const;
+    double containerPadding() const;
 
     QString contextHelpId() const;
 

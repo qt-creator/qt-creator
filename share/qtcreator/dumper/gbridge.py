@@ -1507,6 +1507,13 @@ class Dumper:
 
         #print('data=[' + locals + sep + watchers + ']\n')
 
+
+    def templateArgument(self, typeobj, position):
+        return templateArgument(typeobj, position)
+
+    def numericTemplateArgument(self, typeobj, position):
+        return numericTemplateArgument(typeobj, position)
+
     def lookupType(self, typeName):
         return lookupType(typeName)
 

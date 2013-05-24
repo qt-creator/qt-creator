@@ -121,29 +121,21 @@ static const char CMD_ID_STATUS[]             = "ClearCase.Status";
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
-    "ClearCase Command Log Editor", // id
-    QT_TRANSLATE_NOOP("VCS", "ClearCase Command Log Editor"), // display name
-    "ClearCase Command Log Editor", // context
-    "application/vnd.audc.text.scs_cc_commandlog",
-    "scslog"},
-{   VcsBase::LogOutput,
+    VcsBase::LogOutput,
     "ClearCase File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase File Log Editor"),   // display_name
     "ClearCase File Log Editor",   // context
-    "application/vnd.audc.text.scs_cc_filelog",
-    "scsfilelog"},
+    "text/vnd.qtcreator.clearcase.log"},
 {    VcsBase::AnnotateOutput,
     "ClearCase Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Annotation Editor"),   // display_name
     "ClearCase Annotation Editor",  // context
-    "application/vnd.audc.text.scs_cc_annotation",
-    "scsannotate"},
+    "text/vnd.qtcreator.clearcase.annotation"},
 {   VcsBase::DiffOutput,
     "ClearCase Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Diff Editor"),   // display_name
     "ClearCase Diff Editor",  // context
-    "text/x-patch","diff"}
+    "text/x-patch"}
 };
 
 // Utility to find a parameter set by type

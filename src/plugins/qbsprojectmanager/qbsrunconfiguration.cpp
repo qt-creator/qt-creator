@@ -202,7 +202,7 @@ QString QbsRunConfiguration::executable() const
     if (!product)
         return QString();
 
-    return pro->qbsProject()->targetExecutable(*product, installRoot());
+    return pro->qbsProject()->targetExecutable(*product, installOptions());
 }
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
@@ -306,6 +306,13 @@ QString QbsRunConfiguration::defaultDisplayName()
     return defaultName;
 }
 
+qbs::InstallOptions QbsRunConfiguration::installOptions() const
+{
+    if (m_currentInstallStep)
+        return m_currentInstallStep->installOptions();
+    return qbs::InstallOptions();
+}
+
 QString QbsRunConfiguration::installRoot() const
 {
     if (m_currentInstallStep)
@@ -362,8 +369,6 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     m_workingDirectoryEdit = new Utils::PathChooser(this);
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
-    m_workingDirectoryEdit->setPath(m_rc->baseWorkingDirectory());
-    m_workingDirectoryEdit->setBaseDirectory(m_rc->target()->project()->projectDirectory());
     ProjectExplorer::EnvironmentAspect *aspect
             = m_rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
     if (aspect) {
@@ -392,7 +397,6 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     toplayout->addRow(QString(), innerBox);
 
     runConfigurationEnabledChange();
-    targetInformationHasChanged();
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(workDirectoryEdited()));
@@ -433,6 +437,7 @@ void QbsRunConfigurationWidget::runConfigurationEnabledChange()
     m_disabledIcon->setVisible(!enabled);
     m_disabledReason->setVisible(!enabled);
     m_disabledReason->setText(m_rc->disabledReason());
+    targetInformationHasChanged();
 }
 
 void QbsRunConfigurationWidget::workDirectoryEdited()
@@ -470,6 +475,9 @@ void QbsRunConfigurationWidget::targetInformationHasChanged()
 {
     m_ignoreChange = true;
     m_executableLineEdit->setText(m_rc->executable());
+
+    m_workingDirectoryEdit->setPath(m_rc->baseWorkingDirectory());
+    m_workingDirectoryEdit->setBaseDirectory(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }
 
@@ -558,7 +566,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
         return result;
 
     foreach (const qbs::ProductData &product, project->qbsProjectData()->products()) {
-        if (!project->qbsProject()->targetExecutable(product, QString()).isEmpty())
+        if (!project->qbsProject()->targetExecutable(product, qbs::InstallOptions()).isEmpty())
             result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
     }
     return result;

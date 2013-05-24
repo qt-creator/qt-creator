@@ -38,7 +38,6 @@
 #ifdef BUILD_CRASH_HANDLER
 
 #include <QApplication>
-#include <QDebug>
 #include <QString>
 
 #include <stdlib.h>
@@ -83,7 +82,7 @@ extern "C" void signalHandler(int signal)
 void setupCrashHandler()
 {
 #ifdef BUILD_CRASH_HANDLER
-    if (!qgetenv("QTC_NO_CRASH_HANDLER").isEmpty())
+    if (qgetenv("QTC_USE_CRASH_HANDLER").isEmpty())
         return;
 
     const QString crashHandlerPath = qApp->applicationDirPath()

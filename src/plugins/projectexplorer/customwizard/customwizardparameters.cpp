@@ -850,14 +850,13 @@ bool replaceFieldHelper(ValueStringTransformation transform,
         int nextPos = s->indexOf(delimiter, pos + 1);
         if (nextPos == -1)
             break;
-        nextPos++; // Point past 2nd delimiter
-        if (nextPos == pos + 2) {
+        if (nextPos == pos + 1) {
             pos = nextPos; // Skip '%%'
             continue;
         }
         // Evaluate field specification for modifiers
         // "%field:l%"
-        QString fieldSpec = s->mid(pos + 1, nextPos - pos - 2);
+        QString fieldSpec = s->mid(pos + 1, nextPos - pos - 1);
         const int fieldSpecSize = fieldSpec.size();
         char modifier = '\0';
         if (fieldSpecSize >= 3 && fieldSpec.at(fieldSpecSize - 2) == modifierDelimiter) {

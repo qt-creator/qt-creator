@@ -46,7 +46,7 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
     if fromWelcome:
         mouseClick(waitForObject(":OpenProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
         if not platform.system() == "Darwin":
-            waitFor("waitForObject(':fileNameEdit_QLineEdit').focus == True")
+            waitFor("waitForObject(':fileNameEdit_QLineEdit', 1000).focus == True", 3000)
     else:
         invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)

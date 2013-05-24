@@ -201,8 +201,8 @@ QString BaseTextEditorWidget::convertToPlainText(const QString &txt)
     return ret;
 }
 
-static const char kTextBlockMimeType[] = "application/vnd.nokia.qtcreator.blocktext";
-static const char kVerticalTextBlockMimeType[] = "application/vnd.nokia.qtcreator.vblocktext";
+static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
+static const char kVerticalTextBlockMimeType[] = "application/vnd.qtcreator.vblocktext";
 
 
 BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
@@ -256,13 +256,11 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     d->m_matchFormat.setForeground(Qt::red);
     d->m_matchFormat.setBackground(QColor(0xb4, 0xee, 0xb4));
     d->m_mismatchFormat.setBackground(Qt::magenta);
-    d->m_parenthesesMatchingTimer = new QTimer(this);
-    d->m_parenthesesMatchingTimer->setSingleShot(true);
-    connect(d->m_parenthesesMatchingTimer, SIGNAL(timeout()), this, SLOT(_q_matchParentheses()));
+    d->m_parenthesesMatchingTimer.setSingleShot(true);
+    connect(&d->m_parenthesesMatchingTimer, SIGNAL(timeout()), this, SLOT(_q_matchParentheses()));
 
-    d->m_highlightBlocksTimer = new QTimer(this);
-    d->m_highlightBlocksTimer->setSingleShot(true);
-    connect(d->m_highlightBlocksTimer, SIGNAL(timeout()), this, SLOT(_q_highlightBlocks()));
+    d->m_highlightBlocksTimer.setSingleShot(true);
+    connect(&d->m_highlightBlocksTimer, SIGNAL(timeout()), this, SLOT(_q_highlightBlocks()));
 
     d->m_animator = 0;
 
@@ -272,9 +270,8 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     updateHighlights();
     setFrameStyle(QFrame::NoFrame);
 
-    d->m_delayedUpdateTimer = new QTimer(this);
-    d->m_delayedUpdateTimer->setSingleShot(true);
-    connect(d->m_delayedUpdateTimer, SIGNAL(timeout()), viewport(), SLOT(update()));
+    d->m_delayedUpdateTimer.setSingleShot(true);
+    connect(&d->m_delayedUpdateTimer, SIGNAL(timeout()), viewport(), SLOT(update()));
 
     d->m_moveLineUndoHack = false;
 }
@@ -1979,7 +1976,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 
     skip_event:
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
+        d->m_parenthesesMatchingTimer.start(50);
 
     if (!ro && d->m_contentsChanged && !e->text().isEmpty()
             && e->text().at(0).isPrint() && !inOverwriteMode) {
@@ -4130,7 +4127,7 @@ void BaseTextEditorWidget::updateHighlights()
         // Delay update when no matching is displayed yet, to avoid flicker
         if (extraSelections(ParenthesesMatchingSelection).isEmpty()
             && d->m_animator == 0) {
-            d->m_parenthesesMatchingTimer->start(50);
+            d->m_parenthesesMatchingTimer.start(50);
         } else {
             // when we uncheck "highlight matching parentheses"
             // we need clear current selection before viewport update
@@ -4140,7 +4137,7 @@ void BaseTextEditorWidget::updateHighlights()
 
             // use 0-timer, not direct call, to give the syntax highlighter a chance
             // to update the parentheses information
-            d->m_parenthesesMatchingTimer->start(0);
+            d->m_parenthesesMatchingTimer.start(0);
         }
     }
 
@@ -4149,7 +4146,7 @@ void BaseTextEditorWidget::updateHighlights()
     if (d->m_displaySettings.m_highlightBlocks) {
         QTextCursor cursor = textCursor();
         d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
-        d->m_highlightBlocksTimer->start(100);
+        d->m_highlightBlocksTimer.start(100);
     }
 }
 
@@ -4446,7 +4443,7 @@ void BaseTextEditorWidget::updateFoldingHighlight(const QPoint &pos)
     }
 
     if (highlightBlockNumber != d->extraAreaHighlightFoldedBlockNumber)
-        d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
+        d->m_highlightBlocksTimer.start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
 }
 
 void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
@@ -5029,7 +5026,7 @@ void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Find::Find
                                        Qt::CaseSensitive : Qt::CaseInsensitive);
     d->m_findFlags = findFlags;
 
-    d->m_delayedUpdateTimer->start(50);
+    d->m_delayedUpdateTimer.start(50);
 }
 
 int BaseTextEditorWidget::verticalBlockSelectionFirstColumn() const

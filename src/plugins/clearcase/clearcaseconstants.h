@@ -37,7 +37,7 @@ namespace ClearCase {
 namespace Constants {
 
 const char VCS_ID_CLEARCASE[] = "E.ClearCase";
-const char CLEARCASE_SUBMIT_MIMETYPE[] = "application/vnd.audc.text.clearcase.submit";
+const char CLEARCASE_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.clearcase.submit";
 const char CLEARCASECHECKINEDITOR[] = "ClearCase Check In Editor";
 const char CLEARCASECHECKINEDITOR_ID[] = "ClearCase Check In Editor";
 const char CLEARCASECHECKINEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "ClearCase Check In Editor");

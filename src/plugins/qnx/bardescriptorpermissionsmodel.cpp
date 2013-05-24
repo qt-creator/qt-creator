@@ -142,61 +142,60 @@ void BarDescriptorPermissionsModel::initModel()
 {
     beginResetModel();
     m_permissions << BarDescriptorPermission(tr("BlackBerry Messenger"), QLatin1String("bbm_connect"),
-                                             tr("Allows this app to connect to the BBM Social Platform to access BBM\n"
-                                                "contact lists and user profiles, invite BBM contacts to download your\n"
-                                                "app, initiate BBM chats and share content from within your app, or\n"
-                                                "stream data between apps in real time."));
+                                             tr("<html><head/><body><p>Allows this app to connect to the BBM Social Platform to access BBM "
+                                                "contact lists and user profiles, invite BBM contacts to download your "
+                                                "app, initiate BBM chats and share content from within your app, or "
+                                                "stream data between apps in real time.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Calendar"), QLatin1String("access_pimdomain_calendars"),
-                                             tr("Allows this app to access the calendar on the device. This access\n"
-                                                "includes viewing, adding, and deleting calendar appointments."));
+                                             tr("<html><head/><body><p>Allows this app to access the calendar on the device. This access "
+                                                "includes viewing, adding, and deleting calendar appointments.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Camera"), QLatin1String("use_camera"),
-                                             tr("Allows this app to take pictures, record video, and use the flash."));
+                                             tr("<html><head/><body><p>Allows this app to take pictures, record video, and use the flash.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Contacts"), QLatin1String("access_pimdomain_contacts"),
-                                             tr("Allows this app to access the contacts stored on the device. This\n"
-                                                "access includes viewing, creating, and deleting the contacts."));
+                                             tr("<html><head/><body><p>Allows this app to access the contacts stored on the device. This "
+                                                "access includes viewing, creating, and deleting the contacts.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Device Identifying Information"), QLatin1String("read_device_identifying_information"),
-                                             tr("Allows this app to access device identifiers such as serial number and PIN."));
+                                             tr("<html><head/><body><p>Allows this app to access device identifiers such as serial number and PIN.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Email and PIN Messages"), QLatin1String("access_pimdomain_messages"),
-                                             tr("Allows this app to access the email and PIN messages stored on the\n"
-                                                "device. This access includes viewing, creating, sending, and deleting\n"
-                                                "the messages."));
+                                             tr("<html><head/><body><p>Allows this app to access the email and PIN messages stored on the "
+                                                "device. This access includes viewing, creating, sending, and deleting the messages.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("GPS Location"), QLatin1String("read_geolocation"),
-                                             tr("Allows this app to access the current GPS location of the device."));
+                                             tr("<html><head/><body><p>Allows this app to access the current GPS location of the device.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Internet"), QLatin1String("access_internet"),
-                                             tr("Allows this app to use Wi-fi, wired, or other connections to a\n"
-                                                "destination that is not local on the user's device."));
+                                             tr("<html><head/><body><p>Allows this app to use Wi-fi, wired, or other connections to a "
+                                                "destination that is not local on the user's device.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Location"), QLatin1String("access_location_services"),
-                                             tr("Allows this app to access the device's current or saved locations."));
+                                             tr("<html><head/><body><p>Allows this app to access the device's current or saved locations.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Microphone"), QLatin1String("record_audio"),
-                                             tr("Allows this app to record sound using the microphone."));
+                                             tr("<html><head/><body><p>Allows this app to record sound using the microphone.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Notebooks"), QLatin1String("access_pimdomain_notebooks"),
-                                             tr("Allows this app to access the content stored in the notebooks on the\n"
-                                                "device. This access includes adding and deleting entries and content."));
+                                             tr("<html><head/><body><p>Allows this app to access the content stored in the notebooks on the "
+                                                "device. This access includes adding and deleting entries and content.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Post Notifications"), QLatin1String("post_notification"),
-                                             tr("Post a notification to the notifications area of the screen."));
+                                             tr("<html><head/><body><p>Post a notification to the notifications area of the screen.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Push"), QLatin1String("_sys_use_consumer_push"),
-                                             tr("Allows this app to use the Push Service with the BlackBerry Internet\n"
-                                                "Service. This access allows the app to receive and request push\n"
-                                                "messages. To use the Push Service with the BlackBerry Internet Service,\n"
-                                                "you must register with BlackBerry. When you register, you\n"
-                                                "receive a confirmation email message that contains information that\n"
-                                                "your application needs to receive and request push messages. For more\n"
-                                                "information about registering, visit\n"
-                                                "https://developer.blackberry.com/services/push/. If you're using the\n"
-                                                "Push Service with the BlackBerry Enterprise Server or the BlackBerry\n"
-                                                "Device Service, you don't need to register with BlackBerry."));
+                                             tr("<html><head/><body><p>Allows this app to use the Push Service with the BlackBerry Internet "
+                                                "Service. This access allows the app to receive and request push "
+                                                "messages. To use the Push Service with the BlackBerry Internet Service, "
+                                                "you must register with BlackBerry. When you register, you "
+                                                "receive a confirmation email message that contains information that "
+                                                "your application needs to receive and request push messages. For more "
+                                                "information about registering, visit "
+                                                "https://developer.blackberry.com/services/push/. If you're using the "
+                                                "Push Service with the BlackBerry Enterprise Server or the BlackBerry "
+                                                "Device Service, you don't need to register with BlackBerry.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Run When Backgrounded"), QLatin1String("run_when_backgrounded"),
-                                             tr("Allows background processing. Without this permission, the app is\n"
-                                                "stopped when the user switches focus to another app. Apps that use this\n"
-                                                "permission are rigorously reviewed for acceptance to BlackBerry App\n"
-                                                "World storefront for their use of power."));
+                                             tr("<html><head/><body><p>Allows background processing. Without this permission, the app is "
+                                                "stopped when the user switches focus to another app. Apps that use this "
+                                                "permission are rigorously reviewed for acceptance to BlackBerry App "
+                                                "World storefront for their use of power.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Shared Files"), QLatin1String("access_shared"),
-                                             tr("Allows this app to access pictures, music, documents, and other files\n"
-                                                "stored on the user's device, at a remote storage provider, on a media\n"
-                                                "card, or in the cloud."));
+                                             tr("<html><head/><body><p>Allows this app to access pictures, music, documents, and other files "
+                                                "stored on the user's device, at a remote storage provider, on a media "
+                                                "card, or in the cloud.</p></body></html>"));
     m_permissions << BarDescriptorPermission(tr("Text Messages"), QLatin1String("access_sms_mms"),
-                                             tr("Allows this app to access the text messages stored on the device. The\n"
-                                                "access includes viewing, creating, sending, and deleting text messages."));
+                                             tr("<html><head/><body><p>Allows this app to access the text messages stored on the device. The "
+                                                "access includes viewing, creating, sending, and deleting text messages.</p></body></html>"));
     endResetModel();
 }
 

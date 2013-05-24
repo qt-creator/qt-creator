@@ -178,6 +178,9 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (!tc)
         return results;
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
+    if (deviceType !=  ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return results;
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (n != ForceNinja) {
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {

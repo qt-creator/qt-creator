@@ -40,9 +40,9 @@ const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
 const char C_FILESEDITOR[]      = ".files Editor";
 const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
 
-const char FILES_MIMETYPE[]     = "application/vnd.nokia.qt.generic.files";
-const char INCLUDES_MIMETYPE[]  = "application/vnd.nokia.qt.generic.includes";
-const char CONFIG_MIMETYPE[]    = "application/vnd.nokia.qt.generic.config";
+const char FILES_MIMETYPE[]     = "application/vnd.qtcreator.generic.files";
+const char INCLUDES_MIMETYPE[]  = "application/vnd.qtcreator.generic.includes";
+const char CONFIG_MIMETYPE[]    = "application/vnd.qtcreator.generic.config";
 
 // Project
 const char GENERICPROJECT_ID[]  = "GenericProjectManager.GenericProject";

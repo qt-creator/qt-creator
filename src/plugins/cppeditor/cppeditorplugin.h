@@ -158,6 +158,7 @@ private slots:
     void test_quickfix_InsertDefFromDecl_freeFunction();
     void test_quickfix_InsertDefFromDecl_insideClass();
     void test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists();
+    void test_quickfix_InsertDefFromDecl_notTriggeringStatement();
 
     void test_quickfix_InsertDeclFromDef();
 
@@ -199,6 +200,7 @@ private slots:
     void test_quickfix_AssignToLocalVariable_noFunctionInExpression();
     void test_quickfix_AssignToLocalVariable_noReturnClass();
     void test_quickfix_AssignToLocalVariable_noReturnFunc();
+    void test_quickfix_AssignToLocalVariable_noSignatureMatch();
 
     void test_quickfix_InsertVirtualMethods_onlyDecl();
     void test_quickfix_InsertVirtualMethods_onlyDeclWithoutVirtual();
@@ -211,6 +213,7 @@ private slots:
     void test_quickfix_InsertVirtualMethods_outside();
     void test_quickfix_InsertVirtualMethods_implementationFile();
     void test_quickfix_InsertVirtualMethods_notrigger_allImplemented();
+    void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
 
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.

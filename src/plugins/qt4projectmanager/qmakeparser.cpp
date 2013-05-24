@@ -152,13 +152,13 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << QString();
 
     QTest::newRow("qMake warning with location")
-            << QString::fromLatin1("WARNING: e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl:1: Unescaped backslashes are deprecated.")
+            << QString::fromLatin1("WARNING: e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl:1: Unescaped backslashes are deprecated.")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("Unescaped backslashes are deprecated."),
-                        Utils::FileName::fromUserInput(QLatin1String("e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
+                        Utils::FileName::fromUserInput(QLatin1String("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
                         categoryBuildSystem))
             << QString();
 }

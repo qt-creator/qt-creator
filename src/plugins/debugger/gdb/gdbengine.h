@@ -456,7 +456,6 @@ private: ////////// View & Data Stuff //////////
     void handleInfoLine(const GdbResponse &response);
     void extractDataFromInfoBreak(const QString &output, BreakpointModelId);
     void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
-    BreakpointPathUsage defaultEngineBreakpointPathUsage() const;
     QByteArray breakpointLocation(BreakpointModelId id); // For gdb/MI.
     QByteArray breakpointLocation2(BreakpointModelId id); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;

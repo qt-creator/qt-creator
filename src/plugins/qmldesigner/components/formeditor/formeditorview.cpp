@@ -556,9 +556,9 @@ void FormEditorView::rewriterEndTransaction()
     m_transactionCounter--;
 }
 
-double FormEditorView::margins() const
+double FormEditorView::containerPadding() const
 {
-    return m_formEditorWidget->margins();
+    return m_formEditorWidget->containerPadding();
 }
 
 double FormEditorView::spacing() const

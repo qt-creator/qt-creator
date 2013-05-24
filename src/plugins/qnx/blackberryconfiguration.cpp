@@ -116,7 +116,7 @@ bool BlackBerryConfiguration::refresh()
         if (!simulatorGdbPath.toFileInfo().exists())
             errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Simulator.");
 
-        QMessageBox::warning(0, tr("Cannot Setup BB10 Configuration"),
+        QMessageBox::warning(0, tr("Cannot Set up BB10 Configuration"),
                              errorMessage, QMessageBox::Ok);
         return false;
     }
@@ -305,14 +305,14 @@ QtSupport::BaseQtVersion *BlackBerryConfiguration::createQtVersion()
     QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_config.qmakeBinaryFile);
     if (version) {
         QMessageBox::warning(0, tr("Qt Version Already Known"),
-                             tr("This Qt version was already registered"), QMessageBox::Ok);
+                             tr("This Qt version was already registered."), QMessageBox::Ok);
         return version;
     }
 
     version = new BlackBerryQtVersion(QnxUtils::cpudirToArch(cpuDir), m_config.qmakeBinaryFile, false, QString(), m_config.ndkPath);
     if (!version) {
-        QMessageBox::warning(0, tr("Invalid Qt version"),
-                             tr("Unable to add BlackBerry Qt version"), QMessageBox::Ok);
+        QMessageBox::warning(0, tr("Invalid Qt Version"),
+                             tr("Unable to add BlackBerry Qt version."), QMessageBox::Ok);
         return 0;
     }
 
@@ -329,7 +329,7 @@ ProjectExplorer::GccToolChain *BlackBerryConfiguration::createGccToolChain()
     foreach (ProjectExplorer::ToolChain* tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
         if (tc->compilerCommand() == m_config.gccCompiler) {
             QMessageBox::warning(0, tr("Compiler Already Known"),
-                                 tr("This Compiler was already registered"), QMessageBox::Ok);
+                                 tr("This compiler was already registered."), QMessageBox::Ok);
             return dynamic_cast<ProjectExplorer::GccToolChain*>(tc);
         }
     }
@@ -356,7 +356,7 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
                  && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_config.simulatorDebuger)
                     || (arch == ArmLeV7 && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_config.deviceDebuger)) {
                 QMessageBox::warning(0, tr("Kit Already Known"),
-                                     tr("This Kit was already registered"), QMessageBox::Ok);
+                                     tr("This kit was already registered."), QMessageBox::Ok);
                 return kit;
             }
         }

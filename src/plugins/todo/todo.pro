@@ -30,8 +30,6 @@ SOURCES += todoplugin.cpp \
     qmljstodoitemsscanner.cpp \
     lineparser.cpp \
     todooutputtreeview.cpp
-OTHER_FILES += \
-    Todo.pluginspec.in
 
 RESOURCES += \
     todoplugin.qrc

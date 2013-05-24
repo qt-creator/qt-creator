@@ -133,3 +133,9 @@ def safeClickTab(tab):
             pass
     test.fail("Tab %s is not being shown." % tab)
     return False
+
+def init():
+    removeQmlDebugFolderIfExists()
+
+def cleanup():
+    removeQmlDebugFolderIfExists()

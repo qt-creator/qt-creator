@@ -86,16 +86,25 @@ public:
 public slots:
     void setContextLinesNumber(int lines);
     void setIgnoreWhitespaces(bool ignore);
+    void navigateToDiffFile(int diffFileIndex);
+
+signals:
+    void navigatedToDiffFile(int diffFileIndex);
 
 protected:
     TextEditor::SnippetEditorWidget *leftEditor() const;
     TextEditor::SnippetEditorWidget *rightEditor() const;
 
 private slots:
-    void leftSliderChanged();
-    void rightSliderChanged();
+    void leftVSliderChanged();
+    void rightVSliderChanged();
+    void leftHSliderChanged();
+    void rightHSliderChanged();
+    void leftCursorPositionChanged();
+    void rightCursorPositionChanged();
     void leftDocumentSizeChanged();
     void rightDocumentSizeChanged();
+    void toggleScrollBarSynchronization(bool on);
 
 private:
     struct DiffList {
@@ -130,6 +139,7 @@ private:
     QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
     int m_contextLinesNumber;
     bool m_ignoreWhitespaces;
+    bool m_syncScrollBars;
 
     bool m_foldingBlocker;
 };

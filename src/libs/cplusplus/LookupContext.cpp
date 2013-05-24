@@ -249,17 +249,19 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) c
     if (name->isNameId()) {
         for (unsigned i = 0, count = scope->memberCount(); i < count; ++i) {
             if (UsingDeclaration *u = scope->memberAt(i)->asUsingDeclaration()) {
-                if (const QualifiedNameId *q = u->name()->asQualifiedNameId()) {
-                    if (q->name()->isEqualTo(name)) {
-                        candidates = bindings()->globalNamespace()->find(q);
+                if (const Name *usingDeclarationName = u->name()) {
+                    if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
+                        if (q->name() && q->name()->isEqualTo(name)) {
+                            candidates = bindings()->globalNamespace()->find(q);
 
-                        // if it is not a global scope(scope of scope is not equal 0)
-                        // then add current using declaration as a candidate
-                        if (scope->scope()) {
-                            LookupItem item;
-                            item.setDeclaration(u);
-                            item.setScope(scope);
-                            candidates.append(item);
+                            // if it is not a global scope(scope of scope is not equal 0)
+                            // then add current using declaration as a candidate
+                            if (scope->scope()) {
+                                LookupItem item;
+                                item.setDeclaration(u);
+                                item.setScope(scope);
+                                candidates.append(item);
+                            }
                         }
                     }
                 }
@@ -328,9 +330,11 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                 }
             } else if (UsingDeclaration *ud = m->asUsingDeclaration()) {
                 if (name->isNameId()) {
-                    if (const QualifiedNameId *q = ud->name()->asQualifiedNameId()) {
-                        if (q->name()->isEqualTo(name)) {
-                            return bindings()->globalNamespace()->lookupType(q);
+                    if (const Name *usingDeclarationName = ud->name()) {
+                        if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
+                            if (q->name() && q->name()->isEqualTo(name)) {
+                                return bindings()->globalNamespace()->lookupType(q);
+                            }
                         }
                     }
 
@@ -686,6 +690,16 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             if (templateId && (s->isDeclaration() || s->isFunction())) {
                 FullySpecifiedType ty = DeprecatedGenTemplateInstance::instantiate(templateId, s, control());
                 item.setType(ty); // override the type.
+            }
+
+            // instantiate function template
+            if (name->isTemplateNameId() && s->isTemplate() && s->asTemplate()->declaration()
+                    && s->asTemplate()->declaration()->isFunction()) {
+                const TemplateNameId *instantiation = name->asTemplateNameId();
+                Template *specialization = s->asTemplate();
+                Symbol *instantiatedFunctionTemplate = instantiateTemplateFunction(instantiation,
+                                                                                   specialization);
+                item.setType(instantiatedFunctionTemplate->type()); // override the type.
             }
 
             result->append(item);
@@ -1597,5 +1611,31 @@ bool CreateBindings::visit(ObjCForwardProtocolDeclaration *proto)
 bool CreateBindings::visit(ObjCMethod *)
 {
     return false;
+}
+
+Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instantiation,
+                                                    Template *specialization) const
+{
+    const unsigned argumentCountOfInitialization = instantiation->templateArgumentCount();
+    const unsigned argumentCountOfSpecialization = specialization->templateParameterCount();
+
+    Clone cloner(_control.data());
+    Subst subst(_control.data());
+    for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+        const TypenameArgument *tParam
+                = specialization->templateParameterAt(i)->asTypenameArgument();
+        if (!tParam)
+            continue;
+        const Name *name = tParam->name();
+        if (!name)
+            continue;
+
+        FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
+                    instantiation->templateArgumentAt(i):
+                    cloner.type(tParam->type(), &subst);
+
+        subst.bind(cloner.name(name, &subst), ty);
+    }
+    return cloner.symbol(specialization, &subst);
 }
 

@@ -535,7 +535,7 @@ bool MimeGlobPattern::matches(const QString &fileName) const
     <?xml version="1.0" encoding="UTF-8"?>
     <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
     <!-- Mime types must match the desktop file associations -->
-      <mime-type type="application/vnd.nokia.qt.qmakeprofile">
+      <mime-type type="application/vnd.qt.qmakeprofile">
         <comment xml:lang="en">Qt qmake Profile</comment>
         <glob pattern="*.pro" weight="50"/>
       </mime-type>

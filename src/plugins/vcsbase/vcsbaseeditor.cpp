@@ -669,7 +669,8 @@ void VcsBaseEditorWidget::init()
 {
     d->m_editor = editor();
     switch (d->m_parameters->type) {
-    case RegularCommandOutput:
+    case OtherContent:
+        break;
     case LogOutput:
         connect(d->entriesComboBox(), SIGNAL(activated(int)), this, SLOT(slotJumpToEntry(int)));
         connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateLogBrowser()));

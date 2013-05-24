@@ -113,8 +113,17 @@ private slots:
     void test_completion_instantiate_template_with_default_argument_type();
     void test_completion_instantiate_template_with_default_argument_type_as_template();
     void test_completion_member_access_operator_1();
-    void test_completion_typedef_of_type_and_replace_access_operator();
-    void test_completion_typedef_of_pointer_of_type_and_replace_access_operator();
+
+    void test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator();
+    void test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator();
+    void test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator();
+    void test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator();
+
+    void test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator();
+    void test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator();
+    void test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator();
+    void test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator();
+
     void test_completion_typedef_of_pointer();
     void test_completion_typedef_of_pointer_inside_function();
     void test_completion_typedef_is_inside_function_before_declaration_block();
@@ -127,6 +136,8 @@ private slots:
     void test_completion_type_and_using_declaration();
     void test_completion_type_and_using_declaration_data();
     void test_completion_instantiate_template_with_anonymous_class();
+    void test_completion_instantiate_template_function();
+    void test_completion_crash_cloning_template_class_QTCREATORBUG9329();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
@@ -141,7 +152,8 @@ private slots:
 
     void test_modelmanager_paths();
     void test_modelmanager_framework_headers();
-    void test_modelmanager_refresh();
+    void test_modelmanager_refresh_1();
+    void test_modelmanager_refresh_2();
 
 private:
     void test_completion();

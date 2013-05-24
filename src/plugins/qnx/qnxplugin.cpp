@@ -106,7 +106,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     barDescriptorMimeType.setSubClassesOf(QStringList() << QLatin1String("application/xml"));
 
     if (!Core::ICore::mimeDatabase()->addMimeType(barDescriptorMimeType)) {
-        *errorString = tr("Could not add mime-type for bar-descriptor.xml editor");
+        *errorString = tr("Could not add mime-type for bar-descriptor.xml editor.");
         return false;
     }
     addAutoReleasedObject(new BarDescriptorEditorFactory);

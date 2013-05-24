@@ -33,7 +33,11 @@
 #include "ui_gitsubmitpanel.h"
 #include "gitsettings.h"
 
+#include <texteditor/syntaxhighlighter.h>
 #include <vcsbase/submiteditorwidget.h>
+
+#include <QRegExp>
+#include <QSyntaxHighlighter>
 
 QT_BEGIN_NAMESPACE
 class QValidator;
@@ -87,6 +91,25 @@ private:
     QValidator *m_emailValidator;
     bool m_hasUnmerged;
     bool m_isInitialized;
+};
+
+// Highlighter for git submit messages. Make the first line bold, indicates
+// comments as such (retrieving the format from the text editor) and marks up
+// keywords (words in front of a colon as in 'Task: <bla>').
+
+class GitSubmitHighlighter : public TextEditor::SyntaxHighlighter
+{
+public:
+    explicit GitSubmitHighlighter(QTextEdit *parent);
+    explicit GitSubmitHighlighter(TextEditor::BaseTextDocument *parent);
+    void highlightBlock(const QString &text);
+
+    void initialize();
+private:
+    enum State { None = -1, Header, Other };
+    QTextCharFormat m_commentFormat;
+    QRegExp m_keywordPattern;
+    QChar m_hashChar;
 };
 
 } // namespace Internal

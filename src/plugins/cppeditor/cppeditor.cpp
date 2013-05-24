@@ -562,9 +562,13 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
 
 CPPEditorWidget::~CPPEditorWidget()
 {
+    if (m_modelManager)
+        m_modelManager->deleteEditorSupport(editor());
+
     ++numberOfClosedEditors;
     if (numberOfClosedEditors == 5) {
-        m_modelManager->GC();
+        if (m_modelManager)
+            m_modelManager->GC();
         numberOfClosedEditors = 0;
     }
 
@@ -1876,10 +1880,11 @@ Core::Id CPPEditor::id() const
 
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
+    if (!TextEditor::BaseTextEditor::open(errorString, fileName, realFileName))
+        return false;
     editorWidget()->setMimeType(
                 Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
-    return b;
+    return true;
 }
 
 const Utils::CommentDefinition *CPPEditor::commentDefinition() const

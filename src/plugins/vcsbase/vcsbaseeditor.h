@@ -58,10 +58,10 @@ class BaseAnnotationHighlighter;
 // Documentation inside
 enum EditorContentType
 {
-    RegularCommandOutput,
     LogOutput,
     AnnotateOutput,
-    DiffOutput
+    DiffOutput,
+    OtherContent
 };
 
 class VCSBASE_EXPORT VcsBaseEditorParameters
@@ -72,7 +72,6 @@ public:
     const char *displayName;
     const char *context;
     const char *mimeType;
-    const char *extension;
 };
 
 class VCSBASE_EXPORT DiffChunk
@@ -106,7 +105,7 @@ protected:
     void setLogEntryPattern(const QRegExp &pattern);
 
 public:
-    void init();
+    virtual void init();
 
     ~VcsBaseEditorWidget();
 

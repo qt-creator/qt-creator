@@ -50,7 +50,7 @@ DesignerSettings SettingsPageWidget::settings() const
 {
     DesignerSettings designerSettings;
     designerSettings.itemSpacing = m_ui.spinItemSpacing->value();
-    designerSettings.snapMargin = m_ui.spinSnapMargin->value();
+    designerSettings.containerPadding = m_ui.spinSnapMargin->value();
     designerSettings.canvasWidth = m_ui.spinCanvasWidth->value();
     designerSettings.canvasHeight = m_ui.spinCanvasHeight->value();
     designerSettings.warningsInDesigner = m_ui.designerWarningsCheckBox->isChecked();
@@ -64,7 +64,7 @@ DesignerSettings SettingsPageWidget::settings() const
 void SettingsPageWidget::setSettings(const DesignerSettings &designerSettings)
 {
     m_ui.spinItemSpacing->setValue(designerSettings.itemSpacing);
-    m_ui.spinSnapMargin->setValue(designerSettings.snapMargin);
+    m_ui.spinSnapMargin->setValue(designerSettings.containerPadding);
     m_ui.spinCanvasWidth->setValue(designerSettings.canvasWidth);
     m_ui.spinCanvasHeight->setValue(designerSettings.canvasHeight);
     m_ui.designerWarningsCheckBox->setChecked(designerSettings.warningsInDesigner);

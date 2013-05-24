@@ -6339,8 +6339,6 @@ namespace qc41700 {
 
 namespace cp42895 {
 
-    // http://codepaster.europe.nokia.com/?id=42895
-
     void g(int c, int d)
     {
         qDebug() << c << d;

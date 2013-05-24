@@ -3,29 +3,22 @@ import atexit
 import binascii
 import inspect
 import os
-import platform
 import threading
 import select
 import sys
 import subprocess
 
 
-uname = platform.uname()[0]
-if uname == 'Linux':
-    # /data/dev/llvm-git-2/build/lib/python2.7/site-packages
-    proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
-    path = proc.stdout.read().strip()
-    sys.path.append(path)
-else:
-    base = '/Applications/Xcode.app/Contents/'
-    sys.path.append(base + 'SharedFrameworks/LLDB.framework/Resources/Python')
-    sys.path.append(base + 'Library/PrivateFrameworks/LLDB.framework/Resources/Python')
+proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
+path = proc.stdout.read().strip()
+#sys.path.append(path)
+sys.path.insert(1, path)
 
 import lldb
 
 cdbLoaded = False
-lldbLoaded = True
 gdbLoaded = False
+lldbLoaded = True
 
 # Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
 Unencoded8Bit, \
@@ -94,9 +87,6 @@ qqEditable = {}
 
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
-
-def templateArgument(typeobj, index):
-    return typeobj.GetTemplateArgumentType(index)
 
 def directBaseClass(typeobj, index = 0):
     return typeobj.GetDirectBaseClassAtIndex(index)
@@ -275,7 +265,7 @@ def impl_SBValue__add__(self, offset):
             pass
         else:
             offset = offset.GetValueAsSigned()
-        itemsize = self.GetType().GetDereferencedType().GetByteSize()
+        itemsize = self.GetType().GetPointeeType().GetByteSize()
         address = self.GetValueAsUnsigned() + offset * itemsize
         address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
         return createPointerValue(self, address, self.GetType().GetPointeeType())
@@ -289,8 +279,8 @@ def impl_SBValue__sub__(self, other):
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return self.CreateValueFromAddress(None, address, self.GetType())
         if other.GetType().IsPointerType():
-            itemsize = self.GetType().GetDereferencedType().GetByteSize()
-            return (int(self) - int(other)) / itemsize
+            itemsize = self.GetType().GetPointeeType().GetByteSize()
+            return (self.GetValueAsUnsigned() - other.GetValueAsUnsigned()) / itemsize
     raise RuntimeError("SBValue.__sub__ not implemented: %s" % self.GetType())
     return NotImplemented
 
@@ -440,8 +430,14 @@ class Children:
 class SubItem:
     def __init__(self, d, component):
         self.d = d
-        self.iname = "%s.%s" % (d.currentIName, component)
-        self.name = component
+        if isinstance(component, lldb.SBValue):
+            # Avoid $$__synth__ suffix on Mac.
+            value = component
+            value.SetPreferSyntheticValue(False)
+            self.name = value.GetName()
+        else:
+            self.name = component
+        self.iname = "%s.%s" % (d.currentIName, self.name)
 
     def __enter__(self):
         self.d.put('{')
@@ -526,6 +522,45 @@ class Dumper:
         self.sizetType_ = None
         self.charPtrType_ = None
         self.voidType_ = None
+
+    def extractTemplateArgument(self, typename, index):
+        level = 0
+        skipSpace = False
+        inner = ""
+        for c in typename[typename.find('<') + 1 : -1]:
+            if c == '<':
+                inner += c
+                level += 1
+            elif c == '>':
+                level -= 1
+                inner += c
+            elif c == ',':
+                if level == 0:
+                    if index == 0:
+                        return inner
+                    index -= 1
+                    inner = ""
+                else:
+                    inner += c
+                    skipSpace = True
+            else:
+                if skipSpace and c == ' ':
+                    pass
+                else:
+                    inner += c
+                    skipSpace = False
+        return inner
+
+    def templateArgument(self, typeobj, index):
+        type = typeobj.GetTemplateArgumentType(index)
+        if len(type.GetName()):
+            return type
+        inner = self.extractTemplateArgument(typeobj.GetName(), index)
+        return self.lookupType(inner)
+
+    def numericTemplateArgument(self, typeobj, index):
+        inner = self.extractTemplateArgument(typeobj.GetName(), index)
+        return int(inner)
 
     def intType(self):
         if self.intType_ is None:
@@ -692,15 +727,14 @@ class Dumper:
         self.report(self.describeError(error))
 
     def currentThread(self):
-        #return self.process.GetSelectedThread()
-        return self.process.GetThreadAtIndex(0)
+        return self.process.GetSelectedThread()
 
     def currentFrame(self):
         return self.currentThread().GetSelectedFrame()
 
     def reportLocation(self):
         thread = self.currentThread()
-        frame = thread.GetFrameAtIndex(0)
+        frame = thread.GetSelectedFrame()
         file = fileName(frame.line_entry.file)
         line = frame.line_entry.line
         self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
@@ -732,7 +766,9 @@ class Dumper:
             self.report('msg="No process"')
         else:
             thread = self.currentThread()
-            result = 'stack={current-thread="%s",frames=[' % thread.GetThreadID()
+            result = 'stack={current-frame="%s"' % thread.GetSelectedFrame().GetFrameID()
+            result += ',current-thread="%s"' % thread.GetThreadID()
+            result += ',frames=['
             n = thread.GetNumFrames()
             if n > 4:
                 n = 4
@@ -742,7 +778,7 @@ class Dumper:
                 result += '{pc="0x%x"' % frame.GetPC()
                 result += ',level="%d"' % frame.idx
                 result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
-                result += ',func="%s"' % frame.GetFunction().GetName()
+                result += ',func="%s"' % frame.GetFunctionName()
                 result += ',line="%d"' % lineEntry.GetLine()
                 result += ',fullname="%s"' % fileName(lineEntry.file)
                 result += ',usable="1"'
@@ -825,9 +861,7 @@ class Dumper:
         typeName = value.GetTypeName()
 
         # Handle build-in LLDB visualizers if wanted.
-        hasSynth = hasattr(value, 'SetPreferSyntheticValue')
-
-        if self.useLldbDumpers and hasSynth and value.GetTypeSynthetic().IsValid():
+        if self.useLldbDumpers and value.GetTypeSynthetic().IsValid():
             # FIXME: print "official" summary?
             summary = value.GetTypeSummary()
             if summary.IsValid():
@@ -852,8 +886,7 @@ class Dumper:
             return
 
         # Our turf now.
-        if hasSynth:
-            value.SetPreferSyntheticValue(False)
+        value.SetPreferSyntheticValue(False)
 
         # References
         if value.GetType().IsReferenceType():
@@ -897,7 +930,7 @@ class Dumper:
             n = 10000
         for i in xrange(n):
             child = value.GetChildAtIndex(i)
-            with SubItem(self, child.GetName()):
+            with SubItem(self, child):
                 self.putItem(child)
 
     def reportVariables(self, _ = None):
@@ -905,7 +938,7 @@ class Dumper:
         self.currentIName = "local"
         self.put('data=[')
         for value in frame.GetVariables(True, True, False, False):
-            with SubItem(self, value.GetName()):
+            with SubItem(self, value):
                 self.put('iname="%s",' % self.currentIName)
                 self.putItem(value)
         self.put(']')
@@ -1136,7 +1169,7 @@ class Dumper:
         self.currentThread().StepOver()
 
     def executeNextI(self, _ = None):
-        self.currentThread().StepOver()
+        self.currentThread().StepInstruction(lldb.eOnlyThisThread)
 
     def executeStep(self, _ = None):
         self.currentThread().StepInto()
@@ -1145,10 +1178,10 @@ class Dumper:
         self.debugger.Terminate()
 
     def executeStepI(self, _ = None):
-        self.currentThread().StepInstOver()
+        self.currentThread().StepInstruction(lldb.eOnlyThisThread)
 
     def executeStepOut(self, _ = None):
-        self.debugger.HandleCommand("thread step-out")
+        self.currentThread().StepOut()
 
     def executeRunToLine(self, args):
         file = args['file']
@@ -1165,8 +1198,9 @@ class Dumper:
         self.report('success="%d",output="%s",error="%s"'
             % (result.Succeeded(), result.GetOutput(), result.GetError()))
 
-    def activateFrame(self, frame):
-        self.handleCommand("frame select " + frame)
+    def activateFrame(self, args):
+        self.currentThread().SetSelectedFrame(args['index'])
+        self.reportData()
 
     def selectThread(self, thread):
         self.handleCommand("thread select " + thread)

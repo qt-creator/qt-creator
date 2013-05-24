@@ -116,29 +116,26 @@ static const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
 static const VcsBaseEditorParameters editorParameters[] = {
 {
-    RegularCommandOutput,
+    OtherContent,
     "CVS Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
     "CVS Command Log Editor", // context
-    "application/vnd.nokia.text.scs_cvs_commandlog",
-    "scslog"},
+    "text/vnd.qtcreator.cvs.commandlog"},
 {   LogOutput,
     "CVS File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
     "CVS File Log Editor",   // context
-    "application/vnd.nokia.text.scs_cvs_filelog",
-    "scsfilelog"},
+    "text/vnd.qtcreator.cvs.log"},
 {    AnnotateOutput,
     "CVS Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
     "CVS Annotation Editor",  // context
-    "application/vnd.nokia.text.scs_cvs_annotation",
-    "scsannotate"},
+    "text/vnd.qtcreator.cvs.annotation"},
 {   DiffOutput,
     "CVS Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
     "CVS Diff Editor",  // context
-    "text/x-patch","diff"}
+    "text/x-patch"}
 };
 
 // Utility to find a parameter set by type
@@ -1025,7 +1022,7 @@ bool CvsPlugin::status(const QString &topLevel, const QStringList &files, const 
             runCvs(topLevel, args, m_settings.timeOutMS(), 0);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
-        showOutputInEditor(title, response.stdOut, RegularCommandOutput, topLevel, 0);
+        showOutputInEditor(title, response.stdOut, OtherContent, topLevel, 0);
     return ok;
 }
 

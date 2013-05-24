@@ -46,34 +46,25 @@ const char CHANGEIDEXACT40[] = "[a-f0-9]{40,40}";
 const char DIFFIDENTIFIER[] = "^(?:diff --git a/|[+-]{3} (?:/dev/null|[ab]/(.+$)))";
 
 // Base editor parameters
-const char COMMANDLOG_ID[] = "Mercurial Command Log Editor";
-const char COMMANDLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Command Log Editor");
-const char COMMANDLOG[] = "Mercurial Command Log Editor";
-const char COMMANDAPP[] = "application/vnd.nokia.text.scs_mercurial_commandlog";
-const char COMMANDEXT[] = "vcsMercurialCommand";
-
 const char FILELOG_ID[] = "Mercurial File Log Editor";
 const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial File Log Editor");
 const char FILELOG[] = "Mercurial File Log Editor";
-const char LOGAPP[] = "application/vnd.nokia.text.scs_mercurial_log";
-const char LOGEXT[] = "vcsMercurialLog";
+const char LOGAPP[] = "text/vnd.qtcreator.mercurial.log";
 
 const char ANNOTATELOG_ID[] = "Mercurial Annotation Editor";
 const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Annotation Editor");
 const char ANNOTATELOG[] = "Mercurial Annotation Editor";
-const char ANNOTATEAPP[] = "application/vnd.nokia.text.scs_mercurial_annotatelog";
-const char ANNOTATEEXT[] = "vcsMercurialAnnotate";
+const char ANNOTATEAPP[] = "text/vnd.qtcreator.mercurial.annotation";
 
 const char DIFFLOG_ID[] = "Mercurial Diff Editor";
 const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Diff Editor");
 const char DIFFLOG[] = "Mercurial Diff Editor";
 const char DIFFAPP[] = "text/x-patch";
-const char DIFFEXT[] = "diff";
 
 // Submit editor parameters
 const char COMMIT_ID[] = "Mercurial Commit Log Editor";
 const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Commit Log Editor");
-const char COMMITMIMETYPE[] = "application/vnd.nokia.text.scs_mercurial_commitlog";
+const char COMMITMIMETYPE[] = "text/vnd.qtcreator.mercurial.commit";
 
 // File menu actions
 const char ADD[] = "Mercurial.AddSingleFile";

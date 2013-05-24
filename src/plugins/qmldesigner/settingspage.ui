@@ -97,7 +97,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="snapMarginLabel">
           <property name="text">
-           <string>Snap margin:</string>
+           <string>Parent item padding:</string>
           </property>
          </widget>
         </item>
@@ -117,7 +117,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="itemSpacingLabel">
           <property name="text">
-           <string>Item spacing:</string>
+           <string>Sibling item spacing:</string>
           </property>
          </widget>
         </item>

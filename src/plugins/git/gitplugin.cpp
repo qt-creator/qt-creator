@@ -58,6 +58,7 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/mimedatabase.h>
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -81,32 +82,35 @@
 #include <QScopedPointer>
 
 static const unsigned minimumRequiredVersion = 0x010702;
+static const char RC_GIT_MIME_XML[] = ":/git/Git.mimetypes.xml";
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
+    VcsBase::OtherContent,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMAND_LOG_EDITOR,
-    "application/vnd.nokia.text.scs_git_commandlog",
-    "gitlog"},
+    "text/vnd.qtcreator.git.commandlog"},
 {   VcsBase::LogOutput,
     Git::Constants::GIT_LOG_EDITOR_ID,
     Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_LOG_EDITOR,
-    "application/vnd.nokia.text.scs_git_filelog",
-    "gitfilelog"},
+    "text/vnd.qtcreator.git.log"},
 {   VcsBase::AnnotateOutput,
     Git::Constants::GIT_BLAME_EDITOR_ID,
     Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_BLAME_EDITOR,
-    "application/vnd.nokia.text.scs_git_annotation",
-    "gitsannotate"},
+    "text/vnd.qtcreator.git.annotation"},
 {   VcsBase::DiffOutput,
     Git::Constants::GIT_DIFF_EDITOR_ID,
     Git::Constants::GIT_DIFF_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_DIFF_EDITOR,
-    "text/x-patch","diff"}
+    "text/x-patch"},
+{   VcsBase::DiffOutput,
+    Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
+    Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
+    Git::Constants::C_GIT_COMMIT_TEXT_EDITOR,
+    "text/vnd.qtcreator.git.commit"},
 };
 
 // Utility to find a parameter set by type
@@ -266,7 +270,6 @@ ActionCommandPair
 bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
 
     m_settings.readSettings(Core::ICore::settings());
 
@@ -658,6 +661,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_redoAction = new QAction(tr("&Redo"), this);
     command = Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, submitContext);
 
+
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(RC_GIT_MIME_XML), errorMessage))
+        return false;
 
     /* "Gerrit" */
     m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);

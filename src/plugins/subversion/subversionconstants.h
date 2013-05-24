@@ -35,7 +35,7 @@
 namespace Subversion {
 namespace Constants {
 
-const char SUBVERSION_SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.subversion.submit";
+const char SUBVERSION_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.svn.submit";
 const char SUBVERSIONCOMMITEDITOR[]  = "Subversion Commit Editor";
 const char SUBVERSIONCOMMITEDITOR_ID[]  = "Subversion Commit Editor";
 const char SUBVERSIONCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "Subversion Commit Editor");

@@ -74,29 +74,21 @@
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
-    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_ID,
-    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_DISPLAY_NAME,
-    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_CONTEXT,
-    "application/vnd.nokia.text.scs_commandlog",
-    "scslog"},
-{   VcsBase::LogOutput,
+    VcsBase::LogOutput,
     Perforce::Constants::PERFORCE_LOG_EDITOR_ID,
     Perforce::Constants::PERFORCE_LOG_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCE_LOG_EDITOR_CONTEXT,
-    "application/vnd.nokia.text.scs_filelog",
-    "scsfilelog"},
+    "text/vnd.qtcreator.p4.log"},
 {    VcsBase::AnnotateOutput,
      Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_ID,
      Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME,
      Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_CONTEXT,
-    "application/vnd.nokia.text.scs_annotation",
-    "scsannotate"},
+    "text/vnd.qtcreator.p4.annotation"},
 {   VcsBase::DiffOutput,
     Perforce::Constants::PERFORCE_DIFF_EDITOR_ID,
     Perforce::Constants::PERFORCE_DIFF_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCE_DIFF_EDITOR_CONTEXT,
-    "text/x-patch","diff"}
+    "text/x-patch"}
 };
 
 // Utility to find a parameter set by type

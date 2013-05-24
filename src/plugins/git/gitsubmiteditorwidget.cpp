@@ -55,28 +55,23 @@ static QTextCharFormat commentFormat()
     return settings.toTextCharFormat(TextEditor::C_COMMENT);
 }
 
-// Highlighter for git submit messages. Make the first line bold, indicates
-// comments as such (retrieving the format from the text editor) and marks up
-// keywords (words in front of a colon as in 'Task: <bla>').
-
-class GitSubmitHighlighter : QSyntaxHighlighter {
-public:
-    explicit GitSubmitHighlighter(QTextEdit *parent);
-    void highlightBlock(const QString &text);
-
-private:
-    enum State { None = -1, Header, Other };
-    const QTextCharFormat m_commentFormat;
-    QRegExp m_keywordPattern;
-    const QChar m_hashChar;
-};
-
 GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
-    QSyntaxHighlighter(parent),
-    m_commentFormat(commentFormat()),
-    m_keywordPattern(QLatin1String("^[\\w-]+:")),
-    m_hashChar(QLatin1Char('#'))
+    TextEditor::SyntaxHighlighter(parent)
 {
+    initialize();
+}
+
+GitSubmitHighlighter::GitSubmitHighlighter(TextEditor::BaseTextDocument *parent) :
+    TextEditor::SyntaxHighlighter(parent)
+{
+    initialize();
+}
+
+void GitSubmitHighlighter::initialize()
+{
+    m_commentFormat = commentFormat();
+    m_keywordPattern.setPattern(QLatin1String("^[\\w-]+:"));
+    m_hashChar = QLatin1Char('#');
     QTC_CHECK(m_keywordPattern.isValid());
 }
 

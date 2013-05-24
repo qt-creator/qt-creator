@@ -33,7 +33,7 @@
 namespace Cvs {
 namespace Constants {
 
-const char CVS_SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.cvs.submit";
+const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
 const char CVSCOMMITEDITOR[]  = "CVS Commit Editor";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
 const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");

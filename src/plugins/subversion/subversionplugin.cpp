@@ -112,29 +112,21 @@ static const char nonInteractiveOptionC[] = "--non-interactive";
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::RegularCommandOutput,
-    "Subversion Command Log Editor", // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion Command Log Editor"), // display name
-    "Subversion Command Log Editor", // context
-    "application/vnd.nokia.text.scs_svn_commandlog",
-    "scslog"},
-{   VcsBase::LogOutput,
+    VcsBase::LogOutput,
     "Subversion File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
     "Subversion File Log Editor",   // context
-    "application/vnd.nokia.text.scs_svn_filelog",
-    "scsfilelog"},
+    "text/vnd.qtcreator.svn.log"},
 {    VcsBase::AnnotateOutput,
     "Subversion Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
     "Subversion Annotation Editor",  // context
-    "application/vnd.nokia.text.scs_svn_annotation",
-    "scsannotate"},
+    "text/vnd.qtcreator.svn.annotation"},
 {   VcsBase::DiffOutput,
     "Subversion Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "Subversion Diff Editor"),   // display_name
     "Subversion Diff Editor",  // context
-    "text/x-patch","diff"}
+    "text/x-patch"}
 };
 
 // Utility to find a parameter set by type

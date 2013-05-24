@@ -39,10 +39,6 @@ const char PERFORCE_SUBMIT_EDITOR_ID[] = "Perforce.SubmitEditor";
 const char PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce.SubmitEditor");
 const char PERFORCESUBMITEDITOR_CONTEXT[] = "Perforce Submit Editor";
 
-const char PERFORCE_COMMANDLOG_EDITOR_ID[] = "Perfoirce.CommandLogEditor";
-const char PERFORCE_COMMANDLOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce CommandLog Editor");
-const char PERFORCE_COMMANDLOG_EDITOR_CONTEXT[] = "Perforce Command Log Editor";
-
 const char PERFORCE_LOG_EDITOR_ID[] = "Perforce.LogEditor";
 const char PERFORCE_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce Log Editor");
 const char PERFORCE_LOG_EDITOR_CONTEXT[] = "Perforce Log Editor";
@@ -57,7 +53,7 @@ const char PERFORCE_ANNOTATION_EDITOR_CONTEXT[] = "Perforce Annotation Editor";
 
 const char SUBMIT_CURRENT[] = "Perforce.SubmitCurrentLog";
 const char DIFF_SELECTED[] = "Perforce.DiffSelectedFilesInLog";
-const char SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.p4.submit";
+const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.p4.submit";
 
 enum { debug = 0 };
 

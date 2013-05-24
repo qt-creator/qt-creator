@@ -136,31 +136,28 @@ void DiffEditorPlugin::diff()
     const Core::Id editorId = Constants::DIFF_EDITOR_ID;
     //: Editor title
     QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
-    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(editorId, &title, QString());
-    Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    DiffEditorEditable *editorEditable = qobject_cast<DiffEditorEditable *>
+            (Core::EditorManager::openEditorWithContents(editorId, &title, QString()));
 
-    DiffEditorWidget *editorWidget = getDiffEditorWidget(outputEditor);
-    if (editorWidget) {
-        const QString text1 = getFileContents(fileName1, editorWidget->codec());
-        const QString text2 = getFileContents(fileName2, editorWidget->codec());
+    if (!editorEditable)
+        return;
 
-        DiffEditorWidget::DiffFilesContents dfc;
-        dfc.leftFileInfo = fileName1;
-        dfc.leftText = text1;
-        dfc.rightFileInfo = fileName2;
-        dfc.rightText = text2;
-        QList<DiffEditorWidget::DiffFilesContents> list;
-        list.append(dfc);
+    Core::EditorManager::activateEditor(editorEditable, Core::EditorManager::ModeSwitch);
 
-        editorWidget->setDiff(list);
-    }
-}
+    DiffEditorWidget *editorWidget = editorEditable->editorWidget();
 
-DiffEditorWidget *DiffEditorPlugin::getDiffEditorWidget(const Core::IEditor *editor) const
-{
-    if (const DiffEditorEditable *de = qobject_cast<const DiffEditorEditable *>(editor))
-        return de->editorWidget();
-    return 0;
+    const QString text1 = getFileContents(fileName1, editorWidget->codec());
+    const QString text2 = getFileContents(fileName2, editorWidget->codec());
+
+    DiffEditorWidget::DiffFilesContents dfc;
+    dfc.leftFileInfo = fileName1;
+    dfc.leftText = text1;
+    dfc.rightFileInfo = fileName2;
+    dfc.rightText = text2;
+    QList<DiffEditorWidget::DiffFilesContents> list;
+    list.append(dfc);
+
+    editorEditable->setDiff(list);
 }
 
 QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *codec) const

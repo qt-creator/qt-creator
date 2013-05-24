@@ -253,6 +253,9 @@ protected:
     virtual bool visit(ObjCMethod *);
 
 private:
+    Symbol *instantiateTemplateFunction(const TemplateNameId *instantiation,
+                                        Template *specialization) const;
+
     Snapshot _snapshot;
     QSharedPointer<Control> _control;
     QSet<Namespace *> _processed;

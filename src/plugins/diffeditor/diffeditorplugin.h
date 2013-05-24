@@ -66,7 +66,6 @@ private slots:
     void diff();
 
 private:
-    DiffEditorWidget *getDiffEditorWidget(const Core::IEditor *editor) const;
     QString getFileContents(const QString &fileName, QTextCodec *codec) const;
 
 };

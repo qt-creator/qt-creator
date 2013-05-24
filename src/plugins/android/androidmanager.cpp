@@ -757,7 +757,7 @@ QStringList AndroidManager::availablePrebundledLibs(ProjectExplorer::Target *tar
 
     foreach (Qt4ProjectManager::Qt4ProFileNode *node, qt4Project->allProFiles())
         if (node->projectType() == Qt4ProjectManager::LibraryTemplate)
-            libs << QLatin1String("lib") + node->targetInformation().target + QLatin1String(".so");
+            libs << node->targetInformation().target;
     return libs;
 }
 

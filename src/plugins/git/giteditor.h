@@ -59,6 +59,7 @@ private slots:
     void revertChange();
 
 private:
+    void init();
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
