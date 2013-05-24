@@ -1876,10 +1876,11 @@ Core::Id CPPEditor::id() const
 
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
+    if (!TextEditor::BaseTextEditor::open(errorString, fileName, realFileName))
+        return false;
     editorWidget()->setMimeType(
                 Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
-    return b;
+    return true;
 }
 
 const Utils::CommentDefinition *CPPEditor::commentDefinition() const
