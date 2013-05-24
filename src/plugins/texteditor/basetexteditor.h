@@ -126,12 +126,13 @@ class TEXTEDITOR_EXPORT BaseTextEditorWidget : public QPlainTextEdit
     Q_OBJECT
     Q_PROPERTY(int verticalBlockSelectionFirstColumn READ verticalBlockSelectionFirstColumn)
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
+
 public:
     BaseTextEditorWidget(QWidget *parent);
     ~BaseTextEditorWidget();
 
     static Core::IEditor *openEditorAt(const QString &fileName, int line, int column = 0,
-                                     const Core::Id &editorId =  Core::Id(),
+                                     Core::Id editorId = Core::Id(),
                                      Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::IgnoreNavigationHistory,
                                      bool *newEditor = 0);
 
@@ -146,13 +147,10 @@ public:
     bool restoreState(const QByteArray &state);
     QString displayName() const;
 
-    // ITextEditor
-
     void gotoLine(int line, int column = 0);
 
-    int position(
-        ITextEditor::PositionOperation posOp = ITextEditor::Current
-        , int at = -1) const;
+    int position(ITextEditor::PositionOperation posOp = ITextEditor::Current,
+         int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
 
     BaseTextEditor *editor() const;
@@ -164,7 +162,7 @@ public:
     QString mimeType() const;
     virtual void setMimeType(const QString &mt);
 
-    void appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId);
+    void appendMenuActionsFromContext(QMenu *menu, Core::Id menuContextId);
     void appendStandardContextMenuActions(QMenu *menu);
 
     // Works only in conjunction with a syntax highlighter that puts
@@ -217,7 +215,7 @@ public:
     int columnCount() const;
     int rowCount() const;
 
-    void setActionHack(QObject *);
+    void setActionHack(QObject *hack);
     QObject *actionHack() const;
 
     void setTextCodec(QTextCodec *codec);
@@ -617,17 +615,17 @@ public:
     ~BaseTextEditor();
 
     friend class BaseTextEditorWidget;
-    BaseTextEditorWidget *editorWidget() const { return e; }
+    BaseTextEditorWidget *editorWidget() const { return m_editorWidget; }
 
     // IEditor
-    Core::IDocument * document() { return e->editorDocument(); }
-    bool createNew(const QString &contents) { return e->createNew(contents); }
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) { return e->open(errorString, fileName, realFileName); }
-    QString displayName() const { return e->displayName(); }
-    void setDisplayName(const QString &title) { e->setDisplayName(title); emit changed(); }
+    Core::IDocument *document() { return m_editorWidget->editorDocument(); }
+    bool createNew(const QString &contents) { return m_editorWidget->createNew(contents); }
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    QString displayName() const { return m_editorWidget->displayName(); }
+    void setDisplayName(const QString &title) { m_editorWidget->setDisplayName(title); emit changed(); }
 
-    QByteArray saveState() const { return e->saveState(); }
-    bool restoreState(const QByteArray &state) { return e->restoreState(state); }
+    QByteArray saveState() const { return m_editorWidget->saveState(); }
+    bool restoreState(const QByteArray &state) { return m_editorWidget->restoreState(state); }
     QWidget *toolBar();
 
     enum Side { Left, Right };
@@ -636,25 +634,24 @@ public:
     // ITextEditor
     int currentLine() const;
     int currentColumn() const;
-    void gotoLine(int line, int column = 0) { e->gotoLine(line, column); }
+    void gotoLine(int line, int column = 0) { m_editorWidget->gotoLine(line, column); }
     int columnCount() const;
     int rowCount() const;
 
     int position(PositionOperation posOp = Current, int at = -1) const
-    { return e->position(posOp, at); }
+    { return m_editorWidget->position(posOp, at); }
     void convertPosition(int pos, int *line, int *column) const
-    { e->convertPosition(pos, line, column); }
+    { m_editorWidget->convertPosition(pos, line, column); }
     QRect cursorRect(int pos = -1) const;
 
     QString selectedText() const;
 
-    inline ITextMarkable *markableInterface() { return e->markableInterface(); }
+    ITextMarkable *markableInterface() { return m_editorWidget->markableInterface(); }
 
     QString contextHelpId() const; // from IContext
 
-    inline void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason) { e->setTextCodec(codec); }
-    inline QTextCodec *textCodec() const { return e->textCodec(); }
-
+    void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason) { m_editorWidget->setTextCodec(codec); }
+    QTextCodec *textCodec() const { return m_editorWidget->textCodec(); }
 
     // ITextEditor
     void remove(int length);
@@ -662,7 +659,7 @@ public:
     void replace(int length, const QString &string);
     void setCursorPosition(int pos);
     void select(int toPos);
-    const Utils::CommentDefinition* commentDefinition() const;
+    const Utils::CommentDefinition *commentDefinition() const;
 
 private slots:
     void updateCursorPosition();
@@ -671,7 +668,9 @@ private slots:
     void setFileEncodingLabelText(const QString &text);
 
 private:
-    BaseTextEditorWidget *e;
+    // Note: This is always a copy of IContext::m_widget.
+    BaseTextEditorWidget *m_editorWidget;
+
     QToolBar *m_toolBar;
     QWidget *m_stretchWidget;
     QAction *m_cursorPositionLabelAction;

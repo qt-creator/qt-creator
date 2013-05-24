@@ -104,39 +104,38 @@
     \internal
 */
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
 using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
 
-class TextEditExtraArea : public QWidget {
-    BaseTextEditorWidget *textEdit;
+class TextEditExtraArea : public QWidget
+{
 public:
-    TextEditExtraArea(BaseTextEditorWidget *edit):QWidget(edit) {
+    TextEditExtraArea(BaseTextEditorWidget *edit)
+        : QWidget(edit)
+    {
         textEdit = edit;
         setAutoFillBackground(true);
     }
-public:
 
+protected:
     QSize sizeHint() const {
         return QSize(textEdit->extraAreaWidth(), 0);
     }
-protected:
-    void paintEvent(QPaintEvent *event){
+    void paintEvent(QPaintEvent *event) {
         textEdit->extraAreaPaintEvent(event);
     }
-    void mousePressEvent(QMouseEvent *event){
+    void mousePressEvent(QMouseEvent *event) {
         textEdit->extraAreaMouseEvent(event);
     }
-    void mouseMoveEvent(QMouseEvent *event){
+    void mouseMoveEvent(QMouseEvent *event) {
         textEdit->extraAreaMouseEvent(event);
     }
-    void mouseReleaseEvent(QMouseEvent *event){
+    void mouseReleaseEvent(QMouseEvent *event) {
         textEdit->extraAreaMouseEvent(event);
     }
-    void leaveEvent(QEvent *event){
+    void leaveEvent(QEvent *event) {
         textEdit->extraAreaLeaveEvent(event);
     }
     void contextMenuEvent(QContextMenuEvent *event) {
@@ -146,13 +145,17 @@ protected:
     void wheelEvent(QWheelEvent *event) {
         QCoreApplication::sendEvent(textEdit->viewport(), event);
     }
+
+private:
+    BaseTextEditorWidget *textEdit;
 };
 
 } // namespace Internal
-} // namespace TextEditor
+
+using namespace Internal;
 
 Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int line, int column,
-                                 const Core::Id &editorKind,
+                                 Core::Id editorKind,
                                  Core::EditorManager::OpenEditorFlags flags,
                                  bool *newEditor)
 {
@@ -294,7 +297,7 @@ void BaseTextEditorWidget::setMimeType(const QString &mt)
 
 void BaseTextEditorWidget::print(QPrinter *printer)
 {
-    const bool oldFullPage =  printer->fullPage();
+    const bool oldFullPage = printer->fullPage();
     printer->setFullPage(true);
     QPrintDialog *dlg = new QPrintDialog(printer, this);
     dlg->setWindowTitle(tr("Print Document"));
@@ -307,7 +310,7 @@ void BaseTextEditorWidget::print(QPrinter *printer)
 static int foldBoxWidth(const QFontMetrics &fm)
 {
     const int lineSpacing = fm.lineSpacing();
-    return lineSpacing + lineSpacing%2 + 1;
+    return lineSpacing + lineSpacing % 2 + 1;
 }
 
 static void printPage(int index, QPainter *painter, const QTextDocument *doc,
@@ -381,7 +384,7 @@ void BaseTextEditorWidgetPrivate::print(QPrinter *printer)
         QList<QTextLayout::FormatRange> formatList = srcBlock.layout()->additionalFormats();
         if (backgroundIsDark) {
             // adjust syntax highlighting colors for better contrast
-            for (int i = formatList.count() - 1; i >=0; --i) {
+            for (int i = formatList.count() - 1; i >= 0; --i) {
                 QTextCharFormat &format = formatList[i].format;
                 if (format.background().color() == background) {
                     QBrush brush = format.foreground();
@@ -423,7 +426,7 @@ void BaseTextEditorWidgetPrivate::print(QPrinter *printer)
 
     int docCopies;
     int pageCopies;
-    if (printer->collateCopies() == true){
+    if (printer->collateCopies() == true) {
         docCopies = 1;
         pageCopies = printer->numCopies();
     } else {
@@ -631,8 +634,6 @@ const Utils::ChangeSet &BaseTextEditorWidget::changeSet() const
 
 void BaseTextEditorWidget::setChangeSet(const Utils::ChangeSet &changeSet)
 {
-    using namespace Utils;
-
     d->m_changeSet = changeSet;
 
     foreach (const ChangeSet::EditOp &op, changeSet.operationList()) {
@@ -1057,7 +1058,6 @@ void BaseTextEditorWidget::uppercaseSelection()
     transformSelection(&QString::toUpper);
 }
 
-
 void BaseTextEditorWidget::lowercaseSelection()
 {
     transformSelection(&QString::toLower);
@@ -1173,7 +1173,7 @@ void BaseTextEditorWidget::moveLineUpDown(bool up)
     d->m_refactorOverlay->setMarkers(nonAffectedMarkers + affectedMarkers);
 
     bool shouldReindent = true;
-    const Utils::CommentDefinition* commentDefinition(editor()->commentDefinition());
+    const CommentDefinition *commentDefinition(editor()->commentDefinition());
     if (commentDefinition) {
         QString trimmedText(text.trimmed());
 
@@ -2822,19 +2822,6 @@ void BaseTextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block
                                       && idx + l == cursor.selectionEnd() - blockPosition)?
                                      TextEditorOverlay::DropShadow : 0);
 
-    }
-}
-
-
-namespace TextEditor {
-    namespace Internal {
-        struct BlockSelectionData {
-            int selectionIndex;
-            int selectionStart;
-            int selectionEnd;
-            int firstColumn;
-            int lastColumn;
-        };
     }
 }
 
@@ -6281,9 +6268,9 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 
 
 BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
-  : e(editor)
+  : m_editorWidget(editor)
 {
-    setWidget(e);
+    setWidget(m_editorWidget);
     using namespace Find;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
@@ -6318,7 +6305,7 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
 BaseTextEditor::~BaseTextEditor()
 {
     delete m_toolBar;
-    delete e;
+    delete m_editorWidget;
 }
 
 QWidget *BaseTextEditor::toolBar()
@@ -6343,74 +6330,74 @@ void BaseTextEditor::insertExtraToolBarWidget(BaseTextEditor::Side side,
 
 int BaseTextEditor::currentLine() const
 {
-    return e->textCursor().blockNumber() + 1;
+    return m_editorWidget->textCursor().blockNumber() + 1;
 }
 
 int BaseTextEditor::currentColumn() const
 {
-    QTextCursor cursor = e->textCursor();
+    QTextCursor cursor = m_editorWidget->textCursor();
     return cursor.position() - cursor.block().position() + 1;
 }
 
 int BaseTextEditor::columnCount() const
 {
-    return e->columnCount();
+    return m_editorWidget->columnCount();
 }
 
 int BaseTextEditor::rowCount() const
 {
-    return e->rowCount();
+    return m_editorWidget->rowCount();
 }
 
 QRect BaseTextEditor::cursorRect(int pos) const
 {
-    QTextCursor tc = e->textCursor();
+    QTextCursor tc = m_editorWidget->textCursor();
     if (pos >= 0)
         tc.setPosition(pos);
-    QRect result = e->cursorRect(tc);
-    result.moveTo(e->viewport()->mapToGlobal(result.topLeft()));
+    QRect result = m_editorWidget->cursorRect(tc);
+    result.moveTo(m_editorWidget->viewport()->mapToGlobal(result.topLeft()));
     return result;
 }
 
 QString BaseTextEditor::selectedText() const
 {
-    if (e->textCursor().hasSelection())
-        return e->textCursor().selectedText();
+    if (m_editorWidget->textCursor().hasSelection())
+        return m_editorWidget->textCursor().selectedText();
     return QString();
 }
 
 void BaseTextEditor::remove(int length)
 {
-    QTextCursor tc = e->textCursor();
+    QTextCursor tc = m_editorWidget->textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.removeSelectedText();
 }
 
 void BaseTextEditor::insert(const QString &string)
 {
-    QTextCursor tc = e->textCursor();
+    QTextCursor tc = m_editorWidget->textCursor();
     tc.insertText(string);
 }
 
 void BaseTextEditor::replace(int length, const QString &string)
 {
-    QTextCursor tc = e->textCursor();
+    QTextCursor tc = m_editorWidget->textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.insertText(string);
 }
 
 void BaseTextEditor::setCursorPosition(int pos)
 {
-    QTextCursor tc = e->textCursor();
+    QTextCursor tc = m_editorWidget->textCursor();
     tc.setPosition(pos);
-    e->setTextCursor(tc);
+    m_editorWidget->setTextCursor(tc);
 }
 
 void BaseTextEditor::select(int toPos)
 {
-    QTextCursor tc = e->textCursor();
+    QTextCursor tc = m_editorWidget->textCursor();
     tc.setPosition(toPos, QTextCursor::KeepAnchor);
-    e->setTextCursor(tc);
+    m_editorWidget->setTextCursor(tc);
 }
 
 const CommentDefinition *BaseTextEditor::commentDefinition() const
@@ -6420,16 +6407,16 @@ const CommentDefinition *BaseTextEditor::commentDefinition() const
 
 void BaseTextEditor::updateCursorPosition()
 {
-    const QTextCursor cursor = e->textCursor();
+    const QTextCursor cursor = m_editorWidget->textCursor();
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
     const int column = cursor.position() - block.position();
-    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line).arg(e->tabSettings().columnAt(block.text(), column)+1),
+    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line).arg(m_editorWidget->tabSettings().columnAt(block.text(), column)+1),
                                    tr("Line: 9999, Col: 999"));
     m_contextHelpId.clear();
 
     if (!block.isVisible())
-        e->ensureCursorVisible();
+        m_editorWidget->ensureCursorVisible();
 
 }
 
@@ -6456,8 +6443,8 @@ void BaseTextEditor::setFileEncodingLabelText(const QString &text)
 QString BaseTextEditor::contextHelpId() const
 {
     if (m_contextHelpId.isEmpty())
-        emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(e->editor(),
-                                                                       e->textCursor().position());
+        emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(m_editorWidget->editor(),
+                                                                       m_editorWidget->textCursor().position());
     return m_contextHelpId;
 }
 
@@ -6754,3 +6741,10 @@ QString TextEditor::BaseTextEditorWidget::foldReplacementText(const QTextBlock &
 {
     return QLatin1String("...");
 }
+
+bool BaseTextEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+{
+    return m_editorWidget->open(errorString, fileName, realFileName);
+}
+
+} // namespace TextEditor
