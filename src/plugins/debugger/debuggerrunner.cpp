@@ -574,8 +574,8 @@ static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, 
         if (const Target *target = rc->target())
             if (!fillParameters(&sp, target->kit(), errorMessage))
                 return false;
-        const bool useCppDebugger = aspect->useCppDebugger();
-        const bool useQmlDebugger = aspect->useQmlDebugger();
+        const bool useCppDebugger = aspect->useCppDebugger() && (sp.languages & CppLanguage);
+        const bool useQmlDebugger = aspect->useQmlDebugger() && (sp.languages & QmlLanguage);
         if (useQmlDebugger) {
             if (useCppDebugger) {
                 sp.masterEngineType = QmlCppEngineType;
