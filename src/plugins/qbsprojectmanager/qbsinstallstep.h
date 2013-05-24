@@ -63,6 +63,7 @@ public:
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
+    qbs::InstallOptions installOptions() const;
     QString installRoot() const;
     QString absoluteInstallRoot() const;
     bool removeFirst() const;

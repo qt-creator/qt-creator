@@ -202,7 +202,7 @@ QString QbsRunConfiguration::executable() const
     if (!product)
         return QString();
 
-    return pro->qbsProject()->targetExecutable(*product, installRoot());
+    return pro->qbsProject()->targetExecutable(*product, installOptions());
 }
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
@@ -304,6 +304,13 @@ QString QbsRunConfiguration::defaultDisplayName()
     else
         defaultName = tr("Qbs Run Configuration");
     return defaultName;
+}
+
+qbs::InstallOptions QbsRunConfiguration::installOptions() const
+{
+    if (m_currentInstallStep)
+        return m_currentInstallStep->installOptions();
+    return qbs::InstallOptions();
 }
 
 QString QbsRunConfiguration::installRoot() const
@@ -558,7 +565,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
         return result;
 
     foreach (const qbs::ProductData &product, project->qbsProjectData()->products()) {
-        if (!project->qbsProject()->targetExecutable(product, QString()).isEmpty())
+        if (!project->qbsProject()->targetExecutable(product, qbs::InstallOptions()).isEmpty())
             result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
     }
     return result;

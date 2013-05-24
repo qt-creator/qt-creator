@@ -163,11 +163,11 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
             foreach (const qbs::GroupData &grp, prd.groups()) {
                 foreach (const QString &file, grp.allFilePaths())
                     result.insert(file);
-                result.insert(grp.location().fileName);
+                result.insert(grp.location().fileName());
             }
-            result.insert(prd.location().fileName);
+            result.insert(prd.location().fileName());
         }
-        result.insert(m_rootProjectNode->qbsProjectData()->location().fileName);
+        result.insert(m_rootProjectNode->qbsProjectData()->location().fileName());
     }
     return result.toList();
 }
@@ -356,8 +356,8 @@ void QbsProject::generateErrors(const qbs::Error &e)
     foreach (const qbs::ErrorData &data, e.entries())
         taskHub()->addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                                  data.description(),
-                                                 Utils::FileName::fromString(data.codeLocation().fileName),
-                                                 data.codeLocation().line,
+                                                 Utils::FileName::fromString(data.codeLocation().fileName()),
+                                                 data.codeLocation().line(),
                                                  ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
@@ -370,14 +370,14 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
 
     QTC_ASSERT(!m_qbsSetupProjectJob, return);
     qbs::SetupProjectParameters params;
-    params.buildConfiguration = m_qbsBuildConfig;
-    params.buildRoot = m_qbsBuildRoot;
-    params.projectFilePath = m_fileName;
-    params.ignoreDifferentProjectFilePath = false;
+    params.setBuildConfiguration(m_qbsBuildConfig);
+    params.setBuildRoot(m_qbsBuildRoot);
+    params.setProjectFilePath(m_fileName);
+    params.setIgnoreDifferentProjectFilePath(false);
     qbs::Preferences *prefs = QbsManager::preferences();
     const QString buildDir = qbsBuildDir();
-    params.searchPaths = prefs->searchPaths(buildDir);
-    params.pluginPaths = prefs->pluginPaths(buildDir);
+    params.setSearchPaths(prefs->searchPaths(buildDir));
+    params.setPluginPaths(prefs->pluginPaths(buildDir));
 
     m_qbsSetupProjectJob
             = qbs::Project::setupProject(params, m_manager->settings(), m_manager->logSink(), 0);
@@ -417,9 +417,9 @@ void QbsProject::updateDocuments(const qbs::ProjectData *prj)
     newFiles.insert(m_fileName); // make sure we always have the project file...
 
     if (prj) {
-        newFiles.insert(prj->location().fileName);
+        newFiles.insert(prj->location().fileName());
         foreach (const qbs::ProductData &prd, prj->products())
-            newFiles.insert(prd.location().fileName);
+            newFiles.insert(prd.location().fileName());
     }
     QSet<QString> oldFiles;
     foreach (Core::IDocument *doc, m_qbsDocuments)

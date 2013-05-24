@@ -62,7 +62,7 @@ public:
 
     bool isAnchoredBySibling() const Q_DECL_OVERRIDE;
 
-
+    QImage renderImage() const Q_DECL_OVERRIDE;
 
 protected:
     QuickWindowNodeInstance(QQuickWindow*);

@@ -43,6 +43,10 @@ class QRadioButton;
 class QComboBox;
 QT_END_NAMESPACE
 
+namespace qbs {
+class InstallOptions;
+}
+
 namespace Utils {
 class PathChooser;
 class DetailsWidget;
@@ -112,6 +116,7 @@ private:
     void setCommandLineArguments(const QString &argumentsString);
     QString rawCommandLineArguments() const;
     QString defaultDisplayName();
+    qbs::InstallOptions installOptions() const;
     QString installRoot() const;
 
     void ctor();

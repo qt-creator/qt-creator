@@ -65,7 +65,7 @@ QbsStep::QbsStep(ProjectExplorer::BuildStepList *bsl, Core::Id id) :
     ProjectExplorer::BuildStep(bsl, id),
     m_job(0)
 {
-    m_qbsBuildOptions.maxJobCount = QbsManager::preferences()->jobs();
+    m_qbsBuildOptions.setMaxJobCount(QbsManager::preferences()->jobs());
 }
 
 QbsStep::QbsStep(ProjectExplorer::BuildStepList *bsl, const QbsStep *other) :
@@ -137,17 +137,17 @@ void QbsStep::cancel()
 
 bool QbsStep::dryRun() const
 {
-    return m_qbsBuildOptions.dryRun;
+    return m_qbsBuildOptions.dryRun();
 }
 
 bool QbsStep::keepGoing() const
 {
-    return m_qbsBuildOptions.keepGoing;
+    return m_qbsBuildOptions.keepGoing();
 }
 
 int QbsStep::maxJobs() const
 {
-    return m_qbsBuildOptions.maxJobCount;
+    return m_qbsBuildOptions.maxJobCount();
 }
 
 bool QbsStep::fromMap(const QVariantMap &map)
@@ -155,12 +155,12 @@ bool QbsStep::fromMap(const QVariantMap &map)
     if (!ProjectExplorer::BuildStep::fromMap(map))
         return false;
 
-    m_qbsBuildOptions.dryRun = map.value(QLatin1String(QBS_DRY_RUN)).toBool();
-    m_qbsBuildOptions.keepGoing = map.value(QLatin1String(QBS_KEEP_GOING)).toBool();
-    m_qbsBuildOptions.maxJobCount = map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt();
+    m_qbsBuildOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
+    m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
+    m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
 
-    if (m_qbsBuildOptions.maxJobCount <= 0)
-        m_qbsBuildOptions.maxJobCount = QbsManager::preferences()->jobs();
+    if (m_qbsBuildOptions.maxJobCount() <= 0)
+        m_qbsBuildOptions.setMaxJobCount(QbsManager::preferences()->jobs());
 
     return true;
 }
@@ -168,9 +168,9 @@ bool QbsStep::fromMap(const QVariantMap &map)
 QVariantMap QbsStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun);
-    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing);
-    map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount);
+    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun());
+    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing());
+    map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount());
     return map;
 }
 
@@ -180,7 +180,7 @@ void QbsStep::jobDone(bool success)
     if (m_job) {
         foreach (const qbs::ErrorData &data, m_job->error().entries())
             createTaskAndOutput(ProjectExplorer::Task::Error, data.description(),
-                                data.codeLocation().fileName, data.codeLocation().line);
+                                data.codeLocation().fileName(), data.codeLocation().line());
         m_job->deleteLater();
         m_job = 0;
     }
@@ -218,25 +218,25 @@ void QbsStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QS
 
 void QbsStep::setDryRun(bool dr)
 {
-    if (m_qbsBuildOptions.dryRun == dr)
+    if (m_qbsBuildOptions.dryRun() == dr)
         return;
-    m_qbsBuildOptions.dryRun = dr;
+    m_qbsBuildOptions.setDryRun(dr);
     emit qbsBuildOptionsChanged();
 }
 
 void QbsStep::setKeepGoing(bool kg)
 {
-    if (m_qbsBuildOptions.keepGoing == kg)
+    if (m_qbsBuildOptions.keepGoing() == kg)
         return;
-    m_qbsBuildOptions.keepGoing = kg;
+    m_qbsBuildOptions.setKeepGoing(kg);
     emit qbsBuildOptionsChanged();
 }
 
 void QbsStep::setMaxJobs(int jobcount)
 {
-    if (m_qbsBuildOptions.maxJobCount == jobcount)
+    if (m_qbsBuildOptions.maxJobCount() == jobcount)
         return;
-    m_qbsBuildOptions.maxJobCount = jobcount;
+    m_qbsBuildOptions.setMaxJobCount(jobcount);
     emit qbsBuildOptionsChanged();
 }
 

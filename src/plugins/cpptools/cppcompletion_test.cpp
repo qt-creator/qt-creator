@@ -2239,3 +2239,37 @@ void CppToolsPlugin::test_completion_instantiate_template_function()
     QVERIFY(completions.contains(QLatin1String("A")));
     QVERIFY(completions.contains(QLatin1String("a")));
 }
+
+void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG9329()
+{
+    TestData data;
+    data.srcText =
+            "struct A {};\n"
+            "template <typename T>\n"
+            "struct Templ {};\n"
+            "struct B : A, Templ<A>\n"
+            "{\n"
+            "   int f()\n"
+            "   {\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "};\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("this->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 4);
+    QVERIFY(completions.contains(QLatin1String("A")));
+    QVERIFY(completions.contains(QLatin1String("B")));
+    QVERIFY(completions.contains(QLatin1String("Templ")));
+    QVERIFY(completions.contains(QLatin1String("f")));
+}

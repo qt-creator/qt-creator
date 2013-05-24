@@ -123,7 +123,7 @@ protected:
 
 private:
     Scope *_scope;
-    LookupContext _context;
+    const LookupContext& _context;
     Bind bind;
     QList<LookupItem> _results;
     bool _reference;

@@ -313,9 +313,9 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData *grp, const QString &productPath
 {
     setIcon(m_groupIcon);
 
-    QbsFileNode *idx = new QbsFileNode(grp->location().fileName,
+    QbsFileNode *idx = new QbsFileNode(grp->location().fileName(),
                                        ProjectExplorer::ProjectFileType, false,
-                                       grp->location().line);
+                                       grp->location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx, this);
 
     updateQbsGroupData(grp, productPath);
@@ -334,7 +334,7 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &
     m_productPath = productPath;
     m_qbsGroupData = grp;
 
-    setPath(grp->location().fileName);
+    setPath(grp->location().fileName());
     setDisplayName(grp->name());
 
     QbsFileNode *idx = 0;
@@ -346,8 +346,8 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &
 
     // idx not found, which should never happen!
     Q_ASSERT(idx);
-    idx->setPath(grp->location().fileName);
-    idx->setLine(grp->location().line);
+    idx->setPath(grp->location().fileName());
+    idx->setLine(grp->location().line());
 
     setupFiles(this, grp->allFilePaths(), m_productPath);
     emitNodeUpdated();
@@ -433,7 +433,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 // --------------------------------------------------------------------
 
 QbsProductNode::QbsProductNode(const qbs::ProductData *prd) :
-    QbsBaseProjectNode(prd->location().fileName),
+    QbsBaseProjectNode(prd->location().fileName()),
     m_qbsProductData(0)
 {
     setIcon(m_productIcon);
@@ -451,24 +451,24 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData *prd)
         return;
 
     setDisplayName(prd->name());
-    setPath(prd->location().fileName);
-    const QString &productPath = QFileInfo(prd->location().fileName).absolutePath();
+    setPath(prd->location().fileName());
+    const QString &productPath = QFileInfo(prd->location().fileName()).absolutePath();
 
     // Set Product file node used to jump to the product
     QList<ProjectExplorer::FileNode *> files = fileNodes();
     QbsFileNode *idx = 0;
     if (files.isEmpty()) {
-        idx = new QbsFileNode(prd->location().fileName,
+        idx = new QbsFileNode(prd->location().fileName(),
                               ProjectExplorer::ProjectFileType, false,
-                              prd->location().line);
+                              prd->location().line());
         addFileNodes(QList<ProjectExplorer::FileNode *>() << idx, this);
     } else {
         // Find the QbsFileNode we added earlier:
         foreach (ProjectExplorer::FileNode *fn, files) {
             idx = qobject_cast<QbsFileNode *>(fn);
             if (idx) {
-                idx->setPath(prd->location().fileName);
-                idx->setLine(prd->location().line);
+                idx->setPath(prd->location().fileName());
+                idx->setLine(prd->location().line());
                 break;
             }
         }
@@ -505,8 +505,10 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurationsFor(
     Q_UNUSED(node);
     QList<ProjectExplorer::RunConfiguration *> result;
     QbsProjectNode *pn = qobject_cast<QbsProjectNode *>(projectNode());
-    if (!isEnabled() || !pn || pn->qbsProject()->targetExecutable(*m_qbsProductData).isEmpty())
+    if (!isEnabled() || !pn || pn->qbsProject()->targetExecutable(*m_qbsProductData,
+                                                                  qbs::InstallOptions()).isEmpty()) {
         return result;
+    }
 
     foreach (ProjectExplorer::RunConfiguration *rc, pn->project()->activeTarget()->runConfigurations()) {
         QbsRunConfiguration *qbsRc = qobject_cast<QbsRunConfiguration *>(rc);
