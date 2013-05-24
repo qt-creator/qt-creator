@@ -664,7 +664,67 @@ void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &
     Q_UNUSED(data);
     Q_UNUSED(flags);
     WatchHandler *handler = watchHandler();
-    runCommand(Command("updateData").arg("expanded", handler->expansionRequests()));
+
+    Command cmd("updateData");
+    cmd.arg("expanded", handler->expansionRequests());
+    cmd.arg("typeformats", handler->typeFormatRequests());
+    cmd.arg("formats", handler->individualFormatRequests());
+
+    QList<QByteArray> watcherData;
+//    const QString fileName = stackHandler()->currentFrame().file;
+//    if (!fileName.isEmpty()) {
+//        const QString function = stackHandler()->currentFrame().function;
+//        typedef DebuggerToolTipManager::ExpressionInamePair ExpressionInamePair;
+//        typedef DebuggerToolTipManager::ExpressionInamePairs ExpressionInamePairs;
+
+//        // Re-create tooltip items that are not filters on existing local variables in
+//        // the tooltip model.
+//        ExpressionInamePairs toolTips = DebuggerToolTipManager::instance()
+//                ->treeWidgetExpressions(fileName, objectName(), function);
+
+//        const QString currentExpression = tooltipExpression();
+//        if (!currentExpression.isEmpty()) {
+//            int currentIndex = -1;
+//            for (int i = 0; i < toolTips.size(); ++i) {
+//                if (toolTips.at(i).first == currentExpression) {
+//                    currentIndex = i;
+//                    break;
+//                }
+//            }
+//            if (currentIndex < 0)
+//                toolTips.push_back(ExpressionInamePair(currentExpression, tooltipIName(currentExpression)));
+//        }
+
+//        foreach (const ExpressionInamePair &p, toolTips) {
+//            if (p.second.startsWith("tooltip")) {
+//                QHash<QByteArray, QByteArray> hash;
+//                hash["exp"] = p.first.toLatin1();
+//                hash["id"] = p.second;
+//                watcherData.append(Command::toData(hash));
+//            }
+//        }
+//    }
+
+    QHashIterator<QByteArray, int> it(handler->watcherNames());
+    while (it.hasNext()) {
+        it.next();
+        QHash<QByteArray, QByteArray> hash;
+        hash["exp"] = '\'' + it.key() + '\'';
+        hash["id"] = "'watch." + QByteArray::number(it.value()) + '\'';
+        watcherData.append(Command::toData(hash));
+    }
+    cmd.args.append("'watchers':" + Command::toData(watcherData) + ',');
+
+    const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
+    cmd.arg("passexeptions", alwaysVerbose);
+    cmd.arg("fancy", debuggerCore()->boolSetting(UseDebuggingHelpers));
+    cmd.arg("autoderef", debuggerCore()->boolSetting(AutoDerefPointers));
+    cmd.arg("dyntype", debuggerCore()->boolSetting(UseDynamicType));
+    //cmd.arg("partial", ??)
+    //cmd.arg("tooltipOnly", ??)
+    //cmd.arg("resultvarname", m_resultVarName);
+
+    runCommand(cmd);
 }
 
 void LldbEngine::handleLldbError(QProcess::ProcessError error)
@@ -1045,6 +1105,30 @@ const LldbEngine::Command &LldbEngine::Command::argHelper(const char *name, cons
     args.append(data);
     args.append(",");
     return *this;
+}
+
+QByteArray LldbEngine::Command::toData(const QList<QByteArray> &value)
+{
+    QByteArray res;
+    foreach (const QByteArray &item, value) {
+        if (!res.isEmpty())
+            res.append(',');
+        res += item;
+    }
+    return '[' + res + ']';
+}
+
+QByteArray LldbEngine::Command::toData(const QHash<QByteArray, QByteArray> &value)
+{
+    QByteArray res;
+    QHashIterator<QByteArray, QByteArray> it(value);
+    while (it.hasNext()) {
+        it.next();
+        if (!res.isEmpty())
+            res.append(',');
+        res += '\'' + it.key() + "':" + it.value();
+    }
+    return '{' + res + '}';
 }
 
 const LldbEngine::Command &LldbEngine::Command::arg(const char *name, int value) const

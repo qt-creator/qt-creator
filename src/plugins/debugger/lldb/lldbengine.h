@@ -78,6 +78,9 @@ private:
         const Command &beginGroup(const char *name = 0) const;
         void endGroup() const;
 
+        static QByteArray toData(const QList<QByteArray> &value);
+        static QByteArray toData(const QHash<QByteArray, QByteArray> &value);
+
         QByteArray function;
         mutable QByteArray args;
         private:
