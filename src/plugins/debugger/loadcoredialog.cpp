@@ -309,6 +309,7 @@ int AttachCoreDialog::exec()
 {
     connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
     connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(changed()));
+    connect(d->localExecFileName, SIGNAL(changed(QString)), SLOT(changed()));
     connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(changed()));
     connect(d->forceLocalCheckBox, SIGNAL(stateChanged(int)), SLOT(changed()));
     connect(d->kitChooser, SIGNAL(activated(int)), SLOT(changed()));
