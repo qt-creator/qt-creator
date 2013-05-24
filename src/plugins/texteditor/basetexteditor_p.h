@@ -44,6 +44,7 @@
 #include <QPointer>
 #include <QScopedPointer>
 #include <QTextBlock>
+#include <QTimer>
 
 namespace TextEditor {
 
@@ -132,7 +133,7 @@ public:
     bool m_formatRange;
     QTextCharFormat m_matchFormat;
     QTextCharFormat m_mismatchFormat;
-    QTimer *m_parenthesesMatchingTimer;
+    QTimer m_parenthesesMatchingTimer;
     // end parentheses matcher
 
     QWidget *m_extraArea;
@@ -191,7 +192,7 @@ public:
     QTextCharFormat m_currentLineFormat;
     QTextCharFormat m_currentLineNumberFormat;
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
-    QTimer *m_delayedUpdateTimer;
+    QTimer m_delayedUpdateTimer;
 
     BaseTextEditor *m_editor;
 
@@ -219,7 +220,7 @@ public:
 
     int visualIndent(const QTextBlock &block) const;
     BaseTextEditorPrivateHighlightBlocks m_highlightBlocksInfo;
-    QTimer *m_highlightBlocksTimer;
+    QTimer m_highlightBlocksTimer;
 
     QScopedPointer<CodeAssistant> m_codeAssistant;
     bool m_assistRelevantContentAdded;
