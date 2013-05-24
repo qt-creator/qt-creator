@@ -45,26 +45,16 @@ class QTCREATOR_UTILS_EXPORT CommentDefinition
 public:
     CommentDefinition();
 
-    CommentDefinition &setAfterWhiteSpaces(const bool);
-    CommentDefinition &setSingleLine(const QString &singleLine);
-    CommentDefinition &setMultiLineStart(const QString &multiLineStart);
-    CommentDefinition &setMultiLineEnd(const QString &multiLineEnd);
-
-    bool isAfterWhiteSpaces() const;
-    const QString &singleLine() const;
-    const QString &multiLineStart() const;
-    const QString &multiLineEnd() const;
-
     bool hasSingleLineStyle() const;
     bool hasMultiLineStyle() const;
 
     void clearCommentStyles();
 
-private:
-    bool m_afterWhiteSpaces;
-    QString m_singleLine;
-    QString m_multiLineStart;
-    QString m_multiLineEnd;
+public:
+    bool isAfterWhiteSpaces;
+    QString singleLine;
+    QString multiLineStart;
+    QString multiLineEnd;
 };
 
 QTCREATOR_UTILS_EXPORT

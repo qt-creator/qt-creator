@@ -121,7 +121,7 @@ CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factor
     baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
 
     m_commentDefinition.clearCommentStyles();
-    m_commentDefinition.setSingleLine(QLatin1String("#"));
+    m_commentDefinition.singleLine = QLatin1Char('#');
 
     ah->setupActions(this);
 }

@@ -49,9 +49,9 @@ namespace PythonEditor {
 EditorWidget::EditorWidget(QWidget *parent)
     :TextEditor::BaseTextEditorWidget(parent)
 {
-    m_commentDefinition.setMultiLineStart(QString());
-    m_commentDefinition.setMultiLineEnd(QString());
-    m_commentDefinition.setSingleLine(QLatin1String("#"));
+    m_commentDefinition.multiLineStart.clear();
+    m_commentDefinition.multiLineEnd.clear();
+    m_commentDefinition.singleLine = QLatin1Char('#');
 
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);

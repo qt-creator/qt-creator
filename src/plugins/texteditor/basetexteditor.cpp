@@ -1178,13 +1178,13 @@ void BaseTextEditorWidget::moveLineUpDown(bool up)
         QString trimmedText(text.trimmed());
 
         if (commentDefinition->hasSingleLineStyle()) {
-            if (trimmedText.startsWith(commentDefinition->singleLine()))
+            if (trimmedText.startsWith(commentDefinition->singleLine))
                 shouldReindent = false;
         }
         if (shouldReindent && commentDefinition->hasMultiLineStyle()) {
             // Don't have any single line comments; try multi line.
-            if (trimmedText.startsWith(commentDefinition->multiLineStart())
-                && trimmedText.endsWith(commentDefinition->multiLineEnd())) {
+            if (trimmedText.startsWith(commentDefinition->multiLineStart)
+                && trimmedText.endsWith(commentDefinition->multiLineEnd)) {
                 shouldReindent = false;
             }
         }

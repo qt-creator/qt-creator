@@ -167,10 +167,10 @@ void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
             if (!definition.isNull() && definition->isValid()) {
                 highlighter->setDefaultContext(definition->initialContext());
 
-                m_commentDefinition.setAfterWhiteSpaces(definition->isCommentAfterWhiteSpaces());
-                m_commentDefinition.setSingleLine(definition->singleLineComment());
-                m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
-                m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
+                m_commentDefinition.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
+                m_commentDefinition.singleLine = definition->singleLineComment();
+                m_commentDefinition.multiLineStart = definition->multiLineCommentStart();
+                m_commentDefinition.multiLineEnd = definition->multiLineCommentEnd();
 
                 setCodeFoldingSupported(true);
             }
