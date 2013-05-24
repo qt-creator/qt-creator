@@ -107,7 +107,8 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
     }
-    if (runConfig->debuggerAspect()->useQmlDebugger()) {
+    // FIX ME: Enable Qml Debugging in 2.8
+    if (runConfig->debuggerAspect()->useQmlDebugger() && false) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = QLatin1String("localhost");
         params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
