@@ -30,7 +30,6 @@
 #ifndef HIGHLIGHTDEFINITIONMETADATA_H
 #define HIGHLIGHTDEFINITIONMETADATA_H
 
-#include <QString>
 #include <QStringList>
 #include <QUrl>
 
@@ -40,14 +39,7 @@ namespace Internal {
 class HighlightDefinitionMetaData
 {
 public:
-    HighlightDefinitionMetaData();
-
-    static const QLatin1String kPriority;
-    static const QLatin1String kName;
-    static const QLatin1String kExtensions;
-    static const QLatin1String kMimeType;
-    static const QLatin1String kVersion;
-    static const QLatin1String kUrl;
+    HighlightDefinitionMetaData() : priority(0) {}
 
 public:
     int priority;

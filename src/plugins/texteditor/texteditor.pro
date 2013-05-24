@@ -56,7 +56,6 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/highlightersettingspage.cpp \
     generichighlighter/highlightersettings.cpp \
     generichighlighter/managedefinitionsdialog.cpp \
-    generichighlighter/highlightdefinitionmetadata.cpp \
     generichighlighter/definitiondownloader.cpp \
     refactoringchanges.cpp \
     refactoroverlay.cpp \

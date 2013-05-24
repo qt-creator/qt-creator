@@ -67,6 +67,13 @@
 using namespace TextEditor;
 using namespace Internal;
 
+const char kPriority[] = "priority";
+const char kName[] = "name";
+const char kExtensions[] = "extensions";
+const char kMimeType[] = "mimetype";
+const char kVersion[] = "version";
+const char kUrl[] = "url";
+
 Manager::Manager() :
     m_isDownloadingDefinitionsSpec(false),
     m_hasQueuedRegistration(false)
@@ -360,14 +367,13 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
 
             metaData->fileName = fileInfo.fileName();
             metaData->id = fileInfo.absoluteFilePath();
-            metaData->name = atts.value(HighlightDefinitionMetaData::kName).toString();
-            metaData->version = atts.value(HighlightDefinitionMetaData::kVersion).toString();
-            metaData->priority = atts.value(HighlightDefinitionMetaData::kPriority).toString()
-                                  .toInt();
-            metaData->patterns = atts.value(HighlightDefinitionMetaData::kExtensions)
+            metaData->name = atts.value(QLatin1String(kName)).toString();
+            metaData->version = atts.value(QLatin1String(kVersion)).toString();
+            metaData->priority = atts.value(QLatin1String(kPriority)).toString().toInt();
+            metaData->patterns = atts.value(QLatin1String(kExtensions))
                                   .toString().split(kSemiColon, QString::SkipEmptyParts);
 
-            QStringList mimeTypes = atts.value(HighlightDefinitionMetaData::kMimeType).
+            QStringList mimeTypes = atts.value(QLatin1String(kMimeType)).
                                     toString().split(kSemiColon, QString::SkipEmptyParts);
             if (mimeTypes.isEmpty()) {
                 // There are definitions which do not specify a MIME type, but specify file
@@ -400,9 +406,9 @@ QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODev
             const QXmlStreamAttributes &atts = reader.attributes();
 
             HighlightDefinitionMetaData metaData;
-            metaData.name = atts.value(HighlightDefinitionMetaData::kName).toString();
-            metaData.version = atts.value(HighlightDefinitionMetaData::kVersion).toString();
-            QString url(atts.value(HighlightDefinitionMetaData::kUrl).toString());
+            metaData.name = atts.value(QLatin1String(kName)).toString();
+            metaData.version = atts.value(QLatin1String(kVersion)).toString();
+            QString url = atts.value(QLatin1String(kUrl)).toString();
             metaData.url = QUrl(url);
             const int slash = url.lastIndexOf(kSlash);
             if (slash != -1)
