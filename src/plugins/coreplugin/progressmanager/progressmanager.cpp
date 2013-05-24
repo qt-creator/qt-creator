@@ -494,16 +494,17 @@ void ProgressManagerPrivate::updateSummaryProgressBar()
 
     m_summaryProgressBar->setFinished(false);
     QMapIterator<QFutureWatcher<void> *, QString> it(m_runningTasks);
-    int range = 0;
+    static const int TASK_RANGE = 100;
     int value = 0;
     while (it.hasNext()) {
         it.next();
         QFutureWatcher<void> *watcher = it.key();
         int min = watcher->progressMinimum();
-        range += watcher->progressMaximum() - min;
-        value += watcher->progressValue() - min;
+        int range = watcher->progressMaximum() - min;
+        if (range > 0)
+            value += TASK_RANGE * (watcher->progressValue() - min) / range;
     }
-    m_summaryProgressBar->setRange(0, range);
+    m_summaryProgressBar->setRange(0, TASK_RANGE * m_runningTasks.size());
     m_summaryProgressBar->setValue(value);
 }
 
