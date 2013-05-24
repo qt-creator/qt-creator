@@ -113,6 +113,9 @@ public:
     static QString resourcePath();
     static QString userResourcePath();
 
+    static QString versionString();
+    static QString buildCompatibilityString();
+
     static QWidget *mainWindow();
     static Utils::AppMainWindow *appMainWindow();
     static QStatusBar *statusBar();

@@ -31,9 +31,8 @@
 
 #include <app/app_version.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
-
-#include <QSysInfo>
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -55,13 +54,6 @@ VersionDialog::VersionDialog(QWidget *parent)
     QGridLayout *layout = new QGridLayout(this);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    QString version = QLatin1String(Constants::IDE_VERSION_LONG);
-
-    QString ideVersionDescription;
-#ifdef IDE_VERSION_DESCRIPTION
-    ideVersionDescription = tr("(%1)").arg(QLatin1String(Constants::IDE_VERSION_DESCRIPTION_STR));
-#endif
-
     QString ideRev;
 #ifdef IDE_REVISION
      //: This gets conditionally inserted as argument %8 into the description string.
@@ -69,23 +61,24 @@ VersionDialog::VersionDialog(QWidget *parent)
 #endif
 
      const QString description = tr(
-        "<h3>Qt Creator %1 %8</h3>"
-        "Based on Qt %2 (%3 bit)<br/>"
+        "<h3>%1</h3>"
+        "%2<br/>"
         "<br/>"
-        "Built on %4 at %5<br />"
+        "Built on %3 at %4<br />"
         "<br/>"
-        "%9"
+        "%5"
         "<br/>"
         "Copyright 2008-%6 %7. All rights reserved.<br/>"
         "<br/>"
         "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
         "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
         "PARTICULAR PURPOSE.<br/>")
-        .arg(version,
-             QLatin1String(qVersion()), QString::number(QSysInfo::WordSize),
-             QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(Constants::IDE_YEAR),
-             (QLatin1String(Constants::IDE_AUTHOR)), ideVersionDescription,
-             ideRev);
+        .arg(ICore::versionString(),
+             ICore::buildCompatibilityString(),
+             QLatin1String(__DATE__), QLatin1String(__TIME__),
+             ideRev,
+             QLatin1String(Constants::IDE_YEAR),
+             QLatin1String(Constants::IDE_AUTHOR));
 
     QLabel *copyRightLabel = new QLabel(description);
     copyRightLabel->setWordWrap(true);
