@@ -29,7 +29,6 @@
 
 #include "diffeditorwidget.h"
 #include <QPlainTextEdit>
-#include <QSplitter>
 #include <QVBoxLayout>
 #include <QPlainTextDocumentLayout>
 #include <QTextBlock>
@@ -44,6 +43,8 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <coreplugin/minisplitter.h>
 
 static const int BASE_LEVEL = 0;
 static const int FILE_LEVEL = 1;
@@ -574,7 +575,7 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
             this, SLOT(rightDocumentSizeChanged()));
 
-    m_splitter = new QSplitter(this);
+    m_splitter = new Core::MiniSplitter(this);
     m_splitter->addWidget(m_leftEditor);
     m_splitter->addWidget(m_rightEditor);
     QVBoxLayout *l = new QVBoxLayout(this);
