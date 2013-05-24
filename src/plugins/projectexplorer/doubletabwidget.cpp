@@ -503,18 +503,6 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-void DoubleTabWidget::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 bool DoubleTabWidget::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {

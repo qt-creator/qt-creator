@@ -64,9 +64,6 @@ private slots:
     void slotFailed(const QString &);
     void slotSucceeded();
 
-protected:
-    void changeEvent(QEvent *e);
-
 private:
     Ui::CheckoutProgressWizardPage *ui;
     QSharedPointer<AbstractCheckoutJob> m_job;

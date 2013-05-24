@@ -59,15 +59,3 @@ bool RemoveFileDialog::isDeleteFileChecked() const
 {
     return m_ui->deleteFileCheckBox->isChecked();
 }
-
-void RemoveFileDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}

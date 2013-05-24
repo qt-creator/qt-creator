@@ -69,8 +69,6 @@ signals:
     void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool);
 
 protected:
-    void changeEvent(QEvent *e);
-
     void setOthers();
     void setLinear();
     void setBack();
@@ -84,7 +82,6 @@ private:
     EasingSimulation *m_simulation;
 
 private slots:
-
     void on_playButton_clicked();
     void on_overshootSpinBox_valueChanged(double );
     void on_periodSpinBox_valueChanged(double );

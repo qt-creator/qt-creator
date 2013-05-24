@@ -92,18 +92,6 @@ void FileWizardPage::setFileName(const QString &name)
     d->m_ui.nameLineEdit->setText(name);
 }
 
-void FileWizardPage::changeEvent(QEvent *e)
-{
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        d->m_ui.retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 bool FileWizardPage::isComplete() const
 {
     return d->m_complete;

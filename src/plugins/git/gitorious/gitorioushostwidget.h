@@ -54,8 +54,10 @@ namespace Ui {
  * it receives the projects. As soon as there are projects, isValid() becomes
  * true. */
 
-class GitoriousHostWidget : public QWidget {
+class GitoriousHostWidget : public QWidget
+{
     Q_OBJECT
+
 public:
     GitoriousHostWidget(QWidget *parent = 0);
     ~GitoriousHostWidget();
@@ -71,9 +73,6 @@ signals:
 
 public slots:
     void selectRow(int);
-
-protected:
-    void changeEvent(QEvent *e);
 
 private slots:
     void slotBrowse();

@@ -150,18 +150,6 @@ StashDialog::~StashDialog()
     delete ui;
 }
 
-void StashDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 QString StashDialog::msgRepositoryLabel(const QString &repository)
 {
     return repository.isEmpty() ?

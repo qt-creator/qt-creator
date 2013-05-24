@@ -62,9 +62,6 @@ public:
     void setMagicData(const MagicData &data);
     MagicData magicData() const;
 
-protected:
-    void changeEvent(QEvent *e);
-
 private slots:
     void applyRecommended(bool checked);
     void validateAccept();

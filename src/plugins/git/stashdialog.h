@@ -51,8 +51,10 @@ class StashModel;
  * (in case restore fails due to conflicts) on current and
  * delete on selection/all. */
 
-class StashDialog : public QDialog {
+class StashDialog : public QDialog
+{
     Q_OBJECT
+
 public:
     explicit StashDialog(QWidget *parent = 0);
     ~StashDialog();
@@ -61,9 +63,6 @@ public:
 
 public slots:
     void refresh(const QString &repository, bool force);
-
-protected:
-    void changeEvent(QEvent *e);
 
 private slots:
     void deleteAll();

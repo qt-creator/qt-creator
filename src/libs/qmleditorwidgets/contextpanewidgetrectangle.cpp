@@ -271,18 +271,6 @@ void ContextPaneWidgetRectangle::timerEvent(QTimerEvent *event)
     }
 }
 
-void ContextPaneWidgetRectangle::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 void ContextPaneWidgetRectangle::setColor()
 {
     QLinearGradient gradient;

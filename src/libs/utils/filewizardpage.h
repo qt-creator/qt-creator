@@ -74,9 +74,6 @@ private slots:
     void slotValidChanged();
     void slotActivated();
 
-protected:
-    virtual void changeEvent(QEvent *e);
-
 private:
     FileWizardPagePrivate *d;
 };

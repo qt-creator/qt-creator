@@ -198,17 +198,5 @@ void RemoteDialog::updateButtonState()
     m_ui->removeButton->setEnabled(haveSelection);
 }
 
-void RemoteDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 } // namespace Internal
 } // namespace Git

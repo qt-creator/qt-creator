@@ -133,17 +133,5 @@ void TestWizardPage::slotUpdateValid()
     }
 }
 
-void TestWizardPage::changeEvent(QEvent *e)
-{
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

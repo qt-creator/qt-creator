@@ -308,18 +308,6 @@ void CleanDialog::updateSelectAllCheckBox()
     }
 }
 
-void CleanDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        d->ui.retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 } // namespace VcsBase
 
 #include "cleandialog.moc"

@@ -207,18 +207,6 @@ void EasingContextPane::setProperties(QmlJS::PropertyReader *propertyReader)
         ui->durationSpinBox->setValue(250);
 }
 
-void EasingContextPane::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 void EasingContextPane::setGraphDisplayMode(GraphDisplayMode newMode)
 {
     m_displayMode = newMode;

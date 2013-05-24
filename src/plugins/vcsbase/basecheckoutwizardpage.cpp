@@ -230,18 +230,6 @@ void BaseCheckoutWizardPage::slotDirectoryEdited()
     slotChanged();
 }
 
-void BaseCheckoutWizardPage::changeEvent(QEvent *e)
-{
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        d->ui.retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 bool BaseCheckoutWizardPage::isComplete() const
 {
     return d->m_valid;

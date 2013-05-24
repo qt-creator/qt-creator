@@ -69,15 +69,12 @@ public:
 
     void setProjectComoBoxVisible(bool visible);
 
-protected:
-    virtual void changeEvent(QEvent *e);
-
 private slots:
     void slotProjectChanged(int);
     void slotManageVcs();
 
 private:
-    inline void setProjectToolTip(const QString &);
+    void setProjectToolTip(const QString &);
 
     Ui::WizardPage *m_ui;
     QStringList m_projectToolTips;

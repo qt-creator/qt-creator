@@ -75,8 +75,6 @@ public:
     bool isBranchSelectorVisible() const;
 
 protected:
-    void changeEvent(QEvent *e);
-
     void setRepositoryLabel(const QString &l);
     void setDirectoryVisible(bool v);
     void setBranchSelectorVisible(bool v);

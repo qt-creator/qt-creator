@@ -138,18 +138,6 @@ void ProjectIntroPage::setDescription(const QString &description)
     d->m_ui.descriptionLabel->setText(description);
 }
 
-void ProjectIntroPage::changeEvent(QEvent *e)
-{
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        d->m_ui.retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 bool ProjectIntroPage::isComplete() const
 {
     return d->m_complete;

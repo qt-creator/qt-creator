@@ -51,9 +51,6 @@ public:
     void setDeleteFileVisible(bool visible);
     bool isDeleteFileChecked() const;
 
-protected:
-    virtual void changeEvent(QEvent *e);
-
 private:
     Ui::RemoveFileDialog *m_ui;
 };

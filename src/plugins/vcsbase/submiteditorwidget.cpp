@@ -517,18 +517,6 @@ QString SubmitEditorWidget::cleanupDescription(const QString &input) const
     return input;
 }
 
-void SubmitEditorWidget::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        d->m_ui.retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 void SubmitEditorWidget::insertTopWidget(QWidget *w)
 {
     d->m_ui.vboxLayout->insertWidget(0, w);

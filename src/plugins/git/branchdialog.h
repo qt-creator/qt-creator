@@ -33,7 +33,6 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QPushButton;
 class QModelIndex;
 QT_END_NAMESPACE
 
@@ -52,7 +51,8 @@ class BranchModel;
  * branches below. Offers to checkout/delete local branches.
  *
  */
-class BranchDialog : public QDialog {
+class BranchDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -74,16 +74,11 @@ private slots:
     void merge();
     void rebase();
 
-protected:
-    void changeEvent(QEvent *e);
-
 private:
     QModelIndex selectedIndex();
 
     Ui::BranchDialog *m_ui;
-
     BranchModel *m_model;
-
     QString m_repository;
 };
 

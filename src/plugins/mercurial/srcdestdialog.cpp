@@ -59,15 +59,3 @@ QString SrcDestDialog::getRepositoryString() const
         return m_ui->localPathChooser->path();
     return m_ui->urlLineEdit->text();
 }
-
-void SrcDestDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}

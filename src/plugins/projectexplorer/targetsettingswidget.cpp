@@ -147,15 +147,3 @@ int TargetSettingsWidget::currentSubIndex() const
 {
     return m_targetSelector->currentSubIndex();
 }
-
-void TargetSettingsWidget::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}

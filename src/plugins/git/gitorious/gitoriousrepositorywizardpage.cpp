@@ -237,17 +237,5 @@ bool GitoriousRepositoryWizardPage::isComplete() const
     return m_valid;
 }
 
-void GitoriousRepositoryWizardPage::changeEvent(QEvent *e)
-{
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 } // namespace Internal
 } // namespace Gitorious

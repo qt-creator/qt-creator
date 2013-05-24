@@ -45,18 +45,6 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(validateAccept()));
 }
 
-void MimeTypeMagicDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui.retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 void MimeTypeMagicDialog::applyRecommended(bool checked)
 {
     if (checked) {

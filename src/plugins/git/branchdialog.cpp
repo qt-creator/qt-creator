@@ -312,18 +312,6 @@ void BranchDialog::rebase()
         stashGuard.preventPop();
 }
 
-void BranchDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 QModelIndex BranchDialog::selectedIndex()
 {
     QModelIndexList selected = m_ui->branchView->selectionModel()->selectedIndexes();

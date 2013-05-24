@@ -55,9 +55,6 @@ public:
 public slots:
     void accept();
 
-protected:
-    void changeEvent(QEvent *e);
-
 private slots:
     void slotDoubleClicked(const QModelIndex &);
     void selectAllItems(bool checked);
