@@ -776,7 +776,7 @@ class Dumper:
                 result += '{pc="0x%x"' % frame.GetPC()
                 result += ',level="%d"' % frame.idx
                 result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
-                result += ',func="%s"' % frame.GetFunction().GetName()
+                result += ',func="%s"' % frame.GetFunctionName()
                 result += ',line="%d"' % lineEntry.GetLine()
                 result += ',fullname="%s"' % fileName(lineEntry.file)
                 result += ',usable="1"'
