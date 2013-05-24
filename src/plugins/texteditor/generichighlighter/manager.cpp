@@ -166,15 +166,13 @@ public:
     QSet<QString> m_knownSuffixes;
     QHash<QString, Core::MimeType> m_userModified;
     static const int kMaxProgress;
-
-    struct PriorityComp
-    {
-        bool operator()(const QSharedPointer<HighlightDefinitionMetaData> &a,
-                        const QSharedPointer<HighlightDefinitionMetaData> &b) {
-            return a->priority() > b->priority();
-        }
-    };
 };
+
+bool priorityComp(const QSharedPointer<HighlightDefinitionMetaData> &a,
+                  const QSharedPointer<HighlightDefinitionMetaData> &b)
+{
+    return a->priority > b->priority;
+}
 
 const int ManagerProcessor::kMaxProgress = 200;
 
@@ -228,7 +226,7 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
         }
 
         // Consider definitions with higher priority first.
-        qSort(allMetaData.begin(), allMetaData.end(), PriorityComp());
+        qSort(allMetaData.begin(), allMetaData.end(), &priorityComp);
 
         foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
             if (future.isCanceled())
@@ -236,12 +234,12 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
             if (future.progressValue() < kMaxProgress - 1)
                 future.setProgressValue(future.progressValue() + 1);
 
-            if (data.m_idByName.contains(metaData->name()))
+            if (data.m_idByName.contains(metaData->name))
                 // Name already exists... This is a fallback item, do not consider it.
                 continue;
 
-            const QString &id = metaData->id();
-            data.m_idByName.insert(metaData->name(), id);
+            const QString &id = metaData->id;
+            data.m_idByName.insert(metaData->name, id);
             data.m_definitionsMetaData.insert(id, metaData);
 
             static const QStringList textPlain(QLatin1String("text/plain"));
@@ -249,7 +247,7 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
             // A definition can specify multiple MIME types and file extensions/patterns,
             // but all on a single string. So associate all patterns with all MIME types.
             QList<Core::MimeGlobPattern> globPatterns;
-            foreach (const QString &type, metaData->mimeTypes()) {
+            foreach (const QString &type, metaData->mimeTypes) {
                 if (data.m_idByMimeType.contains(type))
                     continue;
 
@@ -260,7 +258,7 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
                     Core::MimeType mimeType;
                     mimeType.setType(type);
                     mimeType.setSubClassesOf(textPlain);
-                    mimeType.setComment(metaData->name());
+                    mimeType.setComment(metaData->name);
 
                     // If there's a user modification for this mime type, we want to use the
                     // modified patterns and rule-based matchers. If not, just consider what
@@ -269,7 +267,7 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
                         m_userModified.find(mimeType.type());
                     if (it == m_userModified.end()) {
                         if (globPatterns.isEmpty()) {
-                            foreach (const QString &pattern, metaData->patterns()) {
+                            foreach (const QString &pattern, metaData->patterns) {
                                 static const QLatin1String mark("*.");
                                 if (pattern.startsWith(mark)) {
                                     const QString &suffix = pattern.right(pattern.length() - 2);
@@ -360,14 +358,14 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
         if (reader.readNext() == QXmlStreamReader::StartElement && reader.name() == kLanguage) {
             const QXmlStreamAttributes &atts = reader.attributes();
 
-            metaData->setFileName(fileInfo.fileName());
-            metaData->setId(fileInfo.absoluteFilePath());
-            metaData->setName(atts.value(HighlightDefinitionMetaData::kName).toString());
-            metaData->setVersion(atts.value(HighlightDefinitionMetaData::kVersion).toString());
-            metaData->setPriority(atts.value(HighlightDefinitionMetaData::kPriority).toString()
-                                  .toInt());
-            metaData->setPatterns(atts.value(HighlightDefinitionMetaData::kExtensions)
-                                  .toString().split(kSemiColon, QString::SkipEmptyParts));
+            metaData->fileName = fileInfo.fileName();
+            metaData->id = fileInfo.absoluteFilePath();
+            metaData->name = atts.value(HighlightDefinitionMetaData::kName).toString();
+            metaData->version = atts.value(HighlightDefinitionMetaData::kVersion).toString();
+            metaData->priority = atts.value(HighlightDefinitionMetaData::kPriority).toString()
+                                  .toInt();
+            metaData->patterns = atts.value(HighlightDefinitionMetaData::kExtensions)
+                                  .toString().split(kSemiColon, QString::SkipEmptyParts);
 
             QStringList mimeTypes = atts.value(HighlightDefinitionMetaData::kMimeType).
                                     toString().split(kSemiColon, QString::SkipEmptyParts);
@@ -375,10 +373,10 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
                 // There are definitions which do not specify a MIME type, but specify file
                 // patterns. Creating an artificial MIME type is a workaround.
                 QString artificialType(kArtificial);
-                artificialType.append(metaData->name().trimmed().replace(kSpace, kDash));
+                artificialType.append(metaData->name.trimmed().replace(kSpace, kDash));
                 mimeTypes.append(artificialType);
             }
-            metaData->setMimeTypes(mimeTypes);
+            metaData->mimeTypes = mimeTypes;
 
             break;
         }
@@ -402,13 +400,13 @@ QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODev
             const QXmlStreamAttributes &atts = reader.attributes();
 
             HighlightDefinitionMetaData metaData;
-            metaData.setName(atts.value(HighlightDefinitionMetaData::kName).toString());
-            metaData.setVersion(atts.value(HighlightDefinitionMetaData::kVersion).toString());
+            metaData.name = atts.value(HighlightDefinitionMetaData::kName).toString();
+            metaData.version = atts.value(HighlightDefinitionMetaData::kVersion).toString();
             QString url(atts.value(HighlightDefinitionMetaData::kUrl).toString());
-            metaData.setUrl(QUrl(url));
+            metaData.url = QUrl(url);
             const int slash = url.lastIndexOf(kSlash);
             if (slash != -1)
-                metaData.setFileName(url.right(url.length() - slash - 1));
+                metaData.fileName = url.right(url.length() - slash - 1);
 
             metaDataList.append(metaData);
         }

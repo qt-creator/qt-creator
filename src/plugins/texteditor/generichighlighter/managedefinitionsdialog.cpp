@@ -74,23 +74,23 @@ void ManageDefinitionsDialog::populateDefinitionsWidget()
         // Look for this definition in the current path specified by the user, not the one
         // stored in the settings. So the manager should not be queried for this information.
         QString dirVersion;
-        QFileInfo fi(m_path + downloadData.fileName());
+        QFileInfo fi(m_path + downloadData.fileName);
         QFile definitionFile(fi.absoluteFilePath());
         if (definitionFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             const QSharedPointer<HighlightDefinitionMetaData> &data = Manager::parseMetadata(fi);
             if (!data.isNull())
-                dirVersion = data->version();
+                dirVersion = data->version;
         }
 
         for (int j = 0; j < 3; ++j) {
             QTableWidgetItem *item = new QTableWidgetItem;
             if (j == 0)
-                item->setText(downloadData.name());
+                item->setText(downloadData.name);
             else if (j == 1) {
                 item->setText(dirVersion);
                 item->setTextAlignment(Qt::AlignCenter);
             } else if (j == 2) {
-                item->setText(downloadData.version());
+                item->setText(downloadData.version);
                 item->setTextAlignment(Qt::AlignCenter);
             }
             ui.definitionsTable->setItem(i, j, item);
@@ -110,7 +110,7 @@ void ManageDefinitionsDialog::downloadDefinitions()
 
     QList<QUrl> urls;
     foreach (const QModelIndex &index, ui.definitionsTable->selectionModel()->selectedRows())
-        urls.append(m_definitionsMetaData.at(index.row()).url());
+        urls.append(m_definitionsMetaData.at(index.row()).url);
     Manager::instance()->downloadDefinitions(urls, m_path);
     accept();
 }
