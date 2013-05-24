@@ -727,8 +727,7 @@ class Dumper:
         self.report(self.describeError(error))
 
     def currentThread(self):
-        #return self.process.GetSelectedThread()
-        return self.process.GetThreadAtIndex(0)
+        return self.process.GetSelectedThread()
 
     def currentFrame(self):
         return self.currentThread().GetSelectedFrame()
@@ -1168,7 +1167,7 @@ class Dumper:
         self.currentThread().StepOver()
 
     def executeNextI(self, _ = None):
-        self.currentThread().StepOver()
+        self.currentThread().StepInstruction(lldb.eOnlyThisThread)
 
     def executeStep(self, _ = None):
         self.currentThread().StepInto()
@@ -1177,10 +1176,10 @@ class Dumper:
         self.debugger.Terminate()
 
     def executeStepI(self, _ = None):
-        self.currentThread().StepInstOver()
+        self.currentThread().StepInstruction(lldb.eOnlyThisThread)
 
     def executeStepOut(self, _ = None):
-        self.debugger.HandleCommand("thread step-out")
+        self.currentThread().StepOut()
 
     def executeRunToLine(self, args):
         file = args['file']
