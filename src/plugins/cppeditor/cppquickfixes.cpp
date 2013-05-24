@@ -4410,6 +4410,10 @@ public:
             itemBase->setData(qVariantFromValue((void *) clazz),
                               InsertVirtualMethodsDialog::ClassOrFunction);
             const QString baseClassName = printer.prettyName(clazz->name());
+            const Qt::CheckState funcItemsCheckState = (baseClassName != QLatin1String("QObject")
+                    && baseClassName != QLatin1String("QWidget")
+                    && baseClassName != QLatin1String("QPaintDevice"))
+                    ? Qt::Checked : Qt::Unchecked;
             for (Scope::iterator it = clazz->firstMember(); it != clazz->lastMember(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
                     if (!func->isVirtual())
@@ -4492,6 +4496,7 @@ public:
                     funcItem->setData(isPureVirtual, InsertVirtualMethodsDialog::PureVirtual);
                     funcItem->setData(acessSpec(*it), InsertVirtualMethodsDialog::AccessSpec);
                     funcItem->setData(funcExistsInClass, InsertVirtualMethodsDialog::Implemented);
+                    funcItem->setCheckState(funcItemsCheckState);
 
                     itemBase->appendRow(funcItem);
 
@@ -4505,11 +4510,15 @@ public:
             if (itemBase->hasChildren()) {
                 for (int i = 0; i < itemBase->rowCount(); ++i) {
                     if (itemBase->child(i, 0)->isCheckable()) {
-                        itemBase->setCheckable(true);
-                        itemBase->setTristate(true);
-                        itemBase->setCheckState(Qt::Checked);
-                        itemBase->setData(false, InsertVirtualMethodsDialog::Implemented);
-                        break;
+                        if (!itemBase->isCheckable()) {
+                            itemBase->setCheckable(true);
+                            itemBase->setTristate(true);
+                            itemBase->setData(false, InsertVirtualMethodsDialog::Implemented);
+                        }
+                        if (itemBase->child(i, 0)->checkState() == Qt::Checked) {
+                            itemBase->setCheckState(Qt::Checked);
+                            break;
+                        }
                     }
                 }
                 m_factory->classFunctionModel->invisibleRootItem()->appendRow(itemBase);
