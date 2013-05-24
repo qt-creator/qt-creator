@@ -427,18 +427,18 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
         const int numChild = locations.children().size();
         if (numChild > 1) {
             foreach (const GdbMi &location, locations.children()) {
-                const int locid = location["locid"].data().toUShort();
+                const int locid = location["locid"].toInt();
                 BreakpointResponse sub;
                 sub.id = BreakpointResponseId(rid.majorPart(), locid);
                 sub.type = response.type;
                 sub.address = location["addr"].toAddress();
-                sub.functionName = QString::fromUtf8(location["func"].data());
+                sub.functionName = location["func"].toUtf8();
                 handler->insertSubBreakpoint(id, sub);
             }
         } else if (numChild == 1) {
             const GdbMi location = locations.childAt(0);
             response.address = location["addr"].toAddress();
-            response.functionName = QString::fromUtf8(location["func"].data());
+            response.functionName = location["func"].toUtf8();
         } else {
             QTC_CHECK(false);
         }
@@ -461,8 +461,8 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
         foreach (const GdbMi &line, data["lines"].children()) {
             DisassemblerLine dl;
             dl.address = line["address"].toAddress();
-            dl.data = _(line["inst"].data());
-            dl.function = _(line["func-name"].data());
+            dl.data = line["inst"].toUtf8();
+            dl.function = line["func-name"].toUtf8();
             dl.offset = line["offset"].toInt();
             result.appendLine(dl);
         }
@@ -523,8 +523,8 @@ void LldbEngine::refreshModules(const GdbMi &modules)
     Modules mods;
     foreach (const GdbMi &item, modules.children()) {
         Module module;
-        module.modulePath = QString::fromUtf8(item["file"].data());
-        module.moduleName = QString::fromUtf8(item["name"].data());
+        module.modulePath = item["file"].toUtf8();
+        module.moduleName = item["name"].toUtf8();
         module.symbolsRead = Module::UnknownReadState;
         module.startAddress = item["loaded_addr"].toAddress();
         module.endAddress = 0; // FIXME: End address not easily available.
@@ -540,15 +540,15 @@ void LldbEngine::requestModuleSymbols(const QString &moduleName)
 
 void LldbEngine::refreshSymbols(const GdbMi &symbols)
 {
-    QString moduleName = QString::fromUtf8(symbols["module"].data());
+    QString moduleName = symbols["module"].toUtf8();
     Symbols syms;
     foreach (const GdbMi &item, symbols["symbols"].children()) {
         Symbol symbol;
-        symbol.address = _(item["address"].data());
-        symbol.name = _(item["name"].data());
-        symbol.state = _(item["state"].data());
-        symbol.section = _(item["section"].data());
-        symbol.demangled = _(item["demangled"].data());
+        symbol.address = item["address"].toUtf8();
+        symbol.name = item["name"].toUtf8();
+        symbol.state = item["state"].toUtf8();
+        symbol.section = item["section"].toUtf8();
+        symbol.demangled = item["demangled"].toUtf8();
         syms.append(symbol);
     }
    debuggerCore()->showModuleSymbols(moduleName, syms);
@@ -827,7 +827,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
             dummy.name = decodeData(wname.data(), Base64Encoded8Bit);
             dummy.exp = dummy.name.toUtf8();
         } else {
-            dummy.name = _(child["name"].data());
+            dummy.name = child["name"].toUtf8();
         }
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
@@ -843,9 +843,9 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     foreach (const GdbMi &item, stack["frames"].children()) {
         StackFrame frame;
         frame.level = item["level"].toInt();
-        frame.file = QString::fromLatin1(item["file"].data());
-        frame.function = QString::fromLatin1(item["func"].data());
-        frame.from = QString::fromLatin1(item["func"].data());
+        frame.file = item["file"].toUtf8();
+        frame.function = item["func"].toUtf8();
+        frame.from = item["func"].toUtf8();
         frame.line = item["line"].toInt();
         frame.address = item["addr"].toAddress();
         frame.usable = QFileInfo(frame.file).isReadable();
@@ -931,9 +931,9 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
-    QByteArray file = reportedLocation["file"].data();
+    QString file = reportedLocation["file"].toUtf8();
     int line = reportedLocation["line"].toInt();
-    gotoLocation(Location(QString::fromUtf8(file), line));
+    gotoLocation(Location(file, line));
 }
 
 void LldbEngine::reloadRegisters()
