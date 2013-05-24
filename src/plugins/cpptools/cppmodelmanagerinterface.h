@@ -215,6 +215,7 @@ public:
     virtual void addEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual void removeEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *editor) = 0;
+    virtual void deleteEditorSupport(TextEditor::BaseTextEditor *textEditor) = 0;
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol,
                                   const CPlusPlus::LookupContext &context) = 0;

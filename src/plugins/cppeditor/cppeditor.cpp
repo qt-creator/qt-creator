@@ -562,9 +562,13 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
 
 CPPEditorWidget::~CPPEditorWidget()
 {
+    if (m_modelManager)
+        m_modelManager->deleteEditorSupport(editor());
+
     ++numberOfClosedEditors;
     if (numberOfClosedEditors == 5) {
-        m_modelManager->GC();
+        if (m_modelManager)
+            m_modelManager->GC();
         numberOfClosedEditors = 0;
     }
 

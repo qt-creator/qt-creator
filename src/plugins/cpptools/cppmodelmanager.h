@@ -87,6 +87,7 @@ public:
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
     virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *editor);
+    virtual void deleteEditorSupport(TextEditor::BaseTextEditor *textEditor);
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
@@ -139,7 +140,6 @@ Q_SIGNALS:
     void aboutToRemoveFiles(const QStringList &files);
 
 public Q_SLOTS:
-    void editorAboutToClose(Core::IEditor *editor);
     virtual void updateModifiedSourceFiles();
 
 private Q_SLOTS:
