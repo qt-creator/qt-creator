@@ -1310,7 +1310,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
     // Header File
     original =
         "class Foo {\n"
-        "  inline int numbe@r() const {\n"
+        "  inline int numbe@r() const\n"
+        "  {\n"
         "    return 5;\n"
         "  }\n"
         "\n"
@@ -1332,7 +1333,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
         "#include \"file.h\"\n"
         "\n"
         "\n"
-        "int Foo::number() const {\n"
+        "int Foo::number() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n"
         "\n";
@@ -1348,7 +1350,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
 {
     QByteArray original =
         "class Foo {\n"
-        "  inline int numbe@r() const {\n"
+        "  inline int numbe@r() const\n"
+        "  {\n"
         "    return 5;\n"
         "  }\n"
         "};";
@@ -1357,7 +1360,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
         "  inline int number() const;\n"
         "};\n"
         "\n"
-        "int Foo::number() const {\n"
+        "int Foo::number() const\n"
+        "{\n"
         "    return 5;\n"
         "}"
         "\n\n";
@@ -1378,7 +1382,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
     original =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int numbe@r() const {\n"
+        "  inline int numbe@r() const\n"
+        "  {\n"
         "    return 5;\n"
         "  }\n"
         "};\n"
@@ -1399,7 +1404,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
         "#include \"file.h\"\n"
         "\n"
         "\n"
-        "int MyNs::Foo::number() const {\n"
+        "int MyNs::Foo::number() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n"
         "\n";
@@ -1421,7 +1427,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
     original =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int numbe@r() const {\n"
+        "  inline int numbe@r() const\n"
+        "  {\n"
         "    return 5;\n"
         "  }\n"
         "};\n"
@@ -1444,7 +1451,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
         "using namespace MyNs;\n"
         "\n"
         "\n"
-        "int Foo::number() const {\n"
+        "int Foo::number() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n"
         "\n";
@@ -1461,7 +1469,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
     QByteArray original =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int numbe@r() const {\n"
+        "  inline int numbe@r() const\n"
+        "  {\n"
         "    return 5;\n"
         "  }\n"
         "};}";
@@ -1471,7 +1480,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
         "  inline int number() const;\n"
         "};\n"
         "\n"
-        "int Foo::number() const {\n"
+        "int Foo::number() const\n"
+        "{\n"
         "    return 5;\n"
         "}"
         "\n}\n";
@@ -1490,7 +1500,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
 
     // Header File
     original =
-        "int numbe@r() const {\n"
+        "int numbe@r() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n";
     expected =
@@ -1506,7 +1517,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
         "#include \"file.h\"\n"
         "\n"
         "\n"
-        "int number() const {\n"
+        "int number() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n"
         "\n";
@@ -1527,7 +1539,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
     // Header File
     original =
         "namespace MyNamespace {\n"
-        "int numbe@r() const {\n"
+        "int numbe@r() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n"
         "}\n";
@@ -1546,7 +1559,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
         "#include \"file.h\"\n"
         "\n"
         "\n"
-        "int MyNamespace::number() const {\n"
+        "int MyNamespace::number() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n"
         "\n";
@@ -1558,7 +1572,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
 }
 
 /// Check: Move Ctor with member initialization list (QTCREATORBUG-9157).
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization1()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1597,6 +1611,51 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
     data.run(&factory);
 }
 
+/// Check: Move Ctor with member initialization list (QTCREATORBUG-9462).
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    Fo@o() : member(2)\n"
+        "    {\n"
+        "    }\n"
+        "\n"
+        "    int member;\n"
+        "};";
+
+    expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    Foo();\n"
+        "\n"
+        "    int member;\n"
+        "};\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original ="#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::Foo() : member(2)\n"
+        "{\n"
+        "}\n"
+        "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
 {
@@ -1605,8 +1664,14 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
     QByteArray expected;
 
     // Header File
-    original = "class Foo {inline int number() const;};\n";
-    expected = "class Foo {inline int number() const {return 5;}};\n\n";
+    original =
+        "class Foo {\n"
+        "    inline int number() const;\n"
+        "};\n";
+    expected =
+        "class Foo {\n"
+        "    inline int number() const {return 5;}\n"
+        "};\n\n";
     testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
 
     // Source File
@@ -1632,13 +1697,15 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutside()
         "  inline int number() const;\n"
         "};\n"
         "\n"
-        "int Foo::num@ber() const {\n"
+        "int Foo::num@ber() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n";
 
     QByteArray expected =
         "class Foo {\n"
-        "    inline int number() const {\n"
+        "    inline int number() const\n"
+        "    {\n"
         "        return 5;\n"
         "    }\n"
         "};\n"
@@ -1666,7 +1733,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
     expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "    inline int number() const {\n"
+        "    inline int number() const\n"
+        "    {\n"
         "        return 5;\n"
         "    }\n"
         "};\n"
@@ -1677,7 +1745,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
     original =
         "#include \"file.h\"\n"
         "\n"
-        "int MyNs::Foo::num@ber() const {\n"
+        "int MyNs::Foo::num@ber() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n";
     expected = "#include \"file.h\"\n\n\n\n";
@@ -1705,7 +1774,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
     expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "    inline int number() const {\n"
+        "    inline int number() const\n"
+        "    {\n"
         "        return 5;\n"
         "    }\n"
         "};\n"
@@ -1717,7 +1787,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
         "#include \"file.h\"\n"
         "using namespace MyNs;\n"
         "\n"
-        "int Foo::num@ber() const {\n"
+        "int Foo::num@ber() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n";
     expected =
@@ -1740,14 +1811,16 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs()
         "  inline int number() const;\n"
         "};\n"
         "\n"
-        "int Foo::numb@er() const {\n"
+        "int Foo::numb@er() const\n"
+        "{\n"
         "    return 5;\n"
         "}"
         "\n}\n";
     QByteArray expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "    inline int number() const {\n"
+        "    inline int number() const\n"
+        "    {\n"
         "        return 5;\n"
         "    }\n"
         "};\n\n\n}\n\n";
@@ -1767,7 +1840,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
     // Header File
     original = "int number() const;\n";
     expected =
-        "int number() const {\n"
+        "int number() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n\n";
     testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
@@ -1777,7 +1851,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
         "#include \"file.h\"\n"
         "\n"
         "\n"
-        "int numb@er() const {\n"
+        "int numb@er() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n";
     expected = "#include \"file.h\"\n\n\n\n\n";
@@ -1802,7 +1877,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
         "}\n";
     expected =
         "namespace MyNamespace {\n"
-        "int number() const {\n"
+        "int number() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n"
         "}\n\n";
@@ -1812,7 +1888,8 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
     original =
         "#include \"file.h\"\n"
         "\n"
-        "int MyNamespace::nu@mber() const {\n"
+        "int MyNamespace::nu@mber() const\n"
+        "{\n"
         "    return 5;\n"
         "}\n";
     expected =

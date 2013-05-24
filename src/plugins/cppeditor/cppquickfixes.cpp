@@ -3816,13 +3816,10 @@ public:
         // construct definition
         const QString funcDec = getDefinitionSignature(assistInterface(), m_func, toFile,
                                                        scopeAtInsertPos);
-        QString textFuncBody;
-        if (m_funcDef->ctor_initializer)
-                textFuncBody = fromFile->textOf(m_funcDef->ctor_initializer) + QLatin1Char(' ');
-        textFuncBody += fromFile->textOf(m_funcDef->function_body);
-        QString funcDef = QString::fromLatin1("\n%1 %2\n")
-                .arg(funcDec)
-                .arg(textFuncBody);
+        QString funcDef = QLatin1String("\n") + funcDec;
+        const int startPosition = fromFile->endOf(m_funcDef->declarator);
+        const int endPosition = fromFile->endOf(m_funcDef->function_body);
+        funcDef += fromFile->textOf(startPosition, endPosition) + QLatin1String("\n");
         if (m_cppFileName.isEmpty() || !m_insideHeader)
             funcDef = QLatin1String("\n") + funcDef;
 
@@ -3840,7 +3837,7 @@ public:
             headerTarget.remove(fromFile->range(m_funcDef));
         } else {
             QString textFuncDecl = fromFile->textOf(m_funcDef);
-            textFuncDecl.remove(-textFuncBody.length(), textFuncBody.length());
+            textFuncDecl.truncate(startPosition - fromFile->startOf(m_funcDef));
             textFuncDecl = textFuncDecl.trimmed() + QLatin1String(";");
             headerTarget.replace(fromFile->range(m_funcDef), textFuncDecl);
         }
@@ -3945,12 +3942,10 @@ public:
         CppRefactoringFilePtr fromFile = refactoring.file(m_fromFileName);
         CppRefactoringFilePtr toFile = refactoring.file(m_toFileName);
         ChangeSet::Range fromRange = fromFile->range(m_funcAST);
-        const QString definitionText = fromFile->textOf(m_funcAST->function_body);
-        QString wholeFunctionText = m_declarationText;
-        if (m_funcAST->ctor_initializer)
-            wholeFunctionText += QLatin1Char(' ') + fromFile->textOf(m_funcAST->ctor_initializer);
-        wholeFunctionText +=  QLatin1Char(' ') + definitionText;
 
+        const QString wholeFunctionText = m_declarationText
+                + fromFile->textOf(fromFile->endOf(m_funcAST->declarator),
+                                   fromFile->endOf(m_funcAST->function_body));
 
         // Replace declaration with function and delete old definition
         Utils::ChangeSet toTarget;
