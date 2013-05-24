@@ -529,6 +529,8 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_leftEditor->setReadOnly(true);
     m_leftEditor->setHighlightCurrentLine(false);
     m_leftEditor->setWordWrapMode(QTextOption::NoWrap);
+    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            m_leftEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
     m_leftEditor->setFontSettings(settings->fontSettings());
     m_leftEditor->setCodeStyle(settings->codeStyle());
 
@@ -537,6 +539,8 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_rightEditor->setReadOnly(true);
     m_rightEditor->setHighlightCurrentLine(false);
     m_rightEditor->setWordWrapMode(QTextOption::NoWrap);
+    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            m_rightEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
     m_rightEditor->setFontSettings(settings->fontSettings());
     m_rightEditor->setCodeStyle(settings->codeStyle());
 
