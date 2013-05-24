@@ -369,8 +369,6 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     m_workingDirectoryEdit = new Utils::PathChooser(this);
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
-    m_workingDirectoryEdit->setPath(m_rc->baseWorkingDirectory());
-    m_workingDirectoryEdit->setBaseDirectory(m_rc->target()->project()->projectDirectory());
     ProjectExplorer::EnvironmentAspect *aspect
             = m_rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
     if (aspect) {
@@ -399,7 +397,6 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     toplayout->addRow(QString(), innerBox);
 
     runConfigurationEnabledChange();
-    targetInformationHasChanged();
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(workDirectoryEdited()));
@@ -440,6 +437,7 @@ void QbsRunConfigurationWidget::runConfigurationEnabledChange()
     m_disabledIcon->setVisible(!enabled);
     m_disabledReason->setVisible(!enabled);
     m_disabledReason->setText(m_rc->disabledReason());
+    targetInformationHasChanged();
 }
 
 void QbsRunConfigurationWidget::workDirectoryEdited()
@@ -477,6 +475,9 @@ void QbsRunConfigurationWidget::targetInformationHasChanged()
 {
     m_ignoreChange = true;
     m_executableLineEdit->setText(m_rc->executable());
+
+    m_workingDirectoryEdit->setPath(m_rc->baseWorkingDirectory());
+    m_workingDirectoryEdit->setBaseDirectory(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }
 
