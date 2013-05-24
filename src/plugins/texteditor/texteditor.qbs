@@ -267,7 +267,7 @@ QtcPlugin {
         ]
     }
 
-    ProductModule {
+    Export {
         Depends { name: "Find" }
         Depends { name: "Locator" }
     }

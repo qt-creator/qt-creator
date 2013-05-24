@@ -106,7 +106,7 @@ QtcPlugin {
         "images/embeddedtarget.png",
     ]
 
-    ProductModule {
+    Export {
         Depends { name: "Core" }
         Depends { name: "QtcSsh" }
     }

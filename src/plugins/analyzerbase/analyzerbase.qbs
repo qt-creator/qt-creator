@@ -47,7 +47,7 @@ QtcPlugin {
         "images/analyzer_start_small.png",
     ]
 
-    ProductModule {
+    Export {
         Depends { name: "CPlusPlus" }
     }
 }

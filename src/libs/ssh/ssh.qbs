@@ -114,7 +114,7 @@ QtcLibrary {
         ]
     }
 
-    ProductModule {
+    Export {
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
     }
 }

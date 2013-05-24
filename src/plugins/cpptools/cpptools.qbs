@@ -119,7 +119,7 @@ QtcPlugin {
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
     }
 
-    ProductModule {
+    Export {
         Depends { name: "CPlusPlus" }
     }
 }

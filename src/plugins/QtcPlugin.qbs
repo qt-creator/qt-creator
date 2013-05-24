@@ -47,7 +47,7 @@ Product {
         qbs.installDir: "lib/qtcreator/plugins/" + provider
     }
 
-    ProductModule {
+    Export {
         Depends { name: "ExtensionSystem" }
     }
 }

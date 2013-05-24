@@ -107,7 +107,7 @@ QtcLibrary {
         "iscriptevaluator.h"
     ]
 
-    ProductModule {
+    Export {
         Depends { name: "cpp" }
         Depends { name: "LanguageUtils" }
         cpp.defines: [

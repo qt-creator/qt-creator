@@ -100,7 +100,7 @@ QtcPlugin {
         "showbuildlog.ui",
     ]
 
-    ProductModule {
+    Export {
         Depends { name: "cpp" }
         cpp.includePaths: "../../shared"
         cpp.defines: [
