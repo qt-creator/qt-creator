@@ -50,7 +50,6 @@ public:
 
     Core::Id id() const;
     bool isTemporary() const { return false; }
-    Core::Id preferredModeType() const;
 
     /**
       Opens file for editing, actual work performed by base class
