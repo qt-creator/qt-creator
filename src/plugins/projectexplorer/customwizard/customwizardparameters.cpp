@@ -894,7 +894,7 @@ bool replaceFieldHelper(ValueStringTransformation transform,
         if (!replacement.isEmpty())
             nonEmptyReplacements = true;
         // Apply transformation to empty values as well.
-        s->replace(pos, nextPos - pos, transform(replacement));
+        s->replace(pos, nextPos - pos + 1, transform(replacement));
         nonEmptyReplacements = true;
         pos += replacement.size();
     }
