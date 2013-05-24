@@ -2609,6 +2609,8 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
     for (; idx >= 0; --idx) {
         AST *node = path.at(idx);
         if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
+            if (idx > 0 && path.at(idx - 1)->asStatement())
+                return;
             if (simpleDecl->symbols && ! simpleDecl->symbols->next) {
                 if (Symbol *symbol = simpleDecl->symbols->value) {
                     if (Declaration *decl = symbol->asDeclaration()) {

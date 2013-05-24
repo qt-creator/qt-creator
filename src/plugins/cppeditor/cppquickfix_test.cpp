@@ -908,6 +908,24 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitio
     data.run(&factory, 1);
 }
 
+/// Check not triggering when it is a statement
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringStatement()
+{
+    const QByteArray original =
+            "class Foo {\n"
+            "public:\n"
+            "    Foo() {}\n"
+            "};\n"
+            "void freeFunc() {\n"
+            "    Foo @f();"
+            "}\n";
+    const QByteArray expected = original + "\n";
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {
