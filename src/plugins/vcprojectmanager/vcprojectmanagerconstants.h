@@ -56,6 +56,7 @@ const char VC_PROJECT_SCHEMA_PATH[] = "VcProject.SchemaPath";
 const char VC_PROJECT_SCHEMA_2003_QUIALIFIER[] = "Schema2003";
 const char VC_PROJECT_SCHEMA_2005_QUIALIFIER[] = "Schema2005";
 const char VC_PROJECT_SCHEMA_2008_QUIALIFIER[] = "Schema2008";
+const char VC_PROJECT_KIT_INFO_ID[] = "VcProject.KitInformation";
 
 enum SchemaVersion
 {

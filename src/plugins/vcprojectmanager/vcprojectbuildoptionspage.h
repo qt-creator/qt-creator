@@ -27,12 +27,13 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTBUILDOPTIONSPAGE_H
-#define VCPROJECTBUILDOPTIONSPAGE_H
+#ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTBUILDOPTIONSPAGE_H
+#define VCPROJECTMANAGER_INTERNAL_VCPROJECTBUILDOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QDialog>
+#include <QTableWidgetItem>
 
 #include "vcprojectmanagerconstants.h"
 
@@ -46,6 +47,7 @@ namespace VcProjectManager {
 namespace Internal {
 
 class SchemaOptionsWidget;
+class MsBuildInformation;
 
 struct VcProjectValidator {
     enum ValidationRequest {
@@ -53,20 +55,11 @@ struct VcProjectValidator {
         ValidationRequest_Edit
     };
 
-    QString m_originalExecutable;  // used only for ValidationRequest_Edit
+    Core::Id m_originalMsInfoID; // used only for ValidationRequest_Edit
+
     QString m_executable;
     QProcess *m_process;
     ValidationRequest m_requestType;
-};
-
-struct MsBuildInformation {
-    QString m_executable;
-    QString m_version;
-};
-
-struct SchemaInformation {
-    Constants::SchemaVersion m_schemaVersion;
-    QString m_schemaFilePath;
 };
 
 class VcProjectEditMsBuildDialog : public QDialog
@@ -88,6 +81,19 @@ private:
     QPushButton *m_browseButton;
 };
 
+class MsBuildTableItem : public QTableWidgetItem
+{
+public:
+    MsBuildTableItem();
+    ~MsBuildTableItem();
+
+    Core::Id msBuildID() const;
+    void setMsBuildID(Core::Id id);
+
+private:
+    Core::Id m_id;
+};
+
 class VcProjectBuildOptionsWidget : public QWidget
 {
     Q_OBJECT
@@ -96,18 +102,23 @@ public:
     VcProjectBuildOptionsWidget(QWidget *parent = 0);
     ~VcProjectBuildOptionsWidget();
 
-    MsBuildInformation build(int index);
-    int buildCount();
-    MsBuildInformation currentSelectedBuild() const;
-    int currentSelectedRow() const;
+    Core::Id currentSelectedBuildId() const;
     bool exists(const QString &exePath);
-    void insertMSBuild(const MsBuildInformation &info);
-    void removeBuild(int index);
-    void updateMsBuild(const QString &exePath, const MsBuildInformation &newMsBuildInfo);
+    bool hasAnyBuilds() const;
+    void insertMSBuild(MsBuildInformation *msBuild);
+    void removeMsBuild(Core::Id msBuildId);
+    void replaceMsBuild(Core::Id msBuildId, MsBuildInformation *newMsBuild);
+    void saveSettings() const;
     SchemaOptionsWidget *schemaOptionsWidget() const;
 
 private slots:
+    void onMsBuildAdded(Core::Id msBuildId);
+    void onMsBuildReplaced(Core::Id oldMsBuildId, Core::Id newMsBuildId);
+    void onMsBuildRemoved(Core::Id msBuildId);
     void onTableRowIndexChange(int index);
+
+private:
+    void insertMsBuildIntoTable(MsBuildInformation *msBuild);
 
 signals:
     void addNewButtonClicked();
@@ -121,6 +132,9 @@ private:
     QPushButton *m_deleteBuildButton;
     QTableWidget *m_buildTableWidget;
     SchemaOptionsWidget *m_schemaOptionsWidget;
+
+    QList<MsBuildInformation *> m_newMsBuilds;
+    QList<Core::Id> m_removedMsBuilds;
 };
 
 class VcProjectBuildOptionsPage : public Core::IOptionsPage
@@ -135,9 +149,6 @@ public:
     void apply();
     void finish();
 
-    QVector<MsBuildInformation *> msBuilds() const;
-    QList<SchemaInformation> schemaInfos() const;
-    void loadSettings();
     void saveSettings();
     void startVersionCheck();
 
@@ -147,13 +158,7 @@ private slots:
     void deleteMsBuild();
     void versionCheckFinished();
 
-signals:
-    void vcOptionsUpdated();
-
 private:
-    QVector<MsBuildInformation *> m_msBuildInformations;
-    QList<SchemaInformation> m_schemaInformations;
-    QStringList m_schemaPaths;
     VcProjectBuildOptionsWidget *m_optionsWidget;
     VcProjectValidator m_validator;
 };
@@ -161,4 +166,4 @@ private:
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTBUILDOPTIONSPAGE_H
+#endif // VCPROJECTMANAGER_INTERNAL_VCPROJECTBUILDOPTIONSPAGE_H

@@ -30,8 +30,9 @@
 #include "vcprojectbuildoptionspage.h"
 
 #include "widgets/schemaoptionswidget.h"
+#include "msbuildversionmanager.h"
+#include "vcschemamanager.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDialogButtonBox>
@@ -92,6 +93,24 @@ void VcProjectEditMsBuildDialog::showBrowseFileDialog()
     m_pathChooser->setText(QFileDialog::getOpenFileName(0, tr("Select Ms Build"), QString(), QLatin1String("*.exe")));
 }
 
+MsBuildTableItem::MsBuildTableItem()
+{
+}
+
+MsBuildTableItem::~MsBuildTableItem()
+{
+}
+
+Core::Id MsBuildTableItem::msBuildID() const
+{
+    return m_id;
+}
+
+void MsBuildTableItem::setMsBuildID(Core::Id id)
+{
+    m_id = id;
+}
+
 VcProjectBuildOptionsWidget::VcProjectBuildOptionsWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -137,51 +156,31 @@ VcProjectBuildOptionsWidget::VcProjectBuildOptionsWidget(QWidget *parent) :
     connect(m_editBuildButton, SIGNAL(clicked()), this, SIGNAL(editButtonClicked()));
     connect(m_deleteBuildButton, SIGNAL(clicked()), this, SIGNAL(deleteButtonClicked()));
     connect(m_buildTableWidget, SIGNAL(cellClicked(int, int)), this, SLOT(onTableRowIndexChange(int)));
+
+    MsBuildVersionManager *msBVM = MsBuildVersionManager::instance();
+    QList<MsBuildInformation *> msBuildInfos = msBVM->msBuildInformations();
+    foreach (MsBuildInformation *msBuildInfo, msBuildInfos)
+        insertMsBuildIntoTable(msBuildInfo);
+
+    connect(msBVM, SIGNAL(msBuildAdded(Core::Id)), this, SLOT(onMsBuildAdded(Core::Id)));
+    connect(msBVM, SIGNAL(msBuildRemoved(Core::Id)), this, SLOT(onMsBuildRemoved(Core::Id)));
+    connect(msBVM, SIGNAL(msBuildReplaced(Core::Id,Core::Id)), this, SLOT(onMsBuildReplaced(Core::Id,Core::Id)));
 }
 
 VcProjectBuildOptionsWidget::~VcProjectBuildOptionsWidget()
 {
 }
 
-MsBuildInformation VcProjectBuildOptionsWidget::build(int index)
-{
-    MsBuildInformation msBuild;
-    QString exePath;
-    QString version;
-
-    if (0 <= index && index < m_buildTableWidget->rowCount()) {
-        exePath = m_buildTableWidget->item(index, 0)->text();
-        version = m_buildTableWidget->item(index, 1)->text();
-    }
-
-    msBuild.m_version = version;
-    msBuild.m_executable = exePath;
-    return msBuild;
-}
-
-int VcProjectBuildOptionsWidget::buildCount()
-{
-    return m_buildTableWidget->rowCount();
-}
-
-MsBuildInformation VcProjectBuildOptionsWidget::currentSelectedBuild() const
+Core::Id VcProjectBuildOptionsWidget::currentSelectedBuildId() const
 {
     QModelIndex currentIndex = m_buildTableWidget->selectionModel()->currentIndex();
+
     if (currentIndex.isValid()) {
-        MsBuildInformation msBuild;
-        msBuild.m_executable = m_buildTableWidget->item(currentIndex.row(), 0)->text();
-        msBuild.m_version = m_buildTableWidget->item(currentIndex.row(), 1)->text();
-        return msBuild;
+        MsBuildTableItem *item = static_cast<MsBuildTableItem *>(m_buildTableWidget->item(currentIndex.row(), 0));
+        return item->msBuildID(); // select ms build id
     }
 
-    return MsBuildInformation();
-}
-
-int VcProjectBuildOptionsWidget::currentSelectedRow() const
-{
-    if (m_buildTableWidget->selectionModel()->currentIndex().isValid())
-        return m_buildTableWidget->selectionModel()->currentIndex().row();
-    return -1;
+    return Core::Id();
 }
 
 bool VcProjectBuildOptionsWidget::exists(const QString &exePath)
@@ -196,60 +195,145 @@ bool VcProjectBuildOptionsWidget::exists(const QString &exePath)
     return false;
 }
 
-void VcProjectBuildOptionsWidget::insertMSBuild(const MsBuildInformation &info)
+bool VcProjectBuildOptionsWidget::hasAnyBuilds() const
 {
-    QTableWidgetItem *exeTableItem = new QTableWidgetItem();
-    exeTableItem->setFlags(exeTableItem->flags() ^ Qt::ItemIsEditable);
-    exeTableItem->setText(info.m_executable);
-
-    QTableWidgetItem *versionTableItem = new QTableWidgetItem();
-    versionTableItem->setFlags(versionTableItem->flags() ^ Qt::ItemIsEditable);
-    versionTableItem->setText(info.m_version);
-
-    m_buildTableWidget->insertRow(m_buildTableWidget->rowCount());
-    m_buildTableWidget->setItem(m_buildTableWidget->rowCount() - 1, 0, exeTableItem);
-    m_buildTableWidget->setItem(m_buildTableWidget->rowCount() - 1, 1, versionTableItem);
-
-    if (!m_buildTableWidget->selectionModel()->currentIndex().isValid())
-        m_buildTableWidget->selectRow(0);
-
-    if (!m_editBuildButton->isEnabled())
-        m_editBuildButton->setEnabled(true);
-
-    if (!m_deleteBuildButton->isEnabled())
-        m_deleteBuildButton->setEnabled(true);
+    return m_buildTableWidget->rowCount() >= 0 ? true : false;
 }
 
-void VcProjectBuildOptionsWidget::removeBuild(int index)
+void VcProjectBuildOptionsWidget::insertMSBuild(MsBuildInformation *msBuild)
 {
-    if (0 <= index && index < m_buildTableWidget->rowCount())
-        m_buildTableWidget->removeRow(index);
-
-    if (m_buildTableWidget->rowCount() <= 0) {
-        m_editBuildButton->setEnabled(false);
-        m_deleteBuildButton->setEnabled(false);
+    if (msBuild) {
+        insertMsBuildIntoTable(msBuild);
+        m_newMsBuilds.append(msBuild);
     }
 }
 
-void VcProjectBuildOptionsWidget::updateMsBuild(const QString &exePath, const MsBuildInformation &newMsBuildInfo)
+void VcProjectBuildOptionsWidget::removeMsBuild(Core::Id msBuildId)
 {
     for (int i = 0; i < m_buildTableWidget->rowCount(); ++i) {
-        QTableWidgetItem *item = m_buildTableWidget->item(i, 0);
+        MsBuildTableItem *item = static_cast<MsBuildTableItem *>(m_buildTableWidget->item(i, 0));
 
-        if (item->text() == exePath) {
-            item->setText(newMsBuildInfo.m_executable);
-
-            // update version column item
-            item = m_buildTableWidget->item(i, 1);
-            item->setText(newMsBuildInfo.m_version);
+        if (item->msBuildID() == msBuildId) {
+            m_buildTableWidget->removeRow(i);
             break;
         }
     }
+
+    foreach (MsBuildInformation *info, m_newMsBuilds) {
+        if (info->getId() == msBuildId) {
+            m_newMsBuilds.removeAll(info);
+            return;
+        }
+    }
+
+    m_removedMsBuilds.append(msBuildId);
+}
+
+void VcProjectBuildOptionsWidget::replaceMsBuild(Core::Id msBuildId, MsBuildInformation *newMsBuild)
+{
+    // update data in table
+    for (int i = 0; i < m_buildTableWidget->rowCount(); ++i) {
+        MsBuildTableItem *item = static_cast<MsBuildTableItem *>(m_buildTableWidget->item(i, 0));
+
+        if (item->msBuildID() == msBuildId) {
+            item->setText(newMsBuild->m_executable);
+            item->setMsBuildID(newMsBuild->getId());
+
+            // update version column item
+            QTableWidgetItem *item2 = m_buildTableWidget->item(i, 1);
+            item2->setText(newMsBuild->m_versionString);
+            break;
+        }
+    }
+
+    MsBuildVersionManager *msBVM = MsBuildVersionManager::instance();
+
+    if (msBVM->msBuildInformation(msBuildId)) {
+        m_removedMsBuilds.append(msBuildId);
+        m_newMsBuilds.append(newMsBuild);
+    }
+
+    else {
+        m_newMsBuilds.append(newMsBuild);
+        foreach (MsBuildInformation *info, m_newMsBuilds) {
+            if (info->getId() == msBuildId) {
+                m_newMsBuilds.removeAll(info);
+                break;
+            }
+        }
+    }
+}
+
+void VcProjectBuildOptionsWidget::saveSettings() const
+{
+    MsBuildVersionManager *msBVM = MsBuildVersionManager::instance();
+
+    disconnect(msBVM, SIGNAL(msBuildAdded(Core::Id)), this, SLOT(onMsBuildAdded(Core::Id)));
+    disconnect(msBVM, SIGNAL(msBuildRemoved(Core::Id)), this, SLOT(onMsBuildRemoved(Core::Id)));
+    disconnect(msBVM, SIGNAL(msBuildReplaced(Core::Id,Core::Id)), this, SLOT(onMsBuildReplaced(Core::Id,Core::Id)));
+
+    if (msBVM) {
+        foreach (Core::Id id, m_removedMsBuilds)
+            msBVM->removeMsBuildInformation(id);
+
+        foreach (MsBuildInformation *info, m_newMsBuilds)
+            msBVM->addMsBuildInformation(info);
+
+        msBVM->saveSettings();
+    }
+
+    connect(msBVM, SIGNAL(msBuildAdded(Core::Id)), this, SLOT(onMsBuildAdded(Core::Id)));
+    connect(msBVM, SIGNAL(msBuildRemoved(Core::Id)), this, SLOT(onMsBuildRemoved(Core::Id)));
+    connect(msBVM, SIGNAL(msBuildReplaced(Core::Id,Core::Id)), this, SLOT(onMsBuildReplaced(Core::Id,Core::Id)));
+
+    m_schemaOptionsWidget->saveSettings();
 }
 
 SchemaOptionsWidget *VcProjectBuildOptionsWidget::schemaOptionsWidget() const
 {
     return m_schemaOptionsWidget;
+}
+
+void VcProjectBuildOptionsWidget::onMsBuildAdded(Core::Id msBuildId)
+{
+    MsBuildVersionManager *msBVM = MsBuildVersionManager::instance();
+    MsBuildInformation *msBuild = msBVM->msBuildInformation(msBuildId);
+
+    if (msBuild)
+        insertMsBuildIntoTable(msBuild);
+}
+
+void VcProjectBuildOptionsWidget::onMsBuildReplaced(Core::Id oldMsBuildId, Core::Id newMsBuildId)
+{
+    MsBuildVersionManager *msBVM = MsBuildVersionManager::instance();
+    MsBuildInformation *newMsBuild = msBVM->msBuildInformation(newMsBuildId);
+
+    // update data in table
+    for (int i = 0; i < m_buildTableWidget->rowCount(); ++i) {
+        MsBuildTableItem *item = static_cast<MsBuildTableItem *>(m_buildTableWidget->item(i, 0));
+
+        if (item->msBuildID() == oldMsBuildId) {
+            item->setText(newMsBuild->m_executable);
+            item->setMsBuildID(newMsBuild->getId());
+
+            // update version column item
+            QTableWidgetItem *item2 = m_buildTableWidget->item(i, 1);
+            item2->setText(newMsBuild->m_versionString);
+            break;
+        }
+    }
+}
+
+void VcProjectBuildOptionsWidget::onMsBuildRemoved(Core::Id msBuildId)
+{
+    for (int i = 0; i < m_buildTableWidget->rowCount(); ++i) {
+        MsBuildTableItem *item = static_cast<MsBuildTableItem *>(m_buildTableWidget->item(i, 0));
+
+        if (item->msBuildID() == msBuildId) {
+            m_buildTableWidget->removeRow(i);
+            return;
+        }
+    }
 }
 
 void VcProjectBuildOptionsWidget::onTableRowIndexChange(int index)
@@ -267,6 +351,33 @@ void VcProjectBuildOptionsWidget::onTableRowIndexChange(int index)
     emit currentBuildSelectionChanged(index);
 }
 
+void VcProjectBuildOptionsWidget::insertMsBuildIntoTable(MsBuildInformation *msBuild)
+{
+    if (msBuild) {
+        MsBuildTableItem *exeTableItem = new MsBuildTableItem();
+        exeTableItem->setFlags(exeTableItem->flags() ^ Qt::ItemIsEditable);
+        exeTableItem->setText(msBuild->m_executable);
+        exeTableItem->setMsBuildID(msBuild->getId());
+
+        QTableWidgetItem *versionTableItem = new QTableWidgetItem();
+        versionTableItem->setFlags(versionTableItem->flags() ^ Qt::ItemIsEditable);
+        versionTableItem->setText(msBuild->m_versionString);
+
+        m_buildTableWidget->insertRow(m_buildTableWidget->rowCount());
+        m_buildTableWidget->setItem(m_buildTableWidget->rowCount() - 1, 0, exeTableItem);
+        m_buildTableWidget->setItem(m_buildTableWidget->rowCount() - 1, 1, versionTableItem);
+
+        if (!m_buildTableWidget->selectionModel()->currentIndex().isValid())
+            m_buildTableWidget->selectRow(0);
+
+        if (!m_editBuildButton->isEnabled())
+            m_editBuildButton->setEnabled(true);
+
+        if (!m_deleteBuildButton->isEnabled())
+            m_deleteBuildButton->setEnabled(true);
+    }
+}
+
 VcProjectBuildOptionsPage::VcProjectBuildOptionsPage() :
     m_optionsWidget(0)
 {
@@ -278,7 +389,6 @@ VcProjectBuildOptionsPage::VcProjectBuildOptionsPage() :
 
     // TODO(Radovan): create and set proper icon
     setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
-    loadSettings();
 }
 
 VcProjectBuildOptionsPage::~VcProjectBuildOptionsPage()
@@ -289,12 +399,6 @@ QWidget *VcProjectBuildOptionsPage::createPage(QWidget *parent)
 {
     m_optionsWidget = new VcProjectBuildOptionsWidget(parent);
 
-    foreach (const MsBuildInformation *msBuildInfo, m_msBuildInformations)
-        m_optionsWidget->insertMSBuild(*msBuildInfo);
-
-    foreach (const SchemaInformation schemaInfo, m_schemaInformations)
-        m_optionsWidget->schemaOptionsWidget()->setSchemaPath(schemaInfo.m_schemaFilePath, schemaInfo.m_schemaVersion);
-
     connect(m_optionsWidget, SIGNAL(addNewButtonClicked()), this, SLOT(addNewMsBuild()));
     connect(m_optionsWidget, SIGNAL(editButtonClicked()), this, SLOT(editMsBuild()));
     connect(m_optionsWidget, SIGNAL(deleteButtonClicked()), this, SLOT(deleteMsBuild()));
@@ -303,7 +407,7 @@ QWidget *VcProjectBuildOptionsPage::createPage(QWidget *parent)
 
 void VcProjectBuildOptionsPage::apply()
 {
-    if (!m_optionsWidget || (m_optionsWidget && m_optionsWidget->buildCount() < 0))
+    if (!m_optionsWidget || (m_optionsWidget && !m_optionsWidget->hasAnyBuilds()))
         return;
 
     saveSettings();
@@ -313,104 +417,10 @@ void VcProjectBuildOptionsPage::finish()
 {
 }
 
-QVector<MsBuildInformation *> VcProjectBuildOptionsPage::msBuilds() const
-{
-    return m_msBuildInformations;
-}
-
-QList<SchemaInformation> VcProjectBuildOptionsPage::schemaInfos() const
-{
-    return m_schemaInformations;
-}
-
-void VcProjectBuildOptionsPage::loadSettings()
-{
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SETTINGS_GROUP));
-    QString msSchemaPathsData = settings->value(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH)).toString();
-    QString msBuildInformationData = settings->value(QLatin1String(VcProjectManager::Constants::VC_PROJECT_MS_BUILD_INFORMATIONS)).toString();
-    settings->endGroup();
-
-    foreach (MsBuildInformation *msBuild, m_msBuildInformations)
-        delete msBuild;
-
-    m_msBuildInformations.clear();
-
-    if (!msBuildInformationData.isEmpty()) {
-        QStringList msBuildInformations = msBuildInformationData.split(QLatin1Char(';'));
-
-        foreach (QString msBuildInfo, msBuildInformations) {
-            QStringList msBuildData = msBuildInfo.split(QLatin1Char(','));
-            MsBuildInformation *msBuild = new MsBuildInformation();
-            msBuild->m_executable = msBuildData.first();
-            msBuild->m_version = msBuildData.last();
-            m_msBuildInformations.append(msBuild);
-        }
-    }
-
-    QStringList schemaPaths = msSchemaPathsData.split(QLatin1Char(';'));
-
-    foreach (QString schema, schemaPaths) {
-        QStringList schemaData = schema.split(QLatin1String("::"));
-        if (schemaData.size() == 2) {
-            if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER)) {
-                SchemaInformation schemaInfo;
-                schemaInfo.m_schemaVersion = Constants::SV_2003;
-                schemaInfo.m_schemaFilePath = schemaData[1];
-                m_schemaInformations.append(schemaInfo);
-            }
-            else if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER)) {
-                SchemaInformation schemaInfo;
-                schemaInfo.m_schemaVersion = Constants::SV_2005;
-                schemaInfo.m_schemaFilePath = schemaData[1];
-                m_schemaInformations.append(schemaInfo);
-            }
-            else if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER)) {
-                SchemaInformation schemaInfo;
-                schemaInfo.m_schemaVersion = Constants::SV_2008;
-                schemaInfo.m_schemaFilePath = schemaData[1];
-                m_schemaInformations.append(schemaInfo);
-            }
-        }
-    }
-}
-
 void VcProjectBuildOptionsPage::saveSettings()
 {
-    if (m_optionsWidget) {
-        QString msBuildInformations;
-
-        for (int i = 0; i < m_optionsWidget->buildCount(); ++i) {
-            MsBuildInformation msBuildInfo = m_optionsWidget->build(i);
-            msBuildInformations += msBuildInfo.m_executable + QLatin1Char(',') + msBuildInfo.m_version;
-
-            if (i != m_optionsWidget->buildCount() - 1)
-                msBuildInformations += QLatin1Char(';');
-        }
-
-        QString schemas = QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER);
-        schemas.append(QLatin1String("::"));
-        schemas.append(m_optionsWidget->schemaOptionsWidget()->schemaPath(Constants::SV_2003));
-        schemas.append(QLatin1Char(';'));
-
-        schemas.append(QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER));
-        schemas.append(QLatin1String("::"));
-        schemas.append(m_optionsWidget->schemaOptionsWidget()->schemaPath(Constants::SV_2005));
-        schemas.append(QLatin1Char(';'));
-
-        schemas.append(QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER));
-        schemas.append(QLatin1String("::"));
-        schemas.append(m_optionsWidget->schemaOptionsWidget()->schemaPath(Constants::SV_2008));
-
-        QSettings *settings = Core::ICore::settings();
-        settings->beginGroup(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SETTINGS_GROUP));
-        settings->setValue(QLatin1String(VcProjectManager::Constants::VC_PROJECT_MS_BUILD_INFORMATIONS), msBuildInformations);
-        settings->setValue(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH), schemas);
-        settings->endGroup();
-
-        loadSettings();
-        emit vcOptionsUpdated();
-    }
+    if (m_optionsWidget)
+        m_optionsWidget->saveSettings();
 }
 
 void VcProjectBuildOptionsPage::startVersionCheck()
@@ -445,28 +455,31 @@ void VcProjectBuildOptionsPage::addNewMsBuild()
 
 void VcProjectBuildOptionsPage::editMsBuild()
 {
-    if (m_optionsWidget && m_optionsWidget->currentSelectedRow() != -1) {
-        MsBuildInformation currentSelectedMsBuild = m_optionsWidget->currentSelectedBuild();
-        m_validator.m_originalExecutable = currentSelectedMsBuild.m_executable;
+    if (m_optionsWidget) {
+        MsBuildVersionManager *msBVM = MsBuildVersionManager::instance();
+        MsBuildInformation *currentSelectedMsBuild = msBVM->msBuildInformation(m_optionsWidget->currentSelectedBuildId());
 
-        VcProjectEditMsBuildDialog editDialog;
-        editDialog.setPath(m_validator.m_originalExecutable);
+        if (currentSelectedMsBuild) {
+            m_validator.m_originalMsInfoID = currentSelectedMsBuild->getId();
 
-        if (editDialog.exec() == QDialog::Accepted) {
-            if (editDialog.path() == m_validator.m_originalExecutable)
-                return;
+            VcProjectEditMsBuildDialog editDialog;
+            editDialog.setPath(currentSelectedMsBuild->m_executable);
 
-            m_validator.m_requestType = VcProjectValidator::ValidationRequest_Edit;
-            m_validator.m_executable = editDialog.path();
-            startVersionCheck();
+            if (editDialog.exec() == QDialog::Accepted) {
+                if (editDialog.path() == currentSelectedMsBuild->m_executable)
+                    return;
+
+                m_validator.m_requestType = VcProjectValidator::ValidationRequest_Edit;
+                m_validator.m_executable = editDialog.path();
+                startVersionCheck();
+            }
         }
     }
 }
 
 void VcProjectBuildOptionsPage::deleteMsBuild()
 {
-    if (m_optionsWidget && m_optionsWidget->buildCount() > 0)
-        m_optionsWidget->removeBuild(m_optionsWidget->currentSelectedRow());
+    m_optionsWidget->removeMsBuild(m_optionsWidget->currentSelectedBuildId());
 }
 
 void VcProjectBuildOptionsPage::versionCheckFinished()
@@ -476,28 +489,16 @@ void VcProjectBuildOptionsPage::versionCheckFinished()
         QStringList splitData = response.split(QLatin1Char('\n'));
 
         if (m_validator.m_requestType == VcProjectValidator::ValidationRequest_Add) {
-            MsBuildInformation newMsBuild;
-            newMsBuild.m_executable = m_validator.m_executable;
-            newMsBuild.m_version = splitData.last();
-
-            if (m_optionsWidget)
-                m_optionsWidget->insertMSBuild(newMsBuild);
+            MsBuildInformation *newMsBuild = MsBuildVersionManager::createMsBuildInfo(m_validator.m_executable, splitData.last());
+            m_optionsWidget->insertMSBuild(newMsBuild);
         }
 
         else if (m_validator.m_requestType == VcProjectValidator::ValidationRequest_Edit) {
-            foreach (const MsBuildInformation *msBuildInfo, m_msBuildInformations) {
-                if (msBuildInfo && msBuildInfo->m_executable == m_validator.m_originalExecutable) {
-                    MsBuildInformation newInfo;
-                    newInfo.m_version = splitData.last();
-                    newInfo.m_executable = m_validator.m_executable;
+            MsBuildInformation *newMsBuildInfo = MsBuildVersionManager::createMsBuildInfo(m_validator.m_executable, splitData.last());
 
-                    // update table data
-                    if (m_optionsWidget)
-                        m_optionsWidget->updateMsBuild(m_validator.m_originalExecutable, newInfo);
-
-                    break;
-                }
-            }
+            // update table data
+            if (m_optionsWidget)
+                m_optionsWidget->replaceMsBuild(m_validator.m_originalMsInfoID, newMsBuildInfo);
         }
 
         m_validator.m_process->deleteLater();

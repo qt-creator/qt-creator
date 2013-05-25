@@ -32,6 +32,7 @@
 #include "vcprojectfile.h"
 #include "vcmakestep.h"
 #include "vcprojectmanager.h"
+#include "vcprojectkitinformation.h"
 #include "vcprojectmanagerconstants.h"
 #include "vcprojectbuildconfiguration.h"
 #include "vcprojectmodel/vcdocumentmodel.h"
@@ -51,7 +52,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -74,17 +74,9 @@ class VCProjKitMatcher : public KitMatcher
 public:
     bool matches(const Kit *k) const
     {
-        ToolChain *tc = ToolChainKitInformation::toolChain(k);
-        QTC_ASSERT(tc, return false);
-        Abi abi = tc->targetAbi();
-        switch (abi.osFlavor()) {
-        case Abi::WindowsMsvc2005Flavor:
-        case Abi::WindowsMsvc2008Flavor:
-        case Abi::WindowsCEFlavor:
-            return true;
-        default:
-            return false;
-        }
+        MsBuildInformation *msBuild = VcProjectKitInformation::msBuildInfo(k);
+        QTC_ASSERT(msBuild, return false);
+        return true;
     }
 };
 
@@ -148,7 +140,21 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
 QString VcProject::defaultBuildDirectory() const
 {
     VcProjectFile* vcFile = static_cast<VcProjectFile *>(document());
-    return vcFile->path() + QLatin1String("-build");
+    return vcFile->path()/* + QLatin1String("-build")*/;
+}
+
+MsBuildInformation::MsBuildVersion VcProject::minSupportedMsBuild() const
+{
+    if (m_projectFile && m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument())
+        return m_projectFile->documentModel()->vcProjectDocument()->minSupportedMsBuildVersion();
+    return MsBuildInformation::MSBUILD_V_UNKNOWN;
+}
+
+MsBuildInformation::MsBuildVersion VcProject::maxSupportedMsBuild() const
+{
+    if (m_projectFile && m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument())
+        return m_projectFile->documentModel()->vcProjectDocument()->maxSupportedMsBuildVersion();
+    return MsBuildInformation::MSBUILD_V_UNKNOWN;
 }
 
 bool VcProject::needsConfiguration() const
@@ -161,7 +167,7 @@ bool VcProject::supportsKit(Kit *k, QString *errorMessage) const
     VCProjKitMatcher matcher;
     if (!matcher.matches(k)) {
         if (errorMessage)
-            *errorMessage = tr("Kit toolchain does not support MSVC 2005 or 2008 ABI");
+            *errorMessage = tr("Kit toolchain does not support MSVC 2003, 2005 or 2008 ABI");
         return false;
     }
     return true;

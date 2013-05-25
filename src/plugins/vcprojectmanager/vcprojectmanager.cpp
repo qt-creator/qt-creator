@@ -54,7 +54,6 @@ namespace Internal {
 VcManager::VcManager(VcProjectBuildOptionsPage *configPage) :
     m_configPage(configPage)
 {
-    connect(m_configPage, SIGNAL(vcOptionsUpdated()), SLOT(onOptionsPageUpdate()));
     readSchemaPath();
 }
 
@@ -103,36 +102,10 @@ ProjectExplorer::Project *VcManager::openProject(const QString &fileName, QStrin
     return 0;
 }
 
-QVector<MsBuildInformation *> VcManager::msBuilds() const
-{
-    if (!m_configPage)
-        return  QVector<MsBuildInformation *>();
-    return m_configPage->msBuilds();
-}
-
-VcProjectBuildOptionsPage *VcManager::buildOptionsPage()
-{
-    return m_configPage;
-}
-
 void VcManager::updateContextMenu(Project *project, ProjectExplorer::Node *node)
 {
     Q_UNUSED(node);
     m_contextProject = project;
-}
-
-void VcManager::onOptionsPageUpdate()
-{
-    QList<SchemaInformation> schemaInfos = m_configPage->schemaInfos();
-
-    foreach (SchemaInformation schema, schemaInfos) {
-        if (schema.m_schemaVersion == Constants::SV_2003)
-            m_vc2003Schema = schema.m_schemaFilePath;
-        if (schema.m_schemaVersion == Constants::SV_2005)
-            m_vc2005Schema = schema.m_schemaFilePath;
-        if (schema.m_schemaVersion == Constants::SV_2008)
-            m_vc2008Schema = schema.m_schemaFilePath;
-    }
 }
 
 bool VcManager::checkIfVersion2003(const QString &filePath) const

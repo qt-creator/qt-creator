@@ -29,6 +29,7 @@
 ****************************************************************************/
 #include "schemaoptionswidget.h"
 #include "ui_schemaoptionswidget.h"
+#include "../vcschemamanager.h"
 
 #include <QFileDialog>
 
@@ -41,6 +42,14 @@ SchemaOptionsWidget::SchemaOptionsWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    VcSchemaManager *schemaManager = VcSchemaManager::instance();
+
+    if (schemaManager) {
+        ui->m_schema2003LineEdit->setText(schemaManager->schema(Constants::SV_2003));
+        ui->m_schema2005LineEdit->setText(schemaManager->schema(Constants::SV_2005));
+        ui->m_schema2008LineEdit->setText(schemaManager->schema(Constants::SV_2008));
+    }
+
     connect(ui->m_schema2003BrowseButton, SIGNAL(clicked()), this, SLOT(onBrowseSchema2003ButtonClick()));
     connect(ui->m_schema2005BrowseButton, SIGNAL(clicked()), this, SLOT(onBrowseSchema2005ButtonClick()));
     connect(ui->m_schema2008BrowseButton, SIGNAL(clicked()), this, SLOT(onBrowseSchema2008ButtonClick()));
@@ -51,32 +60,16 @@ SchemaOptionsWidget::~SchemaOptionsWidget()
     delete ui;
 }
 
-QString SchemaOptionsWidget::schemaPath(Constants::SchemaVersion schemaVersion)
+void SchemaOptionsWidget::saveSettings()
 {
-    switch (schemaVersion) {
-    case Constants::SV_2003:
-        return ui->m_schema2003LineEdit->text();
-    case Constants::SV_2005:
-        return ui->m_schema2005LineEdit->text();
-    case Constants::SV_2008:
-        return ui->m_schema2008LineEdit->text();
-    }
+    VcSchemaManager *schemaManager = VcSchemaManager::instance();
 
-    return QString();
-}
+    if (schemaManager) {
+        schemaManager->setSchema(Constants::SV_2003, ui->m_schema2003LineEdit->text());
+        schemaManager->setSchema(Constants::SV_2005, ui->m_schema2005LineEdit->text());
+        schemaManager->setSchema(Constants::SV_2008, ui->m_schema2008LineEdit->text());
 
-void SchemaOptionsWidget::setSchemaPath(const QString &schemaPath, Constants::SchemaVersion schemaVersion)
-{
-    switch (schemaVersion) {
-    case Constants::SV_2003:
-        ui->m_schema2003LineEdit->setText(schemaPath);
-        break;
-    case Constants::SV_2005:
-        ui->m_schema2005LineEdit->setText(schemaPath);
-        break;
-    case Constants::SV_2008:
-        ui->m_schema2008LineEdit->setText(schemaPath);
-        break;
+        schemaManager->saveSettings();
     }
 }
 

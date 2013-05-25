@@ -27,39 +27,53 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
-#define VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
+#ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTKITCONFIGWIDGET_H
+#define VCPROJECTMANAGER_INTERNAL_VCPROJECTKITCONFIGWIDGET_H
 
-#include <QWidget>
-#include "vcprojectmanagerconstants.h"
+#include <projectexplorer/kitconfigwidget.h>
+#include <coreplugin/id.h>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
 
-namespace Ui {
-class SchemaOptionsWidget;
-}
+class MsBuildInformation;
 
-class SchemaOptionsWidget : public QWidget
+class VcProjectKitConfigWidget : public ProjectExplorer::KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit SchemaOptionsWidget(QWidget *parent = 0);
-    ~SchemaOptionsWidget();
+    VcProjectKitConfigWidget(ProjectExplorer::Kit *k);
+    ~VcProjectKitConfigWidget();
 
-    void saveSettings();
+    QString displayName() const;
+    QString toolTip() const { return QString(); }
+    void makeReadOnly();
+    void refresh();
+    bool visibleInKit();
+
+    QWidget *mainWidget() const;
+    QWidget *buttonWidget() const { return 0; }
 
 private slots:
-    void onBrowseSchema2003ButtonClick();
-    void onBrowseSchema2005ButtonClick();
-    void onBrowseSchema2008ButtonClick();
+    void currentMsBuildChanged(int index);
+    void onMsBuildAdded(Core::Id msBuildId);
+    void onMsBuildReplaced(Core::Id oldMsBuildId, Core::Id newMsBuildId);
+    void onMsBuildRemoved(Core::Id msBuildId);
 
 private:
-    Ui::SchemaOptionsWidget *ui;
-};
+    int indexOf(MsBuildInformation *msBuild) const;
+    void insertMsBuild(MsBuildInformation *msBuild);
+    void removeMsBuild(MsBuildInformation *msBuild);
 
+    QComboBox *m_comboBox;
+};
 
 } // namespace Internal
 } // namespace VcProjectManager
-#endif // VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
+
+#endif // VCPROJECTMANAGER_INTERNAL_VCPROJECTKITCONFIGWIDGET_H

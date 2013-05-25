@@ -36,6 +36,7 @@
 #include "configurations.h"
 #include "files.h"
 #include "globals.h"
+#include "../msbuildversionmanager.h"
 #include "platforms.h"
 #include "publishingdata.h"
 #include "references.h"
@@ -57,6 +58,8 @@ public:
     VcDocConstants::DocumentVersion documentVersion() const;
     QString filePath() const;
     void allProjectFiles(QStringList &sl) const;
+    virtual MsBuildInformation::MsBuildVersion minSupportedMsBuildVersion() const = 0;
+    virtual MsBuildInformation::MsBuildVersion maxSupportedMsBuildVersion() const = 0;
 
     Configurations::Ptr configurations() const;
     Platforms::Ptr platforms() const;
@@ -110,6 +113,8 @@ public:
     ~VcProjectDocument2003();
 
     VcNodeWidget* createSettingsWidget();
+    MsBuildInformation::MsBuildVersion minSupportedMsBuildVersion() const;
+    MsBuildInformation::MsBuildVersion maxSupportedMsBuildVersion() const;
 
 protected:
     VcProjectDocument2003(const QString &filePath);
@@ -146,6 +151,9 @@ public:
     ~VcProjectDocument2005();
 
     VcNodeWidget* createSettingsWidget();
+    MsBuildInformation::MsBuildVersion minSupportedMsBuildVersion() const;
+    MsBuildInformation::MsBuildVersion maxSupportedMsBuildVersion() const;
+
     ToolFiles::Ptr toolFiles() const;
 
 protected:
@@ -185,6 +193,9 @@ public:
     ~VcProjectDocument2008();
 
     VcNodeWidget* createSettingsWidget();
+    MsBuildInformation::MsBuildVersion minSupportedMsBuildVersion() const;
+    MsBuildInformation::MsBuildVersion maxSupportedMsBuildVersion() const;
+
     PublishingData::Ptr publishingData() const;
 
 protected:

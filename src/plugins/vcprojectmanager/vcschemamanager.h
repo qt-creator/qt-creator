@@ -27,39 +27,43 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
-#define VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
+#ifndef VCPROJECTMANAGER_INTERNAL_VCSCHEMAMANAGER_H
+#define VCPROJECTMANAGER_INTERNAL_VCSCHEMAMANAGER_H
 
-#include <QWidget>
 #include "vcprojectmanagerconstants.h"
+#include <QMap>
+#include <QObject>
 
 namespace VcProjectManager {
 namespace Internal {
 
-namespace Ui {
-class SchemaOptionsWidget;
-}
-
-class SchemaOptionsWidget : public QWidget
+class VcSchemaManager : public QObject
 {
+    friend class VcProjectManagerPlugin;
     Q_OBJECT
 
 public:
-    explicit SchemaOptionsWidget(QWidget *parent = 0);
-    ~SchemaOptionsWidget();
+    static VcSchemaManager* instance();
+    ~VcSchemaManager();
+
+    void addSchema(const QString &schemaPath, Constants::SchemaVersion version);
+    QString schema(Constants::SchemaVersion version);
+    void setSchema(Constants::SchemaVersion version, const QString &schemaPath);
+    void removeSchema(Constants::SchemaVersion version);
+
+    void removeAllSchemas();
 
     void saveSettings();
 
-private slots:
-    void onBrowseSchema2003ButtonClick();
-    void onBrowseSchema2005ButtonClick();
-    void onBrowseSchema2008ButtonClick();
-
 private:
-    Ui::SchemaOptionsWidget *ui;
-};
+    VcSchemaManager();
+    void loadSettings();
 
+    static VcSchemaManager *m_instance;
+    QMap<Constants::SchemaVersion, QString> m_schemas;
+};
 
 } // namespace Internal
 } // namespace VcProjectManager
-#endif // VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
+
+#endif // VCPROJECTMANAGER_INTERNAL_VCSCHEMAMANAGER_H

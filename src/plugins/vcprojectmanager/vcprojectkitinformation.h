@@ -27,39 +27,52 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
-#define VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
+#ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTKITINFORMATION_H
+#define VCPROJECTMANAGER_INTERNAL_VCPROJECTKITINFORMATION_H
 
-#include <QWidget>
-#include "vcprojectmanagerconstants.h"
+#include <projectexplorer/kitinformation.h>
+
+using namespace ProjectExplorer;
+using namespace ProjectExplorer::Internal;
 
 namespace VcProjectManager {
 namespace Internal {
 
-namespace Ui {
-class SchemaOptionsWidget;
-}
+class MsBuildInformation;
 
-class SchemaOptionsWidget : public QWidget
+class VcProjectKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
 
 public:
-    explicit SchemaOptionsWidget(QWidget *parent = 0);
-    ~SchemaOptionsWidget();
+    VcProjectKitInformation();
+    ~VcProjectKitInformation();
 
-    void saveSettings();
+    Core::Id dataId() const;
+    unsigned int priority() const; // the higher the closer to the top.
+    QVariant defaultValue(Kit *) const;
+
+    // called to find issues with the kit
+    QList<Task> validate(const Kit *k) const;
+    // called to fix issues with this kitinformation. Does not modify the rest of the kit.
+    void fix(Kit *k);
+    // called on initial setup of a kit.
+    void setup(Kit *k);
+
+    ItemList toUserOutput(const Kit *) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(Kit *k) const;
+
+    static MsBuildInformation* msBuildInfo(const Kit *k);
+
+    static void setMsBuild(Kit *k, MsBuildInformation *msBuildId);
 
 private slots:
-    void onBrowseSchema2003ButtonClick();
-    void onBrowseSchema2005ButtonClick();
-    void onBrowseSchema2008ButtonClick();
-
-private:
-    Ui::SchemaOptionsWidget *ui;
+    void onMSBuildAdded(Core::Id msBuildId);
+    void onMSBuildRemoved(Core::Id msBuildId);
+    void onMSBuildReplaced(Core::Id oldMsBuildId, Core::Id newMsBuildId);
 };
-
 
 } // namespace Internal
 } // namespace VcProjectManager
-#endif // VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
+
+#endif // VCPROJECTMANAGER_INTERNAL_VCPROJECTKITINFORMATION_H

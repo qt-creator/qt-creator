@@ -29,11 +29,14 @@
 ****************************************************************************/
 #include "vcprojectmanagerplugin.h"
 
+#include "msbuildversionmanager.h"
 #include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
 #include "vcprojectbuildconfiguration.h"
 #include "vcprojectbuildoptionspage.h"
 #include "vcmakestep.h"
+#include "vcprojectkitinformation.h"
+#include "vcschemamanager.h"
 
 // TODO: clean up
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -43,6 +46,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <projectexplorer/kitmanager.h>
 
 #include <QAction>
 #include <QMessageBox>
@@ -84,6 +88,10 @@ bool VcProjectManagerPlugin::initialize(const QStringList &arguments, QString *e
     addAutoReleasedObject(new VcManager(confPage));
     addAutoReleasedObject(new VcProjectBuildConfigurationFactory);
     addAutoReleasedObject(new VcMakeStepFactory);
+    addAutoReleasedObject(new MsBuildVersionManager);
+    addAutoReleasedObject(new VcSchemaManager);
+
+    ProjectExplorer::KitManager::instance()->registerKitInformation(new VcProjectKitInformation);
 
     return true;
 }

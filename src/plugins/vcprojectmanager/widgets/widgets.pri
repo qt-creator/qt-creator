@@ -6,7 +6,8 @@ HEADERS += \
     widgets/configurationswidgets.h \
     widgets/configurationswidget.h \
     widgets/basicconfigurationwidget.h \
-    widgets/schemaoptionswidget.h
+    widgets/schemaoptionswidget.h \
+    widgets/vcprojectkitconfigwidget.h
 
 SOURCES += \
     widgets/vcnodewidget.cpp \
@@ -16,7 +17,8 @@ SOURCES += \
     widgets/configurationswidgets.cpp \
     widgets/configurationswidget.cpp \
     widgets/basicconfigurationwidget.cpp \
-    widgets/schemaoptionswidget.cpp
+    widgets/schemaoptionswidget.cpp \
+    widgets/vcprojectkitconfigwidget.cpp
 
 FORMS += \
     widgets/projectsettingswidget.ui \

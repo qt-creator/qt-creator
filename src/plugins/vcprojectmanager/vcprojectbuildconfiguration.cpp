@@ -166,11 +166,6 @@ VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::create(ProjectE
     bc->setDisplayName(buildConfigName);
     bc->setDefaultDisplayName(buildConfigName);
 
-    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-
-    VcMakeStep *makeStep = new VcMakeStep(buildSteps);
-    buildSteps->insertStep(0, makeStep);
-
     return bc;
 }
 

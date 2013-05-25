@@ -39,7 +39,6 @@ namespace VcProjectManager {
 namespace Internal {
 
 class VcProjectBuildOptionsPage;
-struct MsBuildInformation;
 
 class VcManager : public ProjectExplorer::IProjectManager
 {
@@ -50,12 +49,9 @@ public:
 
     QString mimeType() const;
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
-    QVector<MsBuildInformation *> msBuilds() const;
-    VcProjectBuildOptionsPage *buildOptionsPage();
 
 private slots:
     void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
-    void onOptionsPageUpdate();
 
 private:
     bool checkIfVersion2003(const QString &filePath) const;

@@ -31,6 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECT_H
 
 #include "vcprojectmodel/vcprojectdocument_constants.h"
+#include "msbuildversionmanager.h"
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/namedwidget.h>
@@ -66,7 +67,8 @@ public:
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
     QString defaultBuildDirectory() const;
-
+    MsBuildInformation::MsBuildVersion minSupportedMsBuild() const;
+    MsBuildInformation::MsBuildVersion maxSupportedMsBuild() const;
     bool needsConfiguration() const;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 

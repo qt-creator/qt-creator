@@ -39,7 +39,6 @@ namespace VcProjectManager {
 namespace Internal {
 
 class VcProjectBuildConfiguration;
-struct MsBuildInformation;
 
 class VcMakeStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -56,18 +55,15 @@ public:
     bool immutable() const;
 
     VcProjectBuildConfiguration *vcProjectBuildConfiguration() const;
-    QString msBuildCommand() const;
-    QString msBuildVersion() const;
-    void setMsBuildCommand(const QString &msBuild, const QString &version);
     QStringList buildArguments() const;
     QString buildArgumentsToString() const;
     void addBuildArgument(const QString &argument);
     void removeBuildArgument(const QString &buildArgument);
 
     QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
 
 protected:
+    bool fromMap(const QVariantMap &map);
     void stdOutput(const QString &line);
 
 private:
@@ -76,8 +72,6 @@ private:
     QList<ProjectExplorer::Task> m_tasks;
     QFutureInterface<bool> *m_futureInterface;
     ProjectExplorer::ProcessParameters *m_processParams;
-    QString m_msBuildCommand;
-    QString m_msBuildVersion;
     QStringList m_buildArguments;
 };
 
@@ -90,12 +84,10 @@ public:
     QString summaryText() const;
 
 private slots:
-    void onMsBuildSelectionChanged(int index);
-    void onMsBuildInformationsUpdated();
+    void msBuildUpdated(); // called when current ms build is chenged in kit information
 
 private:
     VcMakeStep *m_makeStep;
-    QComboBox *m_msBuildComboBox;
     QLabel *m_msBuildPath;
 };
 

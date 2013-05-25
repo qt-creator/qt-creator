@@ -340,6 +340,16 @@ VcNodeWidget *VcProjectDocument2003::createSettingsWidget()
     return new VcProjectDocument2003Widget(this);
 }
 
+MsBuildInformation::MsBuildVersion VcProjectDocument2003::minSupportedMsBuildVersion() const
+{
+    return MsBuildInformation::MSBUILD_V_2_0;
+}
+
+MsBuildInformation::MsBuildVersion VcProjectDocument2003::maxSupportedMsBuildVersion() const
+{
+    return MsBuildInformation::MSBUILD_V_3_5;
+}
+
 VcProjectDocument2003::VcProjectDocument2003(const QString &filePath)
     : VcProjectDocument(filePath)
 {
@@ -417,6 +427,16 @@ VcProjectDocument2005::~VcProjectDocument2005()
 VcNodeWidget *VcProjectDocument2005::createSettingsWidget()
 {
     return new VcProjectDocument2005Widget(this);
+}
+
+MsBuildInformation::MsBuildVersion VcProjectDocument2005::minSupportedMsBuildVersion() const
+{
+    return MsBuildInformation::MSBUILD_V_3_0;
+}
+
+MsBuildInformation::MsBuildVersion VcProjectDocument2005::maxSupportedMsBuildVersion() const
+{
+    return MsBuildInformation::MSBUILD_V_3_5;
 }
 
 ToolFiles::Ptr VcProjectDocument2005::toolFiles() const
@@ -564,6 +584,16 @@ VcProjectDocument2008::~VcProjectDocument2008()
 VcNodeWidget *VcProjectDocument2008::createSettingsWidget()
 {
     return new VcProjectDocument2008Widget(this);
+}
+
+MsBuildInformation::MsBuildVersion VcProjectDocument2008::minSupportedMsBuildVersion() const
+{
+    return MsBuildInformation::MSBUILD_V_3_5;
+}
+
+MsBuildInformation::MsBuildVersion VcProjectDocument2008::maxSupportedMsBuildVersion() const
+{
+    return MsBuildInformation::MSBUILD_V_3_5;
 }
 
 PublishingData::Ptr VcProjectDocument2008::publishingData() const
