@@ -88,8 +88,6 @@ public:
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
     QWidget *toolBar();
-    QByteArray saveState() const { return QByteArray(); }
-    bool restoreState(const QByteArray &/*state*/) { return true; }
 
     void setSuggestedFileName(const QString &fileName);
     bool isTemporary() const { return false; }

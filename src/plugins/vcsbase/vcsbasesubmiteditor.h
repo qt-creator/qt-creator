@@ -121,9 +121,6 @@ public:
 
     QWidget *toolBar();
 
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
-
     QStringList checkedFiles() const;
 
     void setFileModel(SubmitFileModel *m, const QString &repositoryDirectory = QString());

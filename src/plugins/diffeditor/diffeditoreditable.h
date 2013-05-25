@@ -71,8 +71,6 @@ public:
 
     QWidget *toolBar();
 
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
 public slots:
     void activateEntry(int index);
 

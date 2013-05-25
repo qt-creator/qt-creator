@@ -118,17 +118,6 @@ void BarDescriptorEditor::setDisplayName(const QString &title)
     emit changed();
 }
 
-QByteArray BarDescriptorEditor::saveState() const
-{
-    return QByteArray(); // Not supported
-}
-
-bool BarDescriptorEditor::restoreState(const QByteArray &state)
-{
-    Q_UNUSED(state);
-    return false; // Not supported
-}
-
 bool BarDescriptorEditor::isTemporary() const
 {
     return false;

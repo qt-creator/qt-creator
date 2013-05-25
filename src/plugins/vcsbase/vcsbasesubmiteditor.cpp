@@ -437,16 +437,6 @@ QWidget *VcsBaseSubmitEditor::toolBar()
     return d->m_toolWidget;
 }
 
-QByteArray VcsBaseSubmitEditor::saveState() const
-{
-    return QByteArray();
-}
-
-bool VcsBaseSubmitEditor::restoreState(const QByteArray &/*state*/)
-{
-    return true;
-}
-
 QStringList VcsBaseSubmitEditor::checkedFiles() const
 {
     return d->m_widget->checkedFiles();

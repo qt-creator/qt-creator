@@ -60,15 +60,7 @@ public:
     Core::Id id() const;
     QString displayName() const;
     void setDisplayName(const QString &title);
-
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
-
-    int currentLine() const;
-    int currentColumn() const;
-
     bool isTemporary() const;
-
     QWidget *toolBar();
 
 public slots:

@@ -225,15 +225,4 @@ void DiffEditorEditable::activateEntry(int index)
     updateEntryToolTip();
 }
 
-QByteArray DiffEditorEditable::saveState() const
-{
-    return QByteArray();
-}
-
-bool DiffEditorEditable::restoreState(const QByteArray &state)
-{
-    Q_UNUSED(state)
-    return true;
-}
-
 } // namespace DiffEditor
