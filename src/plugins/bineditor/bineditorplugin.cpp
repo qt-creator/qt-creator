@@ -58,8 +58,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/ifindsupport.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/qtcassert.h>
 
@@ -77,9 +75,10 @@ public:
         m_widget = widget;
         m_incrementalStartPos = m_contPos = -1;
     }
-    ~BinEditorFind() {}
 
     bool supportsReplace() const { return false; }
+    QString currentFindString() const { return QString(); }
+    QString completedFindString() const { return QString(); }
 
     Find::FindFlags supportedFindFlags() const
     {
@@ -96,12 +95,13 @@ public:
         m_widget->highlightSearchResults(txt.toLatin1(), Find::textDocumentFlagsForFindFlags(findFlags));
     }
 
-    void clearResults() { m_widget->highlightSearchResults(QByteArray()); }
-    QString currentFindString() const { return QString(); }
-    QString completedFindString() const { return QString(); }
+    void clearResults()
+    {
+        m_widget->highlightSearchResults(QByteArray());
+    }
 
-
-    int find(const QByteArray &pattern, int pos, Find::FindFlags findFlags) {
+    int find(const QByteArray &pattern, int pos, Find::FindFlags findFlags)
+    {
         if (pattern.isEmpty()) {
             m_widget->setCursorPosition(pos);
             return pos;
@@ -341,13 +341,15 @@ public:
         m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         m_toolBar->addWidget(w);
 
-        connect(m_widget, SIGNAL(cursorPositionChanged(int)), this,
-            SLOT(updateCursorPosition(int)));
-        connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
-        connect(m_addressEdit, SIGNAL(editingFinished()), this,
-            SLOT(jumpToAddress()));
+        widget->setEditor(this);
+
+        connect(m_widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
+        connect(m_file, SIGNAL(changed()), SIGNAL(changed()));
+        connect(m_addressEdit, SIGNAL(editingFinished()), SLOT(jumpToAddress()));
+        connect(m_widget, SIGNAL(modificationChanged(bool)), SIGNAL(changed()));
         updateCursorPosition(m_widget->cursorPosition());
     }
+
     ~BinEditor() {
         delete m_widget;
     }
@@ -411,8 +413,10 @@ QString BinEditorFactory::displayName() const
 Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)
 {
     BinEditorWidget *widget = new BinEditorWidget(parent);
+    BinEditor *editor = new BinEditor(widget);
+
     m_owner->initializeEditor(widget);
-    return widget->editor();
+    return editor;
 }
 
 QStringList BinEditorFactory::mimeTypes() const
@@ -471,10 +475,6 @@ QAction *BinEditorPlugin::registerNewAction(Core::Id id,
 
 void BinEditorPlugin::initializeEditor(BinEditorWidget *widget)
 {
-    BinEditor *editor = new BinEditor(widget);
-    QObject::connect(widget, SIGNAL(modificationChanged(bool)), editor, SIGNAL(changed()));
-    widget->setEditor(editor);
-
     m_context.add(Constants::C_BINEDITOR);
     if (!m_undoAction) {
         m_undoAction      = registerNewAction(Core::Constants::UNDO, this, SLOT(undoAction()), tr("&Undo"));
@@ -482,12 +482,6 @@ void BinEditorPlugin::initializeEditor(BinEditorWidget *widget)
         m_copyAction      = registerNewAction(Core::Constants::COPY, this, SLOT(copyAction()));
         m_selectAllAction = registerNewAction(Core::Constants::SELECTALL, this, SLOT(selectAllAction()));
     }
-
-    // Font settings
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-    widget->setFontSettings(settings->fontSettings());
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            widget, SLOT(setFontSettings(TextEditor::FontSettings)));
 
     QObject::connect(widget, SIGNAL(undoAvailable(bool)), this, SLOT(updateActions()));
     QObject::connect(widget, SIGNAL(redoAvailable(bool)), this, SLOT(updateActions()));

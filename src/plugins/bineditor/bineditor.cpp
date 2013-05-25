@@ -31,6 +31,7 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -106,6 +107,13 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
     m_canRequestNewWindow = false;
     setFocusPolicy(Qt::WheelFocus);
     setFrameStyle(QFrame::Plain);
+
+    // Font settings
+    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
+    setFontSettings(settings->fontSettings());
+    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            this, SLOT(setFontSettings(TextEditor::FontSettings)));
+
 }
 
 BinEditorWidget::~BinEditorWidget()
