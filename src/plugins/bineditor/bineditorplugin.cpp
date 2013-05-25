@@ -184,10 +184,10 @@ public:
         Core::IDocument(parent)
     {
         m_widget = parent;
-        connect(m_widget, SIGNAL(dataRequested(Core::IEditor*,quint64)),
-            this, SLOT(provideData(Core::IEditor*,quint64)));
-        connect(m_widget, SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
-            this, SLOT(provideNewRange(Core::IEditor*,quint64)));
+        connect(m_widget, SIGNAL(dataRequested(quint64)),
+            this, SLOT(provideData(quint64)));
+        connect(m_widget, SIGNAL(newRangeRequested(quint64)),
+            this, SLOT(provideNewRange(quint64)));
     }
     ~BinEditorDocument() {}
 
@@ -246,7 +246,8 @@ public:
     }
 
 private slots:
-    void provideData(Core::IEditor *, quint64 block) {
+    void provideData(quint64 block)
+    {
         if (m_fileName.isEmpty())
             return;
         QFile file(m_fileName);
@@ -266,7 +267,8 @@ private slots:
         }
     }
 
-    void provideNewRange(Core::IEditor *, quint64 offset) {
+    void provideNewRange(quint64 offset)
+    {
         open(0, m_fileName, offset);
     }
 

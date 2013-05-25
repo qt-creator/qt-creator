@@ -95,10 +95,9 @@ public slots:
     void closeViews();
 
 private slots:
-    void fetchLazyData(Core::IEditor *, quint64 block);
-    void provideNewRange(Core::IEditor *editor, quint64 address);
-    void handleDataChanged(Core::IEditor *editor, quint64 address,
-        const QByteArray &data);
+    void fetchLazyData(quint64 block);
+    void provideNewRange(quint64 address);
+    void handleDataChanged(quint64 address, const QByteArray &data);
     void handleWatchpointRequest(quint64 address, uint size);
     void updateMemoryView(quint64 address, quint64 length);
     void engineStateChanged(Debugger::DebuggerState s);

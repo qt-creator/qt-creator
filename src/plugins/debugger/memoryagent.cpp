@@ -129,24 +129,12 @@ void MemoryAgent::updateMemoryView(quint64 address, quint64 length)
 
 void MemoryAgent::connectBinEditorWidget(QWidget *w)
 {
-    connect(w,
-        SIGNAL(dataRequested(Core::IEditor*,quint64)),
-        SLOT(fetchLazyData(Core::IEditor*,quint64)));
-    connect(w,
-        SIGNAL(newWindowRequested(quint64)),
-        SLOT(createBinEditor(quint64)));
-    connect(w,
-        SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
-        SLOT(provideNewRange(Core::IEditor*,quint64)));
-    connect(w,
-        SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),
-        SLOT(handleDataChanged(Core::IEditor*,quint64,QByteArray)));
-    connect(w,
-        SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),
-        SLOT(handleDataChanged(Core::IEditor*,quint64,QByteArray)));
-    connect(w,
-        SIGNAL(addWatchpointRequested(quint64,uint)),
-        SLOT(handleWatchpointRequest(quint64,uint)));
+    connect(w, SIGNAL(dataRequested(quint64)), SLOT(fetchLazyData(quint64)));
+    connect(w, SIGNAL(newWindowRequested(quint64)), SLOT(createBinEditor(quint64)));
+    connect(w, SIGNAL(newRangeRequested(quint64)), SLOT(provideNewRange(quint64)));
+    connect(w, SIGNAL(dataChanged(quint64,QByteArray)), SLOT(handleDataChanged(quint64,QByteArray)));
+    connect(w, SIGNAL(dataChanged(quint64,QByteArray)), SLOT(handleDataChanged(quint64,QByteArray)));
+    connect(w, SIGNAL(addWatchpointRequested(quint64,uint)), SLOT(handleWatchpointRequest(quint64,uint)));
 }
 
 bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
@@ -222,7 +210,7 @@ void MemoryAgent::createBinEditor(quint64 addr)
     createBinEditor(addr, 0, QList<MemoryMarkup>(), QPoint(), QString(), 0);
 }
 
-void MemoryAgent::fetchLazyData(IEditor *, quint64 block)
+void MemoryAgent::fetchLazyData(quint64 block)
 {
     m_engine->fetchMemory(this, sender(), BinBlockSize * block, BinBlockSize);
 }
@@ -235,15 +223,14 @@ void MemoryAgent::addLazyData(QObject *editorToken, quint64 addr,
     MemoryView::binEditorAddData(w, addr, ba);
 }
 
-void MemoryAgent::provideNewRange(IEditor *, quint64 address)
+void MemoryAgent::provideNewRange(quint64 address)
 {
     QWidget *w = qobject_cast<QWidget *>(sender());
     QTC_ASSERT(w, return);
     MemoryView::setBinEditorRange(w, address, DataRange, BinBlockSize);
 }
 
-void MemoryAgent::handleDataChanged(IEditor *,
-    quint64 addr, const QByteArray &data)
+void MemoryAgent::handleDataChanged(quint64 addr, const QByteArray &data)
 {
     m_engine->changeMemory(this, sender(), addr, data);
 }

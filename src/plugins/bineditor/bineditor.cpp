@@ -196,7 +196,7 @@ bool BinEditorWidget::requestDataAt(int pos) const
     if (!m_requests.contains(block)) {
         m_requests.insert(block);
         emit const_cast<BinEditorWidget*>(this)->
-            dataRequested(editor(), m_baseAddr / m_blockSize + block);
+            dataRequested(m_baseAddr / m_blockSize + block);
         return true;
     }
     return false;
@@ -230,7 +230,7 @@ void BinEditorWidget::changeDataAt(int pos, char c)
         }
     }
 
-    emit dataChanged(editor(), m_baseAddr + pos, QByteArray(1, c));
+    emit dataChanged(m_baseAddr + pos, QByteArray(1, c));
 }
 
 QByteArray BinEditorWidget::dataMid(int from, int length, bool old) const
@@ -442,9 +442,9 @@ void BinEditorWidget::scrollContentsBy(int dx, int dy)
     const QScrollBar * const scrollBar = verticalScrollBar();
     const int scrollPos = scrollBar->value();
     if (dy <= 0 && scrollPos == scrollBar->maximum())
-        emit newRangeRequested(editor(), baseAddress() + m_size);
+        emit newRangeRequested(baseAddress() + m_size);
     else if (dy >= 0 && scrollPos == scrollBar->minimum())
-        emit newRangeRequested(editor(), baseAddress());
+        emit newRangeRequested(baseAddress());
 }
 
 void BinEditorWidget::changeEvent(QEvent *e)
@@ -1058,7 +1058,7 @@ bool BinEditorWidget::event(QEvent *e)
             const QScrollBar * const scrollBar = verticalScrollBar();
             const int maximum = scrollBar->maximum();
             if (maximum && scrollBar->value() >= maximum - 1) {
-                emit newRangeRequested(editor(), baseAddress() + m_size);
+                emit newRangeRequested(baseAddress() + m_size);
                 return true;
             }
             break;
@@ -1571,7 +1571,7 @@ void BinEditorWidget::jumpToAddress(quint64 address)
     if (address >= m_baseAddr && address < m_baseAddr + m_size)
         setCursorPosition(address - m_baseAddr);
     else
-        emit newRangeRequested(editor(), address);
+        emit newRangeRequested(address);
 }
 
 void BinEditorWidget::setNewWindowRequestAllowed(bool c)
