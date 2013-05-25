@@ -58,19 +58,19 @@ class CORE_EXPORT ActionManager : public QObject
 public:
     static ActionManager *instance();
 
-    static ActionContainer *createMenu(const Id &id);
-    static ActionContainer *createMenuBar(const Id &id);
+    static ActionContainer *createMenu(Id id);
+    static ActionContainer *createMenuBar(Id id);
 
-    static Command *registerAction(QAction *action, const Id &id, const Context &context, bool scriptable = false);
-    static Command *registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable = false);
+    static Command *registerAction(QAction *action, Id id, const Context &context, bool scriptable = false);
+    static Command *registerShortcut(QShortcut *shortcut, Id id, const Context &context, bool scriptable = false);
 
-    static Command *command(const Id &id);
-    static ActionContainer *actionContainer(const Id &id);
+    static Command *command(Id id);
+    static ActionContainer *actionContainer(Id id);
 
     static QList<Command *> commands();
 
-    static void unregisterAction(QAction *action, const Id &id);
-    static void unregisterShortcut(const Id &id);
+    static void unregisterAction(QAction *action, Id id);
+    static void unregisterShortcut(Id id);
 
     static void setPresentationModeEnabled(bool enabled);
     static bool isPresentationModeEnabled();

@@ -56,13 +56,13 @@ public:
     void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior);
     ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const;
 
-    QAction *insertLocation(const Id &groupId) const;
-    void appendGroup(const Id &id);
-    void insertGroup(const Id &before, const Id &groupId);
-    void addAction(Command *action, const Id &group = Id());
-    void addMenu(ActionContainer *menu, const Id &group = Id());
-    void addMenu(ActionContainer *before, ActionContainer *menu, const Id &group = Id());
-    Command *addSeparator(const Context &context, const Id &group = Id(), QAction **outSeparator = 0);
+    QAction *insertLocation(Id groupId) const;
+    void appendGroup(Id id);
+    void insertGroup(Id before, Id groupId);
+    void addAction(Command *action, Id group = Id());
+    void addMenu(ActionContainer *menu, Id group = Id());
+    void addMenu(ActionContainer *before, ActionContainer *menu, Id group = Id());
+    Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = 0);
     virtual void clear();
 
     Id id() const;
@@ -92,7 +92,7 @@ private slots:
     void itemDestroyed();
 
 private:
-    QList<Group>::const_iterator findGroup(const Id &groupId) const;
+    QList<Group>::const_iterator findGroup(Id groupId) const;
     QAction *insertLocation(QList<Group>::const_iterator group) const;
 
     OnAllDisabledBehavior m_onAllDisabledBehavior;

@@ -178,12 +178,12 @@ ActionContainer::OnAllDisabledBehavior ActionContainerPrivate::onAllDisabledBeha
     return m_onAllDisabledBehavior;
 }
 
-void ActionContainerPrivate::appendGroup(const Id &groupId)
+void ActionContainerPrivate::appendGroup(Id groupId)
 {
     m_groups.append(Group(groupId));
 }
 
-void ActionContainerPrivate::insertGroup(const Id &before, const Id &groupId)
+void ActionContainerPrivate::insertGroup(Id before, Id groupId)
 {
     QList<Group>::iterator it = m_groups.begin();
     while (it != m_groups.end()) {
@@ -195,7 +195,7 @@ void ActionContainerPrivate::insertGroup(const Id &before, const Id &groupId)
     }
 }
 
-QList<Group>::const_iterator ActionContainerPrivate::findGroup(const Id &groupId) const
+QList<Group>::const_iterator ActionContainerPrivate::findGroup(Id groupId) const
 {
     QList<Group>::const_iterator it = m_groups.constBegin();
     while (it != m_groups.constEnd()) {
@@ -207,7 +207,7 @@ QList<Group>::const_iterator ActionContainerPrivate::findGroup(const Id &groupId
 }
 
 
-QAction *ActionContainerPrivate::insertLocation(const Id &groupId) const
+QAction *ActionContainerPrivate::insertLocation(Id groupId) const
 {
     QList<Group>::const_iterator it = findGroup(groupId);
     QTC_ASSERT(it != m_groups.constEnd(), return 0);
@@ -235,7 +235,7 @@ QAction *ActionContainerPrivate::insertLocation(QList<Group>::const_iterator gro
     return 0;
 }
 
-void ActionContainerPrivate::addAction(Command *command, const Id &groupId)
+void ActionContainerPrivate::addAction(Command *command, Id groupId)
 {
     if (!canAddAction(command))
         return;
@@ -253,7 +253,7 @@ void ActionContainerPrivate::addAction(Command *command, const Id &groupId)
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::addMenu(ActionContainer *menu, const Id &groupId)
+void ActionContainerPrivate::addMenu(ActionContainer *menu, Id groupId)
 {
     ActionContainerPrivate *containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     if (!containerPrivate->canBeAddedToMenu())
@@ -271,7 +271,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, const Id &groupId)
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu, const Id &groupId)
+void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu, Id groupId)
 {
     ActionContainerPrivate *containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     if (!containerPrivate->canBeAddedToMenu())
@@ -300,7 +300,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
 /*! \a context \a group \a outSeparator
  * \internal
  */
-Command *ActionContainerPrivate::addSeparator(const Context &context, const Id &group, QAction **outSeparator)
+Command *ActionContainerPrivate::addSeparator(const Context &context, Id group, QAction **outSeparator)
 {
     static int separatorIdCount = 0;
     QAction *separator = new QAction(this);

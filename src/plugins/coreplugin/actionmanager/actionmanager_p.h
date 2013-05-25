@@ -72,7 +72,7 @@ public:
 
     void showShortcutPopup(const QString &shortcut);
     bool hasContext(const Context &context) const;
-    Action *overridableAction(const Id &id);
+    Action *overridableAction(Id id);
 
 public slots:
     void containerDestroyed();
