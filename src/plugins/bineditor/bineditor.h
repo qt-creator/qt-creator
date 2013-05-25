@@ -55,7 +55,7 @@ class FontSettings;
 
 namespace BINEditor {
 
-class BinEditor : public QAbstractScrollArea
+class BinEditorWidget : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
@@ -63,8 +63,8 @@ class BinEditor : public QAbstractScrollArea
     Q_PROPERTY(QList<BINEditor::Markup> markup READ markup WRITE setMarkup DESIGNABLE false)
     Q_PROPERTY(bool newWindowRequestAllowed READ newWindowRequestAllowed WRITE setNewWindowRequestAllowed DESIGNABLE false)
 public:
-    BinEditor(QWidget *parent = 0);
-    ~BinEditor();
+    BinEditorWidget(QWidget *parent = 0);
+    ~BinEditorWidget();
 
     quint64 baseAddress() const { return m_baseAddr; }
 
