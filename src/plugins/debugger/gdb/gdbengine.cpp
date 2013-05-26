@@ -1592,7 +1592,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
     if (!m_systemDumpersLoaded) {
         m_systemDumpersLoaded = true;
-        if (debuggerCore()->boolSetting(LoadGdbDumpers))
+        if (m_gdbVersion >= 70400 && debuggerCore()->boolSetting(LoadGdbDumpers))
             postCommand("importPlainDumpers");
     }
 
