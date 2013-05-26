@@ -106,19 +106,19 @@ public:
 
         void preventPop();
         bool stashingFailed() const;
-        StashResult result() const { return stashResult; }
-        QString stashMessage() const { return message; }
+        StashResult result() const { return m_stashResult; }
+        QString stashMessage() const { return m_message; }
 
     private:
         void stashPrompt(const QString &keyword, QString *errorMessage);
         void executeStash(const QString &keyword, QString *errorMessage);
 
-        bool pop;
-        StashResult stashResult;
-        QString message;
-        QString workingDir;
-        GitClient *client;
-        StashFlag flags;
+        bool m_pop;
+        StashResult m_stashResult;
+        QString m_message;
+        QString m_workingDir;
+        GitClient *m_client;
+        StashFlag m_flags;
     };
 
     static const char *stashNamePrefix;
