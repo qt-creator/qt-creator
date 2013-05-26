@@ -110,7 +110,7 @@ public:
         QString stashMessage() const { return m_message; }
 
     private:
-        void stashPrompt(const QString &keyword, QString *errorMessage);
+        void stashPrompt(const QString &keyword, const QString &statusOutput, QString *errorMessage);
         void executeStash(const QString &keyword, QString *errorMessage);
 
         bool m_pop;

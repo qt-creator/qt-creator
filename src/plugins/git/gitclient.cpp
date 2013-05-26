@@ -3308,10 +3308,21 @@ GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString
     m_client = GitPlugin::instance()->gitClient();
 
     QString errorMessage;
-    if (m_flags & NoPrompt)
-        executeStash(keyword, &errorMessage);
-    else
-        stashPrompt(keyword, &errorMessage);
+    QString statusOutput;
+    switch (m_client->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
+                              &statusOutput, &errorMessage)) {
+    case GitClient::StatusChanged:
+        if (m_flags & NoPrompt)
+            executeStash(keyword, &errorMessage);
+        else
+            stashPrompt(keyword, statusOutput, &errorMessage);
+    case GitClient::StatusUnchanged:
+        m_stashResult = StashUnchanged;
+        break;
+    case GitClient::StatusFailed:
+        m_stashResult = StashFailed;
+        break;
+    }
 
     if (m_stashResult == StashFailed)
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
@@ -3326,21 +3337,9 @@ GitClient::StashGuard::~StashGuard()
     }
 }
 
-void GitClient::StashGuard::stashPrompt(const QString &keyword, QString *errorMessage)
+void GitClient::StashGuard::stashPrompt(const QString &keyword, const QString &statusOutput,
+                                        QString *errorMessage)
 {
-    QString statusOutput;
-    switch (m_client->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
-                              &statusOutput, errorMessage)) {
-    case GitClient::StatusChanged:
-        break;
-    case GitClient::StatusUnchanged:
-        m_stashResult = StashUnchanged;
-        return;
-    case GitClient::StatusFailed:
-        m_stashResult = StashFailed;
-        return;
-    }
-
     QMessageBox msgBox(QMessageBox::Question, tr("Uncommitted Changes Found"),
                        tr("What would you like to do with local changes in:")
                        + QLatin1String("\n\n\"") + m_workingDir + QLatin1Char('\"'),
