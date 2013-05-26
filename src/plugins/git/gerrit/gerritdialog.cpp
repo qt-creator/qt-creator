@@ -162,7 +162,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     detailsLayout->addLayout(repoPathLayout);
 
     m_displayButton = addActionButton(QString(), SLOT(slotFetchDisplay()));
-    m_applyButton = addActionButton(QString(), SLOT(slotFetchApply()));
+    m_cherryPickButton = addActionButton(QString(), SLOT(slotFetchCherryPick()));
     m_checkoutButton = addActionButton(QString(), SLOT(slotFetchCheckout()));
     m_refreshButton = addActionButton(tr("Refresh"), SLOT(slotRefresh()));
 
@@ -203,11 +203,11 @@ void GerritDialog::displayRepositoryPath()
         m_repositoryChooser->setPath(m_parameters->repositoryPath);
     if (m_parameters->promptPath) {
         m_displayButton->setText(tr("Diff..."));
-        m_applyButton->setText(tr("Apply..."));
+        m_cherryPickButton->setText(tr("Cherry Pick..."));
         m_checkoutButton->setText(tr("Checkout..."));
     } else {
         m_displayButton->setText(tr("Diff"));
-        m_applyButton->setText(tr("Apply"));
+        m_cherryPickButton->setText(tr("Cherry Pick"));
         m_checkoutButton->setText(tr("Checkout"));
     }
 }
@@ -262,10 +262,10 @@ void GerritDialog::slotFetchDisplay()
         emit fetchDisplay(m_model->change(item->row()));
 }
 
-void GerritDialog::slotFetchApply()
+void GerritDialog::slotFetchCherryPick()
 {
     if (const QStandardItem *item = currentItem())
-        emit fetchApply(m_model->change(item->row()));
+        emit fetchCherryPick(m_model->change(item->row()));
 }
 
 void GerritDialog::slotFetchCheckout()
@@ -304,7 +304,7 @@ void GerritDialog::updateButtons()
 {
     const bool enabled = !m_fetchRunning && m_treeView->selectionModel()->currentIndex().isValid();
     m_displayButton->setEnabled(enabled);
-    m_applyButton->setEnabled(enabled);
+    m_cherryPickButton->setEnabled(enabled);
     m_checkoutButton->setEnabled(enabled);
 }
 
@@ -328,7 +328,7 @@ void GerritDialog::fetchStarted(const QSharedPointer<Gerrit::Internal::GerritCha
     updateButtons();
     const QString toolTip = tr("Fetching \"%1\"...").arg(change->title);
     m_displayButton->setToolTip(toolTip);
-    m_applyButton->setToolTip(toolTip);
+    m_cherryPickButton->setToolTip(toolTip);
     m_checkoutButton->setToolTip(toolTip);
 }
 
@@ -337,7 +337,7 @@ void GerritDialog::fetchFinished()
     m_fetchRunning = false;
     updateButtons();
     m_displayButton->setToolTip(QString());
-    m_applyButton->setToolTip(QString());
+    m_cherryPickButton->setToolTip(QString());
     m_checkoutButton->setToolTip(QString());
 }
 

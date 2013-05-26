@@ -83,7 +83,7 @@ public:
 
 signals:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &);
-    void fetchApply(const QSharedPointer<Gerrit::Internal::GerritChange> &);
+    void fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &);
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &);
 
 public slots:
@@ -98,7 +98,7 @@ private slots:
     void slotDoubleClicked(const QModelIndex &);
     void slotRefreshStateChanged(bool);
     void slotFetchDisplay();
-    void slotFetchApply();
+    void slotFetchCherryPick();
     void slotFetchCheckout();
     void slotRefresh();
     void displayRepositoryPath();
@@ -121,7 +121,7 @@ private:
     Utils::PathChooser *m_repositoryChooser;
     QDialogButtonBox *m_buttonBox;
     QPushButton *m_displayButton;
-    QPushButton *m_applyButton;
+    QPushButton *m_cherryPickButton;
     QPushButton *m_checkoutButton;
     QPushButton *m_refreshButton;
     QLabel *m_repositoryChooserLabel;
