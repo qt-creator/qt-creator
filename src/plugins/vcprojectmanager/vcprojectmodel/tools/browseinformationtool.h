@@ -64,12 +64,12 @@ public:
 class BrowseInformationToolWidget : public VcNodeWidget
 {
 public:
-    explicit BrowseInformationToolWidget(BrowseInformationTool::Ptr browseTool);
+    explicit BrowseInformationToolWidget(BrowseInformationTool* browseTool);
     ~BrowseInformationToolWidget();
     void saveData();
 
 private:
-    BrowseInformationTool::Ptr m_tool;
+    BrowseInformationTool* m_tool;
 
     QComboBox *m_suppresStartUpBannerComboBox;
     QLineEdit *m_outputFileLineEdit;

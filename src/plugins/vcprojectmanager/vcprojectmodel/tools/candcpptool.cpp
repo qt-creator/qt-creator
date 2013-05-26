@@ -60,7 +60,7 @@ QString CAndCppTool::nodeWidgetName() const
 
 VcNodeWidget *CAndCppTool::createSettingsWidget()
 {
-    return new CAndCppToolWidget(QSharedPointer<CAndCppTool>(this));
+    return new CAndCppToolWidget(this);
 }
 
 Tool::Ptr CAndCppTool::clone() const
@@ -1005,7 +1005,7 @@ void CAndCppTool::setErrorReporting(ErrorReportingCCppEnum value)
 }
 
 
-CAndCppToolWidget::CAndCppToolWidget(CAndCppTool::Ptr tool)
+CAndCppToolWidget::CAndCppToolWidget(CAndCppTool *tool)
     : m_tool(tool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

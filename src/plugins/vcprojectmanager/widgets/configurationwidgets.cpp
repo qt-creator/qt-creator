@@ -40,7 +40,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-Configuration2003Widget::Configuration2003Widget(Configuration::Ptr config)
+Configuration2003Widget::Configuration2003Widget(Configuration *config)
     : m_config(config)
 {
     QSplitter *mainWidgetSplitter = new QSplitter(Qt::Horizontal, this);
@@ -198,7 +198,7 @@ void Configuration2003Widget::saveData()
 }
 
 
-Configuration2005Widget::Configuration2005Widget(Configuration::Ptr config)
+Configuration2005Widget::Configuration2005Widget(Configuration *config)
     : m_config(config)
 {
     QSplitter *mainWidgetSplitter = new QSplitter(Qt::Horizontal, this);
@@ -356,7 +356,7 @@ void Configuration2005Widget::saveData()
 }
 
 
-Configuration2008Widget::Configuration2008Widget(Configuration::Ptr config)
+Configuration2008Widget::Configuration2008Widget(Configuration *config)
     : m_config(config)
 {
     QSplitter *mainWidgetSplitter = new QSplitter(Qt::Horizontal, this);

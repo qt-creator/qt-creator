@@ -60,7 +60,7 @@ QString XMLDocGeneratorTool::nodeWidgetName() const
 
 VcNodeWidget *XMLDocGeneratorTool::createSettingsWidget()
 {
-    return new XMLDocGeneratorToolWidget(QSharedPointer<XMLDocGeneratorTool>(this));
+    return new XMLDocGeneratorToolWidget(this);
 }
 
 Tool::Ptr XMLDocGeneratorTool::clone() const
@@ -159,7 +159,7 @@ void XMLDocGeneratorTool::setUseUnicodeResponseFiles(bool useUnicodeRespFiles)
 }
 
 
-XMLDocGeneratorToolWidget::XMLDocGeneratorToolWidget(XMLDocGeneratorTool::Ptr tool)
+XMLDocGeneratorToolWidget::XMLDocGeneratorToolWidget(XMLDocGeneratorTool *tool)
     : m_tool(tool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

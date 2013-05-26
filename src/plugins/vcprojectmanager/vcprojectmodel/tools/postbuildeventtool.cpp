@@ -62,7 +62,7 @@ QString PostBuildEventTool::nodeWidgetName() const
 
 VcNodeWidget *PostBuildEventTool::createSettingsWidget()
 {
-    return new PostBuildEventToolWidget(QSharedPointer<PostBuildEventTool>(this));
+    return new PostBuildEventToolWidget(this);
 }
 
 Tool::Ptr PostBuildEventTool::clone() const
@@ -116,7 +116,7 @@ void PostBuildEventTool::setExcludedFromBuild(bool excludedFromBuild)
 }
 
 
-PostBuildEventToolWidget::PostBuildEventToolWidget(PostBuildEventTool::Ptr tool)
+PostBuildEventToolWidget::PostBuildEventToolWidget(PostBuildEventTool *tool)
     : m_tool(tool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

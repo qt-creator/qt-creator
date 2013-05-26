@@ -77,12 +77,12 @@ public:
 class XMLDocGeneratorToolWidget : public VcNodeWidget
 {
 public:
-    explicit XMLDocGeneratorToolWidget(XMLDocGeneratorTool::Ptr tool);
+    explicit XMLDocGeneratorToolWidget(XMLDocGeneratorTool* tool);
     ~XMLDocGeneratorToolWidget();
     void saveData();
 
 private:
-    XMLDocGeneratorTool::Ptr m_tool;
+    XMLDocGeneratorTool* m_tool;
 
     QComboBox *m_suppressStartBannerComboBox;
     QComboBox *m_validIntellisenseComboBox;

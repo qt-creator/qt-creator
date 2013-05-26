@@ -14,7 +14,9 @@ HEADERS = vcprojectmanagerplugin.h \
     vcprojectkitinformation.h \
     msbuildversionmanager.h \
     vcprojectbuildoptionspage.h \
-    vcschemamanager.h
+    vcschemamanager.h \
+    menuhandler.h
+
 SOURCES = vcprojectmanagerplugin.cpp \
     vcprojectmanager.cpp \
     vcprojectfile.cpp \
@@ -25,7 +27,8 @@ SOURCES = vcprojectmanagerplugin.cpp \
     vcprojectkitinformation.cpp \
     msbuildversionmanager.cpp \
     vcprojectbuildoptionspage.cpp \
-    vcschemamanager.cpp
+    vcschemamanager.cpp \
+    menuhandler.cpp
 
 OTHER_FILES += \
     VcProject.mimetypes.xml

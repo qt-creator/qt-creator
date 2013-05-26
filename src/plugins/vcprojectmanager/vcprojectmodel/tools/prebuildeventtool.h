@@ -68,12 +68,12 @@ public:
 class PreBuildEventToolWidget : public VcNodeWidget
 {
 public:
-    explicit PreBuildEventToolWidget(PreBuildEventTool::Ptr tool);
+    explicit PreBuildEventToolWidget(PreBuildEventTool* tool);
     ~PreBuildEventToolWidget();
     void saveData();
 
 private:
-    PreBuildEventTool::Ptr m_tool;
+    PreBuildEventTool *m_tool;
 
     LineEdit *m_cmdLineLineEdit;
     QLineEdit *m_descriptionLineEdit;

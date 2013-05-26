@@ -54,7 +54,7 @@ public:
     virtual ~VcProjectDocument();
 
     void readFromXMLDomDocument(const QDomNode &domDoc);
-    void saveToFile(const QString &filePath) const;
+    bool saveToFile(const QString &filePath) const;
     VcDocConstants::DocumentVersion documentVersion() const;
     QString filePath() const;
     void allProjectFiles(QStringList &sl) const;
@@ -122,7 +122,20 @@ protected:
 };
 
 
-class VcProjectDocument2003Widget : public VcNodeWidget
+class VcProjectDocumentWidget : public VcNodeWidget
+{
+    Q_OBJECT
+
+public:
+    explicit VcProjectDocumentWidget();
+    ~VcProjectDocumentWidget();
+
+signals:
+    void accepted();
+};
+
+
+class VcProjectDocument2003Widget : public VcProjectDocumentWidget
 {
     Q_OBJECT
 
@@ -165,7 +178,7 @@ protected:
     ToolFiles::Ptr m_toolFiles;
 };
 
-class VcProjectDocument2005Widget : public VcNodeWidget
+class VcProjectDocument2005Widget : public VcProjectDocumentWidget
 {
     Q_OBJECT
 
@@ -222,7 +235,7 @@ private:
     QString m_targetFrameworkVersion;
 };
 
-class VcProjectDocument2008Widget : public VcNodeWidget
+class VcProjectDocument2008Widget : public VcProjectDocumentWidget
 {
     Q_OBJECT
 

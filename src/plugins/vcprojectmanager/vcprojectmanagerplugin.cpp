@@ -37,11 +37,9 @@
 #include "vcmakestep.h"
 #include "vcprojectkitinformation.h"
 #include "vcschemamanager.h"
+#include "menuhandler.h"
 
 // TODO: clean up
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -90,6 +88,7 @@ bool VcProjectManagerPlugin::initialize(const QStringList &arguments, QString *e
     addAutoReleasedObject(new VcMakeStepFactory);
     addAutoReleasedObject(new MsBuildVersionManager);
     addAutoReleasedObject(new VcSchemaManager);
+    addAutoReleasedObject(new MenuHandler);
 
     ProjectExplorer::KitManager::instance()->registerKitInformation(new VcProjectKitInformation);
 

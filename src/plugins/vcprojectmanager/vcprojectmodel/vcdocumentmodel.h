@@ -49,7 +49,7 @@ public:
     virtual ~VcDocumentModel();
 
     VcProjectDocument* vcProjectDocument() const;
-    void saveToFile(const QString &filePath) const;
+    bool saveToFile(const QString &filePath) const;
 
 private:
     void readRoot();

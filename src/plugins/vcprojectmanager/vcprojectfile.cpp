@@ -131,7 +131,6 @@ void VcProjectFile::reloadVcDoc()
 {
     VcDocConstants::DocumentVersion docVersion = m_documentModel->vcProjectDocument()->documentVersion();
     delete m_documentModel;
-    m_documentModel = 0;
     m_documentModel = new VcDocumentModel(m_filePath, docVersion);
 }
 

@@ -68,12 +68,12 @@ public:
 class PostBuildEventToolWidget : public VcNodeWidget
 {
 public:
-    explicit PostBuildEventToolWidget(PostBuildEventTool::Ptr tool);
+    explicit PostBuildEventToolWidget(PostBuildEventTool* tool);
     ~PostBuildEventToolWidget();
     void saveData();
 
 private:
-    PostBuildEventTool::Ptr m_tool;
+    PostBuildEventTool* m_tool;
 
     LineEdit *m_cmdLineLineEdit;
     QLineEdit *m_descriptionLineEdit;

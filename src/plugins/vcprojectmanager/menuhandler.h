@@ -27,66 +27,41 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CONFIGURATIONWIDGETS_H
-#define CONFIGURATIONWIDGETS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_MENUHANDLER_H
+#define VCPROJECTMANAGER_INTERNAL_MENUHANDLER_H
 
-#include "../widgets/vcnodewidget.h"
-#include "../vcprojectmodel/configuration.h"
+#include <QObject>
 
-class QListWidget;
-class QStackedWidget;
+class QAction;
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Configuration;
-
-class Configuration2003Widget : public VcNodeWidget
+class MenuHandler : public QObject
 {
+    Q_OBJECT
+
+    friend class VcProjectManagerPlugin;
+
 public:
-    explicit Configuration2003Widget(Configuration* config);
-    ~Configuration2003Widget();
-    void saveData();
+    static MenuHandler* instance();
+    ~MenuHandler();
 
 private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
+    MenuHandler();
+    void initialize();
+    void initialize2005();
 
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2005Widget : public VcNodeWidget
-{
-public:
-    explicit Configuration2005Widget(Configuration* config);
-    ~Configuration2005Widget();
-    void saveData();
+private slots:
+    void onShowProjectSettings();
 
 private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2008Widget : public VcNodeWidget
-{
-public:
-    explicit Configuration2008Widget(Configuration* config);
-    ~Configuration2008Widget();
-    void saveData();
-
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
+    static MenuHandler *m_instance;
+    QAction *m_projectProperties;
+    QAction *m_projectProperties2005;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // CONFIGURATIONWIDGETS_H
+#endif // VCPROJECTMANAGER_INTERNAL_MENUHANDLER_H

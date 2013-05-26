@@ -36,7 +36,8 @@ namespace VcProjectManager {
 namespace Constants {
 
 const char VCPROJ_MIMETYPE[] = "text/x-vc-project"; // TODO: is this good enough?
-const char VC_PROJECT_ID[] = "VcProject.VcProject";
+const char VC_PROJECT_ID[] = "VcProject.VcProject"; // 2003 and 2008 version
+const char VC_PROJECT_2005_ID[] = "VcProject.VcProject2005"; // 2005 version
 const char VC_PROJECT_CONTEXT[] = "VcProject.ProjectContext";
 const char VC_PROJECT_TARGET_ID[] = "VcProject.DefaultVcProjectTarget";
 const char VC_PROJECT_BC_ID[] = "VcProject.VcProjectBuildConfiguration";
@@ -57,6 +58,8 @@ const char VC_PROJECT_SCHEMA_2003_QUIALIFIER[] = "Schema2003";
 const char VC_PROJECT_SCHEMA_2005_QUIALIFIER[] = "Schema2005";
 const char VC_PROJECT_SCHEMA_2008_QUIALIFIER[] = "Schema2008";
 const char VC_PROJECT_KIT_INFO_ID[] = "VcProject.KitInformation";
+
+const char VC_PROJECT_SHOW_PROPERTIES_ACTION[] = "VcProject.ShowPropertiesAction";
 
 enum SchemaVersion
 {

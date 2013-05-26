@@ -259,7 +259,7 @@ public:
 class CAndCppToolWidget : public VcNodeWidget
 {
 public:
-    explicit CAndCppToolWidget(CAndCppTool::Ptr tool);
+    explicit CAndCppToolWidget(CAndCppTool* tool);
     ~CAndCppToolWidget();
     void saveData();
 
@@ -284,7 +284,7 @@ private:
     void saveBrowseInformationData();
     void saveAdvancedData();
 
-    CAndCppTool::Ptr m_tool;
+    CAndCppTool* m_tool;
 
     // General
     LineEdit *m_additIncDirsLineEdit;

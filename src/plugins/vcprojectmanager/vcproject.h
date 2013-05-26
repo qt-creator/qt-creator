@@ -72,8 +72,13 @@ public:
     bool needsConfiguration() const;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 
+    void showSettingsDialog();
+
 public slots:
     void reloadProjectNodes();
+
+private slots:
+    void onSettingsDialogAccepted();
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -87,7 +92,6 @@ private:
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;
     VcDocProjectNode *m_rootNode;
-    QFileSystemWatcher *m_projectFileWatcher;
     QFuture<void> m_codeModelFuture;
 };
 

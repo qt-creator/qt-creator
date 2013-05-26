@@ -60,7 +60,7 @@ QString LinkerTool::nodeWidgetName() const
 
 VcNodeWidget *LinkerTool::createSettingsWidget()
 {
-    return new LinkerToolWidget(QSharedPointer<LinkerTool>(this));
+    return new LinkerToolWidget(this);
 }
 
 Tool::Ptr LinkerTool::clone() const
@@ -1272,7 +1272,7 @@ void LinkerTool::setCLRUnmanagedCodeCheck(bool unmanaged)
 }
 
 
-LinkerToolWidget::LinkerToolWidget(LinkerTool::Ptr tool)
+LinkerToolWidget::LinkerToolWidget(LinkerTool* tool)
     : m_tool(tool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

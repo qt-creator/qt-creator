@@ -169,7 +169,7 @@ Configuration2003::~Configuration2003()
 
 VcNodeWidget *Configuration2003::createSettingsWidget()
 {
-    return new Configuration2003Widget(Configuration::Ptr(this));
+    return new Configuration2003Widget(this);
 }
 
 Configuration::Ptr Configuration2003::clone() const
@@ -214,7 +214,7 @@ Configuration2005::~Configuration2005()
 
 VcNodeWidget *Configuration2005::createSettingsWidget()
 {
-    return new Configuration2005Widget(Configuration::Ptr(this));
+    return new Configuration2005Widget(this);
 }
 
 Configuration::Ptr Configuration2005::clone() const
@@ -265,7 +265,7 @@ Configuration2008::~Configuration2008()
 
 VcNodeWidget *Configuration2008::createSettingsWidget()
 {
-    return new Configuration2008Widget(Configuration::Ptr(this));
+    return new Configuration2008Widget(this);
 }
 
 Configuration::Ptr Configuration2008::clone() const

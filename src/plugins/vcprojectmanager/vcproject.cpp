@@ -83,16 +83,12 @@ public:
 VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath, VcDocConstants::DocumentVersion docVersion)
     : m_projectManager(projectManager)
     , m_projectFile(new VcProjectFile(projectFilePath, docVersion))
-    , m_projectFileWatcher(new QFileSystemWatcher(this))
 {
-    setProjectContext(Core::Context(Constants::VC_PROJECT_CONTEXT));
-
+    if (docVersion == VcProjectManager::Internal::VcDocConstants::DV_MSVC_2005)
+        setProjectContext(Core::Context(Constants::VC_PROJECT_2005_ID));
+    else
+        setProjectContext(Core::Context(Constants::VC_PROJECT_ID));
     m_rootNode = m_projectFile->createVcDocNode();
-    //    reparse();
-
-    m_projectFileWatcher->addPath(projectFilePath);
-    //    connect(m_projectFileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(reparse()));
-    connect(m_projectFileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(reloadProjectNodes()));
 }
 
 VcProject::~VcProject()
@@ -109,7 +105,9 @@ QString VcProject::displayName() const
 
 Core::Id VcProject::id() const
 {
-    return Core::Id(Constants::VC_PROJECT_ID);
+    if (m_projectFile->documentModel()->vcProjectDocument()->documentVersion() != VcDocConstants::DV_MSVC_2005)
+        return Core::Id(Constants::VC_PROJECT_ID);
+    return Core::Id(Constants::VC_PROJECT_2005_ID);
 }
 
 Core::IDocument *VcProject::document() const
@@ -132,9 +130,10 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
     Q_UNUSED(fileMode);
     // TODO: respect the mode
     QStringList sl;
-    m_projectFile->documentModel()->vcProjectDocument()->allProjectFiles(sl);
+    if (m_projectFile && m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument())
+        m_projectFile->documentModel()->vcProjectDocument()->allProjectFiles(sl);
+
     return sl;
-    //    return m_rootNode->files();
 }
 
 QString VcProject::defaultBuildDirectory() const
@@ -173,13 +172,20 @@ bool VcProject::supportsKit(Kit *k, QString *errorMessage) const
     return true;
 }
 
+void VcProject::showSettingsDialog()
+{
+    if (m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument()) {
+        VcProjectDocumentWidget *settingsWidget = static_cast<VcProjectDocumentWidget *>(m_projectFile->documentModel()->vcProjectDocument()->createSettingsWidget());
+
+        if (settingsWidget) {
+            settingsWidget->show();
+            connect(settingsWidget, SIGNAL(accepted()), this, SLOT(onSettingsDialogAccepted()));
+        }
+    }
+}
+
 void VcProject::reloadProjectNodes()
 {
-    // If file saving is done by replacing the file with the new file
-    // watcher will loose it from its list
-    if (m_projectFileWatcher->files().isEmpty())
-        m_projectFileWatcher->addPath(m_projectFile->filePath());
-
     m_rootNode->deleteLater();
     m_projectFile->reloadVcDoc();
     m_rootNode = m_projectFile->createVcDocNode();
@@ -187,6 +193,13 @@ void VcProject::reloadProjectNodes()
     updateCodeModels();
 
     emit fileListChanged();
+}
+
+void VcProject::onSettingsDialogAccepted()
+{
+    VcProjectDocumentWidget *settingsWidget = qobject_cast<VcProjectDocumentWidget *>(QObject::sender());
+    m_projectFile->documentModel()->saveToFile(m_projectFile->filePath());
+    disconnect(settingsWidget, SIGNAL(accepted()), this, SLOT(onSettingsDialogAccepted()));
 }
 
 bool VcProject::fromMap(const QVariantMap &map)

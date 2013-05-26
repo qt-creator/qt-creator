@@ -60,7 +60,7 @@ QString PreLinkEventTool::nodeWidgetName() const
 
 VcNodeWidget *PreLinkEventTool::createSettingsWidget()
 {
-    return new PreLinkEventToolWidget(QSharedPointer<PreLinkEventTool>(this));
+    return new PreLinkEventToolWidget(this);
 }
 
 Tool::Ptr PreLinkEventTool::clone() const
@@ -114,7 +114,7 @@ void PreLinkEventTool::setExcludedFromBuild(bool excludedFromBuild)
 }
 
 
-PreLinkEventToolWidget::PreLinkEventToolWidget(PreLinkEventTool::Ptr tool)
+PreLinkEventToolWidget::PreLinkEventToolWidget(PreLinkEventTool *tool)
     : m_tool(tool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

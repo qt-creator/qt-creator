@@ -56,21 +56,21 @@ void VcProjectDocument::readFromXMLDomDocument(const QDomNode &domDoc)
     processNode(node);
 }
 
-void VcProjectDocument::saveToFile(const QString &filePath) const
+bool VcProjectDocument::saveToFile(const QString &filePath) const
 {
     QDomDocument domDoc;
     toXMLDomNode(domDoc);
 
     QFile outFile(filePath);
     if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug( "Failed to open file for writing." );
-        return;
+        qDebug( "VcProjectDocument::saveToFile::Failed to open file for writing." );
+        return false;
     }
 
     QTextStream stream( &outFile );
     stream << domDoc.toString();
-
     outFile.close();
+    return true;
 }
 
 VcDocConstants::DocumentVersion VcProjectDocument::documentVersion() const
@@ -364,6 +364,15 @@ void VcProjectDocument2003::init()
 }
 
 
+VcProjectDocumentWidget::VcProjectDocumentWidget()
+{
+}
+
+VcProjectDocumentWidget::~VcProjectDocumentWidget()
+{
+}
+
+
 VcProjectDocument2003Widget::VcProjectDocument2003Widget(VcProjectDocument2003 *vcDoc)
     : m_vcDoc(vcDoc)
 {
@@ -394,6 +403,7 @@ void VcProjectDocument2003Widget::onOkButtonClicked()
 {
     saveData();
     hide();
+    emit accepted();
     deleteLater();
 }
 
@@ -525,6 +535,7 @@ void VcProjectDocument2005Widget::onOkButtonClicked()
 {
     saveData();
     hide();
+    emit accepted();
     deleteLater();
 }
 
@@ -782,6 +793,7 @@ void VcProjectDocument2008Widget::onOkButtonClicked()
 {
     saveData();
     hide();
+    emit accepted();
     deleteLater();
 }
 

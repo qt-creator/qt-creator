@@ -307,7 +307,7 @@ public:
 class LinkerToolWidget : public VcNodeWidget
 {
 public:
-    explicit LinkerToolWidget(LinkerTool::Ptr tool);
+    explicit LinkerToolWidget(LinkerTool* tool);
     ~LinkerToolWidget();
     void saveData();
 
@@ -330,7 +330,7 @@ private:
     void saveEnbeddedIDLData();
     void saveAdvancedData();
 
-    LinkerTool::Ptr m_tool;
+    LinkerTool* m_tool;
 
     // General
     QLineEdit *m_outputFileLineEdit;

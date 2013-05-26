@@ -59,7 +59,7 @@ QString BrowseInformationTool::nodeWidgetName() const
 
 VcNodeWidget *BrowseInformationTool::createSettingsWidget()
 {
-    return new BrowseInformationToolWidget(QSharedPointer<BrowseInformationTool>(this));
+    return new BrowseInformationToolWidget(this);
 }
 
 Tool::Ptr BrowseInformationTool::clone() const
@@ -98,7 +98,7 @@ void BrowseInformationTool::setOutputFile(const QString &outFile)
 }
 
 
-BrowseInformationToolWidget::BrowseInformationToolWidget(BrowseInformationTool::Ptr browseTool)
+BrowseInformationToolWidget::BrowseInformationToolWidget(BrowseInformationTool *browseTool)
     : m_tool(browseTool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

@@ -70,13 +70,13 @@ public:
 class CustomBuildStepToolWidget : public VcNodeWidget
 {
 public:
-    explicit CustomBuildStepToolWidget(CustomBuildStepTool::Ptr tool);
+    explicit CustomBuildStepToolWidget(CustomBuildStepTool* tool);
     ~CustomBuildStepToolWidget();
     void saveData();
 
 private:
     void initialize();
-    CustomBuildStepTool::Ptr m_tool;
+    CustomBuildStepTool* m_tool;
 
     LineEdit *m_cmdLineEditLine;
     QLineEdit *m_descriptionLineEdit;

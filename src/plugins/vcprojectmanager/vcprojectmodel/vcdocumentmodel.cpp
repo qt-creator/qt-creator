@@ -68,11 +68,12 @@ VcProjectDocument* VcDocumentModel::vcProjectDocument() const
     return m_vcProjectDocument;
 }
 
-void VcDocumentModel::saveToFile(const QString &filePath) const
+bool VcDocumentModel::saveToFile(const QString &filePath) const
 {
-    if (m_vcProjectDocument) {
-        m_vcProjectDocument->saveToFile(filePath);
-    }
+    if (m_vcProjectDocument)
+        return m_vcProjectDocument->saveToFile(filePath);
+
+    return false;
 }
 
 void VcDocumentModel::readRoot()

@@ -68,12 +68,12 @@ public:
 class PreLinkEventToolWidget : public VcNodeWidget
 {
 public:
-    explicit PreLinkEventToolWidget(PreLinkEventTool::Ptr tool);
+    explicit PreLinkEventToolWidget(PreLinkEventTool* tool);
     ~PreLinkEventToolWidget();
     void saveData();
 
 private:
-    PreLinkEventTool::Ptr m_tool;
+    PreLinkEventTool *m_tool;
 
     LineEdit *m_cmdLineLineEdit;
     QLineEdit *m_descriptionLineEdit;

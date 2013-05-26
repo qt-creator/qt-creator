@@ -59,7 +59,7 @@ QString CustomBuildStepTool::nodeWidgetName() const
 
 VcNodeWidget *CustomBuildStepTool::createSettingsWidget()
 {
-    return new CustomBuildStepToolWidget(QSharedPointer<CustomBuildStepTool>(this));
+    return new CustomBuildStepToolWidget(this);
 }
 
 Tool::Ptr CustomBuildStepTool::clone() const
@@ -128,7 +128,7 @@ void CustomBuildStepTool::setAdditionalDependencies(const QStringList &dependenc
 }
 
 
-CustomBuildStepToolWidget::CustomBuildStepToolWidget(CustomBuildStepTool::Ptr tool)
+CustomBuildStepToolWidget::CustomBuildStepToolWidget(CustomBuildStepTool *tool)
     : m_tool(tool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

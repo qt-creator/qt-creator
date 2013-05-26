@@ -59,7 +59,7 @@ QString ManifestTool::nodeWidgetName() const
 
 VcNodeWidget *ManifestTool::createSettingsWidget()
 {
-    return new ManifestToolWidget(QSharedPointer<ManifestTool>(this));
+    return new ManifestToolWidget(this);
 }
 
 Tool::Ptr ManifestTool::clone() const
@@ -338,7 +338,7 @@ void ManifestTool::setUpdateFileHashesSearchPath(const QString &searchPath)
 }
 
 
-ManifestToolWidget::ManifestToolWidget(ManifestTool::Ptr tool)
+ManifestToolWidget::ManifestToolWidget(ManifestTool *tool)
     : m_tool(tool)
 {
     QTabWidget *mainTabWidget = new QTabWidget(this);

@@ -118,7 +118,7 @@ public:
 class ManifestToolWidget : public VcNodeWidget
 {
 public:
-    explicit ManifestToolWidget(ManifestTool::Ptr tool);
+    explicit ManifestToolWidget(ManifestTool* tool);
     ~ManifestToolWidget();
     void saveData();
 
@@ -128,7 +128,7 @@ private:
     QWidget* createIsolatedCOMWidget();
     QWidget* createAdvancedWidget();
 
-    ManifestTool::Ptr m_tool;
+    ManifestTool* m_tool;
 
     // General
     QComboBox *m_suppStartBannerComboBox;
