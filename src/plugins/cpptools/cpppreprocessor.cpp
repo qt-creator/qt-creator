@@ -5,6 +5,18 @@
 
 #include <QCoreApplication>
 
+/*!
+ * \class CppTools::Internal::CppPreprocessor
+ * \brief The CppPreprocessor class updates set of indexed C++ files.
+ *
+ * Indexed file is truncated version of fully parsed document: copy of source
+ * code and full AST will be dropped when indexing is done. Working copy ensures
+ * that documents with most recent copy placed in memory will be parsed correctly.
+ *
+ * \sa CPlusPlus::Document
+ * \sa CppTools::CppModelManagerInterface::WorkingCopy
+ */
+
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;

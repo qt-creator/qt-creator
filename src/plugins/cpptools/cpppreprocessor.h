@@ -14,11 +14,14 @@ namespace Internal {
 
 class CppModelManager;
 
+// Documentation inside.
 class CPPTOOLS_EXPORT CppPreprocessor: public CPlusPlus::Client
 {
     Q_DISABLE_COPY(CppPreprocessor)
 
 public:
+    static QString cleanPath(const QString &path);
+
     CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing = false);
     virtual ~CppPreprocessor();
 
@@ -26,15 +29,11 @@ public:
     void setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
-    void addFrameworkPath(const QString &frameworkPath);
-    void setProjectFiles(const QStringList &files);
     void setTodo(const QStringList &files);
 
     void run(const QString &fileName);
     void removeFromCache(const QString &fileName);
-
     void resetEnvironment();
-    static QString cleanPath(const QString &path);
 
     const QSet<QString> &todo() const
     { return m_todo; }
@@ -69,6 +68,8 @@ protected:
     virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType type);
 
 private:
+    void addFrameworkPath(const QString &frameworkPath);
+
     CPlusPlus::Snapshot m_snapshot;
     QPointer<CppModelManager> m_modelManager;
     bool m_dumpFileNameWhileParsing;
