@@ -202,11 +202,11 @@ void GerritDialog::displayRepositoryPath()
     if (m_repositoryChooser->path().isEmpty())
         m_repositoryChooser->setPath(m_parameters->repositoryPath);
     if (m_parameters->promptPath) {
-        m_displayButton->setText(tr("&Diff..."));
+        m_displayButton->setText(tr("&Show..."));
         m_cherryPickButton->setText(tr("Cherry &Pick..."));
         m_checkoutButton->setText(tr("&Checkout..."));
     } else {
-        m_displayButton->setText(tr("&Diff"));
+        m_displayButton->setText(tr("&Show"));
         m_cherryPickButton->setText(tr("Cherry &Pick"));
         m_checkoutButton->setText(tr("&Checkout"));
     }
