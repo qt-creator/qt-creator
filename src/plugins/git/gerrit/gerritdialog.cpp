@@ -164,7 +164,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_displayButton = addActionButton(QString(), SLOT(slotFetchDisplay()));
     m_cherryPickButton = addActionButton(QString(), SLOT(slotFetchCherryPick()));
     m_checkoutButton = addActionButton(QString(), SLOT(slotFetchCheckout()));
-    m_refreshButton = addActionButton(tr("Refresh"), SLOT(slotRefresh()));
+    m_refreshButton = addActionButton(tr("&Refresh"), SLOT(slotRefresh()));
 
     connect(m_model, SIGNAL(refreshStateChanged(bool)),
             m_refreshButton, SLOT(setDisabled(bool)));
@@ -202,13 +202,13 @@ void GerritDialog::displayRepositoryPath()
     if (m_repositoryChooser->path().isEmpty())
         m_repositoryChooser->setPath(m_parameters->repositoryPath);
     if (m_parameters->promptPath) {
-        m_displayButton->setText(tr("Diff..."));
-        m_cherryPickButton->setText(tr("Cherry Pick..."));
-        m_checkoutButton->setText(tr("Checkout..."));
+        m_displayButton->setText(tr("&Diff..."));
+        m_cherryPickButton->setText(tr("Cherry &Pick..."));
+        m_checkoutButton->setText(tr("&Checkout..."));
     } else {
-        m_displayButton->setText(tr("Diff"));
-        m_cherryPickButton->setText(tr("Cherry Pick"));
-        m_checkoutButton->setText(tr("Checkout"));
+        m_displayButton->setText(tr("&Diff"));
+        m_cherryPickButton->setText(tr("Cherry &Pick"));
+        m_checkoutButton->setText(tr("&Checkout"));
     }
 }
 
