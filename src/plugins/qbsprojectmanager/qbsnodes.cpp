@@ -107,45 +107,13 @@ public:
 
     bool isFile() { return children.isEmpty(); }
 
-    // Moves the node pointing to basedir to the root of the tree and deletes any now empty nodes.
-    static void reorder(FileTreeNode *node, const QString &basedir, FileTreeNode *root)
+    static FileTreeNode *moveChildrenUp(FileTreeNode *node)
     {
-        if (node != root && node->path() == basedir) {
-            // move node to root:
-            FileTreeNode *parent = node->parent;
-            if (parent)
-                parent->children.removeOne(node);
-            root->children.append(node);
-            node->parent = root;
-            if (basedir.startsWith(QLatin1Char('/')))
-                node->name = basedir.mid(1);
-            else
-                node->name = basedir;
-
-            // clean up now-empty nodes:
-            while (parent) {
-                if (parent->children.count() == 0) {
-                    FileTreeNode *current = parent;
-                    parent = current->parent;
-                    parent->children.removeOne(current);
-                    current->parent = 0;
-                    delete current;
-                } else {
-                    break;
-                }
-            }
-            return;
-        }
-        foreach (FileTreeNode *n, node->children)
-            reorder(n, basedir, root);
-    }
-
-    static void moveChildrenUp(FileTreeNode *node)
-    {
-        if (!node || !node->parent)
-            return;
+        QTC_ASSERT(node, return 0);
 
         FileTreeNode *newParent = node->parent;
+        if (!newParent)
+            return 0;
 
         // disconnect node and parent:
         node->parent = 0;
@@ -165,6 +133,40 @@ public:
         // Delete node
         node->children.clear();
         delete node;
+        return newParent;
+    }
+
+    // Moves the children of the node pointing to basedir to the root of the tree.
+    static void reorder(FileTreeNode *node, const QString &basedir)
+    {
+        QTC_CHECK(!basedir.isEmpty());
+
+        if (node->path() == basedir) {
+            // Find root node:
+            FileTreeNode *root = node;
+            while (root->parent)
+                root = root->parent;
+
+            foreach (FileTreeNode *c, node->children) {
+                // Update children names by prepending basedir
+                c->name = basedir + QLatin1Char('/') + c->name;
+                // Update parent information:
+                c->parent = root;
+
+                root->children.append(c);
+            }
+
+            // Clean up node:
+            node->children.clear();
+            node->parent->children.removeOne(node);
+            node->parent = 0;
+            delete node;
+
+            return;
+        }
+
+        foreach (FileTreeNode *n, node->children)
+            reorder(n, basedir);
     }
 
     static void simplify(FileTreeNode *node)
@@ -175,23 +177,15 @@ public:
         if (!node->parent)
             return;
 
-        if (node->children.count() == 1 && !node->children.at(0)->isFile())
-            moveChildrenUp(node->children.at(0));
-    }
-
-    static void moveBaseFolderContents(FileTreeNode *root, const QString &baseDir)
-    {
-        // Move files/folders found in the base folder up one level. The baseDir must be a child of
-        // the root of the FileNodeTree.
-        FileTreeNode *baseDirNode = 0;
-        foreach (FileTreeNode *c, root->children) {
-            if (c->path() == baseDir) {
-                baseDirNode = c;
-                break;
-            }
+        if (node->children.count() == 0 && !node->isFile()) {
+            // Clean up empty folder nodes:
+            node->parent->children.removeOne(node);
+            node->parent = 0;
+            delete node;
+        } else if (node->children.count() == 1 && !node->children.at(0)->isFile()) {
+            // Compact folder nodes with one child only:
+            moveChildrenUp(node);
         }
-
-        moveChildrenUp(baseDirNode);
     }
 
     QString path()
@@ -367,9 +361,8 @@ void QbsGroupNode::setupFiles(QbsBaseProjectNode *root, const QStringList &files
             root = root->addPart(pathSegments.takeFirst());
     }
 
-    FileTreeNode::reorder(&tree, productPath, &tree);
+    FileTreeNode::reorder(&tree, productPath);
     FileTreeNode::simplify(&tree);
-    FileTreeNode::moveBaseFolderContents(&tree, productPath);
 
     setupFolder(root, &tree, productPath);
 }
