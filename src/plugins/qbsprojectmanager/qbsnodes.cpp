@@ -55,8 +55,13 @@ static QString displayNameFromPath(const QString &path, const QString &base)
         dir.append(QLatin1Char('/'));
 
     QString name = path;
-    if (name.startsWith(dir))
+    if (name.startsWith(dir)) {
         name = name.mid(dir.count());
+    } else {
+        QFileInfo fi = QFileInfo(path);
+        name = QCoreApplication::translate("Qbs::QbsProjectNode", "%1 in %2")
+                .arg(fi.fileName(), fi.absolutePath());
+    }
 
     return name;
 }
