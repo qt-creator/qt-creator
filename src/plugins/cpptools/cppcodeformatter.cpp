@@ -207,6 +207,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                     // oops, the expression was a function declaration argument list, hand lbrace/colon to declaration_start
                     leave();
                     continue;
+                } else {
+                    turnInto(substatement_open);
                 }
                 break;
             default:            tryExpression(); break;

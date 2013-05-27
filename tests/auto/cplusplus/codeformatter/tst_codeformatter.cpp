@@ -126,6 +126,7 @@ private Q_SLOTS:
     void blockBraces1();
     void functionDefaultArgument();
     void attributeInAccessSpecifier();
+    void braceReturn();
 };
 
 struct Line {
@@ -2093,6 +2094,19 @@ void tst_CodeFormatter::attributeInAccessSpecifier()
          << Line("    int a;")
          << Line("};")
          << Line("int b;")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::braceReturn()
+{
+    QList<Line> data;
+    data << Line("class X {")
+         << Line("    void the_answer() {")
+         << Line("        return {42};")
+         << Line("    }")
+         << Line("    int x;")
+         << Line("};")
          ;
     checkIndent(data);
 }
