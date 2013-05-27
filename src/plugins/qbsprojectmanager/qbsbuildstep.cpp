@@ -65,6 +65,7 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
     m_job(0), m_parser(0)
 {
     setDisplayName(tr("Qbs Build"));
+    setQbsConfiguration(QVariantMap());
 }
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
