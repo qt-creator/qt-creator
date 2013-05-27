@@ -667,7 +667,9 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorM
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
         sp->connParams = device->sshParameters();
-        sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
+        // Could have been set from command line.
+        if (sp->remoteChannel.isEmpty())
+            sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
     }
     return true;
 }

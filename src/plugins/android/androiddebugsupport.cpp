@@ -112,7 +112,8 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
     }
-    if (aspect->useQmlDebugger()) {
+    // FIX ME: Enable Qml Debugging in 2.8
+    if (aspect->useQmlDebugger() && false) {
         params.languages |= QmlLanguage;
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)

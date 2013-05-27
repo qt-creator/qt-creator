@@ -168,7 +168,7 @@ QtcLibrary {
         "images/var_prot.png",
     ]
 
-    ProductModule {
+    Export {
         Depends { name: "cpp" }
         cpp.includePaths: [
             "../3rdparty"
