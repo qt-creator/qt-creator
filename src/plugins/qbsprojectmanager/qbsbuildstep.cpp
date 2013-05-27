@@ -381,13 +381,13 @@ void QbsBuildStepConfigWidget::updateState()
     const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
 
-    QString command = QLatin1String("qbs ");
+    QString command = QLatin1String("qbs build ");
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
         command += QLatin1String("--keep-going ");
     command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
-    command += QString::fromLatin1("build profile:%1 %2").arg(m_step->profile(), buildVariant);
+    command += QString::fromLatin1("profile:%1 %2").arg(m_step->profile(), buildVariant);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
     if (m_summary !=  summary) {
