@@ -1417,7 +1417,7 @@ void SubversionPlugin::testDiffFileResolving_data()
 
 void SubversionPlugin::testDiffFileResolving()
 {
-    SubversionEditor editor(editorParameters + 3, 0);
+    SubversionEditor editor(editorParameters + 2, 0);
     editor.testDiffFileResolving();
 }
 
@@ -1439,7 +1439,7 @@ void SubversionPlugin::testLogResolving()
                 "   expectations, remove XFail.\n"
                 "\n"
                 );
-    SubversionEditor editor(editorParameters + 1, 0);
+    SubversionEditor editor(editorParameters, 0);
     editor.testLogResolving(data, "r1439551", "r1439540");
 }
 #endif
