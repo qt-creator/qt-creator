@@ -51,6 +51,10 @@
 #include <QStyle>
 #include <QStyleOption>
 #include <QTimer>
+#include <QVariant>
+
+static const char kSettingsGroup[] = "Progress";
+static const char kDetailsPinned[] = "DetailsPinned";
 
 using namespace Core;
 using namespace Core::Internal;
@@ -283,8 +287,18 @@ ProgressManagerPrivate::~ProgressManagerPrivate()
     cleanup();
 }
 
+void ProgressManagerPrivate::readSettings()
+{
+    QSettings *settings = ICore::settings();
+    settings->beginGroup(QLatin1String(kSettingsGroup));
+    m_progressViewPinned = settings->value(QLatin1String(kDetailsPinned), true).toBool();
+    settings->endGroup();
+}
+
 void ProgressManagerPrivate::init()
 {
+    readSettings();
+
     m_statusBarWidgetContainer = new Core::StatusBarWidget;
     m_statusBarWidget = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout(m_statusBarWidget);
@@ -658,6 +672,11 @@ void ProgressManagerPrivate::progressDetailsToggled(bool checked)
 {
     m_progressViewPinned = checked;
     updateVisibility();
+
+    QSettings *settings = ICore::settings();
+    settings->beginGroup(QLatin1String(kSettingsGroup));
+    settings->setValue(QLatin1String(kDetailsPinned), m_progressViewPinned);
+    settings->endGroup();
 }
 
 ToggleButton::ToggleButton(QWidget *parent)

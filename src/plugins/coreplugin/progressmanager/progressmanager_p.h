@@ -87,6 +87,7 @@ private slots:
 
     void slotRemoveTask();
 private:
+    void readSettings();
     void initInternal();
     void stopFadeOfSummaryProgress();
 
