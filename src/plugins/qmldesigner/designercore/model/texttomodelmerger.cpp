@@ -802,7 +802,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 return false;
             }
 
-            if (!warnings.isEmpty() && differenceHandler.isValidator()) {
+            if (!warnings.isEmpty() && differenceHandler.isValidator() && !m_rewriterView->inErrorState()) {
 
                 QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger", "This .qml file contains features "
                                                             "which are not supported by Qt Quick Designer");
