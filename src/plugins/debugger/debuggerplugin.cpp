@@ -1191,6 +1191,7 @@ public slots:
     SavedAction *action(int code) const;
     bool boolSetting(int code) const;
     QString stringSetting(int code) const;
+    QStringList stringListSetting(int code) const;
 
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
     void showModuleSections(const QString &moduleName, const Sections &sections);
@@ -3305,6 +3306,11 @@ bool DebuggerPluginPrivate::boolSetting(int code) const
 QString DebuggerPluginPrivate::stringSetting(int code) const
 {
     return m_debuggerSettings->item(code)->value().toString();
+}
+
+QStringList DebuggerPluginPrivate::stringListSetting(int code) const
+{
+    return m_debuggerSettings->item(code)->value().toStringList();
 }
 
 void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
