@@ -32,18 +32,20 @@ import re
 def handleDebuggerWarnings(config, isMsvcBuild=False):
     if isMsvcBuild:
         try:
-            popup = waitForObject("{text?='<html><head/><body>*' type='QLabel' unnamed='1' visible='1' window=':Symbol Server_Utils::CheckableMessageBox'}", 10000)
-            symServerNotConfiged = ("<html><head/><body><p>The debugger is not configured to use the public "
-                                    "<a href=\"http://support.microsoft.com/kb/311503\">Microsoft Symbol Server</a>. "
-                                    "This is recommended for retrieval of the symbols of the operating system libraries.</p>"
-                                    "<p><i>Note:</i> A fast internet connection is required for this to work smoothly. "
-                                    "Also, a delay might occur when connecting for the first time.</p>"
-                                    "<p>Would you like to set it up?</p></body></html>")
+            popup = waitForObject("{name='msgLabel' text?='<html><head/><body>*' type='QLabel' visible='1' window=':Dialog_Debugger::Internal::SymbolPathsDialog'}", 10000)
+            symServerNotConfiged = ("<html><head/><body>\n<p>The debugger is not configured to use the public "
+                                    "Microsoft Symbol Server.<br>"
+                                    "This is recommended for retrieval of the symbols of the operating system libraries.</p>\n"
+                                    "<p><span style=\" font-style:italic;\">Note:</span> It is recommended, that if you use the Microsoft Symbol Server,  "
+                                    "to also use a local symbol cache.<br>"
+                                    "Also, a fast internet connection is required for this to work smoothly,<br>"
+                                    "and a delay might occur when connecting for the first time, when caching the symbols for the first time.</p>\n"
+                                    "<p>Would you like to set it up?</p>\n</body></html>")
             if popup.text == symServerNotConfiged:
                 test.log("Creator warned about the debugger not being configured to use the public Microsoft Symbol Server.")
             else:
                 test.warning("Creator showed an unexpected warning: " + str(popup.text))
-            clickButton(waitForObject("{text='No' type='QPushButton' unnamed='1' visible='1' window=':Symbol Server_Utils::CheckableMessageBox'}", 10000))
+            clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Dialog_Debugger::Internal::SymbolPathsDialog'}", 10000))
         except LookupError:
             pass # No warning. Fine.
     else:
