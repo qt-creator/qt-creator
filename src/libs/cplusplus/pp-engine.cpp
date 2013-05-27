@@ -1900,8 +1900,6 @@ void Preprocessor::handleEndIfDirective(PPToken *tk, const PPToken &poundToken)
 
 void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
 {
-    static const QByteArray qCreatorRun("Q_CREATOR_RUN");
-
     lex(tk); // consume "ifdef" token
     if (tk->is(T_IDENTIFIER)) {
         if (checkUndefined && m_state.m_ifLevel == 0)
@@ -1921,8 +1919,6 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
                 }
             }
         } else if (m_env->isBuiltinMacro(macroName)) {
-            value = true;
-        } else if (macroName == qCreatorRun) {
             value = true;
         }
 
