@@ -282,6 +282,7 @@ void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
         m_parser->stdOutput(line);
         addOutput(line, NormalOutput);
     }
+    m_parser->flush();
 }
 
 void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message,
