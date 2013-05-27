@@ -126,8 +126,13 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
 {
-    Q_UNUSED(errorString)
-    // TODO check whether this project is already opened
+    if (!QFileInfo(fileName).isFile()) {
+        if (errorString)
+            *errorString = tr("Failed opening project '%1': Project is not a file")
+                .arg(fileName);
+        return 0;
+    }
+
     return new CMakeProject(this, fileName);
 }
 

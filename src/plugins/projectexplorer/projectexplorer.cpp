@@ -1334,6 +1334,16 @@ static inline QList<IProjectManager*> allProjectManagers()
     return ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 }
 
+static void appendError(QString *errorString, const QString &error)
+{
+    if (!errorString || error.isEmpty())
+        return;
+
+    if (!errorString->isEmpty())
+        errorString->append(QLatin1Char('\n'));
+    errorString->append(error);
+}
+
 QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileNames, QString *errorString)
 {
     if (debug)
@@ -1343,11 +1353,29 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
 
     QList<Project*> openedPro;
     foreach (const QString &fileName, fileNames) {
+        QTC_ASSERT(!fileName.isEmpty(), continue);
+
+        QFileInfo fi = QFileInfo(fileName);
+        QString canonicalFilePath = fi.canonicalFilePath();
+        bool found = false;
+        foreach (ProjectExplorer::Project *pi, session()->projects()) {
+            if (canonicalFilePath == pi->document()->fileName()) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            appendError(errorString, tr("Failed opening project '%1': Project already open")
+                        .arg(QDir::toNativeSeparators(fileName)));
+            d->m_session->reportProjectLoadingProgress();
+            continue;
+        }
+
         if (const Core::MimeType mt = Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName))) {
             foreach (IProjectManager *manager, projectManagers) {
                 if (manager->mimeType() == mt.type()) {
                     QString tmp;
-                    if (Project *pro = manager->openProject(fileName, &tmp)) {
+                    if (Project *pro = manager->openProject(canonicalFilePath, &tmp)) {
                         if (pro->restoreSettings()) {
                             connect(pro, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
                             d->m_session->addProject(pro);
@@ -1359,16 +1387,13 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
                             delete pro;
                         }
                     }
-                    if (errorString) {
-                        if (!errorString->isEmpty() && !tmp.isEmpty())
-                            errorString->append(QLatin1Char('\n'));
-                        errorString->append(tmp);
-                    }
-                    d->m_session->reportProjectLoadingProgress();
+                    if (!tmp.isEmpty())
+                        appendError(errorString, tmp);
                     break;
                 }
             }
         }
+        d->m_session->reportProjectLoadingProgress();
     }
     updateActions();
 

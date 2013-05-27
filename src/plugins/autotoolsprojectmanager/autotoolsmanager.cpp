@@ -47,26 +47,14 @@ namespace Internal {
 
 Project *AutotoolsManager::openProject(const QString &fileName, QString *errorString)
 {
-    QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
-
-    if (canonicalFilePath.isEmpty()) {
+    if (!QFileInfo(fileName).isFile()) {
         if (errorString)
-            *errorString = tr("Failed opening project '%1': Project file does not exist")
-                             .arg(QDir::toNativeSeparators(fileName));
+            *errorString = tr("Failed opening project '%1': Project is not a file")
+                .arg(fileName);
         return 0;
     }
 
-    // Check whether the project is already open or not.
-    ProjectExplorerPlugin *projectExplorer = ProjectExplorerPlugin::instance();
-    foreach (Project *pi, projectExplorer->session()->projects()) {
-        if (canonicalFilePath == pi->document()->fileName()) {
-            *errorString = tr("Failed opening project '%1': Project already open")
-                             .arg(QDir::toNativeSeparators(canonicalFilePath));
-            return 0;
-        }
-    }
-
-    return new AutotoolsProject(this, canonicalFilePath);
+    return new AutotoolsProject(this, fileName);
 }
 
 QString AutotoolsManager::mimeType() const
