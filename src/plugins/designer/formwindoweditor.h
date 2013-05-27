@@ -74,9 +74,6 @@ public:
     virtual QString displayName() const;
     virtual void setDisplayName(const QString &title);
 
-    virtual bool duplicateSupported() const;
-    virtual IEditor *duplicate(QWidget *parent);
-
     virtual QByteArray saveState() const;
     virtual bool restoreState(const QByteArray &state);
 

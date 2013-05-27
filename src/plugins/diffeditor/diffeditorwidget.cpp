@@ -101,11 +101,9 @@ class DiffViewEditorEditable : public BaseTextEditor
 Q_OBJECT
 public:
     DiffViewEditorEditable(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
-    virtual Core::Id id() const { return "DiffViewEditor"; }
-    virtual bool duplicateSupported() const { return false; }
-    virtual IEditor *duplicate(QWidget *parent) { Q_UNUSED(parent) return 0; }
-    virtual bool isTemporary() const { return false; }
 
+    Core::Id id() const { return "DiffViewEditor"; }
+    bool isTemporary() const { return false; }
 };
 
 

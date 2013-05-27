@@ -83,8 +83,6 @@ public:
     // IEditor
     bool createNew(const QString &contents);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    bool duplicateSupported() const { return false; }
-    Core::IEditor *duplicate(QWidget *) { return 0; }
     Core::IDocument *document() { return m_resourceDocument; }
     Core::Id id() const;
     QString displayName() const { return m_displayName; }

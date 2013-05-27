@@ -400,16 +400,6 @@ void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
     d->m_checkScriptWorkingDirectory = s;
 }
 
-bool VcsBaseSubmitEditor::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *VcsBaseSubmitEditor::duplicate(QWidget * /*parent*/)
-{
-    return 0;
-}
-
 Core::Id VcsBaseSubmitEditor::id() const
 {
     return d->m_parameters->id;

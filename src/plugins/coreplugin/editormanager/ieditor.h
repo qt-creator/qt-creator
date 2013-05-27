@@ -54,8 +54,8 @@ public:
     virtual QString displayName() const = 0;
     virtual void setDisplayName(const QString &title) = 0;
 
-    virtual bool duplicateSupported() const = 0;
-    virtual IEditor *duplicate(QWidget *parent) = 0;
+    virtual bool duplicateSupported() const { return false; }
+    virtual IEditor *duplicate(QWidget */*parent*/) { return 0; }
 
     virtual QByteArray saveState() const = 0;
     virtual bool restoreState(const QByteArray &state) = 0;

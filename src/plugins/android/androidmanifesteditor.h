@@ -46,15 +46,13 @@ class AndroidManifestEditorWidget;
 class AndroidManifestEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
+
 public:
     explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
 
     Core::Id id() const;
-
-    bool duplicateSupported() const;
-    Core::IEditor *duplicate(QWidget *parent);
-
     bool isTemporary() const;
+
 private slots:
     void changeEditorPage(QAction *action);
 

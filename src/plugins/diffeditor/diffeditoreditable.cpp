@@ -98,17 +98,6 @@ void DiffEditorEditable::setDisplayName(const QString &title)
     emit changed();
 }
 
-bool DiffEditorEditable::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *DiffEditorEditable::duplicate(QWidget *parent)
-{
-    Q_UNUSED(parent)
-    return 0;
-}
-
 Core::Id DiffEditorEditable::id() const
 {
     return Constants::DIFF_EDITOR_ID;

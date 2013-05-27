@@ -61,9 +61,6 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &title);
 
-    bool duplicateSupported() const;
-    IEditor *duplicate(QWidget *parent);
-
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
 

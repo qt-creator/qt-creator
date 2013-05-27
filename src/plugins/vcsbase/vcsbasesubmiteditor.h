@@ -116,8 +116,6 @@ public:
     Core::IDocument *document();
     QString displayName() const;
     void setDisplayName(const QString &title);
-    bool duplicateSupported() const;
-    Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
     bool isTemporary() const { return true; }
 

@@ -145,8 +145,6 @@ class VcsBaseEditor : public TextEditor::BaseTextEditor
 public:
     VcsBaseEditor(VcsBaseEditorWidget *, const VcsBaseEditorParameters *type);
 
-    bool duplicateSupported() const { return false; }
-    Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
     Core::Id id() const { return m_id; }
 
     bool isTemporary() const { return m_temporary; }
