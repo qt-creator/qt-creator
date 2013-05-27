@@ -43,6 +43,7 @@ GroupBox {
                 LineEdit {
                     backendValue: backendValues.text
                     baseStateFlag: isBaseState
+                    translation: true
                 }
             }
         }
