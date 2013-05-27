@@ -141,7 +141,7 @@ public:
 
 namespace Internal {
 
-bool fillParameters(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit = 0, QString *errorMessage = 0);
+bool fillParameters(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
 
 } // namespace Internal
 } // namespace Debugger

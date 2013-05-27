@@ -604,7 +604,7 @@ private:
     const char m_wordWidth;
 };
 
-bool fillParameters(DebuggerStartParameters *sp, const Kit *kit /* = 0 */, QString *errorMessage /* = 0 */)
+bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorMessage /* = 0 */)
 {
     if (!kit) {
         // This code can only be reached when starting via the command line
