@@ -7,7 +7,6 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
     Depends { name: "Core" }
-    Depends { name: "cpp" }
 
     cpp.includePaths: base.concat([
         "generichighlighter",

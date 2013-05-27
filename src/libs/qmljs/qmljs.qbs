@@ -13,7 +13,6 @@ QtcLibrary {
 
     Depends { name: "Utils" }
     Depends { name: "LanguageUtils" }
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "script"] }
 
     files: [
@@ -108,7 +107,6 @@ QtcLibrary {
     ]
 
     Export {
-        Depends { name: "cpp" }
         Depends { name: "LanguageUtils" }
         cpp.defines: [
             "QT_CREATOR"

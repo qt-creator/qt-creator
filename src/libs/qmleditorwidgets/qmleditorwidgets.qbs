@@ -12,7 +12,6 @@ QtcLibrary {
     ])
     cpp.optimization: "fast"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "declarative", "script"] }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }

@@ -16,7 +16,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QmlJSTools" }
 
-    Depends { name: "cpp" }
     cpp.defines: base.concat([
         "PROPARSER_AS_LIBRARY",
         "PROPARSER_THREAD_SAFE",

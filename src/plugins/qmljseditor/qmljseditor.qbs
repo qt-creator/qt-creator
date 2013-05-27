@@ -16,7 +16,6 @@ QtcPlugin {
     Depends { name: "QmlEditorWidgets" }
     Depends { name: "CPlusPlus" }
 
-    Depends { name: "cpp" }
     cpp.defines: base.concat("QT_CREATOR")
 
     files: [

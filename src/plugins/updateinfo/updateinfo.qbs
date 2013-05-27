@@ -5,7 +5,6 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "UpdateInfo"
 
-    Depends { name: "cpp" }
     Depends { name: "Core" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 

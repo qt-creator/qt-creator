@@ -4,7 +4,6 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "zeroconf"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.network" }
     cpp.includePaths: base.concat(".")
 

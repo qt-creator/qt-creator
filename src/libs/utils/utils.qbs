@@ -19,7 +19,6 @@ QtcLibrary {
         cpp.dynamicLibraries: ["X11"]
     }
 
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network", "script", "concurrent"] }
     Depends { name: "app_version_header" }
 
@@ -212,10 +211,7 @@ QtcLibrary {
     }
 
     Export {
-        // ### [ remove, once qbs supports merging of Export items in derived products
-        Depends { name: "cpp" }
         cpp.includePaths: [ ".." ]
-        // ### ]
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
     }
 }

@@ -10,7 +10,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Find" }
 
-    Depends { name: "cpp" }
 
     files: [
         "diffeditorplugin.cpp",

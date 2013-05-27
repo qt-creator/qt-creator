@@ -5,7 +5,6 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "RemoteLinux"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }

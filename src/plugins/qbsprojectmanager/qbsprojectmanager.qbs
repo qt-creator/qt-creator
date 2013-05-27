@@ -19,7 +19,6 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
 
-    Depends { name: "cpp" }
 
     cpp.includePaths: base.concat([
         qbs_source_dir + "/src",

@@ -11,7 +11,6 @@ QtcLibrary {
     ])
     cpp.optimization: "fast"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.core" }
 
     files: [
