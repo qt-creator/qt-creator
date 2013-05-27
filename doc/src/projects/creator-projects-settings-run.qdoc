@@ -53,6 +53,28 @@
     \include qnx/creator-projects-settings-run-qnx.qdocinc
     \endif
 
+    \section1 Selecting the Run Environment
+
+    \QC automatically selects the environment used for running the application
+    based on the device type. You can edit the environment or select another
+    environment in the \gui {Run Environment} section.
+
+    You can edit existing environment variables or add, reset and unset new
+    variables.
+
+    \image qtcreator-run-environment.png "Run Environment section"
+
+    When running on the desktop, the \gui {Build Environment} is used by
+    default, but you can also use the \gui {System Environment} without the
+    additions made to the build environment. For more information, see
+    \l {Build Environment}.
+
+    To run in a clean system environment, select \gui {Clean Environment}.
+
+    When running on a mobile device connected to the development host, \QC
+    fetches information about the \gui {Device Environment} from the device.
+    Usually, it does not make sense to edit the device environment.
+
     \section1 Specifying a Custom Executable to Run
 
     If you use CMake or the generic project type in \QC, or want

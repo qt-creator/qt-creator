@@ -51,8 +51,10 @@ namespace Ui {
 
 // A wizard page listing Gitorious repositories in a tree, by repository type.
 
-class GitoriousRepositoryWizardPage : public QWizardPage {
+class GitoriousRepositoryWizardPage : public QWizardPage
+{
     Q_OBJECT
+
 public:
     explicit GitoriousRepositoryWizardPage(const GitoriousProjectWizardPage *projectPage,
                                            QWidget *parent = 0);
@@ -66,9 +68,6 @@ public:
 
 public slots:
     void slotCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
-
-protected:
-    void changeEvent(QEvent *e);
 
 private:
     // return the repository (column 0) item.

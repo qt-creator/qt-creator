@@ -34,69 +34,32 @@
 using namespace Utils;
 
 CommentDefinition::CommentDefinition() :
-    m_afterWhiteSpaces(false),
-    m_singleLine(QLatin1String("//")),
-    m_multiLineStart(QLatin1String("/*")),
-    m_multiLineEnd(QLatin1String("*/"))
+    isAfterWhiteSpaces(false),
+    singleLine(QLatin1String("//")),
+    multiLineStart(QLatin1String("/*")),
+    multiLineEnd(QLatin1String("*/"))
 {}
 
-CommentDefinition &CommentDefinition::setAfterWhiteSpaces(const bool afterWhiteSpaces)
-{
-    m_afterWhiteSpaces = afterWhiteSpaces;
-    return *this;
-}
-
-CommentDefinition &CommentDefinition::setSingleLine(const QString &singleLine)
-{
-    m_singleLine = singleLine;
-    return *this;
-}
-
-CommentDefinition &CommentDefinition::setMultiLineStart(const QString &multiLineStart)
-{
-    m_multiLineStart = multiLineStart;
-    return *this;
-}
-
-CommentDefinition &CommentDefinition::setMultiLineEnd(const QString &multiLineEnd)
-{
-    m_multiLineEnd = multiLineEnd;
-    return *this;
-}
-
-bool CommentDefinition::isAfterWhiteSpaces() const
-{ return m_afterWhiteSpaces; }
-
-const QString &CommentDefinition::singleLine() const
-{ return m_singleLine; }
-
-const QString &CommentDefinition::multiLineStart() const
-{ return m_multiLineStart; }
-
-const QString &CommentDefinition::multiLineEnd() const
-{ return m_multiLineEnd; }
-
 bool CommentDefinition::hasSingleLineStyle() const
-{ return !m_singleLine.isEmpty(); }
+{
+    return !singleLine.isEmpty();
+}
 
 bool CommentDefinition::hasMultiLineStyle() const
-{ return !m_multiLineStart.isEmpty() && !m_multiLineEnd.isEmpty(); }
+{
+    return !multiLineStart.isEmpty() && !multiLineEnd.isEmpty();
+}
 
 void CommentDefinition::clearCommentStyles()
 {
-    m_singleLine.clear();
-    m_multiLineStart.clear();
-    m_multiLineEnd.clear();
+    singleLine.clear();
+    multiLineStart.clear();
+    multiLineEnd.clear();
 }
 
-namespace {
-
-bool isComment(const QString &text,
-               int index,
-               const CommentDefinition &definition,
-               const QString & (CommentDefinition::* comment) () const)
+static bool isComment(const QString &text, int index,
+   const QString &commentType)
 {
-    const QString &commentType = ((definition).*(comment))();
     const int length = commentType.length();
 
     Q_ASSERT(text.length() - index >= length);
@@ -109,8 +72,6 @@ bool isComment(const QString &text,
     }
     return true;
 }
-
-} // namespace anynomous
 
 
 void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &definition)
@@ -146,42 +107,35 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
 
         QString startText = startBlock.text();
         int startPos = start - startBlock.position();
-        const int multiLineStartLength = definition.multiLineStart().length();
+        const int multiLineStartLength = definition.multiLineStart.length();
         bool hasLeadingCharacters = !startText.left(startPos).trimmed().isEmpty();
 
         if (startPos >= multiLineStartLength
             && isComment(startText,
                          startPos - multiLineStartLength,
-                         definition,
-                         &CommentDefinition::multiLineStart)) {
+                         definition.multiLineStart)) {
             startPos -= multiLineStartLength;
             start -= multiLineStartLength;
         }
 
-        bool hasSelStart = (startPos <= startText.length() - multiLineStartLength
-                            && isComment(startText,
-                                         startPos,
-                                         definition,
-                                         &CommentDefinition::multiLineStart));
+        bool hasSelStart = startPos <= startText.length() - multiLineStartLength
+            && isComment(startText, startPos, definition.multiLineStart);
 
         QString endText = endBlock.text();
         int endPos = end - endBlock.position();
-        const int multiLineEndLength = definition.multiLineEnd().length();
+        const int multiLineEndLength = definition.multiLineEnd.length();
         bool hasTrailingCharacters =
-                !endText.left(endPos).remove(definition.singleLine()).trimmed().isEmpty()
+                !endText.left(endPos).remove(definition.singleLine).trimmed().isEmpty()
                 && !endText.mid(endPos).trimmed().isEmpty();
 
         if (endPos <= endText.length() - multiLineEndLength
-            && isComment(endText, endPos, definition, &CommentDefinition::multiLineEnd)) {
+            && isComment(endText, endPos, definition.multiLineEnd)) {
             endPos += multiLineEndLength;
             end += multiLineEndLength;
         }
 
-        bool hasSelEnd = (endPos >= multiLineEndLength
-                          && isComment(endText,
-                                       endPos - multiLineEndLength,
-                                       definition,
-                                       &CommentDefinition::multiLineEnd));
+        bool hasSelEnd = endPos >= multiLineEndLength
+            && isComment(endText, endPos - multiLineEndLength, definition.multiLineEnd);
 
         doMultiLineStyleUncomment = hasSelStart && hasSelEnd;
         doMultiLineStyleComment = !doMultiLineStyleUncomment
@@ -191,8 +145,8 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
     } else if (!hasSelection && !definition.hasSingleLineStyle()) {
 
         QString text = startBlock.text().trimmed();
-        doMultiLineStyleUncomment = text.startsWith(definition.multiLineStart())
-                                    && text.endsWith(definition.multiLineEnd());
+        doMultiLineStyleUncomment = text.startsWith(definition.multiLineStart)
+                                    && text.endsWith(definition.multiLineEnd);
         doMultiLineStyleComment = !doMultiLineStyleUncomment && !text.isEmpty();
 
         start = startBlock.position();
@@ -212,36 +166,36 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
         cursor.setPosition(end);
         cursor.movePosition(QTextCursor::PreviousCharacter,
                             QTextCursor::KeepAnchor,
-                            definition.multiLineEnd().length());
+                            definition.multiLineEnd.length());
         cursor.removeSelectedText();
         cursor.setPosition(start);
         cursor.movePosition(QTextCursor::NextCharacter,
                             QTextCursor::KeepAnchor,
-                            definition.multiLineStart().length());
+                            definition.multiLineStart.length());
         cursor.removeSelectedText();
     } else if (doMultiLineStyleComment) {
         cursor.setPosition(end);
-        cursor.insertText(definition.multiLineEnd());
+        cursor.insertText(definition.multiLineEnd);
         cursor.setPosition(start);
-        cursor.insertText(definition.multiLineStart());
+        cursor.insertText(definition.multiLineStart);
     } else {
         endBlock = endBlock.next();
         doSingleLineStyleUncomment = true;
         for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
             QString text = block.text().trimmed();
-            if (!text.isEmpty() && !text.startsWith(definition.singleLine())) {
+            if (!text.isEmpty() && !text.startsWith(definition.singleLine)) {
                 doSingleLineStyleUncomment = false;
                 break;
             }
         }
 
-        const int singleLineLength = definition.singleLine().length();
+        const int singleLineLength = definition.singleLine.length();
         for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
             if (doSingleLineStyleUncomment) {
                 QString text = block.text();
                 int i = 0;
                 while (i <= text.size() - singleLineLength) {
-                    if (isComment(text, i, definition, &CommentDefinition::singleLine)) {
+                    if (isComment(text, i, definition.singleLine)) {
                         cursor.setPosition(block.position() + i);
                         cursor.movePosition(QTextCursor::NextCharacter,
                                             QTextCursor::KeepAnchor,
@@ -254,14 +208,14 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
                     ++i;
                 }
             } else {
-                QString text = block.text();
+                const QString text = block.text();
                 foreach (QChar c, text) {
                     if (!c.isSpace()) {
-                        if (definition.isAfterWhiteSpaces())
+                        if (definition.isAfterWhiteSpaces)
                             cursor.setPosition(block.position() + text.indexOf(c));
                         else
                             cursor.setPosition(block.position());
-                        cursor.insertText(definition.singleLine());
+                        cursor.insertText(definition.singleLine);
                         break;
                     }
                 }

@@ -69,15 +69,7 @@ public:
     Core::Id id() const;
     QString displayName() const;
     void setDisplayName(const QString &title);
-
-    bool duplicateSupported() const;
-    Core::IEditor *duplicate(QWidget *parent);
-
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
-
     bool isTemporary() const;
-
     QWidget *toolBar();
 
     EditorPage activePage() const;

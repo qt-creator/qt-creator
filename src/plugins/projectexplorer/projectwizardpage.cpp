@@ -127,18 +127,6 @@ void ProjectWizardPage::setVersionControlIndex(int idx)
     m_ui->addToVersionControlComboBox->setCurrentIndex(idx);
 }
 
-void ProjectWizardPage::changeEvent(QEvent *e)
-{
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 // Alphabetically, and files in sub-directories first
 static bool generatedFilePathLessThan(const QString &filePath1, const QString &filePath2)
 {

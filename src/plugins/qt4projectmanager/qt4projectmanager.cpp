@@ -176,28 +176,14 @@ QString Qt4Manager::mimeType() const
 
 ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QString *errorString)
 {
-    // TODO Make all file paths relative & remove this hack
-    // We convert the path to an absolute one here because qt4project.cpp
-    // && profileevaluator use absolute/canonical file paths all over the place
-    // Correct fix would be to remove these calls ...
-    QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
-
-    if (canonicalFilePath.isEmpty()) {
+    if (!QFileInfo(fileName).isFile()) {
         if (errorString)
-         *errorString = tr("Failed opening project '%1': Project file does not exist").arg(QDir::toNativeSeparators(fileName));
+            *errorString = tr("Failed opening project '%1': Project is not a file")
+                .arg(fileName);
         return 0;
     }
 
-    foreach (ProjectExplorer::Project *pi, projectExplorer()->session()->projects()) {
-        if (canonicalFilePath == pi->document()->fileName()) {
-            if (errorString)
-                *errorString = tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(canonicalFilePath));
-            return 0;
-        }
-    }
-
-    Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
-    return pro;
+    return new Qt4Project(this, fileName);
 }
 
 ProjectExplorer::ProjectExplorerPlugin *Qt4Manager::projectExplorer() const

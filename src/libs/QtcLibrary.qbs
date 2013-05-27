@@ -18,7 +18,7 @@ DynamicLibrary {
                                       : ["$ORIGIN", "$ORIGIN/.."]
     cpp.includePaths: [ ".", ".." ]
 
-    ProductModule {
+    Export {
         Depends { name: "cpp" }
         cpp.includePaths: [ "." ]
     }

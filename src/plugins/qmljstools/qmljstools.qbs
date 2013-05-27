@@ -78,7 +78,7 @@ QtcPlugin {
         files: ["qmljstools_test.cpp"]
     }
 
-    ProductModule {
+    Export {
         Depends { name: "CppTools" }
         Depends { name: "QmlDebug" }
     }

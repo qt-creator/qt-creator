@@ -103,6 +103,7 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
         // GDB: not supported
         const bool useDebugBreakApi= true;
         Q_UNUSED(engineExecutableIs64Bit)
+        Q_UNUSED(engineType)
 
 #else
         // Qt-Creator compiled 32 bit:

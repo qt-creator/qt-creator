@@ -80,9 +80,6 @@ private slots:
     void slotChanged();
     void slotActivated();
 
-protected:
-    virtual void changeEvent(QEvent *e);
-
 private:
     enum StatusLabelMode { Error, Warning, Hint };
 

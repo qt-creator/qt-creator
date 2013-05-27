@@ -49,7 +49,6 @@ public:
     Core::Id id() const;
     bool isTemporary() const { return false; }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::Id preferredModeType() const;
 };
 
 } // namespace Internal

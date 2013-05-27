@@ -400,16 +400,6 @@ void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
     d->m_checkScriptWorkingDirectory = s;
 }
 
-bool VcsBaseSubmitEditor::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *VcsBaseSubmitEditor::duplicate(QWidget * /*parent*/)
-{
-    return 0;
-}
-
 Core::Id VcsBaseSubmitEditor::id() const
 {
     return d->m_parameters->id;
@@ -445,16 +435,6 @@ QWidget *VcsBaseSubmitEditor::toolBar()
     // Create
     d->m_toolWidget = createToolBar(d->m_widget, d->m_submitAction, d->m_diffAction);
     return d->m_toolWidget;
-}
-
-QByteArray VcsBaseSubmitEditor::saveState() const
-{
-    return QByteArray();
-}
-
-bool VcsBaseSubmitEditor::restoreState(const QByteArray &/*state*/)
-{
-    return true;
 }
 
 QStringList VcsBaseSubmitEditor::checkedFiles() const

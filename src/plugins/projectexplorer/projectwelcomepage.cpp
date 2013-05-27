@@ -139,6 +139,8 @@ void SessionModel::cloneSession(const QString &session)
 
 void SessionModel::deleteSession(const QString &session)
 {
+    if (!m_manager->confirmSessionDelete(session))
+        return;
     beginResetModel();
     m_manager->deleteSession(session);
     endResetModel();

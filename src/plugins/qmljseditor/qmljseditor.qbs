@@ -85,7 +85,7 @@ QtcPlugin {
         "images/qmlfile.png",
     ]
 
-    ProductModule {
+    Export {
         Depends { name: "QmlJSTools" }
     }
 }

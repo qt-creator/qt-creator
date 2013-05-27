@@ -109,8 +109,7 @@ QtcPlugin {
         "QtSupport.mimetypes.xml",
     ]
 
-
-    ProductModule {
+    Export {
         Depends { name: "cpp" }
         cpp.includePaths: "../../shared"
         cpp.defines: [

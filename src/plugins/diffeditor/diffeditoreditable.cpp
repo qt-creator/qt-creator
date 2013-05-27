@@ -98,17 +98,6 @@ void DiffEditorEditable::setDisplayName(const QString &title)
     emit changed();
 }
 
-bool DiffEditorEditable::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *DiffEditorEditable::duplicate(QWidget *parent)
-{
-    Q_UNUSED(parent)
-    return 0;
-}
-
 Core::Id DiffEditorEditable::id() const
 {
     return Constants::DIFF_EDITOR_ID;
@@ -234,17 +223,6 @@ void DiffEditorEditable::activateEntry(int index)
     m_entriesComboBox->setCurrentIndex(index);
     m_entriesComboBox->blockSignals(false);
     updateEntryToolTip();
-}
-
-QByteArray DiffEditorEditable::saveState() const
-{
-    return QByteArray();
-}
-
-bool DiffEditorEditable::restoreState(const QByteArray &state)
-{
-    Q_UNUSED(state)
-    return true;
 }
 
 } // namespace DiffEditor

@@ -634,22 +634,28 @@ class ConflictHandler : public QObject
 {
     Q_OBJECT
 public:
-    ConflictHandler(QObject *parent,
+    ConflictHandler(VcsBase::Command *parentCommand,
                     const QString &workingDirectory,
                     const QString &command)
-        : QObject(parent),
+        : QObject(parentCommand),
           m_workingDirectory(workingDirectory),
           m_command(command)
     {
+        if (parentCommand) {
+            connect(parentCommand, SIGNAL(outputData(QByteArray)), this, SLOT(readStdOut(QByteArray)));
+            connect(parentCommand, SIGNAL(errorText(QString)), this, SLOT(readStdErr(QString)));
+        }
     }
 
     ~ConflictHandler()
     {
-        if (m_commit.isEmpty())
+        if (m_commit.isEmpty()) {
             GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(m_workingDirectory);
-        else
+            GitPlugin::instance()->gitClient()->endStashScope(m_workingDirectory);
+        } else {
             GitPlugin::instance()->gitClient()->handleMergeConflicts(
                         m_workingDirectory, m_commit, m_command);
+        }
     }
 
     void readStdOutString(const QString &data)
@@ -676,45 +682,6 @@ private:
     QString m_commit;
 };
 
-class RebaseManager : public QObject
-{
-    Q_OBJECT
-
-public:
-    RebaseManager(GitClient::StashGuard &stashGuard, QObject *parent) :
-        QObject(parent),
-        m_stashGuard(&stashGuard)
-    {
-    }
-
-    ~RebaseManager()
-    {
-        delete m_stashGuard;
-    }
-
-public slots:
-    void readStdErr(const QString &error)
-    {
-        // rebase conflict is output to stdOut
-        QRegExp conflictedCommit(QLatin1String("Could not apply ([^\\n]*)"));
-        conflictedCommit.indexIn(error);
-        m_commit = conflictedCommit.cap(1);
-    }
-
-    void finished(bool ok, int exitCode, const QVariant &workingDirectory)
-    {
-        Q_UNUSED(ok);
-        if (exitCode != 0 && !m_commit.isEmpty()) {
-            m_stashGuard->preventPop();
-            GitPlugin::instance()->gitClient()->handleMergeConflicts(
-                        workingDirectory.toString(), m_commit, QLatin1String("rebase"));
-        }
-    }
-
-private:
-    QString m_commit;
-    GitClient::StashGuard *m_stashGuard;
-};
 
 Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
@@ -2142,6 +2109,23 @@ QProcessEnvironment GitClient::processEnvironment() const
     return environment;
 }
 
+bool GitClient::beginStashScope(const QString &workingDirectory, const QString &keyword, StashFlag flag)
+{
+    StashInfo &stashInfo = m_stashInfo[workingDirectory];
+    return stashInfo.init(workingDirectory, keyword, flag);
+}
+
+GitClient::StashInfo &GitClient::stashInfo(const QString &workingDirectory)
+{
+    QTC_CHECK(m_stashInfo.contains(workingDirectory));
+    return m_stashInfo[workingDirectory];
+}
+
+void GitClient::endStashScope(const QString &workingDirectory)
+{
+    m_stashInfo[workingDirectory].end();
+}
+
 bool GitClient::isValidRevision(const QString &revision) const
 {
     if (revision.length() < 1)
@@ -2339,9 +2323,7 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
             VcsBase::Command *command = createCommand(workingDirectory, 0, true);
             command->addJob(arguments, -1);
             command->execute();
-            ConflictHandler *handler = new ConflictHandler(command, workingDirectory, gitCommand);
-            connect(command, SIGNAL(outputData(QByteArray)), handler, SLOT(readStdOut(QByteArray)));
-            connect(command, SIGNAL(errorText(QString)), handler, SLOT(readStdErr(QString)));
+            new ConflictHandler(command, workingDirectory, gitCommand);
         } else {
             GitPlugin::instance()->startCommit();
         }
@@ -2880,7 +2862,8 @@ QString GitClient::synchronousTrackingBranch(const QString &workingDirectory, co
     return remote + QLatin1Char('/') + rBranch;
 }
 
-void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand)
+void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit,
+                                     const QString &abortCommand)
 {
     QString message = commit.isEmpty() ? tr("Conflicts detected")
                                        : tr("Conflicts detected with commit %1").arg(commit);
@@ -3006,8 +2989,7 @@ bool GitClient::synchronousCherryPick(const QString &workingDirectory, const QSt
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 
-void GitClient::interactiveRebase(const QString &workingDirectory, const QString &commit,
-                                  StashGuard &stashGuard, bool fixup)
+void GitClient::interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup)
 {
     QStringList arguments;
     arguments << QLatin1String("rebase") << QLatin1String("-i");
@@ -3021,10 +3003,7 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     command->addJob(arguments, -1);
     command->execute();
     command->setCookie(workingDirectory);
-    RebaseManager *rebaseManager = new RebaseManager(stashGuard, command);
-    connect(command, SIGNAL(errorText(QString)), rebaseManager, SLOT(readStdErr(QString)));
-    connect(command, SIGNAL(finished(bool,int,QVariant)),
-            rebaseManager, SLOT(finished(bool,int,QVariant)));
+    new ConflictHandler(command, workingDirectory, QLatin1String("rebase"));
     if (fixup)
         m_disableEditor = false;
 }
@@ -3299,50 +3278,45 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     return version(major, minor, patch);
 }
 
-GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString &keyword,
-                                  StashFlag flag) :
-    pop(true),
-    workingDir(workingDirectory),
-    flags(flag)
+GitClient::StashInfo::StashInfo() :
+    m_client(GitPlugin::instance()->gitClient())
 {
-    client = GitPlugin::instance()->gitClient();
+}
+
+bool GitClient::StashInfo::init(const QString &workingDirectory, const QString &keyword,
+                                StashFlag flag)
+{
+    m_workingDir = workingDirectory;
+    m_flags = flag;
     QString errorMessage;
-    if (flags & NoPrompt)
-        executeStash(keyword, &errorMessage);
-    else
-        stashPrompt(keyword, &errorMessage);
-
-    if (stashResult == StashFailed)
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
-}
-
-GitClient::StashGuard::~StashGuard()
-{
-    if (pop && stashResult == Stashed) {
-        QString stashName;
-        if (client->stashNameFromMessage(workingDir, message, &stashName))
-            client->stashPop(workingDir, stashName);
-    }
-}
-
-void GitClient::StashGuard::stashPrompt(const QString &keyword, QString *errorMessage)
-{
     QString statusOutput;
-    switch (client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules),
-                              &statusOutput, errorMessage)) {
+    switch (m_client->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
+                              &statusOutput, &errorMessage)) {
     case GitClient::StatusChanged:
+        if (m_flags & NoPrompt)
+            executeStash(keyword, &errorMessage);
+        else
+            stashPrompt(keyword, statusOutput, &errorMessage);
         break;
     case GitClient::StatusUnchanged:
-        stashResult = StashUnchanged;
-        return;
+        m_stashResult = StashUnchanged;
+        break;
     case GitClient::StatusFailed:
-        stashResult = StashFailed;
-        return;
+        m_stashResult = StashFailed;
+        break;
     }
 
+    if (m_stashResult == StashFailed)
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+    return !stashingFailed();
+}
+
+void GitClient::StashInfo::stashPrompt(const QString &keyword, const QString &statusOutput,
+                                       QString *errorMessage)
+{
     QMessageBox msgBox(QMessageBox::Question, tr("Uncommitted Changes Found"),
                        tr("What would you like to do with local changes in:")
-                       + QLatin1String("\n\n\"") + workingDir + QLatin1Char('\"'),
+                       + QLatin1String("\n\n\"") + m_workingDir + QLatin1Char('\"'),
                        QMessageBox::NoButton, Core::ICore::mainWindow());
 
     msgBox.setDetailedText(statusOutput);
@@ -3354,7 +3328,7 @@ void GitClient::StashGuard::stashPrompt(const QString &keyword, QString *errorMe
     discardButton->setToolTip(tr("Discard (reset) local changes and continue."));
 
     QPushButton *ignoreButton = 0;
-    if (flags & AllowUnstashed) {
+    if (m_flags & AllowUnstashed) {
         ignoreButton = msgBox.addButton(QMessageBox::Ignore);
         ignoreButton->setToolTip(tr("Continue with local changes in working directory."));
     }
@@ -3365,46 +3339,50 @@ void GitClient::StashGuard::stashPrompt(const QString &keyword, QString *errorMe
     msgBox.exec();
 
     if (msgBox.clickedButton() == discardButton) {
-        if (!client->synchronousReset(workingDir, QStringList(), errorMessage))
-            stashResult = StashFailed;
+        if (!m_client->synchronousReset(m_workingDir, QStringList(), errorMessage))
+            m_stashResult = StashFailed;
         else
-            stashResult = StashUnchanged;
+            m_stashResult = StashUnchanged;
     } else if (msgBox.clickedButton() == ignoreButton) { // At your own risk, so.
-        stashResult = NotStashed;
+        m_stashResult = NotStashed;
     } else if (msgBox.clickedButton() == cancelButton) {
-        stashResult = StashCanceled;
+        m_stashResult = StashCanceled;
     } else if (msgBox.clickedButton() == stashButton) {
         executeStash(keyword, errorMessage);
     }
 }
 
-void GitClient::StashGuard::executeStash(const QString &keyword, QString *errorMessage)
+void GitClient::StashInfo::executeStash(const QString &keyword, QString *errorMessage)
 {
-    message = creatorStashMessage(keyword);
-    if (!client->executeSynchronousStash(workingDir, message, errorMessage))
-        stashResult = StashFailed;
+    m_message = creatorStashMessage(keyword);
+    if (!m_client->executeSynchronousStash(m_workingDir, m_message, errorMessage))
+        m_stashResult = StashFailed;
     else
-        stashResult = Stashed;
+        m_stashResult = Stashed;
  }
 
-void GitClient::StashGuard::preventPop()
+bool GitClient::StashInfo::stashingFailed() const
 {
-    pop = false;
-}
-
-bool GitClient::StashGuard::stashingFailed() const
-{
-    switch (stashResult) {
+    switch (m_stashResult) {
     case StashCanceled:
     case StashFailed:
         return true;
     case NotStashed:
-        return !(flags & AllowUnstashed);
+        return !(m_flags & AllowUnstashed);
     default:
         return false;
     }
 }
 
+void GitClient::StashInfo::end()
+{
+    if (m_stashResult == Stashed) {
+        QString stashName;
+        if (m_client->stashNameFromMessage(m_workingDir, m_message, &stashName))
+            m_client->stashPop(m_workingDir, stashName);
+    }
+    m_stashResult = NotStashed;
+}
 } // namespace Internal
 } // namespace Git
 

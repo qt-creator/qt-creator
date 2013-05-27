@@ -354,7 +354,7 @@ QtcPlugin {
         files: ["outputparser_test.h", "outputparser_test.cpp"]
     }
 
-    ProductModule {
+    Export {
         Depends { name: "Qt.network" }
     }
 }

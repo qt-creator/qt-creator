@@ -79,7 +79,7 @@ namespace Internal {
 enum FetchMode
 {
     FetchDisplay,
-    FetchApply,
+    FetchCherryPick,
     FetchCheckout
 };
 
@@ -202,9 +202,9 @@ void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
             m_state = WritePatchFileState;
             startWritePatchFile();
             break;
-        case FetchApply:
+        case FetchCherryPick:
         case FetchCheckout:
-            if (m_fetchMode == FetchApply) {
+            if (m_fetchMode == FetchCherryPick) {
                 cherryPick();
             } else {
                 Git::Internal::GitPlugin::instance()->gitClient()->synchronousCheckout(
@@ -425,8 +425,8 @@ void GerritPlugin::openView()
         gd->setModal(false);
         connect(gd, SIGNAL(fetchDisplay(QSharedPointer<Gerrit::Internal::GerritChange>)),
                 this, SLOT(fetchDisplay(QSharedPointer<Gerrit::Internal::GerritChange>)));
-        connect(gd, SIGNAL(fetchApply(QSharedPointer<Gerrit::Internal::GerritChange>)),
-                this, SLOT(fetchApply(QSharedPointer<Gerrit::Internal::GerritChange>)));
+        connect(gd, SIGNAL(fetchCherryPick(QSharedPointer<Gerrit::Internal::GerritChange>)),
+                this, SLOT(fetchCherryPick(QSharedPointer<Gerrit::Internal::GerritChange>)));
         connect(gd, SIGNAL(fetchCheckout(QSharedPointer<Gerrit::Internal::GerritChange>)),
                 this, SLOT(fetchCheckout(QSharedPointer<Gerrit::Internal::GerritChange>)));
         connect(this, SIGNAL(fetchStarted(QSharedPointer<Gerrit::Internal::GerritChange>)),
@@ -464,9 +464,9 @@ void GerritPlugin::fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritCha
     fetch(change, FetchDisplay);
 }
 
-void GerritPlugin::fetchApply(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
+void GerritPlugin::fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
 {
-    fetch(change, FetchApply);
+    fetch(change, FetchCherryPick);
 }
 
 void GerritPlugin::fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change)

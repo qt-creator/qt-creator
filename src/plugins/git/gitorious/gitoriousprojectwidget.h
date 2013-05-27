@@ -56,8 +56,10 @@ namespace Ui {
  * it receives the projects. isValid() and signal validChanged are
  * provided for use in a QWizardPage. Host matching happens via name as the
  * hostIndex might change due to deleting hosts. */
-class GitoriousProjectWidget : public QWidget {
+class GitoriousProjectWidget : public QWidget
+{
     Q_OBJECT
+
 public:
     explicit GitoriousProjectWidget(int hostIndex,
                                     QWidget *parent = 0);
@@ -91,9 +93,6 @@ private slots:
     void slotUpdateProjects(int hostIndex);
     void slotUpdateCheckBoxChanged(int);
 
-protected:
-    void changeEvent(QEvent *e);
-
 private:
     QStandardItem *itemFromIndex(const QModelIndex &idx) const;
     QStandardItem *currentItem() const;
@@ -107,7 +106,7 @@ private:
     bool m_valid;
 };
 
-
 } // namespace Internal
 } // namespace Gitorious
+
 #endif // GITORIOUSPROJECTWIDGET_H

@@ -31,35 +31,15 @@
 #include "imageviewerfile.h"
 #include "imageviewer.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/id.h>
-
-#include <utils/reloadpromptutils.h>
-
-#include <QMap>
 #include <QFileInfo>
-#include <QDebug>
 
 namespace ImageViewer {
 namespace Internal {
 
-struct ImageViewerFilePrivate
-{
-    QString fileName;
-    QString mimeType;
-    ImageViewer *editor;
-};
-
 ImageViewerFile::ImageViewerFile(ImageViewer *parent)
-    : Core::IDocument(parent),
-    d(new ImageViewerFilePrivate)
+    : Core::IDocument(parent)
 {
-    d->editor = parent;
-}
-
-ImageViewerFile::~ImageViewerFile()
-{
-    delete d;
+    m_editor = parent;
 }
 
 Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -81,7 +61,7 @@ bool ImageViewerFile::reload(QString *errorString,
         emit changed();
         return true;
     }
-    return d->editor->open(errorString, d->fileName, d->fileName);
+    return m_editor->open(errorString, m_fileName, m_fileName);
 }
 
 bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -94,16 +74,16 @@ bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool a
 
 void ImageViewerFile::rename(const QString &newName)
 {
-    const QString oldFilename = d->fileName;
-    d->fileName = newName;
-    d->editor->setDisplayName(QFileInfo(d->fileName).fileName());
+    const QString oldFilename = m_fileName;
+    m_fileName = newName;
+    m_editor->setDisplayName(QFileInfo(m_fileName).fileName());
     emit fileNameChanged(oldFilename, newName);
     emit changed();
 }
 
 QString ImageViewerFile::fileName() const
 {
-    return d->fileName;
+    return m_fileName;
 }
 
 QString ImageViewerFile::defaultPath() const
@@ -118,7 +98,7 @@ QString ImageViewerFile::suggestedFileName() const
 
 QString ImageViewerFile::mimeType() const
 {
-    return d->mimeType;
+    return m_mimeType;
 }
 
 bool ImageViewerFile::isModified() const
@@ -133,13 +113,13 @@ bool ImageViewerFile::isSaveAsAllowed() const
 
 void ImageViewerFile::setMimetype(const QString &mimetype)
 {
-    d->mimeType = mimetype;
+    m_mimeType = mimetype;
     emit changed();
 }
 
 void ImageViewerFile::setFileName(const QString &filename)
 {
-    d->fileName = filename;
+    m_fileName = filename;
     emit changed();
 }
 

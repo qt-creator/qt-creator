@@ -45,8 +45,10 @@ namespace Ui {
     class CustomWidgetPluginWizardPage;
 }
 
-class CustomWidgetPluginWizardPage : public QWizardPage {
+class CustomWidgetPluginWizardPage : public QWizardPage
+{
     Q_OBJECT
+
 public:
     explicit CustomWidgetPluginWizardPage(QWidget *parent = 0);
     virtual ~CustomWidgetPluginWizardPage();
@@ -60,9 +62,6 @@ public:
 
     // Fills the plugin fields, excluding widget list.
     QSharedPointer<PluginOptions> basicPluginOptions() const;
-
-protected:
-    void changeEvent(QEvent *e);
 
 private slots:
     void on_collectionClassEdit_textChanged();
@@ -82,4 +81,5 @@ private:
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
 #endif // CUSTOMWIDGETPLUGINWIZARDPAGE_H

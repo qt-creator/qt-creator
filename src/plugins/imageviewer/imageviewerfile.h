@@ -33,8 +33,6 @@
 
 #include <coreplugin/idocument.h>
 
-#include <QScopedPointer>
-
 namespace ImageViewer {
 namespace Internal {
 
@@ -43,9 +41,9 @@ class ImageViewer;
 class ImageViewerFile : public Core::IDocument
 {
     Q_OBJECT
+
 public:
     explicit ImageViewerFile(ImageViewer *parent = 0);
-    ~ImageViewerFile();
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     void rename(const QString &newName);
@@ -58,14 +56,16 @@ public:
     bool isModified() const;
     bool isSaveAsAllowed() const;
 
-    virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
     void setMimetype(const QString &mimetype);
     void setFileName(const QString &filename);
 
 private:
-    struct ImageViewerFilePrivate *d;
+    QString m_fileName;
+    QString m_mimeType;
+    ImageViewer *m_editor;
 };
 
 } // namespace Internal

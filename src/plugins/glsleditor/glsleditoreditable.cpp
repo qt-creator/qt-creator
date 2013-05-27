@@ -50,10 +50,5 @@ GLSLEditorEditable::GLSLEditorEditable(GLSLTextEditorWidget *editor)
                              TextEditor::Constants::C_TEXTEDITOR));
 }
 
-Core::Id GLSLEditorEditable::preferredModeType() const
-{
-    return Core::Id();
-}
-
 } // namespace Internal
 } // namespace GLSLEditor

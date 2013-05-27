@@ -93,12 +93,15 @@ QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
     int level = qbs::LoggerWarning;
     const QString levelEnv = QString::fromLocal8Bit(qgetenv("QBS_LOG_LEVEL"));
     if (!levelEnv.isEmpty()) {
-        int tmp = levelEnv.toInt();
-        if (tmp < static_cast<int>(qbs::LoggerMinLevel))
-            tmp = static_cast<int>(qbs::LoggerMinLevel);
-        if (tmp > static_cast<int>(qbs::LoggerMaxLevel))
-            tmp = static_cast<int>(qbs::LoggerMaxLevel);
-        level = tmp;
+        bool ok = false;
+        int tmp = levelEnv.toInt(&ok);
+        if (ok) {
+            if (tmp < static_cast<int>(qbs::LoggerMinLevel))
+                tmp = static_cast<int>(qbs::LoggerMinLevel);
+            if (tmp > static_cast<int>(qbs::LoggerMaxLevel))
+                tmp = static_cast<int>(qbs::LoggerMaxLevel);
+            level = tmp;
+        }
     }
     m_logSink->setLogLevel(static_cast<qbs::LoggerLevel>(level));
 }
@@ -115,9 +118,13 @@ QString QbsManager::mimeType() const
 
 ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QString *errorString)
 {
-    Q_UNUSED(errorString);
+    if (!QFileInfo(fileName).isFile()) {
+        if (errorString)
+            *errorString = tr("Failed opening project '%1': Project is not a file")
+                .arg(fileName);
+        return 0;
+    }
 
-    // FIXME: This is way too simplistic!
     return new Internal::QbsProject(this, fileName);
 }
 

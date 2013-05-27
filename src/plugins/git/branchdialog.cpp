@@ -189,14 +189,9 @@ void BranchDialog::checkout()
         if (branchCheckoutDialog.makeStashOfCurrentBranch()
                 || branchCheckoutDialog.moveLocalChangesToNextBranch()) {
 
-            GitClient::StashGuard stashGuard(m_repository,
-                                             currentBranch + QLatin1String("-AutoStash"),
-                                             NoPrompt);
-            if (stashGuard.stashingFailed())
+            if (!gitClient->beginStashScope(m_repository, currentBranch + QLatin1String("-AutoStash"), NoPrompt))
                 return;
-            stashGuard.preventPop();
-            stashMessage = stashGuard.stashMessage();
-
+            stashMessage = gitClient->stashInfo(m_repository).stashMessage();
         } else if (branchCheckoutDialog.discardLocalChanges()) {
             gitClient->synchronousReset(m_repository);
         }
@@ -295,9 +290,9 @@ void BranchDialog::merge()
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
     const QString branch = m_model->branchName(idx);
-    GitClient::StashGuard stashGuard(m_repository, QLatin1String("merge"), AllowUnstashed);
-    if (!GitPlugin::instance()->gitClient()->synchronousMerge(m_repository, branch))
-        stashGuard.preventPop();
+    GitClient *client = GitPlugin::instance()->gitClient();
+    if (client->beginStashScope(m_repository, QLatin1String("merge"), AllowUnstashed))
+        client->synchronousMerge(m_repository, branch);
 }
 
 void BranchDialog::rebase()
@@ -307,21 +302,9 @@ void BranchDialog::rebase()
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
     const QString baseBranch = m_model->branchName(idx);
-    GitClient::StashGuard stashGuard(m_repository, QLatin1String("rebase"));
-    if (!GitPlugin::instance()->gitClient()->synchronousRebase(m_repository, baseBranch))
-        stashGuard.preventPop();
-}
-
-void BranchDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+    GitClient *client = GitPlugin::instance()->gitClient();
+    if (client->beginStashScope(m_repository, QLatin1String("rebase")))
+        client->synchronousRebase(m_repository, baseBranch);
 }
 
 QModelIndex BranchDialog::selectedIndex()

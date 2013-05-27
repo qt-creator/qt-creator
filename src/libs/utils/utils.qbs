@@ -211,8 +211,8 @@ QtcLibrary {
         ]
     }
 
-    ProductModule {
-        // ### [ remove, once qbs supports merging of ProductModule items in derived products
+    Export {
+        // ### [ remove, once qbs supports merging of Export items in derived products
         Depends { name: "cpp" }
         cpp.includePaths: [ ".." ]
         // ### ]

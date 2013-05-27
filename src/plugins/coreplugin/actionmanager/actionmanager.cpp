@@ -177,7 +177,7 @@ ActionManager *ActionManager::instance()
     Add your menu to some other menu or a menu bar via the
     ActionManager::actionContainer and ActionContainer::addMenu methods.
 */
-ActionContainer *ActionManager::createMenu(const Id &id)
+ActionContainer *ActionManager::createMenu(Id id)
 {
     const ActionManagerPrivate::IdContainerMap::const_iterator it = m_instance->d->m_idContainerMap.constFind(id);
     if (it !=  m_instance->d->m_idContainerMap.constEnd())
@@ -202,7 +202,7 @@ ActionContainer *ActionManager::createMenu(const Id &id)
     or to add menus to the menu bar. The ActionManager owns
     the returned ActionContainer.
 */
-ActionContainer *ActionManager::createMenuBar(const Id &id)
+ActionContainer *ActionManager::createMenuBar(Id id)
 {
     const ActionManagerPrivate::IdContainerMap::const_iterator it = m_instance->d->m_idContainerMap.constFind(id);
     if (it !=  m_instance->d->m_idContainerMap.constEnd())
@@ -231,7 +231,7 @@ ActionContainer *ActionManager::createMenuBar(const Id &id)
     A scriptable action can be called from a script without the need for the user
     to interact with it.
 */
-Command *ActionManager::registerAction(QAction *action, const Id &id, const Context &context, bool scriptable)
+Command *ActionManager::registerAction(QAction *action, Id id, const Context &context, bool scriptable)
 {
     Action *a = m_instance->d->overridableAction(id);
     if (a) {
@@ -253,7 +253,7 @@ Command *ActionManager::registerAction(QAction *action, const Id &id, const Cont
     A scriptable shortcut can be called from a script without the need for the user
     to interact with it.
 */
-Command *ActionManager::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable)
+Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Context &context, bool scriptable)
 {
     QTC_CHECK(!context.isEmpty());
     Shortcut *sc = 0;
@@ -297,7 +297,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, const Id &id, cons
 
     \sa ActionManager::registerAction()
 */
-Command *ActionManager::command(const Id &id)
+Command *ActionManager::command(Id id)
 {
     const ActionManagerPrivate::IdCmdMap::const_iterator it = m_instance->d->m_idCmdMap.constFind(id);
     if (it == m_instance->d->m_idCmdMap.constEnd()) {
@@ -316,7 +316,7 @@ Command *ActionManager::command(const Id &id)
     \sa ActionManager::createMenu()
     \sa ActionManager::createMenuBar()
 */
-ActionContainer *ActionManager::actionContainer(const Id &id)
+ActionContainer *ActionManager::actionContainer(Id id)
 {
     const ActionManagerPrivate::IdContainerMap::const_iterator it = m_instance->d->m_idContainerMap.constFind(id);
     if (it == m_instance->d->m_idContainerMap.constEnd()) {
@@ -348,7 +348,7 @@ QList<Command *> ActionManager::commands()
     filters. If the user removes such an action, it also has to be unregistered from the action manager,
     to make it disappear from shortcut settings etc.
 */
-void ActionManager::unregisterAction(QAction *action, const Id &id)
+void ActionManager::unregisterAction(QAction *action, Id id)
 {
     Action *a = 0;
     CommandPrivate *c = m_instance->d->m_idCmdMap.value(id, 0);
@@ -379,7 +379,7 @@ void ActionManager::unregisterAction(QAction *action, const Id &id)
     a corresponding shortcut also has to be unregistered from the action manager,
     to make it disappear from shortcut settings etc.
 */
-void ActionManager::unregisterShortcut(const Core::Id &id)
+void ActionManager::unregisterShortcut(Id id)
 {
     Shortcut *sc = 0;
     CommandPrivate *c = m_instance->d->m_idCmdMap.value(id, 0);
@@ -525,7 +525,7 @@ void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
     m_presentationLabelTimer.start();
 }
 
-Action *ActionManagerPrivate::overridableAction(const Id &id)
+Action *ActionManagerPrivate::overridableAction(Id id)
 {
     Action *a = 0;
     if (CommandPrivate *c = m_idCmdMap.value(id, 0)) {

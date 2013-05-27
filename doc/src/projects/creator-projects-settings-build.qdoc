@@ -170,7 +170,7 @@
     \section1 Build Environment
 
     You can specify the environment you want to use for building in the
-    \b{Build Environment} section. By default, the environment in which \QC
+    \gui {Build Environment} section. By default, the environment in which \QC
     was started is used and modified to include the Qt version.
     Depending on the selected Qt version, \QC automatically sets the
     necessary environment variables. You can edit existing environment

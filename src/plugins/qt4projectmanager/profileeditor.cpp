@@ -85,7 +85,7 @@ ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *
 
     baseTextDocument()->setSyntaxHighlighter(new ProFileHighlighter);
     m_commentDefinition.clearCommentStyles();
-    m_commentDefinition.setSingleLine(QString(QLatin1Char('#')));
+    m_commentDefinition.singleLine = QLatin1Char('#');
 }
 
 void ProFileEditorWidget::unCommentSelection()

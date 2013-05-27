@@ -297,17 +297,5 @@ void GitoriousHostWidget::slotError(const QString &e)
         m_errorClearTimer->start();
 }
 
-void GitoriousHostWidget::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 } // namespace Internal
 } // namespace Gitorious

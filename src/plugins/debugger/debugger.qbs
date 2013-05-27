@@ -303,7 +303,7 @@ QtcPlugin {
         ]
     }
 
-    ProductModule {
+    Export {
         Depends { name: "cpp" }
         Depends { name: "QtcSsh" }
         cpp.includePaths: ["."]

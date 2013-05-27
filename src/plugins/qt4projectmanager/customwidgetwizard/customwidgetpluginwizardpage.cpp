@@ -138,17 +138,5 @@ bool CustomWidgetPluginWizardPage::isComplete() const
     return m_complete;
 }
 
-void CustomWidgetPluginWizardPage::changeEvent(QEvent *e)
-{
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-            case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-            default:
-        break;
-    }
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

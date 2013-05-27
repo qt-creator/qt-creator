@@ -604,7 +604,7 @@ private:
     const char m_wordWidth;
 };
 
-bool fillParameters(DebuggerStartParameters *sp, const Kit *kit /* = 0 */, QString *errorMessage /* = 0 */)
+bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorMessage /* = 0 */)
 {
     if (!kit) {
         // This code can only be reached when starting via the command line
@@ -667,7 +667,9 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit /* = 0 */, QStri
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
         sp->connParams = device->sshParameters();
-        sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
+        // Could have been set from command line.
+        if (sp->remoteChannel.isEmpty())
+            sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
     }
     return true;
 }
@@ -1191,6 +1193,7 @@ public slots:
     SavedAction *action(int code) const;
     bool boolSetting(int code) const;
     QString stringSetting(int code) const;
+    QStringList stringListSetting(int code) const;
 
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
     void showModuleSections(const QString &moduleName, const Sections &sections);
@@ -3305,6 +3308,11 @@ bool DebuggerPluginPrivate::boolSetting(int code) const
 QString DebuggerPluginPrivate::stringSetting(int code) const
 {
     return m_debuggerSettings->item(code)->value().toString();
+}
+
+QStringList DebuggerPluginPrivate::stringListSetting(int code) const
+{
+    return m_debuggerSettings->item(code)->value().toStringList();
 }
 
 void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,

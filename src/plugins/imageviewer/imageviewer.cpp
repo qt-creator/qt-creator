@@ -163,38 +163,6 @@ void ImageViewer::setDisplayName(const QString &title)
     emit changed();
 }
 
-bool ImageViewer::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *ImageViewer::duplicate(QWidget *parent)
-{
-    Q_UNUSED(parent);
-    return 0;
-}
-
-QByteArray ImageViewer::saveState() const
-{
-    return QByteArray();
-}
-
-bool ImageViewer::restoreState(const QByteArray &state)
-{
-    Q_UNUSED(state);
-    return true;
-}
-
-int ImageViewer::currentLine() const
-{
-    return 0;
-}
-
-int ImageViewer::currentColumn() const
-{
-    return 0;
-}
-
 bool ImageViewer::isTemporary() const
 {
     return false;

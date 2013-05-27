@@ -398,22 +398,9 @@ void ContextPaneTextWidget::onVerticalAlignmentChanged()
     }
 }
 
-
 ContextPaneTextWidget::~ContextPaneTextWidget()
 {
     delete ui;
-}
-
-void ContextPaneTextWidget::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
 }
 
 void ContextPaneTextWidget::timerEvent(QTimerEvent *event)

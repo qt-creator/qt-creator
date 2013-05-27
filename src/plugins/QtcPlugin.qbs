@@ -50,7 +50,7 @@ Product {
         qbs.installDir: project.ide_plugin_path + "/" + provider
     }
 
-    ProductModule {
+    Export {
         Depends { name: "ExtensionSystem" }
     }
 }

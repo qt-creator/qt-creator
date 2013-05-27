@@ -29,7 +29,6 @@
 
 #include "diffeditorwidget.h"
 #include <QPlainTextEdit>
-#include <QSplitter>
 #include <QVBoxLayout>
 #include <QPlainTextDocumentLayout>
 #include <QTextBlock>
@@ -44,6 +43,8 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <coreplugin/minisplitter.h>
 
 static const int BASE_LEVEL = 0;
 static const int FILE_LEVEL = 1;
@@ -100,11 +101,9 @@ class DiffViewEditorEditable : public BaseTextEditor
 Q_OBJECT
 public:
     DiffViewEditorEditable(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
-    virtual Core::Id id() const { return "DiffViewEditor"; }
-    virtual bool duplicateSupported() const { return false; }
-    virtual IEditor *duplicate(QWidget *parent) { Q_UNUSED(parent) return 0; }
-    virtual bool isTemporary() const { return false; }
 
+    Core::Id id() const { return "DiffViewEditor"; }
+    bool isTemporary() const { return false; }
 };
 
 
@@ -529,6 +528,8 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_leftEditor->setReadOnly(true);
     m_leftEditor->setHighlightCurrentLine(false);
     m_leftEditor->setWordWrapMode(QTextOption::NoWrap);
+    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            m_leftEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
     m_leftEditor->setFontSettings(settings->fontSettings());
     m_leftEditor->setCodeStyle(settings->codeStyle());
 
@@ -537,6 +538,8 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_rightEditor->setReadOnly(true);
     m_rightEditor->setHighlightCurrentLine(false);
     m_rightEditor->setWordWrapMode(QTextOption::NoWrap);
+    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            m_rightEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
     m_rightEditor->setFontSettings(settings->fontSettings());
     m_rightEditor->setCodeStyle(settings->codeStyle());
 
@@ -570,7 +573,7 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
             this, SLOT(rightDocumentSizeChanged()));
 
-    m_splitter = new QSplitter(this);
+    m_splitter = new Core::MiniSplitter(this);
     m_splitter->addWidget(m_leftEditor);
     m_splitter->addWidget(m_rightEditor);
     QVBoxLayout *l = new QVBoxLayout(this);

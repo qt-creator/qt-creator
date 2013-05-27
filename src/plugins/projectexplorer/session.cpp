@@ -673,6 +673,18 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
     return deleteSession(original);
 }
 
+
+/*!
+    \brief Shows a dialog asking the user to confirm deleting the session \p session
+*/
+bool SessionManager::confirmSessionDelete(const QString &session)
+{
+    return QMessageBox::question(Core::ICore::mainWindow(),
+                                 tr("Delete Session"),
+                                 tr("Delete session %1?").arg(session),
+                                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+}
+
 /*!
      \brief Deletes session name from session list and file from disk.
 */

@@ -47,9 +47,6 @@ public:
 
     QString revision() const;
 
-protected:
-    void changeEvent(QEvent *e);
-
 private:
     Ui::RevertDialog *m_ui;
 };

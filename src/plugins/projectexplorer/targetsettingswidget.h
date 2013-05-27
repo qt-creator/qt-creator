@@ -49,6 +49,7 @@ namespace Ui {
 class TargetSettingsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit TargetSettingsWidget(QWidget *parent = 0);
     ~TargetSettingsWidget();
@@ -76,9 +77,6 @@ signals:
     void changeKitButtonClicked();
     void toolTipRequested(const QPoint &globalPosition, int targetIndex);
     void menuShown(int targetIndex);
-
-protected:
-    void changeEvent(QEvent *e);
 
 private:
     Ui::TargetSettingsWidget *ui;

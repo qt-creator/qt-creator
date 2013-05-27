@@ -43,18 +43,6 @@ RevertDialog::~RevertDialog()
     delete m_ui;
 }
 
-void RevertDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 QString RevertDialog::revision() const
 {
     return m_ui->revisionLineEdit->text();

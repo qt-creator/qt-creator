@@ -74,11 +74,6 @@ Core::Id PythonEditor::id() const
     return Core::Id(Constants::C_PYTHONEDITOR_ID);
 }
 
-Core::Id PythonEditor::preferredModeType() const
-{
-    return Core::Id();
-}
-
 bool PythonEditor::open(QString *errorString,
                         const QString &fileName,
                         const QString &realFileName)

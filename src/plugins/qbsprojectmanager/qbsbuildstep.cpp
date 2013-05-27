@@ -65,6 +65,7 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
     m_job(0), m_parser(0)
 {
     setDisplayName(tr("Qbs Build"));
+    setQbsConfiguration(QVariantMap());
 }
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
@@ -281,6 +282,7 @@ void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
         m_parser->stdOutput(line);
         addOutput(line, NormalOutput);
     }
+    m_parser->flush();
 }
 
 void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message,
@@ -379,13 +381,13 @@ void QbsBuildStepConfigWidget::updateState()
     const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
 
-    QString command = QLatin1String("qbs ");
+    QString command = QLatin1String("qbs build ");
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
         command += QLatin1String("--keep-going ");
     command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
-    command += QString::fromLatin1("build profile:%1 %2").arg(m_step->profile(), buildVariant);
+    command += QString::fromLatin1("profile:%1 %2").arg(m_step->profile(), buildVariant);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
     if (m_summary !=  summary) {

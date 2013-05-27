@@ -41,13 +41,11 @@ namespace Internal {
 class ManageDefinitionsDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     explicit ManageDefinitionsDialog(const QList<HighlightDefinitionMetaData> &metaDataList,
                                      const QString &path,
                                      QWidget *parent = 0);
-
-protected:
-    void changeEvent(QEvent *e);
 
 private slots:
     void downloadDefinitions();

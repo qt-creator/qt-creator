@@ -244,7 +244,11 @@ void SessionDialog::clone()
 
 void SessionDialog::remove()
 {
-    m_sessionManager->deleteSession(m_ui.sessionList->currentItem()->text());
+    const QString name = m_ui.sessionList->currentItem()->text();
+
+    if (!m_sessionManager->confirmSessionDelete(name))
+        return;
+    m_sessionManager->deleteSession(name);
     m_ui.sessionList->clear();
     addItems(false);
     markItems();

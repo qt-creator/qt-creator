@@ -66,9 +66,6 @@ signals:
     void settingsChanged(const TextEditor::TabSettings &);
     void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
 
-protected:
-    void changeEvent(QEvent *e);
-
 private slots:
     void slotSettingsChanged();
     void codingStyleLinkActivated(const QString &linkString);

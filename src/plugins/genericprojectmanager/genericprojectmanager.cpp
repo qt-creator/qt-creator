@@ -51,21 +51,14 @@ QString Manager::mimeType() const
 
 ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString *errorString)
 {
-    if (!QFileInfo(fileName).isFile())
+    if (!QFileInfo(fileName).isFile()) {
+        if (errorString)
+            *errorString = tr("Failed opening project '%1': Project is not a file")
+                .arg(fileName);
         return 0;
-
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
-        if (fileName == pi->document()->fileName()) {
-            if (errorString)
-                *errorString = tr("Failed opening project '%1': Project already open")
-                    .arg(QDir::toNativeSeparators(fileName));
-            return 0;
-        }
     }
 
-    GenericProject *project = new GenericProject(this, fileName);
-    return project;
+    return new GenericProject(this, fileName);
 }
 
 void Manager::registerProject(GenericProject *project)

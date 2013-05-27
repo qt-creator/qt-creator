@@ -68,7 +68,8 @@ private:
 // RemoteDialog:
 // --------------------------------------------------------------------------
 
-class RemoteDialog : public QDialog {
+class RemoteDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -85,11 +86,6 @@ public slots:
     void fetchFromRemote();
 
     void updateButtonState();
-
-private slots:
-
-protected:
-    void changeEvent(QEvent *e);
 
 private:
     Ui::RemoteDialog *m_ui;

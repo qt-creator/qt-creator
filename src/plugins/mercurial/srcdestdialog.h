@@ -45,11 +45,9 @@ class SrcDestDialog : public QDialog
 public:
     SrcDestDialog(QWidget *parent = 0);
     ~SrcDestDialog();
+
     void setPathChooserKind(Utils::PathChooser::Kind kind);
     QString getRepositoryString() const;
-
-protected:
-    void changeEvent(QEvent *e);
 
 private:
     Ui::SrcDestDialog *m_ui;

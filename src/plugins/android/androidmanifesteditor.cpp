@@ -73,17 +73,6 @@ Core::Id AndroidManifestEditor::id() const
     return Constants::ANDROID_MANIFEST_EDITOR_ID;
 }
 
-bool AndroidManifestEditor::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *AndroidManifestEditor::duplicate(QWidget *parent)
-{
-    Q_UNUSED(parent);
-    return 0;
-}
-
 bool AndroidManifestEditor::isTemporary() const
 {
     return false;

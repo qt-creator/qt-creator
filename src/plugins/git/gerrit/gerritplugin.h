@@ -70,7 +70,7 @@ public:
 
 public slots:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
-    void fetchApply(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
+    void fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void updateActions(bool hasTopLevel);
 

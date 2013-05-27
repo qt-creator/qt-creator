@@ -44,8 +44,10 @@ struct TestWizardParameters;
 /* TestWizardPage: Let's the user input test class name, slot
  * (for which a CLassNameValidatingLineEdit is abused) and file name. */
 
-class TestWizardPage : public QWizardPage {
+class TestWizardPage : public QWizardPage
+{
     Q_OBJECT
+
 public:
     explicit TestWizardPage(QWidget *parent = 0);
     ~TestWizardPage();
@@ -62,18 +64,15 @@ private slots:
     void slotFileNameEdited();
     void slotUpdateValid();
 
-protected:
-    void changeEvent(QEvent *e);
-
 private:
     const QString m_sourceSuffix;
     const bool m_lowerCaseFileNames;
     Ui::TestWizardPage *ui;
     bool m_fileNameEdited;
     bool m_valid;
-
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
 #endif // TESTWIZARDPAGE_H

@@ -118,28 +118,6 @@ void BarDescriptorEditor::setDisplayName(const QString &title)
     emit changed();
 }
 
-bool BarDescriptorEditor::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *BarDescriptorEditor::duplicate(QWidget *parent)
-{
-    Q_UNUSED(parent);
-    return 0;
-}
-
-QByteArray BarDescriptorEditor::saveState() const
-{
-    return QByteArray(); // Not supported
-}
-
-bool BarDescriptorEditor::restoreState(const QByteArray &state)
-{
-    Q_UNUSED(state);
-    return false; // Not supported
-}
-
 bool BarDescriptorEditor::isTemporary() const
 {
     return false;

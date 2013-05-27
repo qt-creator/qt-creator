@@ -67,7 +67,6 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void changeEvent(QEvent *e);
     bool event(QEvent *event);
     QSize minimumSizeHint() const;
 

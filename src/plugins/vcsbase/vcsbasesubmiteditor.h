@@ -116,15 +116,10 @@ public:
     Core::IDocument *document();
     QString displayName() const;
     void setDisplayName(const QString &title);
-    bool duplicateSupported() const;
-    Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
     bool isTemporary() const { return true; }
 
     QWidget *toolBar();
-
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
 
     QStringList checkedFiles() const;
 

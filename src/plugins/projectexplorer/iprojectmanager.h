@@ -50,6 +50,7 @@ public:
     IProjectManager() {}
 
     virtual QString mimeType() const = 0;
+    // fileName is a canonical path!
     virtual Project *openProject(const QString &fileName, QString *errorString) = 0;
 };
 

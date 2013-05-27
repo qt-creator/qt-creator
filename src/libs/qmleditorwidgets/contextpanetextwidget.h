@@ -82,7 +82,6 @@ signals:
     void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool removeFirst);
 
 protected:
-    void changeEvent(QEvent *e);
     void timerEvent(QTimerEvent *event);
 
 private:

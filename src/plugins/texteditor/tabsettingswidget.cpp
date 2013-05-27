@@ -121,16 +121,4 @@ void TabSettingsWidget::setCodingStyleWarningVisible(bool visible)
     ui->codingStyleWarning->setVisible(visible);
 }
 
-void TabSettingsWidget::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 } // namespace TextEditor
