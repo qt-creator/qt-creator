@@ -43,6 +43,12 @@ class VcDocProjectNode;
 
 class VcFileNode : public ProjectExplorer::FileNode
 {
+    Q_OBJECT
+
+    friend class VcFolderNode;
+    friend class VcDocProjectNode;
+    friend class VcFilterNode;
+
 public:
     VcFileNode(File *fileModel, VcDocProjectNode *vcDocProject);
     ~VcFileNode();
@@ -54,28 +60,106 @@ private:
     File *m_vcFileModel;
 };
 
-class VcFolderNode : public ProjectExplorer::FolderNode
-{
-public:
-    VcFolderNode(Folder *folderModel, VcDocProjectNode *vcDocProjNode);
-    VcFolderNode(Filter *filterModel, VcDocProjectNode *vcDocProjNode);
-    ~VcFolderNode();
+class VcFilterNode;
 
-    void appendFolderNode(VcFolderNode *folderNode);
-    void appendFileNode(VcFileNode *fileNode);
+class VcContainerNode : public ProjectExplorer::FolderNode
+{
+    Q_OBJECT
+
+    friend class VcFileNode;
+    friend class VcDocProjectNode;
+
+public:
+    enum VcContainerType {
+        VcContainerType_Filter,
+        VcContainerType_Folder
+    };
+
+    VcContainerNode(const QString &folderPath);
+    ~VcContainerNode();
+
+    VcContainerType vcContainerType() const;
+
+    virtual void addFileNode(const QString &filePath) = 0;
+    virtual bool appendFileNode(VcFileNode *fileNode) = 0;
+
+    virtual void addFilterNode(const QString &name) = 0;
+    virtual bool appendFilterNode(VcFilterNode *folderNode) = 0;
+
+    virtual void removeFilterNode(VcFilterNode *filterNode) = 0;
 
 protected:
-    void readChildren(VcDocProjectNode *docProjNode);
+    VcContainerType m_vcContainerType;
+    VcDocProjectNode *m_parentVcDocProjNode;
+};
+
+class VcFilterNode : public VcContainerNode
+{
+    Q_OBJECT
+
+    friend class VcFileNode;
+    friend class VcDocProjectNode;
+    friend class VcFolderNode;
+
+public:
+    VcFilterNode(Filter *filterModel, VcDocProjectNode *vcDocProjNode);
+    ~VcFilterNode();
+
+    void addFileNode(const QString &filePath);
+    bool appendFileNode(VcFileNode *fileNode);
+
+    void addFilterNode(const QString &name);
+    bool appendFilterNode(VcFilterNode *folderNode);
+
+    void removeFilterNode(VcFilterNode *filterNode);
+
+protected:
+    void readChildren();
+
+private:
+    Filter *m_vcFilterModel;
+};
+
+class VcFolderNode : public VcContainerNode
+{
+    Q_OBJECT
+
+    friend class VcFileNode;
+    friend class VcDocProjectNode;
+    friend class VcFilterNode;
+
+public:
+    VcFolderNode(Folder *folderModel, VcDocProjectNode *vcDocProjNode);
+    ~VcFolderNode();
+
+    void addFileNode(const QString &filePath);
+    bool appendFileNode(VcFileNode *fileNode);
+
+    void addFilterNode(const QString &name);
+    bool appendFilterNode(VcFilterNode *folderNode);
+
+    void removeFilterNode(VcFilterNode *filterNode);
+
+    void addFolderNode(const QString &name);    // only for VS 2005
+    bool appendFolderNode(VcFolderNode *folderNode);    // only for VS 2005
+
+    void removeFolderNode(VcFolderNode *node);
+
+protected:
+    void readChildren();
 
 private:
     Folder *m_vcFolderModel;
-    Filter *m_vcFilterModel;
 };
 
 class VcDocProjectNode : public ProjectExplorer::ProjectNode
 {
+    Q_OBJECT
+
     friend class VcFolderNode;
     friend class VcFileNode;
+    friend class VcFilterNode;
+
 public:
     VcDocProjectNode(VcProjectDocument* vcProjectModel);
     ~VcDocProjectNode();
@@ -99,6 +183,16 @@ public:
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
     QString projectDirectory() const;
+
+    void addFileNode(const QString &filePath);
+    void addFolderNode(const QString &name);    // only for VS 2005
+    void addFilterNode(const QString &name);
+    bool appendFolderNode(VcFolderNode *folderNode);    // only for VS 2005
+    bool appendFilterNode(VcFilterNode *filterNode);
+    bool appendFileNode(VcFileNode *fileNode);
+
+    void removeFilterNode(VcFilterNode *filterNode);
+    void removeFolderNode(VcFolderNode *folderNode);
 
 private:
     VcProjectDocument *m_vcProjectModel;

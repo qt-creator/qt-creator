@@ -33,7 +33,6 @@
 #include "vcprojectmodel/vcprojectdocument_constants.h"
 #include "msbuildversionmanager.h"
 
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/project.h>
 
@@ -51,6 +50,7 @@ namespace Internal {
 class VcProjectFile;
 class VcDocProjectNode;
 class VcManager;
+class VcFolderNode;
 
 class VcProject : public ProjectExplorer::Project
 {

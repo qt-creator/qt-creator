@@ -128,6 +128,18 @@ File::Ptr Folder::file(const QString &relativeFilePath) const
     return m_folderType->file(relativeFilePath);
 }
 
+bool Folder::fileExists(const QString &relativeFilePath)
+{
+    QList<File::Ptr> files = m_folderType->files();
+
+    foreach (File::Ptr filePtr, files) {
+        if (filePtr->relativePath() == relativeFilePath)
+            return true;
+    }
+
+    return false;
+}
+
 void Folder::addFolder(Folder::Ptr folder)
 {
     m_folderType->addFolder(folder);

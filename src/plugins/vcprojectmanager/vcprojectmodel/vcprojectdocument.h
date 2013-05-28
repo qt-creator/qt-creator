@@ -61,6 +61,9 @@ public:
     virtual MsBuildInformation::MsBuildVersion minSupportedMsBuildVersion() const = 0;
     virtual MsBuildInformation::MsBuildVersion maxSupportedMsBuildVersion() const = 0;
 
+    // helper function, used to create a relative path to a file, path is relative to a project's file path
+    QString fileRelativePath(const QString &filePath);
+
     Configurations::Ptr configurations() const;
     Platforms::Ptr platforms() const;
     Files::Ptr files() const;

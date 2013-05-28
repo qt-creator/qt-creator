@@ -27,53 +27,34 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_MENUHANDLER_H
-#define VCPROJECTMANAGER_INTERNAL_MENUHANDLER_H
+#ifndef VCPROJECTMANAGER_INTERNAL_VCCONTAINERNAMEWIDGET_H
+#define VCPROJECTMANAGER_INTERNAL_VCCONTAINERNAMEWIDGET_H
 
-#include <QObject>
-
-class QAction;
+#include <QDialog>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class MenuHandler : public QObject
+namespace Ui {
+class VcContainerNameWidget;
+}
+
+class VcContainerNameDialog : public QDialog
 {
     Q_OBJECT
 
-    friend class VcProjectManagerPlugin;
-
 public:
-    static MenuHandler* instance();
-    ~MenuHandler();
+    explicit VcContainerNameDialog(const QString &containerType, QWidget *parent = 0);
+    ~VcContainerNameDialog();
+
+    QString contanerName() const;
+    void setContainerName(const QString &name);
 
 private:
-    MenuHandler();
-    void initialize();
-    void initialize2005();
-
-private slots:
-    void onShowProjectSettings();
-    void onAddFile();
-    void onAddFolder();
-    void onAddFilter();
-    void onRemoveFilter();
-    void onRemoveFolder();
-
-private:
-    static MenuHandler *m_instance;
-    QAction *m_projectProperties;
-    QAction *m_addFilter;
-    QAction *m_removeFilter;
-
-    QAction *m_projectProperties2005;
-    QAction *m_addFolder2005;
-    QAction *m_addFilter2005;
-    QAction *m_removeFolder2005;
-    QAction *m_removeFilter2005;
+    Ui::VcContainerNameWidget *ui;
 };
+
 
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_MENUHANDLER_H
+#endif // VCPROJECTMANAGER_INTERNAL_VCCONTAINERNAMEWIDGET_H

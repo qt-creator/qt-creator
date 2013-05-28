@@ -64,6 +64,7 @@ public:
     void removeFile(File::Ptr file);
     void removeFile(const QString &relativeFilePath);
     QList<File::Ptr > files() const;
+    bool fileExists(const QString &relativeFilePath);
 
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
@@ -74,7 +75,6 @@ public:
 
 private:
     FilterType::Ptr m_filterType;
-    VcDocConstants::DocumentVersion m_docVersion;
 };
 
 } // namespace Internal

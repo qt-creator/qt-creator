@@ -84,7 +84,7 @@ VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath, 
     : m_projectManager(projectManager)
     , m_projectFile(new VcProjectFile(projectFilePath, docVersion))
 {
-    if (docVersion == VcProjectManager::Internal::VcDocConstants::DV_MSVC_2005)
+    if (m_projectFile->documentModel()->vcProjectDocument()->documentVersion() == VcDocConstants::DV_MSVC_2005)
         setProjectContext(Core::Context(Constants::VC_PROJECT_2005_ID));
     else
         setProjectContext(Core::Context(Constants::VC_PROJECT_ID));
@@ -199,7 +199,7 @@ void VcProject::onSettingsDialogAccepted()
 {
     VcProjectDocumentWidget *settingsWidget = qobject_cast<VcProjectDocumentWidget *>(QObject::sender());
     m_projectFile->documentModel()->saveToFile(m_projectFile->filePath());
-    disconnect(settingsWidget, SIGNAL(accepted()), this, SLOT(onSettingsDialogAccepted()));
+    settingsWidget->deleteLater();
 }
 
 bool VcProject::fromMap(const QVariantMap &map)

@@ -128,6 +128,18 @@ QList<File::Ptr > Filter::files() const
     return m_filterType->files();
 }
 
+bool Filter::fileExists(const QString &relativeFilePath)
+{
+    QList<File::Ptr> files = m_filterType->files();
+
+    foreach (File::Ptr filePtr, files) {
+        if (filePtr->relativePath() == relativeFilePath)
+            return true;
+    }
+
+    return false;
+}
+
 QString Filter::attributeValue(const QString &attributeName) const
 {
     return m_filterType->attributeValue(attributeName);

@@ -63,6 +63,7 @@ public:
     void removeFile(const QString &relativeFilePath);
     QList<File::Ptr > files() const;
     File::Ptr file(const QString &relativeFilePath) const;
+    bool fileExists(const QString &relativeFilePath);
 
     void addFolder(Folder::Ptr folder);
     void removeFolder(Folder::Ptr folder);

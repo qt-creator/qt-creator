@@ -36,7 +36,7 @@ namespace VcProjectManager {
 namespace Constants {
 
 const char VCPROJ_MIMETYPE[] = "text/x-vc-project"; // TODO: is this good enough?
-const char VC_PROJECT_ID[] = "VcProject.VcProject"; // 2003 and 2008 version
+const char VC_PROJECT_ID[] = "VcProject.VcProject";  // 2003 and 2008 version
 const char VC_PROJECT_2005_ID[] = "VcProject.VcProject2005"; // 2005 version
 const char VC_PROJECT_CONTEXT[] = "VcProject.ProjectContext";
 const char VC_PROJECT_TARGET_ID[] = "VcProject.DefaultVcProjectTarget";
@@ -60,6 +60,13 @@ const char VC_PROJECT_SCHEMA_2008_QUIALIFIER[] = "Schema2008";
 const char VC_PROJECT_KIT_INFO_ID[] = "VcProject.KitInformation";
 
 const char VC_PROJECT_SHOW_PROPERTIES_ACTION[] = "VcProject.ShowPropertiesAction";
+const char VC_PROJECT_ADD_NEW_FILE_ACTION[] = "VcProject.AddNewFileAction";
+const char VC_PROJECT_ADD_EXISTING_FILES_ACTION[] = "VcProject.AddExistingFilesAction";
+const char VC_PROJECT_REMOVE_FILE_ACTION[] = "VcProject.RemoveFileAction";
+const char VC_PROJECT_ADD_FOLDER_ACTION[] = "VcProject.AddFolderAction";
+const char VC_PROJECT_ADD_FILTER_ACTION[] = "VcProject.AddFilterAction";
+const char VC_PROJECT_REMOVE_FOLDER_ACTION[] = "VcProject.RemoveFolderAction";
+const char VC_PROJECT_REMOVE_FILTER_ACTION[] = "VcProject.RemoveFilterAction";
 
 enum SchemaVersion
 {

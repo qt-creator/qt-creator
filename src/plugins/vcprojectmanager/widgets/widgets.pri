@@ -7,7 +7,8 @@ HEADERS += \
     widgets/configurationswidget.h \
     widgets/basicconfigurationwidget.h \
     widgets/schemaoptionswidget.h \
-    widgets/vcprojectkitconfigwidget.h
+    widgets/vcprojectkitconfigwidget.h \
+    widgets/vccontainernamedialog.h
 
 SOURCES += \
     widgets/vcnodewidget.cpp \
@@ -18,10 +19,12 @@ SOURCES += \
     widgets/configurationswidget.cpp \
     widgets/basicconfigurationwidget.cpp \
     widgets/schemaoptionswidget.cpp \
-    widgets/vcprojectkitconfigwidget.cpp
+    widgets/vcprojectkitconfigwidget.cpp \
+    widgets/vccontainernamedialog.cpp
 
 FORMS += \
     widgets/projectsettingswidget.ui \
     widgets/configurationswidget.ui \
-    widgets/schemaoptionswidget.ui
+    widgets/schemaoptionswidget.ui \
+    widgets/vccontainernamewidget.ui
 

@@ -30,6 +30,7 @@
 #include "vcprojectdocument.h"
 
 #include <QDomElement>
+#include <QDir>
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
@@ -86,6 +87,11 @@ QString VcProjectDocument::filePath() const
 void VcProjectDocument::allProjectFiles(QStringList &sl) const
 {
     m_files->allProjectFiles(sl);
+}
+
+QString VcProjectDocument::fileRelativePath(const QString &filePath)
+{
+    return QFileInfo(m_filePath).absoluteDir().relativeFilePath(filePath);
 }
 
 Configurations::Ptr VcProjectDocument::configurations() const

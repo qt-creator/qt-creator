@@ -71,6 +71,18 @@ void Files::removeFilter(Filter::Ptr filter)
     m_private->removeFilter(filter);
 }
 
+void Files::removeFilter(const QString &filterName)
+{
+    QList<Filter::Ptr> filters = m_private->filters();
+
+    foreach (Filter::Ptr filter, filters) {
+        if (filter->name() == filterName) {
+            m_private->removeFilter(filter);
+            return;
+        }
+    }
+}
+
 QList<Filter::Ptr > Files::filters() const
 {
     return m_private->filters();
@@ -99,6 +111,25 @@ QList<File::Ptr > Files::files() const
 File::Ptr Files::file(const QString &relativePath) const
 {
     return m_private->file(relativePath);
+}
+
+bool Files::fileExists(const QString &relativeFilePath) const
+{
+    QList<File::Ptr> files = m_private->files();
+
+    foreach (File::Ptr filePtr, files) {
+        if (filePtr->relativePath() == relativeFilePath)
+            return true;
+    }
+
+    QList<Filter::Ptr> filters = m_private->filters();
+
+    foreach (Filter::Ptr filterPtr, filters) {
+        if (filterPtr->fileExists(relativeFilePath))
+            return true;
+    }
+
+    return false;
 }
 
 void Files::allProjectFiles(QStringList &sl) const
@@ -189,6 +220,33 @@ Files *Files2005::clone() const
     return new Files2005(*this);
 }
 
+bool Files2005::fileExists(const QString &relativeFilePath) const
+{
+    QList<File::Ptr> files = m_private->files();
+
+    foreach (File::Ptr filePtr, files) {
+        if (filePtr->relativePath() == relativeFilePath)
+            return true;
+    }
+
+    QList<Filter::Ptr> filters = m_private->filters();
+
+    foreach (Filter::Ptr filterPtr, filters) {
+        if (filterPtr->fileExists(relativeFilePath))
+            return true;
+    }
+
+    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
+    QList<Folder::Ptr> folders = files_p->folders();
+
+    foreach (Folder::Ptr folderPtr, folders) {
+        if (folderPtr->fileExists(relativeFilePath))
+            return true;
+    }
+
+    return false;
+}
+
 void Files2005::addFolder(Folder::Ptr newFolder)
 {
     QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
@@ -199,6 +257,19 @@ void Files2005::removeFolder(Folder::Ptr folder)
 {
     QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
     files_p->removeFolder(folder);
+}
+
+void Files2005::removeFolder(const QString &folderName)
+{
+    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
+    QList<Folder::Ptr> folders = files_p->folders();
+
+    foreach (Folder::Ptr folder, folders) {
+        if (folder->name() == folderName) {
+            files_p->removeFolder(folder);
+            return;
+        }
+    }
 }
 
 QList<Folder::Ptr > Files2005::folders() const

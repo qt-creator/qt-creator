@@ -252,7 +252,8 @@ VcMakeStepFactory::~VcMakeStepFactory()
 
 bool VcMakeStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() == Constants::VC_PROJECT_ID)
+    if (parent->target()->project()->id() == Constants::VC_PROJECT_ID ||
+            parent->target()->project()->id() == Constants::VC_PROJECT_2005_ID)
         return id == MS_ID;
     return false;
 }
@@ -295,7 +296,8 @@ ProjectExplorer::BuildStep *VcMakeStepFactory::restore(ProjectExplorer::BuildSte
 
 QList<Core::Id> VcMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->target() && parent->target()->project() && parent->target()->project()->id() == Constants::VC_PROJECT_ID)
+    if (parent->target() && parent->target()->project() &&
+            (parent->target()->project()->id() == Constants::VC_PROJECT_ID || parent->target()->project()->id() == Constants::VC_PROJECT_2005_ID))
             return QList<Core::Id>() << Core::Id(MS_ID);
 
     return QList<Core::Id>();

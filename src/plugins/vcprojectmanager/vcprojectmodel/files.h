@@ -56,6 +56,7 @@ public:
 
     void addFilter(Filter::Ptr newFilter);
     void removeFilter(Filter::Ptr filter);
+    void removeFilter(const QString &filterName);
     QList<Filter::Ptr > filters() const;
     Filter::Ptr filter(const QString &filterName) const;
 
@@ -63,6 +64,7 @@ public:
     void removeFile(File::Ptr file);
     QList<File::Ptr > files() const;
     File::Ptr file(const QString &relativePath) const;
+    virtual bool fileExists(const QString &relativeFilePath) const;
 
     virtual void allProjectFiles(QStringList &sl) const;
 
@@ -77,6 +79,8 @@ protected:
 class Files2003 : public Files
 {
 public:
+    typedef QSharedPointer<Files2003>   Ptr;
+
     Files2003(VcProjectDocument *parentProjectDocument);
     Files2003(const Files2003 &files);
     Files2003& operator=(const Files2003 &files);
@@ -88,6 +92,8 @@ public:
 class Files2005 : public Files
 {
 public:
+    typedef QSharedPointer<Files2005>   Ptr;
+
     Files2005(VcProjectDocument *parentProjectDocument);
     Files2005(const Files2005 &files);
     Files2005& operator=(const Files2005 &files);
@@ -95,9 +101,11 @@ public:
 
     bool isEmpty() const;
     Files* clone() const;
+    bool fileExists(const QString &relativeFilePath) const;
 
     void addFolder(Folder::Ptr newFolder);
     void removeFolder(Folder::Ptr folder);
+    void removeFolder(const QString &folderName);
     QList<Folder::Ptr > folders() const;
     Folder::Ptr folder(const QString &folderName) const;
 
@@ -107,6 +115,8 @@ public:
 class Files2008 : public Files
 {
 public:
+    typedef QSharedPointer<Files2008>   Ptr;
+
     Files2008(VcProjectDocument *parentProjectDocument);
     Files2008(const Files2008 &files);
     Files2008& operator=(const Files2008 &files);
