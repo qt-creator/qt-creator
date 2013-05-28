@@ -109,7 +109,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
       m_modelManager(QmlJS::ModelManagerInterface::instance())
 {
     setProjectContext(Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_QMLJS));
+    setProjectLanguages(Core::Context(QmlProjectManager::Constants::LANG_QML));
 
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();

@@ -353,9 +353,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_activeTarget(0)
 {
     setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
-    Core::Context pl(ProjectExplorer::Constants::LANG_CXX);
-    pl.add(ProjectExplorer::Constants::LANG_QMLJS);
-    setProjectLanguages(pl);
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     m_asyncUpdateTimer.setSingleShot(true);
     m_asyncUpdateTimer.setInterval(3000);
@@ -636,6 +634,15 @@ void Qt4Project::updateQmlJSCodeModel()
                     qtLibs.contains(QLatin1String("quick"));
         }
     }
+
+    // If the project directory has a pro/pri file that includes a qml or quick or declarative
+    // library then chances of the project being a QML project is quite high.
+    // This assumption fails when there are no QDeclarativeEngine/QDeclarativeView (QtQuick 1)
+    // or QQmlEngine/QQuickView (QtQuick 2) instances.
+    Core::Context pl(ProjectExplorer::Constants::LANG_CXX);
+    if (hasQmlLib)
+        pl.add(ProjectExplorer::Constants::LANG_QMLJS);
+    setProjectLanguages(pl);
 
     projectInfo.importPaths.removeDuplicates();
 

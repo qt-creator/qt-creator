@@ -109,10 +109,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
       m_lastEditor(0)
 {
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
-    Core::Context pl(ProjectExplorer::Constants::LANG_CXX);
-    pl.add(ProjectExplorer::Constants::LANG_QMLJS);
-    setProjectLanguages(pl);
-
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     m_file = new CMakeFile(this, fileName);
 
