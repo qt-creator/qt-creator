@@ -235,6 +235,16 @@ void GitEditor::init()
         new GitSubmitHighlighter(baseTextDocument().data());
 }
 
+bool GitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+{
+    bool res = VcsBaseEditorWidget::open(errorString, fileName, realFileName);
+    if (editor()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID) {
+        QFileInfo fi(fileName);
+        setSource(GitPlugin::instance()->gitClient()->findRepositoryForGitDir(fi.absolutePath()));
+    }
+    return res;
+}
+
 QString GitEditor::decorateVersion(const QString &revision) const
 {
     const QFileInfo fi(source());
@@ -282,6 +292,12 @@ QString GitEditor::revisionSubject(const QTextBlock &inBlock) const
         }
     }
     return QString();
+}
+
+bool GitEditor::supportChangeLinks() const
+{
+    return VcsBaseEditorWidget::supportChangeLinks()
+            || (editor()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID);
 }
 
 } // namespace Internal

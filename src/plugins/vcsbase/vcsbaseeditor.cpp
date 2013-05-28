@@ -663,6 +663,17 @@ void VcsBaseEditorWidget::setLogEntryPattern(const QRegExp &pattern)
     d->m_logEntryPattern = pattern;
 }
 
+bool VcsBaseEditorWidget::supportChangeLinks() const
+{
+    switch (d->m_parameters->type) {
+    case LogOutput:
+    case AnnotateOutput:
+        return true;
+    default:
+        return false;
+    }
+}
+
 void VcsBaseEditorWidget::init()
 {
     d->m_editor = editor();
@@ -963,7 +974,7 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
     bool overrideCursor = false;
     Qt::CursorShape cursorShape;
 
-    if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
+    if (supportChangeLinks()) {
         // Link emulation behaviour for 'click on change-interaction'
         const QTextCursor cursor = cursorForPosition(e->pos());
         Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
@@ -987,7 +998,7 @@ void VcsBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     const bool wasDragging = d->m_mouseDragging;
     d->m_mouseDragging = false;
-    if (!wasDragging && (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput)) {
+    if (!wasDragging && supportChangeLinks()) {
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
             const QTextCursor cursor = cursorForPosition(e->pos());
             Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
