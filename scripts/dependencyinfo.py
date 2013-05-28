@@ -150,6 +150,7 @@ class SymbolResolver:
             self._resolve(i)
 
     def _resolve(self, plugin):
+        print 'Resolving symbols for {}...'.format(plugin.name)
         for symbol in plugin.importedSymbols:
             lib = self._resolveSymbol(symbol)
             if lib:
@@ -174,9 +175,12 @@ class Reporter:
 
         spec = plugin.specDependencies
         symb = {}
+        lib = {}
         for p in plugin.symbolDependencies:
             if p.isPlugin():
                 symb[p.name] = plugin.symbolDependencies[p]
+            else:
+                lib[p.name] = plugin.symbolDependencies[p]
 
         for i in spec:
             if i in symb:
@@ -194,6 +198,9 @@ class Reporter:
             total = symb[i]['total']
             print '    {}: ERROR: undeclared ({} usages)'.format(i, total)
             self._printSome(symb[i])
+        for i in lib:
+            total = lib[i]['total']
+            print '    LIBRARY {} used ({} usages)'.format(i, total)
 
     def _printSome(self, data):
         keys = data.keys()
