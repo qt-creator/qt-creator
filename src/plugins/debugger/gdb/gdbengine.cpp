@@ -1828,7 +1828,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
 
         //postCommand("set build-id-verbose 2", ConsoleCommand);
 
-        if (m_gdbVersion > 701000) {
+        if (m_gdbVersion > 70100) {
             // Quick check whether we have python.
             showMessage(_("NOTE: CHECK FOR PYTHON SUPPRESSED, VERSION TOO LOW"));
             postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
