@@ -1816,15 +1816,25 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         if (m_gdbVersion > 70100)
             m_disassembleUsesComma = true;
 
-        if (usesExecInterrupt())
-            postCommand("set target-async on", ConsoleCommand);
-        else
-            postCommand("set target-async off", ConsoleCommand);
+        if (m_gdbVersion > 70100) {
+            if (usesExecInterrupt())
+                postCommand("set target-async on", ConsoleCommand);
+            else
+                postCommand("set target-async off", ConsoleCommand);
+        }
 
         if (startParameters().multiProcess)
             postCommand("set detach-on-fork off", ConsoleCommand);
 
-        postCommand("set build-id-verbose 2", ConsoleCommand);
+        //postCommand("set build-id-verbose 2", ConsoleCommand);
+
+        if (m_gdbVersion > 701000) {
+            // Quick check whether we have python.
+            showMessage(_("NOTE: CHECK FOR PYTHON SUPPRESSED, VERSION TOO LOW"));
+            postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
+        } else {
+            pythonDumpersFailed();
+        }
     }
 }
 
@@ -4906,12 +4916,10 @@ void GdbEngine::startGdb(const QStringList &args)
         postCommand("set detach-on-fork off");
     }
 
-    // Quick check whether we have python.
-    postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
-
     // Dummy command to guarantee a roundtrip before the adapter proceed.
     // Make sure this stays the last command in startGdb().
-    postCommand("pwd", ConsoleCommand, CB(reportEngineSetupOk));
+    // Don't use ConsoleCommand, otherwise Mac won't markup the output.
+    postCommand("pwd", CB(reportEngineSetupOk));
 }
 
 void GdbEngine::reportEngineSetupOk(const GdbResponse &response)
