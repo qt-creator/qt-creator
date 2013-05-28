@@ -10,7 +10,6 @@ QtcLibrary {
         "c"
     ]
 
-    Depends { name: "cpp" }
 
     files: [
         "ptracepreload.c",

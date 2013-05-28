@@ -11,7 +11,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QmlJS" }
 
-    Depends { name: "cpp" }
     cpp.includePaths: base.concat([
         "../../shared",
         "../../shared/proparser"

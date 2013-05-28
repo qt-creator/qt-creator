@@ -17,7 +17,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "QtcSsh" }
 
-    Depends { name: "cpp" }
     cpp.includePaths: base.concat([
         "shared",
         "lldblib",

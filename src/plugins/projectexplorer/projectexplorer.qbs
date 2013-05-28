@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QtcSsh" }
 
-    Depends { name: "cpp" }
     cpp.defines: base.concat("QTC_CPU=X86Architecture")
     cpp.includePaths: base.concat([
         "customwizard",

@@ -6,7 +6,6 @@ QtcTool {
     consoleApplication: true
     condition: qbs.targetOS == "windows"
 
-    Depends { name: "cpp" }
 
     files: [ "process_ctrlc_stub.cpp" ]
 

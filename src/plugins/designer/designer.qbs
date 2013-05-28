@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
 
-    Depends { name: "cpp" }
     cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: base.concat([
         "../../libs/3rdparty",

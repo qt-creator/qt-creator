@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "VcsBase" }
     Depends { name: "Locator" }
 
-    Depends { name: "cpp" }
 
     files: [
         "annotationhighlighter.cpp",

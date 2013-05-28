@@ -4,7 +4,6 @@ import "../../../tools/QtcTool.qbs" as QtcTool
 QtcTool {
     name: "cpaster"
 
-    Depends { name: "cpp" }
     Depends {
         name: "Qt"
         submodules: ["gui", "network"]

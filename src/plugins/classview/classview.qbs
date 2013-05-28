@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 
-    Depends { name: "cpp" }
 
     files: [
         "classview.qrc",

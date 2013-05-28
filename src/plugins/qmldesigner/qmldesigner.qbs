@@ -19,7 +19,6 @@ QtcPlugin {
     Depends { name: "LanguageUtils" }
     Depends { name: "QtSupport" }
 
-    Depends { name: "cpp" }
     cpp.defines: base.concat(["QWEAKPOINTER_ENABLE_ARROW"])
     cpp.includePaths: base.concat([
         "designercore",

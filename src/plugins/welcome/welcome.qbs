@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
 
-    Depends { name: "cpp" }
     cpp.includePaths: base.concat("../../shared/scriptwrapper")
 
     files: [

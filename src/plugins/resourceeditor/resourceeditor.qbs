@@ -7,7 +7,6 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "Find" }
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "xml"] }
 
     cpp.includePaths: base.concat("qrceditor")
