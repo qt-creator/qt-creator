@@ -52,11 +52,8 @@ CodePasterSettingsPage::CodePasterSettingsPage()
     setDisplayCategory(QCoreApplication::translate("CodePaster",
         Constants::CPASTER_SETTINGS_TR_CATEGORY));
 
-    m_settings = Core::ICore::settings();
-    if (m_settings) {
-        const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
-        m_host = m_settings->value(keyRoot + QLatin1String(serverKeyC), QString()).toString();
-    }
+    const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
+    m_host = Core::ICore::settings()->value(keyRoot + QLatin1String(serverKeyC), QString()).toString();
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
@@ -83,12 +80,11 @@ QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
 
 void CodePasterSettingsPage::apply()
 {
-    if (!m_settings)
-        return;
-
-    m_settings->beginGroup(QLatin1String(settingsGroupC));
-    m_settings->setValue(QLatin1String(serverKeyC), m_host);
-    m_settings->endGroup();
+    QSettings *settings = Core::ICore::settings();
+    const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
+    settings->beginGroup(QLatin1String(settingsGroupC));
+    settings->setValue(QLatin1String(serverKeyC), m_host);
+    settings->endGroup();
 }
 
 void CodePasterSettingsPage::serverChanged(const QString &host)

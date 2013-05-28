@@ -37,61 +37,40 @@
 
 using namespace Designer::Internal;
 
-static inline QSettings *coreSettings()
-{
-    if (Core::ICore::instance())
-        return Core::ICore::settings();
-    return 0;
-}
-
 void SettingsManager::beginGroup(const QString &prefix)
 {
-    QSettings *settings = coreSettings();
-    QTC_ASSERT(settings, return);
-    settings->beginGroup(addPrefix(prefix));
+    Core::ICore::settings()->beginGroup(addPrefix(prefix));
 }
 
 void SettingsManager::endGroup()
 {
-    QSettings *settings = coreSettings();
-    QTC_ASSERT(settings, return);
-    settings->endGroup();
+    Core::ICore::settings()->endGroup();
 }
 
 bool SettingsManager::contains(const QString &key) const
 {
-    const QSettings *settings = coreSettings();
-    QTC_ASSERT(settings, return false);
-    return settings->contains(addPrefix(key));
+    return Core::ICore::settings()->contains(addPrefix(key));
 }
 
 void SettingsManager::setValue(const QString &key, const QVariant &value)
 {
-    QSettings *settings = coreSettings();
-    QTC_ASSERT(settings, return);
-    settings->setValue(addPrefix(key), value);
+    Core::ICore::settings()->setValue(addPrefix(key), value);
 }
 
 QVariant SettingsManager::value(const QString &key, const QVariant &defaultValue) const
 {
-    const QSettings *settings = coreSettings();
-    QTC_ASSERT(settings, return QVariant());
-    return settings->value(addPrefix(key), defaultValue);
+    return Core::ICore::settings()->value(addPrefix(key), defaultValue);
 }
 
 void SettingsManager::remove(const QString &key)
 {
-    QSettings *settings = coreSettings();
-    QTC_ASSERT(settings, return);
-    settings->remove(addPrefix(key));
+    Core::ICore::settings()->remove(addPrefix(key));
 }
 
 QString SettingsManager::addPrefix(const QString &name) const
 {
-    const QSettings *settings = coreSettings();
-    QTC_ASSERT(settings, return name);
     QString result = name;
-    if (settings->group().isEmpty())
+    if (Core::ICore::settings()->group().isEmpty())
         result.prepend(QLatin1String("Designer"));
     return result;
 }

@@ -107,14 +107,12 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_widget = new QWidget(parent);
     m_page->setupUi(m_widget);
 
-    QSettings *settings = Core::ICore::settings();
-    Q_UNUSED(settings) // Windows
-
     fillLanguageBox();
 
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
     if (HostOsInfo::isAnyUnixHost()) {
+        QSettings *settings = Core::ICore::settings();
         const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
         const QString currentTerminal = ConsoleProcess::terminalEmulator(settings, false);
         const QString currentTerminalExplicit = ConsoleProcess::terminalEmulator(settings, true);
@@ -128,6 +126,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     }
 
     if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
+        QSettings *settings = Core::ICore::settings();
         m_page->externalFileBrowserEdit->setText(UnixUtils::fileBrowser(settings));
     } else {
         m_page->externalFileBrowserLabel->hide();

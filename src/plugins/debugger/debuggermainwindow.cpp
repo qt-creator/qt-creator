@@ -552,8 +552,6 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
 void DebuggerMainWindow::writeSettings() const
 {
     QSettings *settings = ICore::settings();
-    QTC_ASSERT(settings, return);
-
     settings->beginGroup(QLatin1String("DebugMode.CppMode"));
     QHashIterator<QString, QVariant> it(d->m_dockWidgetActiveStateCpp);
     while (it.hasNext()) {
@@ -574,8 +572,6 @@ void DebuggerMainWindow::writeSettings() const
 void DebuggerMainWindow::readSettings()
 {
     QSettings *settings = ICore::settings();
-    QTC_ASSERT(settings, return);
-
     d->m_dockWidgetActiveStateCpp.clear();
     d->m_dockWidgetActiveStateQmlCpp.clear();
 

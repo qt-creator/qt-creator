@@ -590,18 +590,15 @@ void CppCodeStyleSettingsPage::apply()
         CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
         if (originalCppCodeStylePreferences->codeStyleSettings() != m_pageCppCodeStylePreferences->codeStyleSettings()) {
             originalCppCodeStylePreferences->setCodeStyleSettings(m_pageCppCodeStylePreferences->codeStyleSettings());
-            if (s)
-                originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
+            originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
         if (originalCppCodeStylePreferences->tabSettings() != m_pageCppCodeStylePreferences->tabSettings()) {
             originalCppCodeStylePreferences->setTabSettings(m_pageCppCodeStylePreferences->tabSettings());
-            if (s)
-                originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
+            originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
         if (originalCppCodeStylePreferences->currentDelegate() != m_pageCppCodeStylePreferences->currentDelegate()) {
             originalCppCodeStylePreferences->setCurrentDelegate(m_pageCppCodeStylePreferences->currentDelegate());
-            if (s)
-                originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
+            originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
     }
 }

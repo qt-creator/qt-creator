@@ -521,11 +521,9 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 void SearchResultWindow::readSettings()
 {
     QSettings *s = Core::ICore::settings();
-    if (s) {
-        s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-        d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
-        s->endGroup();
-    }
+    s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
+    d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
+    s->endGroup();
 }
 
 /*!
@@ -535,11 +533,9 @@ void SearchResultWindow::readSettings()
 void SearchResultWindow::writeSettings()
 {
     QSettings *s = Core::ICore::settings();
-    if (s) {
-        s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-        s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseAction->isChecked());
-        s->endGroup();
-    }
+    s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
+    s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseAction->isChecked());
+    s->endGroup();
 }
 
 /*!

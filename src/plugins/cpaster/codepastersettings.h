@@ -55,7 +55,6 @@ public slots:
     void serverChanged(const QString &host);
 
 private:
-    QSettings *m_settings;
     QString m_host;
 };
 
