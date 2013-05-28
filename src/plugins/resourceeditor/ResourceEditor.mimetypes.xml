@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/vnd.nokia.xml.qt.resource">
+    <mime-type type="application/vnd.qt.xml.resource">
         <sub-class-of type="text/xml"/>
         <comment>Qt Resource file</comment>
         <glob pattern="*.qrc"/>
