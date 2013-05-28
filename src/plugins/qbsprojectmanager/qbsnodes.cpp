@@ -89,8 +89,8 @@ QIcon QbsGroupNode::m_groupIcon = generateIcon();
 
 class FileTreeNode {
 public:
-    explicit FileTreeNode(const QString &n = QString(), FileTreeNode *p = 0) :
-        parent(p), name(n)
+    explicit FileTreeNode(const QString &n = QString(), FileTreeNode *p = 0, bool f = false) :
+        parent(p), name(n), m_isFile(f)
     {
         if (p)
             p->children.append(this);
@@ -101,16 +101,16 @@ public:
         qDeleteAll(children);
     }
 
-    FileTreeNode *addPart(const QString &n)
+    FileTreeNode *addPart(const QString &n, bool isFile)
     {
         foreach (FileTreeNode *c, children) {
             if (c->name == n)
                 return c;
         }
-        return new FileTreeNode(n, this);
+        return new FileTreeNode(n, this, isFile);
     }
 
-    bool isFile() { return children.isEmpty(); }
+    bool isFile() { return m_isFile; }
 
     static FileTreeNode *moveChildrenUp(FileTreeNode *node)
     {
@@ -145,6 +145,10 @@ public:
     static void reorder(FileTreeNode *node, const QString &basedir)
     {
         QTC_CHECK(!basedir.isEmpty());
+        QString prefix = basedir;
+        if (basedir.startsWith(QLatin1Char('/')))
+            prefix = basedir.mid(1);
+        prefix.append(QLatin1Char('/'));
 
         if (node->path() == basedir) {
             // Find root node:
@@ -154,7 +158,7 @@ public:
 
             foreach (FileTreeNode *c, node->children) {
                 // Update children names by prepending basedir
-                c->name = basedir + QLatin1Char('/') + c->name;
+                c->name = prefix + c->name;
                 // Update parent information:
                 c->parent = root;
 
@@ -182,7 +186,7 @@ public:
         if (!node->parent)
             return;
 
-        if (node->children.count() == 0 && !node->isFile()) {
+        if (node->children.isEmpty() && !node->isFile()) {
             // Clean up empty folder nodes:
             node->parent->children.removeOne(node);
             node->parent = 0;
@@ -208,6 +212,7 @@ public:
     QList<FileTreeNode *> children;
     FileTreeNode *parent;
     QString name;
+    bool m_isFile;
 };
 
 // ----------------------------------------------------------------------
@@ -362,8 +367,10 @@ void QbsGroupNode::setupFiles(QbsBaseProjectNode *root, const QStringList &files
         QStringList pathSegments = path.split(QLatin1Char('/'), QString::SkipEmptyParts);
 
         FileTreeNode *root = &tree;
-        while (!pathSegments.isEmpty())
-            root = root->addPart(pathSegments.takeFirst());
+        while (!pathSegments.isEmpty()) {
+            bool isFile = pathSegments.count() == 1;
+            root = root->addPart(pathSegments.takeFirst(), isFile);
+        }
     }
 
     FileTreeNode::reorder(&tree, productPath);
