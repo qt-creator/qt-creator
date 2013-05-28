@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/vnd.nokia.text.p4.submit">
+    <mime-type type="text/vnd.qtcreator.p4.submit">
         <comment>Perforce submit template</comment>
         <sub-class-of type="text/plain"/>
         <magic priority="50">
