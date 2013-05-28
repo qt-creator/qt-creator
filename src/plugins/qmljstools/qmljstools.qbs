@@ -17,7 +17,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
 
-    Depends { name: "cpp" }
     cpp.includePaths: base.concat("../../libs/3rdparty")
 
     files: [

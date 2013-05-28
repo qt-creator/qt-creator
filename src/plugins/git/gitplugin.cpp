@@ -106,7 +106,7 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     Git::Constants::GIT_DIFF_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_DIFF_EDITOR,
     "text/x-patch"},
-{   VcsBase::DiffOutput,
+{   VcsBase::OtherContent,
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMIT_TEXT_EDITOR,

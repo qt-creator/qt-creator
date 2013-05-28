@@ -29,6 +29,8 @@
 
 #include "cdboptionspage.h"
 #include "commonoptionspage.h"
+#include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerinternalconstants.h"
 #include "cdbengine.h"
 #include "cdbsymbolpathlisteditor.h"
@@ -40,6 +42,8 @@
 
 namespace Debugger {
 namespace Internal {
+
+const char *CdbOptionsPage::crtDbgReport = "CrtDbgReport";
 
 struct EventsDescription {
     const char *abbreviation;
@@ -157,8 +161,6 @@ QStringList CdbBreakEventWidget::breakEvents() const
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
     : QWidget(parent)
     , m_breakEventWidget(new CdbBreakEventWidget)
-    , m_symbolPathListEditor(new CdbSymbolPathListEditor)
-    , m_sourcePathListEditor(new Utils::PathListEditor)
 {
     m_ui.setupUi(this);
     // Squeeze the groupbox layouts vertically to
@@ -175,40 +177,25 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
     eventLayout->addWidget(m_breakEventWidget);
     m_ui.eventGroupBox->setLayout(eventLayout);
     m_ui.breakCrtDbgReportCheckBox
-        ->setText(CommonOptionsPage::msgSetBreakpointAtFunction(CdbOptions::crtDbgReport));
+        ->setText(CommonOptionsPage::msgSetBreakpointAtFunction(CdbOptionsPage::crtDbgReport));
     const QString hint = tr("This is useful to catch runtime error messages, for example caused by assert().");
     m_ui.breakCrtDbgReportCheckBox
-        ->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(CdbOptions::crtDbgReport, hint));
+        ->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(CdbOptionsPage::crtDbgReport, hint));
 
-    m_ui.symbolPathsGroupBox->layout()->addWidget(m_symbolPathListEditor);
-    m_ui.sourcePathsGroupBox->layout()->addWidget(m_sourcePathListEditor);
+    DebuggerCore *dc = debuggerCore();
+    group.insert(dc->action(CdbAdditionalArguments), m_ui.additionalArgumentsLineEdit);
+    group.insert(dc->action(CdbBreakOnCrtDbgReport), m_ui.breakCrtDbgReportCheckBox);
+    group.insert(dc->action(UseCdbConsole), m_ui.consoleCheckBox);
+    group.insert(dc->action(CdbBreakPointCorrection), m_ui.breakpointCorrectionCheckBox);
+    group.insert(dc->action(IgnoreFirstChanceAccessViolation),
+                 m_ui.ignoreFirstChanceAccessViolationCheckBox);
+
+    m_breakEventWidget->setBreakEvents(dc->stringListSetting(CdbBreakEvents));
 }
 
-void CdbOptionsPageWidget::setOptions(CdbOptions &o)
+QStringList CdbOptionsPageWidget::breakEvents() const
 {
-    m_ui.additionalArgumentsLineEdit->setText(o.additionalArguments);
-    m_symbolPathListEditor->setPathList(o.symbolPaths);
-    m_sourcePathListEditor->setPathList(o.sourcePaths);
-    m_ui.ignoreFirstChanceAccessViolationCheckBox->setChecked(o.ignoreFirstChanceAccessViolation);
-    m_breakEventWidget->setBreakEvents(o.breakEvents);
-    m_ui.consoleCheckBox->setChecked(o.cdbConsole);
-    m_ui.breakpointCorrectionCheckBox->setChecked(o.breakpointCorrection);
-    m_ui.breakCrtDbgReportCheckBox->setChecked(o.breakFunctions.contains(QLatin1String(CdbOptions::crtDbgReport)));
-}
-
-CdbOptions CdbOptionsPageWidget::options() const
-{
-    CdbOptions  rc;
-    rc.additionalArguments = m_ui.additionalArgumentsLineEdit->text().trimmed();
-    rc.symbolPaths  = m_symbolPathListEditor->pathList();
-    rc.sourcePaths = m_sourcePathListEditor->pathList();
-    rc.ignoreFirstChanceAccessViolation = m_ui.ignoreFirstChanceAccessViolationCheckBox->isChecked();
-    rc.breakEvents = m_breakEventWidget->breakEvents();
-    rc.cdbConsole = m_ui.consoleCheckBox->isChecked();
-    rc.breakpointCorrection = m_ui.breakpointCorrectionCheckBox->isChecked();
-    if (m_ui.breakCrtDbgReportCheckBox->isChecked())
-        rc.breakFunctions.push_back(QLatin1String(CdbOptions::crtDbgReport));
-    return rc;
+    return m_breakEventWidget->breakEvents();
 }
 
 static QString stripColon(QString s)
@@ -222,24 +209,15 @@ static QString stripColon(QString s)
 QString CdbOptionsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc)
-        << stripColon(m_ui.additionalArgumentsLabel->text()) << ' '
-        << m_ui.symbolPathsGroupBox->title() << ' '
-        << m_ui.sourcePathsGroupBox->title();
+    QTextStream(&rc) << stripColon(m_ui.additionalArgumentsLabel->text());
     rc.remove(QLatin1Char('&'));
     return rc;
 }
 
 // ---------- CdbOptionsPage
 
-CdbOptionsPage *CdbOptionsPage::m_instance = 0;
-
-CdbOptionsPage::CdbOptionsPage() :
-        m_options(new CdbOptions)
+CdbOptionsPage::CdbOptionsPage()
 {
-    CdbOptionsPage::m_instance = this;
-    m_options->fromSettings(Core::ICore::settings());
-
     setId("F.Cda");
     setDisplayName(tr("CDB"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
@@ -250,13 +228,11 @@ CdbOptionsPage::CdbOptionsPage() :
 
 CdbOptionsPage::~CdbOptionsPage()
 {
-    CdbOptionsPage::m_instance = 0;
 }
 
 QWidget *CdbOptionsPage::createPage(QWidget *parent)
 {
     m_widget = new CdbOptionsPageWidget(parent);
-    m_widget->setOptions(*m_options);
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -266,15 +242,14 @@ void CdbOptionsPage::apply()
 {
     if (!m_widget)
         return;
-    const CdbOptions newOptions = m_widget->options();
-    if (*m_options != newOptions) {
-        *m_options = newOptions;
-        m_options->toSettings(Core::ICore::settings());
-    }
+    m_widget->group.apply(Core::ICore::settings());
+    debuggerCore()->action(CdbBreakEvents)->setValue(m_widget->breakEvents());
 }
 
 void CdbOptionsPage::finish()
 {
+    if (m_widget)
+        m_widget->group.finish();
 }
 
 bool CdbOptionsPage::matches(const QString &s) const
@@ -282,9 +257,91 @@ bool CdbOptionsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-CdbOptionsPage *CdbOptionsPage::instance()
+// ---------- CdbPathsPage
+
+class CdbPathsPageWidget : public QWidget
 {
-    return m_instance;
+public:
+    Utils::SavedActionSet group;
+
+//    CdbPaths m_paths;
+    QString m_searchKeywords;
+
+    CdbSymbolPathListEditor *m_symbolPathListEditor;
+    Utils::PathListEditor *m_sourcePathListEditor;
+
+    CdbPathsPageWidget(QWidget *parent = 0);
+};
+
+CdbPathsPageWidget::CdbPathsPageWidget(QWidget *parent) :
+    QWidget(parent)
+{
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    QString title = tr("Symbol Paths");
+    m_searchKeywords.append(title);
+    QGroupBox* gbSymbolPath = new QGroupBox(this);
+    gbSymbolPath->setTitle(title);
+    QVBoxLayout *gbSymbolPathLayout = new QVBoxLayout(gbSymbolPath);
+    m_symbolPathListEditor = new CdbSymbolPathListEditor(gbSymbolPath);
+    gbSymbolPathLayout->addWidget(m_symbolPathListEditor);
+
+    title = tr("Source Paths");
+    m_searchKeywords.append(title);
+    QGroupBox* gbSourcePath = new QGroupBox(this);
+    gbSourcePath->setTitle(title);
+    QVBoxLayout *gbSourcePathLayout = new QVBoxLayout(gbSourcePath);
+    m_sourcePathListEditor = new Utils::PathListEditor(gbSourcePath);
+    gbSourcePathLayout->addWidget(m_sourcePathListEditor);
+
+    layout->addWidget(gbSymbolPath);
+    layout->addWidget(gbSourcePath);
+
+    DebuggerCore *dc = debuggerCore();
+    group.insert(dc->action(CdbSymbolPaths), m_symbolPathListEditor);
+    group.insert(dc->action(CdbSourcePaths), m_sourcePathListEditor);
+}
+
+CdbPathsPage::CdbPathsPage()
+    : m_widget(0)
+{
+    setId("F.Cdb");
+    setDisplayName(tr("CDB Paths"));
+    setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("Debugger",
+        Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+}
+
+CdbPathsPage::~CdbPathsPage()
+{
+}
+
+QWidget *CdbPathsPage::createPage(QWidget *parent)
+{
+    if (!m_widget)
+        m_widget = new CdbPathsPageWidget(parent);
+    else
+        m_widget->setParent(parent);
+    return m_widget;
+}
+
+void CdbPathsPage::apply()
+{
+    if (m_widget)
+        m_widget->group.apply(Core::ICore::settings());
+}
+
+void CdbPathsPage::finish()
+{
+    if (m_widget)
+        m_widget->group.finish();
+}
+
+bool CdbPathsPage::matches(const QString &searchKeyWord) const
+{
+    return m_widget &&
+            m_widget->m_searchKeywords.contains(searchKeyWord, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

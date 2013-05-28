@@ -60,47 +60,6 @@ InformationName InformationContainer::name() const
     return InformationName(m_name);
 }
 
-QString InformationContainer::nameAsString() const
-{
-    switch (name()) {
-        case NoName:
-            return QLatin1String("NoName");
-        case Size:
-            return QLatin1String("Size");
-        case BoundingRect:
-            return QLatin1String("BoundingRect");
-        case Transform:
-            return QLatin1String("Transform");
-        case HasAnchor:
-            return QLatin1String("HasAnchor");
-        case Anchor:
-            return QLatin1String("Anchor");
-        case InstanceTypeForProperty:
-            return QLatin1String("InstanceTypeForProperty");
-        case PenWidth:
-            return QLatin1String("PenWidth");
-        case Position:
-            return QLatin1String("Position");
-        case IsInLayoutable:
-            return QLatin1String("IsInLayoutable");
-        case SceneTransform:
-            return QLatin1String("SceneTransform");
-        case IsResizable:
-            return QLatin1String("IsResizable");
-        case IsMovable:
-            return QLatin1String("IsMovable");
-        case IsAnchoredByChildren:
-            return QLatin1String("IsAnchoredByChildren");
-        case IsAnchoredBySibling:
-            return QLatin1String("IsAnchoredBySibling");
-        case HasContent:
-            return QLatin1String("HasContent");
-        case HasBindingForProperty:
-            return QLatin1String("HasBindingForProperty");
-    }
-    return QLatin1String("Unknown");
-}
-
 QVariant InformationContainer::information() const
 {
     return m_information;

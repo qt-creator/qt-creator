@@ -314,10 +314,6 @@ void DebuggerRunConfigurationAspect::ctor()
 {
     connect(this, SIGNAL(debuggersChanged()),
             m_runConfiguration, SIGNAL(requestRunActionsUpdate()));
-    setUseCppDebugger(m_runConfiguration->target()->project()->projectLanguages().contains(
-                          ProjectExplorer::Constants::LANG_CXX));
-    setUseQmlDebugger(m_runConfiguration->target()->project()->projectLanguages().contains(
-                          ProjectExplorer::Constants::LANG_QMLJS));
 }
 
 } // namespace Debugger

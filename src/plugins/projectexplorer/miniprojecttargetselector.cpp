@@ -615,10 +615,17 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
 bool MiniProjectTargetSelector::event(QEvent *event)
 {
-    if (event->type() != QEvent::LayoutRequest)
-        return QWidget::event(event);
-    doLayout(true);
-    return true;
+    if (event->type() == QEvent::LayoutRequest) {
+        doLayout(true);
+        return true;
+    } else if (event->type() == QEvent::ShortcutOverride) {
+        if (static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
+            event->accept();
+            return true;
+        }
+    }
+    return QWidget::event(event);
+
 }
 
 class IndexSorter
@@ -1319,9 +1326,12 @@ void MiniProjectTargetSelector::keyPressEvent(QKeyEvent *ke)
 {
     if (ke->key() == Qt::Key_Return
             || ke->key() == Qt::Key_Enter
-            || ke->key() == Qt::Key_Space)
+            || ke->key() == Qt::Key_Space
+            || ke->key() == Qt::Key_Escape) {
         hide();
-    QWidget::keyPressEvent(ke);
+    } else {
+        QWidget::keyPressEvent(ke);
+    }
 }
 
 void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
@@ -1337,7 +1347,8 @@ void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
     }
     if (ke->key() == Qt::Key_Return
             || ke->key() == Qt::Key_Enter
-            || ke->key() == Qt::Key_Space)
+            || ke->key() == Qt::Key_Space
+            || ke->key() == Qt::Key_Escape)
         return;
     QWidget::keyReleaseEvent(ke);
 }

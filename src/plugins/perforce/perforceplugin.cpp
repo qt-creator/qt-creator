@@ -1530,7 +1530,7 @@ void PerforcePlugin::testLogResolving()
                 "\n"
                 "        Comment\n"
                 );
-    PerforceEditor editor(editorParameters + 1, 0);
+    PerforceEditor editor(editorParameters, 0);
     editor.testLogResolving(data, "12345", "12344");
 }
 #endif

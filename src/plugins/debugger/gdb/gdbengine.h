@@ -514,7 +514,6 @@ private: ////////// View & Data Stuff //////////
     //void handleFetchDisassemblerByMiPointPlain(const GdbResponse &response);
     //void handleFetchDisassemblerByMiRangeMixed(const GdbResponse &response);
     //void handleFetchDisassemblerByMiRangePlain(const GdbResponse &response);
-    void handleDisassemblerCheck(const GdbResponse &response);
     void handleBreakOnQFatal(const GdbResponse &response);
     DisassemblerLines parseDisassembler(const GdbResponse &response);
     DisassemblerLines parseCliDisassembler(const QByteArray &response);

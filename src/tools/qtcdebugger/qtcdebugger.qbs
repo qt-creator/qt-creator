@@ -14,7 +14,6 @@ QtcTool {
         "advapi32"
     ]
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
     Depends { name: "app_version_header" }
 

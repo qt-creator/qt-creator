@@ -31,6 +31,7 @@
 #define QBSPROJECTMANAGERPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
+#include <utils/parameteraction.h>
 
 #include <QObject>
 
@@ -67,20 +68,25 @@ public:
 private slots:
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void updateReparseQbsAction();
+    void updateBuildFileAction();
     void activeTargetChanged();
     void buildStateChanged(ProjectExplorer::Project *project);
     void parsingStateChanged();
     void buildFileContextMenu();
+    void buildFile();
 
     void reparseCurrentProject();
 
 private:
+    void buildFiles(QbsProject *project, const QStringList &files);
+
     QbsManager *m_manager;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
     QAction *m_reparseQbs;
     QAction *m_reparseQbsCtx;
     QAction *m_buildFileContextMenu;
+    Utils::ParameterAction *m_buildFile;
 
     Internal::QbsProject *m_currentProject;
     ProjectExplorer::Target *m_currentTarget;

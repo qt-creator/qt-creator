@@ -47,7 +47,6 @@ namespace Internal {
 class DisassemblerAgent;
 struct CdbBuiltinCommand;
 struct CdbExtensionCommand;
-struct CdbOptions;
 struct MemoryViewCookie;
 class ByteArrayInputStream;
 class GdbMi;
@@ -57,8 +56,6 @@ class CdbEngine : public Debugger::DebuggerEngine
     Q_OBJECT
 
 public:
-    typedef QSharedPointer<CdbOptions> OptionsPtr;
-
     enum CommandFlags { QuietCommand = 0x1 };
     // Flag bits for a sequence of commands
     enum CommandSequenceFlags {
@@ -74,7 +71,7 @@ public:
     typedef void (CdbEngine::*BuiltinCommandHandler)(const CdbBuiltinCommandPtr &);
     typedef void (CdbEngine::*ExtensionCommandHandler)(const CdbExtensionCommandPtr &);
 
-    CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &options);
+    CdbEngine(const DebuggerStartParameters &sp);
     ~CdbEngine();
 
     // Factory function that returns 0 if the debug engine library cannot be found.
@@ -247,7 +244,6 @@ private:
 
     const QByteArray m_creatorExtPrefix;
     const QByteArray m_tokenPrefix;
-    const OptionsPtr m_options;
 
     QProcess m_process;
     QScopedPointer<Utils::ConsoleProcess> m_consoleStub;

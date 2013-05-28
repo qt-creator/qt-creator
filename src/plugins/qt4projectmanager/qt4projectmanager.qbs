@@ -16,7 +16,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QmlJSTools" }
 
-    Depends { name: "cpp" }
     cpp.includePaths: base.concat([
         "customwidgetwizard",
         "../../shared",

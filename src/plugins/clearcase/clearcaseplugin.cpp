@@ -2094,7 +2094,7 @@ void ClearCasePlugin::testDiffFileResolving_data()
 
 void ClearCasePlugin::testDiffFileResolving()
 {
-    ClearCaseEditor editor(editorParameters + 3, 0);
+    ClearCaseEditor editor(editorParameters + 2, 0);
     editor.testDiffFileResolving();
 }
 
@@ -2104,7 +2104,7 @@ void ClearCasePlugin::testLogResolving()
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
                 "22-Aug.14:13   user2      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8\" (baseline3, baseline4, ...)\n"
                 );
-    ClearCaseEditor editor(editorParameters + 1, 0);
+    ClearCaseEditor editor(editorParameters, 0);
     editor.testLogResolving(data,
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9",
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8");

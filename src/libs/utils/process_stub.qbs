@@ -5,7 +5,6 @@ QtcTool {
     name: "qtcreator_process_stub"
     consoleApplication: true
 
-    Depends { name: "cpp" }
 
     files: {
         if (qbs.targetOS == "windows") {

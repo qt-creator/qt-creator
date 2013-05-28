@@ -11,7 +11,6 @@ QtcLibrary {
     ])
     cpp.optimization: "fast"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
 
     Group {
@@ -169,7 +168,6 @@ QtcLibrary {
     ]
 
     Export {
-        Depends { name: "cpp" }
         cpp.includePaths: [
             "../3rdparty"
         ]

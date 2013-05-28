@@ -9,7 +9,6 @@ QtcLibrary {
         "IDE_TEST_DIR=\".\""
     ])
 
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "widgets"] }
     Depends { name: "Aggregation" }
 

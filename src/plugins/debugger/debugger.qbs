@@ -17,7 +17,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "QtcSsh" }
 
-    Depends { name: "cpp" }
     cpp.includePaths: base.concat([
         "shared",
         "lldblib",
@@ -149,8 +148,6 @@ QtcPlugin {
         "cdb/bytearrayinputstream.h",
         "cdb/cdbengine.cpp",
         "cdb/cdbengine.h",
-        "cdb/cdboptions.cpp",
-        "cdb/cdboptions.h",
         "cdb/cdboptionspage.cpp",
         "cdb/cdboptionspage.h",
         "cdb/cdboptionspagewidget.ui",

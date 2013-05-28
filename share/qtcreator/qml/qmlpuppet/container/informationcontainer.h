@@ -54,7 +54,6 @@ public:
 
     qint32 instanceId() const;
     InformationName name() const;
-    QString nameAsString() const;
     QVariant information() const;
     QVariant secondInformation() const;
     QVariant thirdInformation() const;

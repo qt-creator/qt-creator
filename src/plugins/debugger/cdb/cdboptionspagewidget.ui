@@ -97,22 +97,6 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="symbolPathsGroupBox">
-     <property name="title">
-      <string>Symbol Paths</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3"/>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="sourcePathsGroupBox">
-     <property name="title">
-      <string>Source Paths</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_4"/>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

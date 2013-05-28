@@ -1,20 +1,23 @@
 include($$replace(_PRO_FILE_PWD_, ([^/]+$), \\1/\\1_dependencies.pri))
 TARGET = $$QTC_PLUGIN_NAME
 
+plugin_deps = $$QTC_PLUGIN_DEPENDS
+plugin_recmds = $$QTC_PLUGIN_RECOMMENDS
+
+include(../qtcreator.pri)
+
 # for substitution in the .pluginspec
 dependencyList = "<dependencyList>"
-for(dep, QTC_PLUGIN_DEPENDS) {
+for(dep, plugin_deps) {
     include($$PWD/plugins/$$dep/$${dep}_dependencies.pri)
     dependencyList += "        <dependency name=\"$$QTC_PLUGIN_NAME\" version=\"$$QTCREATOR_VERSION\"/>"
 }
-for(dep, QTC_PLUGIN_RECOMMENDS) {
+for(dep, plugin_recmds) {
     include($$PWD/plugins/$$dep/$${dep}_dependencies.pri)
     dependencyList += "        <dependency name=\"$$QTC_PLUGIN_NAME\" version=\"$$QTCREATOR_VERSION\" type=\"optional\"/>"
 }
 dependencyList += "    </dependencyList>"
 dependencyList = $$join(dependencyList, $$escape_expand(\\n))
-
-include(../qtcreator.pri)
 
 # use gui precompiled header for plugins by default
 isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.h

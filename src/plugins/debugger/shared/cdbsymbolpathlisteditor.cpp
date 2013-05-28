@@ -208,8 +208,7 @@ int CdbSymbolPathListEditor::indexOfSymbolPath(const QStringList &paths,
     return -1;
 }
 
-bool CdbSymbolPathListEditor::promptToAddSymbolPaths(const QString &settingsGroup,
-                                                     QStringList *symbolPaths)
+bool CdbSymbolPathListEditor::promptToAddSymbolPaths(QStringList *symbolPaths)
 {
     const int indexOfSymbolServer =
             CdbSymbolPathListEditor::indexOfSymbolPath(*symbolPaths, SymbolServerPath);
@@ -220,7 +219,7 @@ bool CdbSymbolPathListEditor::promptToAddSymbolPaths(const QString &settingsGrou
             || (indexOfSymbolServer != -1 && indexOfSymbolCache != -1))
         return false;
 
-    const QString nagSymbolServerKey = settingsGroup + QLatin1String("/NoPromptSymbolCache");
+    const QString nagSymbolServerKey = QLatin1String("CDB2/NoPromptSymbolCache");
     bool noFurtherNagging = Core::ICore::settings()->value(nagSymbolServerKey, false).toBool();
     if (noFurtherNagging)
         return false;

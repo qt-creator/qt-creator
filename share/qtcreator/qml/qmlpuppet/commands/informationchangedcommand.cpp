@@ -63,31 +63,4 @@ QDataStream &operator>>(QDataStream &in, InformationChangedCommand &command)
     return in;
 }
 
-QDebug operator<<(QDebug debug, const InformationChangedCommand &command)
-{
-    debug << QLatin1String("InformationChangedCommand:\n");
-    foreach (const InformationContainer &information, command.informations()) {
-        if (information.nameAsString() == "Transform" ||
-            information.nameAsString() == "IsMovable" ||
-            information.nameAsString() == "BoundingRect") {
-
-            debug << QLatin1String("instanceId: ");
-            debug << information.instanceId();
-            debug << QLatin1String("\n");
-            debug << QLatin1String("name: ");
-            debug << information.nameAsString();
-            debug << QLatin1String("\n");
-            debug << information.information();
-            debug << QLatin1String("\n");
-            debug <<  information.secondInformation();
-            debug << QLatin1String("\n");
-            debug <<  information.thirdInformation();
-            debug << QLatin1String("\n");
-            debug << QLatin1String("\n");
-        }
-    }
-
-    return debug;
-}
-
 } // namespace QmlDesigner

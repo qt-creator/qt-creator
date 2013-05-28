@@ -255,7 +255,6 @@ QtcPlugin {
     }
 
     Export {
-        Depends { name: "cpp" }
         Depends { name: "Aggregation" }
         Depends { name: "Utils" }
     }

@@ -4,7 +4,6 @@ import "../QtcTool.qbs" as QtcTool
 QtcTool {
     name: "sdktool"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.core" }
     Depends { name: "Utils" }
     Depends { name: "app_version_header" }

@@ -20,7 +20,6 @@ QtcPlugin {
     Depends { name: "Locator" }
     Depends { name: "app_version_header" }
 
-    Depends { name: "cpp" }
 
     cpp.defines: {
         var list = base;

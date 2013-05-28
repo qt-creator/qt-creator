@@ -415,6 +415,7 @@ static bool extractTemplate(const QByteArray &type, QByteArray *tmplate, QByteAr
     }
     *tmplate = tmplate->trimmed();
     tmplate->replace("<>", "");
+    tmplate->replace("'", ""); // Sometimes 'std::vector' is reported, with quotes.
     *inner = inner->trimmed();
     // qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner << " FROM " << type;
     return !inner->isEmpty();

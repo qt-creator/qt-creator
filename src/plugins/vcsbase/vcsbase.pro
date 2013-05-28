@@ -71,3 +71,4 @@ FORMS += commonsettingspage.ui \
     cleandialog.ui \
     submiteditorwidget.ui
 
+OTHER_FILES += VcsBase.mimetypes.xml

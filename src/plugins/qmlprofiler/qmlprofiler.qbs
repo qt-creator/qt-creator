@@ -20,7 +20,6 @@ QtcPlugin {
     Depends { name: "QmlJSTools" }
     Depends { name: "CPlusPlus" }
 
-    Depends { name: "cpp" }
     cpp.includePaths: base.concat("canvas")
 
     files: [

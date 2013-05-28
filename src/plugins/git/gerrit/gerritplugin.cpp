@@ -183,6 +183,7 @@ void FetchContext::start()
 
 void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
 {
+    Git::Internal::GitClient *client = Git::Internal::GitPlugin::instance()->gitClient();
     if (es != QProcess::NormalExit) {
         handleError(tr("%1 crashed.").arg(m_git));
         return;
@@ -199,16 +200,22 @@ void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
         m_progress.setProgressValue(m_progress.progressValue() + 1);
         switch (m_fetchMode) {
         case FetchDisplay:
-            m_state = WritePatchFileState;
-            startWritePatchFile();
+            if (client->settings()->boolValue(Git::Internal::GitSettings::useDiffEditorKey)) {
+                client->show(m_repository, QLatin1String("FETCH_HEAD"));
+                m_progress.reportFinished();
+                m_state = DoneState;
+                deleteLater();
+            } else {
+                m_state = WritePatchFileState;
+                startWritePatchFile();
+            }
             break;
         case FetchCherryPick:
         case FetchCheckout:
             if (m_fetchMode == FetchCherryPick) {
                 cherryPick();
             } else {
-                Git::Internal::GitPlugin::instance()->gitClient()->synchronousCheckout(
-                            m_repository, QLatin1String("FETCH_HEAD"));
+                client->synchronousCheckout(m_repository, QLatin1String("FETCH_HEAD"));
             }
             m_progress.reportFinished();
             m_state = DoneState;

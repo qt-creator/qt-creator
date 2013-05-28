@@ -8,7 +8,6 @@ QtcLibrary {
     cpp.includePaths: botanIncludes
     cpp.dynamicLibraries: botanLibs
 
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network" ] }
 
     files: [

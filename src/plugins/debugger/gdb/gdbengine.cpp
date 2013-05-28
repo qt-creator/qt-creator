@@ -1813,15 +1813,28 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         if (m_gdbVersion > 70300)
             m_hasBreakpointNotifications = true;
 
-        if (usesExecInterrupt())
-            postCommand("set target-async on", ConsoleCommand);
-        else
-            postCommand("set target-async off", ConsoleCommand);
+        if (m_gdbVersion > 70100)
+            m_disassembleUsesComma = true;
+
+        if (m_gdbVersion > 70100) {
+            if (usesExecInterrupt())
+                postCommand("set target-async on", ConsoleCommand);
+            else
+                postCommand("set target-async off", ConsoleCommand);
+        }
 
         if (startParameters().multiProcess)
             postCommand("set detach-on-fork off", ConsoleCommand);
 
-        postCommand("set build-id-verbose 2", ConsoleCommand);
+        //postCommand("set build-id-verbose 2", ConsoleCommand);
+
+        if (m_gdbVersion > 70100) {
+            // Quick check whether we have python.
+            showMessage(_("NOTE: CHECK FOR PYTHON SUPPRESSED, VERSION TOO LOW"));
+            postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
+        } else {
+            pythonDumpersFailed();
+        }
     }
 }
 
@@ -4641,11 +4654,6 @@ void GdbEngine::reloadDisassembly()
     updateLocals();
 }
 
-void GdbEngine::handleDisassemblerCheck(const GdbResponse &response)
-{
-    m_disassembleUsesComma = response.resultClass != GdbResultDone;
-}
-
 void GdbEngine::handleFetchDisassemblerByCliPointMixed(const GdbResponse &response)
 {
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
@@ -4851,14 +4859,6 @@ void GdbEngine::startGdb(const QStringList &args)
     postCommand("set remotecache on", ConsoleCommand);
     //postCommand("set non-stop on", ConsoleCommand);
 
-    // Work around https://bugreports.qt-project.org/browse/QTCREATORBUG-2004
-    postCommand("maintenance set internal-warning quit no", ConsoleCommand);
-    postCommand("maintenance set internal-error quit no", ConsoleCommand);
-
-    showMessage(_("THE FOLLOWING COMMAND CHECKS AVAILABLE FEATURES. "
-                  "AN ERROR IS EXPECTED."));
-    postCommand("disassemble 0 0", ConsoleCommand, CB(handleDisassemblerCheck));
-
     typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
     typedef SourcePathMap::const_iterator SourcePathMapIterator;
 
@@ -4916,12 +4916,10 @@ void GdbEngine::startGdb(const QStringList &args)
         postCommand("set detach-on-fork off");
     }
 
-    // Quick check whether we have python.
-    postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
-
     // Dummy command to guarantee a roundtrip before the adapter proceed.
     // Make sure this stays the last command in startGdb().
-    postCommand("pwd", ConsoleCommand, CB(reportEngineSetupOk));
+    // Don't use ConsoleCommand, otherwise Mac won't markup the output.
+    postCommand("pwd", CB(reportEngineSetupOk));
 }
 
 void GdbEngine::reportEngineSetupOk(const GdbResponse &response)
