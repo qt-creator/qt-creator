@@ -35,3 +35,5 @@ FORMS += checkoutdialog.ui \
     versionselector.ui
 
 RESOURCES += clearcase.qrc
+
+OTHER_FILES += ClearCase.mimetypes.xml

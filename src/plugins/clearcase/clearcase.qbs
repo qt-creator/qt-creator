@@ -17,6 +17,7 @@ QtcPlugin {
     Depends { name: "Locator" }
 
     files: [
+        "ClearCase.mimetypes.xml",
         "activityselector.cpp",
         "activityselector.h",
         "annotationhighlighter.cpp",

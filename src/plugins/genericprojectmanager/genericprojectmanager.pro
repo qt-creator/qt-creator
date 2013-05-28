@@ -26,4 +26,4 @@ SOURCES = genericproject.cpp \
 RESOURCES += genericproject.qrc
 FORMS += genericmakestep.ui
 
-
+OTHER_FILES += GenericProject.mimetypes.xml

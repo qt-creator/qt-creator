@@ -16,6 +16,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
+        "GenericProject.mimetypes.xml",
         "filesselectionwizardpage.cpp",
         "filesselectionwizardpage.h",
         "genericbuildconfiguration.cpp",
