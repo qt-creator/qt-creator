@@ -62,7 +62,7 @@ bool VcProjectFile::save(QString *errorString, const QString &fileName, bool aut
 
 QString VcProjectFile::fileName() const
 {
-    return QFileInfo(m_filePath).fileName();
+    return m_filePath;
 }
 
 QString VcProjectFile::defaultPath() const
