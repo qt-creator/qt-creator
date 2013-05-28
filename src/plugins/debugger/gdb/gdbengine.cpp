@@ -1813,6 +1813,9 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         if (m_gdbVersion > 70300)
             m_hasBreakpointNotifications = true;
 
+        if (m_gdbVersion > 70100)
+            m_disassembleUsesComma = true;
+
         if (usesExecInterrupt())
             postCommand("set target-async on", ConsoleCommand);
         else
@@ -4641,11 +4644,6 @@ void GdbEngine::reloadDisassembly()
     updateLocals();
 }
 
-void GdbEngine::handleDisassemblerCheck(const GdbResponse &response)
-{
-    m_disassembleUsesComma = response.resultClass != GdbResultDone;
-}
-
 void GdbEngine::handleFetchDisassemblerByCliPointMixed(const GdbResponse &response)
 {
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
@@ -4850,10 +4848,6 @@ void GdbEngine::startGdb(const QStringList &args)
 
     postCommand("set remotecache on", ConsoleCommand);
     //postCommand("set non-stop on", ConsoleCommand);
-
-    showMessage(_("THE FOLLOWING COMMAND CHECKS AVAILABLE FEATURES. "
-                  "AN ERROR IS EXPECTED."));
-    postCommand("disassemble 0 0", ConsoleCommand, CB(handleDisassemblerCheck));
 
     typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
     typedef SourcePathMap::const_iterator SourcePathMapIterator;
