@@ -248,7 +248,8 @@ void CdbOptionsPage::apply()
 
 void CdbOptionsPage::finish()
 {
-    m_widget->group.finish();
+    if (m_widget)
+        m_widget->group.finish();
 }
 
 bool CdbOptionsPage::matches(const QString &s) const
