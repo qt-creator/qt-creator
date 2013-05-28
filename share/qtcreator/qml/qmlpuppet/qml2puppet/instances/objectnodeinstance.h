@@ -44,6 +44,7 @@ class QQmlContext;
 class QQmlEngine;
 class QQmlProperty;
 class QQmlAbstractBinding;
+class QQuickItem;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -104,12 +105,14 @@ public:
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
 
     virtual QRectF boundingRect() const;
+    virtual QRectF contentItemBoundingBox() const;
 
     virtual QPointF position() const;
     virtual QSizeF size() const;
     virtual QTransform transform() const;
     virtual QTransform contentTransform() const;
     virtual QTransform customTransform() const;
+    virtual QTransform contentItemTransform() const;
     virtual QTransform sceneTransform() const;
     virtual double opacity() const;
 
@@ -153,6 +156,7 @@ public:
     void setResetValue(const PropertyName &propertyName, const QVariant &value);
 
     QObject *object() const;
+    virtual QQuickItem *contentItem() const;
 
     virtual bool hasContent() const;
     virtual bool isResizable() const;

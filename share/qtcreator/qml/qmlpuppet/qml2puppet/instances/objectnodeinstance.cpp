@@ -255,6 +255,11 @@ QTransform ObjectNodeInstance::customTransform() const
     return QTransform();
 }
 
+QTransform ObjectNodeInstance::contentItemTransform() const
+{
+    return QTransform();
+}
+
 QTransform ObjectNodeInstance::sceneTransform() const
 {
     return QTransform();
@@ -1064,6 +1069,11 @@ QObject *ObjectNodeInstance::object() const
         return 0;
 }
 
+QQuickItem *ObjectNodeInstance::contentItem() const
+{
+    return 0;
+}
+
 bool ObjectNodeInstance::hasContent() const
 {
     return false;
@@ -1210,7 +1220,12 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::parentInstance() const
 
 QRectF ObjectNodeInstance::boundingRect() const
 {
-    return QRect();
+    return QRectF();
+}
+
+QRectF ObjectNodeInstance::contentItemBoundingBox() const
+{
+    return QRectF();
 }
 
 QPointF ObjectNodeInstance::position() const

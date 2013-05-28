@@ -72,8 +72,9 @@ private:
     QWeakPointer<FormEditorView> m_view;
     QList<QGraphicsItem*> m_graphicsLineList;
     ResizeController m_resizeController; // hold the controller so that the handle cant be deleted
-    QTransform m_beginFromSceneTransform;
-    QTransform m_beginToSceneTransform;
+    QTransform m_beginFromSceneToContentItemTransform;
+    QTransform m_beginFromContentItemToSceneTransform;
+    QTransform m_beginFromItemToSceneTransform;
     QTransform m_beginToParentTransform;
     QRectF m_beginBoundingRect;
     QPointF m_beginBottomRightPoint;

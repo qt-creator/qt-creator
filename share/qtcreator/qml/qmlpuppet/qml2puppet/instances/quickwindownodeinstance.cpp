@@ -88,7 +88,6 @@ QuickWindowNodeInstance::Pointer QuickWindowNodeInstance::create(QObject *object
     QQuickItemPrivate *privateItem = static_cast<QQuickItemPrivate*>(QObjectPrivate::get(quickWindow->contentItem()));
 
     if (privateItem->window) {
-        qDebug() << "removing from window";
         if (!privateItem->parentItem)
             QQuickWindowPrivate::get(privateItem->window)->parentlessItems.remove(quickWindow->contentItem());
         privateItem->derefWindow();

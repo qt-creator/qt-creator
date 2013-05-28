@@ -444,6 +444,11 @@ QmlObjectNode QmlObjectNode::nodeForInstance(const NodeInstance &instance) const
     return QmlObjectNode(ModelNode(instance.modelNode(), qmlModelView()));
 }
 
+QmlItemNode QmlObjectNode::itemForInstance(const NodeInstance &instance) const
+{
+    return QmlItemNode(ModelNode(instance.modelNode(), qmlModelView()));
+}
+
 bool QmlObjectNode::hasNodeParent() const
 {
     return modelNode().hasParentProperty();
@@ -452,6 +457,13 @@ bool QmlObjectNode::hasNodeParent() const
 bool QmlObjectNode::hasInstanceParent() const
 {
     return nodeInstance().parentId() >= 0 && qmlModelView()->nodeInstanceView()->hasInstanceForId(nodeInstance().parentId());
+}
+
+bool QmlObjectNode::hasInstanceParentItem() const
+{
+    return nodeInstance().parentId() >= 0
+            && qmlModelView()->nodeInstanceView()->hasInstanceForId(nodeInstance().parentId())
+            && QmlItemNode::isItemOrWindow(qmlModelView()->modelNodeForInternalId(nodeInstance().parentId()));
 }
 
 
@@ -466,6 +478,14 @@ QmlObjectNode QmlObjectNode::instanceParent() const
         return nodeForInstance(qmlModelView()->nodeInstanceView()->instanceForId(nodeInstance().parentId()));
 
     return QmlObjectNode();
+}
+
+QmlItemNode QmlObjectNode::instanceParentItem() const
+{
+    if (hasInstanceParentItem())
+        return itemForInstance(qmlModelView()->nodeInstanceView()->instanceForId(nodeInstance().parentId()));
+
+    return QmlItemNode();
 }
 
 void QmlObjectNode::setId(const QString &id)

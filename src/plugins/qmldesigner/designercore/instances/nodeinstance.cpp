@@ -53,10 +53,12 @@ public:
     qint32 parentInstanceId;
     ModelNode modelNode;
     QRectF boundingRect;
+    QRectF contentItemBoundingRect;
     QPointF position;
     QSizeF size;
     QTransform transform;
     QTransform contentTransform;
+    QTransform contentItemTransform;
     QTransform sceneTransform;
     int penWidth;
     bool isAnchoredBySibling;
@@ -144,6 +146,14 @@ QRectF NodeInstance::boundingRect() const
         return QRectF();
 }
 
+QRectF NodeInstance::contentItemBoundingRect() const
+{
+    if (isValid())
+        return  d->contentItemBoundingRect;
+    else
+        return QRectF();
+}
+
 bool NodeInstance::hasContent() const
 {
     if (isValid())
@@ -196,6 +206,14 @@ QTransform NodeInstance::contentTransform() const
 {
     if (isValid())
         return d->contentTransform;
+    else
+        return QTransform();
+}
+
+QTransform NodeInstance::contentItemTransform() const
+{
+    if (isValid())
+        return d->contentItemTransform;
     else
         return QTransform();
 }
@@ -333,6 +351,16 @@ InformationName NodeInstance::setInformationBoundingRect(const QRectF &rectangle
     return NoInformationChange;
 }
 
+InformationName NodeInstance::setInformationContentItemBoundingRect(const QRectF &rectangle)
+{
+    if (d->contentItemBoundingRect != rectangle) {
+        d->contentItemBoundingRect = rectangle;
+        return ContentItemBoundingRect;
+    }
+
+    return NoInformationChange;
+}
+
 InformationName NodeInstance::setInformationTransform(const QTransform &transform)
 {
     if (d->transform != transform) {
@@ -348,6 +376,16 @@ InformationName NodeInstance::setInformationContentTransform(const QTransform &c
     if (d->contentTransform != contentTransform) {
         d->contentTransform = contentTransform;
         return ContentTransform;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationContentItemTransform(const QTransform &contentItemTransform)
+{
+    if (d->contentItemTransform != contentItemTransform) {
+        d->contentItemTransform = contentItemTransform;
+        return ContentItemTransform;
     }
 
     return NoInformationChange;
@@ -489,8 +527,10 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
     switch (name) {
     case Size: return setInformationSize(information.toSizeF());
     case BoundingRect: return setInformationBoundingRect(information.toRectF());
+    case ContentItemBoundingRect: setInformationContentItemBoundingRect(information.toRectF());
     case Transform: return setInformationTransform(information.value<QTransform>());
     case ContentTransform: return setInformationContentTransform(information.value<QTransform>());
+    case ContentItemTransform: return setInformationContentItemTransform(information.value<QTransform>());
     case PenWidth: return setInformationPenWith(information.toInt());
     case Position: return setInformationPosition(information.toPointF());
     case IsInLayoutable: return setInformationIsInLayoutable(information.toBool());

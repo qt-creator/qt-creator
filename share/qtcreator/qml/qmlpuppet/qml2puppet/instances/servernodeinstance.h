@@ -105,12 +105,14 @@ public:
     bool equalGraphicsItem(QGraphicsItem *item) const;
 
     QRectF boundingRect() const;
+    QRectF contentItemBoundingRect() const;
     QPointF position() const;
     QSizeF size() const;
     QTransform transform() const;
     QTransform customTransform() const;
     QTransform sceneTransform() const;
     QTransform contentTransform() const;
+    QTransform contentItemTransform() const;
     double rotation() const;
     double scale() const;
     QList<QGraphicsTransform *> transformations() const;
@@ -156,7 +158,6 @@ public:
     QString id() const;
     qint32 instanceId() const;
 
-    QObject* testHandle() const;
     QSharedPointer<Internal::ObjectNodeInstance> internalInstance() const;
 
     QList<ServerNodeInstance> stateInstances() const;

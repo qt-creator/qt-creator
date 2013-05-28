@@ -315,6 +315,11 @@ QRectF ServerNodeInstance::boundingRect() const
     return boundingRect;
 }
 
+QRectF ServerNodeInstance::contentItemBoundingRect() const
+{
+    return m_nodeInstance->contentItemBoundingBox();
+}
+
 void ServerNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     m_nodeInstance->setPropertyVariant(name, value);
@@ -515,6 +520,11 @@ QTransform ServerNodeInstance::contentTransform() const
     return m_nodeInstance->contentTransform();
 }
 
+QTransform ServerNodeInstance::contentItemTransform() const
+{
+    return m_nodeInstance->contentItemTransform();
+}
+
 double ServerNodeInstance::rotation() const
 {
     return m_nodeInstance->rotation();
@@ -629,11 +639,6 @@ qint32 ServerNodeInstance::instanceId() const
     } else {
         return -1;
     }
-}
-
-QObject* ServerNodeInstance::testHandle() const
-{
-    return internalObject();
 }
 
 QList<ServerNodeInstance> ServerNodeInstance::stateInstances() const
