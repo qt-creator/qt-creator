@@ -4851,10 +4851,6 @@ void GdbEngine::startGdb(const QStringList &args)
     postCommand("set remotecache on", ConsoleCommand);
     //postCommand("set non-stop on", ConsoleCommand);
 
-    // Work around https://bugreports.qt-project.org/browse/QTCREATORBUG-2004
-    postCommand("maintenance set internal-warning quit no", ConsoleCommand);
-    postCommand("maintenance set internal-error quit no", ConsoleCommand);
-
     showMessage(_("THE FOLLOWING COMMAND CHECKS AVAILABLE FEATURES. "
                   "AN ERROR IS EXPECTED."));
     postCommand("disassemble 0 0", ConsoleCommand, CB(handleDisassemblerCheck));
