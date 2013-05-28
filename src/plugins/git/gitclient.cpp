@@ -1116,15 +1116,16 @@ static inline QString msgCannotShow(const QString &sha)
     return GitClient::tr("Cannot describe \"%1\".").arg(sha);
 }
 
-void GitClient::show(const QString &source, const QString &id, const QStringList &args)
+void GitClient::show(const QString &source, const QString &id,
+                     const QStringList &args, const QString &name)
 {
     if (!canShow(id)) {
         outputWindow()->append(msgCannotShow(id));
         return;
     }
 
+    QString title = tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
     if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
-        QString title = tr("Git Show \"%1\"").arg(id);
         const Core::Id editorId = DiffEditor::Constants::DIFF_EDITOR_ID;
 
         DiffEditor::DiffEditorEditable *editorEditable = findExistingDiffEditor("show", id);
@@ -1140,7 +1141,6 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
         GitDiffHandler *handler = new GitDiffHandler(editorEditable, gitBinaryPath(), source, processEnvironment(), timeout);
         handler->show(id);
     } else {
-        const QString title = tr("Git Show \"%1\"").arg(id);
         const Core::Id editorId = Git::Constants::GIT_DIFF_EDITOR_ID;
         VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("show", id);
         if (!editor)

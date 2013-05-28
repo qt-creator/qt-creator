@@ -320,7 +320,8 @@ public:
     static const char *decorateOption;
 
 public slots:
-    void show(const QString &source, const QString &id, const QStringList &args = QStringList());
+    void show(const QString &source, const QString &id,
+              const QStringList &args = QStringList(), const QString &name = QString());
     void saveSettings();
 
 private slots:
