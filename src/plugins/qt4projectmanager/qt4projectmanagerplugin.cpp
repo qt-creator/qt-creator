@@ -421,7 +421,7 @@ void Qt4ProjectManagerPlugin::updateBuildFileAction()
         ProjectExplorer::SessionManager *session = m_projectExplorer->session();
         ProjectExplorer::Node *node  = session->nodeForFile(file);
         ProjectExplorer::Project *project = session->projectForFile(file);
-        m_buildFileAction->setParameter(file);
+        m_buildFileAction->setParameter(QFileInfo(file).fileName());
         visible = qobject_cast<Qt4Project *>(project)
                 && qobject_cast<Qt4ProFileNode *>(node->projectNode());
 
