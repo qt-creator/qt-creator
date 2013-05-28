@@ -33,14 +33,14 @@ def handleDebuggerWarnings(config, isMsvcBuild=False):
     if isMsvcBuild:
         try:
             popup = waitForObject("{name='msgLabel' text?='<html><head/><body>*' type='QLabel' visible='1' window=':Dialog_Debugger::Internal::SymbolPathsDialog'}", 10000)
-            symServerNotConfiged = ("<html><head/><body>\n<p>The debugger is not configured to use the public "
-                                    "Microsoft Symbol Server.<br>"
-                                    "This is recommended for retrieval of the symbols of the operating system libraries.</p>\n"
-                                    "<p><span style=\" font-style:italic;\">Note:</span> It is recommended, that if you use the Microsoft Symbol Server,  "
-                                    "to also use a local symbol cache.<br>"
-                                    "Also, a fast internet connection is required for this to work smoothly,<br>"
-                                    "and a delay might occur when connecting for the first time, when caching the symbols for the first time.</p>\n"
-                                    "<p>Would you like to set it up?</p>\n</body></html>")
+            symServerNotConfiged = ("<html><head/><body><p>The debugger is not configured to use the public "
+                                    "Microsoft Symbol Server.<br/>"
+                                    "This is recommended for retrieval of the symbols of the operating system libraries.</p>"
+                                    "<p><span style=\" font-style:italic;\">Note:</span> It is recommended, that if you use the Microsoft Symbol Server, "
+                                    "to also use a local symbol cache.<br/>"
+                                    "A fast internet connection is required for this to work smoothly,<br/>"
+                                    "and a delay might occur when connecting for the first time and caching the symbols.</p>"
+                                    "<p>What would you like to set up?</p></body></html>")
             if popup.text == symServerNotConfiged:
                 test.log("Creator warned about the debugger not being configured to use the public Microsoft Symbol Server.")
             else:
