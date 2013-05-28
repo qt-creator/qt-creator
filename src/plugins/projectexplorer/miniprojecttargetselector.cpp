@@ -1327,9 +1327,11 @@ void MiniProjectTargetSelector::keyPressEvent(QKeyEvent *ke)
     if (ke->key() == Qt::Key_Return
             || ke->key() == Qt::Key_Enter
             || ke->key() == Qt::Key_Space
-            || ke->key() == Qt::Key_Escape)
+            || ke->key() == Qt::Key_Escape) {
         hide();
-    QWidget::keyPressEvent(ke);
+    } else {
+        QWidget::keyPressEvent(ke);
+    }
 }
 
 void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
