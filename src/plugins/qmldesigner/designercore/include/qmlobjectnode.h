@@ -72,6 +72,8 @@ public:
     bool instanceHasBinding(const PropertyName &name) const;
     bool propertyAffectedByCurrentState(const PropertyName &name) const;
     QVariant modelValue(const PropertyName &name) const;
+    bool isTranslatableText(const PropertyName &name) const;
+    QString stripedTranslatableText(const PropertyName &name) const;
     QString expression(const PropertyName &name) const;
     bool isInBaseState() const;
     QmlPropertyChanges propertyChangeForCurrentState() const;
@@ -97,6 +99,8 @@ public:
     PropertyName defaultProperty() const;
 
     static  QVariant instanceValue(const ModelNode &modelNode, const PropertyName &name);
+
+    static QString generateTranslatableText(const QString& text);
 
 protected:
     NodeInstance nodeInstance() const;

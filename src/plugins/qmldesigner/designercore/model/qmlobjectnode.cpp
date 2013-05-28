@@ -175,6 +175,34 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
     return propertyChanges.modelNode().variantProperty(name).value();
 }
 
+bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
+{
+    if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name))
+        if (modelNode().metaInfo().propertyTypeName(name) == "QString" || modelNode().metaInfo().propertyTypeName(name) == "string") {
+            if (modelNode().hasBindingProperty(name)) {
+                static QRegExp regularExpressionPatter("qsTr\\((\".*\")\\)");
+                return regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression());
+            }
+
+            return false;
+        }
+
+    return false;
+}
+
+QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
+{
+    if (modelNode().hasBindingProperty(name)) {
+        static QRegExp regularExpressionPatter("qsTr\\(\"(.*)\"\\)");
+        if (regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression()))
+            return regularExpressionPatter.cap(1);
+    } else {
+        return modelNode().variantProperty(name).value().toString();
+    }
+
+    return QString();
+}
+
 QString QmlObjectNode::expression(const PropertyName &name) const
 {
     if (!isValid())
@@ -385,6 +413,11 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     Q_ASSERT(modelView->hasInstanceForModelNode(modelNode));
     return modelView->instanceForModelNode(modelNode).property(name);
+}
+
+QString QmlObjectNode::generateTranslatableText(const QString &text)
+{
+    return QString("qsTr(\"%1\")").arg(text);
 }
 
 TypeName QmlObjectNode::instanceType(const PropertyName &name) const
