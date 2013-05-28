@@ -34,5 +34,3 @@ SOURCES += qmlproject.cpp \
     qmlapplicationwizard.cpp
 
 RESOURCES += qmlproject.qrc
-
-OTHER_FILES += QmlProject.mimetypes.xml

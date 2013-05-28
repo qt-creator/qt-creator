@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "Locator" }
 
     files: [
-        "Perforce.mimetypes.xml",
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
         "changenumberdialog.cpp",

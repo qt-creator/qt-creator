@@ -63,6 +63,3 @@ FORMS   +=  \
 
 RESOURCES += \
     qtsupport.qrc
-
-OTHER_FILES += \
-    QtSupport.mimetypes.xml

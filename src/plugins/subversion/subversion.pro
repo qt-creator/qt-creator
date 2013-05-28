@@ -24,5 +24,3 @@ SOURCES += annotationhighlighter.cpp \
 FORMS += settingspage.ui
 
 RESOURCES += subversion.qrc
-
-OTHER_FILES += Subversion.mimetypes.xml

@@ -72,7 +72,7 @@ const char EN_PY_CPPMODULE_DESCRIPTION[] =
  * MIME type
  ******************************************************************************/
 const char C_PY_MIMETYPE[] = "text/x-python";
-const char RC_PY_MIME_XML[] = ":/pythoneditor/pythoneditor.mimetypes.xml";
+const char RC_PY_MIME_XML[] = ":/pythoneditor/PythonEditor.mimetypes.xml";
 const char C_PY_MIME_ICON[] = "text-x-python";
 
 } // namespace Constants

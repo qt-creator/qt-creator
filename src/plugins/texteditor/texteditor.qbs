@@ -18,7 +18,6 @@ QtcPlugin {
     ])
 
     files: [
-        "TextEditor.mimetypes.xml",
         "autocompleter.cpp",
         "autocompleter.h",
         "basefilefind.cpp",

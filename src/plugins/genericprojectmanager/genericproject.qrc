@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/genericproject" >
-        <file>GenericProject.mimetypes.xml</file>
+        <file>GenericProjectManager.mimetypes.xml</file>
     </qresource>
 </RCC>

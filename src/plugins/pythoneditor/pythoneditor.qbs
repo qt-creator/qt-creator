@@ -15,7 +15,6 @@ QtcPlugin {
     files: [
         "pythoneditor.cpp",
         "pythoneditor.h",
-        "pythoneditor.mimetypes.xml",
         "pythoneditor_global.h",
         "pythoneditorconstants.h",
         "pythoneditorfactory.cpp",

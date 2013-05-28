@@ -36,7 +36,6 @@ SOURCES += cppeditorplugin.cpp \
     cpptypehierarchy.cpp
 
 RESOURCES += cppeditor.qrc
-OTHER_FILES += CppEditor.mimetypes.xml
 
 equals(TEST, 1) {
     SOURCES += \

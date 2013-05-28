@@ -26,5 +26,3 @@ SOURCES += annotationhighlighter.cpp \
 FORMS += settingspage.ui
 
 RESOURCES += cvs.qrc
-
-OTHER_FILES += CVS.mimetypes.xml

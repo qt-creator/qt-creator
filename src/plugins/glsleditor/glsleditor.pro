@@ -31,5 +31,4 @@ glslhoverhandler.cpp \
     glslcompletionassist.cpp \
     reuse.cpp
 
-OTHER_FILES += GLSLEditor.mimetypes.xml
 RESOURCES += glsleditor.qrc

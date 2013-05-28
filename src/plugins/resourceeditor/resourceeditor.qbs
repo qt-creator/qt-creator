@@ -12,7 +12,6 @@ QtcPlugin {
     cpp.includePaths: base.concat("qrceditor")
 
     files: [
-        "ResourceEditor.mimetypes.xml",
         "resourceeditor.qrc",
         "resourceeditorconstants.h",
         "resourceeditorfactory.cpp",

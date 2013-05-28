@@ -71,7 +71,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
 
     Core::MimeDatabase *mimeDB = ICore::mimeDatabase();
 
-    const QLatin1String mimetypesXml(":genericproject/GenericProject.mimetypes.xml");
+    const QLatin1String mimetypesXml(":genericproject/GenericProjectManager.mimetypes.xml");
 
     if (! mimeDB->addMimeTypes(mimetypesXml, errorMessage))
         return false;

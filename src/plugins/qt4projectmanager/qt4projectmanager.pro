@@ -146,5 +146,3 @@ RESOURCES += qt4projectmanager.qrc \
 
 include(qt-desktop/qt-desktop.pri)
 include(customwidgetwizard/customwidgetwizard.pri)
-
-OTHER_FILES += Qt4ProjectManager.mimetypes.xml

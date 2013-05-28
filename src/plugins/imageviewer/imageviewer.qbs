@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "Core" }
 
     files: [
-        "ImageViewer.mimetypes.xml",
         "imageview.cpp",
         "imageview.h",
         "imageviewer.cpp",

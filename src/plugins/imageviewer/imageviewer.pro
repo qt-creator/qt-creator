@@ -20,9 +20,6 @@ SOURCES += \
 RESOURCES += \
     imageviewer.qrc
 
-OTHER_FILES += \
-    ImageViewer.mimetypes.xml
-
 greaterThan(QT_MAJOR_VERSION, 4) {
     !isEmpty(QT.svg.name): QT += svg
     else: DEFINES += QT_NO_SVG

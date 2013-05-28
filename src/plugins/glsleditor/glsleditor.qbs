@@ -14,7 +14,6 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
 
     files: [
-        "GLSLEditor.mimetypes.xml",
         "glslautocompleter.cpp",
         "glslautocompleter.h",
         "glslcompletionassist.cpp",

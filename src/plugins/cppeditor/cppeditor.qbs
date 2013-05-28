@@ -17,7 +17,6 @@ QtcPlugin {
     cpp.includePaths: base.concat("../../libs/3rdparty")
 
     files: [
-        "CppEditor.mimetypes.xml",
         "cppautocompleter.cpp",
         "cppautocompleter.h",
         "cppclasswizard.cpp",

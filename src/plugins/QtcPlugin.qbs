@@ -45,6 +45,11 @@ Product {
     }
 
     Group {
+        name: "MimeTypes"
+        files: [ "*.mimetypes.xml" ]
+    }
+
+    Group {
         fileTagsFilter: product.type
         qbs.install: true
         qbs.installDir: project.ide_plugin_path + "/" + provider

@@ -237,5 +237,3 @@ FORMS += \
     tabsettingswidget.ui \
     codestyleselectorwidget.ui
 RESOURCES += texteditor.qrc
-OTHER_FILES += TextEditor.mimetypes.xml
-

@@ -32,5 +32,3 @@ SOURCES = autotoolsprojectplugin.cpp\
           makefileparserthread.cpp\
           makefileparser.cpp
 RESOURCES += autotoolsproject.qrc
-
-OTHER_FILES += AutotoolsProject.mimetypes.xml

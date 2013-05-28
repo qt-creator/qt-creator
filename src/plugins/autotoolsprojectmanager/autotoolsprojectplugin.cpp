@@ -59,7 +59,7 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
 {
     Q_UNUSED(arguments);
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":autotoolsproject/AutotoolsProject.mimetypes.xml"), errorString))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":autotoolsproject/AutotoolsProjectManager.mimetypes.xml"), errorString))
         return false;
 
     addAutoReleasedObject(new AutotoolsBuildConfigurationFactory);

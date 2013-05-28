@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     files: [
-        "TaskList.mimetypes.xml",
         "stopmonitoringhandler.cpp",
         "stopmonitoringhandler.h",
         "taskfile.cpp",

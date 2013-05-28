@@ -34,7 +34,3 @@ SOURCES = cmakeproject.cpp \
     cmakevalidator.cpp
 
 RESOURCES += cmakeproject.qrc
-
-FORMS +=
-
-OTHER_FILES += CMakeProject.mimetypes.xml
