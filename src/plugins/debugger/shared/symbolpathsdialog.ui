@@ -44,11 +44,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;
-&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server,  to also use a local symbol cache.&lt;br&gt;Also, a fast internet connection is required for this to work smoothly,&lt;br&gt;and a delay might occur when connecting for the first time, when caching the symbols for the first time.&lt;/p&gt;
-&lt;p&gt;Would you like to set it up?&lt;/p&gt;
-&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br/&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server, to also use a local symbol cache.&lt;br/&gt;A fast internet connection is required for this to work smoothly,&lt;br/&gt;and a delay might occur when connecting for the first time and caching the symbols.&lt;/p&gt;&lt;p&gt;What would you like to set up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="textFormat">
         <enum>Qt::RichText</enum>
