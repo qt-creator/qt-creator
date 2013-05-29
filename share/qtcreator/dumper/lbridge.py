@@ -689,63 +689,34 @@ class Dumper:
         self.executable_ = executable
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(executable, None, None, True, error)
+        self.listener = self.target.GetDebugger().GetListener()
+        self.process = self.target.Launch(self.listener, None, None,
+                                            None, None, None,
+                                            None, 0, True, error)
+        self.broadcaster = self.process.GetBroadcaster()
+        rc = self.broadcaster.AddListener(self.listener, 15)
+        if rc != 15:
+            warn("ADDING LISTENER FAILED: %s" % rc)
+
+        self.importDumpers()
+
         if self.target.IsValid():
             self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, executable))
         else:
             self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, executable))
-        self.importDumpers()
 
-        if False:
-            self.process = self.target.LaunchSimple(None, None, os.getcwd())
-            self.broadcaster = self.process.GetBroadcaster()
-            self.listener = lldb.SBListener('my listener')
-            rc = self.broadcaster.AddListener(self.listener, 15)
-            warn("ADD LISTENER: %s" % rc)
-        if True:
-            self.listener = self.target.GetDebugger().GetListener()
-            self.process = self.target.Launch(self.listener, None, None,
-                                                None, None, None,
-                                                None, 0, True, error)
-            self.broadcaster = self.process.GetBroadcaster()
-            rc = self.broadcaster.AddListener(self.listener, 15)
-            warn("ADD LISTENER: %s" % rc)
-            #self.process = self.target.Launch(self.listener, None, None,
-            #                                    None, None, None,
-            #                                    os.getcwd(),
-            #          lldb.eLaunchFlagExec
-            #        + lldb.eLaunchFlagDebug
-            #        #+ lldb.eLaunchFlagDebug
-            #        #+ lldb.eLaunchFlagStopAtEntry
-            #        #+ lldb.eLaunchFlagDisableSTDIO
-            #        #+ lldb.eLaunchFlagLaunchInSeparateProcessGroup
-            #    , False, error)
-            #self.reportError(error)
-        warn("STATE AFTER LAUNCH: %s" % self.process.GetState())
         warn("STATE AFTER LAUNCH: %s" % stateNames[self.process.GetState()])
 
     def runEngine(self, _):
         error = lldb.SBError()
-        #launchInfo = lldb.SBLaunchInfo(["-s"])
-        #self.process = self.target.Launch(self.listener, None, None,
-        #                                    None, None, None,
-        #                                    None, 0, True, error)
-        #self.listener = lldb.SBListener("event_Listener")
-        #self.process = self.target.Launch(self.listener, None, None,
-        #                                    None, None, None,
-        #                                    os.getcwd(),
-        #          lldb.eLaunchFlagExec
-        #        + lldb.eLaunchFlagDebug
-        #        #+ lldb.eLaunchFlagDebug
-        #        #+ lldb.eLaunchFlagStopAtEntry
-        #        #+ lldb.eLaunchFlagDisableSTDIO
-        #        #+ lldb.eLaunchFlagLaunchInSeparateProcessGroup
-        #    , False, error)
         self.pid = self.process.GetProcessID()
         self.report('pid="%s"' % self.pid)
-        self.report('state="enginerunandinferiorstopok"')
+        self.consumeEvents()
         error = self.process.Continue()
-        #self.reportError(error)
-        #self.report('state="enginerunandinferiorstopok"')
+        self.consumeEvents()
+        self.reportError(error)
+
+        self.report('state="enginerunandinferiorrunok"')
 
         if self.useLoop:
             s = threading.Thread(target=self.loop, args=[])
@@ -1271,6 +1242,10 @@ class Dumper:
 
     def updateData(self, args):
         self.expandedINames = set(args['expanded'].split(','))
+        self.autoDerefPointers = int(args['autoderef'])
+        self.useDynamicType = int(args['dyntype'])
+        # Keep always True for now.
+        #self.passExceptions = args['pe']
         self.reportData()
 
     def disassemble(self, args):
@@ -1328,6 +1303,13 @@ class Dumper:
             cont = args['continuation']
             self.report('continuation="%s"' % cont)
 
+    def consumeEvents(self):
+        event = lldb.SBEvent()
+        if self.listener and self.listener.PeekAtNextEvent(event):
+            self.listener.GetNextEvent(event)
+            self.handleEvent(event)
+
+
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 execfile(os.path.join(currentDir, "qttypes.py"))
 
@@ -1339,21 +1321,15 @@ def doit1():
     db.report('state="enginesetupok"')
 
     while True:
-        readable, _, _ = select.select([sys.stdin], [], [], 0.1)
-        event = lldb.SBEvent()
-        if db.listener and db.listener.PeekAtNextEvent(event):
-            db.listener.GetNextEvent(event)
-            db.handleEvent(event)
+        db.consumeEvents()
 
+        readable, _, _ = select.select([sys.stdin], [], [], 0.1)
         if sys.stdin in readable:
             line = raw_input()
             if line.startswith("db "):
                 db.execute(eval(line[3:]))
 
-        event = lldb.SBEvent()
-        if db.listener and db.listener.PeekAtNextEvent(event):
-            db.listener.GetNextEvent(event)
-            db.handleEvent(event)
+        db.consumeEvents()
 
 def doit2():
 
