@@ -78,7 +78,6 @@ private slots:
     void buildingDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
-    void handleWarningReport(const qbs::Error &error);
     void handleCommandDescriptionReport(const QString &highlight, const QString &message);
     void handleProcessResultReport(const qbs::ProcessResult &result);
 
