@@ -248,7 +248,7 @@ int ReadOnlyFilesDialog::exec()
     if (QDialog::exec() != QDialog::Accepted)
         return RO_Cancel;
 
-    ReadOnlyResult result;
+    ReadOnlyResult result = RO_Cancel;
     QStringList failedToMakeWritable;
     foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile buttengroup, d->buttonGroups) {
         result = static_cast<ReadOnlyResult>(buttengroup.group->checkedId());
@@ -313,7 +313,7 @@ void ReadOnlyFilesDialog::setAll(int index)
         return;
 
     // Get the selected type from the select all combo box.
-    ReadOnlyFilesTreeColumn type;
+    ReadOnlyFilesTreeColumn type = NumberOfColumns;
     if (index == d->setAllIndexForOperation[MakeWritable])
         type = MakeWritable;
     else if (index == d->setAllIndexForOperation[OpenWithVCS])
