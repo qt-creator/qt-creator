@@ -59,6 +59,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     : QObject(parent)
     , m_debugMode(debugMode)
     , m_slog2infoFound(false)
+    , m_currentLogs(false)
     , m_pid(-1)
     , m_appId(QString())
     , m_running(false)
@@ -155,6 +156,7 @@ ProjectExplorer::RunControl::StopResult BlackBerryApplicationRunner::stop()
         return ProjectExplorer::RunControl::AsynchronousStop;
 
     m_stopping = true;
+    m_currentLogs = false;
 
     if (m_testSlog2Process && m_testSlog2Process->isProcessRunning()) {
         m_testSlog2Process->cancel();
@@ -312,19 +314,33 @@ void BlackBerryApplicationRunner::handleTailOutput()
     if (m_slog2infoFound) {
         const QStringList multiLine = message.split(QLatin1Char('\n'));
         Q_FOREACH (const QString &line, multiLine) {
-            QDateTime dateTime = QDateTime::fromString(line.split(m_appId).first().mid(4).trimmed(),
-                                                       QString::fromLatin1("dd HH:mm:ss.zzz"));
-            if (dateTime >= m_launchDateTime) {
-                QStringList validLineBeginnings;
-                validLineBeginnings << QLatin1String("qt-msg      0  ")
-                                    << QLatin1String("qt-msg*     0  ")
-                                    << QLatin1String("default*  9000  ")
-                                    << QLatin1String("default   9000  ")
-                                    << QLatin1String("                           0  ");
-                Q_FOREACH (const QString &beginning, validLineBeginnings) {
-                    if (showQtMessage(beginning, line))
-                        break;
-                }
+            // Check if logs are from the recent launch
+            // Note: This is useless if/once slog2info -b displays only logs from recent launches
+            if (!m_currentLogs) {
+                QDateTime dateTime = QDateTime::fromString(line.split(m_appId).first().mid(4).trimmed(),
+                                                           QString::fromLatin1("dd HH:mm:ss.zzz"));
+
+                m_currentLogs = dateTime >= m_launchDateTime;
+                if (!m_currentLogs)
+                    continue;
+            }
+
+            // The line could be a part of a previous log message that contains a '\n'
+            // In that case only the message body is displayed
+            if (!line.contains(m_appId) && !line.isEmpty()) {
+                emit output(line + QLatin1Char('\n'), Utils::StdOutFormat);
+                continue;
+            }
+
+            QStringList validLineBeginnings;
+            validLineBeginnings << QLatin1String("qt-msg      0  ")
+                                << QLatin1String("qt-msg*     0  ")
+                                << QLatin1String("default*  9000  ")
+                                << QLatin1String("default   9000  ")
+                                << QLatin1String("                           0  ");
+            Q_FOREACH (const QString &beginning, validLineBeginnings) {
+                if (showQtMessage(beginning, line))
+                    break;
             }
         }
         return;
