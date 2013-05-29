@@ -59,6 +59,8 @@ public:
 
     void setLine(int l);
 
+    bool update(const qbs::CodeLocation &loc);
+
 private:
     int m_line;
 };
@@ -116,18 +118,19 @@ public:
     QbsGroupNode(const qbs::GroupData *grp, const QString &productPath);
 
     bool isEnabled() const;
-    void updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath);
+    void updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath,
+                            bool productWasEnabled, bool productIsEnabled);
 
     const qbs::GroupData *qbsGroupData() const { return m_qbsGroupData; }
 
     QString productPath() const;
 
     static void setupFiles(QbsBaseProjectNode *root, const QStringList &files,
-                             const QString &productPath);
+                           const QString &productPath, bool updateExisting);
 
 private:
     static void setupFolder(ProjectExplorer::FolderNode *folder,
-                            const FileTreeNode *subFileTree, const QString &baseDir);
+                            const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
     const qbs::GroupData *m_qbsGroupData;
     QString m_productPath;
 

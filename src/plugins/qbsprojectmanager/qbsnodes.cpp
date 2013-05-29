@@ -230,6 +230,16 @@ void QbsFileNode::setLine(int l)
     m_line = l;
 }
 
+bool QbsFileNode::update(const qbs::CodeLocation &loc)
+{
+    const QString oldPath = path();
+    const int oldLine = line();
+
+    setPath(loc.fileName());
+    setLine(loc.line());
+    return (line() != oldLine || path() != oldPath);
+}
+
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------
@@ -322,18 +332,28 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData *grp, const QString &productPath
                                        grp->location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx, this);
 
-    updateQbsGroupData(grp, productPath);
+    updateQbsGroupData(grp, productPath, true, true);
 }
 
 bool QbsGroupNode::isEnabled() const
 {
-    return static_cast<QbsProductNode *>(parentFolderNode())->isEnabled() && qbsGroupData()->isEnabled();
+    if (!parentFolderNode() || !m_qbsGroupData)
+        return false;
+    return static_cast<QbsProductNode *>(parentFolderNode())->isEnabled()
+            && m_qbsGroupData->isEnabled();
 }
 
-void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath)
+void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath,
+                                      bool productWasEnabled, bool productIsEnabled)
 {
+    Q_ASSERT(grp);
+
     if (grp == m_qbsGroupData && productPath == m_productPath)
         return;
+
+    bool groupWasEnabled = productWasEnabled && m_qbsGroupData && m_qbsGroupData->isEnabled();
+    bool groupIsEnabled = productIsEnabled && grp->isEnabled();
+    bool updateExisting = groupWasEnabled != groupIsEnabled;
 
     m_productPath = productPath;
     m_qbsGroupData = grp;
@@ -347,18 +367,17 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &
         if (idx)
             break;
     }
+    if (idx->update(grp->location()) || updateExisting)
+        idx->emitNodeUpdated();
 
-    // idx not found, which should never happen!
-    Q_ASSERT(idx);
-    idx->setPath(grp->location().fileName());
-    idx->setLine(grp->location().line());
+    setupFiles(this, grp->allFilePaths(), productPath, updateExisting);
 
-    setupFiles(this, grp->allFilePaths(), m_productPath);
-    emitNodeUpdated();
+    if (updateExisting)
+        emitNodeUpdated();
 }
 
 void QbsGroupNode::setupFiles(QbsBaseProjectNode *root, const QStringList &files,
-                              const QString &productPath)
+                              const QString &productPath, bool updateExisting)
 {
     // Build up a tree of nodes:
     FileTreeNode tree;
@@ -376,11 +395,12 @@ void QbsGroupNode::setupFiles(QbsBaseProjectNode *root, const QStringList &files
     FileTreeNode::reorder(&tree, productPath);
     FileTreeNode::simplify(&tree);
 
-    setupFolder(root, &tree, productPath);
+    setupFolder(root, &tree, productPath, updateExisting);
 }
 
 void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
-                               const FileTreeNode *fileTree, const QString &baseDir)
+                               const FileTreeNode *fileTree, const QString &baseDir,
+                               bool updateExisting)
 {
     // We only need to care about FileNodes and FolderNodes here. Everything else is
     // handled elsewhere.
@@ -408,8 +428,9 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
         if (c->isFile()) {
             ProjectExplorer::FileNode *fn = root->findFile(path);
             if (fn) {
-                fn->emitNodeUpdated(); // enabled might have changed
                 filesToRemove.removeOne(fn);
+                if (updateExisting)
+                    fn->emitNodeUpdated();
             } else {
                 fn = new ProjectExplorer::FileNode(path, ProjectExplorer::UnknownFileType, false);
                 filesToAdd.append(fn);
@@ -422,10 +443,12 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
                 root->projectNode()->addFolderNodes(QList<FolderNode *>() << fn, root);
             } else {
                 foldersToRemove.removeOne(fn);
+                if (updateExisting)
+                    fn->emitNodeUpdated();
             }
             fn->setDisplayName(displayNameFromPath(c->path(), baseDir));
 
-            setupFolder(fn, c, c->path());
+            setupFolder(fn, c, c->path(), updateExisting);
         }
     }
     root->projectNode()->removeFileNodes(filesToRemove, root);
@@ -442,42 +465,43 @@ QbsProductNode::QbsProductNode(const qbs::ProductData *prd) :
     m_qbsProductData(0)
 {
     setIcon(m_productIcon);
+
+    ProjectExplorer::FileNode *idx = new QbsFileNode(prd->location().fileName(),
+                                                     ProjectExplorer::ProjectFileType, false,
+                                                     prd->location().line());
+    addFileNodes(QList<ProjectExplorer::FileNode *>() << idx, this);
+
     setQbsProductData(prd);
 }
 
 bool QbsProductNode::isEnabled() const
 {
-    return qbsProductData()->isEnabled();
+    return m_qbsProductData ? m_qbsProductData->isEnabled() : false;
 }
 
 void QbsProductNode::setQbsProductData(const qbs::ProductData *prd)
 {
+    Q_ASSERT(prd);
     if (m_qbsProductData == prd)
         return;
+
+    bool productWasEnabled = m_qbsProductData ? m_qbsProductData->isEnabled() : true;
+    bool productIsEnabled = prd->isEnabled();
+    bool updateExisting = productWasEnabled != productIsEnabled;
 
     setDisplayName(prd->name());
     setPath(prd->location().fileName());
     const QString &productPath = QFileInfo(prd->location().fileName()).absolutePath();
 
-    // Set Product file node used to jump to the product
-    QList<ProjectExplorer::FileNode *> files = fileNodes();
+    // Find the QbsFileNode we added earlier:
     QbsFileNode *idx = 0;
-    if (files.isEmpty()) {
-        idx = new QbsFileNode(prd->location().fileName(),
-                              ProjectExplorer::ProjectFileType, false,
-                              prd->location().line());
-        addFileNodes(QList<ProjectExplorer::FileNode *>() << idx, this);
-    } else {
-        // Find the QbsFileNode we added earlier:
-        foreach (ProjectExplorer::FileNode *fn, files) {
-            idx = qobject_cast<QbsFileNode *>(fn);
-            if (idx) {
-                idx->setPath(prd->location().fileName());
-                idx->setLine(prd->location().line());
-                break;
-            }
-        }
+    foreach (ProjectExplorer::FileNode *fn, fileNodes()) {
+        idx = qobject_cast<QbsFileNode *>(fn);
+        if (idx)
+            break;
     }
+    if (idx->update(prd->location()) || updateExisting)
+        idx->emitNodeUpdated();
 
     QList<ProjectExplorer::ProjectNode *> toAdd;
     QList<ProjectExplorer::ProjectNode *> toRemove = subProjectNodes();
@@ -485,13 +509,13 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData *prd)
     foreach (const qbs::GroupData &grp, prd->groups()) {
         if (grp.name() == prd->name() && grp.location() == prd->location()) {
             // Set implicit product group right onto this node:
-            QbsGroupNode::setupFiles(this, grp.allFilePaths(), productPath);
+            QbsGroupNode::setupFiles(this, grp.allFilePaths(), productPath, updateExisting);
             continue;
         }
         QbsGroupNode *gn = findGroupNode(grp.name());
         if (gn) {
             toRemove.removeOne(gn);
-            gn->updateQbsGroupData(&grp, productPath);
+            gn->updateQbsGroupData(&grp, productPath, productWasEnabled, productIsEnabled);
         } else {
             gn = new QbsGroupNode(&grp, productPath);
             toAdd.append(gn);
@@ -502,7 +526,8 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData *prd)
     removeProjectNodes(toRemove);
 
     m_qbsProductData = prd;
-    emitNodeUpdated();
+    if (updateExisting)
+        emitNodeUpdated();
 }
 
 QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurationsFor(ProjectExplorer::Node *node)
