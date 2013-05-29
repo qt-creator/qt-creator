@@ -1147,7 +1147,7 @@ class Dumper:
         result = 'modules=['
         for i in xrange(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
-            result += '{file="%s"' % module.file.GetFullPath()
+            result += '{file="%s"' % module.file.fullpath
             result += ',name="%s"' % module.file.basename
             result += ',addrsize="%s"' % module.addr_size
             result += ',triple="%s"' % module.triple
