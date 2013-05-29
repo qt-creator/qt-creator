@@ -310,8 +310,6 @@ QtcPlugin {
         "images/targetleftbutton.png",
         "images/targetpanel_bottom.png",
         "images/targetpanel_gradient.png",
-        "images/targetremovebutton.png",
-        "images/targetremovebuttondark.png",
         "images/targetrightbutton.png",
         "images/targetrunselected.png",
         "images/targetseparatorbackground.png",

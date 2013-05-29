@@ -187,7 +187,6 @@ QtcPlugin {
             "ifunctionhintproposalmodel.h",
             "igenericproposalmodel.cpp",
             "igenericproposalmodel.h",
-            "ikeywords.h",
             "keywordscompletionassist.cpp",
             "keywordscompletionassist.h",
             "quickfixassistprocessor.cpp",
