@@ -6,5 +6,6 @@
         <file>images/log.png</file>
         <file>images/expand.png</file>
         <file>images/error.png</file>
+        <file>QmlJSTools.mimetypes.xml</file>
     </qresource>
 </RCC>

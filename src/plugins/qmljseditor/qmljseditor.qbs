@@ -17,7 +17,6 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
 
     files: [
-        "QmlJSEditor.mimetypes.xml",
         "jsfilewizard.cpp",
         "jsfilewizard.h",
         "qmlexpressionundercursor.cpp",

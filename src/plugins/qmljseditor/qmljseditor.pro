@@ -68,7 +68,6 @@ SOURCES += \
     qmljswrapinloader.cpp
 
 RESOURCES += qmljseditor.qrc
-OTHER_FILES += QmlJSEditor.mimetypes.xml
 
 FORMS += \
     quicktoolbarsettingspage.ui \
