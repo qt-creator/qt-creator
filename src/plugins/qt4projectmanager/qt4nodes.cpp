@@ -56,6 +56,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
 #include <proparser/prowriter.h>
+#include <proparser/qmakevfs.h>
 #include <algorithm>
 
 #include <QDebug>
@@ -1135,8 +1136,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
             lines = contents.split(QLatin1Char('\n'));
         }
 
+        QMakeVfs vfs;
         QtSupport::ProMessageHandler handler;
-        QMakeParser parser(0, &handler);
+        QMakeParser parser(0, &vfs, &handler);
         includeFile = parser.parsedProBlock(contents, m_projectFilePath, 1);
     }
 

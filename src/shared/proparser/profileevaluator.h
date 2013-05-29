@@ -40,6 +40,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QMakeVfs;
 class QMakeParser;
 class QMakeEvaluator;
 class QMakeHandler;
@@ -65,7 +66,8 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser, QMakeHandler *handler);
+    ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
+                     QMakeHandler *handler);
     ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;

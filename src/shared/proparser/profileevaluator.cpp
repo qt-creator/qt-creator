@@ -43,9 +43,9 @@ void ProFileEvaluator::initialize()
     QMakeEvaluator::initStatics();
 }
 
-ProFileEvaluator::ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser,
+ProFileEvaluator::ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
                                    QMakeHandler *handler)
-  : d(new QMakeEvaluator(option, parser, handler))
+  : d(new QMakeEvaluator(option, parser, vfs, handler))
 {
 }
 

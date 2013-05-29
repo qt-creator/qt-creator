@@ -32,6 +32,7 @@
 #include "qmakeevaluator_p.h"
 #include "qmakeglobals.h"
 #include "qmakeparser.h"
+#include "qmakevfs.h"
 #include "ioutils.h"
 
 #include <qbytearray.h>
@@ -269,41 +270,12 @@ quoteValue(const ProString &val)
     return ret;
 }
 
-static bool
-doWriteFile(const QString &name, QIODevice::OpenMode mode, const QString &contents, QString *errStr)
-{
-    QByteArray bytes = contents.toLocal8Bit();
-    QFile cfile(name);
-    if (!(mode & QIODevice::Append) && cfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        if (cfile.readAll() == bytes)
-            return true;
-        cfile.close();
-    }
-    if (!cfile.open(mode | QIODevice::WriteOnly | QIODevice::Text)) {
-        *errStr = cfile.errorString();
-        return false;
-    }
-    cfile.write(bytes);
-    cfile.close();
-    if (cfile.error() != QFile::NoError) {
-        *errStr = cfile.errorString();
-        return false;
-    }
-    return true;
-}
-
 QMakeEvaluator::VisitReturn
 QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           const QString &contents)
 {
-    QFileInfo qfi(fn);
-    if (!QDir::current().mkpath(qfi.path())) {
-        evalError(fL1S("Cannot create %1directory %2.")
-                  .arg(ctx, QDir::toNativeSeparators(qfi.path())));
-        return ReturnFalse;
-    }
     QString errStr;
-    if (!doWriteFile(fn, mode, contents, &errStr)) {
+    if (!m_vfs->writeFile(fn, mode, contents, &errStr)) {
         evalError(fL1S("Cannot write %1file %2: %3.")
                   .arg(ctx, QDir::toNativeSeparators(fn), errStr));
         return ReturnFalse;
@@ -1413,6 +1385,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         const QString &file = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
 
+        // Don't use VFS here:
+        // - it supports neither listing nor even directories
+        // - it's unlikely that somebody would test for files they created themselves
         if (IoUtils::exists(file))
             return ReturnTrue;
         int slsh = file.lastIndexOf(QLatin1Char('/'));
@@ -1444,7 +1419,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             evalError(fL1S("write_file(name, [content var, [append]]) requires one to three arguments."));
             return ReturnFalse;
         }
-#ifdef PROEVALUATOR_FULL
         QIODevice::OpenMode mode = QIODevice::Truncate;
         QString contents;
         if (args.count() >= 2) {
@@ -1456,9 +1430,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                     mode = QIODevice::Append;
         }
         return writeFile(QString(), resolvePath(args.at(0).toQString(m_tmp1)), mode, contents);
-#else
-        return ReturnTrue;
-#endif
     }
     case T_TOUCH: {
         if (args.count() != 2) {
@@ -1510,7 +1481,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             evalError(fL1S("cache(var, [set|add|sub] [transient] [super], [srcvar]) requires one to three arguments."));
             return ReturnFalse;
         }
-#ifdef PROEVALUATOR_FULL
         bool persist = true;
         bool super = false;
         enum { CacheSet, CacheAdd, CacheSub } mode = CacheSet;
@@ -1636,9 +1606,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             fn = m_cachefile;
         }
         return writeFile(fL1S("cache "), fn, QIODevice::Append, varstr);
-#else
-        return ReturnTrue;
-#endif
     }
     default:
         evalError(fL1S("Function '%1' is not implemented.").arg(function.toQString(m_tmp1)));

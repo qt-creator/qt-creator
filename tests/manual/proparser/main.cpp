@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmakeglobals.h"
+#include "qmakevfs.h"
 #include "qmakeparser.h"
 #include "qmakeevaluator.h"
 #include "profileevaluator.h"
@@ -69,14 +70,15 @@ public:
 static EvalHandler evalHandler;
 
 static int evaluate(const QString &fileName, const QString &in_pwd, const QString &out_pwd,
-                    bool cumulative, ProFileGlobals *option, QMakeParser *parser, int level)
+                    bool cumulative, ProFileGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
+                    int level)
 {
     static QSet<QString> visited;
     if (visited.contains(fileName))
         return 0;
     visited.insert(fileName);
 
-    ProFileEvaluator visitor(option, parser, &evalHandler);
+    ProFileEvaluator visitor(option, parser, vfs, &evalHandler);
 #ifdef PROEVALUATOR_CUMULATIVE
     visitor.setCumulative(cumulative);
 #endif
@@ -130,7 +132,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
                 fflush(stdout);
                 nlevel++;
             }
-            evaluate(inFile, inPwd, outPwd, cumulative, option, parser, nlevel);
+            evaluate(inFile, inPwd, outPwd, cumulative, option, parser, vfs, nlevel);
         }
     }
 
@@ -195,6 +197,7 @@ int main(int argc, char **argv)
         out_pwd = in_pwd;
     option.setDirectories(in_pwd, out_pwd);
 
-    QMakeParser parser(0, &evalHandler);
-    return evaluate(file, in_pwd, out_pwd, cumulative, &option, &parser, level);
+    QMakeVfs vfs;
+    QMakeParser parser(0, &vfs, &evalHandler);
+    return evaluate(file, in_pwd, out_pwd, cumulative, &option, &parser, &vfs, level);
 }

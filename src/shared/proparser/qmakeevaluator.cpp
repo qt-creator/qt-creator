@@ -32,6 +32,7 @@
 
 #include "qmakeglobals.h"
 #include "qmakeparser.h"
+#include "qmakevfs.h"
 #include "ioutils.h"
 
 #include <qbytearray.h>
@@ -162,13 +163,13 @@ const ProKey &QMakeEvaluator::map(const ProKey &var)
 }
 
 
-QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
-                               QMakeParser *parser, QMakeHandler *handler)
+QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
+                               QMakeHandler *handler)
   :
 #ifdef PROEVALUATOR_DEBUG
     m_debugLevel(option->debugLevel),
 #endif
-    m_option(option), m_parser(parser), m_handler(handler)
+    m_option(option), m_parser(parser), m_handler(handler), m_vfs(vfs)
 {
     // So that single-threaded apps don't have to call initialize() for now.
     initStatics();
@@ -1049,7 +1050,7 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
             superdir = m_outputDir;
             forever {
                 QString superfile = superdir + QLatin1String("/.qmake.super");
-                if (IoUtils::exists(superfile)) {
+                if (m_vfs->exists(superfile)) {
                     m_superfile = QDir::cleanPath(superfile);
                     break;
                 }
@@ -1064,10 +1065,10 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
             QString dir = m_outputDir;
             forever {
                 conffile = sdir + QLatin1String("/.qmake.conf");
-                if (!IoUtils::exists(conffile))
+                if (!m_vfs->exists(conffile))
                     conffile.clear();
                 cachefile = dir + QLatin1String("/.qmake.cache");
-                if (!IoUtils::exists(cachefile))
+                if (!m_vfs->exists(cachefile))
                     cachefile.clear();
                 if (!conffile.isEmpty() || !cachefile.isEmpty()) {
                     if (dir != sdir)
@@ -1158,7 +1159,7 @@ bool QMakeEvaluator::loadSpec()
                 m_hostBuild ? m_option->qmakespec : m_option->xqmakespec);
 
     {
-        QMakeEvaluator evaluator(m_option, m_parser, m_handler);
+        QMakeEvaluator evaluator(m_option, m_parser, m_vfs, m_handler);
         if (!m_superfile.isEmpty()) {
             valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             if (evaluator.evaluateFile(
@@ -1315,7 +1316,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 locker.unlock();
 #endif
 
-                QMakeEvaluator *baseEval = new QMakeEvaluator(m_option, m_parser, m_handler);
+                QMakeEvaluator *baseEval = new QMakeEvaluator(m_option, m_parser, m_vfs, m_handler);
                 baseEnv->evaluator = baseEval;
                 baseEval->m_superfile = m_superfile;
                 baseEval->m_conffile = m_conffile;
@@ -1810,7 +1811,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFile(
 #endif
         return ok;
     } else {
-        if (!(flags & LoadSilent) && !IoUtils::exists(fileName))
+        if (!(flags & LoadSilent) && !m_vfs->exists(fileName))
             evalError(fL1S("WARNING: Include file %1 not found").arg(fileName));
         return ReturnFalse;
     }
@@ -1893,7 +1894,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFeatureFile(
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFileInto(
         const QString &fileName, ProValueMap *values, LoadFlags flags)
 {
-    QMakeEvaluator visitor(m_option, m_parser, m_handler);
+    QMakeEvaluator visitor(m_option, m_parser, m_vfs, m_handler);
     visitor.m_caller = this;
     visitor.m_outputDir = m_outputDir;
     visitor.m_featureRoots = m_featureRoots;

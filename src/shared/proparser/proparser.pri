@@ -14,6 +14,7 @@ HEADERS += \
         profileevaluator.h \
         proitems.h \
         prowriter.h \
+        qmakevfs.h \
         ioutils.h
 
 SOURCES += \
@@ -24,6 +25,7 @@ SOURCES += \
         qmakebuiltins.cpp \
         proitems.cpp \
         prowriter.cpp \
+        qmakevfs.cpp \
         ioutils.cpp
 
 RESOURCES += proparser.qrc

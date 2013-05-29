@@ -36,6 +36,7 @@
 
 #include "qtversionmanager.h"
 #include "profilereader.h"
+#include <proparser/qmakevfs.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
@@ -780,12 +781,13 @@ void BaseQtVersion::ensureMkSpecParsed() const
     if (mkspecPath().isEmpty())
         return;
 
+    QMakeVfs vfs;
     ProFileGlobals option;
     option.setProperties(versionInfo());
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
-    QMakeParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);
-    ProFileEvaluator evaluator(&option, &parser, &msgHandler);
+    QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
+    ProFileEvaluator evaluator(&option, &parser, &vfs, &msgHandler);
     evaluator.loadNamedSpec(mkspecPath().toString(), false);
 
     parseMkSpec(&evaluator);
