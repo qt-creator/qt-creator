@@ -261,6 +261,7 @@ bool CdbOptionsPage::matches(const QString &s) const
 
 class CdbPathsPageWidget : public QWidget
 {
+    Q_OBJECT
 public:
     Utils::SavedActionSet group;
 
@@ -346,3 +347,5 @@ bool CdbPathsPage::matches(const QString &searchKeyWord) const
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "cdboptionspage.moc"
