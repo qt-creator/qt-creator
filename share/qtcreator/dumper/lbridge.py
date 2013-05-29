@@ -147,26 +147,8 @@ def showException(msg, exType, exValue, exTraceback):
 def registerCommand(name, func):
     pass
 
-def currentFrame():
-    currentThread = self.process.GetThreadAtIndex(0)
-    return currentThread.GetFrameAtIndex(0)
-
 def fileName(file):
     return str(file) if file.IsValid() else ''
-
-def breakpoint_function_wrapper(baton, process, frame, bp_loc):
-    result = '*stopped'
-    result += ',line="%s"' % frame.line_entry.line
-    result += ',file="%s"' % frame.line_entry.file
-    warn("WRAPPER: %s " %result)
-    return result
-
-
-def onBreak():
-    db.debugger.HandleCommand("settings set frame-format ''")
-    db.debugger.HandleCommand("settings set thread-format ''")
-    result = "*stopped,frame={....}"
-    print result
 
 
 PointerCode = None
@@ -1103,13 +1085,6 @@ class Dumper:
             bpNew.SetOneShot(int(args["oneshot"]))
         except:
             pass
-        #bpNew.SetCallback(breakpoint_function_wrapper, None)
-        #bpNew.SetCallback(breakpoint_function_wrapper, None)
-        #"breakpoint command add 1 -o \"import time; print time.asctime()\"
-        #cmd = "script print(11111111)"
-        #cmd = "continue"
-        #self.debugger.HandleCommand(
-        #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
         return bpNew
 
     def changeBreakpoint(self, args):
