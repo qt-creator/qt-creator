@@ -233,7 +233,8 @@ ActionCommandPair
 {
     QAction  *action = new QAction(text, this);
     Core::Command *command = Core::ActionManager::registerAction(action, id, context);
-    ac->addAction(command);
+    if (ac)
+        ac->addAction(command);
     m_repositoryActions.push_back(action);
     if (addToLocator)
         m_commandLocator->appendCommand(command);
@@ -439,7 +440,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            globalcontext, false, SLOT(resetRepository()));
 
     createRepositoryAction(localRepositoryMenu,
-                           tr("Interactive Rebase..."), Core::Id("Git.Rebase"),
+                           tr("Interactive Rebase..."), Core::Id("Git.InteractiveRebase"),
                            globalcontext, true, SLOT(startRebase()));
 
     createRepositoryAction(localRepositoryMenu,
@@ -588,6 +589,29 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            globalcontext, false, SLOT(remoteList()));
 
     /* \"Remote Repository" menu */
+
+    // --------------
+
+    /*  Actions only in locator */
+    createRepositoryAction(0, tr("Show..."), Core::Id("Git.Show"),
+                           globalcontext, true, SLOT(startChangeRelatedAction()));
+
+    createRepositoryAction(0, tr("Revert..."), Core::Id("Git.Revert"),
+                           globalcontext, true, SLOT(startChangeRelatedAction()));
+
+    createRepositoryAction(0, tr("Cherry Pick..."), Core::Id("Git.CherryPick"),
+                           globalcontext, true, SLOT(startChangeRelatedAction()));
+
+    createRepositoryAction(0, tr("Checkout..."), Core::Id("Git.Checkout"),
+                           globalcontext, true, SLOT(startChangeRelatedAction()));
+
+    createRepositoryAction(0, tr("Rebase..."), Core::Id("Git.Rebase"),
+                           globalcontext, true, SLOT(branchList()));
+
+    createRepositoryAction(0, tr("Merge..."), Core::Id("Git.Merge"),
+                           globalcontext, true, SLOT(branchList()));
+
+    /*  \Actions only in locator */
 
     // --------------
 
