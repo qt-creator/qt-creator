@@ -1167,7 +1167,7 @@ class Dumper:
         #module = self.target.FindModule(file)
         for i in xrange(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
-            if module.file.GetFullPath() == moduleName:
+            if module.file.fullpath == moduleName:
                 break
         result = 'symbols={module="%s"' % moduleName
         result += ',valid="%s"' % module.IsValid()
@@ -1227,8 +1227,9 @@ class Dumper:
         self.currentThread().SetSelectedFrame(args['index'])
         self.reportData()
 
-    def selectThread(self, thread):
-        self.handleCommand("thread select " + thread)
+    def selectThread(self, args):
+        self.process.SetSelectedThreadByID(args['id'])
+        self.reportData()
 
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)
