@@ -158,6 +158,10 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    QProcessEnvironment enviroment = QProcessEnvironment::systemEnvironment();
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) && (defined(Q_OS_MAC) || defined(Q_OS_LINUX))
+   enviroment.insert(QLatin1String("DESIGNER_DONT_USE_SHARED_MEMORY"), QLatin1String("1"));
+#endif
+
    if (QFileInfo(applicationPath).exists()) {
        m_qmlPuppetEditorProcess = new QProcess;
        m_qmlPuppetEditorProcess->setProcessEnvironment(enviroment);
