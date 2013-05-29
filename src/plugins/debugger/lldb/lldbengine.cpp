@@ -119,7 +119,7 @@ void LldbEngine::runCommand(const Command &command)
 void LldbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    notifyInferiorShutdownOk();
+    runCommand(Command("shutdownInferior"));
 }
 
 void LldbEngine::shutdownEngine()
@@ -1018,6 +1018,14 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineRunAndInferiorRunOk();
     else if (newState == "enginerunandinferiorstopok")
         notifyEngineRunAndInferiorStopOk();
+    else if (newState == "inferiorshutdownok")
+        notifyInferiorShutdownOk();
+    else if (newState == "inferiorshutdownfailed")
+        notifyInferiorShutdownFailed();
+    else if (newState == "engineshutdownok")
+        notifyEngineShutdownOk();
+    else if (newState == "engineshutdownfailed")
+        notifyEngineShutdownFailed();
     else if (newState == "inferiorexited")
         notifyInferiorExited();
 }

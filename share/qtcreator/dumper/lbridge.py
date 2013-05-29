@@ -525,6 +525,7 @@ class Dumper:
         self.sizetType_ = None
         self.charPtrType_ = None
         self.voidType_ = None
+        self.isShuttingDown_ = False
 
     def extractTemplateArgument(self, typename, index):
         level = 0
@@ -1020,9 +1021,12 @@ class Dumper:
             self.report('state="%s"' % stateNames[state])
             self.eventState = state
             if state == lldb.eStateExited:
-                warn("PROCESS EXITED. %d: %s"
+                if self.isShuttingDown_:
+                    self.report('state="inferiorshutdownok"')
+                else:
+                    self.report('state="inferiorexited"')
+                self.report('exited={status="%s",desc="%s"}'
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
-                self.report('state="inferiorexited"')
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
             self.reportData()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
@@ -1190,8 +1194,13 @@ class Dumper:
     def executeStep(self, _ = None):
         self.currentThread().StepInto()
 
+    def shutdownInferior(self, _ = None):
+        self.isShuttingDown_ = True
+        self.process.Kill()
+
     def quit(self, _ = None):
-        self.debugger.Terminate()
+        self.report('state="engineshutdownok"')
+        self.process.Kill()
 
     def executeStepI(self, _ = None):
         self.currentThread().StepInstruction(lldb.eOnlyThisThread)
@@ -1229,12 +1238,8 @@ class Dumper:
         command = args['command']
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         success = result.Succeeded()
-        if success:
-            output = result.GetOutput()
-            error = ''
-        else:
-            output = ''
-            error = str(result.GetError())
+        output = result.GetOutput()
+        error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
     def setOptions(self, args):
