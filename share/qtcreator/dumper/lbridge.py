@@ -749,11 +749,15 @@ class Dumper:
         self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
 
     def reportThreads(self):
+        reasons = ['None', 'Trace', 'Breakpoint', 'Watchpoint', 'Signal', 'Exception',
+            'Exec', 'PlanComplete']
         result = 'threads={threads=['
         for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
             result += '{id="%d"' % thread.GetThreadID()
             result += ',index="%s"' % i
+            result += ',details="%s"' % thread.GetQueueName()
+            result += ',state="%s"' % reasons[thread.GetStopReason()]
             result += ',stop-reason="%s"' % thread.GetStopReason()
             result += ',name="%s"' % thread.GetName()
             result += ',frame={'
@@ -761,7 +765,7 @@ class Dumper:
             result += 'pc="0x%x"' % frame.pc
             result += ',addr="0x%x"' % frame.pc
             result += ',fp="0x%x"' % frame.fp
-            result += ',func="%s"' % frame.function.name
+            result += ',func="%s"' % frame.GetFunctionName()
             result += ',line="%s"' % frame.line_entry.line
             result += ',fullname="%s"' % fileName(frame.line_entry.file)
             result += ',file="%s"' % fileName(frame.line_entry.file)
