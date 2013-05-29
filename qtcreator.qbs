@@ -6,7 +6,7 @@ Project {
 
     property string ide_version_major: '2'
     property string ide_version_minor: '7'
-    property string ide_version_release: '81'
+    property string ide_version_release: '82'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     property string ide_app_path: qbs.targetOS == "mac" ? "" : "bin"
     property string ide_app_target: qbs.targetOS == "mac" ? "Qt Creator" : "qtcreator"
