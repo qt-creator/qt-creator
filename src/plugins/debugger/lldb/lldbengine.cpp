@@ -249,6 +249,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshSymbols(item);
         else if (name == "bkpts")
             refreshBreakpoints(item);
+        else if (name == "output")
+            refreshOutput(item);
         else if (name == "disassembly")
             refreshDisassembly(item);
         else if (name == "memory")
@@ -481,6 +483,18 @@ void LldbEngine::refreshMemory(const GdbMi &data)
         QByteArray ba = QByteArray::fromHex(data["contents"].data());
         agent->addLazyData(token.data(), addr, ba);
     }
+}
+
+void LldbEngine::refreshOutput(const GdbMi &output)
+{
+    QByteArray channel = output["channel"].data();
+    QByteArray data = QByteArray::fromHex(output["data"].data());
+    LogChannel ch = AppStuff;
+    if (channel == "stdout")
+        ch = AppOutput;
+    else if (channel == "stderr")
+        ch = AppError;
+    showMessage(QString::fromUtf8(data), ch);
 }
 
 void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)

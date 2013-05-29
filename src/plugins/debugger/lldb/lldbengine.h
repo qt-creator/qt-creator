@@ -156,13 +156,14 @@ private:
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
-    void refreshRegisters(const GdbMi &stack);
+    void refreshRegisters(const GdbMi &registers);
     void refreshLocals(const GdbMi &vars);
     void refreshTypeInfo(const GdbMi &typeInfo);
     void refreshState(const GdbMi &state);
     void refreshLocation(const GdbMi &location);
     void refreshModules(const GdbMi &modules);
     void refreshSymbols(const GdbMi &symbols);
+    void refreshOutput(const GdbMi &output);
     void refreshBreakpoints(const GdbMi &bkpts);
     void runContinuation(const GdbMi &data);
 

@@ -845,7 +845,6 @@ class Dumper:
             self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
 
-
     def readRawMemory(self, base, size):
         if size == 0:
             return ""
@@ -1053,14 +1052,18 @@ class Dumper:
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
                 self.report('state="inferiorexited"')
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
-            #if state == lldb.eStateStopped:
             self.reportData()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
-            pass
+            # FIXME: Size?
+            msg = self.process.GetSTDOUT(1024)
+            self.report('output={channel="stdout",data="%s"}'
+                % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitSTDERR:
-            pass
+            msg = self.process.GetSTDERR(1024)
+            self.report('output={channel="stdout",data="%s"}'
+                % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
