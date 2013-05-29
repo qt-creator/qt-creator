@@ -303,12 +303,12 @@ QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::Open
         return ReturnFalse;
     }
     QString errStr;
-    if (!doWriteFile(qfi.filePath(), mode, contents, &errStr)) {
+    if (!doWriteFile(fn, mode, contents, &errStr)) {
         evalError(fL1S("Cannot write %1file %2: %3.")
-                  .arg(ctx, QDir::toNativeSeparators(qfi.filePath()), errStr));
+                  .arg(ctx, QDir::toNativeSeparators(fn), errStr));
         return ReturnFalse;
     }
-    m_parser->discardFileFromCache(qfi.filePath());
+    m_parser->discardFileFromCache(fn);
     return ReturnTrue;
 }
 
