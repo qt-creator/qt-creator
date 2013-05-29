@@ -504,6 +504,7 @@ class Dumper:
         self.useLldbDumpers = False
         self.ns = ""
         self.autoDerefPointers = True
+        self.useDynamicType = True
         self.useLoop = True
 
         self.currentIName = None

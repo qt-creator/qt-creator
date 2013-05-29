@@ -84,6 +84,17 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     m_lastAgentId = 0;
     m_lastToken = 0;
     setObjectName(QLatin1String("LldbEngine"));
+
+    connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateLocals()));
+    connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
+            SLOT(updateAll()));
+    connect(debuggerCore()->action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateLocals()));
+    connect(debuggerCore()->action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateLocals()));
+    connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateAll()));
 }
 
 LldbEngine::~LldbEngine()
@@ -654,6 +665,10 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     return false;
 }
 
+void LldbEngine::updateAll()
+{
+    updateLocals();
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -677,6 +692,11 @@ void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &
 {
     Q_UNUSED(data);
     Q_UNUSED(flags);
+    updateLocals();
+}
+
+void LldbEngine::updateLocals()
+{
     WatchHandler *handler = watchHandler();
 
     Command cmd("updateData");
@@ -871,11 +891,6 @@ QByteArray LldbEngine::currentOptions() const
     result += ",\"threads\":\"" + threadsOptions + '"';
 
     return result;
-}
-
-void LldbEngine::updateAll()
-{
-    runCommand("reportData");
 }
 
 void LldbEngine::refreshLocals(const GdbMi &vars)

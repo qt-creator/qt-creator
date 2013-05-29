@@ -153,6 +153,8 @@ private:
     Q_SLOT void readLldbStandardError();
     Q_SLOT void handleResponse(const QByteArray &data);
     Q_SLOT void runEngine2();
+    Q_SLOT void updateAll();
+    Q_SLOT void updateLocals();
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
@@ -166,8 +168,6 @@ private:
     void refreshOutput(const GdbMi &output);
     void refreshBreakpoints(const GdbMi &bkpts);
     void runContinuation(const GdbMi &data);
-
-    void updateAll();
 
     typedef void (LldbEngine::*LldbCommandContinuation)();
 
