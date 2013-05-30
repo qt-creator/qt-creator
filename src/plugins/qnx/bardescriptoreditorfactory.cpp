@@ -61,12 +61,6 @@ QString BarDescriptorEditorFactory::displayName() const
     return tr("Bar descriptor editor");
 }
 
-Core::IDocument *BarDescriptorEditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->document() : 0;
-}
-
 Core::IEditor *BarDescriptorEditorFactory::createEditor(QWidget *parent)
 {
     BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(parent);

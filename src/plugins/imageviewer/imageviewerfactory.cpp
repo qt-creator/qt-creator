@@ -103,11 +103,6 @@ QString ImageViewerFactory::displayName() const
     return qApp->translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME);
 }
 
-Core::IDocument *ImageViewerFactory::open(const QString & /*fileName*/)
-{
-    return 0;
-}
-
 void ImageViewerFactory::extensionsInitialized()
 {
     d->actionHandler->createActions();
