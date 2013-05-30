@@ -82,8 +82,10 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (application.arguments().count() != 4)
+    if (application.arguments().count() < 4) {
+        qDebug() << "Wrong argument count: " << application.arguments().count();
         return -1;
+    }
 
 
 

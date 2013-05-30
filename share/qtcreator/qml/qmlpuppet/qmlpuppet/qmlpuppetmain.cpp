@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (application.arguments().count() != 4)
+    if (application.arguments().count() < 4)
         return -1;
 
 #ifdef ENABLE_QT_BREAKPAD
