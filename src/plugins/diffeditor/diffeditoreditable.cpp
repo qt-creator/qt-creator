@@ -140,12 +140,15 @@ QWidget *DiffEditorEditable::toolBar()
             m_editorWidget, SLOT(setIgnoreWhitespaces(bool)));
     m_toolWidget->addWidget(whitespaceButton);
 
-    QLabel *contextLabel = new QLabel(tr("Context lines:"), m_toolWidget);
+    QLabel *contextLabel = new QLabel(m_toolWidget);
+    contextLabel->setText(tr("Context Lines:"));
+    contextLabel->setMargin(6);
     m_toolWidget->addWidget(contextLabel);
 
     QSpinBox *contextSpinBox = new QSpinBox(m_toolWidget);
     contextSpinBox->setRange(-1, 100);
     contextSpinBox->setValue(3);
+    contextSpinBox->setFrame(false);
     connect(contextSpinBox, SIGNAL(valueChanged(int)),
             m_editorWidget, SLOT(setContextLinesNumber(int)));
     m_toolWidget->addWidget(contextSpinBox);
