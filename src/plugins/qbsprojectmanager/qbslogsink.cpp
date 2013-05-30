@@ -32,6 +32,9 @@
 #include <qbs.h>
 
 #include <coreplugin/messagemanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/taskhub.h>
+#include <utils/fileutils.h>
 
 #include <QCoreApplication>
 #include <QMutexLocker>
@@ -46,6 +49,9 @@ namespace Internal {
 
 QbsLogSink::QbsLogSink(QObject *parent) : QObject(parent)
 {
+    ProjectExplorer::TaskHub *hub = ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
+    connect(this, SIGNAL(newTask(ProjectExplorer::Task)),
+            hub, SLOT(addTask(ProjectExplorer::Task)), Qt::QueuedConnection);
 }
 
 void QbsLogSink::sendMessages()
@@ -60,6 +66,16 @@ void QbsLogSink::sendMessages()
     Core::MessageManager *mm = Core::MessageManager::instance();
     foreach (const QString &msg, toSend)
         mm->printToOutputPane(msg, Core::MessageManager::NoModeSwitch);
+}
+
+void QbsLogSink::doPrintWarning(const qbs::Error &warning)
+{
+    foreach (const qbs::ErrorData &data, warning.entries())
+        emit newTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
+                                           data.description(),
+                                           Utils::FileName::fromString(data.codeLocation().fileName()),
+                                           data.codeLocation().line(),
+                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
 void QbsLogSink::doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag)

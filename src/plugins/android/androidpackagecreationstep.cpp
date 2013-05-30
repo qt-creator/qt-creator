@@ -338,7 +338,7 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
     QMetaObject::invokeMethod(this, "setQtLibs",Qt::BlockingQueuedConnection,
                               Q_ARG(QStringList, m_qtLibsWithDependencies));
 
-    QMetaObject::invokeMethod(this, "getBundleInformation");
+    QMetaObject::invokeMethod(this, "getBundleInformation", Qt::BlockingQueuedConnection);
 
     emit updateRequiredLibrariesModels();
 }
