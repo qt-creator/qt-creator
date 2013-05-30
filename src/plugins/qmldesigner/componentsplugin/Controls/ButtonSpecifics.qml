@@ -130,12 +130,6 @@ QWidget {
                     }
                 }
 
-                ColorGroupBox {
-                    caption: qsTr("Text color")
-                    finished: finishedNotify
-                    backendColor: backendValues.textColor
-                }
-
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
