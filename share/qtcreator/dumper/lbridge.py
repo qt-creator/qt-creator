@@ -500,6 +500,7 @@ class Dumper:
         self.currentPrintsAddress = None
         self.currentChildType = None
         self.currentChildNumChild = None
+        self.currentWatchers = {}
 
         self.executable_ = None
         self.charType_ = None
@@ -508,11 +509,12 @@ class Dumper:
         self.charPtrType_ = None
         self.voidType_ = None
         self.isShuttingDown_ = False
+        self.dummyValue = None
 
     def extractTemplateArgument(self, typename, index):
         level = 0
         skipSpace = False
-        inner = ""
+        inner = ''
         for c in typename[typename.find('<') + 1 : -1]:
             if c == '<':
                 inner += c
@@ -525,7 +527,7 @@ class Dumper:
                     if index == 0:
                         return inner
                     index -= 1
-                    inner = ""
+                    inner = ''
                 else:
                     inner += c
                     skipSpace = True
@@ -736,11 +738,13 @@ class Dumper:
         result = 'threads={threads=['
         for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
+            stopReason = thread.GetStopReason()
             result += '{id="%d"' % thread.GetThreadID()
             result += ',index="%s"' % i
             result += ',details="%s"' % thread.GetQueueName()
-            result += ',state="%s"' % reasons[thread.GetStopReason()]
-            result += ',stop-reason="%s"' % thread.GetStopReason()
+            result += ',stop-reason="%s"' % stopReason
+            if stopReason >= 0 and stopReason < len(reasons):
+                result += ',state="%s"' % reasons[stopReason]
             result += ',name="%s"' % thread.GetName()
             result += ',frame={'
             frame = thread.GetFrameAtIndex(0)
@@ -931,12 +935,37 @@ class Dumper:
 
     def reportVariables(self, _ = None):
         frame = self.currentThread().GetSelectedFrame()
-        self.currentIName = "local"
+        self.currentIName = 'local'
         self.put('data=[')
         for value in frame.GetVariables(True, True, False, False):
+            if self.dummyValue is None:
+                self.dummyValue = value
             with SubItem(self, value):
                 self.put('iname="%s",' % self.currentIName)
                 self.putItem(value)
+
+        # 'watchers':[{'id':'watch.0','exp':'23'},...]
+        if not self.dummyValue is None:
+            for watcher in self.currentWatchers:
+                iname = watcher['iname']
+                index = iname[iname.find('.') + 1:]
+                exp = binascii.unhexlify(watcher['exp'])
+                warn("EXP: %s" % exp)
+                warn("INDEX: %s" % index)
+                if exp == "":
+                    self.put('type="",value="",exp=""')
+                    continue
+
+                value = self.dummyValue.CreateValueFromExpression(iname, exp)
+                #value = self.dummyValue
+                warn("VALUE: %s" % value)
+                self.currentIName = 'watch'
+                with SubItem(self, index):
+                    self.put('exp="%s",' % exp)
+                    self.put('wname="%s",' % binascii.hexlify(exp))
+                    self.put('iname="%s",' % self.currentIName)
+                    self.putItem(value)
+
         self.put(']')
         self.report('')
 
@@ -953,6 +982,7 @@ class Dumper:
                 self.reportVariables()
 
     def reportRegisters(self, _ = None):
+        return
         if self.process is None:
             self.report('process="none"')
         else:
@@ -1225,13 +1255,19 @@ class Dumper:
     def setOptions(self, args):
         self.options = args
 
+    def setWatchers(self, args):
+        self.currentWatchers = args['watchers']
+        warn("WATCHERS %s" % self.currentWatchers)
+
     def updateData(self, args):
         self.expandedINames = set(args['expanded'].split(','))
         self.autoDerefPointers = int(args['autoderef'])
         self.useDynamicType = int(args['dyntype'])
         # Keep always True for now.
         #self.passExceptions = args['pe']
-        self.reportData()
+        self.useDynamicType = int(args['dyntype'])
+        #self.reportData()
+        self.reportVariables(args)
 
     def disassemble(self, args):
         frame = self.currentFrame();
@@ -1262,6 +1298,18 @@ class Dumper:
         result += self.describeError(error)
         result += ',contents="%s"}' % binascii.hexlify(contents)
         self.report(result)
+
+    def assignValue(self, args):
+        exp = binascii.unhexlify(args['exp'])
+        value = binascii.unhexlify(args['value'])
+        warn("EXP: %s" % exp)
+        warn("VALUE: %s" % value)
+        lhs = self.dummyValue.CreateValueFromExpression("$$lhs", exp)
+        rhs = self.dummyValue.CreateValueFromExpression("$$rhs", value)
+        warn("LHS: %s" % lhs)
+        warn("RHS: %s" % rhs)
+        #lhs.SetData(rhs.GetData())
+        self.reportVariables()
 
     def importDumpers(self, _ = None):
         result = lldb.SBCommandReturnObject()

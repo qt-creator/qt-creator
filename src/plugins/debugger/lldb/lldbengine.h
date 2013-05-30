@@ -134,6 +134,7 @@ private:
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
+    void requestUpdateWatchers();
     void setRegisterValue(int regnr, const QString &value);
 
     void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
@@ -171,7 +172,6 @@ private:
 
     typedef void (LldbEngine::*LldbCommandContinuation)();
 
-    QByteArray currentOptions() const;
     void handleStop(const QByteArray &response);
     void handleListLocals(const QByteArray &response);
     void handleListModules(const QByteArray &response);
