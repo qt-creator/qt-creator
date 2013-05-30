@@ -154,25 +154,6 @@ private:
 
 using namespace Internal;
 
-Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int line, int column,
-                                 Core::Id editorKind,
-                                 Core::EditorManager::OpenEditorFlags flags,
-                                 bool *newEditor)
-{
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->cutForwardNavigationHistory();
-    editorManager->addCurrentPositionToNavigationHistory();
-    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, editorKind,
-            flags, newEditor);
-    TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-    if (texteditor && line != -1) {
-        texteditor->gotoLine(line, column);
-        return texteditor;
-    }
-
-    return editor;
-}
-
 QString BaseTextEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
 {
     // Copy the selected text as plain text
@@ -4918,9 +4899,8 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
         return true;
     }
 
-    return openEditorAt(link.targetFileName, link.targetLine, link.targetColumn, Core::Id(),
-                          Core::EditorManager::IgnoreNavigationHistory
-                        | Core::EditorManager::ModeSwitch);
+    return Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn,
+                                             Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void BaseTextEditorWidget::updateLink(QMouseEvent *e)

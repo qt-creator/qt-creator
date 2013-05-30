@@ -31,7 +31,7 @@
 #include "qmlconsoleitemdelegate.h"
 #include "qmlconsoleitemmodel.h"
 
-#include <texteditor/basetexteditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
 #include <utils/hostosinfo.h>
 
@@ -231,7 +231,7 @@ void QmlConsoleView::onRowActivated(const QModelIndex &index)
         QFileInfo fi(filePath);
         if (fi.exists() && fi.isFile() && fi.isReadable()) {
             int line = model()->data(index, QmlConsoleItemModel::LineRole).toInt();
-            TextEditor::BaseTextEditorWidget::openEditorAt(fi.canonicalFilePath(), line);
+            Core::EditorManager::openEditorAt(fi.canonicalFilePath(), line);
         }
     }
 }

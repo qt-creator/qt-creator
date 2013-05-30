@@ -29,7 +29,6 @@
 
 #include "qmljsfindreferences.h"
 
-#include <texteditor/basetexteditor.h>
 #include <texteditor/basefilefind.h>
 #include <find/searchresultwindow.h>
 #include <extensionsystem/pluginmanager.h>
@@ -985,9 +984,9 @@ void FindReferences::setPaused(bool paused)
 void FindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        TextEditor::BaseTextEditorWidget::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                                       item.lineNumber, item.textMarkPos, Core::Id(),
-                                                       Core::EditorManager::ModeSwitch);
+        Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                                              item.lineNumber, item.textMarkPos, Core::Id(),
+                                              Core::EditorManager::ModeSwitch);
     } else {
         Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text),
                                         Core::Id(), Core::EditorManager::ModeSwitch);

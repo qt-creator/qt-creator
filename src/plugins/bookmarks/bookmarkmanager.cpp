@@ -39,7 +39,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/itexteditor.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
@@ -508,8 +508,8 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index)
 bool BookmarkManager::gotoBookmark(Bookmark *bookmark)
 {
     using namespace TextEditor;
-    if (ITextEditor *editor = qobject_cast<ITextEditor *>(BaseTextEditorWidget::openEditorAt(bookmark->filePath(),
-                                                                                             bookmark->lineNumber()))) {
+    if (ITextEditor *editor = qobject_cast<ITextEditor *>(EditorManager::openEditorAt(bookmark->filePath(),
+                                                                                      bookmark->lineNumber()))) {
         return (editor->currentLine() == bookmark->lineNumber());
     }
     return false;

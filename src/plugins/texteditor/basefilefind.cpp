@@ -36,7 +36,8 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
-#include <texteditor/basetexteditor.h>
+#include <find/ifindsupport.h>
+#include <texteditor/itexteditor.h>
 #include <texteditor/refactoringchanges.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
@@ -309,11 +310,11 @@ void BaseFileFind::openEditor(const Find::SearchResultItem &item)
     SearchResult *result = qobject_cast<SearchResult *>(sender());
     Core::IEditor *openedEditor = 0;
     if (item.path.size() > 0) {
-        openedEditor = TextEditor::BaseTextEditorWidget::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                                                      item.lineNumber,
-                                                                      item.textMarkPos,
-                                                                      Core::Id(),
-                                                                      Core::EditorManager::ModeSwitch);
+        openedEditor = Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                                                         item.lineNumber,
+                                                         item.textMarkPos,
+                                                         Core::Id(),
+                                                         Core::EditorManager::ModeSwitch);
     } else {
         openedEditor = Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text),
                                                         Core::Id(), Core::EditorManager::ModeSwitch);

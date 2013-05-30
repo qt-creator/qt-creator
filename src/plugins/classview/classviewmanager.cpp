@@ -36,7 +36,6 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <texteditor/basetexteditor.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <coreplugin/icore.h>
@@ -287,10 +286,7 @@ void Manager::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 
 void Manager::gotoLocation(const QString &fileName, int line, int column)
 {
-    bool newEditor = false;
-    TextEditor::BaseTextEditorWidget::openEditorAt(fileName, line, column, Core::Id(),
-                                             Core::EditorManager::IgnoreNavigationHistory,
-                                             &newEditor);
+    Core::EditorManager::openEditorAt(fileName, line, column);
 }
 
 void Manager::gotoLocations(const QList<QVariant> &list)

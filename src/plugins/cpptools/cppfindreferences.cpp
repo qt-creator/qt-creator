@@ -32,11 +32,11 @@
 #include "cpptoolsconstants.h"
 #include "cppmodelmanagerinterface.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <texteditor/basefilefind.h>
-#include <texteditor/basetexteditor.h>
 
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -509,10 +509,10 @@ void CppFindReferences::setPaused(bool paused)
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        TextEditor::BaseTextEditorWidget::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                                       item.lineNumber, item.textMarkPos,
-                                                       Core::Id(),
-                                                       Core::EditorManager::ModeSwitch);
+        Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                                              item.lineNumber, item.textMarkPos,
+                                              Core::Id(),
+                                              Core::EditorManager::ModeSwitch);
     } else {
         Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text),
                                         Core::Id(), Core::EditorManager::ModeSwitch);

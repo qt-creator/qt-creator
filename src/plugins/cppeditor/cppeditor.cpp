@@ -2002,10 +2002,10 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
         return true;
     }
 
-    return TextEditor::BaseTextEditorWidget::openEditorAt(link.targetFileName,
-                                                          link.targetLine,
-                                                          link.targetColumn,
-                                                          Constants::CPPEDITOR_ID);
+    return Core::EditorManager::openEditorAt(link.targetFileName,
+                                             link.targetLine,
+                                             link.targetColumn,
+                                             Constants::CPPEDITOR_ID);
 }
 
 void CPPEditorWidget::semanticRehighlight(bool force)

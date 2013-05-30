@@ -1419,6 +1419,19 @@ IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
                                   fileName, editorId, flags, newEditor);
 }
 
+IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
+                                     const Id &editorId, OpenEditorFlags flags, bool *newEditor)
+{
+    m_instance->cutForwardNavigationHistory();
+    m_instance->addCurrentPositionToNavigationHistory();
+    OpenEditorFlags tempFlags = flags | IgnoreNavigationHistory;
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, editorId,
+            tempFlags, newEditor);
+    if (editor && line != -1)
+        editor->gotoLine(line, column);
+    return editor;
+}
+
 static int extractLineNumber(QString *fileName)
 {
     int i = fileName->length() - 1;

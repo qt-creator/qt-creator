@@ -177,8 +177,8 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
 void CppLocatorFilter::accept(Locator::FilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::ModelItemInfo>(selection.internalData);
-    TextEditor::BaseTextEditorWidget::openEditorAt(info.fileName, info.line, info.column,
-                                             Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditorAt(info.fileName, info.line, info.column,
+                                      Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void CppLocatorFilter::reset()

@@ -118,6 +118,9 @@ public:
     static QString splitLineNumber(QString *fileName);
     static IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
         OpenEditorFlags flags = 0, bool *newEditor = 0);
+    static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
+                                 const Id &editorId = Id(), OpenEditorFlags flags = 0,
+                                 bool *newEditor = 0);
     static IEditor *openEditorWithContents(const Id &editorId,
         QString *titlePattern = 0, const QString &contents = QString());
 

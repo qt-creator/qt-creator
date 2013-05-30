@@ -105,10 +105,10 @@ private:
         if (!m_link.hasValidTarget())
             return;
 
-        TextEditor::BaseTextEditorWidget::openEditorAt(m_link.targetFileName,
-                                                       m_link.targetLine,
-                                                       m_link.targetColumn,
-                                                       Constants::CPPEDITOR_ID);
+        Core::EditorManager::openEditorAt(m_link.targetFileName,
+                                          m_link.targetLine,
+                                          m_link.targetColumn,
+                                          Constants::CPPEDITOR_ID);
     }
 
     CPPEditorWidget::Link m_link;
@@ -205,10 +205,10 @@ void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
     const TextEditor::BaseTextEditorWidget::Link link
             = index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>();
     if (link.hasValidTarget())
-        TextEditor::BaseTextEditorWidget::openEditorAt(link.targetFileName,
-                                                       link.targetLine,
-                                                       link.targetColumn,
-                                                       Constants::CPPEDITOR_ID);
+        Core::EditorManager::openEditorAt(link.targetFileName,
+                                          link.targetLine,
+                                          link.targetColumn,
+                                          Constants::CPPEDITOR_ID);
 }
 
 // CppTypeHierarchyStackedWidget

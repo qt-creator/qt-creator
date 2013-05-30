@@ -141,7 +141,7 @@ BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bo
         // openEditorAt uses a 1-based line and a 0-based column!
         column -= 1;
     }
-    Core::IEditor *editor = BaseTextEditorWidget::openEditorAt(
+    Core::IEditor *editor = Core::EditorManager::openEditorAt(
                 fileName, line, column, Core::Id(), flags);
 
     if (editor)
