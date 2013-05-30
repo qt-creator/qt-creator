@@ -66,6 +66,9 @@
     modes, click the icons, or use the \l{keyboard-shortcuts}
     {corresponding keyboard shortcut}.
 
+    To hide the mode selector and to save space on the display, select
+    \gui Window > \gui {Show Mode Selector}.
+
     The following image displays an example application in \gui Edit mode (1)
     and \gui Design mode (2).
 
