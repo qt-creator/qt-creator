@@ -226,8 +226,10 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     foreach (IVersionControl * versionControl, versionControls) {
         QString topLevel;
-        if (versionControl->managesDirectory(directory, &topLevel))
+        if (versionControl->isConfigured()
+                && versionControl->managesDirectory(directory, &topLevel)) {
             allThatCanManage.push_back(StringVersionControlPair(topLevel, versionControl));
+        }
     }
 
     // To properly find a nested repository (say, git checkout inside SVN),
