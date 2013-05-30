@@ -865,8 +865,7 @@ virtual bool visit(AliasDeclarationAST *ast)
 {
     if (ast->using_token)
         terminal(ast->using_token, ast);
-    if (ast->identifier_token)
-        terminal(ast->identifier_token, ast);
+    nonterminal(ast->name);
     if (ast->equal_token)
         terminal(ast->equal_token, ast);
     nonterminal(ast->typeId);

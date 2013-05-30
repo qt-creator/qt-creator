@@ -646,6 +646,7 @@ void NamespaceAliasDefinitionAST::accept0(ASTVisitor *visitor)
 void AliasDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(name, visitor);
         accept(typeId, visitor);
     }
     visitor->endVisit(this);

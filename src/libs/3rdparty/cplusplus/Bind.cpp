@@ -2066,6 +2066,27 @@ bool Bind::visit(QtInterfacesDeclarationAST *ast)
     return false;
 }
 
+bool Bind::visit(AliasDeclarationAST *ast)
+{
+    if (!ast->name)
+        return false;
+
+    const Name *name = this->name(ast->name);
+
+    FullySpecifiedType ty = expression(ast->typeId);
+    ty.setTypedef(true);
+
+    Declaration *decl = control()->newDeclaration(ast->name->firstToken(), name);
+    decl->setType(ty);
+    decl->setStorage(Symbol::Typedef);
+    ast->symbol = decl;
+    if (_scope->isClass())
+        decl->setVisibility(_visibility);
+    _scope->addMember(decl);
+
+    return false;
+}
+
 bool Bind::visit(AsmDefinitionAST *ast)
 {
     (void) ast;

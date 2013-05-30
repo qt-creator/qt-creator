@@ -154,6 +154,7 @@ private slots:
     void function_declaration_2();
     void function_definition_1();
     void nested_class_1();
+    void alias_declaration_1();
     void typedef_1();
     void typedef_2();
     void typedef_3();
@@ -318,6 +319,25 @@ void tst_Semantic::nested_class_1()
     QVERIFY(namedTy);
     QVERIFY(namedTy->name()->asNameId());
     QCOMPARE(namedTy->name()->asNameId()->identifier(), objectId);
+}
+
+void tst_Semantic::alias_declaration_1()
+{
+    QSharedPointer<Document> doc = document(
+                "using wobble = int;\n"
+                , false, false, true);
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+
+    Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
+    QVERIFY(decl->name());
+    QVERIFY(decl->name()->identifier());
+    QCOMPARE(decl->name()->identifier()->chars(), "wobble");
+
+    QVERIFY(decl->isTypedef());
+    QVERIFY(decl->type().isTypedef());
+    QVERIFY(decl->type()->isIntegerType());
 }
 
 void tst_Semantic::typedef_1()

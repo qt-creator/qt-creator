@@ -584,9 +584,10 @@ public:
         return __ast;
     }
 
-    AliasDeclarationAST *AliasDeclaration(TypeIdAST *typeId = 0)
+    AliasDeclarationAST *AliasDeclaration(NameAST *name = 0, TypeIdAST *typeId = 0)
     {
         AliasDeclarationAST *__ast = new (&pool) AliasDeclarationAST;
+        __ast->name = name;
         __ast->typeId = typeId;
         return __ast;
     }
