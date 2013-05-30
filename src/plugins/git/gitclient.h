@@ -61,7 +61,7 @@ namespace Utils {
 }
 
 namespace DiffEditor {
-    class DiffEditorEditable;
+    class DiffEditor;
 }
 
 namespace Git {
@@ -335,7 +335,7 @@ private:
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
-    DiffEditor::DiffEditorEditable *findExistingDiffEditor(const char *registerDynamicProperty,
+    DiffEditor::DiffEditor *findExistingDiffEditor(const char *registerDynamicProperty,
                                                const QString &dynamicPropertyValue) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };

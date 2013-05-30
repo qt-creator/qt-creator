@@ -47,12 +47,12 @@ namespace Internal {
 class DiffEditorFile;
 }
 
-class DIFFEDITOR_EXPORT DiffEditorEditable : public Core::IEditor
+class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
-    explicit DiffEditorEditable(DiffEditorWidget *editorWidget);
-    virtual ~DiffEditorEditable();
+    explicit DiffEditor(DiffEditorWidget *editorWidget);
+    virtual ~DiffEditor();
 
 public:
     void setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,

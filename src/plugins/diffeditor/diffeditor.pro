@@ -3,13 +3,13 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS += diffeditor_global.h \
         diffeditorconstants.h \
-        diffeditoreditable.h \
+        diffeditor.h \
         diffeditorfile.h \
         diffeditorplugin.h \
         diffeditorwidget.h \
         differ.h
 
-SOURCES += diffeditoreditable.cpp \
+SOURCES += diffeditor.cpp \
         diffeditorfile.cpp \
         diffeditorplugin.cpp \
         diffeditorwidget.cpp \

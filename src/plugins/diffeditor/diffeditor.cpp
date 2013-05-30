@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "diffeditoreditable.h"
+#include "diffeditor.h"
 #include "diffeditorfile.h"
 #include "diffeditorwidget.h"
 #include "diffeditorconstants.h"
@@ -45,9 +45,9 @@
 
 namespace DiffEditor {
 
-///////////////////////////////// DiffEditorEditable //////////////////////////////////
+///////////////////////////////// DiffEditor //////////////////////////////////
 
-DiffEditorEditable::DiffEditorEditable(DiffEditorWidget *editorWidget)
+DiffEditor::DiffEditor(DiffEditorWidget *editorWidget)
     : IEditor(0),
       m_file(new Internal::DiffEditorFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this)),
       m_editorWidget(editorWidget),
@@ -59,20 +59,20 @@ DiffEditorEditable::DiffEditorEditable(DiffEditorWidget *editorWidget)
             this, SLOT(activateEntry(int)));
 }
 
-DiffEditorEditable::~DiffEditorEditable()
+DiffEditor::~DiffEditor()
 {
     delete m_toolWidget;
     if (m_widget)
         delete m_widget;
 }
 
-bool DiffEditorEditable::createNew(const QString &contents)
+bool DiffEditor::createNew(const QString &contents)
 {
     Q_UNUSED(contents)
     return true;
 }
 
-bool DiffEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool DiffEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(fileName)
@@ -80,25 +80,25 @@ bool DiffEditorEditable::open(QString *errorString, const QString &fileName, con
     return true;
 }
 
-Core::IDocument *DiffEditorEditable::document()
+Core::IDocument *DiffEditor::document()
 {
     return m_file;
 }
 
-QString DiffEditorEditable::displayName() const
+QString DiffEditor::displayName() const
 {
     if (m_displayName.isEmpty())
         m_displayName = QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME);
     return m_displayName;
 }
 
-void DiffEditorEditable::setDisplayName(const QString &title)
+void DiffEditor::setDisplayName(const QString &title)
 {
     m_displayName = title;
     emit changed();
 }
 
-Core::Id DiffEditorEditable::id() const
+Core::Id DiffEditor::id() const
 {
     return Constants::DIFF_EDITOR_ID;
 }
@@ -114,7 +114,7 @@ static QToolBar *createToolBar(const QWidget *someWidget)
     return toolBar;
 }
 
-QWidget *DiffEditorEditable::toolBar()
+QWidget *DiffEditor::toolBar()
 {
     if (m_toolWidget)
         return m_toolWidget;
@@ -156,7 +156,7 @@ QWidget *DiffEditorEditable::toolBar()
     return m_toolWidget;
 }
 
-void DiffEditorEditable::setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,
+void DiffEditor::setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,
                                  const QString &workingDirectory)
 {
     m_entriesComboBox->clear();
@@ -200,27 +200,27 @@ void DiffEditorEditable::setDiff(const QList<DiffEditorWidget::DiffFilesContents
     m_editorWidget->setDiff(diffFileList, workingDirectory);
 }
 
-void DiffEditorEditable::clear(const QString &message)
+void DiffEditor::clear(const QString &message)
 {
     m_entriesComboBox->clear();
     updateEntryToolTip();
     m_editorWidget->clear(message);
 }
 
-void DiffEditorEditable::updateEntryToolTip()
+void DiffEditor::updateEntryToolTip()
 {
     const QString &toolTip = m_entriesComboBox->itemData(
                 m_entriesComboBox->currentIndex(), Qt::ToolTipRole).toString();
     m_entriesComboBox->setToolTip(toolTip);
 }
 
-void DiffEditorEditable::entryActivated(int index)
+void DiffEditor::entryActivated(int index)
 {
     updateEntryToolTip();
     m_editorWidget->navigateToDiffFile(index);
 }
 
-void DiffEditorEditable::activateEntry(int index)
+void DiffEditor::activateEntry(int index)
 {
     m_entriesComboBox->blockSignals(true);
     m_entriesComboBox->setCurrentIndex(index);
