@@ -385,6 +385,8 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
             this, SLOT(handleQbsParsingTaskSetup(QString,int)));
     connect(m_qbsSetupProjectJob, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingProgress(int)));
+
+    emit projectParsingStarted();
 }
 
 void QbsProject::prepareForParsing()
