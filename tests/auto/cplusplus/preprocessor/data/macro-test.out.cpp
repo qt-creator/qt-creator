@@ -10,3 +10,8 @@ void thisFunctionIsEnabled();
 void thisFunctionIsEnabled2();
 # 31 "data/macro-test.cpp"
 void thisFunctionIsEnabled3();
+
+
+
+
+

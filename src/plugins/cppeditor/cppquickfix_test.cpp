@@ -842,17 +842,17 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
 
     // Source File
     original =
-        "#include \"file.h\"\n"
-        "using namespace N;\n"
-        "\n"
-        ;
+            "#include \"file.h\"\n"
+            "using namespace N;\n"
+            ;
     expected = original +
-        "\n"
-        "Foo::Foo()\n"
-        "{\n\n"
-        "}\n"
-        "\n"
-        ;
+            "\n"
+            "\n"
+            "Foo::Foo()\n"
+            "{\n\n"
+            "}\n"
+            "\n"
+            ;
     testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
 
     InsertDefFromDecl factory;
