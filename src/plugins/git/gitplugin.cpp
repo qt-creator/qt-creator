@@ -956,7 +956,8 @@ void GitPlugin::startCommit(CommitType commitType)
 
 void GitPlugin::updateVersionWarning()
 {
-    if (m_gitClient->gitVersion() >= minimumRequiredVersion)
+    unsigned version = m_gitClient->gitVersion();
+    if (!version || version >= minimumRequiredVersion)
         return;
     Core::IEditor *curEditor = Core::EditorManager::currentEditor();
     if (!curEditor)
