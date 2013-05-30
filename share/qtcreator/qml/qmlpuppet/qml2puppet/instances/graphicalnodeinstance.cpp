@@ -143,8 +143,6 @@ QImage GraphicalNodeInstance::renderImage() const
 
     QImage renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, renderBoundingRect.size().toSize());
 
-    renderImage = renderImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
     return renderImage;
 }
 

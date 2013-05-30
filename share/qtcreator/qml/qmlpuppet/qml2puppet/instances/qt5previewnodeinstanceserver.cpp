@@ -107,8 +107,6 @@ QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
 
     QImage previewImage = rootNodeInstance().renderPreviewImage(previewImageSize);
 
-    previewImage = previewImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
     return previewImage;
 }
 
