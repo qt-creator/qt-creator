@@ -363,7 +363,7 @@ public:
         : ASTVisitor(translationUnit)
     {}
 
-    void operator()(Declaration *decl, unsigned *line, unsigned *column)
+    void operator()(Symbol *decl, unsigned *line, unsigned *column)
     {
         // default to end of file
         _bestToken.maybeSet(-1, translationUnit()->ast()->lastToken());
@@ -470,7 +470,7 @@ static Declaration *isNonVirtualFunctionDeclaration(Symbol *s)
     return declaration;
 }
 
-static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, const CppRefactoringChanges &changes)
+static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration, const CppRefactoringChanges &changes)
 {
     InsertionLocation noResult;
     Class *klass = declaration->enclosingClass();
@@ -545,15 +545,18 @@ static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, 
     return InsertionLocation(QString::fromUtf8(definitionFunction->fileName()), prefix, suffix, line, column);
 }
 
-QList<InsertionLocation> InsertionPointLocator::methodDefinition(Declaration *declaration) const
+QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declaration,
+                                                                 bool useSymbolFinder) const
 {
     QList<InsertionLocation> result;
     if (!declaration)
         return result;
 
-    CppTools::SymbolFinder symbolFinder;
-    if (symbolFinder.findMatchingDefinition(declaration, m_refactoringChanges.snapshot(), true))
-        return result;
+    if (useSymbolFinder) {
+        CppTools::SymbolFinder symbolFinder;
+        if (symbolFinder.findMatchingDefinition(declaration, m_refactoringChanges.snapshot(), true))
+            return result;
+    }
 
     const InsertionLocation location = nextToSurroundingDefinitions(declaration, m_refactoringChanges);
     if (location.isValid()) {
