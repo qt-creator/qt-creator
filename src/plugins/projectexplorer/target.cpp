@@ -658,8 +658,10 @@ void Target::updateDefaultRunConfigurations()
     }
 
     // Do actual changes:
-    foreach (RunConfiguration *rc, toRemove)
+    foreach (RunConfiguration *rc, toRemove) {
         removeRunConfiguration(rc);
+        existingConfigured.removeOne(rc); // make sure to also remove them from existingConfigured!
+    }
 
     if (removeExistingUnconfigured) {
         foreach (RunConfiguration *rc, existingUnconfigured)

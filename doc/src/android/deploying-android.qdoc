@@ -92,8 +92,8 @@
     \image qtcreator-deploy-android.png "Deploy configurations"
 
     To copy Qt libraries and files to the project directory and to bundle them
-    as part of the APK, select the \gui {Use Qt libraries from device} option
-    and the \gui {Use local Qt libraries} check box. This is the default option
+    as part of the APK, select the \gui {Bundle Qt libraries in APK} option.
+    This is the default option
     when developing with Qt 5.
 
     \section1 Using Ministro to Install Qt Libraries
@@ -111,7 +111,7 @@
     created by \QC.
 
     To use Ministro to install the Qt libraries, select the
-    \gui {Use Qt libraries from device} option (without any other options).
+    \gui {Use Ministro service to install Qt} option.
 
     This is the default option when developing with Qt 4.
 
@@ -128,10 +128,15 @@
     during development.
 
     Select \gui Projects > \gui Run > \gui {Deploy configurations} >
-    \gui Details, and then select the \gui {Deploy local Qt libraries} option
-    and the \gui {Use local Qt libraries} check box to deploy Qt libraries to
+    \gui Details, and then select the
+    \gui {Deploy local Qt libraries to temporary directory} option to deploy
+    Qt libraries to
     the \c{/data/local/tmp/qt} folder on the device and to run the application
     against them.
+
+    To deploy new Qt libraries to the device, select
+    \gui {Clean Temporary Libraries Directory on Device}. The next time you
+    deploy the application, Qt libraries are copied to the device again.
 
     \section1 Installing Ministro
 
@@ -143,8 +148,7 @@
     from the Google Market or from the
     \l{http://necessitas.kde.org/necessitas/ministro.php}{Ministro} home page.
 
-    Then select the \gui {Install Ministro, system-wide Qt shared
-    libraries installer} option in \gui Projects > \gui Run >
+    Then select \gui {Install Ministro from APK} in \gui Projects > \gui Run >
     \gui {Deploy configurations} > \gui Details.
 
     You can use this option also to install any Android package (.apk).

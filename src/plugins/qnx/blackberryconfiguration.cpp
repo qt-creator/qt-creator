@@ -131,7 +131,7 @@ bool BlackBerryConfiguration::refresh()
 
 void BlackBerryConfiguration::loadCertificates()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup(SettingsGroup);
     settings->beginGroup(CertificateGroup);
@@ -158,7 +158,7 @@ void BlackBerryConfiguration::loadCertificates()
 
 void BlackBerryConfiguration::loadNdkSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup(SettingsGroup);
     setNdkPath(settings->value(NDKLocationKey).toString());
@@ -167,7 +167,7 @@ void BlackBerryConfiguration::loadNdkSettings()
 
 void BlackBerryConfiguration::saveCertificates()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup(SettingsGroup);
     settings->beginGroup(CertificateGroup);
@@ -194,7 +194,7 @@ void BlackBerryConfiguration::saveNdkSettings()
     if (m_config.ndkPath.isEmpty())
         return;
 
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     settings->setValue(NDKLocationKey, m_config.ndkPath);
     settings->endGroup();
@@ -396,7 +396,7 @@ void BlackBerryConfiguration::saveSettings()
 
 void BlackBerryConfiguration::clearNdkSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     settings->remove(NDKLocationKey);
     settings->endGroup();

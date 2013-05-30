@@ -233,8 +233,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     if (!ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"), errorMessage))
         return false;
 
-    if (QSettings *settings = ICore::settings())
-        m_settings.fromSettings(settings);
+    m_settings.fromSettings(ICore::settings());
 
     addAutoReleasedObject(new SettingsPage);
 
@@ -1299,8 +1298,7 @@ void CvsPlugin::setSettings(const CvsSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
-        if (QSettings *settings = ICore::settings())
-            m_settings.toSettings(settings);
+        m_settings.toSettings(ICore::settings());
         cvsVersionControl()->emitConfigurationChanged();
     }
 }

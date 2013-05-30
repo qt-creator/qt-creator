@@ -86,6 +86,16 @@ enum StashFlag {
     NoPrompt       = 0x02
 };
 
+class SubmoduleData
+{
+public:
+    QString dir;
+    QString url;
+    QString ignore;
+};
+
+typedef QMap<QString, SubmoduleData> SubmoduleDataMap;
+
 class GitClient : public QObject
 {
     Q_OBJECT
@@ -200,7 +210,7 @@ public:
 
     QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
                                                  QString *errorMessage = 0);
-    QMap<QString,QString> synchronousSubmoduleList(const QString &workingDirectory);
+    SubmoduleDataMap submoduleList(const QString &workingDirectory);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
 

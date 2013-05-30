@@ -1,0 +1,231 @@
+Qt Creator version 2.8 contains bug fixes and new features.
+
+There is a total of about 1250 changes by 60 individual contributors.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.7.1..origin/2.8
+
+General
+   * Moved progress information from mode selector to the bottom-right
+     of the main window
+   * Added option to hide detailed progress information and show
+     summary progress bar instead
+   * Added "-block" command line option that opens files in a running
+     Qt Creator and blocks the command line until the editors are closed
+   * Made mode selector hideable (Window > Show Mode Selector)
+
+Editing
+   * Added option to open extra editor windows (Window > Split New Window)
+   * Fixed that mouse cursor was hidden when pressing modifier key
+   * Added support for jumping to column with locator and Go to Line menu
+   * Added that clicking on line and column display opens locator with line and column filter
+     (QTCREATORBUG-8811)
+   * Added option to show file encoding next to line and column display
+     (QTCREATORBUG-8376)
+
+Managing Projects
+   * Fixed opening projects created with wizard even if version control
+     creation fails (QTCREATORBUG-8892)
+
+Compilers
+   * Fixed detection of PowerPC ABI
+   * Fixed detection of ARM-based Windows CE ABI
+   * Fixed compile output parsers cutting off last character (QTCREATORBUG-9032)
+   * Added support for new warnings and errors in compile output from GCC 4.8
+
+Devices
+   * Fixed setting default device (QTCREATORBUG-7812)
+   * Added support for configuring Desktop device
+     (for example free ports for debugging)
+
+QMake Projects
+   * Added support for OBJECTIVE_HEADERS
+
+CMake Projects
+   * Fixed sorting of build targets
+   * Fixed CXXFLAGS detection when Ninja is used (QTCREATORBUG-9047)
+
+Qbs Projects
+   * Fixed defines that are passed to the C++ code model
+   * Added install build step
+   * Fixed several issues with project tree
+   * Added run configuration for products in the project
+   * Added building of single files
+
+Autotools Projects
+   * Added parsing of defines and C++ flags from Makefile
+
+Generic Projects
+   * Added filtering for files to add instead of only filtering for files to ignore when
+     importing projects (QTCREATORBUG-8805)
+
+Debugging
+   * GDB
+      * Added option to load system GDB pretty printers
+      * Made adding tasks for missing debug info packages optional
+        (QTCREATORBUG-8949)
+   * CDB
+      * Fixed stepping out of disassembled function
+      * Added warning when debugging release build
+      * Fixed and added nice display of several data types
+        (QPixmap, QChar, 64bit integers in containers, QString in QVariant)
+      * Fixed that debugger would sometimes stop at disabled breakpoints (QTCREATORBUG-9295)
+   * LLDB
+      * Added experimental support
+   * QML
+      * Fixed that a fixed port was used instead of using port from device settings
+      * Added support for IPv6
+
+Analyzer
+   * Fixed that a fixed port was used instead of using port from device settings
+   * Added support for IPv6
+   * Fixed attaching profiler to QML applications to use kits
+
+C++ Support
+   * Added refactoring action that moves function definition from header to
+     source (QTCREATORBUG-516)
+   * Added refactoring action that assigns a function return value or new expression
+     to local variable (QTCREATORBUG-9052)
+   * Added refactoring action that adds implementations for pure virtual methods
+   * Fixed parsing of try-catch in constructor initializer (QTCREATORBUG-9064)
+   * Fixed handling of non-arguments in function parameter scope (QTCREATORBUG-8316)
+   * Fixed crash when adding include for undefined identifier in file that
+     has no other include (QTCREATORBUG-8799)
+   * Fixed that system headers were not reparsed when project configuration
+     changes (QTCREATORBUG-9056)
+   * Fixed highlighting for template parameters for function calls
+   * Improved support for anonymous classes
+     (QTCREATORBUG-6497, QTCREATORBUG-8963, QTCREATORBUG-3610, QTCREATORBUG-7579)
+   * Fixed support for typedef of templated typedefs (QTCREATORBUG-8375)
+   * Fixed code completion with 'using' declaration inside functions (QTCREATORBUG-2668)
+   * Fixed highlighting of types when there is 'using Namespace::TypeName' (QTCREATORBUG-7903)
+
+Python Support
+   * Added an editor with highlighter and indenter
+   * Added file and class wizards
+
+Diff Viewer
+   * Enabled by default
+   * Added folding of skipped lines
+   * Added folding of files
+   * Added jumping to original file on double-click
+   * Added file list combo box
+
+Version Control Systems
+   * Added "Select All" to clean dialog
+   * Git
+      * Added new side-by-side diff viewer
+      * Added support for interactive rebase
+      * Added support for updating submodules
+      * Added support for checking out commit
+      * Added continue and abort for operations in progress
+        (rebase, cherry-pick etc.)
+      * Added support for fixing up previous commit
+      * Moved all change related actions to a single dialog
+      * Improved stash handling
+      * Added dialog for pushing to Gerrit
+      * Added tags to branches dialog
+      * Added ability to save repository location for Gerrit
+      * Added graph toggle button for log viewer
+   * ClearCase
+      * Removed useless hijack button for dynamic view
+
+FakeVim
+   * Fixed movement between views with Ctrl+W, Arrow
+   * Added setting for .vimrc location (QTCREATORBUG-8748)
+   * Fixed z., zz, zb and z- commands
+   * Added support for Vim macro recording
+
+Platform Specific
+
+Linux
+   * Made crash handler for debug builds optional
+
+Qt Support
+   * Fixed that Qt Creator preferred Qt 4 qmake over the system default
+     (QTCREATORBUG-9068)
+
+QNX
+   * Added warning for too big icons and splash screens
+   * Added more application permissions to bar descriptor editor
+   * Added check for device development mode before deploying
+   * Fixed certificate marshalling with newer BlackBerry NDKs
+   * Added auto-detection of device PIN for new debug tokens (QTCREATORBUG-9062)
+   * Enabled QML debugging for pure QNX devices
+   * Fixed that key generation locked up UI (QTCREATORBUG-9078)
+   * Added option to sign packages when creating them
+
+Android
+   * Fixed that Android device would show up even when no Android SDK
+     was configured
+   * Added support for mixed C++/QML debugging
+   * Added support for QML profiling
+   * Added more sanity checks for package names (QTCREATORBUG-9200)
+   * Added visual editor for Android manifest files
+
+Credits for these changes go to:
+
+Aaron McCarthy
+Adrien Bustany
+Alan Alpert
+Alessandro Portale
+Andreas Holzammer
+André Hartmann
+André Pönitz
+Andrey M. Tokarev
+Aurindam Jana
+Christian Kandeler
+Christian Stenger
+Christian Strømme
+Daniel Teske
+David Schulz
+Debao Zhang
+Dmitry Savchenko
+Eike Ziller
+El Mehdi Fekari
+Erik Verbruggen
+Eskil Abrahamsen Blomfeldt
+Fawzi Mohamed
+Friedemann Kleint
+Lukas Holecek
+Hugues Delorme
+Jaroslaw Kobus
+Jesper K. Pedersen
+Jörg Bornemann
+J-P Nurmi
+Kai Köhne
+Knut Petter Svendsen
+Laurent Montel
+Leena Miettinen
+Lorenz Haas
+Lukas Holecek
+Marc Mutz
+Marco Bubke
+Martin T. H. Sandsmark
+Michal Klocek
+Mitch Curtis
+Montel Laurent
+Morten Johan Sørvig
+Nikolai Kosjar
+Orgad Shaneh
+Oswald Buddenhagen
+Pawel Faron
+Petar Perisin
+Przemyslaw Gorszkowski
+Rafael Roquetto
+Robert Löhning
+Sergey Belyashov
+Sergey Shambir
+Shane Peelar
+Thiago Macieira
+Thomas Hartmann
+Tim Jenssen
+Timo Jyrinki
+Tobias Hunger
+Tobias Nätterlund
+Tor Arne Vestbø
+Victor Ostashevsky

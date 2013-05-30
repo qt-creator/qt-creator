@@ -1274,37 +1274,35 @@ void ProjectExplorerPlugin::savePersistentSettings()
     }
 
     QSettings *s = Core::ICore::settings();
-    if (s) {
-        s->setValue(QLatin1String("ProjectExplorer/StartupSession"), d->m_session->activeSession());
-        s->remove(QLatin1String("ProjectExplorer/RecentProjects/Files"));
+    s->setValue(QLatin1String("ProjectExplorer/StartupSession"), d->m_session->activeSession());
+    s->remove(QLatin1String("ProjectExplorer/RecentProjects/Files"));
 
-        QStringList fileNames;
-        QStringList displayNames;
-        QList<QPair<QString, QString> >::const_iterator it, end;
-        end = d->m_recentProjects.constEnd();
-        for (it = d->m_recentProjects.constBegin(); it != end; ++it) {
-            fileNames << (*it).first;
-            displayNames << (*it).second;
-        }
-
-        s->setValue(QLatin1String("ProjectExplorer/RecentProjects/FileNames"), fileNames);
-        s->setValue(QLatin1String("ProjectExplorer/RecentProjects/DisplayNames"), displayNames);
-
-        s->setValue(QLatin1String("ProjectExplorer/Settings/BuildBeforeDeploy"), d->m_projectExplorerSettings.buildBeforeDeploy);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), d->m_projectExplorerSettings.deployBeforeRun);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), d->m_projectExplorerSettings.saveBeforeBuild);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), d->m_projectExplorerSettings.showCompilerOutput);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), d->m_projectExplorerSettings.showRunOutput);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), d->m_projectExplorerSettings.showDebugOutput);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), d->m_projectExplorerSettings.cleanOldAppOutput);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), d->m_projectExplorerSettings.mergeStdErrAndStdOut);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), d->m_projectExplorerSettings.wrapAppOutput);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/UseJom"), d->m_projectExplorerSettings.useJom);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), d->m_projectExplorerSettings.autorestoreLastSession);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), d->m_projectExplorerSettings.prompToStopRunControl);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), d->m_projectExplorerSettings.maxAppOutputLines);
-        s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), d->m_projectExplorerSettings.environmentId.toByteArray());
+    QStringList fileNames;
+    QStringList displayNames;
+    QList<QPair<QString, QString> >::const_iterator it, end;
+    end = d->m_recentProjects.constEnd();
+    for (it = d->m_recentProjects.constBegin(); it != end; ++it) {
+        fileNames << (*it).first;
+        displayNames << (*it).second;
     }
+
+    s->setValue(QLatin1String("ProjectExplorer/RecentProjects/FileNames"), fileNames);
+    s->setValue(QLatin1String("ProjectExplorer/RecentProjects/DisplayNames"), displayNames);
+
+    s->setValue(QLatin1String("ProjectExplorer/Settings/BuildBeforeDeploy"), d->m_projectExplorerSettings.buildBeforeDeploy);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), d->m_projectExplorerSettings.deployBeforeRun);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), d->m_projectExplorerSettings.saveBeforeBuild);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), d->m_projectExplorerSettings.showCompilerOutput);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), d->m_projectExplorerSettings.showRunOutput);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), d->m_projectExplorerSettings.showDebugOutput);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), d->m_projectExplorerSettings.cleanOldAppOutput);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), d->m_projectExplorerSettings.mergeStdErrAndStdOut);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), d->m_projectExplorerSettings.wrapAppOutput);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/UseJom"), d->m_projectExplorerSettings.useJom);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), d->m_projectExplorerSettings.autorestoreLastSession);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), d->m_projectExplorerSettings.prompToStopRunControl);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), d->m_projectExplorerSettings.maxAppOutputLines);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), d->m_projectExplorerSettings.environmentId.toByteArray());
 }
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)

@@ -135,8 +135,6 @@ void QbsBuildStep::run(QFutureInterface<bool> &fi)
             this, SLOT(handleProgress(int)));
     connect(m_job, SIGNAL(reportCommandDescription(QString,QString)),
             this, SLOT(handleCommandDescriptionReport(QString,QString)));
-    connect(m_job, SIGNAL(reportWarning(qbs::Error)),
-            this, SLOT(handleWarningReport(qbs::Error)));
     connect(m_job, SIGNAL(reportProcessResult(qbs::ProcessResult)),
             this, SLOT(handleProcessResultReport(qbs::ProcessResult)));
 }
@@ -246,14 +244,6 @@ void QbsBuildStep::handleProgress(int value)
 {
     QTC_ASSERT(m_fi, return);
     m_fi->setProgressValue(m_progressBase + value);
-}
-
-void QbsBuildStep::handleWarningReport(const qbs::Error &error)
-{
-    foreach (const qbs::ErrorData &data, error.entries()) {
-        createTaskAndOutput(ProjectExplorer::Task::Warning, data.description(),
-                            data.codeLocation().fileName(), data.codeLocation().line());
-    }
 }
 
 void QbsBuildStep::handleCommandDescriptionReport(const QString &highlight, const QString &message)

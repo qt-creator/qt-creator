@@ -123,14 +123,11 @@ void NavigationWidgetFactory::saveSettings(int position, QWidget *widget)
     NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
-    QSettings *settings = Core::ICore::settings();
-    QTC_ASSERT(settings, return);
-
     // .beginGroup is not used - to prevent simultaneous access
     QString group = settingsPrefix(position);
 
-    // save settings
-    settings->setValue(group, pw->flatMode());
+    // Save settings
+    Core::ICore::settings()->setValue(group, pw->flatMode());
 }
 
 void NavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
@@ -138,14 +135,11 @@ void NavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
     NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
-    QSettings *settings = Core::ICore::settings();
-    QTC_ASSERT(settings, return);
-
     // .beginGroup is not used - to prevent simultaneous access
     QString group = settingsPrefix(position);
 
-    // load settings
-    pw->setFlatMode(settings->value(group, false).toBool());
+    // Load settings
+    pw->setFlatMode(Core::ICore::settings()->value(group, false).toBool());
 }
 
 } // namespace Internal

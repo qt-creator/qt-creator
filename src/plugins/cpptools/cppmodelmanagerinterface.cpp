@@ -79,25 +79,25 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     ToolChain::CompilerFlags c = (cxxflags == cflags)
             ? cxx : tc->compilerFlags(cflags);
 
-    if (c | ToolChain::StandardC11)
+    if (c & ToolChain::StandardC11)
         cVersion = C11;
-    else if (c | ToolChain::StandardC99)
+    else if (c & ToolChain::StandardC99)
         cVersion = C99;
     else
         cVersion = C89;
 
-    if (cxx | ToolChain::StandardCxx11)
+    if (cxx & ToolChain::StandardCxx11)
         cxxVersion = CXX11;
     else
         cxxVersion = CXX98;
 
-    if (cxx | ToolChain::BorlandExtensions)
+    if (cxx & ToolChain::BorlandExtensions)
         cxxExtensions |= BorlandExtensions;
-    if (cxx | ToolChain::GnuExtensions)
+    if (cxx & ToolChain::GnuExtensions)
         cxxExtensions |= GnuExtensions;
-    if (cxx | ToolChain::MicrosoftExtensions)
+    if (cxx & ToolChain::MicrosoftExtensions)
         cxxExtensions |= MicrosoftExtensions;
-    if (cxx | ToolChain::OpenMP)
+    if (cxx & ToolChain::OpenMP)
         cxxExtensions |= OpenMP;
 
     cWarningFlags = tc->warningFlags(cflags);

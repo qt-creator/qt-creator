@@ -47,21 +47,26 @@ AndroidDeployStepWidget::AndroidDeployStepWidget(AndroidDeployStep *step) :
 {
     ui->setupUi(this);
 
-    ui->useLocalQtLibs->setChecked(m_step->useLocalQtLibs());
     switch (m_step->deployAction()) {
+    case AndroidDeployStep::NoDeploy:
+        ui->ministroOption->setChecked(true);
+        break;
     case AndroidDeployStep::DeployLocal:
-        ui->deployQtLibs->setChecked(true);
+        ui->temporaryQtOption->setChecked(true);
+        break;
+    case AndroidDeployStep::BundleLibraries:
+        ui->bundleQtOption->setChecked(true);
         break;
     default:
-        ui->devicesQtLibs->setChecked(true);
+        ui->ministroOption->setChecked(true);
         break;
     }
 
-    connect(m_step, SIGNAL(resetDelopyAction()), SLOT(resetAction()));
-    connect(ui->devicesQtLibs, SIGNAL(clicked()), SLOT(resetAction()));
-    connect(ui->deployQtLibs, SIGNAL(clicked()), SLOT(setDeployLocalQtLibs()));
+    connect(ui->ministroOption, SIGNAL(clicked()), SLOT(setMinistro()));
+    connect(ui->temporaryQtOption, SIGNAL(clicked()), SLOT(setDeployLocalQtLibs()));
+    connect(ui->bundleQtOption, SIGNAL(clicked()), SLOT(setBundleQtLibs()));
+
     connect(ui->chooseButton, SIGNAL(clicked()), SLOT(setQASIPackagePath()));
-    connect(ui->useLocalQtLibs, SIGNAL(stateChanged(int)), SLOT(useLocalQtLibsStateChanged(int)));
     connect(ui->cleanLibsPushButton, SIGNAL(clicked()), SLOT(cleanLibsOnDevice()));
 }
 
@@ -80,9 +85,8 @@ QString AndroidDeployStepWidget::summaryText() const
     return displayName();
 }
 
-void AndroidDeployStepWidget::resetAction()
+void AndroidDeployStepWidget::setMinistro()
 {
-    ui->devicesQtLibs->setChecked(true);
     m_step->setDeployAction(AndroidDeployStep::NoDeploy);
 }
 
@@ -91,19 +95,20 @@ void AndroidDeployStepWidget::setDeployLocalQtLibs()
     m_step->setDeployAction(AndroidDeployStep::DeployLocal);
 }
 
+void AndroidDeployStepWidget::setBundleQtLibs()
+{
+    m_step->setDeployAction(AndroidDeployStep::BundleLibraries);
+}
+
 void AndroidDeployStepWidget::setQASIPackagePath()
 {
     QString packagePath =
         QFileDialog::getOpenFileName(this, tr("Qt Android Smart Installer"),
                                      QDir::homePath(), tr("Android package (*.apk)"));
-    if (packagePath.length())
-        m_step->setDeployQASIPackagePath(packagePath);
+    if (!packagePath.isEmpty())
+        m_step->installQASIPackage(packagePath);
 }
 
-void AndroidDeployStepWidget::useLocalQtLibsStateChanged(int state)
-{
-    m_step->setUseLocalQtLibs(state == Qt::Checked);
-}
 
 void AndroidDeployStepWidget::cleanLibsOnDevice()
 {

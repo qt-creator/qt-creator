@@ -3,7 +3,7 @@ include(../../qtcreatorplugin.pri)
 DEFINES += \
     PYTHONEDITOR_LIBRARY
 
-OTHER_FILES += PythonEditor.pluginspec.in \
+OTHER_FILES += \
     pythoneditor.mimetypes.xml
 
 RESOURCES += \

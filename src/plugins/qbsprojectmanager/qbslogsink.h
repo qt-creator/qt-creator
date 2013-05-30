@@ -30,6 +30,8 @@
 #ifndef QBSLOGSINK_H
 #define QBSLOGSINK_H
 
+#include <projectexplorer/task.h>
+
 #include <qbs.h>
 
 #include <QMutex>
@@ -45,10 +47,14 @@ class QbsLogSink : public QObject, public qbs::ILogSink
 public:
     QbsLogSink(QObject *parent = 0);
 
+signals:
+    void newTask(const ProjectExplorer::Task &task);
+
 private slots:
     void sendMessages();
 
 private:
+    void doPrintWarning(const qbs::Error &warning);
     void doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag);
 
     QStringList m_messages;

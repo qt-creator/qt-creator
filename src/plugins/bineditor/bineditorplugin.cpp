@@ -58,8 +58,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/ifindsupport.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/qtcassert.h>
 
@@ -70,15 +68,18 @@ using namespace BINEditor::Internal;
 class BinEditorFind : public Find::IFindSupport
 {
     Q_OBJECT
+
 public:
-    BinEditorFind(BinEditor *editor)
+    BinEditorFind(BinEditorWidget *widget)
     {
-        m_editor = editor;
+        m_widget = widget;
         m_incrementalStartPos = m_contPos = -1;
     }
-    ~BinEditorFind() {}
 
     bool supportsReplace() const { return false; }
+    QString currentFindString() const { return QString(); }
+    QString completedFindString() const { return QString(); }
+
     Find::FindFlags supportedFindFlags() const
     {
         return Find::FindBackward | Find::FindCaseSensitively;
@@ -91,21 +92,22 @@ public:
 
     virtual void highlightAll(const QString &txt, Find::FindFlags findFlags)
     {
-        m_editor->highlightSearchResults(txt.toLatin1(), Find::textDocumentFlagsForFindFlags(findFlags));
+        m_widget->highlightSearchResults(txt.toLatin1(), Find::textDocumentFlagsForFindFlags(findFlags));
     }
 
-    void clearResults() { m_editor->highlightSearchResults(QByteArray()); }
-    QString currentFindString() const { return QString(); }
-    QString completedFindString() const { return QString(); }
+    void clearResults()
+    {
+        m_widget->highlightSearchResults(QByteArray());
+    }
 
-
-    int find(const QByteArray &pattern, int pos, Find::FindFlags findFlags) {
+    int find(const QByteArray &pattern, int pos, Find::FindFlags findFlags)
+    {
         if (pattern.isEmpty()) {
-            m_editor->setCursorPosition(pos);
+            m_widget->setCursorPosition(pos);
             return pos;
         }
 
-        return m_editor->find(pattern, pos, Find::textDocumentFlagsForFindFlags(findFlags));
+        return m_widget->find(pattern, pos, Find::textDocumentFlagsForFindFlags(findFlags));
     }
 
     Result findIncremental(const QString &txt, Find::FindFlags findFlags) {
@@ -114,25 +116,25 @@ public:
             resetIncrementalSearch(); // Because we don't search for nibbles.
         m_lastPattern = pattern;
         if (m_incrementalStartPos < 0)
-            m_incrementalStartPos = m_editor->selectionStart();
+            m_incrementalStartPos = m_widget->selectionStart();
         if (m_contPos == -1)
             m_contPos = m_incrementalStartPos;
         int found = find(pattern, m_contPos, findFlags);
         Result result;
         if (found >= 0) {
             result = Found;
-            m_editor->highlightSearchResults(pattern, Find::textDocumentFlagsForFindFlags(findFlags));
+            m_widget->highlightSearchResults(pattern, Find::textDocumentFlagsForFindFlags(findFlags));
             m_contPos = -1;
         } else {
             if (found == -2) {
                 result = NotYetFound;
                 m_contPos +=
                         findFlags & Find::FindBackward
-                        ? -BinEditor::SearchStride : BinEditor::SearchStride;
+                        ? -BinEditorWidget::SearchStride : BinEditorWidget::SearchStride;
             } else {
                 result = NotFound;
                 m_contPos = -1;
-                m_editor->highlightSearchResults(QByteArray(), 0);
+                m_widget->highlightSearchResults(QByteArray(), 0);
             }
         }
         return result;
@@ -142,9 +144,9 @@ public:
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
-            m_contPos = m_editor->cursorPosition();
+            m_contPos = m_widget->cursorPosition();
             if (findFlags & Find::FindBackward)
-                m_contPos = m_editor->selectionStart()-1;
+                m_contPos = m_widget->selectionStart()-1;
         }
         int found = find(pattern, m_contPos, findFlags);
         Result result;
@@ -153,11 +155,11 @@ public:
             m_incrementalStartPos = found;
             m_contPos = -1;
             if (wasReset)
-                m_editor->highlightSearchResults(pattern, Find::textDocumentFlagsForFindFlags(findFlags));
+                m_widget->highlightSearchResults(pattern, Find::textDocumentFlagsForFindFlags(findFlags));
         } else if (found == -2) {
             result = NotYetFound;
             m_contPos += findFlags & Find::FindBackward
-                         ? -BinEditor::SearchStride : BinEditor::SearchStride;
+                         ? -BinEditorWidget::SearchStride : BinEditorWidget::SearchStride;
         } else {
             result = NotFound;
             m_contPos = -1;
@@ -167,7 +169,7 @@ public:
     }
 
 private:
-    BinEditor *m_editor;
+    BinEditorWidget *m_widget;
     int m_incrementalStartPos;
     int m_contPos; // Only valid if last result was NotYetFound.
     QByteArray m_lastPattern;
@@ -178,14 +180,14 @@ class BinEditorDocument : public Core::IDocument
 {
     Q_OBJECT
 public:
-    BinEditorDocument(BinEditor *parent) :
+    BinEditorDocument(BinEditorWidget *parent) :
         Core::IDocument(parent)
     {
-        m_editor = parent;
-        connect(m_editor, SIGNAL(dataRequested(Core::IEditor*,quint64)),
-            this, SLOT(provideData(Core::IEditor*,quint64)));
-        connect(m_editor, SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
-            this, SLOT(provideNewRange(Core::IEditor*,quint64)));
+        m_widget = parent;
+        connect(m_widget, SIGNAL(dataRequested(quint64)),
+            this, SLOT(provideData(quint64)));
+        connect(m_widget, SIGNAL(newRangeRequested(quint64)),
+            this, SLOT(provideNewRange(quint64)));
     }
     ~BinEditorDocument() {}
 
@@ -198,9 +200,9 @@ public:
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
         const QString fileNameToUse
             = fileName.isEmpty() ? m_fileName : fileName;
-        if (m_editor->save(errorString, m_fileName, fileNameToUse)) {
+        if (m_widget->save(errorString, m_fileName, fileNameToUse)) {
             m_fileName = fileNameToUse;
-            m_editor->editor()->setDisplayName(QFileInfo(fileNameToUse).fileName());
+            m_widget->editor()->setDisplayName(QFileInfo(fileNameToUse).fileName());
             emit changed();
             return true;
         } else {
@@ -210,7 +212,7 @@ public:
 
     void rename(const QString &newName) {
         m_fileName = newName;
-        m_editor->editor()->setDisplayName(QFileInfo(fileName()).fileName());
+        m_widget->editor()->setDisplayName(QFileInfo(fileName()).fileName());
         emit changed();
     }
 
@@ -230,8 +232,8 @@ public:
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
             m_fileName = fileName;
-            m_editor->setSizes(offset, file.size());
-            m_editor->editor()->setDisplayName(QFileInfo(fileName).fileName());
+            m_widget->setSizes(offset, file.size());
+            m_widget->editor()->setDisplayName(QFileInfo(fileName).fileName());
             return true;
         }
         QString errStr = tr("Cannot open %1: %2").arg(
@@ -244,19 +246,20 @@ public:
     }
 
 private slots:
-    void provideData(Core::IEditor *, quint64 block) {
+    void provideData(quint64 block)
+    {
         if (m_fileName.isEmpty())
             return;
         QFile file(m_fileName);
         if (file.open(QIODevice::ReadOnly)) {
-            int blockSize = m_editor->dataBlockSize();
+            int blockSize = m_widget->dataBlockSize();
             file.seek(block * blockSize);
             QByteArray data = file.read(blockSize);
             file.close();
             const int dataSize = data.size();
             if (dataSize != blockSize)
                 data += QByteArray(blockSize - dataSize, 0);
-            m_editor->addData(block, data);
+            m_widget->addData(block, data);
         } else {
             QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
@@ -264,7 +267,8 @@ private slots:
         }
     }
 
-    void provideNewRange(Core::IEditor *, quint64 offset) {
+    void provideNewRange(quint64 offset)
+    {
         open(0, m_fileName, offset);
     }
 
@@ -280,10 +284,10 @@ public:
 
     QString suggestedFileName() const { return QString(); }
 
-    bool isModified() const { return m_editor->isMemoryView() ? false : m_editor->isModified(); }
+    bool isModified() const { return m_widget->isMemoryView() ? false : m_widget->isModified(); }
 
     bool isFileReadOnly() const {
-        if (m_editor->isMemoryView() || m_fileName.isEmpty())
+        if (m_widget->isMemoryView() || m_fileName.isEmpty())
             return false;
         const QFileInfo fi(m_fileName);
         return !fi.isWritable();
@@ -306,19 +310,19 @@ public:
     }
 
 private:
-    BinEditor *m_editor;
+    BinEditorWidget *m_widget;
     QString m_fileName;
 };
 
-class BinEditorInterface : public Core::IEditor
+class BinEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
-    BinEditorInterface(BinEditor *editor)
+    BinEditor(BinEditorWidget *widget)
     {
-        setWidget(editor);
-        m_editor = editor;
-        m_file = new BinEditorDocument(m_editor);
+        setWidget(widget);
+        m_widget = widget;
+        m_file = new BinEditorDocument(m_widget);
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context.add(Constants::C_BINEDITOR);
         m_addressEdit = new QLineEdit;
@@ -339,19 +343,21 @@ public:
         m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         m_toolBar->addWidget(w);
 
-        connect(m_editor, SIGNAL(cursorPositionChanged(int)), this,
-            SLOT(updateCursorPosition(int)));
-        connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
-        connect(m_addressEdit, SIGNAL(editingFinished()), this,
-            SLOT(jumpToAddress()));
-        updateCursorPosition(m_editor->cursorPosition());
+        widget->setEditor(this);
+
+        connect(m_widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
+        connect(m_file, SIGNAL(changed()), SIGNAL(changed()));
+        connect(m_addressEdit, SIGNAL(editingFinished()), SLOT(jumpToAddress()));
+        connect(m_widget, SIGNAL(modificationChanged(bool)), SIGNAL(changed()));
+        updateCursorPosition(m_widget->cursorPosition());
     }
-    ~BinEditorInterface() {
-        delete m_editor;
+
+    ~BinEditor() {
+        delete m_widget;
     }
 
     bool createNew(const QString & /* contents */ = QString()) {
-        m_editor->clear();
+        m_widget->clear();
         m_file->setFilename(QString());
         return true;
     }
@@ -366,20 +372,20 @@ public:
 
     QWidget *toolBar() { return m_toolBar; }
 
-    bool isTemporary() const { return m_editor->isMemoryView(); }
+    bool isTemporary() const { return m_widget->isMemoryView(); }
 
 private slots:
     void updateCursorPosition(int position) {
-        m_addressEdit->setText(QString::number(m_editor->baseAddress() + position, 16));
+        m_addressEdit->setText(QString::number(m_widget->baseAddress() + position, 16));
     }
 
     void jumpToAddress() {
-        m_editor->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
-        updateCursorPosition(m_editor->cursorPosition());
+        m_widget->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
+        updateCursorPosition(m_widget->cursorPosition());
     }
 
 private:
-    BinEditor *m_editor;
+    BinEditorWidget *m_widget;
     QString m_displayName;
     BinEditorDocument *m_file;
     QToolBar *m_toolBar;
@@ -408,9 +414,11 @@ QString BinEditorFactory::displayName() const
 
 Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)
 {
-    BinEditor *editor = new BinEditor(parent);
-    m_owner->initializeEditor(editor);
-    return editor->editor();
+    BinEditorWidget *widget = new BinEditorWidget(parent);
+    BinEditor *editor = new BinEditor(widget);
+
+    m_owner->initializeEditor(widget);
+    return editor;
 }
 
 QStringList BinEditorFactory::mimeTypes() const
@@ -433,7 +441,7 @@ BinEditorWidgetFactory::BinEditorWidgetFactory(QObject *parent) :
 
 QWidget *BinEditorWidgetFactory::createWidget(QWidget *parent)
 {
-    return new BinEditor(parent);
+    return new BinEditorWidget(parent);
 }
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
@@ -467,12 +475,8 @@ QAction *BinEditorPlugin::registerNewAction(Core::Id id,
     return rc;
 }
 
-void BinEditorPlugin::initializeEditor(BinEditor *editor)
+void BinEditorPlugin::initializeEditor(BinEditorWidget *widget)
 {
-    BinEditorInterface *editorInterface = new BinEditorInterface(editor);
-    QObject::connect(editor, SIGNAL(modificationChanged(bool)), editorInterface, SIGNAL(changed()));
-    editor->setEditor(editorInterface);
-
     m_context.add(Constants::C_BINEDITOR);
     if (!m_undoAction) {
         m_undoAction      = registerNewAction(Core::Constants::UNDO, this, SLOT(undoAction()), tr("&Undo"));
@@ -481,19 +485,13 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
         m_selectAllAction = registerNewAction(Core::Constants::SELECTALL, this, SLOT(selectAllAction()));
     }
 
-    // Font settings
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-    editor->setFontSettings(settings->fontSettings());
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor, SLOT(setFontSettings(TextEditor::FontSettings)));
-
-    QObject::connect(editor, SIGNAL(undoAvailable(bool)), this, SLOT(updateActions()));
-    QObject::connect(editor, SIGNAL(redoAvailable(bool)), this, SLOT(updateActions()));
+    QObject::connect(widget, SIGNAL(undoAvailable(bool)), this, SLOT(updateActions()));
+    QObject::connect(widget, SIGNAL(redoAvailable(bool)), this, SLOT(updateActions()));
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    BinEditorFind *binEditorFind = new BinEditorFind(editor);
+    BinEditorFind *binEditorFind = new BinEditorFind(widget);
     aggregate->add(binEditorFind);
-    aggregate->add(editor);
+    aggregate->add(widget);
 }
 
 bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -515,9 +513,9 @@ void BinEditorPlugin::extensionsInitialized()
 
 void BinEditorPlugin::updateCurrentEditor(Core::IEditor *editor)
 {
-    BinEditor *binEditor = 0;
+    BinEditorWidget *binEditor = 0;
     if (editor)
-        binEditor = qobject_cast<BinEditor *>(editor->widget());
+        binEditor = qobject_cast<BinEditorWidget *>(editor->widget());
     if (m_currentEditor == binEditor)
         return;
     m_currentEditor = binEditor;

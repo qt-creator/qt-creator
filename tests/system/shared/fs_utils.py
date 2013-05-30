@@ -50,9 +50,15 @@ def changeFilePermissions(dirPath, readPerm, writePerm, excludeFileNames=None):
         return False
     filePaths = [os.path.join(dirPath, fileName) for fileName in os.listdir(dirPath)
                  if fileName not in excludeFileNames]
+    result = True
     for filePath in filter(os.path.isfile, filePaths):
-        os.chmod(filePath, permission)
-    return True
+        try:
+            os.chmod(filePath, permission)
+        except:
+            t,v = sys.exc_info()[:2]
+            test.log("Error: %s(%s)" % (str(t), str(v)))
+            result = False
+    return result
 
 def isWritable(pathToFile):
     if os.path.exists(pathToFile):

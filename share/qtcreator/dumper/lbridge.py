@@ -325,7 +325,7 @@ lldb.SBType.unqualified = lambda self: self.GetUnqualifiedType()
 lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
-lldb.SBType.strip_typedefs = lambda self: self
+lldb.SBType.strip_typedefs = lambda self: self.GetCanonicalType()
 
 def simpleEncoding(typeobj):
     code = typeobj.GetTypeClass()
@@ -504,6 +504,8 @@ class Dumper:
         self.useLldbDumpers = False
         self.ns = ""
         self.autoDerefPointers = True
+        self.useDynamicType = True
+        self.useLoop = True
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -517,11 +519,13 @@ class Dumper:
         self.currentChildType = None
         self.currentChildNumChild = None
 
+        self.executable_ = None
         self.charType_ = None
         self.intType_ = None
         self.sizetType_ = None
         self.charPtrType_ = None
         self.voidType_ = None
+        self.isShuttingDown_ = False
 
     def extractTemplateArgument(self, typename, index):
         level = 0
@@ -564,12 +568,12 @@ class Dumper:
 
     def intType(self):
         if self.intType_ is None:
-             self.intType_ = self.target.GetModuleAtIndex(0).FindFirstType('int')
+             self.intType_ = self.target.FindFirstType('int')
         return self.intType_
 
     def charType(self):
         if self.charType_ is None:
-             self.charType_ = self.target.GetModuleAtIndex(0).FindFirstType('char')
+             self.charType_ = self.target.FindFirstType('char')
         return self.charType_
 
     def charPtrType(self):
@@ -578,9 +582,11 @@ class Dumper:
         return self.charPtrType_
 
     def voidPtrType(self):
+        return None
         return self.charPtrType()  # FIXME
 
     def voidPtrSize(self):
+        return None
         return self.charPtrType().GetByteSize()
 
     def sizetType(self):
@@ -676,43 +682,46 @@ class Dumper:
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
 
     def lookupType(self, name):
-        #warn("LOOKUP: %s" % self.target.GetModuleAtIndex(0).FindFirstType(name))
-        return self.target.GetModuleAtIndex(0).FindFirstType(name)
+        #warn("LOOKUP: %s" % self.target.FindFirstType(name))
+        return self.target.FindFirstType(name)
 
     def setupInferior(self, args):
-        fileName = args['executable']
+        executable = args['executable']
+        self.executable_ = executable
         error = lldb.SBError()
-        self.target = self.debugger.CreateTarget(fileName, None, None, True, error)
-        if self.target.IsValid():
-            self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, fileName))
-        else:
-            self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, fileName))
+        self.target = self.debugger.CreateTarget(executable, None, None, True, error)
+        self.listener = self.target.GetDebugger().GetListener()
+        self.process = self.target.Launch(self.listener, None, None,
+                                            None, None, None,
+                                            None, 0, True, error)
+        self.broadcaster = self.process.GetBroadcaster()
+        rc = self.broadcaster.AddListener(self.listener, 15)
+        if rc != 15:
+            warn("ADDING LISTENER FAILED: %s" % rc)
+
         self.importDumpers()
+
+        if self.target.IsValid():
+            self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, executable))
+        else:
+            self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, executable))
+
+        warn("STATE AFTER LAUNCH: %s" % stateNames[self.process.GetState()])
 
     def runEngine(self, _):
         error = lldb.SBError()
-        #launchInfo = lldb.SBLaunchInfo(["-s"])
-        #self.process = self.target.Launch(self.listener, None, None,
-        #                                    None, '/tmp/stdout.txt', None,
-        #                                    None, 0, True, error)
-        self.listener = lldb.SBListener("event_Listener")
-        self.process = self.target.Launch(self.listener, None, None,
-                                            None, None, None,
-                                            os.getcwd(),
-                  lldb.eLaunchFlagExec
-                + lldb.eLaunchFlagDebug
-                #+ lldb.eLaunchFlagDebug
-                #+ lldb.eLaunchFlagStopAtEntry
-                #+ lldb.eLaunchFlagDisableSTDIO
-                #+ lldb.eLaunchFlagLaunchInSeparateProcessGroup
-            , False, error)
-        self.reportError(error)
         self.pid = self.process.GetProcessID()
         self.report('pid="%s"' % self.pid)
-        self.report('state="enginerunok"')
+        self.consumeEvents()
+        error = self.process.Continue()
+        self.consumeEvents()
+        self.reportError(error)
 
-        s = threading.Thread(target=self.loop, args=[])
-        s.start()
+        self.report('state="enginerunandinferiorrunok"')
+
+        if self.useLoop:
+            s = threading.Thread(target=self.loop, args=[])
+            s.start()
 
     def describeError(self, error):
         desc = lldb.SBStream()
@@ -809,15 +818,16 @@ class Dumper:
             self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
 
-
     def readRawMemory(self, base, size):
-        error = lldb.SBError()
+        if size == 0:
+            return ""
         #warn("BASE: %s " % base)
         #warn("SIZE: %s " % size)
         base = int(base) & 0xFFFFFFFFFFFFFFFF
         size = int(size) & 0xFFFFFFFF
         #warn("BASEX: %s " % base)
         #warn("SIZEX: %s " % size)
+        error = lldb.SBError()
         contents = self.process.ReadMemory(base, size, error)
         return binascii.hexlify(contents)
 
@@ -1010,18 +1020,26 @@ class Dumper:
         if state != self.eventState:
             self.report('state="%s"' % stateNames[state])
             self.eventState = state
-            #if state == lldb.eStateExited:
-            #    warn("PROCESS EXITED. %d: %s"
-            #        % (self.process.GetExitStatus(), self.process.GetExitDescription()))
+            if state == lldb.eStateExited:
+                if self.isShuttingDown_:
+                    self.report('state="inferiorshutdownok"')
+                else:
+                    self.report('state="inferiorexited"')
+                self.report('exited={status="%s",desc="%s"}'
+                    % (self.process.GetExitStatus(), self.process.GetExitDescription()))
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
-            #if state == lldb.eStateStopped:
             self.reportData()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
-            pass
+            # FIXME: Size?
+            msg = self.process.GetSTDOUT(1024)
+            self.report('output={channel="stdout",data="%s"}'
+                % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitSTDERR:
-            pass
+            msg = self.process.GetSTDERR(1024)
+            self.report('output={channel="stdout",data="%s"}'
+                % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
@@ -1127,7 +1145,8 @@ class Dumper:
 
     def listModules(self, args):
         result = 'modules=['
-        for module in self.target.modules:
+        for i in xrange(self.target.GetNumModules()):
+            module = self.target.GetModuleAtIndex(i)
             result += '{file="%s"' % module.file.fullpath
             result += ',name="%s"' % module.file.basename
             result += ',addrsize="%s"' % module.addr_size
@@ -1146,7 +1165,8 @@ class Dumper:
         moduleName = args['module']
         #file = lldb.SBFileSpec(moduleName)
         #module = self.target.FindModule(file)
-        for module in self.target.modules:
+        for i in xrange(self.target.GetNumModules()):
+            module = self.target.GetModuleAtIndex(i)
             if module.file.fullpath == moduleName:
                 break
         result = 'symbols={module="%s"' % moduleName
@@ -1174,8 +1194,13 @@ class Dumper:
     def executeStep(self, _ = None):
         self.currentThread().StepInto()
 
+    def shutdownInferior(self, _ = None):
+        self.isShuttingDown_ = True
+        self.process.Kill()
+
     def quit(self, _ = None):
-        self.debugger.Terminate()
+        self.report('state="engineshutdownok"')
+        self.process.Kill()
 
     def executeStepI(self, _ = None):
         self.currentThread().StepInstruction(lldb.eOnlyThisThread)
@@ -1202,8 +1227,9 @@ class Dumper:
         self.currentThread().SetSelectedFrame(args['index'])
         self.reportData()
 
-    def selectThread(self, thread):
-        self.handleCommand("thread select " + thread)
+    def selectThread(self, args):
+        self.process.SetSelectedThreadByID(args['id'])
+        self.reportData()
 
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)
@@ -1213,12 +1239,8 @@ class Dumper:
         command = args['command']
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         success = result.Succeeded()
-        if success:
-            output = result.GetOutput()
-            error = ''
-        else:
-            output = ''
-            error = str(result.GetError())
+        output = result.GetOutput()
+        error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
     def setOptions(self, args):
@@ -1226,6 +1248,10 @@ class Dumper:
 
     def updateData(self, args):
         self.expandedINames = set(args['expanded'].split(','))
+        self.autoDerefPointers = int(args['autoderef'])
+        self.useDynamicType = int(args['dyntype'])
+        # Keep always True for now.
+        #self.passExceptions = args['pe']
         self.reportData()
 
     def disassemble(self, args):
@@ -1279,19 +1305,42 @@ class Dumper:
     def execute(self, args):
         getattr(self, args['cmd'])(args)
         self.report('token="%s"' % args['token'])
-        try:
+        if 'continuation' in args:
             cont = args['continuation']
             self.report('continuation="%s"' % cont)
-        except:
-            pass
+
+    def consumeEvents(self):
+        event = lldb.SBEvent()
+        if self.listener and self.listener.PeekAtNextEvent(event):
+            self.listener.GetNextEvent(event)
+            self.handleEvent(event)
+
 
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 execfile(os.path.join(currentDir, "qttypes.py"))
 
 
-def doit():
+def doit1():
 
     db = Dumper()
+    db.useLoop = False
+    db.report('state="enginesetupok"')
+
+    while True:
+        db.consumeEvents()
+
+        readable, _, _ = select.select([sys.stdin], [], [], 0.1)
+        if sys.stdin in readable:
+            line = raw_input()
+            if line.startswith("db "):
+                db.execute(eval(line[3:]))
+
+        db.consumeEvents()
+
+def doit2():
+
+    db = Dumper()
+    db.useLoop = True
     db.report('state="enginesetupok"')
 
     while True:
@@ -1304,9 +1353,9 @@ def doit():
                     db.execute(eval(line[3:]))
 
 
-
 def testit():
     db = Dumper()
+    db.useLoop = False
 
     error = lldb.SBError()
     db.target = db.debugger.CreateTarget(sys.argv[2], None, None, True, error)
@@ -1344,4 +1393,4 @@ def testit():
 if len(sys.argv) > 2:
     testit()
 else:
-    doit()
+    doit2()

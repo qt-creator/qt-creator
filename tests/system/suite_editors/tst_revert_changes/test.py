@@ -140,6 +140,3 @@ def compareFileToOriginal(fileName):
     origFile.close()
     test.compare(originalContent, currentContent,
                  "Comparing original to reverted file content for '%s'" % fileName)
-
-def simpleFileName(navigatorFileName):
-    return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")

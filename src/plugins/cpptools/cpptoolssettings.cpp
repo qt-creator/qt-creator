@@ -172,7 +172,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     // load global settings (after built-in settings are added to the pool)
     QSettings *s = Core::ICore::settings();
-    d->m_globalCodeStyle->fromSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), Core::ICore::settings());
+    d->m_globalCodeStyle->fromSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
 
     // legacy handling start (Qt Creator Version < 2.4)
     const bool legacyTransformed =

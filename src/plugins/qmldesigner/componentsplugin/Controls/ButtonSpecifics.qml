@@ -89,6 +89,21 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
+                            text: qsTr("Enabled")
+                            toolTip: qsTr("Determines whether the button is enabled or not.")
+                        }
+                        CheckBox {
+                            text: backendValues.enabled.value
+                            backendValue: backendValues.enabled
+                            baseStateFlag: isBaseState
+                            checkable: true
+                        }
+                    }
+                }
+
+                QWidget {
+                    layout: HorizontalLayout {
+                        Label {
                             text: qsTr("Default button")
                             toolTip: qsTr("Sets the button as the default button in a dialog.")
                         }

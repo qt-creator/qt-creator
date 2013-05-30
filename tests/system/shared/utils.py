@@ -647,3 +647,6 @@ def readFile(filename):
     content = f.read()
     f.close()
     return content
+
+def simpleFileName(navigatorFileName):
+    return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")

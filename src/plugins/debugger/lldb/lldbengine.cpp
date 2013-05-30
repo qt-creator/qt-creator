@@ -84,6 +84,17 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     m_lastAgentId = 0;
     m_lastToken = 0;
     setObjectName(QLatin1String("LldbEngine"));
+
+    connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateLocals()));
+    connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
+            SLOT(updateAll()));
+    connect(debuggerCore()->action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateLocals()));
+    connect(debuggerCore()->action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateLocals()));
+    connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
+            SLOT(updateAll()));
 }
 
 LldbEngine::~LldbEngine()
@@ -108,7 +119,7 @@ void LldbEngine::runCommand(const Command &command)
 void LldbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    notifyInferiorShutdownOk();
+    runCommand(Command("shutdownInferior"));
 }
 
 void LldbEngine::shutdownEngine()
@@ -249,6 +260,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshSymbols(item);
         else if (name == "bkpts")
             refreshBreakpoints(item);
+        else if (name == "output")
+            refreshOutput(item);
         else if (name == "disassembly")
             refreshDisassembly(item);
         else if (name == "memory")
@@ -483,6 +496,18 @@ void LldbEngine::refreshMemory(const GdbMi &data)
     }
 }
 
+void LldbEngine::refreshOutput(const GdbMi &output)
+{
+    QByteArray channel = output["channel"].data();
+    QByteArray data = QByteArray::fromHex(output["data"].data());
+    LogChannel ch = AppStuff;
+    if (channel == "stdout")
+        ch = AppOutput;
+    else if (channel == "stderr")
+        ch = AppError;
+    showMessage(QString::fromUtf8(data), ch);
+}
+
 void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
 {
     BreakHandler *handler = breakHandler();
@@ -640,6 +665,10 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     return false;
 }
 
+void LldbEngine::updateAll()
+{
+    updateLocals();
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -663,6 +692,11 @@ void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &
 {
     Q_UNUSED(data);
     Q_UNUSED(flags);
+    updateLocals();
+}
+
+void LldbEngine::updateLocals()
+{
     WatchHandler *handler = watchHandler();
 
     Command cmd("updateData");
@@ -787,7 +821,7 @@ void LldbEngine::readLldbStandardError()
     qDebug() << "\nLLDB STDERR" << err;
     //qWarning() << "Unexpected lldb stderr:" << err;
     showMessage(_("Lldb stderr: " + err));
-    //handleOutput(err);
+    m_lldbProc.kill();
 }
 
 void LldbEngine::readLldbStandardOutput()
@@ -857,11 +891,6 @@ QByteArray LldbEngine::currentOptions() const
     result += ",\"threads\":\"" + threadsOptions + '"';
 
     return result;
-}
-
-void LldbEngine::updateAll()
-{
-    runCommand("reportData");
 }
 
 void LldbEngine::refreshLocals(const GdbMi &vars)
@@ -985,8 +1014,20 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyInferiorSpontaneousStop();
     else if (newState == "inferiorsetupok")
         notifyInferiorSetupOk();
-    else if (newState == "enginerunok")
+    else if (newState == "enginerunandinferiorrunok")
         notifyEngineRunAndInferiorRunOk();
+    else if (newState == "enginerunandinferiorstopok")
+        notifyEngineRunAndInferiorStopOk();
+    else if (newState == "inferiorshutdownok")
+        notifyInferiorShutdownOk();
+    else if (newState == "inferiorshutdownfailed")
+        notifyInferiorShutdownFailed();
+    else if (newState == "engineshutdownok")
+        notifyEngineShutdownOk();
+    else if (newState == "engineshutdownfailed")
+        notifyEngineShutdownFailed();
+    else if (newState == "inferiorexited")
+        notifyInferiorExited();
 }
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)

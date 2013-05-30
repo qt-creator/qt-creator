@@ -156,11 +156,15 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    if (!envImportPath.isEmpty())
        applicationPath = envImportPath;
 
-   QProcessEnvironment enviroment = QProcessEnvironment::systemEnvironment();
+   QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) && (defined(Q_OS_MAC) || defined(Q_OS_LINUX))
+   environment.insert(QLatin1String("DESIGNER_DONT_USE_SHARED_MEMORY"), QLatin1String("1"));
+#endif
 
    if (QFileInfo(applicationPath).exists()) {
        m_qmlPuppetEditorProcess = new QProcess;
-       m_qmlPuppetEditorProcess->setProcessEnvironment(enviroment);
+       m_qmlPuppetEditorProcess->setProcessEnvironment(environment);
        m_qmlPuppetEditorProcess->setObjectName("EditorProcess");
        connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
        connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
@@ -171,7 +175,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
        if (runModus == NormalModus) {
            m_qmlPuppetPreviewProcess = new QProcess;
-           m_qmlPuppetPreviewProcess->setProcessEnvironment(enviroment);
+           m_qmlPuppetPreviewProcess->setProcessEnvironment(environment);
            m_qmlPuppetPreviewProcess->setObjectName("PreviewProcess");
            connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
            connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
@@ -180,7 +184,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
 
            m_qmlPuppetRenderProcess = new QProcess;
-           m_qmlPuppetRenderProcess->setProcessEnvironment(enviroment);
+           m_qmlPuppetRenderProcess->setProcessEnvironment(environment);
            m_qmlPuppetRenderProcess->setObjectName("RenderProcess");
            connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
            connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetRenderProcess.data(), SLOT(kill()));

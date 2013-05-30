@@ -572,6 +572,7 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
                              QFileInfo(p.files.front()).fileName() : p.diffName;
 
     QStringList args(QLatin1String("diff"));
+    args.append(QLatin1String("--internal-diff"));
     args.append(p.arguments);
     args << p.files;
 

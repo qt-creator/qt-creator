@@ -74,7 +74,9 @@ AndroidRunner::AndroidRunner(QObject *parent,
     }
     ProjectExplorer::Target *target = runConfig->target();
     AndroidDeployStep *ds = runConfig->deployStep();
-    if ((m_useLocalQtLibs = ds->useLocalQtLibs())) {
+    m_useLocalQtLibs = ds->deployAction() == AndroidDeployStep::DeployLocal
+            || ds->deployAction() == AndroidDeployStep::BundleLibraries;
+    if (m_useLocalQtLibs) {
         m_localLibs = AndroidManager::loadLocalLibs(target, ds->deviceAPILevel());
         m_localJars = AndroidManager::loadLocalJars(target, ds->deviceAPILevel());
         m_localJarsInitClasses = AndroidManager::loadLocalJarsInitClasses(target, ds->deviceAPILevel());

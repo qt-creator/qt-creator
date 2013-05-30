@@ -40,7 +40,7 @@
 #include <QAction>
 
 namespace BINEditor {
-class BinEditor;
+class BinEditorWidget;
 
 class BinEditorWidgetFactory : public QObject
 {
@@ -67,7 +67,7 @@ public:
     void extensionsInitialized();
 
     // Connect editor to settings changed signals.
-    void initializeEditor(BinEditor *editor);
+    void initializeEditor(BinEditorWidget *editor);
 
 private slots:
     void undoAction();
@@ -92,7 +92,7 @@ private:
     Core::IEditor *createEditor(QWidget *parent);
 
     BinEditorFactory *m_factory;
-    QPointer<BinEditor> m_currentEditor;
+    QPointer<BinEditorWidget> m_currentEditor;
 };
 
 class BinEditorFactory : public Core::IEditorFactory

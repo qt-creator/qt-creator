@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class RewritingException: public Exception
+class QMLDESIGNERCORE_EXPORT RewritingException: public Exception
 {
 public:
     RewritingException(int line,

@@ -55,16 +55,17 @@ class FontSettings;
 
 namespace BINEditor {
 
-class BinEditor : public QAbstractScrollArea
+class BinEditorWidget : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE false)
     Q_PROPERTY(QList<BINEditor::Markup> markup READ markup WRITE setMarkup DESIGNABLE false)
     Q_PROPERTY(bool newWindowRequestAllowed READ newWindowRequestAllowed WRITE setNewWindowRequestAllowed DESIGNABLE false)
+
 public:
-    BinEditor(QWidget *parent = 0);
-    ~BinEditor();
+    BinEditorWidget(QWidget *parent = 0);
+    ~BinEditorWidget();
 
     quint64 baseAddress() const { return m_baseAddr; }
 
@@ -138,11 +139,11 @@ Q_SIGNALS:
     void redoAvailable(bool);
     void cursorPositionChanged(int position);
 
-    void dataRequested(Core::IEditor *editor, quint64 block);
+    void dataRequested(quint64 block);
     void newWindowRequested(quint64 address);
-    void newRangeRequested(Core::IEditor *, quint64 address);
+    void newRangeRequested(quint64 address);
     void addWatchpointRequested(quint64 address, uint size);
-    void dataChanged(Core::IEditor *, quint64 address, const QByteArray &data);
+    void dataChanged(quint64 address, const QByteArray &data);
 
 protected:
     void scrollContentsBy(int dx, int dy);
