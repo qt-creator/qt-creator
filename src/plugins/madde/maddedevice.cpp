@@ -41,7 +41,6 @@ using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
-const char MaddeDeviceTestActionId[] = "Madde.DeviceTestAction";
 
 MaddeDevice::Ptr MaddeDevice::create()
 {
@@ -78,38 +77,6 @@ QString MaddeDevice::displayType() const
     return maddeDisplayType(type());
 }
 
-QList<Core::Id> MaddeDevice::actionIds() const
-{
-    return QList<Core::Id>() << Core::Id(MaddeDeviceTestActionId)
-        << Core::Id(Constants::GenericDeployKeyToDeviceActionId);
-}
-
-QString MaddeDevice::displayNameForActionId(Core::Id actionId) const
-{
-    QTC_ASSERT(actionIds().contains(actionId), return QString());
-
-    if (actionId == MaddeDeviceTestActionId)
-        return tr("Test");
-    if (actionId == Constants::GenericDeployKeyToDeviceActionId)
-        return tr("Deploy Public Key...");
-    return QString(); // Can't happen.
-}
-
-void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
-{
-    QTC_ASSERT(actionIds().contains(actionId), return);
-
-    QDialog *d = 0;
-    const IDevice::ConstPtr device = sharedFromThis();
-    if (actionId == MaddeDeviceTestActionId)
-        d = new LinuxDeviceTestDialog(device, new MaddeDeviceTester, parent);
-    else if (actionId == Constants::GenericDeployKeyToDeviceActionId)
-        d = PublicKeyDeploymentDialog::createDialog(device, parent);
-    if (d)
-        d->exec();
-    delete d;
-}
-
 QString MaddeDevice::maddeDisplayType(Core::Id type)
 {
     if (type == Maemo5OsType)
@@ -142,6 +109,11 @@ QSize MaddeDevice::packageManagerIconSize(Core::Id type)
     if (type == HarmattanOsType)
         return QSize(64, 64);
     return QSize();
+}
+
+AbstractLinuxDeviceTester *MaddeDevice::createDeviceTester() const
+{
+    return new MaddeDeviceTester;
 }
 
 } // namespace Internal

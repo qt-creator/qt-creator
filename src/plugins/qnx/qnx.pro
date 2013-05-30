@@ -92,7 +92,8 @@ SOURCES += qnxplugin.cpp \
     bardescriptoreditorabstractpanelwidget.cpp \
     blackberrysetupwizard.cpp \
     blackberrysetupwizardpages.cpp \
-    blackberryutils.cpp
+    blackberryutils.cpp \
+    qnxdevicetester.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -184,7 +185,8 @@ HEADERS += qnxplugin.h\
     bardescriptoreditorabstractpanelwidget.h \
     blackberrysetupwizard.h \
     blackberrysetupwizardpages.h \
-    blackberryutils.h
+    blackberryutils.h \
+    qnxdevicetester.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

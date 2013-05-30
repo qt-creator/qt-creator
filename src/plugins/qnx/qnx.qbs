@@ -208,6 +208,8 @@ QtcPlugin {
         "qnxdeviceconfigurationwizard.h",
         "qnxdeviceconfigurationwizardpages.cpp",
         "qnxdeviceconfigurationwizardpages.h",
+        "qnxdevicetester.cpp",
+        "qnxdevicetester.h",
         "qnxplugin.cpp",
         "qnxplugin.h",
         "qnxqtversion.cpp",

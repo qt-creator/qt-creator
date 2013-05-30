@@ -49,9 +49,6 @@ public:
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
 
     QString displayType() const;
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent) const;
     ProjectExplorer::IDevice::Ptr clone() const;
     static QString maddeDisplayType(Core::Id type);
 
@@ -60,6 +57,8 @@ public:
     static bool allowsQmlDebugging(Core::Id type);
 
     static QSize packageManagerIconSize(Core::Id type);
+
+    RemoteLinux::AbstractLinuxDeviceTester *createDeviceTester() const;
 
 private:
     MaddeDevice();

@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include "qnxdeviceconfiguration.h"
+#include "qnxdevicetester.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 
@@ -184,4 +185,9 @@ ProjectExplorer::PortsGatheringMethod::Ptr QnxDeviceConfiguration::portsGatherin
 ProjectExplorer::DeviceProcessList *QnxDeviceConfiguration::createProcessListModel(QObject *parent) const
 {
     return new QnxDeviceProcessList(sharedFromThis(), parent);
+}
+
+RemoteLinux::AbstractLinuxDeviceTester *QnxDeviceConfiguration::createDeviceTester() const
+{
+    return new QnxDeviceTester;
 }

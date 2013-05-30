@@ -29,43 +29,56 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEVICECONFIGURATION_H
-#define QNX_INTERNAL_QNXDEVICECONFIGURATION_H
+#ifndef QNX_INTERNAL_QNXDEVICETESTER_H
+#define QNX_INTERNAL_QNXDEVICETESTER_H
 
-#include <remotelinux/linuxdevice.h>
+#include <remotelinux/linuxdevicetester.h>
+
+#include <QStringList>
+
+namespace QSsh {
+class SshRemoteProcessRunner;
+}
 
 namespace Qnx {
 namespace Internal {
 
-class QnxDeviceConfiguration : public RemoteLinux::LinuxDevice
+class QnxDeviceTester : public RemoteLinux::AbstractLinuxDeviceTester
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDeviceConfiguration)
-
+    Q_OBJECT
 public:
-    typedef QSharedPointer<QnxDeviceConfiguration> Ptr;
-    typedef QSharedPointer<const QnxDeviceConfiguration> ConstPtr;
+    explicit QnxDeviceTester(QObject *parent = 0);
 
-    static Ptr create();
-    static Ptr create(const QString &name, Core::Id type, MachineType machineType,
-                      Origin origin = ManuallyAdded, Core::Id id = Core::Id());
-    ProjectExplorer::IDevice::Ptr clone() const;
+    void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration);
+    void stopTest();
 
-    ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
-    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
-    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
+private slots:
+    void handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
 
-    RemoteLinux::AbstractLinuxDeviceTester *createDeviceTester() const;
+    void handleProcessFinished(int exitStatus);
+    void handleConnectionError();
 
-    QString displayType() const;
+private:
+    enum State {
+        Inactive,
+        GenericTest,
+        CommandsTest
+    };
 
-protected:
-    QnxDeviceConfiguration();
-    QnxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
-                           Origin origin, Core::Id id);
-    QnxDeviceConfiguration(const QnxDeviceConfiguration &other);
+    void testNextCommand();
+    void setFinished();
+
+    RemoteLinux::GenericLinuxDeviceTester *m_genericTester;
+    ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
+    TestResult m_result;
+    State m_state;
+
+    int m_currentCommandIndex;
+    QStringList m_commandsToTest;
+    QSsh::SshRemoteProcessRunner *m_processRunner;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_QNXDEVICECONFIGURATION_H
+#endif // QNX_INTERNAL_QNXDEVICETESTER_H
