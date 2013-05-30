@@ -90,17 +90,14 @@ C++ Support
      source (QTCREATORBUG-516)
    * Added refactoring action that assigns a function return value or new expression
      to local variable (QTCREATORBUG-9052)
-   * Added refactoring action that adds implementations for pure virtual methods
+   * Added refactoring action that adds implementations for virtual methods
    * Fixed parsing of try-catch in constructor initializer (QTCREATORBUG-9064)
    * Fixed handling of non-arguments in function parameter scope (QTCREATORBUG-8316)
    * Fixed crash when adding include for undefined identifier in file that
      has no other include (QTCREATORBUG-8799)
-   * Fixed that system headers were not reparsed when project configuration
-     changes (QTCREATORBUG-9056)
    * Fixed highlighting for template parameters for function calls
    * Improved support for anonymous classes
      (QTCREATORBUG-6497, QTCREATORBUG-8963, QTCREATORBUG-3610, QTCREATORBUG-7579)
-   * Fixed support for typedef of templated typedefs (QTCREATORBUG-8375)
    * Fixed code completion with 'using' declaration inside functions (QTCREATORBUG-2668)
    * Fixed highlighting of types when there is 'using Namespace::TypeName' (QTCREATORBUG-7903)
 
@@ -116,7 +113,6 @@ Diff Viewer
    * Added file list combo box
 
 Version Control Systems
-   * Added "Select All" to clean dialog
    * Git
       * Added new side-by-side diff viewer
       * Added support for interactive rebase
@@ -131,6 +127,7 @@ Version Control Systems
       * Added tags to branches dialog
       * Added ability to save repository location for Gerrit
       * Added graph toggle button for log viewer
+      * Added "Select All" to clean dialog
    * ClearCase
       * Removed useless hijack button for dynamic view
 
