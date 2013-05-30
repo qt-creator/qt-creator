@@ -140,7 +140,7 @@
       <item row="2" column="3">
        <widget class="QCheckBox" name="useDiffEditorCheckBox">
         <property name="text">
-         <string>Use Diff Editor</string>
+         <string>Show diff side-by-side</string>
         </property>
        </widget>
       </item>
