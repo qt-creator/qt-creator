@@ -24,7 +24,6 @@
     \page creator-developing-bb10.html
     \nextpage creator-developing-generic-linux.html
 
-
     \title Connecting BlackBerry 10 Devices
 
     \QC provides a plugin that enables you to develop for QNX and BlackBerry 10 platforms.
@@ -35,9 +34,9 @@
     Before starting to develop for BlackBerry 10 you need to download the following tools:
 
     \list
-        \li \l {https://developer.blackberry.com/native/} {The BlackBerry 10 Native SDK}
-        \li \l {https://developer.blackberry.com/native/} {The BlackBerry 10 Dev Alpha Simulator} if you do not have a BlackBerry DevAlpha device
-        \li \l {https://www.blackberry.com/SignedKeys/} {BlackBerry signing code keys}
+        \li \l {http://developer.blackberry.com/native/} {The BlackBerry 10 Native SDK}
+        \li \l {http://developer.blackberry.com/native/} {The BlackBerry 10 Dev Alpha Simulator} if you do not have a BlackBerry DevAlpha device
+        \li BlackBerry code signing keys (https://www.blackberry.com/SignedKeys/)
     \endlist
 
 

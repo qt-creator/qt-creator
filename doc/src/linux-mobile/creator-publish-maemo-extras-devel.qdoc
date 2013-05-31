@@ -42,7 +42,7 @@
     You can upload free applications as Debian packages to
     \l{http://wiki.maemo.org/Extras-devel}{Extras-devel} at Maemo.org to share
     new updates to your application and to start the community QA process.
-    You need a \l{https://garage.maemo.org/}{Garage} account for the uploads,
+    You need a \l{http://garage.maemo.org/}{Garage} account for the uploads,
     but the package itself does not need to be hosted in the Garage.
 
     You can use the \gui {Publish for Fremantle Extras-devel Free Repository}

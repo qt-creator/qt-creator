@@ -231,7 +231,7 @@
 
               \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
               application to crash. For a workaround, see:
-              \l{https://bugreports.qt-project.org/browse/QTBUG-4962}{QTBUG-4962}.
+              \l{http://bugreports.qt-project.org/browse/QTBUG-4962}{QTBUG-4962}.
 
     \endtable
 

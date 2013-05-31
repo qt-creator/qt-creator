@@ -1322,7 +1322,7 @@
     existing process or use the \gui {Run in terminal} option in \QC.
 
     The reasons for this are described in
-    \l{https://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace%20Protection}
+    \l{http://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace%20Protection}
     {KernelHardening}.
 
     However, the usefulness of this security measure seems dubious,

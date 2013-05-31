@@ -36,7 +36,7 @@
     \QC usually uses the latest stable release of Qt,
     you can see the exact minimum requirement at the top of \QC's qtcreator.pro.
     (You can find the current version in our source repository here:
-    \l{https://qt.gitorious.org/qt-creator/qt-creator/blobs/master/qtcreator.pro}.)
+    \l{http://qt.gitorious.org/qt-creator/qt-creator/blobs/master/qtcreator.pro}.)
 
     You find the sources for the different Qt versions for example on our gitorious repository
     \l{http://qt.gitorious.org/qt}.
