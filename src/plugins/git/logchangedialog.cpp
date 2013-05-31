@@ -31,6 +31,8 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
+#include <vcsbase/vcsbaseoutputwindow.h>
+
 #include <QTreeView>
 #include <QLabel>
 #include <QPushButton>
@@ -67,8 +69,14 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
 
 bool LogChangeWidget::init(const QString &repository, const QString &commit, bool includeRemote)
 {
-    if (!populateLog(repository, commit, includeRemote) || !m_model->rowCount())
+    if (!populateLog(repository, commit, includeRemote))
         return false;
+    if (!m_model->rowCount()) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+                    includeRemote ? tr("No commits were found")
+                                  : tr("No local commits were found"));
+        return false;
+    }
     selectionModel()->select(m_model->index(0, 0),
                              QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
     return true;
@@ -181,7 +189,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
 bool LogChangeDialog::runDialog(const QString &repository, const QString &commit, bool includeRemote)
 {
     if (!widget->init(repository, commit, includeRemote))
-        return QDialog::Rejected;
+        return false;
 
     return QDialog::exec() == QDialog::Accepted;
 }
