@@ -995,10 +995,14 @@ class Dumper:
     def interruptInferior(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
-        else:
-            #self.debugger.DispatchInputInterrupt()
-            error = self.process.Stop()
-            self.reportError(error)
+            return
+        error = self.process.Stop()
+        self.reportError(error)
+        self.consumeEvents()
+        if error.GetType() == 1:
+            state = self.process.GetState()
+            if state != lldb.eStateStopped:
+                self.report('state="inferiorstopfailed"')
 
     def detachInferior(self, _ = None):
         if self.process is None:
