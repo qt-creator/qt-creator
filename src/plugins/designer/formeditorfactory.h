@@ -32,8 +32,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QStringList>
-
 namespace Designer {
 namespace Internal {
 
@@ -44,17 +42,10 @@ class FormEditorFactory : public Core::IEditorFactory
 public:
     FormEditorFactory();
 
-    // IEditorFactory
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
     Core::IEditor *createEditor(QWidget *parent);
 
 private slots:
     void designerModeClicked();
-
-private:
-    const QStringList m_mimeTypes;
 };
 
 } // namespace Internal

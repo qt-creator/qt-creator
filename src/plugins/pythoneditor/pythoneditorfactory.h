@@ -32,7 +32,6 @@
 
 #include "pythoneditor_global.h"
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <QStringList>
 
 namespace PythonEditor {
 
@@ -44,23 +43,9 @@ public:
     EditorFactory(QObject *parent);
 
     /**
-      Returns MIME types handled by editor
-      */
-    QStringList mimeTypes() const;
-
-    /**
-      Unique editor class identifier, see Constants::C_PYEDITOR_ID
-      */
-    Core::Id id() const;
-    QString displayName() const;
-
-    /**
       Creates and initializes new editor widget
       */
     Core::IEditor *createEditor(QWidget *parent);
-
-private:
-    QStringList m_mimeTypes;
 };
 
 } // namespace PythonEditor

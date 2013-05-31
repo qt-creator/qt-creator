@@ -68,10 +68,12 @@ enum { QUICKFIX_INTERVAL = 20 };
 CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
     m_owner(owner)
 {
-    m_mimeTypes << QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)
-            << QLatin1String(CppEditor::Constants::C_HEADER_MIMETYPE)
-            << QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
-            << QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE);
+    setId(CppEditor::Constants::CPPEDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", CppEditor::Constants::CPPEDITOR_DISPLAY_NAME));
+    addMimeType(CppEditor::Constants::C_SOURCE_MIMETYPE);
+    addMimeType(CppEditor::Constants::C_HEADER_MIMETYPE);
+    addMimeType(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
+    addMimeType(CppEditor::Constants::CPP_HEADER_MIMETYPE);
 
     if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
         Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
@@ -85,27 +87,12 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
     }
 }
 
-Core::Id CppEditorFactory::id() const
-{
-    return Core::Id(CppEditor::Constants::CPPEDITOR_ID);
-}
-
-QString CppEditorFactory::displayName() const
-{
-    return qApp->translate("OpenWith::Editors", CppEditor::Constants::CPPEDITOR_DISPLAY_NAME);
-}
-
 Core::IEditor *CppEditorFactory::createEditor(QWidget *parent)
 {
     CPPEditorWidget *editor = new CPPEditorWidget(parent);
     editor->setRevisionsVisible(true);
     m_owner->initializeEditor(editor);
     return editor->editor();
-}
-
-QStringList CppEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
 }
 
 ///////////////////////////////// CppEditorPlugin //////////////////////////////////

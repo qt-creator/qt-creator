@@ -44,22 +44,16 @@ class PlainTextEditorFactory : public Core::IEditorFactory
 
 public:
     PlainTextEditorFactory(QObject *parent = 0);
-    virtual ~PlainTextEditorFactory();
+    ~PlainTextEditorFactory();
 
-    void addMimeType(const QString &type);
-    virtual QStringList mimeTypes() const;
-    //Core::IEditorFactory
-    Core::Id id() const;
-    QString displayName() const;
+    using Core::IEditorFactory::addMimeType;
     Core::IEditor *createEditor(QWidget *parent);
-
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_actionHandler; }
 
 private slots:
     void updateEditorInfoBar(Core::IEditor *editor);
 
 private:
-    QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 

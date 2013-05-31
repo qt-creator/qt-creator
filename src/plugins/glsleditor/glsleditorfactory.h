@@ -32,8 +32,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QStringList>
-
 namespace GLSLEditor {
 namespace Internal {
 
@@ -44,17 +42,10 @@ class GLSLEditorFactory : public Core::IEditorFactory
 public:
     GLSLEditorFactory(QObject *parent);
 
-    // IEditorFactory
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
     Core::IEditor *createEditor(QWidget *parent);
 
 private slots:
     void updateEditorInfoBar(Core::IEditor *editor);
-
-private:
-    QStringList m_mimeTypes;
 };
 
 } // namespace Internal

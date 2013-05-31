@@ -33,11 +33,7 @@
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/idocument.h>
 
-#include <QStringList>
-
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Project; }
 
 namespace TaskList {
 namespace Internal {
@@ -45,14 +41,9 @@ namespace Internal {
 class TaskFileFactory : public Core::IDocumentFactory
 {
     Q_OBJECT
+
 public:
     TaskFileFactory(QObject *parent = 0);
-    ~TaskFileFactory();
-
-    QStringList mimeTypes() const;
-
-    Core::Id id() const;
-    QString displayName() const;
 
     Core::IDocument *open(const QString &fileName);
     Core::IDocument *open(ProjectExplorer::Project *context, const QString &fileName);
@@ -60,7 +51,6 @@ public:
     void closeAllFiles();
 
 private:
-    QStringList m_mimeTypes;
     QList<Core::IDocument *> m_openFiles;
 };
 

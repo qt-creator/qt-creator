@@ -48,16 +48,11 @@ class ProjectFileFactory : public Core::IDocumentFactory
     explicit ProjectFileFactory(ProjectExplorer::IProjectManager *manager);
 
 public:
-    virtual QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
-
     Core::IDocument *open(const QString &fileName);
 
     static QList<ProjectFileFactory*> createFactories(QString *filterString);
 
 private:
-    const QStringList m_mimeTypes;
     ProjectExplorer::IProjectManager *m_manager;
 };
 

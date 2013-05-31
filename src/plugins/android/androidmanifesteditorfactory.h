@@ -40,14 +40,12 @@ namespace Internal {
 class AndroidManifestEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
+
 public:
     explicit AndroidManifestEditorFactory(QObject *parent = 0);
 
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
-
     Core::IEditor *createEditor(QWidget *parent);
+
 private:
     TextEditor::TextEditorActionHandler *m_actionHandler;
 };

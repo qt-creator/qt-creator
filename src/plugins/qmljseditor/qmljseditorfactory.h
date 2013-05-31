@@ -32,8 +32,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QStringList>
-
 namespace QmlJSEditor {
 namespace Internal {
 
@@ -44,14 +42,7 @@ class QmlJSEditorFactory : public Core::IEditorFactory
 public:
     QmlJSEditorFactory(QObject *parent);
 
-    // IEditorFactory
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
     Core::IEditor *createEditor(QWidget *parent);
-
-private:
-    QStringList m_mimeTypes;
 };
 
 } // namespace Internal

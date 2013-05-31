@@ -46,27 +46,20 @@ using namespace TextEditor::Internal;
 PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent)
 {
+    setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
+    addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+
     m_actionHandler = new TextEditorActionHandler(
         TextEditor::Constants::C_TEXTEDITOR,
         TextEditorActionHandler::Format |
         TextEditorActionHandler::UnCommentSelection |
         TextEditorActionHandler::UnCollapseAll);
-    m_mimeTypes << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
 }
 
 PlainTextEditorFactory::~PlainTextEditorFactory()
 {
     delete m_actionHandler;
-}
-
-Core::Id PlainTextEditorFactory::id() const
-{
-    return Core::Id(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-}
-
-QString PlainTextEditorFactory::displayName() const
-{
-    return qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
@@ -105,14 +98,4 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
             infoBar->addInfo(info);
         }
     }
-}
-
-void PlainTextEditorFactory::addMimeType(const QString &type)
-{
-    m_mimeTypes.append(type);
-}
-
-QStringList PlainTextEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
 }

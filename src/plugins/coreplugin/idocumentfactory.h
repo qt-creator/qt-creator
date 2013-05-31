@@ -30,18 +30,14 @@
 #ifndef IDOCUMENTFACTORY_H
 #define IDOCUMENTFACTORY_H
 
-#include "core_global.h"
+#include "id.h"
 
 #include <QObject>
-
-QT_BEGIN_NAMESPACE
-class QStringList;
-QT_END_NAMESPACE
+#include <QStringList>
 
 namespace Core {
 
 class IDocument;
-class Id;
 
 class CORE_EXPORT IDocumentFactory : public QObject
 {
@@ -50,10 +46,23 @@ class CORE_EXPORT IDocumentFactory : public QObject
 public:
     IDocumentFactory(QObject *parent = 0) : QObject(parent) {}
 
-    virtual QStringList mimeTypes() const = 0;
-    virtual Id id() const = 0;
-    virtual QString displayName() const = 0;
     virtual IDocument *open(const QString &fileName) = 0;
+
+    Id id() const { return m_id; }
+    QStringList mimeTypes() const { return m_mimeTypes; }
+    QString displayName() const { return m_displayName; }
+
+protected:
+    void setId(Id id) { m_id = id; }
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
+    void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
+    void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
+
+private:
+    Id m_id;
+    QStringList m_mimeTypes;
+    QString m_displayName;
 };
 
 } // namespace Core

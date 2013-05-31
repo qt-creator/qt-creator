@@ -35,7 +35,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtPlugin>
-#include <QStringList>
 #include <QAction>
 
 namespace TextEditor {
@@ -286,15 +285,10 @@ class CppEditorFactory : public Core::IEditorFactory
 public:
     CppEditorFactory(CppEditorPlugin *owner);
 
-    // IEditorFactory
-    QStringList mimeTypes() const;
     Core::IEditor *createEditor(QWidget *parent);
-    Core::Id id() const;
-    QString displayName() const;
 
 private:
     CppEditorPlugin *m_owner;
-    QStringList m_mimeTypes;
 };
 
 } // namespace Internal

@@ -32,58 +32,21 @@
 
 namespace VcsBase {
 
-namespace Internal {
-
-class BaseVcsSubmitEditorFactoryPrivate
+BaseVcsSubmitEditorFactory::BaseVcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters)
+    : m_parameters(parameters)
 {
-public:
-    BaseVcsSubmitEditorFactoryPrivate(const VcsBaseSubmitEditorParameters *parameters);
-
-    const VcsBaseSubmitEditorParameters *m_parameters;
-    const Core::Id m_id;
-    const QString m_displayName;
-    const QStringList m_mimeTypes;
-};
-
-BaseVcsSubmitEditorFactoryPrivate::BaseVcsSubmitEditorFactoryPrivate(const VcsBaseSubmitEditorParameters *parameters) :
-    m_parameters(parameters),
-    m_id(parameters->id),
-    m_displayName(QLatin1String(parameters->displayName)),
-    m_mimeTypes(QLatin1String(parameters->mimeType))
-{
-}
-
-} // namespace Internal
-
-BaseVcsSubmitEditorFactory::BaseVcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters) :
-    d(new Internal::BaseVcsSubmitEditorFactoryPrivate(parameters))
-{
+    setId(parameters->id);
+    setDisplayName(QLatin1String(parameters->displayName));
+    addMimeType(parameters->mimeType);
 }
 
 BaseVcsSubmitEditorFactory::~BaseVcsSubmitEditorFactory()
 {
-    delete d;
 }
 
 Core::IEditor *BaseVcsSubmitEditorFactory::createEditor(QWidget *parent)
 {
-    return createBaseSubmitEditor(d->m_parameters, parent);
-}
-
-Core::Id BaseVcsSubmitEditorFactory::id() const
-{
-    return d->m_id;
-}
-
-QString BaseVcsSubmitEditorFactory::displayName() const
-{
-    return d->m_displayName;
-}
-
-
-QStringList BaseVcsSubmitEditorFactory::mimeTypes() const
-{
-    return d->m_mimeTypes;
+    return createBaseSubmitEditor(m_parameters, parent);
 }
 
 } // namespace VcsBase

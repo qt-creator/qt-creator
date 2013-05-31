@@ -34,25 +34,17 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QtCore/QStringList>
-
 namespace Qnx {
 namespace Internal {
 
 class BarDescriptorEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
+
 public:
     explicit BarDescriptorEditorFactory(QObject *parent = 0);
 
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
-
     Core::IEditor *createEditor(QWidget *parent);
-
-private:
-    QStringList m_mimeTypes;
 };
 
 } // namespace Internal

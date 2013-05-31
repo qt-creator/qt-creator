@@ -56,13 +56,8 @@ public:
 
     Core::IEditor *createEditor(QWidget *parent);
 
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
-
 private:
     TextEditor::TextEditorActionHandler *m_actionHandler;
-    QStringList m_mimeTypes;
 };
 
 class ProjectFilesEditor : public TextEditor::BaseTextEditor

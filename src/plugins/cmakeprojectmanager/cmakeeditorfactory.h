@@ -34,11 +34,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QStringList>
-
-namespace TextEditor {
-class TextEditorActionHandler;
-}
+namespace TextEditor { class TextEditorActionHandler; }
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -49,11 +45,6 @@ class CMakeEditorFactory : public Core::IEditorFactory
 
 public:
     CMakeEditorFactory(CMakeManager *parent);
-
-    // IEditorFactory
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
     Core::IEditor *createEditor(QWidget *parent);
 
 private:

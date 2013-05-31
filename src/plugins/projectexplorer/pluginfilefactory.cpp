@@ -49,24 +49,11 @@ using namespace ProjectExplorer::Internal;
 */
 
 ProjectFileFactory::ProjectFileFactory(IProjectManager *manager)
-  : m_mimeTypes(manager->mimeType()),
-    m_manager(manager)
+    : m_manager(manager)
 {
-}
-
-QStringList ProjectFileFactory::mimeTypes() const
-{
-    return m_mimeTypes;
-}
-
-Core::Id ProjectFileFactory::id() const
-{
-    return Core::Id(Constants::FILE_FACTORY_ID);
-}
-
-QString ProjectFileFactory::displayName() const
-{
-    return tr("Project File Factory", "ProjectExplorer::ProjectFileFactory display name.");
+    setId(Constants::FILE_FACTORY_ID);
+    setDisplayName(tr("Project File Factory", "ProjectExplorer::ProjectFileFactory display name."));
+    addMimeType(manager->mimeType());
 }
 
 Core::IDocument *ProjectFileFactory::open(const QString &fileName)

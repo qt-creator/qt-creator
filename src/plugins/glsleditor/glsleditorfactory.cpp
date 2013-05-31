@@ -37,14 +37,9 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 
 #include <QCoreApplication>
-#include <QFileInfo>
-#include <QDebug>
 #include <QSettings>
-#include <QMessageBox>
-#include <QPushButton>
 
 using namespace GLSLEditor::Internal;
 using namespace GLSLEditor::Constants;
@@ -52,23 +47,13 @@ using namespace GLSLEditor::Constants;
 GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent)
 {
-    m_mimeTypes
-            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)
-            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT)
-            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG)
-            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES)
-            << QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES)
-            ;
-}
-
-Core::Id GLSLEditorFactory::id() const
-{
-    return Core::Id(C_GLSLEDITOR_ID);
-}
-
-QString GLSLEditorFactory::displayName() const
-{
-    return qApp->translate("OpenWith::Editors", C_GLSLEDITOR_DISPLAY_NAME);
+    setId(C_GLSLEDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", C_GLSLEDITOR_DISPLAY_NAME));
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES);
 }
 
 Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)
@@ -76,11 +61,6 @@ Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)
     GLSLEditor::GLSLTextEditorWidget *rc = new GLSLEditor::GLSLTextEditorWidget(parent);
     GLSLEditorPlugin::instance()->initializeEditor(rc);
     return rc->editor();
-}
-
-QStringList GLSLEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
 }
 
 void GLSLEditorFactory::updateEditorInfoBar(Core::IEditor *)

@@ -33,7 +33,6 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/documentmanager.h>
 
 #include <QMessageBox>
@@ -45,26 +44,11 @@ using namespace TaskList::Internal;
 // --------------------------------------------------------------------------
 
 TaskFileFactory::TaskFileFactory(QObject * parent) :
-    Core::IDocumentFactory(parent),
-    m_mimeTypes(QStringList() << QLatin1String("text/x-tasklist"))
-{ }
-
-TaskFileFactory::~TaskFileFactory()
-{ }
-
-QStringList TaskFileFactory::mimeTypes() const
+    Core::IDocumentFactory(parent)
 {
-    return m_mimeTypes;
-}
-
-Core::Id TaskFileFactory::id() const
-{
-    return Core::Id("ProjectExplorer.TaskFileFactory");
-}
-
-QString TaskFileFactory::displayName() const
-{
-    return tr("Task file reader");
+    setId("ProjectExplorer.TaskFileFactory");
+    setDisplayName(tr("Task file reader"));
+    addMimeType(QLatin1String("text/x-tasklist"));
 }
 
 Core::IDocument *TaskFileFactory::open(const QString &fileName)

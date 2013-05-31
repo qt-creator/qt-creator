@@ -42,23 +42,10 @@ using namespace Qnx::Internal;
 
 BarDescriptorEditorFactory::BarDescriptorEditorFactory(QObject *parent)
     : Core::IEditorFactory(parent)
-    , m_mimeTypes(QStringList() << QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE))
 {
-}
-
-QStringList BarDescriptorEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
-}
-
-Core::Id BarDescriptorEditorFactory::id() const
-{
-    return Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID;
-}
-
-QString BarDescriptorEditorFactory::displayName() const
-{
-    return tr("Bar descriptor editor");
+    setId(Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID);
+    setDisplayName(tr("Bar descriptor editor"));
+    addMimeType(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE);
 }
 
 Core::IEditor *BarDescriptorEditorFactory::createEditor(QWidget *parent)

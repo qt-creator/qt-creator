@@ -54,16 +54,11 @@ public:
     BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t);
 
     const VcsBaseEditorParameters *m_type;
-    const Core::Id m_id;
-    QString m_displayName;
-    const QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_editorHandler;
 };
 
 BaseVcsEditorFactoryPrivate::BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t) :
     m_type(t),
-    m_id(t->id),
-    m_mimeTypes(QStringList(QLatin1String(t->mimeType))),
     m_editorHandler(new TextEditor::TextEditorActionHandler(t->context))
 {
 }
@@ -73,7 +68,9 @@ BaseVcsEditorFactoryPrivate::BaseVcsEditorFactoryPrivate(const VcsBaseEditorPara
 BaseVcsEditorFactory::BaseVcsEditorFactory(const VcsBaseEditorParameters *t)
   : d(new Internal::BaseVcsEditorFactoryPrivate(t))
 {
-    d->m_displayName = QCoreApplication::translate("VCS", t->displayName);
+    setId(t->id);
+    setDisplayName(QCoreApplication::translate("VCS", t->displayName));
+    addMimeType(t->mimeType);
 }
 
 BaseVcsEditorFactory::~BaseVcsEditorFactory()
@@ -81,26 +78,11 @@ BaseVcsEditorFactory::~BaseVcsEditorFactory()
     delete d;
 }
 
-QStringList BaseVcsEditorFactory::mimeTypes() const
-{
-    return d->m_mimeTypes;
-}
-
-Core::Id BaseVcsEditorFactory::id() const
-{
-    return d->m_id;
-}
-
-QString BaseVcsEditorFactory::displayName() const
-{
-    return d->m_displayName;
-}
-
 Core::IEditor *BaseVcsEditorFactory::createEditor(QWidget *parent)
 {
     VcsBaseEditorWidget *vcsEditor = createVcsBaseEditor(d->m_type, parent);
 
-    vcsEditor ->setMimeType(d->m_mimeTypes.front());
+    vcsEditor->setMimeType(mimeTypes().front());
     d->m_editorHandler->setupActions(vcsEditor);
 
     // Wire font settings and set initial values

@@ -35,19 +35,7 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
-
-#include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <QCoreApplication>
-#include <QFileInfo>
-#include <QDebug>
-#include <QSettings>
-#include <QMessageBox>
-#include <QPushButton>
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -55,24 +43,15 @@ namespace Internal {
 QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent)
 {
-    m_mimeTypes
-            << QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
-            << QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
-            << QLatin1String(QmlJSTools::Constants::QBS_MIMETYPE)
-            << QLatin1String(QmlJSTools::Constants::QMLTYPES_MIMETYPE)
-            << QLatin1String(QmlJSTools::Constants::JS_MIMETYPE)
-            << QLatin1String(QmlJSTools::Constants::JSON_MIMETYPE)
-            ;
-}
+    setId(Constants::C_QMLJSEDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_QMLJSEDITOR_DISPLAY_NAME));
 
-Core::Id QmlJSEditorFactory::id() const
-{
-    return Core::Id(Constants::C_QMLJSEDITOR_ID);
-}
-
-QString QmlJSEditorFactory::displayName() const
-{
-    return qApp->translate("OpenWith::Editors", Constants::C_QMLJSEDITOR_DISPLAY_NAME);
+    addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::JSON_MIMETYPE);
 }
 
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
@@ -80,11 +59,6 @@ Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
     QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget(parent);
     QmlJSEditorPlugin::instance()->initializeEditor(rc);
     return rc->editor();
-}
-
-QStringList QmlJSEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
 }
 
 } // namespace Internal

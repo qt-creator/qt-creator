@@ -47,10 +47,6 @@ public:
 
     Core::IEditor *createEditor(QWidget *parent);
 
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
-
     void extensionsInitialized();
 
 private:

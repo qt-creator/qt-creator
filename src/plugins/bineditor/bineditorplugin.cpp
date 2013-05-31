@@ -402,19 +402,11 @@ private:
 ///////////////////////////////// BinEditorFactory //////////////////////////////////
 
 BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
-    m_mimeTypes(QLatin1String(Constants::C_BINEDITOR_MIMETYPE)),
     m_owner(owner)
 {
-}
-
-Core::Id BinEditorFactory::id() const
-{
-    return Core::Id(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-}
-
-QString BinEditorFactory::displayName() const
-{
-    return qApp->translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME);
+    setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME));
+    addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 }
 
 Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)
@@ -426,10 +418,6 @@ Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)
     return editor;
 }
 
-QStringList BinEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
-}
 
 /*!
    \class BINEditor::BinEditorWidgetFactory

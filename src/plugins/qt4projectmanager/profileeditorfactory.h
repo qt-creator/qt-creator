@@ -32,11 +32,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QStringList>
-
-namespace TextEditor {
-class TextEditorActionHandler;
-}
+namespace TextEditor { class TextEditorActionHandler; }
 
 namespace Qt4ProjectManager {
 
@@ -50,18 +46,12 @@ class ProFileEditorFactory : public Core::IEditorFactory
 
 public:
     ProFileEditorFactory(Qt4Manager *parent, TextEditor::TextEditorActionHandler *handler);
-    ~ProFileEditorFactory();
 
-    // IEditorFactory
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
     Core::IEditor *createEditor(QWidget *parent);
 
     Qt4Manager *qt4ProjectManager() const { return m_manager; }
 
 private:
-    const QStringList m_mimeTypes;
     Qt4Manager *m_manager;
     TextEditor::TextEditorActionHandler *m_actionHandler;
 };

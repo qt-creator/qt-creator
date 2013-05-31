@@ -47,15 +47,9 @@ class ResourceEditorFactory : public Core::IEditorFactory
 public:
     explicit ResourceEditorFactory(ResourceEditorPlugin *plugin);
 
-    virtual QStringList mimeTypes() const;
-
-    // IEditorFactory
-    Core::Id id() const;
-    QString displayName() const;
     Core::IEditor *createEditor(QWidget *parent);
 
 private:
-    const QStringList m_mimeTypes;
     ResourceEditorPlugin *m_plugin;
 };
 

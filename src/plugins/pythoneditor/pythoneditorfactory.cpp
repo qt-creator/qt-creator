@@ -43,17 +43,9 @@ namespace PythonEditor {
 EditorFactory::EditorFactory(QObject *parent)
     : Core::IEditorFactory(parent)
 {
-    m_mimeTypes << QLatin1String(Constants::C_PY_MIMETYPE);
-}
-
-Core::Id EditorFactory::id() const
-{
-    return Constants::C_PYTHONEDITOR_ID;
-}
-
-QString EditorFactory::displayName() const
-{
-    return tr(Constants::C_EDITOR_DISPLAY_NAME);
+    setId(Constants::C_PYTHONEDITOR_ID);
+    setDisplayName(tr(Constants::C_EDITOR_DISPLAY_NAME));
+    addMimeType(QLatin1String(Constants::C_PY_MIMETYPE));
 }
 
 Core::IEditor *EditorFactory::createEditor(QWidget *parent)
@@ -62,11 +54,6 @@ Core::IEditor *EditorFactory::createEditor(QWidget *parent)
     PythonEditorPlugin::initializeEditor(widget);
 
     return widget->editor();
-}
-
-QStringList EditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
 }
 
 } // namespace PythonEditor

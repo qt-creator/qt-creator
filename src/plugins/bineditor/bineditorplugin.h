@@ -102,13 +102,9 @@ class BinEditorFactory : public Core::IEditorFactory
 public:
     explicit BinEditorFactory(BinEditorPlugin *owner);
 
-    QStringList mimeTypes() const;
     Core::IEditor *createEditor(QWidget *parent);
-    Core::Id id() const;
-    QString displayName() const;
 
 private:
-    const QStringList m_mimeTypes;
     BinEditorPlugin *m_owner;
 };
 

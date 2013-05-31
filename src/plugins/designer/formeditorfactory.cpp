@@ -48,22 +48,15 @@ namespace Designer {
 namespace Internal {
 
 FormEditorFactory::FormEditorFactory()
-  : Core::IEditorFactory(Core::ICore::instance()),
-    m_mimeTypes(QLatin1String(FORM_MIMETYPE))
+  : Core::IEditorFactory(Core::ICore::instance())
 {
+    setId(K_DESIGNER_XML_EDITOR_ID);
+    setDisplayName(qApp->translate("Designer", C_DESIGNER_XML_DISPLAY_NAME));
+    addMimeType(FORM_MIMETYPE);
+
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/formeditor/images/qt_ui.png")),
                                                QLatin1String("ui"));
-}
-
-Core::Id FormEditorFactory::id() const
-{
-    return Core::Id(K_DESIGNER_XML_EDITOR_ID);
-}
-
-QString FormEditorFactory::displayName() const
-{
-    return qApp->translate("Designer", C_DESIGNER_XML_DISPLAY_NAME);
 }
 
 Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
@@ -78,11 +71,6 @@ Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
     return data.formWindowEditor;
 }
 
-QStringList FormEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
-}
-
 void FormEditorFactory::designerModeClicked()
 {
     Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
@@ -90,5 +78,3 @@ void FormEditorFactory::designerModeClicked()
 
 } // namespace Internal
 } // namespace Designer
-
-

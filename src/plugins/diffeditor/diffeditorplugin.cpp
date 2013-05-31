@@ -45,7 +45,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 namespace DiffEditor {
-
 namespace Internal {
 
 DiffEditorPlugin::DiffEditorPlugin()

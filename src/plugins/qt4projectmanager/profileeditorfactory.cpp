@@ -43,12 +43,15 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::TextEditorActionHandler *handler) :
-    m_mimeTypes(QStringList() << QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)
-                << QLatin1String(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE)
-                << QLatin1String(Qt4ProjectManager::Constants::PROFEATUREFILE_MIMETYPE)),
     m_manager(manager),
     m_actionHandler(handler)
 {
+    setId(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Qt4ProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME));
+    addMimeType(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
+    addMimeType(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
+    addMimeType(Qt4ProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
+
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
                                         QLatin1String("pro"));
@@ -58,28 +61,9 @@ ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::Text
                                         QLatin1String("prf"));
 }
 
-ProFileEditorFactory::~ProFileEditorFactory()
-{
-}
-
-Core::Id ProFileEditorFactory::id() const
-{
-    return Core::Id(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
-}
-
-QString ProFileEditorFactory::displayName() const
-{
-    return qApp->translate("OpenWith::Editors", Qt4ProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME);
-}
-
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
     ProFileEditorWidget *editor = new ProFileEditorWidget(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
     return editor->editor();
-}
-
-QStringList ProFileEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
 }

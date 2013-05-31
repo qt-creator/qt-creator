@@ -44,21 +44,9 @@ AndroidManifestEditorFactory::AndroidManifestEditorFactory(QObject *parent)
     : Core::IEditorFactory(parent),
       m_actionHandler(new TextEditor::TextEditorActionHandler(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT))
 {
-}
-
-QStringList AndroidManifestEditorFactory::mimeTypes() const
-{
-    return QStringList() << QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE);
-}
-
-Core::Id AndroidManifestEditorFactory::id() const
-{
-    return Constants::ANDROID_MANIFEST_EDITOR_ID;
-}
-
-QString AndroidManifestEditorFactory::displayName() const
-{
-    return tr("Android Manifest editor");
+    setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
+    setDisplayName(tr("Android Manifest editor"));
+    addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
 }
 
 Core::IEditor *AndroidManifestEditorFactory::createEditor(QWidget *parent)

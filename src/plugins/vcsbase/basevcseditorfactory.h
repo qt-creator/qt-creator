@@ -35,8 +35,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
 namespace VcsBase {
 namespace Internal {
 class BaseVcsEditorFactoryPrivate;
@@ -45,15 +43,11 @@ class BaseVcsEditorFactoryPrivate;
 class VCSBASE_EXPORT BaseVcsEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
+
 public:
     explicit BaseVcsEditorFactory(const VcsBaseEditorParameters *type);
     ~BaseVcsEditorFactory();
 
-    QStringList mimeTypes() const;
-    // IEditorFactory
-
-    Core::Id id() const;
-    QString displayName() const;
     Core::IEditor *createEditor(QWidget *parent);
 
 private:

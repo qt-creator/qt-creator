@@ -54,9 +54,11 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager, TextEditorActionHandl
     : Core::IEditorFactory(manager),
       m_actionHandler(handler)
 {
-    m_mimeTypes.append(QLatin1String(Constants::FILES_MIMETYPE));
-    m_mimeTypes.append(QLatin1String(Constants::INCLUDES_MIMETYPE));
-    m_mimeTypes.append(QLatin1String(Constants::CONFIG_MIMETYPE));
+    setId(Constants::FILES_EDITOR_ID);
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));
+    addMimeType(Constants::FILES_MIMETYPE);
+    addMimeType(Constants::INCLUDES_MIMETYPE);
+    addMimeType(Constants::CONFIG_MIMETYPE);
 }
 
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
@@ -64,21 +66,6 @@ Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
     ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(parent, this, m_actionHandler);
     TextEditorSettings::instance()->initializeEditor(ed);
     return ed->editor();
-}
-
-QStringList ProjectFilesFactory::mimeTypes() const
-{
-    return m_mimeTypes;
-}
-
-Core::Id ProjectFilesFactory::id() const
-{
-    return Core::Id(Constants::FILES_EDITOR_ID);
-}
-
-QString ProjectFilesFactory::displayName() const
-{
-    return  QCoreApplication::translate("OpenWith::Editors", ".files Editor");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
