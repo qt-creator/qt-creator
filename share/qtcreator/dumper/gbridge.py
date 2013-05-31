@@ -118,7 +118,7 @@ def listOfLocals(varList):
         for symbol in block:
             name = symbol.print_name
 
-            if name == "__in_chrg":
+            if name == "__in_chrg" or name == "__PRETTY_FUNCTION__":
                 continue
 
             # "NotImplementedError: Symbol type not yet supported in
