@@ -477,9 +477,7 @@ class Dumper:
         self.debugger.HandleCommand("settings set auto-confirm on")
         self.process = None
         self.target = None
-        self.pid = None
         self.eventState = lldb.eStateInvalid
-        self.listener = None
         self.options = {}
         self.expandedINames = {}
         self.passExceptions = True
@@ -674,15 +672,6 @@ class Dumper:
         self.executable_ = executable
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(executable, None, None, True, error)
-        self.listener = self.target.GetDebugger().GetListener()
-        self.process = self.target.Launch(self.listener, None, None,
-                                            None, None, None,
-                                            None, 0, True, error)
-        self.broadcaster = self.process.GetBroadcaster()
-        rc = self.broadcaster.AddListener(self.listener, 15)
-        if rc != 15:
-            warn("ADDING LISTENER FAILED: %s" % rc)
-
         self.importDumpers()
 
         if self.target.IsValid():
@@ -690,22 +679,26 @@ class Dumper:
         else:
             self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, executable))
 
-        warn("STATE AFTER LAUNCH: %s" % stateNames[self.process.GetState()])
-
     def runEngine(self, _):
-        error = lldb.SBError()
-        self.pid = self.process.GetProcessID()
-        self.report('pid="%s"' % self.pid)
-        self.consumeEvents()
-        error = self.process.Continue()
-        self.consumeEvents()
-        self.reportError(error)
+        s = threading.Thread(target=self.loop, args=[])
+        s.start()
 
+    def loop(self):
+        error = lldb.SBError()
+        listener = self.debugger.GetListener()
+
+        self.process = self.target.Launch(listener, None, None, None, None,
+            None, None, 0, False, error)
+
+        self.report('pid="%s"' % self.process.GetProcessID())
         self.report('state="enginerunandinferiorrunok"')
 
-        if self.useLoop:
-            s = threading.Thread(target=self.loop, args=[])
-            s.start()
+        event = lldb.SBEvent()
+        while True:
+            if listener.WaitForEvent(10000000, event):
+                self.handleEvent(event)
+            else:
+                warn('TIMEOUT')
 
     def describeError(self, error):
         desc = lldb.SBStream()
@@ -1060,12 +1053,9 @@ class Dumper:
             pass
 
     def processEvents(self):
-        if self.listener is None:
-            warn("NO LISTENER YET")
-            return
         event = lldb.SBEvent()
-        while self.listener.PeekAtNextEvent(event):
-            self.listener.GetNextEvent(event)
+        while self.debugger.GetListener().PeekAtNextEvent(event):
+            self.debugger.GetListener().GetNextEvent(event)
             self.handleEvent(event)
 
     def describeBreakpoint(self, bp, modelId):
@@ -1319,16 +1309,6 @@ class Dumper:
         for key in items:
             registerDumper(items[key])
 
-    def loop(self):
-        event = lldb.SBEvent()
-        while True:
-            # Mac LLDB doesn't like sys.maxsize
-            # if self.listener.WaitForEvent(sys.maxsize, event):
-            if self.listener.WaitForEvent(10000000, event):
-                self.handleEvent(event)
-            else:
-                warn('TIMEOUT')
-
     def execute(self, args):
         getattr(self, args['cmd'])(args)
         self.report('token="%s"' % args['token'])
@@ -1338,8 +1318,8 @@ class Dumper:
 
     def consumeEvents(self):
         event = lldb.SBEvent()
-        if self.listener and self.listener.PeekAtNextEvent(event):
-            self.listener.GetNextEvent(event)
+        if self.debugger.GetListener().PeekAtNextEvent(event):
+            self.debugger.GetListener().GetNextEvent(event)
             self.handleEvent(event)
 
 
@@ -1390,16 +1370,12 @@ def testit():
 
     bpNew = db.target.BreakpointCreateByName('breakHere', 'doit')
 
-    db.listener = lldb.SBListener("event_Listener")
     db.process = db.target.LaunchSimple(None, None, os.getcwd())
-    broadcaster = db.process.GetBroadcaster()
-    listener = lldb.SBListener("event_Listener 2")
-    rc = broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
     event = lldb.SBEvent()
 
     while True:
         event = lldb.SBEvent()
-        if db.listener.WaitForEvent(1, event):
+        if db.debugger.GetListener().WaitForEvent(1, event):
             out = lldb.SBStream()
             event.GetDescription(out)
             warn("EVENT: %s" % event)
