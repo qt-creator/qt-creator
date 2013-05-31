@@ -1992,20 +1992,14 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
     if (!link.hasValidTarget())
         return false;
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (inNextSplit) {
-        editorManager->gotoOtherSplit();
-    } else if (baseTextDocument()->fileName() == link.targetFileName) {
-        editorManager->addCurrentPositionToNavigationHistory();
-        gotoLine(link.targetLine, link.targetColumn);
-        setFocus();
-        return true;
-    }
-
+    Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::ModeSwitch;
+    if (inNextSplit)
+        flags |= Core::EditorManager::OpenInOtherSplit;
     return Core::EditorManager::openEditorAt(link.targetFileName,
                                              link.targetLine,
                                              link.targetColumn,
-                                             Constants::CPPEDITOR_ID);
+                                             Constants::CPPEDITOR_ID,
+                                             flags);
 }
 
 void CPPEditorWidget::semanticRehighlight(bool force)

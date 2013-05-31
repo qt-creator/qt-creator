@@ -472,17 +472,8 @@ void QmlInspectorAdapter::jumpToObjectDefinitionInEditor(
 {
     const QString fileName = m_engine->toFileInProject(objSource.url());
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->openEditor(fileName);
-    TextEditor::ITextEditor *textEditor
-            = qobject_cast<TextEditor::ITextEditor*>(editor);
-
-    if (textEditor) {
-        editorManager->addCurrentPositionToNavigationHistory();
-        textEditor->gotoLine(objSource.lineNumber());
-        textEditor->widget()->setFocus();
-    }
-
+    Core::EditorManager::openEditorAt(fileName, objSource.lineNumber(),
+                                      0, Core::Id(), Core::EditorManager::ModeSwitch);
     if (debugId != -1 && debugId != m_currentSelectedDebugId) {
         m_currentSelectedDebugId = debugId;
         m_currentSelectedDebugName = agent()->displayName(debugId);
