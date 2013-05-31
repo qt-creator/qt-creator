@@ -46,7 +46,8 @@ def main():
     if not startedWithoutPluginError():
         return
     overrideInstallLazySignalHandler()
-    installLazySignalHandler(":Qt Creator_CppEditor::Internal::CPPEditorWidget", "textChanged()",
+    # used simplified object to omit the visible property - causes Squish problem here otherwise
+    installLazySignalHandler("{type='CppEditor::Internal::CPPEditorWidget'}", "textChanged()",
                              "__handleTextChanged__")
     openQmakeProject(proFile)
     progressBarWait(20000)
