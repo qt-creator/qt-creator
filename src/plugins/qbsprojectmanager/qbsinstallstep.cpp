@@ -363,7 +363,8 @@ QbsInstallStepFactory::QbsInstallStepFactory(QObject *parent) :
 QList<Core::Id> QbsInstallStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
-            && qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent()))
+            && qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent())
+            && qobject_cast<QbsProject *>(parent->target()->project()))
         return QList<Core::Id>() << Core::Id(Constants::QBS_INSTALLSTEP_ID);
     return QList<Core::Id>();
 }
@@ -378,7 +379,8 @@ QString QbsInstallStepFactory::displayNameForId(const Core::Id id) const
 bool QbsInstallStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
     if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-            || !qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent()))
+            || !qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent())
+            || !qobject_cast<QbsProject *>(parent->target()->project()))
         return false;
     return id == Core::Id(Constants::QBS_INSTALLSTEP_ID);
 }
