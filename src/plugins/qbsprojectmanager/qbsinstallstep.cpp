@@ -44,14 +44,14 @@
 
 #include <QFileInfo>
 
+// --------------------------------------------------------------------
+// Constants:
+// --------------------------------------------------------------------
+
 static const char QBS_INSTALL_ROOT[] = "Qbs.InstallRoot";
 static const char QBS_REMOVE_FIRST[] = "Qbs.RemoveFirst";
 static const char QBS_DRY_RUN[] = "Qbs.DryRun";
 static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
-
-// --------------------------------------------------------------------
-// Constants:
-// --------------------------------------------------------------------
 
 namespace QbsProjectManager {
 namespace Internal {
