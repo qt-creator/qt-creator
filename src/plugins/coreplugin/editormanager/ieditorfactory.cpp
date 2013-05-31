@@ -29,11 +29,12 @@
 
 #include "ieditorfactory.h"
 
-#include "ieditor.h"
-#include "editormanager.h"
+#include <utils/qtcassert.h>
 
-Core::IDocument *Core::IEditorFactory::open(const QString &fileName)
+Core::IDocument *Core::IEditorFactory::open(const QString &)
 {
-    Core::IEditor *iface = Core::EditorManager::openEditor(fileName, id());
-    return iface ? iface->document() : 0;
+    qWarning("This should never be called, use IEditorFactor::createEditor, "
+             "or EditorManager::openEditor instead!");
+    QTC_CHECK(false);
+    return 0;
 }
