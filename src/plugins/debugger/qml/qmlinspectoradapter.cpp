@@ -472,8 +472,7 @@ void QmlInspectorAdapter::jumpToObjectDefinitionInEditor(
 {
     const QString fileName = m_engine->toFileInProject(objSource.url());
 
-    Core::EditorManager::openEditorAt(fileName, objSource.lineNumber(),
-                                      0, Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditorAt(fileName, objSource.lineNumber());
     if (debugId != -1 && debugId != m_currentSelectedDebugId) {
         m_currentSelectedDebugId = debugId;
         m_currentSelectedDebugName = agent()->displayName(debugId);

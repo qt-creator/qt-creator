@@ -374,7 +374,7 @@ void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
     const QDir dir(m_workingDirectory);
     const QString fileName = dir.absoluteFilePath(it.value().fileName);
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::IEditor *ed = Core::EditorManager::openEditor(fileName);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(lineNr, position);
 }

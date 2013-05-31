@@ -55,7 +55,6 @@ EditMode::EditMode() :
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Edit.png")));
     setPriority(Constants::P_MODE_EDIT);
     setId(Constants::MODE_EDIT);
-    setType(Constants::MODE_EDIT_TYPE);
 
     m_rightSplitWidgetLayout->setSpacing(0);
     m_rightSplitWidgetLayout->setMargin(0);

@@ -1382,7 +1382,7 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
                 return;
         }
 
-        EditorManager::openEditor(entry.fileName, entry.editorFactory->id(), EditorManager::ModeSwitch);
+        EditorManager::openEditor(entry.fileName, entry.editorFactory->id());
         return;
     }
     if (entry.externalEditor)

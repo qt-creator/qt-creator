@@ -299,7 +299,7 @@ IEditor *EditorView::currentEditor() const
 void EditorView::listSelectionActivated(int index)
 {
     QAbstractItemModel *model = EditorManager::instance()->openedEditorsModel();
-    EditorManager::instance()->activateEditorForIndex(this, model->index(index, 0), Core::EditorManager::ModeSwitch);
+    EditorManager::instance()->activateEditorForIndex(this, model->index(index, 0));
 }
 
 void EditorView::splitHorizontally()
@@ -465,11 +465,11 @@ void EditorView::goBackInNavigationHistory()
         IEditor *editor = 0;
         if (location.document) {
             editor = em->activateEditorForDocument(this, location.document,
-                                        EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
+                                        EditorManager::IgnoreNavigationHistory);
         }
         if (!editor) {
             editor = em->openEditor(this, location.fileName, location.id,
-                                    EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
+                                    EditorManager::IgnoreNavigationHistory);
             if (!editor) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
                 continue;
@@ -492,7 +492,7 @@ void EditorView::goForwardInNavigationHistory()
     IEditor *editor = 0;
     if (location.document) {
         editor = em->activateEditorForDocument(this, location.document,
-                                    EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
+                                    EditorManager::IgnoreNavigationHistory);
     }
     if (!editor) {
         editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
@@ -784,13 +784,13 @@ void SplitterOrView::restoreState(const QByteArray &state)
         if (!QFile::exists(fileName))
             return;
         IEditor *e = em->openEditor(view(), fileName, Id::fromString(id), Core::EditorManager::IgnoreNavigationHistory
-                                    | Core::EditorManager::NoActivate);
+                                    | Core::EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
             QModelIndex idx = em->openedEditorsModel()->firstRestoredEditor();
             if (idx.isValid())
                 em->activateEditorForIndex(view(), idx, Core::EditorManager::IgnoreNavigationHistory
-                                    | Core::EditorManager::NoActivate);
+                                    | Core::EditorManager::DoNotChangeCurrentEditor);
         }
 
         if (e) {

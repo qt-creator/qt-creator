@@ -576,7 +576,7 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QStr
     }
 
     baseEditor->setForceReadOnly(true);
-    Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(outputEditor);
     return baseEditor;
 }
 

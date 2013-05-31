@@ -311,7 +311,7 @@ void EditorToolBar::changeActiveEditor(int row)
 {
     EditorManager *em = ICore::editorManager();
     QAbstractItemModel *model = d->m_editorList->model();
-    em->activateEditorForIndex(model->index(row, 0), EditorManager::ModeSwitch);
+    em->activateEditorForIndex(model->index(row, 0));
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)

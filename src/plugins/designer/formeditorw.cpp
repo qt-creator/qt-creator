@@ -912,7 +912,7 @@ void FormEditorW::switchSourceForm()
 {
     const QString fileToOpen = otherFile();
     if (!fileToOpen.isEmpty())
-        Core::EditorManager::openEditor(fileToOpen, Core::Id(), Core::EditorManager::ModeSwitch);
+        Core::EditorManager::openEditor(fileToOpen);
 }
 
 } // namespace Internal

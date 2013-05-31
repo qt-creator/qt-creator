@@ -975,8 +975,7 @@ void GitPlugin::updateVersionWarning()
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
 {
-    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
-                                                Core::EditorManager::ModeSwitch);
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID);
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);

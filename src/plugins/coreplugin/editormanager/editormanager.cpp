@@ -698,15 +698,15 @@ void EditorManager::splitNewWindow(Internal::EditorView *view)
     context->setContext(Context(Constants::C_EDITORMANAGER));
     context->setWidget(splitter);
     ICore::addContextObject(context);
+    m_instance->d->m_root.append(splitter);
+    m_instance->d->m_rootContext.append(context);
+    connect(splitter, SIGNAL(destroyed(QObject*)), m_instance, SLOT(rootDestroyed(QObject*)));
     splitter->show();
     ICore::raiseWindow(splitter);
     if (newEditor)
         m_instance->activateEditor(splitter->view(), newEditor, IgnoreNavigationHistory);
     else
         splitter->view()->setFocus();
-    m_instance->d->m_root.append(splitter);
-    m_instance->d->m_rootContext.append(context);
-    connect(splitter, SIGNAL(destroyed(QObject*)), m_instance, SLOT(rootDestroyed(QObject*)));
     m_instance->updateActions();
 }
 
@@ -1049,15 +1049,15 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         if (!newCurrent)
             newCurrent = pickUnusedEditor();
         if (newCurrent) {
-            activateEditor(view, newCurrent, NoActivate);
+            activateEditor(view, newCurrent, DoNotChangeCurrentEditor);
         } else {
             QModelIndex idx = d->m_editorModel->firstRestoredEditor();
             if (idx.isValid()) {
-                activateEditorForIndex(view, idx, NoActivate);
+                activateEditorForIndex(view, idx, DoNotChangeCurrentEditor);
             } else {
                 const QList<IEditor *> editors = d->m_editorModel->editors();
                 if (!editors.isEmpty())
-                    activateEditor(view, editors.last(), NoActivate);
+                    activateEditor(view, editors.last(), DoNotChangeCurrentEditor);
             }
         }
     }
@@ -1112,11 +1112,11 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
         if (!newCurrent)
             newCurrent = pickUnusedEditor();
         if (newCurrent) {
-            activateEditor(view, newCurrent, NoActivate);
+            activateEditor(view, newCurrent, DoNotChangeCurrentEditor);
         } else {
             QModelIndex idx = d->m_editorModel->firstRestoredEditor();
             if (idx.isValid())
-                activateEditorForIndex(view, idx, NoActivate);
+                activateEditorForIndex(view, idx, DoNotChangeCurrentEditor);
         }
     }
 
@@ -1221,13 +1221,22 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
 
     editor = placeEditor(view, editor);
 
-    if (!(flags & NoActivate)) {
+    if (!(flags & DoNotChangeCurrentEditor)) {
         setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
-        if (flags & ModeSwitch)
-            switchToPreferedMode();
-        if (isVisible()) {
-            editor->widget()->setFocus();
-            ICore::raiseWindow(editor->widget());
+        if (!(flags & DoNotMakeVisible)) {
+            // switch to design mode?
+            if (editor->isDesignModePreferred()) {
+                ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+                ModeManager::setFocusToCurrentMode();
+            } else {
+                int rootIndex;
+                findRoot(view, &rootIndex);
+                if (rootIndex == 0) // main window --> we might need to switch mode
+                    if (!editor->widget()->isVisible())
+                        ModeManager::activateMode(Core::Constants::MODE_EDIT);
+                editor->widget()->setFocus();
+                ICore::raiseWindow(editor->widget());
+            }
         }
     }
     return editor;
@@ -1571,22 +1580,6 @@ QStringList EditorManager::getOpenFileNames() const
     return DocumentManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
 }
 
-
-/// Empty mode == figure out the correct mode from the editor
-/// forcePrefered = true, switch to the mode even if the editor is visible in another mode
-/// forcePrefered = false, only switch if it is not visible
-void EditorManager::switchToPreferedMode()
-{
-    Id preferedMode;
-    // Figure out preferred mode for editor
-    if (d->m_currentEditor)
-        preferedMode = d->m_currentEditor->preferredModeType();
-
-    if (!preferedMode.isValid())
-        preferedMode = Id(Constants::MODE_EDIT_TYPE);
-
-    ModeManager::activateModeType(preferedMode);
-}
 
 IEditor *EditorManager::openEditorWithContents(const Id &editorId,
                                         QString *titlePattern,
@@ -2191,7 +2184,7 @@ bool EditorManager::restoreState(const QByteArray &state)
                 continue;
             QFileInfo rfi(autoSaveName(fileName));
             if (rfi.exists() && fi.lastModified() < rfi.lastModified())
-                openEditor(fileName, id);
+                openEditor(fileName, id, DoNotMakeVisible);
             else
                 d->m_editorModel->addRestoredEditor(fileName, displayName, id);
         }

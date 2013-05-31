@@ -100,7 +100,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
 void BaseFileFilter::accept(Locator::FilterEntry selection) const
 {
     EditorManager::openEditor(selection.internalData.toString(), Id(),
-                              EditorManager::ModeSwitch | EditorManager::CanContainLineNumber);
+                              EditorManager::CanContainLineNumber);
 }
 
 void BaseFileFilter::generateFileNames()

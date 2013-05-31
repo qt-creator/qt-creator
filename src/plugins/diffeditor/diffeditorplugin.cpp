@@ -142,7 +142,7 @@ void DiffEditorPlugin::diff()
     if (!editor)
         return;
 
-    Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(editor);
 
     DiffEditorWidget *editorWidget = editor->editorWidget();
 

@@ -312,12 +312,9 @@ void BaseFileFind::openEditor(const Find::SearchResultItem &item)
     if (item.path.size() > 0) {
         openedEditor = Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
                                                          item.lineNumber,
-                                                         item.textMarkPos,
-                                                         Core::Id(),
-                                                         Core::EditorManager::ModeSwitch);
+                                                         item.textMarkPos);
     } else {
-        openedEditor = Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text),
-                                                        Core::Id(), Core::EditorManager::ModeSwitch);
+        openedEditor = Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }
     if (d->m_currentFindSupport)
         d->m_currentFindSupport->clearResults();

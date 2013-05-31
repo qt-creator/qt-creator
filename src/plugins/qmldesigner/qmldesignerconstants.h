@@ -53,7 +53,6 @@ const char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
 // This setting is also accessed by the QMlJsEditor.
 const char QML_SETTINGS_GROUP[] = "QML";
 const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
-const char QML_OPENDESIGNMODE_SETTINGS_KEY[] = "OpenDesignMode";
 const char QML_ITEMSPACING_KEY[] = "ItemSpacing";
 const char QML_CONTAINERPADDING_KEY[] = "ContainerPadding";
 const char QML_CANVASWIDTH_KEY[] = "CanvasWidth";
@@ -64,7 +63,6 @@ const char QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY[] = "WarnAboutQtQuickFeatures
 const char QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY[] = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
 const char QML_SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
 const char QML_ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
-enum { QML_OPENDESIGNMODE_DEFAULT = 0 }; // 0 for text mode, 1 for design mode
 
 const char SETTINGS_CATEGORY_QML_ICON[] = ":/core/images/category_qml.png";
 

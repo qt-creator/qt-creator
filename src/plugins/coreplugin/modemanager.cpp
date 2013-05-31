@@ -150,21 +150,6 @@ IMode *ModeManager::mode(Id id)
     return 0;
 }
 
-void ModeManager::activateModeType(Id type)
-{
-    if (currentMode() && currentMode()->type() == type)
-        return;
-    int index = -1;
-    for (int i = 0; i < d->m_modes.count(); ++i) {
-        if (d->m_modes.at(i)->type() == type) {
-            index = i;
-            break;
-        }
-    }
-    if (index != -1)
-        d->m_modeStack->setCurrentIndex(index);
-}
-
 void ModeManager::slotActivateMode(int id)
 {
     m_instance->activateMode(Id::fromUniqueIdentifier(id));
@@ -333,10 +318,10 @@ void ModeManager::setFocusToCurrentMode()
     QWidget *widget = mode->widget();
     if (widget) {
         QWidget *focusWidget = widget->focusWidget();
-        if (focusWidget)
-            focusWidget->setFocus();
-        else
-            widget->setFocus();
+        if (!focusWidget)
+            focusWidget = widget;
+        focusWidget->setFocus();
+        ICore::raiseWindow(focusWidget);
     }
 }
 

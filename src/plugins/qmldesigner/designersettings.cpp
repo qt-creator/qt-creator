@@ -35,8 +35,7 @@
 using namespace QmlDesigner;
 
 DesignerSettings::DesignerSettings()
-    : openDesignMode(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT),
-    itemSpacing(0),
+    : itemSpacing(0),
     containerPadding(0),
     canvasWidth(10000),
     canvasHeight(10000),
@@ -50,9 +49,6 @@ void DesignerSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
-    openDesignMode = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY),
-            bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)).toBool();
     itemSpacing = settings->value(
             QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), QVariant(6)).toInt();
     containerPadding = settings->value(
@@ -76,7 +72,6 @@ void DesignerSettings::toSettings(QSettings *settings) const
 {
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY), openDesignMode);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), itemSpacing);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTAINERPADDING_KEY), containerPadding);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), canvasWidth);
@@ -92,8 +87,7 @@ void DesignerSettings::toSettings(QSettings *settings) const
 
 bool DesignerSettings::equals(const DesignerSettings &other) const
 {
-    return openDesignMode == other.openDesignMode
-            && containerPadding == other.containerPadding
+    return containerPadding == other.containerPadding
             && canvasWidth == other.canvasWidth
             && canvasHeight == other.canvasHeight
             && warningsInDesigner == other.warningsInDesigner

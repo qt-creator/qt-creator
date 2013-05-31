@@ -687,9 +687,7 @@ QString ClearCasePlugin::ccGetFileActivity(const QString &workingDir, const QStr
 ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString &fileName, bool isUcm)
 {
     Core::IEditor *editor =
-            Core::EditorManager::openEditor(fileName,
-                                                        Constants::CLEARCASECHECKINEDITOR_ID,
-                                                        Core::EditorManager::ModeSwitch);
+            Core::EditorManager::openEditor(fileName, Constants::CLEARCASECHECKINEDITOR_ID);
     ClearCaseSubmitEditor *submitEditor = qobject_cast<ClearCaseSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_checkInSelectedAction, m_checkInDiffAction);
@@ -932,7 +930,7 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
         // Show in the same editor if diff has been executed before
         if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
             existingEditor->createNew(result);
-            Core::EditorManager::activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
+            Core::EditorManager::activateEditor(existingEditor);
             setDiffBaseDirectory(existingEditor, workingDir);
             return;
         }
@@ -1192,7 +1190,7 @@ void ClearCasePlugin::history(const QString &workingDir,
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc history %1").arg(id);
         const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
@@ -1305,7 +1303,7 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(res);
         VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
-        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, res, VcsBase::AnnotateOutput, source, codec);
@@ -1341,7 +1339,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(description);
-        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc describe %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, description, VcsBase::DiffOutput, source, codec);
@@ -1413,7 +1411,7 @@ Core::IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const Q
     if (codec)
         e->setCodec(codec);
     Core::IEditor *ie = e->editor();
-    Core::EditorManager::activateEditor(ie, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(ie);
     return ie;
 }
 

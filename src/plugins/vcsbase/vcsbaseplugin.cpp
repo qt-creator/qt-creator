@@ -691,9 +691,7 @@ bool VcsBasePlugin::raiseSubmitEditor() const
 {
     if (!d->m_submitEditor)
         return false;
-    Core::EditorManager::activateEditor(
-                d->m_submitEditor,
-                Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(d->m_submitEditor, Core::EditorManager::IgnoreNavigationHistory);
     return true;
 }
 

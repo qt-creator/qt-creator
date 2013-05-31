@@ -265,7 +265,6 @@ public:
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
         setPriority(Constants::P_MODE_SESSION);
         setId(Constants::MODE_SESSION);
-        setType(Core::Id());
         setContextHelpId(QLatin1String("Managing Projects"));
     }
 };
@@ -2873,7 +2872,7 @@ void ProjectExplorerPlugin::removeProject()
 void ProjectExplorerPlugin::openFile()
 {
     QTC_ASSERT(d->m_currentNode, return);
-    Core::EditorManager::openEditor(d->m_currentNode->path(), Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditor(d->m_currentNode->path());
 }
 
 void ProjectExplorerPlugin::searchOnFileSystem()

@@ -107,9 +107,9 @@ public:
     static EditorToolBar *createToolBar(QWidget *parent = 0);
 
     enum OpenEditorFlag {
-        NoActivate = 1,
+        DoNotChangeCurrentEditor = 1,
         IgnoreNavigationHistory = 2,
-        ModeSwitch = 4,
+        DoNotMakeVisible = 4,
         CanContainLineNumber = 8,
         OpenInOtherSplit = 16
     };
@@ -278,7 +278,6 @@ private:
     static void splitNewWindow(Internal::EditorView *view);
     IEditor *pickUnusedEditor() const;
     void addDocumentToRecentFiles(IDocument *document);
-    void switchToPreferedMode();
     void updateAutoSave();
     void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
     void updateMakeWritableWarning();

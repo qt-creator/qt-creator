@@ -137,7 +137,7 @@ void ScratchFileWizard::createFile()
     file.setAutoRemove(false);
     QTC_ASSERT(file.open(), return; );
     file.close();
-    Core::EditorManager::openEditor(file.fileName(), Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditor(file.fileName());
 }
 
 // ExtensionSystem::PluginInterface

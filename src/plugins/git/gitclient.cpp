@@ -816,7 +816,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
         return 0;
 
     // Exists already
-    Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(outputEditor);
     outputEditor->createNew(m_msgWait);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
 
@@ -829,7 +829,7 @@ DiffEditor::DiffEditor *GitClient::findExistingOrOpenNewDiffEditor(const char *r
     Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     if (outputEditor) {
         // Exists already
-        Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(outputEditor);
         outputEditor->createNew(m_msgWait);
     }
 
@@ -840,7 +840,7 @@ DiffEditor::DiffEditor *GitClient::findExistingOrOpenNewDiffEditor(const char *r
         editor = qobject_cast<DiffEditor::DiffEditor *>(
                     Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait));
         editor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch); // should probably go outside this block
+        Core::EditorManager::activateEditor(editor); // should probably go outside this block
     }
     return editor;
 }
@@ -881,7 +881,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     }
 
     rc->setForceReadOnly(true);
-    Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(outputEditor);
 
     if (configWidget)
         rc->setConfigurationWidget(configWidget);

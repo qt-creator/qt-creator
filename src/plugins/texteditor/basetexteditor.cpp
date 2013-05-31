@@ -4899,8 +4899,7 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
         return true;
     }
 
-    return Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn,
-                                             Core::Id(), Core::EditorManager::ModeSwitch);
+    return Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn);
 }
 
 void BaseTextEditorWidget::updateLink(QMouseEvent *e)

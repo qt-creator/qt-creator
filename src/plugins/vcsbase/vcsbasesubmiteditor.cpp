@@ -573,8 +573,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
 {
     SubmitEditorWidget *submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
-    Core::EditorManager::activateEditor(
-                this, Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
 
     QString errorMessage;
     QMessageBox::StandardButton answer = QMessageBox::Yes;

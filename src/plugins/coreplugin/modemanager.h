@@ -65,7 +65,6 @@ public:
     static void addProjectSelector(QAction *action);
     static void addWidget(QWidget *widget);
 
-    static void activateModeType(Id type);
     static void activateMode(Id id);
     static void setFocusToCurrentMode();
     static bool isModeSelectorVisible();

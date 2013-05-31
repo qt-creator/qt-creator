@@ -143,7 +143,6 @@ WelcomeMode::WelcomeMode() :
     setIcon(qtLogo);
     setPriority(Core::Constants::P_MODE_WELCOME);
     setId(Core::Constants::MODE_WELCOME);
-    setType(Core::Constants::MODE_WELCOME_TYPE);
     setContextHelpId(QLatin1String("Qt Creator Manual"));
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 

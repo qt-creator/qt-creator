@@ -164,8 +164,7 @@ void CppToolsPlugin::switchHeaderSourceInNextSplit()
     QString otherFile = correspondingHeaderOrSource(
                 Core::EditorManager::currentEditor()->document()->fileName());
     if (!otherFile.isEmpty())
-        Core::EditorManager::openEditor(otherFile, Core::Id(), Core::EditorManager::OpenInOtherSplit
-                                        | Core::EditorManager::ModeSwitch);
+        Core::EditorManager::openEditor(otherFile, Core::Id(), Core::EditorManager::OpenInOtherSplit);
 }
 
 static QStringList findFilesInProject(const QString &name,

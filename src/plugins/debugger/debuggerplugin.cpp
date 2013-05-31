@@ -508,7 +508,6 @@ public:
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Debug.png")));
         setPriority(85);
         setId(MODE_DEBUG);
-        setType(CC::MODE_EDIT_TYPE);
     }
 
     ~DebugMode()

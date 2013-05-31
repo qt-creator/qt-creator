@@ -234,7 +234,7 @@ void QtOutputFormatter::handleLink(const QString &href)
 
         if (!fileName.isEmpty()) {
             fileName = m_projectFinder.findFile(QUrl::fromLocalFile(fileName));
-            Core::EditorManager::openEditorAt(fileName, line, 0);
+            Core::EditorManager::openEditorAt(fileName, line);
             return;
         }
     }

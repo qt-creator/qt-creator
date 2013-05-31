@@ -270,7 +270,9 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 
 static inline ITextEditor *editableAt(const QString &fileName, int line, int column)
 {
-    return qobject_cast<ITextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column));
+    return qobject_cast<ITextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
+                                                                         Core::Id(),
+                                                                         Core::EditorManager::DoNotMakeVisible));
 }
 
 static void addDeclaration(const Snapshot &snapshot,

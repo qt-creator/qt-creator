@@ -120,7 +120,8 @@ void FormEditorCrumbleBar::onCrumblePathElementClicked(const QVariant &data)
     } else {
         crumblePath()->popElement();
         nextFileIsCalledInternally();
-        Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName);
+        Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName, Core::Id(),
+                                        Core::EditorManager::DoNotMakeVisible);
         if (!clickedCrumbleBarInfo.componentId.isEmpty()) {
             currentDesignDocument()->changeToSubComponent(
                         currentDesignDocument()->rewriterView()->modelNodeForId(clickedCrumbleBarInfo.componentId));

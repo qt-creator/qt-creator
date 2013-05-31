@@ -68,7 +68,7 @@ public:
 
     virtual QWidget *toolBar() = 0;
 
-    virtual Id preferredModeType() const { return Id(); }
+    virtual bool isDesignModePreferred() const { return false; }
 
 signals:
     void changed();
