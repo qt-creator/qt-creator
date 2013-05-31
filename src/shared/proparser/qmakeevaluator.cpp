@@ -1845,8 +1845,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFeatureFile(
     int start_root = 0;
     QString currFn = currentFileName();
     if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
+        QStringRef currPath = IoUtils::pathName(currFn);
         for (int root = 0; root < m_featureRoots.size(); ++root)
-            if (currFn == m_featureRoots.at(root) + fn) {
+            if (currPath == m_featureRoots.at(root)) {
                 start_root = root + 1;
                 break;
             }

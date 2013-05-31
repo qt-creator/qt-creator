@@ -52,6 +52,7 @@ public:
     static bool exists(const QString &fileName) { return fileType(fileName) != FileNotFound; }
     static bool isRelativePath(const QString &fileName);
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
+    static QStringRef pathName(const QString &fileName); // Requires normalized path
     static QStringRef fileName(const QString &fileName); // Requires normalized path
     static QString resolvePath(const QString &baseDir, const QString &fileName);
     static QString shellQuoteUnix(const QString &arg);
