@@ -572,7 +572,9 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
                              QFileInfo(p.files.front()).fileName() : p.diffName;
 
     QStringList args(QLatin1String("diff"));
-    args.append(QLatin1String("--internal-diff"));
+    Version v = svnVersion();
+    if (v.majorVersion >= 1 && v.minorVersion >= 7) // --internal-diff is new in v1.7.0
+        args.append(QLatin1String("--internal-diff"));
     args.append(p.arguments);
     args << p.files;
 
@@ -1108,6 +1110,32 @@ QStringList SubversionPlugin::addAuthenticationOptions(const QStringList &args,
     }
     rc.append(args);
     return rc;
+}
+
+SubversionPlugin::Version SubversionPlugin::svnVersion()
+{
+    if (m_svnVersionBinary != m_settings.binaryPath()) {
+        QStringList args;
+        args << QLatin1String("--version") << QLatin1String("-q");
+        const Utils::SynchronousProcessResponse response =
+                VcsBase::VcsBasePlugin::runVcs(QDir().absolutePath(), m_settings.binaryPath(),
+                                               args, m_settings.timeOutMs(), 0);
+        if (response.result == Utils::SynchronousProcessResponse::Finished &&
+                response.exitCode == 0) {
+            m_svnVersionBinary = m_settings.binaryPath();
+            m_svnVersion = response.stdOut.trimmed();
+        } else {
+            m_svnVersionBinary.clear();
+            m_svnVersion.clear();
+        }
+    }
+
+    SubversionPlugin::Version v;
+    if (::sscanf(m_svnVersion.toLatin1().constData(), "%d.%d.%d",
+           &v.majorVersion, &v.minorVersion, &v.patchVersion) != 3)
+        v.majorVersion = v.minorVersion = v.patchVersion = -1;
+
+    return v;
 }
 
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
