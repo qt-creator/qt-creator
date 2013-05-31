@@ -485,7 +485,6 @@ class Dumper:
         self.ns = ""
         self.autoDerefPointers = True
         self.useDynamicType = True
-        self.useLoop = True
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -1327,27 +1326,9 @@ currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 execfile(os.path.join(currentDir, "qttypes.py"))
 
 
-def doit1():
+def doit():
 
     db = Dumper()
-    db.useLoop = False
-    db.report('state="enginesetupok"')
-
-    while True:
-        db.consumeEvents()
-
-        readable, _, _ = select.select([sys.stdin], [], [], 0.1)
-        if sys.stdin in readable:
-            line = raw_input()
-            if line.startswith("db "):
-                db.execute(eval(line[3:]))
-
-        db.consumeEvents()
-
-def doit2():
-
-    db = Dumper()
-    db.useLoop = True
     db.report('state="enginesetupok"')
 
     while True:
@@ -1355,45 +1336,34 @@ def doit2():
         for reader in readable:
             if reader == sys.stdin:
                 line = sys.stdin.readline()
-                #warn("READING LINE %s" % line)
+                #warn("READING LINE '%s'" % line)
                 if line.startswith("db "):
                     db.execute(eval(line[3:]))
 
 
 def testit():
+
     db = Dumper()
-    db.useLoop = False
 
-    error = lldb.SBError()
-    db.target = db.debugger.CreateTarget(sys.argv[2], None, None, True, error)
-    #db.importDumpers()
-
-    bpNew = db.target.BreakpointCreateByName('breakHere', 'doit')
-
-    db.process = db.target.LaunchSimple(None, None, os.getcwd())
-    event = lldb.SBEvent()
+    db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
+    db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
+        'modelid':'1','type':2,'ignorecount':0,'condition':'','function':'main',
+        'oneshot':0,'enabled':1,'file':'','line':0}]})
+    db.runEngine({'cmd':'runEngine','token':4})
 
     while True:
-        event = lldb.SBEvent()
-        if db.debugger.GetListener().WaitForEvent(1, event):
-            out = lldb.SBStream()
-            event.GetDescription(out)
-            warn("EVENT: %s" % event)
-            type = event.GetType()
-            msg = lldb.SBEvent.GetCStringFromEvent(event)
-            flavor = event.GetDataFlavor()
-            state = lldb.SBProcess.GetStateFromEvent(event)
-            db.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
-                % (type, out.GetData(), msg, flavor, state))
-            db.report('state="%s"' % stateNames[state])
-            if type == lldb.SBProcess.eBroadcastBitStateChanged:
-                #if state == lldb.eStateStopped:
-                #db.reportData()
-                pass
-        else:
-            warn('TIMEOUT')
+        readable, _, _ = select.select([sys.stdin], [], [])
+        for reader in readable:
+            if reader == sys.stdin:
+                line = sys.stdin.readline().strip()
+                #warn("READING LINE '%s'" % line)
+                if line.startswith("db "):
+                    db.execute(eval(line[3:]))
+                else:
+                    db.executeDebuggerCommand({'command':line})
+
 
 if len(sys.argv) > 2:
     testit()
 else:
-    doit2()
+    doit()
