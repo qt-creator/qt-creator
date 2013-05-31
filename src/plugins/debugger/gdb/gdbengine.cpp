@@ -1830,9 +1830,9 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
 
         if (m_gdbVersion > 70100) {
             // Quick check whether we have python.
-            showMessage(_("NOTE: CHECK FOR PYTHON SUPPRESSED, VERSION TOO LOW"));
             postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
         } else {
+            showMessage(_("NOTE: CHECK FOR PYTHON SUPPRESSED, VERSION TOO LOW"));
             pythonDumpersFailed();
         }
     }
