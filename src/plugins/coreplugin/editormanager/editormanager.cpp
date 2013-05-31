@@ -1413,13 +1413,8 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
 IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    return m_instance->openEditor(m_instance->currentEditorView(),
-                                  fileName, editorId, flags, newEditor);
-}
-
-IEditor *EditorManager::openEditorInOtherSplit(const QString &fileName, const Id &editorId, OpenEditorFlags flags, bool *newEditor)
-{
-    m_instance->gotoOtherSplit();
+    if (flags & EditorManager::OpenInOtherSplit)
+        m_instance->gotoOtherSplit();
     return m_instance->openEditor(m_instance->currentEditorView(),
                                   fileName, editorId, flags, newEditor);
 }
