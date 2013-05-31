@@ -94,7 +94,8 @@ def selectFromCombo(objectSpec, itemName):
     else:
         mouseClick(object, 5, 5, 0, Qt.LeftButton)
         mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")), 5, 5, 0, Qt.LeftButton)
-        waitFor("str(object.currentText)==itemName", 5000)
+        test.verify(waitFor("str(object.currentText)==itemName", 5000),
+                    "Switched combo item to '%s'" % itemName)
         return True
 
 def selectFromLocator(filter, itemName = None):
