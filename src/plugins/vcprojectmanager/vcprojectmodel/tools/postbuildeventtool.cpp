@@ -44,6 +44,7 @@ namespace Internal {
 
 PostBuildEventTool::PostBuildEventTool()
 {
+    m_name = QLatin1String("VCPostBuildEventTool");
 }
 
 PostBuildEventTool::PostBuildEventTool(const PostBuildEventTool &tool)

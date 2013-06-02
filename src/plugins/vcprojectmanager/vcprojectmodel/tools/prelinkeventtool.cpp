@@ -42,6 +42,7 @@ namespace Internal {
 
 PreLinkEventTool::PreLinkEventTool()
 {
+    m_name = QLatin1String("VCPreLinkEventTool");
 }
 
 PreLinkEventTool::PreLinkEventTool(const PreLinkEventTool &tool)

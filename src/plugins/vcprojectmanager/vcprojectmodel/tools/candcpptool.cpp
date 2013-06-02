@@ -42,6 +42,7 @@ namespace Internal {
 
 CAndCppTool::CAndCppTool()
 {
+    m_name = QLatin1String("VCCLCompilerTool");
 }
 
 CAndCppTool::CAndCppTool(const CAndCppTool &tool)

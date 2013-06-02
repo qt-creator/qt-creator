@@ -41,6 +41,7 @@ namespace Internal {
 
 CustomBuildStepTool::CustomBuildStepTool()
 {
+    m_name = QLatin1String("VCCustomBuildTool");
 }
 
 CustomBuildStepTool::CustomBuildStepTool(const CustomBuildStepTool &tool)

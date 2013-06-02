@@ -38,6 +38,8 @@ namespace Internal {
 
 class Configurations;
 class VcNodeWidget;
+class VcProjectDocument;
+class ConfigurationsBaseWidget;
 
 class ConfigurationsFactory
 {
@@ -46,7 +48,7 @@ public:
     ~ConfigurationsFactory();
 
     static Configuration::Ptr createConfiguration(VcDocConstants::DocumentVersion version);
-    static VcNodeWidget* createSettingsWidget(VcDocConstants::DocumentVersion version, Configurations *config);
+    static ConfigurationsBaseWidget *createSettingsWidget(VcProjectDocument *vcProjDoc, Configurations *config);
 };
 
 } // namespace Internal

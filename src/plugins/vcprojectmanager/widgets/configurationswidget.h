@@ -39,6 +39,8 @@ namespace Ui {
 class ConfigurationsWidget;
 }
 
+class ConfigurationBaseWidget;
+
 class ConfigurationsWidget : public QWidget
 {
     Q_OBJECT
@@ -49,8 +51,23 @@ public:
 
     void addConfiguration(const QString &configName, QWidget *configWidget);
     QWidget* configWidget(const QString &configName);
+    void removeConfiguration(const QString &configNameWithPlatform);
+    void renameConfiguration(const QString &newconfigNameWithPlatform, const QString &oldConfigNameWithPlatform);
+    QList<ConfigurationBaseWidget *> configWidgets();
+
+private slots:
+    void onAddNewConfig();
+    void onRenameConfig();
+    void onRemoveConfig();
+
+signals:
+    void addNewConfigSignal(QString configName, QString cloneFrom);
+    void removeConfigSignal(QString configName);
+    void renameConfigSignal(QString newName, QString oldName);
 
 private:
+    int indexOfConfig(const QString &configNameWithPlatform);
+
     Ui::ConfigurationsWidget *ui;
 };
 

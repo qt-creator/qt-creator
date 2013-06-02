@@ -27,79 +27,38 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CONFIGURATIONWIDGETS_H
-#define CONFIGURATIONWIDGETS_H
-
-#include "../widgets/vcnodewidget.h"
-#include "../vcprojectmodel/configuration.h"
-
-class QListWidget;
-class QStackedWidget;
+#include "newconfigitemdialog.h"
+#include "ui_newconfigitemdialog.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Configuration;
-
-class ConfigurationBaseWidget : public VcNodeWidget
+NewConfigItemDialog::NewConfigItemDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::NewConfigItemDialog)
 {
-    Q_OBJECT
-public:
-    explicit ConfigurationBaseWidget(Configuration *config);
-    ~ConfigurationBaseWidget();
-    void saveData();
+    ui->setupUi(this);
+}
 
-protected:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2003Widget : public ConfigurationBaseWidget
+NewConfigItemDialog::~NewConfigItemDialog()
 {
-public:
-    explicit Configuration2003Widget(Configuration *config);
-    ~Configuration2003Widget();
+    delete ui;
+}
 
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2005Widget : public ConfigurationBaseWidget
+QString NewConfigItemDialog::name() const
 {
-public:
-    explicit Configuration2005Widget(Configuration* config);
-    ~Configuration2005Widget();
+    return ui->m_newItemNameLineEdit->text();
+}
 
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2008Widget : public ConfigurationBaseWidget
+QString NewConfigItemDialog::copyFrom() const
 {
-public:
-    explicit Configuration2008Widget(Configuration* config);
-    ~Configuration2008Widget();
+    return ui->m_copyFromComboBox->currentText();
+}
 
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
+void NewConfigItemDialog::addConfigItem(const QString &item)
+{
+    ui->m_copyFromComboBox->addItem(item);
+}
 
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // CONFIGURATIONWIDGETS_H

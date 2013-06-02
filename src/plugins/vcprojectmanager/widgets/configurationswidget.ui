@@ -40,6 +40,27 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="m_addNewConfigPushButton">
+       <property name="text">
+        <string>Add New...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="m_removeConfigPushButton">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="m_renameConfigPushButton">
+       <property name="text">
+        <string>Rename</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

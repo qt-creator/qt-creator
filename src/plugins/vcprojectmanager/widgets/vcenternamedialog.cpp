@@ -27,33 +27,45 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "vccontainernamedialog.h"
-#include "ui_vccontainernamewidget.h"
+#include "vcenternamedialog.h"
+#include "ui_vcenternamewidget.h"
+
+#include <QMessageBox>
+#include <QPushButton>
 
 namespace VcProjectManager {
 namespace Internal {
 
-VcContainerNameDialog::VcContainerNameDialog(const QString &containerType, QWidget *parent) :
+VcEnterNameDialog::VcEnterNameDialog(const QString &containerType, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::VcContainerNameWidget)
+    ui(new Ui::VcEnterNameWidget)
 {
     ui->setupUi(this);
     ui->m_containerTypeLabel->setText(containerType);
+    connect(ui->m_buttonBox, SIGNAL(accepted()), this, SLOT(okButtonClicked()));
 }
 
-VcContainerNameDialog::~VcContainerNameDialog()
+VcEnterNameDialog::~VcEnterNameDialog()
 {
     delete ui;
 }
 
-QString VcContainerNameDialog::contanerName() const
+QString VcEnterNameDialog::contanerName() const
 {
     return ui->m_containerName->text();
 }
 
-void VcContainerNameDialog::setContainerName(const QString &name)
+void VcEnterNameDialog::setContainerName(const QString &name)
 {
     ui->m_containerName->setText(name);
+}
+
+void VcEnterNameDialog::okButtonClicked()
+{
+    if (ui->m_containerName->text().isEmpty())
+        QMessageBox::warning(this, tr("Error"), tr("Name field is empty."));
+    else
+        accept();
 }
 
 } // namespace Internal

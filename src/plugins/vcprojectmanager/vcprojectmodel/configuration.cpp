@@ -66,12 +66,7 @@ void Configuration::processNodeAttributes(const QDomElement &element)
 
 QString Configuration::nodeWidgetName() const
 {
-    QStringList splits = m_configType->name().split(QLatin1Char('|'));
-
-    if (splits.isEmpty())
-        return m_configType->name();
-
-    return splits[0];
+    return m_configType->name();
 }
 
 QDomNode Configuration::toXMLDomNode(QDomDocument &domXMLDocument) const
@@ -81,7 +76,8 @@ QDomNode Configuration::toXMLDomNode(QDomDocument &domXMLDocument) const
 
 void Configuration::addTool(Tool::Ptr tool)
 {
-    m_configType->addTool(tool);
+    if (tool)
+        m_configType->addTool(tool);
 }
 
 void Configuration::removeTool(Tool::Ptr tool)
@@ -107,6 +103,17 @@ QString Configuration::name() const
 void Configuration::setName(const QString &name)
 {
     m_configType->setName(name);
+    emit nameChanged();
+}
+
+QString Configuration::oldName() const
+{
+    return m_configType->oldName();
+}
+
+void Configuration::setOldName(const QString &oldName)
+{
+    m_configType->setOldName(oldName);
 }
 
 QString Configuration::attributeValue(const QString &attributeName) const
@@ -179,6 +186,7 @@ Configuration::Ptr Configuration2003::clone() const
 
 Configuration2003::Configuration2003()
 {
+
 }
 
 void Configuration2003::init()

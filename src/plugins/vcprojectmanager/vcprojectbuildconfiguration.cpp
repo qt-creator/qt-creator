@@ -82,21 +82,21 @@ ProjectExplorer::BuildConfiguration::BuildType VcProjectBuildConfiguration::buil
     return Debug;
 }
 
-QString VcProjectBuildConfiguration::configurationName() const
-{
-    return m_vcConfigurationName;
-}
-
-void VcProjectBuildConfiguration::setConfigurationName(const QString &name)
-{
-    m_vcConfigurationName = name;
-}
-
 QVariantMap VcProjectBuildConfiguration::toMap() const
 {
-    QVariantMap map = ProjectExplorer::BuildConfiguration::toMap();
-    map.insert(QLatin1String(Constants::VC_PROJECT_BUILD_CONFIGURATION_NAME), m_vcConfigurationName);
-    return map;
+    return ProjectExplorer::BuildConfiguration::toMap();
+}
+
+void VcProjectBuildConfiguration::setConfiguration(Configuration::Ptr config)
+{
+    m_configuration = config;
+    connect(m_configuration.data(), SIGNAL(nameChanged()), this, SLOT(reloadConfigurationName()));
+}
+
+void VcProjectBuildConfiguration::reloadConfigurationName()
+{
+    setDisplayName(m_configuration->name());
+    setDefaultDisplayName(m_configuration->name());
 }
 
 VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source)
@@ -107,7 +107,6 @@ VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target
 
 bool VcProjectBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    m_vcConfigurationName = map.value(QLatin1String(Constants::VC_PROJECT_BUILD_CONFIGURATION_NAME)).toString();
     return ProjectExplorer::BuildConfiguration::fromMap(map);
 }
 

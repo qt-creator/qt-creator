@@ -46,6 +46,8 @@
 namespace VcProjectManager {
 namespace Internal {
 
+class ConfigurationsBaseWidget;
+
 class VcProjectDocument : public IVcProjectXMLNode
 {
     friend class VcProjectDocumentFactory;
@@ -130,11 +132,20 @@ class VcProjectDocumentWidget : public VcNodeWidget
     Q_OBJECT
 
 public:
-    explicit VcProjectDocumentWidget();
+    explicit VcProjectDocumentWidget(VcProjectDocument *vcDoc);
     ~VcProjectDocumentWidget();
+    void saveData();
+
+private slots:
+    virtual void onOkButtonClicked();
+    virtual void onCancelButtonClicked();
 
 signals:
     void accepted();
+
+protected:
+    VcProjectDocument *m_vcDoc;
+    ConfigurationsBaseWidget *m_configurationsWidget;
 };
 
 
@@ -145,17 +156,7 @@ class VcProjectDocument2003Widget : public VcProjectDocumentWidget
 public:
     explicit VcProjectDocument2003Widget(VcProjectDocument2003 *vcDoc);
     ~VcProjectDocument2003Widget();
-    void saveData();
-
-private slots:
-    void onOkButtonClicked();
-    void onCancelButtonClicked();
-
-private:
-    VcProjectDocument2003 *m_vcDoc;
-    VcNodeWidget *m_configurationsWidget;
 };
-
 
 class VcProjectDocument2005 : public VcProjectDocument2003
 {
@@ -188,15 +189,6 @@ class VcProjectDocument2005Widget : public VcProjectDocumentWidget
 public:
     explicit VcProjectDocument2005Widget(VcProjectDocument2005 *vcDoc);
     ~VcProjectDocument2005Widget();
-    void saveData();
-
-private slots:
-    void onOkButtonClicked();
-    void onCancelButtonClicked();
-
-private:
-    VcProjectDocument2005 *m_vcDoc;
-    VcNodeWidget *m_configurationsWidget;
 };
 
 class VcProjectDocument2008 : public VcProjectDocument2005
@@ -245,15 +237,6 @@ class VcProjectDocument2008Widget : public VcProjectDocumentWidget
 public:
     explicit VcProjectDocument2008Widget(VcProjectDocument2008 *vcDoc);
     ~VcProjectDocument2008Widget();
-    void saveData();
-
-private slots:
-    void onOkButtonClicked();
-    void onCancelButtonClicked();
-
-private:
-    VcProjectDocument2008 *m_vcDoc;
-    VcNodeWidget *m_configurationsWidget;
 };
 
 class VcProjectDocumentFactory

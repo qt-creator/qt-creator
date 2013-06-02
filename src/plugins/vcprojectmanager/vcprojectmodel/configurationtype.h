@@ -59,6 +59,9 @@ public:
     QList<Tool::Ptr > tools() const;
     QString name() const;
     void setName(const QString &name);
+    QString oldName() const;
+    void setOldName(const QString &oldName);
+
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
     void clearAttribute(const QString &attributeName);
@@ -72,6 +75,7 @@ protected:
     ConfigurationType& operator =(const ConfigurationType &configType);
 
     QString m_name;
+    QString m_oldName;
     QList<Tool::Ptr > m_tools;
     QHash<QString, QString> m_anyAttribute;
 };

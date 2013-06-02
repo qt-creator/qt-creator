@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VcProjectManager::Internal::VcContainerNameWidget</class>
- <widget class="QDialog" name="VcProjectManager::Internal::VcContainerNameWidget">
+ <class>VcProjectManager::Internal::VcEnterNameWidget</class>
+ <widget class="QDialog" name="VcProjectManager::Internal::VcEnterNameWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>239</width>
+    <width>532</width>
     <height>69</height>
    </rect>
   </property>
@@ -75,33 +75,17 @@
  <connections>
   <connection>
    <sender>m_buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>VcProjectManager::Internal::VcContainerNameWidget</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>VcProjectManager::Internal::VcContainerNameWidget</receiver>
+   <receiver>VcProjectManager::Internal::VcEnterNameWidget</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>79</x>
+     <y>43</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
+     <x>40</x>
+     <y>66</y>
     </hint>
    </hints>
   </connection>

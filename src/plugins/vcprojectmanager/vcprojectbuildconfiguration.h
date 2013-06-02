@@ -31,6 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_BUILDCONFIGURATION_H
 
 #include "vcproject.h"
+#include "vcprojectmodel/configuration.h"
 
 #include <projectexplorer/buildconfiguration.h>
 
@@ -49,20 +50,20 @@ public:
     QString buildDirectory() const;
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
-
-    QString configurationName() const;
-    void setConfigurationName(const QString &name);
-
     QVariantMap toMap() const;
+
+    void setConfiguration(Configuration::Ptr config);
+
+private slots:
+    void reloadConfigurationName();
 
 protected:
     VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source);
-
     bool fromMap(const QVariantMap &map);
 
 private:
     QString m_buildDirectory;
-    QString m_vcConfigurationName;
+    Configuration::Ptr m_configuration;
 };
 
 class VcProjectBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

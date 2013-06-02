@@ -38,12 +38,14 @@
 namespace VcProjectManager {
 namespace Internal {
 
+class VcProjectDocument;
+
 class Configurations : public IVcProjectXMLNode
 {
 public:
     typedef QSharedPointer<Configurations>  Ptr;
 
-    Configurations(VcDocConstants::DocumentVersion version);
+    Configurations(VcProjectDocument *vcProjDoc);
     Configurations(const Configurations &configs);
     Configurations& operator=(const Configurations &configs);
     ~Configurations();
@@ -67,7 +69,7 @@ private:
     void processConfiguration(const QDomNode &configurationNode);
 
     QList<Configuration::Ptr > m_configurations;
-    VcDocConstants::DocumentVersion m_docVersion;
+    VcProjectDocument *m_vcProjDoc;
 };
 
 } // namespace Internal

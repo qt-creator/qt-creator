@@ -36,22 +36,25 @@ namespace VcProjectManager {
 namespace Internal {
 
 namespace Ui {
-class VcContainerNameWidget;
+class VcEnterNameWidget;
 }
 
-class VcContainerNameDialog : public QDialog
+class VcEnterNameDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit VcContainerNameDialog(const QString &containerType, QWidget *parent = 0);
-    ~VcContainerNameDialog();
+    explicit VcEnterNameDialog(const QString &containerType, QWidget *parent = 0);
+    ~VcEnterNameDialog();
 
     QString contanerName() const;
     void setContainerName(const QString &name);
 
+private slots:
+    void okButtonClicked();
+
 private:
-    Ui::VcContainerNameWidget *ui;
+    Ui::VcEnterNameWidget *ui;
 };
 
 

@@ -37,8 +37,10 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class Configuration : public IVcProjectXMLNode
+class Configuration : public QObject, public IVcProjectXMLNode
 {
+    Q_OBJECT
+
     friend class ConfigurationsFactory;
 
 public:
@@ -58,10 +60,15 @@ public:
     QList<Tool::Ptr> tools() const;
     QString name() const;
     void setName(const QString &name);
+    QString oldName() const;
+    void setOldName(const QString &oldName);
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
     void clearAttribute(const QString &attributeName);
     void removeAttribute(const QString &attributeName);
+
+signals:
+    void nameChanged();
 
 protected:
     Configuration();

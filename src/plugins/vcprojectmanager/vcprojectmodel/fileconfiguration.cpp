@@ -97,6 +97,16 @@ void FileConfiguration::setName(const QString &name)
     m_configType->setName(name);
 }
 
+QString FileConfiguration::oldName() const
+{
+    return m_configType->oldName();
+}
+
+void FileConfiguration::setOldName(const QString &name)
+{
+    m_configType->setName(name);
+}
+
 QString FileConfiguration::attributeValue(const QString &attributeName) const
 {
     return m_configType->attributeValue(attributeName);

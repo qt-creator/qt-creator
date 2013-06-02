@@ -27,79 +27,35 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CONFIGURATIONWIDGETS_H
-#define CONFIGURATIONWIDGETS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_NEWCONFIGITEMDIALOG_H
+#define VCPROJECTMANAGER_INTERNAL_NEWCONFIGITEMDIALOG_H
 
-#include "../widgets/vcnodewidget.h"
-#include "../vcprojectmodel/configuration.h"
-
-class QListWidget;
-class QStackedWidget;
+#include <QDialog>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Configuration;
+namespace Ui {
+class NewConfigItemDialog;
+}
 
-class ConfigurationBaseWidget : public VcNodeWidget
+class NewConfigItemDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    explicit ConfigurationBaseWidget(Configuration *config);
-    ~ConfigurationBaseWidget();
-    void saveData();
+    explicit NewConfigItemDialog(QWidget *parent = 0);
+    ~NewConfigItemDialog();
 
-protected:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2003Widget : public ConfigurationBaseWidget
-{
-public:
-    explicit Configuration2003Widget(Configuration *config);
-    ~Configuration2003Widget();
+    QString name() const;
+    QString copyFrom() const;
+    void addConfigItem(const QString &item);
 
 private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
+    Ui::NewConfigItemDialog *ui;
 };
 
-class Configuration2005Widget : public ConfigurationBaseWidget
-{
-public:
-    explicit Configuration2005Widget(Configuration* config);
-    ~Configuration2005Widget();
-
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2008Widget : public ConfigurationBaseWidget
-{
-public:
-    explicit Configuration2008Widget(Configuration* config);
-    ~Configuration2008Widget();
-
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
 
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // CONFIGURATIONWIDGETS_H
+#endif // VCPROJECTMANAGER_INTERNAL_NEWCONFIGITEMDIALOG_H

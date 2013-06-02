@@ -41,6 +41,7 @@ namespace Internal {
 
 BrowseInformationTool::BrowseInformationTool()
 {
+    m_name = QLatin1String("VCBscMakeTool");
 }
 
 BrowseInformationTool::BrowseInformationTool(const BrowseInformationTool &tool)

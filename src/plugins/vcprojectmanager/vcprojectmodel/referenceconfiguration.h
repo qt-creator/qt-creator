@@ -57,6 +57,8 @@ public:
     Tool::Ptr tool(const QString &toolName);
     QString name() const;
     void setName(const QString &name);
+    QString oldName() const;
+    void setOldName(const QString &name);
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
     void clearAttribute(const QString &attributeName);

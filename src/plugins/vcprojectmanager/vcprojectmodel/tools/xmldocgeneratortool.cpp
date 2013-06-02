@@ -42,6 +42,7 @@ namespace Internal {
 
 XMLDocGeneratorTool::XMLDocGeneratorTool()
 {
+    m_name = QLatin1String("VCXDCMakeTool");
 }
 
 XMLDocGeneratorTool::XMLDocGeneratorTool(const XMLDocGeneratorTool &tool)

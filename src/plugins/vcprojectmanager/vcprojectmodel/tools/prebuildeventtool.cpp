@@ -42,6 +42,7 @@ namespace Internal {
 
 PreBuildEventTool::PreBuildEventTool()
 {
+    m_name = QLatin1String("VCPreBuildEventTool");
 }
 
 PreBuildEventTool::PreBuildEventTool(const PreBuildEventTool &tool)

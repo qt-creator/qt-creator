@@ -31,48 +31,71 @@
 #define CONFIGURATIONS2003WIDGET_H
 
 #include "vcnodewidget.h"
+#include "../vcprojectmodel/configuration.h"
 
 #include <QList>
+#include <QMap>
 
 namespace VcProjectManager {
 namespace Internal {
 
 class Configurations;
+class Configuration;
+class VcProjectDocument;
+class ConfigurationsWidget;
 
-class Configurations2003Widget : public VcNodeWidget
+class ConfigurationsBaseWidget : public VcNodeWidget
+{
+    Q_OBJECT
+
+public:
+    explicit ConfigurationsBaseWidget(Configurations *configs, VcProjectDocument *vcProjDoc);
+    ~ConfigurationsBaseWidget();
+    void saveData();
+
+    QList<Configuration::Ptr > newConfigurations() const;
+    QList<QString> removedConfigurations() const;
+    QMap<Configuration::Ptr, QString> renamedConfigurations() const;
+
+private slots:
+    void onAddNewConfig(QString newConfigName, QString copyFrom);
+    void onRenameConfig(QString newConfigName, QString oldConfigNameWithPlatform);
+    void onRemoveConfig(QString configNameWithPlatform);
+
+protected:
+    void addConfiguration(Configuration *config);
+    void removeConfiguration(Configuration *config);
+    Configuration::Ptr createConfiguration(const QString &configNameWithPlatform) const;
+    Configuration::Ptr configInNewConfigurations(const QString &configNameWithPlatform) const;
+
+    Configurations *m_configs;
+    VcProjectDocument *m_vcProjDoc;
+    ConfigurationsWidget *m_configsWidget;
+
+    QList<QSharedPointer<Configuration> > m_newConfigurations;
+    QList<QString> m_removedConfigurations;
+    QMap<Configuration::Ptr, QString> m_renamedConfigurations; // <oldName, newName>
+};
+
+class Configurations2003Widget : public ConfigurationsBaseWidget
 {
 public:
-    explicit Configurations2003Widget(Configurations *configs);
+    explicit Configurations2003Widget(Configurations *configs, VcProjectDocument *vcProjDoc);
     ~Configurations2003Widget();
-    void saveData();
-
-private:
-    Configurations *m_configs;
-    QList<VcNodeWidget *> m_configurations;
 };
 
-class Configurations2005Widget : public VcNodeWidget
+class Configurations2005Widget : public ConfigurationsBaseWidget
 {
 public:
-    explicit Configurations2005Widget(Configurations *configs);
+    explicit Configurations2005Widget(Configurations *configs, VcProjectDocument *vcProjDoc);
     ~Configurations2005Widget();
-    void saveData();
-
-private:
-    Configurations *m_configs;
-    QList<VcNodeWidget *> m_configurations;
 };
 
-class Configurations2008Widget : public VcNodeWidget
+class Configurations2008Widget : public ConfigurationsBaseWidget
 {
 public:
-    explicit Configurations2008Widget(Configurations *configs);
+    explicit Configurations2008Widget(Configurations *configs, VcProjectDocument *vcProjDoc);
     ~Configurations2008Widget();
-    void saveData();
-
-private:
-    Configurations *m_configs;
-    QList<VcNodeWidget *> m_configurations;
 };
 
 } // namespace Internal

@@ -8,7 +8,8 @@ HEADERS += \
     widgets/basicconfigurationwidget.h \
     widgets/schemaoptionswidget.h \
     widgets/vcprojectkitconfigwidget.h \
-    widgets/vccontainernamedialog.h
+    widgets/newconfigitemdialog.h \
+    widgets/vcenternamedialog.h
 
 SOURCES += \
     widgets/vcnodewidget.cpp \
@@ -20,11 +21,13 @@ SOURCES += \
     widgets/basicconfigurationwidget.cpp \
     widgets/schemaoptionswidget.cpp \
     widgets/vcprojectkitconfigwidget.cpp \
-    widgets/vccontainernamedialog.cpp
+    widgets/newconfigitemdialog.cpp \
+    widgets/vcenternamedialog.cpp
 
 FORMS += \
     widgets/projectsettingswidget.ui \
     widgets/configurationswidget.ui \
     widgets/schemaoptionswidget.ui \
-    widgets/vccontainernamewidget.ui
+    widgets/newconfigitemdialog.ui \
+    widgets/vcenternamewidget.ui
 

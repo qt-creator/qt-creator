@@ -29,6 +29,7 @@
 ****************************************************************************/
 #include "configurationsfactory.h"
 #include "../widgets/configurationswidgets.h"
+#include "vcprojectdocument.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -62,17 +63,17 @@ Configuration::Ptr ConfigurationsFactory::createConfiguration(VcDocConstants::Do
     return config;
 }
 
-VcNodeWidget *ConfigurationsFactory::createSettingsWidget(VcDocConstants::DocumentVersion version, Configurations *config)
+ConfigurationsBaseWidget *ConfigurationsFactory::createSettingsWidget(VcProjectDocument *vcProjDoc, Configurations *config)
 {
-    switch (version) {
+    switch (vcProjDoc->documentVersion()) {
     case VcDocConstants::DV_MSVC_2003:
-        return new Configurations2003Widget(config);
+        return new Configurations2003Widget(config, vcProjDoc);
         break;
     case VcDocConstants::DV_MSVC_2005:
-        return new Configurations2005Widget(config);
+        return new Configurations2005Widget(config, vcProjDoc);
         break;
     case VcDocConstants::DV_MSVC_2008:
-        return new Configurations2008Widget(config);
+        return new Configurations2008Widget(config, vcProjDoc);
         break;
     }
 

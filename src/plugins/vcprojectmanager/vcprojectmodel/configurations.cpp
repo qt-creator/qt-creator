@@ -31,18 +31,22 @@
 
 #include "configurationsfactory.h"
 #include "vcprojectdocument.h"
+#include "tools/toolfactory.h"
+#include "../widgets/configurationswidgets.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-Configurations::Configurations(VcDocConstants::DocumentVersion version)
-    : m_docVersion(version)
+class ConfigurationsBaseWidget;
+
+Configurations::Configurations(VcProjectDocument *vcProjDoc)
+    : m_vcProjDoc(vcProjDoc)
 {
 }
 
 Configurations::Configurations(const Configurations &configs)
 {
-    m_docVersion = configs.m_docVersion;
+    m_vcProjDoc = configs.m_vcProjDoc;
 
     foreach (Configuration::Ptr config, configs.m_configurations)
         m_configurations.append(config->clone());
@@ -51,7 +55,7 @@ Configurations::Configurations(const Configurations &configs)
 Configurations &Configurations::operator =(const Configurations &configs)
 {
     if (this != &configs) {
-        m_docVersion = configs.m_docVersion;
+        m_vcProjDoc = configs.m_vcProjDoc;
         m_configurations.clear();
 
         foreach (Configuration::Ptr config, configs.m_configurations)
@@ -84,7 +88,7 @@ void Configurations::processNodeAttributes(const QDomElement &element)
 
 VcNodeWidget *Configurations::createSettingsWidget()
 {
-    VcNodeWidget* widget = ConfigurationsFactory::createSettingsWidget(m_docVersion, this);
+    ConfigurationsBaseWidget* widget = ConfigurationsFactory::createSettingsWidget(m_vcProjDoc, this);
     return widget;
 }
 
@@ -105,10 +109,63 @@ bool Configurations::isEmpty() const
 
 Configuration::Ptr Configurations::addConfiguration(const QString &configName)
 {
-    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_docVersion);
+    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion());
     config->setName(configName);
-    if (appendConfiguration(config))
+
+    if (appendConfiguration(config)) {
+        Tool::Ptr tool = ToolFactory::createTool(QLatin1String("VCPreBuildEventTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCCustomBuildTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCXMLDataGeneratorTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCWebServiceProxyGeneratorTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCMIDLTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCCLCompilerTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCManagedResourceCompilerTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCResourceCompilerTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCPreLinkEventTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCLinkerTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCALinkTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCManifestTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCXDCMakeTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCBscMakeTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCFxCopTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCAppVerifierTool"));
+        config->addTool(tool);
+
+        tool = ToolFactory::createTool(QLatin1String("VCPostBuildEventTool"));
+        config->addTool(tool);
+
         return config;
+    }
     return Configuration::Ptr();
 }
 
@@ -168,7 +225,7 @@ QList<Configuration::Ptr> Configurations::configurations() const
 
 void Configurations::processConfiguration(const QDomNode &configurationNode)
 {
-    Configuration::Ptr configuration = ConfigurationsFactory::createConfiguration(m_docVersion);
+    Configuration::Ptr configuration = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion());
     configuration->processNode(configurationNode);
     m_configurations.append(configuration);
 

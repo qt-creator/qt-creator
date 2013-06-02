@@ -37,6 +37,7 @@
 #include <QVBoxLayout>
 
 #include "../widgets/projectsettingswidget.h"
+#include "../widgets/configurationswidgets.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -365,27 +366,18 @@ void VcProjectDocument2003::init()
 {
     m_documentVersion = VcDocConstants::DV_MSVC_2003;
     m_files = Files::Ptr(new Files2003(this));
-    m_configurations = Configurations::Ptr(new Configurations(m_documentVersion));
+    m_configurations = Configurations::Ptr(new Configurations(this));
     m_references = References::Ptr(new References(m_documentVersion));
 }
 
 
-VcProjectDocumentWidget::VcProjectDocumentWidget()
-{
-}
-
-VcProjectDocumentWidget::~VcProjectDocumentWidget()
-{
-}
-
-
-VcProjectDocument2003Widget::VcProjectDocument2003Widget(VcProjectDocument2003 *vcDoc)
+VcProjectDocumentWidget::VcProjectDocumentWidget(VcProjectDocument *vcDoc)
     : m_vcDoc(vcDoc)
 {
-    ProjectSettingsWidget *projectSettingsWidget = new ProjectSettingsWidget(this);
+    ProjectSettingsWidget *projectSettingsWidget = new ProjectSettingsWidget(m_vcDoc, this);
 
     // add Configurations
-    m_configurationsWidget = m_vcDoc->configurations()->createSettingsWidget();
+    m_configurationsWidget = static_cast<ConfigurationsBaseWidget *>(m_vcDoc->configurations()->createSettingsWidget());
     projectSettingsWidget->addWidget(tr("Configurations"), m_configurationsWidget);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
@@ -396,16 +388,16 @@ VcProjectDocument2003Widget::VcProjectDocument2003Widget(VcProjectDocument2003 *
     connect(projectSettingsWidget, SIGNAL(cancelButtonClicked()), this, SLOT(onCancelButtonClicked()));
 }
 
-VcProjectDocument2003Widget::~VcProjectDocument2003Widget()
+VcProjectDocumentWidget::~VcProjectDocumentWidget()
 {
 }
 
-void VcProjectDocument2003Widget::saveData()
+void VcProjectDocumentWidget::saveData()
 {
     m_configurationsWidget->saveData();
 }
 
-void VcProjectDocument2003Widget::onOkButtonClicked()
+void VcProjectDocumentWidget::onOkButtonClicked()
 {
     saveData();
     hide();
@@ -413,10 +405,20 @@ void VcProjectDocument2003Widget::onOkButtonClicked()
     deleteLater();
 }
 
-void VcProjectDocument2003Widget::onCancelButtonClicked()
+void VcProjectDocumentWidget::onCancelButtonClicked()
 {
     hide();
     deleteLater();
+}
+
+
+VcProjectDocument2003Widget::VcProjectDocument2003Widget(VcProjectDocument2003 *vcDoc)
+    : VcProjectDocumentWidget(vcDoc)
+{
+}
+
+VcProjectDocument2003Widget::~VcProjectDocument2003Widget()
+{
 }
 
 
@@ -470,7 +472,7 @@ void VcProjectDocument2005::init()
 {
     m_documentVersion = VcDocConstants::DV_MSVC_2005;
     m_files = Files::Ptr(new Files2005(this));
-    m_configurations = Configurations::Ptr(new Configurations(m_documentVersion));
+    m_configurations = Configurations::Ptr(new Configurations(this));
     m_references = References::Ptr(new References(m_documentVersion));
 }
 
@@ -512,43 +514,12 @@ QDomElement VcProjectDocument2005::toVcDocumentElement(QDomDocument &domXMLDocum
 
 
 VcProjectDocument2005Widget::VcProjectDocument2005Widget(VcProjectDocument2005 *vcDoc)
-    : m_vcDoc(vcDoc)
+    : VcProjectDocumentWidget(vcDoc)
 {
-    ProjectSettingsWidget *projectSettingsWidget = new ProjectSettingsWidget(this);
-
-    // add Configurations
-    m_configurationsWidget = m_vcDoc->configurations()->createSettingsWidget();
-    projectSettingsWidget->addWidget(tr("Configurations"), m_configurationsWidget);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(projectSettingsWidget);
-    setLayout(layout);
-
-    connect(projectSettingsWidget, SIGNAL(okButtonClicked()), this, SLOT(onOkButtonClicked()));
-    connect(projectSettingsWidget, SIGNAL(cancelButtonClicked()), this, SLOT(onCancelButtonClicked()));
 }
 
 VcProjectDocument2005Widget::~VcProjectDocument2005Widget()
 {
-}
-
-void VcProjectDocument2005Widget::saveData()
-{
-    m_configurationsWidget->saveData();
-}
-
-void VcProjectDocument2005Widget::onOkButtonClicked()
-{
-    saveData();
-    hide();
-    emit accepted();
-    deleteLater();
-}
-
-void VcProjectDocument2005Widget::onCancelButtonClicked()
-{
-    hide();
-    deleteLater();
 }
 
 
@@ -628,7 +599,7 @@ void VcProjectDocument2008::init()
 {
     m_documentVersion = VcDocConstants::DV_MSVC_2008;
     m_files = Files::Ptr(new Files2008(this));
-    m_configurations = Configurations::Ptr(new Configurations(m_documentVersion));
+    m_configurations = Configurations::Ptr(new Configurations(this));
     m_references = References::Ptr(new References(m_documentVersion));
 }
 
@@ -770,43 +741,12 @@ QDomElement VcProjectDocument2008::toVcDocumentElement(QDomDocument &domXMLDocum
 
 
 VcProjectDocument2008Widget::VcProjectDocument2008Widget(VcProjectDocument2008 *vcDoc)
-    : m_vcDoc(vcDoc)
+    : VcProjectDocumentWidget(vcDoc)
 {
-    ProjectSettingsWidget *projectSettingsWidget = new ProjectSettingsWidget(this);
-
-    // add Configurations
-    m_configurationsWidget = m_vcDoc->configurations()->createSettingsWidget();
-    projectSettingsWidget->addWidget(tr("Configurations"), m_configurationsWidget);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(projectSettingsWidget);
-    setLayout(layout);
-
-    connect(projectSettingsWidget, SIGNAL(okButtonClicked()), this, SLOT(onOkButtonClicked()));
-    connect(projectSettingsWidget, SIGNAL(cancelButtonClicked()), this, SLOT(onCancelButtonClicked()));
 }
 
 VcProjectDocument2008Widget::~VcProjectDocument2008Widget()
 {
-}
-
-void VcProjectDocument2008Widget::saveData()
-{
-    m_configurationsWidget->saveData();
-}
-
-void VcProjectDocument2008Widget::onOkButtonClicked()
-{
-    saveData();
-    hide();
-    emit accepted();
-    deleteLater();
-}
-
-void VcProjectDocument2008Widget::onCancelButtonClicked()
-{
-    hide();
-    deleteLater();
 }
 
 

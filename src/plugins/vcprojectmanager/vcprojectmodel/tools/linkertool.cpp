@@ -42,6 +42,7 @@ namespace Internal {
 
 LinkerTool::LinkerTool()
 {
+    m_name = QLatin1String("VCLinkerTool");
 }
 
 LinkerTool::LinkerTool(const LinkerTool &tool)

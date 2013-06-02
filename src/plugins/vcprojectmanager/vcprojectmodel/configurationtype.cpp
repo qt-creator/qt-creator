@@ -50,8 +50,10 @@ void ConfigurationType::processNodeAttributes(const QDomElement &element)
         if (domNode.nodeType() == QDomNode::AttributeNode) {
             QDomAttr domElement = domNode.toAttr();
 
-            if (domElement.name() == QLatin1String("Name"))
+            if (domElement.name() == QLatin1String("Name")) {
                 m_name = domElement.value();
+                m_oldName = m_name;
+            }
 
             else
                 m_anyAttribute.insert(domElement.name(), domElement.value());
@@ -122,7 +124,7 @@ void ConfigurationType::removeTool(Tool::Ptr tool)
 Tool::Ptr ConfigurationType::tool(const QString &toolName) const
 {
     foreach (Tool::Ptr tool, m_tools)
-        if (tool->name() == toolName)
+        if (tool && tool->name() == toolName)
             return tool;
     return Tool::Ptr();
 }
@@ -140,6 +142,16 @@ QString ConfigurationType::name() const
 void ConfigurationType::setName(const QString &name)
 {
     m_name = name;
+}
+
+QString ConfigurationType::oldName() const
+{
+    return m_oldName;
+}
+
+void ConfigurationType::setOldName(const QString &oldName)
+{
+    m_oldName = oldName;
 }
 
 QString ConfigurationType::attributeValue(const QString &attributeName) const

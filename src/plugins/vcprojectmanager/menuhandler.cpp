@@ -43,7 +43,7 @@
 #include "vcprojectfile.h"
 #include "vcprojectmodel/vcprojectdocument.h"
 #include "vcprojectmodel/vcdocumentmodel.h"
-#include "widgets/vccontainernamedialog.h"
+#include "widgets/vcenternamedialog.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -188,7 +188,7 @@ void MenuHandler::onAddFile()
 
 void MenuHandler::onAddFolder()
 {
-    VcContainerNameDialog dlg(QLatin1String("Filter:"));
+    VcEnterNameDialog dlg(QLatin1String("Filter:"));
 
     if (dlg.exec() == QDialog::Accepted) {
         QString folderName = dlg.contanerName();
@@ -211,7 +211,7 @@ void MenuHandler::onAddFolder()
 
 void MenuHandler::onAddFilter()
 {
-    VcContainerNameDialog dlg(QLatin1String("Filter:"));
+    VcEnterNameDialog dlg(QLatin1String("Filter:"));
 
     if (dlg.exec() == QDialog::Accepted) {
         QString filterName = dlg.contanerName();

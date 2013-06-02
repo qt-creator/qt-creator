@@ -97,6 +97,16 @@ void ReferenceConfiguration::setName(const QString &name)
     m_configType->setName(name);
 }
 
+QString ReferenceConfiguration::oldName() const
+{
+    return m_configType->name();
+}
+
+void ReferenceConfiguration::setOldName(const QString &name)
+{
+    m_configType->setOldName(name);
+}
+
 QString ReferenceConfiguration::attributeValue(const QString &attributeName) const
 {
     return m_configType->attributeValue(attributeName);
