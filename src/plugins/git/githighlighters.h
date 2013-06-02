@@ -33,6 +33,10 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>
 
+namespace TextEditor {
+class FontSettings;
+}
+
 namespace Git {
 namespace Internal {
 
@@ -52,6 +56,31 @@ private:
     QTextCharFormat m_commentFormat;
     QRegExp m_keywordPattern;
     QChar m_hashChar;
+};
+
+// Highlighter for interactive rebase todo. Indicates comments as such
+// (retrieving the format from the text editor) and marks up keywords
+class GitRebaseHighlighter : public TextEditor::SyntaxHighlighter
+{
+public:
+    explicit GitRebaseHighlighter(TextEditor::BaseTextDocument *parent);
+    void highlightBlock(const QString &text);
+
+private:
+    class RebaseAction
+    {
+    public:
+        mutable QRegExp exp;
+        QTextCharFormat format;
+        RebaseAction(const QString &regexp, const TextEditor::FontSettings &settings,
+                     TextEditor::TextStyle category);
+    };
+    QTextCharFormat m_commentFormat;
+    QTextCharFormat m_changeFormat;
+    QTextCharFormat m_descFormat;
+    const QChar m_hashChar;
+    QRegExp m_changeNumberPattern;
+    QList<RebaseAction> m_actions;
 };
 
 } // namespace Internal

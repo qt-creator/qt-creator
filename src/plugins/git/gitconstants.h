@@ -50,6 +50,9 @@ const char C_GIT_DIFF_EDITOR[] = "Git Diff Editor";
 const char GIT_COMMIT_TEXT_EDITOR_ID[] = "Git Commit Editor";
 const char GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Commit Editor");
 const char C_GIT_COMMIT_TEXT_EDITOR[] = "Git Commit Editor";
+const char GIT_REBASE_EDITOR_ID[] = "Git Rebase Editor";
+const char GIT_REBASE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Rebase Editor");
+const char C_GIT_REBASE_EDITOR[] = "Git Rebase Editor";
 
 const char C_GITSUBMITEDITOR[]  = "Git Submit Editor";
 const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";

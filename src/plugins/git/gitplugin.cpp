@@ -111,6 +111,11 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMIT_TEXT_EDITOR,
     "text/vnd.qtcreator.git.commit"},
+{   VcsBase::OtherContent,
+    Git::Constants::GIT_REBASE_EDITOR_ID,
+    Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
+    Git::Constants::C_GIT_REBASE_EDITOR,
+    "text/vnd.qtcreator.git.rebase"},
 };
 
 // Utility to find a parameter set by type

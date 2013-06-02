@@ -6,4 +6,9 @@
         <glob pattern="COMMIT_MSG"/>
         <glob pattern="COMMIT_EDITMSG"/>
     </mime-type>
+    <mime-type type="text/vnd.qtcreator.git.rebase">
+        <sub-class-of type="text/plain"/>
+        <comment>Git Commit File</comment>
+        <glob pattern="git-rebase-todo"/>
+    </mime-type>
 </mime-info>
