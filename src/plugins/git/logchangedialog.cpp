@@ -96,6 +96,16 @@ int LogChangeWidget::commitIndex() const
     return -1;
 }
 
+QString LogChangeWidget::earliestCommit() const
+{
+    int rows = m_model->rowCount();
+    if (rows) {
+        if (const QStandardItem *item = m_model->item(rows - 1, Sha1Column))
+            return item->text();
+    }
+    return QString();
+}
+
 void LogChangeWidget::emitDoubleClicked(const QModelIndex &index)
 {
     if (index.isValid()) {

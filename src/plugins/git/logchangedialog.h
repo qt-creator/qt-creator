@@ -56,6 +56,7 @@ public:
               bool includeRemote = true);
     QString commit() const;
     int commitIndex() const;
+    QString earliestCommit() const;
 
 signals:
     void doubleClicked(const QString &commit);
