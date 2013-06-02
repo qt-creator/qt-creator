@@ -35,11 +35,12 @@
 #include "gitsettings.h"
 #include "gitsubmiteditorwidget.h"
 #include "gitconstants.h"
+#include "githighlighters.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <texteditor/basetextdocument.h>
-#include <QDebug>
+
 #include <QFileInfo>
 #include <QRegExp>
 #include <QSet>

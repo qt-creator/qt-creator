@@ -22,7 +22,8 @@ HEADERS += gitplugin.h \
     branchadddialog.h \
     logchangedialog.h \
     mergetool.h \
-    branchcheckoutdialog.h
+    branchcheckoutdialog.h \
+    githighlighters.h
 
 SOURCES += gitplugin.cpp \
     gitclient.cpp \
@@ -46,7 +47,8 @@ SOURCES += gitplugin.cpp \
     branchadddialog.cpp \
     logchangedialog.cpp \
     mergetool.cpp \
-    branchcheckoutdialog.cpp
+    branchcheckoutdialog.cpp \
+    githighlighters.cpp
 
 FORMS += settingspage.ui \
     gitsubmitpanel.ui \

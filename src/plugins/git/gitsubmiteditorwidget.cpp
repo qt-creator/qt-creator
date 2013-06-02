@@ -27,19 +27,14 @@
 **
 ****************************************************************************/
 
-#include "gitsubmiteditorwidget.h"
 #include "commitdata.h"
+#include "gitsubmiteditorwidget.h"
+#include "githighlighters.h"
 #include "logchangedialog.h"
 
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
-#include <utils/qtcassert.h>
-
 #include <QRegExpValidator>
-#include <QSyntaxHighlighter>
 #include <QTextEdit>
 
-#include <QDebug>
 #include <QDir>
 #include <QGroupBox>
 #include <QRegExp>
@@ -47,72 +42,6 @@
 
 namespace Git {
 namespace Internal {
-
-// Retrieve the comment char format from the text editor.
-static QTextCharFormat commentFormat()
-{
-    const TextEditor::FontSettings settings = TextEditor::TextEditorSettings::instance()->fontSettings();
-    return settings.toTextCharFormat(TextEditor::C_COMMENT);
-}
-
-GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
-    TextEditor::SyntaxHighlighter(parent)
-{
-    initialize();
-}
-
-GitSubmitHighlighter::GitSubmitHighlighter(TextEditor::BaseTextDocument *parent) :
-    TextEditor::SyntaxHighlighter(parent)
-{
-    initialize();
-}
-
-void GitSubmitHighlighter::initialize()
-{
-    m_commentFormat = commentFormat();
-    m_keywordPattern.setPattern(QLatin1String("^[\\w-]+:"));
-    m_hashChar = QLatin1Char('#');
-    QTC_CHECK(m_keywordPattern.isValid());
-}
-
-void GitSubmitHighlighter::highlightBlock(const QString &text)
-{
-    // figure out current state
-    State state = static_cast<State>(previousBlockState());
-    if (text.isEmpty()) {
-        if (state == Header)
-            state = Other;
-        setCurrentBlockState(state);
-        return;
-    } else if (text.startsWith(m_hashChar)) {
-        setFormat(0, text.size(), m_commentFormat);
-        setCurrentBlockState(state);
-        return;
-    } else if (state == None) {
-        state = Header;
-    }
-
-    setCurrentBlockState(state);
-    // Apply format.
-    switch (state) {
-    case None:
-        break;
-    case Header: {
-        QTextCharFormat charFormat = format(0);
-        charFormat.setFontWeight(QFont::Bold);
-        setFormat(0, text.size(), charFormat);
-        break;
-    }
-    case Other:
-        // Format key words ("Task:") italic
-        if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
-            QTextCharFormat charFormat = format(0);
-            charFormat.setFontItalic(true);
-            setFormat(0, m_keywordPattern.matchedLength(), charFormat);
-        }
-        break;
-    }
-}
 
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
