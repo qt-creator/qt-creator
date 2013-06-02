@@ -316,6 +316,7 @@ public:
     void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
 
     static QString msgNoChangedFiles();
+    static QString msgNoCommits(bool includeRemote);
 
     static const char *noColorOption;
     static const char *decorateOption;

@@ -73,8 +73,7 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, boo
         return false;
     if (!m_model->rowCount()) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(
-                    includeRemote ? tr("No commits were found")
-                                  : tr("No local commits were found"));
+                    GitPlugin::instance()->gitClient()->msgNoCommits(includeRemote));
         return false;
     }
     selectionModel()->select(m_model->index(0, 0),

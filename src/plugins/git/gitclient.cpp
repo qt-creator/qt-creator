@@ -2521,6 +2521,16 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     // Run status. Note that it has exitcode 1 if there are no added files.
     QString output;
+    if (commitData.commitType == FixupCommit) {
+        QStringList arguments;
+        arguments << QLatin1String("HEAD") << QLatin1String("--not")
+                  << QLatin1String("--remotes") << QLatin1String("-n1");
+        synchronousLog(repoDirectory, arguments, &output, errorMessage);
+        if (output.isEmpty()) {
+            *errorMessage = msgNoCommits(false);
+            return false;
+        }
+    }
     const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, errorMessage);
     switch (status) {
     case  StatusChanged:
@@ -3064,6 +3074,11 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
 QString GitClient::msgNoChangedFiles()
 {
     return tr("There are no modified files.");
+}
+
+QString GitClient::msgNoCommits(bool includeRemote)
+{
+    return includeRemote ? tr("No commits were found") : tr("No local commits were found");
 }
 
 void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
