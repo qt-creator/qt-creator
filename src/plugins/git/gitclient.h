@@ -334,8 +334,9 @@ private:
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
-    DiffEditor::DiffEditor *findExistingDiffEditor(const char *registerDynamicProperty,
-                                               const QString &dynamicPropertyValue) const;
+    DiffEditor::DiffEditor *findExistingOrOpenNewDiffEditor(const char *registerDynamicProperty,
+                                               const QString &dynamicPropertyValue,
+                                               const QString &titlePattern) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
