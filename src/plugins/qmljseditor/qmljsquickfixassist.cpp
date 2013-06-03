@@ -35,10 +35,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-using namespace QmlJSEditor;
-using namespace Internal;
 using namespace QmlJSTools;
 using namespace TextEditor;
+
+namespace QmlJSEditor {
+
+using namespace Internal;
 
 // -----------------------
 // QuickFixAssistInterface
@@ -107,7 +109,9 @@ IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 QList<QuickFixFactory *> QmlJSQuickFixAssistProvider::quickFixFactories() const
 {
     QList<TextEditor::QuickFixFactory *> results;
-    foreach (QmlJSQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<QmlJSEditor::QmlJSQuickFixFactory>())
+    foreach (QmlJSQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<QmlJSQuickFixFactory>())
         results.append(f);
     return results;
 }
+
+} // namespace QmlJSEditor

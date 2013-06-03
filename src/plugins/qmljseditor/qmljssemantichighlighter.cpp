@@ -51,10 +51,12 @@
 #include <QFutureInterface>
 #include <QRunnable>
 
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
+
+namespace QmlJSEditor {
+
+using namespace Internal;
 
 namespace {
 
@@ -624,3 +626,5 @@ int SemanticHighlighter::startRevision() const
 {
     return m_startRevision;
 }
+
+} // namespace QmlJSEditor

@@ -44,9 +44,11 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJSTools;
+
+namespace QmlJSEditor {
+
+using namespace Internal;
 
 namespace {
 
@@ -191,3 +193,5 @@ void WrapInLoader::match(const QmlJSQuickFixInterface &interface, QuickFixOperat
         }
     }
 }
+
+} // namespace QmlJSEditor

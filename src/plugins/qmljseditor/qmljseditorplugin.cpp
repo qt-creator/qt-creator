@@ -77,14 +77,15 @@
 #include <QMenu>
 #include <QAction>
 
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJSEditor::Constants;
 using namespace ProjectExplorer;
 
 enum {
     QUICKFIX_INTERVAL = 20
 };
+
+namespace QmlJSEditor {
+using namespace Internal;
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 
@@ -130,7 +131,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
             m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
 
-    Core::Context context(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    Core::Context context(Constants::C_QMLJSEDITOR_ID);
 
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
@@ -160,14 +161,14 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     jsWizardParameters.setId(QLatin1String("Z.Js"));
     addAutoReleasedObject(new JsFileWizard(jsWizardParameters, core));
 
-    m_actionHandler = new TextEditor::TextEditorActionHandler(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
+    m_actionHandler = new TextEditor::TextEditorActionHandler(Constants::C_QMLJSEDITOR_ID,
           TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll
         | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
     m_actionHandler->initializeActions();
 
-    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(QmlJSEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Constants::M_CONTEXT);
     Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
 
     Core::Context globalContext(Core::Constants::C_GLOBAL);
@@ -259,7 +260,7 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
     return IPlugin::aboutToShutdown();
 }
 
-void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::QmlJSTextEditorWidget *editor)
+void QmlJSEditorPlugin::initializeEditor(QmlJSTextEditorWidget *editor)
 {
     QTC_CHECK(m_instance);
 
@@ -358,4 +359,6 @@ void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()
     m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
 
-Q_EXPORT_PLUGIN(QmlJSEditorPlugin)
+} // namespace QmlJSEditor
+
+Q_EXPORT_PLUGIN(QmlJSEditor::Internal::QmlJSEditorPlugin)

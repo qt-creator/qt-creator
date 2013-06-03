@@ -43,15 +43,15 @@
 
 namespace QmlJSEditor {
 
-QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditorWidget *editor)
+QmlJSEditor::QmlJSEditor(QmlJSTextEditorWidget *editor)
     : BaseTextEditor(editor)
 {
-    m_context.add(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    m_context.add(Constants::C_QMLJSEDITOR_ID);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_QMLJS);
 }
 
-bool QmlJSEditorEditable::isDesignModePreferred() const
+bool QmlJSEditor::isDesignModePreferred() const
 {
     // stay in design mode if we are there
     Core::IMode *mode = Core::ModeManager::currentMode();
@@ -60,14 +60,14 @@ bool QmlJSEditorEditable::isDesignModePreferred() const
     return false;
 }
 
-void QmlJSEditorEditable::setTextCodec(QTextCodec *codec, TextCodecReason reason)
+void QmlJSEditor::setTextCodec(QTextCodec *codec, TextCodecReason reason)
 {
     if (reason != TextCodecOtherReason) // qml is defined to be utf8
         return;
     editorWidget()->setTextCodec(codec);
 }
 
-const Utils::CommentDefinition *QmlJSEditorEditable::commentDefinition() const
+const Utils::CommentDefinition *QmlJSEditor::commentDefinition() const
 {
     return &m_commentDefinition;
 }

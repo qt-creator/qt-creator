@@ -95,9 +95,10 @@ enum {
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJSTools;
+
+namespace QmlJSEditor {
+using namespace Internal;
 
 namespace {
 
@@ -577,7 +578,7 @@ QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
     return m_outlineModelIndex;
 }
 
-Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *QmlJSEditor::duplicate(QWidget *parent)
 {
     QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(parent);
     newEditor->duplicateFrom(editorWidget());
@@ -585,12 +586,12 @@ Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
     return newEditor->editor();
 }
 
-Core::Id QmlJSEditorEditable::id() const
+Core::Id QmlJSEditor::id() const
 {
-    return Core::Id(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    return Core::Id(Constants::C_QMLJSEDITOR_ID);
 }
 
-bool QmlJSEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     editorWidget()->setMimeType(Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
@@ -748,8 +749,12 @@ void QmlJSTextEditorWidget::updateOutlineIndexNow()
     }
 }
 
+} // namespace QmlJSEditor
+
 class QtQuickToolbarMarker {};
 Q_DECLARE_METATYPE(QtQuickToolbarMarker)
+
+namespace QmlJSEditor {
 
 template <class T>
 static QList<TextEditor::RefactorMarker> removeMarkersOfType(const QList<TextEditor::RefactorMarker> &markers)
@@ -1025,12 +1030,12 @@ bool QmlJSTextEditorWidget::isClosingBrace(const QList<Token> &tokens) const
 
 TextEditor::BaseTextEditor *QmlJSTextEditorWidget::createEditor()
 {
-    QmlJSEditorEditable *editable = new QmlJSEditorEditable(this);
+    QmlJSEditor *editable = new QmlJSEditor(this);
     createToolBar(editable);
     return editable;
 }
 
-void QmlJSTextEditorWidget::createToolBar(QmlJSEditorEditable *editor)
+void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -1209,13 +1214,13 @@ void QmlJSTextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     refactoringMenu->setEnabled(!refactoringMenu->isEmpty());
 
-    if (Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(QmlJSEditor::Constants::M_CONTEXT)) {
+    if (Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
         foreach (QAction *action, contextMenu->actions()) {
             menu->addAction(action);
-            if (action->objectName() == QLatin1String(QmlJSEditor::Constants::M_REFACTORING_MENU_INSERTION_POINT))
+            if (action->objectName() == QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT))
                 menu->addMenu(refactoringMenu);
-            if (action->objectName() == QLatin1String(QmlJSEditor::Constants::SHOW_QT_QUICK_HELPER)) {
+            if (action->objectName() == QLatin1String(Constants::SHOW_QT_QUICK_HELPER)) {
                 bool enabled = m_contextPane->isAvailable(editor(), semanticInfo().document, m_semanticInfo.declaringMemberNoProperties(position()));
                 action->setEnabled(enabled);
             }
@@ -1448,3 +1453,5 @@ QString QmlJSTextEditorWidget::foldReplacementText(const QTextBlock &block) cons
 
     return TextEditor::BaseTextEditorWidget::foldReplacementText(block);
 }
+
+} // namespace QmlJSEditor

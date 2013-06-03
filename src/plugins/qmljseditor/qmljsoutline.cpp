@@ -244,7 +244,7 @@ bool QmlJSOutlineWidget::syncCursor()
 
 bool QmlJSOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    if (qobject_cast<QmlJSEditorEditable*>(editor))
+    if (qobject_cast<QmlJSEditor*>(editor))
         return true;
     return false;
 }
@@ -253,7 +253,7 @@ TextEditor::IOutlineWidget *QmlJSOutlineWidgetFactory::createWidget(Core::IEdito
 {
     QmlJSOutlineWidget *widget = new QmlJSOutlineWidget;
 
-    QmlJSEditorEditable *qmlJSEditable = qobject_cast<QmlJSEditorEditable*>(editor);
+    QmlJSEditor *qmlJSEditable = qobject_cast<QmlJSEditor*>(editor);
     QmlJSTextEditorWidget *qmlJSEditor = qobject_cast<QmlJSTextEditorWidget*>(qmlJSEditable->widget());
     Q_ASSERT(qmlJSEditor);
 

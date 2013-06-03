@@ -37,12 +37,12 @@
 namespace QmlJSEditor {
 class QmlJSTextEditorWidget;
 
-class QMLJSEDITOR_EXPORT QmlJSEditorEditable : public TextEditor::BaseTextEditor
+class QMLJSEDITOR_EXPORT QmlJSEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    explicit QmlJSEditorEditable(QmlJSTextEditorWidget *);
+    explicit QmlJSEditor(QmlJSTextEditorWidget *);
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);

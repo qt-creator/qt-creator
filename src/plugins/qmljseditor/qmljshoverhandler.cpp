@@ -56,8 +56,9 @@
 
 using namespace Core;
 using namespace QmlJS;
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
+
+namespace QmlJSEditor {
+namespace Internal {
 
 namespace {
 
@@ -97,7 +98,7 @@ HoverHandler::HoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelM
 
 bool HoverHandler::acceptEditor(IEditor *editor)
 {
-    QmlJSEditorEditable *qmlEditor = qobject_cast<QmlJSEditorEditable *>(editor);
+    QmlJSEditor *qmlEditor = qobject_cast<QmlJSEditor *>(editor);
     if (qmlEditor)
         return true;
     return false;
@@ -189,7 +190,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     if (!m_modelManager)
         return;
 
-    QmlJSEditor::QmlJSTextEditorWidget *qmlEditor = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget *>(editor->widget());
+    QmlJSTextEditorWidget *qmlEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget());
     if (!qmlEditor)
         return;
 
@@ -256,7 +257,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     setQmlHelpItem(scopeChain, qmlDocument, node);
 }
 
-bool HoverHandler::matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditorWidget *qmlEditor, int pos)
+bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
              qmlEditor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {
@@ -521,3 +522,7 @@ bool HoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
     }
     return false;
 }
+
+} // namespace Internal
+} // namespace QmlJSEditor
+
