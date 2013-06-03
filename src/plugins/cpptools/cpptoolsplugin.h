@@ -148,6 +148,14 @@ private slots:
     void test_completion_recursive_using_declarations2();
     void test_completion_recursive_using_typedef_declarations();
 
+    void test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620();
+    void test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620_data();
+    void test_completion_namespace_alias_inside_function_or_block_QTCREATORBUG166();
+    void test_completion_namespace_alias_inside_function_or_block_QTCREATORBUG166_data();
+    void test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620_static_member();
+    void test_completion_enum_inside_block_inside_function_QTCREATORBUG5456();
+    void test_completion_enum_inside_function_QTCREATORBUG5456();
+
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
     void test_format_pointerdeclaration_in_controlflowstatements();

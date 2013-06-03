@@ -199,6 +199,8 @@ private slots:
     void test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_namespace();
     void test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_insideFunction();
     void test_alias_decl_QTCREATORBUG9386();
+    void test_completion_enum_inside_block_inside_function_QTCREATORBUG5456();
+    void test_completion_enum_inside_function_QTCREATORBUG5456();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -1763,6 +1765,57 @@ void tst_CheckSymbols::test_checksymbols_highlightingUsedTemplateFunctionParamet
             << Use(5, 14, 4, CppHighlightingSupport::TypeUse)
             << Use(5, 20, 4, CppHighlightingSupport::TypeUse)
             << Use(5, 25, 4, CppHighlightingSupport::LocalUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+
+void tst_CheckSymbols::test_completion_enum_inside_block_inside_function_QTCREATORBUG5456()
+{
+    const QByteArray source =
+            "void foo()\n"
+            "{\n"
+            "   {\n"
+            "       enum E { e1, e2, e3 };\n"
+            "       E e = e1;\n"
+            "   }\n"
+            "}\n"
+           ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 6, 3, CppHighlightingSupport::FunctionUse)
+            << Use(4, 13, 1, CppHighlightingSupport::TypeUse)
+            << Use(4, 17, 2, CppHighlightingSupport::EnumerationUse)
+            << Use(4, 21, 2, CppHighlightingSupport::EnumerationUse)
+            << Use(4, 25, 2, CppHighlightingSupport::EnumerationUse)
+            << Use(5, 8, 1, CppHighlightingSupport::TypeUse)
+            << Use(5, 10, 1, CppHighlightingSupport::LocalUse)
+            << Use(5, 14, 2, CppHighlightingSupport::EnumerationUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_completion_enum_inside_function_QTCREATORBUG5456()
+{
+    const QByteArray source =
+            "void foo()\n"
+            "{\n"
+            "   enum E { e1, e2, e3 };\n"
+            "   E e = e1;\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 6, 3, CppHighlightingSupport::FunctionUse)
+            << Use(3, 9, 1, CppHighlightingSupport::TypeUse)
+            << Use(3, 13, 2, CppHighlightingSupport::EnumerationUse)
+            << Use(3, 17, 2, CppHighlightingSupport::EnumerationUse)
+            << Use(3, 21, 2, CppHighlightingSupport::EnumerationUse)
+            << Use(4, 4, 1, CppHighlightingSupport::TypeUse)
+            << Use(4, 6, 1, CppHighlightingSupport::LocalUse)
+            << Use(4, 10, 2, CppHighlightingSupport::EnumerationUse)
             ;
 
     TestData::check(source, expectedUses);

@@ -81,7 +81,9 @@ public:
     QList<LookupItem> find(const Name *name);
 
     ClassOrNamespace *lookupType(const Name *name);
+    ClassOrNamespace *lookupType(const Name *name, Block *block);
     ClassOrNamespace *findType(const Name *name);
+    ClassOrNamespace *findBlock(Block *block);
 
     Symbol *lookupInScope(const QList<const Name *> &fullName);
 
@@ -126,6 +128,7 @@ private:
     QList<Symbol *> _symbols;
     QList<ClassOrNamespace *> _usings;
     Table _classOrNamespaces;
+    QHash<Block *, ClassOrNamespace *> _blocks;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
     QSharedPointer<Control> _control;
@@ -238,7 +241,9 @@ protected:
     virtual bool visit(ForwardClassDeclaration *klass);
     virtual bool visit(Enum *e);
     virtual bool visit(Declaration *decl);
-    virtual bool visit(Function *);
+    virtual bool visit(Function *function);
+    virtual bool visit(Block *block);
+
     virtual bool visit(BaseClass *b);
     virtual bool visit(UsingNamespaceDirective *u);
     virtual bool visit(UsingDeclaration *u);

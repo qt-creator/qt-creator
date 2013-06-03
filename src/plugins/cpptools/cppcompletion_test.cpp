@@ -2463,3 +2463,230 @@ void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
 
     QCOMPARE(completions.size(), 0);
 }
+
+void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620()
+{
+    test_completion();
+}
+
+void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "void foo()\n"
+            "{\n"
+            "    struct C { int m; };\n"
+            "    C c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n";
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: class definition inside function")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "void foo()\n"
+            "{\n"
+            "   {\n"
+            "       struct C { int m; };\n"
+            "       C c;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n"
+            ;
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: class definition inside block inside function")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "void foo()\n"
+            "{\n"
+            "   {\n"
+            "       struct C { int m1; };\n"
+            "   }\n"
+            "   {\n"
+            "       struct C { int m2; };\n"
+            "       C c;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n"
+            ;
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m2"));
+    QTest::newRow("case: class definition with the same name inside different block inside function")
+            << code << completions;
+
+    completions.clear();
+}
+
+void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QTCREATORBUG166()
+{
+    test_completion();
+}
+
+void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QTCREATORBUG166_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "namespace NS1\n"
+            "{\n"
+            "namespace NS2\n"
+            "{\n"
+            "    struct C\n"
+            "    {\n"
+            "        int m;\n"
+            "    };\n"
+            "}\n"
+            "void foo()\n"
+            "{\n"
+            "   namespace NS = NS1::NS2;\n"
+            "   NS::C c;\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: namespace alias inside function")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "namespace NS1\n"
+            "{\n"
+            "namespace NS2\n"
+            "{\n"
+            "    struct C\n"
+            "    {\n"
+            "        int m;\n"
+            "    };\n"
+            "}\n"
+            "void foo()\n"
+            "{\n"
+            "   {\n"
+            "       namespace NS = NS1::NS2;\n"
+            "       NS::C c;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n"
+            ;
+    completions.append(QLatin1String("C"));
+    completions.append(QLatin1String("m"));
+    QTest::newRow("case: namespace alias inside block inside function")
+            << code << completions;
+
+    completions.clear();
+}
+
+void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620_static_member()
+{
+    TestData data;
+    data.srcText =
+            "void foo()\n"
+            "{\n"
+            "   {\n"
+            "       struct C { static void staticFun1(); int m1; };\n"
+            "   }\n"
+            "   {\n"
+            "       struct C { static void staticFun2(); int m2; };\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("C::");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains(QLatin1String("C")));
+    QVERIFY(completions.contains(QLatin1String("staticFun2")));
+    QVERIFY(completions.contains(QLatin1String("m2")));
+}
+
+void CppToolsPlugin::test_completion_enum_inside_block_inside_function_QTCREATORBUG5456()
+{
+    TestData data;
+    data.srcText =
+            "void foo()\n"
+            "{\n"
+            "   {\n"
+            "       enum E { e1, e2, e3 };\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("E::");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 4);
+    QVERIFY(completions.contains(QLatin1String("E")));
+    QVERIFY(completions.contains(QLatin1String("e1")));
+    QVERIFY(completions.contains(QLatin1String("e2")));
+    QVERIFY(completions.contains(QLatin1String("e3")));
+}
+
+void CppToolsPlugin::test_completion_enum_inside_function_QTCREATORBUG5456()
+{
+    TestData data;
+    data.srcText =
+            "void foo()\n"
+            "{\n"
+            "   enum E { e1, e2, e3 };\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("E::");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 4);
+    QVERIFY(completions.contains(QLatin1String("E")));
+    QVERIFY(completions.contains(QLatin1String("e1")));
+    QVERIFY(completions.contains(QLatin1String("e2")));
+    QVERIFY(completions.contains(QLatin1String("e3")));
+}

@@ -348,7 +348,17 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                 }
             }
         }
-        return lookupType(name, scope->enclosingScope());
+        // try to find it in block (rare case but has priority before enclosing scope)
+        // e.g.: void foo() { struct S {};  S s; }
+        if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingTemplateInstantiation)) {
+            if (ClassOrNamespace *classOrNamespaceNestedInNestedBlock = b->lookupType(name, block))
+                return classOrNamespaceNestedInNestedBlock;
+        }
+
+        // try to find type in enclosing scope(typical case)
+        if (ClassOrNamespace *found = lookupType(name, scope->enclosingScope()))
+            return found;
+
     } else if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingTemplateInstantiation)) {
         return b->lookupType(name);
     }
@@ -396,6 +406,15 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
             candidates = lookupByUsing(name, scope);
             if (! candidates.isEmpty())
                 return candidates;
+
+            if (ClassOrNamespace *binding = bindings()->lookupType(scope)) {
+                if (ClassOrNamespace *block = binding->findBlock(scope->asBlock())) {
+                    candidates = block->find(name);
+
+                    if (! candidates.isEmpty())
+                        return candidates;
+                }
+            }
 
         } else if (Function *fun = scope->asFunction()) {
             bindings()->lookupInScope(name, fun, &candidates, /*templateId = */ 0, /*binding=*/ 0);
@@ -452,6 +471,17 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 return candidates;
 
             candidates = lookupByUsing(name, scope);
+            if (! candidates.isEmpty())
+                return candidates;
+
+            // the scope can be defined inside a block, try to find it
+            if (Block *block = scope->enclosingBlock()) {
+                if (ClassOrNamespace *b = bindings()->lookupType(block)) {
+                    if (ClassOrNamespace *classOrNamespaceNestedInNestedBlock = b->lookupType(scope->name(), block))
+                        candidates = classOrNamespaceNestedInNestedBlock->find(name);
+                }
+            }
+
             if (! candidates.isEmpty())
                 return candidates;
 
@@ -723,10 +753,52 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name)
     return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ true, this);
 }
 
+ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name, Block *block)
+{
+    flush();
+
+    QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.find(block);
+    if (citBlock != _blocks.end()) {
+        ClassOrNamespace *nestedBlock = citBlock.value();
+        QSet<ClassOrNamespace *> processed;
+        if (ClassOrNamespace *foundInNestedBlock
+                = nestedBlock->lookupType_helper(name,
+                                                 &processed,
+                                                 /*searchInEnclosingScope = */ true,
+                                                 this)) {
+            return foundInNestedBlock;
+        }
+    }
+
+    for (citBlock = _blocks.begin(); citBlock != _blocks.end(); ++citBlock) {
+        if (ClassOrNamespace *foundNestedBlock = citBlock.value()->lookupType(name, block))
+            return foundNestedBlock;
+    }
+
+    return 0;
+}
+
 ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
 {
     QSet<ClassOrNamespace *> processed;
     return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false, this);
+}
+
+ClassOrNamespace *ClassOrNamespace::findBlock(Block *block)
+{
+    flush();
+
+    QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.find(block);
+    if (citBlock != _blocks.end()) {
+        return citBlock.value();
+    }
+
+    for (citBlock = _blocks.begin(); citBlock != _blocks.end(); ++citBlock) {
+        if (ClassOrNamespace *foundNestedBlock = citBlock.value()->findBlock(block))
+            return foundNestedBlock;
+    }
+
+    return 0;
 }
 
 Symbol *ClassOrNamespace::lookupInScope(const QList<const Name *> &fullName)
@@ -1490,8 +1562,46 @@ bool CreateBindings::visit(Declaration *decl)
     return false;
 }
 
-bool CreateBindings::visit(Function *)
+bool CreateBindings::visit(Function *function)
 {
+    for (unsigned i = 0, count = function->memberCount(); i < count; ++i) {
+        Symbol *s = function->memberAt(i);
+        if (Block *b = s->asBlock())
+            visit(b);
+    }
+    return false;
+}
+
+bool CreateBindings::visit(Block *block)
+{
+    ClassOrNamespace *previous = _currentClassOrNamespace;
+
+    ClassOrNamespace *binding = new ClassOrNamespace(this, previous);
+    binding->_control = control();
+
+    _currentClassOrNamespace = binding;
+    _currentClassOrNamespace->addSymbol(block);
+
+    for (unsigned i = 0; i < block->memberCount(); ++i)
+        // we cannot use lazy processing here, because we have to know
+        // does this block contain any other blocks or classOrNamespaces
+        process(block->memberAt(i), _currentClassOrNamespace);
+
+    // we add this block to parent ClassOrNamespace only if it contains
+    // any nested ClassOrNamespaces or other blocks(which have to contain
+    // nested ClassOrNamespaces)
+    if (! _currentClassOrNamespace->_blocks.empty()
+            || ! _currentClassOrNamespace->_classOrNamespaces.empty()
+            || ! _currentClassOrNamespace->_enums.empty()) {
+        previous->_blocks[block] = binding;
+        _entities.append(binding);
+    } else {
+        delete binding;
+        binding = 0;
+    }
+
+    _currentClassOrNamespace = previous;
+
     return false;
 }
 
