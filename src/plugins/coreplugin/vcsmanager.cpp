@@ -106,6 +106,11 @@ public:
         return result;
     }
 
+    void clearCache()
+    {
+        m_cachedMatches.clear();
+    }
+
     void resetCache(const QString &dir)
     {
         QTC_ASSERT(QDir(dir).isAbsolute(), return);
@@ -379,6 +384,14 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
                                  VcsManager::msgToAddToVcsFailed(notAddedToVc, vc));
         }
     }
+}
+
+void VcsManager::clearVersionControlCache()
+{
+    QStringList repoList = d->m_cachedMatches.keys();
+    d->clearCache();
+    foreach (const QString &repo, repoList)
+        emit repositoryChanged(repo);
 }
 
 } // namespace Core
