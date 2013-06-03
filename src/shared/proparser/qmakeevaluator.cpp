@@ -922,7 +922,7 @@ void QMakeEvaluator::visitProVariable(
     if (varName == statics.strTEMPLATE)
         setTemplate();
     else if (varName == statics.strQMAKE_PLATFORM)
-        updateFeaturePaths();
+        m_featureRoots = 0;
 #ifdef PROEVALUATOR_FULL
     else if (varName == statics.strREQUIRES)
         checkRequirements(values(varName));
@@ -1146,6 +1146,7 @@ bool QMakeEvaluator::loadSpecInternal()
 #endif
     valuesRef(ProKey("QMAKESPEC")) << ProString(m_qmakespec);
     m_qmakespecName = IoUtils::fileName(m_qmakespec).toString();
+    // This also ensures that m_featureRoots is valid.
     if (evaluateFeatureFile(QLatin1String("spec_post.prf")) != ReturnTrue)
         return false;
     // The MinGW and x-build specs may change the separator; $$shell_{path,quote}() need it
