@@ -3696,7 +3696,7 @@ class ApplyDeclDefLinkOperation : public CppQuickFixOperation
 public:
     explicit ApplyDeclDefLinkOperation(const CppQuickFixInterface &interface,
             const QSharedPointer<FunctionDeclDefLink> &link)
-        : CppQuickFixOperation(interface, 10)
+        : CppQuickFixOperation(interface, 100)
         , m_link(link)
     {}
 
