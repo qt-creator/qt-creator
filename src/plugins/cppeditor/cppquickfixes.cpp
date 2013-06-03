@@ -2334,8 +2334,8 @@ class InsertDeclOperation: public CppQuickFixOperation
 public:
     InsertDeclOperation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
                         const QString &targetFileName, const Class *targetSymbol,
-                        InsertionPointLocator::AccessSpec xsSpec, const QString &decl)
-        : CppQuickFixOperation(interface, 0)
+                        InsertionPointLocator::AccessSpec xsSpec, const QString &decl, int priority)
+        : CppQuickFixOperation(interface, priority)
         , m_targetFileName(targetFileName)
         , m_targetSymbol(targetSymbol)
         , m_xsSpec(xsSpec)
@@ -2397,10 +2397,11 @@ public:
         , m_decl(decl)
     {}
     TextEditor::QuickFixOperation::Ptr
-    operator()(InsertionPointLocator::AccessSpec xsSpec)
+    operator()(InsertionPointLocator::AccessSpec xsSpec, int priority)
     {
         return TextEditor::QuickFixOperation::Ptr(
-            new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl));
+            new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl,
+                                    priority));
     }
 
 private:
@@ -2462,12 +2463,12 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
         // Add several possible insertion locations for declaration
         DeclOperationFactory operation(interface, fileName, matchingClass, decl);
 
-        result.append(operation(InsertionPointLocator::Public));
-        result.append(operation(InsertionPointLocator::PublicSlot));
-        result.append(operation(InsertionPointLocator::Protected));
-        result.append(operation(InsertionPointLocator::ProtectedSlot));
-        result.append(operation(InsertionPointLocator::Private));
-        result.append(operation(InsertionPointLocator::PrivateSlot));
+        result.append(operation(InsertionPointLocator::Public, 5));
+        result.append(operation(InsertionPointLocator::PublicSlot, 4));
+        result.append(operation(InsertionPointLocator::Protected, 3));
+        result.append(operation(InsertionPointLocator::ProtectedSlot, 2));
+        result.append(operation(InsertionPointLocator::Private, 1));
+        result.append(operation(InsertionPointLocator::PrivateSlot, 0));
     }
 }
 

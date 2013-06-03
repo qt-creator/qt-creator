@@ -118,13 +118,11 @@ struct ContentLessThan
 } // Anonymous
 
 BasicProposalItemListModel::BasicProposalItemListModel()
-    : m_isSortingAllowed(true)
 {}
 
 BasicProposalItemListModel::BasicProposalItemListModel(const QList<BasicProposalItem *> &items)
     : m_currentItems(items)
     , m_originalItems(items)
-    , m_isSortingAllowed(true)
 {
     mapPersistentIds();
 }
@@ -139,16 +137,6 @@ void BasicProposalItemListModel::loadContent(const QList<BasicProposalItem *> &i
     m_originalItems = items;
     m_currentItems = items;
     mapPersistentIds();
-}
-
-void BasicProposalItemListModel::setSortingAllowed(bool isAllowed)
-{
-    m_isSortingAllowed = isAllowed;
-}
-
-bool BasicProposalItemListModel::isSortingAllowed() const
-{
-    return m_isSortingAllowed;
 }
 
 void BasicProposalItemListModel::mapPersistentIds()
@@ -270,8 +258,6 @@ bool BasicProposalItemListModel::isSortable(const QString &prefix) const
 {
     Q_UNUSED(prefix);
 
-    if (!isSortingAllowed())
-        return false;
     if (m_currentItems.size() < kMaxSort)
         return true;
     return false;
