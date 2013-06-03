@@ -86,6 +86,7 @@ public:
 public slots:
     void setContextLinesNumber(int lines);
     void setIgnoreWhitespaces(bool ignore);
+    void setHorizontalScrollBarSynchronization(bool on);
     void navigateToDiffFile(int diffFileIndex);
 
 signals:
@@ -104,7 +105,6 @@ private slots:
     void rightCursorPositionChanged();
     void leftDocumentSizeChanged();
     void rightDocumentSizeChanged();
-    void toggleScrollBarSynchronization(bool on);
 
 private:
     struct DiffList {

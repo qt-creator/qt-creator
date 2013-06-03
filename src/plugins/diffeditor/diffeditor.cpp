@@ -33,6 +33,8 @@
 #include "diffeditorconstants.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+
 #include <QCoreApplication>
 #include <QToolButton>
 #include <QSpinBox>
@@ -152,6 +154,15 @@ QWidget *DiffEditor::toolBar()
     connect(contextSpinBox, SIGNAL(valueChanged(int)),
             m_editorWidget, SLOT(setContextLinesNumber(int)));
     m_toolWidget->addWidget(contextSpinBox);
+
+    QToolButton *toggleSync = new QToolButton(m_toolWidget);
+    toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    toggleSync->setCheckable(true);
+    toggleSync->setChecked(true);
+    toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
+    connect(toggleSync, SIGNAL(clicked(bool)),
+            m_editorWidget, SLOT(setHorizontalScrollBarSynchronization(bool)));
+    m_toolWidget->addWidget(toggleSync);
 
     return m_toolWidget;
 }

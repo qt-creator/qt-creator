@@ -533,15 +533,6 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
 {
     TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
 
-    QToolButton *toggleSync = new QToolButton();
-    toggleSync = new QToolButton;
-    toggleSync->setText(QLatin1String("S"));
-    toggleSync->setCheckable(true);
-    toggleSync->setChecked(m_syncScrollBars);
-    toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
-    toggleSync->setAutoRaise(true);
-    connect(toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleScrollBarSynchronization(bool)));
-
     m_leftEditor = new DiffViewEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_leftEditor->setReadOnly(true);
@@ -554,7 +545,6 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_leftEditor->setCodeStyle(settings->codeStyle());
 
     m_rightEditor = new DiffViewEditorWidget(this);
-    m_rightEditor->setCornerWidget(toggleSync);
     m_rightEditor->setReadOnly(true);
     connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             m_rightEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
@@ -1423,7 +1413,7 @@ void DiffEditorWidget::rightDocumentSizeChanged()
     synchronizeFoldings(m_rightEditor, m_leftEditor);
 }
 
-void DiffEditorWidget::toggleScrollBarSynchronization(bool on)
+void DiffEditorWidget::setHorizontalScrollBarSynchronization(bool on)
 {
     m_syncScrollBars = on;
 }
