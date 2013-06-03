@@ -1437,10 +1437,14 @@ void QMakeEvaluator::updateFeaturePaths()
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
     QStringList feature_bases;
-    if (!m_buildRoot.isEmpty())
+    if (!m_buildRoot.isEmpty()) {
+        feature_bases << m_buildRoot + mkspecs_concat;
         feature_bases << m_buildRoot;
-    if (!m_sourceRoot.isEmpty())
+    }
+    if (!m_sourceRoot.isEmpty()) {
+        feature_bases << m_sourceRoot + mkspecs_concat;
         feature_bases << m_sourceRoot;
+    }
 
     foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
         feature_bases << (item + mkspecs_concat);
