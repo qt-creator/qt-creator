@@ -350,7 +350,7 @@ void GerritPlugin::push()
         target += QLatin1Char('/') + topic;
     args << target;
 
-    Git::Internal::GitPlugin::instance()->gitClient()->synchronousPush(topLevel, args);
+    Git::Internal::GitPlugin::instance()->gitClient()->push(topLevel, args);
 }
 
 // Open or raise the Gerrit dialog window.

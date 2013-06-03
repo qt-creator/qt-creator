@@ -2981,17 +2981,14 @@ void GitClient::subversionLog(const QString &workingDirectory)
     executeGit(workingDirectory, arguments, editor);
 }
 
-bool GitClient::synchronousPush(const QString &workingDirectory, const QStringList &pushArgs)
+void GitClient::push(const QString &workingDirectory, const QStringList &pushArgs)
 {
-    // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
-                           |VcsBase::VcsBasePlugin::ShowSuccessMessage;
     QStringList arguments(QLatin1String("push"));
     if (!pushArgs.isEmpty())
         arguments += pushArgs;
-    const Utils::SynchronousProcessResponse resp =
-            synchronousGit(workingDirectory, arguments, flags);
-    return resp.result == Utils::SynchronousProcessResponse::Finished;
+
+    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
+    connectRepositoryChanged(workingDirectory, cmd);
 }
 
 bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch)

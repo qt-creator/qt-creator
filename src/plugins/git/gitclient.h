@@ -240,8 +240,7 @@ public:
     QString vcsGetRepositoryURL(const QString &directory);
     void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
-    bool synchronousPush(const QString &workingDirectory,
-                         const QStringList &pushArgs = QStringList());
+    void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch);
     bool canRebase(const QString &workingDirectory) const;
     bool synchronousRebase(const QString &workingDirectory,

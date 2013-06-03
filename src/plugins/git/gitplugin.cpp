@@ -1103,7 +1103,7 @@ void GitPlugin::push()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_gitClient->synchronousPush(state.topLevel());
+    m_gitClient->push(state.topLevel());
 }
 
 void GitPlugin::startMergeTool()
