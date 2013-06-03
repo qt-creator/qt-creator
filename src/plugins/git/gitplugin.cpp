@@ -1075,7 +1075,7 @@ bool GitPlugin::submitEditorAboutToClose()
 
 void GitPlugin::fetch()
 {
-    m_gitClient->synchronousFetch(currentState().topLevel(), QString());
+    m_gitClient->fetch(currentState().topLevel(), QString());
 }
 
 void GitPlugin::pull()

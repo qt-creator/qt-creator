@@ -2839,16 +2839,13 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
     }
 }
 
-bool GitClient::synchronousFetch(const QString &workingDirectory, const QString &remote)
+void GitClient::fetch(const QString &workingDirectory, const QString &remote)
 {
     QStringList arguments(QLatin1String("fetch"));
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
 
-    // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
-                           |VcsBase::VcsBasePlugin::ShowSuccessMessage;
-    const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
-    return resp.result == Utils::SynchronousProcessResponse::Finished;
+    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
+    connectRepositoryChanged(workingDirectory, cmd);
 }
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,

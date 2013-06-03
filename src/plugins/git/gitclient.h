@@ -238,7 +238,7 @@ public:
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
     QString vcsGetRepositoryURL(const QString &directory);
-    bool synchronousFetch(const QString &workingDirectory, const QString &remote);
+    void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     bool synchronousPush(const QString &workingDirectory,
                          const QStringList &pushArgs = QStringList());
