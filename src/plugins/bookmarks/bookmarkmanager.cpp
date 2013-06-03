@@ -237,9 +237,11 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     QMenu menu;
     QAction *moveUp = menu.addAction(tr("Move Up"));
     QAction *moveDown = menu.addAction(tr("Move Down"));
-    QAction *remove = menu.addAction(tr("&Remove"));
-    QAction *removeAll = menu.addAction(tr("Remove All"));
     QAction *editNote = menu.addAction(tr("Edit Note"));
+    menu.addSeparator();
+    QAction *remove = menu.addAction(tr("&Remove"));
+    menu.addSeparator();
+    QAction *removeAll = menu.addAction(tr("Remove All"));
 
     m_contextMenuIndex = indexAt(event->pos());
     if (!m_contextMenuIndex.isValid()) {
