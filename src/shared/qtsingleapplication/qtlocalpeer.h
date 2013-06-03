@@ -57,9 +57,6 @@ protected:
     QString socketName;
     QLocalServer* server;
     QtLockedFile lockFile;
-
-private:
-    static const char* ack;
 };
 
 } // namespace SharedTools
