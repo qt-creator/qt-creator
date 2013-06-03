@@ -73,6 +73,7 @@ struct ModeManagerPrivate
     Context m_addedContexts;
     int m_oldCurrent;
     bool m_saveSettingsOnModeChange;
+    bool m_modeSelectorVisible;
 };
 
 static ModeManagerPrivate *d;
@@ -100,6 +101,8 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
     d->m_actionBar = new Internal::FancyActionBar(modeStack);
     d->m_modeStack->addCornerWidget(d->m_actionBar);
     d->m_saveSettingsOnModeChange = false;
+    d->m_modeSelectorVisible = true;
+    d->m_modeStack->setSelectionWidgetVisible(d->m_modeSelectorVisible);
 
     connect(d->m_modeStack, SIGNAL(currentAboutToShow(int)), SLOT(currentTabAboutToChange(int)));
     connect(d->m_modeStack, SIGNAL(currentChanged(int)), SLOT(currentTabChanged(int)));
@@ -339,12 +342,13 @@ void ModeManager::setFocusToCurrentMode()
 
 void ModeManager::setModeSelectorVisible(bool visible)
 {
+    d->m_modeSelectorVisible = visible;
     d->m_modeStack->setSelectionWidgetVisible(visible);
 }
 
 bool ModeManager::isModeSelectorVisible()
 {
-    return d->m_modeStack->isSelectionWidgetVisible();
+    return d->m_modeSelectorVisible;
 }
 
 ModeManager *ModeManager::instance()
