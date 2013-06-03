@@ -2313,14 +2313,14 @@ GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &wo
 
 void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
 {
-    switch (checkCommandInProgress(workingDirectory)) {
+    CommandInProgress command = checkCommandInProgress(workingDirectory);
+    switch (command) {
     case Rebase:
-        continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
-                tr("Continue rebase?"), tr("Continue"), QLatin1String("rebase"));
-        break;
     case RebaseMerge:
         continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
-                tr("Continue rebase?"), tr("Continue"), QLatin1String("rebase"), false);
+                                   tr("Rebase is in progress. What do you want to do?"),
+                                   tr("Continue"), QLatin1String("rebase"),
+                                   command != RebaseMerge);
         break;
     case Revert:
         continuePreviousGitCommand(workingDirectory, tr("Continue Revert"),
