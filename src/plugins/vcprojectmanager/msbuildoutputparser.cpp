@@ -63,11 +63,12 @@ void MsBuildOutputParser::stdOutput(const QString &line)
 
     // if line contains both ': warning ' and ': error ' check if warning comes after error
     if (line.contains(QLatin1String(": warning ")) && line.contains(QLatin1String(": error "))) {
-        if (line.indexOf(QLatin1String(": error ")) < line.indexOf(QLatin1String(": warning ")))
+        if (line.indexOf(QLatin1String(": error ")) < line.indexOf(QLatin1String(": warning ")) ||
+                line.indexOf(QLatin1String(": fatal error ")) < line.indexOf(QLatin1String(": warning ")))
             warningBeforeError = false;
     }
     // else, use warningBeforeError as a sign that line doesn't contain no warning
-    else if (line.contains(QLatin1String(": error ")))
+    else if (line.contains(QLatin1String(": error ")) || line.contains(QLatin1String(": fatal error ")))
         warningBeforeError = false;
 
     if (!m_buildAttempFinished && warningBeforeError && line.contains(QLatin1String(": warning "))) {
@@ -134,6 +135,43 @@ void MsBuildOutputParser::stdOutput(const QString &line)
         if (errorLineRegExp.captureCount() == 2 && !errorLineRegExp.cap(1).isEmpty())
             description.append(QLatin1String(" line: ")
                                + errorLineRegExp.cap(1));
+
+        emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                           description,
+                                           Utils::FileName::fromUserInput(filePath),
+                                           errorLineRegExp.cap(1).toInt(),
+                                           Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    }
+
+    if (!m_buildAttempFinished && !warningBeforeError && line.contains(QLatin1String(": fatal error "))) {
+        QString leftover = line;
+        leftover = leftover.trimmed();
+        QStringList splits = leftover.split(QLatin1String(": fatal error "));
+        // get file path
+        QString filePath = splits.at(0).trimmed();
+        leftover = splits.at(1);
+
+        // check if the file path contains line number, example D:\blabla\gggg.cpp(55)
+        QRegExp errorLineRegExp(QLatin1String(".*\\((\\d+)\\)$"));
+        if (errorLineRegExp.exactMatch(filePath)) {
+            filePath.resize(filePath.length() - errorLineRegExp.cap(1).length() - 2);
+        }
+
+        // get error code
+        int splitIndex = leftover.indexOf(QLatin1String(": "));
+        QString errorCode = leftover.left(splitIndex).trimmed();
+        leftover.remove(0, splitIndex);
+        leftover.remove(0, 2); // error description remains
+        leftover = leftover.trimmed();
+
+        QString description(errorCode
+                            + QLatin1String(" ")
+                            + leftover);
+        // if line where error has originated is present
+        if (errorLineRegExp.captureCount() == 2 && !errorLineRegExp.cap(1).isEmpty()) {
+            description.append(QLatin1String(" line: ")
+                               + errorLineRegExp.cap(1));
+        }
 
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                            description,

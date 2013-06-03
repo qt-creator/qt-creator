@@ -92,10 +92,6 @@ bool VcMakeStep::init()
     m_processParams->setEnvironment(bc->environment());
     m_processParams->setWorkingDirectory(bc->buildDirectory());
 
-    ProjectExplorer::Project *project = bc->target()->project();
-    VcProjectFile* document = static_cast<VcProjectFile *>(project->document());
-    m_processParams->setArguments(document->filePath());
-
     if (!m_buildArguments.isEmpty())
         m_processParams->setArguments(m_buildArguments.join(QLatin1String(" ")));
 

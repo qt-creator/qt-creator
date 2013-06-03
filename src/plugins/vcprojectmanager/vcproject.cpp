@@ -358,6 +358,7 @@ void VcProject::addBuildConfiguration(Target *target, QSharedPointer<Configurati
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         VcMakeStep *makeStep = new VcMakeStep(buildSteps);
         QString argument(QLatin1String("/p:configuration=\"") + config->name() + QLatin1String("\""));
+        makeStep->addBuildArgument(m_projectFile->filePath());
         makeStep->addBuildArgument(argument);
         buildSteps->insertStep(0, makeStep);
 
@@ -365,6 +366,7 @@ void VcProject::addBuildConfiguration(Target *target, QSharedPointer<Configurati
         ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
         makeStep = new VcMakeStep(cleanSteps);
         argument = QLatin1String("/p:configuration=\"") + config->name() + QLatin1String("\" /t:Clean");
+        makeStep->addBuildArgument(m_projectFile->filePath());
         makeStep->addBuildArgument(argument);
         cleanSteps->insertStep(0, makeStep);
 
