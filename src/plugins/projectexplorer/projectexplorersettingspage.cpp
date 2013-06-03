@@ -84,7 +84,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     return pes;
 }
 
-void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &pes) const
+void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &pes)
 {
     m_ui.buildProjectBeforeDeployCheckBox->setChecked(pes.buildBeforeDeploy);
     m_ui.deployProjectBeforeRunCheckBox->setChecked(pes.deployBeforeRun);

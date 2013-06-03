@@ -47,7 +47,7 @@ public:
     explicit ProjectExplorerSettingsWidget(QWidget *parent = 0);
 
     ProjectExplorerSettings settings() const;
-    void setSettings(const ProjectExplorerSettings  &s) const;
+    void setSettings(const ProjectExplorerSettings  &s);
 
     QString projectsDirectory() const;
     void setProjectsDirectory(const QString &pd);
