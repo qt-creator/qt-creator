@@ -60,6 +60,7 @@
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
+#include <QTextDocument>
 #include <QVBoxLayout>
 
 using namespace Valgrind::XmlProtocol;
