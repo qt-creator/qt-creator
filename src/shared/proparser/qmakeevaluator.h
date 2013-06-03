@@ -43,8 +43,12 @@
 #include <qstack.h>
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qshareddata.h>
 #ifndef QT_BOOTSTRAPPED
 # include <qprocess.h>
+#endif
+#ifdef PROEVALUATOR_THREAD_SAFE
+# include <qmutex.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -69,6 +73,20 @@ public:
     enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
     virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type) = 0;
     virtual void doneWithEval(ProFile *parent) = 0;
+};
+
+typedef QPair<QString, QString> QMakeFeatureKey; // key, parent
+typedef QHash<QMakeFeatureKey, QString> QMakeFeatureHash;
+
+class QMAKE_EXPORT QMakeFeatureRoots : public QSharedData
+{
+public:
+    QMakeFeatureRoots(const QStringList &_paths) : paths(_paths) {}
+    const QStringList paths;
+    mutable QMakeFeatureHash cache;
+#ifdef PROEVALUATOR_THREAD_SAFE
+    mutable QMutex mutex;
+#endif
 };
 
 // We use a QLinkedList based stack instead of a QVector based one (QStack), so that
@@ -271,7 +289,7 @@ public:
     QStringList m_qmakepath;
     QStringList m_qmakefeatures;
     QStringList m_mkspecPaths;
-    QStringList m_featureRoots;
+    QExplicitlySharedDataPointer<QMakeFeatureRoots> m_featureRoots;
     ProString m_dirSep;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;

@@ -1482,7 +1482,7 @@ void QMakeEvaluator::updateFeaturePaths()
     foreach (const QString &root, feature_roots)
         if (IoUtils::exists(root))
             ret << root;
-    m_featureRoots = ret;
+    m_featureRoots = new QMakeFeatureRoots(ret);
 }
 
 ProString QMakeEvaluator::propertyValue(const ProKey &name) const
@@ -1840,35 +1840,55 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFeatureFile(
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
 
-    if (m_featureRoots.isEmpty())
+    if (!m_featureRoots)
         updateFeaturePaths();
-    int start_root = 0;
-    QString currFn = currentFileName();
-    if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
-        QStringRef currPath = IoUtils::pathName(currFn);
-        for (int root = 0; root < m_featureRoots.size(); ++root)
-            if (currPath == m_featureRoots.at(root)) {
-                start_root = root + 1;
-                break;
-            }
-    }
-    for (int root = start_root; root < m_featureRoots.size(); ++root) {
-        QString fname = m_featureRoots.at(root) + fn;
-        if (IoUtils::exists(fname)) {
-            fn = fname;
-            goto cool;
-        }
-    }
-#ifdef QMAKE_BUILTIN_PRFS
-    fn.prepend(QLatin1String(":/qmake/features/"));
-    if (QFileInfo(fn).exists())
-        goto cool;
+#ifdef PROEVALUATOR_THREAD_SAFE
+    m_featureRoots->mutex.lock();
 #endif
-    if (!silent)
-        evalError(fL1S("Cannot find feature %1").arg(fileName));
-    return ReturnFalse;
+    QString currFn = currentFileName();
+    if (IoUtils::fileName(currFn) != IoUtils::fileName(fn))
+        currFn.clear();
+    // Null values cannot regularly exist in the hash, so they indicate that the value still
+    // needs to be determined. Failed lookups are represented via non-null empty strings.
+    QString *fnp = &m_featureRoots->cache[qMakePair(fn, currFn)];
+    if (fnp->isNull()) {
+        int start_root = 0;
+        const QStringList &paths = m_featureRoots->paths;
+        if (!currFn.isEmpty()) {
+            QStringRef currPath = IoUtils::pathName(currFn);
+            for (int root = 0; root < paths.size(); ++root)
+                if (currPath == paths.at(root)) {
+                    start_root = root + 1;
+                    break;
+                }
+        }
+        for (int root = start_root; root < paths.size(); ++root) {
+            QString fname = paths.at(root) + fn;
+            if (IoUtils::exists(fname)) {
+                fn = fname;
+                goto cool;
+            }
+        }
+#ifdef QMAKE_BUILTIN_PRFS
+        fn.prepend(QLatin1String(":/qmake/features/"));
+        if (QFileInfo(fn).exists())
+            goto cool;
+#endif
+        fn = QLatin1String(""); // Indicate failed lookup. See comment above.
 
-  cool:
+      cool:
+        *fnp = fn;
+    } else {
+        fn = *fnp;
+    }
+#ifdef PROEVALUATOR_THREAD_SAFE
+    m_featureRoots->mutex.unlock();
+#endif
+    if (fn.isEmpty()) {
+        if (!silent)
+            evalError(fL1S("Cannot find feature %1").arg(fileName));
+        return ReturnFalse;
+    }
     ProStringList &already = valuesRef(ProKey("QMAKE_INTERNAL_INCLUDED_FEATURES"));
     ProString afn(fn);
     if (already.contains(afn)) {
