@@ -1138,6 +1138,8 @@ void GitClient::show(const QString &source, const QString &id,
     }
 
     QString title = tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
+    const QFileInfo sourceFi(source);
+    const QString workDir = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
     if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
         const Core::Id editorId = DiffEditor::Constants::DIFF_EDITOR_ID;
 
@@ -1151,7 +1153,9 @@ void GitClient::show(const QString &source, const QString &id,
         }
 
         int timeout = settings()->intValue(GitSettings::timeoutKey);
-        GitDiffHandler *handler = new GitDiffHandler(editorEditable, gitBinaryPath(), source, processEnvironment(), timeout);
+        GitDiffHandler *handler = new GitDiffHandler(editorEditable, gitBinaryPath(),
+                                                     findRepositoryForDirectory(workDir),
+                                                     processEnvironment(), timeout);
         handler->show(id);
     } else {
         const Core::Id editorId = Git::Constants::GIT_DIFF_EDITOR_ID;
@@ -1169,8 +1173,6 @@ void GitClient::show(const QString &source, const QString &id,
         arguments.append(userArgs);
         arguments << id;
 
-        const QFileInfo sourceFi(source);
-        const QString workDir = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
         editor->setDiffBaseDirectory(workDir);
         executeGit(workDir, arguments, editor);
     }
