@@ -48,17 +48,13 @@ namespace SharedTools {
 
 static const char ack[] = "ack";
 
-QtLocalPeer::QtLocalPeer(QObject *parent, const QString &appId)
-    : QObject(parent), id(appId)
+QString QtLocalPeer::appSessionId(const QString &appId)
 {
-    if (id.isEmpty())
-        id = QCoreApplication::applicationFilePath();  //### On win, check if this returns .../argv[0] without casefolding; .\MYAPP == .\myapp on Win
-
-    QByteArray idc = id.toUtf8();
+    QByteArray idc = appId.toUtf8();
     quint16 idNum = qChecksum(idc.constData(), idc.size());
     //### could do: two 16bit checksums over separate halves of id, for a 32bit result - improved uniqeness probability. Every-other-char split would be best.
 
-    socketName = QLatin1String("qtsingleapplication-")
+    QString res = QLatin1String("qtsingleapplication-")
                  + QString::number(idNum, 16);
 #if defined(Q_OS_WIN)
     if (!pProcessIdToSessionId) {
@@ -68,12 +64,21 @@ QtLocalPeer::QtLocalPeer(QObject *parent, const QString &appId)
     if (pProcessIdToSessionId) {
         DWORD sessionId = 0;
         pProcessIdToSessionId(GetCurrentProcessId(), &sessionId);
-        socketName += QLatin1Char('-') + QString::number(sessionId, 16);
+        res += QLatin1Char('-') + QString::number(sessionId, 16);
     }
 #else
-    socketName += QLatin1Char('-') + QString::number(::getuid(), 16);
+    res += QLatin1Char('-') + QString::number(::getuid(), 16);
 #endif
+    return res;
+}
 
+QtLocalPeer::QtLocalPeer(QObject *parent, const QString &appId)
+    : QObject(parent), id(appId)
+{
+    if (id.isEmpty())
+        id = QCoreApplication::applicationFilePath();  //### On win, check if this returns .../argv[0] without casefolding; .\MYAPP == .\myapp on Win
+
+    socketName = appSessionId(id);
     server = new QLocalServer(this);
     QString lockName = QDir(QDir::tempPath()).absolutePath()
                        + QLatin1Char('/') + socketName
