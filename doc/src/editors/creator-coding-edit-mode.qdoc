@@ -59,12 +59,12 @@
 
     \section1 Splitting the Editor View
 
-    Split the editor view when you want to work on and view multiple files on
-    the same screen.
+    Split the editor view or open the editor in a new window when you want to
+    work on and view multiple files on the same screen or on multiple screens.
 
     \image qtcreator-spliteditorview.png
 
-    You can split the editor view in the following ways:
+    You can view multiple files simultaneously in the following ways:
 
     \list
 
@@ -82,10 +82,17 @@
            Side by side split command creates views to the right of the
            currently active editor view.
 
+        \li To open the editor in a detached window, press \key{Ctrl+E, 4}, or
+            select \gui Window > \gui {Open in New Window}.
+
+            The new window behaves basically in the same way as the editor area
+            in the main window. For example, you can split this window, as well.
+            Documents are opened in the currently active editor window.
+
     \endlist
 
-    To move between split views, select \gui Window > \gui{Go to Next Split} or
-    press \key{Ctrl+E, O}.
+    To move between split views and detached editor windows, select \gui Window
+    > \gui{Go to Next Split or Window} or press \key{Ctrl+E, O}.
 
     To remove a split view, place the cursor within the view you want to
     remove and select \gui Window > \gui{Remove Current Split}, press
