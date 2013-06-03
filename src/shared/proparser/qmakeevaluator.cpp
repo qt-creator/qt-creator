@@ -1161,6 +1161,8 @@ bool QMakeEvaluator::loadSpec()
 
     {
         QMakeEvaluator evaluator(m_option, m_parser, m_vfs, m_handler);
+        evaluator.m_sourceRoot = m_sourceRoot;
+        evaluator.m_buildRoot = m_buildRoot;
         if (!m_superfile.isEmpty()) {
             valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             if (evaluator.evaluateFile(
