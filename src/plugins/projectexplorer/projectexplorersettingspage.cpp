@@ -81,6 +81,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     pes.useJom = m_ui.jomCheckbox->isChecked();
     pes.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     pes.maxAppOutputLines = m_ui.maxAppOutputBox->value();
+    pes.environmentId = m_environmentId;
     return pes;
 }
 
@@ -98,6 +99,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.jomCheckbox->setChecked(pes.useJom);
     m_ui.promptToStopRunControlCheckBox->setChecked(pes.prompToStopRunControl);
     m_ui.maxAppOutputBox->setValue(pes.maxAppOutputLines);
+    m_environmentId = pes.environmentId;
 }
 
 QString ProjectExplorerSettingsWidget::projectsDirectory() const

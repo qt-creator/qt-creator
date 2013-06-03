@@ -34,6 +34,7 @@
 #include "ui_projectexplorersettingspage.h"
 
 #include <QPointer>
+#include <QUuid>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -70,6 +71,7 @@ private:
 
     Ui::ProjectExplorerSettingsPageUi m_ui;
     mutable QString m_searchKeywords;
+    QUuid m_environmentId;
 };
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage

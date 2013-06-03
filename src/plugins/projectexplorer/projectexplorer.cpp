@@ -3018,6 +3018,8 @@ void ProjectExplorerPlugin::setSession(QAction *action)
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes)
 {
+    QTC_ASSERT(d->m_projectExplorerSettings.environmentId == pes.environmentId, return);
+
     if (d->m_projectExplorerSettings == pes)
         return;
     d->m_projectExplorerSettings = pes;
