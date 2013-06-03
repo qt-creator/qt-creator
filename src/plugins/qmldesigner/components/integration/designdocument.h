@@ -59,7 +59,7 @@ class CrumbleBarInfo;
 class ViewManager;
 class QmlModelView;
 
-class DesignDocument: public QObject
+class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
 {
     Q_OBJECT
 public:
