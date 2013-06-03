@@ -382,6 +382,9 @@ def registerDumper(function):
 
 def bbsetup(args = ''):
     global qqDumpers, qqFormats, qqEditable, typeCache
+    qqDumpers = {}
+    qqFormats = {}
+    qqEditable = {}
     typeCache = {}
     module = sys.modules[__name__]
 

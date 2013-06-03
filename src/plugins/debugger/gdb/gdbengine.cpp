@@ -1854,6 +1854,12 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
 void GdbEngine::handlePythonSetup(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
+        const QString commands = debuggerCore()->stringSetting(GdbCustomDumperCommands);
+        if (!commands.isEmpty()) {
+            postCommand(commands.toLocal8Bit());
+            postCommand("bbsetup");
+        }
+
         postCommand("python qqStringCutOff = "
             + debuggerCore()->action(MaximalStringLength)->value().toByteArray(),
             ConsoleCommand|NonCriticalResponse);
@@ -4972,6 +4978,7 @@ void GdbEngine::tryLoadPythonDumpers()
 
     postCommand("python execfile('" + dumperSourcePath + "gbridge.py')",
         ConsoleCommand, CB(handlePythonSetup));
+
 }
 
 void GdbEngine::reloadDebuggingHelpers()

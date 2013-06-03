@@ -72,6 +72,8 @@ public:
     QTextEdit *textEditStartupCommands;
     QGroupBox *groupBoxPostAttachCommands;
     QTextEdit *textEditPostAttachCommands;
+    QGroupBox *groupBoxCustomDumperCommands;
+    QTextEdit *textEditCustomDumperCommands;
 
     //QGroupBox *groupBoxPluginDebugging;
     //QRadioButton *radioButtonAllPluginBreakpoints;
@@ -167,20 +169,21 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "<b>Note:</b>This feature needs special support from the Linux "
         "distribution and GDB build and is not everywhere available.</p></body></html>"));
 
-    groupBoxStartupCommands = new QGroupBox(this);
-    groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
-    groupBoxStartupCommands->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>GDB commands entered here will be executed after "
-        "GDB has been started and the debugging helpers have been initialized.</p>"
-        "<p>You can add commands to load further debugging helpers here, or "
-        "modify existing ones.</p>"
+    QString howToUsePython = GdbOptionsPage::tr(
         "<p>To execute simple Python commands, prefix them with \"python\".</p>"
         "<p>To execute sequences of Python commands spanning multiple lines "
         "prepend the block with \"python\" on a separate line, and append "
         "\"end\" on a separate line.</p>"
         "<p>To execute arbitrary Python scripts, "
-        "use <i>python execfile('/path/to/script.py')</i>.</p>"
-        "</body></html>"));
+        "use <i>python execfile('/path/to/script.py')</i>.</p>");
+
+    groupBoxStartupCommands = new QGroupBox(this);
+    groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
+    groupBoxStartupCommands->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body><p>GDB commands entered here will be executed after "
+        "GDB has been started, but before the debugged program is started or "
+        "attached, and before the debugging helpers are initialized.</p>%1"
+        "<body></html>").arg(howToUsePython));
 
     textEditStartupCommands = new QTextEdit(groupBoxStartupCommands);
     textEditStartupCommands->setAcceptRichText(false);
@@ -198,6 +201,18 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     textEditPostAttachCommands = new QTextEdit(groupBoxPostAttachCommands);
     textEditPostAttachCommands->setAcceptRichText(false);
     textEditPostAttachCommands->setToolTip(groupBoxPostAttachCommands->toolTip());
+
+    groupBoxCustomDumperCommands = new QGroupBox(this);
+    groupBoxCustomDumperCommands->setTitle(GdbOptionsPage::tr("Debugging Helper Customization"));
+    groupBoxCustomDumperCommands->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body><p>GDB commands entered here will be executed after "
+        "Qt Creator's debugging helpers have been loaded and fully initialized. "
+        "You can load additional debugging helpers or modify existing ones here.</p>"
+        "%1</body></html>").arg(howToUsePython));
+
+    textEditCustomDumperCommands = new QTextEdit(groupBoxStartupCommands);
+    textEditCustomDumperCommands->setAcceptRichText(false);
+    textEditCustomDumperCommands->setToolTip(groupBoxStartupCommands->toolTip());
 
     /*
     groupBoxPluginDebugging = new QGroupBox(q);
@@ -242,6 +257,9 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     QGridLayout *postAttachLayout = new QGridLayout(groupBoxPostAttachCommands);
     postAttachLayout->addWidget(textEditPostAttachCommands, 0, 0, 1, 1);
 
+    QGridLayout *customDumperLayout = new QGridLayout(groupBoxCustomDumperCommands);
+    customDumperLayout->addWidget(textEditCustomDumperCommands, 0, 0, 1, 1);
+
     //QHBoxLayout *horizontalLayout = new QHBoxLayout();
     //horizontalLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Preferred, QSizePolicy::Minimum));
     //horizontalLayout->addWidget(labelSelectedPluginBreakpoints);
@@ -251,6 +269,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     gridLayout->addWidget(groupBoxGeneral, 0, 0, 2, 1);
     gridLayout->addWidget(groupBoxStartupCommands, 0, 1, 1, 1);
     gridLayout->addWidget(groupBoxPostAttachCommands, 1, 1, 1, 1);
+    gridLayout->addWidget(groupBoxCustomDumperCommands, 2, 1, 1, 1);
 
     //gridLayout->addWidget(groupBoxStartupCommands, 0, 1, 1, 1);
     //gridLayout->addWidget(radioButtonAllPluginBreakpoints, 0, 0, 1, 1);
@@ -262,6 +281,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
 
     DebuggerCore *dc = debuggerCore();
     group.insert(dc->action(GdbStartupCommands), textEditStartupCommands);
+    group.insert(dc->action(GdbCustomDumperCommands), textEditCustomDumperCommands);
     group.insert(dc->action(GdbPostAttachCommands), textEditPostAttachCommands);
     group.insert(dc->action(LoadGdbInit), checkBoxLoadGdbInit);
     group.insert(dc->action(LoadGdbDumpers), checkBoxLoadGdbDumpers);
