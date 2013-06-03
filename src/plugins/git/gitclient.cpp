@@ -1245,7 +1245,7 @@ void GitClient::blame(const QString &workingDirectory,
     arguments << QLatin1String("--") << fileName;
     if (!revision.isEmpty())
         arguments << revision;
-    executeGit(workingDirectory, arguments, editor, false, VcsBase::Command::NoReport, lineNumber);
+    executeGit(workingDirectory, arguments, editor, false, lineNumber);
 }
 
 bool GitClient::synchronousCheckout(const QString &workingDirectory,
@@ -2130,15 +2130,13 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
                                         const QStringList &arguments,
                                         VcsBase::VcsBaseEditorWidget* editor,
                                         bool useOutputToWindow,
-                                        VcsBase::Command::TerminationReportMode tm,
-                                        int editorLineNumber,
-                                        bool unixTerminalDisabled)
+                                        int editorLineNumber)
 {
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
     VcsBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
-    command->setTerminationReportMode(tm);
-    command->setUnixTerminalDisabled(unixTerminalDisabled);
+    command->setTerminationReportMode(VcsBase::Command::NoReport);
+    command->setUnixTerminalDisabled(false);
     command->execute();
     return command;
 }

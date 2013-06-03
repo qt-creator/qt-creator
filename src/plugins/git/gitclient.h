@@ -356,9 +356,7 @@ private:
                            const QStringList &arguments,
                            VcsBase::VcsBaseEditorWidget* editor = 0,
                            bool useOutputToWindow = false,
-                           VcsBase::Command::TerminationReportMode tm = VcsBase::Command::NoReport,
-                           int editorLineNumber = -1,
-                           bool unixTerminalDisabled = false);
+                           int editorLineNumber = -1);
 
     // Fully synchronous git execution (QProcess-based).
     bool fullySynchronousGit(const QString &workingDirectory,
