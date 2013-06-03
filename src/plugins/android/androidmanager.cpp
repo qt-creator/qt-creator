@@ -633,19 +633,20 @@ void AndroidManager::updateTarget(ProjectExplorer::Target *target, const QString
         bool modified = false;
         bool comment = false;
         for (int i = 0; i < lines.size(); i++) {
-            if (lines[i].contains("@ANDROID-")) {
-                commentLines = targetSDKNumber < lines[i].mid(lines[i].lastIndexOf('-') + 1).toInt();
+            QByteArray trimmed = lines[i].trimmed();
+            if (trimmed.contains("@ANDROID-")) {
+                commentLines = targetSDKNumber < trimmed.mid(trimmed.lastIndexOf('-') + 1).toInt();
                 comment = !comment;
                 continue;
             }
             if (!comment)
                 continue;
             if (commentLines) {
-                if (!lines[i].trimmed().startsWith("//QtCreator")) {
+                if (!trimmed.startsWith("//QtCreator")) {
                     lines[i] = "//QtCreator " + lines[i];
                     modified = true;
                 }
-            } else { if (lines[i].trimmed().startsWith("//QtCreator")) {
+            } else { if (trimmed.startsWith("//QtCreator")) {
                     lines[i] = lines[i].mid(12);
                     modified = true;
                 }
