@@ -1827,14 +1827,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
             postCommand("set detach-on-fork off", ConsoleCommand);
 
         //postCommand("set build-id-verbose 2", ConsoleCommand);
-
-        if (m_gdbVersion > 70100) {
-            // Quick check whether we have python.
-            postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
-        } else {
-            showMessage(_("NOTE: CHECK FOR PYTHON SUPPRESSED, VERSION TOO LOW"));
-            pythonDumpersFailed();
-        }
+        postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
     }
 }
 
