@@ -116,6 +116,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     QString javaHome = AndroidConfigurations::instance().openJDKPath().toString();
     if (!javaHome.isEmpty() && QFileInfo(javaHome).exists())
         env.set(QLatin1String("JAVA_HOME"), javaHome);
+    env.set(QLatin1String("ANDROID_HOME"), AndroidConfigurations::instance().config().sdkLocation.toString());
 }
 
 bool AndroidToolChain::operator ==(const ToolChain &tc) const
