@@ -289,13 +289,11 @@ bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QStri
     }
 
     Utils::FileSaver saver(fileName, fileMode);
-    if (saver.hasError()) {
-        *errorString = saver.errorString();
-        return false;
+    if (!saver.hasError()) {
+        if (hasUtf8Bom && codec->name() == "UTF-8")
+            saver.write("\xef\xbb\xbf", 3);
+        saver.write(codec->fromUnicode(plainText));
     }
-    if (hasUtf8Bom && codec->name() == "UTF-8")
-        saver.write("\xef\xbb\xbf", 3);
-    saver.write(codec->fromUnicode(plainText));
     const bool ok = saver.finalize(errorString);
     if (debug)
         qDebug().nospace() << Q_FUNC_INFO << fileName << ' ' << *this <<  ' ' << plainText.size()
