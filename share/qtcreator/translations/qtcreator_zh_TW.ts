@@ -8843,12 +8843,12 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>%1 Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 除錯</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
         <extracomment>Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 發佈</translation>
+        <translation>%1 Release</translation>
     </message>
     <message>
         <source>&lt;No tool chain selected&gt;</source>
@@ -12483,22 +12483,22 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>%1 Debug</source>
         <extracomment>Debug build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 除錯</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
         <extracomment>Release build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 發佈</translation>
+        <translation>%1 Release</translation>
     </message>
     <message>
         <source>Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard. We recommend not translating it.</extracomment>
-        <translation type="unfinished">除錯</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Name of a release build configuration to be created by a project wizard. We recommend not translating it.</extracomment>
-        <translation type="unfinished">發佈</translation>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -13505,7 +13505,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>未命名</translation>
+        <translation>untitled</translation>
     </message>
 </context>
 <context>
@@ -22746,12 +22746,12 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     <message>
         <source>%1 Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 除錯</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
         <extracomment>Name of a release build configuration to be created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 發佈</translation>
+        <translation>%1 Release</translation>
     </message>
 </context>
 <context>
