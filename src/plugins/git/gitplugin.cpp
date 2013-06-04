@@ -657,9 +657,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
     gitContainer->addSeparator(globalcontext);
 
-    m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
-    Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(m_createRepositoryAction, "Git.CreateRepository", globalcontext);
-    connect(m_createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
+    QAction *repositoryAction = new QAction(tr("Create Repository..."), this);
+    Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(repositoryAction, "Git.CreateRepository", globalcontext);
+    connect(repositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(createRepositoryCommand);
 
     if (0) {
