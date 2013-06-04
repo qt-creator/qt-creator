@@ -471,7 +471,7 @@ public:
     tst_Dumpers()
     {
         t = 0;
-        m_keepTemp = false;
+        m_keepTemp = true;
         m_gdbVersion = 0;
         m_gdbBuildVersion = 0;
         m_lldbVersion = 0;
@@ -512,9 +512,7 @@ void tst_Dumpers::initTestCase()
     if (m_debuggerBinary.endsWith("cdb.exe"))
         m_debuggerEngine = DumpTestCdbEngine;
 
-    if (m_debuggerBinary.endsWith("lldb")
-            || m_debuggerBinary.endsWith("lbridge.py")
-            || m_debuggerBinary.contains("/lldb-"))
+    if (m_debuggerBinary.endsWith("lldb"))
         m_debuggerEngine = DumpTestLldbEngine;
 
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH");
@@ -572,8 +570,12 @@ void tst_Dumpers::initTestCase()
         output += debugger.readAllStandardError();
         output = output.trimmed();
         // Should be something like LLDB-178
-        m_lldbVersion = output.mid(5).toInt();
-        qDebug() << "Lldb version " << output << m_lldbVersion;
+        QByteArray ba = output.mid(output.indexOf('-') + 1);
+        int pos = ba.indexOf('.');
+        if (pos >= 0)
+            ba = ba.left(pos);
+        m_lldbVersion = ba.toInt();
+        qDebug() << "Lldb version " << output << ba << m_lldbVersion;
         QVERIFY(m_lldbVersion);
     }
     m_env = utilsEnv.toProcessEnvironment();
@@ -616,6 +618,7 @@ void tst_Dumpers::dumper()
     proFile.write("SOURCES = ");
     proFile.write(mainFile);
     proFile.write("\nTARGET = doit\n");
+    proFile.write("\nCONFIG -= app_bundle\n");
     proFile.write("\nCONFIG -= release\n");
     proFile.write("\nCONFIG += debug\n");
     if (data.useQt)
@@ -748,13 +751,16 @@ void tst_Dumpers::dumper()
             sortediNames << QString::fromLatin1(iName);
         sortediNames.sort();
         foreach (QString iName, sortediNames)
-            cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token) + " -c 0 " + iName.toLatin1() + "\n";
+            cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token)
+                    + " -c 0 " + iName.toLatin1() + "\n";
         cmds += "q\n";
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
         exe = "python";
         args << QLatin1String(dumperDir + "/lbridge.py")
              << QString::fromUtf8(m_debuggerBinary)
-             << t->buildPath + QLatin1String("/doit");
+             << t->buildPath + QLatin1String("/doit")
+             << QString::fromUtf8(expanded);
+        //qDebug() << exe.constData() << ' ' << qPrintable(args.join(QLatin1Char(' ')));
     }
 
     t->input = cmds;
@@ -795,6 +801,21 @@ void tst_Dumpers::dumper()
         int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
         QVERIFY(posNameSpaceEnd != -1);
         context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
+        //qDebug() << "FOUND NS: " << context.nameSpace;
+        if (context.nameSpace == "::")
+            context.nameSpace.clear();
+        contents.replace("\\\"", "\"");
+    } else if (m_debuggerEngine == DumpTestLldbEngine) {
+        //qDebug() << "GOT OUTPUT: " << output;
+        QVERIFY(output.startsWith("data="));
+        contents = output;
+
+        //int posNameSpaceStart = output.indexOf("@NS@");
+        //QVERIFY(posNameSpaceStart != -1);
+        //posNameSpaceStart += sizeof("@NS@") - 1;
+        //int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
+        //QVERIFY(posNameSpaceEnd != -1);
+        //context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
         //qDebug() << "FOUND NS: " << context.nameSpace;
         if (context.nameSpace == "::")
             context.nameSpace.clear();
@@ -1970,8 +1991,8 @@ void tst_Dumpers::dumper_data()
                     "QPointF s0, s;\n"
                     "s = QPointF(100, 200);\n")
                % CoreProfile()
-               % Check("s0", "(0, 0)", "@QPointF")
-               % Check("s", "(100, 200)", "@QPointF");
+               % Check("s0", "(0.0, 0.0)", "@QPointF")
+               % Check("s", "(100.0, 200.0)", "@QPointF");
 
     QTest::newRow("QRect")
             << Data("#include <QRect>\n"

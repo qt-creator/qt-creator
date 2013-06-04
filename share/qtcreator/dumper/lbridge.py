@@ -898,6 +898,8 @@ class Dumper:
 
         stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
         #warn("VALUE: %s" % value)
+        #warn("STRIPPED: %s" % stripped)
+        #warn("DUMPABLE: %s" % (stripped in qqDumpers))
         if stripped in qqDumpers:
             self.putType(typeName)
             qqDumpers[stripped](self, value)
@@ -1345,7 +1347,7 @@ def doit():
                     db.execute(eval(line[3:]))
 
 
-def testit():
+def testit1():
 
     db = Dumper()
 
@@ -1365,6 +1367,36 @@ def testit():
                     db.execute(eval(line[3:]))
                 else:
                     db.executeDebuggerCommand({'command':line})
+
+
+# Used in dumper auto test.
+# Usage: python lbridge.py /path/to/testbinary comma-separated-inames
+def testit():
+
+    db = Dumper()
+
+    # Disable intermediate reporting.
+    savedReport = db.report
+    db.report = lambda stuff: 0
+
+    db.debugger.SetAsync(False)
+    db.expandedINames = set(sys.argv[3].split(','))
+
+    db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
+    db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
+        'modelid':'1','type':2,'ignorecount':0,'condition':'','function':'breakHere',
+        'oneshot':0,'enabled':1,'file':'','line':0}]})
+
+    error = lldb.SBError()
+    listener = db.debugger.GetListener()
+    db.process = db.target.Launch(listener, None, None, None, None,
+        None, None, 0, False, error)
+
+    db.currentThread().SetSelectedFrame(1)
+
+    db.report = savedReport
+    db.reportVariables()
+    #db.report("DUMPER=%s" % qqDumpers)
 
 
 if len(sys.argv) > 2:

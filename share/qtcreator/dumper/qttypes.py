@@ -1337,11 +1337,8 @@ def qdump__QPixmap(d, value):
 
 
 def qdump__QPoint(d, value):
-    x = value["xp"]
-    y = value["yp"]
-    # should not be needed, but sometimes yield myns::QVariant::Private::Data::qreal
-    x = x.cast(x.type.strip_typedefs())
-    y = y.cast(y.type.strip_typedefs())
+    x = int(value["xp"])
+    y = int(value["yp"])
     d.putValue("(%s, %s)" % (x, y))
     d.putNumChild(2)
     if d.isExpanded():
@@ -1350,7 +1347,13 @@ def qdump__QPoint(d, value):
 
 
 def qdump__QPointF(d, value):
-    qdump__QPoint(d, value)
+    x = float(value["xp"])
+    y = float(value["yp"])
+    d.putValue("(%s, %s)" % (x, y))
+    d.putNumChild(2)
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
 
 
 def qdump__QRect(d, value):
