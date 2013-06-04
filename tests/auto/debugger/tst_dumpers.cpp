@@ -332,10 +332,30 @@ struct Cxx11Profile : public Profile
     Cxx11Profile() : Profile("QMAKE_CXXFLAGS += -std=c++0x") {}
 };
 
+struct GdbOnly {};
+struct LldbOnly {};
+
 struct GdbVersion
 {
     // Minimum and maximum are inclusive.
     GdbVersion(int minimum = 0, int maximum = 0)
+    {
+        if (minimum && !maximum)
+            maximum = minimum;
+        if (maximum == 0)
+            maximum = INT_MAX;
+
+        max = maximum;
+        min = minimum;
+    }
+    int min;
+    int max;
+};
+
+struct LldbVersion
+{
+    // Minimum and maximum are inclusive.
+    LldbVersion(int minimum = 0, int maximum = 0)
     {
         if (minimum && !maximum)
             maximum = minimum;
@@ -357,11 +377,14 @@ struct GuiProfile {};
 
 struct DataBase
 {
-    DataBase() : useQt(false), forceC(false), neededGdbVersion() {}
+    DataBase() : useQt(false), forceC(false), gdbOnly(false), lldbOnly(false) {}
 
     mutable bool useQt;
     mutable bool forceC;
+    mutable bool gdbOnly;
+    mutable bool lldbOnly;
     mutable GdbVersion neededGdbVersion;
+    mutable LldbVersion neededLldbVersion;
 };
 
 class Data : public DataBase
@@ -389,6 +412,24 @@ public:
     const Data &operator%(const GdbVersion &gdbVersion) const
     {
         neededGdbVersion = gdbVersion;
+        return *this;
+    }
+
+    const Data &operator%(const LldbVersion &lldbVersion) const
+    {
+        neededLldbVersion = lldbVersion;
+        return *this;
+    }
+
+    const Data &operator%(const LldbOnly &) const
+    {
+        lldbOnly = true;
+        return *this;
+    }
+
+    const Data &operator%(const GdbOnly &) const
+    {
+        gdbOnly = true;
         return *this;
     }
 
@@ -602,9 +643,26 @@ void tst_Dumpers::dumper()
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
         if (data.neededGdbVersion.min > m_gdbVersion)
-            MSKIP_SINGLE("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
+            MSKIP_SINGLE("Need minimum GDB version "
+                + QByteArray::number(data.neededGdbVersion.min));
         if (data.neededGdbVersion.max < m_gdbVersion)
-            MSKIP_SINGLE("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
+            MSKIP_SINGLE("Need maximum GDB version "
+                + QByteArray::number(data.neededGdbVersion.max));
+    } else {
+        if (data.gdbOnly)
+            MSKIP_SINGLE("Test is GDB specific");
+    }
+
+    if (m_debuggerEngine == DumpTestLldbEngine) {
+        if (data.neededLldbVersion.min > m_gdbVersion)
+            MSKIP_SINGLE("Need minimum LLDB version "
+                + QByteArray::number(data.neededLldbVersion.min));
+        if (data.neededLldbVersion.max < m_gdbVersion)
+            MSKIP_SINGLE("Need maximum LLDB version "
+                + QByteArray::number(data.neededLldbVersion.max));
+    } else {
+        if (data.lldbOnly)
+            MSKIP_SINGLE("Test is LLDB specific");
     }
 
     QString cmd;
@@ -3919,8 +3977,8 @@ void tst_Dumpers::dumper_data()
                % Check("n@2", "1", "int");
 
 
-    QTest::newRow("RValueReference")
-            << Data("#include <utility>\n"
+    const Data rvalueData = Data(
+                    "#include <utility>\n"
                     "struct X { X() : a(2), b(3) {} int a, b; };\n"
                     "X testRValueReferenceHelper1() { return X(); }\n"
                     "X testRValueReferenceHelper2(X &&x) { return x; }\n",
@@ -3932,12 +3990,23 @@ void tst_Dumpers::dumper_data()
                     "X y3 = testRValueReferenceHelper2(testRValueReferenceHelper1());\n"
                     "unused(&x1, &x2, &x3, &y1, &y2, &y3);\n")
                % Cxx11Profile()
-               % Check("x1", "", "X &")
-               % Check("x2", "", "X &")
-               % Check("x3", "", "X &")
                % Check("y1", "", "X")
                % Check("y2", "", "X")
                % Check("y3", "", "X");
+
+    QTest::newRow("RValueReferenceGdb")
+            << Data(rvalueData)
+               % GdbOnly()
+               % Check("x1", "", "X &")
+               % Check("x2", "", "X &")
+               % Check("x3", "", "X &");
+
+    QTest::newRow("RValueReferenceLldb")
+            << Data(rvalueData)
+               % LldbOnly()
+               % Check("x1", "", "X &&")
+               % Check("x2", "", "X &&")
+               % Check("x3", "", "X &&");
 
     QTest::newRow("SSE")
             << Data("#include <xmmintrin.h>\n"

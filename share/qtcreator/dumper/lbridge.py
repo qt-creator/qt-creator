@@ -610,6 +610,12 @@ class Dumper:
         #if numchild != self.currentChildNumChild:
         self.put('numchild="%s",' % numchild)
 
+    def putEmptyValue(self, priority = -10):
+        if priority >= self.currentValuePriority:
+            self.currentValue = ""
+            self.currentValuePriority = priority
+            self.currentValueEncoding = None
+
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:
@@ -865,7 +871,7 @@ class Dumper:
             formatter.update()
             numchild = formatter.num_children()
             self.put('iname="%s",' % self.currentIName)
-            self.put('type="%s",' % typeName)
+            self.putType(typeName)
             self.put('numchild="%s",' % numchild)
             self.put('addr="0x%x",' % value.GetLoadAddress())
             self.putItemCount(numchild)
@@ -884,11 +890,12 @@ class Dumper:
         if value.GetType().IsReferenceType():
             type = value.GetType().GetDereferencedType().GetPointerType()
             # FIXME: Find something more direct.
+            origType = value.GetTypeName();
             value = value.CreateValueFromAddress(value.GetName(),
                 value.AddressOf().GetValueAsUnsigned(), type).Dereference()
             #value = value.cast(value.dynamic_type)
             self.putItem(value)
-            self.putBetterType("%s &" % value.GetTypeName())
+            self.putBetterType(origType)
             return
 
         # Pointers
@@ -910,8 +917,8 @@ class Dumper:
         #numchild = 1 if value.MightHaveChildren() else 0
         numchild = value.GetNumChildren()
         self.put('iname="%s",' % self.currentIName)
-        self.put('type="%s",' % typeName)
-        self.putValue("" if v is None else v)
+        self.putType(typeName)
+        self.putValue('' if v is None else v)
         self.put('numchild="%s",' % numchild)
         self.put('addr="0x%x",' % value.GetLoadAddress())
         if self.currentIName in self.expandedINames:
