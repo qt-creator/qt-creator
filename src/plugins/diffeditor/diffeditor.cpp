@@ -144,13 +144,14 @@ QWidget *DiffEditor::toolBar()
 
     QLabel *contextLabel = new QLabel(m_toolWidget);
     contextLabel->setText(tr("Context Lines:"));
-    contextLabel->setMargin(6);
+    contextLabel->setContentsMargins(6, 0, 6, 0);
     m_toolWidget->addWidget(contextLabel);
 
     QSpinBox *contextSpinBox = new QSpinBox(m_toolWidget);
     contextSpinBox->setRange(-1, 100);
     contextSpinBox->setValue(3);
     contextSpinBox->setFrame(false);
+    contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
     connect(contextSpinBox, SIGNAL(valueChanged(int)),
             m_editorWidget, SLOT(setContextLinesNumber(int)));
     m_toolWidget->addWidget(contextSpinBox);
