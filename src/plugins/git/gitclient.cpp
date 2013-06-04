@@ -2144,19 +2144,24 @@ QProcessEnvironment GitClient::processEnvironment() const
 
 bool GitClient::beginStashScope(const QString &workingDirectory, const QString &keyword, StashFlag flag)
 {
-    StashInfo &stashInfo = m_stashInfo[workingDirectory];
-    return stashInfo.init(workingDirectory, keyword, flag);
+    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    QTC_ASSERT(!repoDirectory.isEmpty(), return false);
+    StashInfo &stashInfo = m_stashInfo[repoDirectory];
+    return stashInfo.init(repoDirectory, keyword, flag);
 }
 
 GitClient::StashInfo &GitClient::stashInfo(const QString &workingDirectory)
 {
-    QTC_CHECK(m_stashInfo.contains(workingDirectory));
-    return m_stashInfo[workingDirectory];
+    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    QTC_CHECK(m_stashInfo.contains(repoDirectory));
+    return m_stashInfo[repoDirectory];
 }
 
 void GitClient::endStashScope(const QString &workingDirectory)
 {
-    m_stashInfo[workingDirectory].end();
+    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    QTC_ASSERT(m_stashInfo.contains(repoDirectory), return);
+    m_stashInfo[repoDirectory].end();
 }
 
 bool GitClient::isValidRevision(const QString &revision) const
