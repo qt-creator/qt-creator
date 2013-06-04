@@ -209,11 +209,13 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*i
     }
 }
 
-void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *)
+void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
-    FormEditorItem *formEditorItem = topFormEditorItem(itemList);
-    if (formEditorItem)
-        view()->changeToCustomTool(formEditorItem->qmlItemNode().modelNode());
+    if (event->button() == Qt::LeftButton) {
+        FormEditorItem *formEditorItem = topFormEditorItem(itemList);
+        if (formEditorItem)
+            view()->changeToCustomTool(formEditorItem->qmlItemNode().modelNode());
+    }
 }
 
 void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
