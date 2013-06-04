@@ -203,9 +203,11 @@ void SuppressionDialog::accept()
     QTC_ASSERT(!m_suppressionEdit->toPlainText().trimmed().isEmpty(), return);
 
     Utils::FileSaver saver(path, QIODevice::Append);
-    QTextStream stream(saver.file());
-    stream << m_suppressionEdit->toPlainText();
-    saver.setResult(&stream);
+    if (!saver.hasError()) {
+        QTextStream stream(saver.file());
+        stream << m_suppressionEdit->toPlainText();
+        saver.setResult(&stream);
+    }
     if (!saver.finalize(this))
         return;
 
