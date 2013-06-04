@@ -373,10 +373,12 @@ bool FileSaver::finalize()
         return FileSaverBase::finalize();
 
     SaveFile *sf = static_cast<SaveFile *>(m_file);
-    if (m_hasError)
-        sf->rollback();
-    else
+    if (m_hasError) {
+        if (sf->isOpen())
+            sf->rollback();
+    } else {
         setResult(sf->commit());
+    }
     delete sf;
     m_file = 0;
     return !m_hasError;
