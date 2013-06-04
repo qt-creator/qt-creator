@@ -952,7 +952,7 @@ void PropertyEditor::scriptFunctionsChanged(const ModelNode &node, const QString
 
 void PropertyEditor::select(const ModelNode &node)
 {
-    if (QmlItemNode(node).isValid())
+    if (QmlObjectNode(node).isValid())
         m_selectedNode = node;
     else
         m_selectedNode = ModelNode();
