@@ -206,6 +206,9 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(PartitionSizeKey, partitionSize);
     settings.setValue(AutomaticKitCreationKey, automaticKitCreation);
     settings.setValue(ToolchainHostKey, toolchainHost);
+    settings.setValue(MakeExtraSearchDirectory,
+                      makeExtraSearchDirectories.isEmpty() ? QString()
+                                                           : makeExtraSearchDirectories.at(0));
 }
 
 void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
