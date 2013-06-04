@@ -158,14 +158,15 @@
     \key {Shift+F2} or right-click the symbol and select \gui {Switch Between
     Method Declaration/Definition}.
 
-    Links are opened in the same split by default. Every operation can also be opened in
-    the next split by prebending \key {Ctrl+E} to the shortcut. For example \key {Ctrl+E,F2}
-    to follow the symbol in the next split. If currently is just one editor open a split will be
-    automatically opened. The default behavior could also be changed in
-    \gui Tools > \gui{Options} > \gui{Text Editor} > \gui Display, by checking
-    \gui{Always Open Links in Next Split}. Additional symbols and switching between definition
-    and decleration is opened in another split. If you change the default behavior the shortcuts
-    for open in next split are used to open the target in the current split.
+    Links are opened in the same split by default. To open links in the next
+    split, prepend \key {Ctrl+E} to the shortcut. For example, press \key {Ctrl+E,F2}
+    to follow the symbol in the next split. If necessary, the view is
+    automatically split. To change the default behavior, select \gui Tools >
+    \gui{Options} > \gui{Text Editor} > \gui Display, and then select
+    \gui{Always Open Links in Next Split}. Additional symbols are displayed and
+    switching between definition and declaration is done in another split.
+    If you change the default behavior, the shortcuts for opening link targets
+    in the next split are used to open them in the current split.
 
     \section1 Using Update Code Model
 
