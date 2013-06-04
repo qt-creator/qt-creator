@@ -118,13 +118,6 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     "text/vnd.qtcreator.git.rebase"},
 };
 
-// Utility to find a parameter set by type
-static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
-{
-    const VcsBase::EditorContentType et = static_cast<VcsBase::EditorContentType>(ie);
-    return  VcsBase::VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters), et);
-}
-
 Q_DECLARE_METATYPE(Git::Internal::GitClientMemberFunc)
 
 using namespace Git;
