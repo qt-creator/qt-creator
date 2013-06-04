@@ -57,6 +57,19 @@
     select \gui {Sort Alphabetically} to arrange the symbols in alphabetic
     order.
 
+    To jump to a line and column in the current file, select the line and column
+    indicator (3) or press \key {Ctrl+L} (or \key {Cmd+L} on Mac OS X) to open
+    the locator. Enter the line number and column number in the locator,
+    separated by a colon (:).
+
+    To show the file encoding of the current file on the editor toolbar (4),
+    select \gui Tools > \gui Options > \gui {Text Editor} > \gui Display >
+    \gui {Display file encoding}.
+
+    \note Other convenient ways of navigating in \QC are provided by the
+    \l{Searching with the Locator}{locator}, \l{Keyboard Shortcuts}
+    {keyboard shortcuts}, and the \l{Browsing Project Contents}{sidebar}.
+
     \section1 Splitting the Editor View
 
     Split the editor view or open the editor in a new window when you want to
