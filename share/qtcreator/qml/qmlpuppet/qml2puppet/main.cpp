@@ -47,10 +47,6 @@
 
 int main(int argc, char *argv[])
 {
-    // Since we always render text into an FBO, we need to globally disable
-    // subpixel antialiasing and instead use gray.
-    qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
-
     QApplication application(argc, argv);
 
     QCoreApplication::setOrganizationName("QtProject");
