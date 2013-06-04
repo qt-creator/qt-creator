@@ -760,8 +760,10 @@ const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
-    if (dir.endsWith(QLatin1String("/.git")) || dir.contains(QLatin1String("/.git/")))
+    if (dir.isEmpty() || dir.endsWith(QLatin1String("/.git"))
+            || dir.contains(QLatin1String("/.git/"))) {
         return QString();
+    }
     QDir directory(dir);
     QString dotGit = QLatin1String(GIT_DIRECTORY);
     // QFileInfo is outside loop, because it is faster this way
