@@ -315,6 +315,11 @@
 
         \endlist
 
+        \li Python
+
+            Python class and source files that you can use to create Python
+            classes and scripts with UTF-8 encoding.
+
     \endlist
 
     \section2 Creating C++ Classes
