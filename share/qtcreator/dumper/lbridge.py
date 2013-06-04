@@ -8,11 +8,24 @@ import select
 import sys
 import subprocess
 
+proc = subprocess.Popen(args=[sys.argv[1], '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(path, error) = proc.communicate()
 
-proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
-path = proc.stdout.read().strip()
+if error.startswith('lldb: invalid option -- P'):
+    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'@\n' % sys.argv[1])
+    proc = subprocess.Popen(args=['xcode-select', '--print-path'],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (path, error) = proc.communicate()
+    if len(error):
+        path = '/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
+        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"@\n')
+        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'@\n' % path)
+    else:
+        path = path.strip() + '/../SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
+        sys.stdout.write('msg=\'Using fallback at %s\'@\n' % path)
+
 #sys.path.append(path)
-sys.path.insert(1, path)
+sys.path.insert(1, path.strip())
 
 import lldb
 
