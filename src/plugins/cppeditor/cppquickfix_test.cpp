@@ -760,15 +760,14 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_basic()
         "struct Foo\n"
         "{\n"
         "    Foo();@\n"
-        "};\n"
-        "\n"
-        ;
+        "};\n";
     const QByteArray expected = original +
+        "\n"
+        "\n"
         "Foo::Foo()\n"
         "{\n\n"
         "}\n"
-        "\n\n"
-        ;
+        "\n";
 
     InsertDefFromDecl factory;
     TestCase data(original, expected);
@@ -826,6 +825,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
         "    Foo()@;\n"
         "};\n";
     expected = original +
+        "\n"
         "\n"
         "Foo::Foo()\n"
         "{\n\n"
@@ -1768,8 +1768,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 
     // Source File
     original =
-        "#include \"file.h\"\n"
-        "\n";
+        "#include \"file.h\"\n";
     expected =
         "#include \"file.h\"\n"
         "\n"
@@ -1787,7 +1786,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 }
 
 /// Check: Move definition outside class
-void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside1()
 {
     QByteArray original =
         "class Foo {\n"
@@ -1814,12 +1813,55 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
         "    return 1;\n"
         "}\n"
         "\n"
-        "\n"
         "void Foo::f4() {}\n\n";
 
     MoveFuncDefOutside factory;
     TestCase data(original, expected);
     data.run(&factory);
+}
+
+/// Check: Move definition outside class
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo {\n"
+        "    void f1();\n"
+        "    int f2@()\n"
+        "    {\n"
+        "        return 1;\n"
+        "    }\n"
+        "    void f3();\n"
+        "};\n";
+    expected =
+        "class Foo {\n"
+        "    void f1();\n"
+        "    int f2();\n"
+        "    void f3();\n"
+        "};\n"
+        "\n"
+        "\n"
+        "int Foo::f2()\n"
+        "{\n"
+        "    return 1;\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "void Foo::f1() {}\n"
+        "void Foo::f3() {}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory, 1);
 }
 
 /// Check: Move definition from header to cpp (with namespace).
@@ -1849,8 +1891,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
 
     // Source File
     original =
-        "#include \"file.h\"\n"
-        "\n";
+        "#include \"file.h\"\n";
     expected =
         "#include \"file.h\"\n"
         "\n"
@@ -1895,8 +1936,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
     // Source File
     original =
         "#include \"file.h\"\n"
-        "using namespace MyNs;\n"
-        "\n";
+        "using namespace MyNs;\n";
     expected =
         "#include \"file.h\"\n"
         "using namespace MyNs;\n"
@@ -1934,7 +1974,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
         "int Foo::number() const\n"
         "{\n"
         "    return 5;\n"
-        "}"
+        "}\n"
         "\n}\n";
 
     MoveFuncDefOutside factory;
@@ -1962,8 +2002,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
 
     // Source File
     original =
-        "#include \"file.h\"\n"
-        "\n";
+        "#include \"file.h\"\n";
     expected =
         "#include \"file.h\"\n"
         "\n"
@@ -2004,8 +2043,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
 
     // Source File
     original =
-        "#include \"file.h\"\n"
-        "\n";
+        "#include \"file.h\"\n";
     expected =
         "#include \"file.h\"\n"
         "\n"
@@ -2053,6 +2091,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization1()
     expected =
         "#include \"file.h\"\n"
         "\n"
+        "\n"
         "Foo::Foo() : a(42), b(3.141) {}\n"
         "\n";
     testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
@@ -2095,6 +2134,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
     original ="#include \"file.h\"\n";
     expected =
         "#include \"file.h\"\n"
+        "\n"
         "\n"
         "Foo::Foo() : member(2)\n"
         "{\n"

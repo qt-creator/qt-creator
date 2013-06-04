@@ -143,6 +143,37 @@ enum DefPos {
     DefPosImplementationFile
 };
 
+InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
+                                                    CppRefactoringChanges& refactoring,
+                                                    const QString& fileName)
+{
+    QTC_ASSERT(symbol, return InsertionLocation());
+
+    // Try to find optimal location
+    const InsertionPointLocator locator(refactoring);
+    const QList<InsertionLocation> list = locator.methodDefinition(symbol, symbol->asDeclaration(),
+                                                                   fileName);
+    for (int i = 0; i < list.count(); ++i) {
+        InsertionLocation location = list.at(i);
+        if (location.isValid() && location.fileName() == fileName) {
+            return location;
+            break;
+        }
+    }
+
+    // ...failed, so return location at end of file
+    CppRefactoringFilePtr file = refactoring.file(fileName);
+    const QTextDocument *doc = file->document();
+    int pos = qMax(0, doc->characterCount() - 1);
+
+    //TODO watch for matching namespace
+    //TODO watch for moc-includes
+
+    unsigned line, column;
+    file->lineAndColumn(pos, &line, &column);
+    return InsertionLocation(fileName, QLatin1String("\n\n"), QLatin1String("\n"), line, column);
+}
+
 inline bool isQtStringLiteral(const QByteArray &id)
 {
     return id == "QLatin1String" || id == "QLatin1Literal" || id == "QStringLiteral";
@@ -2549,11 +2580,6 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             if (func->isSignal())
                                 return;
 
-                            InsertDefOperation *op = 0;
-                            bool isHeaderFile = false;
-                            const QString cppFileName = correspondingHeaderOrSource(
-                                        interface->fileName(), &isHeaderFile);
-
                             // Check if there is already a definition
                             CppTools::SymbolFinder symbolFinder;
                             if (symbolFinder.findMatchingDefinition(decl, interface->snapshot(),
@@ -2561,18 +2587,21 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                 return;
                             }
 
+                            InsertDefOperation *op = 0;
+                            bool isHeaderFile = false;
+                            const QString cppFileName = correspondingHeaderOrSource(
+                                        interface->fileName(), &isHeaderFile);
+                            InsertionLocation loc;
+
                             // Insert Position: Implementation File
                             if (isHeaderFile && !cppFileName.isEmpty()) {
                                 CppRefactoringChanges refactoring(interface->snapshot());
-                                InsertionPointLocator locator(refactoring);
-                                foreach (const InsertionLocation &loc,
-                                         locator.methodDefinition(decl)) {
-                                    if (loc.isValid()) {
-                                        op = new InsertDefOperation(interface, decl, loc,
-                                                                    DefPosImplementationFile);
-                                        result.append(CppQuickFixOperation::Ptr(op));
-                                        break;
-                                    }
+                                loc = insertLocationForMethodDefinition(decl, refactoring,
+                                                                        cppFileName);
+                                if (loc.isValid()) {
+                                    op = new InsertDefOperation(interface, decl, loc,
+                                                                DefPosImplementationFile);
+                                    result.append(CppQuickFixOperation::Ptr(op));
                                 }
                             }
 
@@ -2581,8 +2610,8 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             unsigned line, column;
                             if (func->enclosingClass() == 0) {
                                 file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
-                                InsertionLocation loc(interface->fileName(), QLatin1String(""),
-                                                      QLatin1String(""), line, column);
+                                loc = InsertionLocation(interface->fileName(), QLatin1String(""),
+                                                        QLatin1String(""), line, column);
                                 op = new InsertDefOperation(interface, decl, loc,
                                                             DefPosInsideClass, true);
                                 result.append(CppQuickFixOperation::Ptr(op));
@@ -2590,25 +2619,19 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             }
 
                             // Insert Position: Outside Class
-                            --idx;
-                            for (; idx >= 0; --idx) {
-                                AST *node = path.at(idx);
-                                if (ClassSpecifierAST *ast = node->asClassSpecifier()) {
-                                    file->lineAndColumn(file->endOf(ast), &line, &column);
-                                    InsertionLocation loc(interface->fileName(),
-                                                          QLatin1String("\n\n"), QLatin1String(""),
-                                                          line, column + 1); // include ';'
-                                    op = new InsertDefOperation(interface, decl, loc,
-                                                                DefPosOutsideClass);
-                                    result.append(CppQuickFixOperation::Ptr(op));
-                                    break;
-                                }
+                            CppRefactoringChanges refactoring(interface->snapshot());
+                            loc = insertLocationForMethodDefinition(decl, refactoring,
+                                                                    interface->fileName());
+                            if (loc.isValid()) {
+                                op = new InsertDefOperation(interface, decl, loc,
+                                                            DefPosOutsideClass);
+                                result.append(CppQuickFixOperation::Ptr(op));
                             }
 
                             // Insert Position: Inside Class
                             file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
-                            InsertionLocation loc(interface->fileName(), QLatin1String(""),
-                                                  QLatin1String(""), line, column);
+                            loc = InsertionLocation(interface->fileName(), QLatin1String(""),
+                                                    QLatin1String(""), line, column);
                             op = new InsertDefOperation(interface, decl, loc, DefPosInsideClass);
                             result.append(CppQuickFixOperation::Ptr(op));
                             return;
@@ -3726,32 +3749,25 @@ public:
     {
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr fromFile = refactoring.file(m_headerFileName);
-        CppRefactoringFilePtr toFile;
-        int insertPos = 0;
-        Scope *scopeAtInsertPos = 0;
+        CppRefactoringFilePtr toFile = (m_type == MoveOutside) ? fromFile
+                                                               : refactoring.file(m_cppFileName);
 
         // Determine file, insert position and scope
-        if (m_type == MoveOutside) {
-            toFile = fromFile;
-            insertPos = toFile->endOf(m_classAST);
-            scopeAtInsertPos = m_func->enclosingScope()->enclosingScope();
-        } else {
-            toFile = refactoring.file(m_cppFileName);
-            const QTextDocument *doc = toFile->document();
-            insertPos = qMax(0, doc->characterCount() - 1);
-            scopeAtInsertPos = toFile->cppDocument()->scopeAt(doc->lineCount(),
-                                                              doc->lastBlock().length());
-        }
+        InsertionLocation l = insertLocationForMethodDefinition(m_func, refactoring,
+                                                                toFile->fileName());
+        const QString prefix = l.prefix();
+        const QString suffix = l.suffix();
+        const int insertPos = toFile->position(l.line(), l.column());
+        Scope *scopeAtInsertPos = toFile->cppDocument()->scopeAt(l.line(), l.column());
 
         // construct definition
         const QString funcDec = getDefinitionSignature(assistInterface(), m_func, toFile,
                                                        scopeAtInsertPos);
-        QString funcDef = QLatin1String("\n") + funcDec;
+        QString funcDef = prefix + funcDec;
         const int startPosition = fromFile->endOf(m_funcDef->declarator);
         const int endPosition = fromFile->endOf(m_funcDef->function_body);
-        funcDef += fromFile->textOf(startPosition, endPosition) + QLatin1String("\n");
-        if (m_cppFileName.isEmpty() || !m_insideHeader)
-            funcDef = QLatin1String("\n") + funcDef;
+        funcDef += fromFile->textOf(startPosition, endPosition);
+        funcDef += suffix;
 
         // insert definition at new position
         ChangeSet cppChanges;

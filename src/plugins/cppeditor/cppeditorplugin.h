@@ -186,7 +186,8 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCStyleCommentOnTop();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
-    void test_quickfix_MoveFuncDefOutside_MemberFuncOutside();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncOutside1();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncOutside2();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs();
