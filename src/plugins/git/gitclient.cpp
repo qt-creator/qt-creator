@@ -651,7 +651,7 @@ public:
         GitClient *client = GitPlugin::instance()->gitClient();
         if (m_commit.isEmpty()) {
             GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(m_workingDirectory);
-            if (client->checkCommandInProgress(m_workingDirectory) != GitClient::NoCommand)
+            if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
                 client->endStashScope(m_workingDirectory);
         } else {
             client->handleMergeConflicts(m_workingDirectory, m_commit, m_command);
