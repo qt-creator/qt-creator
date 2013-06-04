@@ -441,10 +441,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Interactive Rebase..."), Core::Id("Git.InteractiveRebase"),
                            globalcontext, true, SLOT(startRebase()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Change-related Actions..."), Core::Id("Git.ChangeRelatedActions"),
-                           globalcontext, true, SLOT(startChangeRelatedAction()));
-
     m_submoduleUpdateAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Update Submodules"), Core::Id("Git.SubmoduleUpdate"),
@@ -649,6 +645,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     // --------------
     gitContainer->addSeparator(globalcontext);
+
+    QAction *changesAction = new QAction(tr("Actions on Commits..."), this);
+    Core::Command *changesCommand = Core::ActionManager::registerAction(changesAction, "Git.ChangeActions", globalcontext);
+    connect(changesAction, SIGNAL(triggered()), this, SLOT(startChangeRelatedAction()));
+    gitContainer->addAction(changesCommand);
 
     QAction *repositoryAction = new QAction(tr("Create Repository..."), this);
     Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(repositoryAction, "Git.CreateRepository", globalcontext);
