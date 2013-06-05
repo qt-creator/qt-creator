@@ -65,7 +65,7 @@ class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
     QmlProfilerEnginePrivate(QmlProfilerEngine *qq, const AnalyzerStartParameters &sp) : q(qq), m_runner(0), sp(sp) {}
-    ~QmlProfilerEnginePrivate() { delete m_runner; }
+    ~QmlProfilerEnginePrivate() { m_runner->disconnect(); delete m_runner; }
 
     bool attach(const QString &address, uint port);
     AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
@@ -161,6 +161,7 @@ bool QmlProfilerEngine::start()
     QTC_ASSERT(d->m_profilerState, return false);
 
     if (d->m_runner) {
+        d->m_runner->disconnect();
         delete d->m_runner;
         d->m_runner = 0;
     }
@@ -377,6 +378,7 @@ void QmlProfilerEngine::profilerStateChanged()
         // (a new one will be created at start)
         d->m_noDebugOutputTimer.stop();
         if (d->m_runner) {
+            d->m_runner->disconnect();
             delete d->m_runner;
             d->m_runner = 0;
         }

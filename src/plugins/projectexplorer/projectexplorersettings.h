@@ -81,7 +81,8 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.useJom == p2.useJom
             && p1.autorestoreLastSession == p2.autorestoreLastSession
             && p1.prompToStopRunControl == p2.prompToStopRunControl
-            && p1.maxAppOutputLines == p2.maxAppOutputLines;
+            && p1.maxAppOutputLines == p2.maxAppOutputLines
+            && p1.environmentId == p2.environmentId;
 }
 
 } // namespace ProjectExplorer
