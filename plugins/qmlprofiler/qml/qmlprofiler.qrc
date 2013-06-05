@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/qmlprofiler">
+        <file>Detail.qml</file>
+        <file>Label.qml</file>
+        <file>MainView.qml</file>
+        <file>RangeDetails.qml</file>
+        <file>RangeMover.qml</file>
+        <file>TimeDisplay.qml</file>
+        <file>clean_pane_small.png</file>
+        <file>recordOff.png</file>
+        <file>recordOn.png</file>
+        <file>lock_closed.png</file>
+        <file>lock_open.png</file>
+        <file>TimeMarks.qml</file>
+        <file>Overview.qml</file>
+        <file>Overview.js</file>
+        <file>SelectionRange.qml</file>
+        <file>SelectionRangeDetails.qml</file>
+        <file>arrow_down.png</file>
+        <file>arrow_right.png</file>
+        <file>dialog_shadow.png</file>
+        <file>range_handle.png</file>
+        <file>ico_selectionmode.png</file>
+        <file>ico_zoom.png</file>
+        <file>ico_prev.png</file>
+        <file>ico_next.png</file>
+        <file>ico_rangeselection.png</file>
+        <file>ico_rangeselected.png</file>
+    </qresource>
+</RCC>
