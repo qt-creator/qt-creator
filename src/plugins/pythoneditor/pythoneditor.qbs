@@ -20,7 +20,6 @@ QtcPlugin {
         "pythoneditorconstants.h",
         "pythoneditorfactory.cpp",
         "pythoneditorfactory.h",
-        "pythoneditorfeatures.h",
         "pythoneditorplugin.cpp",
         "pythoneditorplugin.h",
         "pythoneditorplugin.qrc",

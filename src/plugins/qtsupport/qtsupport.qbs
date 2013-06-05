@@ -47,6 +47,8 @@ QtcPlugin {
             "qmakeglobals.h",
             "qmakeparser.cpp",
             "qmakeparser.h",
+            "qmakevfs.cpp",
+            "qmakevfs.h",
         ]
     }
 

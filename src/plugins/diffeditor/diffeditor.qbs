@@ -12,10 +12,10 @@ QtcPlugin {
 
 
     files: [
-        "diffeditor_global.h",
-        "diffeditorconstants.h",
         "diffeditor.cpp",
         "diffeditor.h",
+        "diffeditor_global.h",
+        "diffeditorconstants.h",
         "diffeditorfile.cpp",
         "diffeditorfile.h",
         "diffeditorplugin.cpp",
