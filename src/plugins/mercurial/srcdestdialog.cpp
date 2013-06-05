@@ -29,8 +29,13 @@
 
 #include "srcdestdialog.h"
 #include "ui_srcdestdialog.h"
+#include "mercurialplugin.h"
 
+#include <QInputDialog>
+#include <QSettings>
+#include <QUrl>
 
+using namespace VcsBase;
 using namespace Mercurial::Internal;
 
 SrcDestDialog::SrcDestDialog(QWidget *parent) :
@@ -39,6 +44,13 @@ SrcDestDialog::SrcDestDialog(QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    QUrl repoUrl(getRepoUrl());
+    if (repoUrl.isEmpty())
+        return;
+    if (!repoUrl.password().isEmpty())
+        repoUrl.setPassword(QLatin1String("***"));
+    m_ui->defaultPath->setText(repoUrl.toString());
+    m_ui->promptForCredentials->setChecked(!repoUrl.scheme().isEmpty() && repoUrl.scheme() != QLatin1String("file"));
 }
 
 SrcDestDialog::~SrcDestDialog()
@@ -53,9 +65,32 @@ void SrcDestDialog::setPathChooserKind(Utils::PathChooser::Kind kind)
 
 QString SrcDestDialog::getRepositoryString() const
 {
-    if (m_ui->defaultButton->isChecked())
-        return QString();
+    if (m_ui->defaultButton->isChecked()) {
+        QUrl repoUrl(getRepoUrl());
+        if (m_ui->promptForCredentials && (repoUrl.userName().isEmpty() || repoUrl.password().isEmpty())) {
+            if (repoUrl.userName().isEmpty()) {
+                QString user = QInputDialog::getText(0, tr("Enter user name"), tr("User name:"));
+                if (user.isEmpty())
+                    return repoUrl.toString();
+                repoUrl.setUserName(user);
+            }
+            if (repoUrl.password().isEmpty()) {
+                QString password = QInputDialog::getText(0, tr("Enter password"), tr("Password:"), QLineEdit::Password);
+                if (!password.isEmpty())
+                    repoUrl.setPassword(password);
+            }
+        }
+        return repoUrl.toString();
+    }
     if (m_ui->localButton->isChecked())
         return m_ui->localPathChooser->path();
     return m_ui->urlLineEdit->text();
+}
+
+QUrl SrcDestDialog::getRepoUrl() const
+{
+    MercurialPlugin *plugin = MercurialPlugin::instance();
+    const VcsBasePluginState state = plugin->currentState();
+    QSettings settings(QString(QLatin1String("%1/.hg/hgrc")).arg(state.currentProjectPath()), QSettings::IniFormat);
+    return settings.value(QLatin1String("paths/default")).toUrl();
 }
