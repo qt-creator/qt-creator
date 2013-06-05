@@ -115,8 +115,6 @@ public:
 
     QmlItemNode qmlItemNode() const;
 
-protected:
-    void beautify();
 
 private:
     QmlItemNode m_qmlItemNode;
