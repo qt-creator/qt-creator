@@ -68,6 +68,20 @@ def isSimpleType(typeobj):
     #warn("TYPECLASS: %s" % typeClass)
     return typeClass == lldb.eTypeClassBuiltin
 
+def call2(value, func, args):
+    # args is a tuple.
+    arg = ','.join(args)
+    warn("CALL: %s -> %s(%s)" % (value, func, arg))
+    type = value.type.name
+    exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
+    warn("CALL: %s" % exp)
+    result = value.CreateValueFromExpression('$tmp', exp)
+    warn("  -> %s" % result)
+    return result
+
+def call(value, func, *args):
+    return call2(value, func, args)
+
 #######################################################################
 #
 # Helpers
@@ -136,7 +150,7 @@ def registerDumper(function):
                 pass
 
 def warn(message):
-    print '\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'")
+    print '\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'")
 
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
@@ -408,6 +422,18 @@ class Children:
         return True
 
 
+class NoAddress:
+    def __init__(self, d):
+        self.d = d
+
+    def __enter__(self):
+        self.savedPrintsAddress = self.d.currentPrintsAddress
+        self.d.currentPrintsAddress = False
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        self.d.currentPrintsAddress = self.savedPrintsAddress
+
+
 
 class SubItem:
     def __init__(self, d, component):
@@ -676,6 +702,14 @@ class Dumper:
                 for i in self.childRange():
                     self.putSubItem(i, (base + i).dereference())
 
+    def parseAndEvalute(self, expr):
+        return expr
+
+    def putCallItem(self, name, value, func, *args):
+        result = call2(value, func, args)
+        with SubItem(self, name):
+            self.putItem(result)
+
     def childRange(self):
         if self.currentMaxNumChild is None:
             return xrange(0, self.currentNumChild)
@@ -689,7 +723,8 @@ class Dumper:
                self.putFields(value)
 
     def lookupType(self, name):
-        #warn("LOOKUP: %s" % self.target.FindFirstType(name))
+        #warn("LOOKUP TYPE NAME: %s" % name)
+        #warn("LOOKUP RESULT: %s" % self.target.FindFirstType(name))
         return self.target.FindFirstType(name)
 
     def setupInferior(self, args):

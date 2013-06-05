@@ -252,12 +252,14 @@ def qdump__QModelIndex(d, value):
 
 
 def qdump__QDate(d, value):
-    jd = value["jd"]
+    jd = int(value["jd"])
     if int(jd):
         d.putValue(jd, JulianDate)
         d.putNumChild(1)
         if d.isExpanded():
             qt = d.ns + "Qt::"
+            if lldbLoaded:
+                qt += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 d.putCallItem("toString", value, "toString", qt + "TextDate")
@@ -277,6 +279,8 @@ def qdump__QTime(d, value):
         d.putNumChild(1)
         if d.isExpanded():
             qt = d.ns + "Qt::"
+            if lldbLoaded:
+                qt += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 d.putCallItem("toString", value, "toString", qt + "TextDate")
@@ -297,15 +301,17 @@ def qdump__QDateTime(d, value):
     except:
         d.putPlainChildren(value)
         return
-    mds = p["time"]["mds"]
-    if int(mds) >= 0:
-        d.putValue("%s/%s" % (p["date"]["jd"], mds),
+    mds = int(p["time"]["mds"])
+    if mds >= 0:
+        d.putValue("%s/%s" % (int(p["date"]["jd"]), mds),
             JulianDateAndMillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 qt = d.ns + "Qt::"
+                if lldbLoaded:
+                    qt += "DateFormat::" # FIXME: Bug?...
                 d.putCallItem("toTime_t", value, "toTime_t")
                 d.putCallItem("toString", value, "toString", qt + "TextDate")
                 d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
@@ -1829,15 +1835,19 @@ def qdump__QVariant(d, value):
         return innert
 
     # User types.
-    type = str(call(value, "typeToName",
-        "('%sQVariant::Type')%d" % (d.ns, d_ptr["type"])))
+    if gdbLoaded:
+        type = str(call(value, "typeToName",
+            "('%sQVariant::Type')%d" % (d.ns, d_ptr["type"])))
+    if lldbLoaded:
+        type = str(call(value, "typeToName",
+            "(%sQVariant::Type)%d" % (d.ns, d_ptr["type"])))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
     type = type.replace("COMMA", ",") # HACK!
-    warn("TYPE: %s" % type)
+    #warn("TYPE: %s" % type)
     data = call(value, "constData")
-    warn("DATA: %s" % data)
+    #warn("DATA: %s" % data)
     d.putEmptyValue(-99)
     d.putType("%sQVariant (%s)" % (d.ns, type))
     d.putNumChild(1)
