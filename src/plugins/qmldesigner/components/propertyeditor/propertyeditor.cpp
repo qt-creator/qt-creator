@@ -1087,6 +1087,22 @@ QString PropertyEditor::locateQmlFile(const NodeMetaInfo &info, const QString &r
     static QDir resourcesDir(resourcePropertyEditorPath);
     QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
 
+    const QString versionString = QLatin1String("_") + QString::number(info.majorVersion())
+            + QLatin1String("_")
+            + QString::number(info.minorVersion());
+
+    QString relativePathWithoutEnding = relativePath;
+    relativePathWithoutEnding.chop(4);
+    const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QLatin1String(".qml");
+
+    //Check for qml files with versions first
+    if (importDir.exists(relativePathWithVersion))
+        return importDir.absoluteFilePath(relativePathWithVersion);
+    if (fileSystemDir.exists(relativePathWithVersion))
+        return fileSystemDir.absoluteFilePath(relativePathWithVersion);
+    if (resourcesDir.exists(relativePathWithVersion))
+        return resourcesDir.absoluteFilePath(relativePathWithVersion);
+
     if (importDir.exists(relativePath))
         return importDir.absoluteFilePath(relativePath);
     if (fileSystemDir.exists(relativePath))
