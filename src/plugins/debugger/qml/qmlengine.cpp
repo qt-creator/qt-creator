@@ -632,7 +632,7 @@ void QmlEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel,
     if (ok)
         startParameters().qmlServerPort = qmlPort;
     else
-        qWarning() << tr("QML debugging port not set! Unable to convert %1 to unsigned int.").arg(QString::fromLatin1(serverChannel));
+        qWarning() << tr("QML debugging port not set: Unable to convert %1 to unsigned int.").arg(QString::fromLatin1(serverChannel));
 
     DebuggerEngine::notifyEngineRemoteServerRunning(serverChannel, pid);
     notifyEngineSetupOk();

@@ -183,7 +183,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "<html><head/><body><p>GDB commands entered here will be executed after "
         "GDB has been started, but before the debugged program is started or "
         "attached, and before the debugging helpers are initialized.</p>%1"
-        "<body></html>").arg(howToUsePython));
+        "</body></html>").arg(howToUsePython));
 
     textEditStartupCommands = new QTextEdit(groupBoxStartupCommands);
     textEditStartupCommands->setAcceptRichText(false);
