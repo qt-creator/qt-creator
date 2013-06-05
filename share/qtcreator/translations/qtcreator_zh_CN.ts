@@ -14434,7 +14434,7 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>%1 Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation">%1 Debug</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
