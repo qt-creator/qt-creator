@@ -52,6 +52,7 @@ public:
     };
 
     explicit LocalQmlProfilerRunner(const Configuration &configuration, QObject *parent = 0);
+    ~LocalQmlProfilerRunner();
 
     // AbstractQmlProfilerRunner
     virtual void start();
