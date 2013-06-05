@@ -35,7 +35,8 @@
 /*!
     \class Utils::ElidingLabel
 
-    \brief A label suitable for displaying elided text.
+    \brief The ElidingLabel class is a label suitable for displaying elided
+    text.
 */
 
 namespace Utils {

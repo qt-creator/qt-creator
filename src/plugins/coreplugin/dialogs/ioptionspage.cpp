@@ -32,7 +32,8 @@
 /*!
   \class Core::IOptionsPage
   \mainclass
-  \brief The IOptionsPage is an interface for providing options pages.
+  \brief The IOptionsPage class is an interface for providing pages for the
+  \gui Options dialog (called \gui Preferences on Mac OS).
 
   You need to subclass this interface and put an instance of your subclass
   into the plugin manager object pool (e.g. ExtensionSystem::PluginManager::addObject).

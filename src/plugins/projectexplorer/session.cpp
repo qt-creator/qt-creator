@@ -67,7 +67,7 @@ using namespace ProjectExplorer::Internal;
 /*!
      \class ProjectExplorer::SessionManager
 
-     \brief Session management.
+     \brief The SessionManager class manages sessions.
 
      TODO the interface of this class is not really great.
      The implementation suffers that all the functions from the

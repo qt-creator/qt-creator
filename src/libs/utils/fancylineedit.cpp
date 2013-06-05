@@ -72,7 +72,8 @@ static void execMenuAtWidget(QMenu *menu, QWidget *widget)
 /*!
     \class Utils::FancyLineEdit
 
-    \brief A line edit with an embedded pixmap on one side that is connected to
+    \brief The FancyLineEdit class is a line edit with an embedded pixmap on
+    one side that is connected to
     a menu.
 
     Additionally, it can display a grayed hintText (like "Type Here to")

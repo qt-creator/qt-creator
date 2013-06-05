@@ -32,7 +32,8 @@
 /*!
 \class QmlDesigner::InvalidMetaInfoException
 \ingroup CoreExceptions
-\brief Exception for a invalid meta info
+\brief The InvalidMetaInfoException class provides an exception for invalid meta
+info.
 
 \see NodeMetaInfo PropertyMetaInfo MetaInfo
 */

@@ -34,7 +34,8 @@
 /*!
   \class Utils::IpAddressLineEdit
 
-  \brief A QLineEdit widget that validates the IP address inserted.
+  \brief The IpAddressLineEdit class is a QLineEdit widget that validates the
+  IP address inserted.
 
   The valid address example is 192.168.1.12 or 192.168.1.12:8080.
 */

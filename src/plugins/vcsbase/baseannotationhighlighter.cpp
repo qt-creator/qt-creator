@@ -39,7 +39,8 @@ typedef QMap<QString, QTextCharFormat> ChangeNumberFormatMap;
 /*!
     \class VcsBase::BaseAnnotationHighlighter
 
-    \brief Base for a highlighter for annotation lines of the form 'changenumber:XXXX'.
+    \brief The BaseAnnotationHighlighter class is the base class for a
+    highlighter for annotation lines of the form 'changenumber:XXXX'.
 
     The change numbers are assigned a color gradient. Example:
     \code

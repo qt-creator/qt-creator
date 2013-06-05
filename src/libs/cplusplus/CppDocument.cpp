@@ -381,13 +381,15 @@ void Document::addUndefinedMacroUse(const QByteArray &name, unsigned offset)
 
 /*!
     \class Document::MacroUse
-    \brief Represents the usage of a macro in a \l {Document}.
+    \brief The MacroUse class represents the usage of a macro in a
+    \l {Document}.
     \sa Document::UndefinedMacroUse
 */
 
 /*!
     \class Document::UndefinedMacroUse
-    \brief Represents a macro that was looked up, but not found.
+    \brief The UndefinedMacroUse class represents a macro that was looked for,
+    but not found.
 
     Holds data about the reference to a macro in an \tt{#ifdef} or \tt{#ifndef}
     or argument to the \tt{defined} operator inside an \tt{#if} or \tt{#elif} that does

@@ -33,7 +33,8 @@
 /*!
     \class ProjectExplorer::IOutputParser
 
-    \brief Interface for an output parser that emit issues (tasks).
+    \brief The IOutputParser class provides an interface for an output parser
+    that emits issues (tasks).
 
     \sa ProjectExplorer::Task
 */

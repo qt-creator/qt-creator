@@ -45,7 +45,8 @@ using namespace Utils;
 /*!
     \class Utils::QtcProcess
 
-    \brief This class provides functionality for dealing with shell-quoted process arguments.
+    \brief The QtcProcess class provides functionality for dealing with
+    shell-quoted process arguments.
 */
 
 #ifdef Q_OS_WIN

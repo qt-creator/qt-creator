@@ -63,12 +63,13 @@ enum { debug = 0, debugRepositorySearch = 0, debugExecution = 0 };
 
 /*!
     \namespace VcsBase
-    \brief VcsBase plugin namespace
+    \brief The VcsBase namespace contains classes for the VcsBase plugin.
 */
 
 /*!
     \namespace VcsBase::Internal
-    \brief Internal namespace of the VcsBase plugin
+    \brief The Internal namespace contains internal classes for the VcsBase
+    plugin.
     \internal
 */
 
@@ -76,9 +77,10 @@ namespace VcsBase {
 namespace Internal {
 
 /*!
-    \struct VcsBase::Internal::State
+    \class VcsBase::Internal::State
 
-    \brief Internal state created by the state listener and VcsBasePluginState.
+    \brief The State class provides the internal state created by the state
+    listener and VcsBasePluginState.
 
     Aggregated in the QSharedData of VcsBase::VcsBasePluginState.
 */
@@ -179,7 +181,8 @@ QDebug operator<<(QDebug in, const State &state)
 /*!
     \class VcsBase::Internal::StateListener
 
-    \brief Connects to the relevant signals of Qt Creator, tries to find version
+    \brief The StateListener class connects to the relevant signals of \QC,
+    tries to find version
     controls and emits signals to the plugin instances.
 
     Singleton (as not to do checks multiple times).
@@ -305,7 +308,8 @@ public:
 /*!
     \class  VcsBase::VcsBasePluginState
 
-    \brief Relevant state information of the VCS plugins
+    \brief The VcsBasePluginState class provides relevant state information
+    about the VCS plugins.
 
     Qt Creator's state relevant to VCS plugins is a tuple of
 
@@ -455,7 +459,8 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 /*!
     \class VcsBase::VcsBasePlugin
 
-    \brief Base class for all version control plugins.
+    \brief The VcsBasePlugin class is the base class for all version control
+    plugins.
 
     The plugin connects to the
     relevant change signals in Qt Creator and calls the virtual

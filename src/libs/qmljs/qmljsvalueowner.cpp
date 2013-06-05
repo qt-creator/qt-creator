@@ -35,7 +35,7 @@ using namespace QmlJS;
 
 /*!
     \class QmlJS::ValueOwner
-    \brief Manages the lifetime of \l{QmlJS::Value}s.
+    \brief The ValueOwner class manages the lifetime of \l{QmlJS::Value}s.
     \sa QmlJS::Value
 
     Values are usually created on a ValueOwner. When the ValueOwner is destroyed

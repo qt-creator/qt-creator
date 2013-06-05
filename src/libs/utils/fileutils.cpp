@@ -42,9 +42,9 @@ namespace Utils {
 
 /*! \class Utils::FileUtils
 
-  \brief File- and directory-related convenience functions.
+  \brief The FileUtils class contains file and directory related convenience
+  functions.
 
-  File- and directory-related convenience functions.
 */
 
 /*!
@@ -411,7 +411,7 @@ TempFileSaver::~TempFileSaver()
 
 /*! \class Utils::FileName
 
-    \brief A light-weight convenience class for filenames
+    \brief The FileName class is a light-weight convenience class for filenames.
 
     On windows filenames are compared case insensitively.
 */

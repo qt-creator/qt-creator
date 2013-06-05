@@ -44,7 +44,9 @@ enum { debug = 0 };
 /*!
     \class  VcsBase::AbstractCheckoutJob
 
-    \brief Abstract base class for a job creating an initial project checkout.
+    \brief The AbstractCheckoutJob class is an abstract base class for a job
+    creating an initial project checkout.
+
            It should be something that runs in the background producing log messages.
 
     \sa VcsBase::BaseCheckoutWizard
@@ -104,7 +106,8 @@ AbstractCheckoutJob::AbstractCheckoutJob(QObject *parent) :
 /*!
     \class VcsBase::ProcessCheckoutJob
 
-    \brief Convenience implementation of a VcsBase::AbstractCheckoutJob using a QProcess.
+    \brief The ProcessCheckoutJob class is a convenience implementation of a
+    VcsBase::AbstractCheckoutJob using a QProcess.
 */
 
 ProcessCheckoutJob::ProcessCheckoutJob(QObject *parent) :

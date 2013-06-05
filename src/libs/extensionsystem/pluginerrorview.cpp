@@ -35,7 +35,8 @@
 
 /*!
     \class ExtensionSystem::PluginErrorView
-    \brief Widget that displays the state and error message of a PluginSpec.
+    \brief The PluginErrorView class implements a widget that displays the
+    state and error message of a PluginSpec.
 
     Can be used for integration in the application that
     uses the plugin manager.

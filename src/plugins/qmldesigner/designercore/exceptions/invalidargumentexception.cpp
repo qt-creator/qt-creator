@@ -33,7 +33,8 @@
 /*!
 \class QmlDesigner::InvalidArgumentException
 \ingroup CoreExceptions
-\brief Exception for a invalid argument
+\brief The InvalidArgumentException class provides an exception for an invalid
+argument.
 
 */
 namespace QmlDesigner {

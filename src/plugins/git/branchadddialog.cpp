@@ -37,7 +37,8 @@ namespace Git {
 namespace Internal {
 
 /*!
- * \brief Validates the corresponding string as a valid git branch name
+ * \brief The BranchNameValidator class validates the corresponding string as
+ * a valid Git branch name.
  *
  * The class does this by a couple of rules that are applied on the string.
  *

@@ -184,7 +184,8 @@ public:
 /*!
     \class VcsBase::VcsBaseClientSettings
 
-    \brief Settings used in VcsBaseClient.
+    \brief The VcsBaseClientSettings class contains settings used in
+    VcsBaseClient.
 
     \sa VcsBase::VcsBaseClient
 */

@@ -76,7 +76,8 @@ enum { debugLeaks = 0 };
     \class ExtensionSystem::PluginManager
     \mainclass
 
-    \brief Core plugin system that manages the plugins, their life cycle and their registered objects.
+    \brief The PluginManager class implements the core plugin system that
+    manages the plugins, their life cycle, and their registered objects.
 
     The plugin manager is used for the following tasks:
     \list

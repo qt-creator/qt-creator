@@ -36,7 +36,8 @@
 
 /*!
     \class ProjectExplorer::Internal::WinDebugInterface
-    \brief Windows: Captures output of the Windows API OutputDebugString() function.
+    \brief The WinDebugInterface class is used on Windows to capture output of
+    the Windows API \c OutputDebugString() function.
 
     Emits output by process id.
 

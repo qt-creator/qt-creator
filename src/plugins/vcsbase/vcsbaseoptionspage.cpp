@@ -36,7 +36,8 @@
 /*!
     \class VcsBase::VcsBaseOptionsPage
 
-    \brief Base class for VCS options pages providing common category/icon.
+    \brief The VcsBaseOptionsPage class is the base class for VCS options pages
+    providing a common category and icon.
  */
 
 namespace VcsBase {

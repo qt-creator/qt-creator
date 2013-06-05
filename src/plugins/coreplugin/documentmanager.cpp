@@ -64,7 +64,7 @@
   \class Core::DocumentManager
   \mainclass
   \inheaderfile documentmanager.h
-  \brief Manages a set of IDocument objects.
+  \brief The DocumentManager class manages a set of IDocument objects.
 
   The DocumentManager service monitors a set of IDocument's. Plugins should register
   files they work with at the service. The files the IDocument's point to will be

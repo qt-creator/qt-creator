@@ -90,7 +90,8 @@ inline std::ostream &operator<<(std::ostream &str, const DebugNodeFlags &f)
 /*!
   \class AbstractSymbolGroupNode
 
-    Abstract base class for a node of SymbolGroup providing the child list interface.
+    \brief The AbstractSymbolGroupNode class is an abstract base class for a
+    node of SymbolGroup providing the child list interface.
     \ingroup qtcreatorcdbext
 */
 AbstractSymbolGroupNode::AbstractSymbolGroupNode(const std::string &name,
@@ -207,7 +208,8 @@ void AbstractSymbolGroupNode::setParent(AbstractSymbolGroupNode *n)
 
 /*! \class BaseSymbolGroupNode
 
-    Base class for a node of SymbolGroup with a flat list of children.
+    \brief The BaseSymbolGroupNode class is the base class for a node of
+    SymbolGroup with a flat list of children.
     \ingroup qtcreatorcdbext
 */
 
@@ -276,9 +278,11 @@ std::ostream &operator<<(std::ostream &str, const DEBUG_SYMBOL_PARAMETERS &param
     return str;
 }
 
-/*! \struct DumpParameters
+/*!
+    \class DumpParameters
 
-    All parameters for GDBMI dumping of a symbol group in one struct.
+    \brief The DumpParameters class contains all parameters for GDBMI dumping
+    of a symbol group in one class.
     The debugging engine passes maps of type names/inames to special
     integer values indicating hex/dec, etc.
     \ingroup qtcreatorcdbext
@@ -580,7 +584,8 @@ void ErrorSymbolGroupNode::debug(std::ostream &os, const std::string &visitingFu
 
 /*! \class SymbolGroupNode
 
- \brief 'Real' node within a symbol group, identified by its index in IDebugSymbolGroup.
+ \brief The SymbolGroupNode class represents a \e real node within a symbol
+ group, identified by its index in IDebugSymbolGroup.
 
  Provides accessors for fixed-up symbol group value and a dumping facility
  consisting of:
@@ -1472,8 +1477,11 @@ static inline StringStringPair arrayIndexNameIname(int index)
 
 /*! \class ReferenceSymbolGroupNode
 
-    Artificial node referencing another (real) SymbolGroupNode (added symbol or
-    symbol from within an expanded linked list structure). Forwards the
+    \brief The ReferenceSymbolGroupNode class is an artificial node referencing
+    another (real) SymbolGroupNode (added symbol or symbol from within an
+    expanded linked list structure).
+
+    Forwards the
     dumping to the referenced node using its own name.
     \ingroup qtcreatorcdbext */
 
@@ -1509,7 +1517,8 @@ void ReferenceSymbolGroupNode::debug(std::ostream &str, const std::string &visit
 
 /*! \class MapNodeSymbolGroupNode
 
-  \brief A [fake] map node with a fake array index and key/value entries consisting
+  \brief The MapNodeSymbolGroupNode class is a [fake] map node with a fake
+         array index and key/value entries consisting
          of ReferenceSymbolGroupNode.
   \ingroup qtcreatorcdbext
 */
@@ -1559,9 +1568,11 @@ void MapNodeSymbolGroupNode::debug(std::ostream &os, const std::string &visiting
 
 /*! \class SymbolGroupNodeVisitor
 
-    Visitor that takes care of iterating over the nodes and
-    building the full iname path ('local.foo.bar') that is required for
-    GDBMI dumping. The full name depends on the path on which a node was reached
+    \brief The SymbolGroupNodeVisitor class is a visitor that iterates over the
+    nodes and builds the full iname path ('local.foo.bar') that is required for
+    GDBMI dumping.
+
+    The full name depends on the path on which a node was reached
     for referenced nodes (a linked list element can be reached via array index
     or by expanding the whole structure).
     visit() is not called for the (invisible) root node, but starting with the
@@ -1578,7 +1589,7 @@ std::string SymbolGroupNodeVisitor::parentIname(const std::string &iname)
 }
 
 /*! \class DebugSymbolGroupNodeVisitor
-    \brief Debug output visitor.
+    \brief The DebugSymbolGroupNodeVisitor class is a debug output visitor.
     \ingroup qtcreatorcdbext
 */
 
@@ -1597,7 +1608,8 @@ SymbolGroupNodeVisitor::VisitResult
 }
 
 /*! \class DebugFilterSymbolGroupNodeVisitor
-    \brief Debug filtering output visitor.
+    \brief The DebugFilterSymbolGroupNodeVisitor class is a debug filtering
+    output visitor.
     \ingroup qtcreatorcdbext
 */
 
@@ -1620,9 +1632,9 @@ SymbolGroupNodeVisitor::VisitResult
 }
 
 /*! \class DumpSymbolGroupNodeVisitor
-
-    GDBMI dump output visitor used to report locals values back to the
-    debugging engine.  \ingroup qtcreatorcdbext
+    \brief The DumpSymbolGroupNodeVisitor class is a GDBMI dump output visitor
+    used to report locals values back to the debugging engine.
+    \ingroup qtcreatorcdbext
 */
 
 DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,

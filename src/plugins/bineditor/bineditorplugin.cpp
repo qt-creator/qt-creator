@@ -428,7 +428,8 @@ QStringList BinEditorFactory::mimeTypes() const
 
 /*!
    \class BINEditor::BinEditorWidgetFactory
-   \brief Service registered with PluginManager to create bin editor widgets for plugins
+   \brief The BinEditorWidgetFactory class offers a service registered with
+   PluginManager to create bin editor widgets for plugins
    without direct linkage.
 
    \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke

@@ -36,7 +36,7 @@ unsigned int Task::s_nextId = 1;
 
 /*!
     \class  ProjectExplorer::Task
-    \brief Build issue (warning or error).
+    \brief The Task class represents a build issue (warning or error).
     \sa ProjectExplorer::TaskHub
 */
 

@@ -32,7 +32,8 @@
 /*!
 \class QmlDesigner::InvalidSlideIndexException
 \ingroup CoreExceptions
-\brief Exception for a invalid index for s slide
+\brief The InvalidSlideIndexException class provides an exception for an invalid
+index for a slide.
 
 \see ModelNode
 */

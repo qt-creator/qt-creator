@@ -46,7 +46,8 @@ typedef Utils::ChangeSet::Range Range;
 /*!
     \class CppTools::PointerDeclarationFormatter
 
-    \brief Rewrite pointer or reference declarations accordingly to an Overview.
+    \brief The PointerDeclarationFormatter class rewrites pointer or reference
+    declarations to an Overview.
 
     The following constructs are supported:
     \list

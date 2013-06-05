@@ -33,8 +33,8 @@ using namespace TextEditor;
 
 /*!
     \class TextEditor::IAssistInterface
-    \brief The IAssistInterface class acts as an interface for providing access to the document
-    from which a proposal is computed.
+    \brief The IAssistInterface class acts as an interface for providing access
+    to the document from which a proposal is computed.
     \ingroup CodeAssist
 
     This interface existis in order to avoid a direct dependency on the text editor. This is

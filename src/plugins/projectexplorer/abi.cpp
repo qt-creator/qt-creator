@@ -41,7 +41,8 @@
 /*!
     \class ProjectExplorer::Abi
 
-    \brief Represents the Application Binary Interface (ABI) of a target platform.
+    \brief The Abi class represents the Application Binary Interface (ABI) of
+    a target platform.
 
     \sa ProjectExplorer::ToolChain
 */

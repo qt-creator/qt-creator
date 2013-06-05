@@ -35,7 +35,8 @@
 
 /*!
     \class ExtensionSystem::PluginDetailsView
-    \brief Widget that displays the contents of a PluginSpec.
+    \brief The PluginDetailsView class implements a widget that displays the
+    contents of a PluginSpec.
 
     Can be used for integration in the application that
     uses the plugin manager.

@@ -39,7 +39,8 @@
 /*!
     \class VcsBase::BaseVCSEditorFactory
 
-    \brief Base class for editor factories creating instances of VcsBaseEditor subclasses.
+    \brief The BaseVCSEditorFactory class is the base class for editor
+    factories creating instances of VcsBaseEditor subclasses.
 
     \sa VcsBase::VcsBaseEditorWidget
 */

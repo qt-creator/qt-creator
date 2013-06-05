@@ -156,7 +156,8 @@ CustomWizardFile::CustomWizardFile() :
 
 /*!
     \class ProjectExplorer::CustomWizardValidationRule
-    \brief A custom wizard validation rule based on JavaScript-expressions over
+    \brief The CustomWizardValidationRule class provides a custom wizard
+    validation rule based on JavaScript-expressions over
     the field placeholders.
 
     Placeholder replacement is performed on the condition and it is evaluated
@@ -561,7 +562,8 @@ static inline QString languageSetting()
 
 /*!
     \class ProjectExplorer::Internal::GeneratorScriptArgument
-    \brief Argument to a custom wizard generator script.
+    \brief The GeneratorScriptArgument class provides an argument to a custom
+    wizard generator script.
 
     Contains placeholders to be replaced by field values or file names
     as in \c '--class-name=%ClassName%' or \c '--description=%Description%'.

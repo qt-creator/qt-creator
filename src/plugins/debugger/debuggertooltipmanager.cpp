@@ -518,8 +518,11 @@ void DebuggerToolTipWidget::toolButtonClicked()
 /*!
     \class Debugger::Internal::DebuggerToolTipContext
 
-    File name and position where the tooltip is anchored. Redundant position/line column
-    information is used to detect if the underlying file has been changed
+    \brief The DebuggerToolTipContext class specifies the file name and
+    position where the tooltip is anchored.
+
+    Uses redundant position or line column information to detect whether
+    the underlying file has been changed
     on restoring.
 */
 
@@ -552,7 +555,10 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 /*!
     \class Debugger::Internal::DebuggerToolTipWidget
 
-    A debugger tooltip is pinnable. It goes from the unpinned state (button
+    \brief The DebuggerToolTipWidget class is a pinnable debugger tool tip
+    widget.
+
+    The debugger tooltip goes from the unpinned state (button
     showing 'Pin') to the pinned state (button showing 'Close').
     It consists of a title toolbar and a vertical main layout.
     The widget has the ability to save/restore tree model contents to XML.
@@ -814,7 +820,8 @@ void DebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
 /*!
     \class Debugger::Internal::TooltipFilterModel
 
-    \brief Model for tooltips filtering an item on the watchhandler matching its tree on the iname.
+    \brief The TooltipFilterModel class is a model for tooltips filtering an
+    item on the watchhandler matching its tree on the iname.
 
     In addition, suppress the model's tooltip data to avoid a tooltip on a tooltip.
 */
@@ -857,7 +864,8 @@ bool TooltipFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
 /*!
     \class Debugger::Internal::DebuggerToolTipTreeView
 
-    A treeview that adapts its size to the model contents (also while expanding)
+    \brief The DebuggerToolTipTreeView class is a treeview that adapts its size
+    to the model contents (also while expanding)
     to be used within DebuggerTreeViewToolTipWidget.
 
 */
@@ -1074,7 +1082,8 @@ QString DebuggerToolTipWidget::clipboardContents() const
 /*!
     \class Debugger::Internal::DebuggerToolTipManager
 
-    Manages the pinned tooltip widgets, listens on editor scroll and main window move
+    \brief The DebuggerToolTipManager class manages the pinned tooltip widgets,
+    listens on editor scroll and main window move
     events and takes care of repositioning the tooltips.
 
     Listens to editor change and mode change. In debug mode, if there tooltips

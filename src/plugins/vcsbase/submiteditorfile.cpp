@@ -35,7 +35,8 @@ using namespace VcsBase::Internal;
 /*!
     \class VcsBase::Internal::SubmitEditorFile
 
-    \brief A non-saveable IDocument for submit editor files.
+    \brief The SubmitEditorFile class provides a non-saveable IDocument for
+    submit editor files.
 */
 
 SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :

@@ -29,8 +29,8 @@
 
 /*!
     \class QRangeModel
-    \brief The QRangeModel class, helps users to build components that depend
-           on some value and/or position to be in a certain range previously defined
+    \brief The QRangeModel class helps users to build components that depend
+           on some value and/or position to be in a certain range previously defined.
 
     With this class, the user sets a value range and a position range, which
     represent the valid values/positions the model can assume. It is worth telling

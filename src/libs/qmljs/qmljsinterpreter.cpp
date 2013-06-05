@@ -53,7 +53,8 @@ using namespace QmlJS::AST;
 
 /*!
     \class QmlJS::Value
-    \brief Abstract base class for the result of a JS expression.
+    \brief The Value class is an abstract base class for the result of a
+    JS expression.
     \sa Evaluate ValueOwner ValueVisitor
 
     A Value represents a category of JavaScript values, such as number

@@ -38,7 +38,8 @@
 /*!
     \class Utils::CheckableMessageBox
 
-     \brief A messagebox suitable for questions with a
+    \brief The CheckableMessageBox class implements a message box suitable for
+    questions with a
      "Do not ask me again" checkbox.
 
     Emulates the QMessageBox API with

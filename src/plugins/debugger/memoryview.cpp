@@ -41,7 +41,7 @@ namespace Internal {
 
 /*!
     \class Debugger::Internal::MemoryView
-    \brief Base class for memory view tool windows
+    \brief The MemoryView class is a base class for memory view tool windows.
 
     Small tool-window that stays on top and displays a chunk of memory
     based on the widget provided by the Bin editor plugin.
@@ -121,7 +121,8 @@ void MemoryView::setMarkup(const QList<MemoryMarkup> &m)
 
 /*!
     \class Debugger::Internal::RegisterMemoryView
-    \brief Memory view that shows the memory around the contents of a register
+    \brief The RegisterMemoryView class provides a memory view that shows the
+           memory around the contents of a register
            (such as stack pointer, program counter),
            tracking changes of the register value.
 

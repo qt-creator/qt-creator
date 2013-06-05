@@ -35,7 +35,7 @@
 /*!
     \class Utils::FakeToolTip
 
-    \brief A widget that pretends to be a tooltip.
+    \brief The FakeToolTip class is a widget that pretends to be a tooltip.
 
     By default it has Qt::WA_DeleteOnClose set.
 */

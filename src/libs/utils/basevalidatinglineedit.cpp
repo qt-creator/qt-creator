@@ -40,7 +40,8 @@ enum { debug = 0 };
 
 /*! \class Utils::BaseValidatingLineEdit
 
-    \brief Base class for line edits that perform validation.
+    \brief The BaseValidatingLineEdit class is the base class for line edits
+    that perform validation.
 
     Performs validation in a virtual  validate() function to be implemented in
     derived classes.

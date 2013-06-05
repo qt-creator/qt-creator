@@ -49,7 +49,8 @@ namespace Internal {
 
 /*!
     \class Debugger::Internal::StackHandler
-    \brief A model to represent the stack in a QTreeView.
+    \brief The StackHandler class provides a model to represent the stack in a
+    QTreeView.
  */
 
 StackHandler::StackHandler()

@@ -136,7 +136,8 @@ QStringList MetaInfo::s_pluginDirs;
 /*!
 \class QmlDesigner::MetaInfo
 \ingroup CoreModel
-\brief The MetaInfo class provides meta information about qml types and properties.
+\brief The MetaInfo class provides meta information about QML types and
+properties.
 */
 
 /*!

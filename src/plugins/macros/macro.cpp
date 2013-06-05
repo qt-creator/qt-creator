@@ -41,7 +41,8 @@ using namespace Macros;
 /*!
     \class Macros::Macro
 
-    \brief Represents a macro, which is more or less a list of Macros::MacroEvent
+    \brief The Macro class represents a macro, which is more or less a list of
+    Macros::MacroEvent.
 
     A macro is a list of events that can be replayed in Qt Creator. A macro has
     an header consisting of the Qt Creator version where the macro was created

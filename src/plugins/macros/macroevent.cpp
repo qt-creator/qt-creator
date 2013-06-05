@@ -37,14 +37,13 @@ using namespace Macros;
 
 /*!
     \class Macros::MacroEvent
-    \brief Represents an event in a macro
+    \brief The MacroEvent class represents an event in a macro.
 
     An event stores information so it can be replayed. An event can be:
     \list
     \li menu action
     \li key event on an editor
     \li find/replace usage
-    \li ...
     \endlist
 
     The information are stored in a map of QVariants (using quint8 for keys).

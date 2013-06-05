@@ -36,7 +36,8 @@
 /*!
     \class QSsh::SshRemoteProcessRunner
 
-    \brief Convenience class for running a remote process over an SSH connection.
+    \brief The SshRemoteProcessRunner class is a convenience class for
+    running a remote process over an SSH connection.
 */
 
 namespace QSsh {

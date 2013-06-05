@@ -31,7 +31,8 @@
 
 /*!
   \class Core::IEditor
-  \brief The IEditor is an interface for providing different editors for different file types.
+  \brief The IEditor class is an interface for providing different editors for
+  different file types.
 
   Classes that implement this interface are for example the editors for
   C++ files, ui-files and resource files.

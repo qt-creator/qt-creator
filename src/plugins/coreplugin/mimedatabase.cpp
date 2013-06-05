@@ -93,7 +93,8 @@ enum {
 /*!
     \class Core::IMagicMatcher
 
-    \brief Interface for a Mime type magic matcher (examinig file contents).
+    \brief The IMagicMatcher class is an interface for a MIME type magic
+    matcher that examines file contents to determine the MIME type of a file.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
@@ -109,7 +110,8 @@ namespace Internal {
 /*!
     \class Core::Internal::FileMatchContext
 
-    \brief Context passed on to the mime types when looking for a file match.
+    \brief The FileMatchContext class is the context passed on to the MIME
+    types when looking for a file match.
 
     It exists to enable reading the file contents "on demand"
     (as opposed to each mime type trying to open and read while checking).
@@ -173,7 +175,8 @@ QByteArray FileMatchContext::data()
 
 /*!
     \class Core::Internal::BinaryMatcher
-    \brief The binary fallback matcher for mime type "application/octet-stream".
+    \brief The BinaryMatcher class is the binary fallback matcher for the MIME
+    type \c{application/octet-stream}.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::FileMatchContext, Core::Internal::HeuristicTextMagicMatcher
@@ -190,7 +193,8 @@ public:
 
 /*!
     \class Core::Internal::HeuristicTextMagicMatcher
-    \brief Heuristic text file matcher for mime types.
+    \brief The HeuristicTextMagicMatcher class implements a heuristic text file
+    matcher for MIME types.
 
     If the data do not contain any character below tab (9), detect as text.
     Additionally, check on UTF16 byte order markers.
@@ -235,7 +239,8 @@ bool HeuristicTextMagicMatcher::matches(const QByteArray &data) const
 
 /*!
     \class Core::MagicRule
-    \brief Base class for standard Magic match rules based on contents
+    \brief The MagicRule class is a base class for standard Magic matching rules
+    based on contents
     and offset specification.
 
     Stores the offset and provides conversion helpers.
@@ -281,7 +286,7 @@ QPair<int, int> MagicRule::fromOffset(const QString &offset)
 
 /*!
     \class Core::MagicStringRule
-    \brief Match on a string.
+    \brief The MagicStringRule class provides rules for matching strings.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
@@ -327,7 +332,8 @@ bool MagicStringRule::matches(const QByteArray &data) const
 
 /*!
     \class Core::MagicByteRule
-    \brief Match on a sequence of binary data.
+    \brief The MagicByteRule class provides rules for matching a sequence of
+    binary data.
 
     Format:
     \code
@@ -410,7 +416,8 @@ bool MagicByteRule::matches(const QByteArray &data) const
 /*!
     \class Core::MagicRuleMatcher
 
-    \brief A Magic matcher that checks a number of rules based on operator "or".
+    \brief The MagicRuleMatcher class implements a Magic matcher that checks the
+    number of rules based on the boolean operator OR.
 
     It is used for rules parsed from XML files.
 
@@ -474,7 +481,8 @@ IMagicMatcher::IMagicMatcherList MagicRuleMatcher::createMatchers(
 
 /*!
     \class Core::GlobPattern
-    \brief Glob pattern for file names for mime type matching.
+    \brief The GlobPattern class provides a glob pattern for file names for
+    MIME type matching.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule
     \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
@@ -518,7 +526,7 @@ bool MimeGlobPattern::matches(const QString &fileName) const
 /*!
     \class Core::MimeType
 
-    \brief Mime type data used in Qt Creator.
+    \brief The MimeType class contains MIME type data used in \QC.
 
     Contains most information from standard mime type XML database files.
 
@@ -918,7 +926,8 @@ namespace Internal {
 
 /*!
     \class Core::Internal::BaseMimeTypeParser
-    \brief Generic parser for a sequence of <mime-type>.
+    \brief The BaseMimeTypeParser class provides a generic parser for a
+    sequence of <mime-type>.
 
     Calls abstract handler function process for MimeType it finds.
 
@@ -1183,7 +1192,8 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
 
 /*!
     \class Core::MimeDatabase
-    \brief Mime data base to which the plugins can add the mime types they handle.
+    \brief The MimeDatabase class is a MIME type database to which the plugins
+    can add the MIME types they handle.
 
     The class is protected by a QMutex and can therefore be accessed by threads.
 
@@ -1302,7 +1312,7 @@ MimeDatabasePrivate::MimeDatabasePrivate() :
 
 /*!
     \class Core::Internal::MimeTypeParser
-    \brief Mime type parser
+    \brief The MimeTypeParser class provides a MIME type parser.
 
     Populates Core::MimeDataBase
 

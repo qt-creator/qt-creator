@@ -37,7 +37,8 @@ using namespace Utils;
 /*!
     \class Utils::HeaderViewStretcher
 
-    \brief The class fixes QHeaderView to resize all columns to contents, except one
+    \brief The HeaderViewStretcher class fixes QHeaderView to resize all
+    columns to contents, except one
     stretching column.
 
     As opposed to standard QTreeWidget, all columns are

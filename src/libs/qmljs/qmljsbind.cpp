@@ -41,7 +41,7 @@ using namespace QmlJS::AST;
 
 /*!
     \class QmlJS::Bind
-    \brief Collected information about a single Document.
+    \brief The Bind class collects information about a single Document.
     \sa Document Context
 
     Each Document owns an instance of Bind. It provides access to data

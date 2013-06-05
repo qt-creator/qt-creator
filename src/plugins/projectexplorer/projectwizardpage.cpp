@@ -40,7 +40,8 @@
 /*!
     \class ProjectExplorer::Internal::ProjectWizardPage
 
-    \brief Wizard page showing projects and version control to add new files to.
+    \brief The ProjectWizardPage class provides a wizard page showing projects
+    and version control to add new files to.
 
     \sa ProjectExplorer::Internal::ProjectFileWizardExtension
 */

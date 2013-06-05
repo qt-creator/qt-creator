@@ -45,7 +45,8 @@ using namespace ProjectExplorer;
 /*!
     \class ProjectExplorer::AbstractProcessStep
 
-    \brief A convenience class, which can be used as a base class instead of BuildStep.
+    \brief The AbstractProcessStep class is a convenience class that can be
+    used as a base class instead of BuildStep.
 
     It should be used as a base class if your buildstep just needs to run a process.
 

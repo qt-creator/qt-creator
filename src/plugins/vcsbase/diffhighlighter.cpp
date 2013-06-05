@@ -40,7 +40,7 @@
 /*!
     \class VcsBase::DiffHighlighter
 
-    \brief A highlighter for diffs.
+    \brief The DiffHighlighter class provides a highlighter for diffs.
 
     Parametrizable by the file indicator, which is for example '^====' in case of p4:
     \code

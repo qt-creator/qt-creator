@@ -30,7 +30,8 @@
 /*!
   \class QmlJS::PersistentTrie::Trie
 
-  \brief Implements a trie that is persistent (not on disk but in memory).
+  \brief The Trie class implements a trie that is
+  persistent (not on disk but in memory).
 
   This means that several versions can coexist, as adding an element
   is non destructive, and as much as possible is shared.

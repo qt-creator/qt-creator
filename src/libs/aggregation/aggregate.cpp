@@ -48,7 +48,8 @@
     \mainclass
     \threadsafe
 
-    \brief Defines a collection of related components that can be viewed as a unit.
+    \brief The Aggregate class defines a collection of related components that
+    can be viewed as a unit.
 
     An Aggregate is a collection of components that are handled as a unit,
     such that each component exposes the properties and behavior of the

@@ -43,7 +43,7 @@
 
 /*!
  * \class ProjectExplorer::IDevice
- * \brief This is the base class for all devices.
+ * \brief The IDevice class is the base class for all devices.
  *
  * The term "device" refers
  * here to some host to which e.g. files can be deployed or on which an application can run.

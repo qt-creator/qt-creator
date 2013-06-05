@@ -48,8 +48,8 @@
 /*!
     \class Utils::SynchronousProcess
 
-    \brief Runs a synchronous process in its own event loop
-    that blocks only user input events. Thus, it allows for the gui to
+    \brief The SynchronousProcess class runs a synchronous process in its own
+    event loop that blocks only user input events. Thus, it allows for the GUI to
     repaint and append output to log windows.
 
     The stdOut(), stdErr() signals are emitted unbuffered as the process

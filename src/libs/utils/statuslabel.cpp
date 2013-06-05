@@ -34,7 +34,7 @@
 /*!
     \class Utils::StatusLabel
 
-    \brief A status label that displays messages for a while with a timeout.
+    \brief The StatusLabel class displays messages for a while with a timeout.
 */
 
 namespace Utils {

@@ -32,7 +32,8 @@
 /*!
 \class QmlDesigner::ModificationGroupException
 \ingroup CoreExceptions
-\brief Exception for a modification group
+\brief The ModificationGroupException class provides an exception for a
+modification group.
 
 */
 namespace QmlDesigner {

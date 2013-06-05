@@ -55,7 +55,8 @@
 /*!
     \class VcsBase::VcsBaseClient
 
-    \brief Base class for Mercurial and Bazaar 'clients'.
+    \brief The VcsBaseClient class is the base class for Mercurial and Bazaar
+    'clients'.
 
     Provides base functionality for common commands (diff, log, etc).
 

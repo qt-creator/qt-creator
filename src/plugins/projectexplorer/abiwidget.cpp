@@ -37,7 +37,7 @@
 /*!
     \class ProjectExplorer::AbiWidget
 
-    \brief A widget to set an ABI.
+    \brief The AbiWidget class is a widget to set an ABI.
 
     \sa ProjectExplorer::Abi
 */

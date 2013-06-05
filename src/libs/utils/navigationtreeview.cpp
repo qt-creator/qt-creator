@@ -39,7 +39,8 @@
 /*!
    \class Utils::NavigationTreeView
 
-   \brief General TreeView for any Side Bar widget.
+    \brief The NavigationTreeView class implements a general TreeView for any
+    sidebar widget.
 
    Common initialization etc, e.g. Mac specific behaviour.
    \sa Core::NavigationView, Core::INavigationWidgetFactory

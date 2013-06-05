@@ -69,8 +69,8 @@ namespace CodePaster {
 
 /*!
    \class CodePaster::CodePasterService
-   \brief Service registered with PluginManager providing CodePaster
-          post() functionality.
+   \brief The CodePasterService class is a service registered with PluginManager
+   that provides CodePaster \c post() functionality.
 
    \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
    \sa VcsBase::VcsBaseEditorWidget

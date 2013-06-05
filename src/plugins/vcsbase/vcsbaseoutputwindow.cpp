@@ -50,7 +50,8 @@
 /*!
     \class VcsBase::VcsBaseOutputWindow
 
-    \brief Output window for Version Control System command and other output (Singleton).
+    \brief The VcsBaseOutputWindow class is an output window for Version Control
+    System commands and other output (Singleton).
 
     Installed by the base plugin and accessible for the other plugins
     via static instance()-accessor. Provides slots to append output with

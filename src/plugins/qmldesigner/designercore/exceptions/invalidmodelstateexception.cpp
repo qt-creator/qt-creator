@@ -32,7 +32,8 @@
 /*!
 \class QmlDesigner::InvalidModelStateException
 \ingroup CoreExceptions
-\brief Exception for a invalid model state
+\brief The InvalidModelStateException class provides an exception for an
+invalid model state.
 
 
 \see ModelState

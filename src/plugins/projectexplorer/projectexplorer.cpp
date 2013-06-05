@@ -139,8 +139,8 @@
 /*!
     \class ProjectExplorer::ProjectExplorerPlugin
 
-    \brief ProjectExplorerPlugin with static accessor and utility functions to obtain
-    current project, open projects, etc.
+    \brief The ProjectExplorerPlugin class contains static accessor and utility
+    functions to obtain the current project, open projects, and so on.
 */
 
 namespace {

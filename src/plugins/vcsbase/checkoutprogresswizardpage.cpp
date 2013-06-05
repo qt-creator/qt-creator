@@ -38,8 +38,10 @@
 /*!
     \class VcsBase::CheckoutProgressWizardPage
 
-    \brief Page showing the progress of an initial project checkout. Turns complete when the job
-           succeeds.
+    \brief The CheckoutProgressWizardPage implements a page showing the
+    progress of an initial project checkout.
+
+    Turns complete when the job succeeds.
 
     \sa VcsBase::BaseCheckoutWizard
 */

@@ -70,8 +70,10 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
 /*!
     \class VcsBase::SubmitFileModel
 
-    \brief A 2-column (checkable, state, file name) model to be used to list the files
-    in the submit editor. Provides header items and a convience to add files.
+    \brief The SubmitFileModel class is a 2-column (checkable, state, file name)
+    model to be used to list the files in the submit editor.
+
+    Provides header items and a convenience function to add files.
  */
 
 SubmitFileModel::SubmitFileModel(QObject *parent) :

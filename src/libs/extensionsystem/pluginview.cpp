@@ -42,7 +42,8 @@
 
 /*!
     \class ExtensionSystem::PluginView
-    \brief Widget that shows a list of all plugins and their state.
+    \brief The PluginView class implements a widget that shows a list of all
+    plugins and their state.
 
     This can be embedded e.g. in a dialog in the application that
     uses the plugin manager.

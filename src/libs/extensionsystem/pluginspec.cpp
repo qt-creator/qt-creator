@@ -63,7 +63,8 @@
 
 /*!
     \class ExtensionSystem::PluginDependency
-    \brief Struct that contains the name and required compatible version number of a plugin's dependency.
+    \brief The PluginDependency class contains the name and required compatible
+    version number of a plugin's dependency.
 
     This reflects the data of a dependency tag in the plugin's xml description file.
     The name and version are used to resolve the dependency, i.e. a plugin with the given name and
@@ -102,7 +103,8 @@
 
 /*!
     \class ExtensionSystem::PluginSpec
-    \brief Contains the information of the plugins xml description file and
+    \brief The PluginSpec class contains the information of the plugin's XML
+    description file and
     information about the plugin's current state.
 
     The plugin spec is also filled with more information as the plugin

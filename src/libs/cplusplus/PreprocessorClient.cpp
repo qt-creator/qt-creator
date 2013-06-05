@@ -33,7 +33,8 @@ using namespace CPlusPlus;
 
 /*!
     \class Client
-    \brief A notification interface for for C++ preprocessor.
+    \brief The Client class implements a notification interface for the
+    C++ preprocessor.
 */
 
 /*!

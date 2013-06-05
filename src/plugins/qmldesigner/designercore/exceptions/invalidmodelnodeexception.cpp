@@ -32,7 +32,8 @@
 /*!
 \class QmlDesigner::InvalidModelNodeException
 \ingroup CoreExceptions
-\brief Exception for a invalid model node
+\brief The InvalidModelNodeException class provides an exception for an invalid
+model node.
 
 \see ModelNode
 */

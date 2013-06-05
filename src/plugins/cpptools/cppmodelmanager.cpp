@@ -194,8 +194,8 @@ void CppModelManager::updateModifiedSourceFiles()
 
 /*!
     \class CppTools::CppModelManager
-    \brief The CppModelManager keeps track of one CppCodeModel instance
-           for each project and all related CppCodeModelPart instances.
+    \brief The CppModelManager class keeps track of one CppCodeModel instance
+           for each project and all the related CppCodeModelPart instances.
 
     It also takes care of updating the code models when C++ files are
     modified within Qt Creator.

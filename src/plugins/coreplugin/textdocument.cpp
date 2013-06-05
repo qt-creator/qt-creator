@@ -35,7 +35,8 @@
 
 /*!
     \class Core::TextFile
-    \brief Base class for text files with encoding helpers.
+    \brief The TextFile class is a base class for text files with encoding
+    helpers.
 
     Stores the format obtained from read operations and uses that when writing
     out files, thus ensuring that CRLF/encodings are preserved.

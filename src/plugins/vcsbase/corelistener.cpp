@@ -33,7 +33,7 @@
 /*!
     \class VcsBase::Internal::CoreListener
 
-    \brief CoreListener catching closing of a submit editor.
+    \brief The CoreListener class catches the closing of a submit editor.
 
     Catch the closing of a submit editor to trigger the submit.
     One instance of this class exists, connected to the instances

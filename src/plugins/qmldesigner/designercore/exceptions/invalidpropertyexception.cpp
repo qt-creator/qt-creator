@@ -31,7 +31,8 @@
 /*!
 \class QmlDesigner::InvalidPropertyException
 \ingroup CoreExceptions
-\brief Exception for a invalid property
+\brief The InvalidPropertyException class provides an exception for an invalid
+property.
 
 \see AbstractProperty
 */

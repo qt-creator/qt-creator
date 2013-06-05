@@ -154,7 +154,7 @@
 /*!
     \class Debugger::DebuggerEngine
 
-    \brief Base class of a debugger engine.
+    \brief The DebuggerEngine class is the base class of a debugger engine.
 
     Note: the Debugger process itself and any helper processes like
     gdbserver are referred to as 'Engine', whereas the debugged process
@@ -322,7 +322,8 @@ sg1: }
 
 /*!
     \class Debugger::Internal::GdbEngine
-    \brief Implementation of Debugger::Engine driving a gdb executable.
+    \brief The GdbEngine class implements Debugger::Engine driving a GDB
+    executable.
 
     GdbEngine specific startup. All happens in EngineSetupRequested state:
 

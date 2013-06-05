@@ -38,7 +38,8 @@
 /*!
     \class ProjectExplorer::ProcessParameters
 
-    \brief ProcessParameters aggregates all parameters needed to start a process.
+    \brief The ProcessParameters class aggregates all parameters needed to start
+    a process.
 
     It offers a set of functions which expand macros and environment variables
     inside the raw parameters to obtain final values for starting a process

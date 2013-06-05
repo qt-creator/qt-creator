@@ -46,7 +46,8 @@
 /*!
     \class Utils::PathChooser
 
-    \brief A control that let's the user choose a path, consisting of a QLineEdit and
+    \brief The PathChooser class is a control that lets the user choose a path,
+    consisting of a QLineEdit and
     a "Browse" button.
 
     Has some validation logic for embedding into QWizardPage.

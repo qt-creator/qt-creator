@@ -64,7 +64,8 @@
 /*!
     \class ProjectExplorer::Internal::ProjectFileWizardExtension
 
-    \brief Post-file generating steps of a project wizard.
+    \brief The ProjectFileWizardExtension class implements the post-file
+    generating steps of a project wizard.
 
     Offers:
     \list

@@ -35,7 +35,8 @@
 /*!
     \class Utils::ProjectIntroPage
 
-    \brief Standard wizard page for a project, letting the user choose name
+    \brief The ProjectIntroPage class is the standard wizard page for a project,
+    letting the user choose its name
     and path.
 
     Looks similar to FileWizardPage, but provides additional

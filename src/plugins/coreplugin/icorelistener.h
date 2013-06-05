@@ -38,8 +38,8 @@ class IEditor;
 /*!
   \class Core::ICoreListener
 
-  \brief Provides a hook for plugins to veto on certain events emitted from
-the core plugin.
+  \brief The ICoreListener class provides a hook for plugins to veto on certain
+  events emitted from the core plugin.
 
   You implement this interface if you want to prevent certain events from
   occurring, e.g.  if you want to prevent the closing of the whole application
