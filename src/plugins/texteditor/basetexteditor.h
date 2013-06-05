@@ -354,6 +354,7 @@ protected:
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
     virtual bool replacementVisible(int blockNumber) const;
+    virtual QColor replacementPenColor(int blockNumber) const;
     static QString msgTextTooLarge(quint64 size);
 
 private:

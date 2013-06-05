@@ -51,6 +51,14 @@ Format::Format() :
 {
 }
 
+Format::Format(const QColor &foreground, const QColor &background) :
+    m_foreground(foreground),
+    m_background(background),
+    m_bold(false),
+    m_italic(false)
+{
+}
+
 void Format::setForeground(const QColor &foreground)
 {
     m_foreground = foreground;

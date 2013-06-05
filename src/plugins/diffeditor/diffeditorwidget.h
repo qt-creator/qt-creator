@@ -38,6 +38,7 @@
 namespace TextEditor {
 class BaseTextEditorWidget;
 class SnippetEditorWidget;
+class FontSettings;
 }
 
 QT_BEGIN_NAMESPACE
@@ -101,6 +102,7 @@ protected:
     TextEditor::SnippetEditorWidget *rightEditor() const;
 
 private slots:
+    void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void leftVSliderChanged();
     void rightVSliderChanged();
     void leftHSliderChanged();
@@ -146,6 +148,13 @@ private:
     bool m_syncScrollBars;
 
     bool m_foldingBlocker;
+
+    QTextCharFormat m_fileLineFormat;
+    QTextCharFormat m_chunkLineFormat;
+    QTextCharFormat m_leftLineFormat;
+    QTextCharFormat m_leftCharFormat;
+    QTextCharFormat m_rightLineFormat;
+    QTextCharFormat m_rightCharFormat;
 };
 
 } // namespace DiffEditor

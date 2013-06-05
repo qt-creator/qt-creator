@@ -3517,9 +3517,13 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 bool selectThis = (hasSelection
                                    && nextBlock.position() >= selectionStart
                                    && nextBlock.position() < selectionEnd);
+                painter.save();
                 if (selectThis) {
-                    painter.save();
                     painter.setBrush(palette().highlight());
+                } else {
+                    QColor rc = replacementPenColor(block.blockNumber());
+                    if (rc.isValid())
+                        painter.setPen(rc);
                 }
 
                 QTextLayout *layout = block.layout();
@@ -3566,8 +3570,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 if (selectThis)
                     painter.setPen(palette().highlightedText().color());
                 painter.drawText(collapseRect, Qt::AlignCenter, replacement);
-                if (selectThis)
-                    painter.restore();
+                painter.restore();
             }
         }
 
@@ -6204,6 +6207,12 @@ bool BaseTextEditorWidget::replacementVisible(int blockNumber) const
 {
     Q_UNUSED(blockNumber)
     return true;
+}
+
+QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
+{
+    Q_UNUSED(blockNumber)
+    return QColor();
 }
 
 void BaseTextEditorWidget::appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
