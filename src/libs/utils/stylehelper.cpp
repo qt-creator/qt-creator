@@ -369,6 +369,7 @@ static qreal pixmapDevicePixelRatio(const QPixmap &pixmap)
 #if QT_VERSION > 0x050000
     return pixmap.devicePixelRatio();
 #else
+    Q_UNUSED(pixmap);
     return 1.0;
 #endif
 }
