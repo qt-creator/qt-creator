@@ -67,8 +67,6 @@ namespace DiffEditor {
 namespace Git {
 namespace Internal {
 
-class GitPlugin;
-class GitOutputWindow;
 class CommitData;
 struct GitSubmitEditorPanelData;
 class Stash;
