@@ -96,7 +96,6 @@ void NodeInstanceSignalSpy::registerValueType(const QMetaProperty &metaProperty,
              index < valueType->metaObject()->propertyCount();
              index++) {
             QMetaProperty valueTypeMetaProperty = valueType->metaObject()->property(index);
-            qDebug() << "spy value property: " <<  propertyPrefix + PropertyName(metaProperty.name()) + "." + valueTypeMetaProperty.name();
 
             m_indexPropertyHash.insert(methodeOffset, propertyPrefix + PropertyName(metaProperty.name()) + "." + valueTypeMetaProperty.name());
         }
@@ -110,7 +109,6 @@ void NodeInstanceSignalSpy::registerChildObject(const QMetaProperty &metaPropert
             && QQmlMetaType::isQObject(metaProperty.userType())
             && QLatin1String(metaProperty.name()) != "parent") {
         QObject *childObject = QQmlMetaType::toQObject(metaProperty.read(spiedObject));
-        qDebug() << "spy child property: " <<  childObject << metaProperty.name();
 
         if (childObject) {
             for (int index = QObject::staticMetaObject.propertyOffset();
