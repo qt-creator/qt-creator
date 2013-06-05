@@ -52,7 +52,8 @@ static QString instancesLockFilename(const QString &appSessionId)
 
 QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char **argv)
     : QApplication(argc, argv),
-      firstPeer(-1)
+      firstPeer(-1),
+      pidPeer(0)
 {
     this->appId = appId;
 
@@ -62,10 +63,6 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
     instances = new QSharedMemory(appSessionId, this);
     actWin = 0;
     block = false;
-    const qint64 appPid = QCoreApplication::applicationPid();
-
-    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') + QString::number(appPid));
-    connect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), SIGNAL(messageReceived(QString,QObject*)));
 
     // First instance creates the shared memory, later instances attach to it
     const bool created = instances->create(instancesSize);
@@ -78,6 +75,7 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
             return;
         }
     }
+
     // QtLockedFile is used to workaround QTBUG-10364
     QtLockedFile lockfile(instancesLockFilename(appSessionId));
 
@@ -93,7 +91,7 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
         }
     }
     // Add current pid to list and terminate it
-    *pids++ = appPid;
+    *pids++ = QCoreApplication::applicationPid();
     *pids = 0;
     lockfile.unlock();
 }
@@ -141,6 +139,9 @@ bool QtSingleApplication::isRunning(qint64 pid)
 
 void QtSingleApplication::initialize(bool)
 {
+    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') +
+                              QString::number(QCoreApplication::applicationPid()));
+    connect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), SIGNAL(messageReceived(QString,QObject*)));
     pidPeer->isClient();
 }
 
@@ -169,6 +170,8 @@ void QtSingleApplication::setBlock(bool value)
 void QtSingleApplication::setActivationWindow(QWidget *aw, bool activateOnMessage)
 {
     actWin = aw;
+    if (!pidPeer)
+        return;
     if (activateOnMessage)
         connect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), this, SLOT(activateWindow()));
     else
