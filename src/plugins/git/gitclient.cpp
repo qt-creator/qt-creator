@@ -2246,7 +2246,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     if (mode & NoUntracked)
         statusArgs << QLatin1String("--untracked-files=no");
     else
-        statusArgs << QLatin1String("--untracked-files=normal");
+        statusArgs << QLatin1String("--untracked-files=all");
     if (mode & NoSubmodules)
         statusArgs << QLatin1String("--ignore-submodules=all");
     statusArgs << QLatin1String("-s") << QLatin1String("-b");
