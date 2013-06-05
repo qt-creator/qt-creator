@@ -2067,7 +2067,7 @@ void FakeVimHandler::Private::leaveFakeVim()
     // The command might have destroyed the editor.
     if (m_textedit || m_plaintextedit) {
         // We fake vi-style end-of-line behaviour
-        m_fakeEnd = atEndOfLine() && g.m_mode == CommandMode && !isVisualBlockMode()
+        m_fakeEnd = atEndOfLine() && g.mode == CommandMode && !isVisualBlockMode()
             && !isVisualCharMode();
 
         //QTC_ASSERT(g.mode == InsertMode || g.mode == ReplaceMode
@@ -3555,7 +3555,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         } else {
             moveToNextWordStart(count, simple, true);
             // Command 'dw' deletes to the next word on the same line or to end of line.
-            if (m_submode == DeleteSubMode && count == 1) {
+            if (g.submode == DeleteSubMode && count == 1) {
                 const QTextBlock currentBlock = document()->findBlock(anchor());
                 setPosition(qMin(position(), currentBlock.position() + currentBlock.length()));
             }
@@ -7300,7 +7300,7 @@ void FakeVimHandler::Private::redo()
 void FakeVimHandler::Private::updateCursorShape()
 {
     bool thinCursor = g.mode == ExMode
-            || g.ubsubmode == SearchSubSubMode
+            || g.subsubmode == SearchSubSubMode
             || g.mode == InsertMode
             || (isVisualMode() && !isVisualCharMode());
     EDITOR(setOverwriteMode(!thinCursor));
