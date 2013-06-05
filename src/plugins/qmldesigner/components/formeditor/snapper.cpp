@@ -619,14 +619,19 @@ static void adjustAnchorLine(const QmlItemNode &sourceQmlItemNode,
     if (targetQmlItemNode.isValid() && !targetQmlItemNode.anchors().checkForCycle(lineAnchorLineType, sourceQmlItemNode)) {
         double margin = 0.0;
 
+        QRectF boundingRect = targetQmlItemNode.instanceContentItemBoundingRect();
+        if (boundingRect.isNull())
+             boundingRect = targetQmlItemNode.instanceBoundingRect();
+
         if (targetQmlItemNode == containerQmlItemNode) {
-            if (lineAnchorLineType == AnchorLine::Left
-                    || lineAnchorLineType == AnchorLine::Top)
-                margin = fromAnchorLine;
+            if (lineAnchorLineType == AnchorLine::Left)
+                margin = fromAnchorLine - boundingRect.left();
+            else if (lineAnchorLineType == AnchorLine::Top)
+                margin =  fromAnchorLine - boundingRect.top();
             else if (lineAnchorLineType == AnchorLine::Right)
-                margin = targetQmlItemNode.instanceSize().width() - fromAnchorLine;
+                margin = boundingRect.right() - fromAnchorLine;
             else if (lineAnchorLineType == AnchorLine::Bottom)
-                margin = targetQmlItemNode.instanceSize().height() - fromAnchorLine;
+                margin = boundingRect.bottom() - fromAnchorLine;
 
         }
 
