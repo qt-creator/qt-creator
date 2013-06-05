@@ -343,7 +343,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         m_setupCompleted(false),
         m_singleShotTimer(new QTimer(this))
 {
-    m_updateShortcut = new QShortcut(QKeySequence("F5"), m_stackedWidget);
+    m_updateShortcut = new QShortcut(QKeySequence("F3"), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
     m_stackedWidget->setStyleSheet(
