@@ -44,6 +44,7 @@
 #include <QScrollBar>
 #include <QStyleFactory>
 #include <QString>
+#include <QUrl>
 
 using namespace QmlJS;
 
