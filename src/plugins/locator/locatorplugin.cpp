@@ -211,8 +211,6 @@ void LocatorPlugin::saveSettings()
 }
 
 /*!
-    \fn QList<ILocatorFilter*> LocatorPlugin::filters()
-
     Return all filters, including the ones created by the user.
 */
 QList<ILocatorFilter*> LocatorPlugin::filters()
@@ -221,8 +219,6 @@ QList<ILocatorFilter*> LocatorPlugin::filters()
 }
 
 /*!
-    \fn QList<ILocatorFilter*> LocatorPlugin::customFilters()
-
     This returns a subset of all the filters, that contains only the filters that
     have been created by the user at some point (maybe in a previous session).
  */

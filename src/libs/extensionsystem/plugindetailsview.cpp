@@ -46,7 +46,6 @@
 using namespace ExtensionSystem;
 
 /*!
-    \fn PluginDetailsView::PluginDetailsView(QWidget *parent)
     Constructs a new view with given \a parent widget.
 */
 PluginDetailsView::PluginDetailsView(QWidget *parent)
@@ -57,7 +56,6 @@ PluginDetailsView::PluginDetailsView(QWidget *parent)
 }
 
 /*!
-    \fn PluginDetailsView::~PluginDetailsView()
     \internal
 */
 PluginDetailsView::~PluginDetailsView()
@@ -66,7 +64,6 @@ PluginDetailsView::~PluginDetailsView()
 }
 
 /*!
-    \fn void PluginDetailsView::update(PluginSpec *spec)
     Reads the given \a spec and displays its values
     in this PluginDetailsView.
 */

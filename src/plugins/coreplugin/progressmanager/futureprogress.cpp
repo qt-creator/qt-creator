@@ -145,7 +145,6 @@ FutureProgress::FutureProgress(QWidget *parent) :
 }
 
 /*!
-    \fn FutureProgress::~FutureProgress()
     \internal
 */
 FutureProgress::~FutureProgress()
@@ -155,7 +154,6 @@ FutureProgress::~FutureProgress()
 }
 
 /*!
-    \fn void FutureProgress::setWidget(QWidget *widget)
     Sets the \a widget to show below the progress bar.
     This will be destroyed when the progress indicator is destroyed.
     Default is to show no widget below the progress indicator.
@@ -172,7 +170,6 @@ void FutureProgress::setWidget(QWidget *widget)
 }
 
 /*!
-    \fn void FutureProgress::setTitle(const QString &title)
     Changes the \a title of the progress indicator.
 */
 void FutureProgress::setTitle(const QString &title)
@@ -181,7 +178,6 @@ void FutureProgress::setTitle(const QString &title)
 }
 
 /*!
-    \fn QString FutureProgress::title() const
     Returns the title of the progress indicator.
 */
 QString FutureProgress::title() const
@@ -268,7 +264,6 @@ void FutureProgress::setProgressText(const QString &text)
 }
 
 /*!
-    \fn void FutureProgress::setFuture(const QFuture<void> &future)
     \internal
 */
 void FutureProgress::setFuture(const QFuture<void> &future)
@@ -277,7 +272,6 @@ void FutureProgress::setFuture(const QFuture<void> &future)
 }
 
 /*!
-    \fn QFuture<void> FutureProgress::future() const
     Returns a QFuture object that represents this running task.
 */
 QFuture<void> FutureProgress::future() const
@@ -286,7 +280,6 @@ QFuture<void> FutureProgress::future() const
 }
 
 /*!
-    \fn void FutureProgress::mousePressEvent(QMouseEvent *event)
     \internal
 */
 void FutureProgress::mousePressEvent(QMouseEvent *event)
@@ -304,7 +297,6 @@ void FutureProgress::paintEvent(QPaintEvent *)
 }
 
 /*!
-    \fn bool FutureProgress::hasError() const
     Returns the error state of this progress indicator.
 */
 bool FutureProgress::hasError() const

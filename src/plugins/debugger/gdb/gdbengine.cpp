@@ -2412,7 +2412,6 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 }
 
 /*!
-    \fn void Debugger::Internal::GdbEngine::setTokenBarrier()
     \brief Discard the results of all pending watch-updating commands.
 
     This method is called at the beginning of all step/next/finish etc.
@@ -2420,7 +2419,6 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
     If non-watch-updating commands with call-backs are still in the pipe,
     it will complain.
 */
-
 void GdbEngine::setTokenBarrier()
 {
     //QTC_ASSERT(m_nonDiscardableCount == 0, /**/);

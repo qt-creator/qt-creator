@@ -642,8 +642,6 @@ Trie Trie::replaceF(const QHash<QString, QString> &replacements) const
 }
 
 /*!
-  \fn int matchStrength(const QString &searchStr, const QString &str)
-
   Returns a number defining how well the serachStr matches str.
 
   Quite simplistic, looks only at the first match, and prefers contiguos
@@ -692,8 +690,6 @@ public:
 }
 
 /*!
-  \fn QStringList matchingStrengthSort(const QString &searchStr, QStringList &res)
-
   returns a number defining the matching strength of res to the given searchStr
 */
 QStringList matchStrengthSort(const QString &searchStr, QStringList &res)

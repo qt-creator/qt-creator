@@ -553,8 +553,6 @@ void SyntaxHighlighter::applyFormatToSpaces(const QString &text, const QTextChar
 }
 
 /*!
-    \fn QTextCharFormat SyntaxHighlighter::format(int position) const
-
     Returns the format at \a position inside the syntax highlighter's
     current text block.
 */

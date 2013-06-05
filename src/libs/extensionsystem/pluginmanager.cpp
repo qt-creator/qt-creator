@@ -245,7 +245,6 @@ static bool lessThanByPluginName(const PluginSpec *one, const PluginSpec *two)
 PluginManager *PluginManager::m_instance = 0;
 
 /*!
-    \fn PluginManager *PluginManager::instance()
     Get the unique plugin manager instance.
 */
 PluginManager *PluginManager::instance()
@@ -254,7 +253,6 @@ PluginManager *PluginManager::instance()
 }
 
 /*!
-    \fn PluginManager::PluginManager()
     Create a plugin manager. Should be done only once per application.
 */
 PluginManager::PluginManager()
@@ -264,7 +262,6 @@ PluginManager::PluginManager()
 }
 
 /*!
-    \fn PluginManager::~PluginManager()
     \internal
 */
 PluginManager::~PluginManager()
@@ -274,7 +271,6 @@ PluginManager::~PluginManager()
 }
 
 /*!
-    \fn void PluginManager::addObject(QObject *obj)
     Add the given object \a obj to the object pool, so it can be retrieved again from the pool by type.
     The plugin manager does not do any memory management - added objects
     must be removed from the pool and deleted manually by whoever is responsible for the object.
@@ -291,7 +287,6 @@ void PluginManager::addObject(QObject *obj)
 }
 
 /*!
-    \fn void PluginManager::removeObject(QObject *obj)
     Emits aboutToRemoveObject() and removes the object \a obj from the object pool.
     \sa PluginManager::addObject()
 */
@@ -301,7 +296,6 @@ void PluginManager::removeObject(QObject *obj)
 }
 
 /*!
-    \fn QList<QObject *> PluginManager::allObjects() const
     Retrieve the list of all objects in the pool, unfiltered.
     Usually clients do not need to call this.
     \sa PluginManager::getObject()
@@ -313,7 +307,6 @@ QList<QObject *> PluginManager::allObjects()
 }
 
 /*!
-    \fn void PluginManager::loadPlugins()
     Tries to load all the plugins that were previously found when
     setting the plugin search paths. The plugin specs of the plugins
     can be used to retrieve error and state information about individual plugins.
@@ -327,7 +320,6 @@ void PluginManager::loadPlugins()
 }
 
 /*!
-    \fn bool PluginManager::hasError() const
     Returns true if any plugin has errors even though it is enabled.
     Most useful to call after loadPlugins().
 */
@@ -342,7 +334,6 @@ bool PluginManager::hasError()
 }
 
 /*!
-    \fn void PluginManager::shutdown()
     Shuts down and deletes all plugins.
 */
 void PluginManager::shutdown()
@@ -351,7 +342,6 @@ void PluginManager::shutdown()
 }
 
 /*!
-    \fn QStringList PluginManager::pluginPaths() const
     The list of paths were the plugin manager searches for plugins.
 
     \sa setPluginPaths()
@@ -362,7 +352,6 @@ QStringList PluginManager::pluginPaths()
 }
 
 /*!
-    \fn void PluginManager::setPluginPaths(const QStringList &paths)
     Sets the plugin search paths, i.e. the file system paths where the plugin manager
     looks for plugin descriptions. All given \a paths and their sub directory trees
     are searched for plugin xml description files.
@@ -376,7 +365,6 @@ void PluginManager::setPluginPaths(const QStringList &paths)
 }
 
 /*!
-    \fn QString PluginManager::fileExtension() const
     The file extension of plugin description files.
     The default is "xml".
 
@@ -388,7 +376,6 @@ QString PluginManager::fileExtension()
 }
 
 /*!
-    \fn void PluginManager::setFileExtension(const QString &extension)
     Sets the file extension of plugin description files.
     The default is "xml".
     At the moment this must be called before setPluginPaths() is called.
@@ -439,7 +426,6 @@ void PluginManager::writeSettings()
 }
 
 /*!
-    \fn QStringList PluginManager::arguments() const
     The arguments left over after parsing (Neither startup nor plugin
     arguments). Typically, this will be the list of files to open.
 */
@@ -449,7 +435,6 @@ QStringList PluginManager::arguments()
 }
 
 /*!
-    \fn QList<PluginSpec *> PluginManager::plugins() const
     List of all plugin specifications that have been found in the plugin search paths.
     This list is valid directly after the setPluginPaths() call.
     The plugin specifications contain the information from the plugins' xml description files
@@ -468,9 +453,9 @@ QHash<QString, PluginCollection *> PluginManager::pluginCollections()
     return m_instance->d->pluginCategories;
 }
 
-/*!
-    \fn QString PluginManager::serializedArguments() const
+static const char argumentKeywordC[] = ":arguments";
 
+/*!
     Serialize plugin options and arguments for sending in a single string
     via QtSingleApplication:
     ":myplugin|-option1|-option2|:arguments|argument1|argument2",
@@ -478,9 +463,6 @@ QHash<QString, PluginCollection *> PluginManager::pluginCollections()
 
     \sa setPluginPaths()
 */
-
-static const char argumentKeywordC[] = ":arguments";
-
 QString PluginManager::serializedArguments()
 {
     const QChar separator = QLatin1Char('|');
@@ -532,8 +514,6 @@ static QStringList subList(const QStringList &in, const QString &key)
 }
 
 /*!
-    \fn PluginManager::remoteArguments(const QString &argument, QObject *socket)
-
     Parses the options encoded by serializedArguments() const
     and passes them on to the respective plugins along with the arguments.
 
@@ -562,7 +542,6 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
 }
 
 /*!
-    \fn bool PluginManager::parseOptions(const QStringList &args, const QMap<QString, bool> &appOptions, QMap<QString, QString> *foundAppOptions, QString *errorString)
     Takes the list of command line options in \a args and parses them.
     The plugin manager itself might process some options itself directly (-noload <plugin>), and
     adds options that are registered by plugins to their plugin specs.
@@ -611,8 +590,6 @@ static inline void formatOption(QTextStream &str,
 }
 
 /*!
-    \fn static PluginManager::formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
-
     Format the startup options of the plugin manager for command line help.
 */
 
@@ -638,8 +615,6 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
 }
 
 /*!
-    \fn PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation) const
-
     Format the plugin  options of the plugin specs for command line help.
 */
 
@@ -660,11 +635,8 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 }
 
 /*!
-    \fn PluginManager::formatPluginVersions(QTextStream &str) const
-
     Format the version of the plugin specs for command line help.
 */
-
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
     const PluginSpecSet::const_iterator cend = m_instance->d->pluginSpecs.constEnd();
@@ -747,7 +719,6 @@ void PluginManager::startTests()
 }
 
 /*!
- * \fn bool PluginManager::runningTests() const
  * \internal
  */
 bool PluginManager::testRunRequested()
@@ -756,7 +727,6 @@ bool PluginManager::testRunRequested()
 }
 
 /*!
- * \fn QString PluginManager::testDataDirectory() const
  * \internal
  */
 QString PluginManager::testDataDirectory()
@@ -772,8 +742,6 @@ QString PluginManager::testDataDirectory()
 }
 
 /*!
-    \fn void PluginManager::profilingReport(const char *what, const PluginSpec *spec = 0)
-
     Create a profiling entry showing the elapsed time if profiling is activated.
 */
 
@@ -784,8 +752,6 @@ void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
 
 
 /*!
-    \fn void PluginManager::loadQueue()
-
     Returns a list of plugins in load order.
 */
 QList<PluginSpec *> PluginManager::loadQueue()
@@ -796,7 +762,6 @@ QList<PluginSpec *> PluginManager::loadQueue()
 //============PluginManagerPrivate===========
 
 /*!
-    \fn PluginSpec *PluginManagerPrivate::createSpec()
     \internal
 */
 PluginSpec *PluginManagerPrivate::createSpec()
@@ -805,7 +770,6 @@ PluginSpec *PluginManagerPrivate::createSpec()
 }
 
 /*!
-    \fn void PluginManagerPrivate::setSettings(QSettings *settings)
     \internal
 */
 void PluginManagerPrivate::setSettings(QSettings *s)
@@ -830,7 +794,6 @@ void PluginManagerPrivate::setGlobalSettings(QSettings *s)
 }
 
 /*!
-    \fn PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
     \internal
 */
 PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
@@ -859,7 +822,6 @@ void PluginManagerPrivate::nextDelayedInitialize()
 }
 
 /*!
-    \fn PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager)
     \internal
 */
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
@@ -876,7 +838,6 @@ PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
 
 
 /*!
-    \fn PluginManagerPrivate::~PluginManagerPrivate()
     \internal
 */
 PluginManagerPrivate::~PluginManagerPrivate()
@@ -886,7 +847,6 @@ PluginManagerPrivate::~PluginManagerPrivate()
 }
 
 /*!
-    \fn void PluginManagerPrivate::writeSettings()
     \internal
 */
 void PluginManagerPrivate::writeSettings()
@@ -907,7 +867,6 @@ void PluginManagerPrivate::writeSettings()
 }
 
 /*!
-    \fn void PluginManagerPrivate::readSettings()
     \internal
 */
 void PluginManagerPrivate::readSettings()
@@ -921,7 +880,6 @@ void PluginManagerPrivate::readSettings()
 }
 
 /*!
-    \fn void PluginManagerPrivate::stopAll()
     \internal
 */
 void PluginManagerPrivate::stopAll()
@@ -938,7 +896,6 @@ void PluginManagerPrivate::stopAll()
 }
 
 /*!
-    \fn void PluginManagerPrivate::deleteAll()
     \internal
 */
 void PluginManagerPrivate::deleteAll()
@@ -952,7 +909,6 @@ void PluginManagerPrivate::deleteAll()
 }
 
 /*!
-    \fn void PluginManagerPrivate::addObject(QObject *obj)
     \internal
 */
 void PluginManagerPrivate::addObject(QObject *obj)
@@ -984,7 +940,6 @@ void PluginManagerPrivate::addObject(QObject *obj)
 }
 
 /*!
-    \fn void PluginManagerPrivate::removeObject(QObject *obj)
     \internal
 */
 void PluginManagerPrivate::removeObject(QObject *obj)
@@ -1008,7 +963,6 @@ void PluginManagerPrivate::removeObject(QObject *obj)
 }
 
 /*!
-    \fn void PluginManagerPrivate::loadPlugins()
     \internal
 */
 void PluginManagerPrivate::loadPlugins()
@@ -1039,7 +993,6 @@ void PluginManagerPrivate::loadPlugins()
 }
 
 /*!
-    \fn void PluginManagerPrivate::shutdown()
     \internal
 */
 void PluginManagerPrivate::shutdown()
@@ -1055,7 +1008,6 @@ void PluginManagerPrivate::shutdown()
 }
 
 /*!
-    \fn void PluginManagerPrivate::asyncShutdownFinished()
     \internal
 */
 void PluginManagerPrivate::asyncShutdownFinished()
@@ -1068,7 +1020,6 @@ void PluginManagerPrivate::asyncShutdownFinished()
 }
 
 /*!
-    \fn void PluginManagerPrivate::loadQueue()
     \internal
 */
 QList<PluginSpec *> PluginManagerPrivate::loadQueue()
@@ -1082,7 +1033,6 @@ QList<PluginSpec *> PluginManagerPrivate::loadQueue()
 }
 
 /*!
-    \fn bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queue, QList<PluginSpec *> &circularityCheckQueue)
     \internal
 */
 bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queue,
@@ -1125,7 +1075,6 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
 }
 
 /*!
-    \fn void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destState)
     \internal
 */
 void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destState)
@@ -1192,7 +1141,6 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
 }
 
 /*!
-    \fn void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
     \internal
 */
 void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
@@ -1203,7 +1151,6 @@ void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
 }
 
 /*!
-    \fn void PluginManagerPrivate::readPluginPaths()
     \internal
 */
 void PluginManagerPrivate::readPluginPaths()
@@ -1361,7 +1308,6 @@ void PluginManagerPrivate::profilingSummary() const
 }
 
 /*!
-    \fn void PluginManager::getObjectByName(const QString &name) const
     \brief Retrieves one object with a given name from the object pool.
     \sa addObject()
 */
@@ -1378,7 +1324,6 @@ QObject *PluginManager::getObjectByName(const QString &name)
 }
 
 /*!
-    \fn void PluginManager::getObjectByClassName(const QString &className) const
     Retrieves one object inheriting a class with a given name from the object pool.
     \sa addObject()
 */

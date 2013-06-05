@@ -1521,8 +1521,6 @@ static inline QStringList projectFileGlobs()
 }
 
 /*!
-    \fn void ProjectExplorerPlugin::restoreSession()
-
     This method is connected to the ICore::coreOpened signal.  If
     there was no session explicitly loaded, it creates an empty new
     default session and puts the list of recent projects and sessions

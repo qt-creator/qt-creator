@@ -265,8 +265,6 @@ QPacketAutoSend QPacketProtocol::send()
 }
 
 /*!
-  \fn void QPacketProtocol::send(const QPacket & packet)
-
   Transmit the \a packet.
  */
 void QPacketProtocol::send(const QPacket & p)

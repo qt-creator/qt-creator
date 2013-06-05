@@ -290,8 +290,6 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
 }
 
 /*!
- * \fn Command *ActionContainer::addSeparator(const Context &context, const Id &group, QAction **outSeparator)
- *
  * Adds a separator to the end of the given \a group to the action container, which is enabled
  * for a given \a context. The created separator action is returned through \a outSeparator.
  *
