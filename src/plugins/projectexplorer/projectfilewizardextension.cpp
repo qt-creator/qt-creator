@@ -52,6 +52,7 @@
 #include <projectexplorer/editorconfiguration.h>
 
 #include <QtAlgorithms>
+#include <QPointer>
 #include <QDebug>
 #include <QFileInfo>
 #include <QMultiMap>
@@ -195,7 +196,7 @@ void ProjectWizardContext::clear()
     activeVersionControls.clear();
     projects.clear();
     commonDirectory.clear();
-    page.clear();
+    page = 0;
     repositoryExists = false;
     wizard = 0;
 }
