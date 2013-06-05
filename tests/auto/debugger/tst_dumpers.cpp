@@ -556,7 +556,7 @@ void tst_Dumpers::initTestCase()
     if (m_debuggerBinary.endsWith("lldb"))
         m_debuggerEngine = DumpTestLldbEngine;
 
-    m_qmakeBinary = qgetenv("QTC_QMAKE_PATH");
+    m_qmakeBinary = qgetenv("QTC_QMAKE_PATH_FOR_TEST");
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
 
@@ -2743,6 +2743,18 @@ void tst_Dumpers::dumper_data()
                % Check("str", "\"foo\"", "std::string")
                % Check("v", "<2 items>", "std::vector<std::string>")
                % Check("v.0", "[0]", "\"foo\"", "std::string");
+
+    QTest::newRow("StdVector0")
+            << Data("#include <vector>\n",
+                    "std::vector<double> v0, v;\n"
+                    "v.push_back(1);\n"
+                    "v.push_back(0);\n"
+                    "v.push_back(2);\n")
+               % Check("v0", "<0 items>", "std::vector<double>")
+               % Check("v", "<3 items>", "std::vector<double>")
+               % Check("v.0", "[0]", "1", "double")
+               % Check("v.1", "[1]", "0", "double")
+               % Check("v.2", "[2]", "2", "double");
 
     QTest::newRow("StdVector1")
             << Data("#include <vector>\n",

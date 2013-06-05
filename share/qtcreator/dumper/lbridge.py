@@ -136,7 +136,7 @@ def registerDumper(function):
                 pass
 
 def warn(message):
-    print 'XXX="%s",' % message.encode("latin1").replace('"', "'")
+    print '\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'")
 
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
@@ -316,7 +316,12 @@ def simpleEncoding(typeobj):
     #    return Hex2EncodedInt1
     #if code == IntCode:
     if code == lldb.eTypeClassBuiltin:
-        if str(typeobj).find("unsigned") >= 0:
+        name = str(typeobj)
+        if name == "float":
+            return Hex2EncodedFloat4
+        if name == "double":
+            return Hex2EncodedFloat8
+        if name.find("unsigned") >= 0:
             if size == 1:
                 return Hex2EncodedUInt1
             if size == 2:
@@ -334,11 +339,6 @@ def simpleEncoding(typeobj):
                 return Hex2EncodedInt4
             if size == 8:
                 return Hex2EncodedInt8
-    #if code == FloatCode:
-    #    if size == 4:
-    #        return Hex2EncodedFloat4
-    #    if size == 8:
-    #        return Hex2EncodedFloat8
     return None
 
 class Children:
@@ -485,6 +485,7 @@ class Dumper:
         self.ns = ""
         self.autoDerefPointers = True
         self.useDynamicType = True
+        self.useFancy = True
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -605,6 +606,18 @@ class Dumper:
             return True
         return self.stripNamespaceFromType(type.GetName()) in movableTypes
 
+    def putIntItem(self, name, value):
+        with SubItem(self, name):
+            self.putValue(value)
+            self.putType("int")
+            self.putNumChild(0)
+
+    def putBoolItem(self, name, value):
+        with SubItem(self, name):
+            self.putValue(value)
+            self.putType("bool")
+            self.putNumChild(0)
+
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
         #if numchild != self.currentChildNumChild:
@@ -667,6 +680,13 @@ class Dumper:
         if self.currentMaxNumChild is None:
             return xrange(0, self.currentNumChild)
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
+
+    def putPlainChildren(self, value):
+        self.putEmptyValue(-99)
+        self.putNumChild(1)
+        if self.currentIName in self.expandedINames:
+            with Children(self):
+               self.putFields(value)
 
     def lookupType(self, name):
         #warn("LOOKUP: %s" % self.target.FindFirstType(name))
@@ -785,19 +805,12 @@ class Dumper:
             result += '],hasmore="%s"},' % hasmore
             self.report(result)
 
-    # Convenience function.
-    def putItemCount(self, count, maximum = 1000000000):
-        # This needs to override the default value, so don't use 'put' directly.
-        if count > maximum:
-            self.putValue('<>%s items>' % maximum)
-        else:
-            self.putValue('<%s items>' % count)
-
     def putType(self, type, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentTypePriority:
             self.currentType = str(type)
             self.currentTypePriority = priority
+        #warn("TYPE: %s PRIORITY: %s" % (type, priority))
 
     def putBetterType(self, type):
         try:
@@ -805,6 +818,7 @@ class Dumper:
         except:
             self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
+        #warn("BETTER TYPE: %s PRIORITY: %s" % (type, self.currentTypePriority))
 
     def readRawMemory(self, base, size):
         if size == 0:
@@ -900,17 +914,33 @@ class Dumper:
 
         # Pointers
         if value.GetType().IsPointerType() and self.autoDerefPointers:
-            self.putItem(value.Dereference())
+
+            if isNull(value):
+                self.putType(typeName)
+                self.putValue("0x0")
+                self.putNumChild(0)
+                return
+
+            origType = value.GetType()
+            innerType = value.GetType().GetPointeeType()
+            self.putType(innerType)
+            savedCurrentChildType = self.currentChildType
+            self.currentChildType = str(innerType)
+            self.putItem(value.dereference())
+            self.currentChildType = savedCurrentChildType
+            self.put('origaddr="%s",' % value.address)
             return
 
-        stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
         #warn("VALUE: %s" % value)
-        #warn("STRIPPED: %s" % stripped)
-        #warn("DUMPABLE: %s" % (stripped in qqDumpers))
-        if stripped in qqDumpers:
-            self.putType(typeName)
-            qqDumpers[stripped](self, value)
-            return
+        #warn("FANCY: %s" % self.useFancy)
+        if self.useFancy:
+            stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
+            #warn("STRIPPED: %s" % stripped)
+            #warn("DUMPABLE: %s" % (stripped in qqDumpers))
+            if stripped in qqDumpers:
+                self.putType(typeName)
+                qqDumpers[stripped](self, value)
+                return
 
         # Normal value
         v = value.GetValue()
@@ -1258,18 +1288,25 @@ class Dumper:
         self.options = args
 
     def setWatchers(self, args):
-        self.currentWatchers = args['watchers']
+        #self.currentWatchers = args['watchers']
         warn("WATCHERS %s" % self.currentWatchers)
+        self.reportData()
 
     def updateData(self, args):
-        self.expandedINames = set(args['expanded'].split(','))
-        self.autoDerefPointers = int(args['autoderef'])
-        self.useDynamicType = int(args['dyntype'])
-        # Keep always True for now.
-        #self.passExceptions = args['pe']
-        self.useDynamicType = int(args['dyntype'])
-        #self.reportData()
+        warn("UPDATE 1")
+        if 'expanded' in args:
+            self.expandedINames = set(args['expanded'].split(','))
+        if 'autoderef' in args:
+            self.autoDerefPointers = int(args['autoderef'])
+        if 'dyntype' in args:
+            self.useDynamicType = int(args['dyntype'])
+        if 'fancy' in args:
+            self.useFancy = int(args['fancy'])
+        if 'passexceptions' in args:
+            self.passExceptions = int(args['passexceptions'])
+        self.passExceptions = True # FIXME
         self.reportVariables(args)
+        warn("UPDATE 2")
 
     def disassemble(self, args):
         frame = self.currentFrame();

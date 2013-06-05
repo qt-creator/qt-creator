@@ -699,7 +699,7 @@ void LldbEngine::updateLocals()
 {
     WatchHandler *handler = watchHandler();
 
-    requestUpdateWatchers();
+    //requestUpdateWatchers();
 
     Command cmd("updateData");
     cmd.arg("expanded", handler->expansionRequests());
@@ -741,7 +741,7 @@ void LldbEngine::updateLocals()
 //    }
 
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
-    cmd.arg("passexeptions", alwaysVerbose);
+    cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", debuggerCore()->boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", debuggerCore()->boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", debuggerCore()->boolSetting(UseDynamicType));
