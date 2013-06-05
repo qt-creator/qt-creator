@@ -50,9 +50,12 @@ public:
     QString buildDirectory() const;
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
-    QVariantMap toMap() const;
 
     void setConfiguration(Configuration::Ptr config);
+    QString configurationNameOnly() const;
+    QString platformNameOnly() const;
+
+    QVariantMap toMap() const;
 
 private slots:
     void reloadConfigurationName();

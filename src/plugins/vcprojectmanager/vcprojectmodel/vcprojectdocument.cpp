@@ -92,7 +92,12 @@ void VcProjectDocument::allProjectFiles(QStringList &sl) const
 
 QString VcProjectDocument::fileRelativePath(const QString &filePath)
 {
-    return QFileInfo(m_filePath).absoluteDir().relativeFilePath(filePath);
+    QString relativePath = QFileInfo(m_filePath).absoluteDir().relativeFilePath(filePath).replace(QLatin1String("/"), QLatin1String("\\"));
+
+    if (!relativePath.startsWith(QLatin1String("..")))
+        relativePath.prepend(QLatin1String(".\\"));
+
+    return relativePath;
 }
 
 Configurations::Ptr VcProjectDocument::configurations() const

@@ -87,6 +87,9 @@ public:
     virtual bool appendFilterNode(VcFilterNode *folderNode) = 0;
 
     virtual void removeFilterNode(VcFilterNode *filterNode) = 0;
+    virtual void removeFileNode(VcFileNode *fileNode) = 0;
+
+    VcFileNode* findFileNode(const QString &filePath);
 
 protected:
     VcContainerType m_vcContainerType;
@@ -112,6 +115,7 @@ public:
     bool appendFilterNode(VcFilterNode *folderNode);
 
     void removeFilterNode(VcFilterNode *filterNode);
+    void removeFileNode(VcFileNode *fileNode);
 
 protected:
     void readChildren();
@@ -120,6 +124,7 @@ private:
     Filter *m_vcFilterModel;
 };
 
+// used only for VS 2005 projects
 class VcFolderNode : public VcContainerNode
 {
     Q_OBJECT
@@ -138,12 +143,13 @@ public:
     void addFilterNode(const QString &name);
     bool appendFilterNode(VcFilterNode *folderNode);
 
+    void removeFileNode(VcFileNode *fileNode);
     void removeFilterNode(VcFilterNode *filterNode);
 
     void addFolderNode(const QString &name);    // only for VS 2005
     bool appendFolderNode(VcFolderNode *folderNode);    // only for VS 2005
 
-    void removeFolderNode(VcFolderNode *node);
+    void removeFolderNode(VcFolderNode *folderNode);
 
 protected:
     void readChildren();
@@ -193,8 +199,11 @@ public:
 
     void removeFilterNode(VcFilterNode *filterNode);
     void removeFolderNode(VcFolderNode *folderNode);
+    void removeFileNode(VcFileNode *fileNode);
 
 private:
+    VcFileNode* findFileNode(const QString &filePath);
+
     VcProjectDocument *m_vcProjectModel;
 };
 

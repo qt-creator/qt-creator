@@ -149,6 +149,14 @@ void FilterType::removeFile(const QString &relativeFilePath)
     }
 }
 
+File::Ptr FilterType::file(const QString &relativePath) const
+{
+    foreach (File::Ptr file, m_files)
+        if (file->relativePath() == relativePath)
+            return file;
+    return File::Ptr();
+}
+
 QList<File::Ptr > FilterType::files() const
 {
     return m_files;

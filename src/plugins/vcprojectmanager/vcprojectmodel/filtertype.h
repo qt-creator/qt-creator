@@ -59,6 +59,7 @@ public:
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
     void removeFile(const QString &relativeFilePath);
+    File::Ptr file(const QString &relativePath) const;
     QList<File::Ptr > files() const;
 
     QString attributeValue(const QString &attributeName) const;

@@ -132,10 +132,21 @@ bool Folder::fileExists(const QString &relativeFilePath)
 {
     QList<File::Ptr> files = m_folderType->files();
 
-    foreach (File::Ptr filePtr, files) {
+    foreach (File::Ptr filePtr, files)
         if (filePtr->relativePath() == relativeFilePath)
             return true;
-    }
+
+    QList<Filter::Ptr> filters = m_folderType->filters();
+
+    foreach (Filter::Ptr filterPtr, filters)
+        if (filterPtr->fileExists(relativeFilePath))
+            return true;
+
+    QList<Folder::Ptr> folders = m_folderType->folders();
+
+    foreach (Folder::Ptr folderPtr, folders)
+        if (folderPtr->fileExists(relativeFilePath))
+            return true;
 
     return false;
 }

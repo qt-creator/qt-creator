@@ -123,6 +123,11 @@ void Filter::removeFile(const QString &relativeFilePath)
     m_filterType->removeFile(relativeFilePath);
 }
 
+File::Ptr Filter::file(const QString &relativePath) const
+{
+    return m_filterType->file(relativePath);
+}
+
 QList<File::Ptr > Filter::files() const
 {
     return m_filterType->files();
@@ -136,6 +141,12 @@ bool Filter::fileExists(const QString &relativeFilePath)
         if (filePtr->relativePath() == relativeFilePath)
             return true;
     }
+
+    QList<Filter::Ptr> filters = m_filterType->filters();
+
+    foreach (Filter::Ptr filterPtr, filters)
+        if (filterPtr->fileExists(relativeFilePath))
+            return true;
 
     return false;
 }

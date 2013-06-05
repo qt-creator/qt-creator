@@ -82,15 +82,35 @@ ProjectExplorer::BuildConfiguration::BuildType VcProjectBuildConfiguration::buil
     return Debug;
 }
 
-QVariantMap VcProjectBuildConfiguration::toMap() const
-{
-    return ProjectExplorer::BuildConfiguration::toMap();
-}
-
 void VcProjectBuildConfiguration::setConfiguration(Configuration::Ptr config)
 {
     m_configuration = config;
     connect(m_configuration.data(), SIGNAL(nameChanged()), this, SLOT(reloadConfigurationName()));
+}
+
+QString VcProjectBuildConfiguration::configurationNameOnly() const
+{
+    QStringList splits = m_configuration->name().split(QLatin1Char('|'));
+
+    if (splits.isEmpty())
+        return QString();
+
+    return splits[0];
+}
+
+QString VcProjectBuildConfiguration::platformNameOnly() const
+{
+    QStringList splits = m_configuration->name().split(QLatin1Char('|'));
+
+    if (splits.isEmpty() || splits.size() <= 1 || splits.size() > 2)
+        return QString();
+
+    return splits[1];
+}
+
+QVariantMap VcProjectBuildConfiguration::toMap() const
+{
+    return ProjectExplorer::BuildConfiguration::toMap();
 }
 
 void VcProjectBuildConfiguration::reloadConfigurationName()
