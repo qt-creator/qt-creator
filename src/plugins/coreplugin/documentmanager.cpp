@@ -548,6 +548,7 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
 }
 
 
+/*!
     Tries to save the files listed in \a documents. The \a cancelled argument is set to true
     if the user cancelled the dialog. Returns the files that could not be saved. If the files
     listed in documents have no write permissions an additional dialog will be prompted to
