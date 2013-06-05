@@ -435,7 +435,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Reset..."), Core::Id("Git.Reset"),
-                           globalcontext, false, SLOT(resetRepository()));
+                           globalcontext, true, SLOT(resetRepository()));
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Interactive Rebase..."), Core::Id("Git.InteractiveRebase"),
