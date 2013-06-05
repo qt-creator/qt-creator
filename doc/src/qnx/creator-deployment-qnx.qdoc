@@ -57,7 +57,7 @@
 
     To tailor your BAR packages, you will have to manually edit the application
     descriptor file. For a full reference, see
-    \l{https://bdsc.webapps.blackberry.com/native/documentation/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/r_blackberry_tablet_dtd_intro.html}
+    \l{http://bdsc.webapps.blackberry.com/native/documentation/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/r_blackberry_tablet_dtd_intro.html}
     {Document Type Definition (DTD) for the application descriptor file}.
 
     \section1 Deploying to QNX Neutrino Devices

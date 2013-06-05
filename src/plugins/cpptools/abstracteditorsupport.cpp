@@ -55,29 +55,13 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
                                           const QString &fileName,
                                           int line, int column)
 {
-    const CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    const CPlusPlus::Document::Ptr document = snapshot.document(fileName);
-    if (!document)
+    if (!modelManager)
         return QString();
-    if (const CPlusPlus::Symbol *symbol = document->lastVisibleSymbolAt(line, column))
-        if (const CPlusPlus::Scope *scope = symbol->enclosingScope())
-            if (const CPlusPlus::Scope *functionScope = scope->enclosingFunction())
-                if (const CPlusPlus::Symbol *function = functionScope) {
-                    const CPlusPlus::Overview o;
-                    QString rc = o.prettyName(function->name());
-                    // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
-                    for (const CPlusPlus::Symbol *owner = function->enclosingNamespace();
-                         owner; owner = owner->enclosingNamespace()) {
-                        const QString name = o.prettyName(owner->name());
-                        if (name.isEmpty()) {
-                            break;
-                        } else {
-                            rc.prepend(QLatin1String("::"));
-                            rc.prepend(name);
-                        }
-                    }
-                    return rc;
-                }
+
+    const CPlusPlus::Snapshot snapshot = modelManager->snapshot();
+    if (const CPlusPlus::Document::Ptr document = snapshot.document(fileName))
+        return document->functionAt(line, column);
+
     return QString();
 }
 

@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QSharedPointer>
 #include <private/qqmlmetatype_p.h>
+#include <QQmlProperty>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -53,7 +54,7 @@ void NodeInstanceSignalSpy::setObjectNodeInstance(const ObjectNodeInstance::Poin
 
 }
 
-void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const PropertyName &prefix)
+void NodeInstanceSignalSpy::registerObject(QObject *spiedObject)
 {
     if (m_registeredObjectList.contains(spiedObject)) // prevent cycles
         return;
@@ -62,49 +63,64 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const PropertyN
     for (int index = QObject::staticMetaObject.propertyOffset();
          index < spiedObject->metaObject()->propertyCount();
          index++) {
-             QMetaProperty metaProperty = spiedObject->metaObject()->property(index);
+        QMetaProperty metaProperty = spiedObject->metaObject()->property(index);
 
-             // handle dot properties and connect the signals to the object
-             if (metaProperty.isReadable()
-                 && !metaProperty.isWritable()
-                 && QQmlMetaType::isQObject(metaProperty.userType())) {
-                  QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(spiedObject));
-                  if (propertyObject)
-                      registerObject(propertyObject, prefix + metaProperty.name() + '.');
-             } else if (metaProperty.hasNotifySignal()) {
-                 QMetaMethod metaMethod = metaProperty.notifySignal();
-                 bool isConnecting = QMetaObject::connect(spiedObject, metaMethod.methodIndex(), this, methodeOffset, Qt::DirectConnection);
-                 Q_ASSERT(isConnecting);
-                 Q_UNUSED(isConnecting);
-                 m_indexPropertyHash.insert(methodeOffset, prefix + metaProperty.name());
-                 methodeOffset++;
-             }
+        registerProperty(metaProperty, spiedObject);
+        registerChildObject(metaProperty, spiedObject);
+    }
+}
 
-             // search recursive in objects
-             if (metaProperty.isReadable()
-                     && metaProperty.isWritable()
-                     && QQmlMetaType::isQObject(metaProperty.userType())
-                     && QLatin1String(metaProperty.name()) != QLatin1String("parent")) {
-                 QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(spiedObject));
-                 if (propertyObject)
-                     registerObject(propertyObject, prefix + metaProperty.name() + '/');
-             }
+void NodeInstanceSignalSpy::registerProperty(const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix)
+{
+    if (metaProperty.isReadable()
+            && metaProperty.isWritable()
+            && !QQmlMetaType::isQObject(metaProperty.userType())
+            && metaProperty.hasNotifySignal()) {
+        QMetaMethod metaMethod = metaProperty.notifySignal();
+        QMetaObject::connect(spiedObject, metaMethod.methodIndex(), this, methodeOffset, Qt::DirectConnection);
 
-             // search recursive in objects list
-             if (metaProperty.isReadable()
-                 && QQmlMetaType::isList(metaProperty.userType())) {
-                 QQmlListReference list(spiedObject, metaProperty.name());
+        m_indexPropertyHash.insert(methodeOffset, propertyPrefix + PropertyName(metaProperty.name()));
 
-                 if (list.canCount() && list.canAt()) {
+        registerValueType(metaProperty, spiedObject, propertyPrefix);
 
-                     for (int i = 0; i < list.count(); i++) {
-                         QObject *propertyObject = list.at(i);
-                         if (propertyObject)
-                             registerObject(propertyObject, prefix + metaProperty.name() + '/');
-                     }
-                 }
-             }
-         }
+        methodeOffset++;
+    }
+}
+
+void NodeInstanceSignalSpy::registerValueType(const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix)
+{
+    if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
+        QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
+        valueType->setValue(metaProperty.read(spiedObject));
+        for (int index = QObject::staticMetaObject.propertyOffset();
+             index < valueType->metaObject()->propertyCount();
+             index++) {
+            QMetaProperty valueTypeMetaProperty = valueType->metaObject()->property(index);
+            qDebug() << "spy value property: " <<  propertyPrefix + PropertyName(metaProperty.name()) + "." + valueTypeMetaProperty.name();
+
+            m_indexPropertyHash.insert(methodeOffset, propertyPrefix + PropertyName(metaProperty.name()) + "." + valueTypeMetaProperty.name());
+        }
+    }
+}
+
+void NodeInstanceSignalSpy::registerChildObject(const QMetaProperty &metaProperty, QObject *spiedObject)
+{
+    if (metaProperty.isReadable()
+            && !metaProperty.isWritable()
+            && QQmlMetaType::isQObject(metaProperty.userType())
+            && QLatin1String(metaProperty.name()) != "parent") {
+        QObject *childObject = QQmlMetaType::toQObject(metaProperty.read(spiedObject));
+        qDebug() << "spy child property: " <<  childObject << metaProperty.name();
+
+        if (childObject) {
+            for (int index = QObject::staticMetaObject.propertyOffset();
+                 index < childObject->metaObject()->propertyCount();
+                 index++) {
+                QMetaProperty childMetaProperty = childObject->metaObject()->property(index);
+                registerProperty(childMetaProperty, childObject, PropertyName(metaProperty.name()) + '.');
+            }
+        }
+    }
 }
 
 int NodeInstanceSignalSpy::qt_metacall(QMetaObject::Call call, int methodId, void **a)
@@ -113,7 +129,8 @@ int NodeInstanceSignalSpy::qt_metacall(QMetaObject::Call call, int methodId, voi
         ObjectNodeInstance::Pointer nodeInstance = m_objectNodeInstance.toStrongRef();
 
         if (nodeInstance && nodeInstance->nodeInstanceServer() && nodeInstance->isValid()) {
-            nodeInstance->nodeInstanceServer()->notifyPropertyChange(nodeInstance->instanceId(), m_indexPropertyHash.value(methodId));
+            foreach (const PropertyName &propertyName, m_indexPropertyHash.values(methodId))
+                nodeInstance->nodeInstanceServer()->notifyPropertyChange(nodeInstance->instanceId(), propertyName);
         }
 
     }

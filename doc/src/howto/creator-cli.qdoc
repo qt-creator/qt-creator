@@ -120,6 +120,24 @@
             Open the projects and files that were open when you last exited \QC.
             For more information about managing sessions, see \l{Managing Sessions}.
 
+        \row
+            \li -block
+            \li Open files in editors in a running \QC instance and block the
+                command line until the first editor is closed.
     \endtable
+
+    \section1 Using Custom Styles
+
+    \QC is a \l{http://qt-project.org/doc/qt-5.0/qtwidgets/qapplication.html#QApplication}
+    {Qt application}, and therefore, it accepts the command line options
+    that all Qt applications accept. For example, you can use the \c {-style} and
+    \c {-stylesheet} options to apply custom styles and
+    \l{http://qt-project.org/doc/qt-5.0/qtwidgets/stylesheet.html}{stylesheets}.
+    The styling is only applied during the current session.
+
+    Exercise caution when applying styles, as overriding the existing styling
+    may make some items difficult to see. Also, setting a stylesheet may affect
+    the \l{Specifying Text Editor Settings}{text editor color scheme} and the
+    styling of the integrated \QD.
 
     */

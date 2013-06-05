@@ -31,6 +31,8 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
+#include <vcsbase/vcsbaseoutputwindow.h>
+
 #include <QTreeView>
 #include <QLabel>
 #include <QPushButton>
@@ -67,8 +69,13 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
 
 bool LogChangeWidget::init(const QString &repository, const QString &commit, bool includeRemote)
 {
-    if (!populateLog(repository, commit, includeRemote) || !m_model->rowCount())
+    if (!populateLog(repository, commit, includeRemote))
         return false;
+    if (!m_model->rowCount()) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+                    GitPlugin::instance()->gitClient()->msgNoCommits(includeRemote));
+        return false;
+    }
     selectionModel()->select(m_model->index(0, 0),
                              QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
     return true;
@@ -87,6 +94,16 @@ int LogChangeWidget::commitIndex() const
     if (currentIndex.isValid())
         return currentIndex.row();
     return -1;
+}
+
+QString LogChangeWidget::earliestCommit() const
+{
+    int rows = m_model->rowCount();
+    if (rows) {
+        if (const QStandardItem *item = m_model->item(rows - 1, Sha1Column))
+            return item->text();
+    }
+    return QString();
 }
 
 void LogChangeWidget::emitDoubleClicked(const QModelIndex &index)
@@ -181,7 +198,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
 bool LogChangeDialog::runDialog(const QString &repository, const QString &commit, bool includeRemote)
 {
     if (!widget->init(repository, commit, includeRemote))
-        return QDialog::Rejected;
+        return false;
 
     return QDialog::exec() == QDialog::Accepted;
 }

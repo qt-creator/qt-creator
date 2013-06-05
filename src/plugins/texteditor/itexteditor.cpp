@@ -29,8 +29,6 @@
 
 #include "itexteditor.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <QTextCodec>
 
 using namespace TextEditor;
@@ -65,7 +63,6 @@ QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextEditorsEncodings(
     }
     return workingCopy;
 }
-
 
 ITextEditorDocument *ITextEditor::textDocument()
 {

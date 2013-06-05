@@ -212,7 +212,6 @@ QtcPlugin {
             "highlightdefinition.h",
             "highlightdefinitionhandler.cpp",
             "highlightdefinitionhandler.h",
-            "highlightdefinitionmetadata.cpp",
             "highlightdefinitionmetadata.h",
             "highlighter.cpp",
             "highlighter.h",

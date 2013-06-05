@@ -136,7 +136,7 @@ def registerDumper(function):
                 pass
 
 def warn(message):
-    print 'XXX="%s",' % message.encode("latin1").replace('"', "'")
+    print '\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'")
 
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
@@ -147,26 +147,8 @@ def showException(msg, exType, exValue, exTraceback):
 def registerCommand(name, func):
     pass
 
-def currentFrame():
-    currentThread = self.process.GetThreadAtIndex(0)
-    return currentThread.GetFrameAtIndex(0)
-
 def fileName(file):
     return str(file) if file.IsValid() else ''
-
-def breakpoint_function_wrapper(baton, process, frame, bp_loc):
-    result = '*stopped'
-    result += ',line="%s"' % frame.line_entry.line
-    result += ',file="%s"' % frame.line_entry.file
-    warn("WRAPPER: %s " %result)
-    return result
-
-
-def onBreak():
-    db.debugger.HandleCommand("settings set frame-format ''")
-    db.debugger.HandleCommand("settings set thread-format ''")
-    result = "*stopped,frame={....}"
-    print result
 
 
 PointerCode = None
@@ -334,7 +316,12 @@ def simpleEncoding(typeobj):
     #    return Hex2EncodedInt1
     #if code == IntCode:
     if code == lldb.eTypeClassBuiltin:
-        if str(typeobj).find("unsigned") >= 0:
+        name = str(typeobj)
+        if name == "float":
+            return Hex2EncodedFloat4
+        if name == "double":
+            return Hex2EncodedFloat8
+        if name.find("unsigned") >= 0:
             if size == 1:
                 return Hex2EncodedUInt1
             if size == 2:
@@ -352,11 +339,6 @@ def simpleEncoding(typeobj):
                 return Hex2EncodedInt4
             if size == 8:
                 return Hex2EncodedInt8
-    #if code == FloatCode:
-    #    if size == 4:
-    #        return Hex2EncodedFloat4
-    #    if size == 8:
-    #        return Hex2EncodedFloat8
     return None
 
 class Children:
@@ -495,9 +477,7 @@ class Dumper:
         self.debugger.HandleCommand("settings set auto-confirm on")
         self.process = None
         self.target = None
-        self.pid = None
         self.eventState = lldb.eStateInvalid
-        self.listener = None
         self.options = {}
         self.expandedINames = {}
         self.passExceptions = True
@@ -505,7 +485,7 @@ class Dumper:
         self.ns = ""
         self.autoDerefPointers = True
         self.useDynamicType = True
-        self.useLoop = True
+        self.useFancy = True
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -518,6 +498,7 @@ class Dumper:
         self.currentPrintsAddress = None
         self.currentChildType = None
         self.currentChildNumChild = None
+        self.currentWatchers = {}
 
         self.executable_ = None
         self.charType_ = None
@@ -526,11 +507,12 @@ class Dumper:
         self.charPtrType_ = None
         self.voidType_ = None
         self.isShuttingDown_ = False
+        self.dummyValue = None
 
     def extractTemplateArgument(self, typename, index):
         level = 0
         skipSpace = False
-        inner = ""
+        inner = ''
         for c in typename[typename.find('<') + 1 : -1]:
             if c == '<':
                 inner += c
@@ -543,7 +525,7 @@ class Dumper:
                     if index == 0:
                         return inner
                     index -= 1
-                    inner = ""
+                    inner = ''
                 else:
                     inner += c
                     skipSpace = True
@@ -624,10 +606,28 @@ class Dumper:
             return True
         return self.stripNamespaceFromType(type.GetName()) in movableTypes
 
+    def putIntItem(self, name, value):
+        with SubItem(self, name):
+            self.putValue(value)
+            self.putType("int")
+            self.putNumChild(0)
+
+    def putBoolItem(self, name, value):
+        with SubItem(self, name):
+            self.putValue(value)
+            self.putType("bool")
+            self.putNumChild(0)
+
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
         #if numchild != self.currentChildNumChild:
         self.put('numchild="%s",' % numchild)
+
+    def putEmptyValue(self, priority = -10):
+        if priority >= self.currentValuePriority:
+            self.currentValue = ""
+            self.currentValuePriority = priority
+            self.currentValueEncoding = None
 
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
@@ -681,6 +681,13 @@ class Dumper:
             return xrange(0, self.currentNumChild)
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
 
+    def putPlainChildren(self, value):
+        self.putEmptyValue(-99)
+        self.putNumChild(1)
+        if self.currentIName in self.expandedINames:
+            with Children(self):
+               self.putFields(value)
+
     def lookupType(self, name):
         #warn("LOOKUP: %s" % self.target.FindFirstType(name))
         return self.target.FindFirstType(name)
@@ -690,15 +697,6 @@ class Dumper:
         self.executable_ = executable
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(executable, None, None, True, error)
-        self.listener = self.target.GetDebugger().GetListener()
-        self.process = self.target.Launch(self.listener, None, None,
-                                            None, None, None,
-                                            None, 0, True, error)
-        self.broadcaster = self.process.GetBroadcaster()
-        rc = self.broadcaster.AddListener(self.listener, 15)
-        if rc != 15:
-            warn("ADDING LISTENER FAILED: %s" % rc)
-
         self.importDumpers()
 
         if self.target.IsValid():
@@ -706,22 +704,26 @@ class Dumper:
         else:
             self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, executable))
 
-        warn("STATE AFTER LAUNCH: %s" % stateNames[self.process.GetState()])
-
     def runEngine(self, _):
-        error = lldb.SBError()
-        self.pid = self.process.GetProcessID()
-        self.report('pid="%s"' % self.pid)
-        self.consumeEvents()
-        error = self.process.Continue()
-        self.consumeEvents()
-        self.reportError(error)
+        s = threading.Thread(target=self.loop, args=[])
+        s.start()
 
+    def loop(self):
+        error = lldb.SBError()
+        listener = self.debugger.GetListener()
+
+        self.process = self.target.Launch(listener, None, None, None, None,
+            None, None, 0, False, error)
+
+        self.report('pid="%s"' % self.process.GetProcessID())
         self.report('state="enginerunandinferiorrunok"')
 
-        if self.useLoop:
-            s = threading.Thread(target=self.loop, args=[])
-            s.start()
+        event = lldb.SBEvent()
+        while True:
+            if listener.WaitForEvent(10000000, event):
+                self.handleEvent(event)
+            else:
+                warn('TIMEOUT')
 
     def describeError(self, error):
         desc = lldb.SBStream()
@@ -749,19 +751,25 @@ class Dumper:
         self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
 
     def reportThreads(self):
+        reasons = ['None', 'Trace', 'Breakpoint', 'Watchpoint', 'Signal', 'Exception',
+            'Exec', 'PlanComplete']
         result = 'threads={threads=['
         for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
+            stopReason = thread.GetStopReason()
             result += '{id="%d"' % thread.GetThreadID()
             result += ',index="%s"' % i
-            result += ',stop-reason="%s"' % thread.GetStopReason()
+            result += ',details="%s"' % thread.GetQueueName()
+            result += ',stop-reason="%s"' % stopReason
+            if stopReason >= 0 and stopReason < len(reasons):
+                result += ',state="%s"' % reasons[stopReason]
             result += ',name="%s"' % thread.GetName()
             result += ',frame={'
             frame = thread.GetFrameAtIndex(0)
             result += 'pc="0x%x"' % frame.pc
             result += ',addr="0x%x"' % frame.pc
             result += ',fp="0x%x"' % frame.fp
-            result += ',func="%s"' % frame.function.name
+            result += ',func="%s"' % frame.GetFunctionName()
             result += ',line="%s"' % frame.line_entry.line
             result += ',fullname="%s"' % fileName(frame.line_entry.file)
             result += ',file="%s"' % fileName(frame.line_entry.file)
@@ -797,19 +805,12 @@ class Dumper:
             result += '],hasmore="%s"},' % hasmore
             self.report(result)
 
-    # Convenience function.
-    def putItemCount(self, count, maximum = 1000000000):
-        # This needs to override the default value, so don't use 'put' directly.
-        if count > maximum:
-            self.putValue('<>%s items>' % maximum)
-        else:
-            self.putValue('<%s items>' % count)
-
     def putType(self, type, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentTypePriority:
             self.currentType = str(type)
             self.currentTypePriority = priority
+        #warn("TYPE: %s PRIORITY: %s" % (type, priority))
 
     def putBetterType(self, type):
         try:
@@ -817,6 +818,7 @@ class Dumper:
         except:
             self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
+        #warn("BETTER TYPE: %s PRIORITY: %s" % (type, self.currentTypePriority))
 
     def readRawMemory(self, base, size):
         if size == 0:
@@ -883,7 +885,7 @@ class Dumper:
             formatter.update()
             numchild = formatter.num_children()
             self.put('iname="%s",' % self.currentIName)
-            self.put('type="%s",' % typeName)
+            self.putType(typeName)
             self.put('numchild="%s",' % numchild)
             self.put('addr="0x%x",' % value.GetLoadAddress())
             self.putItemCount(numchild)
@@ -902,32 +904,51 @@ class Dumper:
         if value.GetType().IsReferenceType():
             type = value.GetType().GetDereferencedType().GetPointerType()
             # FIXME: Find something more direct.
+            origType = value.GetTypeName();
             value = value.CreateValueFromAddress(value.GetName(),
                 value.AddressOf().GetValueAsUnsigned(), type).Dereference()
             #value = value.cast(value.dynamic_type)
             self.putItem(value)
-            self.putBetterType("%s &" % value.GetTypeName())
+            self.putBetterType(origType)
             return
 
         # Pointers
         if value.GetType().IsPointerType() and self.autoDerefPointers:
-            self.putItem(value.Dereference())
+
+            if isNull(value):
+                self.putType(typeName)
+                self.putValue("0x0")
+                self.putNumChild(0)
+                return
+
+            origType = value.GetType()
+            innerType = value.GetType().GetPointeeType()
+            self.putType(innerType)
+            savedCurrentChildType = self.currentChildType
+            self.currentChildType = str(innerType)
+            self.putItem(value.dereference())
+            self.currentChildType = savedCurrentChildType
+            self.put('origaddr="%s",' % value.address)
             return
 
-        stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
         #warn("VALUE: %s" % value)
-        if stripped in qqDumpers:
-            self.putType(typeName)
-            qqDumpers[stripped](self, value)
-            return
+        #warn("FANCY: %s" % self.useFancy)
+        if self.useFancy:
+            stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
+            #warn("STRIPPED: %s" % stripped)
+            #warn("DUMPABLE: %s" % (stripped in qqDumpers))
+            if stripped in qqDumpers:
+                self.putType(typeName)
+                qqDumpers[stripped](self, value)
+                return
 
         # Normal value
         v = value.GetValue()
         #numchild = 1 if value.MightHaveChildren() else 0
         numchild = value.GetNumChildren()
         self.put('iname="%s",' % self.currentIName)
-        self.put('type="%s",' % typeName)
-        self.putValue("" if v is None else v)
+        self.putType(typeName)
+        self.putValue('' if v is None else v)
         self.put('numchild="%s",' % numchild)
         self.put('addr="0x%x",' % value.GetLoadAddress())
         if self.currentIName in self.expandedINames:
@@ -945,12 +966,37 @@ class Dumper:
 
     def reportVariables(self, _ = None):
         frame = self.currentThread().GetSelectedFrame()
-        self.currentIName = "local"
+        self.currentIName = 'local'
         self.put('data=[')
         for value in frame.GetVariables(True, True, False, False):
+            if self.dummyValue is None:
+                self.dummyValue = value
             with SubItem(self, value):
                 self.put('iname="%s",' % self.currentIName)
                 self.putItem(value)
+
+        # 'watchers':[{'id':'watch.0','exp':'23'},...]
+        if not self.dummyValue is None:
+            for watcher in self.currentWatchers:
+                iname = watcher['iname']
+                index = iname[iname.find('.') + 1:]
+                exp = binascii.unhexlify(watcher['exp'])
+                warn("EXP: %s" % exp)
+                warn("INDEX: %s" % index)
+                if exp == "":
+                    self.put('type="",value="",exp=""')
+                    continue
+
+                value = self.dummyValue.CreateValueFromExpression(iname, exp)
+                #value = self.dummyValue
+                warn("VALUE: %s" % value)
+                self.currentIName = 'watch'
+                with SubItem(self, index):
+                    self.put('exp="%s",' % exp)
+                    self.put('wname="%s",' % binascii.hexlify(exp))
+                    self.put('iname="%s",' % self.currentIName)
+                    self.putItem(value)
+
         self.put(']')
         self.report('')
 
@@ -967,6 +1013,7 @@ class Dumper:
                 self.reportVariables()
 
     def reportRegisters(self, _ = None):
+        return
         if self.process is None:
             self.report('process="none"')
         else:
@@ -987,10 +1034,14 @@ class Dumper:
     def interruptInferior(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
-        else:
-            #self.debugger.DispatchInputInterrupt()
-            error = self.process.Stop()
-            self.reportError(error)
+            return
+        error = self.process.Stop()
+        self.reportError(error)
+        self.consumeEvents()
+        if error.GetType() == 1:
+            state = self.process.GetState()
+            if state != lldb.eStateStopped:
+                self.report('state="inferiorstopfailed"')
 
     def detachInferior(self, _ = None):
         if self.process is None:
@@ -1044,12 +1095,9 @@ class Dumper:
             pass
 
     def processEvents(self):
-        if self.listener is None:
-            warn("NO LISTENER YET")
-            return
         event = lldb.SBEvent()
-        while self.listener.PeekAtNextEvent(event):
-            self.listener.GetNextEvent(event)
+        while self.debugger.GetListener().PeekAtNextEvent(event):
+            self.debugger.GetListener().GetNextEvent(event)
             self.handleEvent(event)
 
     def describeBreakpoint(self, bp, modelId):
@@ -1099,13 +1147,6 @@ class Dumper:
             bpNew.SetOneShot(int(args["oneshot"]))
         except:
             pass
-        #bpNew.SetCallback(breakpoint_function_wrapper, None)
-        #bpNew.SetCallback(breakpoint_function_wrapper, None)
-        #"breakpoint command add 1 -o \"import time; print time.asctime()\"
-        #cmd = "script print(11111111)"
-        #cmd = "continue"
-        #self.debugger.HandleCommand(
-        #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
         return bpNew
 
     def changeBreakpoint(self, args):
@@ -1246,13 +1287,26 @@ class Dumper:
     def setOptions(self, args):
         self.options = args
 
-    def updateData(self, args):
-        self.expandedINames = set(args['expanded'].split(','))
-        self.autoDerefPointers = int(args['autoderef'])
-        self.useDynamicType = int(args['dyntype'])
-        # Keep always True for now.
-        #self.passExceptions = args['pe']
+    def setWatchers(self, args):
+        #self.currentWatchers = args['watchers']
+        warn("WATCHERS %s" % self.currentWatchers)
         self.reportData()
+
+    def updateData(self, args):
+        warn("UPDATE 1")
+        if 'expanded' in args:
+            self.expandedINames = set(args['expanded'].split(','))
+        if 'autoderef' in args:
+            self.autoDerefPointers = int(args['autoderef'])
+        if 'dyntype' in args:
+            self.useDynamicType = int(args['dyntype'])
+        if 'fancy' in args:
+            self.useFancy = int(args['fancy'])
+        if 'passexceptions' in args:
+            self.passExceptions = int(args['passexceptions'])
+        self.passExceptions = True # FIXME
+        self.reportVariables(args)
+        warn("UPDATE 2")
 
     def disassemble(self, args):
         frame = self.currentFrame();
@@ -1284,6 +1338,18 @@ class Dumper:
         result += ',contents="%s"}' % binascii.hexlify(contents)
         self.report(result)
 
+    def assignValue(self, args):
+        exp = binascii.unhexlify(args['exp'])
+        value = binascii.unhexlify(args['value'])
+        warn("EXP: %s" % exp)
+        warn("VALUE: %s" % value)
+        lhs = self.dummyValue.CreateValueFromExpression("$$lhs", exp)
+        rhs = self.dummyValue.CreateValueFromExpression("$$rhs", value)
+        warn("LHS: %s" % lhs)
+        warn("RHS: %s" % rhs)
+        #lhs.SetData(rhs.GetData())
+        self.reportVariables()
+
     def importDumpers(self, _ = None):
         result = lldb.SBCommandReturnObject()
         interpreter = self.debugger.GetCommandInterpreter()
@@ -1291,16 +1357,6 @@ class Dumper:
         items = globals()
         for key in items:
             registerDumper(items[key])
-
-    def loop(self):
-        event = lldb.SBEvent()
-        while True:
-            # Mac LLDB doesn't like sys.maxsize
-            # if self.listener.WaitForEvent(sys.maxsize, event):
-            if self.listener.WaitForEvent(10000000, event):
-                self.handleEvent(event)
-            else:
-                warn('TIMEOUT')
 
     def execute(self, args):
         getattr(self, args['cmd'])(args)
@@ -1311,8 +1367,8 @@ class Dumper:
 
     def consumeEvents(self):
         event = lldb.SBEvent()
-        if self.listener and self.listener.PeekAtNextEvent(event):
-            self.listener.GetNextEvent(event)
+        if self.debugger.GetListener().PeekAtNextEvent(event):
+            self.debugger.GetListener().GetNextEvent(event)
             self.handleEvent(event)
 
 
@@ -1320,27 +1376,9 @@ currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 execfile(os.path.join(currentDir, "qttypes.py"))
 
 
-def doit1():
+def doit():
 
     db = Dumper()
-    db.useLoop = False
-    db.report('state="enginesetupok"')
-
-    while True:
-        db.consumeEvents()
-
-        readable, _, _ = select.select([sys.stdin], [], [], 0.1)
-        if sys.stdin in readable:
-            line = raw_input()
-            if line.startswith("db "):
-                db.execute(eval(line[3:]))
-
-        db.consumeEvents()
-
-def doit2():
-
-    db = Dumper()
-    db.useLoop = True
     db.report('state="enginesetupok"')
 
     while True:
@@ -1348,49 +1386,64 @@ def doit2():
         for reader in readable:
             if reader == sys.stdin:
                 line = sys.stdin.readline()
-                #warn("READING LINE %s" % line)
+                #warn("READING LINE '%s'" % line)
                 if line.startswith("db "):
                     db.execute(eval(line[3:]))
 
 
-def testit():
+def testit1():
+
     db = Dumper()
-    db.useLoop = False
 
-    error = lldb.SBError()
-    db.target = db.debugger.CreateTarget(sys.argv[2], None, None, True, error)
-    #db.importDumpers()
-
-    bpNew = db.target.BreakpointCreateByName('breakHere', 'doit')
-
-    db.listener = lldb.SBListener("event_Listener")
-    db.process = db.target.LaunchSimple(None, None, os.getcwd())
-    broadcaster = db.process.GetBroadcaster()
-    listener = lldb.SBListener("event_Listener 2")
-    rc = broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
-    event = lldb.SBEvent()
+    db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
+    db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
+        'modelid':'1','type':2,'ignorecount':0,'condition':'','function':'main',
+        'oneshot':0,'enabled':1,'file':'','line':0}]})
+    db.runEngine({'cmd':'runEngine','token':4})
 
     while True:
-        event = lldb.SBEvent()
-        if db.listener.WaitForEvent(1, event):
-            out = lldb.SBStream()
-            event.GetDescription(out)
-            warn("EVENT: %s" % event)
-            type = event.GetType()
-            msg = lldb.SBEvent.GetCStringFromEvent(event)
-            flavor = event.GetDataFlavor()
-            state = lldb.SBProcess.GetStateFromEvent(event)
-            db.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
-                % (type, out.GetData(), msg, flavor, state))
-            db.report('state="%s"' % stateNames[state])
-            if type == lldb.SBProcess.eBroadcastBitStateChanged:
-                #if state == lldb.eStateStopped:
-                #db.reportData()
-                pass
-        else:
-            warn('TIMEOUT')
+        readable, _, _ = select.select([sys.stdin], [], [])
+        for reader in readable:
+            if reader == sys.stdin:
+                line = sys.stdin.readline().strip()
+                #warn("READING LINE '%s'" % line)
+                if line.startswith("db "):
+                    db.execute(eval(line[3:]))
+                else:
+                    db.executeDebuggerCommand({'command':line})
+
+
+# Used in dumper auto test.
+# Usage: python lbridge.py /path/to/testbinary comma-separated-inames
+def testit():
+
+    db = Dumper()
+
+    # Disable intermediate reporting.
+    savedReport = db.report
+    db.report = lambda stuff: 0
+
+    db.debugger.SetAsync(False)
+    db.expandedINames = set(sys.argv[3].split(','))
+
+    db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
+    db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
+        'modelid':'1','type':2,'ignorecount':0,'condition':'','function':'breakHere',
+        'oneshot':0,'enabled':1,'file':'','line':0}]})
+
+    error = lldb.SBError()
+    listener = db.debugger.GetListener()
+    db.process = db.target.Launch(listener, None, None, None, None,
+        None, None, 0, False, error)
+
+    db.currentThread().SetSelectedFrame(1)
+
+    db.report = savedReport
+    db.reportVariables()
+    #db.report("DUMPER=%s" % qqDumpers)
+
 
 if len(sys.argv) > 2:
     testit()
 else:
-    doit2()
+    doit()

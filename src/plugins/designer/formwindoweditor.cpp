@@ -259,9 +259,9 @@ TextEditor::PlainTextEditor *FormWindowEditor::textEditor()
     return &d->m_textEditor;
 }
 
-Core::Id FormWindowEditor::preferredModeType() const
+bool FormWindowEditor::isDesignModePreferred() const
 {
-    return Core::Id(Core::Constants::MODE_DESIGN_TYPE);
+    return true;
 }
 
 } // namespace Designer

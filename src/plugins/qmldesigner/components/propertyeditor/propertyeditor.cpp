@@ -343,7 +343,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         m_setupCompleted(false),
         m_singleShotTimer(new QTimer(this))
 {
-    m_updateShortcut = new QShortcut(QKeySequence("F5"), m_stackedWidget);
+    m_updateShortcut = new QShortcut(QKeySequence("F3"), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
     m_stackedWidget->setStyleSheet(
@@ -952,7 +952,7 @@ void PropertyEditor::scriptFunctionsChanged(const ModelNode &node, const QString
 
 void PropertyEditor::select(const ModelNode &node)
 {
-    if (QmlItemNode(node).isValid())
+    if (QmlObjectNode(node).isValid())
         m_selectedNode = node;
     else
         m_selectedNode = ModelNode();
@@ -1086,6 +1086,22 @@ QString PropertyEditor::locateQmlFile(const NodeMetaInfo &info, const QString &r
     QDir fileSystemDir(m_qmlDir);
     static QDir resourcesDir(resourcePropertyEditorPath);
     QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
+
+    const QString versionString = QLatin1String("_") + QString::number(info.majorVersion())
+            + QLatin1String("_")
+            + QString::number(info.minorVersion());
+
+    QString relativePathWithoutEnding = relativePath;
+    relativePathWithoutEnding.chop(4);
+    const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QLatin1String(".qml");
+
+    //Check for qml files with versions first
+    if (importDir.exists(relativePathWithVersion))
+        return importDir.absoluteFilePath(relativePathWithVersion);
+    if (fileSystemDir.exists(relativePathWithVersion))
+        return fileSystemDir.absoluteFilePath(relativePathWithVersion);
+    if (resourcesDir.exists(relativePathWithVersion))
+        return resourcesDir.absoluteFilePath(relativePathWithVersion);
 
     if (importDir.exists(relativePath))
         return importDir.absoluteFilePath(relativePath);

@@ -61,7 +61,7 @@ namespace Utils {
 }
 
 namespace DiffEditor {
-    class DiffEditorEditable;
+    class DiffEditor;
 }
 
 namespace Git {
@@ -138,6 +138,7 @@ public:
 
     QString findRepositoryForDirectory(const QString &dir);
     QString findGitDirForRepository(const QString &repositoryDir) const;
+    QString findRepositoryForGitDir(const QString &gitDir) const;
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
     void diff(const QString &workingDirectory, const QStringList &diffArgs,
@@ -237,10 +238,9 @@ public:
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
     QString vcsGetRepositoryURL(const QString &directory);
-    bool synchronousFetch(const QString &workingDirectory, const QString &remote);
+    void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
-    bool synchronousPush(const QString &workingDirectory,
-                         const QStringList &pushArgs = QStringList());
+    void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch);
     bool canRebase(const QString &workingDirectory) const;
     bool synchronousRebase(const QString &workingDirectory,
@@ -315,12 +315,14 @@ public:
     void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
 
     static QString msgNoChangedFiles();
+    static QString msgNoCommits(bool includeRemote);
 
     static const char *noColorOption;
     static const char *decorateOption;
 
 public slots:
-    void show(const QString &source, const QString &id, const QStringList &args = QStringList());
+    void show(const QString &source, const QString &id,
+              const QStringList &args = QStringList(), const QString &name = QString());
     void saveSettings();
 
 private slots:
@@ -332,8 +334,9 @@ private:
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
-    DiffEditor::DiffEditorEditable *findExistingDiffEditor(const char *registerDynamicProperty,
-                                               const QString &dynamicPropertyValue) const;
+    DiffEditor::DiffEditor *findExistingOrOpenNewDiffEditor(const char *registerDynamicProperty,
+                                               const QString &dynamicPropertyValue,
+                                               const QString &titlePattern) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
@@ -353,9 +356,7 @@ private:
                            const QStringList &arguments,
                            VcsBase::VcsBaseEditorWidget* editor = 0,
                            bool useOutputToWindow = false,
-                           VcsBase::Command::TerminationReportMode tm = VcsBase::Command::NoReport,
-                           int editorLineNumber = -1,
-                           bool unixTerminalDisabled = false);
+                           int editorLineNumber = -1);
 
     // Fully synchronous git execution (QProcess-based).
     bool fullySynchronousGit(const QString &workingDirectory,

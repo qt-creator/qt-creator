@@ -172,7 +172,7 @@ void RemoteDialog::pushToRemote()
 
     const int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    m_remoteModel->client()->synchronousPush(m_remoteModel->workingDirectory(),
+    m_remoteModel->client()->push(m_remoteModel->workingDirectory(),
                                              QStringList() << remoteName);
 }
 
@@ -184,7 +184,7 @@ void RemoteDialog::fetchFromRemote()
 
     int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    m_remoteModel->client()->synchronousFetch(m_remoteModel->workingDirectory(), remoteName);
+    m_remoteModel->client()->fetch(m_remoteModel->workingDirectory(), remoteName);
 }
 
 void RemoteDialog::updateButtonState()

@@ -157,7 +157,7 @@ void ChangeSelectionDialog::chooseWorkingDirectory()
 
 QString ChangeSelectionDialog::workingDirectory() const
 {
-    if (!QDir(m_workingDirEdit->text()).exists())
+    if (m_workingDirEdit->text().isEmpty() || !QDir(m_workingDirEdit->text()).exists())
         return QString();
 
     return GitPlugin::instance()->gitClient()->
@@ -230,7 +230,6 @@ void ChangeSelectionDialog::recalculateDetails()
     QString workingDir = workingDirectory();
     QPalette palette = m_workingDirEdit->palette();
     if (workingDir.isEmpty()) {
-        m_workingDirEdit->palette();
         m_detailsText->setPlainText(tr("Error: Bad working directory."));
         palette.setColor(QPalette::Text, Qt::red);
         m_workingDirEdit->setPalette(palette);

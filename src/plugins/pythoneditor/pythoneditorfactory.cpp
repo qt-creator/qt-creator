@@ -56,16 +56,6 @@ QString EditorFactory::displayName() const
     return tr(Constants::C_EDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *EditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    if (!iface) {
-        qWarning() << "CEditorFactory::open: openEditor failed for " << fileName;
-        return 0;
-    }
-    return iface->document();
-}
-
 Core::IEditor *EditorFactory::createEditor(QWidget *parent)
 {
     EditorWidget *widget = new EditorWidget(parent);

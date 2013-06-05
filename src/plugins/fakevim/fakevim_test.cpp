@@ -786,6 +786,29 @@ void FakeVimPlugin::test_vim_delete()
     KEYS("\"xd$", X "" N "def");
     KEYS("\"xp", "ab" X "c" N "def");
     KEYS("2\"xp", "abcabcab" X "c" N "def");
+
+    /* QTCREATORBUG-9289 */
+    data.setText("abc" N "def");
+    KEYS("$" "dw", "a" X "b" N "def");
+    KEYS("dw", X "a" N "def");
+    KEYS("dw", X "" N "def");
+    KEYS("dw", X "def");
+
+    data.setText("abc" N "def ghi");
+    KEYS("2dw", X "ghi");
+
+    data.setText("abc" N X "" N "def");
+    KEYS("dw", "abc" N X "def");
+    KEYS("k$" "dw", "a" X "b" N "def");
+    KEYS("j$h" "dw", "ab" N X "d");
+
+    data.setText("abc" N "def");
+    KEYS("2lvx", "a" X "b" N "def");
+    KEYS("vlx", "a" X "def");
+
+    data.setText("abc" N "def");
+    KEYS("2lvox", "a" X "b" N "def");
+    KEYS("vlox", "a" X "def");
 }
 
 void FakeVimPlugin::test_vim_delete_inner_word()

@@ -87,7 +87,7 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_splitButton(new QToolButton),
     m_horizontalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)), EditorManager::tr("Split"), parent)),
     m_verticalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_VERTICAL)), EditorManager::tr("Split Side by Side"), parent)),
-    m_splitNewWindowAction(new QAction(EditorManager::tr("Split New Window"), parent)),
+    m_splitNewWindowAction(new QAction(EditorManager::tr("Open in New Window"), parent)),
     m_closeSplitButton(new QToolButton),
     m_activeToolBar(0),
     m_toolBarPlaceholder(new QWidget),
@@ -311,7 +311,7 @@ void EditorToolBar::changeActiveEditor(int row)
 {
     EditorManager *em = ICore::editorManager();
     QAbstractItemModel *model = d->m_editorList->model();
-    em->activateEditorForIndex(model->index(row, 0), EditorManager::ModeSwitch);
+    em->activateEditorForIndex(model->index(row, 0));
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)

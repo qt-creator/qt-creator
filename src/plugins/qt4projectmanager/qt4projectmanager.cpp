@@ -247,7 +247,8 @@ void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor
         editable = editor->editor();
     } else {
         editable = qobject_cast<TextEditor::BaseTextEditor *>
-                (Core::EditorManager::openEditor(fileName, Qt4ProjectManager::Constants::PROFILE_EDITOR_ID));
+                (Core::EditorManager::openEditor(fileName, Qt4ProjectManager::Constants::PROFILE_EDITOR_ID,
+                                                 Core::EditorManager::DoNotMakeVisible));
     }
     if (!editable)
         return;

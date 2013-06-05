@@ -861,8 +861,6 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesF
             }
         } else {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
-            if (flags & ICore::SwitchMode)
-                emFlags = EditorManager::ModeSwitch;
             if (flags & ICore::CanContainLineNumbers)
                 emFlags |=  EditorManager::CanContainLineNumber;
             IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
@@ -1005,7 +1003,7 @@ void MainWindow::openFileWith()
         if (isExternal)
             EditorManager::openExternalEditor(fileName, editorId);
         else
-            EditorManager::openEditor(fileName, editorId, Core::EditorManager::ModeSwitch);
+            EditorManager::openEditor(fileName, editorId);
     }
 }
 
@@ -1289,7 +1287,7 @@ void MainWindow::openRecentFile()
 {
     if (const QAction *action = qobject_cast<const QAction*>(sender())) {
         const DocumentManager::RecentFile file = action->data().value<DocumentManager::RecentFile>();
-        EditorManager::openEditor(file.first, file.second, EditorManager::ModeSwitch);
+        EditorManager::openEditor(file.first, file.second);
     }
 }
 

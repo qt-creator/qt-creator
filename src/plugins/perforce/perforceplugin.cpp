@@ -649,8 +649,7 @@ void PerforcePlugin::startSubmitProject()
 
 Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
-    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID,
-                                                      Core::EditorManager::ModeSwitch);
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID);
     PerforceSubmitEditor *submitEditor = static_cast<PerforceSubmitEditor*>(editor);
     setSubmitEditor(submitEditor);
     submitEditor->restrictToProjectFiles(depotFileNames);
@@ -1180,7 +1179,7 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
     if (codec)
         e->setCodec(codec);
     Core::IEditor *ie = e->editor();
-    Core::EditorManager::activateEditor(ie, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(ie);
     return ie;
 }
 
@@ -1262,7 +1261,7 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
 
     if (existingEditor) {
         existingEditor->createNew(result.stdOut);
-        Core::EditorManager::activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(existingEditor);
         return;
     }
     // Create new editor

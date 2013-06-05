@@ -46,7 +46,6 @@
 using namespace ExtensionSystem;
 
 /*!
-    \fn PluginErrorView::PluginErrorView(QWidget *parent)
     Constructs a new error view with given \a parent widget.
 */
 PluginErrorView::PluginErrorView(QWidget *parent)
@@ -57,7 +56,6 @@ PluginErrorView::PluginErrorView(QWidget *parent)
 }
 
 /*!
-    \fn PluginErrorView::~PluginErrorView()
     \internal
 */
 PluginErrorView::~PluginErrorView()
@@ -66,7 +64,6 @@ PluginErrorView::~PluginErrorView()
 }
 
 /*!
-    \fn void PluginErrorView::update(PluginSpec *spec)
     Reads the given \a spec and displays its state and
     error information in this PluginErrorView.
 */

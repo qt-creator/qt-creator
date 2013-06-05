@@ -270,7 +270,9 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 
 static inline ITextEditor *editableAt(const QString &fileName, int line, int column)
 {
-    return qobject_cast<ITextEditor *>(TextEditor::BaseTextEditorWidget::openEditorAt(fileName, line, column));
+    return qobject_cast<ITextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
+                                                                         Core::Id(),
+                                                                         Core::EditorManager::DoNotMakeVisible));
 }
 
 static void addDeclaration(const Snapshot &snapshot,
@@ -626,7 +628,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     }
 
     // jump to function definition, position within code
-    TextEditor::BaseTextEditorWidget::openEditorAt(sourceDoc->fileName(), line + 2, indentation);
+    Core::EditorManager::openEditorAt(sourceDoc->fileName(), line + 2, indentation);
 
     return true;
 }

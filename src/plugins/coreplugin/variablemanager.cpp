@@ -308,7 +308,7 @@ void VariableManager::registerFileVariables(const QByteArray &prefix, const QStr
 {
     registerVariable(prefix + kFilePathPostfix, tr("%1: Full path including file name.").arg(heading));
     registerVariable(prefix + kPathPostfix, tr("%1: Full path excluding file name.").arg(heading));
-    registerVariable(prefix + kFileNamePostfix, tr("%1: File name without including path.").arg(heading));
+    registerVariable(prefix + kFileNamePostfix, tr("%1: File name without path.").arg(heading));
     registerVariable(prefix + kFileBaseNamePostfix, tr("%1: File base name without path and suffix.").arg(heading));
 }
 

@@ -289,8 +289,6 @@ Service::~Service()
 }
 
 /*!
-  \fn QString Service::networkInterface()
-
   Returns the interface on which the service is reachable.
  */
 QNetworkInterface Service::networkInterface() const

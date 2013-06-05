@@ -131,11 +131,6 @@ public:
     BaseTextEditorWidget(QWidget *parent);
     ~BaseTextEditorWidget();
 
-    static Core::IEditor *openEditorAt(const QString &fileName, int line, int column = 0,
-                                     Core::Id editorId = Core::Id(),
-                                     Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::IgnoreNavigationHistory,
-                                     bool *newEditor = 0);
-
     const Utils::ChangeSet &changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);
 

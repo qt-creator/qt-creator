@@ -53,6 +53,8 @@ public:
     bool isValid() const;
     bool isRootNode() const;
 
+    static bool isItemOrWindow(const ModelNode &modelNode);
+
     QmlModelStateGroup states() const;
     QList<QmlItemNode> children() const;
     QList<QmlObjectNode> resources() const;
@@ -75,8 +77,12 @@ public:
 
     QRectF instanceBoundingRect() const;
     QRectF instancePaintedBoundingRect() const;
+    QRectF instanceContentItemBoundingRect() const;
     QTransform instanceTransform() const;
+    QTransform instanceTransformWithContentTransform() const;
+    QTransform instanceTransformWithContentItemTransform() const;
     QTransform instanceSceneTransform() const;
+    QTransform instanceSceneContentItemTransform() const;
     QPointF instanceScenePosition() const;
     QPointF instancePosition() const;
     QSizeF instanceSize() const;

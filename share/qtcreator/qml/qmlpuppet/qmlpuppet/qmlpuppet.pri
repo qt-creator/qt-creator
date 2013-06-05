@@ -17,7 +17,7 @@ include (../commands/commands.pri)
 include (../container/container.pri)
 include (../interfaces/interfaces.pri)
 
-SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/qmlpuppetmain.cpp
 RESOURCES += $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
 

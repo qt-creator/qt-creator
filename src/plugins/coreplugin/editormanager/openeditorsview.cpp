@@ -189,7 +189,7 @@ void OpenEditorsWidget::handleClicked(const QModelIndex &index)
 void OpenEditorsWidget::activateEditor(const QModelIndex &index)
 {
     selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    EditorManager::instance()->activateEditorForIndex(index, EditorManager::ModeSwitch);
+    EditorManager::instance()->activateEditorForIndex(index);
 }
 
 void OpenEditorsWidget::closeEditor(const QModelIndex &index)

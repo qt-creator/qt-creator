@@ -1,7 +1,9 @@
-/****************************************************************************
+/**************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2011 - 2013 Research In Motion
+**
+** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -27,17 +29,33 @@
 **
 ****************************************************************************/
 
-#include "highlightdefinitionmetadata.h"
+#ifndef PROJECTEXPLORER_DEVICECHECKBUILDSTEP_H
+#define PROJECTEXPLORER_DEVICECHECKBUILDSTEP_H
 
-using namespace TextEditor;
-using namespace Internal;
+#include "../buildstep.h"
+#include "../projectexplorer_export.h"
 
-const QLatin1String HighlightDefinitionMetaData::kPriority("priority");
-const QLatin1String HighlightDefinitionMetaData::kName("name");
-const QLatin1String HighlightDefinitionMetaData::kExtensions("extensions");
-const QLatin1String HighlightDefinitionMetaData::kMimeType("mimetype");
-const QLatin1String HighlightDefinitionMetaData::kVersion("version");
-const QLatin1String HighlightDefinitionMetaData::kUrl("url");
+namespace ProjectExplorer {
 
-HighlightDefinitionMetaData::HighlightDefinitionMetaData() : priority(0)
-{}
+class BuildStepList;
+
+class PROJECTEXPLORER_EXPORT DeviceCheckBuildStep : public BuildStep
+{
+    Q_OBJECT
+public:
+    DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id);
+    DeviceCheckBuildStep(ProjectExplorer::BuildStepList *bsl, DeviceCheckBuildStep *bs);
+
+    bool init();
+
+    void run(QFutureInterface<bool> &fi);
+
+    BuildStepConfigWidget *createConfigWidget();
+
+    static Core::Id stepId();
+    static QString stepDisplayName();
+};
+
+} // namespace ProjectExplorer
+
+#endif // PROJECTEXPLORER_DEVICECHECKBUILDSTEP_H

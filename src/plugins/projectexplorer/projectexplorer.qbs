@@ -251,6 +251,8 @@ QtcPlugin {
         "devicesupport/desktopdevicefactory.h",
         "devicesupport/deviceapplicationrunner.cpp",
         "devicesupport/deviceapplicationrunner.h",
+        "devicesupport/devicecheckbuildstep.cpp",
+        "devicesupport/devicecheckbuildstep.h",
         "devicesupport/devicefactoryselectiondialog.cpp",
         "devicesupport/devicefactoryselectiondialog.h",
         "devicesupport/devicefactoryselectiondialog.ui",

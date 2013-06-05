@@ -353,6 +353,8 @@ private slots:
     void skip_unknown_directives_data();
     void include_guard();
     void include_guard_data();
+    void empty_trailing_lines();
+    void empty_trailing_lines_data();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1507,7 +1509,13 @@ void tst_Preprocessor::skip_unknown_directives_data()
                "# 10 \"file.cpp\"\n"
                "# ()\n"
                "#\n";
-    expected = "# 1 \"<stdin>\"\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            ;
     QTest::newRow("case 1") << original << expected;
 }
 
@@ -1593,6 +1601,74 @@ void tst_Preprocessor::include_guard_data()
                                      ;
 }
 
+void tst_Preprocessor::empty_trailing_lines()
+{
+    compare_input_output();
+}
+
+void tst_Preprocessor::empty_trailing_lines_data()
+{
+    // Test if the number of lines at the end of a file is correct. This is important to make the
+    // EOF token for the end up at the correct line.
+
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("output");
+
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            ;
+    expected = "# 1 \"<stdin>\"\n" + original;
+    QTest::newRow("9 empty lines") << original << expected;
+
+    original =
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            ;
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "# 11 \"<stdin>\"\n"
+            ;
+    QTest::newRow("11 empty lines") << original << expected;
+
+    original =
+            "#include <something>\n"
+            ;
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            ;
+    QTest::newRow("1 include") << original << expected;
+
+    original =
+            "#include <something>\n"
+            "\n"
+            ;
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            ;
+    QTest::newRow("1 empty line with 1 include") << original << expected;
+}
+
 void tst_Preprocessor::compare_input_output(bool keepComments)
 {
     QFETCH(QByteArray, input);
@@ -1602,7 +1678,7 @@ void tst_Preprocessor::compare_input_output(bool keepComments)
     Preprocessor preprocess(0, &env);
     preprocess.setKeepComments(keepComments);
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
-    QCOMPARE(output, prep);
+    QCOMPARE(prep.constData(), output.constData());
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)

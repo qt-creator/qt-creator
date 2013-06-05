@@ -69,7 +69,11 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxListSourceFiles->setText(tr("Populate source file view automatically"));
 
     checkBoxCloseBuffersOnExit = new QCheckBox(behaviorBox);
-    checkBoxCloseBuffersOnExit->setText(tr("Close temporary buffers on debugger exit"));
+    checkBoxCloseBuffersOnExit->setText(tr("Close temporary views on debugger exit"));
+    checkBoxCloseBuffersOnExit->setText(tr("Stopping and stepping in the debugger "
+        "will automatically open source or disassembler views associated with the "
+        "current location. Select this option to automatically close them when "
+        "the debugger exits."));
 
     checkBoxSwitchModeOnExit = new QCheckBox(behaviorBox);
     checkBoxSwitchModeOnExit->setText(tr("Switch to previous mode on debugger exit"));

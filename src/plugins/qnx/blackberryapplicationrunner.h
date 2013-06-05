@@ -104,6 +104,7 @@ private:
 
     bool m_debugMode;
     bool m_slog2infoFound;
+    bool m_currentLogs;
 
     QDateTime m_launchDateTime;
 

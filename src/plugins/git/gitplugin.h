@@ -202,7 +202,6 @@ private:
 
     static GitPlugin *m_instance;
     Locator::CommandLocator *m_commandLocator;
-    QAction *m_createRepositoryAction;
 
     QAction *m_submitCurrentAction;
     QAction *m_diffSelectedFilesAction;

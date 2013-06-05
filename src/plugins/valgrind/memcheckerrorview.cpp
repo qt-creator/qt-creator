@@ -41,9 +41,9 @@
 #include "xmlprotocol/suppression.h"
 
 #include <coreplugin/coreconstants.h>
-#include <projectexplorer/projectexplorer.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
-#include <texteditor/basetexteditor.h>
+#include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -52,6 +52,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
+#include <QContextMenuEvent>
 #include <QLabel>
 #include <QListView>
 #include <QMenu>
@@ -59,6 +60,7 @@
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
+#include <QTextDocument>
 #include <QVBoxLayout>
 
 using namespace Valgrind::XmlProtocol;
@@ -432,7 +434,7 @@ void MemcheckErrorDelegate::openLinkInEditor(const QString &link)
     const int pathEnd = link.lastIndexOf(QLatin1Char(':'));
     const QString path = link.mid(pathStart, pathEnd - pathStart);
     const int line = link.mid(pathEnd + 1).toInt(0);
-    TextEditor::BaseTextEditorWidget::openEditorAt(path, qMax(line, 0));
+    Core::EditorManager::openEditorAt(path, qMax(line, 0));
 }
 
 MemcheckErrorView::MemcheckErrorView(QWidget *parent)

@@ -76,6 +76,11 @@ bool IoUtils::isRelativePath(const QString &path)
     return true;
 }
 
+QStringRef IoUtils::pathName(const QString &fileName)
+{
+    return fileName.leftRef(fileName.lastIndexOf(QLatin1Char('/')) + 1);
+}
+
 QStringRef IoUtils::fileName(const QString &fileName)
 {
     return fileName.midRef(fileName.lastIndexOf(QLatin1Char('/')) + 1);

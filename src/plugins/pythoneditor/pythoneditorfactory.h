@@ -55,11 +55,6 @@ public:
     QString displayName() const;
 
     /**
-      Opens file in new editor
-      */
-    Core::IDocument *open(const QString &fileName);
-
-    /**
       Creates and initializes new editor widget
       */
     Core::IEditor *createEditor(QWidget *parent);

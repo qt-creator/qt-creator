@@ -332,10 +332,30 @@ struct Cxx11Profile : public Profile
     Cxx11Profile() : Profile("QMAKE_CXXFLAGS += -std=c++0x") {}
 };
 
+struct GdbOnly {};
+struct LldbOnly {};
+
 struct GdbVersion
 {
     // Minimum and maximum are inclusive.
     GdbVersion(int minimum = 0, int maximum = 0)
+    {
+        if (minimum && !maximum)
+            maximum = minimum;
+        if (maximum == 0)
+            maximum = INT_MAX;
+
+        max = maximum;
+        min = minimum;
+    }
+    int min;
+    int max;
+};
+
+struct LldbVersion
+{
+    // Minimum and maximum are inclusive.
+    LldbVersion(int minimum = 0, int maximum = 0)
     {
         if (minimum && !maximum)
             maximum = minimum;
@@ -357,11 +377,14 @@ struct GuiProfile {};
 
 struct DataBase
 {
-    DataBase() : useQt(false), forceC(false), neededGdbVersion() {}
+    DataBase() : useQt(false), forceC(false), gdbOnly(false), lldbOnly(false) {}
 
     mutable bool useQt;
     mutable bool forceC;
+    mutable bool gdbOnly;
+    mutable bool lldbOnly;
     mutable GdbVersion neededGdbVersion;
+    mutable LldbVersion neededLldbVersion;
 };
 
 class Data : public DataBase
@@ -389,6 +412,24 @@ public:
     const Data &operator%(const GdbVersion &gdbVersion) const
     {
         neededGdbVersion = gdbVersion;
+        return *this;
+    }
+
+    const Data &operator%(const LldbVersion &lldbVersion) const
+    {
+        neededLldbVersion = lldbVersion;
+        return *this;
+    }
+
+    const Data &operator%(const LldbOnly &) const
+    {
+        lldbOnly = true;
+        return *this;
+    }
+
+    const Data &operator%(const GdbOnly &) const
+    {
+        gdbOnly = true;
         return *this;
     }
 
@@ -471,7 +512,7 @@ public:
     tst_Dumpers()
     {
         t = 0;
-        m_keepTemp = false;
+        m_keepTemp = true;
         m_gdbVersion = 0;
         m_gdbBuildVersion = 0;
         m_lldbVersion = 0;
@@ -512,12 +553,10 @@ void tst_Dumpers::initTestCase()
     if (m_debuggerBinary.endsWith("cdb.exe"))
         m_debuggerEngine = DumpTestCdbEngine;
 
-    if (m_debuggerBinary.endsWith("lldb")
-            || m_debuggerBinary.endsWith("lbridge.py")
-            || m_debuggerBinary.contains("/lldb-"))
+    if (m_debuggerBinary.endsWith("lldb"))
         m_debuggerEngine = DumpTestLldbEngine;
 
-    m_qmakeBinary = qgetenv("QTC_QMAKE_PATH");
+    m_qmakeBinary = qgetenv("QTC_QMAKE_PATH_FOR_TEST");
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
 
@@ -572,8 +611,12 @@ void tst_Dumpers::initTestCase()
         output += debugger.readAllStandardError();
         output = output.trimmed();
         // Should be something like LLDB-178
-        m_lldbVersion = output.mid(5).toInt();
-        qDebug() << "Lldb version " << output << m_lldbVersion;
+        QByteArray ba = output.mid(output.indexOf('-') + 1);
+        int pos = ba.indexOf('.');
+        if (pos >= 0)
+            ba = ba.left(pos);
+        m_lldbVersion = ba.toInt();
+        qDebug() << "Lldb version " << output << ba << m_lldbVersion;
         QVERIFY(m_lldbVersion);
     }
     m_env = utilsEnv.toProcessEnvironment();
@@ -600,9 +643,26 @@ void tst_Dumpers::dumper()
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
         if (data.neededGdbVersion.min > m_gdbVersion)
-            MSKIP_SINGLE("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
+            MSKIP_SINGLE("Need minimum GDB version "
+                + QByteArray::number(data.neededGdbVersion.min));
         if (data.neededGdbVersion.max < m_gdbVersion)
-            MSKIP_SINGLE("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
+            MSKIP_SINGLE("Need maximum GDB version "
+                + QByteArray::number(data.neededGdbVersion.max));
+    } else {
+        if (data.gdbOnly)
+            MSKIP_SINGLE("Test is GDB specific");
+    }
+
+    if (m_debuggerEngine == DumpTestLldbEngine) {
+        if (data.neededLldbVersion.min > m_gdbVersion)
+            MSKIP_SINGLE("Need minimum LLDB version "
+                + QByteArray::number(data.neededLldbVersion.min));
+        if (data.neededLldbVersion.max < m_gdbVersion)
+            MSKIP_SINGLE("Need maximum LLDB version "
+                + QByteArray::number(data.neededLldbVersion.max));
+    } else {
+        if (data.lldbOnly)
+            MSKIP_SINGLE("Test is LLDB specific");
     }
 
     QString cmd;
@@ -616,6 +676,7 @@ void tst_Dumpers::dumper()
     proFile.write("SOURCES = ");
     proFile.write(mainFile);
     proFile.write("\nTARGET = doit\n");
+    proFile.write("\nCONFIG -= app_bundle\n");
     proFile.write("\nCONFIG -= release\n");
     proFile.write("\nCONFIG += debug\n");
     if (data.useQt)
@@ -748,13 +809,16 @@ void tst_Dumpers::dumper()
             sortediNames << QString::fromLatin1(iName);
         sortediNames.sort();
         foreach (QString iName, sortediNames)
-            cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token) + " -c 0 " + iName.toLatin1() + "\n";
+            cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token)
+                    + " -c 0 " + iName.toLatin1() + "\n";
         cmds += "q\n";
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
         exe = "python";
         args << QLatin1String(dumperDir + "/lbridge.py")
              << QString::fromUtf8(m_debuggerBinary)
-             << t->buildPath + QLatin1String("/doit");
+             << t->buildPath + QLatin1String("/doit")
+             << QString::fromUtf8(expanded);
+        //qDebug() << exe.constData() << ' ' << qPrintable(args.join(QLatin1Char(' ')));
     }
 
     t->input = cmds;
@@ -795,6 +859,21 @@ void tst_Dumpers::dumper()
         int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
         QVERIFY(posNameSpaceEnd != -1);
         context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
+        //qDebug() << "FOUND NS: " << context.nameSpace;
+        if (context.nameSpace == "::")
+            context.nameSpace.clear();
+        contents.replace("\\\"", "\"");
+    } else if (m_debuggerEngine == DumpTestLldbEngine) {
+        //qDebug() << "GOT OUTPUT: " << output;
+        QVERIFY(output.startsWith("data="));
+        contents = output;
+
+        //int posNameSpaceStart = output.indexOf("@NS@");
+        //QVERIFY(posNameSpaceStart != -1);
+        //posNameSpaceStart += sizeof("@NS@") - 1;
+        //int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
+        //QVERIFY(posNameSpaceEnd != -1);
+        //context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
         //qDebug() << "FOUND NS: " << context.nameSpace;
         if (context.nameSpace == "::")
             context.nameSpace.clear();
@@ -1970,8 +2049,8 @@ void tst_Dumpers::dumper_data()
                     "QPointF s0, s;\n"
                     "s = QPointF(100, 200);\n")
                % CoreProfile()
-               % Check("s0", "(0, 0)", "@QPointF")
-               % Check("s", "(100, 200)", "@QPointF");
+               % Check("s0", "(0.0, 0.0)", "@QPointF")
+               % Check("s", "(100.0, 200.0)", "@QPointF");
 
     QTest::newRow("QRect")
             << Data("#include <QRect>\n"
@@ -2664,6 +2743,18 @@ void tst_Dumpers::dumper_data()
                % Check("str", "\"foo\"", "std::string")
                % Check("v", "<2 items>", "std::vector<std::string>")
                % Check("v.0", "[0]", "\"foo\"", "std::string");
+
+    QTest::newRow("StdVector0")
+            << Data("#include <vector>\n",
+                    "std::vector<double> v0, v;\n"
+                    "v.push_back(1);\n"
+                    "v.push_back(0);\n"
+                    "v.push_back(2);\n")
+               % Check("v0", "<0 items>", "std::vector<double>")
+               % Check("v", "<3 items>", "std::vector<double>")
+               % Check("v.0", "[0]", "1", "double")
+               % Check("v.1", "[1]", "0", "double")
+               % Check("v.2", "[2]", "2", "double");
 
     QTest::newRow("StdVector1")
             << Data("#include <vector>\n",
@@ -3898,8 +3989,8 @@ void tst_Dumpers::dumper_data()
                % Check("n@2", "1", "int");
 
 
-    QTest::newRow("RValueReference")
-            << Data("#include <utility>\n"
+    const Data rvalueData = Data(
+                    "#include <utility>\n"
                     "struct X { X() : a(2), b(3) {} int a, b; };\n"
                     "X testRValueReferenceHelper1() { return X(); }\n"
                     "X testRValueReferenceHelper2(X &&x) { return x; }\n",
@@ -3911,12 +4002,23 @@ void tst_Dumpers::dumper_data()
                     "X y3 = testRValueReferenceHelper2(testRValueReferenceHelper1());\n"
                     "unused(&x1, &x2, &x3, &y1, &y2, &y3);\n")
                % Cxx11Profile()
-               % Check("x1", "", "X &")
-               % Check("x2", "", "X &")
-               % Check("x3", "", "X &")
                % Check("y1", "", "X")
                % Check("y2", "", "X")
                % Check("y3", "", "X");
+
+    QTest::newRow("RValueReferenceGdb")
+            << Data(rvalueData)
+               % GdbOnly()
+               % Check("x1", "", "X &")
+               % Check("x2", "", "X &")
+               % Check("x3", "", "X &");
+
+    QTest::newRow("RValueReferenceLldb")
+            << Data(rvalueData)
+               % LldbOnly()
+               % Check("x1", "", "X &&")
+               % Check("x2", "", "X &&")
+               % Check("x3", "", "X &&");
 
     QTest::newRow("SSE")
             << Data("#include <xmmintrin.h>\n"

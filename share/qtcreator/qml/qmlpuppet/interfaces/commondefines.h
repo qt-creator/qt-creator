@@ -55,7 +55,9 @@ enum InformationName
     IsAnchoredBySibling,
     HasContent,
     HasBindingForProperty,
-    ContentTransform
+    ContentTransform,
+    ContentItemTransform,
+    ContentItemBoundingRect
 };
 
 }

@@ -34,6 +34,7 @@
 #include "qmljsbind.h"
 #include "qmljsutils.h"
 #include "qmljsmodelmanagerinterface.h"
+#include <qmljs/qmljsqrcparser.h>
 
 #include <QDir>
 #include <QDebug>
@@ -245,6 +246,8 @@ void LinkPrivate::populateImportedTypes(Imports *imports, Document::Ptr doc)
             switch (info.type()) {
             case ImportInfo::FileImport:
             case ImportInfo::DirectoryImport:
+            case ImportInfo::QrcFileImport:
+            case ImportInfo::QrcDirectoryImport:
                 import = importFileOrDirectory(doc, info);
                 break;
             case ImportInfo::LibraryImport:
@@ -285,7 +288,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
     import.object = 0;
     import.valid = true;
 
-    const QString &path = importInfo.path();
+    QString path = importInfo.path();
 
     if (importInfo.type() == ImportInfo::DirectoryImport
             || importInfo.type() == ImportInfo::ImplicitDirectoryImport) {
@@ -304,8 +307,36 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
         Document::Ptr importedDoc = snapshot.document(path);
         if (importedDoc)
             import.object = importedDoc->bind()->rootObjectValue();
-    }
+    } else if (importInfo.type() == ImportInfo::QrcFileImport) {
+        QLocale locale;
+        QStringList filePaths = ModelManagerInterface::instance()
+                ->filesAtQrcPath(path, &locale, 0, ModelManagerInterface::ActiveQrcResources);
+        if (filePaths.isEmpty()) {
+            filePaths = ModelManagerInterface::instance()->filesAtQrcPath(path);
+        }
+        if (!filePaths.isEmpty()) {
+            Document::Ptr importedDoc = snapshot.document(filePaths.at(0));
+            if (importedDoc)
+                import.object = importedDoc->bind()->rootObjectValue();
+        }
+    } else if (importInfo.type() == ImportInfo::QrcDirectoryImport){
+        import.object = new ObjectValue(valueOwner);
 
+        importLibrary(doc, path, &import);
+
+        QMapIterator<QString,QStringList> iter(ModelManagerInterface::instance()
+                                               ->filesInQrcPath(path));
+        while (iter.hasNext()) {
+            iter.next();
+            if (Document::isQmlLikeLanguage(Document::guessLanguageFromSuffix(iter.key()))) {
+                Document::Ptr importedDoc = snapshot.document(iter.value().at(0));
+                if (importedDoc && importedDoc->bind()->rootObjectValue()) {
+                    const QString targetName = QFileInfo(iter.key()).baseName();
+                    import.object->setMember(targetName, importedDoc->bind()->rootObjectValue());
+                }
+            }
+        }
+    }
     return import;
 }
 

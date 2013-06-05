@@ -62,7 +62,7 @@
 #include <cplusplus/Overview.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <extensionsystem/iplugin.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/itexteditor.h>
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -322,7 +322,7 @@ void CallgrindToolPrivate::selectFunction(const Function *func)
     if (QFile::exists(func->file())) {
         ///TODO: custom position support?
         int line = func->lineNumber();
-        TextEditor::BaseTextEditorWidget::openEditorAt(func->file(), qMax(line, 0));
+        Core::EditorManager::openEditorAt(func->file(), qMax(line, 0));
     }
 }
 

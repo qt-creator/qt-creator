@@ -508,7 +508,6 @@ public:
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Debug.png")));
         setPriority(85);
         setId(MODE_DEBUG);
-        setType(CC::MODE_EDIT_TYPE);
     }
 
     ~DebugMode()
@@ -3582,11 +3581,10 @@ void DebuggerPlugin::testPythonDumpers()
 void DebuggerPluginPrivate::testPythonDumpers1()
 {
     m_testSuccess = true;
-    QString proFile = ICore::resourcePath()
-#ifndef Q_OS_MAC
-        + QLatin1String("/../..")
-#endif
-        + QLatin1String("/tests/manual/debugger/simple/simple.pro");
+    QString proFile = ICore::resourcePath();
+    if (Utils::HostOsInfo::isMacHost())
+        proFile += QLatin1String("/../..");
+    proFile += QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
     testLoadProject(proFile, TestCallBack(this,  "testPythonDumpers2"));
     QVERIFY(m_testSuccess);
     QTestEventLoop::instance().enterLoop(20);
@@ -3617,8 +3615,10 @@ void DebuggerPlugin::testStateMachine()
 void DebuggerPluginPrivate::testStateMachine1()
 {
     m_testSuccess = true;
-    QString proFile = ICore::resourcePath()
-        + QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
+    QString proFile = ICore::resourcePath();
+    if (Utils::HostOsInfo::isMacHost())
+        proFile += QLatin1String("/../..");
+    proFile += QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
     testLoadProject(proFile, TestCallBack(this,  "testStateMachine2"));
     QVERIFY(m_testSuccess);
     QTestEventLoop::instance().enterLoop(20);

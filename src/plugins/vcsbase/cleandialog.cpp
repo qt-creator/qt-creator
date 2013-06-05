@@ -279,7 +279,7 @@ void CleanDialog::slotDoubleClicked(const QModelIndex &index)
     if (const QStandardItem *item = d->m_filesModel->itemFromIndex(index))
         if (!item->data(Internal::isDirectoryRole).toBool()) {
             const QString fname = item->data(Internal::fileNameRole).toString();
-            Core::EditorManager::openEditor(fname, Core::Id(), Core::EditorManager::ModeSwitch);
+            Core::EditorManager::openEditor(fname);
     }
 }
 

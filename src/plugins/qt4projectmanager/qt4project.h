@@ -42,6 +42,7 @@
 
 QT_BEGIN_NAMESPACE
 class ProFileGlobals;
+class QMakeVfs;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class DeploymentData; }
@@ -158,6 +159,7 @@ protected:
 
 private slots:
     void asyncUpdate();
+    void buildFinished(bool success);
 
     void activeTargetWasChanged();
 
@@ -197,6 +199,8 @@ private:
 
     // cached lists of all of files
     Internal::Qt4ProjectFiles *m_projectFiles;
+
+    QMakeVfs *m_qmakeVfs;
 
     // cached data during project rescan
     ProFileGlobals *m_qmakeGlobals;

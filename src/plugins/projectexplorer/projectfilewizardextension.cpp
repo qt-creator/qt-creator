@@ -52,6 +52,7 @@
 #include <projectexplorer/editorconfiguration.h>
 
 #include <QtAlgorithms>
+#include <QPointer>
 #include <QDebug>
 #include <QFileInfo>
 #include <QMultiMap>
@@ -177,7 +178,7 @@ struct ProjectWizardContext
     QList<Core::IVersionControl*> versionControls;
     QList<Core::IVersionControl*> activeVersionControls;
     QList<ProjectEntry> projects;
-    ProjectWizardPage *page;
+    QPointer<ProjectWizardPage> page; // this is managed by the wizard!
     bool repositoryExists; // Is VCS 'add' sufficient, or should a repository be created?
     QString commonDirectory;
     const Core::IWizard *wizard;
@@ -329,6 +330,9 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
 void ProjectFileWizardExtension::initializeVersionControlChoices()
 {
+    if (m_context->page.isNull())
+        return;
+
     // Figure out version control situation:
     // 1) Directory is managed and VCS supports "Add" -> List it
     // 2) Directory is managed and VCS does not support "Add" -> None available

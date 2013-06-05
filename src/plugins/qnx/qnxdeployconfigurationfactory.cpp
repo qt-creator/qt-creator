@@ -35,6 +35,7 @@
 #include "qnxdeployconfiguration.h"
 #include "qnxdeviceconfigurationfactory.h"
 
+#include <projectexplorer/devicesupport/devicecheckbuildstep.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <remotelinux/genericdirectuploadstep.h>
@@ -77,7 +78,9 @@ ProjectExplorer::DeployConfiguration *QnxDeployConfigurationFactory::create(Proj
 
     ProjectExplorer::DeployConfiguration * const dc = new QnxDeployConfiguration(parent, id,
         displayNameForId(id));
-    dc->stepList()->insertStep(0, new RemoteLinux::GenericDirectUploadStep(dc->stepList(),
+    dc->stepList()->insertStep(0, new ProjectExplorer::DeviceCheckBuildStep(dc->stepList(),
+        ProjectExplorer::DeviceCheckBuildStep::stepId()));
+    dc->stepList()->insertStep(1, new RemoteLinux::GenericDirectUploadStep(dc->stepList(),
         RemoteLinux::GenericDirectUploadStep::stepId()));
     return dc;
 }

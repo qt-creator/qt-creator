@@ -57,14 +57,27 @@
     select \gui {Sort Alphabetically} to arrange the symbols in alphabetic
     order.
 
+    To jump to a line and column in the current file, select the line and column
+    indicator (3) or press \key {Ctrl+L} (or \key {Cmd+L} on Mac OS X) to open
+    the locator. Enter the line number and column number in the locator,
+    separated by a colon (:).
+
+    To show the file encoding of the current file on the editor toolbar (4),
+    select \gui Tools > \gui Options > \gui {Text Editor} > \gui Display >
+    \gui {Display file encoding}.
+
+    \note Other convenient ways of navigating in \QC are provided by the
+    \l{Searching with the Locator}{locator}, \l{Keyboard Shortcuts}
+    {keyboard shortcuts}, and the \l{Browsing Project Contents}{sidebar}.
+
     \section1 Splitting the Editor View
 
-    Split the editor view when you want to work on and view multiple files on
-    the same screen.
+    Split the editor view or open the editor in a new window when you want to
+    work on and view multiple files on the same screen or on multiple screens.
 
     \image qtcreator-spliteditorview.png
 
-    You can split the editor view in the following ways:
+    You can view multiple files simultaneously in the following ways:
 
     \list
 
@@ -82,10 +95,17 @@
            Side by side split command creates views to the right of the
            currently active editor view.
 
+        \li To open the editor in a detached window, press \key{Ctrl+E, 4}, or
+            select \gui Window > \gui {Open in New Window}.
+
+            The new window behaves basically in the same way as the editor area
+            in the main window. For example, you can split this window, as well.
+            Documents are opened in the currently active editor window.
+
     \endlist
 
-    To move between split views, select \gui Window > \gui{Go to Next Split} or
-    press \key{Ctrl+E, O}.
+    To move between split views and detached editor windows, select \gui Window
+    > \gui{Go to Next Split or Window} or press \key{Ctrl+E, O}.
 
     To remove a split view, place the cursor within the view you want to
     remove and select \gui Window > \gui{Remove Current Split}, press
@@ -138,14 +158,15 @@
     \key {Shift+F2} or right-click the symbol and select \gui {Switch Between
     Method Declaration/Definition}.
 
-    Links are opened in the same split by default. Every operation can also be opened in
-    the next split by prebending \key {Ctrl+E} to the shortcut. For example \key {Ctrl+E,F2}
-    to follow the symbol in the next split. If currently is just one editor open a split will be
-    automatically opened. The default behavior could also be changed in
-    \gui Tools > \gui{Options} > \gui{Text Editor} > \gui Display, by checking
-    \gui{Always Open Links in Next Split}. Additional symbols and switching between definition
-    and decleration is opened in another split. If you change the default behavior the shortcuts
-    for open in next split are used to open the target in the current split.
+    Links are opened in the same split by default. To open links in the next
+    split, prepend \key {Ctrl+E} to the shortcut. For example, press \key {Ctrl+E,F2}
+    to follow the symbol in the next split. If necessary, the view is
+    automatically split. To change the default behavior, select \gui Tools >
+    \gui{Options} > \gui{Text Editor} > \gui Display, and then select
+    \gui{Always Open Links in Next Split}. Additional symbols are displayed and
+    switching between definition and declaration is done in another split.
+    If you change the default behavior, the shortcuts for opening link targets
+    in the next split are used to open them in the current split.
 
     \section1 Using Update Code Model
 

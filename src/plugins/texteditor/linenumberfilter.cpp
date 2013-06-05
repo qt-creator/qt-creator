@@ -97,9 +97,7 @@ void LineNumberFilter::accept(FilterEntry selection) const
             data.first = currLine;
         }
         editor->gotoLine(data.first, data.second);
-        editor->widget()->setFocus();
-        ICore::raiseWindow(editor->widget());
-        Core::ModeManager::activateModeType(Id(Core::Constants::MODE_EDIT_TYPE));
+        Core::EditorManager::activateEditor(editor);
     }
 }
 

@@ -95,6 +95,9 @@ public:
 signals:
     void repositoryChanged(const QString &repository);
 
+public slots:
+    void clearVersionControlCache();
+
 private:
     VcsManagerPrivate *d;
 };

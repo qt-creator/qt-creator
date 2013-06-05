@@ -47,6 +47,7 @@
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsqrcparser.h>
 
 #include <QSet>
 #include <QDir>
@@ -362,8 +363,15 @@ public:
             } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
                 QString path = importInfo.path();
                 QDir dir(m_doc->path());
+                // should probably try to make it relatve to some import path, not to the document path
                 QString relativeDir = dir.relativeFilePath(path);
                 QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
+                if (!name.isEmpty())
+                    typeName.prepend(name + QLatin1Char('.'));
+            } else if (importInfo.isValid() && importInfo.type() == ImportInfo::QrcDirectoryImport) {
+                QString path = QrcParser::normalizedQrcDirectoryPath(importInfo.path());
+                path = path.mid(1, path.size() - ((path.size() > 1) ? 2 : 1));
+                const QString name = path.replace(QLatin1Char('/'), QLatin1Char('.'));
                 if (!name.isEmpty())
                     typeName.prepend(name + QLatin1Char('.'));
             }

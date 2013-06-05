@@ -98,7 +98,8 @@ public:
                                                const CPlusPlus::Class *clazz,
                                                AccessSpec xsSpec) const;
 
-    QList<InsertionLocation> methodDefinition(CPlusPlus::Declaration *declaration) const;
+    QList<InsertionLocation> methodDefinition(CPlusPlus::Symbol *declaration,
+                                              bool useSymbolFinder = true) const;
 
 private:
     CppRefactoringChanges m_refactoringChanges;

@@ -54,11 +54,14 @@ public:
     virtual int qt_metacall(QMetaObject::Call, int, void **);
 
 protected:
-    void registerObject(QObject *spiedObject, const PropertyName &prefix = PropertyName());
+    void registerObject(QObject *spiedObject);
+    void registerProperty(const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix = PropertyName());
+    void registerValueType(const QMetaProperty &metaProperty, QObject *spiedObject, const PropertyName &propertyPrefix);
+    void registerChildObject(const QMetaProperty &metaProperty, QObject *spiedObject);
 
 private:
     int methodeOffset;
-    QHash<int, PropertyName> m_indexPropertyHash;
+    QMultiHash<int, PropertyName> m_indexPropertyHash;
     QObjectList m_registeredObjectList;
     ObjectNodeInstanceWeakPointer m_objectNodeInstance;
 };

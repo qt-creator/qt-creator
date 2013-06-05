@@ -47,7 +47,6 @@ public:
     void toSettings(QSettings *) const;
 
     bool equals(const DesignerSettings &other) const;
-    bool openDesignMode;
     int itemSpacing;
     int containerPadding;
     int canvasWidth;

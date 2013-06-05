@@ -33,7 +33,6 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 #include <texteditor/texteditorconstants.h>
-#include <qmldesigner/qmldesignerconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <coreplugin/mimedatabase.h>
@@ -52,41 +51,13 @@ QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditorWidget *editor)
     m_context.add(ProjectExplorer::Constants::LANG_QMLJS);
 }
 
-// Use preferred mode from Bauhaus settings
-static bool openInDesignMode()
+bool QmlJSEditorEditable::isDesignModePreferred() const
 {
-    static bool bauhausDetected = false;
-    static bool bauhausPresent = false;
-    // Check if Bauhaus is loaded, that is, a Design mode widget is
-    // registered for the QML mime type.
-    if (!bauhausDetected) {
-        if (const Core::IMode *dm = Core::ModeManager::mode(Core::Constants::MODE_DESIGN))
-            if (const Core::DesignMode *designMode = qobject_cast<const Core::DesignMode *>(dm))
-                bauhausPresent = designMode->registeredMimeTypes().contains(QLatin1String(QmlJSTools::Constants::QML_MIMETYPE));
-        bauhausDetected =  true;
-    }
-    if (!bauhausPresent)
-        return false;
-
-    return bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT);
-}
-
-Core::Id QmlJSEditorEditable::preferredModeType() const
-{
+    // stay in design mode if we are there
     Core::IMode *mode = Core::ModeManager::currentMode();
-    if (mode && (mode->type() == Core::Constants::MODE_DESIGN_TYPE
-                || mode->type() == Core::Constants::MODE_EDIT_TYPE))
-    {
-        return mode->type();
-    }
-
-    // if we are in other mode than edit or design, use the hard-coded default.
-    // because the editor opening decision is modal, it would be confusing to
-    // have the user also access to this failsafe setting.
-    if (editorWidget()->mimeType() == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
-        && openInDesignMode())
-        return Core::Id(Core::Constants::MODE_DESIGN_TYPE);
-    return Core::Id();
+    if (mode && mode->id() == Core::Constants::MODE_DESIGN)
+        return true;
+    return false;
 }
 
 void QmlJSEditorEditable::setTextCodec(QTextCodec *codec, TextCodecReason reason)

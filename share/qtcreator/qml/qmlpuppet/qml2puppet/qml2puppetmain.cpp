@@ -47,6 +47,10 @@
 
 int main(int argc, char *argv[])
 {
+    // Since we always render text into an FBO, we need to globally disable
+    // subpixel antialiasing and instead use gray.
+    qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
+
     QApplication application(argc, argv);
 
     QCoreApplication::setOrganizationName("QtProject");
@@ -78,8 +82,10 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (application.arguments().count() != 4)
+    if (application.arguments().count() < 4) {
+        qDebug() << "Wrong argument count: " << application.arguments().count();
         return -1;
+    }
 
 
 

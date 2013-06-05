@@ -779,7 +779,9 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     m_summaryLabel->move(0, summaryLabelY);
 
     // Height to be aligned with side bar button
-    int alignedWithActionHeight = actionBar->height() - statusBar->height();
+    int alignedWithActionHeight = 210;
+    if (actionBar->isVisible())
+        alignedWithActionHeight = actionBar->height() - statusBar->height();
     int bottomMargin = 9;
     int totalHeight = 0;
 

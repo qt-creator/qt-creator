@@ -54,14 +54,13 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/buildconfiguration.h>
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/id.h>
-
-#include <texteditor/basetexteditor.h>
 
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
@@ -502,7 +501,7 @@ void MemcheckTool::suppressionActionTriggered()
     const QString file = action->data().toString();
     QTC_ASSERT(!file.isEmpty(), return);
 
-    TextEditor::BaseTextEditorWidget::openEditorAt(file, 0);
+    Core::EditorManager::openEditorAt(file, 0);
 }
 
 void MemcheckTool::parserError(const Valgrind::XmlProtocol::Error &error)

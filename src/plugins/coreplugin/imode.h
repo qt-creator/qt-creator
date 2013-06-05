@@ -49,7 +49,6 @@ public:
     QIcon icon() const { return m_icon; }
     int priority() const { return m_priority; }
     Id id() const { return m_id; }
-    Id type() const { return m_type; }
     bool isEnabled() const;
 
     void setEnabled(bool enabled);
@@ -57,7 +56,6 @@ public:
     void setIcon(const QIcon &icon) { m_icon = icon; }
     void setPriority(int priority) { m_priority = priority; }
     void setId(Id id) { m_id = id; }
-    void setType(Id type) { m_type = type; }
 
 signals:
     void enabledStateChanged(bool enabled);
@@ -67,7 +65,6 @@ private:
     QIcon m_icon;
     int m_priority;
     Id m_id;
-    Id m_type;
     bool m_isEnabled;
 };
 

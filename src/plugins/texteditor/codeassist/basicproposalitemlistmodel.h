@@ -78,7 +78,6 @@ private:
 
     QHash<QString, int> m_idByText;
     QList<BasicProposalItem *> m_originalItems;
-    bool m_isSortingAllowed;
 };
 
 } // TextEditor

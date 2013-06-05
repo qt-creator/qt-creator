@@ -93,8 +93,6 @@ public:
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
-    bool vcsAdd14(const QString &workingDir, const QString &fileName);
-    bool vcsAdd15(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
@@ -107,6 +105,15 @@ public:
     static QStringList addAuthenticationOptions(const QStringList &args,
                                                 const QString &userName = QString(),
                                                 const QString &password = QString());
+
+    class Version {
+    public:
+        int majorVersion;
+        int minorVersion;
+        int patchVersion;
+    };
+
+    Version svnVersion();
 
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
@@ -205,6 +212,9 @@ private:
     QAction *m_submitRedoAction;
     QAction *m_menuAction;
     bool    m_submitActionTriggered;
+
+    QString m_svnVersionBinary;
+    QString m_svnVersion;
 
     static SubversionPlugin *m_subversionPluginInstance;
 };

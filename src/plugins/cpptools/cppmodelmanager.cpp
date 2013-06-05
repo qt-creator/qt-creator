@@ -143,6 +143,7 @@ protected:
 
 static const char pp_configuration[] =
     "# 1 \"<configuration>\"\n"
+    "#define Q_CREATOR_RUN 1\n"
     "#define __cplusplus 1\n"
     "#define __extension__\n"
     "#define __context__\n"

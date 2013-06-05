@@ -15,8 +15,27 @@ build_all:!build_pass {
     CONFIG += release
 }
 
-SOURCES = main.cpp qmakeglobals.cpp qmakeparser.cpp qmakeevaluator.cpp profileevaluator.cpp qmakebuiltins.cpp proitems.cpp ioutils.cpp
-HEADERS = qmakeglobals.h qmakeparser.h profileevaluator.h qmakeevaluator.h qmakeevaluator_p.h proitems.h ioutils.h
+SOURCES += \
+    main.cpp \
+    qmakeglobals.cpp \
+    qmakeparser.cpp \
+    qmakeevaluator.cpp \
+    profileevaluator.cpp \
+    qmakebuiltins.cpp \
+    proitems.cpp \
+    qmakevfs.cpp \
+    ioutils.cpp
+
+HEADERS += \
+    qmake_global.h \
+    qmakeglobals.h \
+    qmakeparser.h \
+    qmakeevaluator.h \
+    qmakeevaluator_p.h \
+    profileevaluator.h \
+    proitems.h \
+    qmakevfs.h \
+    ioutils.h
 
 RESOURCES += proparser.qrc
 DEFINES += QMAKE_BUILTIN_PRFS

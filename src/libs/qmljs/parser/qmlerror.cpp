@@ -237,7 +237,6 @@ QString QmlError::toString() const
 
 /*!
     \relates QmlError
-    \fn QDebug operator<<(QDebug debug, const QmlError &error)
 
     Outputs a human readable version of \a error to \a debug.
 */

@@ -189,7 +189,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
         }
         if (action == openAction) {
             const QString fileName = action->data().toString();
-            Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
+            Core::EditorManager::openEditor(fileName);
         }
     }
     delete menu;

@@ -34,6 +34,7 @@
 #include <QTreeView>
 #include <QScrollBar>
 #include <QTextLayout>
+#include <QUrl>
 
 const char CONSOLE_LOG_BACKGROUND_COLOR[] = "#E8EEF2";
 const char CONSOLE_WARNING_BACKGROUND_COLOR[] = "#F6F4EB";
@@ -216,6 +217,9 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     if (showFileLineInfo) {
         // Check for file info
         QString file = index.data(QmlConsoleItemModel::FileRole).toString();
+        const QUrl fileUrl = QUrl(file);
+        if (fileUrl.isLocalFile())
+            file = fileUrl.toLocalFile();
         if (!file.isEmpty()) {
             QFontMetrics fm(option.font);
             // Paint FileArea

@@ -10,4 +10,3 @@ private:
 public:
     Test();
 };
-

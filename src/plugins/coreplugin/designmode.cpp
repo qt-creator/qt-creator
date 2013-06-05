@@ -120,7 +120,6 @@ DesignMode::DesignMode()
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Design.png")));
     setPriority(Constants::P_MODE_DESIGN);
     setId(Constants::MODE_DESIGN);
-    setType(Constants::MODE_DESIGN_TYPE);
 
     ExtensionSystem::PluginManager::addObject(d->m_coreListener);
 

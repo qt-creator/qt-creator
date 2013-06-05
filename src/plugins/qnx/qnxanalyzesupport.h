@@ -27,55 +27,48 @@
 **
 ****************************************************************************/
 
-#include <QDebug>
+#ifndef QNXANALYZESUPPORT_H
+#define QNXANALYZESUPPORT_H
 
-#include <QApplication>
-#include <QStringList>
-#ifdef QT_SIMULATOR
-#include <private/qsimulatorconnection_p.h>
-#endif
+#include "qnxabstractrunsupport.h"
 
-#include <qt4nodeinstanceclientproxy.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <utils/outputformat.h>
 
-#ifdef ENABLE_QT_BREAKPAD
-#include <qtsystemexceptionhandler.h>
-#endif
+namespace Analyzer { class IAnalyzerEngine; }
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
+namespace Qnx {
+namespace Internal {
 
-int main(int argc, char *argv[])
+class QnxRunConfiguration;
+
+class QnxAnalyzeSupport : public QnxAbstractRunSupport
 {
-#ifdef QT_SIMULATOR
-    QtSimulatorPrivate::SimulatorConnection::createStubInstance();
-#endif
+    Q_OBJECT
+public:
+    QnxAnalyzeSupport(QnxRunConfiguration *runConfig, Analyzer::IAnalyzerEngine *engine);
 
-    QApplication application(argc, argv);
+public slots:
+    void handleProfilingFinished();
 
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setOrganizationDomain("qt-project.org");
-    QCoreApplication::setApplicationName("QmlPuppet");
-    QCoreApplication::setApplicationVersion("1.1.0");
+private slots:
+    void handleAdapterSetupRequested();
 
+    void handleRemoteProcessStarted();
+    void handleRemoteProcessFinished(bool success);
+    void handleProgressReport(const QString &progressOutput);
+    void handleRemoteOutput(const QByteArray &output);
+    void handleError(const QString &error);
 
-    if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
-        qDebug() << QCoreApplication::applicationVersion();
-        return 0;
-    }
+private:
+    void startExecution();
+    void showMessage(const QString &, Utils::OutputFormat);
 
-    if (application.arguments().count() != 4)
-        return -1;
+    Analyzer::IAnalyzerEngine *m_engine;
+    int m_qmlPort;
+};
 
-#ifdef ENABLE_QT_BREAKPAD
-    QtSystemExceptionHandler systemExceptionHandler;
-#endif
+} // namespace Internal
+} // namespace Qnx
 
-    new QmlDesigner::Qt4NodeInstanceClientProxy(&application);
-
-#if defined(Q_OS_WIN) && defined(QT_NO_DEBUG) && !defined(ENABLE_QT_BREAKPAD)
-    SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
-#endif
-
-    return application.exec();
-}
+#endif // QNXANALYZESUPPORT_H

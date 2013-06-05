@@ -454,6 +454,8 @@ QHash<QString, PluginCollection *> PluginManager::pluginCollections()
     return m_instance->d->pluginCategories;
 }
 
+static const char argumentKeywordC[] = ":arguments";
+
 /*!
     Serialize plugin options and arguments for sending in a single string
     via QtSingleApplication:
@@ -462,9 +464,6 @@ QHash<QString, PluginCollection *> PluginManager::pluginCollections()
 
     \sa setPluginPaths()
 */
-
-static const char argumentKeywordC[] = ":arguments";
-
 QString PluginManager::serializedArguments()
 {
     const QChar separator = QLatin1Char('|');
@@ -639,7 +638,6 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 /*!
     Format the version of the plugin specs for command line help.
 */
-
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
     const PluginSpecSet::const_iterator cend = m_instance->d->pluginSpecs.constEnd();

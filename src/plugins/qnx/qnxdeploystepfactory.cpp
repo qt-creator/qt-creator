@@ -34,6 +34,7 @@
 #include "qnxdeviceconfigurationfactory.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicecheckbuildstep.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -56,13 +57,17 @@ QList<Core::Id> QnxDeployStepFactory::availableCreationIds(ProjectExplorer::Buil
     if (deviceType != QnxDeviceConfigurationFactory::deviceType())
         return QList<Core::Id>();
 
-    return QList<Core::Id>() << RemoteLinux::GenericDirectUploadStep::stepId();
+    return QList<Core::Id>() << RemoteLinux::GenericDirectUploadStep::stepId()
+                             << ProjectExplorer::DeviceCheckBuildStep::stepId();
 }
 
 QString QnxDeployStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == RemoteLinux::GenericDirectUploadStep::stepId())
         return RemoteLinux::GenericDirectUploadStep::displayName();
+    else if (id == ProjectExplorer::DeviceCheckBuildStep::stepId())
+        return ProjectExplorer::DeviceCheckBuildStep::stepDisplayName();
+
     return QString();
 }
 
@@ -75,7 +80,12 @@ ProjectExplorer::BuildStep *QnxDeployStepFactory::create(ProjectExplorer::BuildS
 {
     if (!canCreate(parent, id))
         return 0;
-    return new RemoteLinux::GenericDirectUploadStep(parent, id);
+
+    if (id == RemoteLinux::GenericDirectUploadStep::stepId())
+        return new RemoteLinux::GenericDirectUploadStep(parent, id);
+    else if (id == ProjectExplorer::DeviceCheckBuildStep::stepId())
+        return new ProjectExplorer::DeviceCheckBuildStep(parent, id);
+    return 0;
 }
 
 bool QnxDeployStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
@@ -103,5 +113,11 @@ ProjectExplorer::BuildStep *QnxDeployStepFactory::clone(ProjectExplorer::BuildSt
 {
     if (!canClone(parent, product))
         return 0;
-    return new RemoteLinux::GenericDirectUploadStep(parent, static_cast<RemoteLinux::GenericDirectUploadStep *>(product));
+
+    if (RemoteLinux::GenericDirectUploadStep * const other = qobject_cast<RemoteLinux::GenericDirectUploadStep*>(product))
+        return new RemoteLinux::GenericDirectUploadStep(parent, other);
+    else if (ProjectExplorer::DeviceCheckBuildStep * const other = qobject_cast<ProjectExplorer::DeviceCheckBuildStep*>(product))
+        return new ProjectExplorer::DeviceCheckBuildStep(parent, other);
+
+    return 0;
 }

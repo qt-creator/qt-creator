@@ -572,7 +572,9 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
                              QFileInfo(p.files.front()).fileName() : p.diffName;
 
     QStringList args(QLatin1String("diff"));
-    args.append(QLatin1String("--internal-diff"));
+    Version v = svnVersion();
+    if (v.majorVersion >= 1 && v.minorVersion >= 7) // --internal-diff is new in v1.7.0
+        args.append(QLatin1String("--internal-diff"));
     args.append(p.arguments);
     args << p.files;
 
@@ -587,7 +589,7 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
     // Show in the same editor if diff has been executed before
     if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         existingEditor->createNew(response.stdOut);
-        Core::EditorManager::activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(existingEditor);
         setDiffBaseDirectory(existingEditor, p.workingDir);
         return;
     }
@@ -611,8 +613,7 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
     Core::IEditor *editor = Core::EditorManager::openEditor(fileName,
-                                                            Constants::SUBVERSIONCOMMITEDITOR_ID,
-                                                            Core::EditorManager::ModeSwitch);
+                                                            Constants::SUBVERSIONCOMMITEDITOR_ID);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);
     setSubmitEditor(submitEditor);
@@ -899,7 +900,7 @@ void SubversionPlugin::filelog(const QString &workingDir,
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("svn log %1").arg(id);
         const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
@@ -977,7 +978,7 @@ void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &fil
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
-        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::AnnotateOutput, source, codec);
@@ -1042,7 +1043,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(description);
-        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
         Core::IEditor *newEditor = showOutputInEditor(title, description, VcsBase::DiffOutput, source, codec);
@@ -1110,6 +1111,32 @@ QStringList SubversionPlugin::addAuthenticationOptions(const QStringList &args,
     return rc;
 }
 
+SubversionPlugin::Version SubversionPlugin::svnVersion()
+{
+    if (m_svnVersionBinary != m_settings.binaryPath()) {
+        QStringList args;
+        args << QLatin1String("--version") << QLatin1String("-q");
+        const Utils::SynchronousProcessResponse response =
+                VcsBase::VcsBasePlugin::runVcs(QDir().absolutePath(), m_settings.binaryPath(),
+                                               args, m_settings.timeOutMs(), 0);
+        if (response.result == Utils::SynchronousProcessResponse::Finished &&
+                response.exitCode == 0) {
+            m_svnVersionBinary = m_settings.binaryPath();
+            m_svnVersion = response.stdOut.trimmed();
+        } else {
+            m_svnVersionBinary.clear();
+            m_svnVersion.clear();
+        }
+    }
+
+    SubversionPlugin::Version v;
+    if (::sscanf(m_svnVersion.toLatin1().constData(), "%d.%d.%d",
+           &v.majorVersion, &v.minorVersion, &v.patchVersion) != 3)
+        v.majorVersion = v.minorVersion = v.patchVersion = -1;
+
+    return v;
+}
+
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                           const QString &userName, const QString &password,
                           const QStringList &arguments, int timeOut,
@@ -1161,7 +1188,7 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
     if (codec)
         e->setCodec(codec);
     Core::IEditor *ie = e->editor();
-    Core::EditorManager::activateEditor(ie, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(ie);
     return ie;
 }
 
@@ -1187,51 +1214,9 @@ SubversionPlugin *SubversionPlugin::instance()
 
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
-    if (Utils::HostOsInfo::isMacHost()) // See below.
-        return vcsAdd14(workingDir, rawFileName);
-    return vcsAdd15(workingDir, rawFileName);
-}
-
-// Post 1.4 add: Use "--parents" to add directories
-bool SubversionPlugin::vcsAdd15(const QString &workingDir, const QString &rawFileName)
-{
     const QString file = QDir::toNativeSeparators(rawFileName);
     QStringList args;
     args << QLatin1String("add") << QLatin1String("--parents") << file;
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
-    return !response.error;
-}
-
-// Pre 1.5 add: Add directories in a loop. To be deprecated
-// once Mac ships newer svn-versions
-bool SubversionPlugin::vcsAdd14(const QString &workingDir, const QString &rawFileName)
-{
-    const QChar slash = QLatin1Char('/');
-    const QStringList relativePath = rawFileName.split(slash);
-    // Add directories (dir1/dir2/file.cpp) in a loop.
-    if (relativePath.size() > 1) {
-        QString path;
-        const int lastDir = relativePath.size() - 1;
-        for (int p = 0; p < lastDir; p++) {
-            if (!path.isEmpty())
-                path += slash;
-            path += relativePath.at(p);
-            if (!checkSVNSubDir(QDir(path))) {
-                QStringList addDirArgs;
-                addDirArgs << QLatin1String("add") << QLatin1String("--non-recursive") << QDir::toNativeSeparators(path);
-                const SubversionResponse addDirResponse =
-                        runSvn(workingDir, addDirArgs, m_settings.timeOutMs(),
-                               SshPasswordPrompt|ShowStdOutInLogWindow);
-                if (addDirResponse.error)
-                    return false;
-            }
-        }
-    }
-    // Add file
-    QStringList args;
-    args << QLatin1String("add") << QDir::toNativeSeparators(rawFileName);
     const SubversionResponse response =
             runSvn(workingDir, args, m_settings.timeOutMs(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);

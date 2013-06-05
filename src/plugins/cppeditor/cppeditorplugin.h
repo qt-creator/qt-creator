@@ -178,7 +178,8 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs();
     void test_quickfix_MoveFuncDefOutside_FreeFuncToCpp();
     void test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS();
-    void test_quickfix_MoveFuncDefOutside_CtorWithInitialization();
+    void test_quickfix_MoveFuncDefOutside_CtorWithInitialization1();
+    void test_quickfix_MoveFuncDefOutside_CtorWithInitialization2();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();

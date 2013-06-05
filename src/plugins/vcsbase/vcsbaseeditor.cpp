@@ -297,14 +297,6 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
 {
     VcsBaseEditorWidget *widget = editorWidget();
     switch (type) {
-    case LogOutput: { // Describe current / Annotate file of current
-        menu->addSeparator();
-        menu->addAction(createCopyRevisionAction(m_currentChange));
-        menu->addAction(createDescribeAction(m_currentChange));
-        if (widget->isFileLogAnnotateEnabled())
-            menu->addAction(createAnnotateAction(m_currentChange, false));
-        break;
-    }
     case AnnotateOutput: { // Describe current / annotate previous
         bool currentValid = widget->isValidRevision(m_currentChange);
         menu->addSeparator();
@@ -321,7 +313,12 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
         }
         break;
     }
-    default:
+    default: // Describe current / Annotate file of current
+        menu->addSeparator();
+        menu->addAction(createCopyRevisionAction(m_currentChange));
+        menu->addAction(createDescribeAction(m_currentChange));
+        if (widget->isFileLogAnnotateEnabled())
+            menu->addAction(createAnnotateAction(m_currentChange, false));
         break;
     }
     widget->addChangeActions(menu, m_currentChange);
@@ -663,6 +660,17 @@ void VcsBaseEditorWidget::setLogEntryPattern(const QRegExp &pattern)
     d->m_logEntryPattern = pattern;
 }
 
+bool VcsBaseEditorWidget::supportChangeLinks() const
+{
+    switch (d->m_parameters->type) {
+    case LogOutput:
+    case AnnotateOutput:
+        return true;
+    default:
+        return false;
+    }
+}
+
 void VcsBaseEditorWidget::init()
 {
     d->m_editor = editor();
@@ -910,17 +918,13 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QPointer<QMenu> menu = createStandardContextMenu();
     // 'click on change-interaction'
-    switch (d->m_parameters->type) {
-    case LogOutput:
-    case AnnotateOutput: {
+    if (supportChangeLinks()) {
         const QTextCursor cursor = cursorForPosition(e->pos());
-        Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
-        if (handler != 0)
+        if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor))
             handler->fillContextMenu(menu, d->m_parameters->type);
-        // Fall-through for log (might have diff)
-        if (d->m_parameters->type != LogOutput)
-            break;
     }
+    switch (d->m_parameters->type) {
+    case LogOutput: // log might have diff
     case DiffOutput: {
         menu->addSeparator();
         connect(menu->addAction(tr("Send to CodePaster...")), SIGNAL(triggered()),
@@ -963,7 +967,7 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
     bool overrideCursor = false;
     Qt::CursorShape cursorShape;
 
-    if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
+    if (supportChangeLinks()) {
         // Link emulation behaviour for 'click on change-interaction'
         const QTextCursor cursor = cursorForPosition(e->pos());
         Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
@@ -987,7 +991,7 @@ void VcsBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     const bool wasDragging = d->m_mouseDragging;
     d->m_mouseDragging = false;
-    if (!wasDragging && (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput)) {
+    if (!wasDragging && supportChangeLinks()) {
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
             const QTextCursor cursor = cursorForPosition(e->pos());
             Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
@@ -1111,7 +1115,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::IEditor *ed = Core::EditorManager::openEditor(fileName);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }

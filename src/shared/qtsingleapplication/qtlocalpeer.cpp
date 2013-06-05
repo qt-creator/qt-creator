@@ -46,7 +46,7 @@ static PProcessIdToSessionId pProcessIdToSessionId = 0;
 
 namespace SharedTools {
 
-const char *QtLocalPeer::ack = "ack";
+static const char ack[] = "ack";
 
 QtLocalPeer::QtLocalPeer(QObject *parent, const QString &appId)
     : QObject(parent), id(appId)

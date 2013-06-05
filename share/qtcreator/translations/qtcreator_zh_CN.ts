@@ -14434,12 +14434,12 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>%1 Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 调试</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
         <extracomment>Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 发布</translation>
+        <translation>%1 Release</translation>
     </message>
     <message>
         <source>&lt;No tool chain selected&gt;</source>
@@ -22774,7 +22774,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>未命名</translation>
+        <translation>untitled</translation>
     </message>
 </context>
 <context>
@@ -27898,12 +27898,12 @@ Did you start Qemu?</source>
     <message>
         <source>%1 Debug</source>
         <extracomment>Debug build configuration. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 调试</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
         <extracomment>Release build configuration. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 发布</translation>
+        <translation>%1 Release</translation>
     </message>
 </context>
 <context>
@@ -40001,12 +40001,12 @@ Check if the phone is connected and App TRK is running.</source>
     <message>
         <source>%1 Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 调试</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
         <extracomment>Name of a release build configuration to be created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 发布</translation>
+        <translation>%1 Release</translation>
     </message>
 </context>
 <context>

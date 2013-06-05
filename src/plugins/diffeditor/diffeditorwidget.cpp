@@ -43,6 +43,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/displaysettings.h>
 
 #include <coreplugin/minisplitter.h>
 
@@ -138,6 +139,9 @@ public:
     void clearAllData();
     QTextBlock firstVisibleBlock() const { return SnippetEditorWidget::firstVisibleBlock(); }
 
+public slots:
+    void setDisplaySettings(const DisplaySettings &ds);
+
 protected:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const { return BaseTextEditorWidget::extraAreaWidth(markWidthPtr); }
     BaseTextEditor *createEditor() { return new DiffViewEditorEditable(this); }
@@ -174,9 +178,24 @@ private:
 DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
     : SnippetEditorWidget(parent), m_lineNumberDigits(1), m_inPaintEvent(false)
 {
-    setLineNumbersVisible(true);
+    DisplaySettings settings = displaySettings();
+    settings.m_textWrapping = false;
+    settings.m_displayLineNumbers = true;
+    settings.m_highlightCurrentLine = false;
+    settings.m_displayFoldingMarkers = true;
+    settings.m_markTextChanges = false;
+    settings.m_highlightBlocks = false;
+    SnippetEditorWidget::setDisplaySettings(settings);
+
     setCodeFoldingSupported(true);
     setFrameStyle(QFrame::NoFrame);
+}
+
+void DiffViewEditorWidget::setDisplaySettings(const DisplaySettings &ds)
+{
+    DisplaySettings settings = displaySettings();
+    settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
+    SnippetEditorWidget::setDisplaySettings(settings);
 }
 
 QString DiffViewEditorWidget::lineNumber(int blockNumber) const
@@ -355,7 +374,7 @@ void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
     const QDir dir(m_workingDirectory);
     const QString fileName = dir.absoluteFilePath(it.value().fileName);
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::IEditor *ed = Core::EditorManager::openEditor(fileName);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(lineNr, position);
 }
@@ -514,33 +533,25 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
 {
     TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
 
-    QToolButton *toggleSync = new QToolButton();
-    toggleSync = new QToolButton;
-    toggleSync->setText(QLatin1String("S"));
-    toggleSync->setCheckable(true);
-    toggleSync->setChecked(m_syncScrollBars);
-    toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
-    toggleSync->setAutoRaise(true);
-    connect(toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleScrollBarSynchronization(bool)));
-
     m_leftEditor = new DiffViewEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_leftEditor->setReadOnly(true);
-    m_leftEditor->setHighlightCurrentLine(false);
-    m_leftEditor->setWordWrapMode(QTextOption::NoWrap);
     connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             m_leftEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
     m_leftEditor->setFontSettings(settings->fontSettings());
+    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+            m_leftEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    m_leftEditor->setDisplaySettings(settings->displaySettings());
     m_leftEditor->setCodeStyle(settings->codeStyle());
 
     m_rightEditor = new DiffViewEditorWidget(this);
-    m_rightEditor->setCornerWidget(toggleSync);
     m_rightEditor->setReadOnly(true);
-    m_rightEditor->setHighlightCurrentLine(false);
-    m_rightEditor->setWordWrapMode(QTextOption::NoWrap);
     connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             m_rightEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
     m_rightEditor->setFontSettings(settings->fontSettings());
+    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+            m_rightEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    m_rightEditor->setDisplaySettings(settings->displaySettings());
     m_rightEditor->setCodeStyle(settings->codeStyle());
 
     connect(m_leftEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
@@ -1402,7 +1413,7 @@ void DiffEditorWidget::rightDocumentSizeChanged()
     synchronizeFoldings(m_rightEditor, m_leftEditor);
 }
 
-void DiffEditorWidget::toggleScrollBarSynchronization(bool on)
+void DiffEditorWidget::setHorizontalScrollBarSynchronization(bool on)
 {
     m_syncScrollBars = on;
 }

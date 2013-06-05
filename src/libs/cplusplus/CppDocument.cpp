@@ -464,6 +464,57 @@ void Document::setGlobalNamespace(Namespace *globalNamespace)
     _globalNamespace = globalNamespace;
 }
 
+/*!
+ * Extract the function name including scope at the given position.
+ *
+ * Note that a function (scope) starts at the name of that function, not at the return type. The
+ * implication is that this method will return an empty string when the line/column is on the
+ * return type.
+ *
+ * \param line the line number, starting with line 1
+ * \param column the column number, starting with column 1
+ */
+QString Document::functionAt(int line, int column) const
+{
+    if (line < 1 || column < 1)
+        return QString();
+
+    CPlusPlus::Symbol *symbol = lastVisibleSymbolAt(line, column);
+    if (!symbol)
+        return QString();
+
+    // Find the enclosing function scope (which might be several levels up, or we might be standing
+    // on it)
+    Scope *scope;
+    if (symbol->isScope())
+        scope = symbol->asScope();
+    else
+        scope = symbol->enclosingScope();
+
+    while (scope && !scope->isFunction() )
+        scope = scope->enclosingScope();
+
+    if (!scope)
+        return QString();
+
+    // We found the function scope, extract its name.
+    const Overview o;
+    QString rc = o.prettyName(scope->name());
+
+    // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
+    for (const Symbol *owner = scope->enclosingNamespace();
+         owner; owner = owner->enclosingNamespace()) {
+        const QString name = o.prettyName(owner->name());
+        if (name.isEmpty()) {
+            break;
+        } else {
+            rc.prepend(QLatin1String("::"));
+            rc.prepend(name);
+        }
+    }
+    return rc;
+}
+
 Scope *Document::scopeAt(unsigned line, unsigned column)
 {
     FindScopeAt findScopeAt(_translationUnit, line, column);

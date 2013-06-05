@@ -23,7 +23,7 @@ QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
     include($$QT_BREAKPAD_ROOT_PATH/qtbreakpad.pri)
 }
 
-SOURCES +=  $$PWD/main.cpp
+SOURCES +=  $$PWD/qml2puppetmain.cpp
 RESOURCES +=  $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
 

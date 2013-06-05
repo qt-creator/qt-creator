@@ -33,6 +33,7 @@
 #include "qmljstools_global.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsqrcparser.h>
 
 #include <cplusplus/CppDocument.h>
 
@@ -41,6 +42,7 @@
 #include <QMutex>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
+QT_FORWARD_DECLARE_CLASS(QLocale)
 
 namespace Core {
 class MimeType;
@@ -48,6 +50,10 @@ class MimeType;
 
 namespace CPlusPlus {
 class CppModelManagerInterface;
+}
+
+namespace QmlJS {
+class QrcParser;
 }
 
 namespace QmlJSTools {
@@ -77,6 +83,14 @@ public:
                                    bool emitDocumentOnDiskChanged);
     virtual void fileChangedOnDisk(const QString &path);
     virtual void removeFiles(const QStringList &files);
+    virtual QStringList filesAtQrcPath(const QString &path, const QLocale *locale = 0,
+                                       ProjectExplorer::Project *project = 0,
+                                       QrcResourceSelector resources = AllQrcResources);
+    virtual QMap<QString,QStringList> filesInQrcPath(const QString &path,
+                                                     const QLocale *locale = 0,
+                                                     ProjectExplorer::Project *project = 0,
+                                                     bool addDirs = false,
+                                                     QrcResourceSelector resources = AllQrcResources);
 
     virtual QList<ProjectInfo> projectInfos() const;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
@@ -87,6 +101,7 @@ public:
     void updateDocument(QmlJS::Document::Ptr doc);
     void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
+    void updateQrcFile(const QString &path);
 
     virtual QStringList importPaths() const;
     virtual QmlJS::QmlLanguageBundles activeBundles() const;
@@ -147,6 +162,7 @@ private:
     QTimer *m_updateCppQmlTypesTimer;
     QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
     QFuture<void> m_cppQmlTypesUpdater;
+    QmlJS::QrcCache m_qrcCache;
 
     CppDataHash m_cppDataHash;
     mutable QMutex m_cppDataMutex;

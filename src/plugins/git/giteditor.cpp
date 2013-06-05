@@ -35,11 +35,12 @@
 #include "gitsettings.h"
 #include "gitsubmiteditorwidget.h"
 #include "gitconstants.h"
+#include "githighlighters.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <texteditor/basetextdocument.h>
-#include <QDebug>
+
 #include <QFileInfo>
 #include <QRegExp>
 #include <QSet>
@@ -231,8 +232,23 @@ void GitEditor::revertChange()
 void GitEditor::init()
 {
     VcsBase::VcsBaseEditorWidget::init();
-    if (editor()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
+    Core::Id editorId = editor()->id();
+    if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
         new GitSubmitHighlighter(baseTextDocument().data());
+    else if (editorId == Git::Constants::GIT_REBASE_EDITOR_ID)
+        new GitRebaseHighlighter(baseTextDocument().data());
+}
+
+bool GitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+{
+    bool res = VcsBaseEditorWidget::open(errorString, fileName, realFileName);
+    Core::Id editorId = editor()->id();
+    if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
+            || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
+        QFileInfo fi(fileName);
+        setSource(GitPlugin::instance()->gitClient()->findRepositoryForGitDir(fi.absolutePath()));
+    }
+    return res;
 }
 
 QString GitEditor::decorateVersion(const QString &revision) const
@@ -282,6 +298,13 @@ QString GitEditor::revisionSubject(const QTextBlock &inBlock) const
         }
     }
     return QString();
+}
+
+bool GitEditor::supportChangeLinks() const
+{
+    return VcsBaseEditorWidget::supportChangeLinks()
+            || (editor()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
+            || (editor()->id() == Git::Constants::GIT_REBASE_EDITOR_ID);
 }
 
 } // namespace Internal

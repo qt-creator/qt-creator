@@ -65,7 +65,7 @@ class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
     QmlProfilerEnginePrivate(QmlProfilerEngine *qq, const AnalyzerStartParameters &sp) : q(qq), m_runner(0), sp(sp) {}
-    ~QmlProfilerEnginePrivate() { delete m_runner; }
+    ~QmlProfilerEnginePrivate() { m_runner->disconnect(); delete m_runner; }
 
     bool attach(const QString &address, uint port);
     AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
@@ -161,6 +161,7 @@ bool QmlProfilerEngine::start()
     QTC_ASSERT(d->m_profilerState, return false);
 
     if (d->m_runner) {
+        d->m_runner->disconnect();
         delete d->m_runner;
         d->m_runner = 0;
     }
@@ -189,7 +190,7 @@ bool QmlProfilerEngine::start()
     }
 
     if (d->m_runner) {
-        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(processEnded()));
+        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(notifyRemoteFinished()));
         connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
                 this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
         d->m_runner->start();
@@ -230,13 +231,16 @@ void QmlProfilerEngine::stop()
     }
 }
 
-void QmlProfilerEngine::processEnded()
+void QmlProfilerEngine::notifyRemoteFinished(bool success)
 {
     QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning : {
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+        if (success)
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+        else
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
         AnalyzerManager::stopTool();
 
         emit finished();
@@ -374,6 +378,7 @@ void QmlProfilerEngine::profilerStateChanged()
         // (a new one will be created at start)
         d->m_noDebugOutputTimer.stop();
         if (d->m_runner) {
+            d->m_runner->disconnect();
             delete d->m_runner;
             d->m_runner = 0;
         }

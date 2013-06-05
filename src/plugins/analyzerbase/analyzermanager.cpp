@@ -102,7 +102,6 @@ public:
         setIcon(QIcon(QLatin1String(":/images/analyzer_mode.png")));
         setPriority(P_MODE_ANALYZE);
         setId(MODE_ANALYZE);
-        setType(MODE_EDIT_TYPE);
     }
 
     ~AnalyzerMode()

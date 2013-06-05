@@ -10,6 +10,7 @@ QTC_PLUGIN_DEPENDS += \
     qtsupport \
     projectexplorer
 INCLUDEPATH *= \
+    $$PWD \
     $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces \
     $$PWD/designercore \
     $$PWD/designercore/include \

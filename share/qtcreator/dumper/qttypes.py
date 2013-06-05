@@ -433,8 +433,8 @@ def qdump__QFixed(d, value):
 
 
 def qdump__QFiniteStack(d, value):
-    alloc = value["_alloc"]
-    size = value["_size"]
+    alloc = int(value["_alloc"])
+    size = int(value["_size"])
     check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
@@ -483,7 +483,7 @@ def qdump__QHash(d, value):
         val = value.cast(hashDataType)
         bucket = val["buckets"]
         e = val.cast(hashNodeType)
-        for n in xrange(val["numBuckets"] - 1, -1, -1):
+        for n in xrange(int(val["numBuckets"]) - 1, -1, -1):
             n = n - 1
             if n < 0:
                 break
@@ -497,8 +497,8 @@ def qdump__QHash(d, value):
         if next["next"]:
             return next
         d = node.cast(hashDataType.pointer()).dereference()
-        numBuckets = d["numBuckets"]
-        start = (node["h"] % numBuckets) + 1
+        numBuckets = int(d["numBuckets"])
+        start = (int(node["h"]) % numBuckets) + 1
         bucket = d["buckets"] + start
         for n in xrange(numBuckets - start):
             if bucket.dereference() != next:
@@ -511,7 +511,7 @@ def qdump__QHash(d, value):
 
     d_ptr = value["d"]
     e_ptr = value["e"]
-    size = d_ptr["size"]
+    size = int(d_ptr["size"])
 
     hashDataType = d_ptr.type
     hashNodeType = e_ptr.type
@@ -644,7 +644,7 @@ def qform__QImage():
 
 def qdump__QImage(d, value):
     try:
-        painters = value["painters"]
+        painters = int(value["painters"])
     except:
         d.putPlainChildren(value)
         return
@@ -696,7 +696,7 @@ def qdump__QImage(d, value):
 def qdump__QLinkedList(d, value):
     d_ptr = value["d"]
     e_ptr = value["e"]
-    n = d_ptr["size"]
+    n = int(d_ptr["size"])
     check(0 <= n and n <= 100*1000*1000)
     checkRef(d_ptr["ref"])
     d.putItemCount(n)
@@ -762,7 +762,7 @@ def qdump__QMapNode(d, value):
 def qdumpHelper__Qt4_QMap(d, value, forceLong):
     d_ptr = value["d"].dereference()
     e_ptr = value["e"].dereference()
-    n = d_ptr["size"]
+    n = int(d_ptr["size"])
     check(0 <= n and n <= 100*1000*1000)
     checkRef(d_ptr["ref"])
 
@@ -810,7 +810,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
 
 def qdumpHelper__Qt5_QMap(d, value, forceLong):
     d_ptr = value["d"].dereference()
-    n = d_ptr["size"]
+    n = int(d_ptr["size"])
     check(0 <= n and n <= 100*1000*1000)
     checkRef(d_ptr["ref"])
 
@@ -1325,7 +1325,7 @@ def qdump__QObject(d, value):
 # }
 
 def qdump__QPixmap(d, value):
-    painters = value["painters"]
+    painters = int(value["painters"])
     check(0 <= painters and painters < 1000)
     d_ptr = value["data"]["d"]
     if isNull(d_ptr):
@@ -1337,11 +1337,8 @@ def qdump__QPixmap(d, value):
 
 
 def qdump__QPoint(d, value):
-    x = value["xp"]
-    y = value["yp"]
-    # should not be needed, but sometimes yield myns::QVariant::Private::Data::qreal
-    x = x.cast(x.type.strip_typedefs())
-    y = y.cast(y.type.strip_typedefs())
+    x = int(value["xp"])
+    y = int(value["yp"])
     d.putValue("(%s, %s)" % (x, y))
     d.putNumChild(2)
     if d.isExpanded():
@@ -1350,7 +1347,13 @@ def qdump__QPoint(d, value):
 
 
 def qdump__QPointF(d, value):
-    qdump__QPoint(d, value)
+    x = float(value["xp"])
+    y = float(value["yp"])
+    d.putValue("(%s, %s)" % (x, y))
+    d.putNumChild(2)
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
 
 
 def qdump__QRect(d, value):
@@ -1463,7 +1466,7 @@ def qdump__QSet(d, value):
 
     d_ptr = value["q_hash"]["d"]
     e_ptr = value["q_hash"]["e"]
-    size = d_ptr["size"]
+    size = int(d_ptr["size"])
 
     hashDataType = d_ptr.type
     hashNodeType = e_ptr.type
@@ -1894,11 +1897,11 @@ def qdump__QWeakPointer(d, value):
         d.putValue("<invalid>")
         d.putNumChild(0)
         return
-    weakref = d_ptr["weakref"]["_q_value"]
-    strongref = d_ptr["strongref"]["_q_value"]
-    check(int(strongref) >= -1)
-    check(int(strongref) <= int(weakref))
-    check(int(weakref) <= 10*1000*1000)
+    weakref = int(d_ptr["weakref"]["_q_value"])
+    strongref = int(d_ptr["strongref"]["_q_value"])
+    check(strongref >= -1)
+    check(strongref <= weakref)
+    check(weakref <= 10*1000*1000)
 
     if isSimpleType(val.dereference().type):
         d.putNumChild(3)
@@ -2045,7 +2048,7 @@ def qform__std__map():
 
 def qdump__std__map(d, value):
     impl = value["_M_t"]["_M_impl"]
-    size = impl["_M_node_count"]
+    size = int(impl["_M_node_count"])
     check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
     d.putNumChild(size)
@@ -2149,7 +2152,7 @@ def qdump__std__set__const_iterator(d, value):
 
 def qdump__std__set(d, value):
     impl = value["_M_t"]["_M_impl"]
-    size = impl["_M_node_count"]
+    size = int(impl["_M_node_count"])
     check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
     d.putNumChild(size)
@@ -2216,6 +2219,13 @@ def qdump__std__string(d, value):
         if n != size:
             mem = d.readRawMemory(p, size * charType.sizeof)
         d.putField("editvalue", mem)
+
+#def qdump__std__string(d, value):
+#    data = value["__r_"]
+#    d.putValue("SSSS")
+#    d.putType("std::string")
+#    d.putNumChild(1)
+#    d.putPlainChildren(value)
 
 
 def qdump__std__shared_ptr(d, value):
@@ -2328,7 +2338,7 @@ def qdump__wstring(d, value):
 
 def qdump____gnu_cxx__hash_set(d, value):
     ht = value["_M_ht"]
-    size = ht["_M_num_elements"]
+    size = int(ht["_M_num_elements"])
     check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
@@ -2398,11 +2408,11 @@ def qdump__boost__shared_ptr(d, value):
         return
 
     countedbase = value["pn"]["pi_"].dereference()
-    weakcount = countedbase["weak_count_"]
-    usecount = countedbase["use_count_"]
-    check(int(weakcount) >= 0)
-    check(int(weakcount) <= int(usecount))
-    check(int(usecount) <= 10*1000*1000)
+    weakcount = int(countedbase["weak_count_"])
+    usecount = int(countedbase["use_count_"])
+    check(weakcount >= 0)
+    check(weakcount <= int(usecount))
+    check(usecount <= 10*1000*1000)
 
     val = value["px"].dereference()
     if isSimpleType(val.type):

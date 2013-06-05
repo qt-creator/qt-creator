@@ -42,6 +42,8 @@ QtcPlugin {
         "gitconstants.h",
         "giteditor.cpp",
         "giteditor.h",
+        "githighlighters.cpp",
+        "githighlighters.h",
         "gitplugin.cpp",
         "gitplugin.h",
         "gitsettings.cpp",

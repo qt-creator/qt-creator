@@ -87,6 +87,7 @@ class tst_Lookup: public QObject
 
 private Q_SLOTS:
     void base_class_defined_1();
+    void document_functionAt_1();
 
     // Objective-C
     void simple_class_1();
@@ -151,6 +152,30 @@ void tst_Lookup::base_class_defined_1()
 
     QVERIFY(classToAST.value(baseClass) != 0);
     QVERIFY(classToAST.value(derivedClass) != 0);
+}
+
+void tst_Lookup::document_functionAt_1()
+{
+    const QByteArray source = "\n"
+            "void Foo::Bar() {\n" // line 1
+            "    \n" // line 2
+            "    for (int i=0; i < 10; ++i) {\n"
+            "        \n" // line 4
+            "    }\n"
+            "}\n"; // line 7
+
+    Document::Ptr doc = Document::create("document_functionAt_1");
+    doc->setUtf8Source(source);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->functionAt(1,  2), QString());
+    QCOMPARE(doc->functionAt(1, 11), QString(QLatin1String("Foo::Bar")));
+    QCOMPARE(doc->functionAt(2,  2), QString(QLatin1String("Foo::Bar")));
+    QCOMPARE(doc->functionAt(3, 10), QString(QLatin1String("Foo::Bar")));
+    QCOMPARE(doc->functionAt(4, 3), QString(QLatin1String("Foo::Bar")));
+    QCOMPARE(doc->functionAt(6, 1), QString(QLatin1String("Foo::Bar")));
 }
 
 void tst_Lookup::simple_class_1()

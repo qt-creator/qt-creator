@@ -113,6 +113,7 @@ HEADERS += projectexplorer.h \
     devicesupport/desktopdevicefactory.h \
     devicesupport/idevicewidget.h \
     devicesupport/idevicefactory.h \
+    devicesupport/devicecheckbuildstep.h \
     devicesupport/devicemanager.h \
     devicesupport/devicemanagermodel.h \
     devicesupport/devicefactoryselectiondialog.h \
@@ -228,6 +229,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/desktopdevice.cpp \
     devicesupport/desktopdevicefactory.cpp \
     devicesupport/idevicefactory.cpp \
+    devicesupport/devicecheckbuildstep.cpp \
     devicesupport/devicemanager.cpp \
     devicesupport/devicemanagermodel.cpp \
     devicesupport/devicefactoryselectiondialog.cpp \

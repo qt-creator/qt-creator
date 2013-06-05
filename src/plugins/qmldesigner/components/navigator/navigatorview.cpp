@@ -289,7 +289,8 @@ void NavigatorView::changeToComponent(const QModelIndex &index)
     if (index.isValid() && m_treeModel->data(index, Qt::UserRole).isValid()) {
         ModelNode doubleClickNode = m_treeModel->nodeForIndex(index);
         if (doubleClickNode.metaInfo().isFileComponent())
-            Core::EditorManager::openEditor(doubleClickNode.metaInfo().componentFileName());
+            Core::EditorManager::openEditor(doubleClickNode.metaInfo().componentFileName(),
+                                            Core::Id(), Core::EditorManager::DoNotMakeVisible);
     }
 }
 

@@ -79,5 +79,9 @@
     \QC parses all the source files in the project and performs a semantic
     analysis to build up the information that it needs for functions such as
     navigation and finding usages. A progress bar is displayed during parsing.
+    To show or hide detailed progress information, select
+    \gui {Toggle Progress Details} (1).
+
+    \image creator-toggle-progress-bar.png "Toggle Progress Details button"
 
 */

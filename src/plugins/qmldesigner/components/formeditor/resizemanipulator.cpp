@@ -77,8 +77,9 @@ void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
     if (m_resizeController.isValid()) {
         m_isActive = true;
         m_beginBoundingRect = m_resizeController.formEditorItem()->qmlItemNode().instanceBoundingRect();
-        m_beginToSceneTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceSceneTransform();
-        m_beginFromSceneTransform = m_beginToSceneTransform.inverted();
+        m_beginFromContentItemToSceneTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceSceneContentItemTransform();
+        m_beginFromSceneToContentItemTransform = m_beginFromContentItemToSceneTransform.inverted();
+        m_beginFromItemToSceneTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceSceneTransform();
         m_beginToParentTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceTransform();
         m_rewriterTransaction = m_view->beginRewriterTransaction();
         m_snapper.updateSnappingLines(m_resizeController.formEditorItem());
@@ -116,7 +117,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
         if (!containerItem)
             return;
 
-        QPointF updatePointInLocalSpace = m_beginFromSceneTransform.map(updatePoint);
+        QPointF updatePointInLocalSpace = m_beginFromSceneToContentItemTransform.map(updatePoint);
         QmlAnchors anchors(formEditorItem->qmlItemNode().anchors());
 
         QRectF boundingRect(m_beginBoundingRect);
@@ -372,7 +373,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
         if (snap)
             m_graphicsLineList = m_snapper.generateSnappingLines(boundingRect,
                                                                  m_layerItem.data(),
-                                                                 m_beginToSceneTransform);
+                                                                 m_beginFromItemToSceneTransform);
     }
 }
 
@@ -484,8 +485,9 @@ void ResizeManipulator::clear()
 
     deleteSnapLines();
     m_beginBoundingRect = QRectF();
-    m_beginFromSceneTransform = QTransform();
-    m_beginToSceneTransform = QTransform();
+    m_beginFromSceneToContentItemTransform = QTransform();
+    m_beginFromContentItemToSceneTransform = QTransform();
+    m_beginFromItemToSceneTransform = QTransform();
     m_beginToParentTransform = QTransform();
     m_beginTopMargin = 0.0;
     m_beginLeftMargin = 0.0;

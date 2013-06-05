@@ -164,6 +164,8 @@ void LldbEngine::setupInferior()
 {
     QString executable = QFileInfo(startParameters().executable).absoluteFilePath();
     runCommand(Command("setupInferior").arg("executable", executable));
+
+    requestUpdateWatchers();
 }
 
 void LldbEngine::runEngine()
@@ -676,17 +678,15 @@ void LldbEngine::updateAll()
 //
 //////////////////////////////////////////////////////////////////////
 
-void LldbEngine::assignValueInDebugger(const Internal::WatchData *, const QString &expression, const QVariant &value)
+void LldbEngine::assignValueInDebugger(const Internal::WatchData *data,
+    const QString &expression, const QVariant &value)
 {
-    Q_UNUSED(expression);
-    Q_UNUSED(value);
-    //SDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value.toString()));
-#if 0
-    m_scriptEngine->evaluate(expression + QLatin1Char('=') + value.toString());
-    updateLocals();
-#endif
+    Q_UNUSED(data);
+    Command cmd("assignValue");
+    cmd.arg("exp", expression.toLatin1().toHex());
+    cmd.arg("value", value.toString().toLatin1().toHex());
+    runCommand(cmd);
 }
-
 
 void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
@@ -699,12 +699,13 @@ void LldbEngine::updateLocals()
 {
     WatchHandler *handler = watchHandler();
 
+    //requestUpdateWatchers();
+
     Command cmd("updateData");
     cmd.arg("expanded", handler->expansionRequests());
     cmd.arg("typeformats", handler->typeFormatRequests());
     cmd.arg("formats", handler->individualFormatRequests());
 
-    QList<QByteArray> watcherData;
 //    const QString fileName = stackHandler()->currentFrame().file;
 //    if (!fileName.isEmpty()) {
 //        const QString function = stackHandler()->currentFrame().function;
@@ -739,18 +740,8 @@ void LldbEngine::updateLocals()
 //        }
 //    }
 
-    QHashIterator<QByteArray, int> it(handler->watcherNames());
-    while (it.hasNext()) {
-        it.next();
-        QHash<QByteArray, QByteArray> hash;
-        hash["exp"] = '\'' + it.key() + '\'';
-        hash["id"] = "'watch." + QByteArray::number(it.value()) + '\'';
-        watcherData.append(Command::toData(hash));
-    }
-    cmd.args.append("'watchers':" + Command::toData(watcherData) + ',');
-
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
-    cmd.arg("passexeptions", alwaysVerbose);
+    cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", debuggerCore()->boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", debuggerCore()->boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", debuggerCore()->boolSetting(UseDynamicType));
@@ -839,58 +830,21 @@ void LldbEngine::readLldbStandardOutput()
     }
 }
 
-QByteArray LldbEngine::currentOptions() const
+void LldbEngine::requestUpdateWatchers()
 {
-    QByteArray localsOptions;
-    QByteArray stackOptions;
-    QByteArray threadsOptions;
-
-    {
-        QByteArray watchers;
-        //if (!m_toolTipExpression.isEmpty())
-        //    watchers += m_toolTipExpression.toLatin1()
-        //        + '#' + tooltipINameForExpression(m_toolTipExpression.toLatin1());
-
-        WatchHandler *handler = watchHandler();
-        QHash<QByteArray, int> watcherNames = handler->watcherNames();
-        QHashIterator<QByteArray, int> it(watcherNames);
-        while (it.hasNext()) {
-            it.next();
-            if (!watchers.isEmpty())
-                watchers += "##";
-            watchers += it.key() + "#watch." + QByteArray::number(it.value());
-        }
-
-        QByteArray options;
-        if (debuggerCore()->boolSetting(UseDebuggingHelpers))
-            options += "fancy,";
-        if (debuggerCore()->boolSetting(AutoDerefPointers))
-            options += "autoderef,";
-        if (options.isEmpty())
-            options += "defaults,";
-        options.chop(1);
-
-        localsOptions = "options:" + options + " "
-            + "vars: "
-            + "expanded:" + handler->expansionRequests() + " "
-            + "typeformats:" + handler->typeFormatRequests() + " "
-            + "formats:" + handler->individualFormatRequests() + " "
-            + "watcher:" + watchers.toHex();
+    WatchHandler *handler = watchHandler();
+    QHashIterator<QByteArray, int> it(handler->watcherNames());
+    QList<QByteArray> watcherData;
+    while (it.hasNext()) {
+        it.next();
+        QHash<QByteArray, QByteArray> hash;
+        hash["iname"] = "'watch." + QByteArray::number(it.value()) + '\'';
+        hash["exp"] = '\'' + it.key().toHex() + '\'';
+        watcherData.append(Command::toData(hash));
     }
-
-    {
-        int maxdepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
-        ThreadId curthread = threadsHandler()->currentThread();
-        stackOptions += "maxdepth:" + QByteArray::number(maxdepth);
-        stackOptions += ",curthread:" + QByteArray::number(curthread.raw());
-    }
-
-    QByteArray result;
-    result += "\"locals\":\"" + localsOptions + '"';
-    result += ",\"stack\":\"" + stackOptions + '"';
-    result += ",\"threads\":\"" + threadsOptions + '"';
-
-    return result;
+    Command cmd("setWatchers");
+    cmd.args.append("'watchers':" + Command::toData(watcherData) + ',');
+    runCommand(cmd);
 }
 
 void LldbEngine::refreshLocals(const GdbMi &vars)
@@ -911,10 +865,9 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
         dummy.iname = child["iname"].data();
         GdbMi wname = child["wname"];
         if (wname.isValid()) {
-            // Happens (only) for watched expressions. They are encoded as
-            // base64 encoded 8 bit data, without quotes
-            dummy.name = decodeData(wname.data(), Base64Encoded8Bit);
-            dummy.exp = dummy.name.toUtf8();
+            // Happens (only) for watched expressions.
+            dummy.exp = QByteArray::fromHex(wname.data());
+            dummy.name = QString::fromUtf8(dummy.exp);
         } else {
             dummy.name = child["name"].toUtf8();
         }

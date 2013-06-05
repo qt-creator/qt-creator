@@ -99,6 +99,7 @@ public:
     QList<Macro> definedMacros() const
     { return _definedMacros; }
 
+    QString functionAt(int line, int column) const;
     Symbol *lastVisibleSymbolAt(unsigned line, unsigned column = 0) const;
     Scope *scopeAt(unsigned line, unsigned column = 0);
 

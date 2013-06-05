@@ -27,66 +27,47 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITOREDITABLE_H
-#define DIFFEDITOREDITABLE_H
+#ifndef QMAKEVFS_H
+#define QMAKEVFS_H
 
-#include "diffeditor_global.h"
-#include "diffeditorwidget.h"
+#include "qmake_global.h"
 
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
+# include <QIODevice>
+#ifndef PROEVALUATOR_FULL
+# include <QHash>
+# include <QString>
+# ifdef PROEVALUATOR_THREAD_SAFE
+#  include <qmutex.h>
+# endif
+#endif
 
 QT_BEGIN_NAMESPACE
-class QToolBar;
-class QComboBox;
-QT_END_NAMESPACE
 
-namespace DiffEditor {
-
-namespace Internal {
-class DiffEditorFile;
-}
-
-class DIFFEDITOR_EXPORT DiffEditorEditable : public Core::IEditor
+class QMAKE_EXPORT QMakeVfs
 {
-    Q_OBJECT
 public:
-    explicit DiffEditorEditable(DiffEditorWidget *editorWidget);
-    virtual ~DiffEditorEditable();
+    QMakeVfs();
 
-public:
-    void setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,
-                 const QString &workingDirectory = QString());
-    void clear(const QString &message);
+    bool writeFile(const QString &fn, QIODevice::OpenMode mode, const QString &contents, QString *errStr);
+    bool readFile(const QString &fn, QString *contents, QString *errStr);
+    bool exists(const QString &fn);
 
-    // Core::IEditor
-    bool createNew(const QString &contents);
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IDocument *document();
-    QString displayName() const;
-    void setDisplayName(const QString &title);
-    Core::Id id() const;
-    bool isTemporary() const { return true; }
-    DiffEditorWidget *editorWidget() const { return m_editorWidget; }
-
-    QWidget *toolBar();
-
-public slots:
-    void activateEntry(int index);
-
-private slots:
-    void entryActivated(int index);
+#ifndef PROEVALUATOR_FULL
+    void invalidateCache();
+    void invalidateContents();
+#endif
 
 private:
-    void updateEntryToolTip();
-
-    Internal::DiffEditorFile *m_file;
-    DiffEditorWidget *m_editorWidget;
-    QToolBar *m_toolWidget;
-    QComboBox *m_entriesComboBox;
-    mutable QString m_displayName;
+#ifndef PROEVALUATOR_FULL
+# ifdef PROEVALUATOR_THREAD_SAFE
+    QMutex m_mutex;
+# endif
+    QHash<QString, QString> m_files;
+    QString m_magicMissing;
+    QString m_magicExisting;
+#endif
 };
 
-} // namespace DiffEditor
+QT_END_NAMESPACE
 
-#endif // DIFFEDITOREDITABLE_H
+#endif // QMAKEVFS_H

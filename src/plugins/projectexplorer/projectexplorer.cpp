@@ -265,7 +265,6 @@ public:
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
         setPriority(Constants::P_MODE_SESSION);
         setId(Constants::MODE_SESSION);
-        setType(Core::Id());
         setContextHelpId(QLatin1String("Managing Projects"));
     }
 };
@@ -1522,8 +1521,6 @@ static inline QStringList projectFileGlobs()
 }
 
 /*!
-    \fn void ProjectExplorerPlugin::restoreSession()
-
     This method is connected to the ICore::coreOpened signal.  If
     there was no session explicitly loaded, it creates an empty new
     default session and puts the list of recent projects and sessions
@@ -2873,7 +2870,7 @@ void ProjectExplorerPlugin::removeProject()
 void ProjectExplorerPlugin::openFile()
 {
     QTC_ASSERT(d->m_currentNode, return);
-    Core::EditorManager::openEditor(d->m_currentNode->path(), Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditor(d->m_currentNode->path());
 }
 
 void ProjectExplorerPlugin::searchOnFileSystem()
@@ -3027,6 +3024,8 @@ void ProjectExplorerPlugin::setSession(QAction *action)
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes)
 {
+    QTC_ASSERT(d->m_projectExplorerSettings.environmentId == pes.environmentId, return);
+
     if (d->m_projectExplorerSettings == pes)
         return;
     d->m_projectExplorerSettings = pes;

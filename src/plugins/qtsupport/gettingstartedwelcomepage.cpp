@@ -431,7 +431,7 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
         Core::ICore::openFiles(filesToOpen);
         if (project->needsConfiguration())
             project->configureAsExampleProject(platforms);
-        Core::ModeManager::activateModeType(Core::Constants::MODE_EDIT_TYPE);
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (help.isValid())
             Core::ICore::helpManager()->handleHelpRequest(help.toString() + QLatin1String("?view=split"));
     }

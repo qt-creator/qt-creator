@@ -309,7 +309,7 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 
 void DesignDocument::changeToExternalSubComponent(const QString &fileName)
 {
-    Core::EditorManager::openEditor(fileName);
+    Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::DoNotMakeVisible);
 }
 
 void DesignDocument::goIntoSelectedComponent()

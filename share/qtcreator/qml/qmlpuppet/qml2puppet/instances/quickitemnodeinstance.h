@@ -50,7 +50,12 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
+    virtual QQuickItem *contentItem() const;
+
+    QRectF contentItemBoundingBox() const Q_DECL_OVERRIDE;
+
     QTransform transform() const Q_DECL_OVERRIDE;
+    QTransform contentItemTransform() const Q_DECL_OVERRIDE;
 
     QObject *parent() const Q_DECL_OVERRIDE;
 
@@ -61,6 +66,8 @@ public:
     bool isMovable() const Q_DECL_OVERRIDE;
     bool isQuickItem() const Q_DECL_OVERRIDE;
 
+    void doComponentComplete();
+
 protected:
     QuickItemNodeInstance(QQuickItem*);
     QQuickItem *quickItem() const;
@@ -68,6 +75,7 @@ protected:
     void setResizable(bool resizable);
 
 private: //variables
+    QPointer<QQuickItem> m_contentItem;
     bool m_isResizable;
     bool m_isMovable;
 };

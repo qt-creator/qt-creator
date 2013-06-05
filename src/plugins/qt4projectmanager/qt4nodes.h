@@ -86,6 +86,8 @@ enum Qt4Variable {
     CppSourceVar,
     ObjCSourceVar,
     ObjCHeaderVar,
+    ResourceVar,
+    ExactResourceVar,
     UiDirVar,
     MocDirVar,
     PkgConfigVar,

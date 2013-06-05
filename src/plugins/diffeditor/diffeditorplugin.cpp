@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "diffeditorplugin.h"
-#include "diffeditoreditable.h"
+#include "diffeditor.h"
 #include "diffeditorwidget.h"
 #include "diffeditorconstants.h"
 
@@ -67,7 +67,7 @@ QString DiffEditorFactory::displayName() const
 Core::IEditor *DiffEditorFactory::createEditor(QWidget *parent)
 {
     DiffEditorWidget *editorWidget = new DiffEditorWidget(parent);
-    DiffEditorEditable *editor = new DiffEditorEditable(editorWidget);
+    DiffEditor *editor = new DiffEditor(editorWidget);
     return editor;
 }
 
@@ -136,15 +136,15 @@ void DiffEditorPlugin::diff()
     const Core::Id editorId = Constants::DIFF_EDITOR_ID;
     //: Editor title
     QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
-    DiffEditorEditable *editorEditable = qobject_cast<DiffEditorEditable *>
+    DiffEditor *editor = qobject_cast<DiffEditor *>
             (Core::EditorManager::openEditorWithContents(editorId, &title, QString()));
 
-    if (!editorEditable)
+    if (!editor)
         return;
 
-    Core::EditorManager::activateEditor(editorEditable, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(editor);
 
-    DiffEditorWidget *editorWidget = editorEditable->editorWidget();
+    DiffEditorWidget *editorWidget = editor->editorWidget();
 
     const QString text1 = getFileContents(fileName1, editorWidget->codec());
     const QString text2 = getFileContents(fileName2, editorWidget->codec());
@@ -157,7 +157,7 @@ void DiffEditorPlugin::diff()
     QList<DiffEditorWidget::DiffFilesContents> list;
     list.append(dfc);
 
-    editorEditable->setDiff(list);
+    editor->setDiff(list);
 }
 
 QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *codec) const

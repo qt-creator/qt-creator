@@ -104,6 +104,9 @@ bool ProcessHandle::equals(const ProcessHandle &rhs) const
 }
 
 
+/*!
+    \brief Returns the widget used to configure this run configuration. Ownership is transferred to the caller
+*/
 RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget()
 {
     return 0;
@@ -199,12 +202,6 @@ bool RunConfiguration::ensureConfigured(QString *errorMessage)
     return false;
 }
 
-
-/*!
-    \fn virtual QWidget *ProjectExplorer::RunConfiguration::createConfigurationWidget()
-
-    \brief Returns the widget used to configure this run configuration. Ownership is transferred to the caller
-*/
 
 BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 {

@@ -111,14 +111,12 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMIT_TEXT_EDITOR,
     "text/vnd.qtcreator.git.commit"},
+{   VcsBase::OtherContent,
+    Git::Constants::GIT_REBASE_EDITOR_ID,
+    Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
+    Git::Constants::C_GIT_REBASE_EDITOR,
+    "text/vnd.qtcreator.git.rebase"},
 };
-
-// Utility to find a parameter set by type
-static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
-{
-    const VcsBase::EditorContentType et = static_cast<VcsBase::EditorContentType>(ie);
-    return  VcsBase::VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters), et);
-}
 
 Q_DECLARE_METATYPE(Git::Internal::GitClientMemberFunc)
 
@@ -437,7 +435,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Reset..."), Core::Id("Git.Reset"),
-                           globalcontext, false, SLOT(resetRepository()));
+                           globalcontext, true, SLOT(resetRepository()));
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Interactive Rebase..."), Core::Id("Git.InteractiveRebase"),
@@ -652,9 +650,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
     gitContainer->addSeparator(globalcontext);
 
-    m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
-    Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(m_createRepositoryAction, "Git.CreateRepository", globalcontext);
-    connect(m_createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
+    QAction *repositoryAction = new QAction(tr("Create Repository..."), this);
+    Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(repositoryAction, "Git.CreateRepository", globalcontext);
+    connect(repositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(createRepositoryCommand);
 
     if (0) {
@@ -790,17 +788,19 @@ void GitPlugin::resetRepository()
 
 void GitPlugin::startRebase()
 {
-    QString workingDirectory = currentState().currentDirectoryOrTopLevel();
-    if (workingDirectory.isEmpty() || !m_gitClient->canRebase(workingDirectory))
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    const QString topLevel = state.topLevel();
+    if (topLevel.isEmpty() || !m_gitClient->canRebase(topLevel))
         return;
-    if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Rebase-i")))
+    if (!m_gitClient->beginStashScope(topLevel, QLatin1String("Rebase-i")))
         return;
     LogChangeDialog dialog(false);
     dialog.setWindowTitle(tr("Interactive Rebase"));
-    if (dialog.runDialog(workingDirectory, QString(), false))
-        m_gitClient->interactiveRebase(workingDirectory, dialog.commit(), false);
+    if (dialog.runDialog(topLevel, QString(), false))
+        m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);
     else
-        m_gitClient->endStashScope(workingDirectory);
+        m_gitClient->endStashScope(topLevel);
 }
 
 void GitPlugin::startChangeRelatedAction()
@@ -956,7 +956,8 @@ void GitPlugin::startCommit(CommitType commitType)
 
 void GitPlugin::updateVersionWarning()
 {
-    if (m_gitClient->gitVersion() >= minimumRequiredVersion)
+    unsigned version = m_gitClient->gitVersion();
+    if (!version || version >= minimumRequiredVersion)
         return;
     Core::IEditor *curEditor = Core::EditorManager::currentEditor();
     if (!curEditor)
@@ -976,8 +977,7 @@ void GitPlugin::updateVersionWarning()
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
 {
-    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
-                                                Core::EditorManager::ModeSwitch);
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID);
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);
@@ -1069,7 +1069,7 @@ bool GitPlugin::submitEditorAboutToClose()
 
 void GitPlugin::fetch()
 {
-    m_gitClient->synchronousFetch(currentState().topLevel(), QString());
+    m_gitClient->fetch(currentState().topLevel(), QString());
 }
 
 void GitPlugin::pull()
@@ -1097,7 +1097,7 @@ void GitPlugin::push()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_gitClient->synchronousPush(state.topLevel());
+    m_gitClient->push(state.topLevel());
 }
 
 void GitPlugin::startMergeTool()

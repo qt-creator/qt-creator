@@ -46,8 +46,12 @@ public:
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
     void wheelEvent(QWheelEvent *event);
-
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 private:
+    bool m_isPanning;
+    int m_panStartX, m_panStartY;
     QRectF m_rootItemRect;
 };
 

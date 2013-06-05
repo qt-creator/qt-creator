@@ -20,6 +20,7 @@ QtcPlugin {
     cpp.includePaths: base.concat("../../libs/3rdparty")
 
     files: [
+        "QmlJSTools.mimetypes.xml",
         "qmljsbundleprovider.cpp",
         "qmljsbundleprovider.h",
         "qmljscodestylepreferencesfactory.cpp",

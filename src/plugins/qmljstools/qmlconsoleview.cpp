@@ -31,7 +31,7 @@
 #include "qmlconsoleitemdelegate.h"
 #include "qmlconsoleitemmodel.h"
 
-#include <texteditor/basetexteditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
 #include <utils/hostosinfo.h>
 
@@ -44,6 +44,7 @@
 #include <QScrollBar>
 #include <QStyleFactory>
 #include <QString>
+#include <QUrl>
 
 using namespace QmlJS;
 
@@ -225,13 +226,15 @@ void QmlConsoleView::onRowActivated(const QModelIndex &index)
         return;
 
     // See if we have file and line Info
-    QString filePath = model()->data(index,
-                                     QmlConsoleItemModel::FileRole).toString();
+    QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    const QUrl fileUrl = QUrl(filePath);
+    if (fileUrl.isLocalFile())
+        filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
         QFileInfo fi(filePath);
         if (fi.exists() && fi.isFile() && fi.isReadable()) {
             int line = model()->data(index, QmlConsoleItemModel::LineRole).toInt();
-            TextEditor::BaseTextEditorWidget::openEditorAt(fi.canonicalFilePath(), line);
+            Core::EditorManager::openEditorAt(fi.canonicalFilePath(), line);
         }
     }
 }
@@ -244,6 +247,9 @@ void QmlConsoleView::copyToClipboard(const QModelIndex &index)
     QString contents = model()->data(index, QmlConsoleItemModel::ExpressionRole).toString();
     // See if we have file and line Info
     QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    const QUrl fileUrl = QUrl(filePath);
+    if (fileUrl.isLocalFile())
+        filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
         contents = QString(QLatin1String("%1 %2: %3")).arg(contents).arg(filePath).arg(
                     model()->data(index, QmlConsoleItemModel::LineRole).toString());
@@ -259,6 +265,9 @@ bool QmlConsoleView::canShowItemInTextEditor(const QModelIndex &index)
 
     // See if we have file and line Info
     QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    const QUrl fileUrl = QUrl(filePath);
+    if (fileUrl.isLocalFile())
+        filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
         QFileInfo fi(filePath);
         if (fi.exists() && fi.isFile() && fi.isReadable())

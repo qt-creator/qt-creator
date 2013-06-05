@@ -118,7 +118,7 @@ def listOfLocals(varList):
         for symbol in block:
             name = symbol.print_name
 
-            if name == "__in_chrg":
+            if name == "__in_chrg" or name == "__PRETTY_FUNCTION__":
                 continue
 
             # "NotImplementedError: Symbol type not yet supported in
@@ -382,6 +382,9 @@ def registerDumper(function):
 
 def bbsetup(args = ''):
     global qqDumpers, qqFormats, qqEditable, typeCache
+    qqDumpers = {}
+    qqFormats = {}
+    qqEditable = {}
     typeCache = {}
     module = sys.modules[__name__]
 

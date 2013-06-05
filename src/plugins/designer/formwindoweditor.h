@@ -81,7 +81,7 @@ public:
 
     virtual QWidget *toolBar();
 
-    virtual Core::Id preferredModeType() const;
+    virtual bool isDesignModePreferred() const;
 
     // For uic code model support
     QString contents() const;

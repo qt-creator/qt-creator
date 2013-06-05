@@ -63,6 +63,7 @@
         \row
             \li Subversion
             \li \l{http://subversion.apache.org/}
+            \li Subversion version 1.6.17 and later
             \li
     \endtable
 

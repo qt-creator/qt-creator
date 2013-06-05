@@ -31,7 +31,7 @@
 
 #include "task.h"
 
-#include <texteditor/basetexteditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QAction>
 #include <QFileInfo>
@@ -49,7 +49,7 @@ bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task) const
 void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
 {
     QFileInfo fi(task.file.toFileInfo());
-    TextEditor::BaseTextEditorWidget::openEditorAt(fi.filePath(), task.movedLine);
+    Core::EditorManager::openEditorAt(fi.filePath(), task.movedLine);
 }
 
 QAction *ShowInEditorTaskHandler::createAction(QObject *parent) const

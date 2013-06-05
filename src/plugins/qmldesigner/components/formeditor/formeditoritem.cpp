@@ -91,7 +91,7 @@ void FormEditorItem::updateGeometry()
     prepareGeometryChange();
     m_boundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
     m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect().united(m_boundingRect);
-    setTransform(qmlItemNode().instanceTransform());
+    setTransform(qmlItemNode().instanceTransformWithContentTransform());
     setTransform(m_attentionTransform, true);
     //the property for zValue is called z in QGraphicsObject
     if (qmlItemNode().instanceValue("z").isValid())
@@ -142,7 +142,7 @@ void FormEditorItem::setAttentionScale(double sinusScale)
         m_attentionTransform.translate(-centerPoint.x(), -centerPoint.y());
         m_inverseAttentionTransform = m_attentionTransform.inverted();
         prepareGeometryChange();
-        setTransform(qmlItemNode().instanceTransform());
+        setTransform(qmlItemNode().instanceTransformWithContentTransform());
         setTransform(m_attentionTransform, true);
     } else {
         m_attentionTransform.reset();
@@ -391,7 +391,7 @@ SnapLineMap FormEditorItem::rightSnappingOffsets() const
 void FormEditorItem::updateSnappingLines(const QList<FormEditorItem*> &exceptionList,
                                          FormEditorItem *transformationSpaceItem)
 {
-    m_snappingLineCreator.update(exceptionList, transformationSpaceItem);
+    m_snappingLineCreator.update(exceptionList, transformationSpaceItem, this);
 }
 
 

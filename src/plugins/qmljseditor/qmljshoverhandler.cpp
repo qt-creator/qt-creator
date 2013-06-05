@@ -43,6 +43,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsutils.h>
+#include <qmljs/qmljsqrcparser.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/helpitem.h>
@@ -134,8 +135,14 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
         } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
             const QString path = importInfo.path();
             const QDir dir(qmlDocument->path());
+            // should probably try to make it relatve to some import path, not to the document path
             QString relativeDir = dir.relativeFilePath(path);
             const QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
+            return name;
+        } else if (importInfo.isValid() && importInfo.type() == ImportInfo::QrcDirectoryImport) {
+            QString path = QrcParser::normalizedQrcDirectoryPath(importInfo.path());
+            path = path.mid(1, path.size() - ((path.size() > 1) ? 2 : 1));
+            const QString name = path.replace(QLatin1Char('/'), QLatin1Char('.'));
             return name;
         }
     }

@@ -31,11 +31,13 @@
 
 #include <QWheelEvent>
 #include <QDebug>
+#include <QScrollBar>
 
 namespace QmlDesigner {
 
 FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
-    QGraphicsView(parent)
+    QGraphicsView(parent),
+    m_isPanning(false)
 {
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setResizeAnchor(QGraphicsView::AnchorViewCenter);
@@ -72,6 +74,44 @@ void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
     else
         QGraphicsView::wheelEvent(event);
 
+}
+
+void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)
+{
+    if (event->buttons().testFlag(Qt::MiddleButton)) {
+        m_isPanning = true;
+        m_panStartX = event->x();
+        m_panStartY = event->y();
+        setCursor(Qt::ClosedHandCursor);
+        event->accept();
+    } else {
+        QGraphicsView::mousePressEvent(event);
+    }
+}
+
+void FormEditorGraphicsView::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_isPanning) {
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - (event->x() - m_panStartX));
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - (event->y() - m_panStartY));
+        m_panStartX = event->x();
+        m_panStartY = event->y();
+        event->accept();
+    }else {
+        QGraphicsView::mouseMoveEvent(event);
+    }
+}
+
+void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (m_isPanning) {
+
+        m_isPanning = false;
+        setCursor(Qt::ArrowCursor);
+        event->accept();
+    }else {
+        QGraphicsView::mouseReleaseEvent(event);
+    }
 }
 
 void FormEditorGraphicsView::setRootItemRect(const QRectF &rect)

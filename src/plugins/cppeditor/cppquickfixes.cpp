@@ -2334,8 +2334,8 @@ class InsertDeclOperation: public CppQuickFixOperation
 public:
     InsertDeclOperation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
                         const QString &targetFileName, const Class *targetSymbol,
-                        InsertionPointLocator::AccessSpec xsSpec, const QString &decl)
-        : CppQuickFixOperation(interface, 0)
+                        InsertionPointLocator::AccessSpec xsSpec, const QString &decl, int priority)
+        : CppQuickFixOperation(interface, priority)
         , m_targetFileName(targetFileName)
         , m_targetSymbol(targetSymbol)
         , m_xsSpec(xsSpec)
@@ -2397,10 +2397,11 @@ public:
         , m_decl(decl)
     {}
     TextEditor::QuickFixOperation::Ptr
-    operator()(InsertionPointLocator::AccessSpec xsSpec)
+    operator()(InsertionPointLocator::AccessSpec xsSpec, int priority)
     {
         return TextEditor::QuickFixOperation::Ptr(
-            new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl));
+            new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl,
+                                    priority));
     }
 
 private:
@@ -2462,12 +2463,12 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
         // Add several possible insertion locations for declaration
         DeclOperationFactory operation(interface, fileName, matchingClass, decl);
 
-        result.append(operation(InsertionPointLocator::Public));
-        result.append(operation(InsertionPointLocator::PublicSlot));
-        result.append(operation(InsertionPointLocator::Protected));
-        result.append(operation(InsertionPointLocator::ProtectedSlot));
-        result.append(operation(InsertionPointLocator::Private));
-        result.append(operation(InsertionPointLocator::PrivateSlot));
+        result.append(operation(InsertionPointLocator::Public, 5));
+        result.append(operation(InsertionPointLocator::PublicSlot, 4));
+        result.append(operation(InsertionPointLocator::Protected, 3));
+        result.append(operation(InsertionPointLocator::ProtectedSlot, 2));
+        result.append(operation(InsertionPointLocator::Private, 1));
+        result.append(operation(InsertionPointLocator::PrivateSlot, 0));
     }
 }
 
@@ -3696,7 +3697,7 @@ class ApplyDeclDefLinkOperation : public CppQuickFixOperation
 public:
     explicit ApplyDeclDefLinkOperation(const CppQuickFixInterface &interface,
             const QSharedPointer<FunctionDeclDefLink> &link)
-        : CppQuickFixOperation(interface, 10)
+        : CppQuickFixOperation(interface, 100)
         , m_link(link)
     {}
 
@@ -3815,13 +3816,10 @@ public:
         // construct definition
         const QString funcDec = getDefinitionSignature(assistInterface(), m_func, toFile,
                                                        scopeAtInsertPos);
-        QString textFuncBody;
-        if (m_funcDef->ctor_initializer)
-                textFuncBody = fromFile->textOf(m_funcDef->ctor_initializer) + QLatin1Char(' ');
-        textFuncBody += fromFile->textOf(m_funcDef->function_body);
-        QString funcDef = QString::fromLatin1("\n%1 %2\n")
-                .arg(funcDec)
-                .arg(textFuncBody);
+        QString funcDef = QLatin1String("\n") + funcDec;
+        const int startPosition = fromFile->endOf(m_funcDef->declarator);
+        const int endPosition = fromFile->endOf(m_funcDef->function_body);
+        funcDef += fromFile->textOf(startPosition, endPosition) + QLatin1String("\n");
         if (m_cppFileName.isEmpty() || !m_insideHeader)
             funcDef = QLatin1String("\n") + funcDef;
 
@@ -3839,7 +3837,7 @@ public:
             headerTarget.remove(fromFile->range(m_funcDef));
         } else {
             QString textFuncDecl = fromFile->textOf(m_funcDef);
-            textFuncDecl.remove(-textFuncBody.length(), textFuncBody.length());
+            textFuncDecl.truncate(startPosition - fromFile->startOf(m_funcDef));
             textFuncDecl = textFuncDecl.trimmed() + QLatin1String(";");
             headerTarget.replace(fromFile->range(m_funcDef), textFuncDecl);
         }
@@ -3944,12 +3942,10 @@ public:
         CppRefactoringFilePtr fromFile = refactoring.file(m_fromFileName);
         CppRefactoringFilePtr toFile = refactoring.file(m_toFileName);
         ChangeSet::Range fromRange = fromFile->range(m_funcAST);
-        const QString definitionText = fromFile->textOf(m_funcAST->function_body);
-        QString wholeFunctionText = m_declarationText;
-        if (m_funcAST->ctor_initializer)
-            wholeFunctionText += QLatin1Char(' ') + fromFile->textOf(m_funcAST->ctor_initializer);
-        wholeFunctionText +=  QLatin1Char(' ') + definitionText;
 
+        const QString wholeFunctionText = m_declarationText
+                + fromFile->textOf(fromFile->endOf(m_funcAST->declarator),
+                                   fromFile->endOf(m_funcAST->function_body));
 
         // Replace declaration with function and delete old definition
         Utils::ChangeSet toTarget;

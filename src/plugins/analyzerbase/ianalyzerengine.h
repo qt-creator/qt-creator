@@ -84,6 +84,7 @@ public:
     StartMode mode() const { return m_sp.startMode; }
 
     virtual void notifyRemoteSetupDone(quint16) {}
+    virtual void notifyRemoteFinished(bool) {}
 
 public slots:
     virtual void logApplicationMessage(const QString &, Utils::OutputFormat) {}

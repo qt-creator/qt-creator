@@ -56,11 +56,24 @@ QuickItemNodeInstance::~QuickItemNodeInstance()
 {
 }
 
+static bool isContentItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
+{
+
+    return item->parentItem()
+            && nodeInstanceServer->hasInstanceForObject(item->parentItem())
+            && nodeInstanceServer->instanceForObject(item->parentItem()).internalInstance()->contentItem() == item;
+}
+
 static QTransform transformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
 {
+    if (isContentItem(item, nodeInstanceServer))
+        return QTransform();
+
     QTransform toParentTransform = DesignerSupport::parentTransform(item);
-    if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem()))
+    if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem())) {
+
         return transformForItem(item->parentItem(), nodeInstanceServer) * toParentTransform;
+    }
 
     return toParentTransform;
 }
@@ -107,6 +120,35 @@ QuickItemNodeInstance::Pointer QuickItemNodeInstance::create(QObject *object)
     instance->populateResetHashes();
 
     return instance;
+}
+
+QQuickItem *QuickItemNodeInstance::contentItem() const
+{
+    return m_contentItem.data();
+}
+
+void QuickItemNodeInstance::doComponentComplete()
+{
+    GraphicalNodeInstance::doComponentComplete();
+
+    QQmlProperty contentItemProperty(quickItem(), "contentItem", engine());
+    if (contentItemProperty.isValid())
+        m_contentItem = contentItemProperty.read().value<QQuickItem*>();
+}
+
+QRectF QuickItemNodeInstance::contentItemBoundingBox() const
+{
+    if (contentItem()) {
+        QTransform contentItemTransform = DesignerSupport::parentTransform(contentItem());
+        return contentItemTransform.mapRect(contentItem()->boundingRect());
+    }
+
+    return QRectF();
+}
+
+QTransform QuickItemNodeInstance::contentItemTransform() const
+{
+    return DesignerSupport::parentTransform(contentItem());
 }
 
 

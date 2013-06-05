@@ -4,4 +4,5 @@ SUBDIRS +=  qmldesigner \
             qmleditor \
             qmlprojectmanager \
             codemodel \
-            reformatter
+            reformatter \
+            qrcparser

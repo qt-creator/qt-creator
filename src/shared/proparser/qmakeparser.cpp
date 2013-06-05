@@ -29,6 +29,7 @@
 
 #include "qmakeparser.h"
 
+#include "qmakevfs.h"
 #include "ioutils.h"
 using namespace QMakeInternal;
 
@@ -130,9 +131,10 @@ void QMakeParser::initialize()
     statics.strLITERAL_WHITESPACE = QLatin1String("LITERAL_WHITESPACE");
 }
 
-QMakeParser::QMakeParser(ProFileCache *cache, QMakeParserHandler *handler)
+QMakeParser::QMakeParser(ProFileCache *cache, QMakeVfs *vfs, QMakeParserHandler *handler)
     : m_cache(cache)
     , m_handler(handler)
+    , m_vfs(vfs)
 {
     // So that single-threaded apps don't have to call initialize() for now.
     initialize();
@@ -218,24 +220,14 @@ void QMakeParser::discardFileFromCache(const QString &fileName)
 
 bool QMakeParser::read(ProFile *pro)
 {
-    QFile file(pro->fileName());
-    if (!file.open(QIODevice::ReadOnly)) {
-        if (m_handler && IoUtils::exists(pro->fileName()))
+    QString content;
+    QString errStr;
+    if (!m_vfs->readFile(pro->fileName(), &content, &errStr)) {
+        if (m_handler && m_vfs->exists(pro->fileName()))
             m_handler->message(QMakeParserHandler::ParserIoError,
-                               fL1S("Cannot read %1: %2").arg(pro->fileName(), file.errorString()));
+                               fL1S("Cannot read %1: %2").arg(pro->fileName(), errStr));
         return false;
     }
-
-    QByteArray bcont = file.readAll();
-    if (bcont.startsWith("\xef\xbb\xbf")) {
-        // UTF-8 BOM will cause subtle errors
-        m_handler->message(QMakeParserHandler::ParserIoError,
-                           fL1S("Unexpected UTF-8 BOM in %1").arg(pro->fileName()));
-        return false;
-    }
-    QString content(QString::fromLocal8Bit(bcont));
-    bcont.clear();
-    file.close();
     return read(pro, content, 1, FullGrammar);
 }
 

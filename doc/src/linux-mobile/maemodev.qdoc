@@ -68,7 +68,7 @@
        Only needed if you develop on Windows and if you use a USB connection
        to run applications on the device. The drivers are
        installed as part of the Qt 4 SDK. You can also download them from
-       \l{https://garage.maemo.org/frs/?group_id=801&release_id=2655}{PC Connectivity}
+       \l{http://garage.maemo.org/frs/?group_id=801&release_id=2655}{PC Connectivity}
        on the Maemo web site. Download and install the latest
        PC_Connectivity_<version>.exe (at the time of writing,
        PC_Connectivity_0.9.4.exe).

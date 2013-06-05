@@ -130,6 +130,7 @@ enum DebuggerActionCode
     LoadGdbDumpers,
     AttemptQuickStart,
     GdbStartupCommands,
+    GdbCustomDumperCommands,
     GdbPostAttachCommands,
     GdbWatchdogTimeout,
     AutoEnrichParameters,

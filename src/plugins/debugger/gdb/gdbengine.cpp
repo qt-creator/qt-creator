@@ -1827,14 +1827,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
             postCommand("set detach-on-fork off", ConsoleCommand);
 
         //postCommand("set build-id-verbose 2", ConsoleCommand);
-
-        if (m_gdbVersion > 70100) {
-            // Quick check whether we have python.
-            showMessage(_("NOTE: CHECK FOR PYTHON SUPPRESSED, VERSION TOO LOW"));
-            postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
-        } else {
-            pythonDumpersFailed();
-        }
+        postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
     }
 }
 
@@ -1854,6 +1847,12 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
 void GdbEngine::handlePythonSetup(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
+        const QString commands = debuggerCore()->stringSetting(GdbCustomDumperCommands);
+        if (!commands.isEmpty()) {
+            postCommand(commands.toLocal8Bit());
+            postCommand("bbsetup");
+        }
+
         postCommand("python qqStringCutOff = "
             + debuggerCore()->action(MaximalStringLength)->value().toByteArray(),
             ConsoleCommand|NonCriticalResponse);
@@ -2413,7 +2412,6 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 }
 
 /*!
-    \fn void Debugger::Internal::GdbEngine::setTokenBarrier()
     \brief Discard the results of all pending watch-updating commands.
 
     This method is called at the beginning of all step/next/finish etc.
@@ -2421,7 +2419,6 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
     If non-watch-updating commands with call-backs are still in the pipe,
     it will complain.
 */
-
 void GdbEngine::setTokenBarrier()
 {
     //QTC_ASSERT(m_nonDiscardableCount == 0, /**/);
@@ -4972,6 +4969,7 @@ void GdbEngine::tryLoadPythonDumpers()
 
     postCommand("python execfile('" + dumperSourcePath + "gbridge.py')",
         ConsoleCommand, CB(handlePythonSetup));
+
 }
 
 void GdbEngine::reloadDebuggingHelpers()

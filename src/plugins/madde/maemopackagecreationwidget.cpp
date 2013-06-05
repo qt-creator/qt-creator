@@ -263,8 +263,7 @@ void MaemoPackageCreationWidget::editDebianFile()
 
 void MaemoPackageCreationWidget::editFile(const QString &filePath)
 {
-    Core::EditorManager::openEditor(filePath, Core::Id(),
-        Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditor(filePath);
 }
 
 } // namespace Internal

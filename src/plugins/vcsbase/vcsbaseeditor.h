@@ -103,6 +103,7 @@ protected:
     void setDiffFilePattern(const QRegExp &pattern);
     // Pattern for log entry. hash/revision number must be in the first capture group
     void setLogEntryPattern(const QRegExp &pattern);
+    virtual bool supportChangeLinks() const;
 
 public:
     virtual void init();

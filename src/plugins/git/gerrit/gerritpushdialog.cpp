@@ -50,28 +50,21 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui->repositoryLabel->setText(tr("<b>Local repository:</b> %1").arg(
                                        QDir::toNativeSeparators(workingDir)));
 
-    m_ui->commitView->init(workingDir, QString(), false);
+    if (!m_ui->commitView->init(workingDir, QString(), false))
+        return;
+
+    QString earliestCommit = m_ui->commitView->earliestCommit();
+    if (earliestCommit.isEmpty())
+        return;
+
+    m_localChangesFound = true;
+
     Git::Internal::GitClient *gitClient = Git::Internal::GitPlugin::instance()->gitClient();
     QString output;
     QString error;
     QStringList args;
-
-    args << QLatin1String("--no-color") << QLatin1String("--format=%P")
-         << QLatin1String("HEAD") << QLatin1String("--not")<< QLatin1String("--remotes");
-
-    if (!gitClient->synchronousLog(m_workingDir, args, &output) || output.isEmpty())
-        return;
-
-    output.chop(1);
-    if (output.isEmpty()) {
-        return;
-    } else {
-        output = output.mid(output.lastIndexOf(QLatin1Char('\n')) + 1);
-        m_localChangesFound = true;
-    }
-
-    args.clear();
-    args << QLatin1String("--remotes") << QLatin1String("--contains") << output;
+    args << QLatin1String("--remotes") << QLatin1String("--contains")
+         << earliestCommit + QLatin1Char('^');
 
     if (!gitClient->synchronousBranchCmd(m_workingDir, args, &output, &error))
         return;

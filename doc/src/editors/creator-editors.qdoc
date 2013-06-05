@@ -2044,10 +2044,23 @@
     \title Searching with the Locator
 
     You can find the locator in the bottom left of the \QC window.
-    To activate the locator, press \key Ctrl+K (\key Cmd+K on Mac OS X) or
-    select \gui Tools > \gui Locate.
 
     \image qtcreator-locator.png
+
+    To activate the locator:
+
+    \list
+
+        \li Press \key Ctrl+K (\key Cmd+K on Mac OS X).
+
+        \li Select \gui Tools > \gui Locate.
+
+        \li Select \gui Edit > \gui {Go to Line}.
+
+        \li Click the line and column indicator on the
+            \l{Using the Editor Toolbar}{editor toolbar}.
+
+    \endlist
 
     To edit the currently open project's main.cpp file using the locator:
 
@@ -2108,7 +2121,8 @@
 
         \li Locating class and method definitions in the current document
 
-        \li Locating a specific line in the document displayed in your editor
+        \li Locating a specific line and column in the document displayed in
+            your editor
 
         \li Opening help topics, including Qt documentation
 
@@ -2148,7 +2162,7 @@
 
     \list
 
-        \li Going to a line in the current file (l).
+        \li Going to a line and column in the current file (l).
 
         \li Going to an open file (o).
 

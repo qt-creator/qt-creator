@@ -50,8 +50,10 @@ public:
 
     bool hasNodeParent() const;
     bool hasInstanceParent() const;
+    bool hasInstanceParentItem() const;
     void setParentProperty(const NodeAbstractProperty &parentProeprty);
     QmlObjectNode instanceParent() const;
+    QmlItemNode instanceParentItem() const;
 
     void setId(const QString &id);
     QString id() const;
@@ -105,6 +107,7 @@ public:
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;
+    QmlItemNode itemForInstance(const NodeInstance &instance) const;
 
 protected:
     QList<QmlModelState> allDefinedStates() const;

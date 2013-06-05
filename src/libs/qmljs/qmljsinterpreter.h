@@ -872,6 +872,8 @@ public:
         LibraryImport,
         FileImport,
         DirectoryImport,
+        QrcFileImport,
+        QrcDirectoryImport,
         UnknownFileImport // refers a file/directory that wasn't found
     };
 

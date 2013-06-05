@@ -214,7 +214,7 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent) const
     QDialog *d = 0;
     const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
     if (actionId == Constants::GenericTestDeviceActionId)
-        d = new LinuxDeviceTestDialog(device, new GenericLinuxDeviceTester, parent);
+        d = new LinuxDeviceTestDialog(device, createDeviceTester(), parent);
     else if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     if (d)
@@ -262,6 +262,11 @@ PortsGatheringMethod::Ptr LinuxDevice::portsGatheringMethod() const
 DeviceProcessList *LinuxDevice::createProcessListModel(QObject *parent) const
 {
     return new LinuxDeviceProcessList(sharedFromThis(), parent);
+}
+
+AbstractLinuxDeviceTester *LinuxDevice::createDeviceTester() const
+{
+    return new GenericLinuxDeviceTester;
 }
 
 } // namespace RemoteLinux

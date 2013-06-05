@@ -191,8 +191,6 @@ QString SavedAction::toString() const
 }
 
 /*!
-    \fn QAction *SavedAction::updatedAction(const QString &text)
-
     Adjust the \c text() of the underlying action.
 
     This can be used to update the item shortly before e.g. a menu is shown.

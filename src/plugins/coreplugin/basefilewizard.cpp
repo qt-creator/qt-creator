@@ -649,7 +649,7 @@ bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *e
 {
     foreach (const Core::GeneratedFile &file, l) {
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
-            if (!Core::EditorManager::openEditor(file.path(), file.editorId(), Core::EditorManager::ModeSwitch )) {
+            if (!Core::EditorManager::openEditor(file.path(), file.editorId())) {
                 if (errorMessage)
                     *errorMessage = tr("Failed to open an editor for '%1'.").arg(QDir::toNativeSeparators(file.path()));
                 return false;

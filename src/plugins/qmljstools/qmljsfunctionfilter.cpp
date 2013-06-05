@@ -30,7 +30,7 @@
 #include "qmljsfunctionfilter.h"
 #include "qmljslocatordata.h"
 
-#include <texteditor/basetexteditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QStringMatcher>
 
@@ -111,6 +111,5 @@ QList<Locator::FilterEntry> FunctionFilter::matchesFor(QFutureInterface<Locator:
 void FunctionFilter::accept(Locator::FilterEntry selection) const
 {
     const LocatorData::Entry entry = qvariant_cast<LocatorData::Entry>(selection.internalData);
-    TextEditor::BaseTextEditorWidget::openEditorAt(entry.fileName, entry.line, entry.column,
-                                             Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditorAt(entry.fileName, entry.line, entry.column);
 }

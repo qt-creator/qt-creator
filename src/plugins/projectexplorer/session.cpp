@@ -373,8 +373,6 @@ bool SessionManager::save()
 }
 
 /*!
-  \fn bool SessionManager::closeAllProjects()
-
   Closes all projects
   */
 void SessionManager::closeAllProjects()
