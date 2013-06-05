@@ -120,6 +120,10 @@
             Open the projects and files that were open when you last exited \QC.
             For more information about managing sessions, see \l{Managing Sessions}.
 
+        \row
+            \li -block
+            \li Open files in editors in a running \QC instance and block the
+                command line until the first editor is closed.
     \endtable
 
     \section1 Using Custom Styles
