@@ -788,17 +788,19 @@ void GitPlugin::resetRepository()
 
 void GitPlugin::startRebase()
 {
-    QString workingDirectory = currentState().currentDirectoryOrTopLevel();
-    if (workingDirectory.isEmpty() || !m_gitClient->canRebase(workingDirectory))
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    const QString topLevel = state.topLevel();
+    if (topLevel.isEmpty() || !m_gitClient->canRebase(topLevel))
         return;
-    if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Rebase-i")))
+    if (!m_gitClient->beginStashScope(topLevel, QLatin1String("Rebase-i")))
         return;
     LogChangeDialog dialog(false);
     dialog.setWindowTitle(tr("Interactive Rebase"));
-    if (dialog.runDialog(workingDirectory, QString(), false))
-        m_gitClient->interactiveRebase(workingDirectory, dialog.commit(), false);
+    if (dialog.runDialog(topLevel, QString(), false))
+        m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);
     else
-        m_gitClient->endStashScope(workingDirectory);
+        m_gitClient->endStashScope(topLevel);
 }
 
 void GitPlugin::startChangeRelatedAction()
