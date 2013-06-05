@@ -1021,8 +1021,19 @@ void NodeMetaInfoPrivate::setupPrototypes()
                 description.className = qmlValue->moduleName().toUtf8() + '.' + description.className;
             m_prototypes.append(description);
         } else {
-            if (context()->lookupType(document(), QStringList() << ov->className()))
+            if (context()->lookupType(document(), QStringList() << ov->className())) {
+                const Imports *allImports = context()->imports(document());
+                ImportInfo importInfo = allImports->info(description.className, context().data());
+
+                if (importInfo.isValid()) {
+                    QString uri = importInfo.name();
+                    uri.replace(QLatin1String(","), QLatin1String("."));
+                    if (!uri.isEmpty())
+                        description.className = QString(uri + QString::fromLatin1(".") + QString::fromLatin1(description.className)).toLatin1();
+                }
+
                 m_prototypes.append(description);
+            }
         }
     }
 }
