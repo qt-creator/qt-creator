@@ -35,8 +35,9 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-struct ProjectExplorerSettings
+class ProjectExplorerSettings
 {
+public:
     ProjectExplorerSettings() :
         buildBeforeDeploy(true), deployBeforeRun(true),
         saveBeforeBuild(false), showCompilerOutput(false),

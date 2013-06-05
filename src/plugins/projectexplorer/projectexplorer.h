@@ -60,9 +60,7 @@ class BuildConfiguration;
 class ProjectNode;
 class TaskHub;
 
-namespace Internal {
-struct ProjectExplorerSettings;
-}
+namespace Internal { class ProjectExplorerSettings; }
 
 struct ProjectExplorerPluginPrivate;
 
