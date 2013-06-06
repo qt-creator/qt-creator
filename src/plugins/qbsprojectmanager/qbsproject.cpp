@@ -112,6 +112,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
             this, SLOT(changeActiveTarget(ProjectExplorer::Target*)));
     connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(targetWasAdded(ProjectExplorer::Target*)));
+    connect(this, SIGNAL(environmentChanged()), this, SLOT(parseCurrentBuildConfiguration()));
 
     updateDocuments(0);
     m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
@@ -176,17 +177,9 @@ void QbsProject::invalidate()
 
 qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts)
 {
-    if (!qbsProject())
+    if (!qbsProject() || isParsing())
         return 0;
-    if (!activeTarget() || !activeTarget()->kit())
-        return 0;
-    ProjectExplorer::BuildConfiguration *bc = 0;
-    bc = activeTarget()->activeBuildConfiguration();
-    if (!bc)
-        return 0;
-
-    QProcessEnvironment env = bc->environment().toProcessEnvironment();
-    return qbsProject()->buildAllProducts(opts, env);
+    return qbsProject()->buildAllProducts(opts);
 }
 
 qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)
@@ -328,7 +321,7 @@ void QbsProject::parseCurrentBuildConfiguration()
     QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
-    parse(bc->qbsConfiguration(), bc->buildDirectory());
+    parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory());
 }
 
 bool QbsProject::fromMap(const QVariantMap &map)
@@ -358,7 +351,7 @@ void QbsProject::generateErrors(const qbs::Error &e)
                                                  ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
-void QbsProject::parse(const QVariantMap &config, const QString &dir)
+void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir)
 {
     QTC_ASSERT(!dir.isNull(), return);
     prepareForParsing();
@@ -370,6 +363,7 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_fileName);
     params.setIgnoreDifferentProjectFilePath(false);
+    params.setEnvironment(env.toProcessEnvironment());
     qbs::Preferences *prefs = QbsManager::preferences();
     const QString buildDir = qbsBuildDir();
     params.setSearchPaths(prefs->searchPaths(buildDir));

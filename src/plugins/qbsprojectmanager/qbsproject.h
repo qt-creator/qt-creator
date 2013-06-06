@@ -39,6 +39,8 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/task.h>
 
+#include <utils/environment.h>
+
 #include <QFuture>
 // <debug>
 #include <QTimer>
@@ -116,7 +118,7 @@ private slots:
 private:
     bool fromMap(const QVariantMap &map);
 
-    void parse(const QVariantMap &config, const QString &dir = QString());
+    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
 
     void generateErrors(const qbs::Error &e);
     void prepareForParsing();
