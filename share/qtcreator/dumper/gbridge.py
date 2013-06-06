@@ -103,7 +103,7 @@ def listOfLocals(varList):
         block = frame.block()
         #warn("BLOCK: %s " % block)
     except RuntimeError, error:
-        warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
+        #warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
         return []
     except:
         warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
@@ -2294,36 +2294,61 @@ class Dumper:
 #
 #######################################################################
 
-def threadnames(arg):
+def threadname(arg):
+    try:
+        e = gdb.selected_frame()
+    except:
+        return
+    d = Dumper("")
+    out = ""
+    maximalStackDepth = int(arg)
     ns = qtNamespace()
+    while True:
+        maximalStackDepth -= 1
+        if maximalStackDepth < 0:
+            break
+        e = e.older()
+        if e == None or e.name() == None:
+            break
+        if e.name() == ns + "QThreadPrivate::start" \
+                or e.name() == "_ZN14QThreadPrivate5startEPv@4":
+            try:
+                thrptr = e.read_var("thr").dereference()
+                obtype = lookupType(ns + "QObjectPrivate").pointer()
+                d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
+                try:
+                    objectName = d_ptr["objectName"]
+                except: # Qt 5
+                    p = d_ptr["extraData"]
+                    if not isNull(p):
+                        objectName = p.dereference()["objectName"]
+                if not objectName is None:
+                    data, size, alloc = d.stringData(objectName)
+                    if size > 0:
+                         s = d.readRawMemory(data, 2 * size)
+
+                thread = gdb.selected_thread()
+                inner = '{valueencoded="';
+                inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                inner += str(thread.num) + '",value="'
+                inner += s
+                #inner += d.encodeString(objectName)
+                inner += '"},'
+
+                out += inner
+            except:
+                pass
+    return out
+
+
+def threadnames(arg):
     out = '['
     oldthread = gdb.selected_thread()
     try:
         inferior = selectedInferior()
         for thread in inferior.threads():
-            maximalStackDepth = int(arg)
             thread.switch()
-            e = gdb.selected_frame ()
-            while True:
-                maximalStackDepth -= 1
-                if maximalStackDepth < 0:
-                    break
-                e = e.older()
-                if e == None or e.name() == None:
-                    break
-                if e.name() == ns + "QThreadPrivate::start" or e.name() == "_ZN14QThreadPrivate5startEPv@4":
-                    try:
-                        thrptr = e.read_var("thr").dereference()
-                        obtype = lookupType(ns + "QObjectPrivate").pointer()
-                        d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
-                        objectName = d_ptr["objectName"]
-                        out += '{valueencoded="';
-                        out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                        out += str(thread.num) + '",value="'
-                        out += encodeString(objectName)
-                        out += '"},'
-                    except:
-                        pass
+            out += threadname(arg)
     except:
         pass
     oldthread.switch()
