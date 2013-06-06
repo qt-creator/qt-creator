@@ -400,6 +400,7 @@ def bbsetup(args = ''):
             result += '{type="%s",formats="%s"},' % (key, value)
     result += ']'
     #result += ',namespace="%s"' % qqNs
+    print result
     return result
 
 registerCommand("bbsetup", bbsetup)
