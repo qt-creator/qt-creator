@@ -446,8 +446,7 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
         thread.lineNumber = frame["line"].toInt();
         thread.module = QString::fromLocal8Bit(frame["from"].data());
         thread.stopped = true;
-        // Non-GDB (Cdb2) output name here.
-        thread.name = QString::fromLatin1(frame["name"].data());
+        thread.name = QString::fromLatin1(item["name"].data());
         if (thread.state == QLatin1String("running"))
             thread.stopped = false;
         if (thread.id == currentId)
