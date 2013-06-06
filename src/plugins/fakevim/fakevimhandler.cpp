@@ -1440,8 +1440,11 @@ public:
     void init();
     void focus();
 
-    void enterFakeVim(); // Call before any FakeVim processing (import cursor position from editor)
-    void leaveFakeVim(); // Call after any FakeVim processing (export cursor position to editor)
+    // Call before any FakeVim processing (import cursor position from editor)
+    void enterFakeVim();
+    // Call after any FakeVim processing
+    // (if needUpdate is true, export cursor position to editor and scroll)
+    void leaveFakeVim(bool needUpdate = true);
 
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
@@ -2049,7 +2052,7 @@ void FakeVimHandler::Private::enterFakeVim()
         moveRight();
 }
 
-void FakeVimHandler::Private::leaveFakeVim()
+void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 {
     QTC_ASSERT(m_inFakeVim, qDebug() << "enterFakeVim() not called before leaveFakeVim()!");
 
@@ -2071,15 +2074,18 @@ void FakeVimHandler::Private::leaveFakeVim()
 
         exportSelection();
         updateCursorShape();
-        commitCursor();
 
-        // Move cursor line to middle of screen if it's not visible.
-        const int line = cursorLine();
-        if (line < firstVisibleLine() || line >= firstVisibleLine() + linesOnScreen())
-            scrollToLine(qMax(0, line - linesOnScreen() / 2));
-        else
-            scrollToLine(firstVisibleLine());
-        updateScrollOffset();
+        if (needUpdate) {
+            commitCursor();
+
+            // Move cursor line to middle of screen if it's not visible.
+            const int line = cursorLine();
+            if (line < firstVisibleLine() || line >= firstVisibleLine() + linesOnScreen())
+                scrollToLine(qMax(0, line - linesOnScreen() / 2));
+            else
+                scrollToLine(firstVisibleLine());
+            updateScrollOffset();
+        }
     }
 
     m_inFakeVim = false;
@@ -2183,7 +2189,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     enterFakeVim();
     EventResult result = handleKey(Input(key, mods, ev->text()));
-    leaveFakeVim();
+    leaveFakeVim(result == EventHandled);
 
     return result;
 }
@@ -2592,8 +2598,8 @@ void FakeVimHandler::Private::timerEvent(QTimerEvent *ev)
 {
     if (ev->timerId() == g.inputTimer) {
         enterFakeVim();
-        handleKey(Input());
-        leaveFakeVim();
+        EventResult result = handleKey(Input());
+        leaveFakeVim(result == EventHandled);
     }
 }
 
@@ -3653,7 +3659,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         // if a key which produces text was pressed, don't mark it as unhandled
         // - otherwise the text would be inserted while being in command mode
         if (input.text().isEmpty())
-            handled = EventUnhandled;
+            handled = false;
     }
 
     updateMiniBuffer();
@@ -6328,6 +6334,11 @@ int FakeVimHandler::Private::linesInDocument() const
 void FakeVimHandler::Private::scrollToLine(int line)
 {
     const QTextCursor tc = EDITOR(textCursor());
+
+    // Don't scroll if the line is already at the top.
+    updateFirstVisibleLine();
+    if (line == m_firstVisibleLine)
+        return;
 
     QTextCursor tc2 = tc;
     tc2.setPosition(document()->lastBlock().position());
