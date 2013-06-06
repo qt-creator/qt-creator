@@ -246,7 +246,7 @@ bool GitEditor::open(QString *errorString, const QString &fileName, const QStrin
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         QFileInfo fi(fileName);
-        setSource(GitPlugin::instance()->gitClient()->findRepositoryForGitDir(fi.absolutePath()));
+        setSource(fi.absolutePath());
     }
     return res;
 }

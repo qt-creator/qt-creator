@@ -797,19 +797,6 @@ QString GitClient::findGitDirForRepository(const QString &repositoryDir) const
     return res;
 }
 
-QString GitClient::findRepositoryForGitDir(const QString &gitDir) const
-{
-    static QHash<QString, QString> gitDirCache;
-    QString &res = gitDirCache[gitDir];
-    if (!res.isEmpty())
-        return res;
-    QByteArray outputText;
-    QStringList arguments;
-    arguments << QLatin1String("rev-parse") << QLatin1String("--show-toplevel");
-    fullySynchronousGit(gitDir, arguments, &outputText, 0, false);
-    return QString::fromLocal8Bit(outputText.trimmed());
-}
-
 VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
                                                                const QString &dynamicPropertyValue) const
 {
