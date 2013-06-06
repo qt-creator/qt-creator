@@ -56,6 +56,7 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *ev);
 
     void deleteBreakpoints(const BreakpointModelIds &ids);
+    void deleteAllBreakpoints();
     void addBreakpoint();
     void editBreakpoints(const BreakpointModelIds &ids);
     void associateBreakpoint(const BreakpointModelIds &ids, int thread);
