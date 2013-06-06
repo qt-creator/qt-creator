@@ -132,8 +132,6 @@ private:
     QbsProjectNode *m_rootProjectNode;
 
     qbs::SetupProjectJob *m_qbsSetupProjectJob;
-    QVariantMap m_qbsBuildConfig;
-    QString m_qbsBuildRoot;
 
     QFutureInterface<void> *m_qbsUpdateFutureInterface;
     int m_currentProgressBase;

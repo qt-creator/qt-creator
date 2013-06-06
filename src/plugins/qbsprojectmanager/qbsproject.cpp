@@ -362,13 +362,12 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
 {
     QTC_ASSERT(!dir.isNull(), return);
     prepareForParsing();
-    m_qbsBuildConfig = config;
-    m_qbsBuildRoot = dir;
 
     QTC_ASSERT(!m_qbsSetupProjectJob, return);
+
     qbs::SetupProjectParameters params;
-    params.setBuildConfiguration(m_qbsBuildConfig);
-    params.setBuildRoot(m_qbsBuildRoot);
+    params.setBuildConfiguration(config);
+    params.setBuildRoot(dir);
     params.setProjectFilePath(m_fileName);
     params.setIgnoreDifferentProjectFilePath(false);
     qbs::Preferences *prefs = QbsManager::preferences();
