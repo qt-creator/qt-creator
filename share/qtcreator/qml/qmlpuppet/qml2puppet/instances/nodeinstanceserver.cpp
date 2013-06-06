@@ -320,8 +320,6 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
         }
     }
 
-    refreshBindings();
-
     startRenderTimer();
 }
 
