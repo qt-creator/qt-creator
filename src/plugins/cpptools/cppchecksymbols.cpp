@@ -100,7 +100,7 @@ protected:
             processed->insert(doc->globalNamespace());
 
             foreach (const Document::Include &i, doc->includes())
-                process(_snapshot.document(i.fileName()), processed);
+                process(_snapshot.document(i.resolvedFileName()), processed);
 
             _mainDocument = (doc == _doc); // ### improve
             accept(doc->globalNamespace());

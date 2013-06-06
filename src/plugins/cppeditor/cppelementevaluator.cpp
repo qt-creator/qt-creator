@@ -243,8 +243,8 @@ Unknown::Unknown(const QString &type) : type(type)
 // CppInclude
 
 CppInclude::CppInclude(const Document::Include &includeFile) :
-    path(QDir::toNativeSeparators(includeFile.fileName())),
-    fileName(QFileInfo(includeFile.fileName()).fileName())
+    path(QDir::toNativeSeparators(includeFile.resolvedFileName())),
+    fileName(QFileInfo(includeFile.resolvedFileName()).fileName())
 {
     helpCategory = TextEditor::HelpItem::Brief;
     helpIdCandidates = QStringList(fileName);

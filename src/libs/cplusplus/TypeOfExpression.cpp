@@ -176,7 +176,7 @@ void TypeOfExpression::processEnvironment(Document::Ptr doc, Environment *env,
         processed->insert(doc->fileName());
 
         foreach (const Document::Include &incl, doc->includes())
-            processEnvironment(m_snapshot.document(incl.fileName()), env, processed);
+            processEnvironment(m_snapshot.document(incl.resolvedFileName()), env, processed);
 
         foreach (const Macro &macro, doc->definedMacros())
             env->bind(macro);

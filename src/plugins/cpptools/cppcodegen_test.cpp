@@ -439,7 +439,8 @@ void CppToolsPlugin::test_codegen_definition_first_member()
     QCOMPARE(src->globalSymbolCount(), 1U);
 
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(src->fileName(), 1);
+    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
+                                          Client::IncludeLocal));
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
@@ -508,7 +509,8 @@ void CppToolsPlugin::test_codegen_definition_last_member()
     QCOMPARE(src->globalSymbolCount(), 1U);
 
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(src->fileName(), 1);
+    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
+                                          Client::IncludeLocal));
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
@@ -583,7 +585,8 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
     QCOMPARE(src->globalSymbolCount(), 1U);
 
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(src->fileName(), 1);
+    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
+                                          Client::IncludeLocal));
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();

@@ -1754,9 +1754,10 @@ public:
         if (!includes.isEmpty()) {
             QHash<QString, unsigned> includePositions;
             foreach (const Document::Include &include, includes) {
-                if (include.fileName().endsWith(QLatin1String(".moc")))
+                const QString fileName = include.unresolvedFileName();
+                if (fileName.endsWith(QLatin1String(".moc")))
                     continue;
-                includePositions.insert(include.fileName(), include.line());
+                includePositions.insert(fileName, include.line());
             }
 
             if (!includePositions.isEmpty()) {

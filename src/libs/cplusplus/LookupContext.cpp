@@ -1364,7 +1364,7 @@ void CreateBindings::process(Document::Ptr doc)
             _processed.insert(globalNamespace);
 
             foreach (const Document::Include &i, doc->includes()) {
-                if (Document::Ptr incl = _snapshot.document(i.fileName()))
+                if (Document::Ptr incl = _snapshot.document(i.resolvedFileName()))
                     process(incl);
             }
 
