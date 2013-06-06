@@ -2071,6 +2071,9 @@ def qdump__std__deque(d, value):
                     plast = pfirst + bufsize
                     pcur = pfirst
 
+def qdump__std____debug__deque(d, value):
+    qdump__std__deque(d, value)
+
 
 def qdump__std__list(d, value):
     impl = value["_M_impl"]
@@ -2094,6 +2097,8 @@ def qdump__std__list(d, value):
                 d.putSubItem(i, (p + 1).cast(innerPointer).dereference())
                 p = p["_M_next"]
 
+def qdump__std____debug__list(d, value):
+    qdump__std__list(d, value)
 
 def qform__std__map():
     return mapForms()
@@ -2154,6 +2159,8 @@ def qdump__std__map(d, value):
                     while not isNull(node["_M_left"]):
                         node = node["_M_left"]
 
+def qdump__std____debug__map(d, value):
+    qdump__std__map(d, value)
 
 def stdTreeIteratorHelper(d, value):
     pnode = value["_M_node"]
@@ -2230,6 +2237,8 @@ def qdump__std__set(d, value):
 def qdump__std__stack(d, value):
     qdump__std__deque(d, value["c"])
 
+def qdump__std____debug__stack(d, value):
+    qdump__std__stack(d, value)
 
 def qform__std__string():
     return "Inline,In Separate Window"
@@ -2367,6 +2376,8 @@ def qdump__std__vector(d, value):
         else:
             d.putArrayData(type, start, size)
 
+def qdump__std____debug__vector(d, value):
+    qdump__std__vector(d, value)
 
 def qedit__std__string(expr, value):
     cmd = "print (%s).assign(\"%s\")" % (expr, value)
