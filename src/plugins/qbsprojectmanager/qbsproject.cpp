@@ -105,6 +105,8 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsUpdateFutureInterface(0),
     m_currentBc(0)
 {
+    m_parsingDelay.setInterval(1000); // delay (some) parsing by 1s.
+
     setProjectContext(Core::Context(Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -112,7 +114,9 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
             this, SLOT(changeActiveTarget(ProjectExplorer::Target*)));
     connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(targetWasAdded(ProjectExplorer::Target*)));
-    connect(this, SIGNAL(environmentChanged()), this, SLOT(parseCurrentBuildConfiguration()));
+    connect(this, SIGNAL(environmentChanged()), this, SLOT(delayParsing()));
+
+    connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(parseCurrentBuildConfiguration()));
 
     updateDocuments(0);
     m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
@@ -287,9 +291,8 @@ void QbsProject::handleQbsParsingTaskSetup(const QString &description, int maxim
 void QbsProject::targetWasAdded(ProjectExplorer::Target *t)
 {
     connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(parseCurrentBuildConfiguration()));
-    connect(t, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(parseCurrentBuildConfiguration()));
+            this, SLOT(delayParsing()));
+    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayParsing()));
 }
 
 void QbsProject::changeActiveTarget(ProjectExplorer::Target *t)
@@ -303,19 +306,26 @@ void QbsProject::changeActiveTarget(ProjectExplorer::Target *t)
 void QbsProject::buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc)
 {
     if (m_currentBc)
-        disconnect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(parseCurrentBuildConfiguration()));
+        disconnect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(delayParsing()));
 
     m_currentBc = qobject_cast<QbsBuildConfiguration *>(bc);
     if (m_currentBc) {
-        connect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(parseCurrentBuildConfiguration()));
-        parseCurrentBuildConfiguration();
+        connect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(delayParsing()));
+        delayParsing();
     } else {
         invalidate();
     }
 }
 
+void QbsProject::delayParsing()
+{
+    m_parsingDelay.start();
+}
+
 void QbsProject::parseCurrentBuildConfiguration()
 {
+    m_parsingDelay.stop();
+
     if (!activeTarget())
         return;
     QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());

@@ -42,9 +42,7 @@
 #include <utils/environment.h>
 
 #include <QFuture>
-// <debug>
 #include <QTimer>
-// </debug>
 #include <QVariantMap>
 
 namespace qbs {
@@ -101,6 +99,7 @@ public:
 public slots:
     void invalidate();
     void parseCurrentBuildConfiguration();
+    void delayParsing();
 
 signals:
     void projectParsingStarted();
@@ -141,6 +140,8 @@ private:
     QFuture<void> m_codeModelFuture;
 
     QbsBuildConfiguration *m_currentBc;
+
+    QTimer m_parsingDelay;
 };
 
 } // namespace Internal
