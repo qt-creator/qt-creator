@@ -41,7 +41,7 @@ class ComponentCompletedCommand
 
 public:
     ComponentCompletedCommand();
-    ComponentCompletedCommand(const QVector<qint32> &container);
+    explicit ComponentCompletedCommand(const QVector<qint32> &container);
 
     QVector<qint32> instances() const;
 

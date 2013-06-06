@@ -43,7 +43,7 @@ class ChangeStateCommand
 
 public:
     ChangeStateCommand();
-    ChangeStateCommand(qint32 stateInstanceId);
+    explicit ChangeStateCommand(qint32 stateInstanceId);
 
     qint32 stateInstanceId() const;
 

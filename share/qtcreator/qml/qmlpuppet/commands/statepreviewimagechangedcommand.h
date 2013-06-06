@@ -41,7 +41,7 @@ class StatePreviewImageChangedCommand
     friend QDataStream &operator>>(QDataStream &in, StatePreviewImageChangedCommand &command);
 public:
     StatePreviewImageChangedCommand();
-    StatePreviewImageChangedCommand(const QVector<ImageContainer> &imageVector);
+    explicit StatePreviewImageChangedCommand(const QVector<ImageContainer> &imageVector);
 
     QVector<ImageContainer> previews() const;
 

@@ -42,7 +42,7 @@ class CompleteComponentCommand
 
 public:
     CompleteComponentCommand();
-    CompleteComponentCommand(const QVector<qint32> &container);
+    explicit CompleteComponentCommand(const QVector<qint32> &container);
 
     QVector<qint32> instances() const;
 

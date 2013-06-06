@@ -43,7 +43,7 @@ class ChangeValuesCommand
 
 public:
     ChangeValuesCommand();
-    ChangeValuesCommand(const QVector<PropertyValueContainer> &valueChangeVector);
+    explicit ChangeValuesCommand(const QVector<PropertyValueContainer> &valueChangeVector);
 
     QVector<PropertyValueContainer> valueChanges() const;
 

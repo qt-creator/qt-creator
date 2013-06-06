@@ -44,7 +44,7 @@ class InformationChangedCommand
 
 public:
     InformationChangedCommand();
-    InformationChangedCommand(const QVector<InformationContainer> &informationVector);
+    explicit InformationChangedCommand(const QVector<InformationContainer> &informationVector);
 
     QVector<InformationContainer> informations() const;
 

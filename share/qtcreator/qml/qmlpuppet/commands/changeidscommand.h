@@ -43,7 +43,7 @@ class ChangeIdsCommand
     friend QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command);
 public:
     ChangeIdsCommand();
-    ChangeIdsCommand(const QVector<IdContainer> &idVector);
+    explicit ChangeIdsCommand(const QVector<IdContainer> &idVector);
 
     QVector<IdContainer> ids() const;
 

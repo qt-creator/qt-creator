@@ -44,7 +44,7 @@ class RemoveInstancesCommand
 
 public:
     RemoveInstancesCommand();
-    RemoveInstancesCommand(const QVector<qint32> &idVector);
+    explicit RemoveInstancesCommand(const QVector<qint32> &idVector);
 
     QVector<qint32> instanceIds() const;
 

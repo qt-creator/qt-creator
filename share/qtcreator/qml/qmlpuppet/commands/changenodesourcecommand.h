@@ -41,7 +41,7 @@ class ChangeNodeSourceCommand
     friend QDataStream &operator>>(QDataStream &in, ChangeNodeSourceCommand &command);
 public:
     ChangeNodeSourceCommand();
-    ChangeNodeSourceCommand(qint32 instanceId, const QString &nodeSource);
+    explicit ChangeNodeSourceCommand(qint32 instanceId, const QString &nodeSource);
     qint32 instanceId() const;
     QString nodeSource() const;
 

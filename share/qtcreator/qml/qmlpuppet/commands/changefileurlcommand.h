@@ -40,7 +40,7 @@ class ChangeFileUrlCommand
     friend QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command);
 public:
     ChangeFileUrlCommand();
-    ChangeFileUrlCommand(const QUrl &fileUrl);
+    explicit ChangeFileUrlCommand(const QUrl &fileUrl);
 
     QUrl fileUrl() const;
 

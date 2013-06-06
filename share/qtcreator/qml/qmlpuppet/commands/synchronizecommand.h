@@ -43,7 +43,7 @@ class SynchronizeCommand
 
 public:
     SynchronizeCommand();
-    SynchronizeCommand(int synchronizeId);
+    explicit SynchronizeCommand(int synchronizeId);
 
     int synchronizeId() const;
 

@@ -44,7 +44,7 @@ class TokenCommand
 
 public:
     TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+    explicit TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
 
     QString tokenName() const;
     qint32 tokenNumber() const;
