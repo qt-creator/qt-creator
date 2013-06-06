@@ -1,0 +1,89 @@
+/****************************************************************************
+**
+** Copyright (c) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-macros.html
+    \page creator-diff-editor.html
+    \nextpage creator-finding-overview.html
+
+    \title Comparing Files
+
+    You can use a diff editor from \QC to compare two text files. They can be
+    either versions of the same file or arbitrary files.
+
+    \image creator-diff-editor.png "Diff editor output in the Edit mode"
+
+    To compare files:
+
+    \list 1
+
+        \li Select \gui Tools > \gui Diff.
+
+        \li Select two files to compare.
+
+    \endlist
+
+    The differences are output in the \gui Edit mode. Color coding is used to
+    mark changed lines. By default, light red indicates lines that contain
+    removed text (painted a darker red) in the left pane and light green
+    indicates lines that contain added text (painted a darker green) in the
+    right pane.
+
+    To change the default colors, select \gui Tools > \gui Options >
+    \gui {Text Editor} > \gui {Font & Colors}. Create your own color scheme and
+    select new colors for the following options:
+
+    \list
+
+        \li \gui {Diff File Line} sets the color of the line that shows the
+            path and filename of the changed file.
+
+        \li \gui {Diff Context Line} sets the color of the line that shows
+            the number of hidden lines between changed lines.
+
+        \li \gui {Diff Source Line} sets the color of lines that contain removed
+            text.
+
+        \li \gui {Diff Source Character} sets the color that indicates removed
+            characters.
+
+        \li \gui {Diff Destination Line} sets the color of lines that contain
+            added text.
+
+        \li \gui {Diff Destination Character} sets the color that indicates
+            added characters.
+
+    \endlist
+
+    To only show text changes, select \gui {Ignore Whitespace}.
+
+    To expand the context for the changes, set the number of unchanged lines to
+    show in \gui {Context lines}. Set the value to -1 to show the whole file.
+
+    By default, the horizontal scroll bars in the left and right pane are
+    synchronized. To use them independently of each other, select the
+    \inlineimage qtcreator-synchronizefocus.png
+    (\gui {Synchronize Horizontal Scroll Bars}) button.
+*/

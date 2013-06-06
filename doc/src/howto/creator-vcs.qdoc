@@ -192,6 +192,11 @@
 
     \image qtcreator-vcs-diff.png
 
+    With Git, the diff is displayed side-by-side in a \l{Comparing Files}
+    {diff editor} by default. To use the old diff view instead, select
+    \gui Tools > \gui Options > \gui {Version Control} > \gui Git, and deselect
+    the \gui {Show diff side-by-side} option.
+
     \section2 Viewing Versioning History and Change Details
 
     Display the versioning history of a file by selecting \gui{Log}
