@@ -162,14 +162,28 @@ private slots:
 
     void test_quickfix_InsertDeclFromDef();
 
+    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByNewLines();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeDir();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeType();
     void test_quickfix_AddIncludeForUndefinedIdentifier_normal();
     void test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc();
     void test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_sortingMiddle();
     void test_quickfix_AddIncludeForUndefinedIdentifier_sortingBottom();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_appendToUnsorted();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalIncludeAtFront();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobalIncludeAtBack();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_preferGroupWithLongerMatchingPrefix();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfOnlyDifferentIncludeDirs();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSorted();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUnsorted();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes1();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes2();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes3();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes4();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCppStyleCommentOnTop();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCStyleCommentOnTop();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutside();

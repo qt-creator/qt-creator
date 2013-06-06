@@ -40,6 +40,7 @@
 #include <cpptools/cpppointerdeclarationformatter.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/includeutils.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
 
@@ -180,6 +181,37 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
     }
 
     return 0;
+}
+
+// Given include is e.g. "afile.h" or <afile.h> (quotes/angle brackets included!).
+void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr file)
+{
+    // Find optimal position
+    using namespace IncludeUtils;
+    LineForNewIncludeDirective finder(file->document(), file->cppDocument()->includes(),
+                                      LineForNewIncludeDirective::IgnoreMocIncludes,
+                                      LineForNewIncludeDirective::AutoDetect);
+    unsigned newLinesToPrepend = 0;
+    unsigned newLinesToAppend = 0;
+    const int insertLine = finder(include, &newLinesToPrepend, &newLinesToAppend);
+    QTC_ASSERT(insertLine >= 1, return);
+    const int insertPosition = file->position(insertLine, 1);
+    QTC_ASSERT(insertPosition >= 0, return);
+
+    // Construct text to insert
+    const QString includeLine = QLatin1String("#include ") + include + QLatin1Char('\n');
+    QString prependedNewLines, appendedNewLines;
+    while (newLinesToAppend--)
+        appendedNewLines += QLatin1String("\n");
+    while (newLinesToPrepend--)
+        prependedNewLines += QLatin1String("\n");
+    const QString textToInsert = prependedNewLines + includeLine + appendedNewLines;
+
+    // Insert
+    ChangeSet changes;
+    changes.insert(insertPosition, textToInsert);
+    file->setChangeSet(changes);
+    file->apply();
 }
 
 } // anonymous namespace
@@ -1479,24 +1511,8 @@ public:
             if (best.isEmpty())
                 best = headerFile;
 
-            int pos = currentFile->startOf(1);
-
-            unsigned currentLine = currentFile->cursor().blockNumber() + 1;
-            unsigned bestLine = 0;
-            foreach (const Document::Include &incl,
-                     assistInterface()->semanticInfo().doc->includes()) {
-                if (incl.line() < currentLine)
-                    bestLine = incl.line();
-            }
-
-            if (bestLine)
-                pos = currentFile->document()->findBlockByNumber(bestLine).position();
-
-            ChangeSet changes;
-            changes.insert(pos, QLatin1String("#include <")
-                           + QFileInfo(best).fileName() + QLatin1String(">\n"));
-            currentFile->setChangeSet(changes);
-            currentFile->apply();
+            const QString include = QString::fromLatin1("<%1>").arg(QFileInfo(best).fileName());
+            insertNewIncludeDirective(include, currentFile);
         }
     }
 
@@ -1731,108 +1747,21 @@ void ConvertToCamelCase::match(const CppQuickFixInterface &interface, QuickFixOp
     }
 }
 
-namespace {
-
-class AddIncludeForUndefinedIdentifierOp: public CppQuickFixOperation
+AddIncludeForUndefinedIdentifierOp::AddIncludeForUndefinedIdentifierOp(
+        const CppQuickFixInterface &interface, int priority, const QString &include)
+    : CppQuickFixOperation(interface, priority)
+    , m_include(include)
 {
-public:
-    AddIncludeForUndefinedIdentifierOp(const CppQuickFixInterface &interface, int priority,
-                                       const QString &include)
-        : CppQuickFixOperation(interface, priority)
-        , m_include(include)
-    {
-        setDescription(QApplication::translate("CppTools::QuickFix",
-                                               "Add #include %1").arg(m_include));
-    }
+    setDescription(QApplication::translate("CppTools::QuickFix", "Add #include %1").arg(m_include));
+}
 
-    void perform()
-    {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr file = refactoring.file(fileName());
+void AddIncludeForUndefinedIdentifierOp::perform()
+{
+    CppRefactoringChanges refactoring(snapshot());
+    CppRefactoringFilePtr file = refactoring.file(fileName());
 
-        QList<Document::Include> includes = file->cppDocument()->includes();
-        if (!includes.isEmpty()) {
-            QHash<QString, unsigned> includePositions;
-            foreach (const Document::Include &include, includes) {
-                const QString fileName = include.unresolvedFileName();
-                if (fileName.endsWith(QLatin1String(".moc")))
-                    continue;
-                includePositions.insert(fileName, include.line());
-            }
-
-            if (!includePositions.isEmpty()) {
-                const QString include = m_include.mid(1, m_include.length() - 2);
-                QList<QString> keys = includePositions.keys();
-                keys << include;
-                qSort(keys);
-                const int pos = keys.indexOf(include);
-
-                ChangeSet changes;
-                if (pos + 1 != keys.count()) {
-                    const int insertPos = qMax(0, file->position(
-                                                   includePositions.value(keys.at(pos + 1)), 1));
-                    changes.insert(insertPos,
-                                   QLatin1String("#include ") + m_include + QLatin1String("\n"));
-
-                } else {
-                    const int insertPos = qMax(0, file->position(includePositions.value(
-                                                                     keys.at(pos - 1)) + 1, 1) - 1);
-                    changes.insert(insertPos, QLatin1String("\n#include ") + m_include);
-                }
-                file->setChangeSet(changes);
-                file->apply();
-                return;
-            }
-        }
-
-        // No includes or no matching include, find possible first/multi line comment
-        int insertPos = 0;
-        QTextBlock block = file->document()->firstBlock();
-        while (block.isValid()) {
-            const QString trimmedText = block.text().trimmed();
-
-            // Only skip the first comment!
-            if (trimmedText.startsWith(QLatin1String("/*"))) {
-                do {
-                    const int pos = block.text().indexOf(QLatin1String("*/"));
-                    if (pos > -1) {
-                        insertPos = block.position() + pos + 2;
-                        break;
-                    }
-                    block = block.next();
-                } while (block.isValid());
-                break;
-            } else if (trimmedText.startsWith(QLatin1String("//"))) {
-                block = block.next();
-                while (block.isValid()) {
-                    if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
-                        insertPos = block.position() - 1;
-                        break;
-                    }
-                    block = block.next();
-                }
-                break;
-            }
-
-            if (!trimmedText.isEmpty())
-                break;
-            block = block.next();
-        }
-
-        ChangeSet changes;
-        if (insertPos != 0)
-            changes.insert(insertPos, QLatin1String("\n\n#include ") + m_include);
-        else
-            changes.insert(insertPos, QString::fromLatin1("#include %1\n\n").arg(m_include));
-        file->setChangeSet(changes);
-        file->apply();
-    }
-
-private:
-    QString m_include;
-};
-
-} // anonymous namespace
+    insertNewIncludeDirective(m_include, file);
+}
 
 void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interface,
                                              QuickFixOperations &result)
