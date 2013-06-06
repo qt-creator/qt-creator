@@ -637,6 +637,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             } else if (asyncClass == "cmd-param-changed") {
                 // New since 2012-08-09
                 //  "{param="debug remote",value="1"}"
+            } else if (asyncClass == "memory-changed") {
+                // New since 2013
+                //   "{thread-group="i1",addr="0x0918a7a8",len="0x10"}"
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
