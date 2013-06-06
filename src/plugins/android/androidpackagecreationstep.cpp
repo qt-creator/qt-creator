@@ -818,6 +818,10 @@ bool AndroidPackageCreationStep::runCommand(QProcess *buildProc
         return false;
     }
     buildProc->waitForFinished(-1);
+
+    handleProcessOutput(buildProc, false);
+    handleProcessOutput(buildProc, true);
+
     if (buildProc->error() != QProcess::UnknownError
         || buildProc->exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command '%1 %2' failed.")
@@ -837,13 +841,7 @@ void AndroidPackageCreationStep::handleBuildStdOutOutput()
     QProcess *const process = qobject_cast<QProcess *>(sender());
     if (!process)
         return;
-
-    process->setReadChannel(QProcess::StandardOutput);
-    while (process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(process->readLine());
-        m_outputParser.stdOutput(line);
-        emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
-    }
+    handleProcessOutput(process, false);
 }
 
 void AndroidPackageCreationStep::handleBuildStdErrOutput()
@@ -852,11 +850,21 @@ void AndroidPackageCreationStep::handleBuildStdErrOutput()
     if (!process)
         return;
 
-    process->setReadChannel(QProcess::StandardError);
+    handleProcessOutput(process, true);
+}
+
+void AndroidPackageCreationStep::handleProcessOutput(QProcess *process, bool stdErr)
+{
+    process->setReadChannel(stdErr ? QProcess::StandardError : QProcess::StandardOutput);
     while (process->canReadLine()) {
         QString line = QString::fromLocal8Bit(process->readLine());
-        m_outputParser.stdError(line);
-        emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
+        if (stdErr)
+            m_outputParser.stdError(line);
+        else
+            m_outputParser.stdOutput(line);
+        emit addOutput(line, stdErr ? BuildStep::ErrorOutput
+                                    : BuildStep::NormalOutput,
+                       BuildStep::DontAppendNewline);
     }
 }
 

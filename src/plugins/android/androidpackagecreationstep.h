@@ -113,6 +113,7 @@ private:
     static const Core::Id CreatePackageId;
 
 private:
+    void handleProcessOutput(QProcess *process, bool stdErr);
     Utils::FileName m_keystorePath;
     QString m_keystorePasswd;
     QString m_certificateAlias;
