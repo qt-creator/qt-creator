@@ -263,7 +263,7 @@ void GitDiffHandler::slotFileListReceived(const QByteArray &data)
     if (m_editor.isNull())
         return;
 
-    const QString fileList = m_editor->editorWidget()->codec()->toUnicode(data);
+    const QString fileList = m_editor->editorWidget()->codec()->toUnicode(data).remove(QLatin1Char('\r'));
     QStringList fileNames = fileList.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     fileNames.removeDuplicates();
 
@@ -355,7 +355,7 @@ void GitDiffHandler::slotFileContentsReceived(const QByteArray &data)
         QMap<Revision, bool>::iterator itRevEnd
                 = revisions.end();
         if (itRev != itRevEnd) {
-            const QString contents = m_editor->editorWidget()->codec()->toUnicode(data);
+            const QString contents = m_editor->editorWidget()->codec()->toUnicode(data).remove(QLatin1Char('\r'));
             m_collectedRevisions[fileName][itRev.key()] = contents;
 
             itRev = revisions.erase(itRev);
