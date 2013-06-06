@@ -43,6 +43,7 @@
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
+#include <utils/checkablemessagebox.h>
 
 #include <QDebug>
 #include <QDir>
@@ -279,10 +280,23 @@ void BookmarkView::removeBookmark(const QModelIndex& index)
     m_manager->removeBookmark(bm);
 }
 
-// The perforcemance of this function could be greatly improved.
-//
 void BookmarkView::removeAll()
 {
+    const QString key = QLatin1String("Bookmarks.DontAskAgain");
+    QSettings *settings = ICore::settings();
+    bool checked = settings->value(key).toBool();
+    if (!checked) {
+        if (Utils::CheckableMessageBox::question(this,
+                tr("Remove All Bookmarks"),
+                tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
+                tr("Do not &ask again."),
+                &checked, QDialogButtonBox::Yes | QDialogButtonBox::No, QDialogButtonBox::No)
+                    != QDialogButtonBox::Yes)
+            return;
+        settings->setValue(key, checked);
+    }
+
+    // The performance of this function could be greatly improved.
     while (m_manager->rowCount()) {
         QModelIndex index = m_manager->index(0, 0);
         removeBookmark(index);
