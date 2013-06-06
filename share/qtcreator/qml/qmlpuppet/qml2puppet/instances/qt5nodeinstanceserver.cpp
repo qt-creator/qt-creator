@@ -36,6 +36,7 @@
 #include <designersupport.h>
 #include <addimportcontainer.h>
 #include <createscenecommand.h>
+#include <reparentinstancescommand.h>
 
 namespace QmlDesigner {
 
@@ -148,5 +149,12 @@ void Qt5NodeInstanceServer::clearScene(const ClearSceneCommand &command)
     m_designerSupport = 0;
     NodeInstanceServer::clearScene(command);
 }
+
+void Qt5NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
+{
+    NodeInstanceServer::reparentInstances(command.reparentInstances());
+    startRenderTimer();
+}
+
 
 } // QmlDesigner
