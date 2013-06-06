@@ -32,6 +32,7 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilertimelinemodelproxy.h"
+#include "timelinemodelaggregator.h"
 #include "qmlprofileroverviewmodelproxy.h"
 
 // Needed for the load&save actions in the context menu
@@ -122,7 +123,8 @@ public:
     QDeclarativeView *m_timebar;
     QDeclarativeView *m_overview;
     QmlProfilerModelManager *m_modelManager;
-    QmlProfilerTimelineModelProxy *m_modelProxy;
+//    BasicTimelineModel *m_modelProxy;
+    TimelineModelAggregator *m_modelProxy;
     QmlProfilerOverviewModelProxy *m_overviewProxy;
 
     ZoomControl *m_zoomControl;
@@ -185,7 +187,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_profilerTool = profilerTool;
     d->m_viewContainer = container;
     d->m_modelManager = modelManager;
-    d->m_modelProxy = new QmlProfilerTimelineModelProxy(modelManager, this);
+    d->m_modelProxy = new TimelineModelAggregator(this);
+    d->m_modelProxy->setModelManager(modelManager);
+//    d->m_modelProxy = new BasicTimelineModel(modelManager, this);
     d->m_overviewProxy = new QmlProfilerOverviewModelProxy(modelManager, this);
     connect(d->m_modelManager, SIGNAL(stateChanged()),
             this, SLOT(profilerDataModelStateChanged()));
@@ -519,7 +523,7 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
     if (d->m_viewContainer->hasGlobalStats())
         getGlobalStatsAction->setEnabled(false);
 
-    if (d->m_modelProxy->count() > 0) {
+    if (!d->m_modelProxy->isEmpty()) {
         menu.addSeparator();
         viewAllAction = menu.addAction(tr("Reset Zoom"));
     }

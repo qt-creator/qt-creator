@@ -31,6 +31,7 @@
 #define QMLPROFILERMODELMANAGER_H
 
 #include <QObject>
+#include "qmlprofiler_global.h"
 #include "qmldebug/qmlprofilereventlocation.h"
 #include <utils/fileinprojectfinder.h>
 
@@ -90,7 +91,7 @@ private:
 };
 
 // Interface between the Data Model and the Engine/Tool
-class QmlProfilerModelManager : public QObject
+class QMLPROFILER_EXPORT QmlProfilerModelManager : public QObject
 {
     Q_OBJECT
 public:
@@ -119,6 +120,8 @@ public slots:
     void prepareForWriting();
     void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length,
                         const QStringList &data, const QmlDebug::QmlEventLocation &location);
+    void addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime,
+                            qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
     void addV8Event(int depth, const QString &function,const QString &filename, int lineNumber,
                     double totalTime, double selfTime);
 #ifdef PROFILER_FRAMEEVENTS

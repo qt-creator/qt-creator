@@ -154,6 +154,10 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
             d->m_profilerModelManager,
             SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
     connect(d->m_profilerConnections,
+            SIGNAL(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
+            d->m_profilerModelManager,
+            SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
+    connect(d->m_profilerConnections,
             SIGNAL(addV8Event(int,QString,QString,int,double,double)),
             d->m_profilerModelManager,
             SLOT(addV8Event(int,QString,QString,int,double,double)));

@@ -129,8 +129,9 @@ Canvas2D {
 
         // separators
         var cumulatedHeight = 0;
+        var modelIndex = 0;
         for (var i=0; i<labels.rowCount; i++) {
-            cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(i);
+            cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, i);
 
             ctxt.strokeStyle = "#B0B0B0";
             ctxt.beginPath();

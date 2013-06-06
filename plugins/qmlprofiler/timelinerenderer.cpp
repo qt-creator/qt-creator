@@ -81,18 +81,26 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
 
     m_spacing = qreal(width()) / windowDuration;
 
+    // event rows
     m_rowWidths.clear();
-    // The "1+" is because the reference screenshot features an empty row per type, in order to leave space for the title
+
     for (int i=0; i<QmlDebug::MaximumQmlEventType; i++) {
         m_rowWidths << m_profilerModelProxy->categoryDepth(i);
     }
 
-    // event rows
     m_rowStarts.clear();
     int pos = 0;
     for (int i=0; i<QmlDebug::MaximumQmlEventType; i++) {
         m_rowStarts << pos;
         pos += DefaultRowHeight * m_rowWidths[i];
+    }
+
+    m_modelRowEnds.clear();
+    pos = 0;
+    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
+        for (int j = 0; j < m_profilerModelProxy->categoryCount(i); j++)
+            pos += DefaultRowHeight * m_profilerModelProxy->categoryDepth(i,j);
+        m_modelRowEnds << pos;
     }
 
     p->setPen(Qt::transparent);
@@ -103,42 +111,36 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
         for (int j=0; j<m_rowWidths[i]; j++)
             m_rowLastX << -m_startTime * m_spacing;
 
-    int firstIndex = m_profilerModelProxy->findFirstIndex(m_startTime);
-    int lastIndex = m_profilerModelProxy->findLastIndex(m_endTime);
-
-    if (lastIndex < m_profilerModelProxy->count()) {
-        drawItemsToPainter(p, firstIndex, lastIndex);
-        drawSelectionBoxes(p, firstIndex, lastIndex);
-        drawBindingLoopMarkers(p, firstIndex, lastIndex);
+    for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
+        int lastIndex = m_profilerModelProxy->findLastIndex(modelIndex, m_endTime);
+        if (lastIndex < m_profilerModelProxy->count(modelIndex)) {
+            int firstIndex = m_profilerModelProxy->findFirstIndex(modelIndex, m_startTime);
+            drawItemsToPainter(p, modelIndex, firstIndex, lastIndex);
+            if (m_selectedModel == modelIndex)
+                drawSelectionBoxes(p, modelIndex, firstIndex, lastIndex);
+            drawBindingLoopMarkers(p, modelIndex, firstIndex, lastIndex);
+        }
     }
     m_lastStartTime = m_startTime;
     m_lastEndTime = m_endTime;
 
 }
 
-QColor TimelineRenderer::colorForItem(int itemIndex)
+void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromIndex, int toIndex)
 {
-    int ndx = m_profilerModelProxy->getEventId(itemIndex);
-    return QColor::fromHsl((ndx*25)%360, 76, 166);
-}
-
-void TimelineRenderer::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
-{
-    int x, y, width, height, rowNumber, eventType;
+    int x, y, width, height, eventType;
+    p->setPen(Qt::transparent);
     for (int i = fromIndex; i <= toIndex; i++) {
-        x = (m_profilerModelProxy->getStartTime(i) - m_startTime) * m_spacing;
-
-        eventType = m_profilerModelProxy->getEventType(i);
-        y = m_rowStarts[eventType] + m_profilerModelProxy->getEventRow(i) * DefaultRowHeight;
-
-        width = m_profilerModelProxy->getDuration(i)*m_spacing;
+        x = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
+        eventType = m_profilerModelProxy->getEventType(modelIndex, i);
+        int rowNumber = m_profilerModelProxy->getEventRow(modelIndex, i);
+        y = m_rowStarts[eventType] +  rowNumber * DefaultRowHeight;
+        width = m_profilerModelProxy->getDuration(modelIndex, i)*m_spacing;
         if (width < 1)
             width = 1;
 
-        rowNumber = y/DefaultRowHeight;
-        if (m_rowLastX[rowNumber] > x+width)
-            continue;
-        m_rowLastX[rowNumber] = x+width;
+        height = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
+        y += DefaultRowHeight - height;
 
         // special: animations
         /*if (eventType == 0 && m_profilerDataModel->getAnimationCount(i) >= 0) {
@@ -160,18 +162,19 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int fromIndex, int toInde
             p->drawRect(x, y, width, height);
         } else */ {
             // normal events
-            p->setBrush(colorForItem(i));
-            p->drawRect(x, y, width, DefaultRowHeight);
+            p->setBrush(m_profilerModelProxy->getColor(modelIndex, i));
+            p->drawRect(x, y, width, height);
         }
     }
 }
 
-void TimelineRenderer::drawSelectionBoxes(QPainter *p, int fromIndex, int toIndex)
+void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromIndex, int toIndex)
 {
     if (m_selectedItem == -1)
         return;
 
-    int id = m_profilerModelProxy->getEventId(m_selectedItem);
+
+    int id = m_profilerModelProxy->getEventId(modelIndex, m_selectedItem);
 
     p->setBrush(Qt::transparent);
     QColor selectionColor = Qt::blue;
@@ -187,14 +190,14 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int fromIndex, int toInde
 
     QRect selectedItemRect(0,0,0,0);
     for (int i = fromIndex; i <= toIndex; i++) {
-        if (m_profilerModelProxy->getEventId(i) != id)
+        if (m_profilerModelProxy->getEventId(modelIndex, i) != id)
             continue;
 
-        x = (m_profilerModelProxy->getStartTime(i) - m_startTime) * m_spacing;
-        eventType = m_profilerModelProxy->getEventType(i);
-        y = m_rowStarts[eventType] + DefaultRowHeight * m_profilerModelProxy->getEventRow(i);
+        x = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
+        eventType = m_profilerModelProxy->getEventType(modelIndex, i);
+        y = m_rowStarts[eventType] + DefaultRowHeight * m_profilerModelProxy->getEventRow(modelIndex, i);
 
-        width = m_profilerModelProxy->getDuration(i)*m_spacing;
+        width = m_profilerModelProxy->getDuration(modelIndex, i)*m_spacing;
         if (width<1)
             width = 1;
 
@@ -211,7 +214,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int fromIndex, int toInde
     }
 }
 
-void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int fromIndex, int toIndex)
+void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int fromIndex, int toIndex)
 {
     int destindex;
     int xfrom, xto;
@@ -224,24 +227,24 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int fromIndex, int to
 
     p->save();
     for (int i = fromIndex; i <= toIndex; i++) {
-        destindex = m_profilerModelProxy->getBindingLoopDest(i);
+        destindex = m_profilerModelProxy->getBindingLoopDest(modelIndex, i);
         if (destindex >= 0) {
             // from
-            xfrom = (m_profilerModelProxy->getStartTime(i) +
-                     m_profilerModelProxy->getDuration(i)/2 -
+            xfrom = (m_profilerModelProxy->getStartTime(modelIndex, i) +
+                     m_profilerModelProxy->getDuration(modelIndex, i)/2 -
                      m_startTime) * m_spacing;
-            yfrom = getYPosition(i);
+            yfrom = getYPosition(modelIndex, i);
             yfrom += DefaultRowHeight / 2;
 
             // to
-            xto = (m_profilerModelProxy->getStartTime(destindex) +
-                   m_profilerModelProxy->getDuration(destindex)/2 -
+            xto = (m_profilerModelProxy->getStartTime(modelIndex, destindex) +
+                   m_profilerModelProxy->getDuration(modelIndex, destindex)/2 -
                    m_startTime) * m_spacing;
-            yto = getYPosition(destindex);
+            yto = getYPosition(modelIndex, destindex);
             yto += DefaultRowHeight / 2;
 
             // radius
-            int eventWidth = m_profilerModelProxy->getDuration(i) * m_spacing;
+            int eventWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
             radius = 5;
             if (radius * 2 > eventWidth)
                 radius = eventWidth / 2;
@@ -266,6 +269,13 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int fromIndex, int to
         }
     }
     p->restore();
+}
+
+int TimelineRenderer::modelFromPosition(int y)
+{
+    for (int i = 0; i < m_modelRowEnds.count(); i++)
+        if (y < m_modelRowEnds[i])
+            return i;
 }
 
 void TimelineRenderer::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -302,15 +312,17 @@ void TimelineRenderer::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 void TimelineRenderer::manageClicked()
 {
     if (m_currentSelection.eventIndex != -1) {
-        if (m_currentSelection.eventIndex == m_selectedItem)
+        if (m_currentSelection.eventIndex == m_selectedItem && m_currentSelection.modelIndex == m_selectedModel)
             setSelectionLocked(!m_selectionLocked);
         else
             setSelectionLocked(true);
-        emit itemPressed(m_currentSelection.eventIndex);
+        emit itemPressed(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
     } else {
         setSelectionLocked(false);
     }
+    setSelectedModel(m_currentSelection.modelIndex);
     setSelectedItem(m_currentSelection.eventIndex);
+
 }
 
 void TimelineRenderer::manageHovered(int x, int y)
@@ -320,6 +332,7 @@ void TimelineRenderer::manageHovered(int x, int y)
 
     qint64 time = x * (m_endTime - m_startTime) / width() + m_startTime;
     int row = y / DefaultRowHeight;
+    int modelIndex = modelFromPosition(y);
 
     // already covered? nothing to do
     if (m_currentSelection.eventIndex != -1 &&
@@ -330,8 +343,8 @@ void TimelineRenderer::manageHovered(int x, int y)
     }
 
     // find if there's items in the time range
-    int eventFrom = m_profilerModelProxy->findFirstIndex(time);
-    int eventTo = m_profilerModelProxy->findLastIndex(time);
+    int eventFrom = m_profilerModelProxy->findFirstIndex(modelIndex, time);
+    int eventTo = m_profilerModelProxy->findLastIndex(modelIndex, time);
     if (eventTo < eventFrom || eventTo >= m_profilerModelProxy->count()) {
         m_currentSelection.eventIndex = -1;
         return;
@@ -340,20 +353,26 @@ void TimelineRenderer::manageHovered(int x, int y)
     // find if we are in the right column
     int itemRow, eventType;
     for (int i=eventTo; i>=eventFrom; --i) {
-        if (ceil(m_profilerModelProxy->getEndTime(i)*m_spacing) < floor(time*m_spacing))
+        if (ceil(m_profilerModelProxy->getEndTime(modelIndex, i)*m_spacing) < floor(time*m_spacing))
             continue;
 
-        eventType = m_profilerModelProxy->getEventType(i);
+//        qDebug() << i << m_profilerModelProxy->getStartTime(modelIndex,i) << m_profilerModelProxy->getDuration(modelIndex,i) << m_profilerModelProxy->getEndTime(modelIndex,i) << "at" << time;
+
+        eventType = m_profilerModelProxy->getEventType(modelIndex, i);
         itemRow = m_rowStarts[eventType]/DefaultRowHeight +
-                    m_profilerModelProxy->getEventRow(i);
+                    m_profilerModelProxy->getEventRow(modelIndex, i);
+
         if (itemRow == row) {
             // match
             m_currentSelection.eventIndex = i;
-            m_currentSelection.startTime = m_profilerModelProxy->getStartTime(i);
-            m_currentSelection.endTime = m_profilerModelProxy->getEndTime(i);
+            m_currentSelection.startTime = m_profilerModelProxy->getStartTime(modelIndex, i);
+            m_currentSelection.endTime = m_profilerModelProxy->getEndTime(modelIndex, i);
             m_currentSelection.row = row;
-            if (!m_selectionLocked)
+            m_currentSelection.modelIndex = modelIndex;
+            if (!m_selectionLocked) {
+                setSelectedModel(modelIndex);
                 setSelectedItem(i);
+            }
             return;
         }
     }
@@ -372,7 +391,9 @@ void TimelineRenderer::clearData()
     m_currentSelection.endTime = -1;
     m_currentSelection.row = -1;
     m_currentSelection.eventIndex = -1;
+    m_currentSelection.modelIndex = -1;
     m_selectedItem = -1;
+    m_selectedModel = -1;
     m_selectionLocked = true;
 }
 
@@ -392,35 +413,78 @@ QString TimelineRenderer::getDetails(int index) const
 {
 }
 
-int TimelineRenderer::getYPosition(int index) const
+int TimelineRenderer::getYPosition(int modelIndex, int index) const
 {
     Q_ASSERT(m_profilerModelProxy);
     if (index >= m_profilerModelProxy->count() || m_rowStarts.isEmpty())
         return 0;
-    int eventType = m_profilerModelProxy->getEventType(index);
-    int y = m_rowStarts[eventType] + DefaultRowHeight * m_profilerModelProxy->getEventRow(index);
+    int eventType = m_profilerModelProxy->getEventType(modelIndex, index);
+    int y = m_rowStarts[eventType] + DefaultRowHeight * m_profilerModelProxy->getEventRow(modelIndex, index);
     return y;
 }
 
-void TimelineRenderer::setRowExpanded(int rowIndex, bool expanded)
-{
-    // todo: m_rowsExpanded, should that be removed? where do I have it duplicated?
-    m_rowsExpanded[rowIndex] = expanded;
-    update();
-}
+//void TimelineRenderer::setRowExpanded(int modelIndex, int rowIndex, bool expanded)
+//{
+//    // todo: m_rowsExpanded, should that be removed? where do I have it duplicated?
+//    m_rowsExpanded[rowIndex] = expanded;
+//    update();
+//}
 
 void TimelineRenderer::selectNext()
 {
     if (m_profilerModelProxy->count() == 0)
         return;
 
-    // select next in view or after
-    int newIndex = m_selectedItem+1;
-    if (newIndex >= m_profilerModelProxy->count())
-        newIndex = 0;
-    if (m_profilerModelProxy->getEndTime(newIndex) < m_startTime)
-        newIndex = m_profilerModelProxy->findFirstIndexNoParents(m_startTime);
-    setSelectedItem(newIndex);
+    qint64 searchTime = m_startTime;
+    if (m_selectedItem != -1)
+        searchTime = m_profilerModelProxy->getStartTime(m_selectedModel, m_selectedItem);
+
+    int itemIndexes[m_profilerModelProxy->modelCount()];
+    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
+        if (m_profilerModelProxy->count(i) > 0) {
+            if (m_selectedModel == i) {
+                itemIndexes[i] = (m_selectedItem + 1) % m_profilerModelProxy->count(i);
+            } else {
+                if (m_profilerModelProxy->getStartTime(i, 0) > searchTime)
+                    itemIndexes[i] = 0;
+                else
+                    itemIndexes[i] = (m_profilerModelProxy->findLastIndex(i, searchTime) + 1) % m_profilerModelProxy->count(i);
+            }
+        } else {
+            itemIndexes[i] = -1;
+        }
+    }
+
+    int candidateModelIndex = -1;
+    qint64 candidateStartTime = m_profilerModelProxy->traceEndTime();
+    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
+        if (itemIndexes[i] == -1)
+            continue;
+        qint64 newStartTime = m_profilerModelProxy->getStartTime(i, itemIndexes[i]);
+        if (newStartTime > searchTime && newStartTime < candidateStartTime) {
+            candidateStartTime = newStartTime;
+            candidateModelIndex = i;
+        }
+    }
+
+    int itemIndex;
+    if (candidateModelIndex != -1) {
+        itemIndex = itemIndexes[candidateModelIndex];
+    } else {
+        // find the first index of them all (todo: the modelproxy should do this)
+        itemIndex = -1;
+        candidateStartTime = m_profilerModelProxy->traceEndTime();
+        for (int i = 0; i < m_profilerModelProxy->modelCount(); i++)
+            if (m_profilerModelProxy->count(i) > 0 &&
+                    m_profilerModelProxy->getStartTime(i,0) < candidateStartTime) {
+                candidateModelIndex = i;
+                itemIndex = 0;
+                candidateStartTime = m_profilerModelProxy->getStartTime(i,0);
+            }
+    }
+
+    setSelectedModel(candidateModelIndex);
+    setSelectedItem(itemIndex);
 }
 
 void TimelineRenderer::selectPrev()
@@ -428,62 +492,113 @@ void TimelineRenderer::selectPrev()
     if (m_profilerModelProxy->count() == 0)
         return;
 
-    // select last in view or before
-    int newIndex = m_selectedItem-1;
-    if (newIndex < 0)
-        newIndex = m_profilerModelProxy->count()-1;
-    if (m_profilerModelProxy->getStartTime(newIndex) > m_endTime)
-        newIndex = m_profilerModelProxy->findLastIndex(m_endTime);
-    setSelectedItem(newIndex);
+    qint64 searchTime = m_endTime;
+    if (m_selectedItem != -1)
+        searchTime = m_profilerModelProxy->getEndTime(m_selectedModel, m_selectedItem);
+
+    int itemIndexes[m_profilerModelProxy->modelCount()];
+    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
+        if (m_selectedModel == i) {
+            itemIndexes[i] = m_selectedItem - 1;
+            if (itemIndexes[i] < 0)
+                itemIndexes[i] = m_profilerModelProxy->count(m_selectedModel) -1;
+        }
+        else
+            itemIndexes[i] = m_profilerModelProxy->findLastIndex(i, searchTime);
+    }
+
+    int candidateModelIndex = -1;
+    qint64 candidateStartTime = m_profilerModelProxy->traceStartTime();
+    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
+        if (itemIndexes[i] == -1)
+            continue;
+        qint64 newStartTime = m_profilerModelProxy->getStartTime(i, itemIndexes[i]);
+        if (newStartTime < searchTime && newStartTime > candidateStartTime) {
+            candidateStartTime = newStartTime;
+            candidateModelIndex = i;
+        }
+    }
+
+    int itemIndex = -1;
+    if (candidateModelIndex != -1) {
+        itemIndex = itemIndexes[candidateModelIndex];
+    } else {
+        // find the last index of them all (todo: the modelproxy should do this)
+        candidateModelIndex = 0;
+        candidateStartTime = m_profilerModelProxy->traceStartTime();
+        for (int i = 0; i < m_profilerModelProxy->modelCount(); i++)
+            if (m_profilerModelProxy->count(i) > 0 &&
+                    m_profilerModelProxy->getStartTime(i,m_profilerModelProxy->count(i)-1) > candidateStartTime) {
+                candidateModelIndex = i;
+                itemIndex = m_profilerModelProxy->count(candidateModelIndex) - 1;
+                candidateStartTime = m_profilerModelProxy->getStartTime(i,m_profilerModelProxy->count(i)-1);
+            }
+    }
+
+    setSelectedModel(candidateModelIndex);
+    setSelectedItem(itemIndex);
 }
 
-int TimelineRenderer::nextItemFromId(int eventId) const
+int TimelineRenderer::nextItemFromId(int modelIndex, int eventId) const
 {
     int ndx = -1;
     if (m_selectedItem == -1)
-        ndx = m_profilerModelProxy->findFirstIndexNoParents(m_startTime);
+        ndx = m_profilerModelProxy->findFirstIndexNoParents(modelIndex, m_startTime);
     else
         ndx = m_selectedItem + 1;
-    if (ndx >= m_profilerModelProxy->count())
+    if (ndx >= m_profilerModelProxy->count(modelIndex))
         ndx = 0;
     int startIndex = ndx;
     do {
-        if (m_profilerModelProxy->getEventId(ndx) == eventId)
+        if (m_profilerModelProxy->getEventId(modelIndex, ndx) == eventId)
             return ndx;
-        ndx = (ndx + 1) % m_profilerModelProxy->count();
+        ndx = (ndx + 1) % m_profilerModelProxy->count(modelIndex);
     } while (ndx != startIndex);
     return -1;
 }
 
-int TimelineRenderer::prevItemFromId(int eventId) const
+int TimelineRenderer::prevItemFromId(int modelIndex, int eventId) const
 {
     int ndx = -1;
     if (m_selectedItem == -1)
-        ndx = m_profilerModelProxy->findFirstIndexNoParents(m_startTime);
+        ndx = m_profilerModelProxy->findFirstIndexNoParents(modelIndex, m_startTime);
     else
         ndx = m_selectedItem - 1;
     if (ndx < 0)
-        ndx = m_profilerModelProxy->count() - 1;
+        ndx = m_profilerModelProxy->count(modelIndex) - 1;
     int startIndex = ndx;
     do {
-        if (m_profilerModelProxy->getEventId(ndx) == eventId)
+        if (m_profilerModelProxy->getEventId(modelIndex, ndx) == eventId)
             return ndx;
         if (--ndx < 0)
-            ndx = m_profilerModelProxy->count()-1;
+            ndx = m_profilerModelProxy->count(modelIndex)-1;
     } while (ndx != startIndex);
     return -1;
 }
 
-void TimelineRenderer::selectNextFromId(int eventId)
+void TimelineRenderer::selectNextFromId(int modelIndex, int eventId)
 {
-    int eventIndex = nextItemFromId(eventId);
-    if (eventIndex != -1)
+
+    // TODO: find next index depending on model
+    int eventIndex = nextItemFromId(modelIndex, eventId);
+    if (eventIndex != -1) {
+        setSelectedModel(modelIndex);
         setSelectedItem(eventIndex);
+    }
 }
 
-void TimelineRenderer::selectPrevFromId(int eventId)
+void TimelineRenderer::selectPrevFromId(int modelIndex, int eventId)
 {
-    int eventIndex = prevItemFromId(eventId);
-    if (eventIndex != -1)
+
+    // TODO: find next index depending on model
+    int eventIndex = prevItemFromId(modelIndex, eventId);
+    if (eventIndex != -1) {
+        setSelectedModel(modelIndex);
         setSelectedItem(eventIndex);
+    }
+}
+
+int TimelineRenderer::modelIndexFromType(int typeIndex) const
+{
+    return m_profilerModelProxy->modelIndexForCategory(typeIndex, &typeIndex);
 }

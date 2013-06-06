@@ -41,7 +41,7 @@ class QmlProfilerModelManager;
 
 class QmlProfilerOverviewModelProxy : public QObject
 {
-    Q_PROPERTY(bool empty READ empty NOTIFY emptyChanged)
+    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
 
     Q_OBJECT
 public:
@@ -77,7 +77,7 @@ public:
 
 
 // QML interface
-    bool empty() const;
+    bool isEmpty() const;
 
 
 signals:

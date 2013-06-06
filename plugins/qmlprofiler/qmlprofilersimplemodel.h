@@ -30,6 +30,7 @@
 #ifndef QMLPROFILERSIMPLEMODEL_H
 #define QMLPROFILERSIMPLEMODEL_H
 
+#include "qmlprofiler_global.h"
 #include <QObject>
 #include <QVector>
 #include <QStringList>
@@ -41,7 +42,7 @@ namespace Internal {
 class QmlProfilerModelManager;
 
 // stores the data from the client as-is
-class QmlProfilerSimpleModel : public QObject
+class QMLPROFILER_EXPORT QmlProfilerSimpleModel : public QObject
 {
     Q_OBJECT
 public:
@@ -53,6 +54,11 @@ public:
         qint64 duration;
         QStringList data;
         QmlDebug::QmlEventLocation location;
+        qint64 timing1;
+        qint64 timing2;
+        qint64 timing3;
+        qint64 timing4;
+        qint64 timing5;
     };
 
     explicit QmlProfilerSimpleModel(QObject *parent = 0);
@@ -63,6 +69,7 @@ public:
     const QVector<QmlEventData> &getEvents() const;
     int count() const;
     void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length, const QStringList &data, const QmlDebug::QmlEventLocation &location);
+    void addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
     qint64 lastTimeMark() const;
     virtual void complete();
 

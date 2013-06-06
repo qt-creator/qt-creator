@@ -23,6 +23,8 @@ QtcPlugin {
     cpp.includePaths: base.concat("canvas")
 
     files: [
+        "abstracttimelinemodel.h",
+        "abstracttimelinemodel.cpp",
         "abstractqmlprofilerrunner.h",
         "localqmlprofilerrunner.cpp",
         "localqmlprofilerrunner.h",
@@ -70,6 +72,8 @@ QtcPlugin {
         "qv8profilereventview.cpp",
         "qv8profilerdatamodel.cpp",
         "qv8profilerdatamodel.h",
+        "timelinemodelaggregator.cpp",
+        "timelinemodelaggregator.h",
         "timelinerenderer.cpp",
         "timelinerenderer.h",
         "canvas/qdeclarativecanvas.cpp",

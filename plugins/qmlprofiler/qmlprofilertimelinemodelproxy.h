@@ -32,12 +32,15 @@
 #define QMLPROFILERTIMELINEMODELPROXY_H
 
 #include <QObject>
+#include "abstracttimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
 //#include <QHash>
 //#include <QVector>
 #include <QVariantList>
 //#include <QVariantMap>
+#include "qmlprofilersimplemodel.h"
+#include <QColor>
 
 
 namespace QmlProfiler {
@@ -45,9 +48,9 @@ namespace Internal {
 
 class QmlProfilerModelManager;
 
-class QmlProfilerTimelineModelProxy : public QObject
+class BasicTimelineModel : public AbstractTimelineModel
 {
-    Q_PROPERTY(bool empty READ empty NOTIFY emptyChanged)
+//    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
 
     Q_OBJECT
 public:
@@ -101,8 +104,13 @@ public:
 //        qint64 duration;
 //    };
 
-    QmlProfilerTimelineModelProxy(QmlProfilerModelManager *modelManager, QObject *parent = 0);
-    ~QmlProfilerTimelineModelProxy();
+    BasicTimelineModel(QObject *parent = 0);
+    ~BasicTimelineModel();
+
+
+    int categories() const;
+    QStringList categoryTitles() const;
+    QString name() const;
 
     const QVector<QmlRangeEventStartInstance> getData() const;
     const QVector<QmlRangeEventStartInstance> getData(qint64 fromTime, qint64 toTime) const;
@@ -112,13 +120,13 @@ public:
 
 
 // QML interface
-    bool empty() const;
+    bool isEmpty() const;
 
     Q_INVOKABLE qint64 lastTimeMark() const;
-    Q_INVOKABLE qint64 traceStartTime() const;
-    Q_INVOKABLE qint64 traceEndTime() const;
-    Q_INVOKABLE qint64 traceDuration() const;
-    Q_INVOKABLE int getState() const;
+//    Q_INVOKABLE qint64 traceStartTime() const;
+//    Q_INVOKABLE qint64 traceEndTime() const;
+//    Q_INVOKABLE qint64 traceDuration() const;
+//    Q_INVOKABLE int getState() const;
 
     Q_INVOKABLE void setExpanded(int category, bool expanded);
     Q_INVOKABLE int categoryDepth(int categoryIndex) const;
@@ -136,26 +144,20 @@ public:
     Q_INVOKABLE qint64 getEndTime(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
     int getBindingLoopDest(int index) const;
+    Q_INVOKABLE QColor getColor(int index) const;
+    Q_INVOKABLE float getHeight(int index) const;
 
-    const QmlProfilerTimelineModelProxy::QmlRangeEventData &getRangeEventData(int index) const;
     Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
-
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
 
-
-signals:
-    void countChanged();
-    void dataAvailable();
-    void stateChanged();
-    void emptyChanged();
-    void expandedChanged();
-
 private slots:
+    bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
+protected slots:
     void dataChanged();
 
 private:
-    class QmlProfilerTimelineModelProxyPrivate;
-    QmlProfilerTimelineModelProxyPrivate *d;
+    class BasicTimelineModelPrivate;
+    BasicTimelineModelPrivate *d;
 
 };
 

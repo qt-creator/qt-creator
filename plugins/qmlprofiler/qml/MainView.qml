@@ -447,13 +447,13 @@ Rectangle {
 
                     rangeDetails.visible = true;
 */
-                    rangeDetails.showInfo(qmlProfilerModelProxy.getEventDetails(selectedItem));
+                    rangeDetails.showInfo(qmlProfilerModelProxy.getEventDetails(selectedModel, selectedItem));
 
                     // center view (horizontally)
                     var windowLength = view.endTime - view.startTime;
-                    var eventStartTime = qmlProfilerModelProxy.getStartTime(selectedItem);
+                    var eventStartTime = qmlProfilerModelProxy.getStartTime(selectedModel, selectedItem);
                     var eventEndTime = eventStartTime +
-                            qmlProfilerModelProxy.getDuration(selectedItem);
+                            qmlProfilerModelProxy.getDuration(selectedModel, selectedItem);
 
                     if (eventEndTime < view.startTime || eventStartTime > view.endTime) {
                         var center = (eventStartTime + eventEndTime)/2;
@@ -465,7 +465,7 @@ Rectangle {
                     }
 
                     // center view (vertically)
-                    var itemY = view.getYPosition(selectedItem);
+                    var itemY = view.getYPosition(selectedModel, selectedItem);
                     if (itemY < root.scrollY) {
                         root.updateVerticalScroll(itemY);
                     } else
@@ -537,18 +537,14 @@ Rectangle {
         color: "#dcdcdc"
         height: col.height
 
-        // TODO: this must go away
-        property int rowCount: 5
-        property variant rowExpanded: [false,false,false,false,false];
+        property int rowCount: qmlProfilerModelProxy.categories();
 
         Column {
             id: col
             Repeater {
                 model: labels.rowCount
                 delegate: Label {
-                    /*text: root.names[index] */
                     text: qmlProfilerModelProxy.categoryLabel(index)
-                    height: labels.height/labels.rowCount
                 }
             }
         }

@@ -34,6 +34,7 @@ Item {
     property alias text: txt.text
     property bool expanded: false
     property int typeIndex: index
+    property int modelIndex: view.modelIndexFromType(index);
 
     property variant descriptions: []
     property variant extdescriptions: []
@@ -43,14 +44,14 @@ Item {
     width: 150
 
     visible: !qmlProfilerModelProxy.empty;
+    onVisibleChanged: {
+        if (visible)
+            modelIndex = view.modelIndexFromType(index);
+    }
 
     onExpandedChanged: {
         qmlProfilerModelProxy.setExpanded(typeIndex, expanded);
-        var rE = labels.rowExpanded;
-        rE[typeIndex] = expanded;
-        labels.rowExpanded = rE;
         backgroundMarks.requestRedraw();
-        view.setRowExpanded(typeIndex, expanded);
         getDescriptions();
         updateHeight();
     }
@@ -170,9 +171,9 @@ Item {
                     onExited: changeToolTip("");
                     onClicked: {
                         if (mouse.modifiers & Qt.ShiftModifier)
-                            view.selectPrevFromId(eventIds[index]);
+                            view.selectPrevFromId(modelIndex,eventIds[index]);
                         else
-                            view.selectNextFromId(eventIds[index]);
+                            view.selectNextFromId(modelIndex,eventIds[index]);
                     }
                 }
             }

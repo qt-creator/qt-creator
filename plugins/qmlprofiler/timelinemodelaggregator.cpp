@@ -1,0 +1,342 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#include "timelinemodelaggregator.h"
+#include <QStringList>
+#include "qmlprofilertimelinemodelproxy.h"
+#include <QVariant>
+#include "qmlprofilerplugin.h"
+
+#include <QDebug>
+
+namespace QmlProfiler {
+namespace Internal {
+
+
+class TimelineModelAggregator::TimelineModelAggregatorPrivate {
+public:
+    TimelineModelAggregatorPrivate(TimelineModelAggregator *qq):q(qq) {}
+    ~TimelineModelAggregatorPrivate() {}
+
+    TimelineModelAggregator *q;
+
+    QList <AbstractTimelineModel *> modelList;
+    QmlProfilerModelManager *modelManager;
+};
+
+TimelineModelAggregator::TimelineModelAggregator(QObject *parent)
+    //: AbstractTimelineModel(parent),d(new TimelineModelAggregatorPrivate(this))
+    : QObject(parent), d(new TimelineModelAggregatorPrivate(this))
+{
+}
+
+TimelineModelAggregator::~TimelineModelAggregator()
+{
+    delete d;
+}
+
+void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelManager)
+{
+    //AbstractTimelineModel::setModelManager(modelManager);
+    d->modelManager = modelManager;
+    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
+    connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
+
+//    m_modelManager = modelManager;
+//    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
+//    connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
+//    d->modelList << new BasicTimelineModel(modelManager, this);
+    BasicTimelineModel *basicTimelineModel = new BasicTimelineModel(this);
+    basicTimelineModel->setModelManager(modelManager);
+    addModel(basicTimelineModel);
+
+//    qDebug() << "models" << QmlProfilerPlugin::timelineModels.count();
+    foreach (AbstractTimelineModel *timelineModel, QmlProfilerPlugin::instance->getModels()) {
+        timelineModel->setModelManager(modelManager);
+        addModel(timelineModel);
+    }
+
+}
+
+void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
+{
+    d->modelList << m;
+    connect(m,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
+    connect(m,SIGNAL(dataAvailable()),this,SIGNAL(dataAvailable()));
+    connect(m,SIGNAL(emptyChanged()),this,SIGNAL(emptyChanged()));
+    connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
+    connect(m,SIGNAL(stateChanged()),this,SIGNAL(stateChanged()));
+}
+
+// order?
+int TimelineModelAggregator::categories() const
+{
+    int categoryCount = 0;
+    foreach (const AbstractTimelineModel *modelProxy, d->modelList)
+        categoryCount += modelProxy->categories();
+    return categoryCount;
+}
+
+QStringList TimelineModelAggregator::categoryTitles() const
+{
+    QStringList retString;
+    foreach (const AbstractTimelineModel *modelProxy, d->modelList)
+        retString += modelProxy->categoryTitles();
+    return retString;
+}
+
+QString TimelineModelAggregator::name() const
+{
+    return QLatin1String("TimelineModelAggregator");
+}
+
+int TimelineModelAggregator::count(int modelIndex) const
+{
+    if (modelIndex == -1) {
+        int totalCount = 0;
+        foreach (const AbstractTimelineModel *modelProxy, d->modelList)
+            totalCount += modelProxy->count();
+
+        return totalCount;
+    } else {
+        return d->modelList[modelIndex]->count();
+    }
+}
+
+bool TimelineModelAggregator::isEmpty() const
+{
+    foreach (const AbstractTimelineModel *modelProxy, d->modelList)
+        if (!modelProxy->isEmpty())
+            return false;
+    return true;
+}
+
+bool TimelineModelAggregator::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
+{
+    // accept all events
+    return true;
+}
+
+qint64 TimelineModelAggregator::lastTimeMark() const
+{
+    qint64 mark = -1;
+    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
+        if (!modelProxy->isEmpty()) {
+            qint64 mk = modelProxy->lastTimeMark();
+            if (mark > mk)
+                mark = mk;
+        }
+    }
+    return mark;
+}
+
+void TimelineModelAggregator::setExpanded(int category, bool expanded)
+{
+    int modelIndex = modelIndexForCategory(category, &category);
+    d->modelList[modelIndex]->setExpanded(category, expanded);
+}
+
+int TimelineModelAggregator::categoryDepth(int categoryIndex) const
+{
+    int modelIndex = modelIndexForCategory(categoryIndex, &categoryIndex);
+    return categoryDepth(modelIndex, categoryIndex);
+}
+
+int TimelineModelAggregator::categoryDepth(int modelIndex, int categoryIndex) const
+{
+    return d->modelList[modelIndex]->categoryDepth(categoryIndex);
+}
+
+int TimelineModelAggregator::categoryCount(int modelIndex) const
+{
+    // TODO
+    return d->modelList[modelIndex]->categoryCount();
+}
+
+const QString TimelineModelAggregator::categoryLabel(int categoryIndex) const
+{
+    int modelIndex = modelIndexForCategory(categoryIndex, &categoryIndex);
+    return d->modelList[modelIndex]->categoryLabel(categoryIndex);
+}
+
+//const QString TimelineModelAggregator::categoryLabel(int categoryIndex) const
+//{
+//    int modelIndex = modelIndexForCategory(categoryIndex, &categoryIndex);
+//    return d->modelList[modelIndex]->categoryLabel(categoryIndex);
+//}
+
+int TimelineModelAggregator::modelIndexForCategory(int categoryIndex, int *newCategoryIndex) const
+{
+    for (int modelIndex = 0; modelIndex < d->modelList.count(); modelIndex++)
+        if (categoryIndex < d->modelList[modelIndex]->categoryCount()) {
+            if (newCategoryIndex)
+                *newCategoryIndex = categoryIndex;
+            return modelIndex;
+        } else {
+            categoryIndex -= d->modelList[modelIndex]->categoryCount();
+        }
+
+    return modelCount()-1;
+}
+
+int TimelineModelAggregator::findFirstIndex(int modelIndex, qint64 startTime) const
+{
+//    int index = count();
+//    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
+//        int newIndex = modelProxy->findFirstIndex(startTime);
+//        if (newIndex < index)
+//            index = newIndex;
+//    }
+//    return index;
+    return d->modelList[modelIndex]->findFirstIndex(startTime);
+}
+
+int TimelineModelAggregator::findFirstIndexNoParents(int modelIndex, qint64 startTime) const
+{
+//    int index = count();
+//    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
+//        int newIndex = modelProxy->findFirstIndexNoParents(startTime);
+//        if (newIndex < index)
+//            index = newIndex;
+//    }
+//    return index;
+    return d->modelList[modelIndex]->findFirstIndexNoParents(startTime);
+}
+
+int TimelineModelAggregator::findLastIndex(int modelIndex, qint64 endTime) const
+{
+//    int index = -1;
+//    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
+//        int newIndex = modelProxy->findLastIndex(endTime);
+//        if (newIndex > index)
+//            index = newIndex;
+//    }
+//    return index;
+    return d->modelList[modelIndex]->findLastIndex(endTime);
+}
+
+int TimelineModelAggregator::getEventType(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getEventType(index);
+}
+
+int TimelineModelAggregator::getEventRow(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getEventRow(index);
+}
+
+qint64 TimelineModelAggregator::getDuration(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getDuration(index);
+}
+
+qint64 TimelineModelAggregator::getStartTime(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getStartTime(index);
+}
+
+qint64 TimelineModelAggregator::getEndTime(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getEndTime(index);
+}
+
+int TimelineModelAggregator::getEventId(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getEventId(index);
+}
+
+int TimelineModelAggregator::getBindingLoopDest(int modelIndex,int index) const
+{
+    return d->modelList[modelIndex]->getBindingLoopDest(index);
+}
+
+QColor TimelineModelAggregator::getColor(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getColor(index);
+}
+
+float TimelineModelAggregator::getHeight(int modelIndex, int index) const
+{
+    return d->modelList[modelIndex]->getHeight(index);
+}
+
+const QVariantList TimelineModelAggregator::getLabelsForCategory(int category) const
+{
+    // TODO
+    int modelIndex = modelIndexForCategory(category, &category);
+    return d->modelList[modelIndex]->getLabelsForCategory(category);
+}
+
+const QVariantList TimelineModelAggregator::getEventDetails(int modelIndex, int index) const
+{
+    // TODO
+    return d->modelList[modelIndex]->getEventDetails(index);
+}
+
+void TimelineModelAggregator::dataChanged()
+{
+    // this is a slot connected for every modelproxy
+    // nothing to do here, each model will take care of itself
+}
+
+int TimelineModelAggregator::modelCount() const
+{
+    return d->modelList.count();
+}
+
+qint64 TimelineModelAggregator::traceStartTime() const
+{
+    return d->modelManager->traceTime()->startTime();
+}
+
+qint64 TimelineModelAggregator::traceEndTime() const
+{
+    return d->modelManager->traceTime()->endTime();
+}
+
+qint64 TimelineModelAggregator::traceDuration() const
+{
+    return d->modelManager->traceTime()->duration();
+}
+
+int TimelineModelAggregator::getState() const
+{
+    return (int)d->modelManager->state();
+}
+
+
+} // namespace Internal
+} // namespace QmlProfiler

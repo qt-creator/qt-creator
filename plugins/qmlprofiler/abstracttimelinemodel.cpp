@@ -27,43 +27,43 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
-
-#include "qmlprofiler_global.h"
-
-#include <extensionsystem/iplugin.h>
-
 #include "abstracttimelinemodel.h"
 
 namespace QmlProfiler {
-namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+AbstractTimelineModel::AbstractTimelineModel(QObject *parent) : QObject(parent)
+{}
+
+AbstractTimelineModel::~AbstractTimelineModel()
+{}
+
+void AbstractTimelineModel::setModelManager(QmlProfiler::Internal::QmlProfilerModelManager *modelManager)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
+    m_modelManager = modelManager;
+    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
+    connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
+}
 
-public:
-    QmlProfilerPlugin() {}
+qint64 AbstractTimelineModel::traceStartTime() const
+{
+    return m_modelManager->traceTime()->startTime();
+}
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+qint64 AbstractTimelineModel::traceEndTime() const
+{
+    return m_modelManager->traceTime()->endTime();
+}
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
+qint64 AbstractTimelineModel::traceDuration() const
+{
+    return m_modelManager->traceTime()->duration();
+}
 
-    QList<AbstractTimelineModel *> getModels() const;
+int AbstractTimelineModel::getState() const
+{
+    // TODO: connect statechanged
+    return (int)m_modelManager->state();
+}
 
-private:
-    QList<AbstractTimelineModel*> timelineModels;
 
-
-};
-
-} // namespace Internal
-} // namespace QmlProfiler
-
-#endif // QMLPROFILERPLUGIN_H
-
+}

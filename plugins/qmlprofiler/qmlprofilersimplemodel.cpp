@@ -70,7 +70,13 @@ void QmlProfilerSimpleModel::addRangedEvent(int type, int bindingType, qint64 st
     QString displayName = QString::fromLatin1("%1:%2").arg(
                 location.filename,
                 QString::number(location.line));
-    QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location};
+    QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location, 0, 0, 0, 0, 0};
+    eventList.append(eventData);
+}
+
+void QmlProfilerSimpleModel::addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5)
+{
+    QmlEventData eventData = {QString(), eventType, SGEtype, startTime, 0, QStringList(), QmlDebug::QmlEventLocation(), timing1, timing2, timing3, timing4, timing5};
     eventList.append(eventData);
 }
 

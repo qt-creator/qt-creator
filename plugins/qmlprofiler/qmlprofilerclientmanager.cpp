@@ -170,6 +170,10 @@ void QmlProfilerClientManager::connectClientSignals()
                 this, SIGNAL(traceStarted(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
                 this, SIGNAL(addFrameEvent(qint64,int,int)));
+        connect(d->qmlclientplugin.data(),
+                SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
+                this,
+                SIGNAL(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                 d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients
@@ -202,6 +206,10 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    this, SIGNAL(traceStarted(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
                    this, SIGNAL(addFrameEvent(qint64,int,int)));
+        disconnect(d->qmlclientplugin.data(),
+                   SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)),
+                   this,
+                   SIGNAL(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                    d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients

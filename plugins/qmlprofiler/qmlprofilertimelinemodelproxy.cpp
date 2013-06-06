@@ -48,11 +48,11 @@ struct CategorySpan {
     int contractedRows;
 };
 
-class QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate
+class BasicTimelineModel::BasicTimelineModelPrivate
 {
 public:
-    QmlProfilerTimelineModelProxyPrivate(QmlProfilerTimelineModelProxy *qq) : q(qq) {}
-    ~QmlProfilerTimelineModelProxyPrivate() {}
+    BasicTimelineModelPrivate(BasicTimelineModel *qq) : q(qq) {}
+    ~BasicTimelineModelPrivate() {}
 
     // convenience functions
     void prepare();
@@ -64,44 +64,63 @@ public:
 
     QString displayTime(double time);
 
-    QVector <QmlProfilerTimelineModelProxy::QmlRangeEventData> eventDict;
+    QVector <BasicTimelineModel::QmlRangeEventData> eventDict;
     QVector <QString> eventHashes;
-    QVector <QmlProfilerTimelineModelProxy::QmlRangeEventStartInstance> startTimeData;
-    QVector <QmlProfilerTimelineModelProxy::QmlRangeEventEndInstance> endTimeData;
+    QVector <BasicTimelineModel::QmlRangeEventStartInstance> startTimeData;
+    QVector <BasicTimelineModel::QmlRangeEventEndInstance> endTimeData;
     QVector <CategorySpan> categorySpan;
 
-    QmlProfilerModelManager *modelManager;
-    QmlProfilerTimelineModelProxy *q;
+    BasicTimelineModel *q;
 };
 
-QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxy(QmlProfilerModelManager *modelManager, QObject *parent)
-    : QObject(parent), d(new QmlProfilerTimelineModelProxyPrivate(this))
+BasicTimelineModel::BasicTimelineModel(QObject *parent)
+    : AbstractTimelineModel(parent), d(new BasicTimelineModelPrivate(this))
 {
-    d->modelManager = modelManager;
-    connect(d->modelManager->simpleModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
+//    setModelManager(modelManager);
+//    m_modelManager = modelManager;
+//    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
+//    connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
 }
 
-QmlProfilerTimelineModelProxy::~QmlProfilerTimelineModelProxy()
+BasicTimelineModel::~BasicTimelineModel()
 {
     delete d;
 }
 
-const QVector<QmlProfilerTimelineModelProxy::QmlRangeEventStartInstance> QmlProfilerTimelineModelProxy::getData() const
+int BasicTimelineModel::categories() const
+{
+    return categoryCount();
+}
+
+QStringList BasicTimelineModel::categoryTitles() const
+{
+    QStringList retString;
+    for (int i=0; i<categories(); i++)
+        retString << categoryLabel(i);
+    return retString;
+}
+
+QString BasicTimelineModel::name() const
+{
+    return QLatin1String("BasicTimelineModel");
+}
+
+const QVector<BasicTimelineModel::QmlRangeEventStartInstance> BasicTimelineModel::getData() const
 {
     return d->startTimeData;
 }
 
-const QVector<QmlProfilerTimelineModelProxy::QmlRangeEventStartInstance> QmlProfilerTimelineModelProxy::getData(qint64 fromTime, qint64 toTime) const
+const QVector<BasicTimelineModel::QmlRangeEventStartInstance> BasicTimelineModel::getData(qint64 fromTime, qint64 toTime) const
 {
     int fromIndex = findFirstIndex(fromTime);
     int toIndex = findLastIndex(toTime);
     if (fromIndex != -1 && toIndex > fromIndex)
         return d->startTimeData.mid(fromIndex, toIndex - fromIndex + 1);
     else
-        return QVector<QmlProfilerTimelineModelProxy::QmlRangeEventStartInstance>();
+        return QVector<BasicTimelineModel::QmlRangeEventStartInstance>();
 }
 
-void QmlProfilerTimelineModelProxy::clear()
+void BasicTimelineModel::clear()
 {
     d->eventDict.clear();
     d->eventHashes.clear();
@@ -110,16 +129,20 @@ void QmlProfilerTimelineModelProxy::clear()
     d->categorySpan.clear();
 }
 
-void QmlProfilerTimelineModelProxy::dataChanged()
+void BasicTimelineModel::dataChanged()
 {
-    loadData();
+    if (m_modelManager->state() == QmlProfilerDataState::Done)
+        loadData();
+
+    if (m_modelManager->state() == QmlProfilerDataState::Empty)
+        clear();
 
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
 }
 
-void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::prepare()
+void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
 {
     categorySpan.clear();
     for (int i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
@@ -128,20 +151,25 @@ void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::prepar
     }
 }
 
-bool compareStartTimes(const QmlProfilerTimelineModelProxy::QmlRangeEventStartInstance&t1, const QmlProfilerTimelineModelProxy::QmlRangeEventStartInstance &t2)
+bool compareStartTimes(const BasicTimelineModel::QmlRangeEventStartInstance&t1, const BasicTimelineModel::QmlRangeEventStartInstance &t2)
 {
     return t1.startTime < t2.startTime;
 }
 
-bool compareEndTimes(const QmlProfilerTimelineModelProxy::QmlRangeEventEndInstance &t1, const QmlProfilerTimelineModelProxy::QmlRangeEventEndInstance &t2)
+bool compareEndTimes(const BasicTimelineModel::QmlRangeEventEndInstance &t1, const BasicTimelineModel::QmlRangeEventEndInstance &t2)
 {
     return t1.endTime < t2.endTime;
 }
 
-void QmlProfilerTimelineModelProxy::loadData()
+bool BasicTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
+{
+    return (event.eventType <= QmlDebug::HandlingSignal);
+}
+
+void BasicTimelineModel::loadData()
 {
     clear();
-    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
+    QmlProfilerSimpleModel *simpleModel = m_modelManager->simpleModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -152,6 +180,9 @@ void QmlProfilerTimelineModelProxy::loadData()
     // collect events
     const QVector<QmlProfilerSimpleModel::QmlEventData> eventList = simpleModel->getEvents();
     foreach (const QmlProfilerSimpleModel::QmlEventData &event, eventList) {
+        if (!eventAccepted(event))
+            continue;
+
         QString eventHash = QmlProfilerSimpleModel::getHashString(event);
 
         // store in dictionary
@@ -200,7 +231,7 @@ void QmlProfilerTimelineModelProxy::loadData()
     emit countChanged();
 }
 
-void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::computeNestingContracted()
+void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
 {
     int i;
     int eventCount = startTimeData.count();
@@ -211,7 +242,7 @@ void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::comput
     int level = QmlDebug::Constants::QML_MIN_LEVEL;
     endtimesPerLevel[QmlDebug::Constants::QML_MIN_LEVEL] = 0;
     int lastBaseEventIndex = 0;
-    qint64 lastBaseEventEndTime = modelManager->traceTime()->startTime();
+    qint64 lastBaseEventEndTime = q->m_modelManager->traceTime()->startTime();
 
     for (i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
         nestingLevels << QmlDebug::Constants::QML_MIN_LEVEL;
@@ -264,7 +295,7 @@ void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::comput
     }
 }
 
-void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::computeExpandedLevels()
+void BasicTimelineModel::BasicTimelineModelPrivate::computeExpandedLevels()
 {
     QHash<int, int> eventRow;
     int eventCount = startTimeData.count();
@@ -278,18 +309,18 @@ void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::comput
     }
 }
 
-void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::computeBaseEventIndexes()
+void BasicTimelineModel::BasicTimelineModelPrivate::computeBaseEventIndexes()
 {
     // TODO
 }
 
-void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::buildEndTimeList()
+void BasicTimelineModel::BasicTimelineModelPrivate::buildEndTimeList()
 {
     endTimeData.clear();
 
     int eventCount = startTimeData.count();
     for (int i = 0; i < eventCount; i++) {
-        QmlProfilerTimelineModelProxy::QmlRangeEventEndInstance endInstance = {
+        BasicTimelineModel::QmlRangeEventEndInstance endInstance = {
             i,
             startTimeData[i].startTime + startTimeData[i].duration
         };
@@ -300,7 +331,7 @@ void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::buildE
     qSort(endTimeData.begin(), endTimeData.end(), compareEndTimes);
 }
 
-void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::findBindingLoops()
+void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
 {
     typedef QPair<QString, int> CallStackEntry;
     QStack<CallStackEntry> callStack;
@@ -308,7 +339,7 @@ void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::findBi
     for (int i = 0; i < startTimeData.size(); ++i) {
         QmlRangeEventStartInstance *event = &startTimeData[i];
 
-        QmlProfilerTimelineModelProxy::QmlRangeEventData data = eventDict.at(event->eventId);
+        BasicTimelineModel::QmlRangeEventData data = eventDict.at(event->eventId);
 
         static QVector<QmlDebug::QmlEventType> acceptedTypes =
                 QVector<QmlDebug::QmlEventType>() << QmlDebug::Compiling << QmlDebug::Creating
@@ -345,49 +376,28 @@ void QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::findBi
 
 /////////////////// QML interface
 
-bool QmlProfilerTimelineModelProxy::empty() const
+bool BasicTimelineModel::isEmpty() const
 {
     return count() == 0;
 }
 
-int QmlProfilerTimelineModelProxy::count() const
+int BasicTimelineModel::count() const
 {
     return d->startTimeData.count();
 }
 
-qint64 QmlProfilerTimelineModelProxy::lastTimeMark() const
+qint64 BasicTimelineModel::lastTimeMark() const
 {
     return d->startTimeData.last().startTime + d->startTimeData.last().duration;
 }
 
-qint64 QmlProfilerTimelineModelProxy::traceStartTime() const
-{
-    return d->modelManager->traceTime()->startTime();
-}
-
-qint64 QmlProfilerTimelineModelProxy::traceEndTime() const
-{
-    return d->modelManager->traceTime()->endTime();
-}
-
-qint64 QmlProfilerTimelineModelProxy::traceDuration() const
-{
-    return d->modelManager->traceTime()->duration();
-}
-
-int QmlProfilerTimelineModelProxy::getState() const
-{
-    // TODO: connect statechanged
-    return (int)d->modelManager->state();
-}
-
-void QmlProfilerTimelineModelProxy::setExpanded(int category, bool expanded)
+void BasicTimelineModel::setExpanded(int category, bool expanded)
 {
     d->categorySpan[category].expanded = expanded;
     emit expandedChanged();
 }
 
-int QmlProfilerTimelineModelProxy::categoryDepth(int categoryIndex) const
+int BasicTimelineModel::categoryDepth(int categoryIndex) const
 {
     if (d->categorySpan.count() <= categoryIndex)
         return 1;
@@ -397,12 +407,12 @@ int QmlProfilerTimelineModelProxy::categoryDepth(int categoryIndex) const
         return d->categorySpan[categoryIndex].contractedRows;
 }
 
-int QmlProfilerTimelineModelProxy::categoryCount() const
+int BasicTimelineModel::categoryCount() const
 {
     return 5;
 }
 
-const QString QmlProfilerTimelineModelProxy::categoryLabel(int categoryIndex) const
+const QString BasicTimelineModel::categoryLabel(int categoryIndex) const
 {
     switch (categoryIndex) {
     case 0: return tr("Painting"); break;
@@ -415,7 +425,7 @@ const QString QmlProfilerTimelineModelProxy::categoryLabel(int categoryIndex) co
 }
 
 
-int QmlProfilerTimelineModelProxy::findFirstIndex(qint64 startTime) const
+int BasicTimelineModel::findFirstIndex(qint64 startTime) const
 {
     int candidate = -1;
     // in the "endtime" list, find the first event that ends after startTime
@@ -447,7 +457,7 @@ int QmlProfilerTimelineModelProxy::findFirstIndex(qint64 startTime) const
 
 }
 
-int QmlProfilerTimelineModelProxy::findFirstIndexNoParents(qint64 startTime) const
+int BasicTimelineModel::findFirstIndexNoParents(qint64 startTime) const
 {
     int candidate = -1;
     // in the "endtime" list, find the first event that ends after startTime
@@ -478,7 +488,7 @@ int QmlProfilerTimelineModelProxy::findFirstIndexNoParents(qint64 startTime) con
     return ndx;
 }
 
-int QmlProfilerTimelineModelProxy::findLastIndex(qint64 endTime) const
+int BasicTimelineModel::findLastIndex(qint64 endTime) const
 {
         // in the "starttime" list, find the last event that starts before endtime
         if (d->startTimeData.isEmpty())
@@ -503,19 +513,12 @@ int QmlProfilerTimelineModelProxy::findLastIndex(qint64 endTime) const
         return fromIndex;
 }
 
-int QmlProfilerTimelineModelProxy::getEventType(int index) const
+int BasicTimelineModel::getEventType(int index) const
 {
-
-    return getRangeEventData(index).eventType;
+    return d->eventDict[d->startTimeData[index].eventId].eventType;
 }
 
-const QmlProfilerTimelineModelProxy::QmlRangeEventData &QmlProfilerTimelineModelProxy::getRangeEventData(int index) const
-{
-    // TODO: remove -> use accessors
-    return d->eventDict[d->startTimeData[index].eventId];
-}
-
-int QmlProfilerTimelineModelProxy::getEventRow(int index) const
+int BasicTimelineModel::getEventRow(int index) const
 {
     if (d->categorySpan[getEventType(index)].expanded)
         return d->startTimeData[index].displayRowExpanded;
@@ -523,32 +526,44 @@ int QmlProfilerTimelineModelProxy::getEventRow(int index) const
         return d->startTimeData[index].displayRowCollapsed;
 }
 
-qint64 QmlProfilerTimelineModelProxy::getDuration(int index) const
+qint64 BasicTimelineModel::getDuration(int index) const
 {
     return d->startTimeData[index].duration;
 }
 
-qint64 QmlProfilerTimelineModelProxy::getStartTime(int index) const
+qint64 BasicTimelineModel::getStartTime(int index) const
 {
     return d->startTimeData[index].startTime;
 }
 
-qint64 QmlProfilerTimelineModelProxy::getEndTime(int index) const
+qint64 BasicTimelineModel::getEndTime(int index) const
 {
     return d->startTimeData[index].startTime + d->startTimeData[index].duration;
 }
 
-int QmlProfilerTimelineModelProxy::getEventId(int index) const
+int BasicTimelineModel::getEventId(int index) const
 {
     return d->startTimeData[index].eventId;
 }
 
-int QmlProfilerTimelineModelProxy::getBindingLoopDest(int index) const
+int BasicTimelineModel::getBindingLoopDest(int index) const
 {
     return d->startTimeData[index].bindingLoopHead;
 }
 
-const QVariantList QmlProfilerTimelineModelProxy::getLabelsForCategory(int category) const
+QColor BasicTimelineModel::getColor(int index) const
+{
+    int ndx = getEventId(index);
+    return QColor::fromHsl((ndx*25)%360, 76, 166);
+}
+
+float BasicTimelineModel::getHeight(int index) const
+{
+    // 100% height for regular events
+    return 1.0f;
+}
+
+const QVariantList BasicTimelineModel::getLabelsForCategory(int category) const
 {
     QVariantList result;
 
@@ -568,7 +583,7 @@ const QVariantList QmlProfilerTimelineModelProxy::getLabelsForCategory(int categ
     return result;
 }
 
-QString QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::displayTime(double time)
+QString BasicTimelineModel::BasicTimelineModelPrivate::displayTime(double time)
 {
     if (time < 1e6)
         return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
@@ -578,7 +593,7 @@ QString QmlProfilerTimelineModelProxy::QmlProfilerTimelineModelProxyPrivate::dis
     return QString::number(time/1e9,'f',3) + tr(" s");
 }
 
-const QVariantList QmlProfilerTimelineModelProxy::getEventDetails(int index) const
+const QVariantList BasicTimelineModel::getEventDetails(int index) const
 {
     QVariantList result;
     int eventId = getEventId(index);

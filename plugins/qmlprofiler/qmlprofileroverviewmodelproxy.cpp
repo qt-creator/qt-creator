@@ -173,7 +173,7 @@ void QmlProfilerOverviewModelProxy::loadData()
 
 /////////////////// QML interface
 
-bool QmlProfilerOverviewModelProxy::empty() const
+bool QmlProfilerOverviewModelProxy::isEmpty() const
 {
     return count() == 0;
 }
