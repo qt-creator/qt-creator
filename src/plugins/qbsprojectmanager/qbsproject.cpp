@@ -391,13 +391,12 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
 
 void QbsProject::prepareForParsing()
 {
-    taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     if (m_qbsUpdateFutureInterface)
         m_qbsUpdateFutureInterface->reportCanceled();
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
-    // FIXME: Christian claims this should work
     delete m_qbsSetupProjectJob;
     m_qbsSetupProjectJob = 0;
 
