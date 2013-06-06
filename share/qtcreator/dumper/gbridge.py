@@ -2311,7 +2311,7 @@ def threadnames(arg):
                 e = e.older()
                 if e == None or e.name() == None:
                     break
-                if e.name() == ns + "QThreadPrivate::start":
+                if e.name() == ns + "QThreadPrivate::start" or e.name() == "_ZN14QThreadPrivate5startEPv@4":
                     try:
                         thrptr = e.read_var("thr").dereference()
                         obtype = lookupType(ns + "QObjectPrivate").pointer()
