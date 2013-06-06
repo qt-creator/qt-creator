@@ -126,7 +126,6 @@ QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<Ins
 void NodeInstanceServer::createInstances(const CreateInstancesCommand &command)
 {
     createInstances(command.instances());
-    refreshBindings();
     startRenderTimer();
 }
 
