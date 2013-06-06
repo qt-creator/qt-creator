@@ -1,3 +1,5 @@
 TEMPLATE = subdirs
+CONFIG += ordered
 
-SUBDIRS += plugins/qmlprofiler
+SUBDIRS += libs/qmldebug \
+  plugins/qmlprofiler
