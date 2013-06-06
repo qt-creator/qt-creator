@@ -1686,8 +1686,7 @@ class Dumper:
         if limit is None:
             return size
         if limit == 0:
-            #return min(size, qqStringCutOff)
-            return min(size, 100)
+            return min(size, qqStringCutOff)
         return min(size, limit)
 
     def putName(self, name):
