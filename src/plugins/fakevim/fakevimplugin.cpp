@@ -270,6 +270,9 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
+    m_ui.lineEditVimRcPath->setPlaceholderText(
+                Utils::HostOsInfo::isAnyUnixHost() ? tr("Default: $HOME/.vimrc")
+                                                   : tr("Default: %USERPROFILE%\\_vimrc"));
 
     m_group.clear();
     m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
@@ -417,7 +420,6 @@ void FakeVimOptionPage::openVimRc()
 void FakeVimOptionPage::updateVimRcWidgets()
 {
     bool enabled = m_ui.checkBoxReadVimRc->isChecked();
-    m_ui.labelVimRcPath->setEnabled(enabled);
     m_ui.lineEditVimRcPath->setEnabled(enabled);
     m_ui.pushButtonVimRcPath->setEnabled(enabled);
 }
