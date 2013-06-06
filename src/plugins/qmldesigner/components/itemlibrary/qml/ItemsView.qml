@@ -65,7 +65,6 @@ Rectangle {
     }
 
     function resetView() {
-        expandAllEntries()
         scrollbar.reset()
     }
 

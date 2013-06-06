@@ -144,6 +144,7 @@ public slots:
     int getItemSectionIndex(int itemLibId);
     int getSectionLibId(int itemLibId);
     bool isItemVisible(int itemLibId);
+    void setExpanded(bool, const QString &section);
 
 signals:
     void qmlModelChanged();
