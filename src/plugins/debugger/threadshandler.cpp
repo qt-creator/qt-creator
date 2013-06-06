@@ -431,22 +431,21 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
     const QList<GdbMi> items = data["threads"].children();
     const int n = items.size();
     for (int index = 0; index != n; ++index) {
-        bool ok = false;
         const GdbMi item = items.at(index);
         const GdbMi frame = item["frame"];
         ThreadData thread;
         thread.id = ThreadId(item["id"].toInt());
-        thread.targetId = QString::fromLatin1(item["target-id"].data());
-        thread.details = QString::fromLatin1(item["details"].data());
-        thread.core = QString::fromLatin1(item["core"].data());
-        thread.state = QString::fromLatin1(item["state"].data());
-        thread.address = frame["addr"].data().toULongLong(&ok, 0);
-        thread.function = QString::fromLatin1(frame["func"].data());
-        thread.fileName = QString::fromLatin1(frame["fullname"].data());
+        thread.targetId = item["target-id"].toLatin1();
+        thread.details = item["details"].toLatin1();
+        thread.core = item["core"].toLatin1();
+        thread.state = item["state"].toLatin1();
+        thread.address = frame["addr"].toAddress();
+        thread.function = frame["func"].toLatin1();
+        thread.fileName = frame["fullname"].toLatin1();
         thread.lineNumber = frame["line"].toInt();
         thread.module = QString::fromLocal8Bit(frame["from"].data());
         thread.stopped = true;
-        thread.name = QString::fromLatin1(item["name"].data());
+        thread.name = item["name"].toLatin1();
         if (thread.state == QLatin1String("running"))
             thread.stopped = false;
         if (thread.id == currentId)
