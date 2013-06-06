@@ -965,7 +965,10 @@ def qdump__QObject(d, value):
             with Children(d):
                 d.putFields(value)
         return
+
     #warn("OBJECTNAME: %s " % objectName)
+    dd = value["d_ptr"]["d"]
+    d_ptr = dd.cast(privateType.pointer()).dereference()
     #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
     if not isAccessible(mo):
@@ -989,8 +992,8 @@ def qdump__QObject(d, value):
     #warn("METADATA: %s " % metaData)
     #warn("STRINGDATA: %s " % metaStringData)
     #warn("TYPE: %s " % value.type)
-    #warn("INAME: %s " % d.currentIName())
-    #d.putEmptyValue()
+    #warn("INAME: %s " % d.currentIName)
+    d.putEmptyValue()
     #QSignalMapper::staticMetaObject
     #checkRef(d_ptr["ref"])
     d.putNumChild(4)
