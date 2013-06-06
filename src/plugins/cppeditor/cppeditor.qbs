@@ -55,6 +55,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Tests"
         condition: Defaults.testsEnabled(qbs)
         files: [
             "cppdoxygen_test.cpp",

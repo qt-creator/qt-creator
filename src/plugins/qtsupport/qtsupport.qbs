@@ -27,6 +27,7 @@ QtcPlugin {
     ])
 
     Group {
+        name: "Shared"
         prefix: "../../shared/proparser/"
         files: [
             "ioutils.cpp",

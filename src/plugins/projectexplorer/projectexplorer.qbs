@@ -333,6 +333,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "WindowsToolChains"
         condition: qbs.targetOS == "windows" || Defaults.testsEnabled(qbs)
         files: [
            "abstractmsvctoolchain.cpp",
@@ -349,6 +350,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "Tests"
         condition: Defaults.testsEnabled(qbs)
         files: ["outputparser_test.h", "outputparser_test.cpp"]
     }

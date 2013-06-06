@@ -76,6 +76,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Gitorious"
         prefix: "gitorious/"
         files: [
             "gitorious.cpp",
@@ -99,6 +100,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "Gerrit"
         prefix: "gerrit/"
         files: [
             "gerritdialog.cpp",

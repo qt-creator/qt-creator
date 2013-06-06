@@ -111,6 +111,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Tests"
         condition: Defaults.testsEnabled(qbs)
         files: [
             "cppcodegen_test.cpp",

@@ -51,6 +51,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Shared"
         prefix: "../../shared/cpaster/"
         files: [
             "cgi.cpp",

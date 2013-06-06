@@ -232,6 +232,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "ProgressManager_win"
         condition: qbs.targetOS == "windows"
         files: [
             "progressmanager/progressmanager_win.cpp",
@@ -239,6 +240,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "ProgressManager_mac"
         condition: qbs.targetOS == "mac"
         files: [
             "macfullscreen.h",
@@ -248,6 +250,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "ProgressManager_x11"
         condition: qbs.targetPlatform.indexOf("unix") != -1 && qbs.targetOS != "mac"
         files: [
             "progressmanager/progressmanager_x11.cpp",

@@ -4,6 +4,7 @@ Product {
     name: "SharedContent"
 
     Group {
+        name: "Unconditional"
         qbs.install: true
         qbs.installDir: project.ide_data_path
         prefix: "qtcreator/"
@@ -25,6 +26,7 @@ Product {
     }
 
     Group {
+        name: "Conditional"
         qbs.install: true
         qbs.installDir: project.ide_data_path + "/externaltools"
         prefix: "../src/share/qtcreator/externaltools/"
