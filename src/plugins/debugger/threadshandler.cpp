@@ -54,7 +54,7 @@ void mergeThreadData(ThreadData &data, const ThreadData &other)
         data.frameLevel = other.frameLevel;
     if (!other.function.isEmpty())
         data.function = other.function;
-    if (!other.address)
+    if (other.address)
         data.address = other.address;
     if (!other.module.isEmpty())
         data.module = other.module;
