@@ -100,8 +100,36 @@
             \li  Core plugin: override the selected UI color.
 
         \row
-            \li  -debug <PID-or-corefile>
-            \li  Debugger plugin: attach to process ID or core file.
+            \li  -debug <pid>
+            \li  Debugger plugin: attach to the process with the given process ID.
+
+        \row
+            \li  -debug <executable>[,kit=<kit>]
+            \li  Debugger plugin: launch and debug the executable with the name
+                 \c{executable}.
+                 A \c{kit} can be specified to point to non-default debuggers
+                 and sysroots.
+
+        \row
+            \li  -debug [executable,]core=<corefile>[,kit=<kit>]
+            \li  Debugger plugin: load the core file named \c{corefile}.
+                 The parameter \c{executable} specifies the executable that
+                 produced the core file.
+                 If this parameter is omitted, \QC will attempt to reconstruct
+                 it from the core file itself.
+                 This will fail for paths with more than about 80 characters.
+                 In such cases the \c{executable} parameter is mandatory.
+                 A \c{kit} can be specified to point to non-default debuggers
+                 and sysroots.
+
+        \row
+            \li  -debug <executable>,server=<server:port>[,kit=<kit>]
+            \li  Debugger plugin: attach to a debug server running on the port
+                 \c{port} on the server \c{server}. The parameter \c{executable}
+                 specifies a local copy of the executable the remote debug server is
+                 manipulating.
+                 A \c{kit} can be specified to point to non-default debuggers
+                 and sysroots.
 
         \row
             \li  -wincrashevent <event-handle>
