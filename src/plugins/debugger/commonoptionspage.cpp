@@ -70,7 +70,7 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
 
     checkBoxCloseBuffersOnExit = new QCheckBox(behaviorBox);
     checkBoxCloseBuffersOnExit->setText(tr("Close temporary views on debugger exit"));
-    checkBoxCloseBuffersOnExit->setText(tr("Stopping and stepping in the debugger "
+    checkBoxCloseBuffersOnExit->setToolTip(tr("Stopping and stepping in the debugger "
         "will automatically open source or disassembler views associated with the "
         "current location. Select this option to automatically close them when "
         "the debugger exits."));
