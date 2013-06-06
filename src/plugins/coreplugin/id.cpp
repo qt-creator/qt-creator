@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QByteArray>
+#include <QDataStream>
 #include <QHash>
 #include <QVariant>
 

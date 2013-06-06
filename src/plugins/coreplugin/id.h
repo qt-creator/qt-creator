@@ -35,7 +35,10 @@
 #include <QMetaType>
 #include <QString>
 
-QT_FORWARD_DECLARE_CLASS(QVariant)
+QT_BEGIN_NAMESPACE
+class QDataStream;
+class QVariant;
+QT_END_NAMESPACE
 
 namespace Core {
 
