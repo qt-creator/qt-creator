@@ -230,7 +230,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_hasBreakpointNotifications = false;
     m_hasPython = false;
     m_registerNamesListed = false;
-    m_hasInferiorThreadList = false;
     m_sourcesListUpdating = false;
     m_oldestAcceptableToken = -1;
     m_nonDiscardableCount = 0;
@@ -1875,8 +1874,6 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
             }
             watchHandler()->addTypeFormats(type, formats);
         }
-        const GdbMi hasInferiorThreadList = data["hasInferiorThreadList"];
-        m_hasInferiorThreadList = (hasInferiorThreadList.toInt() != 0);
     }
 }
 
@@ -3759,7 +3756,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
                 selectThread(other);
         }
         updateViews(); // Adjust Threads combobox.
-        if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
+        if (m_hasPython && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
                 Discardable, CB(handleThreadNames));

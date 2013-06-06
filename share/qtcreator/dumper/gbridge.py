@@ -400,7 +400,6 @@ def bbsetup(args = ''):
             result += '{type="%s",formats="%s"},' % (key, value)
     result += ']'
     #result += ',namespace="%s"' % qqNs
-    result += ',hasInferiorThreadList="%s"' % int(hasInferiorThreadList())
     return result
 
 registerCommand("bbsetup", bbsetup)
@@ -571,17 +570,6 @@ def hasPlot():
     fileName = "/usr/bin/gnuplot"
     return os.path.isfile(fileName) and os.access(fileName, os.X_OK)
 
-
-#
-# Threads
-#
-def hasInferiorThreadList():
-    #return False
-    try:
-        a = gdb.inferiors()[0].threads()
-        return True
-    except:
-        return False
 
 #
 # VTable
