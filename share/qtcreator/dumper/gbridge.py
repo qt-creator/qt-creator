@@ -472,6 +472,9 @@ def childAt(value, index):
     # them transparently.
     return value
 
+def fieldAt(type, index):
+    return type.fields()[index]
+
 
 #gdb.Value.child = impl_Value_child
 

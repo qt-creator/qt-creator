@@ -304,6 +304,9 @@ def impl_SBValue__getitem__(self, name):
 def childAt(value, index):
     return value.GetChildAtIndex(index)
 
+def fieldAt(type, index):
+    return type.GetFieldAtIndex(index)
+
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
 lldb.SBValue.__le__ = impl_SBValue__le__
@@ -322,6 +325,9 @@ lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
 lldb.SBType.strip_typedefs = lambda self: self.GetCanonicalType()
+
+lldb.SBType.__orig__str__ = lldb.SBType.__str__
+lldb.SBType.__str__ = lldb.SBType.GetName
 
 def simpleEncoding(typeobj):
     code = typeobj.GetTypeClass()
@@ -618,6 +624,9 @@ class Dumper:
     def put(self, stuff):
         sys.stdout.write(stuff)
 
+    def putField(self, name, value):
+        self.put('%s="%s",' % (name, value))
+
     def currentItemFormat(self):
         #format = self.formats.get(self.currentIName)
         #if format is None:
@@ -670,6 +679,19 @@ class Dumper:
             self.putValue('<>%s items>' % maximum)
         else:
             self.putValue('<%s items>' % count)
+
+    def putName(self, name):
+        self.put('name="%s",' % name)
+
+    def putMapName(self, value):
+        if str(value.type) == self.ns + "QString":
+            self.put('key="%s",' % encodeString(value))
+            self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+        elif str(value.type) == self.ns + "QByteArray":
+            self.put('key="%s",' % self.encodeByteArray(value))
+            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+        else:
+            self.put('name="%s",' % value)
 
     def isExpanded(self):
         #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
@@ -898,7 +920,7 @@ class Dumper:
 
     def putSubItem(self, component, value, tryDynamic=True):
         if not value.IsValid():
-            warn("INVALID")
+            warn("INVALID SUBITEM")
             return
         with SubItem(self, component):
             self.putItem(value, tryDynamic)

@@ -18,54 +18,6 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
-# Compatibility with earlier versions
-Dumper.encodeByteArray = \
-    lambda d, value, limit = None: qEncodeByteArray(d, value, limit)
-Dumper.byteArrayData = \
-    lambda d, value: qByteArrayData(d, value)
-Dumper.putByteArrayValue = \
-    lambda d, value: qPutByteArrayValue(d, value)
-Dumper.encodeString = \
-    lambda d, value, limit = None: qString(d, value, limit)
-Dumper.stringData = \
-    lambda d, value: qStringData(d, value)
-Dumper.putStringValue = \
-    lambda d, value: qPutStringValue(d, value)
-
-def mapForms():
-    return "Normal,Compact"
-
-def arrayForms():
-    if hasPlot():
-        return "Normal,Plot"
-    return "Normal"
-
-def mapCompact(format, keyType, valueType):
-    if format == 2:
-        return True # Compact.
-    return isSimpleType(keyType) and isSimpleType(valueType)
-
-
-def qdump__QAtomicInt(d, value):
-    d.putValue(value["_q_value"])
-    d.putNumChild(0)
-
-
-def qdump__QBasicAtomicInt(d, value):
-    d.putValue(value["_q_value"])
-    d.putNumChild(0)
-
-
-def qdump__QBasicAtomicPointer(d, value):
-    d.putType(value.type)
-    p = cleanAddress(value["_q_value"])
-    d.putValue(p)
-    d.putPointerValue(value.address)
-    d.putNumChild(p)
-    if d.isExpanded():
-        with Children(d):
-           d.putItem(value["_q_value"])
-
 def qByteArrayData(d, value):
     private = value['d'].dereference()
     checkRef(private['ref'])
@@ -108,6 +60,93 @@ def qPutByteArrayValue(d, value):
 
 def qPutStringValue(d, value):
     d.putValue(qEncodeString(d, value), Hex4EncodedLittleEndian)
+
+def mapForms():
+    return "Normal,Compact"
+
+def arrayForms():
+    if hasPlot():
+        return "Normal,Plot"
+    return "Normal"
+
+def mapCompact(format, keyType, valueType):
+    if format == 2:
+        return True # Compact.
+    return isSimpleType(keyType) and isSimpleType(valueType)
+
+def putMapName(d, value):
+    if str(value.type) == d.ns + "QString":
+        d.put('key="%s",' % d.encodeString(value))
+        d.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+    elif str(value.type) == d.ns + "QByteArray":
+        d.put('key="%s",' % d.encodeByteArray(value))
+        d.put('keyencoded="%s",' % Hex2EncodedLatin1)
+    else:
+        if lldbLoaded:
+            d.put('name="%s",' % value.GetValue())
+        else:
+            d.put('name="%s",' % value)
+
+# Compatibility with earlier versions
+Dumper.encodeByteArray = qEncodeByteArray
+Dumper.byteArrayData = qByteArrayData
+Dumper.putByteArrayValue = qPutByteArrayValue
+Dumper.encodeString = qEncodeString
+Dumper.stringData = qStringData
+Dumper.putStringValue = qPutStringValue
+
+Dumper.putMapName = putMapName
+
+Dumper.isMapCompact = \
+    lambda d, keyType, valueType: mapCompact(d.currentItemFormat(), keyType, valueType)
+
+
+def tryPutObjectNameValue(d, value):
+    try:
+        # Is this derived from QObject?
+        dd = value["d_ptr"]["d"]
+        privateType = d.lookupType(d.ns + "QObjectPrivate")
+        staticMetaObject = value["staticMetaObject"]
+        d_ptr = dd.cast(privateType.pointer()).dereference()
+        objectName = None
+        try:
+            objectName = d_ptr["objectName"]
+        except: # Qt 5
+            p = d_ptr["extraData"]
+            if not isNull(p):
+                objectName = p.dereference()["objectName"]
+        if not objectName is None:
+            data, size, alloc = d.stringData(objectName)
+            if size > 0:
+                str = d.readRawMemory(data, 2 * size)
+                d.putValue(str, Hex4EncodedLittleEndian, 1)
+    except:
+        pass
+
+Dumper.tryPutObjectNameValue = tryPutObjectNameValue
+
+############################################################################################
+
+
+def qdump__QAtomicInt(d, value):
+    d.putValue(value["_q_value"])
+    d.putNumChild(0)
+
+
+def qdump__QBasicAtomicInt(d, value):
+    d.putValue(value["_q_value"])
+    d.putNumChild(0)
+
+
+def qdump__QBasicAtomicPointer(d, value):
+    d.putType(value.type)
+    p = cleanAddress(value["_q_value"])
+    d.putValue(p)
+    d.putPointerValue(value.address)
+    d.putNumChild(p)
+    if d.isExpanded():
+        with Children(d):
+           d.putItem(value["_q_value"])
 
 def qform__QByteArray():
     return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
@@ -353,7 +392,7 @@ def qdump__QFile(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            base = value.type.fields()[0].type
+            base = fieldAt(value.type, 0).type
             d.putSubItem("[%s]" % str(base), value.cast(base), False)
             d.putCallItem("exists", value, "exists")
 
@@ -528,7 +567,7 @@ def qdump__QHash(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
         node = hashDataFirstNode(value)
         innerType = e_ptr.dereference().type
         childType = innerType
@@ -780,7 +819,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
 
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
 
         it = e_ptr["forward"].dereference()
 
@@ -828,7 +867,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
 
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
         nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
         if isCompact:
             innerType = valueType
@@ -870,7 +909,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
 
 
 def qdumpHelper__QMap(d, value, forceLong):
-    if value["d"].dereference().type.fields()[0].name == "backward":
+    if fieldAt(value["d"].dereference().type, 0).name == "backward":
         qdumpHelper__Qt4_QMap(d, value, forceLong)
     else:
         qdumpHelper__Qt5_QMap(d, value, forceLong)
@@ -904,7 +943,7 @@ def qdump__QObject(d, value):
     d.tryPutObjectNameValue(value)
 
     try:
-        privateTypeName = self.ns + "QObjectPrivate"
+        privateTypeName = d.ns + "QObjectPrivate"
         privateType = d.lookupType(privateTypeName)
         staticMetaObject = value["staticMetaObject"]
     except:
@@ -1115,7 +1154,7 @@ def qdump__QObject(d, value):
             if d.isExpanded():
                 pp = 0
                 with Children(d):
-                    vectorType = connections.type.target().fields()[0].type
+                    vectorType = fieldAt(connections.type.target(), 0).type
                     innerType = d.templateArgument(vectorType, 0)
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
                     p = gdb.Value(connections["p"]["array"]).cast(innerType.pointer())
@@ -1997,7 +2036,7 @@ def qdump__std__complex(d, value):
 
 
 def qdump__std__deque(d, value):
-    innerType = templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     innerSize = innerType.sizeof
     bufsize = 1
     if innerSize < 512:
@@ -2075,7 +2114,7 @@ def qdump__std__map(d, value):
             # So use this as workaround:
             pairType = d.templateArgument(impl.type, 1)
             pairPointer = pairType.pointer()
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
         innerType = pairType
         if isCompact:
             innerType = valueType
