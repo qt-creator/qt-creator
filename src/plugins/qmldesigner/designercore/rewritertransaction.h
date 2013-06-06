@@ -45,6 +45,7 @@ public:
     RewriterTransaction(AbstractView *view);
     ~RewriterTransaction();
     void commit();
+    void rollback();
     RewriterTransaction(const RewriterTransaction &other);
     RewriterTransaction& operator=(const RewriterTransaction &other);
 
