@@ -96,11 +96,14 @@ private Q_SLOTS:
     void instantiateTemplateWithNestedClass();
     void operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006();
     void operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005();
+    void templateClassParameters();
+    void templateClass_className();
+    void templateFunctionParameters();
+
     void anonymousClass_QTCREATORBUG8963();
     void using_insideGlobalNamespace();
     void using_insideNamespace();
     void using_insideFunction();
-
 };
 
 void tst_FindUsages::inlineMethod()
@@ -704,6 +707,115 @@ void tst_FindUsages::operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005(
     FindUsages findUsages(src, doc, snapshot);
     findUsages(fooDeclaration);
     QCOMPARE(findUsages.usages().size(), 2);
+}
+
+void tst_FindUsages::templateClassParameters()
+{
+    const QByteArray src = "\n"
+            "template <class T>\n"
+            "struct TS\n"
+            "{\n"
+            "    void set(T t) { T t1 = t; }\n"
+            "    T get();\n"
+            "    T t;\n"
+            "};\n"
+            ;
+
+    Document::Ptr doc = Document::create("templateClassParameters");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 1U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Template *templateClassTS = doc->globalSymbolAt(0)->asTemplate();
+    QVERIFY(templateClassTS);
+    QCOMPARE(templateClassTS->memberCount(), 2U);
+    QCOMPARE(templateClassTS->templateParameterCount(), 1U);
+    TypenameArgument *templArgument = templateClassTS->templateParameterAt(0)->asTypenameArgument();
+    QVERIFY(templArgument);
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(templArgument);
+    QCOMPARE(findUsages.usages().size(), 5);
+}
+
+void tst_FindUsages::templateClass_className()
+{
+    const QByteArray src = "\n"
+            "template <class T>\n"
+            "struct TS\n"
+            "{\n"
+            "    TS();\n"
+            "    ~TS();\n"
+            "};\n"
+            "template <class T>\n"
+            "TS<T>::TS()\n"
+            "{\n"
+            "}\n"
+            "template <class T>\n"
+            "TS<T>::~TS()\n"
+            "{\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("templateClass_className");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Template *templateClassTS = doc->globalSymbolAt(0)->asTemplate();
+    QVERIFY(templateClassTS);
+    Class *classTS = templateClassTS->memberAt(1)->asClass();
+    QVERIFY(classTS);
+    QCOMPARE(classTS->memberCount(), 2U);
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(classTS);
+    QCOMPARE(findUsages.usages().size(), 6);
+}
+
+void tst_FindUsages::templateFunctionParameters()
+{
+    const QByteArray src = "\n"
+            "template<class T>\n"
+            "T foo(T t)\n"
+            "{\n"
+            "    typename T;\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("templateFunctionParameters");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 1U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Template *templateFunctionTS = doc->globalSymbolAt(0)->asTemplate();
+    QVERIFY(templateFunctionTS);
+    QCOMPARE(templateFunctionTS->memberCount(), 2U);
+    QCOMPARE(templateFunctionTS->templateParameterCount(), 1U);
+    TypenameArgument *templArgument = templateFunctionTS->templateParameterAt(0)->asTypenameArgument();
+    QVERIFY(templArgument);
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(templArgument);
+    QCOMPARE(findUsages.usages().size(), 4);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

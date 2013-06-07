@@ -177,10 +177,11 @@ protected:
 
     virtual bool visit(Template *symbol)
     {
-        if (symbol->declaration() && symbol->declaration()->isFunction())
-            return process(symbol);
-        else
-            return true;
+        if (Symbol *decl = symbol->declaration()) {
+            if (decl->isFunction() || decl->isClass())
+                return process(symbol);
+        }
+        return true;
     }
 
     // Objective-C
