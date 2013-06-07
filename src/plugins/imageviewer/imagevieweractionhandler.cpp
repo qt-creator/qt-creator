@@ -114,6 +114,11 @@ void ImageViewerActionHandler::createActions()
                       QKeySequence());
 }
 
+/*!
+    Creates a new action with the internal id \a actionId, command id \a id,
+    and keyboard shortcut \a key, and registers it in the action manager.
+*/
+
 void ImageViewerActionHandler::registerNewAction(int actionId, const Core::Id &id,
     const QString &title, const QKeySequence &key)
 {
