@@ -775,8 +775,10 @@ QList<TextLineData> DiffEditorWidget::assemblyRows(const QStringList &lines,
 {
     QList<TextLineData> data;
 
+    int previousSpanOffset = 0;
     int spanOffset = 0;
     int pos = 0;
+    bool usePreviousSpanOffsetForStartPosition = false;
     QMap<int, int>::ConstIterator changedIt = changedPositions.constBegin();
     QMap<int, int>::ConstIterator changedEnd = changedPositions.constEnd();
     const int lineCount = lines.count();
@@ -794,7 +796,17 @@ QList<TextLineData> DiffEditorWidget::assemblyRows(const QStringList &lines,
             if (changedIt.key() >= pos)
                 break;
 
-            const int startPos = changedIt.key() + spanOffset;
+            if (changedIt.value() >= pos) {
+                usePreviousSpanOffsetForStartPosition = true;
+                previousSpanOffset = spanOffset;
+                break;
+            }
+
+            const int startSpanOffset = usePreviousSpanOffsetForStartPosition
+                    ? previousSpanOffset : spanOffset;
+            usePreviousSpanOffsetForStartPosition = false;
+
+            const int startPos = changedIt.key() + startSpanOffset;
             const int endPos = changedIt.value() + spanOffset;
             if (outputChangedPositions)
                 outputChangedPositions->insert(startPos, endPos);
@@ -1549,5 +1561,31 @@ void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffVie
 
 
 } // namespace DiffEditor
+
+#ifdef WITH_TESTS
+#include <QTest>
+
+void DiffEditor::DiffEditorWidget::testAssemblyRows()
+{
+    QStringList lines;
+    lines << QLatin1String("abcd efgh"); // line 0
+    lines << QLatin1String("ijkl mnop"); // line 1
+
+    QMap<int, int> lineSpans;
+    lineSpans[1] = 6; // before line 1 insert 6 span lines
+
+    QMap<int, int> changedPositions;
+    changedPositions[5] = 14; // changed text from position 5 to position 14, occupy 9 characters: "efgh\nijkl"
+
+    QMap<int, int> expectedChangedPositions;
+    expectedChangedPositions[5] = 20; // "efgh\n[\n\n\n\n\n\n]ijkl" - [\n] means inserted span
+
+    QMap<int, int> outputChangedPositions;
+
+    assemblyRows(lines, lineSpans, changedPositions, &outputChangedPositions);
+    QVERIFY(outputChangedPositions == expectedChangedPositions);
+}
+
+#endif // WITH_TESTS
 
 #include "diffeditorwidget.moc"

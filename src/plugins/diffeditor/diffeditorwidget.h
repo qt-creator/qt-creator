@@ -83,6 +83,10 @@ public:
     void setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory = QString());
     QTextCodec *codec() const;
 
+#ifdef WITH_TESTS
+    void testAssemblyRows();
+#endif // WITH_TESTS
+
 public slots:
     void setContextLinesNumber(int lines);
     void setIgnoreWhitespaces(bool ignore);
