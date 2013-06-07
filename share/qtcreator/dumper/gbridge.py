@@ -2029,6 +2029,22 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
+            if format == 6:
+                # Explicitly requested formatting as array of 10 items.
+                self.putType(typeName)
+                self.putItemCount(10)
+                self.putNumChild(10)
+                self.putArrayData(innerType, value, 10)
+                return
+
+            if format == 7:
+                # Explicitly requested formatting as array of 1000 items.
+                self.putType(typeName)
+                self.putItemCount(1000)
+                self.putNumChild(1000)
+                self.putArrayData(innerType, value, 1000)
+                return
+
             if innerType.code == MethodCode or innerType.code == FunctionCode:
                 # A function pointer with format None.
                 self.putValue(str(value))
