@@ -761,18 +761,21 @@ def qdump__QLocale(d, value):
     # QLocale data array from variable in qlocale.cpp.
     # Default is 368 in Qt 4.8, 438 in Qt 5.0.1, the last one
     # being 'System'.
-    global qqLocalesCount
-    if qqLocalesCount is None:
-        try:
-            qqLocalesCount = int(value(d.ns + 'locale_data_size'))
-        except:
-            qqLocalesCount = 438
-    try:
-        index = int(value["p"]["index"])
-    except:
-        index = int(value["d"]["d"]["m_index"])
-    check(index >= 0)
-    check(index <= qqLocalesCount)
+    #global qqLocalesCount
+    #if qqLocalesCount is None:
+    #    #try:
+    #        qqLocalesCount = int(value(d.ns + 'locale_data_size'))
+    #    #except:
+    #        qqLocalesCount = 438
+    #try:
+    #    index = int(value["p"]["index"])
+    #except:
+    #    try:
+    #        index = int(value["d"]["d"]["m_index"])
+    #    except:
+    #        index = int(value["d"]["d"]["m_data"]...)
+    #check(index >= 0)
+    #check(index <= qqLocalesCount)
     d.putStringValue(call(value, "name"))
     d.putNumChild(0)
     return
