@@ -82,6 +82,8 @@ private slots:
     void test_codegen_definition_first_member();
     void test_codegen_definition_last_member();
     void test_codegen_definition_middle_member();
+    void test_codegen_definition_middle_member_surrounded_by_undefined();
+    void test_codegen_definition_member_specific_file();
 
     void test_completion_forward_declarations_present();
     void test_completion_inside_parentheses_c_style_conversion();

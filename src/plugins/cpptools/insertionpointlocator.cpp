@@ -470,7 +470,9 @@ static Declaration *isNonVirtualFunctionDeclaration(Symbol *s)
     return declaration;
 }
 
-static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration, const CppRefactoringChanges &changes)
+static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
+                                                      const CppRefactoringChanges &changes,
+                                                      const QString& destinationFile)
 {
     InsertionLocation noResult;
     Class *klass = declaration->enclosingClass();
@@ -489,35 +491,47 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration, const
     if (declIndex == -1)
         return noResult;
 
-    // scan preceding declarations for a function declaration
+    // scan preceding declarations for a function declaration (and see if it is defined)
+    CppTools::SymbolFinder symbolFinder;
+    Function *definitionFunction = 0;
     QString prefix, suffix;
     Declaration *surroundingFunctionDecl = 0;
     for (int i = declIndex - 1; i >= 0; --i) {
         Symbol *s = klass->memberAt(i);
         surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s);
-        if (surroundingFunctionDecl) {
-            prefix = QLatin1String("\n\n");
-            break;
+        if (!surroundingFunctionDecl)
+            continue;
+        if ((definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
+                                                                      changes.snapshot())))
+        {
+            if (destinationFile.isEmpty() || destinationFile == QString::fromUtf8(
+                        definitionFunction->fileName(), definitionFunction->fileNameLength())) {
+                prefix = QLatin1String("\n\n");
+                break;
+            }
+            definitionFunction = 0;
         }
     }
-    if (!surroundingFunctionDecl) {
+    if (!definitionFunction) {
         // try to find one below
         for (unsigned i = declIndex + 1; i < klass->memberCount(); ++i) {
             Symbol *s = klass->memberAt(i);
             surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s);
-            if (surroundingFunctionDecl) {
-                suffix = QLatin1String("\n\n");
-                break;
+            if (!surroundingFunctionDecl)
+                continue;
+            if ((definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
+                                                                          changes.snapshot())))
+            {
+                if (destinationFile.isEmpty() || destinationFile == QString::fromUtf8(
+                            definitionFunction->fileName(), definitionFunction->fileNameLength())) {
+                    suffix = QLatin1String("\n\n");
+                    break;
+                }
+                definitionFunction = 0;
             }
         }
-        if (!surroundingFunctionDecl)
-            return noResult;
     }
 
-    // find the declaration's definition
-    CppTools::SymbolFinder symbolFinder;
-    Function *definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
-                                                                       changes.snapshot());
     if (!definitionFunction)
         return noResult;
 
@@ -546,7 +560,8 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration, const
 }
 
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declaration,
-                                                                 bool useSymbolFinder) const
+                                                                 bool useSymbolFinder,
+                                                                 const QString &destinationFile) const
 {
     QList<InsertionLocation> result;
     if (!declaration)
@@ -558,7 +573,9 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declara
             return result;
     }
 
-    const InsertionLocation location = nextToSurroundingDefinitions(declaration, m_refactoringChanges);
+    const InsertionLocation location = nextToSurroundingDefinitions(declaration,
+                                                                    m_refactoringChanges,
+                                                                    destinationFile);
     if (location.isValid()) {
         result += location;
         return result;

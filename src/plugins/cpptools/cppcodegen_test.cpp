@@ -621,3 +621,150 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
     QCOMPARE(loc.suffix(), QString());
 }
+
+void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefined()
+{
+    const QByteArray srcText = "\n"
+            "class Foo\n"  // line 1
+            "{\n"
+            "void foo();\n" // line 3
+            "void bar();\n" // line 4
+            "void baz();\n" // line 5
+            "void car();\n" // line 6
+            "};\n"
+            "\n";
+
+    const QByteArray dstText = QString::fromLatin1(
+            "\n"
+            "#include \"%1/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::car()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "int y;\n").arg(QDir::tempPath()).toLatin1();
+
+    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
+    Utils::FileSaver srcSaver(src->fileName());
+    srcSaver.write(srcText);
+    srcSaver.finalize();
+    src->setUtf8Source(srcText);
+    src->parse();
+    src->check();
+    QCOMPARE(src->diagnosticMessages().size(), 0);
+    QCOMPARE(src->globalSymbolCount(), 1U);
+
+    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
+    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
+                                          Client::IncludeLocal));
+    Utils::FileSaver dstSaver(dst->fileName());
+    dstSaver.write(dstText);
+    dstSaver.finalize();
+    dst->setUtf8Source(dstText);
+    dst->parse();
+    dst->check();
+    QCOMPARE(dst->diagnosticMessages().size(), 0);
+    QCOMPARE(dst->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(src);
+    snapshot.insert(dst);
+
+    Class *foo = src->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
+    QCOMPARE(foo->memberCount(), 4U);
+    Declaration *decl = foo->memberAt(1)->asDeclaration();
+    QVERIFY(decl);
+    QCOMPARE(decl->line(), 4U);
+    QCOMPARE(decl->column(), 6U);
+
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(changes);
+    QList<InsertionLocation> locList = find.methodDefinition(decl);
+    QVERIFY(locList.size() == 1);
+    InsertionLocation loc = locList.first();
+    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.line(), 4U);
+    QCOMPARE(loc.column(), 1U);
+    QCOMPARE(loc.prefix(), QString());
+    QCOMPARE(loc.suffix(), QLatin1String("\n\n"));
+}
+
+void CppToolsPlugin::test_codegen_definition_member_specific_file()
+{
+    const QByteArray srcText = "\n"
+            "class Foo\n"  // line 1
+            "{\n"
+            "void foo();\n" // line 3
+            "void bar();\n" // line 4
+            "void baz();\n" // line 5
+            "};\n"
+            "\n"
+            "void Foo::bar()\n"
+            "{\n"
+            "\n"
+            "}\n";
+
+    const QByteArray dstText = QString::fromLatin1(
+                "\n"
+                "#include \"%1/file.h\"\n" // line 1
+                "int x;\n"
+                "\n"
+                "void Foo::foo()\n" // line 4
+                "{\n"
+                "\n"
+                "}\n" // line 7
+                "\n"
+                "int y;\n").arg(QDir::tempPath()).toLatin1();
+
+    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
+    Utils::FileSaver srcSaver(src->fileName());
+    srcSaver.write(srcText);
+    srcSaver.finalize();
+    src->setUtf8Source(srcText);
+    src->parse();
+    src->check();
+    QCOMPARE(src->diagnosticMessages().size(), 0);
+    QCOMPARE(src->globalSymbolCount(), 2U);
+
+    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
+    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
+                                          Client::IncludeLocal));
+    Utils::FileSaver dstSaver(dst->fileName());
+    dstSaver.write(dstText);
+    dstSaver.finalize();
+    dst->setUtf8Source(dstText);
+    dst->parse();
+    dst->check();
+    QCOMPARE(dst->diagnosticMessages().size(), 0);
+    QCOMPARE(dst->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(src);
+    snapshot.insert(dst);
+
+    Class *foo = src->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
+    QCOMPARE(foo->memberCount(), 3U);
+    Declaration *decl = foo->memberAt(2)->asDeclaration();
+    QVERIFY(decl);
+    QCOMPARE(decl->line(), 5U);
+    QCOMPARE(decl->column(), 6U);
+
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(changes);
+    QList<InsertionLocation> locList = find.methodDefinition(decl, true, dst->fileName());
+    QVERIFY(locList.size() == 1);
+    InsertionLocation loc = locList.first();
+    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.line(), 7U);
+    QCOMPARE(loc.column(), 2U);
+    QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
+    QCOMPARE(loc.suffix(), QString());
+}

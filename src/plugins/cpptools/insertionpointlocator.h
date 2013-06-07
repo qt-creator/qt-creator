@@ -99,7 +99,8 @@ public:
                                                AccessSpec xsSpec) const;
 
     QList<InsertionLocation> methodDefinition(CPlusPlus::Symbol *declaration,
-                                              bool useSymbolFinder = true) const;
+                                              bool useSymbolFinder = true,
+                                              const QString &destinationFile = QString()) const;
 
 private:
     CppRefactoringChanges m_refactoringChanges;

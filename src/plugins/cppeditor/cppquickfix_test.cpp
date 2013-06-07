@@ -1791,21 +1791,31 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
 {
     QByteArray original =
         "class Foo {\n"
-        "  inline int numbe@r() const\n"
-        "  {\n"
-        "    return 5;\n"
-        "  }\n"
-        "};";
-    QByteArray expected =
-        "class Foo {\n"
-        "  inline int number() const;\n"
+        "    void f1();\n"
+        "    inline int f2@() const\n"
+        "    {\n"
+        "        return 1;\n"
+        "    }\n"
+        "    void f3();\n"
+        "    void f4();\n"
         "};\n"
         "\n"
-        "int Foo::number() const\n"
+        "void Foo::f4() {}\n";
+    QByteArray expected =
+        "class Foo {\n"
+        "    void f1();\n"
+        "    inline int f2@() const;\n"
+        "    void f3();\n"
+        "    void f4();\n"
+        "};\n"
+        "\n"
+        "int Foo::f2() const\n"
         "{\n"
-        "    return 5;\n"
-        "}"
-        "\n\n";
+        "    return 1;\n"
+        "}\n"
+        "\n"
+        "\n"
+        "void Foo::f4() {}\n\n";
 
     MoveFuncDefOutside factory;
     TestCase data(original, expected);
