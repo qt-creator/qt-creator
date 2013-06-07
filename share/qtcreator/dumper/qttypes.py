@@ -25,13 +25,11 @@ def qByteArrayData(d, value):
     alloc = int(private['alloc'])
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = int(private['offset'])
-        addr = d.addressOf(private) + offset
-        data = createPointerValue(value, addr, d.charType())
-        return data, size, alloc
+        addr = d.addressOf(private) + int(private['offset'])
     except:
         # Qt 4:
-        return private['data'], size, alloc
+        addr = private['data']
+    return createPointerValue(value, addr, d.charType()), size, alloc
 
 qStringData = qByteArrayData
 
@@ -830,7 +828,8 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # its size is most likely the offset of the 'forward' member therein.
         # Or possibly 2 * sizeof(void *)
         nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
-        payloadSize = nodeType.sizeof - 2 * d.voidPtrSize
+        nodePointerType = nodeType.pointer()
+        payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
 
         if isCompact:
             innerType = valueType
@@ -839,9 +838,8 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
 
         with Children(d, n, childType=innerType):
             for i in xrange(n):
-                itd = it.dereference()
-                base = it.cast(d.charPtr()) - payloadSize
-                node = base.cast(nodeType.pointer()).dereference()
+                base = it.cast(d.charPtrType()) - payloadSize
+                node = base.cast(nodePointerType).dereference()
                 with SubItem(d, i):
                     d.putField("iname", d.currentIName)
                     if isCompact:
