@@ -48,10 +48,10 @@ public:
     DebuggerRunConfigurationAspect(ProjectExplorer::RunConfiguration *runConfiguration,
                                    const DebuggerRunConfigurationAspect *other);
 
-    enum QmlDebuggerStatus {
-        DisableQmlDebugger = 0,
-        EnableQmlDebugger,
-        AutoEnableQmlDebugger
+    enum DebuggerLanguageStatus {
+        DisabledLanguage = 0,
+        EnabledLanguage,
+        AutoEnabledLanguage
     };
 
     QVariantMap toMap() const;
@@ -80,8 +80,8 @@ private:
     void ctor();
 
     ProjectExplorer::RunConfiguration *m_runConfiguration;
-    bool m_useCppDebugger;
-    QmlDebuggerStatus m_useQmlDebugger;
+    DebuggerLanguageStatus m_useCppDebugger;
+    DebuggerLanguageStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;
     bool m_useMultiProcess;
 
