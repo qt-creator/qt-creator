@@ -32,7 +32,12 @@
 
 #include "projectexplorer_export.h"
 
-#include <QComboBox>
+#include <QWidget>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace Core { class Id; }
 
@@ -41,7 +46,7 @@ namespace ProjectExplorer {
 class Kit;
 
 // Let the user pick a kit.
-class PROJECTEXPLORER_EXPORT KitChooser : public QComboBox
+class PROJECTEXPLORER_EXPORT KitChooser : public QWidget
 {
     Q_OBJECT
 
@@ -53,11 +58,15 @@ public:
 
     Kit *currentKit() const;
 
+signals:
+    void currentIndexChanged(int);
+
 public slots:
     void populate();
 
 private slots:
     void onCurrentIndexChanged(int index);
+    void onManageButtonClicked();
 
 protected:
     virtual bool kitMatches(const Kit *k) const;
@@ -66,6 +75,8 @@ protected:
 
 private:
     Kit *kitAt(int index) const;
+    QComboBox *m_chooser;
+    QPushButton *m_manageButton;
 };
 
 } // namespace ProjectExplorer

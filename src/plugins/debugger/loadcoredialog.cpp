@@ -316,7 +316,7 @@ bool AttachCoreDialog::useLocalCoreFile() const
 
 void AttachCoreDialog::changed()
 {
-    bool isValid = d->kitChooser->currentIndex() >= 0 && d->localExecFileName->isValid();
+    bool isValid = d->kitChooser->currentKit() && d->localExecFileName->isValid();
     bool isKitLocal = isLocalKit();
 
     d->forceLocalLabel->setVisible(!isKitLocal);

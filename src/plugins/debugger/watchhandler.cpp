@@ -47,6 +47,7 @@
 #include <QDebug>
 #include <QProcess>
 #include <QtAlgorithms>
+#include <QTabWidget>
 #include <QTextEdit>
 
 #include <ctype.h>

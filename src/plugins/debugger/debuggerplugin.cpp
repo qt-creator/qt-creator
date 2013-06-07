@@ -109,6 +109,7 @@
 #  include <utils/winutils.h>
 #endif
 
+#include <QComboBox>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QInputDialog>

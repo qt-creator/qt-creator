@@ -33,6 +33,11 @@
 #include "kitmanager.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorerconstants.h>
+
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <QSettings>
 
 namespace ProjectExplorer {
@@ -40,9 +45,25 @@ namespace ProjectExplorer {
 const char lastKitKey[] = "LastSelectedKit";
 
 KitChooser::KitChooser(QWidget *parent) :
-    QComboBox(parent)
+    QWidget(parent)
 {
-    connect(this, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
+    m_chooser = new QComboBox(this);
+    m_manageButton = new QPushButton(tr("Manage..."), this);
+
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(m_chooser);
+    layout->addWidget(m_manageButton);
+
+    connect(m_chooser, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
+    connect(m_manageButton, SIGNAL(clicked()), SLOT(onManageButtonClicked()));
+    connect(KitManager::instance(), SIGNAL(kitsChanged()), SLOT(populate()));
+}
+
+void KitChooser::onManageButtonClicked()
+{
+    Core::ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+           Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
 void KitChooser::onCurrentIndexChanged(int index)
@@ -51,6 +72,7 @@ void KitChooser::onCurrentIndexChanged(int index)
         setToolTip(kitToolTip(kit));
     else
         setToolTip(QString());
+    emit currentIndexChanged(index);
 }
 
 bool KitChooser::kitMatches(const Kit *k) const
@@ -70,31 +92,31 @@ QString KitChooser::kitToolTip(Kit *k) const
 
 void KitChooser::populate()
 {
-    clear();
+    m_chooser->clear();
     foreach (Kit *kit, KitManager::kits()) {
         if (kitMatches(kit)) {
-            addItem(kitText(kit), qVariantFromValue(kit->id()));
-            setItemData(count() - 1, kitToolTip(kit), Qt::ToolTipRole);
+            m_chooser->addItem(kitText(kit), qVariantFromValue(kit->id()));
+            m_chooser->setItemData(m_chooser->count() - 1, kitToolTip(kit), Qt::ToolTipRole);
         }
     }
-    setEnabled(count() > 1);
+    m_chooser->setEnabled(m_chooser->count() > 1);
 
     const int index = Core::ICore::settings()->value(QLatin1String(lastKitKey)).toInt();
-    setCurrentIndex(qMin(index, count()));
+    m_chooser->setCurrentIndex(qMin(index, m_chooser->count()));
 }
 
 Kit *KitChooser::currentKit() const
 {
-    const int index = currentIndex();
+    const int index = m_chooser->currentIndex();
     Core::ICore::settings()->setValue(QLatin1String(lastKitKey), index);
     return index == -1 ? 0 : kitAt(index);
 }
 
 void KitChooser::setCurrentKitId(Core::Id id)
 {
-    for (int i = 0, n = count(); i != n; ++i) {
+    for (int i = 0, n = m_chooser->count(); i != n; ++i) {
         if (kitAt(i)->id() == id) {
-            setCurrentIndex(i);
+            m_chooser->setCurrentIndex(i);
             break;
         }
     }
@@ -108,7 +130,7 @@ Core::Id KitChooser::currentKitId() const
 
 Kit *KitChooser::kitAt(int index) const
 {
-    Core::Id id = qvariant_cast<Core::Id>(itemData(index));
+    Core::Id id = qvariant_cast<Core::Id>(m_chooser->itemData(index));
     return KitManager::find(id);
 }
 
