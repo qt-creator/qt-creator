@@ -919,7 +919,8 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
 {
     const QByteArray original = "void free()@;\n";
     const QByteArray expected =
-        "void free() {\n\n"
+        "void free()\n"
+        "{\n\n"
         "}\n"
         "\n"
         ;
@@ -938,8 +939,8 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_insideClass()
         "};";
     const QByteArray expected =
         "class Foo {\n"
-        "    void bar() {\n"
-        "\n"
+        "    void bar()\n"
+        "    {\n\n"
         "    }\n"
         "};\n";
 

@@ -2461,7 +2461,7 @@ public:
         if (m_defpos == DefPosInsideClass) {
             const int targetPos = targetFile->position(m_loc.line(), m_loc.column());
             ChangeSet target;
-            target.replace(targetPos - 1, targetPos, QLatin1String(" {\n\n}")); // replace ';'
+            target.replace(targetPos - 1, targetPos, QLatin1String("\n {\n\n}")); // replace ';'
             targetFile->setChangeSet(target);
             targetFile->appendIndentRange(ChangeSet::Range(targetPos, targetPos + 4));
             targetFile->setOpenEditor(true, targetPos);
