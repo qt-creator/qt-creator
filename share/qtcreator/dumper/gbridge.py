@@ -1429,12 +1429,6 @@ class Dumper:
         if fullUpdateNeeded and not self.tooltipOnly and not self.noLocals:
             locals = listOfLocals(varList)
 
-        if "autotest" in options:
-            for item in listOfLocals([]):
-                self.expandedINames.add(item.iname)
-                self.expandedINames.discard("")
-                #warn("EXPANDED: %s" % self.expandedINames)
-
         # Take care of the return value of the last function call.
         if len(resultVarName) > 0:
             try:

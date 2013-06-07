@@ -395,9 +395,6 @@ protected:
     virtual void slaveEngineStateChanged(DebuggerEngine *engine,
         DebuggerState state);
 
-    virtual void handleAutoTests();
-    virtual bool isAutoTestRunning() const;
-
 private:
     // Wrapper engine needs access to state of its subengines.
     friend class Internal::QmlCppEngine;

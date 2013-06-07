@@ -1742,7 +1742,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             } else {
                 showMessage(_("HANDLING SIGNAL " + name));
                 if (debuggerCore()->boolSetting(UseMessageBoxForSignals)
-                        && !isStopperThread && !isAutoTestRunning())
+                        && !isStopperThread)
                     showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
@@ -4136,7 +4136,6 @@ void GdbEngine::rebuildWatchModel()
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
     showToolTip();
-    handleAutoTests();
 }
 
 static QByteArray arrayFillCommand(const char *array, const QByteArray &params)

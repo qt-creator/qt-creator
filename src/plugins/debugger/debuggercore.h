@@ -71,8 +71,7 @@ class GlobalDebuggerOptions;
 enum TestCases
 {
     // Gdb
-    TestNoBoundsOfCurrentFunction = 1,
-    TestPythonDumpers
+    TestNoBoundsOfCurrentFunction = 1
 };
 
 class DebuggerCore : public QObject

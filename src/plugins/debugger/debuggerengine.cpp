@@ -168,8 +168,6 @@ public:
         m_disassemblerAgent(engine),
         m_memoryAgent(engine),
         m_isStateDebugging(false),
-        m_testsPossible(true),
-        m_testsRunning(false),
         m_taskHub(0)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
@@ -303,17 +301,7 @@ public:
     bool m_isStateDebugging;
 
     Utils::FileInProjectFinder m_fileFinder;
-    // Testing
-    void handleAutoTests();
-    void handleAutoTestLine(int line);
-    void reportTestError(const QString &msg, int line);
-    bool m_testsPossible;
-    bool m_testsRunning;
-    bool m_breakOnError;
-    bool m_foundError;
-    QStringList m_testContents;
     TaskHub *m_taskHub;
-    QString m_testFileName;
 };
 
 
@@ -1878,152 +1866,6 @@ void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
     showMessageBox(QMessageBox::Information, tr("Warning"),
                    tr("This does not seem to be a \"Debug\" build.\n"
                       "Setting breakpoints by file name and line number may fail.\n").append(detailedWarning));
-}
-
-void DebuggerEngine::handleAutoTests()
-{
-    d->handleAutoTests();
-}
-
-bool DebuggerEngine::isAutoTestRunning() const
-{
-    return d->m_testsRunning;
-}
-
-void DebuggerEnginePrivate::handleAutoTests()
-{
-    if (!m_testsPossible)
-        return;
-
-    StackFrame frame = m_engine->stackHandler()->currentFrame();
-    if (!frame.file.endsWith(QLatin1String("debugger/simple/simple_test_app.cpp")))
-        return;
-
-    if (m_testContents.isEmpty()) {
-        QFile file(frame.file);
-        file.open(QIODevice::ReadOnly);
-        QTextStream ts(&file);
-        m_testFileName = QFileInfo(frame.file).absoluteFilePath();
-        m_testContents = ts.readAll().split(QLatin1Char('\n'));
-        if (m_testContents.isEmpty()) {
-            m_testsPossible = false;
-            return;
-        }
-        foreach (const QString &s, m_testContents) {
-            if (s.startsWith(QLatin1String("#define USE_AUTORUN"))) {
-                if (s.startsWith(QLatin1String("#define USE_AUTORUN 1"))) {
-                    m_testsPossible = true;
-                    m_breakOnError = false;
-                    m_testsRunning = true;
-                } else if (s.startsWith(QLatin1String("#define USE_AUTORUN 2"))) {
-                    m_testsPossible = true;
-                    m_testsRunning = true;
-                    m_breakOnError = true;
-                } else {
-                    m_testsPossible = false;
-                    m_testsRunning = false;
-                    m_breakOnError = false;
-                }
-                break;
-            }
-        }
-    }
-
-    if (!m_testsPossible)
-        return;
-
-    int line = frame.line;
-    if (line > 1 && line < m_testContents.size())
-        handleAutoTestLine(line);
-}
-
-void DebuggerEnginePrivate::handleAutoTestLine(int line)
-{
-    QString s = m_testContents.at(line).trimmed();
-    if (s.endsWith(QLatin1Char('.')))
-        s.chop(1);
-    int pos = s.indexOf(QLatin1String("//"));
-    if (pos == -1)
-        return;
-    s = s.mid(pos + 2).trimmed();
-    QString cmd = s.section(QLatin1Char(' '), 0, 0);
-    if (cmd == QLatin1String("Skip")) {
-        m_engine->showMessage(_("Skipping test %1").arg(line));
-        handleAutoTestLine(line + 1);
-    } else if (cmd == QLatin1String("Expand")) {
-        m_engine->showMessage(_("'Expand' found in line %1, "
-            "but is not implemented yet.").arg(line));
-        handleAutoTestLine(line + 1);
-    } else if (cmd == QLatin1String("Check")) {
-        QString name = s.section(QLatin1Char(' '), 1, 1);
-        if (name.isEmpty()) {
-            reportTestError(_("'Check' needs arguments."), line);
-        } else if (name.count(QLatin1Char('.')) >= 2) {
-            m_engine->showMessage(_("Variable %1 found in line %2 is nested "
-                "too deeply for the current implementation.").arg(name).arg(line));
-        } else {
-            QByteArray iname = "local." + name.toLatin1();
-            QString found = m_engine->watchHandler()->displayForAutoTest(iname);
-            if (found.isEmpty()) {
-                reportTestError(_("Check referes to unknown variable %1.")
-                    .arg(name), line);
-            } else {
-                QString needle = s.section(QLatin1Char(' '), 2, -1);
-                if (needle == found) {
-                    m_engine->showMessage(_("Check in line %1 for %2 was successful")
-                        .arg(line).arg(needle));
-                } else {
-                    reportTestError(_("Check for %1 failed. Got %2.")
-                        .arg(needle).arg(found), line);
-                }
-            }
-        }
-        handleAutoTestLine(line + 1);
-    } else if (cmd == QLatin1String("CheckType")) {
-        QString name = s.section(QLatin1Char(' '), 1, 1);
-        if (name.isEmpty()) {
-            reportTestError(_("'CheckType' needs arguments."), line);
-        } else if (name.count(QLatin1Char('.')) >= 2) {
-            m_engine->showMessage(_("Variable %1 found in line %2 is nested "
-                "too deeply for the current implementation.").arg(name).arg(line));
-        } else {
-            QByteArray iname = "local." + name.toLatin1();
-            QString found = m_engine->watchHandler()->displayForAutoTest(iname);
-            if (found.isEmpty()) {
-                reportTestError(_("CheckType referes to unknown variable %1.")
-                    .arg(name), line);
-            } else {
-                QString needle = s.section(QLatin1Char(' '), 2, -1);
-                if (found.endsWith(needle)) {
-                    m_engine->showMessage(_("CheckType in line %1 for %2 was successful")
-                        .arg(line).arg(needle));
-                } else {
-                    reportTestError(_("CheckType for %1 failed. Got %2.")
-                        .arg(needle).arg(found), line);
-                }
-            }
-        }
-        handleAutoTestLine(line + 1);
-    } else if (cmd == QLatin1String("Continue")) {
-        if (state() == InferiorStopOk) {
-            m_engine->showMessage(_("Continue in line %1 processed.").arg(line));
-            if (!m_breakOnError || !m_foundError)
-                m_engine->continueInferior();
-            else
-                m_foundError = false;
-        } else {
-            m_engine->showMessage(_("Auto-run aborted in line %1. State is %2.")
-                .arg(line).arg(state()));
-        }
-    }
-}
-
-void DebuggerEnginePrivate::reportTestError(const QString &msg, int line)
-{
-    m_engine->showMessage(_("### Line %1: %2").arg(line).arg(msg));
-    m_foundError = true;
-    Task task(Task::Error, msg, Utils::FileName::fromUserInput(m_testFileName), line + 1, Core::Id("DebuggerTest"));
-    taskHub()->addTask(task);
 }
 
 TaskHub *DebuggerEnginePrivate::taskHub()

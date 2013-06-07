@@ -119,8 +119,6 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         options += "partial,";
     if (params.tooltipOnly)
         options += "tooltiponly,";
-    if (isAutoTestRunning())
-        options += "autotest,";
     options.chop(1);
 
     QByteArray resultVar;
