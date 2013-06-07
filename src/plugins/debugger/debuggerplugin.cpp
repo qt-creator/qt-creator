@@ -1547,6 +1547,11 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
             }
         }
     }
+
+    // If we have a running debugger, don't touch it.
+    if (m_snapshotHandler->size())
+        return;
+
     // No corresponding debugger found. So we are ready to start one.
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
