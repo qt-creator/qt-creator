@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
+#include "authenticationdialog.h"
+#include "mercurialplugin.h"
 #include "srcdestdialog.h"
 #include "ui_srcdestdialog.h"
-#include "mercurialplugin.h"
 
-#include <QInputDialog>
 #include <QSettings>
 #include <QUrl>
 
@@ -67,18 +67,21 @@ QString SrcDestDialog::getRepositoryString() const
 {
     if (m_ui->defaultButton->isChecked()) {
         QUrl repoUrl(getRepoUrl());
-        if (m_ui->promptForCredentials && (repoUrl.userName().isEmpty() || repoUrl.password().isEmpty())) {
-            if (repoUrl.userName().isEmpty()) {
-                QString user = QInputDialog::getText(0, tr("Enter user name"), tr("User name:"));
-                if (user.isEmpty())
-                    return repoUrl.toString();
+        if (m_ui->promptForCredentials->isChecked() && !repoUrl.scheme().isEmpty() && repoUrl.scheme() != QLatin1String("file")) {
+            QScopedPointer<AuthenticationDialog> authDialog(new AuthenticationDialog(repoUrl.userName(), repoUrl.password()));
+            authDialog->setPasswordEnabled(repoUrl.scheme() != QLatin1String("ssh"));
+            if (authDialog->exec()== 0)
+                return repoUrl.toString();
+
+            QString user = authDialog->getUserName();
+            if (user.isEmpty())
+                return repoUrl.toString();
+            if (user != repoUrl.userName())
                 repoUrl.setUserName(user);
-            }
-            if (repoUrl.password().isEmpty()) {
-                QString password = QInputDialog::getText(0, tr("Enter password"), tr("Password:"), QLineEdit::Password);
-                if (!password.isEmpty())
-                    repoUrl.setPassword(password);
-            }
+
+            QString pass = authDialog->getPassword();
+            if (!pass.isEmpty() && pass != repoUrl.password())
+                repoUrl.setPassword(pass);
         }
         return repoUrl.toString();
     }

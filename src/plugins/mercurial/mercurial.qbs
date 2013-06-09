@@ -15,6 +15,9 @@ QtcPlugin {
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
+        "authenticationdialog.cpp",
+        "authenticationdialog.h",
+        "authenticationdialog.ui",
         "clonewizard.cpp",
         "clonewizard.h",
         "clonewizardpage.cpp",
