@@ -4774,6 +4774,13 @@ void GdbEngine::startGdb(const QStringList &args)
     gdbArgs << _("mi");
     if (!debuggerCore()->boolSetting(LoadGdbInit))
         gdbArgs << _("-n");
+    if (HostOsInfo::isWindowsHost()) {
+        const QFileInfo gdbBinaryFile(m_gdb);
+        const QString gdbDirectory(gdbBinaryFile.absolutePath());
+        const QString gdbDataDir = gdbDirectory + _("/data-directory");
+        if (QFile::exists(gdbDataDir))
+            gdbArgs << _("--data-directory") << gdbDataDir;
+    }
     gdbArgs += args;
 
     connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
