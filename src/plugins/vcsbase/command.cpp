@@ -29,8 +29,10 @@
 
 #include "command.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/vcsmanager.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
@@ -80,6 +82,7 @@ public:
     QVariant m_cookie;
     bool m_unixTerminalDisabled;
     int m_defaultTimeout;
+    bool m_expectChanges;
 
     QList<Job> m_jobs;
     Command::TerminationReportMode m_reportTerminationMode;
@@ -96,6 +99,7 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_environment(environment),
     m_unixTerminalDisabled(false),
     m_defaultTimeout(10),
+    m_expectChanges(false),
     m_reportTerminationMode(Command::NoReport),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
@@ -170,6 +174,16 @@ void Command::setUnixTerminalDisabled(bool e)
     d->m_unixTerminalDisabled = e;
 }
 
+bool Command::expectChanges() const
+{
+    return d->m_expectChanges;
+}
+
+void Command::setExpectChanges(bool e)
+{
+    d->m_expectChanges = e;
+}
+
 void Command::addJob(const QStringList &arguments)
 {
     addJob(arguments, defaultTimeout());
@@ -188,6 +202,8 @@ void Command::execute()
     if (d->m_jobs.empty())
         return;
 
+    if (d->m_expectChanges)
+        Core::DocumentManager::expectDirectoryChange(d->m_workingDirectory);
     // For some reason QtConcurrent::run() only works on this
     QFuture<void> task = QtConcurrent::run(this, &Command::run);
     QString binary = QFileInfo(d->m_binaryPath).baseName();
@@ -284,8 +300,15 @@ void Command::run()
         emit errorText(error);
 
     emit finished(ok, exitCode, cookie());
-    if (ok)
+    if (ok) {
         emit success(cookie());
+        if (d->m_expectChanges)
+            Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
+    }
+
+    if (d->m_expectChanges)
+        Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
 }

@@ -85,6 +85,9 @@ public:
     bool unixTerminalDisabled() const;
     void setUnixTerminalDisabled(bool);
 
+    bool expectChanges() const;
+    void setExpectChanges(bool);
+
     static QString msgTimeout(int seconds);
 
     const QVariant &cookie() const;

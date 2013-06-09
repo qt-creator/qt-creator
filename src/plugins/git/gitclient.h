@@ -358,10 +358,10 @@ private:
 
     // Fully synchronous git execution (QProcess-based).
     bool fullySynchronousGit(const QString &workingDirectory,
-                        const QStringList &arguments,
-                        QByteArray* outputText,
-                        QByteArray* errorText = 0,
-                        bool logCommandToWindow = true) const;
+                             const QStringList &arguments,
+                             QByteArray* outputText,
+                             QByteArray* errorText = 0,
+                             unsigned flags = 0) const;
 
     // Synchronous git execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags).
@@ -391,7 +391,6 @@ private:
     mutable unsigned m_cachedGitVersion;
 
     const QString m_msgWait;
-    QSignalMapper *m_repositoryChangedSignalMapper;
     GitSettings *m_settings;
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;

@@ -643,6 +643,7 @@ public:
           m_command(command)
     {
         if (parentCommand) {
+            parentCommand->setExpectChanges(true);
             connect(parentCommand, SIGNAL(outputData(QByteArray)), this, SLOT(readStdOut(QByteArray)));
             connect(parentCommand, SIGNAL(errorText(QString)), this, SLOT(readStdErr(QString)));
         }
@@ -652,7 +653,6 @@ public:
     {
         GitClient *client = GitPlugin::instance()->gitClient();
         if (m_commit.isEmpty()) {
-            GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(m_workingDirectory);
             if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
                 client->endStashScope(m_workingDirectory);
         } else {
@@ -742,7 +742,6 @@ const char *GitClient::stashNamePrefix = "stash@{";
 GitClient::GitClient(GitSettings *settings) :
     m_cachedGitVersion(0),
     m_msgWait(tr("Waiting for data...")),
-    m_repositoryChangedSignalMapper(0),
     m_settings(settings),
     m_disableEditor(false)
 {
@@ -1257,7 +1256,7 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
         arguments << commit;
 
     VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    connectRepositoryChanged(workingDirectory, cmd);
+    cmd->setExpectChanges(true);
 }
 
 void GitClient::addFile(const QString &workingDirectory, const QString &fileName)
@@ -1563,7 +1562,8 @@ QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory
     QByteArray outputTextData;
     QStringList arguments;
     arguments << QLatin1String("symbolic-ref") << QLatin1String(HEAD);
-    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0, false)) {
+    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0,
+                            VcsBasePlugin::SuppressCommandLogging)) {
         QString branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
         const QString refsHeadsPrefix = QLatin1String("refs/heads/");
         if (branch.startsWith(refsHeadsPrefix)) {
@@ -1693,7 +1693,8 @@ QString GitClient::synchronousTopRevision(const QString &workingDirectory, QStri
     QString errorMessage;
     // get revision
     arguments << QLatin1String("rev-parse") << QLatin1String(HEAD);
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText, false)) {
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText,
+                             VcsBasePlugin::SuppressCommandLogging)) {
         errorMessage = tr("Cannot retrieve top revision of \"%1\": %2")
                 .arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return QString();
@@ -1714,7 +1715,8 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
 {
     QStringList arguments;
     arguments << QLatin1String("describe") << QLatin1String("--contains") << revision;
-    fullySynchronousGit(workingDirectory, arguments, &precedes, 0, false);
+    fullySynchronousGit(workingDirectory, arguments, &precedes, 0,
+                        VcsBasePlugin::SuppressCommandLogging);
     int tilde = precedes.indexOf('~');
     if (tilde != -1)
         precedes.truncate(tilde);
@@ -1729,7 +1731,8 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
         arguments.clear();
         arguments << QLatin1String("describe") << QLatin1String("--tags")
                   << QLatin1String("--abbrev=0") << p;
-        fullySynchronousGit(workingDirectory, arguments, &pf, 0, false);
+        fullySynchronousGit(workingDirectory, arguments, &pf, 0,
+                            VcsBasePlugin::SuppressCommandLogging);
         pf.truncate(pf.lastIndexOf('\n'));
         if (!pf.isEmpty()) {
             if (!follows.isEmpty())
@@ -2193,12 +2196,12 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                     const QStringList &gitArguments,
                                     QByteArray* outputText,
                                     QByteArray* errorText,
-                                    bool logCommandToWindow) const
+                                    unsigned flags) const
 {
     return VcsBasePlugin::runFullySynchronous(workingDirectory, gitBinaryPath(), gitArguments,
                                               processEnvironment(), outputText, errorText,
                                               settings()->intValue(GitSettings::timeoutKey) * 1000,
-                                              logCommandToWindow);
+                                              flags);
 }
 
 void GitClient::submoduleUpdate(const QString &workingDirectory)
@@ -2207,7 +2210,7 @@ void GitClient::submoduleUpdate(const QString &workingDirectory)
     arguments << QLatin1String("submodule") << QLatin1String("update");
 
     VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    connectRepositoryChanged(workingDirectory, cmd);
+    cmd->setExpectChanges(true);
 }
 
 void GitClient::promptSubmoduleUpdate(const QString &workingDirectory)
@@ -2832,7 +2835,7 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
 
     VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    connectRepositoryChanged(workingDirectory, cmd);
+    cmd->setExpectChanges(true);
 }
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
@@ -2840,7 +2843,8 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
                                           const QString &abortCommand)
 {
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt | VcsBasePlugin::ShowStdOutInLogWindow;
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt | VcsBasePlugin::ShowStdOutInLogWindow
+            | VcsBasePlugin::ExpectRepoChanges;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
     // Notify about changed files or abort the rebase.
@@ -2886,7 +2890,8 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
     arguments << abortCommand << QLatin1String("--abort");
     QByteArray stdOut;
     QByteArray stdErr;
-    const bool rc = fullySynchronousGit(workingDir, arguments, &stdOut, &stdErr, true);
+    const bool rc = fullySynchronousGit(workingDir, arguments, &stdOut, &stdErr,
+                                        VcsBasePlugin::ExpectRepoChanges);
     outwin->append(commandOutputFromLocal8Bit(stdOut));
     if (!rc)
         outwin->appendError(commandOutputFromLocal8Bit(stdErr));
@@ -2977,7 +2982,7 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
         arguments += pushArgs;
 
     VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    connectRepositoryChanged(workingDirectory, cmd);
+    cmd->setExpectChanges(true);
 }
 
 bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch)
@@ -3069,7 +3074,7 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
     if (!stash.isEmpty())
         arguments << stash;
     VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    connectRepositoryChanged(workingDirectory, cmd);
+    cmd->setExpectChanges(true);
 }
 
 void GitClient::stashPop(const QString &workingDirectory)
@@ -3192,7 +3197,8 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 
     QByteArray outputText;
     QByteArray errorText;
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
+                             VcsBasePlugin::SuppressCommandLogging))
         return QString();
     if (Utils::HostOsInfo::isWindowsHost())
         return QString::fromUtf8(outputText).remove(QLatin1Char('\r'));
@@ -3218,7 +3224,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
 
         QStringList arguments(QLatin1String("remote"));
         arguments << QLatin1String("add") << QLatin1String("origin") << QLatin1String(url);
-        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0, 0, true))
+        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0))
             return false;
 
         arguments.clear();
@@ -3232,14 +3238,14 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         arguments << QLatin1String("config")
                   << QLatin1String("branch.master.remote")
                   <<  QLatin1String("origin");
-        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0, 0, true))
+        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0))
             return false;
 
         arguments.clear();
         arguments << QLatin1String("config")
                   << QLatin1String("branch.master.merge")
                   << QLatin1String("refs/heads/master");
-        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0, 0, true))
+        if (!fullySynchronousGit(workingDirectory.path(), arguments, 0))
             return false;
 
         return true;
@@ -3262,27 +3268,16 @@ QString GitClient::vcsGetRepositoryURL(const QString &directory)
 
     arguments << QLatin1String("remote.origin.url");
 
-    if (fullySynchronousGit(directory, arguments, &outputText, 0, false))
+    if (fullySynchronousGit(directory, arguments, &outputText, 0,
+                            VcsBasePlugin::SuppressCommandLogging)) {
         return commandOutputFromLocal8Bit(outputText);
+    }
     return QString();
 }
 
 GitSettings *GitClient::settings() const
 {
     return m_settings;
-}
-
-void GitClient::connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd)
-{
-    // Bind command success termination with repository to changed signal
-    if (!m_repositoryChangedSignalMapper) {
-        m_repositoryChangedSignalMapper = new QSignalMapper(this);
-        connect(m_repositoryChangedSignalMapper, SIGNAL(mapped(QString)),
-                GitPlugin::instance()->gitVersionControl(), SIGNAL(repositoryChanged(QString)));
-    }
-    m_repositoryChangedSignalMapper->setMapping(cmd, repository);
-    connect(cmd, SIGNAL(success(QVariant)), m_repositoryChangedSignalMapper, SLOT(map()),
-            Qt::QueuedConnection);
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
@@ -3307,7 +3302,9 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     // run git --version
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(QString(), QStringList(QLatin1String("--version")), &outputText, &errorText, false);
+    const bool rc = fullySynchronousGit(QString(), QStringList(QLatin1String("--version")),
+                                        &outputText, &errorText,
+                                        VcsBasePlugin::SuppressCommandLogging);
     if (!rc) {
         const QString msg = tr("Cannot determine git version: %1").arg(commandOutputFromLocal8Bit(errorText));
         if (errorMessage)

@@ -386,6 +386,11 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     }
 }
 
+void VcsManager::emitRepositoryChanged(const QString &repository)
+{
+    emit repositoryChanged(repository);
+}
+
 void VcsManager::clearVersionControlCache()
 {
     QStringList repoList = d->m_cachedMatches.keys();
