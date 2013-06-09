@@ -74,6 +74,7 @@ private:
     QString m_coreName;
     LocalGdbProcess m_gdbProc;
     QString m_tempCoreName;
+    QProcess *m_coreUnpackProcess;
 };
 
 } // namespace Internal
