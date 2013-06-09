@@ -1431,7 +1431,8 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
     if (revertStaging)
         arguments << revision;
     arguments << QLatin1String("--") << files;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
+                                        VcsBasePlugin::ExpectRepoChanges);
     if (!rc) {
         const QString fileArg = files.join(QLatin1String(", "));
         //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
@@ -1837,7 +1838,8 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
     arguments << QLatin1String("stash");
     if (!message.isEmpty())
         arguments << QLatin1String("save") << message;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
+                                        VcsBasePlugin::ExpectRepoChanges);
     if (!rc) {
         const QString msg = tr("Cannot stash in \"%1\": %2").
                             arg(QDir::toNativeSeparators(workingDirectory),
@@ -2849,9 +2851,7 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
     ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
-    if (ok) {
-        GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
-    } else {
+    if (!ok) {
         conflictHandler.readStdOutString(resp.stdOut);
         conflictHandler.readStdErr(resp.stdErr);
     }
@@ -2951,10 +2951,7 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBasePlugin::SshPasswordPrompt|VcsBasePlugin::ShowStdOutInLogWindow
                            |VcsBasePlugin::ShowSuccessMessage;
-    const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, args, flags);
-    // Notify about changes.
-    if (resp.result == Utils::SynchronousProcessResponse::Finished)
-        GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
+    synchronousGit(workingDirectory, args, flags);
 }
 
 void GitClient::subversionLog(const QString &workingDirectory)
@@ -3095,7 +3092,8 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
         arguments << QLatin1String("branch") << branch << stash;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
+                                        VcsBasePlugin::ExpectRepoChanges);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString nativeWorkingDir = QDir::toNativeSeparators(workingDirectory);
@@ -3113,7 +3111,6 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
     QString output = commandOutputFromLocal8Bit(outputText);
     if (!output.isEmpty())
         outputWindow()->append(output);
-    GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     return true;
 }
 
