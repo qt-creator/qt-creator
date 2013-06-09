@@ -276,11 +276,11 @@ bool GerritPlugin::initialize(Core::ActionContainer *ac)
 
     QAction *openViewAction = new QAction(tr("Gerrit..."), this);
 
-    Core::Command *command =
+    m_gerritCommand =
         Core::ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW,
                            Core::Context(Core::Constants::C_GLOBAL));
     connect(openViewAction, SIGNAL(triggered()), this, SLOT(openView()));
-    ac->addAction(command);
+    ac->addAction(m_gerritCommand);
 
     QAction *pushAction = new QAction(tr("Push to Gerrit..."), this);
 
@@ -303,6 +303,7 @@ void GerritPlugin::updateActions(bool hasTopLevel)
 
 void GerritPlugin::addToLocator(Locator::CommandLocator *locator)
 {
+    locator->appendCommand(m_gerritCommand);
     locator->appendCommand(m_pushToGerritPair.second);
 }
 

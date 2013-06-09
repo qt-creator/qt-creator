@@ -88,6 +88,7 @@ private:
 
     QSharedPointer<GerritParameters> m_parameters;
     QPointer<GerritDialog> m_dialog;
+    Core::Command *m_gerritCommand;
     ActionCommandPair m_pushToGerritPair;
     QString m_reviewers;
 };
