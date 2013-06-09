@@ -4781,8 +4781,8 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         }
         if (g.currentMessage.isEmpty())
             showMessage(MessageCommand, g.searchBuffer.display());
-        else
-            handled = EventCancelled;
+        else if (g.currentMessageLevel == MessageError)
+            handled = EventCancelled; // Not found so cancel mapping if any.
         enterCommandMode(g.returnToMode);
         resetCommandMode();
         g.searchBuffer.clear();
@@ -6033,7 +6033,10 @@ void FakeVimHandler::Private::miniBufferTextEdited(const QString &text, int curs
         editor()->setFocus();
     } else if (text.isEmpty()) {
         // editing cancelled
+        enterFakeVim();
         handleDefaultKey(Input(Qt::Key_Escape, Qt::NoModifier, QString()));
+        leaveFakeVim();
+
         editor()->setFocus();
         updateCursorShape();
     } else {
