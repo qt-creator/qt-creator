@@ -80,6 +80,8 @@ static const char HEAD[] = "HEAD";
 namespace Git {
 namespace Internal {
 
+using VcsBase::VcsBasePlugin;
+
 class GitDiffHandler : public QObject
 {
     Q_OBJECT
@@ -2138,7 +2140,7 @@ QProcessEnvironment GitClient::processEnvironment() const
     }
     environment.insert(QLatin1String("GIT_EDITOR"), m_disableEditor ? QLatin1String("true") : m_gitQtcEditor);
     // Set up SSH and C locale (required by git using perl).
-    VcsBase::VcsBasePlugin::setProcessEnvironment(&environment, false);
+    VcsBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
 }
 
@@ -2181,10 +2183,10 @@ Utils::SynchronousProcessResponse GitClient::synchronousGit(const QString &worki
                                                             unsigned flags,
                                                             QTextCodec *stdOutCodec)
 {
-    return VcsBase::VcsBasePlugin::runVcs(workingDirectory, gitBinaryPath(), gitArguments,
-                                          settings()->intValue(GitSettings::timeoutKey) * 1000,
-                                          processEnvironment(),
-                                          flags, stdOutCodec);
+    return VcsBasePlugin::runVcs(workingDirectory, gitBinaryPath(), gitArguments,
+                                 settings()->intValue(GitSettings::timeoutKey) * 1000,
+                                 processEnvironment(),
+                                 flags, stdOutCodec);
 }
 
 bool GitClient::fullySynchronousGit(const QString &workingDirectory,
@@ -2193,10 +2195,10 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                     QByteArray* errorText,
                                     bool logCommandToWindow) const
 {
-    return VcsBase::VcsBasePlugin::runFullySynchronous(workingDirectory, gitBinaryPath(), gitArguments,
-                                                       processEnvironment(), outputText, errorText,
-                                                       settings()->intValue(GitSettings::timeoutKey) * 1000,
-                                                       logCommandToWindow);
+    return VcsBasePlugin::runFullySynchronous(workingDirectory, gitBinaryPath(), gitArguments,
+                                              processEnvironment(), outputText, errorText,
+                                              settings()->intValue(GitSettings::timeoutKey) * 1000,
+                                              logCommandToWindow);
 }
 
 void GitClient::submoduleUpdate(const QString &workingDirectory)
@@ -2376,9 +2378,9 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     QStringList arguments(QLatin1String("ls-remote"));
     arguments << repositoryURL << QLatin1String(HEAD) << QLatin1String("refs/heads/*");
     const unsigned flags =
-            VcsBase::VcsBasePlugin::SshPasswordPrompt|
-            VcsBase::VcsBasePlugin::SuppressStdErrInLogWindow|
-            VcsBase::VcsBasePlugin::SuppressFailMessageInLogWindow;
+            VcsBasePlugin::SshPasswordPrompt|
+            VcsBasePlugin::SuppressStdErrInLogWindow|
+            VcsBasePlugin::SuppressFailMessageInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
     QStringList branches;
     branches << tr("<Detached HEAD>");
@@ -2838,7 +2840,7 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
                                           const QString &abortCommand)
 {
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow;
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt | VcsBasePlugin::ShowStdOutInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
     // Notify about changed files or abort the rebase.
@@ -2942,8 +2944,8 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
     QStringList args;
     args << QLatin1String("svn") << QLatin1String("fetch");
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
-                           |VcsBase::VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt|VcsBasePlugin::ShowStdOutInLogWindow
+                           |VcsBasePlugin::ShowSuccessMessage;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, args, flags);
     // Notify about changes.
     if (resp.result == Utils::SynchronousProcessResponse::Finished)
@@ -3206,9 +3208,9 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
 {
     QDir workingDirectory(directory);
-    const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt |
-            VcsBase::VcsBasePlugin::ShowStdOutInLogWindow|
-            VcsBase::VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt |
+            VcsBasePlugin::ShowStdOutInLogWindow|
+            VcsBasePlugin::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         if (!synchronousInit(workingDirectory.path()))
