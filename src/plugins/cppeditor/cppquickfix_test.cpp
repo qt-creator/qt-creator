@@ -2091,6 +2091,22 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInExpression
     data.run(&factory);
 }
 
+/// Check: No trigger for functions in functions. (QTCREATORBUG-9510)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInFunction()
+{
+    const QByteArray original =
+        "int foo(int a, int b) {return a + b;}\n"
+        "int bar(int a) {return a;}\n"
+        "void baz() {\n"
+        "    int a = foo(ba@r(), bar());\n"
+        "}\n";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Check: No trigger for functions in return statements (classes).
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass()
 {

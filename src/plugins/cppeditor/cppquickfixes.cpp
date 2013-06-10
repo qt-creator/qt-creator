@@ -4227,6 +4227,8 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                     return;
                 if (path.at(i - 1)->asReturnStatement())
                     return;
+                if (path.at(i - 1)->asCall())
+                    return;
             }
 
             if (MemberAccessAST *member = path.at(i + 1)->asMemberAccess()) { // member
@@ -4259,7 +4261,9 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                     return;
                 if (path.at(idx)->asMemInitializer())
                     return;
-                if (path.at(i-1)->asReturnStatement())
+                if (path.at(i - 1)->asReturnStatement())
+                    return;
+                if (path.at(i - 1)->asCall())
                     return;
             }
             if (NamedTypeSpecifierAST *ts = path.at(i + 2)->asNamedTypeSpecifier()) {
