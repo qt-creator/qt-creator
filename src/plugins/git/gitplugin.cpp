@@ -1285,7 +1285,7 @@ void GitPlugin::stashSnapshot()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(),
-                GitClient::StashImmediateRestore|GitClient::StashPromptDescription);
+                GitClient::StashImmediateRestore | GitClient::StashPromptDescription);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
 }

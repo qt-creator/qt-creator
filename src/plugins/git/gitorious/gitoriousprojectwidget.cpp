@@ -100,7 +100,10 @@ GitoriousProjectWidget::GitoriousProjectWidget(int hostIndex,
             ui->projectTreeView->resizeColumnToContents(r);
         // Select first
         const QModelIndex index = m_filterModel->index(0, 0);
-        ui->projectTreeView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select|QItemSelectionModel::Current|QItemSelectionModel::Rows);
+        ui->projectTreeView->selectionModel()->setCurrentIndex(index,
+                    QItemSelectionModel::Select
+                    | QItemSelectionModel::Current
+                    | QItemSelectionModel::Rows);
     }
 
     // Continuous update
@@ -175,10 +178,10 @@ static inline QList<QStandardItem *> projectEntry(const GitoriousProject &p)
         name += QLatin1String("...");
     }
     QStandardItem *nameItem = new QStandardItem(name);
-    nameItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    nameItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     // Description
     QStandardItem *descriptionItem = new QStandardItem;
-    descriptionItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    descriptionItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     QList<QStandardItem *> rc;
     rc << nameItem << descriptionItem;
     // Should the text contain an URL, store it under 'urlRole' for the info button

@@ -44,8 +44,8 @@ class BranchCheckoutDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit BranchCheckoutDialog(QWidget *parent, const QString& currentBranch,
-                                  const QString& nextBranch);
+    explicit BranchCheckoutDialog(QWidget *parent, const QString &currentBranch,
+                                  const QString &nextBranch);
     ~BranchCheckoutDialog();
 
     void foundNoLocalChanges();

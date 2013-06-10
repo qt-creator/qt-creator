@@ -56,7 +56,7 @@ static inline GitClient *gitClient()
 
 static inline QList<QStandardItem*> stashModelRowItems(const Stash &s)
 {
-    Qt::ItemFlags itemFlags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+    Qt::ItemFlags itemFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     QStandardItem *nameItem = new QStandardItem(s.name);
     nameItem->setFlags(itemFlags);
     QStandardItem *branchItem = new QStandardItem(s.branch);
@@ -402,8 +402,9 @@ void StashDialog::warning(const QString &title, const QString &what, const QStri
 
 bool StashDialog::ask(const QString &title, const QString &what, bool defaultButton)
 {
-    return QMessageBox::question(this, title, what, QMessageBox::Yes|QMessageBox::No,
-                                 defaultButton ? QMessageBox::Yes : QMessageBox::No) == QMessageBox::Yes;
+    return QMessageBox::question(
+                this, title, what, QMessageBox::Yes | QMessageBox::No,
+                defaultButton ? QMessageBox::Yes : QMessageBox::No) == QMessageBox::Yes;
 }
 
 } // namespace Internal

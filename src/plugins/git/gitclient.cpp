@@ -2369,10 +2369,9 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 {
     QStringList arguments(QLatin1String("ls-remote"));
     arguments << repositoryURL << QLatin1String(HEAD) << QLatin1String("refs/heads/*");
-    const unsigned flags =
-            VcsBasePlugin::SshPasswordPrompt|
-            VcsBasePlugin::SuppressStdErrInLogWindow|
-            VcsBasePlugin::SuppressFailMessageInLogWindow;
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
+            | VcsBasePlugin::SuppressStdErrInLogWindow
+            | VcsBasePlugin::SuppressFailMessageInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
     QStringList branches;
     branches << tr("<Detached HEAD>");
@@ -2780,7 +2779,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
         = QMessageBox::question(Core::ICore::mainWindow(),
                                 tr("Revert"),
                                 tr("The file has been changed. Do you want to revert it?"),
-                                QMessageBox::Yes|QMessageBox::No,
+                                QMessageBox::Yes | QMessageBox::No,
                                 QMessageBox::No);
     if (answer == QMessageBox::No)
         return RevertCanceled;
@@ -2832,7 +2831,8 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
                                           const QString &abortCommand)
 {
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt | VcsBasePlugin::ShowStdOutInLogWindow
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
+            | VcsBasePlugin::ShowStdOutInLogWindow
             | VcsBasePlugin::ExpectRepoChanges;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
@@ -2936,8 +2936,9 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
     QStringList args;
     args << QLatin1String("svn") << QLatin1String("fetch");
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt|VcsBasePlugin::ShowStdOutInLogWindow
-                           |VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
+            | VcsBasePlugin::ShowStdOutInLogWindow
+            | VcsBasePlugin::ShowSuccessMessage;
     synchronousGit(workingDirectory, args, flags);
 }
 
@@ -3198,9 +3199,9 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
 {
     QDir workingDirectory(directory);
-    const unsigned flags = VcsBasePlugin::SshPasswordPrompt |
-            VcsBasePlugin::ShowStdOutInLogWindow|
-            VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsBasePlugin::SshPasswordPrompt
+            | VcsBasePlugin::ShowStdOutInLogWindow
+            | VcsBasePlugin::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         if (!synchronousInit(workingDirectory.path()))
