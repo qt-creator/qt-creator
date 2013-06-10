@@ -750,6 +750,7 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
 
 void AndroidConfigurations::load()
 {
+    bool saveSettings = false;
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     m_config = AndroidConfig(*settings);
@@ -758,11 +759,61 @@ void AndroidConfigurations::load()
         Utils::Environment env = Utils::Environment::systemEnvironment();
         QString location = env.searchInPath(QLatin1String("ant"));
         QFileInfo fi(location);
-        if (fi.exists() && fi.isExecutable() && !fi.isDir())
+        if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
             m_config.antLocation = Utils::FileName::fromString(location);
+            saveSettings = true;
+        }
+    }
+
+    if (m_config.openJDKLocation.isEmpty()) {
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        QString location = env.searchInPath(QLatin1String("javac"));
+        QFileInfo fi(location);
+        if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
+            QDir parentDirectory = fi.canonicalPath();
+            parentDirectory.cdUp(); // one up from bin
+            m_config.openJDKLocation = Utils::FileName::fromString(parentDirectory.absolutePath());
+            saveSettings = true;
+        } else if (Utils::HostOsInfo::isWindowsHost()) {
+            QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
+            QStringList allVersions = settings.childGroups();
+            QString javaHome;
+            int major = -1;
+            int minor = -1;
+            foreach (const QString &version, allVersions) {
+                QStringList parts = version.split(QLatin1String("."));
+                if (parts.size() != 2) // not interested in 1.7.0_u21
+                    continue;
+                bool okMajor, okMinor;
+                int tmpMajor = parts.at(0).toInt(&okMajor);
+                int tmpMinor = parts.at(1).toInt(&okMinor);
+                if (!okMajor || !okMinor)
+                    continue;
+                if (tmpMajor > major
+                        || (tmpMajor == major
+                            && tmpMinor > minor)) {
+                    settings.beginGroup(version);
+                    QString tmpJavaHome = settings.value(QLatin1String("JavaHome")).toString();
+                    settings.endGroup();
+                    if (!QFileInfo(tmpJavaHome).exists())
+                        continue;
+
+                    major = tmpMajor;
+                    minor = tmpMinor;
+                    javaHome = tmpJavaHome;
+                }
+            }
+            if (!javaHome.isEmpty()) {
+                m_config.openJDKLocation = Utils::FileName::fromString(javaHome);
+                saveSettings = true;
+            }
+        }
     }
 
     settings->endGroup();
+
+    if (saveSettings)
+        save();
 }
 
 AndroidConfigurations *AndroidConfigurations::m_instance = 0;
