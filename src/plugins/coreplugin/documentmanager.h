@@ -142,13 +142,15 @@ signals:
     /// emitted if one document changed its name e.g. due to save as
     void documentRenamed(Core::IDocument *document, const QString &from, const QString &to);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *e);
+
 private slots:
     void documentDestroyed(QObject *obj);
     void fileNameChanged(const QString &oldName, const QString &newName);
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);
-    void mainWindowActivated();
     void syncWithEditor(const QList<Core::IContext *> &context);
 };
 

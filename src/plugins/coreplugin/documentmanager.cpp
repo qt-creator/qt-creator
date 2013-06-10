@@ -216,10 +216,9 @@ DocumentManager::DocumentManager(QMainWindow *mw)
 {
     d = new DocumentManagerPrivate(mw);
     m_instance = this;
-    connect(d->m_mainWindow, SIGNAL(windowActivated()),
-        this, SLOT(mainWindowActivated()));
     connect(ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
         this, SLOT(syncWithEditor(QList<Core::IContext*>)));
+    qApp->installEventFilter(this);
 
     readSettings();
 }
@@ -812,19 +811,11 @@ void DocumentManager::changedFile(const QString &fileName)
         QTimer::singleShot(200, this, SLOT(checkForReload()));
 }
 
-void DocumentManager::mainWindowActivated()
-{
-    //we need to do this asynchronously because
-    //opening a dialog ("Reload?") in a windowactivated event
-    //freezes on Mac
-    QTimer::singleShot(0, this, SLOT(checkForReload()));
-}
-
 void DocumentManager::checkForReload()
 {
     if (d->m_changedFiles.isEmpty())
         return;
-    if (QApplication::activeWindow() != d->m_mainWindow)
+    if (!QApplication::activeWindow() || QApplication::activeModalWidget())
         return;
 
     if (d->m_blockActivated)
@@ -1363,6 +1354,15 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
 void DocumentManager::slotExecuteOpenWithMenuAction(QAction *action)
 {
     executeOpenWithMenuAction(action);
+}
+
+bool DocumentManager::eventFilter(QObject *obj, QEvent *e)
+{
+    if (obj == qApp && e->type() == QEvent::ApplicationActivate) {
+        // activeWindow is not necessarily set yet, do checkForReload asynchronously
+        QTimer::singleShot(0, this, SLOT(checkForReload()));
+    }
+    return false;
 }
 
 // -------------- FileChangeBlocker
