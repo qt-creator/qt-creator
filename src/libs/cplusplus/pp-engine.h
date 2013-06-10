@@ -205,8 +205,7 @@ private:
     void lex(PPToken *tk);
     void skipPreprocesorDirective(PPToken *tk);
     bool handleIdentifier(PPToken *tk);
-    bool handleFunctionLikeMacro(PPToken *tk,
-                                 const Macro *macro,
+    bool handleFunctionLikeMacro(const Macro *macro,
                                  QVector<PPToken> &body,
                                  const QVector<QVector<PPToken> > &actuals,
                                  unsigned lineRef);
