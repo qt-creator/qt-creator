@@ -272,7 +272,7 @@
         <item row="2" column="0">
          <widget class="QCheckBox" name="checkBoxReadVimRc">
           <property name="text">
-           <string>Read .vimrc, from location:</string>
+           <string>Read .vimrc from location:</string>
           </property>
          </widget>
         </item>

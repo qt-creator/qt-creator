@@ -270,9 +270,9 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    m_ui.lineEditVimRcPath->setPlaceholderText(
-                Utils::HostOsInfo::isAnyUnixHost() ? tr("Default: $HOME/.vimrc")
-                                                   : tr("Default: %USERPROFILE%\\_vimrc"));
+    const QString vimrcDefault = Utils::HostOsInfo::isAnyUnixHost() ?
+        QLatin1String("$HOME/.vimrc") : QLatin1String("%USERPROFILE%\\_vimrc");
+    m_ui.lineEditVimRcPath->setPlaceholderText(tr("Default: %1").arg(vimrcDefault));
 
     m_group.clear();
     m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
