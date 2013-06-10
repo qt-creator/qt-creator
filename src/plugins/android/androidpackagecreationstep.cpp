@@ -169,6 +169,7 @@ bool AndroidPackageCreationStep::init()
     m_certificatePasswdForRun = m_certificatePasswd;
     m_jarSigner = AndroidConfigurations::instance().jarsignerPath();
     m_zipAligner = AndroidConfigurations::instance().zipalignPath();
+    m_environment = bc->environment();
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
@@ -702,6 +703,7 @@ bool AndroidPackageCreationStep::createPackage()
     emit addOutput(tr("Creating package file ..."), MessageOutput);
 
     QProcess *const buildProc = new QProcess;
+    buildProc->setProcessEnvironment(m_environment.toProcessEnvironment());
 
     connect(buildProc, SIGNAL(readyReadStandardOutput()), this,
         SLOT(handleBuildStdOutOutput()));
