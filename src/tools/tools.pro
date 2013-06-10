@@ -7,14 +7,7 @@ SUBDIRS = qtpromaker \
 
 win32 {
     SUBDIRS += qtcdebugger
-    # win64interrupt only make sense for 64bit builds
-    ENV_CPU=$$(CPU)
-    ENV_LIBPATH=$$(LIBPATH)
-    contains(ENV_CPU, ^AMD64$) {
-        SUBDIRS += win64interrupt
-    } else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
-        SUBDIRS += win64interrupt
-    }
+    SUBDIRS += wininterrupt
 } else {
     SUBDIRS += valgrindfake
 }

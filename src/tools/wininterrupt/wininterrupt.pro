@@ -16,7 +16,7 @@ win32-msvc* {
     QMAKE_CXXFLAGS            += -static
 }
 
-SOURCES = win64interrupt.c
+SOURCES = wininterrupt.c
 
 TEMPLATE        = app
 DESTDIR         = $$IDE_LIBEXEC_PATH
@@ -24,6 +24,16 @@ DESTDIR         = $$IDE_LIBEXEC_PATH
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
+}
+
+ENV_CPU=$$(CPU)
+ENV_LIBPATH=$$(LIBPATH)
+contains(ENV_CPU, ^AMD64$) {
+    TARGET = win64interrupt
+} else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
+    TARGET = win64interrupt
+} else {
+    TARGET = win32interrupt
 }
 
 target.path  = $$QTC_PREFIX/bin # FIXME: libexec, more or less

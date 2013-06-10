@@ -93,51 +93,70 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
                     arg(pID).arg(Utils::winErrorMessage(GetLastError()));
             break;
         }
-        // Try DebugBreakProcess if either Qt Creator is compiled 64 bit or
-        // both Qt Creator and application are 32 bit.
+
+        enum DebugBreakApi {
+            UseDebugBreakApi,
+            UseWin64Interrupt,
+            UseWin32Interrupt
+        };
+/*
+    Windows 64 bit has a 32 bit subsystem (WOW64) which makes it possible to run a
+    32 bit application inside a 64 bit environment.
+    When GDB is used DebugBreakProcess must be called from the same system (32/64 bit) running
+    the inferior. If CDB is used we could in theory break wow64 processes,
+    but the break is actually a wow64 breakpoint. CDB is configured to ignore these
+    breakpoints, because they also appear on module loading.
+    Therefore we need helper executables (win(32/64)interrupt.exe) on Windows 64 bit calling
+    DebugBreakProcess from the correct system.
+
+    DebugBreak matrix for windows
+
+    Api = UseDebugBreakApi
+    Win64 = UseWin64Interrupt
+    Win32 = UseWin32Interrupt
+    N/A = This configuration is not possible
+
+          | Windows 32bit   | Windows 64bit
+          | QtCreator 32bit | QtCreator 32bit                   | QtCreator 64bit
+          | Inferior 32bit  | Inferior 32bit  | Inferior 64bit  | Inferior 32bit  | Inferior 64bit |
+----------|-----------------|-----------------|-----------------|-----------------|----------------|
+CDB 32bit | Api             | Api             | NA              | Win32           | NA             |
+    64bit | NA              | Win64           | Win64           | Api             | Api            |
+----------|-----------------|-----------------|-----------------|-----------------|----------------|
+GDB 32bit | Api             | Api             | NA              | Win32           | NA             |
+    64bit | NA              | Api             | Win64           | Win32           | Api            |
+----------|-----------------|-----------------|-----------------|-----------------|----------------|
+
+*/
+
+        DebugBreakApi breakApi = UseDebugBreakApi;
 #ifdef Q_OS_WIN64
-        // Qt-Creator compiled 64 bit
-        // Windows must be 64 bit
-        // CDB 64 bit: use DebugBreakProcess for 32 an 64 bit processes.
-        // TODO: CDB 32 bit: inferior 32 bit can not use DebugBreakProcess, we need a win32interrupt.exe
-        // GDB: not supported
-        const bool useDebugBreakApi= true;
-        Q_UNUSED(engineExecutableIs64Bit)
-        Q_UNUSED(engineType)
-
+        if ((engineType == GdbEngineType && isWow64Process(inferior))
+                || (engineType == CdbEngineType && !engineExecutableIs64Bit)) {
+            breakApi = UseWin32Interrupt;
+        }
 #else
-        // Qt-Creator compiled 32 bit:
-
-        bool useDebugBreakApi;
-        if (isWow64Process(GetCurrentProcess())) {
-            // Windows is 64 bit
-            if (engineType == CdbEngineType) {
-                // CDB 64 bit: If Qt-Creator is a WOW64 process (meaning a 32bit process
-                //    running in emulation), always use win64interrupt.exe for native
-                //    64 bit processes and WOW64 processes. While DebugBreakProcess()
-                //    works in theory for other WOW64 processes, the break appears
-                //    as a WOW64 breakpoint, which CDB is configured to ignore since
-                //    it also triggers on module loading.
-                // CDB 32 bit: 32 bit applications can not be interrupted using the win64interrupt.exe
-                //    So we need to find out which bitness the currently used cdb has.
-                useDebugBreakApi = !engineExecutableIs64Bit;
-            } else {
-                // GDB: Use win64interrupt for native 64bit processes only (it fails
-                //    for WOW64 processes.
-                useDebugBreakApi = isWow64Process(inferior);
-            }
-        } else {
-            // Windows is 32 bit
-            // All processes are 32 bit, so DebugBreakProcess can be used in all cases.
-            useDebugBreakApi = true;
+        if (isWow64Process(GetCurrentProcess())
+                && ((engineType == CdbEngineType && engineExecutableIs64Bit)
+                    || (engineType == GdbEngineType && !isWow64Process(inferior)))) {
+            breakApi = UseWin64Interrupt;
         }
 #endif
-        if (useDebugBreakApi) {
+        if (breakApi == UseDebugBreakApi) {
             ok = DebugBreakProcess(inferior);
             if (!ok)
                 *errorMessage = QLatin1String("DebugBreakProcess failed: ") + Utils::winErrorMessage(GetLastError());
         } else {
-            const QString executable = QCoreApplication::applicationDirPath() + QLatin1String("/win64interrupt.exe");
+            const QString executable = breakApi == UseWin32Interrupt
+                    ? QCoreApplication::applicationDirPath() + QLatin1String("/win32interrupt.exe")
+                    : QCoreApplication::applicationDirPath() + QLatin1String("/win64interrupt.exe");
+            if (!QFile::exists(executable)) {
+                *errorMessage = QString::fromLatin1("%1 does not exist. If you have built QtCreator "
+                                                    "on your own ,checkout "
+                                                    "http://qt.gitorious.org/qt-creator/binary-artifacts.").
+                        arg(QDir::toNativeSeparators(executable));
+                break;
+            }
             switch (QProcess::execute(executable, QStringList(QString::number(pID)))) {
             case -2:
                 *errorMessage = QString::fromLatin1("Cannot start %1. Check src\\tools\\win64interrupt\\win64interrupt.c for more information.").
