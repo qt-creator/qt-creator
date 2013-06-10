@@ -111,8 +111,7 @@ public:
 
         foreach (BaseQtVersion *version, qtVersions) {
             QStandardItem *newItem = new QStandardItem();
-            newItem->setData(QString::fromLatin1("Qt %1 (%2)").arg(version->qtVersionString()).arg(version->platformDisplayName()),
-                             Qt::UserRole + 1);
+            newItem->setData(version->displayName(), Qt::UserRole + 1);
             newItem->setData(version->uniqueId(), Qt::UserRole + 2);
             appendRow(newItem);
         }
