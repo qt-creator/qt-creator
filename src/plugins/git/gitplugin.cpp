@@ -1237,7 +1237,7 @@ void GitPlugin::updateSubmodules()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_gitClient->submoduleUpdate(state.topLevel());
+    m_gitClient->updateSubmodulesIfNeeded(state.topLevel(), false);
 }
 
 // If the file is modified in an editor, make sure it is saved.

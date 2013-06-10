@@ -179,8 +179,7 @@ public:
     bool synchronousCheckout(const QString &workingDirectory, const QString &ref, QString *errorMessage);
     bool synchronousCheckout(const QString &workingDirectory, const QString &ref)
          { return synchronousCheckout(workingDirectory, ref, 0); }
-    void submoduleUpdate(const QString &workingDirectory);
-    void promptSubmoduleUpdate(const QString &workingDirectory);
+    void updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt);
 
     // Do a stash and return identier.
     enum { StashPromptDescription = 0x1, StashImmediateRestore = 0x2, StashIgnoreUnchanged = 0x4 };
@@ -208,6 +207,8 @@ public:
 
     QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
                                                  QString *errorMessage = 0);
+    QStringList synchronousSubmoduleStatus(const QString &workingDirectory,
+                                           QString *errorMessage = 0);
     SubmoduleDataMap submoduleList(const QString &workingDirectory);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
@@ -324,6 +325,7 @@ private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
     void appendOutputData(const QByteArray &data) const;
     void appendOutputDataSilently(const QByteArray &data) const;
+    void finishSubmoduleUpdate();
 
 private:
     QTextCodec *getSourceCodec(const QString &file) const;
@@ -392,6 +394,7 @@ private:
     GitSettings *m_settings;
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;
+    QStringList m_updatedSubmodules;
     bool m_disableEditor;
 };
 

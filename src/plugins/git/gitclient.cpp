@@ -1237,7 +1237,7 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
             outputWindow()->appendError(msg);
         return false;
     }
-    promptSubmoduleUpdate(workingDirectory);
+    updateSubmodulesIfNeeded(workingDirectory, true);
     return true;
 }
 
@@ -1951,6 +1951,30 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
     return result;
 }
 
+QStringList GitClient::synchronousSubmoduleStatus(const QString &workingDirectory,
+                                                  QString *errorMessage)
+{
+    QByteArray outputTextData;
+    QByteArray errorText;
+    QStringList arguments;
+
+    // get submodule status
+    arguments << QLatin1String("submodule") << QLatin1String("status");
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
+        QString error = tr("Cannot retrieve submodule status of \"%1\": %2")
+                .arg(QDir::toNativeSeparators(workingDirectory),
+                     commandOutputFromLocal8Bit(errorText));
+
+        if (errorMessage)
+            *errorMessage = error;
+        else
+            outputWindow()->append(error);
+
+        return QStringList();
+    }
+    return commandOutputLinesFromLocal8Bit(outputTextData);
+}
+
 SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
 {
     SubmoduleDataMap result;
@@ -2201,23 +2225,63 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                               flags);
 }
 
-void GitClient::submoduleUpdate(const QString &workingDirectory)
+void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt)
 {
-    QStringList arguments;
-    arguments << QLatin1String("submodule") << QLatin1String("update");
-    executeGit(workingDirectory, arguments, 0, true, true);
-}
-
-void GitClient::promptSubmoduleUpdate(const QString &workingDirectory)
-{
-    if (submoduleList(workingDirectory).isEmpty())
+    if (!m_updatedSubmodules.isEmpty() || submoduleList(workingDirectory).isEmpty())
         return;
 
-    if (QMessageBox::question(Core::ICore::mainWindow(), tr("Submodules Found"),
-                              tr("Would you like to update submodules?"),
-                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-        submoduleUpdate(workingDirectory);
+    QStringList submoduleStatus = synchronousSubmoduleStatus(workingDirectory);
+    if (submoduleStatus.isEmpty())
+        return;
+
+    bool updateNeeded = false;
+    foreach (const QString &status, submoduleStatus) {
+        if (status.startsWith(QLatin1Char('+'))) {
+            updateNeeded = true;
+            break;
+        }
     }
+    if (!updateNeeded)
+        return;
+
+    if (prompt && QMessageBox::question(Core::ICore::mainWindow(), tr("Submodules Found"),
+            tr("Would you like to update submodules?"),
+            QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+        return;
+    }
+
+    foreach (const QString &statusLine, submoduleStatus) {
+        // stash only for lines starting with +
+        // because only they would be updated
+        if (!statusLine.startsWith(QLatin1Char('+')))
+            continue;
+
+        // get submodule name
+        const int nameStart  = statusLine.indexOf(QLatin1Char(' '), 2) + 1;
+        const int nameLength = statusLine.indexOf(QLatin1Char(' '), nameStart) - nameStart;
+        const QString submoduleDir = workingDirectory + QLatin1Char('/')
+                + statusLine.mid(nameStart, nameLength);
+
+        if (beginStashScope(submoduleDir, QLatin1String("SubmoduleUpdate"))) {
+            m_updatedSubmodules.append(submoduleDir);
+        } else {
+            finishSubmoduleUpdate();
+            return;
+        }
+    }
+
+    QStringList arguments;
+    arguments << QLatin1String("submodule") << QLatin1String("update");
+
+    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true, true);
+    connect(cmd, SIGNAL(finished(bool,int,QVariant)), this, SLOT(finishSubmoduleUpdate()));
+}
+
+void GitClient::finishSubmoduleUpdate()
+{
+    foreach (const QString &submoduleDir, m_updatedSubmodules)
+        endStashScope(submoduleDir);
+    m_updatedSubmodules.clear();
 }
 
 // Trim a git status file spec: "modified:    foo .cpp" -> "modified: foo .cpp"
@@ -2852,7 +2916,7 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     bool ok = executeAndHandleConflicts(workingDirectory, arguments, abortCommand);
 
     if (ok)
-        promptSubmoduleUpdate(workingDirectory);
+        updateSubmodulesIfNeeded(workingDirectory, true);
 
     return ok;
 }
