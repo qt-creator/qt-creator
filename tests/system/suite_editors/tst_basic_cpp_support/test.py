@@ -121,6 +121,13 @@ def __typeAndWaitForAction__(editor, keyCombination):
     textChanged = False
     cursorPos = editor.textCursor().position()
     type(editor, keyCombination)
-    waitFor("textChanged or editor.textCursor().position() != cursorPos", 2000)
-    if not (textChanged or editor.textCursor().position()!=cursorPos):
+    waitFor("textChanged or cppEditorPositionChanged(cursorPos)", 2000)
+    if not (textChanged or cppEditorPositionChanged(cursorPos)):
         test.warning("Waiting timed out...")
+
+def cppEditorPositionChanged(origPos):
+    try:
+        editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget", 500)
+        return editor.textCursor().position() != origPos
+    except:
+        return False
