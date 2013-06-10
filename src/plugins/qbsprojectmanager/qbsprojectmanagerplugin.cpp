@@ -237,7 +237,8 @@ void QbsProjectManagerPlugin::updateBuildActions()
         fileEnabled = !m_projectExplorer->buildManager()->isBuilding(project)
                 && m_currentProject && !m_currentProject->isParsing();
 
-        if (QbsProductNode *productNode = qobject_cast<QbsProductNode *>(node->projectNode())) {
+        if (QbsProductNode *productNode
+                = qobject_cast<QbsProductNode *>(node ? node->projectNode() : 0)) {
             productEnabled = true;
             productVisible = true;
             m_buildProduct->setParameter(productNode->displayName());
