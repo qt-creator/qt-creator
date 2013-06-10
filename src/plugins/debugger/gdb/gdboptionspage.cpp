@@ -166,8 +166,8 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     checkBoxIdentifyDebugInfoPackages->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body><p>Attempts to identify missing debug info packages "
         "and lists them in the Issues output pane.</p><p>"
-        "<b>Note:</b>This feature needs special support from the Linux "
-        "distribution and GDB build and is not everywhere available.</p></body></html>"));
+        "<b>Note:</b> This feature needs special support from the Linux "
+        "distribution and GDB build and is not available everywhere.</p></body></html>"));
 
     QString howToUsePython = GdbOptionsPage::tr(
         "<p>To execute simple Python commands, prefix them with \"python\".</p>"
