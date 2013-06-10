@@ -1981,10 +1981,9 @@ def qdump__QxXmlAttributes(d, value):
 
 def qdump____c_style_array__(d, value):
     type = value.type.unqualified()
-    targetType = type.target()
-    typeName = str(type)
+    targetType = value[0].type
     #d.putAddress(value.address)
-    d.putType(typeName)
+    d.putType(type)
     d.putNumChild(1)
     format = d.currentItemFormat()
     isDefault = format == None and str(targetType.unqualified()) == "char"

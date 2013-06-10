@@ -293,13 +293,16 @@ def impl_SBValue__int__(self):
 def impl_SBValue__long__(self):
     return int(self.GetValue(), 0)
 
-def impl_SBValue__getitem__(self, name):
-    if self.GetType().IsPointerType() and isinstance(name, int):
-        innertype = self.Dereference().GetType()
-        address = self.GetValueAsUnsigned() + name * innertype.GetByteSize()
-        address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-        return self.CreateValueFromAddress(None, address, innertype)
-    return self.GetChildMemberWithName(name)
+def impl_SBValue__getitem__(value, index):
+    if isinstance(index, int):
+        type = value.GetType()
+        if type.IsPointerType():
+            innertype = value.Dereference().GetType()
+            address = value.GetValueAsUnsigned() + index * innertype.GetByteSize()
+            address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+            return value.CreateValueFromAddress(None, address, innertype)
+        return value.GetChildAtIndex(index)
+    return value.GetChildMemberWithName(index)
 
 def childAt(value, index):
     return value.GetChildAtIndex(index)
@@ -946,6 +949,11 @@ class Dumper:
 
         # Our turf now.
         value.SetPreferSyntheticValue(False)
+
+        # Arrays
+        if value.GetType().GetTypeClass() == lldb.eTypeClassArray:
+            qdump____c_style_array__(self, value)
+            return
 
         # References
         if value.GetType().IsReferenceType():
