@@ -73,6 +73,9 @@ public:
     void setChangedFiles(const QStringList &files);
     QStringList changedFiles() const;
 
+    void setProducts(const QStringList &products);
+    QStringList products() const;
+
 signals:
     void qbsConfigurationChanged();
 
@@ -96,6 +99,7 @@ private:
     bool m_parsingError;
     Utils::FileName m_buildDirectory;
     QStringList m_changedFiles;
+    QStringList m_products;
 
     friend class QbsBuildConfigurationFactory;
     friend class QbsBuildConfigurationWidget;

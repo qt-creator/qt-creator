@@ -179,11 +179,29 @@ void QbsProject::invalidate()
     prepareForParsing();
 }
 
-qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts)
+qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList productNames)
 {
     if (!qbsProject() || isParsing())
         return 0;
-    return qbsProject()->buildAllProducts(opts);
+    if (productNames.isEmpty()) {
+        return qbsProject()->buildAllProducts(opts);
+    } else {
+        QList<qbs::ProductData> products;
+        foreach (const QString &productName, productNames) {
+            bool found = false;
+            foreach (const qbs::ProductData &data, qbsProjectData()->products()) {
+                if (data.name() == productName) {
+                    found = true;
+                    products.append(data);
+                    break;
+                }
+            }
+            if (!found)
+                return 0;
+        }
+
+        return qbsProject()->buildSomeProducts(products, opts);
+    }
 }
 
 qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)

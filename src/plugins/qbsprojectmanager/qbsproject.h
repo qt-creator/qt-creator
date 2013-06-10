@@ -79,7 +79,7 @@ public:
 
     QStringList files(FilesMode fileMode) const;
 
-    qbs::BuildJob *build(const qbs::BuildOptions &opts);
+    qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products = QStringList());
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);
     qbs::InstallJob *install(const qbs::InstallOptions &opts);
 

@@ -102,6 +102,7 @@ bool QbsBuildStep::init()
         m_parser->appendOutputParser(parser);
 
     m_changedFiles = bc->changedFiles();
+    m_products = bc->products();
 
     connect(m_parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
             this, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)));
@@ -119,7 +120,7 @@ void QbsBuildStep::run(QFutureInterface<bool> &fi)
     qbs::BuildOptions options(m_qbsBuildOptions);
     options.setChangedFiles(m_changedFiles);
 
-    m_job = pro->build(options);
+    m_job = pro->build(options, m_products);
 
     if (!m_job) {
         m_fi->reportResult(false);

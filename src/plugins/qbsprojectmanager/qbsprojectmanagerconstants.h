@@ -49,6 +49,8 @@ const char ACTION_REPARSE_QBS[] = "Qbs.Reparse";
 const char ACTION_REPARSE_QBS_CONTEXT[] = "Qbs.ReparseCtx";
 const char ACTION_BUILD_FILE_CONTEXT[] = "Qbs.BuildFileCtx";
 const char ACTION_BUILD_FILE[] = "Qbs.BuildFile";
+const char ACTION_BUILD_PRODUCT_CONTEXT[] = "Qbs.BuildProductCtx";
+const char ACTION_BUILD_PRODUCT[] = "Qbs.BuildProduct";
 
 // Ids:
 const char QBS_BUILDSTEP_ID[] = "Qbs.BuildStep";
