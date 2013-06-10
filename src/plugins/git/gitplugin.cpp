@@ -987,7 +987,17 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
     submitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
-    const QString title = (cd.commitType == AmendCommit) ? tr("Amend %1").arg(cd.amendSHA1) : tr("Git Commit");
+    QString title;
+    switch (cd.commitType) {
+    case AmendCommit:
+        title = tr("Amend %1").arg(cd.amendSHA1);
+        break;
+    case FixupCommit:
+        title = tr("Git Fixup Commit");
+        break;
+    default:
+        title = tr("Git Commit");
+    }
     submitEditor->setDisplayName(title);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));
