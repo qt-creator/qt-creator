@@ -67,12 +67,12 @@ def arrayForms():
         return "Normal,Plot"
     return "Normal"
 
-def mapCompact(format, keyType, valueType):
+def qMapCompact(format, keyType, valueType):
     if format == 2:
         return True # Compact.
     return isSimpleType(keyType) and isSimpleType(valueType)
 
-def putMapName(d, value):
+def qPutMapName(d, value):
     if str(value.type) == d.ns + "QString":
         d.put('key="%s",' % d.encodeString(value))
         d.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
@@ -85,18 +85,16 @@ def putMapName(d, value):
         else:
             d.put('name="%s",' % value)
 
-# Compatibility with earlier versions
 Dumper.encodeByteArray = qEncodeByteArray
 Dumper.byteArrayData = qByteArrayData
 Dumper.putByteArrayValue = qPutByteArrayValue
 Dumper.encodeString = qEncodeString
 Dumper.stringData = qStringData
 Dumper.putStringValue = qPutStringValue
-
-Dumper.putMapName = putMapName
+Dumper.putMapName = qPutMapName
 
 Dumper.isMapCompact = \
-    lambda d, keyType, valueType: mapCompact(d.currentItemFormat(), keyType, valueType)
+    lambda d, keyType, valueType: qMapCompact(d.currentItemFormat(), keyType, valueType)
 
 
 def tryPutObjectNameValue(d, value):

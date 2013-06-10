@@ -683,16 +683,6 @@ class Dumper:
     def putName(self, name):
         self.put('name="%s",' % name)
 
-    def putMapName(self, value):
-        if str(value.type) == self.ns + "QString":
-            self.put('key="%s",' % encodeString(value))
-            self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
-        elif str(value.type) == self.ns + "QByteArray":
-            self.put('key="%s",' % self.encodeByteArray(value))
-            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
-        else:
-            self.put('name="%s",' % value)
-
     def isExpanded(self):
         #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
         #    self.expandedINames, self.currentIName in self.expandedINames))
