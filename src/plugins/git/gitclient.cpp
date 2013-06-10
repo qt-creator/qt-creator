@@ -2353,9 +2353,9 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
                                           settings()->stringValue(GitSettings::binaryPathKey),
                                           arguments);
             VcsBase::Command *command = createCommand(workingDirectory, 0, true);
+            new ConflictHandler(command, workingDirectory, gitCommand);
             command->addJob(arguments, -1);
             command->execute();
-            new ConflictHandler(command, workingDirectory, gitCommand);
         } else {
             GitPlugin::instance()->startCommit();
         }
@@ -3033,10 +3033,10 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     if (fixup)
         m_disableEditor = true;
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
+    new ConflictHandler(command, workingDirectory, QLatin1String("rebase"));
     command->addJob(arguments, -1);
     command->execute();
     command->setCookie(workingDirectory);
-    new ConflictHandler(command, workingDirectory, QLatin1String("rebase"));
     if (fixup)
         m_disableEditor = false;
 }
