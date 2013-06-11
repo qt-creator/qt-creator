@@ -130,6 +130,11 @@ private slots:
     void test_completion_crash_cloning_template_class_QTCREATORBUG9329();
     void test_completion_recursive_auto_declarations1_QTCREATORBUG9503();
     void test_completion_recursive_auto_declarations2_QTCREATORBUG9503();
+    void test_completion_recursive_typedefs_declarations1();
+    void test_completion_recursive_typedefs_declarations2();
+    void test_completion_recursive_using_declarations1();
+    void test_completion_recursive_using_declarations2();
+    void test_completion_recursive_using_typedef_declarations();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();

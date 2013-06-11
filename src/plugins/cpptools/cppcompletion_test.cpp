@@ -1885,3 +1885,140 @@ void CppToolsPlugin::test_completion_recursive_auto_declarations2_QTCREATORBUG95
 
     QCOMPARE(completions.size(), 0);
 }
+
+void CppToolsPlugin::test_completion_recursive_typedefs_declarations1()
+{
+    TestData data;
+    data.srcText =
+            "void f()\n"
+            "{\n"
+            "    typedef A B;\n"
+            "    typedef B A;\n"
+            "    A a;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("a.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 0);
+}
+
+void CppToolsPlugin::test_completion_recursive_typedefs_declarations2()
+{
+    TestData data;
+    data.srcText =
+            "void f()\n"
+            "{\n"
+            "    typedef A C;\n"
+            "    typedef C B;\n"
+            "    typedef B A;\n"
+            "    A a;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("a.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 0);
+}
+
+void CppToolsPlugin::test_completion_recursive_using_declarations1()
+{
+    TestData data;
+    data.srcText =
+            "void f()\n"
+            "{\n"
+            "    using B = A;\n"
+            "    using A = B;\n"
+            "    A a;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("a.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 0);
+}
+
+void CppToolsPlugin::test_completion_recursive_using_declarations2()
+{
+    TestData data;
+    data.srcText =
+            "void f()\n"
+            "{\n"
+            "    using C = A;\n"
+            "    using B = C;\n"
+            "    using A = B;\n"
+            "    A a;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("a.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 0);
+}
+
+void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
+{
+    TestData data;
+    data.srcText =
+            "void f()\n"
+            "{\n"
+            "    using B = A;\n"
+            "    typedef B A;\n"
+            "    A a;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("a.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 0);
+}

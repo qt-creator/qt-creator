@@ -282,7 +282,9 @@ public:
 
     QList<LookupItem> lookup(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(const Name *name, Scope *scope,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0) const;
+                                 ClassOrNamespace* enclosingTemplateInstantiation = 0,
+                                 QSet<const Declaration *> typedefsBeingResolved
+                                    = QSet<const Declaration *>()) const;
     ClassOrNamespace *lookupType(Symbol *symbol,
                                  ClassOrNamespace* enclosingTemplateInstantiation = 0) const;
     ClassOrNamespace *lookupParent(Symbol *symbol) const;
