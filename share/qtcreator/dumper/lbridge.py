@@ -1101,7 +1101,6 @@ class Dumper:
                 self.reportVariables()
 
     def reportRegisters(self, _ = None):
-        return
         if self.process is None:
             self.report('process="none"')
         else:
