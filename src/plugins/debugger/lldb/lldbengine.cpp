@@ -479,6 +479,9 @@ void LldbEngine::refreshDisassembly(const GdbMi &data)
             dl.data = line["inst"].toUtf8();
             dl.function = line["func-name"].toUtf8();
             dl.offset = line["offset"].toInt();
+            QByteArray comment = line["comment"].data();
+            if (!comment.isEmpty())
+                dl.data += QString::fromUtf8(" # " + comment);
             result.appendLine(dl);
         }
         agent->setContents(result);
@@ -985,9 +988,15 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
-    QString file = reportedLocation["file"].toUtf8();
-    int line = reportedLocation["line"].toInt();
-    gotoLocation(Location(file, line));
+    if (debuggerCore()->boolSetting(OperateByInstruction)) {
+        Location loc(reportedLocation["addr"].toAddress());
+        loc.setNeedsMarker(true);
+        gotoLocation(loc);
+    } else {
+        QString file = reportedLocation["file"].toUtf8();
+        int line = reportedLocation["line"].toInt();
+        gotoLocation(Location(file, line));
+    }
 }
 
 void LldbEngine::reloadRegisters()
