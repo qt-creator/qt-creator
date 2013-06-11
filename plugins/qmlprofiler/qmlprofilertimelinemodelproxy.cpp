@@ -409,6 +409,9 @@ qint64 BasicTimelineModel::lastTimeMark() const
 
 void BasicTimelineModel::setExpanded(int category, bool expanded)
 {
+    if (d->categorySpan.count() <= category)
+        return;
+
     d->categorySpan[category].expanded = expanded;
     d->computeRowStarts();
     emit expandedChanged();
