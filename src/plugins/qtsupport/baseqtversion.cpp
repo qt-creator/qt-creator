@@ -890,11 +890,8 @@ void BaseQtVersion::updateVersionInfo() const
 {
     if (m_versionInfoUpToDate)
         return;
-    if (!m_qmakeIsExecutable) {
-        qWarning("Cannot update Qt version information: %s cannot be run.",
-                 qPrintable(qmakeCommand().toString()));
+    if (!m_qmakeIsExecutable)
         return;
-    }
 
     // extract data from qmake executable
     m_versionInfo.clear();
@@ -908,6 +905,8 @@ void BaseQtVersion::updateVersionInfo() const
 
     if (!queryQMakeVariables(qmakeCommand(), qmakeRunEnvironment(), &m_versionInfo)) {
         m_qmakeIsExecutable = false;
+        qWarning("Cannot update Qt version information: %s cannot be run.",
+                 qPrintable(qmakeCommand().toString()));
         return;
     }
     m_qmakeIsExecutable = true;
