@@ -161,7 +161,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>OpenJDK location:</string>
+        <string>JDK location:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
