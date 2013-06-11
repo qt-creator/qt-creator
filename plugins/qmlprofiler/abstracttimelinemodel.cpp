@@ -65,6 +65,14 @@ int AbstractTimelineModel::getState() const
     return (int)m_modelManager->state();
 }
 
+int AbstractTimelineModel::rowCount() const
+{
+    int count = 0;
+    for (int i=0; i<categoryCount(); i++)
+        count += categoryDepth(i);
+    return count;
+}
+
 int AbstractTimelineModel::getBindingLoopDest(int index) const
 {
     Q_UNUSED(index);

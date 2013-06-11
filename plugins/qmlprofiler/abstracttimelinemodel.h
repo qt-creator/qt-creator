@@ -67,6 +67,7 @@ public:
     Q_INVOKABLE virtual void setExpanded(int category, bool expanded) = 0;
     Q_INVOKABLE virtual int categoryDepth(int categoryIndex) const = 0;
     Q_INVOKABLE virtual int categoryCount() const = 0;
+    Q_INVOKABLE virtual int rowCount() const;
     Q_INVOKABLE virtual const QString categoryLabel(int categoryIndex) const = 0;
 
     virtual int findFirstIndex(qint64 startTime) const = 0;

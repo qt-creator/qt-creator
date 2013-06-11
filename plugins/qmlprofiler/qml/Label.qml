@@ -31,10 +31,10 @@ import QtQuick 1.0
 
 Item {
     id: labelContainer
-    property alias text: txt.text
+    property string text: qmlProfilerModelProxy.categoryLabel(modelIndex, categoryIndex)
     property bool expanded: false
-    property int typeIndex: index
-    property int modelIndex: view.modelIndexFromType(index);
+    property int categoryIndex: qmlProfilerModelProxy.correctedCategoryIndexForModel(modelIndex, index)
+    property int modelIndex: qmlProfilerModelProxy.modelIndexForCategory(index);
 
     property variant descriptions: []
     property variant extdescriptions: []
@@ -43,14 +43,16 @@ Item {
     height: root.singleRowHeight
     width: 150
 
-    visible: !qmlProfilerModelProxy.empty;
+    visible: (!qmlProfilerModelProxy.empty) && qmlProfilerModelProxy.categoryDepth(modelIndex,categoryIndex) > 0;
     onVisibleChanged: {
-        if (visible)
-            modelIndex = view.modelIndexFromType(index);
+        if (visible) {
+            modelIndex = qmlProfilerModelProxy.modelIndexForCategory(index);
+            categoryIndex = qmlProfilerModelProxy.correctedCategoryIndexForModel(modelIndex, index);
+        }
     }
 
     onExpandedChanged: {
-        qmlProfilerModelProxy.setExpanded(typeIndex, expanded);
+        qmlProfilerModelProxy.setExpanded(modelIndex, categoryIndex, expanded);
         backgroundMarks.requestRedraw();
         getDescriptions();
         updateHeight();
@@ -61,19 +63,14 @@ Item {
     }
 
     function updateHeight() {
-        height = root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(typeIndex);
-        /*
-        height = root.singleRowHeight * (1 +
-            (expanded ? qmlProfilerDataModel.uniqueEventsOfType(typeIndex) :
-                        qmlProfilerDataModel.maxNestingForType(typeIndex)));
-                        */
+        height = root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex);
     }
 
     function getDescriptions() {
         var desc=[];
         var ids=[];
         var extdesc=[];
-        var labelList = qmlProfilerModelProxy.getLabelsForCategory(typeIndex);
+        var labelList = qmlProfilerModelProxy.getLabelsForCategory(modelIndex, categoryIndex);
         for (var i = 0; i < labelList.length; i++ ) {
             desc[i] = labelList[i].description;
             ids[i] = labelList[i].id;
@@ -85,45 +82,14 @@ Item {
         updateHeight();
     }
 
-    /*
-    Connections {
-        target: qmlProfilerDataModel
-        onReloadDetailLabels: getDescriptions();
-        onStateChanged: {
-            // Empty
-            if (qmlProfilerDataModel.getCurrentStateFromQml() == 0) {
-                descriptions = [];
-                eventIds = [];
-                extdescriptions = [];
-                updateHeight();
-            } else
-            // Done
-            if (qmlProfilerDataModel.getCurrentStateFromQml() == 3) {
-                getDescriptions();
-            }
-        }
-    }
-    */
     Connections {
         target: qmlProfilerModelProxy
-//        onReloadDetailLabels: getDescriptions();
         onExpandedChanged: {
             updateHeight();
         }
 
         onStateChanged: {
             getDescriptions();
-//            // Empty
-//            if (qmlProfilerDataModel.getCurrentStateFromQml() == 0) {
-//                descriptions = [];
-//                eventIds = [];
-//                extdescriptions = [];
-//                updateHeight();
-//            } else
-//            // Done
-//            if (qmlProfilerDataModel.getCurrentStateFromQml() == 3) {
-
-//            }
         }
     }
 
@@ -131,6 +97,7 @@ Item {
         id: txt
         x: 5
         font.pixelSize: 12
+        text: labelContainer.text
         color: "#232323"
         height: root.singleRowHeight
         width: 140

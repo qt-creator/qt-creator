@@ -65,11 +65,11 @@ public:
 
     Q_INVOKABLE qint64 lastTimeMark() const;
 
-    Q_INVOKABLE void setExpanded(int category, bool expanded);
-    Q_INVOKABLE int categoryDepth(int categoryIndex) const;
+    Q_INVOKABLE void setExpanded(int modelIndex, int category, bool expanded);
     Q_INVOKABLE int categoryDepth(int modelIndex, int categoryIndex) const;
     Q_INVOKABLE int categoryCount(int modelIndex) const;
-    Q_INVOKABLE const QString categoryLabel(int categoryIndex) const;
+    Q_INVOKABLE int rowCount(int modelIndex) const;
+    Q_INVOKABLE const QString categoryLabel(int modelIndex, int categoryIndex) const;
 
     int findFirstIndex(int modelIndex, qint64 startTime) const;
     int findFirstIndexNoParents(int modelIndex, qint64 startTime) const;
@@ -85,11 +85,12 @@ public:
     Q_INVOKABLE QColor getColor(int modelIndex, int index) const;
     Q_INVOKABLE float getHeight(int modelIndex, int index) const;
 
-    Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
+    Q_INVOKABLE const QVariantList getLabelsForCategory(int modelIndex, int category) const;
 
     Q_INVOKABLE const QVariantList getEventDetails(int modelIndex, int index) const;
 
-    Q_INVOKABLE int modelIndexForCategory(int categoryIndex, int *newCategoryIndex = 0) const;
+    Q_INVOKABLE int modelIndexForCategory(int absoluteCategoryIndex) const;
+    Q_INVOKABLE int correctedCategoryIndexForModel(int modelIndex, int absoluteCategoryIndex) const;
 
 signals:
     void countChanged();

@@ -108,15 +108,12 @@ public:
     Q_INVOKABLE QString getDetails(int index) const;
     Q_INVOKABLE int getYPosition(int modelIndex, int index) const;
 
-//    Q_INVOKABLE void setRowExpanded(int modelIndex, int rowIndex, bool expanded);
-
     Q_INVOKABLE void selectNext();
     Q_INVOKABLE void selectPrev();
     Q_INVOKABLE int nextItemFromId(int modelIndex, int eventId) const;
     Q_INVOKABLE int prevItemFromId(int modelIndex, int eventId) const;
     Q_INVOKABLE void selectNextFromId(int modelIndex, int eventId);
     Q_INVOKABLE void selectPrevFromId(int modelIndex, int eventId);
-    Q_INVOKABLE int modelIndexFromType(int typeIndex) const;
 
 signals:
     void startTimeChanged(qint64 arg);
@@ -218,13 +215,6 @@ private:
     qint64 m_lastEndTime;
 
     TimelineModelAggregator *m_profilerModelProxy;
-//    BasicTimelineModel *m_profilerModelProxy;
-
-    QList<int> m_rowLastX;
-    QList<int> m_rowStarts;
-    QList<int> m_rowWidths;
-    QList<bool> m_rowsExpanded;
-    QList<int> m_modelRowEnds;
 
     struct {
         qint64 startTime;

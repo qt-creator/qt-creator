@@ -123,10 +123,6 @@ public:
     bool isEmpty() const;
 
     Q_INVOKABLE qint64 lastTimeMark() const;
-//    Q_INVOKABLE qint64 traceStartTime() const;
-//    Q_INVOKABLE qint64 traceEndTime() const;
-//    Q_INVOKABLE qint64 traceDuration() const;
-//    Q_INVOKABLE int getState() const;
 
     Q_INVOKABLE void setExpanded(int category, bool expanded);
     Q_INVOKABLE int categoryDepth(int categoryIndex) const;

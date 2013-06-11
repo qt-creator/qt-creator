@@ -129,15 +129,16 @@ Canvas2D {
 
         // separators
         var cumulatedHeight = 0;
-        var modelIndex = 0;
-        for (var i=0; i<labels.rowCount; i++) {
-            cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, i);
+        for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex++) {
+            for (var i=0; i<qmlProfilerModelProxy.categoryCount(modelIndex); i++) {
+                cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, i);
 
-            ctxt.strokeStyle = "#B0B0B0";
-            ctxt.beginPath();
-            ctxt.moveTo(0, cumulatedHeight);
-            ctxt.lineTo(width, cumulatedHeight);
-            ctxt.stroke();
+                ctxt.strokeStyle = "#B0B0B0";
+                ctxt.beginPath();
+                ctxt.moveTo(0, cumulatedHeight);
+                ctxt.lineTo(width, cumulatedHeight);
+                ctxt.stroke();
+            }
         }
 
         // bottom

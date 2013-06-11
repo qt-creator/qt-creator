@@ -46,6 +46,8 @@ struct CategorySpan {
     bool expanded;
     int expandedRows;
     int contractedRows;
+    int rowStart;
+    bool empty;
 };
 
 class BasicTimelineModel::BasicTimelineModelPrivate
@@ -61,6 +63,7 @@ public:
     void computeBaseEventIndexes();
     void buildEndTimeList();
     void findBindingLoops();
+    void computeRowStarts();
 
     QString displayTime(double time);
 
@@ -76,10 +79,6 @@ public:
 BasicTimelineModel::BasicTimelineModel(QObject *parent)
     : AbstractTimelineModel(parent), d(new BasicTimelineModelPrivate(this))
 {
-//    setModelManager(modelManager);
-//    m_modelManager = modelManager;
-//    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
-//    connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
 }
 
 BasicTimelineModel::~BasicTimelineModel()
@@ -146,7 +145,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
 {
     categorySpan.clear();
     for (int i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
-        CategorySpan newCategory = {false, 1, 1};
+        CategorySpan newCategory = {false, 1, 1, true};
         categorySpan << newCategory;
     }
 }
@@ -232,6 +231,8 @@ void BasicTimelineModel::loadData()
 
     d->findBindingLoops();
 
+    d->computeRowStarts();
+
     emit countChanged();
 }
 
@@ -294,6 +295,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
     // nestingdepth
     for (i = 0; i < eventCount; i++) {
         int eventType = q->getEventType(i);
+        categorySpan[eventType].empty = false;
         if (categorySpan[eventType].contractedRows <= startTimeData[i].displayRowCollapsed)
             categorySpan[eventType].contractedRows = startTimeData[i].displayRowCollapsed + 1;
     }
@@ -307,6 +309,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeExpandedLevels()
         int eventId = startTimeData[i].eventId;
         int eventType = eventDict[eventId].eventType;
         if (!eventRow.contains(eventId)) {
+            categorySpan[eventType].empty = false;
             eventRow[eventId] = categorySpan[eventType].expandedRows++;
         }
         startTimeData[i].displayRowExpanded = eventRow[eventId];
@@ -378,6 +381,15 @@ void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
 
 }
 
+void BasicTimelineModel::BasicTimelineModelPrivate::computeRowStarts()
+{
+    int rowStart = 0;
+    for (int i = 0; i < categorySpan.count(); i++) {
+        categorySpan[i].rowStart = rowStart;
+        rowStart += q->categoryDepth(i);
+    }
+}
+
 /////////////////// QML interface
 
 bool BasicTimelineModel::isEmpty() const
@@ -398,6 +410,7 @@ qint64 BasicTimelineModel::lastTimeMark() const
 void BasicTimelineModel::setExpanded(int category, bool expanded)
 {
     d->categorySpan[category].expanded = expanded;
+    d->computeRowStarts();
     emit expandedChanged();
 }
 
@@ -405,6 +418,8 @@ int BasicTimelineModel::categoryDepth(int categoryIndex) const
 {
     if (d->categorySpan.count() <= categoryIndex)
         return 1;
+    if (d->categorySpan[categoryIndex].empty)
+        return 1; // TODO
     if (d->categorySpan[categoryIndex].expanded)
         return d->categorySpan[categoryIndex].expandedRows;
     else
@@ -525,9 +540,9 @@ int BasicTimelineModel::getEventType(int index) const
 int BasicTimelineModel::getEventRow(int index) const
 {
     if (d->categorySpan[getEventType(index)].expanded)
-        return d->startTimeData[index].displayRowExpanded;
+        return d->startTimeData[index].displayRowExpanded + d->categorySpan[getEventType(index)].rowStart;
     else
-        return d->startTimeData[index].displayRowCollapsed;
+        return d->startTimeData[index].displayRowCollapsed  + d->categorySpan[getEventType(index)].rowStart;
 }
 
 qint64 BasicTimelineModel::getDuration(int index) const

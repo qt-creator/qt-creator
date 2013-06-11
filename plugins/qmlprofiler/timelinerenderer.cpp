@@ -51,8 +51,6 @@ TimelineRenderer::TimelineRenderer(QDeclarativeItem *parent) :
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
-    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++)
-        m_rowsExpanded << false;
 }
 
 void TimelineRenderer::componentComplete()
@@ -81,35 +79,7 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
 
     m_spacing = qreal(width()) / windowDuration;
 
-    // event rows
-    m_rowWidths.clear();
-
-    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++) {
-        m_rowWidths << m_profilerModelProxy->categoryDepth(i);
-    }
-
-    m_rowStarts.clear();
-    int pos = 0;
-    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++) {
-        m_rowStarts << pos;
-        pos += DefaultRowHeight * m_rowWidths[i];
-    }
-
-    m_modelRowEnds.clear();
-    pos = 0;
-    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
-        for (int j = 0; j < m_profilerModelProxy->categoryCount(i); j++)
-            pos += DefaultRowHeight * m_profilerModelProxy->categoryDepth(i,j);
-        m_modelRowEnds << pos;
-    }
-
     p->setPen(Qt::transparent);
-
-    // speedup: don't draw overlapping events, just skip them
-    m_rowLastX.clear();
-    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++)
-        for (int j=0; j<m_rowWidths[i]; j++)
-            m_rowLastX << -m_startTime * m_spacing;
 
     for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
         int lastIndex = m_profilerModelProxy->findLastIndex(modelIndex, m_endTime);
@@ -128,13 +98,19 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
 
 void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromIndex, int toIndex)
 {
-    int x, y, width, height, eventType;
+    int x, y, width, height;
+    p->save();
     p->setPen(Qt::transparent);
+    int modelRowStart = 0;
+    for (int mi = 0; mi < modelIndex; mi++)
+        modelRowStart += m_profilerModelProxy->rowCount(mi);
+
     for (int i = fromIndex; i <= toIndex; i++) {
         x = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
-        eventType = m_profilerModelProxy->getEventType(modelIndex, i);
+
         int rowNumber = m_profilerModelProxy->getEventRow(modelIndex, i);
-        y = m_rowStarts[eventType] +  rowNumber * DefaultRowHeight;
+        y = (modelRowStart + rowNumber) * DefaultRowHeight;
+
         width = m_profilerModelProxy->getDuration(modelIndex, i)*m_spacing;
         if (width < 1)
             width = 1;
@@ -142,30 +118,11 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
         height = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
         y += DefaultRowHeight - height;
 
-        // special: animations
-        /*if (eventType == 0 && m_profilerDataModel->getAnimationCount(i) >= 0) {
-            double scale = m_profilerDataModel->getMaximumAnimationCount() -
-                    m_profilerDataModel->getMinimumAnimationCount();
-            double fraction;
-            if (scale > 1)
-                fraction = (double)(m_profilerDataModel->getAnimationCount(i) -
-                                    m_profilerDataModel->getMinimumAnimationCount()) / scale;
-            else
-                fraction = 1.0;
-            height = DefaultRowHeight * (fraction * 0.85 + 0.15);
-            y += DefaultRowHeight - height;
-
-            double fpsFraction = m_profilerDataModel->getFramerate(i) / 60.0;
-            if (fpsFraction > 1.0)
-                fpsFraction = 1.0;
-            p->setBrush(QColor::fromHsl((fpsFraction*96)+10, 76, 166));
-            p->drawRect(x, y, width, height);
-        } else */ {
-            // normal events
-            p->setBrush(m_profilerModelProxy->getColor(modelIndex, i));
-            p->drawRect(x, y, width, height);
-        }
+        // normal events
+        p->setBrush(m_profilerModelProxy->getColor(modelIndex, i));
+        p->drawRect(x, y, width, height);
     }
+    p->restore();
 }
 
 void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromIndex, int toIndex)
@@ -176,7 +133,12 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 
     int id = m_profilerModelProxy->getEventId(modelIndex, m_selectedItem);
 
-    p->setBrush(Qt::transparent);
+    int modelRowStart = 0;
+    for (int mi = 0; mi < modelIndex; mi++)
+        modelRowStart += m_profilerModelProxy->rowCount(mi);
+
+    p->save();
+
     QColor selectionColor = Qt::blue;
     if (m_selectionLocked)
         selectionColor = QColor(96,0,255);
@@ -184,18 +146,16 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
     QPen lightPen(QBrush(selectionColor.lighter(130)), 2);
     lightPen.setJoinStyle(Qt::MiterJoin);
     p->setPen(lightPen);
+    p->setBrush(Qt::transparent);
 
-    int x, y, width, eventType;
-    p->setPen(lightPen);
-
+    int x, y, width;
     QRect selectedItemRect(0,0,0,0);
     for (int i = fromIndex; i <= toIndex; i++) {
         if (m_profilerModelProxy->getEventId(modelIndex, i) != id)
             continue;
 
         x = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
-        eventType = m_profilerModelProxy->getEventType(modelIndex, i);
-        y = m_rowStarts[eventType] + DefaultRowHeight * m_profilerModelProxy->getEventRow(modelIndex, i);
+        y = (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i)) * DefaultRowHeight;
 
         width = m_profilerModelProxy->getDuration(modelIndex, i)*m_spacing;
         if (width<1)
@@ -212,6 +172,8 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
             p->setPen(strongPen);
             p->drawRect(selectedItemRect);
     }
+
+    p->restore();
 }
 
 void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int fromIndex, int toIndex)
@@ -273,9 +235,12 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
 
 int TimelineRenderer::modelFromPosition(int y)
 {
-    for (int i = 0; i < m_modelRowEnds.count(); i++)
-        if (y < m_modelRowEnds[i])
-            return i;
+    y = y / DefaultRowHeight;
+    for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
+        y -= m_profilerModelProxy->rowCount(modelIndex);
+        if (y < 0)
+            return modelIndex;
+    }
 }
 
 void TimelineRenderer::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -350,17 +315,17 @@ void TimelineRenderer::manageHovered(int x, int y)
         return;
     }
 
+    int modelRowStart = 0;
+    for (int mi = 0; mi < modelIndex; mi++)
+        modelRowStart += m_profilerModelProxy->rowCount(mi);
+
     // find if we are in the right column
-    int itemRow, eventType;
+    int itemRow;
     for (int i=eventTo; i>=eventFrom; --i) {
         if (ceil(m_profilerModelProxy->getEndTime(modelIndex, i)*m_spacing) < floor(time*m_spacing))
             continue;
 
-//        qDebug() << i << m_profilerModelProxy->getStartTime(modelIndex,i) << m_profilerModelProxy->getDuration(modelIndex,i) << m_profilerModelProxy->getEndTime(modelIndex,i) << "at" << time;
-
-        eventType = m_profilerModelProxy->getEventType(modelIndex, i);
-        itemRow = m_rowStarts[eventType]/DefaultRowHeight +
-                    m_profilerModelProxy->getEventRow(modelIndex, i);
+        itemRow = modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i);
 
         if (itemRow == row) {
             // match
@@ -420,19 +385,16 @@ QString TimelineRenderer::getDetails(int index) const
 int TimelineRenderer::getYPosition(int modelIndex, int index) const
 {
     Q_ASSERT(m_profilerModelProxy);
-    if (index >= m_profilerModelProxy->count() || m_rowStarts.isEmpty())
+    if (index >= m_profilerModelProxy->count())
         return 0;
-    int eventType = m_profilerModelProxy->getEventType(modelIndex, index);
-    int y = m_rowStarts[eventType] + DefaultRowHeight * m_profilerModelProxy->getEventRow(modelIndex, index);
+
+    int modelRowStart = 0;
+    for (int mi = 0; mi < modelIndex; mi++)
+        modelRowStart += m_profilerModelProxy->rowCount(mi);
+
+    int y = DefaultRowHeight * (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, index));
     return y;
 }
-
-//void TimelineRenderer::setRowExpanded(int modelIndex, int rowIndex, bool expanded)
-//{
-//    // todo: m_rowsExpanded, should that be removed? where do I have it duplicated?
-//    m_rowsExpanded[rowIndex] = expanded;
-//    update();
-//}
 
 void TimelineRenderer::selectNext()
 {
@@ -600,9 +562,4 @@ void TimelineRenderer::selectPrevFromId(int modelIndex, int eventId)
         setSelectedModel(modelIndex);
         setSelectedItem(eventIndex);
     }
-}
-
-int TimelineRenderer::modelIndexFromType(int typeIndex) const
-{
-    return m_profilerModelProxy->modelIndexForCategory(typeIndex, &typeIndex);
 }

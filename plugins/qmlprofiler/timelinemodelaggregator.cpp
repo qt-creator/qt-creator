@@ -69,10 +69,11 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
     connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
     connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
 
-//    m_modelManager = modelManager;
-//    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
-//    connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
-//    d->modelList << new BasicTimelineModel(modelManager, this);
+    // external models pushed on top
+    foreach (AbstractTimelineModel *timelineModel, QmlProfilerPlugin::instance->getModels()) {
+        timelineModel->setModelManager(modelManager);
+        addModel(timelineModel);
+    }
 
     PaintEventsModelProxy *paintEventsModelProxy = new PaintEventsModelProxy(this);
     paintEventsModelProxy->setModelManager(modelManager);
@@ -82,11 +83,6 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
     basicTimelineModel->setModelManager(modelManager);
     addModel(basicTimelineModel);
 
-//    qDebug() << "models" << QmlProfilerPlugin::timelineModels.count();
-    foreach (AbstractTimelineModel *timelineModel, QmlProfilerPlugin::instance->getModels()) {
-        timelineModel->setModelManager(modelManager);
-        addModel(timelineModel);
-    }
 
 }
 
@@ -162,16 +158,11 @@ qint64 TimelineModelAggregator::lastTimeMark() const
     return mark;
 }
 
-void TimelineModelAggregator::setExpanded(int category, bool expanded)
+void TimelineModelAggregator::setExpanded(int modelIndex, int category, bool expanded)
 {
-    int modelIndex = modelIndexForCategory(category, &category);
+//    int modelIndex = modelIndexForCategory(category);
+//    category = correctedCategoryIndexForModel(modelIndex, categoryIndex);
     d->modelList[modelIndex]->setExpanded(category, expanded);
-}
-
-int TimelineModelAggregator::categoryDepth(int categoryIndex) const
-{
-    int modelIndex = modelIndexForCategory(categoryIndex, &categoryIndex);
-    return categoryDepth(modelIndex, categoryIndex);
 }
 
 int TimelineModelAggregator::categoryDepth(int modelIndex, int categoryIndex) const
@@ -181,28 +172,26 @@ int TimelineModelAggregator::categoryDepth(int modelIndex, int categoryIndex) co
 
 int TimelineModelAggregator::categoryCount(int modelIndex) const
 {
-    // TODO
     return d->modelList[modelIndex]->categoryCount();
 }
 
-const QString TimelineModelAggregator::categoryLabel(int categoryIndex) const
+int TimelineModelAggregator::rowCount(int modelIndex) const
 {
-    int modelIndex = modelIndexForCategory(categoryIndex, &categoryIndex);
+    return d->modelList[modelIndex]->rowCount();
+}
+
+const QString TimelineModelAggregator::categoryLabel(int modelIndex, int categoryIndex) const
+{
+//    int modelIndex = modelIndexForCategory(categoryIndex);
+//    categoryIndex = correctedCategoryIndexForModel(modelIndex, categoryIndex);
     return d->modelList[modelIndex]->categoryLabel(categoryIndex);
 }
 
-//const QString TimelineModelAggregator::categoryLabel(int categoryIndex) const
-//{
-//    int modelIndex = modelIndexForCategory(categoryIndex, &categoryIndex);
-//    return d->modelList[modelIndex]->categoryLabel(categoryIndex);
-//}
-
-int TimelineModelAggregator::modelIndexForCategory(int categoryIndex, int *newCategoryIndex) const
+int TimelineModelAggregator::modelIndexForCategory(int absoluteCategoryIndex) const
 {
+    int categoryIndex = absoluteCategoryIndex;
     for (int modelIndex = 0; modelIndex < d->modelList.count(); modelIndex++)
         if (categoryIndex < d->modelList[modelIndex]->categoryCount()) {
-            if (newCategoryIndex)
-                *newCategoryIndex = categoryIndex;
             return modelIndex;
         } else {
             categoryIndex -= d->modelList[modelIndex]->categoryCount();
@@ -211,75 +200,56 @@ int TimelineModelAggregator::modelIndexForCategory(int categoryIndex, int *newCa
     return modelCount()-1;
 }
 
+int TimelineModelAggregator::correctedCategoryIndexForModel(int modelIndex, int absoluteCategoryIndex) const
+{
+    int categoryIndex = absoluteCategoryIndex;
+    for (int mi = 0; mi < modelIndex; mi++)
+        categoryIndex -= d->modelList[mi]->categoryCount();
+    return categoryIndex;
+}
+
 int TimelineModelAggregator::findFirstIndex(int modelIndex, qint64 startTime) const
 {
-//    int index = count();
-//    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
-//        int newIndex = modelProxy->findFirstIndex(startTime);
-//        if (newIndex < index)
-//            index = newIndex;
-//    }
-//    return index;
     return d->modelList[modelIndex]->findFirstIndex(startTime);
 }
 
 int TimelineModelAggregator::findFirstIndexNoParents(int modelIndex, qint64 startTime) const
 {
-//    int index = count();
-//    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
-//        int newIndex = modelProxy->findFirstIndexNoParents(startTime);
-//        if (newIndex < index)
-//            index = newIndex;
-//    }
-//    return index;
     return d->modelList[modelIndex]->findFirstIndexNoParents(startTime);
 }
 
 int TimelineModelAggregator::findLastIndex(int modelIndex, qint64 endTime) const
 {
-//    int index = -1;
-//    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
-//        int newIndex = modelProxy->findLastIndex(endTime);
-//        if (newIndex > index)
-//            index = newIndex;
-//    }
-//    return index;
     return d->modelList[modelIndex]->findLastIndex(endTime);
 }
 
 int TimelineModelAggregator::getEventType(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getEventType(index);
 }
 
 int TimelineModelAggregator::getEventRow(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getEventRow(index);
 }
 
 qint64 TimelineModelAggregator::getDuration(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getDuration(index);
 }
 
 qint64 TimelineModelAggregator::getStartTime(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getStartTime(index);
 }
 
 qint64 TimelineModelAggregator::getEndTime(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getEndTime(index);
 }
 
 int TimelineModelAggregator::getEventId(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getEventId(index);
 }
 
@@ -290,7 +260,6 @@ int TimelineModelAggregator::getBindingLoopDest(int modelIndex,int index) const
 
 QColor TimelineModelAggregator::getColor(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getColor(index);
 }
 
@@ -299,16 +268,15 @@ float TimelineModelAggregator::getHeight(int modelIndex, int index) const
     return d->modelList[modelIndex]->getHeight(index);
 }
 
-const QVariantList TimelineModelAggregator::getLabelsForCategory(int category) const
+const QVariantList TimelineModelAggregator::getLabelsForCategory(int modelIndex, int category) const
 {
-    // TODO
-    int modelIndex = modelIndexForCategory(category, &category);
+//    int modelIndex = modelIndexForCategory(category);
+//    category = correctedCategoryIndexForModel(modelIndex, category);
     return d->modelList[modelIndex]->getLabelsForCategory(category);
 }
 
 const QVariantList TimelineModelAggregator::getEventDetails(int modelIndex, int index) const
 {
-    // TODO
     return d->modelList[modelIndex]->getEventDetails(index);
 }
 

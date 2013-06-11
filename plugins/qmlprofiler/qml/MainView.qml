@@ -543,9 +543,7 @@ Rectangle {
             id: col
             Repeater {
                 model: labels.rowCount
-                delegate: Label {
-                    text: qmlProfilerModelProxy.categoryLabel(index)
-                }
+                delegate: Label { }
             }
         }
     }
