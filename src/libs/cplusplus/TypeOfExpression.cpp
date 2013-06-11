@@ -58,7 +58,8 @@ void TypeOfExpression::reset()
 }
 
 void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot,
-                            QSharedPointer<CreateBindings> bindings)
+                            QSharedPointer<CreateBindings> bindings,
+                            const QSet<const Declaration *> &autoDeclarationsBeingResolved)
 {
     m_thisDocument = thisDocument;
     m_snapshot = snapshot;
@@ -67,6 +68,7 @@ void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot
     m_lookupContext = LookupContext();
     m_bindings = bindings;
     m_environment.clear();
+    m_autoDeclarationsBeingResolved = autoDeclarationsBeingResolved;
 }
 
 QList<LookupItem> TypeOfExpression::operator()(const QByteArray &utf8code,
@@ -111,7 +113,7 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
     m_lookupContext.setBindings(m_bindings);
     m_lookupContext.setExpandTemplates(m_expandTemplates);
 
-    ResolveExpression resolve(m_lookupContext);
+    ResolveExpression resolve(m_lookupContext, m_autoDeclarationsBeingResolved);
     const QList<LookupItem> items = resolve(m_ast, scope);
 
     if (! m_bindings)
@@ -133,7 +135,7 @@ QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
     m_lookupContext.setBindings(m_bindings);
     m_lookupContext.setExpandTemplates(m_expandTemplates);
 
-    ResolveExpression resolve(m_lookupContext);
+    ResolveExpression resolve(m_lookupContext, m_autoDeclarationsBeingResolved);
     const QList<LookupItem> items = resolve.reference(m_ast, scope);
 
     if (! m_bindings)

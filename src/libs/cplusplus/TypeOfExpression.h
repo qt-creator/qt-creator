@@ -58,8 +58,11 @@ public:
      * Also clears the lookup context, so can be used to make sure references
      * to the documents previously used are removed.
      */
-    void init(Document::Ptr thisDocument, const Snapshot &snapshot,
-              QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>());
+    void init(Document::Ptr thisDocument,
+              const Snapshot &snapshot,
+              QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>(),
+              const QSet<const Declaration *> &autoDeclarationsBeingResolved
+                = QSet<const Declaration *>());
 
     void reset();
 
@@ -151,6 +154,8 @@ private:
     // Keep the expression documents and thus all the symbols and
     // their types alive until they are not needed any more.
     QList<Document::Ptr> m_documents;
+
+    QSet<const Declaration *> m_autoDeclarationsBeingResolved;
 };
 
 ExpressionAST CPLUSPLUS_EXPORT *extractExpressionAST(Document::Ptr doc);
