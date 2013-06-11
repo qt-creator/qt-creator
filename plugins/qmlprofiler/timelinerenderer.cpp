@@ -241,6 +241,7 @@ int TimelineRenderer::modelFromPosition(int y)
         if (y < 0)
             return modelIndex;
     }
+    return 0;
 }
 
 void TimelineRenderer::mousePressEvent(QGraphicsSceneMouseEvent *event)
