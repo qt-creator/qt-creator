@@ -992,9 +992,11 @@ QHash<QString,QString> BaseQtVersion::versionInfo() const
     return m_versionInfo;
 }
 
-QString BaseQtVersion::qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name)
+QString BaseQtVersion::qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
+                                     PropertyVariant variant)
 {
-    QString val = versionInfo.value(QString::fromLatin1(name + "/get"));
+    QString val = versionInfo.value(QString::fromLatin1(
+            name + (variant == PropertyVariantGet ? "/get" : "/src")));
     if (!val.isNull())
         return val;
     return versionInfo.value(QString::fromLatin1(name));
@@ -1354,7 +1356,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
 
 FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo)
 {
-    QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA");
+    QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA", PropertyVariantSrc);
     if (dataDir.isEmpty())
         return FileName();
     return FileName::fromUserInput(dataDir + QLatin1String("/mkspecs"));
