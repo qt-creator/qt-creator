@@ -48,7 +48,7 @@ GitVersionControl::GitVersionControl(GitClient *client) :
 
 QString GitVersionControl::displayName() const
 {
-    return QLatin1String("git");
+    return QLatin1String("Git");
 }
 
 Core::Id GitVersionControl::id() const
