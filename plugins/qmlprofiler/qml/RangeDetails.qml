@@ -82,6 +82,19 @@ Item {
         rangeDetails.visible = true;
     }
 
+    function setLocation(location) {
+        if (location.hasOwnProperty("file")) { // not empty
+            file = location.file;
+            line = location.line;
+            column = location.column;
+        } else {
+            // reset to default values
+            file = "";
+            line = 0;
+            column = -1;
+        }
+    }
+
     function fitInView() {
         // don't reposition if it does not fit
         if (root.width < width || root.candidateHeight < height)

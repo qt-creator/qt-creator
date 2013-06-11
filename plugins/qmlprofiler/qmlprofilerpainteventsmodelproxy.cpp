@@ -415,6 +415,12 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     return result;
 }
 
+const QVariantMap PaintEventsModelProxy::getEventLocation(int /*index*/) const
+{
+    QVariantMap map;
+    return map;
+}
+
 }
 }
 

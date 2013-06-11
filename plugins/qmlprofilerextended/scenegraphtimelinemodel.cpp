@@ -346,6 +346,12 @@ const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
     return result;
 }
 
+const QVariantMap SceneGraphTimelineModel::getEventLocation(int /*index*/) const
+{
+    QVariantMap map;
+    return map;
+}
+
 bool compareStartTimes(const SceneGraphTimelineModel::SceneGraphEvent&t1, const SceneGraphTimelineModel::SceneGraphEvent &t2)
 {
     return t1.startTime < t2.startTime;

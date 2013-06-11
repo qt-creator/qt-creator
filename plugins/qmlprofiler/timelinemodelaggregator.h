@@ -88,6 +88,7 @@ public:
     Q_INVOKABLE const QVariantList getLabelsForCategory(int modelIndex, int category) const;
 
     Q_INVOKABLE const QVariantList getEventDetails(int modelIndex, int index) const;
+    Q_INVOKABLE const QVariantMap getEventLocation(int modelIndex, int index) const;
 
     Q_INVOKABLE int modelIndexForCategory(int absoluteCategoryIndex) const;
     Q_INVOKABLE int correctedCategoryIndexForModel(int modelIndex, int absoluteCategoryIndex) const;

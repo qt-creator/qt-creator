@@ -81,6 +81,7 @@ public:
     Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
 
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
+    Q_INVOKABLE const QVariantMap getEventLocation(int index) const;
 
     void loadData();
     void clear();

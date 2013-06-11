@@ -280,6 +280,11 @@ const QVariantList TimelineModelAggregator::getEventDetails(int modelIndex, int 
     return d->modelList[modelIndex]->getEventDetails(index);
 }
 
+const QVariantMap TimelineModelAggregator::getEventLocation(int modelIndex, int index) const
+{
+    return d->modelList[modelIndex]->getEventLocation(index);
+}
+
 void TimelineModelAggregator::dataChanged()
 {
     // this is a slot connected for every modelproxy

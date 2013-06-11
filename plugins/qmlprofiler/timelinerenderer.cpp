@@ -363,26 +363,6 @@ void TimelineRenderer::clearData()
     m_selectionLocked = true;
 }
 
-qint64 TimelineRenderer::getDuration(int index) const
-{
-    return 0;
-}
-
-QString TimelineRenderer::getFilename(int index) const
-{
-    return QString();
-}
-
-int TimelineRenderer::getLine(int index) const
-{
-    return 0;
-}
-
-QString TimelineRenderer::getDetails(int index) const
-{
-    return QString();
-}
-
 int TimelineRenderer::getYPosition(int modelIndex, int index) const
 {
     Q_ASSERT(m_profilerModelProxy);

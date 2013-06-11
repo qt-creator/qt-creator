@@ -436,18 +436,8 @@ Rectangle {
             onSelectedItemChanged: {
                 if (selectedItem !== -1) {
                     // display details
-                    /*
-                    rangeDetails.duration = qmlProfilerDataModel.getDuration(selectedItem)/1000.0;
-                    rangeDetails.label = qmlProfilerDataModel.getDetails(selectedItem);
-                    rangeDetails.file = qmlProfilerDataModel.getFilename(selectedItem);
-                    rangeDetails.line = qmlProfilerDataModel.getLine(selectedItem);
-                    rangeDetails.column = qmlProfilerDataModel.getColumn(selectedItem);
-                    rangeDetails.type = root.names[qmlProfilerDataModel.getType(selectedItem)];
-                    rangeDetails.isBindingLoop = qmlProfilerDataModel.getBindingLoopDest(selectedItem)!==-1;
-
-                    rangeDetails.visible = true;
-*/
                     rangeDetails.showInfo(qmlProfilerModelProxy.getEventDetails(selectedModel, selectedItem));
+                    rangeDetails.setLocation(qmlProfilerModelProxy.getEventLocation(selectedModel, selectedItem));
 
                     // center view (horizontally)
                     var windowLength = view.endTime - view.startTime;
@@ -481,13 +471,9 @@ Rectangle {
             }
 
             onItemPressed: {
-                if (pressedItem !== -1) {
-                    /*
-                    root.gotoSourceLocation(qmlProfilerDataModel.getFilename(pressedItem),
-                                            qmlProfilerDataModel.getLine(pressedItem),
-                                            qmlProfilerDataModel.getColumn(pressedItem));
-                                            */
-                }
+                var location = qmlProfilerModelProxy.getEventLocation(modelIndex, pressedItem);
+                if (location.hasOwnProperty("file")) // not empty
+                    root.gotoSourceLocation(location.file, location.line, location.column);
             }
 
          // hack to pass mouse events to the other mousearea if enabled

@@ -102,10 +102,6 @@ public:
         emit profilerModelProxyChanged(m_profilerModelProxy);
     }
 
-    Q_INVOKABLE qint64 getDuration(int index) const;
-    Q_INVOKABLE QString getFilename(int index) const;
-    Q_INVOKABLE int getLine(int index) const;
-    Q_INVOKABLE QString getDetails(int index) const;
     Q_INVOKABLE int getYPosition(int modelIndex, int index) const;
 
     Q_INVOKABLE void selectNext();

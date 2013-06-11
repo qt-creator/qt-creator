@@ -657,5 +657,20 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
     return result;
 }
 
+const QVariantMap BasicTimelineModel::getEventLocation(int index) const
+{
+    QVariantMap result;
+    int eventId = getEventId(index);
+
+    QmlDebug::QmlEventLocation location
+            = d->eventDict.at(eventId).location;
+
+    result.insert(QLatin1String("file"), location.filename);
+    result.insert(QLatin1String("line"), location.line);
+    result.insert(QLatin1String("column"), location.column);
+
+    return result;
+}
+
 }
 }

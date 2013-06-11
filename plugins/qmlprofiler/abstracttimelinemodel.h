@@ -88,6 +88,9 @@ public:
 
     Q_INVOKABLE virtual const QVariantList getEventDetails(int index) const = 0;
 
+    // returned map should contain "file", "line", "column" properties, or be empty
+    Q_INVOKABLE virtual const QVariantMap getEventLocation(int index) const = 0;
+
 signals:
     void countChanged();
     void dataAvailable();
