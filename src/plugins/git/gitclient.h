@@ -350,10 +350,11 @@ private:
                              int editorLineNumber = -1);
 
     VcsBase::Command *executeGit(const QString &workingDirectory,
-                           const QStringList &arguments,
-                           VcsBase::VcsBaseEditorWidget* editor = 0,
-                           bool useOutputToWindow = false,
-                           int editorLineNumber = -1);
+                                 const QStringList &arguments,
+                                 VcsBase::VcsBaseEditorWidget* editor = 0,
+                                 bool useOutputToWindow = false,
+                                 bool expectChanges = false,
+                                 int editorLineNumber = -1);
 
     // Fully synchronous git execution (QProcess-based).
     bool fullySynchronousGit(const QString &workingDirectory,

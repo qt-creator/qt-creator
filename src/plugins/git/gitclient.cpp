@@ -1207,7 +1207,7 @@ void GitClient::blame(const QString &workingDirectory,
     arguments << QLatin1String("--") << fileName;
     if (!revision.isEmpty())
         arguments << revision;
-    executeGit(workingDirectory, arguments, editor, false, lineNumber);
+    executeGit(workingDirectory, arguments, editor, false, false, lineNumber);
 }
 
 bool GitClient::synchronousCheckout(const QString &workingDirectory,
@@ -1242,8 +1242,7 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
     if (!commit.isEmpty())
         arguments << commit;
 
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    cmd->setExpectChanges(true);
+    executeGit(workingDirectory, arguments, 0, true, argument == QLatin1String("--hard"));
 }
 
 void GitClient::addFile(const QString &workingDirectory, const QString &fileName)
@@ -2106,6 +2105,7 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
                                         const QStringList &arguments,
                                         VcsBase::VcsBaseEditorWidget* editor,
                                         bool useOutputToWindow,
+                                        bool expectChanges,
                                         int editorLineNumber)
 {
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
@@ -2113,6 +2113,7 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
     command->setTerminationReportMode(VcsBase::Command::NoReport);
     command->setUnixTerminalDisabled(false);
+    command->setExpectChanges(expectChanges);
     command->execute();
     return command;
 }
@@ -2197,9 +2198,7 @@ void GitClient::submoduleUpdate(const QString &workingDirectory)
 {
     QStringList arguments;
     arguments << QLatin1String("submodule") << QLatin1String("update");
-
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    cmd->setExpectChanges(true);
+    executeGit(workingDirectory, arguments, 0, true, true);
 }
 
 void GitClient::promptSubmoduleUpdate(const QString &workingDirectory)
@@ -2821,9 +2820,7 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
 {
     QStringList arguments(QLatin1String("fetch"));
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
-
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    cmd->setExpectChanges(true);
+    executeGit(workingDirectory, arguments, 0, true);
 }
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
@@ -2965,9 +2962,7 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
     QStringList arguments(QLatin1String("push"));
     if (!pushArgs.isEmpty())
         arguments += pushArgs;
-
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    cmd->setExpectChanges(true);
+    executeGit(workingDirectory, arguments, 0, true);
 }
 
 bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch)
@@ -3058,8 +3053,7 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
     arguments << QLatin1String("pop");
     if (!stash.isEmpty())
         arguments << stash;
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    cmd->setExpectChanges(true);
+    executeGit(workingDirectory, arguments, 0, true, true);
 }
 
 void GitClient::stashPop(const QString &workingDirectory)
