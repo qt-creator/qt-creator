@@ -56,9 +56,6 @@ public Q_SLOTS:
     bool sendMessage(const QString &message, int timeout = 5000, qint64 pid = -1);
     void activateWindow();
 
-public:
-    void initialize(bool = true);
-
 Q_SIGNALS:
     void messageReceived(const QString &message, QObject *socket);
     void fileOpenRequest(const QString &file);

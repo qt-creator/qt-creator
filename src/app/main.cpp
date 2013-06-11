@@ -497,8 +497,7 @@ int main(int argc, char **argv)
         errorOverview.exec();
     }
 
-    // Set up lock and remote arguments.
-    app.initialize();
+    // Set up remote arguments.
     QObject::connect(&app, SIGNAL(messageReceived(QString,QObject*)),
                      &pluginManager, SLOT(remoteArguments(QString,QObject*)));
 

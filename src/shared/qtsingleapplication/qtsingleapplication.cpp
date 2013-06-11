@@ -93,6 +93,10 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
     // Add current pid to list and terminate it
     *pids++ = QCoreApplication::applicationPid();
     *pids = 0;
+    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') +
+                              QString::number(QCoreApplication::applicationPid()));
+    connect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), SIGNAL(messageReceived(QString,QObject*)));
+    pidPeer->isClient();
     lockfile.unlock();
 }
 
@@ -135,14 +139,6 @@ bool QtSingleApplication::isRunning(qint64 pid)
 
     QtLocalPeer peer(this, appId + QLatin1Char('-') + QString::number(pid, 10));
     return peer.isClient();
-}
-
-void QtSingleApplication::initialize(bool)
-{
-    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') +
-                              QString::number(QCoreApplication::applicationPid()));
-    connect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), SIGNAL(messageReceived(QString,QObject*)));
-    pidPeer->isClient();
 }
 
 bool QtSingleApplication::sendMessage(const QString &message, int timeout, qint64 pid)
