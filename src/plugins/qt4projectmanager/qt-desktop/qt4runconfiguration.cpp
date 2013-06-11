@@ -654,6 +654,7 @@ ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::doCreate(ProjectE
         if (node->path() != rc->proFilePath())
             continue;
         rc->setRunMode(node->variableValue(ConfigVar).contains(QLatin1String("console"))
+                       && !node->variableValue(QtVar).contains(QLatin1String("testlib"))
                        ? ProjectExplorer::LocalApplicationRunConfiguration::Console
                        : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
         break;
