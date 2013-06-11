@@ -13,8 +13,12 @@ TEMPLATE = app
 SOURCES += main.cpp \
     qmlstreamwriter.cpp
 
-OTHER_FILES += Info.plist
-macx:QMAKE_INFO_PLIST = Info.plist
+OTHER_FILES += Info.plist.in
+macx {
+    info.input = Info.plist.in
+    info.output = $$DESTDIR/$${TARGET}.app/Contents/Info.plist
+    QMAKE_SUBSTITUTES += info
+}
 
 HEADERS += \
     qmlstreamwriter.h
