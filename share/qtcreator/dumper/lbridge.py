@@ -124,7 +124,7 @@ def stripForFormat(typeName):
         return qqStripForFormat[typeName]
     stripped = ""
     inArray = 0
-    for c in stripClassTag(typeName):
+    for c in typeName:
         if c == '<':
             break
         if c == ' ':
@@ -406,11 +406,12 @@ class Children:
                 self.childNumChild = childNumChild
         try:
             if not addrBase is None and not addrStep is None:
-                self.d.put('addrbase="0x%x",' % long(addrBase))
-                self.d.put('addrstep="0x%x",' % long(addrStep))
+                self.d.put('addrbase="0x%x",' % int(addrBase))
+                self.d.put('addrstep="0x%x",' % int(addrStep))
                 self.printsAddress = False
         except:
             warn("ADDRBASE: %s" % addrBase)
+            warn("ADDRSTEP: %s" % addrStep)
         #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
 
     def __enter__(self):
@@ -475,6 +476,7 @@ class SubItem:
         if isinstance(self.name, str):
             self.d.put('name="%s",' % self.name)
         self.savedIName = self.d.currentIName
+        self.savedCurrentAddress = self.d.currentAddress
         self.savedValue = self.d.currentValue
         self.savedValuePriority = self.d.currentValuePriority
         self.savedValueEncoding = self.d.currentValueEncoding
@@ -504,6 +506,8 @@ class SubItem:
                 self.d.put('value="%s",' % self.d.currentValue)
         except:
             pass
+        if not self.d.currentAddress is None:
+            self.d.put(self.d.currentAddress)
         self.d.put('},')
         self.d.currentIName = self.savedIName
         self.d.currentValue = self.savedValue
@@ -511,6 +515,7 @@ class SubItem:
         self.d.currentValueEncoding = self.savedValueEncoding
         self.d.currentType = self.savedType
         self.d.currentTypePriority = self.savedTypePriority
+        self.d.currentAddress = self.savedCurrentAddress
         return True
 
 class Dumper:
@@ -534,6 +539,9 @@ class Dumper:
         self.autoDerefPointers = True
         self.useDynamicType = True
         self.useFancy = True
+        self.formats = {}
+        self.typeformats = {}
+        self.currentAddress = None
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -644,11 +652,10 @@ class Dumper:
         self.put('%s="%s",' % (name, value))
 
     def currentItemFormat(self):
-        #format = self.formats.get(self.currentIName)
-        #if format is None:
-        #    format = self.typeformats.get(stripForFormat(str(self.currentType)))
-        #return format
-        return 0
+        format = self.formats.get(self.currentIName)
+        if format is None:
+            format = self.typeformats.get(stripForFormat(str(self.currentType)))
+        return format
 
     def isMovableType(self, type):
         if type.code == PointerCode:
@@ -718,8 +725,11 @@ class Dumper:
         return True
 
     def putPlotData(self, type, base, n, plotFormat):
+        warn("PLOTDATA: %s %s" % (type, n))
         if self.isExpanded():
             self.putArrayData(type, base, n)
+        self.putValue(self.currentValue)
+        self.putField("plottable", "0")
 
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
@@ -931,9 +941,19 @@ class Dumper:
         with SubItem(self, component):
             self.putItem(value, tryDynamic)
 
+    def putAddress(self, addr):
+        if self.currentPrintsAddress:
+            try:
+                self.currentAddress = 'addr="0x%s",' % int(addr)
+            except:
+                pass
+
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
+
+        if tryDynamic:
+            self.putAddress(value.address)
 
         # Handle build-in LLDB visualizers if wanted.
         if self.useLldbDumpers and value.GetTypeSynthetic().IsValid():
