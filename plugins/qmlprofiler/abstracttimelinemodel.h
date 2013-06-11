@@ -79,7 +79,7 @@ public:
     Q_INVOKABLE virtual qint64 getStartTime(int index) const = 0;
     Q_INVOKABLE virtual qint64 getEndTime(int index) const = 0;
     Q_INVOKABLE virtual int getEventId(int index) const = 0;
-    Q_INVOKABLE virtual int getBindingLoopDest(int index) const = 0;
+    Q_INVOKABLE virtual int getBindingLoopDest(int index) const;
     Q_INVOKABLE virtual QColor getColor(int index) const = 0;
     Q_INVOKABLE virtual float getHeight(int index) const = 0;
 

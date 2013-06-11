@@ -48,6 +48,8 @@ enum BindingType {
     QmlBinding,
     V8Binding,
     OptimizedBinding,
+    QPainterEvent,
+    AnimationFrame,
 
     MaximumBindingType
 };

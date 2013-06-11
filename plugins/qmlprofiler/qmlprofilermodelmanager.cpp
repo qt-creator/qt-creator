@@ -202,6 +202,16 @@ void QmlProfilerModelManager::addV8Event(int depth, const QString &function, con
     d->v8Model->addV8Event(depth, function, filename, lineNumber,totalTime, selfTime);
 }
 
+void QmlProfilerModelManager::addFrameEvent(qint64 time, int framerate, int animationcount)
+{
+    if (d->traceTime->startTime() == -1)
+        d->traceTime->setStartTime(time);
+
+    QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
+    d->model->addFrameEvent(time, framerate, animationcount);
+    emit countChanged();
+}
+
 void QmlProfilerModelManager::addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5)
 {
     if (d->traceTime->startTime() == -1)

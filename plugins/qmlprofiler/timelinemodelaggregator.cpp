@@ -30,6 +30,7 @@
 #include "timelinemodelaggregator.h"
 #include <QStringList>
 #include "qmlprofilertimelinemodelproxy.h"
+#include "qmlprofilerpainteventsmodelproxy.h"
 #include <QVariant>
 #include "qmlprofilerplugin.h"
 
@@ -72,6 +73,11 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
 //    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
 //    connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
 //    d->modelList << new BasicTimelineModel(modelManager, this);
+
+    PaintEventsModelProxy *paintEventsModelProxy = new PaintEventsModelProxy(this);
+    paintEventsModelProxy->setModelManager(modelManager);
+    addModel(paintEventsModelProxy);
+
     BasicTimelineModel *basicTimelineModel = new BasicTimelineModel(this);
     basicTimelineModel->setModelManager(modelManager);
     addModel(basicTimelineModel);

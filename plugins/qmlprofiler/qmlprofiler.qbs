@@ -76,6 +76,8 @@ QtcPlugin {
         "timelinemodelaggregator.h",
         "timelinerenderer.cpp",
         "timelinerenderer.h",
+        "qmlprofilerpainteventsmodelproxy.h",
+        "qmlprofilerpainteventsmodelproxy.cpp",
         "canvas/qdeclarativecanvas.cpp",
         "canvas/qdeclarativecanvas_p.h",
         "canvas/qdeclarativecanvastimer.cpp",

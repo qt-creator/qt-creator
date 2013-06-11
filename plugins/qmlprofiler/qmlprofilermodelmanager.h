@@ -124,9 +124,8 @@ public slots:
                             qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
     void addV8Event(int depth, const QString &function,const QString &filename, int lineNumber,
                     double totalTime, double selfTime);
-#ifdef PROFILER_FRAMEEVENTS
-/*change*/    void addFrameEvent(qint64 time, int framerate, int animationcount);
-#endif
+
+    void addFrameEvent(qint64 time, int framerate, int animationcount);
 
     void complete();
 

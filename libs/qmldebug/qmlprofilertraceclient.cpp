@@ -250,6 +250,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 BindingType bindingType = QmlBinding;
                 if ((QmlEventType)range == Binding)
                     bindingType = d->bindingTypes.pop();
+                if ((QmlEventType)range == Painting)
+                    bindingType = QPainterEvent;
                 emit this->range((QmlEventType)range, bindingType, startTime, time - startTime, data, location);
                 if (d->rangeCount[range] == 0) {
                     int count = d->rangeDatas[range].count() +

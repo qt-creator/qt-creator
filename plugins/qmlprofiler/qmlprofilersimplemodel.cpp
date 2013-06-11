@@ -31,6 +31,7 @@
 #include <QStringList>
 #include <QVector>
 #include <QDebug>
+#include "qmldebug/qmlprofilereventtypes.h"
 
 namespace QmlProfiler {
 namespace Internal {
@@ -71,6 +72,13 @@ void QmlProfilerSimpleModel::addRangedEvent(int type, int bindingType, qint64 st
                 location.filename,
                 QString::number(location.line));
     QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location, 0, 0, 0, 0, 0};
+    eventList.append(eventData);
+}
+
+void QmlProfilerSimpleModel::addFrameEvent(qint64 time, int framerate, int animationcount)
+{
+    qint64 duration = 1e9 / framerate;
+    QmlEventData eventData = {tr("Animations"), QmlDebug::Painting, QmlDebug::AnimationFrame, time, duration, QStringList(), QmlDebug::QmlEventLocation(), framerate, animationcount, 0, 0, 0};
     eventList.append(eventData);
 }
 

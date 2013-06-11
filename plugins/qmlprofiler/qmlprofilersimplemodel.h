@@ -54,11 +54,11 @@ public:
         qint64 duration;
         QStringList data;
         QmlDebug::QmlEventLocation location;
-        qint64 timing1;
-        qint64 timing2;
-        qint64 timing3;
-        qint64 timing4;
-        qint64 timing5;
+        qint64 numericData1;
+        qint64 numericData2;
+        qint64 numericData3;
+        qint64 numericData4;
+        qint64 numericData5;
     };
 
     explicit QmlProfilerSimpleModel(QObject *parent = 0);
@@ -69,6 +69,7 @@ public:
     const QVector<QmlEventData> &getEvents() const;
     int count() const;
     void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length, const QStringList &data, const QmlDebug::QmlEventLocation &location);
+    void addFrameEvent(qint64 time, int framerate, int animationcount);
     void addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
     qint64 lastTimeMark() const;
     virtual void complete();

@@ -161,9 +161,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
             SIGNAL(addV8Event(int,QString,QString,int,double,double)),
             d->m_profilerModelManager,
             SLOT(addV8Event(int,QString,QString,int,double,double)));
-#ifdef PROFILER_FRAMEEVENTS
     connect(d->m_profilerConnections, SIGNAL(addFrameEvent(qint64,int,int)), d->m_profilerModelManager, SLOT(addFrameEvent(qint64,int,int)));
-#endif
     connect(d->m_profilerConnections, SIGNAL(traceStarted(qint64)), d->m_profilerModelManager->traceTime(), SLOT(setStartTime(qint64)));
     connect(d->m_profilerConnections, SIGNAL(traceFinished(qint64)), d->m_profilerModelManager->traceTime(), SLOT(setEndTime(qint64)));
     connect(d->m_profilerConnections, SIGNAL(dataReadyForProcessing()), d->m_profilerModelManager, SLOT(complete()));

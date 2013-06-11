@@ -65,5 +65,11 @@ int AbstractTimelineModel::getState() const
     return (int)m_modelManager->state();
 }
 
+int AbstractTimelineModel::getBindingLoopDest(int index) const
+{
+    Q_UNUSED(index);
+    return -1;
+}
+
 
 }

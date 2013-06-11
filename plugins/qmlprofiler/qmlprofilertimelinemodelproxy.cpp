@@ -163,6 +163,10 @@ bool compareEndTimes(const BasicTimelineModel::QmlRangeEventEndInstance &t1, con
 
 bool BasicTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
 {
+    // only accept Qt4.x Painting events
+    if (event.eventType == QmlDebug::Painting)
+        return event.bindingType == QmlDebug::QPainterEvent;
+
     return (event.eventType <= QmlDebug::HandlingSignal);
 }
 
