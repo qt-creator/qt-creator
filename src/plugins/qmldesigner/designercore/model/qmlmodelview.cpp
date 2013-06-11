@@ -116,8 +116,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
 
         foreach (const Import &import, model()->imports()) {
             if (import.isLibraryImport()
-                && import.url() == newImport.url()
-                && import.version() == newImport.version()) {
+                && import.url() == newImport.url()) {
                 // reuse this import
                 newImport = import;
                 break;
