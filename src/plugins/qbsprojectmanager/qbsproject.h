@@ -100,6 +100,7 @@ public slots:
     void invalidate();
     void parseCurrentBuildConfiguration();
     void delayParsing();
+    void delayForcedParsing();
 
 signals:
     void projectParsingStarted();
@@ -136,6 +137,7 @@ private:
 
     QFutureInterface<void> *m_qbsUpdateFutureInterface;
     int m_currentProgressBase;
+    bool m_forceParsing;
 
     QFuture<void> m_codeModelFuture;
 

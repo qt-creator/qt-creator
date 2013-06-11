@@ -103,9 +103,11 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_rootProjectNode(0),
     m_qbsSetupProjectJob(0),
     m_qbsUpdateFutureInterface(0),
+    m_currentProgressBase(0),
+    m_forceParsing(false),
     m_currentBc(0)
 {
-    m_parsingDelay.setInterval(1000); // delay (some) parsing by 1s.
+    m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setProjectContext(Core::Context(Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -310,8 +312,8 @@ void QbsProject::handleQbsParsingTaskSetup(const QString &description, int maxim
 void QbsProject::targetWasAdded(ProjectExplorer::Target *t)
 {
     connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(delayParsing()));
-    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayParsing()));
+            this, SLOT(delayForcedParsing()));
+    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayForcedParsing()));
 }
 
 void QbsProject::changeActiveTarget(ProjectExplorer::Target *t)
@@ -339,6 +341,12 @@ void QbsProject::buildConfigurationChanged(ProjectExplorer::BuildConfiguration *
 void QbsProject::delayParsing()
 {
     m_parsingDelay.start();
+}
+
+void QbsProject::delayForcedParsing()
+{
+    m_forceParsing = true;
+    delayParsing();
 }
 
 void QbsProject::parseCurrentBuildConfiguration()
@@ -383,12 +391,33 @@ void QbsProject::generateErrors(const qbs::Error &e)
 void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir)
 {
     QTC_ASSERT(!dir.isNull(), return);
-    prepareForParsing();
-
-    QTC_ASSERT(!m_qbsSetupProjectJob, return);
 
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
+    qbs::Error err = params.expandBuildConfiguration(m_manager->settings());
+    if (!err.entries().isEmpty()) {
+        generateErrors(err);
+        return;
+    }
+
+    // Avoid useless reparsing:
+    const qbs::Project *currentProject = qbsProject();
+    if (!m_forceParsing
+            && currentProject
+            && currentProject->projectConfiguration() == params.buildConfiguration()) {
+        QHash<QString, QString> usedEnv = currentProject->usedEnvironment();
+        bool canSkip = true;
+        for (QHash<QString, QString>::const_iterator i = usedEnv.constBegin();
+             i != usedEnv.constEnd(); ++i) {
+            if (env.value(i.key()) != i.value()) {
+                canSkip = false;
+                break;
+            }
+        }
+        if (canSkip)
+            return;
+    }
+
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_fileName);
     params.setIgnoreDifferentProjectFilePath(false);
@@ -398,8 +427,12 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
     params.setSearchPaths(prefs->searchPaths(buildDir));
     params.setPluginPaths(prefs->pluginPaths(buildDir));
 
+    // Do the parsing:
+    prepareForParsing();
+    QTC_ASSERT(!m_qbsSetupProjectJob, return);
+
     m_qbsSetupProjectJob
-            = qbs::Project::setupProject(params, m_manager->settings(), m_manager->logSink(), 0);
+            = qbs::Project::setupProject(params, m_manager->logSink(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));
@@ -413,6 +446,8 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
 
 void QbsProject::prepareForParsing()
 {
+    m_forceParsing = false;
+
     taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     if (m_qbsUpdateFutureInterface)
         m_qbsUpdateFutureInterface->reportCanceled();
