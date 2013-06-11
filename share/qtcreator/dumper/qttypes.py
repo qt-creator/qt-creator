@@ -2944,6 +2944,10 @@ def qdump__CPlusPlus__Literal(d, value):
     d.putValue(encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__StringLiteral(d, value):
+    d.putValue(encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__Internal__Value(d, value):
     d.putValue(value["l"])
     d.putPlainChildren(value)
