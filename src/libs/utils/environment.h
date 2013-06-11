@@ -77,7 +77,7 @@ public:
     void modify(const QList<EnvironmentItem> &list);
     /// Return the Environment changes necessary to modify this into the other environment.
     QList<EnvironmentItem> diff(const Environment &other) const;
-    bool hasKey(const QString &key);
+    bool hasKey(const QString &key) const;
 
     QString userName() const;
 
