@@ -2273,3 +2273,56 @@ void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG93
     QVERIFY(completions.contains(QLatin1String("Templ")));
     QVERIFY(completions.contains(QLatin1String("f")));
 }
+
+void CppToolsPlugin::test_completion_recursive_auto_declarations1_QTCREATORBUG9503()
+{
+    TestData data;
+    data.srcText =
+            "void f()\n"
+            "{\n"
+            "    auto object2 = object1;\n"
+            "    auto object1 = object2;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("object1.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 0);
+}
+
+void CppToolsPlugin::test_completion_recursive_auto_declarations2_QTCREATORBUG9503()
+{
+    TestData data;
+    data.srcText =
+            "void f()\n"
+            "{\n"
+            "    auto object3 = object1;\n"
+            "    auto object2 = object3;\n"
+            "    auto object1 = object2;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("object1.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 0);
+}
