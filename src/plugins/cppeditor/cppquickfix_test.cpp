@@ -334,10 +334,10 @@ public:
     AddIncludeForUndefinedIdentifierTestFactory(const QString &include)
         : m_include(include) {}
 
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result)
     {
         result += CppQuickFixOperation::Ptr(
-            new AddIncludeForUndefinedIdentifierOp(interface, 0, m_include));
+            new AddIncludeForUndefinedIdentifierOp(cppQuickFixInterface, 0, m_include));
     }
 
 private:
