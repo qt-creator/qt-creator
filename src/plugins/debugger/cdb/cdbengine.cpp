@@ -346,8 +346,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     m_currentBuiltinCommandIndex(-1),
     m_extensionCommandPrefixBA("!" QT_CREATOR_CDB_EXT "."),
     m_operateByInstructionPending(true),
-    m_verboseLogPending(true),
     m_operateByInstruction(true), // Default CDB setting
+    m_verboseLogPending(true),
     m_verboseLog(false), // Default CDB setting
     m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
