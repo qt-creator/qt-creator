@@ -2756,7 +2756,7 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInFunction()
 }
 
 /// Check: No trigger for functions in return statements (classes).
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass()
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass1()
 {
     const QByteArray original =
         "class Foo {public: static void fooFunc();}\n"
@@ -2770,14 +2770,43 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass()
     data.run(&factory);
 }
 
+/// Check: No trigger for functions in return statements (classes). (QTCREATORBUG-9525)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass2()
+{
+    const QByteArray original =
+        "class Foo {public: int fooFunc();}\n"
+        "int bar() {\n"
+        "    return (new Fo@o)->fooFunc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Check: No trigger for functions in return statements (functions).
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc()
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc1()
 {
     const QByteArray original =
         "class Foo {public: int fooFunc();}\n"
         "int bar() {\n"
         "    return Foo::fooFu@nc();\n"
         "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (functions). (QTCREATORBUG-9525)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc2()
+{
+    const QByteArray original =
+        "int bar() {\n"
+        "    return list.firs@t().foo;\n"
+        "}\n";
     const QByteArray expected = original + "\n";
 
     AssignToLocalVariable factory;

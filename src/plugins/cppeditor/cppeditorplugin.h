@@ -219,8 +219,10 @@ private slots:
     void test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction();
     void test_quickfix_AssignToLocalVariable_noFunctionInExpression();
     void test_quickfix_AssignToLocalVariable_noFunctionInFunction();
-    void test_quickfix_AssignToLocalVariable_noReturnClass();
-    void test_quickfix_AssignToLocalVariable_noReturnFunc();
+    void test_quickfix_AssignToLocalVariable_noReturnClass1();
+    void test_quickfix_AssignToLocalVariable_noReturnClass2();
+    void test_quickfix_AssignToLocalVariable_noReturnFunc1();
+    void test_quickfix_AssignToLocalVariable_noReturnFunc2();
     void test_quickfix_AssignToLocalVariable_noSignatureMatch();
 
     void test_quickfix_InsertVirtualMethods_onlyDecl();

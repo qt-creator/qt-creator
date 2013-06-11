@@ -4193,11 +4193,13 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                     return;
                 if (path.at(idx)->asMemInitializer())
                     return;
-                if (path.at(i - 1)->asBinaryExpression())
+            }
+            for (int a = i - 1; a > 0; --a) {
+                if (path.at(a)->asBinaryExpression())
                     return;
-                if (path.at(i - 1)->asReturnStatement())
+                if (path.at(a)->asReturnStatement())
                     return;
-                if (path.at(i - 1)->asCall())
+                if (path.at(a)->asCall())
                     return;
             }
 
@@ -4231,11 +4233,14 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                     return;
                 if (path.at(idx)->asMemInitializer())
                     return;
-                if (path.at(i - 1)->asReturnStatement())
+            }
+            for (int a = i - 1; a > 0; --a) {
+                if (path.at(a)->asReturnStatement())
                     return;
-                if (path.at(i - 1)->asCall())
+                if (path.at(a)->asCall())
                     return;
             }
+
             if (NamedTypeSpecifierAST *ts = path.at(i + 2)->asNamedTypeSpecifier()) {
                 nameAST = ts->name->asSimpleName();
                 visibleNameAST = nameAST;
