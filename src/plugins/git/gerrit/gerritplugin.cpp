@@ -151,6 +151,7 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     m_process.setWorkingDirectory(repository);
     m_process.setProcessEnvironment(Git::Internal::GitPlugin::instance()->
                                     gitClient()->processEnvironment());
+    m_process.closeWriteChannel();
 }
 
 FetchContext::~FetchContext()
