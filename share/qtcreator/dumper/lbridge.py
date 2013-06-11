@@ -1426,16 +1426,19 @@ class Dumper:
         result += ',contents="%s"}' % binascii.hexlify(contents)
         self.report(result)
 
+    def findValueByExpression(self, exp):
+        # FIXME: Top level-only for now.
+        frame = self.currentFrame()
+        value = frame.FindVariable(exp)
+        return value
+
     def assignValue(self, args):
+        error = lldb.SBError()
         exp = binascii.unhexlify(args['exp'])
         value = binascii.unhexlify(args['value'])
-        warn("EXP: %s" % exp)
-        warn("VALUE: %s" % value)
-        lhs = self.dummyValue.CreateValueFromExpression("$$lhs", exp)
-        rhs = self.dummyValue.CreateValueFromExpression("$$rhs", value)
-        warn("LHS: %s" % lhs)
-        warn("RHS: %s" % rhs)
-        #lhs.SetData(rhs.GetData())
+        lhs = self.findValueByExpression(exp)
+        lhs.SetValueFromCString(value, error)
+        self.reportError(error)
         self.reportVariables()
 
     def importDumpers(self, _ = None):
@@ -1535,3 +1538,4 @@ if len(sys.argv) > 2:
     testit()
 else:
     doit()
+
