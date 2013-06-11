@@ -45,6 +45,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/fancylineedit.h>
 
 #include <QDebug>
 #include <QMetaProperty>
@@ -102,8 +103,9 @@ public:
         }
 
         // Standard line edits for the rest.
-        QLineEdit *lineEdit = new QLineEdit(parent);
+        Utils::FancyLineEdit *lineEdit = new Utils::FancyLineEdit(parent);
         lineEdit->setFrame(false);
+        lineEdit->setHistoryCompleter(QLatin1String("WatchItems"));
         return lineEdit;
     }
 
