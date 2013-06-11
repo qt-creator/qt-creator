@@ -100,6 +100,9 @@ signals:
 public slots:
     void clearVersionControlCache();
 
+private slots:
+    void configureVcs();
+
 private:
     VcsManagerPrivate *d;
 };

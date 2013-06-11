@@ -31,6 +31,12 @@
 #include "iversioncontrol.h"
 #include "icore.h"
 #include "documentmanager.h"
+#include "editormanager.h"
+#include "ieditor.h"
+#include "idocument.h"
+#include "infobar.h"
+
+#include <vcsbase/vcsbaseconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -73,6 +79,9 @@ public:
         IVersionControl *versionControl;
         QString topLevel;
     };
+
+    VcsManagerPrivate() : m_unconfiguredVcs(0)
+    { }
 
     ~VcsManagerPrivate()
     {
@@ -165,6 +174,7 @@ public:
 
     QMap<QString, VcsInfo *> m_cachedMatches;
     QList<VcsInfo *> m_vcsInfoList;
+    IVersionControl *m_unconfiguredVcs;
 };
 
 VcsManager::VcsManager(QObject *parent) :
@@ -231,10 +241,8 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     foreach (IVersionControl * versionControl, versionControls) {
         QString topLevel;
-        if (versionControl->isConfigured()
-                && versionControl->managesDirectory(directory, &topLevel)) {
+        if (versionControl->managesDirectory(directory, &topLevel))
             allThatCanManage.push_back(StringVersionControlPair(topLevel, versionControl));
-        }
     }
 
     // To properly find a nested repository (say, git checkout inside SVN),
@@ -265,7 +273,26 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     // return result
     if (topLevelDirectory)
         *topLevelDirectory = allThatCanManage.first().first;
-    return allThatCanManage.first().second;
+    IVersionControl *versionControl = allThatCanManage.first().second;
+    if (!versionControl->isConfigured()) {
+        if (IEditor *curEditor = EditorManager::currentEditor()) {
+            if (IDocument *curDocument = curEditor->document()) {
+                Id vcsWarning("VcsNotConfiguredWarning");
+                InfoBar *infoBar = curDocument->infoBar();
+                if (infoBar->canInfoBeAdded(vcsWarning)) {
+                    InfoBarEntry info(vcsWarning,
+                                      tr("%1 repository was detected but %1 is not configured.")
+                                      .arg(versionControl->displayName()),
+                                      InfoBarEntry::GlobalSuppressionEnabled);
+                    d->m_unconfiguredVcs = versionControl;
+                    info.setCustomButtonInfo(tr("Configure"), this, SLOT(configureVcs()));
+                    infoBar->addInfo(info);
+                }
+            }
+        }
+        versionControl = 0;
+    }
+    return versionControl;
 }
 
 QStringList VcsManager::repositories(const IVersionControl *vc) const
@@ -397,6 +424,13 @@ void VcsManager::clearVersionControlCache()
     d->clearCache();
     foreach (const QString &repo, repoList)
         emit repositoryChanged(repo);
+}
+
+void VcsManager::configureVcs()
+{
+    QTC_ASSERT(d->m_unconfiguredVcs, return);
+    ICore::showOptionsDialog(Id(VcsBase::Constants::VCS_SETTINGS_CATEGORY),
+                             d->m_unconfiguredVcs->id());
 }
 
 } // namespace Core
