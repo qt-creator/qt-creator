@@ -305,7 +305,8 @@ ClassOrNamespace *LookupContext::globalNamespace() const
 }
 
 ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
-                                            ClassOrNamespace* enclosingTemplateInstantiation) const
+                                            ClassOrNamespace* enclosingTemplateInstantiation,
+                                            QSet<const Declaration *> typedefsBeingResolved) const
 {
     if (! scope) {
         return 0;
@@ -324,8 +325,14 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                         Overview oo;
                         qDebug() << "Looks like" << oo(name) << "is a typedef for" << oo(d->type());
 #endif // DEBUG_LOOKUP
-                        if (const NamedType *namedTy = d->type()->asNamedType())
-                            return lookupType(namedTy->name(), scope);
+                        if (const NamedType *namedTy = d->type()->asNamedType()) {
+                            // Stop on recursive typedef declarations
+                            if (typedefsBeingResolved.contains(d))
+                                return 0;
+                            return lookupType(namedTy->name(), scope, 0,
+                                              QSet<const Declaration *>(typedefsBeingResolved)
+                                                << d);
+                        }
                     }
                 }
             } else if (UsingDeclaration *ud = m->asUsingDeclaration()) {
