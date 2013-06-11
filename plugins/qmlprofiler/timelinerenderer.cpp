@@ -399,18 +399,22 @@ void TimelineRenderer::clearData()
 
 qint64 TimelineRenderer::getDuration(int index) const
 {
+    return 0;
 }
 
 QString TimelineRenderer::getFilename(int index) const
 {
+    return QString();
 }
 
 int TimelineRenderer::getLine(int index) const
 {
+    return 0;
 }
 
 QString TimelineRenderer::getDetails(int index) const
 {
+    return QString();
 }
 
 int TimelineRenderer::getYPosition(int modelIndex, int index) const
@@ -439,7 +443,7 @@ void TimelineRenderer::selectNext()
     if (m_selectedItem != -1)
         searchTime = m_profilerModelProxy->getStartTime(m_selectedModel, m_selectedItem);
 
-    int itemIndexes[m_profilerModelProxy->modelCount()];
+    QVarLengthArray<int> itemIndexes(m_profilerModelProxy->modelCount());
     for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
         if (m_profilerModelProxy->count(i) > 0) {
             if (m_selectedModel == i) {
@@ -496,7 +500,7 @@ void TimelineRenderer::selectPrev()
     if (m_selectedItem != -1)
         searchTime = m_profilerModelProxy->getEndTime(m_selectedModel, m_selectedItem);
 
-    int itemIndexes[m_profilerModelProxy->modelCount()];
+    QVarLengthArray<int> itemIndexes(m_profilerModelProxy->modelCount());
     for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
         if (m_selectedModel == i) {
             itemIndexes[i] = m_selectedItem - 1;
