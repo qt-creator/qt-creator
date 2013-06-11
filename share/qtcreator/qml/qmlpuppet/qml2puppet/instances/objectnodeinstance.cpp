@@ -153,16 +153,6 @@ void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
     m_nodeInstanceServer = server;
 }
 
-static bool hasPropertiesWitoutNotifications(const QMetaObject *metaObject)
-{
-    for (int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
-        if (!metaObject->property(propertyIndex).hasNotifySignal())
-            return true;
-    }
-
-    return false;
-}
-
 void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
     m_metaObject = NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
