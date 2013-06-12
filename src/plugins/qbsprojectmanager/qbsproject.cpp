@@ -288,6 +288,7 @@ void QbsProject::handleQbsParsingDone(bool success)
     foreach (ProjectExplorer::Target *t, targets())
         t->updateDefaultRunConfigurations();
 
+    emit fileListChanged();
     emit projectParsingDone(success);
 }
 
