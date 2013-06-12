@@ -248,6 +248,7 @@ public:
     {
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
         setItemDelegate(new CategoryListViewDelegate(this));
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
     virtual QSize sizeHint() const
@@ -256,6 +257,16 @@ public:
         if (verticalScrollBar()->isVisible())
             width += verticalScrollBar()->width();
         return QSize(width, 100);
+    }
+
+    // QListView installs a event filter on its scrollbars
+    virtual bool eventFilter(QObject *obj, QEvent *event)
+    {
+        if (obj == verticalScrollBar()
+                && (event->type() == QEvent::Show
+                    || event->type() == QEvent::Hide))
+            updateGeometry();
+        return QListView::eventFilter(obj, event);
     }
 };
 
