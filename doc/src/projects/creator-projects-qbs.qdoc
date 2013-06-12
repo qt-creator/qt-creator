@@ -67,15 +67,6 @@
 
             \image creator-qbs-project.png
 
-        \li Select \gui Build > \gui {Build Project} to build the executable, so
-            that you can specify it in the run settings of the project.
-
-        \li Select \gui Projects > \gui {Run}, and specify the executable in the
-            \gui Command field. This allows you to run it directly from \QC.
-            This will happen automatically in a future release.
-
-            \image creator-run-settings-qbs.png
-
         \li Click the
             \inlineimage qtcreator-run.png
             (\gui Run) button to run the application.
