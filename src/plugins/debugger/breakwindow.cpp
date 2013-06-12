@@ -864,7 +864,7 @@ void BreakTreeView::deleteAllBreakpoints()
 {
     if (QMessageBox::warning(debuggerCore()->mainWindow(),
            tr("Remove All Breakpoints"),
-           tr("Are you sure you want to remove all breakpoints\n"
+           tr("Are you sure you want to remove all breakpoints "
               "from all files in the current session?"),
            QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
         deleteBreakpoints(breakHandler()->allBreakpointIds());
