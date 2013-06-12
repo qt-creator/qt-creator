@@ -10,6 +10,8 @@ macx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../
 
 QBS_BUILD_DIR_FWD_SLASHES = $$replace(QBS_BUILD_DIR, \\\\, /)
 DEFINES += QBS_BUILD_DIR=\\\"$$QBS_BUILD_DIR_FWD_SLASHES\\\"
+DEFINES += \
+    QBSPROJECTMANAGER_LIBRARY
 
 HEADERS = \
     qbsbuildconfiguration.h \
