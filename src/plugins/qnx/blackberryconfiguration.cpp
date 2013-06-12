@@ -56,7 +56,6 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
-#include <QDesktopServices>
 
 namespace Qnx {
 namespace Internal {
@@ -449,46 +448,24 @@ Utils::FileName BlackBerryConfiguration::sysRoot() const
     return m_config.sysRoot;
 }
 
-QString BlackBerryConfiguration::dataDirPath() const
-{
-    const QString homeDir = QDir::homePath();
-
-    if (Utils::HostOsInfo::isMacHost())
-        return homeDir + QLatin1String("/Library/Research in Motion");
-
-    if (Utils::HostOsInfo::isAnyUnixHost())
-        return homeDir + QLatin1String("/.rim");
-
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        // Get the proper storage location on Windows using QDesktopServices,
-        // to not hardcode "AppData/Local", as it might refer to "AppData/Roaming".
-        QString dataDir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-        dataDir = dataDir.left(dataDir.indexOf(QCoreApplication::organizationName()));
-        dataDir.append(QLatin1String("Research in Motion"));
-        return dataDir;
-    }
-
-    return QString();
-}
-
 QString BlackBerryConfiguration::barsignerCskPath() const
 {
-    return dataDirPath() + QLatin1String("/barsigner.csk");
+    return QnxUtils::dataDirPath() + QLatin1String("/barsigner.csk");
 }
 
 QString BlackBerryConfiguration::barsignerDbPath() const
 {
-    return dataDirPath() + QLatin1String("/barsigner.db");
+    return QnxUtils::dataDirPath() + QLatin1String("/barsigner.db");
 }
 
 QString BlackBerryConfiguration::defaultKeystorePath() const
 {
-    return dataDirPath() + QLatin1String("/author.p12");
+    return QnxUtils::dataDirPath() + QLatin1String("/author.p12");
 }
 
 QString BlackBerryConfiguration::defaultDebugTokenPath() const
 {
-    return dataDirPath() + QLatin1String("/debugtoken.bar");
+    return QnxUtils::dataDirPath() + QLatin1String("/debugtoken.bar");
 }
 
 // TODO: QnxUtils::parseEnvFile() and qnxEnv() to return Util::Enviroment instead(?)

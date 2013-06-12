@@ -36,6 +36,7 @@
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
 #include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
 #include "blackberryconfiguration.h"
+#include "qnxutils.h"
 
 #include <coreplugin/icore.h>
 #include <ssh/sshkeygenerator.h>
@@ -70,7 +71,7 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
     m_ui->debugToken->setExpectedKind(Utils::PathChooser::File);
     m_ui->debugToken->setPromptDialogFilter(QLatin1String("*.bar"));
 
-    QString debugTokenBrowsePath = BlackBerryConfiguration::instance().dataDirPath();
+    QString debugTokenBrowsePath = QnxUtils::dataDirPath();
     if (!QFileInfo(debugTokenBrowsePath).exists())
         debugTokenBrowsePath = QDir::homePath();
     m_ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);
@@ -168,7 +169,7 @@ BlackBerryDeviceConfigurationWizardSshKeyPage::BlackBerryDeviceConfigurationWiza
     m_ui->privateKey->setExpectedKind(Utils::PathChooser::File);
     m_ui->progressBar->hide();
 
-    QString initialBrowsePath = BlackBerryConfiguration::instance().dataDirPath();
+    QString initialBrowsePath = QnxUtils::dataDirPath();
     if (!QFileInfo(initialBrowsePath).exists())
         initialBrowsePath = QDir::homePath();
     m_ui->privateKey->setInitialBrowsePathBackup(initialBrowsePath);
@@ -267,7 +268,7 @@ bool BlackBerryDeviceConfigurationWizardSshKeyPage::saveKeys(const QString &priv
 
 void BlackBerryDeviceConfigurationWizardSshKeyPage::generateSshKeys()
 {
-    QString lookInDir = BlackBerryConfiguration::instance().dataDirPath();
+    QString lookInDir = QnxUtils::dataDirPath();
     if (!QFileInfo(lookInDir).exists())
         lookInDir = QDir::homePath();
 

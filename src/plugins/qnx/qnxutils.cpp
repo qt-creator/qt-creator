@@ -35,6 +35,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QDir>
+#include <QDesktopServices>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -213,3 +214,26 @@ Utils::FileName QnxUtils::executableWithExtension(const Utils::FileName &fileNam
         result.append(QLatin1String(".exe"));
     return result;
 }
+
+QString QnxUtils::dataDirPath()
+{
+    const QString homeDir = QDir::homePath();
+
+    if (Utils::HostOsInfo::isMacHost())
+        return homeDir + QLatin1String("/Library/Research in Motion");
+
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        return homeDir + QLatin1String("/.rim");
+
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // Get the proper storage location on Windows using QDesktopServices,
+        // to not hardcode "AppData/Local", as it might refer to "AppData/Roaming".
+        QString dataDir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+        dataDir = dataDir.left(dataDir.indexOf(QCoreApplication::organizationName()));
+        dataDir.append(QLatin1String("Research in Motion"));
+        return dataDir;
+    }
+
+    return QString();
+}
+

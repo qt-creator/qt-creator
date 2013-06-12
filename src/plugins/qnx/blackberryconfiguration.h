@@ -83,7 +83,6 @@ public:
     QString targetName() const;
     QString barsignerCskPath() const;
     QString barsignerDbPath() const;
-    QString dataDirPath() const;
     QString defaultKeystorePath() const;
     QString defaultDebugTokenPath() const;
     void loadSettings();
