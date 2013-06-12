@@ -36,6 +36,7 @@
 
 #include <QDir>
 #include <QDesktopServices>
+#include <QDomDocument>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -98,6 +99,12 @@ QMultiMap<QString, QString> QnxUtils::parseEnvironmentFile(const QString &fileNa
             var = var.right(var.size() - 4);
 
         QString value = line.mid(equalIndex + 1);
+
+        // BASE_DIR variable is evaluated when souring the bbnk-env script
+        // BASE_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd )"
+        // We already know the NDK path so we can set the variable value
+        if (var == QLatin1String("BASE_DIR"))
+            value = QFileInfo(fileName).dir().absolutePath();
 
         if (Utils::HostOsInfo::isWindowsHost()) {
             QRegExp systemVarRegExp(QLatin1String("IF NOT DEFINED ([\\w\\d]+)\\s+set ([\\w\\d]+)=([\\w\\d]+)"));
@@ -187,6 +194,14 @@ QString QnxUtils::envFilePath(const QString &ndkPath)
     else if (Utils::HostOsInfo::isAnyUnixHost())
         envFile = ndkPath + QLatin1String("/bbndk-env.sh");
 
+    if (!QFileInfo(envFile).exists()) {
+        QString version = ndkVersion(ndkPath);
+        version = version.replace(QLatin1Char('.'), QLatin1Char('_'));
+        if (Utils::HostOsInfo::isWindowsHost())
+            envFile = ndkPath + QLatin1String("/bbndk-env_") + version + QLatin1String(".bat");
+        else if (Utils::HostOsInfo::isAnyUnixHost())
+            envFile = ndkPath + QLatin1String("/bbndk-env_") + version + QLatin1String(".sh");
+    }
     return envFile;
 }
 
@@ -237,3 +252,45 @@ QString QnxUtils::dataDirPath()
     return QString();
 }
 
+QString QnxUtils::qConfigPath()
+{
+    if (Utils::HostOsInfo::isMacHost() || Utils::HostOsInfo::isWindowsHost()) {
+        return dataDirPath() + QLatin1String("/BlackBerry Native SDK/qconfig");
+    } else {
+        return dataDirPath() + QLatin1String("/bbndk/qconfig");
+    }
+}
+
+QString QnxUtils::ndkVersion(const QString &ndkPath)
+{
+    QString ndkConfigPath = qConfigPath();
+    if (!QDir(ndkConfigPath).exists())
+        return QString();
+
+    QFileInfoList ndkfileList = QDir(ndkConfigPath).entryInfoList(QStringList() << QLatin1String("*.xml"),
+                                                                  QDir::Files, QDir::Time);
+    foreach (const QFileInfo &ndkFile, ndkfileList) {
+        QFile xmlFile(ndkFile.absoluteFilePath());
+        if (!xmlFile.open(QIODevice::ReadOnly))
+            continue;
+
+        QDomDocument doc;
+        if (!doc.setContent(&xmlFile))  // Skip error message
+            continue;
+
+        QDomElement docElt = doc.documentElement();
+        if (docElt.tagName() != QLatin1String("qnxSystemDefinition"))
+            continue;
+
+        QDomElement childElt = docElt.firstChildElement(QLatin1String("installation"));
+        // The file contains only one installation node
+        if (!childElt.isNull()) {
+            // The file contains only one base node
+            QDomElement elt = childElt.firstChildElement(QLatin1String("base"));
+            if (!elt.text().compare(ndkPath, Utils::HostOsInfo::fileNameCaseSensitivity()))
+                return childElt.firstChildElement(QLatin1String("version")).text();
+        }
+    }
+
+    return QString();
+}
