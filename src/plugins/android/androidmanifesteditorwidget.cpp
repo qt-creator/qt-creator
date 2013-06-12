@@ -137,7 +137,7 @@ void AndroidManifestEditorWidget::initializePage()
                     "with levels in the hierarchy separated by periods (.) (pronounced \"dot\").</p>"
                     "<p align=\"justify\">In general, a package name begins with the top level domain name"
                     " of the organization and then the organization's domain and then any subdomains listed"
-                    "in reverse order. The organization can then choose a specific name for their package."
+                    " in reverse order. The organization can then choose a specific name for their package."
                     " Package names should be all lowercase characters whenever possible.</p>"
                     "<p align=\"justify\">Complete conventions for disambiguating package names and rules for"
                     " naming packages when the Internet domain name cannot be directly used as a package name"
