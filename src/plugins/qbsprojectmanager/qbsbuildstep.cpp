@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <qbs.h>
 
@@ -332,7 +333,8 @@ void QbsBuildStep::setMaxJobs(int jobcount)
 // --------------------------------------------------------------------
 
 QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
-    m_step(step)
+    m_step(step),
+    m_ignoreChange(false)
 {
     connect(m_step, SIGNAL(displayNameChanged()), this, SLOT(updateState()));
     connect(m_step, SIGNAL(qbsConfigurationChanged()), this, SLOT(updateState()));
@@ -348,6 +350,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
     connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
+    connect(m_ui->propertyEdit, SIGNAL(propertiesChanged()), this, SLOT(changeProperties()));
 
     updateState();
 }
@@ -364,9 +367,12 @@ QString QbsBuildStepConfigWidget::displayName() const
 
 void QbsBuildStepConfigWidget::updateState()
 {
-    m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
-    m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
-    m_ui->jobSpinBox->setValue(m_step->maxJobs());
+    if (!m_ignoreChange) {
+        m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
+        m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
+        m_ui->jobSpinBox->setValue(m_step->maxJobs());
+        updatePropertyEdit(m_step->qbsConfiguration());
+    }
 
     const QString buildVariant = m_step->buildVariant();
     const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
@@ -380,11 +386,32 @@ void QbsBuildStepConfigWidget::updateState()
     command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     command += QString::fromLatin1("profile:%1 %2").arg(m_step->profile(), buildVariant);
 
+    QList<QPair<QString, QString> > propertyList = m_ui->propertyEdit->properties();
+    for (int i = 0; i < propertyList.count(); ++i) {
+        command += QLatin1Char(' ') + propertyList.at(i).first
+                + QLatin1Char(':') + propertyList.at(i).second;
+    }
+
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
-    if (m_summary !=  summary) {
+    if (m_summary != summary) {
         m_summary = summary;
         emit updateSummary();
     }
+}
+
+void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
+{
+    QVariantMap editable = data;
+
+    // remove data that is edited with special UIs:
+    editable.remove(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY));
+    editable.remove(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY));
+
+    QStringList propertyList;
+    for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
+        propertyList.append(i.key() + QLatin1Char(':') + i.value().toString());
+
+    m_ui->propertyEdit->setText(Utils::QtcProcess::joinArgs(propertyList));
 }
 
 void QbsBuildStepConfigWidget::changeBuildVariant(int idx)
@@ -394,22 +421,49 @@ void QbsBuildStepConfigWidget::changeBuildVariant(int idx)
         variant = QLatin1String(Constants::QBS_VARIANT_RELEASE);
     else
         variant = QLatin1String(Constants::QBS_VARIANT_DEBUG);
+    m_ignoreChange = true;
     m_step->setBuildVariant(variant);
+    m_ignoreChange = false;
 }
 
 void QbsBuildStepConfigWidget::changeDryRun(bool dr)
 {
+    m_ignoreChange = true;
     m_step->setDryRun(dr);
+    m_ignoreChange = false;
 }
 
 void QbsBuildStepConfigWidget::changeKeepGoing(bool kg)
 {
+    m_ignoreChange = true;
     m_step->setKeepGoing(kg);
+    m_ignoreChange = false;
 }
 
 void QbsBuildStepConfigWidget::changeJobCount(int count)
 {
+    m_ignoreChange = true;
     m_step->setMaxJobs(count);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeProperties()
+{
+    QVariantMap data;
+    QVariantMap tmp = m_step->qbsConfiguration();
+
+    // Insert values set up with special UIs:
+    data.insert(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY),
+                tmp.value(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY)));
+    data.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
+                tmp.value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)));
+    QList<QPair<QString, QString> > propertyList = m_ui->propertyEdit->properties();
+    for (int i = 0; i < propertyList.count(); ++i)
+        data.insert(propertyList.at(i).first, propertyList.at(i).second);
+
+    m_ignoreChange = true;
+    m_step->setQbsConfiguration(data);
+    m_ignoreChange = false;
 }
 
 // --------------------------------------------------------------------

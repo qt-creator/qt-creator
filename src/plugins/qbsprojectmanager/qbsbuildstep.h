@@ -118,17 +118,20 @@ public:
 
 private slots:
     void updateState();
+    void updatePropertyEdit(const QVariantMap &data);
 
     void changeBuildVariant(int);
     void changeDryRun(bool dr);
     void changeKeepGoing(bool kg);
     void changeJobCount(int count);
+    void changeProperties();
 
 private:
     Ui::QbsBuildStepConfigWidget *m_ui;
 
     QbsBuildStep *m_step;
     QString m_summary;
+    bool m_ignoreChange;
 };
 
 
