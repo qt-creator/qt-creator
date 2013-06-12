@@ -99,6 +99,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QbsProject
+} // namespace QbsProjectManager
 
 #endif // QBSPROJECTMANAGERPLUGIN_H
