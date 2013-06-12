@@ -209,6 +209,7 @@ private slots:
     void test_quickfix_AssignToLocalVariable_memberFunction();
     void test_quickfix_AssignToLocalVariable_staticMemberFunction();
     void test_quickfix_AssignToLocalVariable_newExpression();
+    void test_quickfix_AssignToLocalVariable_templates();
     void test_quickfix_AssignToLocalVariable_noInitializationList();
     void test_quickfix_AssignToLocalVariable_noVoidFunction();
     void test_quickfix_AssignToLocalVariable_noVoidMemberFunction();

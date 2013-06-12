@@ -4081,6 +4081,7 @@ public:
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(assistInterface()->semanticInfo().doc, snapshot(),
                               assistInterface()->context().bindings());
+        typeOfExpression.setExpandTemplates(true);
         Scope *scope = file->scopeAt(m_ast->firstToken());
         const QList<LookupItem> result = typeOfExpression(file->textOf(m_ast).toUtf8(),
                                                           scope, TypeOfExpression::Preprocess);
@@ -4220,6 +4221,7 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(interface->semanticInfo().doc, interface->snapshot(),
                               interface->context().bindings());
+        typeOfExpression.setExpandTemplates(true);
 
         // If items are empty, AssignToLocalVariableOperation will fail.
         items = typeOfExpression(file->textOf(outerAST).toUtf8(),

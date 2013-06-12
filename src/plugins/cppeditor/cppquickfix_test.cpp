@@ -2507,6 +2507,44 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_newExpression()
     data.run(&factory);
 }
 
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
+{
+
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "template <typename T>\n"
+        "class List {\n"
+        "public:\n"
+        "    T first();"
+        "};\n"
+        ;
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "void foo() {\n"
+        "    List<int> list;\n"
+        "    li@st.first();\n"
+        "}";
+    expected =
+        "#include \"file.h\"\n"
+        "void foo() {\n"
+        "    List<int> list;\n"
+        "    int localFirst = list.first();\n"
+        "}\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AssignToLocalVariable factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
 /// Check: No trigger for function inside member initialization list.
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noInitializationList()
 {
