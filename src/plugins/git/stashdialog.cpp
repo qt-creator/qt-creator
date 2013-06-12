@@ -103,13 +103,13 @@ StashDialog::StashDialog(QWidget *parent) :
     ui(new Ui::StashDialog),
     m_model(new StashModel),
     m_proxyModel(new QSortFilterProxyModel),
-    m_deleteAllButton(new QPushButton(tr("Delete All..."))),
-    m_deleteSelectionButton(new QPushButton(tr("Delete..."))),
-    m_showCurrentButton(new QPushButton(tr("Show"))),
-    m_restoreCurrentButton(new QPushButton(tr("Restore..."))),
+    m_deleteAllButton(new QPushButton(tr("Delete &All..."))),
+    m_deleteSelectionButton(new QPushButton(tr("&Delete..."))),
+    m_showCurrentButton(new QPushButton(tr("&Show"))),
+    m_restoreCurrentButton(new QPushButton(tr("R&estore..."))),
     //: Restore a git stash to new branch to be created
-    m_restoreCurrentInBranchButton(new QPushButton(tr("Restore to Branch..."))),
-    m_refreshButton(new QPushButton(tr("Refresh")))
+    m_restoreCurrentInBranchButton(new QPushButton(tr("Restore to &Branch..."))),
+    m_refreshButton(new QPushButton(tr("Re&fresh")))
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setAttribute(Qt::WA_DeleteOnClose, true);  // Do not update unnecessarily
