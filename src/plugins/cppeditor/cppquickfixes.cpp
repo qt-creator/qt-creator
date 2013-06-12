@@ -737,7 +737,6 @@ public:
 
     ASTMatcher matcher;
     ASTPatternBuilder mk;
-    CPPEditorWidget *editor;
     ConditionAST *condition;
     IfStatementAST *pattern;
     CoreDeclaratorAST *core;
@@ -809,7 +808,6 @@ public:
 
     ASTMatcher matcher;
     ASTPatternBuilder mk;
-    CPPEditorWidget *editor;
     ConditionAST *condition;
     WhileStatementAST *pattern;
     CoreDeclaratorAST *core;
