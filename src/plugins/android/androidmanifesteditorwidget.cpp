@@ -569,7 +569,7 @@ bool AndroidManifestEditorWidget::checkDocument(QDomDocument doc, QString *error
         return false;
     } else if (manifest.firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).isNull()) {
         // missing either application or activity element
-        *errorMessage = tr("The structure of the android manifest file is corrupt. Expected a 'application' and 'activity' sub node.");
+        *errorMessage = tr("The structure of the Android manifest file is corrupt. Expected an 'application' and 'activity' sub node.");
         *errorLine = -1;
         *errorColumn = -1;
         return false;
