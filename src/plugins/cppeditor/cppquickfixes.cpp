@@ -3723,14 +3723,11 @@ public:
     };
 
     MoveFuncDefOutsideOp(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
-                         MoveType type, FunctionDefinitionAST *funcDef, const QString cppFileName,
-                         const SimpleDeclarationAST *classAST, bool insideHeader)
+                         MoveType type, FunctionDefinitionAST *funcDef, const QString cppFileName)
         : CppQuickFixOperation(interface, 0)
         , m_funcDef(funcDef)
         , m_type(type)
         , m_cppFileName(cppFileName)
-        , m_classAST(classAST)
-        , m_insideHeader(insideHeader)
         , m_func(funcDef->symbol)
         , m_headerFileName(QString::fromUtf8(m_func->fileName(), m_func->fileNameLength()))
     {
@@ -3795,8 +3792,6 @@ private:
     FunctionDefinitionAST *m_funcDef;
     MoveType m_type;
     const QString m_cppFileName;
-    const SimpleDeclarationAST *m_classAST;
-    bool m_insideHeader;
     Function *m_func;
     const QString m_headerFileName;
 };
@@ -3845,12 +3840,12 @@ void MoveFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOp
                           new MoveFuncDefOutsideOp(interface, ((moveOutsideMemberDefinition) ?
                                                    MoveFuncDefOutsideOp::MoveOutsideMemberToCppFile
                                                    : MoveFuncDefOutsideOp::MoveToCppFile),
-                                                   funcAST, cppFileName, 0, isHeaderFile)));
+                                                   funcAST, cppFileName)));
 
     if (classAST)
         result.append(CppQuickFixOperation::Ptr(
                           new MoveFuncDefOutsideOp(interface, MoveFuncDefOutsideOp::MoveOutside,
-                                                   funcAST, QLatin1String(""), classAST, false)));
+                                                   funcAST, QLatin1String(""))));
 
     return;
 }
