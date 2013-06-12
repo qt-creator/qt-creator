@@ -102,41 +102,6 @@ private:
     friend class QbsStepConfigWidget;
 };
 
-namespace Ui { class QbsStepConfigWidget; }
-
-class QbsStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    QbsStepConfigWidget(QbsStep *step);
-    QString summaryText() const;
-    QString displayName() const;
-
-private slots:
-
-    void changeDryRun(bool dr);
-    void changeKeepGoing(bool kg);
-    void changeJobCount(int count);
-
-protected slots:
-    void updateState();
-
-protected:
-    void addWidget(QWidget *widget);
-    void setJobCountUiVisible(bool show);
-
-    virtual QString qbsCommand() const = 0;
-    virtual QString additionalQbsArguments() const = 0;
-
-    QbsStep *buildStep() const { return m_step; }
-
-private:
-    Ui::QbsStepConfigWidget *m_ui;
-
-    QbsStep *m_step;
-    QString m_summary;
-};
-
 } // namespace Internal
 } // namespace QbsProjectManager
 

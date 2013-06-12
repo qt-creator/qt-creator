@@ -54,5 +54,4 @@ SOURCES = \
 FORMS = \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
-    qbsinstallstepconfigwidget.ui \
-    qbsstepconfigwidget.ui
+    qbsinstallstepconfigwidget.ui

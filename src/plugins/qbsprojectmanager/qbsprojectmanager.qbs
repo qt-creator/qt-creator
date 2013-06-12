@@ -84,8 +84,7 @@ QtcPlugin {
         "qbsrunconfiguration.cpp",
         "qbsrunconfiguration.h",
         "qbsstep.cpp",
-        "qbsstep.h",
-        "qbsstepconfigwidget.ui"
+        "qbsstep.h"
     ]
 }
 
