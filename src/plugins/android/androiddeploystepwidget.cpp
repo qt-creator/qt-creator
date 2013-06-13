@@ -47,6 +47,21 @@ AndroidDeployStepWidget::AndroidDeployStepWidget(AndroidDeployStep *step) :
 {
     ui->setupUi(this);
 
+    deployOptionsChanged();
+
+    connect(ui->ministroOption, SIGNAL(clicked()), SLOT(setMinistro()));
+    connect(ui->temporaryQtOption, SIGNAL(clicked()), SLOT(setDeployLocalQtLibs()));
+    connect(ui->bundleQtOption, SIGNAL(clicked()), SLOT(setBundleQtLibs()));
+
+    connect(ui->chooseButton, SIGNAL(clicked()), SLOT(setQASIPackagePath()));
+    connect(ui->cleanLibsPushButton, SIGNAL(clicked()), SLOT(cleanLibsOnDevice()));
+
+    connect(m_step, SIGNAL(deployOptionsChanged()),
+            this, SLOT(deployOptionsChanged()));
+}
+
+void AndroidDeployStepWidget::deployOptionsChanged()
+{
     switch (m_step->deployAction()) {
     case AndroidDeployStep::NoDeploy:
         ui->ministroOption->setChecked(true);
@@ -62,12 +77,7 @@ AndroidDeployStepWidget::AndroidDeployStepWidget(AndroidDeployStep *step) :
         break;
     }
 
-    connect(ui->ministroOption, SIGNAL(clicked()), SLOT(setMinistro()));
-    connect(ui->temporaryQtOption, SIGNAL(clicked()), SLOT(setDeployLocalQtLibs()));
-    connect(ui->bundleQtOption, SIGNAL(clicked()), SLOT(setBundleQtLibs()));
-
-    connect(ui->chooseButton, SIGNAL(clicked()), SLOT(setQASIPackagePath()));
-    connect(ui->cleanLibsPushButton, SIGNAL(clicked()), SLOT(cleanLibsOnDevice()));
+    ui->bundleQtOption->setVisible(m_step->bundleQtOptionAvailable());
 }
 
 AndroidDeployStepWidget::~AndroidDeployStepWidget()

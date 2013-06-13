@@ -83,9 +83,14 @@ void AndroidDeployStep::ctor()
     setDefaultDisplayName(tr("Deploy to Android device"));
     m_deployAction = NoDeploy;
 
-    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit()))
-        if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
-            m_deployAction = BundleLibraries;
+    QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    m_bundleQtAvailable = qt && qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
+    if (m_bundleQtAvailable)
+        m_deployAction = BundleLibraries;
+
+
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitUpdated(ProjectExplorer::Kit *)));
 }
 
 bool AndroidDeployStep::init()
@@ -157,6 +162,14 @@ bool AndroidDeployStep::fromMap(const QVariantMap &map)
 
     if (m_deployAction == InstallQASI)
         m_deployAction = NoDeploy;
+    QtSupport::BaseQtVersion *qtVersion
+            = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (m_deployAction == BundleLibraries)
+        if (!qtVersion || qtVersion->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0))
+            m_deployAction = NoDeploy; // the kit changed to a non qt5 kit
+
+    m_bundleQtAvailable = qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
+
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -201,6 +214,24 @@ void AndroidDeployStep::processFinished()
     process->deleteLater();
 }
 
+void AndroidDeployStep::kitUpdated(Kit *kit)
+{
+    if (kit != target()->kit())
+        return;
+    QtSupport::BaseQtVersion *qtVersion
+            = QtSupport::QtKitInformation::qtVersion(target()->kit());
+
+    bool newBundleQtAvailable = qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
+    if (m_bundleQtAvailable != newBundleQtAvailable) {
+        m_bundleQtAvailable = newBundleQtAvailable;
+
+        if (!m_bundleQtAvailable && m_deployAction == BundleLibraries)
+            m_deployAction = NoDeploy; // the kit changed to a non qt5 kit
+
+        emit deployOptionsChanged();
+    }
+}
+
 void AndroidDeployStep::installQASIPackage(const QString &packagePath)
 {
     const QString targetArch = AndroidManager::targetArch(target());
@@ -224,6 +255,11 @@ void AndroidDeployStep::installQASIPackage(const QString &packagePath)
     process->start(adb, arguments);
     if (!process->waitForFinished(500))
         delete process;
+}
+
+bool AndroidDeployStep::bundleQtOptionAvailable()
+{
+    return m_bundleQtAvailable;
 }
 
 void AndroidDeployStep::setDeployAction(AndroidDeployStep::AndroidDeployAction deploy)
