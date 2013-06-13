@@ -104,23 +104,6 @@ class QmlProfilerEventsMainView : public QmlProfilerTreeView
 {
     Q_OBJECT
 public:
-    enum Fields {
-        Name,
-        Type,
-        Percent,
-        TotalDuration,
-        SelfPercent,
-        SelfDuration,
-        CallCount,
-        TimePerCall,
-        MaxTime,
-        MinTime,
-        MedianTime,
-        Details,
-
-        MaxFields
-    };
-
     explicit QmlProfilerEventsMainView(QWidget *parent,
                                        QmlProfilerEventsModelProxy *modelProxy);
     ~QmlProfilerEventsMainView();

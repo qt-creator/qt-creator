@@ -88,22 +88,6 @@ class QV8ProfilerEventsMainView : public QmlProfilerTreeView
 {
     Q_OBJECT
 public:
-    enum Fields {
-        Name,
-        Type,
-        Percent,
-        TotalDuration,
-        SelfPercent,
-        SelfDuration,
-        CallCount,
-        TimePerCall,
-        MaxTime,
-        MinTime,
-        MedianTime,
-        Details,
-
-        MaxFields
-    };
 
     explicit QV8ProfilerEventsMainView(QWidget *parent,
                                        QV8ProfilerDataModel *v8Model);

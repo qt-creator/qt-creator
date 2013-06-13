@@ -63,7 +63,7 @@ QV8EventData &QV8EventData::operator=(const QV8EventData &ref)
     totalTime = ref.totalTime;
     totalPercent = ref.totalPercent;
     selfTime = ref.selfTime;
-    selfPercent = ref.selfPercent;
+    SelfTimeInPercent = ref.SelfTimeInPercent;
     eventId = ref.eventId;
 
     qDeleteAll(parentHash);
@@ -82,7 +82,7 @@ QV8EventData::QV8EventData()
     totalTime = 0;
     selfTime = 0;
     totalPercent = 0;
-    selfPercent = 0;
+    SelfTimeInPercent = 0;
 }
 
 QV8EventData::~QV8EventData()
@@ -263,7 +263,7 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
 
         foreach (QV8EventData *v8event, v8EventHash.values()) {
             v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
-            v8event->selfPercent = v8event->selfTime * 100.0 / selfTimes;
+            v8event->SelfTimeInPercent = v8event->selfTime * 100.0 / selfTimes;
         }
 
         int index = 0;
@@ -293,7 +293,7 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::clearV8RootEvent()
     v8RootEvent.totalTime = 0;
     v8RootEvent.totalPercent = 0;
     v8RootEvent.selfTime = 0;
-    v8RootEvent.selfPercent = 0;
+    v8RootEvent.SelfTimeInPercent = 0;
     v8RootEvent.eventId = -1;
 
     qDeleteAll(v8RootEvent.parentHash.values());

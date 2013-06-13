@@ -197,8 +197,8 @@ void QV8ProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
     if (mouseOnTable(position)) {
         menu.addSeparator();
         if (selectedItem().isValid())
-            copyRowAction = menu.addAction(tr("Copy Row"));
-        copyTableAction = menu.addAction(tr("Copy Table"));
+            copyRowAction = menu.addAction(QCoreApplication::translate("QmlProfiler::Internal::QmlProfilerEventsWidget", "Copy Row"));
+        copyTableAction = menu.addAction(QCoreApplication::translate("QmlProfiler::Internal::QmlProfilerEventsWidget", "Copy Table"));
     }
 
     QAction *selectedAction = menu.exec(position);
@@ -293,10 +293,10 @@ QV8ProfilerEventsMainView::QV8ProfilerEventsMainView(QWidget *parent,
 
     setFieldViewable(Name, true);
     setFieldViewable(Type, false);
-    setFieldViewable(Percent, true);
-    setFieldViewable(TotalDuration, true);
-    setFieldViewable(SelfPercent, true);
-    setFieldViewable(SelfDuration, true);
+    setFieldViewable(TimeInPercent, true);
+    setFieldViewable(TotalTime, true);
+    setFieldViewable(SelfTimeInPercent, true);
+    setFieldViewable(SelfTime, true);
     setFieldViewable(CallCount, false);
     setFieldViewable(TimePerCall, false);
     setFieldViewable(MaxTime, false);
@@ -335,53 +335,53 @@ void QV8ProfilerEventsMainView::setHeaderLabels()
     d->m_columnIndex.clear();
     if (d->m_fieldShown[Name]) {
         d->m_columnIndex[Name] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Location")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(Location)));
         d->m_firstNumericColumn++;
     }
     if (d->m_fieldShown[Type]) {
         d->m_columnIndex[Type] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Type")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(Type)));
         d->m_firstNumericColumn++;
     }
-    if (d->m_fieldShown[Percent]) {
-        d->m_columnIndex[Percent] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Time in Percent")));
+    if (d->m_fieldShown[TimeInPercent]) {
+        d->m_columnIndex[TimeInPercent] = fieldIndex;
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(TimeInPercent)));
     }
-    if (d->m_fieldShown[TotalDuration]) {
-        d->m_columnIndex[TotalDuration] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Total Time")));
+    if (d->m_fieldShown[TotalTime]) {
+        d->m_columnIndex[TotalTime] = fieldIndex;
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(TotalTime)));
     }
-    if (d->m_fieldShown[SelfPercent]) {
+    if (d->m_fieldShown[SelfTimeInPercent]) {
         d->m_columnIndex[Type] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Self Time in Percent")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(SelfTimeInPercent)));
     }
-    if (d->m_fieldShown[SelfDuration]) {
-        d->m_columnIndex[SelfDuration] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Self Time")));
+    if (d->m_fieldShown[SelfTime]) {
+        d->m_columnIndex[SelfTime] = fieldIndex;
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(SelfTime)));
     }
     if (d->m_fieldShown[CallCount]) {
         d->m_columnIndex[CallCount] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Calls")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(CallCount)));
     }
     if (d->m_fieldShown[TimePerCall]) {
         d->m_columnIndex[TimePerCall] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Mean Time")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(TimePerCall)));
     }
     if (d->m_fieldShown[MedianTime]) {
         d->m_columnIndex[MedianTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Median Time")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(MedianTime)));
     }
     if (d->m_fieldShown[MaxTime]) {
         d->m_columnIndex[MaxTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Longest Time")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(MaxTime)));
     }
     if (d->m_fieldShown[MinTime]) {
         d->m_columnIndex[MinTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Shortest Time")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(MinTime)));
     }
     if (d->m_fieldShown[Details]) {
         d->m_columnIndex[Details] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Details")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(Details)));
     }
 }
 
@@ -430,22 +430,22 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
         if (m_fieldShown[Name])
             newRow << new EventsViewItem(v8event->displayName);
 
-        if (m_fieldShown[Percent]) {
+        if (m_fieldShown[TimeInPercent]) {
             newRow << new EventsViewItem(QString::number(v8event->totalPercent,'f',2)+QLatin1String(" %"));
             newRow.last()->setData(QVariant(v8event->totalPercent));
         }
 
-        if (m_fieldShown[TotalDuration]) {
+        if (m_fieldShown[TotalTime]) {
             newRow << new EventsViewItem(displayTime(v8event->totalTime));
             newRow.last()->setData(QVariant(v8event->totalTime));
         }
 
-        if (m_fieldShown[SelfPercent]) {
-            newRow << new EventsViewItem(QString::number(v8event->selfPercent,'f',2)+QLatin1String(" %"));
-            newRow.last()->setData(QVariant(v8event->selfPercent));
+        if (m_fieldShown[SelfTimeInPercent]) {
+            newRow << new EventsViewItem(QString::number(v8event->SelfTimeInPercent,'f',2)+QLatin1String(" %"));
+            newRow.last()->setData(QVariant(v8event->SelfTimeInPercent));
         }
 
-        if (m_fieldShown[SelfDuration]) {
+        if (m_fieldShown[SelfTime]) {
             newRow << new EventsViewItem(displayTime(v8event->selfTime));
             newRow.last()->setData(QVariant(v8event->selfTime));
         }
@@ -716,20 +716,16 @@ void QV8ProfilerEventRelativesView::updateHeader()
 
     int columnIndex = 0;
     if (m_type == ChildrenView)
-        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Callee")));
+        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(Callee)));
     else
-        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Caller")));
+        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(Caller)));
 
-    m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Type")));
-
-    m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Total Time")));
-
-    m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Calls")));
+    m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(TotalTime)));
 
     if (m_type == ChildrenView)
-        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Callee Description")));
+        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(CalleeDescription)));
     else
-        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Caller Description")));
+        m_model->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(CallerDescription)));
 }
 
 void QV8ProfilerEventRelativesView::jumpToItem(const QModelIndex &index)

@@ -54,7 +54,7 @@ struct QV8EventData
     double totalTime; // given in milliseconds
     double totalPercent;
     double selfTime;
-    double selfPercent;
+    double SelfTimeInPercent;
     QHash <QString, QV8EventSub *> parentHash;
     QHash <QString, QV8EventSub *> childrenHash;
     int eventId;

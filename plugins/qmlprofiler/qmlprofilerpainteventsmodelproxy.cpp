@@ -30,6 +30,7 @@
 #include "qmlprofilerpainteventsmodelproxy.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilersimplemodel.h"
+#include <QCoreApplication>
 
 #include <QVector>
 #include <QHash>
@@ -387,6 +388,7 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     QVariantList result;
 //    int eventId = getEventId(index);
 
+    static const char trContext[] = "RangeDetails";
     {
         QVariantMap valuePair;
         valuePair.insert(QLatin1String("title"), QVariant(categoryLabel(0)));
@@ -396,21 +398,21 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(tr("Duration:"), QVariant(d->displayTime(d->eventList[index].duration)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->eventList[index].duration)));
         result << valuePair;
     }
 
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(tr("Framerate:"), QVariant(QString::fromLatin1("%1 FPS").arg(d->eventList[index].framerate)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Framerate:"), QVariant(QString::fromLatin1("%1 FPS").arg(d->eventList[index].framerate)));
         result << valuePair;
     }
 
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(tr("Animations:"), QVariant(QString::fromLatin1("%1").arg(d->eventList[index].animationcount)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Animations:"), QVariant(QString::fromLatin1("%1").arg(d->eventList[index].animationcount)));
         result << valuePair;
     }
 

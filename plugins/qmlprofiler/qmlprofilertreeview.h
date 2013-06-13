@@ -41,6 +41,29 @@ class QmlProfilerTreeView : public QTreeView
 
 protected:
     QmlProfilerTreeView(QWidget *parent = 0);
+
+
+    enum Fields {
+        Name,
+        Callee,
+        CalleeDescription,
+        Caller,
+        CallerDescription,
+        CallCount,
+        Details,
+        Location,
+        MaxTime,
+        TimePerCall,
+        SelfTime,
+        SelfTimeInPercent,
+        MinTime,
+        TimeInPercent,
+        TotalTime,
+        Type,
+        MedianTime,
+        MaxFields
+    };
+    QString displayHeader(Fields header) const;
 };
 
 } // namespace Internal

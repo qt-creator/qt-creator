@@ -31,6 +31,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilersimplemodel.h"
 
+#include <QCoreApplication>
 #include <QVector>
 #include <QHash>
 #include <QUrl>
@@ -434,11 +435,11 @@ int BasicTimelineModel::categoryCount() const
 const QString BasicTimelineModel::categoryLabel(int categoryIndex) const
 {
     switch (categoryIndex) {
-    case 0: return tr("Painting"); break;
-    case 1: return tr("Compiling"); break;
-    case 2: return tr("Creating"); break;
-    case 3: return tr("Binding"); break;
-    case 4: return tr("Handling Signal"); break;
+    case 0: return QCoreApplication::translate("MainView", "Painting"); break;
+    case 1: return QCoreApplication::translate("MainView", "Compiling"); break;
+    case 2: return QCoreApplication::translate("MainView", "Creating"); break;
+    case 3: return QCoreApplication::translate("MainView", "Binding"); break;
+    case 4: return QCoreApplication::translate("MainView", "Handling Signal"); break;
     default: return QString();
     }
 }
@@ -627,6 +628,7 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
     QVariantList result;
     int eventId = getEventId(index);
 
+    static const char trContext[] = "RangeDetails";
     {
         QVariantMap valuePair;
         valuePair.insert(QLatin1String("title"), QVariant(categoryLabel(d->eventDict[eventId].eventType)));
@@ -636,7 +638,7 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(tr("Duration:"), QVariant(d->displayTime(d->startTimeData[index].duration)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->startTimeData[index].duration)));
         result << valuePair;
     }
 
@@ -646,14 +648,14 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
         QString detailsString = d->eventDict[eventId].details;
         if (detailsString.length() > 40)
             detailsString = detailsString.left(40) + QLatin1String("...");
-        valuePair.insert(tr("Details:"), QVariant(detailsString));
+        valuePair.insert(QCoreApplication::translate(trContext, "Details:"), QVariant(detailsString));
         result << valuePair;
     }
 
     // location
     {
         QVariantMap valuePair;
-        valuePair.insert(tr("Location:"), QVariant(d->eventDict[eventId].displayName));
+        valuePair.insert(QCoreApplication::translate(trContext, "Location:"), QVariant(d->eventDict[eventId].displayName));
         result << valuePair;
     }
 

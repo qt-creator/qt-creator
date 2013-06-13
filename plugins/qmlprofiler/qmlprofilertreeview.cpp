@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmlprofilertreeview.h"
+#include <QCoreApplication>
 #include <QHeaderView>
 
 namespace QmlProfiler {
@@ -40,6 +41,50 @@ QmlProfilerTreeView::QmlProfilerTreeView(QWidget *parent)
     header()->setResizeMode(QHeaderView::Interactive);
     header()->setDefaultSectionSize(100);
     header()->setMinimumSectionSize(50);
+}
+
+
+// Translate from "old" context to keep 2.8 string freeze
+QString QmlProfilerTreeView::displayHeader(Fields header) const
+{
+    static const char ctxt1[] = "QmlProfiler::Internal::QmlProfilerEventsParentsAndChildrenView";
+    static const char ctxt2[] = "QmlProfiler::Internal::QmlProfilerEventsMainView";
+
+    switch (header) {
+    case Callee:
+        return QCoreApplication::translate(ctxt1, "Callee");
+    case CalleeDescription:
+        return QCoreApplication::translate(ctxt1, "Callee Description");
+    case Caller:
+        return QCoreApplication::translate(ctxt1, "Caller");
+    case CallerDescription:
+        return QCoreApplication::translate(ctxt1, "Caller Description");
+    case CallCount:
+        return QCoreApplication::translate(ctxt2, "Calls");
+    case Details:
+        return QCoreApplication::translate(ctxt2, "Details");
+    case Location:
+        return QCoreApplication::translate(ctxt2, "Location");
+    case MaxTime:
+        return QCoreApplication::translate(ctxt2, "Longest Time");
+    case TimePerCall:
+        return QCoreApplication::translate(ctxt2, "Mean Time");
+    case SelfTime:
+        return QCoreApplication::translate(ctxt2, "Self Time");
+    case SelfTimeInPercent:
+        return QCoreApplication::translate(ctxt2, "Self Time in Percent");
+    case MinTime:
+        return QCoreApplication::translate(ctxt2, "Shortest Time");
+    case TimeInPercent:
+        return QCoreApplication::translate(ctxt2, "Time in Percent");
+    case TotalTime:
+        return QCoreApplication::translate(ctxt2, "Total Time");
+    case Type:
+        return QCoreApplication::translate(ctxt2, "Type");
+    case MedianTime:
+        return QCoreApplication::translate(ctxt2, "Median Time");
+    }
+    return QString();
 }
 
 } // namespace Internal
