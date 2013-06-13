@@ -512,7 +512,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     // add the project configuration file
     QByteArray conf(pp_configuration);
     conf += definedMacros();
-    workingCopy.insert(configurationFileName(), QString::fromUtf8(conf));
+    workingCopy.insert(configurationFileName(), QString::fromLocal8Bit(conf));
 
     return workingCopy;
 }
