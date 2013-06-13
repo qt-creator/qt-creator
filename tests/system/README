@@ -24,6 +24,7 @@ This folder must contain the following:
  * additional Squish versions for hooking into subprocesses inside different folders inside 'creator-test-data' following the information below
 
 Fifth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
+ * qmake
  * cmake
  * wget or curl
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
