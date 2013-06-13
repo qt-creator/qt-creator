@@ -34,7 +34,7 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 
-#include "ui_qbsstepconfigwidget.h"
+#include "ui_qbsinstallstepconfigwidget.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
