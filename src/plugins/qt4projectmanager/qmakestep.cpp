@@ -41,17 +41,16 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qtsupport/debugginghelperbuildtask.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
-#include <utils/runextensions.h>
 #include <QMessageBox>
 
 using namespace Qt4ProjectManager;
@@ -376,46 +375,6 @@ void QMakeStep::setUserArguments(const QString &arguments)
     qt4BuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
-bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
-{
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (!version) {
-        if (reason)
-            *reason = tr("No Qt version.");
-        return false;
-    }
-
-    if (!version->needsQmlDebuggingLibrary() || version->hasQmlDebuggingLibrary())
-        return true;
-
-    if (!version->qtAbis().isEmpty()) {
-        ProjectExplorer::Abi abi = version->qtAbis().first();
-        if (abi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor) {
-            if (reason)
-                reason->clear();
-//               *reason = tr("Qml debugging on device not yet supported.");
-            return false;
-        }
-    }
-
-    if (!version->isValid()) {
-        if (reason)
-            *reason = tr("Invalid Qt version.");
-        return false;
-    }
-
-    if (version->qtVersion() < QtSupport::QtVersionNumber(4, 7, 1)) {
-        if (reason)
-            *reason = tr("Requires Qt 4.7.1 or newer.");
-        return false;
-    }
-
-    if (reason)
-        *reason = tr("Library not available. <a href='compile'>Compile...</a>");
-
-    return false;
-}
-
 bool QMakeStep::linkQmlDebuggingLibrary() const
 {
     if (m_linkQmlDebuggingLibrary == DoLink)
@@ -640,23 +599,8 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
 
 void QMakeStepConfigWidget::buildQmlDebuggingHelper()
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_step->target()->kit());
-    if (!version)
-        return;
-
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_step->target()->kit());
-
-    QtSupport::DebuggingHelperBuildTask *buildTask =
-            new QtSupport::DebuggingHelperBuildTask(version, tc,
-                                                    QtSupport::DebuggingHelperBuildTask::QmlDebugging);
-
-    // pop up Application Output on error
-    buildTask->showOutputOnError(true);
-
-    QFuture<void> task = QtConcurrent::run(&QtSupport::DebuggingHelperBuildTask::run, buildTask);
-    const QString taskName = tr("Building helpers");
-    Core::ICore::progressManager()->addTask(task, taskName,
-                                                        QLatin1String("Qt4ProjectManager::BuildHelpers"));
+    QtSupport::BaseQtVersion::buildDebuggingHelper(m_step->target()->kit(),
+                                                   static_cast<int>(QtSupport::DebuggingHelperBuildTask::QmlDebugging));
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()
@@ -675,14 +619,13 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 
 void QMakeStepConfigWidget::updateQmlDebuggingOption()
 {
-    m_ui->qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
+    QString warningText;
+    bool supported = QtSupport::BaseQtVersion::isQmlDebuggingSupported(m_step->target()->kit(),
+                                                                     &warningText);
+    m_ui->qmlDebuggingLibraryCheckBox->setEnabled(supported);
     m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging:"));
 
-    QString warningText;
-
-    if (!m_step->isQmlDebuggingLibrarySupported(&warningText))
-        ;
-    else if (m_step->linkQmlDebuggingLibrary())
+    if (supported && m_step->linkQmlDebuggingLibrary())
         warningText = tr("Might make your application vulnerable. Only use in a safe environment.");
 
     m_ui->qmlDebuggingWarningText->setText(warningText);

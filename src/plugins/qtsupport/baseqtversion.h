@@ -184,6 +184,11 @@ public:
     static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo);
     static Utils::FileName mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
 
+    static bool isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason = 0);
+    bool isQmlDebuggingSupported(QString *reason = 0) const;
+    static void buildDebuggingHelper(ProjectExplorer::Kit *k, int tools);
+    void buildDebuggingHelper(ProjectExplorer::ToolChain *tc, int tools);
+
     virtual bool supportsBinaryDebuggingHelper() const;
     virtual QString gdbDebuggingHelperLibrary() const;
     virtual QString qmlDebuggingHelperLibrary(bool debugVersion) const;

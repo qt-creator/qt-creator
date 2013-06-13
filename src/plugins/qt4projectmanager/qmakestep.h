@@ -108,7 +108,6 @@ public:
     void setUserArguments(const QString &arguments);
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);
-    bool isQmlDebuggingLibrarySupported(QString *reason = 0) const;
 
     QVariantMap toMap() const;
 

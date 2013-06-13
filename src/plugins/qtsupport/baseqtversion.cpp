@@ -36,21 +36,27 @@
 
 #include "qtversionmanager.h"
 #include "profilereader.h"
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <proparser/qmakevfs.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/headerpath.h>
 #include <qtsupport/debugginghelper.h>
+#include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
+#include <QtConcurrent>
 #include <QDir>
 #include <QUrl>
 #include <QFileInfo>
+#include <QFuture>
 #include <QCoreApplication>
 #include <QProcess>
 
@@ -1410,6 +1416,76 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
         }
     }
     return mkspecFullPath;
+}
+
+bool BaseQtVersion::isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason)
+{
+    QTC_ASSERT(k, return false);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (!version) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "No Qt version.");
+        return false;
+    }
+    return version->isQmlDebuggingSupported(reason);
+}
+
+bool BaseQtVersion::isQmlDebuggingSupported(QString *reason) const
+{
+    if (!needsQmlDebuggingLibrary() || hasQmlDebuggingLibrary())
+        return true;
+
+    if (!qtAbis().isEmpty()) {
+        ProjectExplorer::Abi abi = qtAbis().first();
+        if (abi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor) {
+            if (reason)
+                reason->clear();
+                // *reason = QCoreApplication::translate("BaseQtVersion", "Qml debugging on device not yet supported.");
+            return false;
+        }
+    }
+
+    if (!isValid()) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "Invalid Qt version.");
+        return false;
+    }
+
+    if (qtVersion() < QtVersionNumber(4, 7, 1)) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "Requires Qt 4.7.1 or newer.");
+        return false;
+    }
+
+    if (reason)
+        *reason = QCoreApplication::translate("BaseQtVersion", "Library not available. <a href='compile'>Compile...</a>");
+
+    return false;
+}
+
+void BaseQtVersion::buildDebuggingHelper(ProjectExplorer::Kit *k, int tools)
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    if (!k || !version || !tc)
+        return;
+
+    version->buildDebuggingHelper(tc, tools);
+}
+
+void BaseQtVersion::buildDebuggingHelper(ProjectExplorer::ToolChain *tc, int tools)
+{
+    QTC_ASSERT(tc, return);
+    DebuggingHelperBuildTask *buildTask =
+            new DebuggingHelperBuildTask(this, tc, static_cast<DebuggingHelperBuildTask::Tools>(tools));
+
+    // pop up Application Output on error
+    buildTask->showOutputOnError(true);
+
+    QFuture<void> task = QtConcurrent::run(&QtSupport::DebuggingHelperBuildTask::run, buildTask);
+    const QString taskName = QCoreApplication::translate("BaseQtVersion", "Building helpers");
+    Core::ICore::progressManager()->addTask(task, taskName,
+                                            QLatin1String("Qt::BuildHelpers"));
 }
 
 FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)
