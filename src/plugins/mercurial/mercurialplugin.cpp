@@ -181,7 +181,7 @@ void MercurialPlugin::createMenu()
     // Create menu item for Mercurial
     mercurialContainer = Core::ActionManager::createMenu(Core::Id("Mercurial.MercurialMenu"));
     QMenu *menu = mercurialContainer->menu();
-    menu->setTitle(tr("Mercurial"));
+    menu->setTitle(tr("Me&rcurial"));
 
     createFileActions(context);
     mercurialContainer->addSeparator(context);
