@@ -47,6 +47,7 @@ public:
 
     TimelineModelAggregator *q;
 
+    int basicModelIndex;
     QList <AbstractTimelineModel *> modelList;
     QmlProfilerModelManager *modelManager;
 };
@@ -82,7 +83,8 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
     BasicTimelineModel *basicTimelineModel = new BasicTimelineModel(this);
     basicTimelineModel->setModelManager(modelManager);
     addModel(basicTimelineModel);
-
+    // the basic model is the last one here
+    d->basicModelIndex = d->modelList.count() - 1;
 
 }
 
@@ -143,6 +145,11 @@ bool TimelineModelAggregator::eventAccepted(const QmlProfilerSimpleModel::QmlEve
 {
     // accept all events
     return true;
+}
+
+int TimelineModelAggregator::basicModelIndex() const
+{
+    return d->basicModelIndex;
 }
 
 qint64 TimelineModelAggregator::lastTimeMark() const

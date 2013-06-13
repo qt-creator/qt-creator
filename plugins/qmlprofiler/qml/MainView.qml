@@ -216,7 +216,7 @@ Rectangle {
 
         if (view.selectedItem !== -1) {
             // center on selected item if it's inside the current screen
-            var newFixedPoint = qmlProfilerModelProxy.getStartTime(view.selectedItem);
+            var newFixedPoint = qmlProfilerModelProxy.getStartTime(view.selectedModel, view.selectedItem);
             if (newFixedPoint >= view.startTime && newFixedPoint < view.endTime)
                 fixedPoint = newFixedPoint;
         }
@@ -258,16 +258,16 @@ Rectangle {
         zoomControl.setRange(newStart, newStart + windowLength);
     }
 
-    function recenterOnItem( itemIndex )
+    function recenterOnItem( modelIndex, itemIndex )
     {
         if (itemIndex === -1)
             return;
 
         // if item is outside of the view, jump back to its position
-        if (qmlProfilerModelProxy.getEndTime(itemIndex) < view.startTime ||
-                qmlProfilerModelProxy.getStartTime(itemIndex) > view.endTime) {
-            recenter((qmlProfilerModelProxy.getStartTime(itemIndex) +
-                      qmlProfilerModelProxy.getEndTime(itemIndex)) / 2);
+        if (qmlProfilerModelProxy.getEndTime(modelIndex, itemIndex) < view.startTime ||
+                qmlProfilerModelProxy.getStartTime(modelIndex, itemIndex) > view.endTime) {
+            recenter((qmlProfilerModelProxy.getStartTime(modelIndex, itemIndex) +
+                      qmlProfilerModelProxy.getEndTime(modelIndex, itemIndex)) / 2);
         }
 
     }
@@ -295,15 +295,19 @@ Rectangle {
 
     function selectNextWithId( eventId )
     {
+        // this is a slot responding to events from the other pane
+        // which tracks only events from the basic model
         if (!lockItemSelection) {
             lockItemSelection = true;
             var itemIndex = view.nextItemFromId( eventId );
+            var modelIndex = qmlProfilerModelProxy.basicModelIndex();
             // select an item, lock to it, and recenter if necessary
-            if (view.selectedItem != itemIndex) {
+            if (view.selectedItem != itemIndex || view.selectedModel != modelIndex) {
+                view.selectedModel = modelIndex;
                 view.selectedItem = itemIndex;
                 if (itemIndex !== -1) {
                     view.selectionLocked = true;
-                    recenterOnItem(itemIndex);
+                    recenterOnItem(modelIndex, itemIndex);
                 }
             }
             lockItemSelection = false;

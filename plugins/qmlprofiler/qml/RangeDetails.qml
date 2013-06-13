@@ -196,7 +196,7 @@ Item {
         drag.maximumY: root.candidateHeight - parent.height + yoffset
         onClicked: {
             root.gotoSourceLocation(file, line, column);
-            root.recenterOnItem(view.selectedItem);
+            root.recenterOnItem(view.selectedModel, view.selectedItem);
         }
     }
 

@@ -63,6 +63,8 @@ public:
 
     bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
 
+    Q_INVOKABLE int basicModelIndex() const;
+
     Q_INVOKABLE qint64 lastTimeMark() const;
 
     Q_INVOKABLE void setExpanded(int modelIndex, int category, bool expanded);
