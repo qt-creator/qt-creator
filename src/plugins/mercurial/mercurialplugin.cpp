@@ -267,9 +267,12 @@ void MercurialPlugin::addCurrentFile()
 
 void MercurialPlugin::annotateCurrentFile()
 {
+    int currentLine = -1;
+    if (Core::IEditor *editor = Core::EditorManager::currentEditor())
+        currentLine = editor->currentLine();
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
+    m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), currentLine);
 }
 
 void MercurialPlugin::diffCurrentFile()
