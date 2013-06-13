@@ -274,23 +274,31 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     if (topLevelDirectory)
         *topLevelDirectory = allThatCanManage.first().first;
     IVersionControl *versionControl = allThatCanManage.first().second;
-    if (!versionControl->isConfigured()) {
-        if (IEditor *curEditor = EditorManager::currentEditor()) {
-            if (IDocument *curDocument = curEditor->document()) {
-                Id vcsWarning("VcsNotConfiguredWarning");
-                InfoBar *infoBar = curDocument->infoBar();
-                if (infoBar->canInfoBeAdded(vcsWarning)) {
-                    InfoBarEntry info(vcsWarning,
-                                      tr("%1 repository was detected but %1 is not configured.")
-                                      .arg(versionControl->displayName()),
-                                      InfoBarEntry::GlobalSuppressionEnabled);
-                    d->m_unconfiguredVcs = versionControl;
-                    info.setCustomButtonInfo(tr("Configure"), this, SLOT(configureVcs()));
-                    infoBar->addInfo(info);
-                }
+    const bool isVcsConfigured = versionControl->isConfigured();
+    if (!isVcsConfigured || d->m_unconfiguredVcs) {
+        Id vcsWarning("VcsNotConfiguredWarning");
+        IDocument *curDocument = 0;
+        if (IEditor *curEditor = EditorManager::currentEditor())
+            curDocument = curEditor->document();
+        if (isVcsConfigured) {
+            if (curDocument && d->m_unconfiguredVcs == versionControl) {
+                curDocument->infoBar()->removeInfo(vcsWarning);
+                d->m_unconfiguredVcs = 0;
             }
+            return versionControl;
+        } else {
+            InfoBar *infoBar = curDocument->infoBar();
+            if (infoBar->canInfoBeAdded(vcsWarning)) {
+                InfoBarEntry info(vcsWarning,
+                                  tr("%1 repository was detected but %1 is not configured.")
+                                  .arg(versionControl->displayName()),
+                                  InfoBarEntry::GlobalSuppressionEnabled);
+                d->m_unconfiguredVcs = versionControl;
+                info.setCustomButtonInfo(tr("Configure"), this, SLOT(configureVcs()));
+                infoBar->addInfo(info);
+            }
+            return 0;
         }
-        versionControl = 0;
     }
     return versionControl;
 }
