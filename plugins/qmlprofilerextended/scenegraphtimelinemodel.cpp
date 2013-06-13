@@ -109,8 +109,6 @@ qint64 SceneGraphTimelineModel::lastTimeMark() const
 
 void SceneGraphTimelineModel::setExpanded(int category, bool expanded)
 {
-    // TODO: uncomment this for PixMap
-    //if (category == QmlDebug::SceneGraphFrameEvent)
         d->isExpanded = expanded;
 }
 
@@ -120,10 +118,6 @@ int SceneGraphTimelineModel::categoryDepth(int categoryIndex) const
     if (isEmpty())
         return 1;
     return 3;
-
-    if (categoryIndex == QmlDebug::SceneGraphFrameEvent)
-        return 11;
-    return 1;
 }
 
 int SceneGraphTimelineModel::categoryCount() const
@@ -272,12 +266,14 @@ const QVariantList SceneGraphTimelineModel::getLabelsForCategory(int category) c
 {
     QVariantList result;
 
-    for (int i = 0; i < MaximumSceneGraphCategoryType; i++) {
-        QVariantMap element;
-        element.insert(QLatin1String("displayName"), QVariant(labelForSGType(i)));
-        element.insert(QLatin1String("description"), QVariant(labelForSGType(i)));
-        element.insert(QLatin1String("id"), QVariant(i));
-        result << element;
+    if (d->isExpanded && !isEmpty()) {
+        for (int i = 0; i < MaximumSceneGraphCategoryType; i++) {
+            QVariantMap element;
+            element.insert(QLatin1String("displayName"), QVariant(labelForSGType(i)));
+            element.insert(QLatin1String("description"), QVariant(labelForSGType(i)));
+            element.insert(QLatin1String("id"), QVariant(i));
+            result << element;
+        }
     }
 
     return result;
