@@ -129,6 +129,7 @@ Item {
                     x: 5
                     width: 140
                     text: descriptions[index]
+                    textFormat: Text.PlainText
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
                 }
