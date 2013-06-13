@@ -862,20 +862,25 @@ class Dumper:
             n = thread.GetNumFrames()
             if n > 4:
                 n = 4
+            firstUsable = None
             for i in xrange(n):
                 frame = thread.GetFrameAtIndex(i)
                 lineEntry = frame.GetLineEntry()
+                line = lineEntry.GetLine()
+                usable = line != 0
+                if usable and not firstUsable:
+                    firstUsable = i
                 result += '{pc="0x%x"' % frame.GetPC()
                 result += ',level="%d"' % frame.idx
                 result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
                 result += ',func="%s"' % frame.GetFunctionName()
-                result += ',line="%d"' % lineEntry.GetLine()
+                result += ',line="%d"' % line
                 result += ',fullname="%s"' % fileName(lineEntry.file)
-                result += ',usable="1"'
+                result += ',usable="%d"' % usable
                 result += ',file="%s"},' % fileName(lineEntry.file)
-
-            hasmore = '0'
-            result += '],hasmore="%s"},' % hasmore
+            if not firstUsable:
+                firstUsable = 0
+            result += '],hasmore="0",first-usable="%s"},' % firstUsable
             self.report(result)
 
     def putType(self, type, priority = 0):
@@ -1225,6 +1230,12 @@ class Dumper:
         elif bpType == BreakpointAtMain:
             bpNew = self.target.BreakpointCreateByName(
                 "main", self.target.GetExecutable().GetFilename())
+        elif bpType == BreakpointAtThrow:
+            bpNew = self.target.BreakpointCreateForException(
+                lldb.eLanguageTypeC_plus_plus, False, True)
+        elif bpType == BreakpointAtCatch:
+            bpNew = self.target.BreakpointCreateForException(
+                lldb.eLanguageTypeC_plus_plus, True, False)
         else:
             warn("UNKNOWN TYPE")
         bpNew.SetIgnoreCount(int(args["ignorecount"]))
