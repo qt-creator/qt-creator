@@ -115,9 +115,15 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_cachedContentsEditorRevision(-1)
     , m_initialized(false)
     , m_lastHighlightRevision(0)
+    , m_highlightingSupport(modelManager->highlightingSupport(textEditor))
 {
     connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
+
+    if (m_highlightingSupport && m_highlightingSupport->requiresSemanticInfo()) {
+        connect(this, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
+                this, SLOT(startHighlighting()));
+    }
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setSingleShot(true);
@@ -135,6 +141,8 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
 
     connect(m_textEditor->document(), SIGNAL(mimeTypeChanged()),
             this, SLOT(onMimeTypeChanged()));
+
+    updateDocument();
 }
 
 CppEditorSupport::~CppEditorSupport()
