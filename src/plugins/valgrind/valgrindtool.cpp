@@ -67,17 +67,16 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
     sp.displayName = runConfiguration->displayName();
     if (LocalApplicationRunConfiguration *rc1 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        ProjectExplorer::EnvironmentAspect *aspect
-                = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+        EnvironmentAspect *aspect = runConfiguration->extraAspect<EnvironmentAspect>();
         if (aspect)
             sp.environment = aspect->environment();
         sp.workingDirectory = rc1->workingDirectory();
         sp.debuggee = rc1->executable();
         sp.debuggeeArgs = rc1->commandLineArguments();
-        const ProjectExplorer::IDevice::ConstPtr device =
-                ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+        const IDevice::ConstPtr device =
+                DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device, return sp);
-        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
+        QTC_ASSERT(device->type() == Constants::DESKTOP_DEVICE_TYPE, return sp);
         QTcpServer server;
         if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
             qWarning() << "Cannot open port on host for profiling.";
@@ -90,7 +89,7 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
                qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.startMode = Analyzer::StartRemote;
         sp.debuggee = rc2->remoteExecutableFilePath();
-        sp.connParams = ProjectExplorer::DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
+        sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
         sp.analyzerCmdPrefix = rc2->commandPrefix();
         sp.debuggeeArgs = rc2->arguments();
     } else {
