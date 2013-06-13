@@ -54,5 +54,6 @@ Item {
         font.pixelSize: 12
         anchors.baseline: lbl.baseline
         anchors.left: guideline.right
+        textFormat: Text.PlainText
     }
 }
