@@ -452,12 +452,12 @@ int BasicTimelineModel::findFirstIndex(qint64 startTime) const
     int candidate = -1;
     // in the "endtime" list, find the first event that ends after startTime
     if (d->endTimeData.isEmpty())
-        return 0; // -1
+        return -1;
     if (d->endTimeData.count() == 1 || d->endTimeData.first().endTime >= startTime)
         candidate = 0;
     else
         if (d->endTimeData.last().endTime <= startTime)
-            return 0; // -1
+            return -1;
 
     if (candidate == -1)
     {
@@ -484,12 +484,12 @@ int BasicTimelineModel::findFirstIndexNoParents(qint64 startTime) const
     int candidate = -1;
     // in the "endtime" list, find the first event that ends after startTime
     if (d->endTimeData.isEmpty())
-        return 0; // -1
+        return -1;
     if (d->endTimeData.count() == 1 || d->endTimeData.first().endTime >= startTime)
         candidate = 0;
     else
         if (d->endTimeData.last().endTime <= startTime)
-            return 0; // -1
+            return -1;
 
     if (candidate == -1) {
         int fromIndex = 0;
@@ -514,9 +514,9 @@ int BasicTimelineModel::findLastIndex(qint64 endTime) const
 {
         // in the "starttime" list, find the last event that starts before endtime
         if (d->startTimeData.isEmpty())
-            return 0; // -1
+            return -1;
         if (d->startTimeData.first().startTime >= endTime)
-            return 0; // -1
+            return -1;
         if (d->startTimeData.count() == 1)
             return 0;
         if (d->startTimeData.last().startTime <= endTime)

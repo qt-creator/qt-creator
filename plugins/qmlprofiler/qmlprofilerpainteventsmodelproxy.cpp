@@ -229,12 +229,12 @@ const QString PaintEventsModelProxy::categoryLabel(int categoryIndex) const
 int PaintEventsModelProxy::findFirstIndex(qint64 startTime) const
 {
     if (d->eventList.isEmpty())
-        return 0; // -1
+        return -1;
     if (d->eventList.count() == 1 || d->eventList.first().startTime+d->eventList.first().duration >= startTime)
         return 0;
     else
         if (d->eventList.last().startTime+d->eventList.last().duration <= startTime)
-            return 0; // -1
+            return -1;
 
     int fromIndex = 0;
     int toIndex = d->eventList.count()-1;
@@ -256,9 +256,9 @@ int PaintEventsModelProxy::findFirstIndexNoParents(qint64 startTime) const
 int PaintEventsModelProxy::findLastIndex(qint64 endTime) const
 {
         if (d->eventList.isEmpty())
-            return 0; // -1
+            return -1;
         if (d->eventList.first().startTime >= endTime)
-            return 0; // -1
+            return -1;
         if (d->eventList.count() == 1)
             return 0;
         if (d->eventList.last().startTime <= endTime)
