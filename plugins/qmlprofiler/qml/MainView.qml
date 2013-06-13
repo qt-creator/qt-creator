@@ -299,8 +299,8 @@ Rectangle {
         // which tracks only events from the basic model
         if (!lockItemSelection) {
             lockItemSelection = true;
-            var itemIndex = view.nextItemFromId( eventId );
             var modelIndex = qmlProfilerModelProxy.basicModelIndex();
+            var itemIndex = view.nextItemFromId( modelIndex, eventId );
             // select an item, lock to it, and recenter if necessary
             if (view.selectedItem != itemIndex || view.selectedModel != modelIndex) {
                 view.selectedModel = modelIndex;

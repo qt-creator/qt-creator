@@ -209,7 +209,7 @@ int PaintEventsModelProxy::categoryDepth(int categoryIndex) const
 {
     Q_UNUSED(categoryIndex);
     if (isEmpty())
-        return 1;
+        return 0;
     else
         return 2;
 }
@@ -222,7 +222,7 @@ int PaintEventsModelProxy::categoryCount() const
 const QString PaintEventsModelProxy::categoryLabel(int categoryIndex) const
 {
     Q_UNUSED(categoryIndex);
-    return tr("Animations");
+    return tr("Painting");
 }
 
 
@@ -336,21 +336,16 @@ float PaintEventsModelProxy::getHeight(int index) const
 
 const QVariantList PaintEventsModelProxy::getLabelsForCategory(int category) const
 {
-    // TODO
+    Q_UNUSED(category);
     QVariantList result;
 
-//    if (d->categorySpan.count() > category && d->categorySpan[category].expanded) {
-//        int eventCount = d->eventDict.count();
-//        for (int i = 0; i < eventCount; i++) {
-//            if (d->eventDict[i].eventType == category) {
-//                QVariantMap element;
-//                element.insert(QLatin1String("displayName"), QVariant(d->eventDict[i].displayName));
-//                element.insert(QLatin1String("description"), QVariant(d->eventDict[i].details));
-//                element.insert(QLatin1String("id"), QVariant(d->eventDict[i].eventId));
-//                result << element;
-//            }
-//        }
-//    }
+    if (!isEmpty()) {
+        QVariantMap element;
+        element.insert(QLatin1String("displayName"), QVariant(QLatin1String("Animations")));
+        element.insert(QLatin1String("description"), QVariant(QLatin1String("Animations")));
+        element.insert(QLatin1String("id"), QVariant(0));
+        result << element;
+    }
 
     return result;
 }

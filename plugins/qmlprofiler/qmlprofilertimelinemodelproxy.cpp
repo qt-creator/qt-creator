@@ -145,7 +145,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
 {
     categorySpan.clear();
     for (int i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
-        CategorySpan newCategory = {false, 1, 1, true};
+        CategorySpan newCategory = {false, 1, 1, i, true};
         categorySpan << newCategory;
     }
 }
@@ -421,8 +421,9 @@ int BasicTimelineModel::categoryDepth(int categoryIndex) const
 {
     if (d->categorySpan.count() <= categoryIndex)
         return 1;
-    if (d->categorySpan[categoryIndex].empty)
-        return 1; // TODO
+    // special for paint events: show only when empty model or there's actual events
+    if (categoryIndex == QmlDebug::Painting && d->categorySpan[categoryIndex].empty && !isEmpty())
+        return 0;
     if (d->categorySpan[categoryIndex].expanded)
         return d->categorySpan[categoryIndex].expandedRows;
     else
@@ -581,6 +582,7 @@ QColor BasicTimelineModel::getColor(int index) const
 
 float BasicTimelineModel::getHeight(int index) const
 {
+    Q_UNUSED(index);
     // 100% height for regular events
     return 1.0f;
 }

@@ -40,16 +40,10 @@ Item {
     property variant extdescriptions: []
     property variant eventIds: []
 
+    visible: qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex) > 0;
+
     height: root.singleRowHeight
     width: 150
-
-    visible: (!qmlProfilerModelProxy.empty) && qmlProfilerModelProxy.categoryDepth(modelIndex,categoryIndex) > 0;
-    onVisibleChanged: {
-        if (visible) {
-            modelIndex = qmlProfilerModelProxy.modelIndexForCategory(index);
-            categoryIndex = qmlProfilerModelProxy.correctedCategoryIndexForModel(modelIndex, index);
-        }
-    }
 
     onExpandedChanged: {
         qmlProfilerModelProxy.setExpanded(modelIndex, categoryIndex, expanded);
@@ -67,6 +61,10 @@ Item {
     }
 
     function getDescriptions() {
+        visible = qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex) > 0;
+        if (!visible)
+            return;
+
         var desc=[];
         var ids=[];
         var extdesc=[];
