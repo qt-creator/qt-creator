@@ -68,6 +68,8 @@ public:
     int maxJobs() const;
     QString buildVariant() const;
 
+    bool isQmlDebuggingEnabled() const;
+
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
@@ -120,6 +122,7 @@ public:
 
 private slots:
     void updateState();
+    void updateQmlDebuggingOption();
     void updatePropertyEdit(const QVariantMap &data);
 
     void changeBuildVariant(int);
@@ -127,6 +130,10 @@ private slots:
     void changeKeepGoing(bool kg);
     void changeJobCount(int count);
     void changeProperties();
+
+    // QML debugging:
+    void linkQmlDebuggingLibraryChecked(bool checked);
+    void buildQmlDebuggingHelper();
 
 private:
     Ui::QbsBuildStepConfigWidget *m_ui;

@@ -40,6 +40,8 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <qtsupport/debugginghelperbuildtask.h>
+#include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -293,6 +295,13 @@ QString QbsBuildStep::buildVariant() const
     return qbsConfiguration().value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
 }
 
+bool QbsBuildStep::isQmlDebuggingEnabled() const
+{
+    QVariantMap data = qbsConfiguration();
+    return data.value(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY), false).toBool()
+            || data.value(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY), false).toBool();
+}
+
 void QbsBuildStep::setBuildVariant(const QString &variant)
 {
     if (m_qbsConfiguration.value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString() == variant)
@@ -353,7 +362,12 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
     connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
     connect(m_ui->propertyEdit, SIGNAL(propertiesChanged()), this, SLOT(changeProperties()));
-
+    connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
+    connect(m_ui->qmlDebuggingWarningText, SIGNAL(linkActivated(QString)),
+            this, SLOT(buildQmlDebuggingHelper()));
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
+            this, SLOT(updateQmlDebuggingOption()));
     updateState();
 }
 
@@ -374,7 +388,10 @@ void QbsBuildStepConfigWidget::updateState()
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
         m_ui->jobSpinBox->setValue(m_step->maxJobs());
         updatePropertyEdit(m_step->qbsConfiguration());
+        m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->isQmlDebuggingEnabled());
     }
+
+    updateQmlDebuggingOption();
 
     const QString buildVariant = m_step->buildVariant();
     const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
@@ -394,12 +411,30 @@ void QbsBuildStepConfigWidget::updateState()
                 + QLatin1Char(':') + propertyList.at(i).second;
     }
 
+    if (m_step->isQmlDebuggingEnabled())
+        command += QLatin1String(" Qt.declarative.qmlDebugging:true Qt.quick.qmlDebugging:true");
+
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
     if (m_summary != summary) {
         m_summary = summary;
         emit updateSummary();
     }
 }
+
+void QbsBuildStepConfigWidget::updateQmlDebuggingOption()
+{
+    QString warningText;
+    bool supported = QtSupport::BaseQtVersion::isQmlDebuggingSupported(m_step->target()->kit(),
+                                                                       &warningText);
+    m_ui->qmlDebuggingLibraryCheckBox->setEnabled(supported);
+
+    if (supported && m_step->isQmlDebuggingEnabled())
+        warningText = tr("Might make your application vulnerable. Only use in a safe environment.");
+
+    m_ui->qmlDebuggingWarningText->setText(warningText);
+    m_ui->qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
+}
+
 
 void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
 {
@@ -408,6 +443,8 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     // remove data that is edited with special UIs:
     editable.remove(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY));
     editable.remove(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY));
+    editable.remove(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY));
+    editable.remove(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
 
     QStringList propertyList;
     for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
@@ -459,6 +496,13 @@ void QbsBuildStepConfigWidget::changeProperties()
                 tmp.value(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY)));
     data.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
                 tmp.value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)));
+    if (tmp.contains(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY)))
+        data.insert(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY),
+                    tmp.value(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY)));
+    if (tmp.contains(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY)))
+        data.insert(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY),
+                    tmp.value(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY)));
+
     QList<QPair<QString, QString> > propertyList = m_ui->propertyEdit->properties();
     for (int i = 0; i < propertyList.count(); ++i)
         data.insert(propertyList.at(i).first, propertyList.at(i).second);
@@ -466,6 +510,28 @@ void QbsBuildStepConfigWidget::changeProperties()
     m_ignoreChange = true;
     m_step->setQbsConfiguration(data);
     m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
+{
+    QVariantMap data = m_step->qbsConfiguration();
+    if (checked) {
+        data.insert(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY), checked);
+        data.insert(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY), checked);
+    } else {
+        data.remove(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY));
+        data.remove(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
+    }
+
+    m_ignoreChange = true;
+    m_step->setQbsConfiguration(data);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::buildQmlDebuggingHelper()
+{
+    QtSupport::BaseQtVersion::buildDebuggingHelper(m_step->target()->kit(),
+                                                   static_cast<int>(QtSupport::DebuggingHelperBuildTask::QmlDebugging));
 }
 
 // --------------------------------------------------------------------
