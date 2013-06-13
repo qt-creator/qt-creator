@@ -34,7 +34,7 @@
     \l {http://qt-project.org/doc/qt-5.0/qtquick/qtquick-index.html}{Qt Quick}.
 
     This tutorial describes how to use \QC to implement Qt states and transitions. We use
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/quick-animation.html}{Qt example code} to
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/animation.html}{Qt example code} to
     create an application that displays a Qt logo that moves between three rectangles on the
     page when you click them.
 
@@ -72,7 +72,7 @@
         \li Review the project settings, and click \gui{Finish} (on Windows and
             Linux) or \gui Done (on Mac OS) to create the project.
 
-        \li Press \key {Ctrl+R} (or \key {Cmd+R})to run the application.
+        \li Press \key {Ctrl+R} (or \key {Cmd+R}) to run the application.
 
     \endlist
 
@@ -224,7 +224,7 @@
             \li In the \gui Margin field, select 10 for the right anchor and 0
                 for the vertical center anchor.
 
-            \li In the code editor,add a pointer to a clicked expression to the
+            \li In the code editor, add a pointer to a clicked expression to the
                 mouse area. The following expression sets the state to
                 \e State1:
 
