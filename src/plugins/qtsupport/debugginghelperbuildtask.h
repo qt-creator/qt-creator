@@ -59,7 +59,7 @@ public:
     Q_DECLARE_FLAGS(Tools, DebuggingHelper)
 
     explicit DebuggingHelperBuildTask(const BaseQtVersion *version,
-                                      ProjectExplorer::ToolChain *toolChain,
+                                      const ProjectExplorer::ToolChain *toolChain,
                                       Tools tools = AllTools);
 
     void showOutputOnError(bool show);

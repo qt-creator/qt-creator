@@ -44,7 +44,7 @@ using namespace QtSupport::Internal;
 using namespace ProjectExplorer;
 
 DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
-                                                   ToolChain *toolChain,
+                                                   const ToolChain *toolChain,
                                                    Tools tools) :
     m_tools(tools & availableTools(version)),
     m_invalidQt(false),
