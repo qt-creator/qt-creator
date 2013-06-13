@@ -92,6 +92,7 @@ private:
     QString m_workingDirectory;
     BranchNode *m_rootNode;
     BranchNode *m_currentBranch;
+    QString m_currentSha;
 };
 
 } // namespace Internal

@@ -1883,16 +1883,17 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     return true;
 }
 
-bool GitClient::synchronousShowRefCmd(const QString &workingDirectory, QStringList args,
+bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
                                       QString *output, QString *errorMessage)
 {
-    args.push_front(QLatin1String("show-ref"));
+    args.push_front(QLatin1String("for-each-ref"));
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     *output = commandOutputFromLocal8Bit(outputText);
     if (!rc) {
-        *errorMessage = msgCannotRun(QLatin1String("git show-ref"),  workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = msgCannotRun(QLatin1String("git for-each-ref"), workingDirectory,
+                                     commandOutputFromLocal8Bit(errorText));
 
         return false;
     }

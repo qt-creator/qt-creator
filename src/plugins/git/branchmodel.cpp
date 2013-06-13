@@ -50,8 +50,8 @@ public:
         name(QLatin1String("<ROOT>"))
     { }
 
-    BranchNode(const QString &n, const QString &s = QString()) :
-        parent(0), name(n), sha(s)
+    BranchNode(const QString &n, const QString &s = QString(), const QString &t = QString()) :
+        parent(0), name(n), sha(s), tracking(t)
     { }
 
     ~BranchNode()
@@ -132,15 +132,6 @@ public:
             else
                 current = current->append(new BranchNode(path.at(i)));
         }
-        if (n->name.endsWith(QLatin1String("^{}"))) {
-            n->name.chop(3);
-            if (!current->children.isEmpty()) {
-                BranchNode* lastOne = current->children.last();
-                current->children.removeLast();
-                if (lastOne)
-                    delete lastOne;
-            }
-        }
         current->append(n);
     }
 
@@ -173,6 +164,7 @@ public:
 
     QString name;
     QString sha;
+    QString tracking;
     mutable QString toolTip;
 };
 
@@ -238,7 +230,12 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     switch (role) {
-    case Qt::DisplayRole:
+    case Qt::DisplayRole: {
+        QString res = node->name;
+        if (!node->tracking.isEmpty())
+            res += QLatin1String(" [") + node->tracking + QLatin1Char(']');
+        return res;
+    }
     case Qt::EditRole:
         return node->name;
     case Qt::ToolTipRole:
@@ -325,10 +322,11 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     if (workingDirectory.isEmpty())
         return false;
 
+    m_currentSha = m_client->synchronousTopRevision(workingDirectory);
     QStringList args;
-    args << QLatin1String("--head") << QLatin1String("--dereference");
+    args << QLatin1String("--format=%(objectname)\t%(refname)\t%(upstream:short)\t%(*objectname)");
     QString output;
-    if (!m_client->synchronousShowRefCmd(workingDirectory, args, &output, errorMessage))
+    if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
         VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
 
     beginResetModel();
@@ -565,17 +563,12 @@ void BranchModel::parseOutputLine(const QString &line)
     if (line.size() < 3)
         return;
 
-    const int shaLength = 40;
-    const QString sha = line.left(shaLength);
-    const QString fullName = line.mid(shaLength + 1);
+    QStringList lineParts = line.split(QLatin1Char('\t'));
+    const QString shaDeref = lineParts.at(3);
+    const QString sha = shaDeref.isEmpty() ? lineParts.at(0) : shaDeref;
+    const QString fullName = lineParts.at(1);
 
-    static QString currentSha;
-    if (fullName == QLatin1String("HEAD")) {
-        currentSha = sha;
-        return;
-    }
-
-    bool current = (sha == currentSha);
+    bool current = (sha == m_currentSha);
     bool showTags = m_client->settings()->boolValue(GitSettings::showTagsKey);
 
     // insert node into tree:
@@ -601,7 +594,7 @@ void BranchModel::parseOutputLine(const QString &line)
     const QString name = nameParts.last();
     nameParts.removeLast();
 
-    BranchNode *newNode = new BranchNode(name, sha);
+    BranchNode *newNode = new BranchNode(name, sha, lineParts.at(2));
     m_rootNode->insert(nameParts, newNode);
     if (current)
         m_currentBranch = newNode;

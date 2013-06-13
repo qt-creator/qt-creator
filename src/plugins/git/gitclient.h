@@ -201,7 +201,7 @@ public:
                                 QString *errorMessage = 0);
     bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
                               QString *output, QString *errorMessage);
-    bool synchronousShowRefCmd(const QString &workingDirectory, QStringList args,
+    bool synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
                                QString *output, QString *errorMessage);
     bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
                               QString *output, QString *errorMessage);
