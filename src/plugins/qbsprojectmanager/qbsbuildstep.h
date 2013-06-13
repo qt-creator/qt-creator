@@ -95,6 +95,8 @@ private:
 
     QVariantMap m_qbsConfiguration;
     qbs::BuildOptions m_qbsBuildOptions;
+
+    // Temporary data:
     QStringList m_changedFiles;
     QStringList m_products;
 

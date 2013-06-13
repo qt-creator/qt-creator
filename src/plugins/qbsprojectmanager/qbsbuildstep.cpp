@@ -72,7 +72,9 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
     m_qbsBuildOptions(other->m_qbsBuildOptions),  m_job(0), m_parser(0)
-{ }
+{
+    setQbsConfiguration(other->qbsConfiguration());
+}
 
 QbsBuildStep::~QbsBuildStep()
 {
