@@ -835,8 +835,7 @@ void LldbEngine::readLldbStandardOutput()
 
 void LldbEngine::requestUpdateWatchers()
 {
-    WatchHandler *handler = watchHandler();
-    QHashIterator<QByteArray, int> it(handler->watcherNames());
+    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
     QList<QByteArray> watcherData;
     while (it.hasNext()) {
         it.next();
