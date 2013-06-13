@@ -665,13 +665,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             QByteArray key = child["key"].data();
             if (!key.isEmpty()) {
                 int encoding = child["keyencoded"].toInt();
-                QString skey = decodeData(key, encoding);
-                if (skey.size() > 13) {
-                    skey = skey.left(12);
-                    skey += QLatin1String("...");
-                }
-                //data1.name += " (" + skey + ")";
-                data1.name = skey;
+                data1.name = decodeData(key, encoding);
             }
             parseWatchData(expandedINames, data1, child, list);
         }
