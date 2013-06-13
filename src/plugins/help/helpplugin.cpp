@@ -105,12 +105,6 @@ const char SB_OPENPAGES[] = "OpenPages";
 
 #define IMAGEPATH ":/help/images/"
 
-static QString docPath()
-{
-    return QLatin1String(Utils::HostOsInfo::isMacHost()
-                         ? "/../Resources/doc/" : "/../share/doc/qtcreator/");
-}
-
 using namespace Core;
 
 static QToolButton *toolButton(QAction *action)
@@ -391,7 +385,7 @@ void HelpPlugin::extensionsInitialized()
     QStringList filesToRegister;
     // we might need to register creators inbuild help
     filesToRegister.append(QDir::cleanPath(QCoreApplication::applicationDirPath()
-        + docPath() + QLatin1String("qtcreator.qch")));
+        + ICore::documentationPath() + QLatin1String("/qtcreator.qch")));
     Core::HelpManager::instance()->registerDocumentation(filesToRegister);
 }
 

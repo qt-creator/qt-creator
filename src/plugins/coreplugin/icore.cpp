@@ -511,6 +511,13 @@ QString ICore::userResourcePath()
     return urp;
 }
 
+QString ICore::documentationPath()
+{
+    const QString docPath = QLatin1String(Utils::HostOsInfo::isMacHost()
+                                            ? "/../Resources/doc" : "/../share/doc/qtcreator");
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + docPath);
+}
+
 static QString compilerString()
 {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too

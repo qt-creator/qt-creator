@@ -112,6 +112,7 @@ public:
 
     static QString resourcePath();
     static QString userResourcePath();
+    static QString documentationPath();
 
     static QString versionString();
     static QString buildCompatibilityString();
