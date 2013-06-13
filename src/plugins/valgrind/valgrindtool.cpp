@@ -76,6 +76,7 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
         sp.debuggeeArgs = rc1->commandLineArguments();
         const ProjectExplorer::IDevice::ConstPtr device =
                 ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+        QTC_ASSERT(device, return sp);
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
         QTcpServer server;
         if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
