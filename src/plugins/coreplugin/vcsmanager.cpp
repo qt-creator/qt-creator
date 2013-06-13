@@ -36,8 +36,9 @@
 #include "idocument.h"
 #include "infobar.h"
 
-#include <vcsbase/vcsbaseconstants.h>
+#include "addtovcsdialog.h"
 
+#include <vcsbase/vcsbaseconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -403,11 +404,9 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (!vc || !vc->supportsOperation(Core::IVersionControl::AddOperation))
         return;
 
-    QMessageBox::StandardButton button =
-           QMessageBox::question(Core::ICore::mainWindow(), VcsManager::msgAddToVcsTitle(),
-                                 VcsManager::msgPromptToAddToVcs(fileNames, vc),
-                                 QMessageBox::Yes | QMessageBox::No);
-    if (button == QMessageBox::Yes) {
+    Internal::AddToVcsDialog dlg(Core::ICore::mainWindow(), VcsManager::msgAddToVcsTitle(),
+                                 fileNames, vc->displayName());
+    if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
         foreach (const QString &file, fileNames) {
             if (!vc->vcsAdd(file))

@@ -98,7 +98,8 @@ SOURCES += mainwindow.cpp \
     textdocument.cpp \
     documentmanager.cpp \
     removefiledialog.cpp \
-    iversioncontrol.cpp
+    iversioncontrol.cpp \
+    dialogs/addtovcsdialog.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -194,7 +195,8 @@ HEADERS += mainwindow.h \
     idocumentfactory.h \
     textdocument.h \
     documentmanager.h \
-    removefiledialog.h
+    removefiledialog.h \
+    dialogs/addtovcsdialog.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
@@ -206,7 +208,8 @@ FORMS += dialogs/newdialog.ui \
     variablechooser.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
-    removefiledialog.ui
+    removefiledialog.ui \
+    dialogs/addtovcsdialog.ui
 
 RESOURCES += core.qrc \
     fancyactionbar.qrc
