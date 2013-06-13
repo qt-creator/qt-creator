@@ -195,7 +195,7 @@ private:
     Q_PRIVATE_SLOT(d, void statusParser(QByteArray))
     Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, int))
     Q_PRIVATE_SLOT(d, void saveSettings())
-    Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QObject *))
+    Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QWidget *))
 };
 
 } //namespace VcsBase
