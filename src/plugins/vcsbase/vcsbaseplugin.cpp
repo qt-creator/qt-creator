@@ -544,6 +544,8 @@ void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc)
     // VCSes might have become (un-)available, so clear the VCS directory cache
     connect(vc, SIGNAL(configurationChanged()),
             Core::ICore::vcsManager(), SLOT(clearVersionControlCache()));
+    connect(vc, SIGNAL(configurationChanged()),
+            VcsBasePluginPrivate::m_listener, SLOT(slotStateChanged()));
 }
 
 void VcsBasePlugin::extensionsInitialized()
