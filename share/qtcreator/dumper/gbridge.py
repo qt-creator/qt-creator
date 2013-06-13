@@ -1342,13 +1342,6 @@ class Dumper:
         self.useDynamicType = True
         self.expandedINames = {}
 
-        self.charType_ = None
-        self.intType_ = None
-        self.sizetType_ = None
-        self.charPtrType_ = None
-        self.voidType_ = None
-        self.voidPtrType_ = None
-
     def __init__(self, args):
         self.defaultInit()
 
@@ -1553,29 +1546,19 @@ class Dumper:
                     self.putNumChild(0)
 
     def intType(self):
-        if self.intType_ is None:
-             self.intType_ = self.lookupType('int')
-        return self.intType_
+        return self.lookupType('int')
 
     def charType(self):
-        if self.charType_ is None:
-             self.charType_ = self.lookupType('char')
-        return self.charType_
+        return self.lookupType('char')
 
     def sizetType(self):
-        if self.sizetType_ is None:
-             self.sizetType_ = self.lookupType('size_t')
-        return self.sizetType_
+        return self.lookupType('size_t')
 
     def charPtrType(self):
-        if self.charPtrType_ is None:
-             self.charPtrType_ = self.lookupType('char*')
-        return self.charPtrType_
+        return self.lookupType('char*')
 
     def voidPtrType(self):
-        if self.voidPtrType_ is None:
-             self.voidType_ = self.lookupType('void*')
-        return self.voidPtrType_
+        return self.lookupType('void*')
 
     def voidPtrSize(self):
         return self.voidPtrType().sizeof
