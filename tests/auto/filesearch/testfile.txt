@@ -2,4 +2,5 @@ wholeWordAtStart bla foo blubb wholeWordAtEnd
 search to find multiple find results
 search CaseSensitively for casesensitive
 here you find another result
+aaaaaaaa this line has 2 results for four a in a row
 wholeWordAtVeryEnd

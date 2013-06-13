@@ -173,6 +173,7 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                         results << FileSearchResult(s, lineNr, resultItemText,
                                                       regionPtr - chunkPtr, termLength,
                                                       QStringList());
+                        regionPtr += termLength - 1; // another +1 done by for-loop
                         ++numMatches;
                     }
                 }

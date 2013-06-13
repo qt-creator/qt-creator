@@ -46,6 +46,11 @@ bool operator==(const Utils::FileSearchResult &r1, const Utils::FileSearchResult
 class tst_FileSearch : public QObject
 {
     Q_OBJECT
+public:
+    enum RegExpFlag {
+        NoRegExp,
+        RegExp
+    };
 
 private slots:
     void multipleResults();
@@ -59,12 +64,15 @@ namespace {
 
     void test_helper(const Utils::FileSearchResultList &expectedResults,
                      const QString &term,
-                     QTextDocument::FindFlags flags)
+                     QTextDocument::FindFlags flags, tst_FileSearch::RegExpFlag regexp = tst_FileSearch::NoRegExp)
     {
         Utils::FileIterator *it = new Utils::FileIterator(QStringList() << QLatin1String(FILENAME), QList<QTextCodec *>() << QTextCodec::codecForLocale());
         QFutureWatcher<Utils::FileSearchResultList> watcher;
         QSignalSpy ready(&watcher, SIGNAL(resultsReadyAt(int,int)));
-        watcher.setFuture(Utils::findInFiles(term, it, flags));
+        if (regexp == tst_FileSearch::NoRegExp)
+            watcher.setFuture(Utils::findInFiles(term, it, flags));
+        else
+            watcher.setFuture(Utils::findInFilesRegExp(term, it, flags));
         watcher.future().waitForFinished();
         QTest::qWait(100); // process events
         QCOMPARE(ready.count(), 1);
@@ -83,6 +91,16 @@ void tst_FileSearch::multipleResults()
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 2, QLatin1String("search to find multiple find results"), 24, 4, QStringList());
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 4, QLatin1String("here you find another result"), 9, 4, QStringList());
     test_helper(expectedResults, QLatin1String("find"), QTextDocument::FindFlags(0));
+
+    expectedResults.clear();
+    expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 0, 4, QStringList());
+    expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 4, 4, QStringList());
+    test_helper(expectedResults, QLatin1String("aaaa"), QTextDocument::FindFlags(0));
+
+    expectedResults.clear();
+    expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 0, 4, QStringList() << QLatin1String("aaaa"));
+    expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 4, 4, QStringList() << QLatin1String("aaaa"));
+    test_helper(expectedResults, QLatin1String("aaaa"), QTextDocument::FindFlags(0), RegExp);
 }
 
 void tst_FileSearch::caseSensitive()
