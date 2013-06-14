@@ -48,10 +48,12 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
                                             CheckMode checked, const QVariant &v)
 {
     QStandardItem *statusItem = new QStandardItem(status);
-    statusItem->setCheckable(checked != Uncheckable);
-    if (checked != Uncheckable)
+    Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    if (checked != Uncheckable) {
+        flags |= Qt::ItemIsUserCheckable;
         statusItem->setCheckState(checked == Checked ? Qt::Checked : Qt::Unchecked);
-    statusItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+    }
+    statusItem->setFlags(flags);
     statusItem->setData(v);
     QStandardItem *fileItem = new QStandardItem(fileName);
     fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -101,6 +103,13 @@ QString SubmitFileModel::file(int row) const
     if (row < 0 || row >= rowCount())
         return QString();
     return item(row, fileColumn)->text();
+}
+
+bool SubmitFileModel::isCheckable(int row) const
+{
+    if (row < 0 || row >= rowCount())
+        return false;
+    return item(row)->isCheckable();
 }
 
 bool SubmitFileModel::checked(int row) const
@@ -166,7 +175,8 @@ void SubmitFileModel::updateSelections(SubmitFileModel *source)
         // to test rows earlier than latest match found
         for (int j = lastMatched; j < sourceRows; ++j) {
             if (file(i) == source->file(j) && state(i) == source->state(j)) {
-                setChecked(i, source->checked(j));
+                if (isCheckable(i) && source->isCheckable(j))
+                    setChecked(i, source->checked(j));
                 lastMatched = j + 1; // No duplicates, start on next entry
                 break;
             }

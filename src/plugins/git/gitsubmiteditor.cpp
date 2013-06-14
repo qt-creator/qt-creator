@@ -61,7 +61,8 @@ public:
             for (; j < source->rowCount(); ++j) {
                 CommitData::StateFilePair sourceStateFile = gitSource->stateFilePair(j);
                 if (stateFile == sourceStateFile) {
-                    setChecked(i, source->checked(j));
+                    if (isCheckable(i) && source->isCheckable(j))
+                        setChecked(i, source->checked(j));
                     break;
                 } else if (stateFile < sourceStateFile) {
                     break;
