@@ -12560,8 +12560,8 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
 <context>
     <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
+        <source>Me&amp;rcurial</source>
+        <translation>Me&amp;rcurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -35505,6 +35505,14 @@ Kurznamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <source>New %1</source>
         <translation>Neue %1</translation>
     </message>
+    <message>
+        <source>Python source file</source>
+        <translation>Python Quelldatei</translation>
+    </message>
+    <message>
+        <source>Creates an empty Python script with UTF-8 charset</source>
+        <translation>Erstellt ein leeres Python-Skript mit UTF-8-Zeichensatz</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::Internal::DebugView</name>
@@ -37005,6 +37013,25 @@ Dieser Wizard führt Sie durch die essentiellen Schritte, die zum Deployment ein
     <message>
         <source>No &apos;:&apos; found in property definition.</source>
         <translation>Die Eigenschaftsdefinition enthält kein &apos;:&apos;-Zeichen.</translation>
+    </message>
+</context>
+<context>
+    <name>PythonEditor::ClassWizard</name>
+    <message>
+        <source>Python class</source>
+        <translation>Python-Klasse</translation>
+    </message>
+    <message>
+        <source>Creates new Python class</source>
+        <translation>Erstellt eine neue Python-Klasse</translation>
+    </message>
+    <message>
+        <source>C++ module for Python</source>
+        <translation>C++-Modul für Python</translation>
+    </message>
+    <message>
+        <source>Creates C++/Boost file with bindings for Python</source>
+        <translation>Erstellt eine C++-/Boost-Datei mit Bindings für Python</translation>
     </message>
 </context>
 </TS>
