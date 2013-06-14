@@ -102,6 +102,7 @@ def call(value, func, *args):
 #######################################################################
 
 qqStringCutOff = 10000
+qqWatchpointOffset = 10000
 
 # This is a cache mapping from 'type name' to 'display alternatives'.
 qqFormats = {}
@@ -220,11 +221,11 @@ BreakpointAtCatch = 5
 BreakpointAtMain = 6
 BreakpointAtFork = 7
 BreakpointAtExec = 8
-BreakpointAtSysCall = 10
-WatchpointAtAddress = 11
-WatchpointAtExpression = 12
-BreakpointOnQmlSignalEmit = 13
-BreakpointAtJavaScriptThrow = 14
+BreakpointAtSysCall = 9
+WatchpointAtAddress = 10
+WatchpointAtExpression = 11
+BreakpointOnQmlSignalEmit = 12
+BreakpointAtJavaScriptThrow = 13
 
 # See db.StateType
 stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "stopped",
@@ -1206,30 +1207,36 @@ class Dumper:
             self.handleEvent(event)
 
     def describeBreakpoint(self, bp, modelId):
-        cond = bp.GetCondition()
-        result  = 'lldbid="%s"' % bp.GetID()
+        isWatch = isinstance(bp, lldb.SBWatchpoint)
+        if isWatch:
+            result  = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
+        else:
+            result  = 'lldbid="%s"' % bp.GetID()
         result += ',modelid="%s"' % modelId
+        if not bp.IsValid():
+            return
         result += ',hitcount="%s"' % bp.GetHitCount()
-        result += ',threadid="%s"' % bp.GetThreadID()
-        try:
+        if hasattr(bp, 'GetThreadID'):
+            result += ',threadid="%s"' % bp.GetThreadID()
+        if hasattr(bp, 'IsOneShot'):
             result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
-        except:
-            pass
+        cond = bp.GetCondition()
         result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
-        result += ',condition="%s"' % ("" if cond is None else cond)
+        result += ',condition="%s"' % binascii.hexlify("" if cond is None else cond)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
         result += ',locations=['
-        for i in xrange(bp.GetNumLocations()):
-            loc = bp.GetLocationAtIndex(i)
-            addr = loc.GetAddress()
-            result += '{locid="%s"' % loc.GetID()
-            result += ',func="%s"' % addr.GetFunction().GetName()
-            result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
-            result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
-            result += ',valid="%s"' % (1 if loc.IsValid() else 0)
-            result += ',ignorecount="%s"' % loc.GetIgnoreCount()
-            result += ',addr="%s"},' % loc.GetLoadAddress()
+        if hasattr(bp, 'GetNumLocations'):
+            for i in xrange(bp.GetNumLocations()):
+                loc = bp.GetLocationAtIndex(i)
+                addr = loc.GetAddress()
+                result += '{locid="%s"' % loc.GetID()
+                result += ',func="%s"' % addr.GetFunction().GetName()
+                result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
+                result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
+                result += ',valid="%s"' % (1 if loc.IsValid() else 0)
+                result += ',ignorecount="%s"' % loc.GetIgnoreCount()
+                result += ',addr="%s"},' % loc.GetLoadAddress()
         result += '],'
         return result
 
@@ -1240,6 +1247,8 @@ class Dumper:
                 str(args["file"]), int(args["line"]))
         elif bpType == BreakpointByFunction:
             bpNew = self.target.BreakpointCreateByName(args["function"])
+        elif bpType == BreakpointByAddress:
+            bpNew = self.target.BreakpointCreateByAddress(args["address"])
         elif bpType == BreakpointAtMain:
             bpNew = self.target.BreakpointCreateByName(
                 "main", self.target.GetExecutable().GetFilename())
@@ -1249,29 +1258,48 @@ class Dumper:
         elif bpType == BreakpointAtCatch:
             bpNew = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, True, False)
+        elif bpType == WatchpointAtAddress:
+            error = lldb.SBError()
+            bpNew = self.target.WatchAddress(args["address"], 4, False, True, error)
+            #warn("BPNEW: %s" % bpNew)
+            self.reportError(error)
+        elif bpType == WatchpointAtExpression:
+            # FIXME: Top level-only for now.
+            try:
+                frame = self.currentFrame()
+                value = frame.FindVariable(args["expression"])
+                error = lldb.SBError()
+                bpNew = self.target.WatchAddress(value.GetAddress(),
+                    value.GetByteSize(), False, True, error)
+            except:
+                return
         else:
-            warn("UNKNOWN TYPE")
+            warn("UNKNOWN BREAKPOINT TYPE: %s" % bpType)
+            return
         bpNew.SetIgnoreCount(int(args["ignorecount"]))
-        bpNew.SetCondition(str(args["condition"]))
+        bpNew.SetCondition(binascii.unhexlify(args["condition"]))
         bpNew.SetEnabled(int(args["enabled"]))
-        try:
+        if hasattr(bpNew, 'SetOneShot'):
             bpNew.SetOneShot(int(args["oneshot"]))
-        except:
-            pass
         return bpNew
 
     def changeBreakpoint(self, args):
-        bpChange = self.target.FindBreakpointByID(int(args["lldbid"]))
-        bpChange.SetIgnoreCount(int(args["ignorecount"]))
-        bpChange.SetCondition(str(args["condition"]))
-        bpChange.SetEnabled(int(args["enabled"]))
-        try:
-            bpChange.SetOneShot(int(args["oneshot"]))
-        except:
-            pass
+        id = int(args["lldbid"])
+        if id > qqWatchpointOffset:
+            bp = self.target.FindWatchpointByID(id)
+        else:
+            bp = self.target.FindBreakpointByID(id)
+        bp.SetIgnoreCount(int(args["ignorecount"]))
+        bp.SetCondition(binascii.unhexlify(args["condition"]))
+        bp.SetEnabled(int(args["enabled"]))
+        if hasattr(bp, 'SetOneShot'):
+            bp.SetOneShot(int(args["oneshot"]))
 
     def removeBreakpoint(self, args):
-        return self.target.BreakpointDelete(int(args["lldbid"]))
+        id = int(args['lldbid'])
+        if id > qqWatchpointOffset:
+            return self.target.DeleteWatchpoint(id - qqWatchpointOffset)
+        return self.target.BreakpointDelete(id)
 
     def handleBreakpoints(self, args):
         result = 'bkpts=['
