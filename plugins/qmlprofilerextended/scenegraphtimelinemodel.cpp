@@ -308,7 +308,7 @@ const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
 
     {
         QVariantMap res;
-        res.insert(tr("title"), QVariant(labelForSGType(ev->sgEventType)));
+        res.insert(QLatin1String("title"), QVariant(labelForSGType(ev->sgEventType)));
         result << res;
     }
 

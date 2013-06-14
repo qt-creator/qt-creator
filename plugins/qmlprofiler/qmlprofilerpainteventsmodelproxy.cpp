@@ -382,7 +382,7 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
 
     {
         QVariantMap valuePair;
-        valuePair.insert(tr("title"), QVariant(categoryLabel(0)));
+        valuePair.insert(QLatin1String("title"), QVariant(categoryLabel(0)));
         result << valuePair;
     }
 

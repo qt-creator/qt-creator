@@ -624,7 +624,7 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
 
     {
         QVariantMap valuePair;
-        valuePair.insert(tr("title"), QVariant(categoryLabel(d->eventDict[eventId].eventType)));
+        valuePair.insert(QLatin1String("title"), QVariant(categoryLabel(d->eventDict[eventId].eventType)));
         result << valuePair;
     }
 
