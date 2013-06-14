@@ -46,6 +46,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QMenu>
 #include <QSpinBox>
 #include <QTextEdit>
@@ -833,7 +834,7 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (act == deleteAction)
         deleteBreakpoints(selectedIds);
     else if (act == deleteAllAction)
-        deleteBreakpoints(handler->allBreakpointIds());
+        deleteAllBreakpoints();
     else if (act == deleteByFileAction)
         deleteBreakpoints(breakpointsInFile);
     else if (act == adjustColumnAction)
@@ -857,6 +858,16 @@ void BreakTreeView::setBreakpointsEnabled(const BreakpointModelIds &ids, bool en
     BreakHandler *handler = breakHandler();
     foreach (const BreakpointModelId id, ids)
         handler->setEnabled(id, enabled);
+}
+
+void BreakTreeView::deleteAllBreakpoints()
+{
+    if (QMessageBox::warning(debuggerCore()->mainWindow(),
+           tr("Remove All Breakpoints"),
+           tr("Are you sure you want to remove all breakpoints "
+              "from all files in the current session?"),
+           QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+        deleteBreakpoints(breakHandler()->allBreakpointIds());
 }
 
 void BreakTreeView::deleteBreakpoints(const BreakpointModelIds &ids)

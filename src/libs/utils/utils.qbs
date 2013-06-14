@@ -181,6 +181,7 @@ QtcLibrary {
     ]
 
     Group {
+        name: "Tooltip"
         prefix: "tooltip/"
         files: [
             "effects.h",
@@ -195,6 +196,7 @@ QtcLibrary {
     }
 
     Group {
+        name: "WindowsUtils"
         condition: qbs.targetOS == "windows"
         files: [
             "consoleprocess_win.cpp",
@@ -204,6 +206,7 @@ QtcLibrary {
     }
 
     Group {
+        name: "ConsoleProcess_unix"
         condition: qbs.targetPlatform.indexOf("unix") != -1
         files: [
             "consoleprocess_unix.cpp",

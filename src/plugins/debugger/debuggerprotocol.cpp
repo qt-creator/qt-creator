@@ -392,12 +392,25 @@ void extractGdbVersion(const QString &msg,
 {
     const QChar dot(QLatin1Char('.'));
 
+    const bool ignoreParenthesisContent = msg.contains(QLatin1String("rubenvb"));
+    const QChar parOpen(QLatin1Char('('));
+    const QChar parClose(QLatin1Char(')'));
+
     QString cleaned;
     QString build;
     bool inClean = true;
+    bool inParenthesis = false;
     foreach (QChar c, msg) {
         if (inClean && !cleaned.isEmpty() && c != dot && (c.isPunct() || c.isSpace()))
             inClean = false;
+        if (ignoreParenthesisContent) {
+            if (!inParenthesis && c == parOpen)
+                inParenthesis = true;
+            if (inParenthesis && c == parClose)
+                inParenthesis = false;
+            if (inParenthesis)
+                continue;
+        }
         if (inClean) {
             if (c.isDigit())
                 cleaned.append(c);

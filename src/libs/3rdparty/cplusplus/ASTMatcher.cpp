@@ -1511,7 +1511,10 @@ bool ASTMatcher::match(AliasDeclarationAST *node, AliasDeclarationAST *pattern)
 
     pattern->using_token = node->using_token;
 
-    pattern->identifier_token = node->identifier_token;
+    if (! pattern->name)
+        pattern->name = node->name;
+    else if (! AST::match(node->name, pattern->name, this))
+        return false;
 
     pattern->equal_token = node->equal_token;
 

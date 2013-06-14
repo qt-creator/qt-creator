@@ -216,7 +216,7 @@ bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
 
         range.end = lastActivationToken;
 
-        checkAndRewrite(symbol, range, charactersToRemove);
+        checkAndRewrite(declarator, symbol, range, charactersToRemove);
     }
     return true;
 }
@@ -250,7 +250,7 @@ bool PointerDeclarationFormatter::visit(FunctionDefinitionAST *ast)
     CHECK_RV(foundBegin, "Declaration without attributes not supported", true);
     TokenRange range(firstActivationToken, lastActivationToken);
 
-    checkAndRewrite(symbol, range);
+    checkAndRewrite(declarator, symbol, range);
     return true;
 }
 
@@ -271,7 +271,7 @@ bool PointerDeclarationFormatter::visit(ParameterDeclarationAST *ast)
         : ast->lastToken() - 1;
     TokenRange range(ast->firstToken(), lastActivationToken);
 
-    checkAndRewrite(symbol, range);
+    checkAndRewrite(declarator, symbol, range);
     return true;
 }
 
@@ -296,7 +296,7 @@ bool PointerDeclarationFormatter::visit(ForeachStatementAST *ast)
         : declarator->lastToken() - 1;
     TokenRange range(firstSpecifier->firstToken(), lastActivationToken);
 
-    checkAndRewrite(symbol, range);
+    checkAndRewrite(declarator, symbol, range);
     return true;
 }
 
@@ -359,7 +359,7 @@ void PointerDeclarationFormatter::processIfWhileForStatement(ExpressionAST *expr
     // Specify activation range
     TokenRange range(condition->firstToken(), declarator->equal_token - 1);
 
-    checkAndRewrite(symbol, range);
+    checkAndRewrite(declarator, symbol, range);
 }
 
 /*!
@@ -369,7 +369,9 @@ void PointerDeclarationFormatter::processIfWhileForStatement(ExpressionAST *expr
    \param symbol the symbol to be rewritten
    \param range the substitution range in the file
  */
-void PointerDeclarationFormatter::checkAndRewrite(Symbol *symbol, TokenRange tokenRange,
+void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
+                                                  Symbol *symbol,
+                                                  TokenRange tokenRange,
                                                   unsigned charactersToRemove)
 {
     CHECK_R(tokenRange.end > 0, "TokenRange invalid1");
@@ -408,7 +410,24 @@ void PointerDeclarationFormatter::checkAndRewrite(Symbol *symbol, TokenRange tok
             || originalDeclaration.contains(QLatin1Char('*')), "No pointer or references");
 
     // Does the rewritten declaration (part) differs from the original source (part)?
-    QString rewrittenDeclaration = rewriteDeclaration(type, symbol->name());
+    QString rewrittenDeclaration;
+    const Name *name = symbol->name();
+    if (name) {
+        if (name->isOperatorNameId()) {
+            // Take the operator name from the file instead from the AST, so the white
+            // spaces within the operator names can be respected, e.g. in "operator =".
+            const QByteArray operatorText
+                    = m_cppRefactoringFile->textOf(declarator->core_declarator).toLatin1();
+            Identifier operatorName(operatorText.constData(), operatorText.size());
+            rewrittenDeclaration = rewriteDeclaration(type, &operatorName);
+        } else {
+            rewrittenDeclaration = rewriteDeclaration(type, name);
+        }
+    } else {
+        // The declaration will be correctly rewritten for name == 0 (e.g. "int *").
+        rewrittenDeclaration = rewriteDeclaration(type, name);
+    }
+
     rewrittenDeclaration.remove(0, charactersToRemove);
 
     CHECK_R(originalDeclaration != rewrittenDeclaration, "Rewritten is same as original");

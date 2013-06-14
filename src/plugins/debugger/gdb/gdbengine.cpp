@@ -230,7 +230,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_hasBreakpointNotifications = false;
     m_hasPython = false;
     m_registerNamesListed = false;
-    m_hasInferiorThreadList = false;
     m_sourcesListUpdating = false;
     m_oldestAcceptableToken = -1;
     m_nonDiscardableCount = 0;
@@ -638,6 +637,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             } else if (asyncClass == "cmd-param-changed") {
                 // New since 2012-08-09
                 //  "{param="debug remote",value="1"}"
+            } else if (asyncClass == "memory-changed") {
+                // New since 2013
+                //   "{thread-group="i1",addr="0x0918a7a8",len="0x10"}"
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
@@ -1740,7 +1742,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             } else {
                 showMessage(_("HANDLING SIGNAL " + name));
                 if (debuggerCore()->boolSetting(UseMessageBoxForSignals)
-                        && !isStopperThread && !isAutoTestRunning())
+                        && !isStopperThread)
                     showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
@@ -1875,8 +1877,6 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
             }
             watchHandler()->addTypeFormats(type, formats);
         }
-        const GdbMi hasInferiorThreadList = data["hasInferiorThreadList"];
-        m_hasInferiorThreadList = (hasInferiorThreadList.toInt() != 0);
     }
 }
 
@@ -3759,7 +3759,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
                 selectThread(other);
         }
         updateViews(); // Adjust Threads combobox.
-        if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
+        if (m_hasPython && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
                 Discardable, CB(handleThreadNames));
@@ -4136,7 +4136,6 @@ void GdbEngine::rebuildWatchModel()
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
     showToolTip();
-    handleAutoTests();
 }
 
 static QByteArray arrayFillCommand(const char *array, const QByteArray &params)

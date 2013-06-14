@@ -14,7 +14,6 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
 
     files: [
-        "VcsBase.mimetypes.xml",
         "baseannotationhighlighter.cpp",
         "baseannotationhighlighter.h",
         "basecheckoutwizard.cpp",

@@ -13,5 +13,3 @@ SOURCES += tasklistplugin.cpp \
     taskfilefactory.cpp \
 
 RESOURCES += tasklist.qrc
-
-OTHER_FILES += TaskList.mimetypes.xml

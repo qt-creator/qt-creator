@@ -29,6 +29,8 @@
 
 #include "rewritertransaction.h"
 #include <abstractview.h>
+#include <designdocument.h>
+#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
@@ -58,6 +60,16 @@ void RewriterTransaction::commit()
     if (m_valid) {
         m_valid = false;
         view()->emitRewriterEndTransaction();
+    }
+}
+
+void RewriterTransaction::rollback()
+{
+    // TODO: should be implemented with a function in the rewriter
+    if (m_valid) {
+        m_valid = false;
+        view()->emitRewriterEndTransaction();
+        QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
     }
 }
 

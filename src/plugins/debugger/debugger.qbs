@@ -29,6 +29,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Tests"
         condition: Defaults.testsEnabled(qbs)
         qbs.install: true
         qbs.installDir: "tests/manual/debugger/simple/"
@@ -266,6 +267,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "RegistryAccess"
         condition: qbs.targetOS == "windows"
         prefix: "../../shared/registryaccess/"
         files: [
@@ -275,6 +277,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "RegisterPostMortem"
         condition: qbs.targetOS == "windows"
         files: [
             "registerpostmortemaction.cpp",
@@ -283,6 +286,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "LLDBOptions"
         condition: qbs.targetOS == "mac"
         files: [
             "lldblib/lldboptionspage.cpp",

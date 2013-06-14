@@ -59,7 +59,7 @@ public:
     Q_DECLARE_FLAGS(Tools, DebuggingHelper)
 
     explicit DebuggingHelperBuildTask(const BaseQtVersion *version,
-                                      ProjectExplorer::ToolChain *toolChain,
+                                      const ProjectExplorer::ToolChain *toolChain,
                                       Tools tools = AllTools);
 
     void showOutputOnError(bool show);
@@ -71,7 +71,7 @@ signals:
     void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
 
     // used internally
-    void logOutput(const QString &output, Core::MessageManager::PrintToOutputPaneFlag flags);
+    void logOutput(const QString &output, Core::MessageManager::PrintToOutputPaneFlags flags);
     void updateQtVersions(const Utils::FileName &qmakeCommand);
 
 private:

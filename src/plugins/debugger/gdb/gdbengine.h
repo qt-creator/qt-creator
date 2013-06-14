@@ -387,7 +387,6 @@ protected:
     bool m_isQnxGdb;
     bool m_hasBreakpointNotifications;
     bool m_hasPython;
-    bool m_hasInferiorThreadList;
 
 private: ////////// Inferior Management //////////
 

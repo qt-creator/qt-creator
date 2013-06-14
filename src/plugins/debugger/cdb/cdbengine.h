@@ -148,6 +148,7 @@ private slots:
 
     void postCommandSequence(unsigned mask);
     void operateByInstructionTriggered(bool);
+    void verboseLogTriggered(bool);
 
     void consoleStubError(const QString &);
     void consoleStubProcessStarted();
@@ -199,6 +200,7 @@ private:
     inline bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
     bool canInterruptInferior() const;
     void syncOperateByInstruction(bool operateByInstruction);
+    void syncVerboseLog(bool verboseLog);
     void postWidgetAtCommand();
     void handleCustomSpecialStop(const QVariant &v);
     void postFetchMemory(const MemoryViewCookie &c);
@@ -260,6 +262,8 @@ private:
     const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
     bool m_operateByInstructionPending; //!< Creator operate by instruction action changed.
     bool m_operateByInstruction;
+    bool m_verboseLogPending; //!< Creator verbose log action changed.
+    bool m_verboseLog;
     bool m_notifyEngineShutdownOnTermination;
     bool m_hasDebuggee;
     bool m_cdbIs64Bit;

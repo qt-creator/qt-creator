@@ -26,7 +26,6 @@ QtcPlugin {
     ]
 
     files: [
-        "Qt4ProjectManager.mimetypes.xml",
         "addlibrarywizard.cpp",
         "addlibrarywizard.h",
         "buildconfigurationinfo.h",

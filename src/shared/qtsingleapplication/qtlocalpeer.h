@@ -45,6 +45,7 @@ public:
     bool sendMessage(const QString &message, int timeout, bool block);
     QString applicationId() const
         { return id; }
+    static QString appSessionId(const QString &appId);
 
 Q_SIGNALS:
     void messageReceived(const QString &message, QObject *socket);

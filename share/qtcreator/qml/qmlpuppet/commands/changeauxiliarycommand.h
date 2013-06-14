@@ -43,7 +43,7 @@ class ChangeAuxiliaryCommand
 
 public:
     ChangeAuxiliaryCommand();
-    ChangeAuxiliaryCommand(const QVector<PropertyValueContainer> &auxiliaryChangeVector);
+    explicit ChangeAuxiliaryCommand(const QVector<PropertyValueContainer> &auxiliaryChangeVector);
 
     QVector<PropertyValueContainer> auxiliaryChanges() const;
 

@@ -567,11 +567,6 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
         return 0;
     const TypeName type = nameComponents.last();
 
-    // maybe 'type' is a cpp name
-    const QmlJS::CppComponentValue *value = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
-    if (value)
-        return value;
-
     TypeName module;
     for (int i = 0; i < nameComponents.size() - 1; ++i) {
         if (i != 0)
@@ -579,7 +574,7 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
         module += nameComponents.at(i);
     }
 
-    // otherwise get the qml object value that's available in the document
+    // get the qml object value that's available in the document
     foreach (const QmlJS::Import &import, context()->imports(document())->all()) {
         if (import.info.path() != QString::fromUtf8(module))
             continue;
@@ -592,7 +587,14 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
             return cppValue;
     }
 
-    return value_cast<CppComponentValue>(getObjectValue());
+    const QmlJS::CppComponentValue *value = value_cast<CppComponentValue>(getObjectValue());
+    if (value)
+        return value;
+
+    // maybe 'type' is a cpp name
+    const QmlJS::CppComponentValue *cppValue = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
+
+    return cppValue;
 }
 
 const QmlJS::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
@@ -1019,8 +1021,19 @@ void NodeMetaInfoPrivate::setupPrototypes()
                 description.className = qmlValue->moduleName().toUtf8() + '.' + description.className;
             m_prototypes.append(description);
         } else {
-            if (context()->lookupType(document(), QStringList() << ov->className()))
+            if (context()->lookupType(document(), QStringList() << ov->className())) {
+                const Imports *allImports = context()->imports(document());
+                ImportInfo importInfo = allImports->info(description.className, context().data());
+
+                if (importInfo.isValid()) {
+                    QString uri = importInfo.name();
+                    uri.replace(QLatin1String(","), QLatin1String("."));
+                    if (!uri.isEmpty())
+                        description.className = QString(uri + QString::fromLatin1(".") + QString::fromLatin1(description.className)).toLatin1();
+                }
+
                 m_prototypes.append(description);
+            }
         }
     }
 }

@@ -7,7 +7,7 @@
   <valuemap type="QVariantMap">
    <value type="int" key="Id">1</value>
    <value type="QString" key="Name">Harmattan Target (Qt SDK)</value>
-   <value type="QString" key="QMakePath">~/QtSDK/Madde/targets/harmattan_10.2011.34-1/bin/qmake</value>
+   <value type="QString" key="QMakePath">~/QtSDK/Madde/targets/harmattan_10.2011.34-1_rt1.2/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>

@@ -204,6 +204,7 @@ Project {
         ]
 
         Group {
+            name: "qtcreator.sh"
             condition: qbs.targetPlatform.indexOf("unix") != -1 && qbs.targetOS != "mac"
             files: "bin/qtcreator.sh"
             qbs.install: true
@@ -211,17 +212,19 @@ Project {
         }
 
         Group {
-           condition: qbs.targetPlatform.indexOf("unix") != -1
-           files: [
-               "src/shared/qtlockedfile/qtlockedfile_unix.cpp"
-           ]
+            name: "QtLockedFile_unix"
+            condition: qbs.targetPlatform.indexOf("unix") != -1
+            files: [
+                "src/shared/qtlockedfile/qtlockedfile_unix.cpp"
+            ]
         }
 
         Group {
-           condition: qbs.targetOS == "windows"
-           files: [
-               "src/shared/qtlockedfile/qtlockedfile_win.cpp"
-           ]
+            name: "QtLockedFile_win"
+            condition: qbs.targetOS == "windows"
+            files: [
+                "src/shared/qtlockedfile/qtlockedfile_win.cpp"
+            ]
         }
 
         Group {

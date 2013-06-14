@@ -162,17 +162,32 @@ private slots:
 
     void test_quickfix_InsertDeclFromDef();
 
+    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByNewLines();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeDir();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeType();
     void test_quickfix_AddIncludeForUndefinedIdentifier_normal();
     void test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc();
     void test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_sortingMiddle();
     void test_quickfix_AddIncludeForUndefinedIdentifier_sortingBottom();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_appendToUnsorted();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalIncludeAtFront();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobalIncludeAtBack();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_preferGroupWithLongerMatchingPrefix();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfOnlyDifferentIncludeDirs();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSorted();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUnsorted();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes1();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes2();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes3();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes4();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCppStyleCommentOnTop();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCStyleCommentOnTop();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
-    void test_quickfix_MoveFuncDefOutside_MemberFuncOutside();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncOutside1();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncOutside2();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs();
@@ -194,11 +209,13 @@ private slots:
     void test_quickfix_AssignToLocalVariable_memberFunction();
     void test_quickfix_AssignToLocalVariable_staticMemberFunction();
     void test_quickfix_AssignToLocalVariable_newExpression();
+    void test_quickfix_AssignToLocalVariable_templates();
     void test_quickfix_AssignToLocalVariable_noInitializationList();
     void test_quickfix_AssignToLocalVariable_noVoidFunction();
     void test_quickfix_AssignToLocalVariable_noVoidMemberFunction();
     void test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction();
     void test_quickfix_AssignToLocalVariable_noFunctionInExpression();
+    void test_quickfix_AssignToLocalVariable_noFunctionInFunction();
     void test_quickfix_AssignToLocalVariable_noReturnClass();
     void test_quickfix_AssignToLocalVariable_noReturnFunc();
     void test_quickfix_AssignToLocalVariable_noSignatureMatch();

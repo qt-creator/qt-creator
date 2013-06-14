@@ -49,7 +49,7 @@ class CreateSceneCommand
 
 public:
     CreateSceneCommand();
-    CreateSceneCommand(const QVector<InstanceContainer> &instanceContainer,
+    explicit CreateSceneCommand(const QVector<InstanceContainer> &instanceContainer,
                        const QVector<ReparentContainer> &reparentContainer,
                        const QVector<IdContainer> &idVector,
                        const QVector<PropertyValueContainer> &valueChangeVector,

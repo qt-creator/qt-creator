@@ -890,7 +890,8 @@ AliasDeclarationAST *AliasDeclarationAST::clone(MemoryPool *pool) const
 {
     AliasDeclarationAST *ast = new (pool) AliasDeclarationAST;
     ast->using_token = using_token;
-    ast->identifier_token = identifier_token;
+    if (name)
+        ast->name = name->clone(pool);
     ast->equal_token = equal_token;
     if (typeId)
         ast->typeId = typeId->clone(pool);

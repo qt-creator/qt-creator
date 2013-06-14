@@ -55,13 +55,7 @@ public slots:
     void actionTriggered(int supportedAction);
 
 protected:
-    /*!
-      \brief Create a new action and register this action in the action manager.
-      \param actionId Action's internal id
-      \param id Command id
-      \param title Action's title
-      \param key Key sequence for the commands
-     */
+
     void registerNewAction(int actionId, const Core::Id &id, const QString &title,
                            const QKeySequence &key);
 

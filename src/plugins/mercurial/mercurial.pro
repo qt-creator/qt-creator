@@ -11,7 +11,8 @@ SOURCES += mercurialplugin.cpp \
     commiteditor.cpp \
     clonewizardpage.cpp \
     clonewizard.cpp \
-    mercurialsettings.cpp
+    mercurialsettings.cpp \
+    authenticationdialog.cpp
 HEADERS += mercurialplugin.h \
     constants.h \
     optionspage.h \
@@ -25,9 +26,11 @@ HEADERS += mercurialplugin.h \
     commiteditor.h \
     clonewizardpage.h \
     clonewizard.h \
-    mercurialsettings.h
+    mercurialsettings.h \
+    authenticationdialog.h
 FORMS += optionspage.ui \
     revertdialog.ui \
     srcdestdialog.ui \
-    mercurialcommitpanel.ui
+    mercurialcommitpanel.ui \
+    authenticationdialog.ui
 RESOURCES += mercurial.qrc

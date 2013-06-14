@@ -103,8 +103,8 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
     try:
         filesTree = waitForObject("{name='treeWidget' type='QTreeWidget' visible='1' "
                                   "window=':WritePermissions_Core::Internal::ReadOnlyFilesDialog'}")
-        items = map(os.path.join, dumpItems(filesTree.model(), column=4),
-                     dumpItems(filesTree.model(), column=3))
+        items = map(os.path.expanduser, map(os.path.join, dumpItems(filesTree.model(), column=4),
+                                            dumpItems(filesTree.model(), column=3)))
         difference = set(readOnlyFiles) ^ set(items)
         test.verify(len(difference) == 0, "Verifying whether all modified files without write "
                     "permission are listed.")

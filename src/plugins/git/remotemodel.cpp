@@ -36,7 +36,7 @@ namespace Internal {
 // ------ RemoteModel
 RemoteModel::RemoteModel(GitClient *client, QObject *parent) :
     QAbstractTableModel(parent),
-    m_flags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable),
+    m_flags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable),
     m_client(client)
 { }
 

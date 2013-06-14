@@ -42,10 +42,12 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJSTools;
 using TextEditor::RefactoringChanges;
+
+namespace QmlJSEditor {
+
+using namespace Internal;
 
 QmlJSQuickFixOperation::QmlJSQuickFixOperation(const QmlJSQuickFixInterface &interface,
                                                int priority)
@@ -79,3 +81,5 @@ void QmlJSQuickFixFactory::matchingOperations(const QuickFixInterface &interface
 {
     match(interface.staticCast<const QmlJSQuickFixAssistInterface>(), result);
 }
+
+} // namespace QmlJSEditor

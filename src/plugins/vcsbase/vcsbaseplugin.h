@@ -164,8 +164,9 @@ public:
         SuppressCommandLogging = 0x20, // No command log entry in VCS output window.
         ShowSuccessMessage = 0x40,      // Show message about successful completion in VCS output window.
         ForceCLocale = 0x80,            // Force C-locale for commands whose output is parsed.
-        FullySynchronously = 0x100      // Suppress local event loop (in case UI actions are
+        FullySynchronously = 0x100,     // Suppress local event loop (in case UI actions are
                                         // triggered by file watchers).
+        ExpectRepoChanges = 0x200       // Expect changes in repository by the command
     };
 
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
@@ -189,7 +190,9 @@ public:
                                     const QStringList &arguments,
                                     const QProcessEnvironment &env,
                                     QByteArray* outputText,
-                                    QByteArray *errorText, int timeoutMS, bool logCommandToWindow);
+                                    QByteArray *errorText,
+                                    int timeoutMS,
+                                    unsigned flags);
 
     // Utility to run the 'patch' command
     static bool runPatch(const QByteArray &input, const QString &workingDirectory = QString(),

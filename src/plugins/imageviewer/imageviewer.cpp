@@ -187,6 +187,12 @@ void ImageViewer::scaleFactorUpdate(qreal factor)
     d->ui_toolbar.labelInfo->setText(info);
 }
 
+/*!
+    Tries to change the \a button icon to the icon specified by \a name
+    from the current theme. Returns \c true if icon is updated, \c false
+    otherwise.
+*/
+
 bool ImageViewer::updateButtonIconByTheme(QAbstractButton *button, const QString &name)
 {
     QTC_ASSERT(button, return false);

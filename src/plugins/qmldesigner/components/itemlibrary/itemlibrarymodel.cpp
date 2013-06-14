@@ -43,6 +43,8 @@ namespace QmlDesigner {
 
 namespace Internal {
 
+static QHash<QString, bool> collapsedStateHash;
+
 
 template <class T>
 ItemLibrarySortedModel<T>::ItemLibrarySortedModel(QObject *parent) :
@@ -238,6 +240,12 @@ ItemLibrarySectionModel::ItemLibrarySectionModel(QScriptEngine *scriptEngine, in
     QScriptValue::setProperty(QLatin1String("sectionName"), sectionName);
     QScriptValue::setProperty(QLatin1String("sectionEntries"),
         scriptEngine->newVariant(QVariant::fromValue(static_cast<QDeclarativeListModel *>(&m_sectionEntries))));
+
+    if (collapsedStateHash.contains(sectionName)) {
+        QScriptValue::setProperty(QLatin1String("sectionExpanded"), collapsedStateHash.value(sectionName));
+    } else {
+        QScriptValue::setProperty(QLatin1String("sectionExpanded"), true);
+    }
 }
 
 
@@ -308,6 +316,15 @@ bool ItemLibrarySectionModel::operator<(const ItemLibrarySectionModel &other) co
     if (sectionName() == QLatin1String("QML Components")) //Qml Components always come first
         return true;
     return sectionName() < other.sectionName();
+}
+
+void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
+{
+    if (collapsedStateHash.contains(section))
+        collapsedStateHash.remove(section);
+
+    if (!expanded) //default is true
+        collapsedStateHash.insert(section, expanded);
 }
 
 ItemLibraryModel::ItemLibraryModel(QScriptEngine *scriptEngine, QObject *parent)

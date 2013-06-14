@@ -391,7 +391,7 @@ QList<EnvironmentItem> Environment::diff(const Environment &other) const
     return result;
 }
 
-bool Environment::hasKey(const QString &key)
+bool Environment::hasKey(const QString &key) const
 {
     return m_values.contains(key);
 }

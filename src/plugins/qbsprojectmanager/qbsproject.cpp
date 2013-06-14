@@ -105,6 +105,8 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsUpdateFutureInterface(0),
     m_currentBc(0)
 {
+    m_parsingDelay.setInterval(1000); // delay (some) parsing by 1s.
+
     setProjectContext(Core::Context(Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -112,6 +114,9 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
             this, SLOT(changeActiveTarget(ProjectExplorer::Target*)));
     connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(targetWasAdded(ProjectExplorer::Target*)));
+    connect(this, SIGNAL(environmentChanged()), this, SLOT(delayParsing()));
+
+    connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(parseCurrentBuildConfiguration()));
 
     updateDocuments(0);
     m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
@@ -174,19 +179,29 @@ void QbsProject::invalidate()
     prepareForParsing();
 }
 
-qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts)
+qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList productNames)
 {
-    if (!qbsProject())
+    if (!qbsProject() || isParsing())
         return 0;
-    if (!activeTarget() || !activeTarget()->kit())
-        return 0;
-    ProjectExplorer::BuildConfiguration *bc = 0;
-    bc = activeTarget()->activeBuildConfiguration();
-    if (!bc)
-        return 0;
+    if (productNames.isEmpty()) {
+        return qbsProject()->buildAllProducts(opts);
+    } else {
+        QList<qbs::ProductData> products;
+        foreach (const QString &productName, productNames) {
+            bool found = false;
+            foreach (const qbs::ProductData &data, qbsProjectData()->products()) {
+                if (data.name() == productName) {
+                    found = true;
+                    products.append(data);
+                    break;
+                }
+            }
+            if (!found)
+                return 0;
+        }
 
-    QProcessEnvironment env = bc->environment().toProcessEnvironment();
-    return qbsProject()->buildAllProducts(opts, env);
+        return qbsProject()->buildSomeProducts(products, opts);
+    }
 }
 
 qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)
@@ -273,6 +288,7 @@ void QbsProject::handleQbsParsingDone(bool success)
     foreach (ProjectExplorer::Target *t, targets())
         t->updateDefaultRunConfigurations();
 
+    emit fileListChanged();
     emit projectParsingDone(success);
 }
 
@@ -294,9 +310,8 @@ void QbsProject::handleQbsParsingTaskSetup(const QString &description, int maxim
 void QbsProject::targetWasAdded(ProjectExplorer::Target *t)
 {
     connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(parseCurrentBuildConfiguration()));
-    connect(t, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(parseCurrentBuildConfiguration()));
+            this, SLOT(delayParsing()));
+    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayParsing()));
 }
 
 void QbsProject::changeActiveTarget(ProjectExplorer::Target *t)
@@ -310,25 +325,32 @@ void QbsProject::changeActiveTarget(ProjectExplorer::Target *t)
 void QbsProject::buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc)
 {
     if (m_currentBc)
-        disconnect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(parseCurrentBuildConfiguration()));
+        disconnect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(delayParsing()));
 
     m_currentBc = qobject_cast<QbsBuildConfiguration *>(bc);
     if (m_currentBc) {
-        connect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(parseCurrentBuildConfiguration()));
-        parseCurrentBuildConfiguration();
+        connect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(delayParsing()));
+        delayParsing();
     } else {
         invalidate();
     }
 }
 
+void QbsProject::delayParsing()
+{
+    m_parsingDelay.start();
+}
+
 void QbsProject::parseCurrentBuildConfiguration()
 {
+    m_parsingDelay.stop();
+
     if (!activeTarget())
         return;
     QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
-    parse(bc->qbsConfiguration(), bc->buildDirectory());
+    parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory());
 }
 
 bool QbsProject::fromMap(const QVariantMap &map)
@@ -358,19 +380,19 @@ void QbsProject::generateErrors(const qbs::Error &e)
                                                  ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
-void QbsProject::parse(const QVariantMap &config, const QString &dir)
+void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir)
 {
     QTC_ASSERT(!dir.isNull(), return);
     prepareForParsing();
-    m_qbsBuildConfig = config;
-    m_qbsBuildRoot = dir;
 
     QTC_ASSERT(!m_qbsSetupProjectJob, return);
+
     qbs::SetupProjectParameters params;
-    params.setBuildConfiguration(m_qbsBuildConfig);
-    params.setBuildRoot(m_qbsBuildRoot);
+    params.setBuildConfiguration(config);
+    params.setBuildRoot(dir);
     params.setProjectFilePath(m_fileName);
     params.setIgnoreDifferentProjectFilePath(false);
+    params.setEnvironment(env.toProcessEnvironment());
     qbs::Preferences *prefs = QbsManager::preferences();
     const QString buildDir = qbsBuildDir();
     params.setSearchPaths(prefs->searchPaths(buildDir));
@@ -391,13 +413,12 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
 
 void QbsProject::prepareForParsing()
 {
-    taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     if (m_qbsUpdateFutureInterface)
         m_qbsUpdateFutureInterface->reportCanceled();
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
-    // FIXME: Christian claims this should work
     delete m_qbsSetupProjectJob;
     m_qbsSetupProjectJob = 0;
 

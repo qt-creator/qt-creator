@@ -42,10 +42,12 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJSTools;
 using TextEditor::RefactoringChanges;
+
+namespace QmlJSEditor {
+
+using namespace Internal;
 
 namespace {
 
@@ -179,3 +181,5 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new WrapInLoader);
     plugIn->addAutoReleasedObject(new AddAnalysisMessageSuppressionComment);
 }
+
+} // namespace QmlJSEditor

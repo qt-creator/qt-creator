@@ -510,6 +510,7 @@ void EditorView::goForwardInNavigationHistory()
 SplitterOrView::SplitterOrView(Core::IEditor *editor)
 {
     m_layout = new QStackedLayout(this);
+    m_layout->setSizeConstraint(QLayout::SetNoConstraint);
     m_view = new EditorView(this);
     if (editor)
         m_view->addEditor(editor);

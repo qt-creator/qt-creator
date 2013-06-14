@@ -39,10 +39,10 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/task.h>
 
+#include <utils/environment.h>
+
 #include <QFuture>
-// <debug>
 #include <QTimer>
-// </debug>
 #include <QVariantMap>
 
 namespace qbs {
@@ -79,7 +79,7 @@ public:
 
     QStringList files(FilesMode fileMode) const;
 
-    qbs::BuildJob *build(const qbs::BuildOptions &opts);
+    qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products = QStringList());
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);
     qbs::InstallJob *install(const qbs::InstallOptions &opts);
 
@@ -99,6 +99,7 @@ public:
 public slots:
     void invalidate();
     void parseCurrentBuildConfiguration();
+    void delayParsing();
 
 signals:
     void projectParsingStarted();
@@ -116,7 +117,7 @@ private slots:
 private:
     bool fromMap(const QVariantMap &map);
 
-    void parse(const QVariantMap &config, const QString &dir = QString());
+    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
 
     void generateErrors(const qbs::Error &e);
     void prepareForParsing();
@@ -132,8 +133,6 @@ private:
     QbsProjectNode *m_rootProjectNode;
 
     qbs::SetupProjectJob *m_qbsSetupProjectJob;
-    QVariantMap m_qbsBuildConfig;
-    QString m_qbsBuildRoot;
 
     QFutureInterface<void> *m_qbsUpdateFutureInterface;
     int m_currentProgressBase;
@@ -141,6 +140,8 @@ private:
     QFuture<void> m_codeModelFuture;
 
     QbsBuildConfiguration *m_currentBc;
+
+    QTimer m_parsingDelay;
 };
 
 } // namespace Internal

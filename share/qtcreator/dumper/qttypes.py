@@ -18,54 +18,6 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
-# Compatibility with earlier versions
-Dumper.encodeByteArray = \
-    lambda d, value, limit = None: qEncodeByteArray(d, value, limit)
-Dumper.byteArrayData = \
-    lambda d, value: qByteArrayData(d, value)
-Dumper.putByteArrayValue = \
-    lambda d, value: qPutByteArrayValue(d, value)
-Dumper.encodeString = \
-    lambda d, value, limit = None: qString(d, value, limit)
-Dumper.stringData = \
-    lambda d, value: qStringData(d, value)
-Dumper.putStringValue = \
-    lambda d, value: qPutStringValue(d, value)
-
-def mapForms():
-    return "Normal,Compact"
-
-def arrayForms():
-    if hasPlot():
-        return "Normal,Plot"
-    return "Normal"
-
-def mapCompact(format, keyType, valueType):
-    if format == 2:
-        return True # Compact.
-    return isSimpleType(keyType) and isSimpleType(valueType)
-
-
-def qdump__QAtomicInt(d, value):
-    d.putValue(value["_q_value"])
-    d.putNumChild(0)
-
-
-def qdump__QBasicAtomicInt(d, value):
-    d.putValue(value["_q_value"])
-    d.putNumChild(0)
-
-
-def qdump__QBasicAtomicPointer(d, value):
-    d.putType(value.type)
-    p = cleanAddress(value["_q_value"])
-    d.putValue(p)
-    d.putPointerValue(value.address)
-    d.putNumChild(p)
-    if d.isExpanded():
-        with Children(d):
-           d.putItem(value["_q_value"])
-
 def qByteArrayData(d, value):
     private = value['d'].dereference()
     checkRef(private['ref'])
@@ -73,13 +25,11 @@ def qByteArrayData(d, value):
     alloc = int(private['alloc'])
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = int(private['offset'])
-        addr = d.addressOf(private) + offset
-        data = createPointerValue(value, addr, d.charType())
-        return data, size, alloc
+        addr = d.addressOf(private) + int(private['offset'])
     except:
         # Qt 4:
-        return private['data'], size, alloc
+        addr = private['data']
+    return createPointerValue(value, addr, d.charType()), size, alloc
 
 qStringData = qByteArrayData
 
@@ -108,6 +58,91 @@ def qPutByteArrayValue(d, value):
 
 def qPutStringValue(d, value):
     d.putValue(qEncodeString(d, value), Hex4EncodedLittleEndian)
+
+def mapForms():
+    return "Normal,Compact"
+
+def arrayForms():
+    if hasPlot():
+        return "Normal,Plot"
+    return "Normal"
+
+def qMapCompact(format, keyType, valueType):
+    if format == 2:
+        return True # Compact.
+    return isSimpleType(keyType) and isSimpleType(valueType)
+
+def qPutMapName(d, value):
+    if str(value.type) == d.ns + "QString":
+        d.put('key="%s",' % d.encodeString(value))
+        d.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+    elif str(value.type) == d.ns + "QByteArray":
+        d.put('key="%s",' % d.encodeByteArray(value))
+        d.put('keyencoded="%s",' % Hex2EncodedLatin1)
+    else:
+        if lldbLoaded:
+            d.put('name="%s",' % value.GetValue())
+        else:
+            d.put('name="%s",' % value)
+
+Dumper.encodeByteArray = qEncodeByteArray
+Dumper.byteArrayData = qByteArrayData
+Dumper.putByteArrayValue = qPutByteArrayValue
+Dumper.encodeString = qEncodeString
+Dumper.stringData = qStringData
+Dumper.putStringValue = qPutStringValue
+Dumper.putMapName = qPutMapName
+
+Dumper.isMapCompact = \
+    lambda d, keyType, valueType: qMapCompact(d.currentItemFormat(), keyType, valueType)
+
+
+def tryPutObjectNameValue(d, value):
+    try:
+        # Is this derived from QObject?
+        dd = value["d_ptr"]["d"]
+        privateType = d.lookupType(d.ns + "QObjectPrivate")
+        staticMetaObject = value["staticMetaObject"]
+        d_ptr = dd.cast(privateType.pointer()).dereference()
+        objectName = None
+        try:
+            objectName = d_ptr["objectName"]
+        except: # Qt 5
+            p = d_ptr["extraData"]
+            if not isNull(p):
+                objectName = p.dereference()["objectName"]
+        if not objectName is None:
+            data, size, alloc = d.stringData(objectName)
+            if size > 0:
+                str = d.readRawMemory(data, 2 * size)
+                d.putValue(str, Hex4EncodedLittleEndian, 1)
+    except:
+        pass
+
+Dumper.tryPutObjectNameValue = tryPutObjectNameValue
+
+############################################################################################
+
+
+def qdump__QAtomicInt(d, value):
+    d.putValue(value["_q_value"])
+    d.putNumChild(0)
+
+
+def qdump__QBasicAtomicInt(d, value):
+    d.putValue(value["_q_value"])
+    d.putNumChild(0)
+
+
+def qdump__QBasicAtomicPointer(d, value):
+    d.putType(value.type)
+    p = cleanAddress(value["_q_value"])
+    d.putValue(p)
+    d.putPointerValue(value.address)
+    d.putNumChild(p)
+    if d.isExpanded():
+        with Children(d):
+           d.putItem(value["_q_value"])
 
 def qform__QByteArray():
     return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
@@ -252,12 +287,14 @@ def qdump__QModelIndex(d, value):
 
 
 def qdump__QDate(d, value):
-    jd = value["jd"]
+    jd = int(value["jd"])
     if int(jd):
         d.putValue(jd, JulianDate)
         d.putNumChild(1)
         if d.isExpanded():
             qt = d.ns + "Qt::"
+            if lldbLoaded:
+                qt += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 d.putCallItem("toString", value, "toString", qt + "TextDate")
@@ -277,6 +314,8 @@ def qdump__QTime(d, value):
         d.putNumChild(1)
         if d.isExpanded():
             qt = d.ns + "Qt::"
+            if lldbLoaded:
+                qt += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 d.putCallItem("toString", value, "toString", qt + "TextDate")
@@ -297,15 +336,17 @@ def qdump__QDateTime(d, value):
     except:
         d.putPlainChildren(value)
         return
-    mds = p["time"]["mds"]
-    if int(mds) >= 0:
-        d.putValue("%s/%s" % (p["date"]["jd"], mds),
+    mds = int(p["time"]["mds"])
+    if mds >= 0:
+        d.putValue("%s/%s" % (int(p["date"]["jd"]), mds),
             JulianDateAndMillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 qt = d.ns + "Qt::"
+                if lldbLoaded:
+                    qt += "DateFormat::" # FIXME: Bug?...
                 d.putCallItem("toTime_t", value, "toTime_t")
                 d.putCallItem("toString", value, "toString", qt + "TextDate")
                 d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
@@ -347,7 +388,7 @@ def qdump__QFile(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            base = value.type.fields()[0].type
+            base = fieldAt(value.type, 0).type
             d.putSubItem("[%s]" % str(base), value.cast(base), False)
             d.putCallItem("exists", value, "exists")
 
@@ -522,7 +563,7 @@ def qdump__QHash(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
         node = hashDataFirstNode(value)
         innerType = e_ptr.dereference().type
         childType = innerType
@@ -716,18 +757,21 @@ def qdump__QLocale(d, value):
     # QLocale data array from variable in qlocale.cpp.
     # Default is 368 in Qt 4.8, 438 in Qt 5.0.1, the last one
     # being 'System'.
-    global qqLocalesCount
-    if qqLocalesCount is None:
-        try:
-            qqLocalesCount = int(value(d.ns + 'locale_data_size'))
-        except:
-            qqLocalesCount = 438
-    try:
-        index = int(value["p"]["index"])
-    except:
-        index = int(value["d"]["d"]["m_index"])
-    check(index >= 0)
-    check(index <= qqLocalesCount)
+    #global qqLocalesCount
+    #if qqLocalesCount is None:
+    #    #try:
+    #        qqLocalesCount = int(value(d.ns + 'locale_data_size'))
+    #    #except:
+    #        qqLocalesCount = 438
+    #try:
+    #    index = int(value["p"]["index"])
+    #except:
+    #    try:
+    #        index = int(value["d"]["d"]["m_index"])
+    #    except:
+    #        index = int(value["d"]["d"]["m_data"]...)
+    #check(index >= 0)
+    #check(index <= qqLocalesCount)
     d.putStringValue(call(value, "name"))
     d.putNumChild(0)
     return
@@ -774,7 +818,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
 
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
 
         it = e_ptr["forward"].dereference()
 
@@ -782,7 +826,8 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # its size is most likely the offset of the 'forward' member therein.
         # Or possibly 2 * sizeof(void *)
         nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
-        payloadSize = nodeType.sizeof - 2 * d.voidPtrSize
+        nodePointerType = nodeType.pointer()
+        payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
 
         if isCompact:
             innerType = valueType
@@ -791,9 +836,8 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
 
         with Children(d, n, childType=innerType):
             for i in xrange(n):
-                itd = it.dereference()
-                base = it.cast(d.charPtr()) - payloadSize
-                node = base.cast(nodeType.pointer()).dereference()
+                base = it.cast(d.charPtrType()) - payloadSize
+                node = base.cast(nodePointerType).dereference()
                 with SubItem(d, i):
                     d.putField("iname", d.currentIName)
                     if isCompact:
@@ -822,7 +866,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
 
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
         nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
         if isCompact:
             innerType = valueType
@@ -864,7 +908,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
 
 
 def qdumpHelper__QMap(d, value, forceLong):
-    if value["d"].dereference().type.fields()[0].name == "backward":
+    if fieldAt(value["d"].dereference().type, 0).name == "backward":
         qdumpHelper__Qt4_QMap(d, value, forceLong)
     else:
         qdumpHelper__Qt5_QMap(d, value, forceLong)
@@ -898,7 +942,7 @@ def qdump__QObject(d, value):
     d.tryPutObjectNameValue(value)
 
     try:
-        privateTypeName = self.ns + "QObjectPrivate"
+        privateTypeName = d.ns + "QObjectPrivate"
         privateType = d.lookupType(privateTypeName)
         staticMetaObject = value["staticMetaObject"]
     except:
@@ -920,7 +964,10 @@ def qdump__QObject(d, value):
             with Children(d):
                 d.putFields(value)
         return
+
     #warn("OBJECTNAME: %s " % objectName)
+    dd = value["d_ptr"]["d"]
+    d_ptr = dd.cast(privateType.pointer()).dereference()
     #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
     if not isAccessible(mo):
@@ -944,8 +991,8 @@ def qdump__QObject(d, value):
     #warn("METADATA: %s " % metaData)
     #warn("STRINGDATA: %s " % metaStringData)
     #warn("TYPE: %s " % value.type)
-    #warn("INAME: %s " % d.currentIName())
-    #d.putEmptyValue()
+    #warn("INAME: %s " % d.currentIName)
+    d.putEmptyValue()
     #QSignalMapper::staticMetaObject
     #checkRef(d_ptr["ref"])
     d.putNumChild(4)
@@ -1109,7 +1156,7 @@ def qdump__QObject(d, value):
             if d.isExpanded():
                 pp = 0
                 with Children(d):
-                    vectorType = connections.type.target().fields()[0].type
+                    vectorType = fieldAt(connections.type.target(), 0).type
                     innerType = d.templateArgument(vectorType, 0)
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
                     p = gdb.Value(connections["p"]["array"]).cast(innerType.pointer())
@@ -1829,15 +1876,19 @@ def qdump__QVariant(d, value):
         return innert
 
     # User types.
-    type = str(call(value, "typeToName",
-        "('%sQVariant::Type')%d" % (d.ns, d_ptr["type"])))
+    if gdbLoaded:
+        type = str(call(value, "typeToName",
+            "('%sQVariant::Type')%d" % (d.ns, d_ptr["type"])))
+    if lldbLoaded:
+        type = str(call(value, "typeToName",
+            "(%sQVariant::Type)%d" % (d.ns, d_ptr["type"])))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
     type = type.replace("COMMA", ",") # HACK!
-    warn("TYPE: %s" % type)
+    #warn("TYPE: %s" % type)
     data = call(value, "constData")
-    warn("DATA: %s" % data)
+    #warn("DATA: %s" % data)
     d.putEmptyValue(-99)
     d.putType("%sQVariant (%s)" % (d.ns, type))
     d.putNumChild(1)
@@ -1930,10 +1981,9 @@ def qdump__QxXmlAttributes(d, value):
 
 def qdump____c_style_array__(d, value):
     type = value.type.unqualified()
-    targetType = type.target()
-    typeName = str(type)
+    targetType = value[0].type
     #d.putAddress(value.address)
-    d.putType(typeName)
+    d.putType(type)
     d.putNumChild(1)
     format = d.currentItemFormat()
     isDefault = format == None and str(targetType.unqualified()) == "char"
@@ -1987,7 +2037,7 @@ def qdump__std__complex(d, value):
 
 
 def qdump__std__deque(d, value):
-    innerType = templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     innerSize = innerType.sizeof
     bufsize = 1
     if innerSize < 512:
@@ -2019,6 +2069,9 @@ def qdump__std__deque(d, value):
                     plast = pfirst + bufsize
                     pcur = pfirst
 
+def qdump__std____debug__deque(d, value):
+    qdump__std__deque(d, value)
+
 
 def qdump__std__list(d, value):
     impl = value["_M_impl"]
@@ -2042,6 +2095,8 @@ def qdump__std__list(d, value):
                 d.putSubItem(i, (p + 1).cast(innerPointer).dereference())
                 p = p["_M_next"]
 
+def qdump__std____debug__list(d, value):
+    qdump__std__list(d, value)
 
 def qform__std__map():
     return mapForms()
@@ -2065,7 +2120,7 @@ def qdump__std__map(d, value):
             # So use this as workaround:
             pairType = d.templateArgument(impl.type, 1)
             pairPointer = pairType.pointer()
-        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        isCompact = d.isMapCompact(keyType, valueType)
         innerType = pairType
         if isCompact:
             innerType = valueType
@@ -2102,6 +2157,8 @@ def qdump__std__map(d, value):
                     while not isNull(node["_M_left"]):
                         node = node["_M_left"]
 
+def qdump__std____debug__map(d, value):
+    qdump__std__map(d, value)
 
 def stdTreeIteratorHelper(d, value):
     pnode = value["_M_node"]
@@ -2178,6 +2235,8 @@ def qdump__std__set(d, value):
 def qdump__std__stack(d, value):
     qdump__std__deque(d, value["c"])
 
+def qdump__std____debug__stack(d, value):
+    qdump__std__stack(d, value)
 
 def qform__std__string():
     return "Inline,In Separate Window"
@@ -2315,6 +2374,8 @@ def qdump__std__vector(d, value):
         else:
             d.putArrayData(type, start, size)
 
+def qdump__std____debug__vector(d, value):
+    qdump__std__vector(d, value)
 
 def qedit__std__string(expr, value):
     cmd = "print (%s).assign(\"%s\")" % (expr, value)

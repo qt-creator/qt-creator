@@ -230,6 +230,11 @@ void QbsFileNode::setLine(int l)
     m_line = l;
 }
 
+QString QbsFileNode::displayName() const
+{
+    return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(m_line);
+}
+
 bool QbsFileNode::update(const qbs::CodeLocation &loc)
 {
     const QString oldPath = path();

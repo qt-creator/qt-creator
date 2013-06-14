@@ -493,8 +493,9 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path)
     {
         QMutexLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));
-        QTC_CHECK(currentValue.second > 0);
         currentValue.first = newParser;
+        if (currentValue.second == 0)
+            currentValue.second = 1; // add qrc files that are not in the resources of a project
         m_cache.insert(path, currentValue);
         return currentValue.first;
     }

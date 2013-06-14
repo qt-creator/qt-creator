@@ -64,8 +64,8 @@ Rectangle {
 
         y: 60
 
-        anchors.right: parent.right
-        anchors.rightMargin: 240
+        anchors.right: comboBox.left
+        anchors.rightMargin: 20
         anchors.left: parent.left
         anchors.leftMargin: 60
 
@@ -78,10 +78,9 @@ Rectangle {
 
         anchors.verticalCenter: searchBar.verticalCenter
 
-        anchors.left: searchBar.right
+        width: 200
         anchors.rightMargin: 80
         anchors.right: parent.right
-        anchors.leftMargin: 20
         model: qtVersionModel
 
         onCurrentIndexChanged: {

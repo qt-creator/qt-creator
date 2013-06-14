@@ -593,7 +593,7 @@ void Target::updateDefaultRunConfigurations()
 
     // sort existing RCs into configured/unconfigured.
     foreach (RunConfiguration *rc, runConfigurations()) {
-        if (!rc->isConfigured() && rc != activeRunConfiguration())
+        if (!rc->isConfigured())
             existingUnconfigured << rc;
         else
             existingConfigured << rc;
@@ -676,7 +676,7 @@ void Target::updateDefaultRunConfigurations()
 
     // Make sure a configured RC is active:
     if (activeRunConfiguration() && !activeRunConfiguration()->isConfigured()) {
-        if (!existingConfigured.isEmpty() && existingConfigured.at(0)->isConfigured())
+        if (!existingConfigured.isEmpty())
             setActiveRunConfiguration(existingConfigured.at(0));
         else if (!newConfigured.isEmpty()) {
             RunConfiguration *selected = newConfigured.at(0);

@@ -341,15 +341,15 @@ QStringList Document::includedFiles() const
 {
     QStringList files;
     foreach (const Include &i, _includes)
-        files.append(i.fileName());
+        files.append(i.resolvedFileName());
     files.removeDuplicates();
     return files;
 }
 
 // This assumes to be called with a QDir::cleanPath cleaned fileName.
-void Document::addIncludeFile(const QString &fileName, unsigned line)
+void Document::addIncludeFile(const Document::Include &include)
 {
-    _includes.append(Include(fileName, line));
+    _includes.append(include);
 }
 
 void Document::appendMacro(const Macro &macro)

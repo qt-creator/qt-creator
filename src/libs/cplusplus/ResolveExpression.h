@@ -43,7 +43,9 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ResolveExpression: protected ASTVisitor
 {
 public:
-    ResolveExpression(const LookupContext &context);
+    ResolveExpression(const LookupContext &context,
+                      const QSet<const Declaration *> &autoDeclarationsBeingResolved
+                        = QSet<const Declaration *>());
     virtual ~ResolveExpression();
 
     QList<LookupItem> operator()(ExpressionAST *ast, Scope *scope);
@@ -126,6 +128,7 @@ private:
     const LookupContext& _context;
     Bind bind;
     QList<LookupItem> _results;
+    QSet<const Declaration *> _autoDeclarationsBeingResolved;
     bool _reference;
 };
 

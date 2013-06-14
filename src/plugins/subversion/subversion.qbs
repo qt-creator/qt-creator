@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "Locator" }
 
     files: [
-        "Subversion.mimetypes.xml",
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
         "checkoutwizard.cpp",

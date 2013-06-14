@@ -1048,7 +1048,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                                           argRefs);
         }
 
-        if (!handleFunctionLikeMacro(tk, macro, body, allArgTks, baseLine)) {
+        if (!handleFunctionLikeMacro(macro, body, allArgTks, baseLine)) {
             if (m_client && !idTk.expanded())
                 m_client->stopExpandingMacro(idTk.offset, *macro);
             return false;
@@ -1119,8 +1119,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     return true;
 }
 
-bool Preprocessor::handleFunctionLikeMacro(PPToken *tk,
-                                           const Macro *macro,
+bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
                                            QVector<PPToken> &body,
                                            const QVector<QVector<PPToken> > &actuals,
                                            unsigned baseLine)
@@ -1219,9 +1218,6 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk,
     // The "new" body.
     body = expanded;
     body.squeeze();
-
-    // Next token to be lexed after the expansion.
-    pushToken(tk);
 
     return true;
 }
@@ -1479,9 +1475,9 @@ bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> 
         actuals->append(tokens);
     }
 
-    if (tk->is(T_RPAREN))
-        lex(tk);
-    //###TODO: else error message
+    if (!tk->is(T_RPAREN)) {
+        //###TODO: else error message
+    }
     return true;
 }
 

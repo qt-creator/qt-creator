@@ -347,6 +347,11 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations_data()
     source = QLatin1String("@char  bla;"); // Two spaces to get sure nothing is reformatted.
     QTest::newRow("precondition-fail-no-pointer")
         << source << stripCursor(source);
+
+    // Respect white space within operator names
+    QTest::newRow("operators")
+        << "class C { C@&operator = (const C &); };"
+        << "class C { C & operator = (const C &); };";
 }
 
 void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements()

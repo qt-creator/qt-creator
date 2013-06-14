@@ -153,32 +153,9 @@ void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
     m_nodeInstanceServer = server;
 }
 
-static bool hasPropertiesWitoutNotifications(const QMetaObject *metaObject)
-{
-    for (int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
-        if (!metaObject->property(propertyIndex).hasNotifySignal())
-            return true;
-    }
-
-    return false;
-}
-
 void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
-    const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
     m_metaObject = NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
-    for (int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
-        if (QQmlMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
-            QObject *propertyObject = QQmlMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
-            if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
-                NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance,
-                                                                          propertyObject,
-                                                                          metaObject->property(propertyIndex).name(),
-                                                                          nodeInstanceServer()->engine());
-            }
-        }
-    }
-
     m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 

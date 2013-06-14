@@ -57,6 +57,7 @@ public:
 
     void createScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
     void clearScene(const ClearSceneCommand &command) Q_DECL_OVERRIDE;
+    void reparentInstances(const ReparentInstancesCommand &command) Q_DECL_OVERRIDE;
 
 protected:
     void initializeView(const QVector<AddImportContainer> &importVector) Q_DECL_OVERRIDE;

@@ -44,7 +44,7 @@ class ValuesChangedCommand
 
 public:
     ValuesChangedCommand();
-    ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector);
+    explicit ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector);
 
     QVector<PropertyValueContainer> valueChanges() const;
     quint32 keyNumber() const;

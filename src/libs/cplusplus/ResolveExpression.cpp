@@ -77,11 +77,13 @@ static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
 /////////////////////////////////////////////////////////////////////
 // ResolveExpression
 /////////////////////////////////////////////////////////////////////
-ResolveExpression::ResolveExpression(const LookupContext &context)
+ResolveExpression::ResolveExpression(const LookupContext &context,
+                                     const QSet<const Declaration *> &autoDeclarationsBeingResolved)
     : ASTVisitor(context.expressionDocument()->translationUnit()),
       _scope(0),
       _context(context),
       bind(context.expressionDocument()->translationUnit()),
+      _autoDeclarationsBeingResolved(autoDeclarationsBeingResolved),
       _reference(false)
 { }
 
@@ -521,6 +523,10 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             if (!decl)
                 continue;
 
+            // Stop on recursive auto declarations
+            if (_autoDeclarationsBeingResolved.contains(decl))
+                continue;
+
             const StringLiteral *initializationString = decl->getInitializer();
             if (initializationString == 0)
                 continue;
@@ -535,7 +541,8 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
 
             TypeOfExpression exprTyper;
             Document::Ptr doc = _context.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
-            exprTyper.init(doc, _context.snapshot(), _context.bindings());
+            exprTyper.init(doc, _context.snapshot(), _context.bindings(),
+                           QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
 
             Document::Ptr exprDoc =
                     documentForExpression(exprTyper.preprocessedExpression(initializer));
@@ -545,8 +552,8 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             if (deduceAuto._block)
                 continue;
 
-            const QList<LookupItem> &typeItems =
-                    exprTyper(extractExpressionAST(exprDoc), exprDoc, decl->enclosingScope());
+            const QList<LookupItem> &typeItems = exprTyper(extractExpressionAST(exprDoc), exprDoc,
+                                                           decl->enclosingScope());
             if (typeItems.empty())
                 continue;
 

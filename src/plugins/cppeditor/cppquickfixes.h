@@ -71,6 +71,18 @@ public:
     void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
 
+// Exposed for tests
+class AddIncludeForUndefinedIdentifierOp: public CppQuickFixOperation
+{
+public:
+    AddIncludeForUndefinedIdentifierOp(const CppQuickFixInterface &interface, int priority,
+                                       const QString &include);
+    void perform();
+
+private:
+    QString m_include;
+};
+
 /*!
   Can be triggered on a class forward declaration to add the matching #include.
 
@@ -493,6 +505,7 @@ public:
 
 /*!
  Insert (pure) virtual functions of a base class.
+ Exposed for tests.
  */
 class InsertVirtualMethodsDialog : public QDialog
 {

@@ -20,7 +20,6 @@ QtcPlugin {
     ])
 
     files: [
-        "Designer.mimetypes.xml",
         "README.txt",
         "codemodelhelpers.cpp",
         "codemodelhelpers.h",

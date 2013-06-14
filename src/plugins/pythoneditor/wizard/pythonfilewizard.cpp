@@ -53,9 +53,9 @@ static const Core::BaseFileWizardParameters GetDefaultParams()
     p.setCategory(QLatin1String(Constants::C_PY_WIZARD_CATEGORY));
     p.setDisplayCategory(QLatin1String(Constants::C_PY_DISPLAY_CATEGORY));
     p.setDisplayName(
-                QObject::tr(Constants::EN_PY_SOURCE_DISPLAY_NAME));
+                FileWizard::tr(Constants::EN_PY_SOURCE_DISPLAY_NAME));
     p.setDescription(
-                QObject::tr(Constants::EN_PY_SOURCE_DESCRIPTION));
+                FileWizard::tr(Constants::EN_PY_SOURCE_DESCRIPTION));
 
     return p;
 }

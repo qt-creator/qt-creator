@@ -40,7 +40,7 @@ class PixmapChangedCommand
     friend QDataStream &operator>>(QDataStream &in, PixmapChangedCommand &command);
 public:
     PixmapChangedCommand();
-    PixmapChangedCommand(const QVector<ImageContainer> &imageVector);
+    explicit PixmapChangedCommand(const QVector<ImageContainer> &imageVector);
 
     QVector<ImageContainer> images() const;
 

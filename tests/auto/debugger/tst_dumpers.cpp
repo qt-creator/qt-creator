@@ -1058,7 +1058,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QByteArray>\n",
                     "const char *str1 = \"\356\";\n"
                     "const char *str2 = \"\xee\";\n"
-                    "const char *str3 = \"\\ee\";\n"
+                    "const char *str3 = \"\\\\ee\";\n"
                     "QByteArray buf1(str1);\n"
                     "QByteArray buf2(str2);\n"
                     "QByteArray buf3(str3);\n"

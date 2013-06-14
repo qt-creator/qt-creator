@@ -246,7 +246,7 @@ bool GitEditor::open(QString *errorString, const QString &fileName, const QStrin
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         QFileInfo fi(fileName);
-        setSource(GitPlugin::instance()->gitClient()->findRepositoryForGitDir(fi.absolutePath()));
+        setSource(fi.absolutePath());
     }
     return res;
 }
@@ -284,8 +284,10 @@ bool GitEditor::isValidRevision(const QString &revision) const
 void GitEditor::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
-    menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
-    menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
+    if (contentType() != VcsBase::OtherContent) {
+        menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
+        menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
+    }
 }
 
 QString GitEditor::revisionSubject(const QTextBlock &inBlock) const

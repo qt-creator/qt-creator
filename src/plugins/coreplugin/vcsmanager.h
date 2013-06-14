@@ -86,6 +86,8 @@ public:
     // added to revision control. Calls vcsAdd for each file.
     void promptToAdd(const QString &directory, const QStringList &fileNames);
 
+    void emitRepositoryChanged(const QString &repository);
+
     // Utility messages for adding files
     static QString msgAddToVcsTitle();
     static QString msgPromptToAddToVcs(const QStringList &files, const IVersionControl *vc);
@@ -97,6 +99,9 @@ signals:
 
 public slots:
     void clearVersionControlCache();
+
+private slots:
+    void configureVcs();
 
 private:
     VcsManagerPrivate *d;

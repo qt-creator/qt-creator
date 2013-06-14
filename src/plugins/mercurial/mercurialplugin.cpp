@@ -181,7 +181,7 @@ void MercurialPlugin::createMenu()
     // Create menu item for Mercurial
     mercurialContainer = Core::ActionManager::createMenu(Core::Id("Mercurial.MercurialMenu"));
     QMenu *menu = mercurialContainer->menu();
-    menu->setTitle(tr("Mercurial"));
+    menu->setTitle(tr("Me&rcurial"));
 
     createFileActions(context);
     mercurialContainer->addSeparator(context);
@@ -267,9 +267,12 @@ void MercurialPlugin::addCurrentFile()
 
 void MercurialPlugin::annotateCurrentFile()
 {
+    int currentLine = -1;
+    if (Core::IEditor *editor = Core::EditorManager::currentEditor())
+        currentLine = editor->currentLine();
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
+    m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), currentLine);
 }
 
 void MercurialPlugin::diffCurrentFile()

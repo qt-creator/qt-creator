@@ -399,7 +399,7 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
             } else Q_ASSERT(false);
             m_blockMove = true;
             m_startPoint = event->scenePos();
-            QTimer::singleShot(1000, m_timerHandler.data(), SLOT(clearMoveDelay()));
+            QTimer::singleShot(10000, m_timerHandler.data(), SLOT(clearMoveDelay()));
         }
     }
 

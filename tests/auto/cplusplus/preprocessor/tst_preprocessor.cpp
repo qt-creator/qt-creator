@@ -822,6 +822,8 @@ void tst_Preprocessor::comparisons_data()
         << "reserved.1.cpp" << "reserved.1.out.cpp" << "";
     QTest::newRow("recursive 1")
         << "recursive.1.cpp" << "recursive.1.out.cpp" << "";
+    QTest::newRow("recursive 2")
+        << "recursive.2.cpp" << "recursive.2.out.cpp" << "";
     QTest::newRow("macro_pounder_fn")
         << "macro_pounder_fn.c" << "" << "";
     QTest::newRow("macro_expand")

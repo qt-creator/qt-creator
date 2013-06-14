@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/pythoneditor">
-        <file>pythoneditor.mimetypes.xml</file>
+        <file>PythonEditor.mimetypes.xml</file>
     </qresource>
 </RCC>

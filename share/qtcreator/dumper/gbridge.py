@@ -103,7 +103,7 @@ def listOfLocals(varList):
         block = frame.block()
         #warn("BLOCK: %s " % block)
     except RuntimeError, error:
-        warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
+        #warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
         return []
     except:
         warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
@@ -400,7 +400,7 @@ def bbsetup(args = ''):
             result += '{type="%s",formats="%s"},' % (key, value)
     result += ']'
     #result += ',namespace="%s"' % qqNs
-    result += ',hasInferiorThreadList="%s"' % int(hasInferiorThreadList())
+    print result
     return result
 
 registerCommand("bbsetup", bbsetup)
@@ -471,6 +471,9 @@ def childAt(value, index):
     # enables later ...["name"] style accesses as gdb handles
     # them transparently.
     return value
+
+def fieldAt(type, index):
+    return type.fields()[index]
 
 
 #gdb.Value.child = impl_Value_child
@@ -568,17 +571,6 @@ def hasPlot():
     fileName = "/usr/bin/gnuplot"
     return os.path.isfile(fileName) and os.access(fileName, os.X_OK)
 
-
-#
-# Threads
-#
-def hasInferiorThreadList():
-    #return False
-    try:
-        a = gdb.inferiors()[0].threads()
-        return True
-    except:
-        return False
 
 #
 # VTable
@@ -1350,13 +1342,6 @@ class Dumper:
         self.useDynamicType = True
         self.expandedINames = {}
 
-        self.charType_ = None
-        self.intType_ = None
-        self.sizetType_ = None
-        self.charPtrType_ = None
-        self.voidType_ = None
-        self.voidPtrType_ = None
-
     def __init__(self, args):
         self.defaultInit()
 
@@ -1436,12 +1421,6 @@ class Dumper:
 
         if fullUpdateNeeded and not self.tooltipOnly and not self.noLocals:
             locals = listOfLocals(varList)
-
-        if "autotest" in options:
-            for item in listOfLocals([]):
-                self.expandedINames.add(item.iname)
-                self.expandedINames.discard("")
-                #warn("EXPANDED: %s" % self.expandedINames)
 
         # Take care of the return value of the last function call.
         if len(resultVarName) > 0:
@@ -1567,29 +1546,19 @@ class Dumper:
                     self.putNumChild(0)
 
     def intType(self):
-        if self.intType_ is None:
-             self.intType_ = self.lookupType('int')
-        return self.intType_
+        return self.lookupType('int')
 
     def charType(self):
-        if self.charType_ is None:
-             self.charType_ = self.lookupType('char')
-        return self.charType_
+        return self.lookupType('char')
 
     def sizetType(self):
-        if self.sizetType_ is None:
-             self.sizetType_ = self.lookupType('size_t')
-        return self.sizetType_
+        return self.lookupType('size_t')
 
     def charPtrType(self):
-        if self.charPtrType_ is None:
-             self.charPtrType_ = self.lookupType('char*')
-        return self.charPtrType_
+        return self.lookupType('char*')
 
     def voidPtrType(self):
-        if self.voidPtrType_ is None:
-             self.voidType_ = self.lookupType('void*')
-        return self.voidPtrType_
+        return self.lookupType('void*')
 
     def voidPtrSize(self):
         return self.voidPtrType().sizeof
@@ -1683,23 +1652,11 @@ class Dumper:
         if limit is None:
             return size
         if limit == 0:
-            #return min(size, qqStringCutOff)
-            return min(size, 100)
+            return min(size, qqStringCutOff)
         return min(size, limit)
 
     def putName(self, name):
         self.put('name="%s",' % name)
-
-    def putMapName(self, value):
-        ns = qtNamespace()
-        if str(value.type) == ns + "QString":
-            self.put('key="%s",' % encodeString(value))
-            self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
-        elif str(value.type) == ns + "QByteArray":
-            self.put('key="%s",' % self.encodeByteArray(value))
-            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
-        else:
-            self.put('name="%s",' % value)
 
     def isExpanded(self):
         #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
@@ -2044,6 +2001,22 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
+            if format == 6:
+                # Explicitly requested formatting as array of 10 items.
+                self.putType(typeName)
+                self.putItemCount(10)
+                self.putNumChild(10)
+                self.putArrayData(innerType, value, 10)
+                return
+
+            if format == 7:
+                # Explicitly requested formatting as array of 1000 items.
+                self.putType(typeName)
+                self.putItemCount(1000)
+                self.putNumChild(1000)
+                self.putArrayData(innerType, value, 1000)
+                return
+
             if innerType.code == MethodCode or innerType.code == FunctionCode:
                 # A function pointer with format None.
                 self.putValue(str(value))
@@ -2304,36 +2277,61 @@ class Dumper:
 #
 #######################################################################
 
-def threadnames(arg):
+def threadname(arg):
+    try:
+        e = gdb.selected_frame()
+    except:
+        return
+    d = Dumper("")
+    out = ""
+    maximalStackDepth = int(arg)
     ns = qtNamespace()
+    while True:
+        maximalStackDepth -= 1
+        if maximalStackDepth < 0:
+            break
+        e = e.older()
+        if e == None or e.name() == None:
+            break
+        if e.name() == ns + "QThreadPrivate::start" \
+                or e.name() == "_ZN14QThreadPrivate5startEPv@4":
+            try:
+                thrptr = e.read_var("thr").dereference()
+                obtype = lookupType(ns + "QObjectPrivate").pointer()
+                d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
+                try:
+                    objectName = d_ptr["objectName"]
+                except: # Qt 5
+                    p = d_ptr["extraData"]
+                    if not isNull(p):
+                        objectName = p.dereference()["objectName"]
+                if not objectName is None:
+                    data, size, alloc = d.stringData(objectName)
+                    if size > 0:
+                         s = d.readRawMemory(data, 2 * size)
+
+                thread = gdb.selected_thread()
+                inner = '{valueencoded="';
+                inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                inner += str(thread.num) + '",value="'
+                inner += s
+                #inner += d.encodeString(objectName)
+                inner += '"},'
+
+                out += inner
+            except:
+                pass
+    return out
+
+
+def threadnames(arg):
     out = '['
     oldthread = gdb.selected_thread()
     try:
         inferior = selectedInferior()
         for thread in inferior.threads():
-            maximalStackDepth = int(arg)
             thread.switch()
-            e = gdb.selected_frame ()
-            while True:
-                maximalStackDepth -= 1
-                if maximalStackDepth < 0:
-                    break
-                e = e.older()
-                if e == None or e.name() == None:
-                    break
-                if e.name() == ns + "QThreadPrivate::start":
-                    try:
-                        thrptr = e.read_var("thr").dereference()
-                        obtype = lookupType(ns + "QObjectPrivate").pointer()
-                        d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
-                        objectName = d_ptr["objectName"]
-                        out += '{valueencoded="';
-                        out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                        out += str(thread.num) + '",value="'
-                        out += encodeString(objectName)
-                        out += '"},'
-                    except:
-                        pass
+            out += threadname(arg)
     except:
         pass
     oldthread.switch()

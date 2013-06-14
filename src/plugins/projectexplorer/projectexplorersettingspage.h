@@ -39,7 +39,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-struct ProjectExplorerSettings;
+class ProjectExplorerSettings;
 
 // Documentation inside.
 class ProjectExplorerSettingsWidget : public QWidget {

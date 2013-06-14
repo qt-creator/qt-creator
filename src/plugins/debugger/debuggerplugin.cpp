@@ -953,10 +953,6 @@ public slots:
     void testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb);
     void testRunControlFinished();
 
-    void testPythonDumpers1();
-    void testPythonDumpers2();
-    void testPythonDumpers3();
-
     void testStateMachine1();
     void testStateMachine2();
     void testStateMachine3();
@@ -1547,6 +1543,11 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
             }
         }
     }
+
+    // If we have a running debugger, don't touch it.
+    if (m_snapshotHandler->size())
+        return;
+
     // No corresponding debugger found. So we are ready to start one.
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
@@ -3569,39 +3570,6 @@ void DebuggerPluginPrivate::testFinished()
 {
     QTestEventLoop::instance().exitLoop();
     QVERIFY(m_testSuccess);
-}
-
-///////////////////////////////////////////////////////////////////////////
-
-void DebuggerPlugin::testPythonDumpers()
-{
-    theDebuggerCore->testPythonDumpers1();
-}
-
-void DebuggerPluginPrivate::testPythonDumpers1()
-{
-    m_testSuccess = true;
-    QString proFile = ICore::resourcePath();
-    if (Utils::HostOsInfo::isMacHost())
-        proFile += QLatin1String("/../..");
-    proFile += QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
-    testLoadProject(proFile, TestCallBack(this,  "testPythonDumpers2"));
-    QVERIFY(m_testSuccess);
-    QTestEventLoop::instance().enterLoop(20);
-}
-
-void DebuggerPluginPrivate::testPythonDumpers2()
-{
-    DebuggerStartParameters sp;
-    fillParameters(&sp, currentKit());
-    sp.executable = activeLocalRunConfiguration()->executable();
-    testRunProject(sp, TestCallBack(this, "testPythonDumpers3"));
-}
-
-void DebuggerPluginPrivate::testPythonDumpers3()
-{
-    testUnloadProject();
-    testFinished();
 }
 
 

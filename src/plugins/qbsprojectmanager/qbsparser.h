@@ -56,6 +56,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace ProjectExplorer
+} // namespace QbsProjectManager
 
 #endif // QBSPARSER_H

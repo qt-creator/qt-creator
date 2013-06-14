@@ -63,7 +63,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     QString output;
     QString error;
     QStringList args;
-    args << QLatin1String("--remotes") << QLatin1String("--contains")
+    args << QLatin1String("-r") << QLatin1String("--contains")
          << earliestCommit + QLatin1Char('^');
 
     if (!gitClient->synchronousBranchCmd(m_workingDir, args, &output, &error))
@@ -94,7 +94,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     error.clear();
     args.clear();
 
-    args << QLatin1String("--remotes");
+    args << QLatin1String("-r");
 
     if (!gitClient->synchronousBranchCmd(m_workingDir, args, &output, &error))
         return;

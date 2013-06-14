@@ -53,7 +53,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
 
         mergeEnvironment(Preprocessor::configurationFileName);
         foreach (const Document::Include &i, doc->includes())
-            mergeEnvironment(i.fileName());
+            mergeEnvironment(i.resolvedFileName());
     }
 
     const QByteArray preprocessed = _preproc.run(fileName, source);
@@ -62,13 +62,13 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
     return preprocessed;
 }
 
-void FastPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType)
+void FastPreprocessor::sourceNeeded(unsigned line, const QString &fileName,
+                                    IncludeType mode)
 {
     Q_ASSERT(_currentDoc);
     // CHECKME: Is that cleanName needed?
     QString cleanName = QDir::cleanPath(fileName);
-    _currentDoc->addIncludeFile(cleanName, line);
-
+    _currentDoc->addIncludeFile(Document::Include(fileName, cleanName, line, mode));
     mergeEnvironment(fileName);
 }
 
@@ -79,7 +79,7 @@ void FastPreprocessor::mergeEnvironment(const QString &fileName)
 
         if (Document::Ptr doc = _snapshot.document(fileName)) {
             foreach (const Document::Include &i, doc->includes())
-                mergeEnvironment(i.fileName());
+                mergeEnvironment(i.resolvedFileName());
 
             _env.addMacros(doc->definedMacros());
         }

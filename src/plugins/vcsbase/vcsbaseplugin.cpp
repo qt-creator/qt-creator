@@ -34,6 +34,7 @@
 #include "vcsbaseoutputwindow.h"
 #include "corelistener.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/iversioncontrol.h>
@@ -920,12 +921,16 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
             nsp << "c_locale";
         if (flags & FullySynchronously)
             nsp << "fully_synchronously";
+        if (flags & ExpectRepoChanges)
+            nsp << "expect_repo_changes";
         if (outputCodec)
             nsp << " Codec: " << outputCodec->name();
     }
 
     VcsBase::VcsBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
 
+    if (flags & ExpectRepoChanges)
+        Core::DocumentManager::expectDirectoryChange(workingDir);
     if (flags & FullySynchronously) {
         response = runVcsFullySynchronously(workingDir, binary, arguments, timeOutMS,
                                              env, flags, outputCodec);
@@ -974,6 +979,8 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
         if (!(flags & SuppressFailMessageInLogWindow))
             outputWindow->appendError(response.exitMessage(binary, timeOutMS));
     }
+    if (flags & ExpectRepoChanges)
+        Core::DocumentManager::unexpectDirectoryChange(workingDir);
 
     return response;
 }
@@ -985,14 +992,16 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
                                         QByteArray* outputText,
                                         QByteArray* errorText,
                                         int timeoutMS,
-                                        bool logCommandToWindow)
+                                        unsigned flags)
 {
     if (binary.isEmpty())
         return false;
 
-    if (logCommandToWindow)
+    if (!(flags & SuppressCommandLogging))
         VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, binary, arguments);
 
+    if (flags & ExpectRepoChanges)
+        Core::DocumentManager::expectDirectoryChange(workingDirectory);
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
     process.setProcessEnvironment(env);
@@ -1014,6 +1023,8 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
         SynchronousProcess::stopProcess(process);
         return false;
     }
+    if (flags & ExpectRepoChanges)
+        Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
 
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }

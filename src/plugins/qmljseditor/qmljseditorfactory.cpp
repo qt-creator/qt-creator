@@ -49,9 +49,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
-using namespace QmlJSEditor::Constants;
+namespace QmlJSEditor {
+namespace Internal {
 
 QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent)
@@ -68,17 +67,17 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
 
 Core::Id QmlJSEditorFactory::id() const
 {
-    return Core::Id(C_QMLJSEDITOR_ID);
+    return Core::Id(Constants::C_QMLJSEDITOR_ID);
 }
 
 QString QmlJSEditorFactory::displayName() const
 {
-    return qApp->translate("OpenWith::Editors", C_QMLJSEDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", Constants::C_QMLJSEDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
 {
-    QmlJSEditor::QmlJSTextEditorWidget *rc = new QmlJSEditor::QmlJSTextEditorWidget(parent);
+    QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget(parent);
     QmlJSEditorPlugin::instance()->initializeEditor(rc);
     return rc->editor();
 }
@@ -87,3 +86,6 @@ QStringList QmlJSEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
 }
+
+} // namespace Internal
+} // namespace QmlJSEditor

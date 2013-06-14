@@ -1,8 +1,8 @@
 import qbs.base 1.0
 
 Product {
+    name: "Translations"
     type: "qm"
-    name: "translations"
     Depends { name: "Qt.core" }
     files: "*.ts"
 

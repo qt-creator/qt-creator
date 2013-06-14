@@ -324,7 +324,7 @@ void MercurialClient::view(const QString &source, const QString &id,
 
 QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
 {
-    const QString repositoryCheckFile = QLatin1String(Constants::MECURIALREPO) + QLatin1String("/requires");
+    const QString repositoryCheckFile = QLatin1String(Constants::MERCURIALREPO) + QLatin1String("/requires");
     return file.isDir() ?
                 VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
                 VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);

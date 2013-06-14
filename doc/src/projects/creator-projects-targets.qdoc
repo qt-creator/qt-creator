@@ -89,8 +89,8 @@
             if they are installed on the development PC, but were not detected
             automatically. For more information, see \l{Adding Compilers}.
 
-        \li In the \gui Debugger field, select \gui Manage to automatically
-            detect a suitable debugger or to edit the currently selected
+        \li In the \gui Debugger field, select \gui Auto-detect to automatically
+            detect a suitable debugger or \gui Edit to edit the currently selected
             debugger. For more information, see \l{Selecting the Debugger}.
 
         \li In the \gui {Qt version} field, select the Qt version to use for
@@ -111,18 +111,20 @@
     \section1 Selecting the Debugger
 
     To automatically detect a suitable debugger in the \gui Debugger field,
-    select \gui Manage > \gui {Auto-detect}. This should work for the CDB engine
+    select \gui {Auto-detect}. This should work for the CDB engine
     and for the GDB engine for local debugging on Linux or Mac OS.
 
-    To edit the selected debugger, select \gui Manage > \gui Edit. In the
+    To edit the selected debugger, select \gui Edit. In the
     \gui {Debugger for} dialog, specify the type of debugger to use
-    (\gui {GDB Engine} or \gui {CDB Engine}) and the path to the debugger
-    binary.
+    (\gui {GDB Engine}, \gui {CDB Engine}, or \gui {LLDB Engine}) and the path
+    to the debugger binary:
 
-    For the \gui {CDB Engine} (Windows only), specify the path to the Windows
+    \list
+
+    \li For the \gui {CDB Engine} (Windows only), specify the path to the Windows
     Console Debugger executable.
 
-    For the \gui {GDB Engine}, specify the path to the GDB executable. The
+   \li For the \gui {GDB Engine}, specify the path to the GDB executable. The
     executable must be built with Python scripting support enabled
     (except when debugging on Mac OS). The options you have depend on the
     development and target platform:
@@ -138,4 +140,8 @@
 
     \endlist
 
+    \li For the \gui {LLDB Engine} (experimental), specify the path to the LLDB
+    executable.
+
+    \endlist
 */

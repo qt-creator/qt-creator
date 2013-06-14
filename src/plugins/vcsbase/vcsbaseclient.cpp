@@ -93,7 +93,7 @@ public:
     void saveSettings();
 
     void bindCommandToEditor(Command *cmd, VcsBaseEditorWidget *editor);
-    void commandFinishedGotoLine(QObject *editorObject);
+    void commandFinishedGotoLine(QWidget *editorObject);
 
     VcsBaseClientSettings *m_clientSettings;
     QSignalMapper *m_cmdFinishedMapper;
@@ -146,7 +146,7 @@ void VcsBaseClientPrivate::bindCommandToEditor(Command *cmd, VcsBaseEditorWidget
     m_cmdFinishedMapper->setMapping(cmd, editor);
 }
 
-void VcsBaseClientPrivate::commandFinishedGotoLine(QObject *editorObject)
+void VcsBaseClientPrivate::commandFinishedGotoLine(QWidget *editorObject)
 {
     VcsBase::VcsBaseEditorWidget *editor = qobject_cast<VcsBase::VcsBaseEditorWidget *>(editorObject);
     Command *cmd = qobject_cast<Command *>(m_cmdFinishedMapper->mapping(editor));
@@ -172,7 +172,7 @@ VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
 {
     qRegisterMetaType<QVariant>();
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
-    connect(d->m_cmdFinishedMapper, SIGNAL(mapped(QObject*)), this, SLOT(commandFinishedGotoLine(QObject*)));
+    connect(d->m_cmdFinishedMapper, SIGNAL(mapped(QWidget*)), this, SLOT(commandFinishedGotoLine(QWidget*)));
 }
 
 VcsBaseClient::~VcsBaseClient()
@@ -327,7 +327,6 @@ void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
                              int lineNumber /* = -1 */,
                              const QStringList &extraOptions)
 {
-    Q_UNUSED(lineNumber)
     const QString vcsCmdString = vcsCommandString(AnnotateCommand);
     QStringList args;
     args << vcsCmdString << revisionSpec(revision) << extraOptions << file;

@@ -62,8 +62,10 @@ def testSuggestionsAuto(lineText, textToType, expectedText, keyToUseSuggestion):
     if not __beginTestSuggestions__(editorArea, lineText, textToType):
         return False
     # check if suggestions are shown
-    test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView"),
-                "Verifying if suggestions in automatic mode are shown.")
+    if not test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView"),
+                       "Verifying if suggestions in automatic mode are shown."):
+        __endTestSuggestions__(editorArea)
+        return False
     # verify proposed suggestions
     verifySuggestions(textToType)
     # test if suggestion can be selected with keyToUseSuggestion
@@ -83,8 +85,10 @@ def testSuggestionsManual(lineText, textToType, expectedText):
     if not __beginTestSuggestions__(editorArea, lineText, textToType):
         return False
     # wait if automatic popup displayed - if yes then fail, because we are in manual mode
-    test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView", False),
-                "Verifying if suggestions in manual mode are properly not automatically shown")
+    if not test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView", False),
+                       "Verifying if suggestions in manual mode are not automatically shown"):
+        __endTestSuggestions__(editorArea)
+        return False
     # test if suggestion can be invoked manually
     if platform.system() == "Darwin":
         type(editorArea, "<Meta+Space>")

@@ -43,7 +43,7 @@ class ChangeBindingsCommand
 
 public:
     ChangeBindingsCommand();
-    ChangeBindingsCommand(const QVector<PropertyBindingContainer> &bindingChangeVector);
+    explicit ChangeBindingsCommand(const QVector<PropertyBindingContainer> &bindingChangeVector);
 
     QVector<PropertyBindingContainer> bindingChanges() const;
 

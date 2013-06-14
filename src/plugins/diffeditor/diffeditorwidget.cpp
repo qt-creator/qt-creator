@@ -43,6 +43,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
 
 #include <coreplugin/minisplitter.h>
@@ -141,6 +142,7 @@ public:
 
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
+    void setFontSettings(const TextEditor::FontSettings &fs);
 
 protected:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const { return BaseTextEditorWidget::extraAreaWidth(markWidthPtr); }
@@ -149,6 +151,7 @@ protected:
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
     virtual bool replacementVisible(int blockNumber) const;
+    QColor replacementPenColor(int blockNumber) const;
     virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
     virtual void drawCollapsedBlockPopup(QPainter &painter,
                                  const QTextBlock &block,
@@ -160,7 +163,8 @@ protected:
 
 private:
     void paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect);
-    void paintSeparator(QPainter &painter, const QString &text, const QTextBlock &block, int top);
+    void paintSeparator(QPainter &painter, QColor &color, const QString &text,
+                        const QTextBlock &block, int top);
     void jumpToOriginalFile(const QTextCursor &cursor);
 
     QString m_workingDirectory;
@@ -173,6 +177,9 @@ private:
     // block number, separator. Separator used as lines alignment and inside skipped lines
     QMap<int, bool> m_separators;
     bool m_inPaintEvent;
+    QColor m_fileLineForeground;
+    QColor m_chunkLineForeground;
+    QColor m_textForeground;
 };
 
 DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
@@ -198,6 +205,15 @@ void DiffViewEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     SnippetEditorWidget::setDisplaySettings(settings);
 }
 
+void DiffViewEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
+{
+    SnippetEditorWidget::setFontSettings(fs);
+    m_fileLineForeground = fs.formatFor(C_DIFF_FILE_LINE).foreground();
+    m_chunkLineForeground = fs.formatFor(C_DIFF_CONTEXT_LINE).foreground();
+    m_textForeground = fs.toTextCharFormat(C_TEXT).foreground().color();
+    update();
+}
+
 QString DiffViewEditorWidget::lineNumber(int blockNumber) const
 {
     if (m_lineNumbers.contains(blockNumber))
@@ -219,6 +235,12 @@ bool DiffViewEditorWidget::replacementVisible(int blockNumber) const
 {
     return isChunkLine(blockNumber) || (isFileLine(blockNumber)
            && TextEditor::BaseTextDocumentLayout::isFolded(document()->findBlockByNumber(blockNumber)));
+}
+
+QColor DiffViewEditorWidget::replacementPenColor(int blockNumber) const
+{
+    Q_UNUSED(blockNumber)
+    return m_chunkLineForeground;
 }
 
 QString DiffViewEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
@@ -322,11 +344,23 @@ void DiffViewEditorWidget::scrollContentsBy(int dx, int dy)
     viewport()->update();
 }
 
-void DiffViewEditorWidget::paintSeparator(QPainter &painter, const QString &text, const QTextBlock &block, int top)
+void DiffViewEditorWidget::paintSeparator(QPainter &painter,
+                                          QColor &color,
+                                          const QString &text,
+                                          const QTextBlock &block,
+                                          int top)
 {
     QPointF offset = contentOffset();
     painter.save();
-    painter.setPen(palette().foreground().color());
+
+    QColor foreground = color;
+    if (!foreground.isValid())
+        foreground = m_textForeground;
+    if (!foreground.isValid())
+        foreground = palette().foreground().color();
+
+    painter.setPen(foreground);
+
     const QString replacementText = QLatin1String(" {")
             + foldReplacementText(block)
             + QLatin1String("}; ");
@@ -404,7 +438,8 @@ void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
                 const int skippedBefore = m_skippedLines.value(blockNumber);
                 if (skippedBefore) {
                     const QString skippedRowsText = tr("Skipped %n lines...", 0, skippedBefore);
-                    paintSeparator(painter, skippedRowsText, currentBlock, top);
+                    paintSeparator(painter, m_chunkLineForeground,
+                                   skippedRowsText, currentBlock, top);
                 }
 
                 const DiffEditorWidget::DiffFileInfo fileInfo = m_fileInfo.value(blockNumber);
@@ -412,7 +447,8 @@ void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
                     const QString fileNameText = fileInfo.typeInfo.isEmpty()
                             ? fileInfo.fileName
                             : tr("[%1] %2").arg(fileInfo.typeInfo).arg(fileInfo.fileName);
-                    paintSeparator(painter, fileNameText, currentBlock, top);
+                    paintSeparator(painter, m_fileLineForeground,
+                                   fileNameText, currentBlock, top);
                 }
             }
         }
@@ -536,9 +572,6 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     m_leftEditor = new DiffViewEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_leftEditor->setReadOnly(true);
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            m_leftEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    m_leftEditor->setFontSettings(settings->fontSettings());
     connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             m_leftEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     m_leftEditor->setDisplaySettings(settings->displaySettings());
@@ -546,13 +579,14 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
 
     m_rightEditor = new DiffViewEditorWidget(this);
     m_rightEditor->setReadOnly(true);
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            m_rightEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    m_rightEditor->setFontSettings(settings->fontSettings());
     connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             m_rightEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     m_rightEditor->setDisplaySettings(settings->displaySettings());
     m_rightEditor->setCodeStyle(settings->codeStyle());
+
+    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            this, SLOT(setFontSettings(TextEditor::FontSettings)));
+    setFontSettings(settings->fontSettings());
 
     connect(m_leftEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(leftVSliderChanged()));
@@ -775,8 +809,10 @@ QList<TextLineData> DiffEditorWidget::assemblyRows(const QStringList &lines,
 {
     QList<TextLineData> data;
 
+    int previousSpanOffset = 0;
     int spanOffset = 0;
     int pos = 0;
+    bool usePreviousSpanOffsetForStartPosition = false;
     QMap<int, int>::ConstIterator changedIt = changedPositions.constBegin();
     QMap<int, int>::ConstIterator changedEnd = changedPositions.constEnd();
     const int lineCount = lines.count();
@@ -794,7 +830,17 @@ QList<TextLineData> DiffEditorWidget::assemblyRows(const QStringList &lines,
             if (changedIt.key() >= pos)
                 break;
 
-            const int startPos = changedIt.key() + spanOffset;
+            if (changedIt.value() >= pos) {
+                usePreviousSpanOffsetForStartPosition = true;
+                previousSpanOffset = spanOffset;
+                break;
+            }
+
+            const int startSpanOffset = usePreviousSpanOffsetForStartPosition
+                    ? previousSpanOffset : spanOffset;
+            usePreviousSpanOffsetForStartPosition = false;
+
+            const int startPos = changedIt.key() + startSpanOffset;
             const int endPos = changedIt.value() + spanOffset;
             if (outputChangedPositions)
                 outputChangedPositions->insert(startPos, endPos);
@@ -1219,36 +1265,11 @@ QList<QTextEdit::ExtraSelection> DiffEditorWidget::colorPositions(
 
 void DiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
 {
-    QTextCharFormat leftLineFormat;
-    leftLineFormat.setBackground(QColor(255, 223, 223));
-    leftLineFormat.setProperty(QTextFormat::FullWidthSelection, true);
-
-    QTextCharFormat leftCharFormat;
-    leftCharFormat.setBackground(QColor(255, 175, 175));
-    leftCharFormat.setProperty(QTextFormat::FullWidthSelection, true);
-
-    QTextCharFormat rightLineFormat;
-    rightLineFormat.setBackground(QColor(223, 255, 223));
-    rightLineFormat.setProperty(QTextFormat::FullWidthSelection, true);
-
-    QTextCharFormat rightCharFormat;
-    rightCharFormat.setBackground(QColor(175, 255, 175));
-    rightCharFormat.setProperty(QTextFormat::FullWidthSelection, true);
-
     QPalette pal = m_leftEditor->extraArea()->palette();
     pal.setCurrentColorGroup(QPalette::Active);
     QTextCharFormat spanLineFormat;
     spanLineFormat.setBackground(pal.color(QPalette::Background));
     spanLineFormat.setProperty(QTextFormat::FullWidthSelection, true);
-
-    QTextCharFormat chunkLineFormat;
-    chunkLineFormat.setBackground(QColor(175, 215, 231));
-    chunkLineFormat.setProperty(QTextFormat::FullWidthSelection, true);
-
-    QTextCharFormat fileLineFormat;
-    fileLineFormat.setBackground(QColor(255, 255, 0));
-//    fileLineFormat.setBackground(QColor(130, 60, 0));
-    fileLineFormat.setProperty(QTextFormat::FullWidthSelection, true);
 
     int leftPos = 0;
     int rightPos = 0;
@@ -1338,33 +1359,52 @@ void DiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
     QTextCursor rightCursor = m_rightEditor->textCursor();
 
     QList<QTextEdit::ExtraSelection> leftSelections
-            = colorPositions(leftLineFormat, leftCursor, leftLinePos);
+            = colorPositions(m_leftLineFormat, leftCursor, leftLinePos);
     leftSelections
             += colorPositions(spanLineFormat, leftCursor, leftSkippedPos);
     leftSelections
-            += colorPositions(chunkLineFormat, leftCursor, leftChunkPos);
+            += colorPositions(m_chunkLineFormat, leftCursor, leftChunkPos);
     leftSelections
-            += colorPositions(fileLineFormat, leftCursor, leftFilePos);
+            += colorPositions(m_fileLineFormat, leftCursor, leftFilePos);
     leftSelections
-            += colorPositions(leftCharFormat, leftCursor, leftCharPos);
+            += colorPositions(m_leftCharFormat, leftCursor, leftCharPos);
 
     QList<QTextEdit::ExtraSelection> rightSelections
-            = colorPositions(rightLineFormat, rightCursor, rightLinePos);
+            = colorPositions(m_rightLineFormat, rightCursor, rightLinePos);
     rightSelections
             += colorPositions(spanLineFormat, rightCursor, rightSkippedPos);
     rightSelections
-            += colorPositions(chunkLineFormat, rightCursor, rightChunkPos);
+            += colorPositions(m_chunkLineFormat, rightCursor, rightChunkPos);
     rightSelections
-            += colorPositions(fileLineFormat, rightCursor, rightFilePos);
+            += colorPositions(m_fileLineFormat, rightCursor, rightFilePos);
     rightSelections
-            += colorPositions(rightCharFormat, rightCursor, rightCharPos);
+            += colorPositions(m_rightCharFormat, rightCursor, rightCharPos);
 
-    m_leftEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection,
-                                      m_leftEditor->extraSelections(BaseTextEditorWidget::OtherSelection)
-                                      + leftSelections);
-    m_rightEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection,
-                                      m_rightEditor->extraSelections(BaseTextEditorWidget::OtherSelection)
-                                      + rightSelections);
+    m_leftEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection, leftSelections);
+    m_rightEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection, rightSelections);
+}
+
+static QTextCharFormat fullWidthFormatForTextStyle(const TextEditor::FontSettings &fontSettings,
+                                          TextEditor::TextStyle textStyle)
+{
+    QTextCharFormat format = fontSettings.toTextCharFormat(textStyle);
+    format.setProperty(QTextFormat::FullWidthSelection, true);
+    return format;
+}
+
+void DiffEditorWidget::setFontSettings(const TextEditor::FontSettings &fontSettings)
+{
+    m_leftEditor->setFontSettings(fontSettings);
+    m_rightEditor->setFontSettings(fontSettings);
+
+    m_fileLineFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_FILE_LINE);
+    m_chunkLineFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_CONTEXT_LINE);
+    m_leftLineFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_SOURCE_LINE);
+    m_leftCharFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_SOURCE_CHAR);
+    m_rightLineFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_DEST_LINE);
+    m_rightCharFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_DEST_CHAR);
+
+    colorDiff(m_contextFileData);
 }
 
 void DiffEditorWidget::leftVSliderChanged()
@@ -1549,5 +1589,31 @@ void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffVie
 
 
 } // namespace DiffEditor
+
+#ifdef WITH_TESTS
+#include <QTest>
+
+void DiffEditor::DiffEditorWidget::testAssemblyRows()
+{
+    QStringList lines;
+    lines << QLatin1String("abcd efgh"); // line 0
+    lines << QLatin1String("ijkl mnop"); // line 1
+
+    QMap<int, int> lineSpans;
+    lineSpans[1] = 6; // before line 1 insert 6 span lines
+
+    QMap<int, int> changedPositions;
+    changedPositions[5] = 14; // changed text from position 5 to position 14, occupy 9 characters: "efgh\nijkl"
+
+    QMap<int, int> expectedChangedPositions;
+    expectedChangedPositions[5] = 20; // "efgh\n[\n\n\n\n\n\n]ijkl" - [\n] means inserted span
+
+    QMap<int, int> outputChangedPositions;
+
+    assemblyRows(lines, lineSpans, changedPositions, &outputChangedPositions);
+    QVERIFY(outputChangedPositions == expectedChangedPositions);
+}
+
+#endif // WITH_TESTS
 
 #include "diffeditorwidget.moc"

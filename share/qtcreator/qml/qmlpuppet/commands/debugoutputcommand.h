@@ -49,7 +49,7 @@ public:
     };
 
     DebugOutputCommand();
-    DebugOutputCommand(const QString &text, Type type);
+    explicit DebugOutputCommand(const QString &text, Type type);
 
     qint32 type() const;
     QString text() const;

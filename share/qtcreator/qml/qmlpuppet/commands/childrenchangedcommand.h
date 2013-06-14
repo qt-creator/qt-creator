@@ -41,7 +41,7 @@ class ChildrenChangedCommand
     friend QDataStream &operator>>(QDataStream &in, ChildrenChangedCommand &command);
 public:
     ChildrenChangedCommand();
-    ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &childrenInstancesconst, const QVector<InformationContainer> &informationVector);
+    explicit ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &childrenInstancesconst, const QVector<InformationContainer> &informationVector);
 
     QVector<qint32> childrenInstances() const;
     qint32 parentInstanceId() const;

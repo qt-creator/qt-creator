@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "CppTools" }
 
     files: [
-        "AutotoolsProject.mimetypes.xml",
         "autogenstep.cpp",
         "autogenstep.h",
         "autoreconfstep.cpp",

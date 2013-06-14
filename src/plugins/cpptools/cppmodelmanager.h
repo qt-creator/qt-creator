@@ -124,6 +124,12 @@ public:
         return m_includePaths;
     }
 
+    // Use this *only* for auto tests
+    void setIncludePaths(const QStringList &includePaths)
+    {
+        m_includePaths = includePaths;
+    }
+
     QStringList frameworkPaths()
     {
         ensureUpdated();

@@ -85,7 +85,7 @@ contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
         }
     }
 } else {
-    warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative");
+    warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative")
 }
 
 for(p, SUBDIRS) {

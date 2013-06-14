@@ -65,6 +65,10 @@ public:
 private slots:
     void diff();
 
+#ifdef WITH_TESTS
+    void testAssemblyRows();
+#endif // WITH_TESTS
+
 private:
     QString getFileContents(const QString &fileName, QTextCodec *codec) const;
 

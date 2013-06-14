@@ -32,7 +32,12 @@
 #include "kitinformation.h"
 #include "kitmanager.h"
 
+#include <coreplugin/icore.h>
+#include <QSettings>
+
 namespace ProjectExplorer {
+
+const char lastKitKey[] = "LastSelectedKit";
 
 KitChooser::KitChooser(QWidget *parent) :
     QComboBox(parent)
@@ -73,11 +78,15 @@ void KitChooser::populate()
         }
     }
     setEnabled(count() > 1);
+
+    const int index = Core::ICore::settings()->value(QLatin1String(lastKitKey)).toInt();
+    setCurrentIndex(qMin(index, count()));
 }
 
 Kit *KitChooser::currentKit() const
 {
     const int index = currentIndex();
+    Core::ICore::settings()->setValue(QLatin1String(lastKitKey), index);
     return index == -1 ? 0 : kitAt(index);
 }
 

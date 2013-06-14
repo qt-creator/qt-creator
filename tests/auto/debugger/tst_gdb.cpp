@@ -113,6 +113,10 @@ void tst_gdb::version_data()
     QTest::newRow("QNX")
         << "GNU gdb (GDB) 7.3 qnx (rev. 613)"
         << 70300 << 613 << false << true;
+
+    QTest::newRow("rubenvb")
+        << "GNU gdb (rubenvb-4.7.2-release) 7.5.50.20120920-cvs"
+        << 70550 << 20120920 << false << false;
 }
 
 static QString chopConst(QString type)

@@ -70,5 +70,3 @@ FORMS += commonsettingspage.ui \
     basecheckoutwizardpage.ui \
     cleandialog.ui \
     submiteditorwidget.ui
-
-OTHER_FILES += VcsBase.mimetypes.xml

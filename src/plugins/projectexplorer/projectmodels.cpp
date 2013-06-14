@@ -149,8 +149,10 @@ bool sortNodes(Node *n1, Node *n2)
             result = caseFriendlyCompare(filePath1, filePath2);
             if (result != 0)
                 return result < 0; // sort by filepath
-            else
-                return n1 < n2; // sort by pointer value
+
+            if (n1->line() != n2->line())
+                return n1->line() < n2->line(); // sort by line numbers
+            return n1 < n2; // sort by pointer value
         }
     }
     return false;

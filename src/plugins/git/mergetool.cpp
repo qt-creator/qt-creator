@@ -30,7 +30,9 @@
 #include "mergetool.h"
 #include "gitclient.h"
 #include "gitplugin.h"
+#include "gitversioncontrol.h"
 
+#include <coreplugin/documentmanager.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QMessageBox>
@@ -100,6 +102,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     if (m_process->waitForStarted()) {
         connect(m_process, SIGNAL(finished(int)), this, SLOT(done()));
         connect(m_process, SIGNAL(readyRead()), this, SLOT(readData()));
+        Core::DocumentManager::expectDirectoryChange(workingDirectory);
     }
     else {
         delete m_process;
@@ -245,7 +248,8 @@ void MergeTool::readData()
         } else if (m_merging && line.startsWith("Continue merging")) {
             if (QMessageBox::question(0, tr("Continue Merging"),
                                       tr("Continue merging other unresolved paths?"),
-                                      QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
+                                      QMessageBox::Yes | QMessageBox::No,
+                                      QMessageBox::No) == QMessageBox::Yes) {
                 m_process->write("y\n");
             } else {
                 m_process->write("n\n");
@@ -257,13 +261,16 @@ void MergeTool::readData()
 void MergeTool::done()
 {
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
+    const QString workingDirectory = m_process->workingDirectory();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
         outputWindow->append(tr("Merge tool process finished successully."));
-        m_gitClient->continueCommandIfNeeded(m_process->workingDirectory());
+        m_gitClient->continueCommandIfNeeded(workingDirectory);
     } else {
         outputWindow->append(tr("Merge tool process terminated with exit code %1").arg(exitCode));
     }
+    Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
+    GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     deleteLater();
 }
 

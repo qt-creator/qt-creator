@@ -48,6 +48,7 @@ class TEXTEDITOR_EXPORT Format
 {
 public:
     Format();
+    Format(const QColor &foreground, const QColor &background);
 
     QColor foreground() const { return m_foreground; }
     void setForeground(const QColor &foreground);

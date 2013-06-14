@@ -50,6 +50,9 @@ public:
     QString getRepositoryString() const;
 
 private:
+    QUrl getRepoUrl() const;
+
+private:
     Ui::SrcDestDialog *m_ui;
 };
 

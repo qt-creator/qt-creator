@@ -107,10 +107,13 @@ QtcPlugin {
         "builtinindexingsupport.cpp",
         "builtinindexingsupport.h",
         "cpppreprocessor.cpp",
-        "cpppreprocessor.h"
+        "cpppreprocessor.h",
+        "includeutils.cpp",
+        "includeutils.h"
     ]
 
     Group {
+        name: "Tests"
         condition: Defaults.testsEnabled(qbs)
         files: [
             "cppcodegen_test.cpp",

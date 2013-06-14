@@ -868,7 +868,9 @@ bool Parser::parseAliasDeclaration(DeclarationAST *&node)
 
     AliasDeclarationAST *alias = new (_pool) AliasDeclarationAST;
     alias->using_token = consumeToken();
-    alias->identifier_token = consumeToken();
+    SimpleNameAST *name = new (_pool) SimpleNameAST;
+    name->identifier_token = consumeToken();
+    alias->name = name;
 
     // ### attributes!
     while (LA() != T_EQUAL)

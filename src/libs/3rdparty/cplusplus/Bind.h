@@ -209,6 +209,7 @@ protected:
     virtual bool visit(QtEnumDeclarationAST *ast);
     virtual bool visit(QtFlagsDeclarationAST *ast);
     virtual bool visit(QtInterfacesDeclarationAST *ast);
+    virtual bool visit(AliasDeclarationAST *ast);
     virtual bool visit(AsmDefinitionAST *ast);
     virtual bool visit(ExceptionDeclarationAST *ast);
     virtual bool visit(FunctionDefinitionAST *ast);

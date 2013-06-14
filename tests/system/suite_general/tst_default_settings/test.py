@@ -64,7 +64,7 @@ def __checkBuildAndRun__():
     expectedCompilers = __getExpectedCompilers__()
     foundCompilers = []
     foundCompilerNames = []
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Compilers")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Compilers")
     compilerTV = waitForObject(":Kits_Or_Compilers_QTreeView")
     __iterateTree__(compilerTV, __compFunc__, foundCompilers, foundCompilerNames)
     test.verify(__compareCompilers__(foundCompilers, expectedCompilers),
@@ -72,13 +72,13 @@ def __checkBuildAndRun__():
     # check Qt versions
     qmakePath = which("qmake")
     foundQt = []
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Qt Versions")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     qtTW = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
     __iterateTree__(qtTW, __qtFunc__, foundQt, qmakePath)
     if foundQt:
         foundQt = foundQt[0]
     # check kits
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     kitsTV = waitForObject(":Kits_Or_Compilers_QTreeView")
     __iterateTree__(kitsTV, __kitFunc__, foundQt, foundCompilerNames)
 

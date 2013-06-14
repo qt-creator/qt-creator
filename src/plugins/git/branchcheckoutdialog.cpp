@@ -34,8 +34,8 @@ namespace Git {
 namespace Internal {
 
 BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
-                                           const QString& currentBranch,
-                                           const QString& nextBranch) :
+                                           const QString &currentBranch,
+                                           const QString &nextBranch) :
     QDialog(parent),
     m_ui(new Ui::BranchCheckoutDialog),
     m_foundStashForNextBranch(false),

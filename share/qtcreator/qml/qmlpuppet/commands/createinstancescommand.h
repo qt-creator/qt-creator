@@ -43,7 +43,7 @@ class CreateInstancesCommand
 
 public:
     CreateInstancesCommand();
-    CreateInstancesCommand(const QVector<InstanceContainer> &container);
+    explicit CreateInstancesCommand(const QVector<InstanceContainer> &container);
 
     QVector<InstanceContainer> instances() const;
 

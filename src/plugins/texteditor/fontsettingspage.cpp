@@ -298,6 +298,13 @@ QColor FormatDescription::background() const
         return QColor(255, 100, 100);
     } else if (m_id == C_DISABLED_CODE) {
         return QColor(239, 239, 239);
+    } else if (m_id == C_DIFF_FILE_LINE
+               || m_id == C_DIFF_CONTEXT_LINE
+               || m_id == C_DIFF_SOURCE_LINE
+               || m_id == C_DIFF_SOURCE_CHAR
+               || m_id == C_DIFF_DEST_LINE
+               || m_id == C_DIFF_DEST_CHAR) {
+        return m_format.background();
     }
     return QColor(); // invalid color
 }

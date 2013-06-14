@@ -18,7 +18,6 @@ QtcPlugin {
     ])
 
     files: [
-        "TextEditor.mimetypes.xml",
         "autocompleter.cpp",
         "autocompleter.h",
         "basefilefind.cpp",
@@ -149,6 +148,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "CodeAssist"
         prefix: "codeassist/"
         files: [
             "assistenums.h",
@@ -200,6 +200,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "GenericHighlighter"
         prefix: "generichighlighter/"
         files: [
             "context.cpp",
@@ -243,6 +244,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "Snippets"
         prefix: "snippets/"
         files: [
             "isnippetprovider.cpp",

@@ -74,6 +74,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Tests"
         condition: Defaults.testsEnabled(qbs)
         files: ["qmljstools_test.cpp"]
     }

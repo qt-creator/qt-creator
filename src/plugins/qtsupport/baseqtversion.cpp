@@ -36,21 +36,26 @@
 
 #include "qtversionmanager.h"
 #include "profilereader.h"
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <proparser/qmakevfs.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/headerpath.h>
 #include <qtsupport/debugginghelper.h>
+#include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QUrl>
 #include <QFileInfo>
+#include <QFuture>
 #include <QCoreApplication>
 #include <QProcess>
 
@@ -228,21 +233,21 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Fi
 
 Core::FeatureSet BaseQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_QWIDGETS)
-            | Core::FeatureSet(QtSupport::Constants::FEATURE_QT)
-            | Core::FeatureSet(QtSupport::Constants::FEATURE_QT_WEBKIT)
-            | Core::FeatureSet(QtSupport::Constants::FEATURE_QT_CONSOLE);
+    Core::FeatureSet features = Core::FeatureSet(Constants::FEATURE_QWIDGETS)
+            | Core::FeatureSet(Constants::FEATURE_QT)
+            | Core::FeatureSet(Constants::FEATURE_QT_WEBKIT)
+            | Core::FeatureSet(Constants::FEATURE_QT_CONSOLE);
 
-     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0)) {
-         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK);
-         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_1);
+     if (qtVersion() >= QtVersionNumber(4, 7, 0)) {
+         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK);
+         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_1);
      }
-     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
-         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_1_1);
-     if (qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
-         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_2);
-     if (qtVersion() >= QtSupport::QtVersionNumber(5, 1, 0))
-         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS);
+     if (qtVersion() >= QtVersionNumber(4, 7, 1))
+         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_1_1);
+     if (qtVersion() >= QtVersionNumber(5, 0, 0))
+         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_2);
+     if (qtVersion() >= QtVersionNumber(5, 1, 0))
+         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS);
 
      return features;
 }
@@ -326,7 +331,7 @@ FileName BaseQtVersion::binPath() const
     return Utils::FileName::fromUserInput(qmakeProperty("QT_HOST_BINS"));
 }
 
-Utils::FileName QtSupport::BaseQtVersion::mkspecsPath() const
+Utils::FileName BaseQtVersion::mkspecsPath() const
 {
     Utils::FileName result = Utils::FileName::fromUserInput(qmakeProperty("QT_HOST_DATA"));
     if (result.isEmpty())
@@ -336,13 +341,13 @@ Utils::FileName QtSupport::BaseQtVersion::mkspecsPath() const
     return result;
 }
 
-QString QtSupport::BaseQtVersion::qtNamespace() const
+QString BaseQtVersion::qtNamespace() const
 {
     ensureMkSpecParsed();
     return m_mkspecValues.value(QLatin1String(MKSPEC_VALUE_NAMESPACE));
 }
 
-QString QtSupport::BaseQtVersion::qtLibInfix() const
+QString BaseQtVersion::qtLibInfix() const
 {
     ensureMkSpecParsed();
     return m_mkspecValues.value(QLatin1String(MKSPEC_VALUE_LIBINFIX));
@@ -890,11 +895,8 @@ void BaseQtVersion::updateVersionInfo() const
 {
     if (m_versionInfoUpToDate)
         return;
-    if (!m_qmakeIsExecutable) {
-        qWarning("Cannot update Qt version information: %s cannot be run.",
-                 qPrintable(qmakeCommand().toString()));
+    if (!m_qmakeIsExecutable)
         return;
-    }
 
     // extract data from qmake executable
     m_versionInfo.clear();
@@ -908,6 +910,8 @@ void BaseQtVersion::updateVersionInfo() const
 
     if (!queryQMakeVariables(qmakeCommand(), qmakeRunEnvironment(), &m_versionInfo)) {
         m_qmakeIsExecutable = false;
+        qWarning("Cannot update Qt version information: %s cannot be run.",
+                 qPrintable(qmakeCommand().toString()));
         return;
     }
     m_qmakeIsExecutable = true;
@@ -917,7 +921,7 @@ void BaseQtVersion::updateVersionInfo() const
     const QString qtHeaderData = qmakeProperty("QT_INSTALL_HEADERS");
     if (!qtInstallData.isNull()) {
         if (!qtInstallData.isEmpty()) {
-            m_hasDebuggingHelper = !QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
+            m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
             m_hasQmlDump
                     = !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, false).isEmpty()
                     || !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, true).isEmpty();
@@ -1124,7 +1128,7 @@ QString BaseQtVersion::gdbDebuggingHelperLibrary() const
     QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         return QString();
-    return QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
+    return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
 QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
@@ -1158,7 +1162,7 @@ QStringList BaseQtVersion::debuggingHelperLibraryLocations() const
     QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         return QStringList();
-    return QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
+    return DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }
 
 bool BaseQtVersion::supportsBinaryDebuggingHelper() const
@@ -1411,6 +1415,76 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
         }
     }
     return mkspecFullPath;
+}
+
+bool BaseQtVersion::isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason)
+{
+    QTC_ASSERT(k, return false);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (!version) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "No Qt version.");
+        return false;
+    }
+    return version->isQmlDebuggingSupported(reason);
+}
+
+bool BaseQtVersion::isQmlDebuggingSupported(QString *reason) const
+{
+    if (!needsQmlDebuggingLibrary() || hasQmlDebuggingLibrary())
+        return true;
+
+    if (!qtAbis().isEmpty()) {
+        ProjectExplorer::Abi abi = qtAbis().first();
+        if (abi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor) {
+            if (reason)
+                reason->clear();
+                // *reason = QCoreApplication::translate("BaseQtVersion", "Qml debugging on device not yet supported.");
+            return false;
+        }
+    }
+
+    if (!isValid()) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "Invalid Qt version.");
+        return false;
+    }
+
+    if (qtVersion() < QtVersionNumber(4, 7, 1)) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "Requires Qt 4.7.1 or newer.");
+        return false;
+    }
+
+    if (reason)
+        *reason = QCoreApplication::translate("BaseQtVersion", "Library not available. <a href='compile'>Compile...</a>");
+
+    return false;
+}
+
+void BaseQtVersion::buildDebuggingHelper(ProjectExplorer::Kit *k, int tools)
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    if (!k || !version || !tc)
+        return;
+
+    version->buildDebuggingHelper(tc, tools);
+}
+
+void BaseQtVersion::buildDebuggingHelper(ProjectExplorer::ToolChain *tc, int tools)
+{
+    QTC_ASSERT(tc, return);
+    DebuggingHelperBuildTask *buildTask =
+            new DebuggingHelperBuildTask(this, tc, static_cast<DebuggingHelperBuildTask::Tools>(tools));
+
+    // pop up Application Output on error
+    buildTask->showOutputOnError(true);
+
+    QFuture<void> task = QtConcurrent::run(&QtSupport::DebuggingHelperBuildTask::run, buildTask);
+    const QString taskName = QCoreApplication::translate("BaseQtVersion", "Building helpers");
+    Core::ICore::progressManager()->addTask(task, taskName,
+                                            QLatin1String("Qt::BuildHelpers"));
 }
 
 FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)

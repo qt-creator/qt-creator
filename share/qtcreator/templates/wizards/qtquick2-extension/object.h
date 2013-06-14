@@ -13,6 +13,4 @@ public:
     ~%ObjectName%();
 };
 
-QML_DECLARE_TYPE(%ObjectName%)
-
 #endif // %ObjectName:u%_H

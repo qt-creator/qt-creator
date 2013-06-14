@@ -47,6 +47,7 @@
 #include <QLabel>
 
 static const char USE_CPP_DEBUGGER_KEY[] = "RunConfiguration.UseCppDebugger";
+static const char USE_CPP_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseCppDebuggerAuto";
 static const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
 static const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
 static const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
@@ -161,7 +162,9 @@ void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
 
 void DebuggerRunConfigWidget::useCppDebuggerToggled(bool on)
 {
-    m_aspect->m_useCppDebugger = on;
+    m_aspect->m_useCppDebugger = on
+            ? DebuggerRunConfigurationAspect::EnabledLanguage
+            : DebuggerRunConfigurationAspect::DisabledLanguage;
     if (!on && !m_useQmlDebugger->isChecked())
         m_useQmlDebugger->setChecked(true);
 }
@@ -172,8 +175,8 @@ void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool on)
     m_debugServerPortLabel->setEnabled(on);
 
     m_aspect->m_useQmlDebugger = on
-            ? DebuggerRunConfigurationAspect::EnableQmlDebugger
-            : DebuggerRunConfigurationAspect::DisableQmlDebugger;
+            ? DebuggerRunConfigurationAspect::EnabledLanguage
+            : DebuggerRunConfigurationAspect::DisabledLanguage;
     if (!on && !m_useCppDebugger->isChecked())
         m_useCppDebugger->setChecked(true);
 }
@@ -192,8 +195,8 @@ void DebuggerRunConfigWidget::useMultiProcessToggled(bool on)
 DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
         ProjectExplorer::RunConfiguration *rc) :
     m_runConfiguration(rc),
-    m_useCppDebugger(true),
-    m_useQmlDebugger(AutoEnableQmlDebugger),
+    m_useCppDebugger(AutoEnabledLanguage),
+    m_useQmlDebugger(AutoEnabledLanguage),
     m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
     m_useMultiProcess(false)
 {
@@ -219,27 +222,30 @@ ProjectExplorer::RunConfiguration *DebuggerRunConfigurationAspect::runConfigurat
 
 void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 {
-    m_useQmlDebugger = value ? EnableQmlDebugger : DisableQmlDebugger;
+    m_useQmlDebugger = value ? EnabledLanguage : DisabledLanguage;
     emit debuggersChanged();
 }
 
 void DebuggerRunConfigurationAspect::setUseCppDebugger(bool value)
 {
-    m_useCppDebugger = value;
+    m_useCppDebugger = value ? EnabledLanguage : DisabledLanguage;
     emit debuggersChanged();
 }
 
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
-    return m_useCppDebugger;
+    if (m_useCppDebugger == DebuggerRunConfigurationAspect::AutoEnabledLanguage)
+        return m_runConfiguration->target()->project()->projectLanguages().contains(
+                    ProjectExplorer::Constants::LANG_CXX);
+    return m_useCppDebugger == DebuggerRunConfigurationAspect::EnabledLanguage;
 }
 
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
-    if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnableQmlDebugger)
+    if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnabledLanguage)
         return m_runConfiguration->target()->project()->projectLanguages().contains(
                     ProjectExplorer::Constants::LANG_QMLJS);
-    return m_useQmlDebugger == DebuggerRunConfigurationAspect::EnableQmlDebugger;
+    return m_useQmlDebugger == DebuggerRunConfigurationAspect::EnabledLanguage;
 }
 
 uint DebuggerRunConfigurationAspect::qmlDebugServerPort() const
@@ -279,9 +285,10 @@ QString DebuggerRunConfigurationAspect::displayName() const
 QVariantMap DebuggerRunConfigurationAspect::toMap() const
 {
     QVariantMap map;
-    map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger);
-    map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger == EnableQmlDebugger);
-    map.insert(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), m_useQmlDebugger == AutoEnableQmlDebugger);
+    map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger == EnabledLanguage);
+    map.insert(QLatin1String(USE_CPP_DEBUGGER_AUTO_KEY), m_useCppDebugger == AutoEnabledLanguage);
+    map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger == EnabledLanguage);
+    map.insert(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), m_useQmlDebugger == AutoEnabledLanguage);
     map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);
     map.insert(QLatin1String(USE_MULTIPROCESS_KEY), m_useMultiProcess);
     return map;
@@ -289,12 +296,17 @@ QVariantMap DebuggerRunConfigurationAspect::toMap() const
 
 void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
 {
-    m_useCppDebugger = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), true).toBool();
+    if (map.value(QLatin1String(USE_CPP_DEBUGGER_AUTO_KEY), false).toBool()) {
+        m_useCppDebugger = AutoEnabledLanguage;
+    } else {
+        bool useCpp = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), false).toBool();
+        m_useCppDebugger = useCpp ? EnabledLanguage : DisabledLanguage;
+    }
     if (map.value(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), false).toBool()) {
-        m_useQmlDebugger = AutoEnableQmlDebugger;
+        m_useQmlDebugger = AutoEnabledLanguage;
     } else {
         bool useQml = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
-        m_useQmlDebugger = useQml ? EnableQmlDebugger : DisableQmlDebugger;
+        m_useQmlDebugger = useQml ? EnabledLanguage : DisabledLanguage;
     }
     m_useMultiProcess = map.value(QLatin1String(USE_MULTIPROCESS_KEY), false).toBool();
 }

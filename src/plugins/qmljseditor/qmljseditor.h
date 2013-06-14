@@ -65,7 +65,7 @@ namespace AST {
     The top-level namespace of the QmlJSEditor plug-in.
  */
 namespace QmlJSEditor {
-class QmlJSEditorEditable;
+class QmlJSEditor;
 class FindReferences;
 
 namespace Internal {
@@ -160,7 +160,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
     TextEditor::BaseTextEditor *createEditor();
-    void createToolBar(QmlJSEditorEditable *editable);
+    void createToolBar(QmlJSEditor *editable);
     TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
     QString foldReplacementText(const QTextBlock &block) const;
 

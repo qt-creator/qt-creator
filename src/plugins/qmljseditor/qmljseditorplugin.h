@@ -92,7 +92,7 @@ public:
 
     QmlJSQuickFixAssistProvider *quickFixAssistProvider() const;
 
-    void initializeEditor(QmlJSEditor::QmlJSTextEditorWidget *editor);
+    void initializeEditor(QmlJSTextEditorWidget *editor);
 
     Utils::JsonSchemaManager *jsonManager() const;
 

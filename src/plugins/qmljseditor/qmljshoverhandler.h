@@ -73,7 +73,7 @@ private:
     virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
     virtual void operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point);
 
-    bool matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditorWidget *qmlEditor, int pos);
+    bool matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int pos);
     bool matchColorItem(const QmlJS::ScopeChain &lookupContext,
                         const QmlJS::Document::Ptr &qmlDocument,
                         const QList<QmlJS::AST::Node *> &astPath,

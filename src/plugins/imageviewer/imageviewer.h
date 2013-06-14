@@ -79,12 +79,7 @@ private slots:
     void playToggled();
 
 private:
-    /*!
-      \brief Try to change button's icon to the one from the current theme.
-      \param button Button where an icon should be changed
-      \param name Icon name in the in the current icon theme
-      \return true if icon is updated, false otherwise
-     */
+
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
     void setPaused(bool paused);
 

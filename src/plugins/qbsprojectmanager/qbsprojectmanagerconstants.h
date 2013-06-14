@@ -49,6 +49,8 @@ const char ACTION_REPARSE_QBS[] = "Qbs.Reparse";
 const char ACTION_REPARSE_QBS_CONTEXT[] = "Qbs.ReparseCtx";
 const char ACTION_BUILD_FILE_CONTEXT[] = "Qbs.BuildFileCtx";
 const char ACTION_BUILD_FILE[] = "Qbs.BuildFile";
+const char ACTION_BUILD_PRODUCT_CONTEXT[] = "Qbs.BuildProductCtx";
+const char ACTION_BUILD_PRODUCT[] = "Qbs.BuildProduct";
 
 // Ids:
 const char QBS_BUILDSTEP_ID[] = "Qbs.BuildStep";
@@ -61,6 +63,8 @@ static const char QBS_VARIANT_RELEASE[] = "release";
 
 static const char QBS_CONFIG_VARIANT_KEY[] = "qbs.buildVariant";
 static const char QBS_CONFIG_PROFILE_KEY[] = "qbs.profile";
+static const char QBS_CONFIG_DECLARATIVE_DEBUG_KEY[] = "Qt.declarative.qmlDebugging";
+static const char QBS_CONFIG_QUICK_DEBUG_KEY[] = "Qt.quick.qmlDebugging";
 
 } // namespace Constants
 } // namespace QbsProjectManager

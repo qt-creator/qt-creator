@@ -14,7 +14,6 @@ QtcPlugin {
     Depends { name: "Locator" }
 
     files: [
-        "Git.mimetypes.xml",
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
         "branchadddialog.cpp",
@@ -76,6 +75,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Gitorious"
         prefix: "gitorious/"
         files: [
             "gitorious.cpp",
@@ -99,6 +99,7 @@ QtcPlugin {
     }
 
     Group {
+        name: "Gerrit"
         prefix: "gerrit/"
         files: [
             "gerritdialog.cpp",

@@ -34,7 +34,7 @@ namespace Mercurial {
 namespace Constants {
 
 enum { debug = 0 };
-const char MECURIALREPO[] = ".hg";
+const char MERCURIALREPO[] = ".hg";
 const char MERCURIALDEFAULT[] = "hg";
 
 // Changeset identifiers

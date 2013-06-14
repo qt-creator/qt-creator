@@ -61,14 +61,50 @@
     It also applies for code in other compiled languages such as C,
     FORTRAN, Ada.
 
+    For more information on the debugger modes, see
+    \l{Launching the Debugger in Different Modes}.
+
     \section1 Supported Native Debugger Versions
 
-    Qt Creator supports essentially two native debuggers when working with
+    Qt Creator supports native debuggers when working with
     compiled code. On most supported platforms, the GNU Symbolic Debugger
     GDB can be used. On Microsoft Windows, when using the Microsoft tool chain
     the Microsoft Console Debugger CDB, is needed. There is also an
     incomplete experimental interface to LLDB on Mac OS and Linux available
     when building \QC from source.
+
+    The following table summarizes the support for debugging C++ code:
+
+    \table
+        \header
+            \li Platform
+            \li Compiler
+            \li Native Debugger
+        \row
+            \li Linux
+            \li GCC, ICC
+            \li GDB
+        \row
+            \li Unix
+            \li GCC, ICC
+            \li GDB
+        \row
+            \li Mac OS X
+            \li GCC, Clang
+            \li Apple GDB, FSF GDB (experimental), LLDB (experimental)
+        \row
+            \li Windows/MinGW
+            \li GCC
+            \li GDB
+        \row
+            \li Windows/MSVC
+            \li Microsoft Visual C++ Compiler
+            \li Debugging Tools for Windows/CDB
+        \row
+            \li Maemo, MeeGo
+            \li GCC
+            \li GDB
+    \endtable
 
     \section2 Supported GDB Versions
 
@@ -105,41 +141,16 @@
     debugger engine. Specifically, it also uses compiled C++ code for the
     debugging helper library.
 
-    The following table summarizes the support for debugging C++ code:
+    \section2 Supported LLDB Versions
 
-    \table
-        \header
-            \li Platform
-            \li Compiler
-            \li Native Debugger
-        \row
-            \li Linux
-            \li GCC, ICC
-            \li GDB
-        \row
-            \li Unix
-            \li GCC, ICC
-            \li GDB
-        \row
-            \li Mac OS X
-            \li GCC
-            \li Apple GDB, FSF GDB (experimental)
-        \row
-            \li Windows/MinGW
-            \li GCC
-            \li GDB
-        \row
-            \li Windows/MSVC
-            \li Microsoft Visual C++ Compiler
-            \li Debugging Tools for Windows/CDB
-        \row
-            \li Maemo, MeeGo
-            \li GCC
-            \li GDB
-    \endtable
+    The LLDB native debugger has similar functionality to the GDB debugger.
+    LLDB is the default debugger in Xcode on Mac OS X for supporting C++ on the
+    desktop. LLDB is typically used with the Clang compiler (even though you
+    can use it with GCC, too).
 
-    For more information on the debugger modes, see
-    \l{Launching the Debugger in Different Modes}.
+    You can use the LLDB version delivered with Xcode, but we recommend that you
+    build it from sources using Xcode. The minimal supported version is LLDB
+    300.99.
 
     \omit
 
@@ -233,6 +244,10 @@
               application to crash. For a workaround, see:
               \l{http://bugreports.qt-project.org/browse/QTBUG-4962}{QTBUG-4962}.
 
+       \row
+            \li LLDB
+            \li An LLDB version is delivered with Xcode, but we recommend that
+                you build LLDB from sources using Xcode.
     \endtable
 
     \section1 Mapping Source Paths
@@ -330,6 +345,31 @@
             \li In the \gui Debugger field, specify the path to FSF GDB
                 (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
                 \c $HOME).
+
+        \li To use the debugger, add the kit in the \gui {Build Settings}
+            of the project.
+
+    \endlist
+
+    \section1 Setting Up Experimental LLDB Support
+
+    To use the experimental interface to LLDB, you must set up a kit that uses
+    the LLDB engine and select the kit for your project:
+
+    \list 1
+
+        \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits.
+
+        \li Select an automatically created kit in the list, and then select
+            \gui Clone to create a copy of the kit.
+
+        \li In the \gui Debugger field, select \gui Edit to change the
+            automatically detected debugger to LLDB Engine.
+
+        \li In the \gui Engine field, select \gui {LLDB Engine}.
+
+        \li Select \gui Choose to set the path to the LLDB engine in the
+            \gui Binary field.
 
         \li To use the debugger, add the kit in the \gui {Build Settings}
             of the project.

@@ -198,6 +198,7 @@ private slots:
     void test_checksymbols_highlightingUsedTemplateFunctionParameter_QTCREATORBUG6861();
     void test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_namespace();
     void test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORBUG9323_insideFunction();
+    void test_alias_decl_QTCREATORBUG9386();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -1722,6 +1723,21 @@ void tst_CheckSymbols::test_checksymbols_crashWhenUsingNamespaceClass_QTCREATORB
             << Use(2, 7, 3, CppHighlightingSupport::TypeUse)
             << Use(4, 6, 3, CppHighlightingSupport::FunctionUse)
             << Use(7, 9, 3, CppHighlightingSupport::LocalUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_alias_decl_QTCREATORBUG9386()
+{
+    const QByteArray source =
+            "using wobble = int;\n"
+            "wobble cobble = 1;\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 7, 6, CppHighlightingSupport::TypeUse)
+            << Use(2, 1, 6, CppHighlightingSupport::TypeUse)
             ;
 
     TestData::check(source, expectedUses);

@@ -5,6 +5,12 @@
   <style name="CurrentLine" foreground="#000000" background="#f2f2f2"/>
   <style name="DiffFile"/>
   <style name="DiffLocation"/>
+  <style name="DillFileLine" foreground="#ffffff" background="#000000"/>
+  <style name="DiffContextLine" foreground="#ffffff" background="#7f7f7f"/>
+  <style name="DiffSourceLine" background="#d7d7d7"/>
+  <style name="DiffSourceChar" background="#afafaf"/>
+  <style name="DiffDestLine" background="#d7d7d7"/>
+  <style name="DiffDestChar" background="#afafaf"/>
   <style name="Doxygen.Comment" foreground="#808080"/>
   <style name="Doxygen.Tag" foreground="#808080" italic="true"/>
   <style name="Field"/>

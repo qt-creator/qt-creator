@@ -212,10 +212,11 @@ void SubComponentManager::parseDirectories()
                 parseDirectory(dirInfo.canonicalFilePath(), true, dirInfo.baseName().toUtf8());
         } else {
             QString url = import.url();
+            url.replace(QLatin1Char('.'), QLatin1Char('/'));
+            QFileInfo dirInfo = QFileInfo(url);
             foreach (const QString &path, importPaths()) {
-                url.replace(QLatin1Char('.'), QLatin1Char('/'));
-                url  = path + QLatin1Char('/') + url;
-                QFileInfo dirInfo = QFileInfo(url);
+                QString fullUrl  = path + QLatin1Char('/') + url;
+                dirInfo = QFileInfo(fullUrl);
                 if (dirInfo.exists() && dirInfo.isDir()) {
                     //### todo full qualified names QString nameSpace = import.uri();
                     parseDirectory(dirInfo.canonicalFilePath(), false);

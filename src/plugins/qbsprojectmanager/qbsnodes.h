@@ -59,6 +59,8 @@ public:
 
     void setLine(int l);
 
+    QString displayName() const;
+
     bool update(const qbs::CodeLocation &loc);
 
 private:

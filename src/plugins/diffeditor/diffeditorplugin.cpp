@@ -172,4 +172,14 @@ QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *c
 } // namespace Internal
 } // namespace DiffEditor
 
+#ifdef WITH_TESTS
+
+void DiffEditor::Internal::DiffEditorPlugin::testAssemblyRows()
+{
+    DiffEditorWidget widget;
+    widget.testAssemblyRows();
+}
+
+#endif // WITH_TESTS
+
 Q_EXPORT_PLUGIN(DiffEditor::Internal::DiffEditorPlugin)

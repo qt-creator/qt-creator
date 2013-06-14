@@ -193,6 +193,16 @@ QStringList QbsBuildConfiguration::changedFiles() const
     return m_changedFiles;
 }
 
+void QbsBuildConfiguration::setProducts(const QStringList &products)
+{
+    m_products = products;
+}
+
+QStringList QbsBuildConfiguration::products() const
+{
+    return m_products;
+}
+
 QbsBuildConfiguration *QbsBuildConfiguration::setup(ProjectExplorer::Target *t,
                                                     const QString &defaultDisplayName,
                                                     const QString &displayName,

@@ -50,7 +50,7 @@ void SnapshotSymbolVisitor::accept(Document::Ptr doc, QSet<QString> *processed)
         processed->insert(doc->fileName());
 
         foreach (const Document::Include &i, doc->includes()) {
-            if (Document::Ptr incl = _snapshot.document(i.fileName()))
+            if (Document::Ptr incl = _snapshot.document(i.resolvedFileName()))
                 accept(incl, processed);
         }
 

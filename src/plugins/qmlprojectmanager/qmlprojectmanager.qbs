@@ -21,7 +21,6 @@ QtcPlugin {
         "qmlapp.h",
         "qmlapplicationwizard.cpp",
         "qmlapplicationwizard.h",
-        "QmlProject.mimetypes.xml",
         "qmlproject.cpp",
         "qmlproject.h",
         "qmlproject.qrc",

@@ -48,6 +48,14 @@ Column {
         gridFrame.state = ""
     }
 
+    Component.onCompleted: {
+        if (mouseArea.expandedFlag) {
+            gridFrame.state = ""
+        } else {
+            gridFrame.state = "shrunk"
+        }
+    }
+
     signal itemSelected(int itemLibId)
     signal itemDragged(int itemLibId)
 
@@ -139,6 +147,9 @@ Column {
             font.bold: true
         }
         MouseArea {
+            id: mouseArea
+            property bool expandedFlag: sectionExpanded
+
             anchors.fill: parent
             onClicked: gridFrame.toggleExpanded()
         }
@@ -151,6 +162,8 @@ Column {
 
         function toggleExpanded() {
             state = ((state == "")? "shrunk":"")
+
+            itemLibraryModel.setExpanded(state === "", text.text);
         }
 
         clip: true

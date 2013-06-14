@@ -56,12 +56,21 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 GdbCoreEngine::GdbCoreEngine(const DebuggerStartParameters &startParameters)
-    : GdbEngine(startParameters)
+    : GdbEngine(startParameters),
+      m_coreUnpackProcess(0)
 {}
 
 GdbCoreEngine::~GdbCoreEngine()
 {
-    if (false && !m_tempCoreName.isEmpty()) {
+    if (m_coreUnpackProcess) {
+        m_coreUnpackProcess->blockSignals(true);
+        m_coreUnpackProcess->terminate();
+        m_coreUnpackProcess->deleteLater();
+        m_coreUnpackProcess = 0;
+        if (m_tempCoreFile.isOpen())
+            m_tempCoreFile.close();
+    }
+    if (!m_tempCoreName.isEmpty()) {
         QFile tmpFile(m_tempCoreName);
         tmpFile.remove();
     }
@@ -114,32 +123,46 @@ QString GdbCoreEngine::readExecutableNameFromCore(bool *isCore)
 
 void GdbCoreEngine::continueSetupEngine()
 {
-    if (m_executable.isEmpty()) {
+    bool isCore = true;
+    if (m_coreUnpackProcess) {
+        isCore = m_coreUnpackProcess->exitCode() == 0;
+        m_coreUnpackProcess->deleteLater();
+        m_coreUnpackProcess = 0;
+        if (m_tempCoreFile.isOpen())
+            m_tempCoreFile.close();
+    }
+    if (isCore && m_executable.isEmpty()) {
         // Read executable from core.
-        bool isCore = false;
+        isCore = false;
         m_executable = readExecutableNameFromCore(&isCore);
 
-        if (!isCore) {
-            showMessageBox(QMessageBox::Warning,
-                tr("Error Loading Core File"),
-                tr("The specified file does not appear to be a core file."));
-            notifyEngineSetupFailed();
-            return;
-        }
-
-        // Strip off command line arguments. FIXME: make robust.
-        int idx = m_executable.indexOf(QLatin1Char(' '));
-        if (idx >= 0)
-            m_executable.truncate(idx);
-        if (m_executable.isEmpty()) {
-            showMessageBox(QMessageBox::Warning,
-                tr("Error Loading Symbols"),
-                tr("No executable to load symbols from specified core."));
-            notifyEngineSetupFailed();
-            return;
+        if (isCore) {
+            // Strip off command line arguments. FIXME: make robust.
+            int idx = m_executable.indexOf(QLatin1Char(' '));
+            if (idx >= 0)
+                m_executable.truncate(idx);
+            if (m_executable.isEmpty()) {
+                showMessageBox(QMessageBox::Warning,
+                    tr("Error Loading Symbols"),
+                    tr("No executable to load symbols from specified core."));
+                notifyEngineSetupFailed();
+                return;
+            }
         }
     }
-    startGdb();
+    if (isCore)
+        startGdb();
+    else {
+        showMessageBox(QMessageBox::Warning,
+            tr("Error Loading Core File"),
+            tr("The specified file does not appear to be a core file."));
+        notifyEngineSetupFailed();
+    }
+}
+
+void GdbCoreEngine::writeCoreChunk()
+{
+    m_tempCoreFile.write(m_coreUnpackProcess->readAll());
 }
 
 void GdbCoreEngine::setupInferior()
@@ -219,26 +242,40 @@ void GdbCoreEngine::shutdownEngine()
     notifyAdapterShutdownOk();
 }
 
+static QString tempCoreFilename()
+{
+    QString pattern = QDir::tempPath() + QLatin1String("/tmpcore-XXXXXX");
+    QTemporaryFile tmp(pattern);
+    tmp.open();
+    return tmp.fileName();
+}
+
 void GdbCoreEngine::unpackCoreIfNeeded()
 {
-    if (!m_coreName.endsWith(QLatin1String(".lzo"))) {
-        continueSetupEngine();
-        return;
-    }
-
-    {
-        QString pattern = QDir::tempPath() + QLatin1String("/tmpcore-XXXXXX");
-        QTemporaryFile tmp(pattern, this);
-        tmp.open();
-        m_tempCoreName = tmp.fileName();
-    }
-
-    QProcess *process = new QProcess(this);
-    process->setWorkingDirectory(QDir::tempPath());
     QStringList arguments;
-    arguments << QLatin1String("-o") << m_tempCoreName << QLatin1String("-x") << m_coreName;
-    process->start(QLatin1String("/usr/bin/lzop"), arguments);
-    connect(process, SIGNAL(finished(int)), SLOT(continueSetupEngine()));
+    const QString msg = _("Unpacking core file to %1");
+    if (m_coreName.endsWith(QLatin1String(".lzo"))) {
+        m_tempCoreName = tempCoreFilename();
+        showMessage(msg.arg(m_tempCoreName));
+        arguments << QLatin1String("-o") << m_tempCoreName << QLatin1String("-x") << m_coreName;
+        m_coreUnpackProcess = new QProcess(this);
+        m_coreUnpackProcess->setWorkingDirectory(QDir::tempPath());
+        m_coreUnpackProcess->start(QLatin1String("lzop"), arguments);
+        connect(m_coreUnpackProcess, SIGNAL(finished(int)), SLOT(continueSetupEngine()));
+    } else if (m_coreName.endsWith(QLatin1String(".gz"))) {
+        m_tempCoreName = tempCoreFilename();
+        showMessage(msg.arg(m_tempCoreName));
+        m_tempCoreFile.setFileName(m_tempCoreName);
+        m_tempCoreFile.open(QFile::WriteOnly);
+        arguments << QLatin1String("-c") << QLatin1String("-d") << m_coreName;
+        m_coreUnpackProcess = new QProcess(this);
+        m_coreUnpackProcess->setWorkingDirectory(QDir::tempPath());
+        m_coreUnpackProcess->start(QLatin1String("gzip"), arguments);
+        connect(m_coreUnpackProcess, SIGNAL(readyRead()), SLOT(writeCoreChunk()));
+        connect(m_coreUnpackProcess, SIGNAL(finished(int)), SLOT(continueSetupEngine()));
+    } else {
+        continueSetupEngine();
+    }
 }
 
 QString GdbCoreEngine::coreFileName() const

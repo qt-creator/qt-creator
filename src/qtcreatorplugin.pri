@@ -136,5 +136,8 @@ linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
     INSTALLS += target pluginspec
 }
 
+MIMETYPES = $$_PRO_FILE_PWD_/$${TARGET}.mimetypes.xml
+exists($$MIMETYPES):OTHER_FILES += $$MIMETYPES
+
 TARGET = $$qtLibraryName($$TARGET)
 

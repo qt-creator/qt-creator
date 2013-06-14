@@ -105,6 +105,7 @@ Rectangle {
         Transition {
                 from: "*"; to: "State1"
                 NumberAnimation {
+                    easing.type: Easing.OutBounce
                     properties: "x,y";
                     duration: 1000
                 }

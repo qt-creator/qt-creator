@@ -22,6 +22,7 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Tests"
         condition: Defaults.testsEnabled(qbs)
         files: ["fakevim_test.cpp"]
     }

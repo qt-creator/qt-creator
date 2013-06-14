@@ -33,6 +33,8 @@
 #include "gdbengine.h"
 #include "localgdbprocess.h"
 
+#include <QFile>
+
 namespace Debugger {
 namespace Internal {
 
@@ -66,14 +68,20 @@ private:
     void handleRoundTrip(const GdbResponse &response);
     void unpackCoreIfNeeded();
     QString coreFileName() const;
-    Q_SLOT void continueSetupEngine();
     QString readExecutableNameFromCore(bool *isCore);
     QString coreName() const;
 
+private slots:
+    void continueSetupEngine();
+    void writeCoreChunk();
+
+private:
     QString m_executable;
     QString m_coreName;
     LocalGdbProcess m_gdbProc;
     QString m_tempCoreName;
+    QProcess *m_coreUnpackProcess;
+    QFile m_tempCoreFile;
 };
 
 } // namespace Internal

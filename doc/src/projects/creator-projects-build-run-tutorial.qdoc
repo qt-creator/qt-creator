@@ -35,7 +35,7 @@
 
     \list 1
 
-        \li On the \gui Welcome page, select \gui Examples (1).
+        \li In the \gui Welcome mode, select \gui Examples (1).
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 

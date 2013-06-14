@@ -110,7 +110,8 @@ private:
     };
 
     void processIfWhileForStatement(ExpressionAST *expression, Symbol *symbol);
-    void checkAndRewrite(Symbol *symbol, TokenRange range, unsigned charactersToRemove = 0);
+    void checkAndRewrite(DeclaratorAST *declarator, Symbol *symbol, TokenRange range,
+                         unsigned charactersToRemove = 0);
     QString rewriteDeclaration(FullySpecifiedType type, const Name *name) const;
     void printCandidate(AST *ast);
 

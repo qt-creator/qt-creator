@@ -57,8 +57,8 @@ static QList<QStandardItem *> hostEntry(const QString &host,
                                         int projectCount,
                                         const QString &description, bool isDummyEntry)
 {
-    const Qt::ItemFlags nonEditableFlags = (Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    const Qt::ItemFlags editableFlags = nonEditableFlags|Qt::ItemIsEditable;
+    const Qt::ItemFlags nonEditableFlags = (Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    const Qt::ItemFlags editableFlags = nonEditableFlags | Qt::ItemIsEditable;
     QStandardItem *hostItem = new QStandardItem(host);
     hostItem->setFlags(isDummyEntry ? editableFlags : nonEditableFlags);
     // Empty for dummy, else "..." or count
@@ -154,7 +154,10 @@ void GitoriousHostWidget::selectRow(int r)
 {
     if (r >= 0 && r != selectedRow()) {
         const QModelIndex index = m_model->index(r, 0);
-        ui->hostView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select|QItemSelectionModel::Current|QItemSelectionModel::Rows);
+        ui->hostView->selectionModel()->setCurrentIndex(index,
+                    QItemSelectionModel::Select
+                    | QItemSelectionModel::Current
+                    | QItemSelectionModel::Rows);
     }
 }
 

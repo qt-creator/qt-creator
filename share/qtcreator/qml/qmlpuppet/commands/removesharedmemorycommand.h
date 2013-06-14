@@ -43,7 +43,7 @@ class RemoveSharedMemoryCommand
 
 public:
     RemoveSharedMemoryCommand();
-    RemoveSharedMemoryCommand(const QString &typeName, const QVector<qint32> &keyNumberVector);
+    explicit RemoveSharedMemoryCommand(const QString &typeName, const QVector<qint32> &keyNumberVector);
 
     QString typeName() const;
     QVector<qint32> keyNumbers() const;

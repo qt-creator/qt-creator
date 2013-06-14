@@ -48,7 +48,7 @@ GitVersionControl::GitVersionControl(GitClient *client) :
 
 QString GitVersionControl::displayName() const
 {
-    return QLatin1String("git");
+    return QLatin1String("Git");
 }
 
 Core::Id GitVersionControl::id() const
@@ -142,8 +142,9 @@ QString GitVersionControl::vcsCreateSnapshot(const QString &topLevel)
     QString keyword = QLatin1String(stashMessageKeywordC) + QString::number(n++);
     const QString stashMessage =
             m_client->synchronousStash(topLevel, keyword,
-                                          GitClient::StashImmediateRestore|GitClient::StashIgnoreUnchanged,
-                                          &repositoryUnchanged);
+                                       GitClient::StashImmediateRestore
+                                       | GitClient::StashIgnoreUnchanged,
+                                       &repositoryUnchanged);
     if (!stashMessage.isEmpty())
         return stashMessage;
     if (repositoryUnchanged) {

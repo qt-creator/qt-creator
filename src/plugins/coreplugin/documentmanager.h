@@ -74,6 +74,9 @@ public:
     static void expectFileChange(const QString &fileName);
     static void unexpectFileChange(const QString &fileName);
 
+    static void expectDirectoryChange(const QString &directory);
+    static void unexpectDirectoryChange(const QString &directory);
+
     // recent files
     static void addToRecentFiles(const QString &fileName, const Id &editorId = Id());
     Q_SLOT void clearRecentFiles();
@@ -150,6 +153,7 @@ private slots:
     void changedFile(const QString &file);
     void mainWindowActivated();
     void syncWithEditor(const QList<Core::IContext *> &context);
+    void clearExpectedDirectory();
 };
 
 /*! The FileChangeBlocker blocks all change notifications to all IDocument * that

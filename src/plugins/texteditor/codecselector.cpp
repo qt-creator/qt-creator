@@ -122,6 +122,7 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
     m_saveButton =  m_dialogButtonBox->addButton(tr("Save with Encoding"), QDialogButtonBox::DestructiveRole);
     m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
     connect(m_dialogButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
+    connect(m_listWidget, SIGNAL(doubleClicked(QModelIndex)), m_reloadButton, SLOT(animateClick()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addWidget(m_label);

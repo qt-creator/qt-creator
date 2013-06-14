@@ -149,6 +149,7 @@ DebuggerKitConfigDialog::DebuggerKitConfigDialog(QWidget *parent)
 
     QLabel *binaryLabel = new QLabel(tr("&Binary:"));
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_chooser->setMinimumWidth(400);
     binaryLabel->setBuddy(m_chooser);
     formLayout->addRow(binaryLabel, m_chooser);
     layout->addLayout(formLayout);

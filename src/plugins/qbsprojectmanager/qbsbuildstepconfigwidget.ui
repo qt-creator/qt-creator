@@ -6,11 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>428</width>
-    <height>102</height>
+    <width>463</width>
+    <height>121</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -23,61 +23,115 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="buildVariantLabel">
+     <property name="text">
+      <string>Build variant:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="buildVariantComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <item>
+      <property name="text">
+       <string>Debug</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Release</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QSpinBox" name="jobSpinBox"/>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLabel" name="jobsLabel">
+     <property name="text">
+      <string>jobs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <spacer name="spacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>15</width>
+       <height>5</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="qmlDebuggingLabel">
+     <property name="text">
+      <string>Enable QML debugging:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="4">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="buildVariantLabel">
+      <widget class="QCheckBox" name="qmlDebuggingLibraryCheckBox">
        <property name="text">
-        <string>Build variant:</string>
+        <string/>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="buildVariantComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <item>
-        <property name="text">
-         <string>Debug</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Release</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="jobSpinBox"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="qmlDebuggingWarningIcon">
        <property name="text">
-        <string>jobs</string>
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <widget class="QLabel" name="qmlDebuggingWarningText">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
-         <height>20</height>
+         <height>5</height>
         </size>
        </property>
       </spacer>
      </item>
     </layout>
    </item>
-   <item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="propertyLabel">
+     <property name="text">
+      <string>Properties:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="4">
+    <widget class="QbsPropertyLineEdit" name="propertyEdit"/>
+   </item>
+   <item row="3" column="0" colspan="5">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QCheckBox" name="dryRunCheckBox">
@@ -94,14 +148,14 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="checkBoxSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
-         <height>20</height>
+         <height>5</height>
         </size>
        </property>
       </spacer>
@@ -110,6 +164,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QbsPropertyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qbspropertylineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

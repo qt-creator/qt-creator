@@ -43,7 +43,7 @@ class ReparentInstancesCommand
 
 public:
     ReparentInstancesCommand();
-    ReparentInstancesCommand(const QVector<ReparentContainer> &container);
+    explicit ReparentInstancesCommand(const QVector<ReparentContainer> &container);
 
     QVector<ReparentContainer> reparentInstances() const;
 

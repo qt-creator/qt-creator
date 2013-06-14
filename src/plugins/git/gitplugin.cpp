@@ -441,10 +441,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Interactive Rebase..."), Core::Id("Git.InteractiveRebase"),
                            globalcontext, true, SLOT(startRebase()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Change-related Actions..."), Core::Id("Git.ChangeRelatedActions"),
-                           globalcontext, true, SLOT(startChangeRelatedAction()));
-
     m_submoduleUpdateAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Update Submodules"), Core::Id("Git.SubmoduleUpdate"),
@@ -650,6 +646,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
     gitContainer->addSeparator(globalcontext);
 
+    QAction *changesAction = new QAction(tr("Actions on Commits..."), this);
+    Core::Command *changesCommand = Core::ActionManager::registerAction(changesAction, "Git.ChangeActions", globalcontext);
+    connect(changesAction, SIGNAL(triggered()), this, SLOT(startChangeRelatedAction()));
+    gitContainer->addAction(changesCommand);
+
     QAction *repositoryAction = new QAction(tr("Create Repository..."), this);
     Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(repositoryAction, "Git.CreateRepository", globalcontext);
     connect(repositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
@@ -711,6 +712,14 @@ void GitPlugin::submitEditorMerge(const QStringList &unmerged)
     m_gitClient->merge(m_submitRepository, unmerged);
 }
 
+static bool ensureAllDocumentsSaved()
+{
+    bool cancelled;
+    Core::DocumentManager::saveModifiedDocuments(Core::DocumentManager::modifiedDocuments(),
+                                                 &cancelled);
+    return !cancelled;
+}
+
 void GitPlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
@@ -763,6 +772,8 @@ void GitPlugin::logRepository()
 
 void GitPlugin::undoFileChanges(bool revertStaging)
 {
+    if (!ensureAllDocumentsSaved())
+        return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     Core::FileChangeBlocker fcb(state.currentFile());
@@ -771,11 +782,15 @@ void GitPlugin::undoFileChanges(bool revertStaging)
 
 void GitPlugin::undoUnstagedFileChanges()
 {
+    if (!ensureAllDocumentsSaved())
+        return;
     undoFileChanges(false);
 }
 
 void GitPlugin::resetRepository()
 {
+    if (!ensureAllDocumentsSaved())
+        return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
@@ -788,6 +803,8 @@ void GitPlugin::resetRepository()
 
 void GitPlugin::startRebase()
 {
+    if (!ensureAllDocumentsSaved())
+        return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     const QString topLevel = state.topLevel();
@@ -827,6 +844,8 @@ void GitPlugin::startChangeRelatedAction()
         return;
     }
 
+    if (!ensureAllDocumentsSaved())
+        return;
     QString command;
     bool (GitClient::*commandFunction)(const QString&, const QString&);
     switch (dialog.command()) {
@@ -986,7 +1005,17 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
     submitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
-    const QString title = (cd.commitType == AmendCommit) ? tr("Amend %1").arg(cd.amendSHA1) : tr("Git Commit");
+    QString title;
+    switch (cd.commitType) {
+    case AmendCommit:
+        title = tr("Amend %1").arg(cd.amendSHA1);
+        break;
+    case FixupCommit:
+        title = tr("Git Fixup Commit");
+        break;
+    default:
+        title = tr("Git Commit");
+    }
     submitEditor->setDisplayName(title);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));
@@ -1074,6 +1103,8 @@ void GitPlugin::fetch()
 
 void GitPlugin::pull()
 {
+    if (!ensureAllDocumentsSaved())
+        return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
@@ -1109,6 +1140,8 @@ void GitPlugin::startMergeTool()
 
 void GitPlugin::continueOrAbortCommand()
 {
+    if (!ensureAllDocumentsSaved())
+        return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QObject *action = QObject::sender();
@@ -1267,6 +1300,8 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 
 void GitPlugin::stash()
 {
+    if (!ensureAllDocumentsSaved())
+        return;
     // Simple stash without prompt, reset repo.
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -1284,7 +1319,7 @@ void GitPlugin::stashSnapshot()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(),
-                GitClient::StashImmediateRestore|GitClient::StashPromptDescription);
+                GitClient::StashImmediateRestore | GitClient::StashPromptDescription);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
 }

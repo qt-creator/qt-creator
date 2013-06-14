@@ -42,7 +42,7 @@ class RemovePropertiesCommand
     friend QDataStream &operator>>(QDataStream &in, RemovePropertiesCommand &command);
 public:
     RemovePropertiesCommand();
-    RemovePropertiesCommand(const QVector<PropertyAbstractContainer> &properties);
+    explicit RemovePropertiesCommand(const QVector<PropertyAbstractContainer> &properties);
 
     QVector<PropertyAbstractContainer> properties() const;
 

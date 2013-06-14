@@ -66,10 +66,12 @@
 #include <QTextDocumentFragment>
 
 using namespace QmlJS;
-using namespace QmlJSEditor;
 using namespace QmlJSTools;
-using namespace Internal;
 using namespace TextEditor;
+
+namespace QmlJSEditor {
+
+using namespace Internal;
 
 namespace {
 
@@ -335,7 +337,11 @@ bool isLiteral(AST::Node *ast)
 
 } // Anonymous
 
-Q_DECLARE_METATYPE(CompleteFunctionCall)
+} // namesapce QmlJSEditor
+
+Q_DECLARE_METATYPE(QmlJSEditor::CompleteFunctionCall)
+
+namespace QmlJSEditor {
 
 // -----------------------
 // QmlJSAssistProposalItem
@@ -1028,3 +1034,5 @@ bool QmlJSAssistProposalModel::keepPerfectMatch(TextEditor::AssistReason reason)
 {
     return reason == ExplicitlyInvoked;
 }
+
+} // namespace QmlJSEditor

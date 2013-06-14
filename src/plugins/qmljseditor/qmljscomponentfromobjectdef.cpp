@@ -47,9 +47,11 @@
 #include <QMessageBox>
 
 using namespace QmlJS::AST;
-using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJSTools;
+
+namespace QmlJSEditor {
+
+using namespace Internal;
 
 namespace {
 
@@ -153,3 +155,5 @@ void ComponentFromObjectDef::match(const QmlJSQuickFixInterface &interface, Quic
         }
     }
 }
+
+} //namespace QmlJSEditor

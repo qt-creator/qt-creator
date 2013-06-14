@@ -41,6 +41,11 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
             this, SIGNAL(appendMessage(QString,Utils::OutputFormat)));
 }
 
+LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
+{
+    disconnect();
+}
+
 void LocalQmlProfilerRunner::start()
 {
     QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);

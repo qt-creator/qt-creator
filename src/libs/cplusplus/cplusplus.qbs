@@ -14,6 +14,7 @@ QtcLibrary {
     Depends { name: "Qt.widgets" }
 
     Group {
+        name: "ThirdPartyCPlusPlus"
         prefix: "../3rdparty/cplusplus/"
         files: [
             "AST.cpp",

@@ -15,5 +15,3 @@ resourcewizard.cpp \
 resourceeditorw.cpp
 
 RESOURCES += resourceeditor.qrc
-
-OTHER_FILES += ResourceEditor.mimetypes.xml

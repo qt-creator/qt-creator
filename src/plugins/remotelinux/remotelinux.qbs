@@ -114,6 +114,7 @@ QtcPlugin {
     ]
 
     Export {
+        Depends { name: "AnalyzerBase" }
         Depends { name: "Core" }
         Depends { name: "QtcSsh" }
     }

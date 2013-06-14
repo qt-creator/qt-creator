@@ -8,11 +8,24 @@ import select
 import sys
 import subprocess
 
+proc = subprocess.Popen(args=[sys.argv[1], '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(path, error) = proc.communicate()
 
-proc = subprocess.Popen(args=[sys.argv[1], "-P"], stdout=subprocess.PIPE)
-path = proc.stdout.read().strip()
+if error.startswith('lldb: invalid option -- P'):
+    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'@\n' % sys.argv[1])
+    proc = subprocess.Popen(args=['xcode-select', '--print-path'],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (path, error) = proc.communicate()
+    if len(error):
+        path = '/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
+        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"@\n')
+        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'@\n' % path)
+    else:
+        path = path.strip() + '/../SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
+        sys.stdout.write('msg=\'Using fallback at %s\'@\n' % path)
+
 #sys.path.append(path)
-sys.path.insert(1, path)
+sys.path.insert(1, path.strip())
 
 import lldb
 
@@ -68,6 +81,20 @@ def isSimpleType(typeobj):
     #warn("TYPECLASS: %s" % typeClass)
     return typeClass == lldb.eTypeClassBuiltin
 
+def call2(value, func, args):
+    # args is a tuple.
+    arg = ','.join(args)
+    warn("CALL: %s -> %s(%s)" % (value, func, arg))
+    type = value.type.name
+    exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
+    warn("CALL: %s" % exp)
+    result = value.CreateValueFromExpression('$tmp', exp)
+    warn("  -> %s" % result)
+    return result
+
+def call(value, func, *args):
+    return call2(value, func, args)
+
 #######################################################################
 #
 # Helpers
@@ -97,7 +124,7 @@ def stripForFormat(typeName):
         return qqStripForFormat[typeName]
     stripped = ""
     inArray = 0
-    for c in stripClassTag(typeName):
+    for c in typeName:
         if c == '<':
             break
         if c == ' ':
@@ -136,7 +163,7 @@ def registerDumper(function):
                 pass
 
 def warn(message):
-    print '\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'")
+    print '\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'")
 
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
@@ -279,16 +306,22 @@ def impl_SBValue__int__(self):
 def impl_SBValue__long__(self):
     return int(self.GetValue(), 0)
 
-def impl_SBValue__getitem__(self, name):
-    if self.GetType().IsPointerType() and isinstance(name, int):
-        innertype = self.Dereference().GetType()
-        address = self.GetValueAsUnsigned() + name * innertype.GetByteSize()
-        address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-        return self.CreateValueFromAddress(None, address, innertype)
-    return self.GetChildMemberWithName(name)
+def impl_SBValue__getitem__(value, index):
+    if isinstance(index, int):
+        type = value.GetType()
+        if type.IsPointerType():
+            innertype = value.Dereference().GetType()
+            address = value.GetValueAsUnsigned() + index * innertype.GetByteSize()
+            address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
+            return value.CreateValueFromAddress(None, address, innertype)
+        return value.GetChildAtIndex(index)
+    return value.GetChildMemberWithName(index)
 
 def childAt(value, index):
     return value.GetChildAtIndex(index)
+
+def fieldAt(type, index):
+    return type.GetFieldAtIndex(index)
 
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
@@ -308,6 +341,9 @@ lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
 lldb.SBType.strip_typedefs = lambda self: self.GetCanonicalType()
+
+lldb.SBType.__orig__str__ = lldb.SBType.__str__
+lldb.SBType.__str__ = lldb.SBType.GetName
 
 def simpleEncoding(typeobj):
     code = typeobj.GetTypeClass()
@@ -370,11 +406,12 @@ class Children:
                 self.childNumChild = childNumChild
         try:
             if not addrBase is None and not addrStep is None:
-                self.d.put('addrbase="0x%x",' % long(addrBase))
-                self.d.put('addrstep="0x%x",' % long(addrStep))
+                self.d.put('addrbase="0x%x",' % int(addrBase))
+                self.d.put('addrstep="0x%x",' % int(addrStep))
                 self.printsAddress = False
         except:
             warn("ADDRBASE: %s" % addrBase)
+            warn("ADDRSTEP: %s" % addrStep)
         #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
 
     def __enter__(self):
@@ -408,6 +445,18 @@ class Children:
         return True
 
 
+class NoAddress:
+    def __init__(self, d):
+        self.d = d
+
+    def __enter__(self):
+        self.savedPrintsAddress = self.d.currentPrintsAddress
+        self.d.currentPrintsAddress = False
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        self.d.currentPrintsAddress = self.savedPrintsAddress
+
+
 
 class SubItem:
     def __init__(self, d, component):
@@ -427,6 +476,7 @@ class SubItem:
         if isinstance(self.name, str):
             self.d.put('name="%s",' % self.name)
         self.savedIName = self.d.currentIName
+        self.savedCurrentAddress = self.d.currentAddress
         self.savedValue = self.d.currentValue
         self.savedValuePriority = self.d.currentValuePriority
         self.savedValueEncoding = self.d.currentValueEncoding
@@ -456,6 +506,8 @@ class SubItem:
                 self.d.put('value="%s",' % self.d.currentValue)
         except:
             pass
+        if not self.d.currentAddress is None:
+            self.d.put(self.d.currentAddress)
         self.d.put('},')
         self.d.currentIName = self.savedIName
         self.d.currentValue = self.savedValue
@@ -463,6 +515,7 @@ class SubItem:
         self.d.currentValueEncoding = self.savedValueEncoding
         self.d.currentType = self.savedType
         self.d.currentTypePriority = self.savedTypePriority
+        self.d.currentAddress = self.savedCurrentAddress
         return True
 
 class Dumper:
@@ -486,6 +539,9 @@ class Dumper:
         self.autoDerefPointers = True
         self.useDynamicType = True
         self.useFancy = True
+        self.formats = {}
+        self.typeformats = {}
+        self.currentAddress = None
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -592,12 +648,14 @@ class Dumper:
     def put(self, stuff):
         sys.stdout.write(stuff)
 
+    def putField(self, name, value):
+        self.put('%s="%s",' % (name, value))
+
     def currentItemFormat(self):
-        #format = self.formats.get(self.currentIName)
-        #if format is None:
-        #    format = self.typeformats.get(stripForFormat(str(self.currentType)))
-        #return format
-        return 0
+        format = self.formats.get(self.currentIName)
+        if format is None:
+            format = self.typeformats.get(stripForFormat(str(self.currentType)))
+        return format
 
     def isMovableType(self, type):
         if type.code == PointerCode:
@@ -645,6 +703,9 @@ class Dumper:
         else:
             self.putValue('<%s items>' % count)
 
+    def putName(self, name):
+        self.put('name="%s",' % name)
+
     def isExpanded(self):
         #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
         #    self.expandedINames, self.currentIName in self.expandedINames))
@@ -664,8 +725,11 @@ class Dumper:
         return True
 
     def putPlotData(self, type, base, n, plotFormat):
+        warn("PLOTDATA: %s %s" % (type, n))
         if self.isExpanded():
             self.putArrayData(type, base, n)
+        self.putValue(self.currentValue)
+        self.putField("plottable", "0")
 
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
@@ -675,6 +739,14 @@ class Dumper:
                     base, type.GetByteSize()):
                 for i in self.childRange():
                     self.putSubItem(i, (base + i).dereference())
+
+    def parseAndEvalute(self, expr):
+        return expr
+
+    def putCallItem(self, name, value, func, *args):
+        result = call2(value, func, args)
+        with SubItem(self, name):
+            self.putItem(result)
 
     def childRange(self):
         if self.currentMaxNumChild is None:
@@ -689,7 +761,8 @@ class Dumper:
                self.putFields(value)
 
     def lookupType(self, name):
-        #warn("LOOKUP: %s" % self.target.FindFirstType(name))
+        #warn("LOOKUP TYPE NAME: %s" % name)
+        #warn("LOOKUP RESULT: %s" % self.target.FindFirstType(name))
         return self.target.FindFirstType(name)
 
     def setupInferior(self, args):
@@ -789,20 +862,25 @@ class Dumper:
             n = thread.GetNumFrames()
             if n > 4:
                 n = 4
+            firstUsable = None
             for i in xrange(n):
                 frame = thread.GetFrameAtIndex(i)
                 lineEntry = frame.GetLineEntry()
+                line = lineEntry.GetLine()
+                usable = line != 0
+                if usable and not firstUsable:
+                    firstUsable = i
                 result += '{pc="0x%x"' % frame.GetPC()
                 result += ',level="%d"' % frame.idx
                 result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
                 result += ',func="%s"' % frame.GetFunctionName()
-                result += ',line="%d"' % lineEntry.GetLine()
+                result += ',line="%d"' % line
                 result += ',fullname="%s"' % fileName(lineEntry.file)
-                result += ',usable="1"'
+                result += ',usable="%d"' % usable
                 result += ',file="%s"},' % fileName(lineEntry.file)
-
-            hasmore = '0'
-            result += '],hasmore="%s"},' % hasmore
+            if not firstUsable:
+                firstUsable = 0
+            result += '],hasmore="0",first-usable="%s"},' % firstUsable
             self.report(result)
 
     def putType(self, type, priority = 0):
@@ -863,14 +941,24 @@ class Dumper:
 
     def putSubItem(self, component, value, tryDynamic=True):
         if not value.IsValid():
-            warn("INVALID")
+            warn("INVALID SUBITEM")
             return
         with SubItem(self, component):
             self.putItem(value, tryDynamic)
 
+    def putAddress(self, addr):
+        if self.currentPrintsAddress:
+            try:
+                self.currentAddress = 'addr="0x%s",' % int(addr)
+            except:
+                pass
+
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
+
+        if tryDynamic:
+            self.putAddress(value.address)
 
         # Handle build-in LLDB visualizers if wanted.
         if self.useLldbDumpers and value.GetTypeSynthetic().IsValid():
@@ -899,6 +987,11 @@ class Dumper:
 
         # Our turf now.
         value.SetPreferSyntheticValue(False)
+
+        # Arrays
+        if value.GetType().GetTypeClass() == lldb.eTypeClassArray:
+            qdump____c_style_array__(self, value)
+            return
 
         # References
         if value.GetType().IsReferenceType():
@@ -1013,7 +1106,6 @@ class Dumper:
                 self.reportVariables()
 
     def reportRegisters(self, _ = None):
-        return
         if self.process is None:
             self.report('process="none"')
         else:
@@ -1138,6 +1230,12 @@ class Dumper:
         elif bpType == BreakpointAtMain:
             bpNew = self.target.BreakpointCreateByName(
                 "main", self.target.GetExecutable().GetFilename())
+        elif bpType == BreakpointAtThrow:
+            bpNew = self.target.BreakpointCreateForException(
+                lldb.eLanguageTypeC_plus_plus, False, True)
+        elif bpType == BreakpointAtCatch:
+            bpNew = self.target.BreakpointCreateForException(
+                lldb.eLanguageTypeC_plus_plus, True, False)
         else:
             warn("UNKNOWN TYPE")
         bpNew.SetIgnoreCount(int(args["ignorecount"]))
@@ -1338,16 +1436,19 @@ class Dumper:
         result += ',contents="%s"}' % binascii.hexlify(contents)
         self.report(result)
 
+    def findValueByExpression(self, exp):
+        # FIXME: Top level-only for now.
+        frame = self.currentFrame()
+        value = frame.FindVariable(exp)
+        return value
+
     def assignValue(self, args):
+        error = lldb.SBError()
         exp = binascii.unhexlify(args['exp'])
         value = binascii.unhexlify(args['value'])
-        warn("EXP: %s" % exp)
-        warn("VALUE: %s" % value)
-        lhs = self.dummyValue.CreateValueFromExpression("$$lhs", exp)
-        rhs = self.dummyValue.CreateValueFromExpression("$$rhs", value)
-        warn("LHS: %s" % lhs)
-        warn("RHS: %s" % rhs)
-        #lhs.SetData(rhs.GetData())
+        lhs = self.findValueByExpression(exp)
+        lhs.SetValueFromCString(value, error)
+        self.reportError(error)
         self.reportVariables()
 
     def importDumpers(self, _ = None):
@@ -1447,3 +1548,4 @@ if len(sys.argv) > 2:
     testit()
 else:
     doit()
+

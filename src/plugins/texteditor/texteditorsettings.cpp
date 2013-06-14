@@ -253,6 +253,32 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          tr("Location in the files where the difference is "
                                             "(in diff editor)."), Qt::blue));
 
+    // New diff categories
+    formatDescr.append(FormatDescription(C_DIFF_FILE_LINE, tr("Diff File Line"),
+                                         tr("Applied to lines with file information "
+                                            "in differences (in side-by-side diff editor)."),
+                                         Format(QColor(), QColor(255, 255, 0))));
+    formatDescr.append(FormatDescription(C_DIFF_CONTEXT_LINE, tr("Diff Context Line"),
+                                         tr("Applied to lines describing hidden context "
+                                            "in differences (in side-by-side diff editor)."),
+                                         Format(QColor(), QColor(175, 215, 231))));
+    formatDescr.append(FormatDescription(C_DIFF_SOURCE_LINE, tr("Diff Source Line"),
+                                         tr("Applied to source lines with changes "
+                                            "in differences (in side-by-side diff editor)."),
+                                         Format(QColor(), QColor(255, 223, 223))));
+    formatDescr.append(FormatDescription(C_DIFF_SOURCE_CHAR, tr("Diff Source Character"),
+                                         tr("Applied to removed characters "
+                                            "in differences (in side-by-side diff editor)."),
+                                         Format(QColor(), QColor(255, 175, 175))));
+    formatDescr.append(FormatDescription(C_DIFF_DEST_LINE, tr("Diff Destination Line"),
+                                         tr("Applied to destination lines with changes "
+                                            "in differences (in side-by-side diff editor)."),
+                                         Format(QColor(), QColor(223, 255, 223))));
+    formatDescr.append(FormatDescription(C_DIFF_DEST_CHAR, tr("Diff Destination Character"),
+                                         tr("Applied to added characters "
+                                            "in differences (in side-by-side diff editor)."),
+                                         Format(QColor(), QColor(175, 255, 175))));
+
     m_d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,
                                                    this);

@@ -38,6 +38,8 @@ using namespace QMakeInternal;
 
 #define fL1S(s) QString::fromLatin1(s)
 
+QT_BEGIN_NAMESPACE
+
 QMakeVfs::QMakeVfs()
 #ifndef PROEVALUATOR_FULL
     : m_magicMissing(fL1S("missing"))

@@ -38,6 +38,7 @@
 namespace TextEditor {
 class BaseTextEditorWidget;
 class SnippetEditorWidget;
+class FontSettings;
 }
 
 QT_BEGIN_NAMESPACE
@@ -83,6 +84,10 @@ public:
     void setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory = QString());
     QTextCodec *codec() const;
 
+#ifdef WITH_TESTS
+    void testAssemblyRows();
+#endif // WITH_TESTS
+
 public slots:
     void setContextLinesNumber(int lines);
     void setIgnoreWhitespaces(bool ignore);
@@ -97,6 +102,7 @@ protected:
     TextEditor::SnippetEditorWidget *rightEditor() const;
 
 private slots:
+    void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void leftVSliderChanged();
     void rightVSliderChanged();
     void leftHSliderChanged();
@@ -142,6 +148,13 @@ private:
     bool m_syncScrollBars;
 
     bool m_foldingBlocker;
+
+    QTextCharFormat m_fileLineFormat;
+    QTextCharFormat m_chunkLineFormat;
+    QTextCharFormat m_leftLineFormat;
+    QTextCharFormat m_leftCharFormat;
+    QTextCharFormat m_rightLineFormat;
+    QTextCharFormat m_rightCharFormat;
 };
 
 } // namespace DiffEditor

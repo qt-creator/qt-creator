@@ -67,8 +67,6 @@ namespace DiffEditor {
 namespace Git {
 namespace Internal {
 
-class GitPlugin;
-class GitOutputWindow;
 class CommitData;
 struct GitSubmitEditorPanelData;
 class Stash;
@@ -138,7 +136,6 @@ public:
 
     QString findRepositoryForDirectory(const QString &dir);
     QString findGitDirForRepository(const QString &repositoryDir) const;
-    QString findRepositoryForGitDir(const QString &gitDir) const;
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
     void diff(const QString &workingDirectory, const QStringList &diffArgs,
@@ -204,7 +201,7 @@ public:
                                 QString *errorMessage = 0);
     bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
                               QString *output, QString *errorMessage);
-    bool synchronousShowRefCmd(const QString &workingDirectory, QStringList args,
+    bool synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
                                QString *output, QString *errorMessage);
     bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
                               QString *output, QString *errorMessage);
@@ -353,17 +350,18 @@ private:
                              int editorLineNumber = -1);
 
     VcsBase::Command *executeGit(const QString &workingDirectory,
-                           const QStringList &arguments,
-                           VcsBase::VcsBaseEditorWidget* editor = 0,
-                           bool useOutputToWindow = false,
-                           int editorLineNumber = -1);
+                                 const QStringList &arguments,
+                                 VcsBase::VcsBaseEditorWidget* editor = 0,
+                                 bool useOutputToWindow = false,
+                                 bool expectChanges = false,
+                                 int editorLineNumber = -1);
 
     // Fully synchronous git execution (QProcess-based).
     bool fullySynchronousGit(const QString &workingDirectory,
-                        const QStringList &arguments,
-                        QByteArray* outputText,
-                        QByteArray* errorText = 0,
-                        bool logCommandToWindow = true) const;
+                             const QStringList &arguments,
+                             QByteArray* outputText,
+                             QByteArray* errorText = 0,
+                             unsigned flags = 0) const;
 
     // Synchronous git execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags).
@@ -393,7 +391,6 @@ private:
     mutable unsigned m_cachedGitVersion;
 
     const QString m_msgWait;
-    QSignalMapper *m_repositoryChangedSignalMapper;
     GitSettings *m_settings;
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;

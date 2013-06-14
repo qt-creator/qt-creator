@@ -569,7 +569,7 @@ void RewriterView::resetToLastCorrectQml()
     m_textModifier->textDocument()->undo();
     m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
     ModelAmender differenceHandler(m_textToModelMerger.data());
-    m_textToModelMerger->load(m_textModifier->text().toUtf8(), differenceHandler);
+    m_textToModelMerger->load(m_textModifier->text(), differenceHandler);
 
     leaveErrorState();
 }
@@ -759,7 +759,7 @@ void RewriterView::qmlTextChanged()
         switch (m_differenceHandling) {
             case Validate: {
                 ModelValidator differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler))
+                if (m_textToModelMerger->load(newQmlText, differenceHandler))
                     lastCorrectQmlSource = newQmlText;
                 break;
             }

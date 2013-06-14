@@ -347,6 +347,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     m_extensionCommandPrefixBA("!" QT_CREATOR_CDB_EXT "."),
     m_operateByInstructionPending(true),
     m_operateByInstruction(true), // Default CDB setting
+    m_verboseLogPending(true),
+    m_verboseLog(false), // Default CDB setting
     m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
     m_cdbIs64Bit(false),
@@ -359,7 +361,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
 {
     connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered(bool)),
             this, SLOT(operateByInstructionTriggered(bool)));
-
+    connect(debuggerCore()->action(VerboseLog), SIGNAL(triggered(bool)),
+            this, SLOT(verboseLogTriggered(bool)));
     setObjectName(QLatin1String("CdbEngine"));
     connect(&m_process, SIGNAL(finished(int)), this, SLOT(processFinished()));
     connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processError()));
@@ -376,7 +379,9 @@ void CdbEngine::init()
     m_nextCommandToken  = 0;
     m_currentBuiltinCommandIndex = -1;
     m_operateByInstructionPending = debuggerCore()->action(OperateByInstruction)->isChecked();
+    m_verboseLogPending = debuggerCore()->boolSetting(VerboseLog);
     m_operateByInstruction = true; // Default CDB setting
+    m_verboseLog = false; // Default CDB setting
     m_notifyEngineShutdownOnTermination = false;
     m_hasDebuggee = false;
     m_sourceStepInto = false;
@@ -423,6 +428,13 @@ void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
         syncOperateByInstruction(operateByInstruction);
 }
 
+void CdbEngine::verboseLogTriggered(bool verboseLog)
+{
+    m_verboseLogPending = verboseLog;
+    if (state() == InferiorStopOk)
+        syncVerboseLog(verboseLog);
+}
+
 void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
 {
     if (debug)
@@ -433,6 +445,15 @@ void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
     m_operateByInstruction = operateByInstruction;
     postCommand(m_operateByInstruction ? QByteArray("l-t") : QByteArray("l+t"), 0);
     postCommand(m_operateByInstruction ? QByteArray("l-s") : QByteArray("l+s"), 0);
+}
+
+void CdbEngine::syncVerboseLog(bool verboseLog)
+{
+    if (m_verboseLog == verboseLog)
+        return;
+    QTC_ASSERT(m_accessible, return);
+    m_verboseLog = verboseLog;
+    postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
 bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
@@ -2119,6 +2140,8 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
         qDebug("CdbEngine::handleSessionIdle %dms '%s' in state '%s', special mode %d",
                elapsedLogTime(), messageBA.constData(),
                stateName(state()), m_specialStopMode);
+
+    syncVerboseLog(m_verboseLogPending);
 
     // Switch source level debugging
     syncOperateByInstruction(m_operateByInstructionPending);

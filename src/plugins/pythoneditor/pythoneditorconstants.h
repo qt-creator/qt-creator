@@ -52,27 +52,27 @@ const char C_PY_SOURCE_CONTENT[] =
         "#!/usr/bin/env python\n"
         "# -*- coding: utf-8 -*-\n"
         "\n";
-const char EN_PY_SOURCE_DISPLAY_NAME[] = "Python source file";
+const char EN_PY_SOURCE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("PythonEditor::FileWizard", "Python source file");
 const char EN_PY_SOURCE_DESCRIPTION[] =
-        "Creates an empty python script with utf-8 charset";
+        QT_TRANSLATE_NOOP("PythonEditor::FileWizard", "Creates an empty Python script with UTF-8 charset");
 
     // class
 const char C_PY_CLASS_WIZARD_ID[] = "P.PyClass";
-const char EN_PY_CLASS_DISPLAY_NAME[] = "Python class";
+const char EN_PY_CLASS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "Python class");
 const char EN_PY_CLASS_DESCRIPTION[] =
-        "Creates new Python class";
+        QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "Creates new Python class");
 
     // For future: boost binding
 const char C_PY_CPPMODULE_WIZARD_ID[] = "F.PyCppModule";
-const char EN_PY_CPPMODULE_DISPLAY_NAME[] = "C++ module for Python";
+const char EN_PY_CPPMODULE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "C++ module for Python");
 const char EN_PY_CPPMODULE_DESCRIPTION[] =
-        "Creates C++/boost file with bindings for python";
+        QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "Creates C++/Boost file with bindings for Python");
 
 /*******************************************************************************
  * MIME type
  ******************************************************************************/
 const char C_PY_MIMETYPE[] = "text/x-python";
-const char RC_PY_MIME_XML[] = ":/pythoneditor/pythoneditor.mimetypes.xml";
+const char RC_PY_MIME_XML[] = ":/pythoneditor/PythonEditor.mimetypes.xml";
 const char C_PY_MIME_ICON[] = "text-x-python";
 
 } // namespace Constants

@@ -82,6 +82,8 @@ private slots:
     void test_codegen_definition_first_member();
     void test_codegen_definition_last_member();
     void test_codegen_definition_middle_member();
+    void test_codegen_definition_middle_member_surrounded_by_undefined();
+    void test_codegen_definition_member_specific_file();
 
     void test_completion_forward_declarations_present();
     void test_completion_inside_parentheses_c_style_conversion();
@@ -138,6 +140,13 @@ private slots:
     void test_completion_instantiate_template_with_anonymous_class();
     void test_completion_instantiate_template_function();
     void test_completion_crash_cloning_template_class_QTCREATORBUG9329();
+    void test_completion_recursive_auto_declarations1_QTCREATORBUG9503();
+    void test_completion_recursive_auto_declarations2_QTCREATORBUG9503();
+    void test_completion_recursive_typedefs_declarations1();
+    void test_completion_recursive_typedefs_declarations2();
+    void test_completion_recursive_using_declarations1();
+    void test_completion_recursive_using_declarations2();
+    void test_completion_recursive_using_typedef_declarations();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();

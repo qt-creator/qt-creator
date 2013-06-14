@@ -239,7 +239,8 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     d->m_formatRange = true;
     d->m_matchFormat.setForeground(Qt::red);
     d->m_matchFormat.setBackground(QColor(0xb4, 0xee, 0xb4));
-    d->m_mismatchFormat.setBackground(Qt::magenta);
+    d->m_mismatchFormat.setBackground(palette().color(QPalette::Base).value() < 128
+                                      ? Qt::darkMagenta : Qt::magenta);
     d->m_parenthesesMatchingTimer.setSingleShot(true);
     connect(&d->m_parenthesesMatchingTimer, SIGNAL(timeout()), this, SLOT(_q_matchParentheses()));
 
@@ -3516,9 +3517,13 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 bool selectThis = (hasSelection
                                    && nextBlock.position() >= selectionStart
                                    && nextBlock.position() < selectionEnd);
+                painter.save();
                 if (selectThis) {
-                    painter.save();
                     painter.setBrush(palette().highlight());
+                } else {
+                    QColor rc = replacementPenColor(block.blockNumber());
+                    if (rc.isValid())
+                        painter.setPen(rc);
                 }
 
                 QTextLayout *layout = block.layout();
@@ -3565,8 +3570,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 if (selectThis)
                     painter.setPen(palette().highlightedText().color());
                 painter.drawText(collapseRect, Qt::AlignCenter, replacement);
-                if (selectThis)
-                    painter.restore();
+                painter.restore();
             }
         }
 
@@ -6203,6 +6207,12 @@ bool BaseTextEditorWidget::replacementVisible(int blockNumber) const
 {
     Q_UNUSED(blockNumber)
     return true;
+}
+
+QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
+{
+    Q_UNUSED(blockNumber)
+    return QColor();
 }
 
 void BaseTextEditorWidget::appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
