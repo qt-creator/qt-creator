@@ -312,31 +312,31 @@ const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
         result << res;
     }
 
-    d->addVP(result, tr("duration"), ev->duration );
+    d->addVP(result, tr("Duration"), ev->duration );
 
     if (ev->sgEventType == SceneGraphRenderThread) {
-        d->addVP(result, tr("polish"), ev->timing[14]);
-        d->addVP(result, tr("sync"), ev->timing[0]);
-        d->addVP(result, tr("preprocess"), ev->timing[1]);
-        d->addVP(result, tr("upload"), ev->timing[2]);
-        d->addVP(result, tr("swizzle"), ev->timing[3]);
-        d->addVP(result, tr("convert"), ev->timing[4]);
-        d->addVP(result, tr("mipmap"), ev->timing[5]);
-        d->addVP(result, tr("bind"), ev->timing[6]);
-        d->addVP(result, tr("material"), ev->timing[7]);
-        d->addVP(result, tr("glyph render"), ev->timing[8]);
-        d->addVP(result, tr("glyph store"), ev->timing[9]);
-        d->addVP(result, tr("update"), ev->timing[10]);
-        d->addVP(result, tr("binding"), ev->timing[11]);
-        d->addVP(result, tr("render"), ev->timing[12]);
-        d->addVP(result, tr("swap"), ev->timing[13]);
-        d->addVP(result, tr("animations"), ev->timing[15]);
+        d->addVP(result, tr("Polish"), ev->timing[14]);
+        d->addVP(result, tr("Sync"), ev->timing[0]);
+        d->addVP(result, tr("Preprocess"), ev->timing[1]);
+        d->addVP(result, tr("Upload"), ev->timing[2]);
+        d->addVP(result, tr("Swizzle"), ev->timing[3]);
+        d->addVP(result, tr("Convert"), ev->timing[4]);
+        d->addVP(result, tr("Mipmap"), ev->timing[5]);
+        d->addVP(result, tr("Bind"), ev->timing[6]);
+        d->addVP(result, tr("Material"), ev->timing[7]);
+        d->addVP(result, tr("Glyph Render"), ev->timing[8]);
+        d->addVP(result, tr("Glyph Store"), ev->timing[9]);
+        d->addVP(result, tr("Update"), ev->timing[10]);
+        d->addVP(result, tr("Binding"), ev->timing[11]);
+        d->addVP(result, tr("Render"), ev->timing[12]);
+        d->addVP(result, tr("Swap"), ev->timing[13]);
+        d->addVP(result, tr("Animations"), ev->timing[15]);
     }
     if (ev->sgEventType == SceneGraphGUIThread) {
-        d->addVP(result, tr("polish"), ev->timing[0]);
-        d->addVP(result, tr("wait"), ev->timing[1]);
-        d->addVP(result, tr("sync"), ev->timing[2]);
-        d->addVP(result, tr("animations"), ev->timing[3]);
+        d->addVP(result, tr("Polish"), ev->timing[0]);
+        d->addVP(result, tr("Wait"), ev->timing[1]);
+        d->addVP(result, tr("Sync"), ev->timing[2]);
+        d->addVP(result, tr("Animations"), ev->timing[3]);
     }
 
     return result;
