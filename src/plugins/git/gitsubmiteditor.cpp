@@ -176,6 +176,7 @@ void GitSubmitEditor::updateFileModel()
     CommitData data(m_commitType);
     if (client->getCommitData(m_workingDirectory, &commitTemplate, data, &errorMessage)) {
         setCommitData(data);
+        submitEditorWidget()->refreshLog(m_workingDirectory);
     } else {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
         m_forceClose = true;

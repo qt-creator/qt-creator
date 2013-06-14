@@ -71,6 +71,7 @@ public:
     QString amendSHA1() const;
     void setHasUnmerged(bool e);
     void initialize(CommitType commitType, const QString &repository);
+    void refreshLog(const QString &repository);
 
 protected:
     bool canSubmit() const;
