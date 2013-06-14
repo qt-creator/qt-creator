@@ -44,8 +44,6 @@ QtcPlugin {
         "qmlprofilereventview.h",
         "qmlprofilermodelmanager.cpp",
         "qmlprofilermodelmanager.h",
-        "qmlprofileroverviewmodelproxy.cpp",
-        "qmlprofileroverviewmodelproxy.h",
         "qmlprofilerplugin.cpp",
         "qmlprofilerplugin.h",
         "qmlprofilerprocessedmodel.cpp",

@@ -26,7 +26,6 @@ SOURCES += \
     qmlprofilerprocessedmodel.cpp \
     qmlprofilereventsmodelproxy.cpp \
     qmlprofilertimelinemodelproxy.cpp \
-    qmlprofileroverviewmodelproxy.cpp \
     qmlprofilertreeview.cpp \
     qmlprofilertracefile.cpp \
     abstracttimelinemodel.cpp \
@@ -57,7 +56,6 @@ HEADERS += \
     qmlprofilerprocessedmodel.h \
     qmlprofilereventsmodelproxy.h \
     qmlprofilertimelinemodelproxy.h \
-    qmlprofileroverviewmodelproxy.h \
     qmlprofilertreeview.h \
     qmlprofilertracefile.h \
     abstracttimelinemodel.h \

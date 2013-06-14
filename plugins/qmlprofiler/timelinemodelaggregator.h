@@ -48,6 +48,7 @@ public:
 
 
     Q_INVOKABLE int categories() const;
+    Q_INVOKABLE int visibleCategories() const;
     Q_INVOKABLE QStringList categoryTitles() const;
     QString name() const;
     Q_INVOKABLE int count(int modelIndex = -1) const;
@@ -78,6 +79,7 @@ public:
     int findLastIndex(int modelIndex, qint64 endTime) const;
 
     int getEventType(int modelIndex, int index) const;
+    Q_INVOKABLE int getEventCategoryInModel(int modelIndex, int index) const;
     int getEventRow(int modelIndex, int index) const;
     Q_INVOKABLE qint64 getDuration(int modelIndex, int index) const;
     Q_INVOKABLE qint64 getStartTime(int modelIndex, int index) const;
@@ -85,6 +87,7 @@ public:
     Q_INVOKABLE int getEventId(int modelIndex, int index) const;
     Q_INVOKABLE int getBindingLoopDest(int modelIndex, int index) const;
     Q_INVOKABLE QColor getColor(int modelIndex, int index) const;
+    Q_INVOKABLE QVariantList getColorRGB(int modelIndex, int itemIndex) const;
     Q_INVOKABLE float getHeight(int modelIndex, int index) const;
 
     Q_INVOKABLE const QVariantList getLabelsForCategory(int modelIndex, int category) const;

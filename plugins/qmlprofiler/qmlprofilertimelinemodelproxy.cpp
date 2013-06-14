@@ -541,6 +541,15 @@ int BasicTimelineModel::getEventType(int index) const
     return d->eventDict[d->startTimeData[index].eventId].eventType;
 }
 
+int BasicTimelineModel::getEventCategory(int index) const
+{
+    int evTy = getEventType(index);
+    // special: paint events shown?
+    if (d->categorySpan[0].empty && !isEmpty())
+        return evTy - 1;
+    return evTy;
+}
+
 int BasicTimelineModel::getEventRow(int index) const
 {
     if (d->categorySpan[getEventType(index)].expanded)

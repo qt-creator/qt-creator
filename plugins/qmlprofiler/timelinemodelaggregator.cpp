@@ -107,6 +107,17 @@ int TimelineModelAggregator::categories() const
     return categoryCount;
 }
 
+int TimelineModelAggregator::visibleCategories() const
+{
+    int categoryCount = 0;
+    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
+        for (int i = 0; i < modelProxy->categories(); i++)
+            if (modelProxy->categoryDepth(i) > 0)
+                categoryCount ++;
+    }
+    return categoryCount;
+}
+
 QStringList TimelineModelAggregator::categoryTitles() const
 {
     QStringList retString;
@@ -235,6 +246,11 @@ int TimelineModelAggregator::getEventType(int modelIndex, int index) const
     return d->modelList[modelIndex]->getEventType(index);
 }
 
+int TimelineModelAggregator::getEventCategoryInModel(int modelIndex, int index) const
+{
+    return d->modelList[modelIndex]->getEventCategory(index);
+}
+
 int TimelineModelAggregator::getEventRow(int modelIndex, int index) const
 {
     return d->modelList[modelIndex]->getEventRow(index);
@@ -268,6 +284,17 @@ int TimelineModelAggregator::getBindingLoopDest(int modelIndex,int index) const
 QColor TimelineModelAggregator::getColor(int modelIndex, int index) const
 {
     return d->modelList[modelIndex]->getColor(index);
+}
+
+QVariantList TimelineModelAggregator::getColorRGB(int modelIndex, int itemIndex) const
+{
+    // return color as RGB list, for use in Qml
+    QColor c = getColor(modelIndex, itemIndex);
+    QVariantList res;
+    res.append(QVariant(c.red()));
+    res.append(QVariant(c.green()));
+    res.append(QVariant(c.blue()));
+    return res;
 }
 
 float TimelineModelAggregator::getHeight(int modelIndex, int index) const

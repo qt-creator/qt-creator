@@ -75,6 +75,7 @@ public:
     virtual int findLastIndex(qint64 endTime) const = 0;
 
     virtual int getEventType(int index) const = 0;
+    virtual int getEventCategory(int index) const = 0;
     virtual int getEventRow(int index) const = 0;
     Q_INVOKABLE virtual qint64 getDuration(int index) const = 0;
     Q_INVOKABLE virtual qint64 getStartTime(int index) const = 0;

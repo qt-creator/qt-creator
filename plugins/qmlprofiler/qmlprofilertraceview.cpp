@@ -33,7 +33,6 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilertimelinemodelproxy.h"
 #include "timelinemodelaggregator.h"
-#include "qmlprofileroverviewmodelproxy.h"
 
 // Needed for the load&save actions in the context menu
 #include <analyzerbase/ianalyzertool.h>
@@ -123,9 +122,8 @@ public:
     QDeclarativeView *m_timebar;
     QDeclarativeView *m_overview;
     QmlProfilerModelManager *m_modelManager;
-//    BasicTimelineModel *m_modelProxy;
     TimelineModelAggregator *m_modelProxy;
-    QmlProfilerOverviewModelProxy *m_overviewProxy;
+
 
     ZoomControl *m_zoomControl;
 
@@ -189,14 +187,12 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_modelManager = modelManager;
     d->m_modelProxy = new TimelineModelAggregator(this);
     d->m_modelProxy->setModelManager(modelManager);
-//    d->m_modelProxy = new BasicTimelineModel(modelManager, this);
-    d->m_overviewProxy = new QmlProfilerOverviewModelProxy(modelManager, this);
     connect(d->m_modelManager, SIGNAL(stateChanged()),
             this, SLOT(profilerDataModelStateChanged()));
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
                                                      d->m_modelProxy);
     d->m_overview->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
-                                                     d->m_overviewProxy);
+                                                     d->m_modelProxy);
 
     d->m_profilerState = profilerState;
     connect(d->m_profilerState, SIGNAL(stateChanged()),

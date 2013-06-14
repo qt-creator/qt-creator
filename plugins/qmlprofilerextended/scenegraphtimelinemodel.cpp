@@ -200,7 +200,13 @@ int SceneGraphTimelineModel::getEventType(int index) const
     // TODO fix
     return QmlDebug::PixmapCacheEvent;
     //return QmlDebug::SceneGraphFrameEvent;
-//    return 0;
+    //    return 0;
+}
+
+int SceneGraphTimelineModel::getEventCategory(int index) const
+{
+    Q_UNUSED(index);
+    return 0;
 }
 
 int SceneGraphTimelineModel::getEventRow(int index) const

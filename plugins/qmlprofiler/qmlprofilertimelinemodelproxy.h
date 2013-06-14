@@ -134,6 +134,7 @@ public:
     int findLastIndex(qint64 endTime) const;
 
     int getEventType(int index) const;
+    int getEventCategory(int index) const;
     int getEventRow(int index) const;
     Q_INVOKABLE qint64 getDuration(int index) const;
     Q_INVOKABLE qint64 getStartTime(int index) const;

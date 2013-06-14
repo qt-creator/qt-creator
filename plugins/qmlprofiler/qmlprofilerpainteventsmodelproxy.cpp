@@ -283,6 +283,13 @@ int PaintEventsModelProxy::getEventType(int index) const
     return (int)QmlDebug::Painting;
 }
 
+int PaintEventsModelProxy::getEventCategory(int index) const
+{
+    Q_UNUSED(index);
+    // there is only one category, all events belong to it
+    return 0;
+}
+
 int PaintEventsModelProxy::getEventRow(int index) const
 {
     Q_UNUSED(index);
