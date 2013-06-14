@@ -71,7 +71,7 @@ signals:
     void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
 
     // used internally
-    void logOutput(const QString &output, Core::MessageManager::PrintToOutputPaneFlag flags);
+    void logOutput(const QString &output, Core::MessageManager::PrintToOutputPaneFlags flags);
     void updateQtVersions(const Utils::FileName &qmakeCommand);
 
 private:
