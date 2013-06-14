@@ -52,7 +52,6 @@
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtConcurrent>
 #include <QDir>
 #include <QUrl>
 #include <QFileInfo>
