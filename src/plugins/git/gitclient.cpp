@@ -2350,21 +2350,10 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
         synchronousAbortCommand(workingDirectory, gitCommand);
         break;
     default: // Continue/Skip
-        if (isRebase) {
-            // Git might request an editor, so this must be done asynchronously
-            // and without timeout
-            QStringList arguments;
-            arguments << gitCommand << QLatin1String(hasChanges ? "--continue" : "--skip");
-            outputWindow()->appendCommand(workingDirectory,
-                                          settings()->stringValue(GitSettings::binaryPathKey),
-                                          arguments);
-            VcsBase::Command *command = createCommand(workingDirectory, 0, true);
-            new ConflictHandler(command, workingDirectory, gitCommand);
-            command->addJob(arguments, -1);
-            command->execute();
-        } else {
+        if (isRebase)
+            rebase(workingDirectory, QLatin1String(hasChanges ? "--continue" : "--skip"));
+        else
             GitPlugin::instance()->startCommit();
-        }
     }
 }
 
@@ -2997,17 +2986,20 @@ bool GitClient::canRebase(const QString &workingDirectory) const
     return true;
 }
 
-bool GitClient::synchronousRebase(const QString &workingDirectory, const QString &baseBranch,
-                                  const QString &topicBranch)
+void GitClient::rebase(const QString &workingDirectory, const QString &baseBranch)
 {
-    QString command = QLatin1String("rebase");
+    // Git might request an editor, so this must be done asynchronously
+    // and without timeout
+    QString gitCommand = QLatin1String("rebase");
     QStringList arguments;
-
-    arguments << command << baseBranch;
-    if (!topicBranch.isEmpty())
-        arguments << topicBranch;
-
-    return executeAndHandleConflicts(workingDirectory, arguments, command);
+    arguments << gitCommand << baseBranch;
+    outputWindow()->appendCommand(workingDirectory,
+                                  settings()->stringValue(GitSettings::binaryPathKey),
+                                  arguments);
+    VcsBase::Command *command = createCommand(workingDirectory, 0, true);
+    new ConflictHandler(command, workingDirectory, gitCommand);
+    command->addJob(arguments, -1);
+    command->execute();
 }
 
 bool GitClient::synchronousRevert(const QString &workingDirectory, const QString &commit)

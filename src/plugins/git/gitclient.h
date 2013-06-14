@@ -240,9 +240,7 @@ public:
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch);
     bool canRebase(const QString &workingDirectory) const;
-    bool synchronousRebase(const QString &workingDirectory,
-                           const QString &baseBranch,
-                           const QString &topicBranch = QString());
+    void rebase(const QString &workingDirectory, const QString &baseBranch);
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
     void interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup);

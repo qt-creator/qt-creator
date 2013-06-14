@@ -1149,13 +1149,13 @@ void GitPlugin::continueOrAbortCommand()
     if (action == m_abortMergeAction)
         m_gitClient->synchronousMerge(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_abortRebaseAction)
-        m_gitClient->synchronousRebase(state.topLevel(), QLatin1String("--abort"));
+        m_gitClient->rebase(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_abortCherryPickAction)
         m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_abortRevertAction)
         m_gitClient->synchronousRevert(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_continueRebaseAction)
-        m_gitClient->synchronousRebase(state.topLevel(), QLatin1String("--continue"));
+        m_gitClient->rebase(state.topLevel(), QLatin1String("--continue"));
     else if (action == m_continueCherryPickAction)
         m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--continue"));
     else if (action == m_continueRevertAction)

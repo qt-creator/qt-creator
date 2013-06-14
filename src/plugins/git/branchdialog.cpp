@@ -303,7 +303,7 @@ void BranchDialog::rebase()
     const QString baseBranch = m_model->branchName(idx);
     GitClient *client = GitPlugin::instance()->gitClient();
     if (client->beginStashScope(m_repository, QLatin1String("rebase")))
-        client->synchronousRebase(m_repository, baseBranch);
+        client->rebase(m_repository, baseBranch);
 }
 
 QModelIndex BranchDialog::selectedIndex()
