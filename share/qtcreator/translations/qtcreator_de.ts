@@ -1777,7 +1777,7 @@
     <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
-        <translation>Gehe zu Mode &lt;b&gt;&apos;%1&apos;&lt;/b&gt;</translation>
+        <translation>Gehe zu Modus &lt;b&gt;&apos;%1&apos;&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -5693,7 +5693,7 @@ Jetzt Commit durchführen?</translation>
     </message>
     <message>
         <source>Actions on Commits...</source>
-        <translation>Aktionen bei Commits...</translation>
+        <translation>Aktionen mit Commits...</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -6287,7 +6287,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Previous Page</source>
-        <translation>Vorangehender Seite</translation>
+        <translation>Vorangehende Seite</translation>
     </message>
     <message>
         <source>Next Page</source>
