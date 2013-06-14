@@ -3003,10 +3003,13 @@ QString GitClient::synchronousTrackingBranch(const QString &workingDirectory, co
 void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit,
                                      const QStringList &files, const QString &abortCommand)
 {
-    Q_UNUSED(files);
-
-    QString message = commit.isEmpty() ? tr("Conflicts detected")
-                                       : tr("Conflicts detected with commit %1").arg(commit);
+    QString message;
+    if (!commit.isEmpty())
+        message = tr("Conflicts detected with commit %1").arg(commit);
+    else if (!files.isEmpty())
+        message = tr("Conflicts detected with files:\n") + files.join(QLatin1String("\n"));
+    else
+        message = tr("Conflicts detected");
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
                              QMessageBox::NoButton, Core::ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
