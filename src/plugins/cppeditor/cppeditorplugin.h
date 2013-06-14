@@ -162,6 +162,7 @@ private slots:
     void test_quickfix_InsertDefFromDecl_insideClass();
     void test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists();
     void test_quickfix_InsertDefFromDecl_notTriggeringStatement();
+    void test_quickfix_InsertDefFromDecl_findRightImplementationFile();
 
     void test_quickfix_InsertDeclFromDef();
 

@@ -1126,6 +1126,58 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringStatement()
     data.run(&factory);
 }
 
+/// Find right implementation file.
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFile()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "struct Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a();\n"
+        "    void b@();\n"
+        "};\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File #1
+    original =
+            "#include \"file.h\"\n"
+            "\n"
+            "Foo::Foo()\n"
+            "{\n\n"
+            "}\n"
+            "\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+
+    // Source File #2
+    original =
+            "#include \"file.h\"\n"
+            "\n"
+            "void Foo::a()\n"
+            "{\n\n"
+            "}\n";
+    expected = original +
+            "\n"
+            "void Foo::b()\n"
+            "{\n\n"
+            "}\n"
+            "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file2.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {
