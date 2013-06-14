@@ -309,7 +309,7 @@ public:
     StashInfo &stashInfo(const QString &workingDirectory);
     void endStashScope(const QString &workingDirectory);
     bool isValidRevision(const QString &revision) const;
-    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
+    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QStringList &files, const QString &abortCommand);
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);

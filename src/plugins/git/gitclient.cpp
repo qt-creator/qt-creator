@@ -637,7 +637,7 @@ class ConflictHandler : public QObject
 public:
     ConflictHandler(VcsBase::Command *parentCommand,
                     const QString &workingDirectory,
-                    const QString &command)
+                    const QString &command = QString())
         : QObject(parentCommand),
           m_workingDirectory(workingDirectory),
           m_command(command)
@@ -652,19 +652,24 @@ public:
     ~ConflictHandler()
     {
         GitClient *client = GitPlugin::instance()->gitClient();
-        if (m_commit.isEmpty()) {
+        if (m_commit.isEmpty() && m_files.isEmpty()) {
             if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
                 client->endStashScope(m_workingDirectory);
         } else {
-            client->handleMergeConflicts(m_workingDirectory, m_commit, m_command);
+            client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_command);
         }
     }
 
     void readStdOutString(const QString &data)
     {
         static QRegExp patchFailedRE(QLatin1String("Patch failed at ([^\\n]*)"));
+        static QRegExp conflictedFilesRE(QLatin1String("Merge conflict in ([^\\n]*)"));
         if (patchFailedRE.indexIn(data) != -1)
             m_commit = patchFailedRE.cap(1);
+        int fileIndex = -1;
+        while ((fileIndex = conflictedFilesRE.indexIn(data, fileIndex + 1)) != -1) {
+            m_files.append(conflictedFilesRE.cap(1));
+        }
     }
 public slots:
     void readStdOut(const QByteArray &data)
@@ -682,6 +687,7 @@ private:
     QString m_workingDirectory;
     QString m_command;
     QString m_commit;
+    QStringList m_files;
 };
 
 
@@ -2900,8 +2906,10 @@ QString GitClient::synchronousTrackingBranch(const QString &workingDirectory, co
 }
 
 void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit,
-                                     const QString &abortCommand)
+                                     const QStringList &files, const QString &abortCommand)
 {
+    Q_UNUSED(files);
+
     QString message = commit.isEmpty() ? tr("Conflicts detected")
                                        : tr("Conflicts detected with commit %1").arg(commit);
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
@@ -2911,7 +2919,8 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
     mergeOrAbort.addButton(QMessageBox::Ignore);
     if (abortCommand == QLatin1String("rebase"))
         mergeOrAbort.addButton(tr("&Skip"), QMessageBox::RejectRole);
-    mergeOrAbort.addButton(QMessageBox::Abort);
+    if (!abortCommand.isEmpty())
+        mergeOrAbort.addButton(QMessageBox::Abort);
     switch (mergeOrAbort.exec()) {
     case QMessageBox::Abort:
         synchronousAbortCommand(workingDir, abortCommand);
@@ -2921,7 +2930,7 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
     default: // Merge or Skip
         if (mergeOrAbort.clickedButton() == mergeToolButton) {
             merge(workingDir);
-        } else {
+        } else if (!abortCommand.isEmpty()) {
             QStringList arguments = QStringList() << abortCommand << QLatin1String("--skip");
             executeAndHandleConflicts(workingDir, arguments, abortCommand);
         }
@@ -3054,7 +3063,8 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
     arguments << QLatin1String("pop");
     if (!stash.isEmpty())
         arguments << stash;
-    executeGit(workingDirectory, arguments, 0, true, true);
+    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true, true);
+    new ConflictHandler(cmd, workingDirectory);
 }
 
 void GitClient::stashPop(const QString &workingDirectory)
