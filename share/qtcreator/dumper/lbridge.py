@@ -851,6 +851,16 @@ class Dumper:
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
+    def firstUsableFrame(self):
+        thread = self.currentThread()
+        for i in xrange(4):
+            frame = thread.GetFrameAtIndex(i)
+            lineEntry = frame.GetLineEntry()
+            line = lineEntry.GetLine()
+            if line != 0:
+                return i
+        return None
+
     def reportStack(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
@@ -862,14 +872,11 @@ class Dumper:
             n = thread.GetNumFrames()
             if n > 4:
                 n = 4
-            firstUsable = None
             for i in xrange(n):
                 frame = thread.GetFrameAtIndex(i)
                 lineEntry = frame.GetLineEntry()
                 line = lineEntry.GetLine()
                 usable = line != 0
-                if usable and not firstUsable:
-                    firstUsable = i
                 result += '{pc="0x%x"' % frame.GetPC()
                 result += ',level="%d"' % frame.idx
                 result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
@@ -878,9 +885,7 @@ class Dumper:
                 result += ',fullname="%s"' % fileName(lineEntry.file)
                 result += ',usable="%d"' % usable
                 result += ',file="%s"},' % fileName(lineEntry.file)
-            if not firstUsable:
-                firstUsable = 0
-            result += '],hasmore="0",first-usable="%s"},' % firstUsable
+            result += '],hasmore="0"},'
             self.report(result)
 
     def putType(self, type, priority = 0):
@@ -1171,7 +1176,15 @@ class Dumper:
                 self.report('exited={status="%s",desc="%s"}'
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
-            self.reportData()
+            state = self.process.GetState()
+            if state == lldb.eStateStopped:
+                usableFrame = self.firstUsableFrame()
+                if usableFrame:
+                    self.currentThread().SetSelectedFrame(usableFrame)
+                self.reportStack()
+                self.reportThreads()
+                self.reportLocation()
+                self.reportVariables()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
