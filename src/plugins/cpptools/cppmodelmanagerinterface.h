@@ -212,6 +212,8 @@ public:
     virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
     virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const = 0;
 
+    virtual QStringList includePaths() = 0;
+
     virtual void addEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual void removeEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *editor) = 0;

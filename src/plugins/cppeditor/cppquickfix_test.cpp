@@ -344,18 +344,25 @@ private:
     const QString m_include;
 };
 
+QString includeBaseDirectory()
+{
+    return QLatin1String(SRCDIR)
+        + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data");
+}
+
+QString globalQtCoreIncludePath()
+{
+    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/QtCore"));
+}
+
 QString globalIncludePath()
 {
-    const QString path = QLatin1String(SRCDIR)
-        + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data/global");
-    return QDir::cleanPath(path);
+    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/global"));
 }
 
 QString directoryOfTestFile()
 {
-    const QString path = QLatin1String(SRCDIR)
-        + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data/local");
-    return QDir::cleanPath(path);
+    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/local"));
 }
 
 } // anonymous namespace
@@ -1738,6 +1745,32 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(globalIncludePath()));
+    data.run(&factory);
+}
+
+/// Check: If a "Qt Class" was not found by the locator, check the header files in the Qt
+/// include paths
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomethingInQtIncludePaths()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+        "@QDir dir;\n"
+        ;
+    expected =
+        "#include <QDir>\n"
+        "\n"
+        "QDir dir;\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+                                      + QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles, QStringList(globalQtCoreIncludePath()));
     data.run(&factory);
 }
 

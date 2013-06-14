@@ -184,6 +184,7 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
     void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCppStyleCommentOnTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCStyleCommentOnTop();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomethingInQtIncludePaths();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutside1();

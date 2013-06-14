@@ -1856,10 +1856,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     }
     if (!inProject) {
         // better use all include paths than none
-        foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
-            foreach (ProjectPart::Ptr part, info.projectParts())
-                includePaths += part->includePaths;
-        }
+        includePaths = modelManager->includePaths();
     }
 
     // find a include file through the locator
@@ -1897,14 +1894,34 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
         }
     }
 
-    // for QSomething, propose a <QSomething> include -- if such a class was in the locator
-    if (classExists
-            && className.size() > 2
+    const bool isProbablyAQtClass = className.size() > 2
             && className.at(0) == QLatin1Char('Q')
-            && className.at(1).isUpper()) {
+            && className.at(1).isUpper();
+
+    if (!isProbablyAQtClass)
+        return;
+
+    // for QSomething, propose a <QSomething> include -- if such a class was in the locator
+    if (classExists) {
         const QString include = QLatin1Char('<') + className + QLatin1Char('>');
         result += CppQuickFixOperation::Ptr(
-            new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
+                    new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
+
+    // otherwise, check for a header file with the same name in the Qt include paths
+    } else {
+        foreach (const QString &includePath, includePaths) {
+            if (!includePath.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
+                continue;
+
+            const QString headerPathCandidate = includePath + QLatin1Char('/') + className;
+            const QFileInfo fileInfo(headerPathCandidate);
+            if (fileInfo.exists() && fileInfo.isFile()) {
+                const QString include = QLatin1Char('<') + className + QLatin1Char('>');
+                result += CppQuickFixOperation::Ptr(
+                            new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
+                break;
+            }
+        }
     }
 }
 
