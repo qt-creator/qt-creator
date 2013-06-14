@@ -1212,7 +1212,7 @@ bool QMakeEvaluator::loadSpec()
     m_qmakespec = QDir::cleanPath(qmakespec);
 
     if (!m_superfile.isEmpty()
-        && evaluateFile(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue) {
+        && evaluateFile(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly|LoadHidden) != ReturnTrue) {
         return false;
     }
     if (!loadSpecInternal())
@@ -1803,7 +1803,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFile(
         m_current = m_locationStack.pop();
         pro->deref();
 #ifdef PROEVALUATOR_FULL
-        if (ok == ReturnTrue) {
+        if (ok == ReturnTrue && !(flags & LoadHidden)) {
             ProStringList &iif = m_valuemapStack.first()[ProKey("QMAKE_INTERNAL_INCLUDED_FILES")];
             ProString ifn(fileName);
             if (!iif.contains(ifn))
