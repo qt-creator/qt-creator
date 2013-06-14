@@ -550,9 +550,14 @@ void AndroidManager::updateTarget(ProjectExplorer::Target *target, const QString
 {
     QString androidDir = dirPath(target).toString();
 
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    QString javaHome = AndroidConfigurations::instance().config().openJDKLocation.toString();
+    if (!javaHome.isEmpty())
+        env.set(QLatin1String("JAVA_HOME"), javaHome);
     // clean previous build
     QProcess androidProc;
     androidProc.setWorkingDirectory(androidDir);
+    androidProc.setProcessEnvironment(env.toProcessEnvironment());
     androidProc.start(AndroidConfigurations::instance().antToolPath().toString(),
                       QStringList() << QLatin1String("clean"));
     if (!androidProc.waitForFinished(-1))

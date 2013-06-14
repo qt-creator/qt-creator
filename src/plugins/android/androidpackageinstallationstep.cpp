@@ -31,6 +31,11 @@
 #include "androidmanager.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <utils/hostosinfo.h>
+
+#include <QDir>
 
 using namespace Android::Internal;
 
@@ -50,6 +55,14 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::
 
 bool AndroidPackageInstallationStep::init()
 {
-    setUserArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(AndroidManager::dirPath(target()).toUserOutput()));
+    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
+    if (!bc)
+        bc = target()->activeBuildConfiguration();
+    QString dirPath = AndroidManager::dirPath(target()).toString();
+    if (Utils::HostOsInfo::isWindowsHost())
+        if (bc->environment().searchInPath(QLatin1String("sh.exe")).isEmpty())
+            dirPath = QDir::toNativeSeparators(dirPath);
+    setUserArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(dirPath));
+
     return MakeStep::init();
 }

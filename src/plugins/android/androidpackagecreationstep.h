@@ -35,6 +35,7 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildstep.h>
+#include <utils/environment.h>
 
 #include <QAbstractItemModel>
 
@@ -113,6 +114,7 @@ private:
     static const Core::Id CreatePackageId;
 
 private:
+    void handleProcessOutput(QProcess *process, bool stdErr);
     Utils::FileName m_keystorePath;
     QString m_keystorePasswd;
     QString m_certificateAlias;
@@ -139,10 +141,10 @@ private:
     QStringList m_qtLibsWithDependencies;
     QVector<AndroidManager::Library> m_availableQtLibs;
     QStringList m_prebundledLibs;
-
     QStringList m_bundledJars;
     QStringList m_otherBundledFiles;
     bool m_bundleQt;
+    Utils::Environment m_environment;
 };
 
 } // namespace Internal
