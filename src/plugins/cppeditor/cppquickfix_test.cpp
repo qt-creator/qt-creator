@@ -408,6 +408,99 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
     data.run(&factory);
 }
 
+/// Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
+/// generated definitions should fit in the namespace.
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace()
+{
+    const QByteArray original =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int @it;\n"
+        "};\n"
+        "}\n";
+
+    const QByteArray expected =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int value);\n"
+        "};\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        "}\n\n";
+
+    GenerateGetterSetter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
+/// generated definitions should fit in the namespace.
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int @it;\n"
+        "};\n"
+        "}\n";
+    expected =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int value);\n"
+        "};\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    GenerateGetterSetter factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
 /// Checks:
 /// 1. Getter: "get" prefix is not necessary.
 /// 2. Setter: Parameter name is base name.
@@ -1855,6 +1948,53 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
         "    return 5;\n"
         "}\n"
         "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace SomeNamespace {\n"
+        "class Foo {\n"
+        "  int ba@r()\n"
+        "  {\n"
+        "    return 5;\n"
+        "  }\n"
+        "};\n"
+        "}\n";
+    expected =
+        "namespace SomeNamespace {\n"
+        "class Foo {\n"
+        "  int ba@r();\n"
+        "};\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "\n"
+        "}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "\n"
+        "int Foo::bar()\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n"
+        "\n"
+        "}\n\n";
     testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
 
     MoveFuncDefOutside factory;

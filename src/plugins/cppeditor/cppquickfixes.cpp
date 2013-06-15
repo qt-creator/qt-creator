@@ -143,7 +143,7 @@ enum DefPos {
     DefPosImplementationFile
 };
 
-InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
+InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool useSymbolFinder,
                                                     CppRefactoringChanges& refactoring,
                                                     const QString& fileName)
 {
@@ -151,8 +151,8 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
 
     // Try to find optimal location
     const InsertionPointLocator locator(refactoring);
-    const QList<InsertionLocation> list = locator.methodDefinition(symbol, symbol->asDeclaration(),
-                                                                   fileName);
+    const QList<InsertionLocation> list
+            = locator.methodDefinition(symbol, useSymbolFinder, fileName);
     for (int i = 0; i < list.count(); ++i) {
         InsertionLocation location = list.at(i);
         if (location.isValid() && location.fileName() == fileName) {
@@ -2624,7 +2624,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             // Insert Position: Implementation File
                             if (isHeaderFile && !cppFileName.isEmpty()) {
                                 CppRefactoringChanges refactoring(interface->snapshot());
-                                loc = insertLocationForMethodDefinition(decl, refactoring,
+                                loc = insertLocationForMethodDefinition(decl, true, refactoring,
                                                                         cppFileName);
                                 if (loc.isValid()) {
                                     op = new InsertDefOperation(interface, decl, loc,
@@ -2648,7 +2648,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
 
                             // Insert Position: Outside Class
                             CppRefactoringChanges refactoring(interface->snapshot());
-                            loc = insertLocationForMethodDefinition(decl, refactoring,
+                            loc = insertLocationForMethodDefinition(decl, true, refactoring,
                                                                     interface->fileName());
                             if (loc.isValid()) {
                                 op = new InsertDefOperation(interface, decl, loc,
@@ -2914,17 +2914,17 @@ public:
         currChanges.insert(declInsertPos, declaration);
 
         if (sameFile) {
-            const int pos = currentFile->endOf(m_classDecl) + 1;
-            unsigned  line, column;
-            currentFile->lineAndColumn(pos, &line, &column);
-            const int insertPos = currentFile->position(line + 1, 1) - 1;
-            currChanges.insert(insertPos < 0 ? pos : insertPos, implementation);
+            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false, refactoring,
+                                                                      currentFile->fileName());
+            currChanges.insert(currentFile->position(loc.line(), loc.column()), implementation);
         } else {
-            CppRefactoringChanges implRefactoring(snapshot());
-            CppRefactoringFilePtr implFile = implRefactoring.file(implFileName);
+            CppRefactoringChanges implRef(snapshot());
+            CppRefactoringFilePtr implFile = implRef.file(implFileName);
             ChangeSet implChanges;
-            const int implInsertPos = implFile->document()->characterCount() - 1;
-            implChanges.insert(implInsertPos, implementation);
+            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false,
+                                                                      implRef, implFileName);
+            const int implInsertPos = implFile->position(loc.line(), loc.column());
+            implChanges.insert(implFile->position(loc.line(), loc.column()), implementation);
             implFile->setChangeSet(implChanges);
             implFile->appendIndentRange(
                 ChangeSet::Range(implInsertPos, implInsertPos + implementation.size()));
@@ -3778,8 +3778,8 @@ public:
                                                                : refactoring.file(m_cppFileName);
 
         // Determine file, insert position and scope
-        InsertionLocation l = insertLocationForMethodDefinition(m_func, refactoring,
-                                                                toFile->fileName());
+        InsertionLocation l
+                = insertLocationForMethodDefinition(m_func, false, refactoring, toFile->fileName());
         const QString prefix = l.prefix();
         const QString suffix = l.suffix();
         const int insertPos = toFile->position(l.line(), l.column());

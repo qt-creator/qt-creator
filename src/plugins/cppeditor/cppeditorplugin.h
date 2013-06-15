@@ -136,6 +136,8 @@ private slots:
     void test_doxygen_comments_cpp_styleA_corner_case();
 
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefix();
+    void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace();
+    void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
     void test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix();
     void test_quickfix_GenerateGetterSetter_customType();
     void test_quickfix_GenerateGetterSetter_constMember();
@@ -188,6 +190,7 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomethingInQtIncludePaths();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutside1();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutside2();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS();
