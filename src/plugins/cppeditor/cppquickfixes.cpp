@@ -161,15 +161,28 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
         }
     }
 
-    // ...failed, so return location at end of file
+    // ...failed,
+    // if class member try to get position right after class
     CppRefactoringFilePtr file = refactoring.file(fileName);
+    unsigned line = 0, column = 0;
+    if (Class *clazz = symbol->enclosingClass()) {
+        if (symbol->fileName() == fileName.toUtf8()) {
+            file->cppDocument()->translationUnit()->getPosition(clazz->endOffset(), &line, &column);
+            if (line != 0) {
+                ++column; // Skipping the ";"
+                return InsertionLocation(fileName, QLatin1String("\n\n"), QLatin1String(""),
+                                         line, column);
+            }
+        }
+    }
+
+    // fall through: position at end of file
     const QTextDocument *doc = file->document();
     int pos = qMax(0, doc->characterCount() - 1);
 
     //TODO watch for matching namespace
     //TODO watch for moc-includes
 
-    unsigned line, column;
     file->lineAndColumn(pos, &line, &column);
     return InsertionLocation(fileName, QLatin1String("\n\n"), QLatin1String("\n"), line, column);
 }

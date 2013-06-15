@@ -151,6 +151,7 @@ private slots:
     void test_quickfix_ReformatPointerDeclaration();
 
     void test_quickfix_InsertDefFromDecl_basic();
+    void test_quickfix_InsertDefFromDecl_afterClass();
     void test_quickfix_InsertDefFromDecl_headerSource_basic1();
     void test_quickfix_InsertDefFromDecl_headerSource_basic2();
     void test_quickfix_InsertDefFromDecl_headerSource_namespace1();
@@ -196,6 +197,7 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS();
     void test_quickfix_MoveFuncDefOutside_CtorWithInitialization1();
     void test_quickfix_MoveFuncDefOutside_CtorWithInitialization2();
+    void test_quickfix_MoveFuncDefOutside_afterClass();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();

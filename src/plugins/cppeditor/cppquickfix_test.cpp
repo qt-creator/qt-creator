@@ -781,6 +781,50 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_basic()
     data.run(&factory);
 }
 
+/// Check if definition is inserted right after class for insert definition outside
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a@();\n"
+        "};\n"
+        "\n"
+        "class Bar {};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a();\n"
+        "};\n"
+        "\n"
+        "void Foo::a()\n"
+        "{\n\n}\n"
+        "\n"
+        "class Bar {};\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::Foo()\n"
+        "{\n\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory, 1);
+}
+
 /// Check from header file: If there is a source file, insert the definition in the source file.
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
 {
@@ -1877,7 +1921,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
         "    void f3();\n"
         "};\n"
         "\n"
-        "\n"
         "int Foo::f2()\n"
         "{\n"
         "    return 1;\n"
@@ -2178,6 +2221,49 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
     data.run(&factory);
+}
+
+/// Check if definition is inserted right after class for move definition outside
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a@() {}\n"
+        "};\n"
+        "\n"
+        "class Bar {};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a();\n"
+        "};\n"
+        "\n"
+        "void Foo::a() {}\n"
+        "\n"
+        "class Bar {};\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::Foo()\n"
+        "{\n\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory, 1);
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
