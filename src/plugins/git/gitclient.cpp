@@ -1787,6 +1787,17 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     }
 }
 
+bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)
+{
+    QStringList arguments;
+    QByteArray outputText;
+    arguments << QLatin1String("branch") << QLatin1String("-r")
+              << QLatin1String("--contains") << commit;
+    fullySynchronousGit(workingDirectory, arguments, &outputText, 0,
+                        VcsBasePlugin::SuppressCommandLogging);
+    return !outputText.isEmpty();
+}
+
 // Format an entry in a one-liner for selection list using git log.
 QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
                                             const QString &format)
@@ -3167,13 +3178,16 @@ bool GitClient::synchronousRevert(const QString &workingDirectory, const QString
 
 bool GitClient::synchronousCherryPick(const QString &workingDirectory, const QString &commit)
 {
-    QStringList arguments;
     const QString command = QLatin1String("cherry-pick");
-    // Do not stash if --continue or --abort is given as the commit
-    if (!commit.startsWith(QLatin1Char('-')) && !beginStashScope(workingDirectory, command))
+    // "commit" might be --continue or --abort
+    const bool isRealCommit = !commit.startsWith(QLatin1Char('-'));
+    if (isRealCommit && !beginStashScope(workingDirectory, command))
         return false;
 
-    arguments << command << commit;
+    QStringList arguments(command);
+    if (isRealCommit && isRemoteCommit(workingDirectory, commit))
+        arguments << QLatin1String("-x");
+    arguments << commit;
 
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }

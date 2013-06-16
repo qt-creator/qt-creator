@@ -235,6 +235,7 @@ public:
     QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
     void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
                                   QByteArray &precedes, QByteArray &follows);
+    bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
     QString vcsGetRepositoryURL(const QString &directory);
