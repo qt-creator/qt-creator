@@ -26,8 +26,8 @@
 
     The Qt Build Suite (Qbs) and the Qbs plugin are still experimental, and
     therefore, you must first enable the plugin manually. If you build \QC
-    yourself from our git repository, you also need to fetch the Qbs submodule to
-    get Qbs support. See \l{Enabling the Qbs Plugin} below.
+    yourself from our Git repository, you also need to fetch the Qbs submodule
+    to get Qbs support.
 
     To use Qbs to build a project, you must create a .qbs file for the project.
     For more information, see the
