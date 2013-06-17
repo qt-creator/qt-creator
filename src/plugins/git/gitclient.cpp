@@ -57,6 +57,7 @@
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <diffeditor/diffeditor.h>
+#include <diffeditor/diffshoweditor.h>
 #include <diffeditor/diffeditorconstants.h>
 
 #include <QCoreApplication>
@@ -130,10 +131,12 @@ public:
     void show(const QString &id);
 
 private slots:
+    void slotShowDescriptionReceived(const QByteArray &data);
     void slotFileListReceived(const QByteArray &data);
     void slotFileContentsReceived(const QByteArray &data);
 
 private:
+    void collectShowDescription(const QString &id);
     void collectFilesList(const QStringList &additionalArguments);
     void prepareForCollection();
     void collectFilesContents();
@@ -246,7 +249,32 @@ void GitDiffHandler::show(const QString &id)
     Revision end(Other, id);
     m_requestedRevisionRange = RevisionRange(begin, end);
 
-    collectFilesList(QStringList() << begin.id << end.id);
+    collectShowDescription(id);
+}
+
+void GitDiffHandler::collectShowDescription(const QString &id)
+{
+    m_editor->clear(m_waitMessage);
+    VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
+    connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotShowDescriptionReceived(QByteArray)));
+    QStringList arguments;
+    arguments << QLatin1String("show") << QLatin1String("-s") << QLatin1String("--format=fuller") << id;
+    command->addJob(arguments, m_timeout);
+    command->execute();
+}
+
+void GitDiffHandler::slotShowDescriptionReceived(const QByteArray &data)
+{
+    const QString description = m_editor->editorWidget()->codec()->toUnicode(data).remove(QLatin1Char('\r'));
+
+    DiffEditor::DiffShowEditor *editor = qobject_cast<DiffEditor::DiffShowEditor *>(m_editor);
+    if (editor) {
+        editor->setDescription(description);
+    }
+
+    collectFilesList(QStringList()
+                     << m_requestedRevisionRange.begin.id
+                     << m_requestedRevisionRange.end.id);
 }
 
 void GitDiffHandler::collectFilesList(const QStringList &additionalArguments)
@@ -820,7 +848,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
 }
 
 DiffEditor::DiffEditor *GitClient::findExistingOrOpenNewDiffEditor(const char *registerDynamicProperty,
-    const QString &dynamicPropertyValue, const QString &titlePattern) const
+    const QString &dynamicPropertyValue, const QString &titlePattern, const Core::Id editorId) const
 {
     Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     if (outputEditor) {
@@ -831,12 +859,11 @@ DiffEditor::DiffEditor *GitClient::findExistingOrOpenNewDiffEditor(const char *r
 
     DiffEditor::DiffEditor *editor = qobject_cast<DiffEditor::DiffEditor *>(outputEditor);
     if (!editor) {
-        const Core::Id editorId = DiffEditor::Constants::DIFF_EDITOR_ID;
         QString title = titlePattern;
         editor = qobject_cast<DiffEditor::DiffEditor *>(
                     Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait));
         editor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-        Core::EditorManager::activateEditor(editor); // should probably go outside this block
+        Core::EditorManager::activateEditor(editor);
     }
     return editor;
 }
@@ -894,7 +921,11 @@ void GitClient::diff(const QString &workingDirectory,
     const int timeout = settings()->intValue(GitSettings::timeoutKey);
 
     if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
-        DiffEditor::DiffEditor *editor = findExistingOrOpenNewDiffEditor("originalFileName", workingDirectory, title);
+        DiffEditor::DiffEditor *editor = findExistingOrOpenNewDiffEditor(
+                    "originalFileName",
+                    workingDirectory,
+                    title,
+                    DiffEditor::Constants::DIFF_EDITOR_ID);
 
         GitDiffHandler *handler = new GitDiffHandler(editor, gitBinaryPath(), workingDirectory, processEnvironment(), timeout);
 
@@ -969,7 +1000,11 @@ void GitClient::diff(const QString &workingDirectory,
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
     if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
         const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
-        DiffEditor::DiffEditor *editor = findExistingOrOpenNewDiffEditor("originalFileName", sourceFile, title);
+        DiffEditor::DiffEditor *editor = findExistingOrOpenNewDiffEditor(
+                    "originalFileName",
+                    sourceFile,
+                    title,
+                    DiffEditor::Constants::DIFF_EDITOR_ID);
 
         if (!fileName.isEmpty()) {
             int timeout = settings()->intValue(GitSettings::timeoutKey);
@@ -1009,8 +1044,11 @@ void GitClient::diffBranch(const QString &workingDirectory,
 {
     const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
     if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
-        DiffEditor::DiffEditor *editor =
-                findExistingOrOpenNewDiffEditor("BranchName", branchName, title);
+        DiffEditor::DiffEditor *editor = findExistingOrOpenNewDiffEditor(
+                    "BranchName",
+                    branchName,
+                    title,
+                    DiffEditor::Constants::DIFF_EDITOR_ID);
 
         int timeout = settings()->intValue(GitSettings::timeoutKey);
         GitDiffHandler *handler = new GitDiffHandler(editor, gitBinaryPath(), workingDirectory, processEnvironment(), timeout);
@@ -1118,7 +1156,11 @@ void GitClient::show(const QString &source, const QString &id,
     const QFileInfo sourceFi(source);
     const QString workDir = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
     if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
-        DiffEditor::DiffEditor *editor = findExistingOrOpenNewDiffEditor("show", id, title);
+        DiffEditor::DiffEditor *editor = findExistingOrOpenNewDiffEditor(
+                    "show",
+                    id,
+                    title,
+                    DiffEditor::Constants::DIFF_SHOW_EDITOR_ID);
 
         int timeout = settings()->intValue(GitSettings::timeoutKey);
         GitDiffHandler *handler = new GitDiffHandler(editor, gitBinaryPath(),

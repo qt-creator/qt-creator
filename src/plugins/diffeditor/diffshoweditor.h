@@ -27,42 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORPLUGIN_H
-#define DIFFEDITORPLUGIN_H
+#ifndef DIFFSHOWEDITOR_H
+#define DIFFSHOWEDITOR_H
 
 #include "diffeditor_global.h"
+#include "diffeditor.h"
 
-#include <extensionsystem/iplugin.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
+
+QT_BEGIN_NAMESPACE
+class QToolButton;
+QT_END_NAMESPACE
 
 namespace DiffEditor {
 
 namespace Internal {
+class DiffEditorFile;
+}
 
-class DiffEditorPlugin : public ExtensionSystem::IPlugin
+class DIFFEDITOR_EXPORT DiffShowEditor : public DiffEditor
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
+public:
+    explicit DiffShowEditor(DiffEditorWidget *editorWidget);
+    virtual ~DiffShowEditor();
 
 public:
-    DiffEditorPlugin();
-    ~DiffEditorPlugin();
+    void setDescription(const QString &description);
+    // Core::IEditor
+    QString displayName() const;
+    void setDisplayName(const QString &title);
+    Core::Id id() const;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    QWidget *toolBar();
 
 private slots:
-    void diff();
-
-#ifdef WITH_TESTS
-    void testAssemblyRows();
-#endif // WITH_TESTS
+    void setDescriptionVisible(bool visible);
 
 private:
-    QString getFileContents(const QString &fileName, QTextCodec *codec) const;
+    void updateEntryToolTip();
 
+    TextEditor::BaseTextEditorWidget *m_diffShowWidget;
+    mutable QString m_displayName;
+    QToolButton *m_toggleDescriptionButton;
 };
 
-} // namespace Internal
 } // namespace DiffEditor
 
-#endif // DIFFEDITORPLUGIN_H
+#endif // DIFFEDITOR_H

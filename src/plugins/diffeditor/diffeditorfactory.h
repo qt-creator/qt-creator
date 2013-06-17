@@ -27,42 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORPLUGIN_H
-#define DIFFEDITORPLUGIN_H
+#ifndef DIFFEDITORFACTORY_H
+#define DIFFEDITORFACTORY_H
 
 #include "diffeditor_global.h"
 
-#include <extensionsystem/iplugin.h>
+#include <QStringList>
+
+#include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace DiffEditor {
 
 namespace Internal {
 
-class DiffEditorPlugin : public ExtensionSystem::IPlugin
+class DiffEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
 
 public:
-    DiffEditorPlugin();
-    ~DiffEditorPlugin();
+    explicit DiffEditorFactory(QObject *parent);
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-
-private slots:
-    void diff();
-
-#ifdef WITH_TESTS
-    void testAssemblyRows();
-#endif // WITH_TESTS
+    QStringList mimeTypes() const;
+    Core::IEditor *createEditor(QWidget *parent);
+    Core::Id id() const;
+    QString displayName() const;
 
 private:
-    QString getFileContents(const QString &fileName, QTextCodec *codec) const;
-
+    const QStringList m_mimeTypes;
 };
 
 } // namespace Internal
 } // namespace DiffEditor
 
-#endif // DIFFEDITORPLUGIN_H
+#endif // DIFFEDITORFACTORY_H

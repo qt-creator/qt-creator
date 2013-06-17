@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITOREDITABLE_H
-#define DIFFEDITOREDITABLE_H
+#ifndef DIFFEDITOR_H
+#define DIFFEDITOR_H
 
 #include "diffeditor_global.h"
 #include "diffeditorwidget.h"
@@ -77,16 +77,18 @@ public slots:
 private slots:
     void entryActivated(int index);
 
+protected:
+    QToolBar *m_toolWidget;
+
 private:
     void updateEntryToolTip();
 
     Internal::DiffEditorFile *m_file;
     DiffEditorWidget *m_editorWidget;
-    QToolBar *m_toolWidget;
     QComboBox *m_entriesComboBox;
     mutable QString m_displayName;
 };
 
 } // namespace DiffEditor
 
-#endif // DIFFEDITOREDITABLE_H
+#endif // DIFFEDITOR_H

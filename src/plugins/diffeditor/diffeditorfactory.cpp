@@ -27,42 +27,44 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORPLUGIN_H
-#define DIFFEDITORPLUGIN_H
+#include "diffeditorfactory.h"
+#include "diffeditor.h"
+#include "diffeditorwidget.h"
+#include "diffeditorconstants.h"
 
-#include "diffeditor_global.h"
-
-#include <extensionsystem/iplugin.h>
+#include <QCoreApplication>
 
 namespace DiffEditor {
 
 namespace Internal {
 
-class DiffEditorPlugin : public ExtensionSystem::IPlugin
+DiffEditorFactory::DiffEditorFactory(QObject *parent)
+    : IEditorFactory(parent),
+      m_mimeTypes(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE))
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
+}
 
-public:
-    DiffEditorPlugin();
-    ~DiffEditorPlugin();
+Core::Id DiffEditorFactory::id() const
+{
+    return Constants::DIFF_EDITOR_ID;
+}
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+QString DiffEditorFactory::displayName() const
+{
+    return qApp->translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME);
+}
 
-private slots:
-    void diff();
+Core::IEditor *DiffEditorFactory::createEditor(QWidget *parent)
+{
+    DiffEditorWidget *editorWidget = new DiffEditorWidget(parent);
+    DiffEditor *editor = new DiffEditor(editorWidget);
+    return editor;
+}
 
-#ifdef WITH_TESTS
-    void testAssemblyRows();
-#endif // WITH_TESTS
-
-private:
-    QString getFileContents(const QString &fileName, QTextCodec *codec) const;
-
-};
+QStringList DiffEditorFactory::mimeTypes() const
+{
+    return m_mimeTypes;
+}
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFEDITORPLUGIN_H

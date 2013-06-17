@@ -333,7 +333,8 @@ private:
                                                   const QString &dynamicPropertyValue) const;
     DiffEditor::DiffEditor *findExistingOrOpenNewDiffEditor(const char *registerDynamicProperty,
                                                const QString &dynamicPropertyValue,
-                                               const QString &titlePattern) const;
+                                               const QString &titlePattern,
+                                               const Core::Id editorId) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
