@@ -48,7 +48,6 @@ class QMLDESIGNERCORE_EXPORT NodeProperty : public NodeAbstractProperty
 public:
     void setModelNode(const ModelNode &modelNode);
     ModelNode modelNode() const;
-    QmlObjectNode fxObjectNode() const;
 
     void reparentHere(const ModelNode &modelNode);
 
