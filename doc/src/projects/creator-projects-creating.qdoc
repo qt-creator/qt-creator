@@ -204,6 +204,12 @@
                 Subprojects that enable you to structure your qmake projects as
                 a tree hierarchy
 
+            \li Code Snippet
+
+                Creates a qmake project from a code snippet. When fixing bug
+                reports that contain a code snippet, you can place the code
+                snippet into a project to compile and check it.
+
         \endlist
 
         \li Non-Qt Projects
