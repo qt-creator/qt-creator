@@ -539,7 +539,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         if (local->children.at(pos)->name > name)
             break;
     }
-    BranchNode *newNode = new BranchNode(name, sha(startPoint), trackedBranch);
+    BranchNode *newNode = new BranchNode(name, sha(startPoint), track ? trackedBranch : QString());
     beginInsertRows(index(0, 0), pos, pos);
     newNode->parent = local;
     local->children.insert(pos, newNode);
