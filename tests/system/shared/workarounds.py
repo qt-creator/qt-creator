@@ -100,6 +100,7 @@ class JIRA:
         def __init__(self, number, bugType):
             self._number = number
             self._bugType = bugType
+            self._fix = None
             self._localOnly = os.getenv("SYSTEST_JIRA_NO_LOOKUP")=="1"
             self.__initBugDict__()
             self._fetchResults_ = {}
