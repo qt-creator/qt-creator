@@ -64,6 +64,7 @@ def main():
     installLazySignalHandler(":*Qt Creator_Help::Internal::HelpViewer", "loadFinished(bool)",
                              "webPageContentLoaded")
     setAlwaysStartFullHelp()
+    addCurrentCreatorDocumentation()
     if not test.verify(checkIfObjectExists(gettingStartedText),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):
         mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
