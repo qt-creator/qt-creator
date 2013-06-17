@@ -2169,7 +2169,7 @@ class Dumper:
                 if not isNull(p):
                     objectName = p.dereference()["objectName"]
             if not objectName is None:
-                data, size, alloc = qStringData(self, objectName)
+                data, size, alloc = self.stringData(objectName)
                 if size > 0:
                     str = readRawMemory(data, 2 * size)
                     self.putValue(str, Hex4EncodedLittleEndian, 1)

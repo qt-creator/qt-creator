@@ -18,23 +18,23 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
-def qByteArrayData(d, value):
-    private = value['d'].dereference()
-    checkRef(private['ref'])
-    size = int(private['size'])
-    alloc = int(private['alloc'])
+def qByteArrayDataData(d, value):
+    checkRef(value['ref'])
+    size = int(value['size'])
+    alloc = int(value['alloc'])
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        addr = d.addressOf(private) + int(private['offset'])
+        addr = d.addressOf(value) + int(value['offset'])
     except:
         # Qt 4:
-        addr = private['data']
+        addr = value['data']
     return createPointerValue(value, addr, d.charType()), size, alloc
 
-qStringData = qByteArrayData
+def qByteArrayData(d, value):
+    return d.byteArrayDataData(value['d'].dereference())
 
 def qEncodeByteArray(d, value, limit = None):
-    data, size, alloc = qByteArrayData(d, value)
+    data, size, alloc = d.byteArrayData(value)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     limit = d.computeLimit(size, limit)
@@ -44,7 +44,7 @@ def qEncodeByteArray(d, value, limit = None):
     return s
 
 def qEncodeString(d, value, limit = 0):
-    data, size, alloc = qStringData(d, value)
+    data, size, alloc = d.stringData(value)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     limit = d.computeLimit(size, limit)
@@ -52,12 +52,6 @@ def qEncodeString(d, value, limit = 0):
     if limit < size:
         s += "2e002e002e00"
     return s
-
-def qPutByteArrayValue(d, value):
-    d.putValue(qEncodeByteArray(d, value), Hex2EncodedLatin1)
-
-def qPutStringValue(d, value):
-    d.putValue(qEncodeString(d, value), Hex4EncodedLittleEndian)
 
 def mapForms():
     return "Normal,Compact"
@@ -87,10 +81,14 @@ def qPutMapName(d, value):
 
 Dumper.encodeByteArray = qEncodeByteArray
 Dumper.byteArrayData = qByteArrayData
-Dumper.putByteArrayValue = qPutByteArrayValue
+Dumper.byteArrayDataData = qByteArrayDataData
+Dumper.putByteArrayValue = \
+    lambda d, value: d.putValue(d.encodeByteArray(value), Hex2EncodedLatin1)
+Dumper.putStringValue = \
+    lambda d, value: d.putValue(d.encodeString(value), Hex4EncodedLittleEndian)
+
 Dumper.encodeString = qEncodeString
-Dumper.stringData = qStringData
-Dumper.putStringValue = qPutStringValue
+Dumper.stringData = Dumper.byteArrayData
 Dumper.putMapName = qPutMapName
 
 Dumper.isMapCompact = \
@@ -144,22 +142,29 @@ def qdump__QBasicAtomicPointer(d, value):
         with Children(d):
            d.putItem(value["_q_value"])
 
+def qdump__QByteArrayData(d, value):
+    data, size, alloc = d.byteArrayDataData(value)
+    d.putValue(d.readRawMemory(data, size), Hex2EncodedLatin1)
+    d.putNumChild(size)
+    if d.isExpanded():
+        d.putArrayData(d.charType(), data, size)
+
 def qform__QByteArray():
     return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
 
 def qdump__QByteArray(d, value):
     d.putByteArrayValue(value)
-    data, size, alloc = qByteArrayData(d, value)
+    data, size, alloc = d.byteArrayData(value)
     d.putNumChild(size)
     format = d.currentItemFormat()
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayLatin1String)
-        d.putField("editvalue", qEncodeByteArray(d, value, None))
+        d.putField("editvalue", d.encodeByteArray(value, None))
     elif format == 3:
         d.putField("editformat", DisplayUtf8String)
-        d.putField("editvalue", qEncodeByteArray(d, value, None))
+        d.putField("editvalue", d.encodeByteArray(value, None))
     if d.isExpanded():
         d.putArrayData(d.charType(), data, size)
 
@@ -1067,7 +1072,7 @@ def qdump__QObject(d, value):
                         for i in xrange(dynamicPropertyCount):
                             with SubItem(d, i):
                                 pp = p.cast(namesType.pointer()).dereference();
-                                d.putField("key", qEncodeByteArray(d, pp))
+                                d.putField("key", d.encodeByteArray(pp))
                                 d.putField("keyencoded", Hex2EncodedLatin1)
                                 qq = q.cast(valuesType.pointer().pointer())
                                 qq = qq.dereference();
@@ -1623,7 +1628,7 @@ def qdump__QString(d, value):
 
 def qdump__QStringRef(d, value):
     s = value["m_string"].dereference()
-    data, size, alloc = qStringData(d, s)
+    data, size, alloc = d.stringData(s)
     data += 2 * int(value["m_position"])
     size = value["m_size"]
     s = d.readRawMemory(data, 2 * size)
@@ -2909,9 +2914,9 @@ if False:
     def qdump__basic__Function(d, value):
         min = value["min"]
         max = value["max"]
-        data, size, alloc = qByteArrayData(d, value["var"])
+        data, size, alloc = d.byteArrayData(value["var"])
         var = extractCString(data, 0)
-        data, size, alloc = qByteArrayData(d, value["f"])
+        data, size, alloc = d.byteArrayData(value["f"])
         f = extractCString(data, 0)
         d.putValue("%s, %s=%f..%f" % (f, var, min, max))
         d.putNumChild(0)
