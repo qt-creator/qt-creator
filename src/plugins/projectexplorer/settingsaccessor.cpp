@@ -494,6 +494,7 @@ SettingsAccessor::SettingsAccessor(Project *project) :
     addVersionHandler(new Version9Handler);
     addVersionHandler(new Version10Handler);
     addVersionHandler(new Version11Handler);
+    addVersionHandler(new Version12Handler);
 }
 
 SettingsAccessor::~SettingsAccessor()
