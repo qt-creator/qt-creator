@@ -621,12 +621,10 @@ QString BranchModel::toolTip(const QString &sha) const
     // Show the sha description excluding diff as toolTip
     QString output;
     QString errorMessage;
-    if (!m_client->synchronousShow(m_workingDirectory, sha, &output, &errorMessage))
+    QStringList arguments(QLatin1String("-n1"));
+    arguments << sha;
+    if (!m_client->synchronousLog(m_workingDirectory, arguments, &output, &errorMessage))
         return errorMessage;
-    // Remove 'diff' output
-    const int diffPos = output.indexOf(QLatin1String("\ndiff --"));
-    if (diffPos != -1)
-        output.remove(diffPos, output.size() - diffPos);
     return output;
 }
 
