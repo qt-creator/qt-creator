@@ -404,6 +404,24 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 13 reflects the move of environment settings from LocalApplicationRunConfiguration
+// into the EnvironmentAspect
+class Version13Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+         return 13;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.8");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 } // namespace
 
 //
@@ -495,6 +513,7 @@ SettingsAccessor::SettingsAccessor(Project *project) :
     addVersionHandler(new Version10Handler);
     addVersionHandler(new Version11Handler);
     addVersionHandler(new Version12Handler);
+    addVersionHandler(new Version13Handler);
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -2723,6 +2742,24 @@ QVariantMap Version12Handler::update(Project *project, const QVariantMap &map)
                  || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase")
                  || it.key() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.BaseEnvironmentBase"))
             result.insert(QLatin1String("PE.BaseEnvironmentBase"), it.value());
+        else
+            result.insert(it.key(), it.value());
+    }
+    return result;
+}
+
+QVariantMap Version13Handler::update(Project *project, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value().type() == QVariant::Map)
+            result.insert(it.key(), update(project, it.value().toMap()));
+        else if (it.key() == QLatin1String("PE.UserEnvironmentChanges"))
+            result.insert(QLatin1String("PE.EnvironmentAspect.Changes"), it.value());
+        else if (it.key() == QLatin1String("PE.BaseEnvironmentBase"))
+            result.insert(QLatin1String("PE.EnvironmentAspect.Base"), it.value());
         else
             result.insert(it.key(), it.value());
     }
