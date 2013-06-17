@@ -95,6 +95,7 @@
     as part of the APK, select the \gui {Bundle Qt libraries in APK} option.
     This is the default option
     when developing with Qt 5.
+    It is not supported when developing with Qt 4.
 
     \section1 Using Ministro to Install Qt Libraries
 
