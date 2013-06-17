@@ -513,19 +513,20 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     return false;
 }
 
-QModelIndex BranchModel::addBranch(const QString &branchName, bool track, const QString &startPoint)
+QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModelIndex &startPoint)
 {
     if (!m_rootNode || !m_rootNode->count())
         return QModelIndex();
 
+    const QString trackedBranch = branchName(startPoint);
     QString output;
     QString errorMessage;
 
     QStringList args;
     args << (track ? QLatin1String("--track") : QLatin1String("--no-track"));
-    args << branchName;
-    if (!startPoint.isEmpty())
-        args << startPoint;
+    args << name;
+    if (!trackedBranch.isEmpty())
+        args << trackedBranch;
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
@@ -535,21 +536,10 @@ QModelIndex BranchModel::addBranch(const QString &branchName, bool track, const 
     BranchNode *local = m_rootNode->children.at(0);
     int pos = 0;
     for (pos = 0; pos < local->count(); ++pos) {
-        if (local->children.at(pos)->name > branchName)
+        if (local->children.at(pos)->name > name)
             break;
     }
-    BranchNode *newNode = new BranchNode(branchName);
-
-    // find the sha of the new branch:
-    output = toolTip(branchName); // abuse toolTip to get the data;-)
-    QStringList lines = output.split(QLatin1Char('\n'));
-    foreach (const QString &l, lines) {
-        if (l.startsWith(QLatin1String("commit "))) {
-            newNode->sha = l.mid(7, 8);
-            break;
-        }
-    }
-
+    BranchNode *newNode = new BranchNode(name, sha(startPoint), trackedBranch);
     beginInsertRows(index(0, 0), pos, pos);
     newNode->parent = local;
     local->children.insert(pos, newNode);

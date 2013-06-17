@@ -121,12 +121,13 @@ void BranchDialog::refresh()
 
 void BranchDialog::add()
 {
-    QString trackedBranch = m_model->branchName(selectedIndex());
-    bool isLocal = m_model->isLocal(selectedIndex());
+    QModelIndex trackedIndex = selectedIndex();
+    QString trackedBranch = m_model->branchName(trackedIndex);
     if (trackedBranch.isEmpty()) {
-        trackedBranch = m_model->branchName(m_model->currentBranch());
-        isLocal = true;
+        trackedIndex = m_model->currentBranch();
+        trackedBranch = m_model->branchName(trackedIndex);
     }
+    const bool isLocal = m_model->isLocal(trackedIndex);
 
     QStringList localNames = m_model->localBranchNames();
 
@@ -143,7 +144,7 @@ void BranchDialog::add()
     branchAddDialog.setTrackedBranchName(trackedBranch, !isLocal);
 
     if (branchAddDialog.exec() == QDialog::Accepted && m_model) {
-        QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(), trackedBranch);
+        QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(), trackedIndex);
         m_ui->branchView->selectionModel()->select(idx, QItemSelectionModel::Clear
                                                         | QItemSelectionModel::Select
                                                         | QItemSelectionModel::Current);
