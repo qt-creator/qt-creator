@@ -20830,7 +20830,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Valgrind Suppression Files</source>
-        <translation>Valgrind-Ausschlußdateien</translation>
+        <translation>Valgrind-Ausschlussdateien</translation>
     </message>
     <message>
         <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
