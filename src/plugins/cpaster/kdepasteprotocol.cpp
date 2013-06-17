@@ -199,7 +199,8 @@ void KdePasteProtocol::list()
 {
     QTC_ASSERT(!m_listReply, return);
 
-    QString url = QLatin1String(hostUrlC) + QLatin1String("api/xml/all");
+    // Trailing slash is important to prevent redirection.
+    QString url = QLatin1String(hostUrlC) + QLatin1String("api/xml/all/");
     m_listReply = httpGet(url);
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
     if (debug)
