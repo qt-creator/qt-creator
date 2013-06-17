@@ -258,6 +258,12 @@ void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr fil
     file->apply();
 }
 
+bool nameIncludesOperatorName(const Name *name)
+{
+    return name->isOperatorNameId()
+        || (name->isQualifiedNameId() && name->asQualifiedNameId()->name()->isOperatorNameId());
+}
+
 } // anonymous namespace
 
 namespace {
@@ -2482,10 +2488,12 @@ class InsertDefOperation: public CppQuickFixOperation
 public:
     // Make sure that either loc is valid or targetFileName is not empty.
     InsertDefOperation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
-                       Declaration *decl, const InsertionLocation &loc, const DefPos defpos,
-                       const QString &targetFileName = QString(), bool freeFunction = false)
+                       Declaration *decl, DeclaratorAST *declAST, const InsertionLocation &loc,
+                       const DefPos defpos, const QString &targetFileName = QString(),
+                       bool freeFunction = false)
         : CppQuickFixOperation(interface, 0)
         , m_decl(decl)
+        , m_declAST(declAST)
         , m_loc(loc)
         , m_defpos(defpos)
         , m_targetFileName(targetFileName)
@@ -2558,6 +2566,11 @@ public:
             const FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
 
             // rewrite the function name
+            if (nameIncludesOperatorName(m_decl->name())) {
+                CppRefactoringFilePtr file = refactoring.file(fileName());
+                const QString operatorNameText = file->textOf(m_declAST->core_declarator);
+                oo.includeWhiteSpaceInOperatorName = operatorNameText.contains(QLatin1Char(' '));
+            }
             const QString name = oo.prettyName(LookupContext::minimalName(m_decl, targetCoN,
                                                                           control));
 
@@ -2590,6 +2603,7 @@ public:
 
 private:
     Declaration *m_decl;
+    DeclaratorAST *m_declAST;
     InsertionLocation m_loc;
     const DefPos m_defpos;
     const QString m_targetFileName;
@@ -2622,6 +2636,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             }
 
                             // Insert Position: Implementation File
+                            DeclaratorAST *declAST = simpleDecl->declarator_list->value;
                             InsertDefOperation *op = 0;
                             ProjectFile::Kind kind = ProjectFile::classify(interface->fileName());
                             const bool isHeaderFile = ProjectFile::isHeader(kind);
@@ -2634,7 +2649,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                 foreach (const InsertionLocation &location,
                                          locator.methodDefinition(decl, false, QString())) {
                                     if (location.isValid()) {
-                                        op = new InsertDefOperation(interface, decl,
+                                        op = new InsertDefOperation(interface, decl, declAST,
                                                                     InsertionLocation(),
                                                                     DefPosImplementationFile,
                                                                     location.fileName());
@@ -2649,8 +2664,8 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
 
                             // Insert Position: Outside Class
                             if (!isFreeFunction) {
-                                op = new InsertDefOperation(interface, decl, InsertionLocation(),
-                                                            DefPosOutsideClass,
+                                op = new InsertDefOperation(interface, decl, declAST,
+                                                            InsertionLocation(), DefPosOutsideClass,
                                                             interface->fileName());
                                 result.append(CppQuickFixOperation::Ptr(op));
                             }
@@ -2663,8 +2678,9 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             const InsertionLocation loc
                                     = InsertionLocation(interface->fileName(), QString(), QString(),
                                                         line, column);
-                            op = new InsertDefOperation(interface, decl, loc, DefPosInsideClass,
-                                                        QString() , isFreeFunction);
+                            op = new InsertDefOperation(interface, decl, declAST, loc,
+                                                        DefPosInsideClass, QString(),
+                                                        isFreeFunction);
                             result.append(CppQuickFixOperation::Ptr(op));
 
                             return;
@@ -3719,14 +3735,19 @@ void ApplyDeclDefLinkChanges::match(const CppQuickFixInterface &interface,
 
 namespace {
 
-QString getDefinitionSignature(const CppQuickFixAssistInterface *assist, Function *func,
-                               CppRefactoringFilePtr &file, Scope *scope)
+QString definitionSignature(const CppQuickFixAssistInterface *assist,
+                            FunctionDefinitionAST *functionDefinitionAST,
+                            CppRefactoringFilePtr &baseFile,
+                            CppRefactoringFilePtr &targetFile,
+                            Scope *scope)
 {
     QTC_ASSERT(assist, return QString());
-    QTC_ASSERT(func, return QString());
+    QTC_ASSERT(functionDefinitionAST, return QString());
     QTC_ASSERT(scope, return QString());
+    Function *func = functionDefinitionAST->symbol;
+    QTC_ASSERT(func, return QString());
 
-    LookupContext cppContext(file->cppDocument(), assist->snapshot());
+    LookupContext cppContext(targetFile->cppDocument(), assist->snapshot());
     ClassOrNamespace *cppCoN = cppContext.lookupType(scope);
     if (!cppCoN)
         cppCoN = cppContext.globalNamespace();
@@ -3740,10 +3761,16 @@ QString getDefinitionSignature(const CppQuickFixAssistInterface *assist, Functio
     oo.showFunctionSignatures = true;
     oo.showReturnTypes = true;
     oo.showArgumentNames = true;
+    const Name *name = func->name();
+    if (nameIncludesOperatorName(name)) {
+        CoreDeclaratorAST *coreDeclarator = functionDefinitionAST->declarator->core_declarator;
+        const QString operatorNameText = baseFile->textOf(coreDeclarator);
+        oo.includeWhiteSpaceInOperatorName = operatorNameText.contains(QLatin1Char(' '));
+    }
+    const QString nameText = oo.prettyName(LookupContext::minimalName(func, cppCoN, control));
     const FullySpecifiedType tn = rewriteType(func->type(), &env, control);
-    const QString name = oo.prettyName(LookupContext::minimalName(func, cppCoN, control));
 
-    return oo.prettyType(tn, name);
+    return oo.prettyType(tn, nameText);
 }
 
 class MoveFuncDefOutsideOp : public CppQuickFixOperation
@@ -3791,8 +3818,9 @@ public:
         Scope *scopeAtInsertPos = toFile->cppDocument()->scopeAt(l.line(), l.column());
 
         // construct definition
-        const QString funcDec = getDefinitionSignature(assistInterface(), m_func, toFile,
-                                                       scopeAtInsertPos);
+        const QString funcDec = definitionSignature(assistInterface(), m_funcDef,
+                                                    fromFile, toFile,
+                                                    scopeAtInsertPos);
         QString funcDef = prefix + funcDec;
         const int startPosition = fromFile->endOf(m_funcDef->declarator);
         const int endPosition = fromFile->endOf(m_funcDef->function_body);

@@ -1178,6 +1178,58 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFil
     data.run(&factory);
 }
 
+/// Check if whitespace is respected for operator functions
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    Foo &opera@tor =();\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo &operator =();\n"
+        "};\n"
+        "\n"
+        "\n"
+        "Foo &Foo::operator =()\n"
+        "{\n"
+        "\n"
+        "}\n"
+        "\n";
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check if whitespace is respected for operator functions
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    Foo &opera@tor=();\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo &operator=();\n"
+        "};\n"
+        "\n"
+        "\n"
+        "Foo &Foo::operator=()\n"
+        "{\n"
+        "\n"
+        "}\n"
+        "\n";
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {
@@ -2456,6 +2508,52 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
     data.run(&factory, 1);
+}
+
+/// Check if whitespace is respected for operator functions
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames1()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    Foo &opera@tor =() {}\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo &operator =();\n"
+        "};\n"
+        "\n"
+        "\n"
+        "Foo &Foo::operator =() {}\n"
+        "\n";
+
+    MoveFuncDefOutside factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check if whitespace is respected for operator functions
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    Foo &opera@tor=() {}\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo &operator=();\n"
+        "};\n"
+        "\n"
+        "\n"
+        "Foo &Foo::operator=() {}\n"
+        "\n";
+
+    MoveFuncDefOutside factory;
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()

@@ -105,7 +105,9 @@ void NamePrettyPrinter::visit(const DestructorNameId *name)
 
 void NamePrettyPrinter::visit(const OperatorNameId *name)
 {
-    _name += QLatin1String("operator ");
+    _name += QLatin1String("operator");
+    if (_overview->includeWhiteSpaceInOperatorName)
+        _name += QLatin1Char(' ');
     switch (name->kind()) { // ### i should probably do this in OperatorNameId
     case OperatorNameId::InvalidOp:
         _name += QLatin1String("<invalid>");
