@@ -29,7 +29,10 @@
 
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
+
+#ifdef Q_OS_WIN
 #include <utils/winutils.h>
+#endif
 
 static const char FILE_POS_PATTERN[] = "(cl|LINK|.+) : ";
 static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
@@ -54,8 +57,12 @@ static QPair<Utils::FileName, int> parseFileName(const QString &input)
             }
         }
     }
-    return qMakePair(Utils::FileName::fromUserInput(Utils::normalizePathName(fileName)),
-                     linenumber);
+#ifdef Q_OS_WIN
+    const QString normalized = Utils::normalizePathName(fileName);
+#else
+    const QString normalized = fileName;
+#endif
+    return qMakePair(Utils::FileName::fromUserInput(normalized), linenumber);
 }
 
 using namespace ProjectExplorer;
