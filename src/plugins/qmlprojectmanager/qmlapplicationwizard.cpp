@@ -79,7 +79,9 @@ void QmlApplicationWizard::createInstances(ExtensionSystem::IPlugin *plugin)
         BaseFileWizardParameters parameters;
         parameters.setDisplayName(templateInfo.displayName);
         parameters.setDescription(templateInfo.description);
-        parameters.setDescriptionImage(templateInfo.templatePath + QLatin1String("/template.png"));
+        const QString imagePath = templateInfo.templatePath + QLatin1String("/template.png");
+        if (QFileInfo(imagePath).exists())
+            parameters.setDescriptionImage(imagePath);
         parameters.setCategory(
                     QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
         parameters.setDisplayCategory(
