@@ -70,7 +70,7 @@ MaemoPublisherFremantleFree::MaemoPublisherFremantleFree(const ProjectExplorer::
     m_state(Inactive),
     m_uploader(0)
 {
-    m_sshParams.authenticationType = SshConnectionParameters::AuthenticationByKey;
+    m_sshParams.authenticationType = SshConnectionParameters::AuthenticationTypePublicKey;
     m_sshParams.timeout = 30;
     m_sshParams.port = 22;
     m_process = new QProcess(this);

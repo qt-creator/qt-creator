@@ -103,7 +103,7 @@ void SshOutgoingPacket::generateServiceRequest(const QByteArray &service)
     init(SSH_MSG_SERVICE_REQUEST).appendString(service).finalize();
 }
 
-void SshOutgoingPacket::generateUserAuthByPwdRequestPacket(const QByteArray &user,
+void SshOutgoingPacket::generateUserAuthByPasswordRequestPacket(const QByteArray &user,
     const QByteArray &service, const QByteArray &pwd)
 {
     init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service)
@@ -111,7 +111,7 @@ void SshOutgoingPacket::generateUserAuthByPwdRequestPacket(const QByteArray &use
         .finalize();
 }
 
-void SshOutgoingPacket::generateUserAuthByKeyRequestPacket(const QByteArray &user,
+void SshOutgoingPacket::generateUserAuthByPublicKeyRequestPacket(const QByteArray &user,
     const QByteArray &service)
 {
     init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service)
@@ -120,6 +120,26 @@ void SshOutgoingPacket::generateUserAuthByKeyRequestPacket(const QByteArray &use
         .appendString(m_encrypter.authenticationPublicKey());
     const QByteArray &dataToSign = m_data.mid(PayloadOffset);
     appendString(m_encrypter.authenticationKeySignature(dataToSign));
+    finalize();
+}
+
+void SshOutgoingPacket::generateUserAuthByKeyboardInteractiveRequestPacket(const QByteArray &user,
+                                                                           const QByteArray &service)
+{
+    // RFC 4256, 3.1
+    init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service)
+            .appendString("keyboard-interactive")
+            .appendString(QByteArray()) // Language tag. Deprecated and should be empty
+            .appendString(QByteArray()) // Submethods.
+            .finalize();
+}
+
+void SshOutgoingPacket::generateUserAuthInfoResponsePacket(const QStringList &responses)
+{
+    // RFC 4256, 3.4
+    init(SSH_MSG_USERAUTH_INFO_RESPONSE).appendInt(responses.count());
+    foreach (const QString &response, responses)
+        appendString(response.toUtf8());
     finalize();
 }
 

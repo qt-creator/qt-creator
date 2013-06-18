@@ -35,8 +35,7 @@
 #include "sshcryptofacility_p.h"
 #include "sshpacketparser_p.h"
 
-#include <QList>
-#include <QString>
+#include <QStringList>
 
 namespace QSsh {
 namespace Internal {
@@ -78,6 +77,15 @@ struct SshUserAuthBanner
 {
     QString message;
     QByteArray language;
+};
+
+struct SshUserAuthInfoRequestPacket
+{
+    QString name;
+    QString instruction;
+    QByteArray languageTag;
+    QStringList prompts;
+    QList<bool> echos;
 };
 
 struct SshDebug
@@ -156,6 +164,7 @@ public:
     SshKeyExchangeReply extractKeyExchangeReply(const QByteArray &pubKeyAlgo) const;
     SshDisconnect extractDisconnect() const;
     SshUserAuthBanner extractUserAuthBanner() const;
+    SshUserAuthInfoRequestPacket extractUserAuthInfoRequest() const;
     SshDebug extractDebug() const;
     SshUnimplemented extractUnimplemented() const;
 

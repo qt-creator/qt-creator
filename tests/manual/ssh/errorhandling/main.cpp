@@ -60,13 +60,15 @@ public:
         noHost.host = QLatin1String("hgdfxgfhgxfhxgfchxgcf");
         noHost.port = 12345;
         noHost.timeout = 10;
-        noHost.authenticationType = SshConnectionParameters::AuthenticationByPassword;
+        noHost.authenticationType
+                = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
 
         SshConnectionParameters noUser;
         noUser.host = QLatin1String("localhost");
         noUser.port = 22;
         noUser.timeout = 30;
-        noUser.authenticationType = SshConnectionParameters::AuthenticationByPassword;
+        noUser.authenticationType
+                = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
         noUser.userName = QLatin1String("dumdidumpuffpuff");
         noUser.password = QLatin1String("whatever");
 
@@ -74,7 +76,8 @@ public:
         wrongPwd.host = QLatin1String("localhost");
         wrongPwd.port = 22;
         wrongPwd.timeout = 30;
-        wrongPwd.authenticationType = SshConnectionParameters::AuthenticationByPassword;
+        wrongPwd.authenticationType
+                = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
         wrongPwd.userName = QLatin1String("root");
         noUser.password = QLatin1String("thiscantpossiblybeapasswordcanit");
 
@@ -82,7 +85,7 @@ public:
         invalidKeyFile.host = QLatin1String("localhost");
         invalidKeyFile.port = 22;
         invalidKeyFile.timeout = 30;
-        invalidKeyFile.authenticationType = SshConnectionParameters::AuthenticationByKey;
+        invalidKeyFile.authenticationType = SshConnectionParameters::AuthenticationTypePublicKey;
         invalidKeyFile.userName = QLatin1String("root");
         invalidKeyFile.privateKeyFile
             = QLatin1String("somefilenamethatwedontexpecttocontainavalidkey");

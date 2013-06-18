@@ -60,7 +60,7 @@ ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfigurationWizard::device()
     sshParams.options = QSsh::SshIgnoreDefaultProxy;
     sshParams.host = m_setupPage->hostName();
     sshParams.password = m_setupPage->password();
-    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
+    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
     sshParams.privateKeyFile = m_sshKeyPage->privateKey();
     sshParams.userName = QLatin1String("devuser");
     sshParams.timeout = 10;

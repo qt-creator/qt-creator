@@ -518,7 +518,7 @@ IDevice::Ptr BlackBerrySetupWizard::device()
     sshParams.options = QSsh::SshIgnoreDefaultProxy;
     sshParams.host = hostName();
     sshParams.password = devicePassword();
-    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
+    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
     sshParams.privateKeyFile = privateKeyPath();
     sshParams.userName = QLatin1String("devuser");
     sshParams.timeout = 10;

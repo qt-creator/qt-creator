@@ -74,8 +74,8 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
     SshConnectionParameters sshParams = device()->sshParameters();
     const bool usePassword = m_ui->passwordButton->isChecked();
     sshParams.authenticationType = usePassword
-        ? SshConnectionParameters::AuthenticationByPassword
-        : SshConnectionParameters::AuthenticationByKey;
+        ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
+        : SshConnectionParameters::AuthenticationTypePublicKey;
     device()->setSshParameters(sshParams);
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
@@ -183,7 +183,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
 
     const SshConnectionParameters &sshParams = device()->sshParameters();
 
-    if (sshParams.authenticationType == SshConnectionParameters::AuthenticationByPassword)
+    if (sshParams.authenticationType != SshConnectionParameters::AuthenticationTypePublicKey)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);

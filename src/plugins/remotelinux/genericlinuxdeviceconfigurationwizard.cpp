@@ -83,7 +83,7 @@ IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
     sshParams.port = 22;
     sshParams.timeout = 10;
     sshParams.authenticationType = d->setupPage.authenticationType();
-    if (sshParams.authenticationType == SshConnectionParameters::AuthenticationByPassword)
+    if (sshParams.authenticationType != SshConnectionParameters::AuthenticationTypePublicKey)
         sshParams.password = d->setupPage.password();
     else
         sshParams.privateKeyFile = d->setupPage.privateKeyFilePath();

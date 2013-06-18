@@ -66,7 +66,7 @@ Parameters ArgumentsCollector::collect(bool &success) const
                 if (!parameters.sshParams.privateKeyFile.isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
                 parameters.sshParams.authenticationType
-                    = SshConnectionParameters::AuthenticationByPassword;
+                    = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
                 authTypeGiven = true;
                 continue;
             }
@@ -74,7 +74,7 @@ Parameters ArgumentsCollector::collect(bool &success) const
                 if (!parameters.sshParams.password.isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
                 parameters.sshParams.authenticationType
-                    = SshConnectionParameters::AuthenticationByKey;
+                    = SshConnectionParameters::AuthenticationTypePublicKey;
                 authTypeGiven = true;
                 continue;
             }

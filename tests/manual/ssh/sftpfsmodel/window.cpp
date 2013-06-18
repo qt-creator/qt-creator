@@ -62,7 +62,8 @@ void SftpFsWindow::connectToHost()
     SshConnectionParameters sshParams;
     sshParams.host = m_ui->hostLineEdit->text();
     sshParams.userName = m_ui->userLineEdit->text();
-    sshParams.authenticationType = SshConnectionParameters::AuthenticationByPassword;
+    sshParams.authenticationType
+            = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
     sshParams.password = m_ui->passwordLineEdit->text();
     sshParams.port = m_ui->portSpinBox->value();
     sshParams.timeout = 10;

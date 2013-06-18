@@ -1808,7 +1808,8 @@ void DebuggerPluginPrivate::startRemoteEngine()
     sp.connParams.password = dlg.password();
 
     sp.connParams.timeout = 5;
-    sp.connParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
+    sp.connParams.authenticationType
+            = QSsh::SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
     sp.connParams.port = 22;
     sp.connParams.options = QSsh::SshIgnoreDefaultProxy;
 

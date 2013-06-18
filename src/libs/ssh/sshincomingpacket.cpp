@@ -242,6 +242,31 @@ SshUserAuthBanner SshIncomingPacket::extractUserAuthBanner() const
     }
 }
 
+SshUserAuthInfoRequestPacket SshIncomingPacket::extractUserAuthInfoRequest() const
+{
+    Q_ASSERT(isComplete());
+    Q_ASSERT(type() == SSH_MSG_USERAUTH_INFO_REQUEST);
+
+    try {
+        SshUserAuthInfoRequestPacket msg;
+        quint32 offset = TypeOffset + 1;
+        msg.name = SshPacketParser::asUserString(m_data, &offset);
+        msg.instruction = SshPacketParser::asUserString(m_data, &offset);
+        msg.languageTag = SshPacketParser::asString(m_data, &offset);
+        const quint32 promptCount = SshPacketParser::asUint32(m_data, &offset);
+        msg.prompts.reserve(promptCount);
+        msg.echos.reserve(promptCount);
+        for (quint32 i = 0; i < promptCount; ++i) {
+            msg.prompts << SshPacketParser::asUserString(m_data, &offset);
+            msg.echos << SshPacketParser::asBool(m_data, &offset);
+        }
+        return msg;
+    } catch (SshPacketParseException &) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Invalid SSH_MSG_USERAUTH_INFO_REQUEST.");
+    }
+}
+
 SshDebug SshIncomingPacket::extractDebug() const
 {
     Q_ASSERT(isComplete());

@@ -59,9 +59,6 @@ public:
 
     static const QByteArray SshConnectionService;
 
-    static const QByteArray PublicKeyAuthMethod;
-    static const QByteArray PasswordAuthMethod;
-
     static QByteArray findBestMatch(const QList<QByteArray> &myCapabilities,
         const QList<QByteArray> &serverCapabilities);
 };

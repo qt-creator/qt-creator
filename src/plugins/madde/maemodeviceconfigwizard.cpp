@@ -441,7 +441,7 @@ private:
         m_ui->passwordLineEdit->setEnabled(false);
         m_ui->deployButton->setEnabled(false);
         SshConnectionParameters sshParams;
-        sshParams.authenticationType = SshConnectionParameters::AuthenticationByPassword;
+        sshParams.authenticationType = SshConnectionParameters::AuthenticationTypePassword;
         sshParams.host = hostAddress();
         sshParams.port = m_wizardData.sshPort;
         sshParams.password = password();
@@ -560,13 +560,13 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
     sshParams.host = d->wizardData.hostName;
     sshParams.port = d->wizardData.sshPort;
     if (d->wizardData.machineType == IDevice::Emulator) {
-        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePassword;
         sshParams.password.clear();
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");
         doTest = false;
     } else {
-        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
         sshParams.privateKeyFile = d->wizardData.privateKeyFilePath;
         sshParams.timeout = 10;
         freePortsSpec = QLatin1String("10000-10100");

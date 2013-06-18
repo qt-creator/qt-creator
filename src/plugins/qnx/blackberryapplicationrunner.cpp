@@ -85,7 +85,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
 
     // The BlackBerry device always uses key authentication
     m_sshParams = m_device->sshParameters();
-    m_sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
+    m_sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
 
     m_runningStateTimer->setInterval(3000);
     m_runningStateTimer->setSingleShot(true);

@@ -109,17 +109,30 @@ void SshSendFacility::sendUserAuthServiceRequestPacket()
     sendPacket();
 }
 
-void SshSendFacility::sendUserAuthByPwdRequestPacket(const QByteArray &user,
+void SshSendFacility::sendUserAuthByPasswordRequestPacket(const QByteArray &user,
     const QByteArray &service, const QByteArray &pwd)
 {
-    m_outgoingPacket.generateUserAuthByPwdRequestPacket(user, service, pwd);
+    m_outgoingPacket.generateUserAuthByPasswordRequestPacket(user, service, pwd);
     sendPacket();
     }
 
-void SshSendFacility::sendUserAuthByKeyRequestPacket(const QByteArray &user,
+void SshSendFacility::sendUserAuthByPublicKeyRequestPacket(const QByteArray &user,
     const QByteArray &service)
 {
-    m_outgoingPacket.generateUserAuthByKeyRequestPacket(user, service);
+    m_outgoingPacket.generateUserAuthByPublicKeyRequestPacket(user, service);
+    sendPacket();
+}
+
+void SshSendFacility::sendUserAuthByKeyboardInteractiveRequestPacket(const QByteArray &user,
+                                                                     const QByteArray &service)
+{
+    m_outgoingPacket.generateUserAuthByKeyboardInteractiveRequestPacket(user, service);
+    sendPacket();
+}
+
+void SshSendFacility::sendUserAuthInfoResponsePacket(const QStringList &responses)
+{
+    m_outgoingPacket.generateUserAuthInfoResponsePacket(responses);
     sendPacket();
 }
 

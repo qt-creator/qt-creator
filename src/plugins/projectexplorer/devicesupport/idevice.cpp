@@ -163,7 +163,7 @@ const char PasswordKey[] = "Password";
 const char TimeoutKey[] = "Timeout";
 
 typedef QSsh::SshConnectionParameters::AuthenticationType AuthType;
-const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationByKey;
+const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
 const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
 
 const int DefaultTimeout = 10;

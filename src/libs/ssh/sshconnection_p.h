@@ -116,9 +116,11 @@ private:
     void handleNewKeysPacket();
     void handleServiceAcceptPacket();
     void handlePasswordExpiredPacket();
+    void handleUserAuthInfoRequestPacket();
     void handleUserAuthSuccessPacket();
     void handleUserAuthFailurePacket();
     void handleUserAuthBannerPacket();
+    void handleUnexpectedPacket();
     void handleGlobalRequest();
     void handleDebugPacket();
     void handleUnimplementedPacket();
@@ -168,6 +170,7 @@ private:
     quint64 m_lastInvalidMsgSeqNr;
     QByteArray m_serverId;
     bool m_serverHasSentDataBeforeId;
+    bool m_triedAllPasswordBasedMethods;
 };
 
 } // namespace Internal
