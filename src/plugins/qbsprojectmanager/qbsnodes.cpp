@@ -34,6 +34,7 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/hostosinfo.h>
@@ -84,8 +85,8 @@ namespace QbsProjectManager {
 namespace Internal {
 
 QIcon QbsProjectNode::m_projectIcon = generateIcon();
-QIcon QbsProductNode::m_productIcon = generateIcon();
-QIcon QbsGroupNode::m_groupIcon = generateIcon();
+QIcon QbsProductNode::m_productIcon = QIcon(QString::fromLatin1(ProjectExplorer::Constants::ICON_REBUILD_SMALL));
+QIcon QbsGroupNode::m_groupIcon = QIcon(QString::fromLatin1(ProjectExplorer::Constants::ICON_BUILD_SMALL));
 
 class FileTreeNode {
 public:
