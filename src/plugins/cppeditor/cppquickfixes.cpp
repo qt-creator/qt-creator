@@ -2687,7 +2687,7 @@ public:
         , m_classDecl(0)
         , m_offerQuickFix(true)
     {
-        setDescription(QuickFixFactory::tr("Create Getter and Setter Member Functions"));
+        setDescription(TextEditor::QuickFixFactory::tr("Create Getter and Setter Member Functions"));
 
         const QList<AST *> &path = interface->path();
         // We expect something like
@@ -3515,7 +3515,7 @@ public:
         , m_signalName(signalName)
         , m_storageName(storageName)
     {
-        setDescription(QuickFixFactory::tr("Generate Missing Q_PROPERTY Members..."));
+        setDescription(TextEditor::QuickFixFactory::tr("Generate Missing Q_PROPERTY Members..."));
     }
 
     void perform()
