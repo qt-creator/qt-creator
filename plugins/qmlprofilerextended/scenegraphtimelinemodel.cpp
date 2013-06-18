@@ -128,7 +128,7 @@ int SceneGraphTimelineModel::categoryCount() const
 const QString SceneGraphTimelineModel::categoryLabel(int categoryIndex) const
 {
     Q_UNUSED(categoryIndex);
-    return QLatin1String("SceneGraph");
+    return tr("Scene Graph");
 }
 
 int SceneGraphTimelineModel::findFirstIndex(qint64 startTime) const
@@ -263,8 +263,11 @@ float SceneGraphTimelineModel::getHeight(int index) const
 QString labelForSGType(int t)
 {
     switch ((SceneGraphCategoryType)t) {
-    case SceneGraphRenderThread: return QLatin1String("Renderer Thread");
-    case SceneGraphGUIThread: return QLatin1String("GUI Thread");
+    case SceneGraphRenderThread:
+        return QGuiApplication::translate("SceneGraphTimelineModel", "Renderer Thread");
+    case SceneGraphGUIThread:
+        return QGuiApplication::translate("SceneGraphTimelineModel", "GUI Thread");
+    default: return QString();
     }
 }
 
@@ -275,6 +278,7 @@ const QVariantList SceneGraphTimelineModel::getLabelsForCategory(int category) c
     if (d->isExpanded && !isEmpty()) {
         for (int i = 0; i < MaximumSceneGraphCategoryType; i++) {
             QVariantMap element;
+
             element.insert(QLatin1String("displayName"), QVariant(labelForSGType(i)));
             element.insert(QLatin1String("description"), QVariant(labelForSGType(i)));
             element.insert(QLatin1String("id"), QVariant(i));
