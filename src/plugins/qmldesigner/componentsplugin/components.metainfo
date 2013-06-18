@@ -155,12 +155,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Controls.Slider"
-        icon: ":/componentsplugin/images/sliderh16.png"
+        icon: ":/componentsplugin/images/slider16.png"
 
         ItemLibraryEntry {
             name: "Slider (Horizontal)"
             category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/sliderh.png"
+            libraryIcon: ":/componentsplugin/images/slider.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
         }
