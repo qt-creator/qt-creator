@@ -71,7 +71,7 @@ protected:
 
     void thisObject();
 
-    void addResult(const FullySpecifiedType &ty, Scope *scope);
+    void addResult(const FullySpecifiedType &ty, Scope *scope, ClassOrNamespace *binding = 0);
     void addResults(const QList<Symbol *> &symbols);
     void addResults(const QList<LookupItem> &items);
 
@@ -126,6 +126,10 @@ protected:
 
 
 private:
+    ClassOrNamespace *findClassForTemplateParameterInExpressionScope(
+            ClassOrNamespace *resultBinding,
+            const FullySpecifiedType &ty) const;
+
     Scope *_scope;
     const LookupContext& _context;
     Bind bind;

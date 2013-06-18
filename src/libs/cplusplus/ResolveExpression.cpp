@@ -142,11 +142,13 @@ void ResolveExpression::addResults(const QList<LookupItem> &items)
     _results += items;
 }
 
-void ResolveExpression::addResult(const FullySpecifiedType &ty, Scope *scope)
+void ResolveExpression::addResult(const FullySpecifiedType &ty, Scope *scope,
+                                  ClassOrNamespace *binding)
 {
     LookupItem item;
     item.setType(ty);
     item.setScope(scope);
+    item.setBinding(binding);
 
     _results.append(item);
 }
@@ -713,7 +715,7 @@ bool ResolveExpression::visit(CallAST *ast)
 
         } else if (Function *funTy = ty->asFunctionType()) {
             if (maybeValidPrototype(funTy, actualArgumentCount))
-                addResult(funTy->returnType().simplified(), scope);
+                addResult(funTy->returnType().simplified(), scope, result.binding());
 
         } else if (Class *classTy = ty->asClassType()) {
             // Constructor call
@@ -1014,53 +1016,77 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 FullySpecifiedType type = ptrTy->elementType();
                 if (! ty->isPointerType())
                     type = ty;
+
+                if (ClassOrNamespace *binding
+                        = findClassForTemplateParameterInExpressionScope(r.binding(),
+                                                                         type)) {
+                    return binding;
+                }
                 if (ClassOrNamespace *binding = findClass(type, scope))
                     return binding;
 
             } else if (PointerType *ptrTy = ty->asPointerType()) {
                 FullySpecifiedType type = ptrTy->elementType();
+                if (ClassOrNamespace *binding
+                        = findClassForTemplateParameterInExpressionScope(r.binding(),
+                                                                         type)) {
+                    return binding;
+                }
                 if (ClassOrNamespace *binding = findClass(type, scope))
                     return binding;
 
-            } else if (ClassOrNamespace *binding = findClass(ty, scope)) {
-                // lookup for overloads of operator->
+            } else {
+                ClassOrNamespace *binding
+                        = findClassForTemplateParameterInExpressionScope(r.binding(),
+                                                                         ty);
+                if (! binding)
+                    binding = findClass(ty, scope);
 
-                const OperatorNameId *arrowOp = control()->operatorNameId(OperatorNameId::ArrowOp);
-                foreach (const LookupItem &r, binding->find(arrowOp)) {
-                    Symbol *overload = r.declaration();
-                    if (! overload)
-                        continue;
-                    Scope *functionScope = overload->enclosingScope();
+                if (binding){
+                    // lookup for overloads of operator->
 
-                    if (overload->type()->isFunctionType()) {
-                        FullySpecifiedType overloadTy = instantiate(binding->templateId(), overload);
-                        Function *instantiatedFunction = overloadTy->asFunctionType();
-                        Q_ASSERT(instantiatedFunction != 0);
-
-                        FullySpecifiedType retTy = instantiatedFunction->returnType().simplified();
-
-                        typedefsResolver.resolve(&retTy, &functionScope, r.binding());
-
-                        if (! retTy->isPointerType() && ! retTy->isNamedType())
+                    const OperatorNameId *arrowOp
+                            = control()->operatorNameId(OperatorNameId::ArrowOp);
+                    foreach (const LookupItem &r, binding->find(arrowOp)) {
+                        Symbol *overload = r.declaration();
+                        if (! overload)
                             continue;
+                        Scope *functionScope = overload->enclosingScope();
 
-                        if (PointerType *ptrTy = retTy->asPointerType())
-                            retTy = ptrTy->elementType();
+                        if (overload->type()->isFunctionType()) {
+                            FullySpecifiedType overloadTy
+                                    = instantiate(binding->templateId(), overload);
+                            Function *instantiatedFunction = overloadTy->asFunctionType();
+                            Q_ASSERT(instantiatedFunction != 0);
 
-                        if (ClassOrNamespace *retBinding = findClass(retTy, functionScope))
-                            return retBinding;
+                            FullySpecifiedType retTy
+                                    = instantiatedFunction->returnType().simplified();
 
-                        if (scope != functionScope) {
-                            if (ClassOrNamespace *retBinding = findClass(retTy, scope))
+                            typedefsResolver.resolve(&retTy, &functionScope, r.binding());
+
+                            if (! retTy->isPointerType() && ! retTy->isNamedType())
+                                continue;
+
+                            if (PointerType *ptrTy = retTy->asPointerType())
+                                retTy = ptrTy->elementType();
+
+                            if (ClassOrNamespace *retBinding = findClass(retTy, functionScope))
                                 return retBinding;
-                        }
 
-                        if (ClassOrNamespace *origin = binding->instantiationOrigin()) {
-                            foreach (Symbol *originSymbol, origin->symbols()) {
-                                Scope *originScope = originSymbol->asScope();
-                                if (originScope && originScope != scope && originScope != functionScope) {
-                                    if (ClassOrNamespace *retBinding = findClass(retTy, originScope))
-                                        return retBinding;
+                            if (scope != functionScope) {
+                                if (ClassOrNamespace *retBinding = findClass(retTy, scope))
+                                    return retBinding;
+                            }
+
+                            if (ClassOrNamespace *origin = binding->instantiationOrigin()) {
+                                foreach (Symbol *originSymbol, origin->symbols()) {
+                                    Scope *originScope = originSymbol->asScope();
+                                    if (originScope && originScope != scope
+                                            && originScope != functionScope) {
+                                        if (ClassOrNamespace *retBinding
+                                                = findClass(retTy, originScope))
+                                            return retBinding;
+                                    }
                                 }
                             }
                         }
@@ -1078,6 +1104,12 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 }
             }
 
+            if (ClassOrNamespace *binding
+                    = findClassForTemplateParameterInExpressionScope(r.binding(),
+                                                                     ty)) {
+                return binding;
+            }
+
             ClassOrNamespace *enclosingTemplateInstantiation = 0;
             if (ClassOrNamespace *binding = r.binding()) {
                 if (binding->instantiationOrigin())
@@ -1086,6 +1118,24 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
             if (ClassOrNamespace *binding = findClass(ty, scope, enclosingTemplateInstantiation))
                 return binding;
+        }
+    }
+
+    return 0;
+}
+
+ClassOrNamespace *ResolveExpression::findClassForTemplateParameterInExpressionScope(
+        ClassOrNamespace *resultBinding,
+        const FullySpecifiedType &ty) const
+{
+    if (resultBinding && resultBinding->instantiationOrigin()) {
+        if (ClassOrNamespace *origin = resultBinding->instantiationOrigin()) {
+            foreach (Symbol *originSymbol, origin->symbols()) {
+                if (Scope *originScope = originSymbol->asScope()) {
+                    if (ClassOrNamespace *retBinding = findClass(ty, originScope))
+                        return retBinding;
+                }
+            }
         }
     }
 

@@ -156,6 +156,12 @@ private slots:
     void test_completion_enum_inside_block_inside_function_QTCREATORBUG5456();
     void test_completion_enum_inside_function_QTCREATORBUG5456();
 
+    void test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_1();
+    void test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_2();
+    void test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_1();
+    void test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_2();
+    void test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_3();
+
     //lambda
     void test_completion_lambdaCalls_1();
     void test_completion_lambdaCalls_2();

@@ -3027,3 +3027,211 @@ void CppToolsPlugin::test_completion_local_type_and_member_6()
     QVERIFY(completions.contains(QLatin1String("OtherType")));
     QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
 }
+
+void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_1()
+{
+    TestData data;
+    data.srcText =
+            "struct A\n"
+            "{\n"
+            "    void foo();\n"
+            "    struct B\n"
+            "    {\n"
+            "        int b;\n"
+            "    };\n"
+            "};\n"
+            "template<typename T>\n"
+            "struct Template\n"
+            "{\n"
+            "    T* get();\n"
+            "};\n"
+            "namespace foo\n"
+            "{\n"
+            "    struct B\n"
+            "    {\n"
+            "        int foo_b;\n"
+            "    };\n"
+            "}\n"
+            "using namespace foo;\n"
+            "void A::foo()\n"
+            "{\n"
+            "    Template<B> templ;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("templ.get()->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("B")));
+    QVERIFY(completions.contains(QLatin1String("b")));
+}
+
+void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_2()
+{
+    TestData data;
+    data.srcText =
+            "struct A\n"
+            "{\n"
+            "    void foo();\n"
+            "    struct B\n"
+            "    {\n"
+            "        int b;\n"
+            "    };\n"
+            "};\n"
+            "template<typename T>\n"
+            "struct Template\n"
+            "{\n"
+            "    T t;\n"
+            "};\n"
+            "namespace foo\n"
+            "{\n"
+            "    struct B\n"
+            "    {\n"
+            "        int foo_b;\n"
+            "    };\n"
+            "}\n"
+            "using namespace foo;\n"
+            "void A::foo()\n"
+            "{\n"
+            "    Template<B> templ;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("templ.t.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("B")));
+    QVERIFY(completions.contains(QLatin1String("b")));
+}
+
+void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_1()
+{
+    TestData data;
+    data.srcText =
+            "template <typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "    T at(int i) const;\n"
+            "};\n"
+            "namespace ns\n"
+            "{\n"
+            "    struct Foo { int bar; };\n"
+            "    void foo()\n"
+            "    {\n"
+            "        QList<Foo> list;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "    }\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("list.at(0).");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_2()
+{
+    TestData data;
+    data.srcText =
+            "template <typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "    T at(int i) const;\n"
+            "};\n"
+            "namespace ns\n"
+            "{\n"
+            "    struct Foo { int bar; };\n"
+            "    namespace nested\n"
+            "    {\n"
+            "       void foo()\n"
+            "       {\n"
+            "           QList<Foo> list;\n"
+            "           @\n"
+            "           // padding so we get the scope right\n"
+            "       }\n"
+            "    }\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("list.at(0).");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_3()
+{
+    TestData data;
+    data.srcText =
+            "template <typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "    T at(int i) const;\n"
+            "};\n"
+            "namespace ns\n"
+            "{\n"
+            "    struct Foo { int bar; };\n"
+            "}\n"
+            "void foo()\n"
+            "{\n"
+            "    using namespace ns;\n"
+            "    QList<Foo> list;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("list.at(0).");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
