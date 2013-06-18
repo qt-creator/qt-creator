@@ -554,10 +554,10 @@
 
     \image qtcreator-gerrit.png
 
-    To view details of the selected change, select \gui Diff.
+    To view details of the selected change, select \gui Show.
 
-    To apply the selected change to the top of your local repository, select
-    \gui Apply. To remove the change after testing it, select \gui Tools >
+    To cherry-pick the selected change to the local repository, select
+    \gui {Cherry Pick}. To remove the change after testing it, select \gui Tools >
     \gui Git > \gui {Local Repository} > \gui Reset. In the
     \gui {Undo Changes to} dialog, select the
     state to reset the working directory to, and then select \gui OK.
