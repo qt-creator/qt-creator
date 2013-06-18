@@ -202,7 +202,7 @@ Component.prototype.installationFinished = function()
         if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success) {
             var isLaunchQtCreatorCheckBoxChecked = component.userInterface("LaunchQtCreatorCheckBoxForm").launchQtCreatorCheckBox.checked;
             if (isLaunchQtCreatorCheckBoxChecked)
-                installer.executeDetached(component.qtCreatorBinaryPath);
+                installer.executeDetached(component.qtCreatorBinaryPath, new Array(), "@homeDir@");
         }
     } catch(e) {
         print(e);
