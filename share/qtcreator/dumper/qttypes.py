@@ -2449,13 +2449,13 @@ def qdump__boost__optional(d, value):
         d.putValue("<uninitialized>")
         d.putNumChild(0)
     else:
-        d.putBetterType(value.type)
         type = d.templateArgument(value.type, 0)
         storage = value["m_storage"]
         if type.code == ReferenceCode:
             d.putItem(storage.cast(type.target().pointer()).dereference())
         else:
             d.putItem(storage.cast(type))
+        d.putBetterType(value.type)
 
 
 def qdump__boost__shared_ptr(d, value):
@@ -2484,6 +2484,7 @@ def qdump__boost__shared_ptr(d, value):
     if isSimpleType(val.type):
         d.putNumChild(3)
         d.putItem(val)
+        d.putBetterType(value.type)
     else:
         d.putEmptyValue()
 
