@@ -224,9 +224,9 @@ QVariantMap QbsBuildStep::toMap() const
 void QbsBuildStep::buildingDone(bool success)
 {
     // Report errors:
-    foreach (const qbs::ErrorData &data, m_job->error().entries())
-        createTaskAndOutput(ProjectExplorer::Task::Error, data.description(),
-                            data.codeLocation().fileName(), data.codeLocation().line());
+    foreach (const qbs::ErrorItem &item, m_job->error().items())
+        createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
+                            item.codeLocation().fileName(), item.codeLocation().line());
 
     QTC_ASSERT(m_fi, return);
     m_fi->reportResult(success);

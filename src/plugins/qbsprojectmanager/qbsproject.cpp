@@ -378,13 +378,13 @@ bool QbsProject::fromMap(const QVariantMap &map)
     return true;
 }
 
-void QbsProject::generateErrors(const qbs::Error &e)
+void QbsProject::generateErrors(const qbs::ErrorInfo &e)
 {
-    foreach (const qbs::ErrorData &data, e.entries())
+    foreach (const qbs::ErrorItem &item, e.items())
         taskHub()->addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                                 data.description(),
-                                                 Utils::FileName::fromString(data.codeLocation().fileName()),
-                                                 data.codeLocation().line(),
+                                                 item.description(),
+                                                 Utils::FileName::fromString(item.codeLocation().fileName()),
+                                                 item.codeLocation().line(),
                                                  ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
@@ -394,8 +394,8 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
 
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
-    qbs::Error err = params.expandBuildConfiguration(m_manager->settings());
-    if (!err.entries().isEmpty()) {
+    qbs::ErrorInfo err = params.expandBuildConfiguration(m_manager->settings());
+    if (!err.hasError()) {
         generateErrors(err);
         return;
     }

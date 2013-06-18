@@ -120,7 +120,7 @@ private:
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
 
-    void generateErrors(const qbs::Error &e);
+    void generateErrors(const qbs::ErrorInfo &e);
     void prepareForParsing();
     void updateDocuments(const qbs::ProjectData *prj);
     void updateCppCodeModel(const qbs::ProjectData *prj);
