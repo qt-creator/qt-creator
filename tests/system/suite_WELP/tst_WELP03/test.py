@@ -59,8 +59,18 @@ def handlePackagingMessageBoxes():
         except:
             break
 
+def qt5SDKPath():
+    if platform.system() in ('Microsoft', 'Windows'):
+        return os.path.abspath("C:/Qt/Qt5.0.1/5.0.1/msvc2010")
+    elif platform.system() == 'Linux':
+        if __is64BitOS__():
+            return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc_64")
+        return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc")
+    else:
+        return os.path.expanduser("~/Qt5.0.1/5.0.1/clang_64")
+
 def main():
-    global webPageContentLoadedValue
+    global sdkPath, webPageContentLoadedValue
     if platform.system() in ('Microsoft', 'Windows'):
         test.log("Test case is currently disabled on Windows because it constantly crashes the AUT")
         return
@@ -71,7 +81,11 @@ def main():
     installLazySignalHandler(":QWebPage","loadFinished(bool)", "webPageContentLoaded")
     installLazySignalHandler(":*Qt Creator_Help::Internal::HelpViewer", "loadFinished(bool)",
                              "webPageContentLoaded")
-    addHelpDocumentationFromSDK()
+    qt5sdkPath = qt5SDKPath()
+    qchs = [os.path.join(sdkPath, "Documentation", "qt.qch"),
+            os.path.join(qt5sdkPath, "doc", "qtopengl.qch"),
+            os.path.join(qt5sdkPath, "doc", "qtwidgets.qch")]
+    addHelpDocumentation(qchs)
     setAlwaysStartFullHelp()
     if not test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
                                                       "text='Getting Started'")),
@@ -86,11 +100,18 @@ def main():
                 "Verifying: 'Examples' topic is opened and the examples are shown.")
     # select an example and run example
     webPageContentLoadedValue = 0
-    cleanUpUserFiles(sdkPath + "/Examples/4.7/opengl/2dpainting/2dpainting.pro")
-    removePackagingDirectory(sdkPath + "/Examples/4.7/opengl/2dpainting")
+    basePath = "opengl/2dpainting/2dpainting.pro"
+    qt4Exmpl = os.path.join(sdkPath, "Examples", "4.7", basePath)
+    qt5Exmpl = os.path.join(qt5sdkPath, "examples", basePath)
+    cleanUpUserFiles([qt4Exmpl, qt5Exmpl])
+    removePackagingDirectory(os.path.dirname(qt4Exmpl))
+    removePackagingDirectory(os.path.dirname(qt5Exmpl))
     mouseClick(waitForObject(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
                                         "text='Search in Examples...'")), 5, 5, 0, Qt.LeftButton)
     searchTutsAndExmpl = getQmlItem("TextInput", ":Qt Creator_QDeclarativeView", False)
+    kitCombo = waitForObject("{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true'"
+                             " type='ChoiceList' unnamed='1' visible='true'}")
+    test.log("Using examples from Kit %s." % (kitCombo.currentText))
     replaceEditorContent(waitForObject(searchTutsAndExmpl), "qwerty")
     test.verify(checkIfObjectExists("{clip='true' container=':Qt Creator_QDeclarativeView' "
                                     "enabled='true' id='captionItem' type='Text' unnamed='1' "
@@ -113,11 +134,23 @@ def main():
                         "2dpainting", 5, 5, 0)
     activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Project_QMenu",
                                    'Close Project "2dpainting"'))
+    navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
+    res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
+    test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "2dpainting"),
+                "Verifying: The first example is closed.")
+    # clean up created packaging directories
+    removePackagingDirectory(os.path.dirname(qt4Exmpl))
+    removePackagingDirectory(os.path.dirname(qt5Exmpl))
+
     # close example and go to "Welcome" page -> "Examples" again and choose another example
     webPageContentLoadedValue = 0
     switchViewTo(ViewConstants.WELCOME)
-    cleanUpUserFiles(sdkPath + "/Examples/4.7/itemviews/addressbook/addressbook.pro")
-    removePackagingDirectory(sdkPath + "/Examples/4.7/itemviews/addressbook")
+    basePath = "itemviews/addressbook/addressbook.pro"
+    qt4Exmpl = os.path.join(sdkPath, "Examples", "4.7", basePath)
+    qt5Exmpl = os.path.join(qt5sdkPath, "examples", "widgets", basePath)
+    cleanUpUserFiles([qt4Exmpl, qt5Exmpl])
+    removePackagingDirectory(os.path.dirname(qt4Exmpl))
+    removePackagingDirectory(os.path.dirname(qt5Exmpl))
     replaceEditorContent(waitForObject(searchTutsAndExmpl),
                          "address book")
     addressBook = getQmlItem("Text", ":Qt Creator_QDeclarativeView", True, "text~='Address Book.*'")
@@ -144,7 +177,7 @@ def main():
     test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "addressbook"),
                 "Verifying: The second example is closed.")
     # clean up created packaging directories
-    removePackagingDirectory(sdkPath + "/Examples/4.7/opengl/2dpainting")
-    removePackagingDirectory(sdkPath + "/Examples/4.7/itemviews/addressbook")
+    removePackagingDirectory(os.path.dirname(qt4Exmpl))
+    removePackagingDirectory(os.path.dirname(qt5Exmpl))
     # exit Qt Creator
     invokeMenuItem("File", "Exit")

@@ -64,13 +64,13 @@ def getHighlightsInHtml(htmlCode):
     return res
 
 def main():
-    global textHasChanged
+    global sdkPath, textHasChanged
     noMatch = "Your search did not match any documents."
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     installLazySignalHandler(":Qt Creator_Help::Internal::HelpViewer", "textChanged()", "__handleTextChanged__")
-    addHelpDocumentationFromSDK()
+    addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
     # switch to help mode
     switchViewTo(ViewConstants.HELP)
     # verify that search widget is accessible

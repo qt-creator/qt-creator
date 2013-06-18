@@ -48,10 +48,11 @@ def verifyInteractiveQMLHelp(lineText, helpText):
                 "Verifying if help is opened with documentation for '%s'." % helpText)
 
 def main():
+    global sdkPath
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    addHelpDocumentationFromSDK()
+    addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
     # verify Rectangle help

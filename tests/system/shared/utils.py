@@ -288,8 +288,9 @@ def selectFromFileDialog(fileName, waitForFile=False):
         if not waitFor("str(fileCombo.currentText) in fileName", 5000):
             test.fail("%s could not be opened in time." % fileName)
 
-# add qt.qch from SDK path
-def addHelpDocumentationFromSDK():
+# add Qt documentations from given paths
+# param which a list/tuple of the paths to the qch files to be added
+def addHelpDocumentation(which):
     global sdkPath
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Help")
@@ -303,8 +304,9 @@ def addHelpDocumentationFromSDK():
         mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
         type(listWidget, "<Ctrl+A>")
         mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
-    clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
-    selectFromFileDialog("%s/Documentation/qt.qch" % sdkPath)
+    for qch in which:
+        clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
+        selectFromFileDialog(qch)
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def verifyOutput(string, substring, outputFrom, outputIn):
