@@ -513,6 +513,16 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     return false;
 }
 
+static int positionForName(BranchNode *node, const QString &name)
+{
+    int pos = 0;
+    for (pos = 0; pos < node->count(); ++pos) {
+        if (node->children.at(pos)->name >= name)
+            break;
+    }
+    return pos;
+}
+
 QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModelIndex &startPoint)
 {
     if (!m_rootNode || !m_rootNode->count())
@@ -534,18 +544,30 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     }
 
     BranchNode *local = m_rootNode->children.at(0);
-    int pos = 0;
-    for (pos = 0; pos < local->count(); ++pos) {
-        if (local->children.at(pos)->name > name)
-            break;
+    const int slash = name.indexOf(QLatin1Char('/'));
+    const QString leafName = slash == -1 ? name : name.mid(slash + 1);
+    bool added = false;
+    if (slash != -1) {
+        const QString nodeName = name.left(slash);
+        int pos = positionForName(local, nodeName);
+        BranchNode *child = (pos == local->count()) ? 0 : local->children.at(pos);
+        if (!child || child->name != nodeName) {
+            child = new BranchNode(nodeName);
+            beginInsertRows(nodeToIndex(local), pos, pos);
+            added = true;
+            child->parent = local;
+            local->children.insert(pos, child);
+        }
+        local = child;
     }
-    BranchNode *newNode = new BranchNode(name, sha(startPoint), track ? trackedBranch : QString());
-    beginInsertRows(index(0, 0), pos, pos);
+    int pos = positionForName(local, leafName);
+    BranchNode *newNode = new BranchNode(leafName, sha(startPoint), track ? trackedBranch : QString());
+    if (!added)
+        beginInsertRows(nodeToIndex(local), pos, pos);
     newNode->parent = local;
     local->children.insert(pos, newNode);
     endInsertRows();
-
-    return index(pos, 0, index(0, 0));
+    return nodeToIndex(newNode);
 }
 
 void BranchModel::parseOutputLine(const QString &line)
