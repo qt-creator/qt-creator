@@ -40,7 +40,7 @@ public:
 
     QList<ServerNodeInstance> childItems() const;
 
-    void updateDirtyNodeRecursive();
+    void updateAllDirtyNodesRecursive();
     static void createEffectItem(bool createEffectItem);
 
     int penWidth() const;
@@ -64,8 +64,8 @@ protected:
     void setHasContent(bool hasContent);
     DesignerSupport *designerSupport() const;
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
-    void updateDirtyNodeRecursive(QQuickItem *parentItem) const;
-    void updateAllDirtyNodeRecursive(QQuickItem *parentItem) const;
+    void updateDirtyNodesRecursive(QQuickItem *parentItem) const;
+    void updateAllDirtyNodesRecursive(QQuickItem *parentItem) const;
     QRectF boundingRectWithStepChilds(QQuickItem *parentItem) const;
     void resetHorizontal();
     void resetVertical();

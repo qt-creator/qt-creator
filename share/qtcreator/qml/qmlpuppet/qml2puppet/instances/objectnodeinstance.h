@@ -186,7 +186,7 @@ public:
 
     static QVariant fixResourcePaths(const QVariant &value);
 
-    virtual void updateDirtyNodeRecursive();
+    virtual void updateAllDirtyNodesRecursive();
 
 protected:
     explicit ObjectNodeInstance(QObject *object);

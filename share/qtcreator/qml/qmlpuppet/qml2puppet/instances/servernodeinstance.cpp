@@ -158,7 +158,7 @@ bool ServerNodeInstance::holdsGraphical() const
 
 void ServerNodeInstance::updateDirtyNodeRecursive()
 {
-    m_nodeInstance->updateDirtyNodeRecursive();
+    m_nodeInstance->updateAllDirtyNodesRecursive();
 }
 
 bool ServerNodeInstance::isSubclassOf(const QString &superTypeName) const

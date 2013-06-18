@@ -459,7 +459,7 @@ QVariant ObjectNodeInstance::fixResourcePaths(const QVariant &value)
     return value;
 }
 
-void ObjectNodeInstance::updateDirtyNodeRecursive()
+void ObjectNodeInstance::updateAllDirtyNodesRecursive()
 {
 }
 
