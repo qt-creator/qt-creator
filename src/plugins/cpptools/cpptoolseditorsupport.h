@@ -121,6 +121,9 @@ signals:
 private slots:
     void onMimeTypeChanged();
 
+    void onAboutToReload();
+    void onReloadFinished();
+
     void updateDocument();
     void updateDocumentNow();
 
@@ -166,6 +169,7 @@ private:
     // content caching
     mutable QString m_cachedContents;
     mutable int m_cachedContentsEditorRevision;
+    bool m_fileIsBeingReloaded;
 
     QTimer *m_updateEditorTimer;
     EditorUpdates m_editorUpdates;
