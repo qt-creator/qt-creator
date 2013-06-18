@@ -165,7 +165,7 @@ bool AddQtOperation::test() const
 {
     QVariantMap map = initializeQtVersions();
 
-    if (!map.count() == 1
+    if (map.count() != 1
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1)
         return false;
