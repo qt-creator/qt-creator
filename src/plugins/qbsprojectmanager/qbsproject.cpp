@@ -395,7 +395,7 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
     qbs::ErrorInfo err = params.expandBuildConfiguration(m_manager->settings());
-    if (!err.hasError()) {
+    if (err.hasError()) {
         generateErrors(err);
         return;
     }
