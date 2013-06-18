@@ -48,6 +48,9 @@
 
 #include <coreplugin/minisplitter.h>
 
+#include <utils/tooltip/tipcontents.h>
+#include <utils/tooltip/tooltip.h>
+
 static const int BASE_LEVEL = 0;
 static const int FILE_LEVEL = 1;
 static const int CHUNK_LEVEL = 2;
@@ -102,10 +105,19 @@ class DiffViewEditorEditable : public BaseTextEditor
 {
 Q_OBJECT
 public:
-    DiffViewEditorEditable(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
+    DiffViewEditorEditable(BaseTextEditorWidget *editorWidget)
+        : BaseTextEditor(editorWidget)
+    {
+        connect(this, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+                this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint, int)));
+    }
 
     Core::Id id() const { return "DiffViewEditor"; }
     bool isTemporary() const { return false; }
+
+private slots:
+    void slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position);
+
 };
 
 
@@ -125,6 +137,7 @@ public:
     }
 
     QMap<int, int> skippedLines() const { return m_skippedLines; }
+    QMap<int, DiffEditorWidget::DiffFileInfo> fileInfo() const { return m_fileInfo; }
 
     void setWorkingDirectory(const QString &workingDirectory) { m_workingDirectory = workingDirectory; }
     void setLineNumber(int blockNumber, int lineNumber);
@@ -181,6 +194,24 @@ private:
     QColor m_chunkLineForeground;
     QColor m_textForeground;
 };
+
+void DiffViewEditorEditable::slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position)
+{
+    DiffViewEditorWidget *ew = qobject_cast<DiffViewEditorWidget *>(editorWidget());
+    if (!ew)
+        return;
+
+    QMap<int, DiffEditorWidget::DiffFileInfo> fi = ew->fileInfo();
+    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it
+            = fi.constFind(ew->document()->findBlock(position).blockNumber());
+    if (it != fi.constEnd()) {
+        Utils::ToolTip::instance()->show(globalPoint,
+                                         Utils::TextContent(it.value().fileName),
+                                         editor->widget());
+    } else {
+        Utils::ToolTip::instance()->hide();
+    }
+}
 
 DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
     : SnippetEditorWidget(parent), m_lineNumberDigits(1), m_inPaintEvent(false)
