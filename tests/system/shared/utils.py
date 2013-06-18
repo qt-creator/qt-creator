@@ -276,6 +276,7 @@ def selectFromFileDialog(fileName, waitForFile=False):
         pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
         waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}")
         pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+        snooze(1)
         replaceEditorContent(pathLine, pName)
         clickButton(waitForObject("{text='Open' type='QPushButton'}"))
         waitFor("str(pathLine.text)==''")
