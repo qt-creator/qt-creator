@@ -574,10 +574,14 @@ QbsProjectNode::QbsProjectNode(QbsProject *project) :
     QbsBaseProjectNode(project->document()->fileName()),
     m_project(project), m_qbsProject(0), m_qbsProjectData(0)
 {
-    Q_ASSERT(project);
-    setIcon(m_projectIcon);
-    addFileNodes(QList<ProjectExplorer::FileNode *>()
-                 << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false), this);
+    ctor();
+}
+
+QbsProjectNode::QbsProjectNode(const QString &path) :
+    QbsBaseProjectNode(path),
+    m_project(0), m_qbsProject(0), m_qbsProjectData(0)
+{
+    ctor();
 }
 
 QbsProjectNode::~QbsProjectNode()
@@ -589,29 +593,43 @@ QbsProjectNode::~QbsProjectNode()
 
 void QbsProjectNode::update(const qbs::Project *prj)
 {
+    if (prj)
+        update(prj->projectData());
+
+    delete m_qbsProject;
+    m_qbsProject = prj;
+}
+
+void QbsProjectNode::update(const qbs::ProjectData &prjData)
+{
     QList<ProjectExplorer::ProjectNode *> toAdd;
     QList<ProjectExplorer::ProjectNode *> toRemove = subProjectNodes();
 
-    qbs::ProjectData *newData = 0;
+    foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
+        QbsProjectNode *qn = findProjectNode(subData.name());
+        if (!qn) {
+            QbsProjectNode *subProject = new QbsProjectNode(prjData.location().fileName());
+            subProject->update(subData);
+            toAdd << subProject;
+        } else {
+            qn->update(subData);
+            toRemove.removeOne(qn);
+        }
+    }
 
-    if (prj) {
-        newData = new qbs::ProjectData(prj->projectData());
-        foreach (const qbs::ProductData &prd, newData->products()) {
-            QbsProductNode *qn = findProductNode(prd.name());
-            if (!qn) {
-                toAdd << new QbsProductNode(&prd);
-            } else {
-                qn->setQbsProductData(&prd);
-                toRemove.removeOne(qn);
-            }
+    foreach (const qbs::ProductData &prd, prjData.products()) {
+        QbsProductNode *qn = findProductNode(prd.name());
+        if (!qn) {
+            toAdd << new QbsProductNode(&prd);
+        } else {
+            qn->setQbsProductData(&prd);
+            toRemove.removeOne(qn);
         }
     }
 
     delete m_qbsProjectData;
-    m_qbsProjectData = newData;
-
-    delete m_qbsProject;
-    m_qbsProject = prj;
+    m_qbsProjectData = new qbs::ProjectData(prjData);
+    setDisplayName(prjData.name());
 
     removeProjectNodes(toRemove);
     addProjectNodes(toAdd);
@@ -619,11 +637,16 @@ void QbsProjectNode::update(const qbs::Project *prj)
 
 QbsProject *QbsProjectNode::project() const
 {
+    if (!m_project && projectNode())
+        return static_cast<QbsProjectNode *>(projectNode())->project();
     return m_project;
 }
 
 const qbs::Project *QbsProjectNode::qbsProject() const
 {
+    QbsProjectNode *parent = qobject_cast<QbsProjectNode *>(projectNode());
+    if (!m_qbsProject && parent != this)
+        return parent->qbsProject();
     return m_qbsProject;
 }
 
@@ -632,11 +655,28 @@ const qbs::ProjectData *QbsProjectNode::qbsProjectData() const
     return m_qbsProjectData;
 }
 
+void QbsProjectNode::ctor()
+{
+    setIcon(m_projectIcon);
+    addFileNodes(QList<ProjectExplorer::FileNode *>()
+                 << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false), this);
+}
+
 QbsProductNode *QbsProjectNode::findProductNode(const QString &name)
 {
     foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
-        QbsProductNode *qn = static_cast<QbsProductNode *>(n);
-        if (qn->qbsProductData()->name() == name)
+        QbsProductNode *qn = qobject_cast<QbsProductNode *>(n);
+        if (qn && qn->qbsProductData()->name() == name)
+            return qn;
+    }
+    return 0;
+}
+
+QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
+{
+    foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
+        QbsProjectNode *qn = qobject_cast<QbsProjectNode *>(n);
+        if (qn && qn->qbsProjectData()->name() == name)
             return qn;
     }
     return 0;

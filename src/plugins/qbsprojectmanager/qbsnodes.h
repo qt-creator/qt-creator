@@ -174,16 +174,21 @@ class QbsProjectNode : public QbsBaseProjectNode
 
 public:
     explicit QbsProjectNode(QbsProject *project);
+    explicit QbsProjectNode(const QString &path);
     ~QbsProjectNode();
 
     void update(const qbs::Project *prj);
+    void update(const qbs::ProjectData &prjData);
 
     QbsProject *project() const;
     const qbs::Project *qbsProject() const;
     const qbs::ProjectData *qbsProjectData() const;
 
 private:
+    void ctor();
+
     QbsProductNode *findProductNode(const QString &name);
+    QbsProjectNode *findProjectNode(const QString &name);
 
     QbsProject *m_project;
 
