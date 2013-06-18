@@ -122,7 +122,7 @@ private:
 
     void generateErrors(const qbs::ErrorInfo &e);
     void prepareForParsing();
-    void updateDocuments(const qbs::ProjectData *prj);
+    void updateDocuments(const QSet<QString> &files);
     void updateCppCodeModel(const qbs::ProjectData *prj);
     void updateQmlJsCodeModel(const qbs::ProjectData *prj);
     QString qbsBuildDir() const;

@@ -120,7 +120,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 
     connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(parseCurrentBuildConfiguration()));
 
-    updateDocuments(0);
+    updateDocuments(QSet<QString>() << fileName);
     m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
 }
 
@@ -282,7 +282,7 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     m_rootProjectNode->update(project);
 
-    updateDocuments(m_rootProjectNode->qbsProjectData());
+    updateDocuments(project ? project->buildSystemFiles() : QSet<QString>() << m_fileName);
 
     updateCppCodeModel(m_rootProjectNode->qbsProjectData());
     updateQmlJsCodeModel(m_rootProjectNode->qbsProjectData());
@@ -465,17 +465,11 @@ void QbsProject::prepareForParsing()
     m_qbsUpdateFutureInterface->reportStarted();
 }
 
-void QbsProject::updateDocuments(const qbs::ProjectData *prj)
+void QbsProject::updateDocuments(const QSet<QString> &files)
 {
     // Update documents:
-    QSet<QString> newFiles;
-    newFiles.insert(m_fileName); // make sure we always have the project file...
-
-    if (prj) {
-        newFiles.insert(prj->location().fileName());
-        foreach (const qbs::ProductData &prd, prj->products())
-            newFiles.insert(prd.location().fileName());
-    }
+    QSet<QString> newFiles = files;
+    QTC_ASSERT(!newFiles.isEmpty(), newFiles << m_fileName);
     QSet<QString> oldFiles;
     foreach (Core::IDocument *doc, m_qbsDocuments)
         oldFiles.insert(doc->fileName());
