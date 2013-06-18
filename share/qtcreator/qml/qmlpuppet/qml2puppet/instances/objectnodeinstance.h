@@ -196,6 +196,7 @@ protected:
     void deleteObjectsInList(const QQmlProperty &metaProperty);
     QVariant convertSpecialCharacter(const QVariant& value) const;
     static QObject *parentObject(QObject *object);
+    static void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
 
 private:
     QHash<PropertyName, QVariant> m_resetValueHash;

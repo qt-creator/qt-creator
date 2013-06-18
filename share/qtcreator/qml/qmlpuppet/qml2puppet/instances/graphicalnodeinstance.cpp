@@ -482,20 +482,6 @@ QPair<PropertyName, ServerNodeInstance> GraphicalNodeInstance::anchor(const Prop
 
 }
 
-static void doComponentCompleteRecursive(QQuickItem *item)
-{
-    if (item) {
-        if (DesignerSupport::isComponentComplete(item))
-            return;
-
-        foreach (QQuickItem *childItem, item->childItems())
-            doComponentCompleteRecursive(childItem);
-
-        static_cast<QQmlParserStatus*>(item)->componentComplete();
-    }
-}
-
-
 static void disableTextCursor(QQuickItem *item)
 {
     foreach (QQuickItem *childItem, item->childItems())
@@ -512,7 +498,7 @@ static void disableTextCursor(QQuickItem *item)
 
 void GraphicalNodeInstance::doComponentComplete()
 {
-    doComponentCompleteRecursive(quickItem());
+    doComponentCompleteRecursive(quickItem(), nodeInstanceServer());
 
     disableTextCursor(quickItem());
 
