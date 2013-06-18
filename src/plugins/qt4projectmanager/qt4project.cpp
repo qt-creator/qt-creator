@@ -466,7 +466,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     QtQuickApp qtQuickApp;
     const Html5App html5App;
 
-    foreach (Qt4ProFileNode *node, applicationProFiles()) {
+    foreach (Qt4ProFileNode *node, applicationProFiles(Qt4Project::ExactAndCumulativeParse)) {
         const QString path = node->path();
 
         qtQuickApp.setComponentSet(QtQuickApp::QtQuick10Components);
@@ -1074,44 +1074,46 @@ bool Qt4Project::parseInProgress(const QString &proFilePath) const
     return node && node->parseInProgress();
 }
 
-void Qt4Project::collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)
+void Qt4Project::collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node, Parsing parse)
 {
-    list.append(node);
+    if (parse == ExactAndCumulativeParse || node->includedInExactParse())
+        list.append(node);
     foreach (ProjectNode *n, node->subProjectNodes()) {
         Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(n);
         if (qt4ProFileNode)
-            collectAllfProFiles(list, qt4ProFileNode);
+            collectAllfProFiles(list, qt4ProFileNode, parse);
     }
 }
 
-void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)
+void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node, Parsing parse)
 {
     if (node->projectType() == ApplicationTemplate
         || node->projectType() == ScriptTemplate) {
-        list.append(node);
+        if (parse == ExactAndCumulativeParse || node->includedInExactParse())
+            list.append(node);
     }
     foreach (ProjectNode *n, node->subProjectNodes()) {
         Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(n);
         if (qt4ProFileNode)
-            collectApplicationProFiles(list, qt4ProFileNode);
+            collectApplicationProFiles(list, qt4ProFileNode, parse);
     }
 }
 
-QList<Qt4ProFileNode *> Qt4Project::allProFiles() const
+QList<Qt4ProFileNode *> Qt4Project::allProFiles(Parsing parse) const
 {
     QList<Qt4ProFileNode *> list;
     if (!rootProjectNode())
         return list;
-    collectAllfProFiles(list, rootQt4ProjectNode());
+    collectAllfProFiles(list, rootQt4ProjectNode(), parse);
     return list;
 }
 
-QList<Qt4ProFileNode *> Qt4Project::applicationProFiles() const
+QList<Qt4ProFileNode *> Qt4Project::applicationProFiles(Parsing parse) const
 {
     QList<Qt4ProFileNode *> list;
     if (!rootProjectNode())
         return list;
-    collectApplicationProFiles(list, rootQt4ProjectNode());
+    collectApplicationProFiles(list, rootQt4ProjectNode(), parse);
     return list;
 }
 
@@ -1127,10 +1129,10 @@ bool Qt4Project::hasApplicationProFile(const QString &path) const
     return false;
 }
 
-QStringList Qt4Project::applicationProFilePathes(const QString &prepend) const
+QStringList Qt4Project::applicationProFilePathes(const QString &prepend, Parsing parse) const
 {
     QStringList proFiles;
-    foreach (Qt4ProFileNode *node, applicationProFiles())
+    foreach (Qt4ProFileNode *node, applicationProFiles(parse))
         proFiles.append(prepend + node->path());
     return proFiles;
 }
