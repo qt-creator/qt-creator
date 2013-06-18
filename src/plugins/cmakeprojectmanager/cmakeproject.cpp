@@ -1011,6 +1011,8 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 
 void CMakeBuildSettingsWidget::runCMake()
 {
+    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+        return;
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 CMakeOpenProjectWizard::WantToUpdate,
