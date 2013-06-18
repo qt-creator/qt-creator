@@ -35,6 +35,7 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
+#include <QVarLengthArray>
 
 #include <math.h>
 
