@@ -35,10 +35,8 @@
     screens. Typically, the main qml file in a Qt Quick project specifies the
     main window of an application.
 
-    \if defined(qcmanual)
     The QML files in the project folder are displayed in \gui {QML Components}
     in the \gui Library pane.
-    \endif
 
     You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
     screens with a native look and feel for a particular target platform.
@@ -47,7 +45,6 @@
     can install Qt Quick 1 Components as part of the Qt 4 SDK and the Qt Quick
     Controls as part of Qt 5.1, or later.
 
-    \if defined(qcmanual)
     \section1 Adding Components to Screens
 
     \list 1
@@ -60,7 +57,6 @@
             For example, you can anchor components to a position on the screen.
 
     \endlist
-    \endif
 
 
     \section1 Using Data Models
@@ -85,9 +81,7 @@
     \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-listmodel.html}{ListModel} and the
     delegate component that creates an instance for each item in the model are
     added automatically. You can edit item properties
-    \if defined(qcmanual)
     in the \gui Properties pane or
-    \endif
     in the code editor. You can also replace the default model and
     delegate with other, more complex models and delegates in the code editor.
 
@@ -112,12 +106,9 @@
 
     \endlist
 
-    \if defined(qcmanual)
     To lay out several items in a Column, Row, Grid, or Flow, select
     the items on the canvas, and then select \gui Layout in the context
     menu.
-    \endif
-
 
     \section1 Using States
 
@@ -127,7 +118,6 @@
     controls, their properties and behavior and the available actions. For
     example, you can use states to create two screens.
 
-    \if defined(qcmanual)
     To add states, click the empty slot in the \gui States pane. Then modify the
     new state in the visual editor.
 
@@ -136,8 +126,6 @@
     The properties that you change in a state are highlighted with blue color.
     In the code editor, you can see the changes recorded as changes to the base
     state.
-    \endif
-
 
     To keep the QML code clean, you should create a base state that contains all
     the types you will need in the application. You can then create states,
@@ -160,7 +148,6 @@
 
     \endlist
 
-    \if defined(qcmanual)
     To create screens for an application by using states:
 
     \list 1
@@ -195,7 +182,6 @@
             \endqml
 
         \endlist
-    \endif
 
 */
 

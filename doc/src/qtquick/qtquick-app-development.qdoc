@@ -64,11 +64,9 @@
     \section1 Related Topics
 
     \list
-        \if defined(qcmanual)
         \li \l {Using Qt Quick Designer}
         \li \l {Creating Buttons}
         \li \l {Creating Scalable Buttons and Borders}
-        \endif
         \li \l {Exporting Designs from Graphics Software}
         \li \l {Using QML Modules with Plugins}
 

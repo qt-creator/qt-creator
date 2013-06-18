@@ -72,9 +72,7 @@
 
         \endlist
 
-    \if defined(qcmanual)
     \include qnx/creator-projects-qt-version-qnx.qdocinc
-    \endif
 
 */
 
