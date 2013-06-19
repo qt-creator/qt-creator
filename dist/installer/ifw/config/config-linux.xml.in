@@ -12,12 +12,4 @@
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
     <TargetDir>@homeDir@/qtcreator-{version}</TargetDir>
     <AdminTargetDir>/opt/qtcreator-{version}</AdminTargetDir>
-
-    <Pages>
-      <Page name="LicenseAgreementPage">
-        <AcceptLicenseLabel>I have read and understood the terms contained in the above license agreements.</AcceptLicenseLabel>
-        <RejectLicenseLabel>I do not accept the terms contained in the above license agreements.</RejectLicenseLabel>
-      </Page>
-    </Pages>
-
 </Installer>
