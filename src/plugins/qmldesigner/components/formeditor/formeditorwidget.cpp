@@ -127,13 +127,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     fillLayout->addWidget(m_toolBox.data());
     m_toolBox->setLeftSideActions(upperActions);
 
-    m_graphicsView = new FormEditorGraphicsView(this);
-    fillLayout->addWidget(m_graphicsView.data());
-
-    m_graphicsView.data()->setStyleSheet(
-            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
-
-    QList<QAction*> lowerActions;
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
@@ -149,6 +142,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());
     m_toolBox->addRightSideAction(m_resetAction.data());
+
+    m_graphicsView = new FormEditorGraphicsView(this);
+
+    fillLayout->addWidget(m_graphicsView.data());
+    m_graphicsView.data()->setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)
