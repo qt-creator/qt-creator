@@ -71,9 +71,6 @@ def qt5SDKPath():
 
 def main():
     global sdkPath, webPageContentLoadedValue
-    if platform.system() in ('Microsoft', 'Windows'):
-        test.log("Test case is currently disabled on Windows because it constantly crashes the AUT")
-        return
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
