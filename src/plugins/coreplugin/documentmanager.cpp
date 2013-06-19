@@ -52,7 +52,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
-#include <QSet>
 #include <QSettings>
 #include <QTimer>
 #include <QAction>
@@ -157,7 +156,6 @@ struct DocumentManagerPrivate
     QString m_projectsDirectory;
     bool m_useProjectsDirectory;
     QString m_buildDirectory;
-    QSet<QString> m_expectedDirectories;
     // When we are callling into a IDocument
     // we don't want to receive a changed()
     // signal
@@ -549,46 +547,6 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
         updateExpectedState(fixedResolvedName);
 }
 
-static QString dirWithTrailingSlash(const QString &directory)
-{
-    static const QChar slash(QLatin1Char('/'));
-    return directory.endsWith(slash) ? directory : directory + slash;
-}
-
-/*!
- * Any subsequent change to any file inside \a directory is treated as
- * an expected file change.
- *
- * \see DocumentManager::unexpectDirectoryChange(const QString &directory)
- */
-void DocumentManager::expectDirectoryChange(const QString &directory)
-{
-    QTC_ASSERT(!directory.isEmpty(), return);
-    d->m_expectedDirectories.insert(dirWithTrailingSlash(directory));
-}
-
-/*!
- * Any subsequent change to any file inside \a directory is unexpected again.
- *
- * \see DocumentManager::expectDirectoryChange(const QString &directory)
- */
-void DocumentManager::unexpectDirectoryChange(const QString &directory)
-{
-    QTimer *timer = new QTimer;
-    timer->setProperty("directory", QString(dirWithTrailingSlash(directory)));
-    connect(timer, SIGNAL(timeout()), instance(), SLOT(clearExpectedDirectory()));
-    timer->setSingleShot(true);
-    timer->start(300);
-}
-
-
-void DocumentManager::clearExpectedDirectory()
-{
-    if (QTimer *timer = qobject_cast<QTimer *>(sender())) {
-        d->m_expectedDirectories.remove(timer->property("directory").toString());
-        timer->deleteLater();
-    }
-}
 
 /*!
     Tries to save the files listed in \a documents. The \a cancelled argument is set to true
@@ -945,18 +903,9 @@ void DocumentManager::checkForReload()
                 continue;
 
             // was the change unexpected?
-            if ((currentState.modified != expectedState.modified
-                 || currentState.permissions != expectedState.permissions)
+            if ((currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions)
                     && !expectedFileNames.contains(fileName)) {
-                bool expectedDir = false;
-                foreach (const QString &expectedDirectory, d->m_expectedDirectories) {
-                    if (fileName.startsWith(expectedDirectory)) {
-                        expectedDir = true;
-                        break;
-                    }
-                }
-                if (!expectedDir)
-                    trigger = IDocument::TriggerExternal;
+                trigger = IDocument::TriggerExternal;
             }
 
             // find out the type
