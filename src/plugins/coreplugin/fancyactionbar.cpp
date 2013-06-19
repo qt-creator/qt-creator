@@ -175,8 +175,6 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.drawLine(rect().topLeft() - QPoint(0,1), rect().topRight() - QPoint(0,1));
         painter.restore();
     }
-    QPixmap borderPixmap;
-    QMargins margins;
 
     QRect iconRect(0, 0, Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
     // draw popup texts
