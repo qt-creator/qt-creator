@@ -74,6 +74,7 @@ public:
     QString sha(const QModelIndex &idx) const;
     bool isLocal(const QModelIndex &idx) const;
     bool isLeaf(const QModelIndex &idx) const;
+    bool isTag(const QModelIndex &idx) const;
 
     void removeBranch(const QModelIndex &idx);
     void checkoutBranch(const QModelIndex &idx);

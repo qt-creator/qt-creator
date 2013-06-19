@@ -77,6 +77,18 @@ public:
         return children.isEmpty();
     }
 
+    bool isTag() const
+    {
+        if (!parent)
+            return false;
+        for (const BranchNode *p = this; p->parent; p = p->parent) {
+            // find root child with name "tags"
+            if (!p->parent->parent && p->name == QLatin1String("tags"))
+                return true;
+        }
+        return false;
+    }
+
     bool childOf(BranchNode *node) const
     {
         if (this == node)
@@ -433,6 +445,13 @@ bool BranchModel::isLeaf(const QModelIndex &idx) const
         return false;
     BranchNode *node = indexToNode(idx);
     return node->isLeaf();
+}
+
+bool BranchModel::isTag(const QModelIndex &idx) const
+{
+    if (!idx.isValid())
+        return false;
+    return indexToNode(idx)->isTag();
 }
 
 void BranchModel::removeBranch(const QModelIndex &idx)

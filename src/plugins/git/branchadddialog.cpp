@@ -124,12 +124,14 @@ QString BranchAddDialog::branchName() const
 void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
 {
     m_ui->trackingCheckBox->setVisible(true);
-    if (!name.isEmpty())
+    if (!name.isEmpty()) {
         m_ui->trackingCheckBox->setText(remote ? tr("Track remote branch \'%1\'").arg(name) :
                                                  tr("Track local branch \'%1\'").arg(name));
-    else
+        m_ui->trackingCheckBox->setChecked(remote);
+    } else {
         m_ui->trackingCheckBox->setVisible(false);
-    m_ui->trackingCheckBox->setChecked(remote);
+        m_ui->trackingCheckBox->setChecked(false);
+    }
 }
 
 bool BranchAddDialog::track()
