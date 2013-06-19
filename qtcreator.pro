@@ -17,8 +17,16 @@ unix:!macx:!isEmpty(copydata):SUBDIRS += bin
 
 OTHER_FILES += dist/copyright_template.txt \
     $$files(dist/changes-*) \
-    qtcreator.qbp \
-    qbs/pluginspec/pluginspec.qbs
+    qtcreator.qbs \
+    qbs/pluginspec/pluginspec.qbs \
+    $$files(dist/installer/ifw/config/config-*) \
+    dist/installer/ifw/packages/org.qtproject.qtcreator/meta/package.xml.in \
+    dist/installer/ifw/packages/org.qtproject.qtcreator.application/meta/installscript.qs \
+    dist/installer/ifw/packages/org.qtproject.qtcreator.application/meta/package.xml.in \
+    dist/installer/ifw/packages/org.qtproject.qtcreator.application/meta/license.txt \
+    $$files(scripts/*.py) \
+    $$files(scripts/*.sh) \
+    $$files(scripts/*.pl)
 
 qmake_cache = $$targetPath($$IDE_BUILD_TREE/.qmake.cache)
 !equals(QMAKE_HOST.os, Windows) {
