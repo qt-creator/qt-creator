@@ -50,6 +50,8 @@ else: PLATFORM = "unknown"
 
 PATTERN = $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
 
+INSTALLER_NAME = "qt-creator-$${PATTERN}"
+
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
     BINDIST_SOURCE = "$$OUT_PWD/bin/Qt Creator.app"
@@ -83,7 +85,18 @@ bindist.commands = 7z a -mx9 $$OUT_PWD/qt-creator-$${PATTERN}.7z \"$$BINDIST_SOU
 bindist_installer.depends = deployqt
 bindist_installer.commands = 7z a -mx9 $${INSTALLER_ARCHIVE} \"$$BINDIST_INSTALLER_SOURCE\"
 installer.depends = bindist_installer
-installer.commands = $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$${INSTALLER_ARCHIVE}\" "qt-creator-$${PATTERN}"
+installer.commands = $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$${INSTALLER_ARCHIVE}\" "$$INSTALLER_NAME"
+
+macx {
+    # this should be very temporary:
+    MENU_NIB = $$(MENU_NIB_FILE)
+    isEmpty(MENU_NIB): MENU_NIB = "FATAT_SET_MENU_NIB_FILE_ENV"
+    copy_menu_nib_installer.commands = cp -R \"$$MENU_NIB\" \"$${INSTALLER_NAME}.app/Contents/Resources\"
+
+    codesign_installer.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${INSTALLER_NAME}.app\"
+    dmg_installer.commands = hdiutil create -srcfolder "$${INSTALLER_NAME}.app" -volname \"Qt Creator\" -format UDBZ "qt-creator-$${PATTERN}-installer.dmg" -ov -scrub -stretch 2g
+    QMAKE_EXTRA_TARGETS += codesign_installer dmg_installer copy_menu_nib_installer
+}
 
 win32 {
     deployqt.commands ~= s,/,\\\\,g

@@ -57,7 +57,7 @@ Component.prototype.beginInstallation = function()
     else if (installer.value("os") == "x11")
         component.qtCreatorBinaryPath = component.qtCreatorBinaryPath + "/bin/qtcreator";
     else if (installer.value("os") == "mac")
-        component.qtCreatorBinaryPath = "\"" + component.qtCreatorBinaryPath + "/Qt Creator.app/Contents/MacOS/Qt Creator\"";
+        component.qtCreatorBinaryPath = component.qtCreatorBinaryPath + "/Qt Creator.app/Contents/MacOS/Qt Creator";
 
     if ( installer.value("os") === "win" ) {
         component.setStopProcessForUpdateRequest(component.qtCreatorBinaryPath, true);
