@@ -685,8 +685,8 @@ void Qt4Project::update()
 
 void Qt4Project::updateRunConfigurations()
 {
-    foreach (Target *t, targets())
-        t->updateDefaultRunConfigurations();
+    if (activeTarget())
+        activeTarget()->updateDefaultRunConfigurations();
 }
 
 void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
