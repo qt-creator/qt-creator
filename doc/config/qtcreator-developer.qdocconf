@@ -68,3 +68,6 @@ qhp.QtCreator.subprojects.manual.type = manual
 
 macro.see                       = "\\sa"
 macro.function                  = "\\fn"
+
+navigation.landingpage = "Extending Qt Creator Manual"
+buildversion = "Extending Qt Creator Manual $QTC_VERSION"
