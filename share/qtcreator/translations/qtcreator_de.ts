@@ -5117,6 +5117,10 @@ Grund: %3</translation>
         <translation>Es konnte kein Stash mit der Beschreibung &quot;%1&quot; im Repository &quot;%2&quot; gefunden werden.</translation>
     </message>
     <message>
+        <source>Cannot retrieve submodule status of &quot;%1&quot;: %2</source>
+        <translation>Der Status des Sub-Modules &quot;%1&quot; konnte nicht bestimmt werden: %2</translation>
+    </message>
+    <message>
         <source>There were warnings while applying &quot;%1&quot; to &quot;%2&quot;:
 %3</source>
         <translation>Beim Anwenden der Patch-Datei &quot;%1&quot; auf das Repository &quot;%2&quot; traten Warnungen auf:
@@ -9370,22 +9374,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <source>Configuration unchanged, skipping qmake step.</source>
         <translation>Unveränderte Konfiguration, qmake-Schritt wird übersprungen.</translation>
     </message>
-    <message>
-        <source>No Qt version.</source>
-        <translation>Keine Qt-Version.</translation>
-    </message>
-    <message>
-        <source>Invalid Qt version.</source>
-        <translation>Ungültige Qt-Version.</translation>
-    </message>
-    <message>
-        <source>Requires Qt 4.7.1 or newer.</source>
-        <translation>Erfordert Qt 4.7.1 oder neuer.</translation>
-    </message>
-    <message>
-        <source>Library not available. &lt;a href=&apos;compile&apos;&gt;Compile...&lt;/a&gt;</source>
-        <translation>Bibliothek nicht verfügbar. &lt;a href=&apos;compile&apos;&gt;Kompilieren...&lt;/a&gt;</translation>
-    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
@@ -9396,10 +9384,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
         <translation>Diese Einstellung wird nur nach einer Neuerstellung des Projekts wirksam. Möchten Sie das Projekt neu erstellen?</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
@@ -22015,6 +21999,26 @@ Bitte verwenden Sie den Stop-Button.</translation>
         <source>Version:</source>
         <translation>Version:</translation>
     </message>
+    <message>
+        <source>No Qt version.</source>
+        <translation>Keine Qt-Version.</translation>
+    </message>
+    <message>
+        <source>Invalid Qt version.</source>
+        <translation>Ungültige Qt-Version.</translation>
+    </message>
+    <message>
+        <source>Requires Qt 4.7.1 or newer.</source>
+        <translation>Erfordert Qt 4.7.1 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Library not available. &lt;a href=&apos;compile&apos;&gt;Compile...&lt;/a&gt;</source>
+        <translation>Bibliothek nicht verfügbar. &lt;a href=&apos;compile&apos;&gt;Kompilieren...&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Building helpers</source>
+        <translation>Erstelle Hilfsbibliotheken</translation>
+    </message>
 </context>
 <context>
     <name>QtSupport::Internal::QtOptionsPageWidget</name>
@@ -34148,12 +34152,20 @@ Entfernt: %4</translation>
         <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
     <message>
+        <source>Might make your application vulnerable. Only use in a safe environment.</source>
+        <translation>Potentielle Sicherheitslücke, sollte nur in einer sicheren Umgebung benutzt werden.</translation>
+    </message>
+    <message>
         <source>Keep going</source>
         <translation>Fortsetzen</translation>
     </message>
     <message>
         <source>Properties:</source>
         <translation>Eigenschaften:</translation>
+    </message>
+    <message>
+        <source>Enable QML debugging:</source>
+        <translation>QML-Debuggen aktivieren:</translation>
     </message>
 </context>
 <context>
@@ -34567,13 +34579,6 @@ Entfernt: %4</translation>
     <message>
         <source>Specifies how the text is displayed in the text field.</source>
         <translation>Bestimmt, wie der Text in der Textzeile angezeigt wird.</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtVersionsModel</name>
-    <message>
-        <source>All Versions</source>
-        <translation>Alle Versionen</translation>
     </message>
 </context>
 <context>
@@ -35718,17 +35723,6 @@ Kurznamen können verwendet werden, sofern sie eindeutig sind.</translation>
     <message>
         <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; or newer.</source>
         <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält und Qt Quick Controls verwendet.&amp;lt;br/&amp;gt;Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Dieses Projekt erfordert, dass die Qt Quick Controls für die Qt-Version installiert sind.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Erfordert &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; oder neuer.</translation>
-    </message>
-</context>
-<context>
-    <name>QuickFixFactory</name>
-    <message>
-        <source>Create Getter and Setter Member Functions</source>
-        <translation>Getter- und Setter-Funktionen erstellen</translation>
-    </message>
-    <message>
-        <source>Generate Missing Q_PROPERTY Members...</source>
-        <translation>Fehlende Q_PROPERTY-Elemente ergänzen...</translation>
     </message>
 </context>
 <context>
@@ -37032,6 +37026,35 @@ Dieser Wizard führt Sie durch die essentiellen Schritte, die zum Deployment ein
     <message>
         <source>Creates C++/Boost file with bindings for Python</source>
         <translation>Erstellt eine C++-/Boost-Datei mit Bindings für Python</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::QuickFixFactory</name>
+    <message>
+        <source>Create Getter and Setter Member Functions</source>
+        <translation>Getter- und Setter-Funktionen erstellen</translation>
+    </message>
+    <message>
+        <source>Generate Missing Q_PROPERTY Members...</source>
+        <translation>Fehlende Q_PROPERTY-Elemente ergänzen...</translation>
+    </message>
+</context>
+<context>
+    <name>ShowEditor</name>
+    <message>
+        <source>Show Editor</source>
+        <translation>Editor anzeigen</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::DiffShowEditor</name>
+    <message>
+        <source>Hide Change Description</source>
+        <translation>Beschreibung der Änderung ausblenden</translation>
+    </message>
+    <message>
+        <source>Show Change Description</source>
+        <translation>Beschreibung der Änderung einblenden</translation>
     </message>
 </context>
 </TS>
