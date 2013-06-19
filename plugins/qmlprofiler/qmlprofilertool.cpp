@@ -158,6 +158,10 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
             d->m_profilerModelManager,
             SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
     connect(d->m_profilerConnections,
+            SIGNAL(addPixmapCacheEvent(qint64,int,QString,int,int,int)),
+            d->m_profilerModelManager,
+            SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
+    connect(d->m_profilerConnections,
             SIGNAL(addV8Event(int,QString,QString,int,double,double)),
             d->m_profilerModelManager,
             SLOT(addV8Event(int,QString,QString,int,double,double)));

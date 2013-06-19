@@ -171,6 +171,10 @@ void QmlProfilerClientManager::connectClientSignals()
         connect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
                 this, SIGNAL(addFrameEvent(qint64,int,int)));
         connect(d->qmlclientplugin.data(),
+                SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
+                this,
+                SIGNAL(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
+        connect(d->qmlclientplugin.data(),
                 SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
                 this,
                 SIGNAL(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
@@ -206,6 +210,10 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    this, SIGNAL(traceStarted(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
                    this, SIGNAL(addFrameEvent(qint64,int,int)));
+        disconnect(d->qmlclientplugin.data(),
+                SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
+                this,
+                SIGNAL(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
         disconnect(d->qmlclientplugin.data(),
                    SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)),
                    this,

@@ -71,6 +71,7 @@ public:
     void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length, const QStringList &data, const QmlDebug::QmlEventLocation &location);
     void addFrameEvent(qint64 time, int framerate, int animationcount);
     void addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
+    void addPixmapCacheEvent(qint64 time, int cacheEventType, const QString& url, int width, int height, int refCount);
     qint64 lastTimeMark() const;
     virtual void complete();
 

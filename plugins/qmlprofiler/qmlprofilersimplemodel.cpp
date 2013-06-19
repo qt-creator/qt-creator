@@ -88,6 +88,13 @@ void QmlProfilerSimpleModel::addSceneGraphEvent(int eventType, int SGEtype, qint
     eventList.append(eventData);
 }
 
+void QmlProfilerSimpleModel::addPixmapCacheEvent(qint64 time, int cacheEventType, const QString &url, int width, int height, int refCount)
+{
+    QmlDebug::QmlEventLocation location(url, 0, 0);
+    QmlEventData eventData = {QString(), QmlDebug::PixmapCacheEvent, cacheEventType, time, 0, QStringList(), location, width, height, refCount, -1, -1};
+    eventList.append(eventData);
+}
+
 qint64 QmlProfilerSimpleModel::lastTimeMark() const
 {
     if (eventList.isEmpty())

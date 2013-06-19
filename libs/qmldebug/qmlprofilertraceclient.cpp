@@ -191,6 +191,21 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             stream >> params[count++];
         }
         emit sceneGraphFrame(SceneGraphFrameEvent, sgEventType, time, params[0], params[1], params[2], params[3], params[4]);
+    } else if (messageType == PixmapCacheEvent) {
+        int pixEvTy, width = -1, height = -1, refcount = -1;
+        QString pixUrl;
+        stream >> pixEvTy >> pixUrl;
+        if (pixEvTy == (int)PixmapReferenceCountChanged || pixEvTy == (int)PixmapCacheCountChanged) {
+            stream >> refcount;
+            emit pixmapCacheEvent(time,pixEvTy, pixUrl, 0, 0, refcount);
+        } else
+            if (pixEvTy == (int)PixmapSizeKnown) {
+                stream >> width >> height;
+                emit pixmapCacheEvent(time,pixEvTy, pixUrl, width, height, 1);
+            } else { // Other
+                emit pixmapCacheEvent(time,pixEvTy, pixUrl, 0, 0, 0);
+            }
+        d->maximumTime = qMax(time, d->maximumTime);
     } else {
         int range;
         stream >> range;

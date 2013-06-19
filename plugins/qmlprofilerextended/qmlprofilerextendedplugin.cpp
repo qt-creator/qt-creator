@@ -33,6 +33,7 @@
 #include <QtPlugin>
 
 #include "scenegraphtimelinemodel.h"
+#include "pixmapcachemodel.h"
 
 using namespace QmlProfilerExtended::Internal;
 
@@ -59,6 +60,7 @@ bool QmlProfilerExtendedPlugin::initialize(const QStringList &arguments, QString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    addAutoReleasedObject(new PixmapCacheModel);
     addAutoReleasedObject(new SceneGraphTimelineModel);
 
     return true;

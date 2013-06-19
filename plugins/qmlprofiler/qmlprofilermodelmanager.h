@@ -122,6 +122,8 @@ public slots:
                         const QStringList &data, const QmlDebug::QmlEventLocation &location);
     void addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime,
                             qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
+    void addPixmapCacheEvent(qint64 time, int pixmapEventType, QString Url,
+                             int pixmapWidth, int pixmapHeight, int referenceCount);
     void addV8Event(int depth, const QString &function,const QString &filename, int lineNumber,
                     double totalTime, double selfTime);
 

@@ -222,6 +222,17 @@ void QmlProfilerModelManager::addSceneGraphEvent(int eventType, int SGEtype, qin
     emit countChanged();
 }
 
+void QmlProfilerModelManager::addPixmapCacheEvent(qint64 time, int pixmapEventType, QString Url, int pixmapWidth, int pixmapHeight, int referenceCount)
+{
+    if (d->traceTime->startTime() == -1)
+        d->traceTime->setStartTime(time);
+
+    QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
+    d->model->addPixmapCacheEvent(time, pixmapEventType, Url, pixmapWidth, pixmapHeight, referenceCount);
+    emit countChanged();
+}
+
+
 void QmlProfilerModelManager::complete()
 {
     if (state() == QmlProfilerDataState::AcquiringData) {

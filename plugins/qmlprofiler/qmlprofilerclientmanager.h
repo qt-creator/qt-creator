@@ -67,6 +67,7 @@ signals:
     void traceFinished(qint64);
     void dataReadyForProcessing();
     void addSceneGraphEvent(int, int, qint64, qint64, qint64, qint64, qint64, qint64);
+    void addPixmapCacheEvent(qint64,int,QString,int,int,int);
 
 public slots:
     void connectClient(quint16 port);
