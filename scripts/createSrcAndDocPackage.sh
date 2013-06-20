@@ -1,31 +1,40 @@
 #!/bin/bash
 
 ## Command line parameters
-if [[ $# != 2 ]]; then
+if [[ $# != 1 ]]; then
     cat <<USAGE
 usage:
-  $0 <refspec> <version>
+  $0 <version>
 
-  Creates tar and zip source package from <refspec>.
+  Creates tar and zip source package from HEAD of the main repository and submodules.
   Files and directories are named after <version>.
   example:
-    $0 origin/2.2 2.2.0
+    $0 2.2.0-beta
 USAGE
     exit 1
 fi
 
-BRANCH=$1
-VERSION=$2
+VERSION=$1
+PREFIX=qt-creator-${VERSION}-src
 cd `dirname $0`/..
 RESULTDIR=`pwd`
+TEMPSOURCES=`mktemp -d -t qtcCreatorSourcePackage.XXXXXX`
+echo "Temporary directory: ${TEMPSOURCES}"
 echo "Creating tar archive..."
-git archive --format=tar --prefix=qt-creator-${VERSION}-src/ ${BRANCH} | gzip > qt-creator-${VERSION}-src.tar.gz || exit 1
+
+echo "  Creating tar sources of repositories..."
+git archive --format=tar --prefix=${PREFIX}/ HEAD > ${TEMPSOURCES}/__qtcreator_main.tar || exit 1
+cd src/shared/qbs || exit 1
+git archive --format=tar --prefix=${PREFIX}/src/shared/qbs/ HEAD > ${TEMPSOURCES}/__qtcreator_qbs.tar || exit 1
+
+echo "  Combining tar sources..."
+cd ${TEMPSOURCES} || exit 1
+tar xf __qtcreator_main.tar || exit 1
+tar xf __qtcreator_qbs.tar || exit 1
+tar czf "${RESULTDIR}/${PREFIX}.tar.gz" ${PREFIX}/ || exit 1
 
 echo "Creating zip archive..."
-# untargz the sources for the revision into temporary dir
-TEMPSOURCES=`mktemp -d -t qtcCreatorSourcePackage.XXXXXX`
-tar xzf qt-creator-${VERSION}-src.tar.gz -C "$TEMPSOURCES" || exit 1
-cd $TEMPSOURCES || exit 1
+echo "  Filtering binary vs text files..."
 # write filter for text files (for use with 'file' command)
 echo ".*:.*ASCII
 .*:.*directory
@@ -34,9 +43,10 @@ echo ".*:.*ASCII
 .*:.*html
 .*:.*text" > __txtpattern || exit 1
 # list all files
-find qt-creator-${VERSION}-src > __packagedfiles || exit 1
+find ${PREFIX} > __packagedfiles || exit 1
 # record file types
 file -f __packagedfiles > __filetypes || exit 1
+echo "  Creating archive..."
 # zip text files and binary files separately
-cat __filetypes | grep -f __txtpattern -v | cut -d: -f1 | zip -9q "$RESULTDIR"/qt-creator-${VERSION}-src.zip -@ || exit 1
-cat __filetypes | grep -f __txtpattern    | cut -d: -f1 | zip -l9q "$RESULTDIR"/qt-creator-${VERSION}-src.zip -@ || exit 1
+cat __filetypes | grep -f __txtpattern -v | cut -d: -f1 | zip -9q "${RESULTDIR}/${PREFIX}.zip" -@ || exit 1
+cat __filetypes | grep -f __txtpattern    | cut -d: -f1 | zip -l9q "${RESULTDIR}/${PREFIX}.zip" -@ || exit 1
