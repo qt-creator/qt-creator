@@ -19,6 +19,7 @@
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 
 namespace QmlProfilerExtended {
@@ -264,9 +265,9 @@ QString labelForSGType(int t)
 {
     switch ((SceneGraphCategoryType)t) {
     case SceneGraphRenderThread:
-        return QGuiApplication::translate("SceneGraphTimelineModel", "Renderer Thread");
+        return QCoreApplication::translate("SceneGraphTimelineModel", "Renderer Thread");
     case SceneGraphGUIThread:
-        return QGuiApplication::translate("SceneGraphTimelineModel", "GUI Thread");
+        return QCoreApplication::translate("SceneGraphTimelineModel", "GUI Thread");
     default: return QString();
     }
 }
