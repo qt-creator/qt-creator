@@ -2153,29 +2153,6 @@ class Dumper:
             with Children(self):
                self.putFields(value)
 
-    def tryPutObjectNameValue(self, value):
-        try:
-            # Is this derived from QObject?
-            dd = value["d_ptr"]["d"]
-            privateTypeName = self.ns + "QObjectPrivate"
-            privateType = lookupType(privateTypeName)
-            staticMetaObject = value["staticMetaObject"]
-            d_ptr = dd.cast(privateType.pointer()).dereference()
-            objectName = None
-            try:
-                objectName = d_ptr["objectName"]
-            except: # Qt 5
-                p = d_ptr["extraData"]
-                if not isNull(p):
-                    objectName = p.dereference()["objectName"]
-            if not objectName is None:
-                data, size, alloc = self.stringData(objectName)
-                if size > 0:
-                    str = readRawMemory(data, 2 * size)
-                    self.putValue(str, Hex4EncodedLittleEndian, 1)
-        except:
-            pass
-
     def readRawMemory(self, base, size):
         return readRawMemory(base, size)
 

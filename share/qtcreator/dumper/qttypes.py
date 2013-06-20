@@ -95,6 +95,7 @@ Dumper.isMapCompact = \
     lambda d, keyType, valueType: qMapCompact(d.currentItemFormat(), keyType, valueType)
 
 
+# Returns True when it encounters a QObject or derived class.
 def tryPutObjectNameValue(d, value):
     try:
         # Is this derived from QObject?
@@ -114,8 +115,9 @@ def tryPutObjectNameValue(d, value):
             if size > 0:
                 str = d.readRawMemory(data, 2 * size)
                 d.putValue(str, Hex4EncodedLittleEndian, 1)
+        return True
     except:
-        pass
+        return False
 
 Dumper.tryPutObjectNameValue = tryPutObjectNameValue
 
