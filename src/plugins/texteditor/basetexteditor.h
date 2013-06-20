@@ -375,7 +375,7 @@ protected:
 private slots:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
     void documentAboutToBeReloaded();
-    void documentReloaded();
+    void documentReloadFinished(bool success);
     void highlightSearchResults(const QString &txt, Find::FindFlags findFlags);
     void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
     bool inFindScope(const QTextCursor &cursor);

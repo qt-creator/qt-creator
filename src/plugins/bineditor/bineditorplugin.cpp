@@ -302,9 +302,9 @@ public:
             emit changed();
         } else {
             emit aboutToReload();
-            if (!open(errorString, m_fileName))
-                return false;
-            emit reloaded();
+            const bool success = open(errorString, m_fileName);
+            emit reloadFinished(success);
+            return success;
         }
         return true;
     }

@@ -2204,8 +2204,11 @@ void BaseTextEditorWidget::documentAboutToBeReloaded()
     d->m_refactorOverlay->clear();
 }
 
-void BaseTextEditorWidget::documentReloaded()
+void BaseTextEditorWidget::documentReloadFinished(bool success)
 {
+    if (!success)
+        return;
+
     // restore cursor position
     restoreState(d->m_tempState);
     updateCannotDecodeInfo();
@@ -2584,7 +2587,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<Base
     QObject::connect(document.data(), SIGNAL(changed()), q, SIGNAL(changed()));
     QObject::connect(document.data(), SIGNAL(titleChanged(QString)), q, SLOT(setDisplayName(QString)));
     QObject::connect(document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
-    QObject::connect(document.data(), SIGNAL(reloaded()), q, SLOT(documentReloaded()));
+    QObject::connect(document.data(), SIGNAL(reloadFinished(bool)), q, SLOT(documentReloadFinished(bool)));
     q->slotUpdateExtraAreaWidth();
 }
 

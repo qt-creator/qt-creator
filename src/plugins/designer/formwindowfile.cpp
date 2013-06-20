@@ -145,9 +145,9 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
     } else {
         emit aboutToReload();
         emit reload(errorString, m_fileName);
-        if (!errorString->isEmpty())
-            return false;
-        emit reloaded();
+        const bool success = errorString->isEmpty();
+        emit reloadFinished(success);
+        return success;
     }
     return true;
 }
