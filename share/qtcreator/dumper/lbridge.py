@@ -253,6 +253,10 @@ def createPointerValue(context, address, pointeeType):
     addr = int(address) & 0xFFFFFFFFFFFFFFFF
     return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
 
+def createReferenceValue(context, address, referencedType):
+    addr = int(address) & 0xFFFFFFFFFFFFFFFF
+    return context.CreateValueFromAddress(None, addr, referencedType)
+
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
         if isinstance(offset, int) or isinstance(offset, long):
@@ -502,6 +506,12 @@ class SubItem:
         self.d.currentTypePriority = self.savedTypePriority
         self.d.currentAddress = self.savedCurrentAddress
         return True
+
+class UnnamedSubItem(SubItem):
+    def __init__(self, d, component):
+        self.d = d
+        self.iname = "%s.%s" % (self.d.currentIName, component)
+        self.name = None
 
 class Dumper:
     def __init__(self):
@@ -945,6 +955,7 @@ class Dumper:
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
+        value.SetPreferDynamicValue(tryDynamic)
 
         if tryDynamic:
             self.putAddress(value.address)
@@ -984,13 +995,9 @@ class Dumper:
 
         # References
         if value.GetType().IsReferenceType():
-            type = value.GetType().GetDereferencedType().GetPointerType()
-            # FIXME: Find something more direct.
             origType = value.GetTypeName();
-            value = value.CreateValueFromAddress(value.GetName(),
-                value.AddressOf().GetValueAsUnsigned(), type).Dereference()
-            #value = value.cast(value.dynamic_type)
-            self.putItem(value)
+            type = value.GetType().GetDereferencedType()
+            self.putItem(createReferenceValue(value, value.GetAddress(), type))
             self.putBetterType(origType)
             return
 
@@ -1039,9 +1046,16 @@ class Dumper:
 
     def putFields(self, value):
         n = value.GetNumChildren()
+        m = value.GetType().GetNumberOfDirectBaseClasses()
         if n > 10000:
             n = 10000
-        for i in xrange(n):
+        for i in xrange(m):
+            child = value.GetChildAtIndex(i)
+            with UnnamedSubItem(self, "@%d" % (i + 1)):
+                #self.put('iname="%s",' % self.currentIName)
+                self.put('name="[%s]",' % child.name)
+                self.putItem(child)
+        for i in xrange(m, n):
             child = value.GetChildAtIndex(i)
             with SubItem(self, child):
                 self.putItem(child)
