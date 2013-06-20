@@ -1056,8 +1056,8 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QByteArray3")
             << Data("#include <QByteArray>\n",
-                    "const char *str1 = \"\356\";\n"
-                    "const char *str2 = \"\xee\";\n"
+                    "const char *str1 = \"\\356\";\n"
+                    "const char *str2 = \"\\xee\";\n"
                     "const char *str3 = \"\\\\ee\";\n"
                     "QByteArray buf1(str1);\n"
                     "QByteArray buf2(str2);\n"

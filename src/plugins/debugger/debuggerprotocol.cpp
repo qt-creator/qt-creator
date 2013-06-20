@@ -38,6 +38,17 @@
 namespace Debugger {
 namespace Internal {
 
+uchar fromhex(uchar c)
+{
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'z')
+        return 10 + c - 'a';
+    if (c >= 'A' && c <= 'Z')
+        return 10 + c - 'A';
+    return -1;
+}
+
 void skipCommas(const char *&from, const char *to)
 {
     while (*from == ',' && from != to)
@@ -120,6 +131,26 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
                 case 'v': *dst++ = '\v'; break;
                 case '"': *dst++ = '"'; break;
                 case '\\': *dst++ = '\\'; break;
+                case 'x': {
+                        c = *src++;
+                        int chars = 0;
+                        uchar prod = 0;
+                        while (true) {
+                            uchar val = fromhex(c);
+                            if (val == uchar(-1))
+                                break;
+                            prod = prod * 16 + val;
+                            if (++chars == 3 || src == end)
+                                break;
+                            c = *src++;
+                        }
+                        if (!chars) {
+                            qDebug() << "MI Parse Error, unrecognized hex escape";
+                            return QByteArray();
+                        }
+                        *dst++ = prod;
+                        break;
+                    }
                 default:
                     {
                         int chars = 0;
