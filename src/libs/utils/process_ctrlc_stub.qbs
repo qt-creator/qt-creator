@@ -4,7 +4,7 @@ import "../../tools/QtcTool.qbs" as QtcTool
 QtcTool {
     name: "qtcreator_ctrlc_stub"
     consoleApplication: true
-    condition: qbs.targetOS == "windows"
+    condition: qbs.targetOS.contains("windows")
 
 
     files: [ "process_ctrlc_stub.cpp" ]

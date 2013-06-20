@@ -54,13 +54,13 @@ QtcLibrary {
         var result = [];
         if (useSystemBotan)
             result.push("botan-1.10")
-        if (qbs.targetOS === "windows")
+        if (qbs.targetOS.contains("windows"))
             result.push("advapi32", "user32")
-        else if (qbs.targetOS === "linux")
+        else if (qbs.targetOS.contains("linux"))
             result.push("rt", "dl");
-        else if (qbs.targetOS === "mac")
+        else if (qbs.targetOS.contains("mac"))
             result.push("dl");
-        else if (qbs.targetPlatform.indexOf("unix") !== -1)
+        else if (qbs.targetOS.contains("unix"))
             result.push("rt");
         return result
     }
@@ -74,7 +74,7 @@ QtcLibrary {
                 result.push("BOTAN_BUILD_COMPILER_IS_MSVC", "BOTAN_TARGET_OS_HAS_GMTIME_S")
             if (qbs.toolchain === "gcc" || qbs.toolchain === "mingw")
                 result.push("BOTAN_BUILD_COMPILER_IS_GCC")
-            if (qbs.targetOS === "linux")
+            if (qbs.targetOS.contains("linux"))
                 result.push("BOTAN_TARGET_OS_IS_LINUX", "BOTAN_TARGET_OS_HAS_CLOCK_GETTIME",
                             "BOTAN_TARGET_OS_HAS_DLOPEN", " BOTAN_TARGET_OS_HAS_GMTIME_R",
                             "BOTAN_TARGET_OS_HAS_POSIX_MLOCK", "BOTAN_HAS_DYNAMICALLY_LOADED_ENGINE",
@@ -82,12 +82,12 @@ QtcLibrary {
                             "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
                             "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",
                             "BOTAN_HAS_ENTROPY_SRC_UNIX", "BOTAN_HAS_MUTEX_PTHREAD", "BOTAN_HAS_PIPE_UNIXFD_IO")
-            if (qbs.targetOS === "mac")
+            if (qbs.targetOS.contains("mac"))
                 result.push("BOTAN_TARGET_OS_IS_DARWIN", "BOTAN_TARGET_OS_HAS_GETTIMEOFDAY",
                             "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
                             "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",
                             "BOTAN_HAS_ENTROPY_SRC_UNIX", "BOTAN_HAS_MUTEX_PTHREAD", "BOTAN_HAS_PIPE_UNIXFD_IO")
-            if (qbs.targetOS === "windows")
+            if (qbs.targetOS.contains("windows"))
                 result.push("BOTAN_TARGET_OS_IS_WINDOWS",
                             "BOTAN_TARGET_OS_HAS_LOADLIBRARY", "BOTAN_TARGET_OS_HAS_WIN32_GET_SYSTEMTIME",
                             "BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK", "BOTAN_HAS_DYNAMICALLY_LOADED_ENGINE",

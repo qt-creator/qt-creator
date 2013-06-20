@@ -3,7 +3,7 @@ import "../QtcTool.qbs" as QtcTool
 
 QtcTool {
     name: "qtcdebugger"
-    condition: qbs.targetOS == "windows"
+    condition: qbs.targetOS.contains("windows")
 
     cpp.includePaths: [
         buildDirectory,
