@@ -1104,8 +1104,8 @@
 
     \image qtcreator-indentation.png "Text Editor Behavior options"
 
-    To specify different settings for a particular project, select \gui {Projects >
-    Editor Settings}.
+    To specify different settings for a particular project, select \gui Projects
+    > \gui Editor.
 
     You can specify how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.
