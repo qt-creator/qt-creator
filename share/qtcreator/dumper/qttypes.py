@@ -18,6 +18,23 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
+def checkSimpleRef(ref):
+    count = int(ref["_q_value"])
+    check(count > 0)
+    check(count < 1000000)
+
+def checkRef(ref):
+    try:
+        count = int(ref["atomic"]["_q_value"]) # Qt 5.
+        minimum = -1
+    except:
+        count = int(ref["_q_value"]) # Qt 4.
+        minimum = 0
+    # Assume there aren't a million references to any object.
+    check(count >= minimum)
+    check(count < 1000000)
+
+
 def qByteArrayDataData(d, value):
     checkRef(value['ref'])
     size = int(value['size'])
@@ -1625,7 +1642,7 @@ def qdump__QString(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayUtf16String)
-        d.putField("editvalue", qEncodeString(d, value, None))
+        d.putField("editvalue", d.encodeString(value, None))
 
 
 def qdump__QStringRef(d, value):
@@ -1702,10 +1719,10 @@ def qdump__QUrl(d, value):
         try:
             # Qt 5
             data = value["d"].dereference()
-            str = qEncodeString(d, data["scheme"])
+            str = d.encodeString(data["scheme"])
             str += "3a002f002f00"
-            str += qEncodeString(d, data["host"])
-            str += qEncodeString(d, data["path"])
+            str += d.encodeString(data["host"])
+            str += d.encodeString(data["path"])
             d.putValue(str, Hex4EncodedLittleEndian)
         except:
             d.putPlainChildren(value)

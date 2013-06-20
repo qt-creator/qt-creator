@@ -249,22 +249,6 @@ def isNull(p):
 
 Value = lldb.SBValue
 
-def checkSimpleRef(ref):
-    count = int(ref["_q_value"])
-    check(count > 0)
-    check(count < 1000000)
-
-def checkRef(ref):
-    try:
-        count = int(ref["atomic"]["_q_value"]) # Qt 5.
-        minimum = -1
-    except:
-        count = int(ref["_q_value"]) # Qt 4.
-        minimum = 0
-    # Assume there aren't a million references to any object.
-    check(count >= minimum)
-    check(count < 1000000)
-
 def createPointerValue(context, address, pointeeType):
     addr = int(address) & 0xFFFFFFFFFFFFFFFF
     return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
@@ -921,8 +905,7 @@ class Dumper:
         if limit is None:
             return size
         if limit == 0:
-            #return min(size, qqStringCutOff)
-            return min(size, 100)
+            return min(size, qqStringCutOff)
         return min(size, limit)
 
     def putValue(self, value, encoding = None, priority = 0):

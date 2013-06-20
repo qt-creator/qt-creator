@@ -1006,23 +1006,6 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
-def checkSimpleRef(ref):
-    count = ref["_q_value"]
-    check(count > 0)
-    check(count < 1000000)
-
-def checkRef(ref):
-    try:
-        count = ref["atomic"]["_q_value"] # Qt 5.
-        minimum = -1
-    except:
-        count = ref["_q_value"] # Qt 4.
-        minimum = 0
-    # Assume there aren't a million references to any object.
-    check(count >= minimum)
-    check(count < 1000000)
-
-
 #def couldBePointer(p, align):
 #    type = lookupType("unsigned int")
 #    ptr = gdb.Value(p).cast(type)
