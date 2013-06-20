@@ -42,7 +42,7 @@ def main():
     if not startedWithoutPluginError():
         return
     # add docs to have the correct tool tips
-    addHelpDocumentationFromSDK()
+    addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
     templateDir = prepareTemplate(sourceExample)
     installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
     # using a temporary directory won't mess up a potentially existing
