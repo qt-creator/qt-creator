@@ -306,13 +306,18 @@ public slots:
     {
         QString needle = QString::number(i) + QLatin1Char('^');
         QString needle2 = QLatin1Char('>') + needle;
+        QString needle3 = QString::fromLatin1("dtoken(\"%1\")@").arg(i);
         QTextCursor cursor(document());
         do {
-            cursor = document()->find(needle, cursor);
-            if (cursor.isNull())
-                break; // Not found.
+            QTextCursor newCursor = document()->find(needle, cursor);
+            if (newCursor.isNull()) {
+                newCursor = document()->find(needle3, cursor);
+                if (newCursor.isNull())
+                    break; // Not found.
+            }
+            cursor = newCursor;
             const QString line = cursor.block().text();
-            if (line.startsWith(needle) || line.startsWith(needle2)) {
+            if (line.startsWith(needle) || line.startsWith(needle2) || line.startsWith(needle3)) {
                 setFocus();
                 setTextCursor(cursor);
                 ensureCursorVisible();
