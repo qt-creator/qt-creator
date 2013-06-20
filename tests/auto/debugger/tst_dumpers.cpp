@@ -3326,7 +3326,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QVector>\n",
                    "QVector<int> vec(10000);\n"
                    "for (int i = 0; i != vec.size(); ++i)\n"
-                   "     vec[i] = i * i\n")
+                   "     vec[i] = i * i;\n")
          % Check("vec", "<10000 items>", "@QVector<int>")
          % Check("vec.0", "[0]", "0", "int")
          % Check("vec.1999", "[1999]", "3996001", "int");
@@ -3749,10 +3749,10 @@ void tst_Dumpers::dumper_data()
 //         % Check("t2", "0", "basic::myType2");
 
     QTest::newRow("Struct")
-            << Data(fooData, "Foo f(2);\n")
+            << Data(fooData, "Foo f(3);\n")
                % Check("f", "", "Foo")
-               % Check("f.a", "2", "int")
-               % Check("f.b", "-1", "int");
+               % Check("f.a", "3", "int")
+               % Check("f.b", "2", "int");
 
     QTest::newRow("Union")
             << Data("union U { int a; int b; };", "U u;")
