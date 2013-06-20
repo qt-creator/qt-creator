@@ -115,6 +115,7 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, bool 
 
     m_comboBox = new QComboBox;
     m_comboBox->setEnabled(false);
+    m_comboBox->setToolTip(toolTip());
 
     foreach (ToolChain *tc, tcm->toolChains())
         toolChainAdded(tc);
@@ -242,6 +243,8 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workin
             m_comboBox->addItem(factory->displayNameForId(id), id.uniqueIdentifier());
     }
 
+    m_comboBox->setToolTip(toolTip());
+
     refresh();
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentTypeChanged(int)));
 }
@@ -301,6 +304,8 @@ DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, b
     m_manageButton = new QPushButton(tr("Manage"));
 
     refresh();
+    m_comboBox->setToolTip(toolTip());
+
     connect(m_model, SIGNAL(modelAboutToBeReset()), SLOT(modelAboutToReset()));
     connect(m_model, SIGNAL(modelReset()), SLOT(modelReset()));
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDeviceChanged()));
