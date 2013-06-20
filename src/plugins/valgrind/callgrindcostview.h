@@ -37,6 +37,9 @@
 namespace Valgrind {
 namespace Internal {
 
+class CostDelegate;
+class NameDelegate;
+
 class CostView : public Utils::BaseTreeView
 {
     Q_OBJECT
@@ -60,8 +63,8 @@ public:
     void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-    class Private;
-    Private *d;
+    CostDelegate *m_costDelegate;
+    NameDelegate *m_nameDelegate;
 };
 
 } // namespace Internal
