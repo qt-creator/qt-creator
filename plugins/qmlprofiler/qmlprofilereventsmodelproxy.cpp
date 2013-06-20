@@ -134,12 +134,12 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         QString hash = QmlProfilerSimpleModel::getHashString(*event);
         if (!d->data.contains(hash)) {
             QmlEventStats stats = {
-                event->bindingType,
                 event->displayName,
                 hash,
                 event->data.join(QLatin1String(" ")),
                 event->location,
                 event->eventType,
+                event->bindingType,
                 event->duration,
                 1, //calls
                 event->duration, //minTime
@@ -225,12 +225,12 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     // insert root event
     QmlEventStats rootEvent = {
-        0,
         rootEventName, //event.displayName,
         rootEventName, // hash
         tr("Main Program"), //event.details,
         rootEventLocation, // location
-        (int)QmlDebug::Binding,
+        (int)QmlDebug::Binding, // event type
+        0, // binding type
         qmlTime + 1,
         1, //calls
         qmlTime + 1, //minTime
@@ -322,7 +322,8 @@ void QmlProfilerEventParentsModelProxy::loadData()
         0,
         0,
         QStringList() << tr("Main Program"),
-        QmlDebug::QmlEventLocation(rootEventName, 0, 0)
+        QmlDebug::QmlEventLocation(rootEventName, 0, 0),
+        0,0,0,0,0 // numericData fields
     };
     cachedEvents.insert(rootEventName, rootEvent);
 

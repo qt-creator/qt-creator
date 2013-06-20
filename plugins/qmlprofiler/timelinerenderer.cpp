@@ -532,8 +532,6 @@ int TimelineRenderer::prevItemFromId(int modelIndex, int eventId) const
 
 void TimelineRenderer::selectNextFromId(int modelIndex, int eventId)
 {
-
-    // TODO: find next index depending on model
     int eventIndex = nextItemFromId(modelIndex, eventId);
     if (eventIndex != -1) {
         setSelectedModel(modelIndex);
@@ -543,8 +541,6 @@ void TimelineRenderer::selectNextFromId(int modelIndex, int eventId)
 
 void TimelineRenderer::selectPrevFromId(int modelIndex, int eventId)
 {
-
-    // TODO: find next index depending on model
     int eventIndex = prevItemFromId(modelIndex, eventId);
     if (eventIndex != -1) {
         setSelectedModel(modelIndex);

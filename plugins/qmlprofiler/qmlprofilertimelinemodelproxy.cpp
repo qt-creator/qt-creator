@@ -61,7 +61,6 @@ public:
     void prepare();
     void computeNestingContracted();
     void computeExpandedLevels();
-    void computeBaseEventIndexes();
     void buildEndTimeList();
     void findBindingLoops();
     void computeRowStarts();
@@ -192,8 +191,6 @@ void BasicTimelineModel::loadData()
                 event.data.join(QLatin1String(" ")),
                 event.location,
                 (QmlDebug::QmlEventType)event.eventType,
-//                event.bindingType,
-//                1,
                 lastEventId++ // event id
             };
             d->eventDict << rangeEventData;
@@ -204,10 +201,10 @@ void BasicTimelineModel::loadData()
         QmlRangeEventStartInstance eventStartInstance = {
             event.startTime,
             event.duration,
+            d->eventHashes.indexOf(eventHash), // event id
             QmlDebug::Constants::QML_MIN_LEVEL, // displayRowExpanded;
             QmlDebug::Constants::QML_MIN_LEVEL, // displayRowCollapsed;
             1,
-            d->eventHashes.indexOf(eventHash), // event id
             -1  // bindingLoopHead
         };
         d->startTimeData.append(eventStartInstance);
@@ -220,8 +217,6 @@ void BasicTimelineModel::loadData()
 
     // compute nestingLevel - expanded
     d->computeExpandedLevels();
-
-    d->computeBaseEventIndexes();
 
     // populate endtimelist
     d->buildEndTimeList();
@@ -279,7 +274,6 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
 
         startTimeData[i].displayRowCollapsed = nestingLevels[type];
 
-        // todo: this should go to another method
         if (level == QmlDebug::Constants::QML_MIN_LEVEL) {
             if (lastBaseEventEndTime < startTimeData[i].startTime) {
                 lastBaseEventIndex = i;
@@ -311,11 +305,6 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeExpandedLevels()
         }
         startTimeData[i].displayRowExpanded = eventRow[eventId];
     }
-}
-
-void BasicTimelineModel::BasicTimelineModelPrivate::computeBaseEventIndexes()
-{
-    // TODO
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::buildEndTimeList()

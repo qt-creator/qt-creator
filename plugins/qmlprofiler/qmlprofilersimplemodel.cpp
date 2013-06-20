@@ -78,7 +78,7 @@ void QmlProfilerSimpleModel::addRangedEvent(int type, int bindingType, qint64 st
 void QmlProfilerSimpleModel::addFrameEvent(qint64 time, int framerate, int animationcount)
 {
     qint64 duration = 1e9 / framerate;
-    QmlEventData eventData = {tr("Animations"), QmlDebug::Painting, QmlDebug::AnimationFrame, time, duration, QStringList(), QmlDebug::QmlEventLocation(), framerate, animationcount, 0, 0, 0};
+    QmlEventData eventData = {tr("Animations"), QmlDebug::Painting, QmlDebug::AnimationFrame, time - duration, duration, QStringList(), QmlDebug::QmlEventLocation(), framerate, animationcount, 0, 0, 0};
     eventList.append(eventData);
 }
 

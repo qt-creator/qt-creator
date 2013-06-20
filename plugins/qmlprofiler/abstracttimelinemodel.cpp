@@ -60,7 +60,6 @@ qint64 AbstractTimelineModel::traceDuration() const
 
 int AbstractTimelineModel::getState() const
 {
-    // TODO: connect statechanged
     return (int)m_modelManager->state();
 }
 

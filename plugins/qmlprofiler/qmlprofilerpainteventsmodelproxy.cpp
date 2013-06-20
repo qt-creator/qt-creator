@@ -145,10 +145,6 @@ void PaintEventsModelProxy::loadData()
     if (simpleModel->isEmpty())
         return;
 
-//    int lastEventId = 0;
-
-//    d->prepare();
-
     // collect events
     const QVector<QmlProfilerSimpleModel::QmlEventData> referenceList = simpleModel->getEvents();
     foreach (const QmlProfilerSimpleModel::QmlEventData &event, referenceList) {
@@ -159,10 +155,11 @@ void PaintEventsModelProxy::loadData()
         // we need to correct it before appending a new event
         if (d->eventList.count() > 0) {
             QmlPaintEventData *lastEvent = &d->eventList[d->eventList.count()-1];
-            if (lastEvent->startTime + lastEvent->duration >= event.startTime)
+            if (lastEvent->startTime + lastEvent->duration >= event.startTime) {
                 // 1 nanosecond less to prevent overlap
                 lastEvent->duration = event.startTime - lastEvent->startTime - 1;
                 lastEvent->framerate = 1e9/lastEvent->duration;
+            }
         }
 
         QmlPaintEventData newEvent = {
@@ -177,7 +174,7 @@ void PaintEventsModelProxy::loadData()
 
     d->computeAnimationCountLimit();
 
-//    qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+    qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
 
     emit countChanged();
 }
@@ -229,6 +226,11 @@ const QString PaintEventsModelProxy::categoryLabel(int categoryIndex) const
 
 int PaintEventsModelProxy::findFirstIndex(qint64 startTime) const
 {
+    return findFirstIndexNoParents(startTime);
+}
+
+int PaintEventsModelProxy::findFirstIndexNoParents(qint64 startTime) const
+{
     if (d->eventList.isEmpty())
         return -1;
     if (d->eventList.count() == 1 || d->eventList.first().startTime+d->eventList.first().duration >= startTime)
@@ -249,33 +251,28 @@ int PaintEventsModelProxy::findFirstIndex(qint64 startTime) const
     return toIndex;
 }
 
-int PaintEventsModelProxy::findFirstIndexNoParents(qint64 startTime) const
-{
-    return findFirstIndex(startTime);
-}
-
 int PaintEventsModelProxy::findLastIndex(qint64 endTime) const
 {
-        if (d->eventList.isEmpty())
-            return -1;
-        if (d->eventList.first().startTime >= endTime)
-            return -1;
-        if (d->eventList.count() == 1)
-            return 0;
-        if (d->eventList.last().startTime <= endTime)
-            return d->eventList.count()-1;
+    if (d->eventList.isEmpty())
+        return -1;
+    if (d->eventList.first().startTime >= endTime)
+        return -1;
+    if (d->eventList.count() == 1)
+        return 0;
+    if (d->eventList.last().startTime <= endTime)
+        return d->eventList.count()-1;
 
-        int fromIndex = 0;
-        int toIndex = d->eventList.count()-1;
-        while (toIndex - fromIndex > 1) {
-            int midIndex = (fromIndex + toIndex)/2;
-            if (d->eventList[midIndex].startTime < endTime)
-                fromIndex = midIndex;
-            else
-                toIndex = midIndex;
-        }
+    int fromIndex = 0;
+    int toIndex = d->eventList.count()-1;
+    while (toIndex - fromIndex > 1) {
+        int midIndex = (fromIndex + toIndex)/2;
+        if (d->eventList[midIndex].startTime < endTime)
+            fromIndex = midIndex;
+        else
+            toIndex = midIndex;
+    }
 
-        return fromIndex;
+    return fromIndex;
 }
 
 int PaintEventsModelProxy::getEventType(int index) const
@@ -321,10 +318,6 @@ int PaintEventsModelProxy::getEventId(int index) const
 
 QColor PaintEventsModelProxy::getColor(int index) const
 {
-    // TODO
-//    return QColor("blue");
-//    int ndx = getEventId(index);
-//    return QColor::fromHsl((ndx*25)%360, 76, 166);
     double fpsFraction = d->eventList[index].framerate / 60.0;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;

@@ -49,12 +49,12 @@ class QmlProfilerEventsModelProxy : public QObject
     Q_OBJECT
 public:
     struct QmlEventStats {
-        int bindingType; // TODO: only makes sense for bindings!
         QString displayName;
         QString eventHashStr;
         QString details;
         QmlDebug::QmlEventLocation location;
         int eventType;
+        int bindingType;
 
         qint64 duration;
         qint64 calls;

@@ -111,12 +111,13 @@ qint64 SceneGraphTimelineModel::lastTimeMark() const
 
 void SceneGraphTimelineModel::setExpanded(int category, bool expanded)
 {
-        d->isExpanded = expanded;
+    Q_UNUSED(category);
+    d->isExpanded = expanded;
 }
 
 int SceneGraphTimelineModel::categoryDepth(int categoryIndex) const
 {
-    // TODO
+    Q_UNUSED(categoryIndex);
     if (isEmpty())
         return 1;
     return 3;
@@ -135,74 +136,64 @@ const QString SceneGraphTimelineModel::categoryLabel(int categoryIndex) const
 
 int SceneGraphTimelineModel::findFirstIndex(qint64 startTime) const
 {
-    // TODO properly
-    int candidate = -2;
-    for (int i=0; i < d->eventList.count(); i++)
-        if (d->eventList[i].startTime + d->eventList[i].duration > startTime) {
-            candidate = i;
-            break;
-        }
-
-    if (candidate == -1)
-        return 0;
-    if (candidate == -2)
-        return d->eventList.count() - 1;
+    int candidate = findFirstIndexNoParents(startTime);
+    // because there's two threads synchronized, the right index could be one off
+    if (candidate > 0 && d->eventList[candidate-1].startTime + d->eventList[candidate-1].duration >= startTime)
+        return candidate - 1;
 
     return candidate;
 }
 
 int SceneGraphTimelineModel::findFirstIndexNoParents(qint64 startTime) const
 {
-    // TODO properly
-    return findFirstIndex(startTime);
+    if (d->eventList.isEmpty())
+        return -1;
+    if (d->eventList.count() == 1 || d->eventList.first().startTime+d->eventList.first().duration >= startTime)
+        return 0;
+    else
+        if (d->eventList.last().startTime+d->eventList.last().duration <= startTime)
+            return -1;
 
-//    int candidate = -1;
-//    // in the "endtime" list, find the first event that ends after startTime
-//    if (d->endTimeData.isEmpty())
-//        return 0; // -1
-//    if (d->endTimeData.count() == 1 || d->endTimeData.first().endTime >= startTime)
-//        candidate = 0;
-//    else
-//        if (d->endTimeData.last().endTime <= startTime)
-//            return 0; // -1
-
-//    if (candidate == -1) {
-//        int fromIndex = 0;
-//        int toIndex = d->endTimeData.count()-1;
-//        while (toIndex - fromIndex > 1) {
-//            int midIndex = (fromIndex + toIndex)/2;
-//            if (d->endTimeData[midIndex].endTime < startTime)
-//                fromIndex = midIndex;
-//            else
-//                toIndex = midIndex;
-//        }
-
-//        candidate = toIndex;
-//    }
-
-//    int ndx = d->endTimeData[candidate].startTimeIndex;
-
-//    return ndx;
+    int fromIndex = 0;
+    int toIndex = d->eventList.count()-1;
+    while (toIndex - fromIndex > 1) {
+        int midIndex = (fromIndex + toIndex)/2;
+        if (d->eventList[midIndex].startTime + d->eventList[midIndex].duration < startTime)
+            fromIndex = midIndex;
+        else
+            toIndex = midIndex;
+    }
+    return toIndex;
 }
 
 int SceneGraphTimelineModel::findLastIndex(qint64 endTime) const
 {
-    // TODO properly
-    int candidate = 0;
-    for (int i = d->eventList.count()-1; i >= 0; i--)
-        if (d->eventList[i].startTime < endTime) {
-            candidate = i;
-            break;
-        }
-    return candidate;
+    if (d->eventList.isEmpty())
+        return -1;
+    if (d->eventList.first().startTime >= endTime)
+        return -1;
+    if (d->eventList.count() == 1)
+        return 0;
+    if (d->eventList.last().startTime <= endTime)
+        return d->eventList.count()-1;
+
+    int fromIndex = 0;
+    int toIndex = d->eventList.count()-1;
+    while (toIndex - fromIndex > 1) {
+        int midIndex = (fromIndex + toIndex)/2;
+        if (d->eventList[midIndex].startTime < endTime)
+            fromIndex = midIndex;
+        else
+            toIndex = midIndex;
+    }
+
+    return fromIndex;
 }
 
 int SceneGraphTimelineModel::getEventType(int index) const
 {
-    // TODO fix
-    return QmlDebug::PixmapCacheEvent;
-    //return QmlDebug::SceneGraphFrameEvent;
-    //    return 0;
+    Q_UNUSED(index);
+    return QmlDebug::SceneGraphFrameEvent;
 }
 
 int SceneGraphTimelineModel::getEventCategory(int index) const
@@ -259,6 +250,7 @@ QColor SceneGraphTimelineModel::getColor(int index) const
 
 float SceneGraphTimelineModel::getHeight(int index) const
 {
+    Q_UNUSED(index);
     return 1.0f;
 }
 
@@ -275,6 +267,7 @@ QString labelForSGType(int t)
 
 const QVariantList SceneGraphTimelineModel::getLabelsForCategory(int category) const
 {
+    Q_UNUSED(category);
     QVariantList result;
 
     if (d->isExpanded && !isEmpty()) {
@@ -448,6 +441,7 @@ void SceneGraphTimelineModel::loadData()
                 d->eventList[lastRenderEvent].timing[15] = event.numericData1;
                 break;
             }
+            default: break;
             }
         }
     }

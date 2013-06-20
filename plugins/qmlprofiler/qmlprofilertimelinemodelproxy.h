@@ -57,7 +57,6 @@ public:
     struct QmlRangeEventData
     {
         QString displayName;
-//        QString eventHashStr;
         QString details;
         QmlDebug::QmlEventLocation location;
         QmlDebug::QmlEventType eventType;
@@ -68,22 +67,12 @@ public:
     struct QmlRangeEventStartInstance {
         qint64 startTime;
         qint64 duration;
-
-//        int endTimeIndex;
+        int eventId;
 
         // not-expanded, per type
         int displayRowExpanded;
         int displayRowCollapsed;
         int baseEventIndex; // used by findfirstindex
-
-
-//        QmlRangeEventData *statsInfo;
-        int eventId;
-
-        // animation-related data
-//        int frameRate;
-//        int animationCount;
-
         int bindingLoopHead;
     };
 
@@ -91,18 +80,6 @@ public:
         int startTimeIndex;
         qint64 endTime;
     };
-
-//    struct QmlRangedEvent {
-//        int bindingType; // TODO: only makes sense for bindings!
-//        QString displayName;
-//        QString eventHashStr;
-//        QString details;
-//        QmlDebug::QmlEventLocation location;
-//        QmlDebug::QmlEventType eventType;
-//        //int eventType;
-
-//        qint64 duration;
-//    };
 
     BasicTimelineModel(QObject *parent = 0);
     ~BasicTimelineModel();

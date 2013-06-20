@@ -164,7 +164,6 @@ QmlProfilerTraceTime *QmlProfilerModelManager::traceTime() const
     return d->traceTime;
 }
 
-// TODO: rename to just "model" or something like that
 QmlProfilerSimpleModel *QmlProfilerModelManager::simpleModel() const
 {
     return d->model;
