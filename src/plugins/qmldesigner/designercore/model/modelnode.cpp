@@ -232,6 +232,36 @@ int ModelNode::majorVersion() const
     return m_internalNode->majorVersion();
 }
 
+int getMajorVersionFromImport(Model *model)
+{
+    foreach (const Import &import, model->imports()) {
+        if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick")) {
+            const QString versionString = import.version();
+            if (versionString.contains(QLatin1String("."))) {
+                const QString majorVersionString = versionString.split(QLatin1String(".")).first();
+                return majorVersionString.toInt();
+            }
+        }
+    }
+
+    return -1;
+}
+
+int getMajorVersionFromNode(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isValid()) {
+        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
+            return modelNode.majorVersion();
+
+        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
+            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
+                return superClass.majorVersion();
+        }
+    }
+
+    return 1; //default
+}
+
 /*! \brief major number of the QtQuick version used
 \return major number of QtQuickVersion
 */
@@ -242,19 +272,11 @@ int ModelNode::majorQtQuickVersion() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    if (metaInfo().isValid()) {
-        if (type() == "QtQuick.QtObject")
-            return majorVersion();
-        NodeMetaInfo superClass = metaInfo().directSuperClass();
+    int majorVersionFromImport = getMajorVersionFromImport(model());
+    if (majorVersionFromImport >= 0)
+        return majorVersionFromImport;
 
-        while (superClass.isValid()) {
-            if (superClass.typeName() == "QtQuick.QtObject")
-                return superClass.majorVersion();
-            superClass = superClass.directSuperClass();
-        }
-        return 1; //default
-    }
-    return 1; //default
+    return getMajorVersionFromNode(*this);
 }
 
 
