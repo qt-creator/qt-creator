@@ -153,9 +153,6 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
     if (mode != DebugRunMode)
         return false;
 
-    if (!Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage))
-        return false;
-
     if (!config->observerPath().isEmpty())
         return true;
     if (!config->qtVersion())

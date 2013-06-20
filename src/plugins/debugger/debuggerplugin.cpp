@@ -3459,11 +3459,6 @@ void DebuggerPlugin::extensionsInitialized()
     theDebuggerCore->extensionsInitialized();
 }
 
-bool DebuggerPlugin::isActiveDebugLanguage(int language)
-{
-    return theDebuggerCore->isActiveDebugLanguage(language);
-}
-
 DebuggerMainWindow *DebuggerPlugin::mainWindow()
 {
     return theDebuggerCore->m_mainWindow;
