@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
 VERSION_TAG = $$replace(QTCREATOR_VERSION, "[-.]", )
 
+isEmpty(LICENSE_TYPE):LICENSE_TYPE=opensource
+
 # unset the installdir for qdoc, so we force generation
 # of URLs for the links to the Qt documentation
 QMAKE_DOCS_INSTALLDIR =
@@ -21,7 +23,7 @@ defineReplace(cmdEnv) {
 }
 
 defineReplace(qdoc) {
-    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS]) $$QDOC_BIN")
+    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QTC_LICENSE_TYPE=$$LICENSE_TYPE QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS]) $$QDOC_BIN")
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp

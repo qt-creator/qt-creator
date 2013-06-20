@@ -98,6 +98,11 @@
     The \gui Timeline view displays graphical representations of:
 
     \list
+    \if defined(enterprise)
+        \li Pixmap loading times and cache sizes
+
+        \li Scene graph events
+    \endif
 
         \li Painting operations
 
@@ -113,7 +118,14 @@
 
     \endlist
 
+    \if defined(enterprise)
+    Information about the pixmap cache and scene graph events are only available
+    from Qt 5.1 onwards.
+
+    \image qtcreator-qml-performance-monitor-enterprise.png "QML Profiler"
+    \else
     \image qtcreator-qml-performance-monitor.png "QML Profiler"
+    \endif
 
     Each row in the timeline (6) describes a type of QML events that were
     recorded. Move the cursor on an event on a row to see how long it takes and
