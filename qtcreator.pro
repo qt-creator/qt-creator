@@ -58,7 +58,8 @@ else: PLATFORM = "unknown"
 
 PATTERN = $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
 
-INSTALLER_NAME = "qt-creator-$${PATTERN}"
+macx:INSTALLER_NAME = "qt-creator-$${QTCREATOR_VERSION}"
+else:INSTALLER_NAME = "qt-creator-$${PATTERN}"
 
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
