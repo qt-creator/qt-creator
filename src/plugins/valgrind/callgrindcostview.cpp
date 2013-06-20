@@ -37,7 +37,8 @@
 #include <valgrind/callgrind/callgrindcallmodel.h>
 
 #include <QAbstractProxyModel>
-#include <QHeaderView>
+#include <QContextMenuEvent>
+#include <QMenu>
 #include <QDebug>
 
 using namespace Valgrind::Callgrind;
@@ -61,7 +62,7 @@ CostView::Private::Private(CostView *qq)
 
 
 CostView::CostView(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::BaseTreeView(parent)
     , d(new Private(this))
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -91,20 +92,13 @@ void CostView::setModel(QAbstractItemModel *model)
             break;
     }
 
-    QHeaderView *headerView = header();
     setItemDelegate(new QStyledItemDelegate(this));
-    headerView->setResizeMode(QHeaderView::Interactive);
-    headerView->setStretchLastSection(false);
 
     if (qobject_cast<CallModel *>(model)) {
-        headerView->setResizeMode(CallModel::CallsColumn, QHeaderView::ResizeToContents);
-        headerView->setResizeMode(CallModel::CostColumn, QHeaderView::ResizeToContents);
         setItemDelegateForColumn(CallModel::CalleeColumn, d->m_nameDelegate);
         setItemDelegateForColumn(CallModel::CallerColumn, d->m_nameDelegate);
         setItemDelegateForColumn(CallModel::CostColumn, d->m_costDelegate);
     } else if (qobject_cast<DataModel *>(model)) {
-        headerView->setResizeMode(DataModel::InclusiveCostColumn, QHeaderView::ResizeToContents);
-        headerView->setResizeMode(DataModel::SelfCostColumn, QHeaderView::ResizeToContents);
         setItemDelegateForColumn(DataModel::InclusiveCostColumn, d->m_costDelegate);
         setItemDelegateForColumn(DataModel::NameColumn, d->m_nameDelegate);
         setItemDelegateForColumn(DataModel::SelfCostColumn, d->m_costDelegate);
@@ -122,6 +116,14 @@ void CostView::setCostFormat(CostDelegate::CostFormat format)
 CostDelegate::CostFormat CostView::costFormat() const
 {
     return d->m_costDelegate->format();
+}
+
+void CostView::contextMenuEvent(QContextMenuEvent *ev)
+{
+    QMenu menu;
+    addBaseContextActions(&menu);
+    QAction *act = menu.exec(ev->globalPos());
+    handleBaseContextAction(act);
 }
 
 } // namespace Internal
