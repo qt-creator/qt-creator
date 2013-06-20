@@ -249,6 +249,9 @@ def isNull(p):
 
 Value = lldb.SBValue
 
+def pointerValue(value):
+    return value.GetValueAsUnsigned()
+
 def createPointerValue(context, address, pointeeType):
     addr = int(address) & 0xFFFFFFFFFFFFFFFF
     return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()

@@ -4014,7 +4014,8 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("BoostOptional1")
             << Data("#include <boost/optional.hpp>\n",
                     "boost::optional<int> i0, i1;\n"
-                    "i1 = 1;\n")
+                    "i1 = 1;\n"
+                    "unused(&i0, &i1);\n")
              % Check("i0", "<uninitialized>", "boost::optional<int>")
              % Check("i1", "1", "boost::optional<int>");
 

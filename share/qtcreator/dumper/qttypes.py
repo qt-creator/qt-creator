@@ -651,7 +651,7 @@ def qdump__QHostAddress(d, value):
     if int(data["ipString"]["d"]["size"]):
         d.putStringValue(data["ipString"])
     else:
-        a = long(data["a"])
+        a = int(data["a"])
         a, n4 = divmod(a, 256)
         a, n3 = divmod(a, 256)
         a, n2 = divmod(a, 256)
@@ -994,9 +994,6 @@ def qdump__QObject(d, value):
     d_ptr = dd.cast(privateType.pointer()).dereference()
     #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
-    if not isAccessible(mo):
-        d.putInaccessible()
-        return
     if isNull(mo):
         mo = staticMetaObject
     #warn("MO: %s " % mo)
@@ -1623,7 +1620,7 @@ def qedit__QString(expr, value):
     cmd = "call (%s).resize(%d)" % (expr, len(value))
     gdb.execute(cmd)
     d = gdb.parse_and_eval(expr)["d"]["data"]
-    cmd = "set {short[%d]}%s={" % (len(value), long(d))
+    cmd = "set {short[%d]}%s={" % (len(value), pointerValue(d))
     for i in range(len(value)):
         if i != 0:
             cmd += ','
@@ -1931,7 +1928,7 @@ def qedit__QVector(expr, value):
     gdb.execute(cmd)
     innerType = d.templateArgument(ob.type, 0)
     ptr = ob["p"]["array"].cast(d.voidPtrType())
-    cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), long(ptr), value)
+    cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), pointerValue(ptr), value)
     gdb.execute(cmd)
 
 
@@ -2027,7 +2024,7 @@ def qdump____c_style_array__(d, value):
         # Explicitly requested Local 8-bit formatting.
         d.putValue(blob, Hex2EncodedLocal8Bit)
     else:
-        d.putValue("@0x%x" % long(value.cast(targetType.pointer())))
+        d.putValue("@0x%x" % pointerValue(value.cast(targetType.pointer())))
 
     if d.currentIName in d.expandedINames:
         p = value.address
@@ -2319,10 +2316,10 @@ def qdump__std__shared_ptr(d, value):
         return
 
     if isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference(), long(i)))
+        d.putValue("%s @0x%x" % (i.dereference(), pointerValue(i)))
     else:
         i = expensiveDowncast(i)
-        d.putValue("@0x%x" % long(i))
+        d.putValue("@0x%x" % pointerValue(i))
 
     d.putNumChild(3)
     with Children(d, 3):
@@ -2340,10 +2337,10 @@ def qdump__std__unique_ptr(d, value):
         return
 
     if isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference(), long(i)))
+        d.putValue("%s @0x%x" % (i.dereference(), pointerValue(i)))
     else:
         i = expensiveDowncast(i)
-        d.putValue("@0x%x" % long(i))
+        d.putValue("@0x%x" % pointerValue(i))
 
     d.putNumChild(1)
     with Children(d, 1):
@@ -2464,7 +2461,7 @@ def qdump__boost__bimaps__bimap(d, value):
 
 
 def qdump__boost__optional(d, value):
-    if value["m_initialized"] == False:
+    if int(value["m_initialized"]) == 0:
         d.putValue("<uninitialized>")
         d.putNumChild(0)
     else:
@@ -2516,18 +2513,18 @@ def qdump__boost__shared_ptr(d, value):
 
 
 def qdump__boost__gregorian__date(d, value):
-    d.putValue(value["days_"], JulianDate)
+    d.putValue(int(value["days_"]), JulianDate)
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__ptime(d, item):
-    ms = long(item["time_"]["time_count_"]["value_"]) / 1000
+    ms = int(item["time_"]["time_count_"]["value_"]) / 1000
     d.putValue("%s/%s" % divmod(ms, 86400000), JulianDateAndMillisecondsSinceMidnight)
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__time_duration(d, item):
-    d.putValue(long(item["ticks_"]["value_"]) / 1000, MillisecondsSinceMidnight)
+    d.putValue(int(item["ticks_"]["value_"]) / 1000, MillisecondsSinceMidnight)
     d.putNumChild(0)
 
 
@@ -2594,11 +2591,11 @@ def qdump__QTJSC__JSValue(d, value):
             payload = value["u"]["asBits"]["payload"]
             #d.putIntItem("tag", tag)
             with SubItem(d, "tag"):
-                d.putValue(jstagAsString(long(tag)))
+                d.putValue(jstagAsString(int(tag)))
                 d.putNoType()
                 d.putNumChild(0)
 
-            d.putIntItem("payload", long(payload))
+            d.putIntItem("payload", int(payload))
             d.putFields(value["u"])
 
             if tag == -2:
@@ -2632,12 +2629,12 @@ def qdump__QScriptValue(d, value):
         d.putValue("(invalid)")
         d.putNumChild(0)
         return
-    if long(dd["type"]) == 1: # Number
+    if int(dd["type"]) == 1: # Number
         d.putValue(dd["numberValue"])
         d.putType("%sQScriptValue (Number)" % d.ns)
         d.putNumChild(0)
         return
-    if long(dd["type"]) == 2: # String
+    if int(dd["type"]) == 2: # String
         d.putStringValue(dd["stringValue"])
         d.putType("%sQScriptValue (String)" % d.ns)
         return
@@ -2646,8 +2643,8 @@ def qdump__QScriptValue(d, value):
     x = dd["jscValue"]["u"]
     tag = x["asBits"]["tag"]
     payload = x["asBits"]["payload"]
-    #isValid = long(x["asBits"]["tag"]) != -6   # Empty
-    #isCell = long(x["asBits"]["tag"]) == -2
+    #isValid = int(x["asBits"]["tag"]) != -6   # Empty
+    #isCell = int(x["asBits"]["tag"]) == -2
     #warn("IS CELL: %s " % isCell)
     #isObject = False
     #className = "UNKNOWN NAME"
@@ -2664,7 +2661,7 @@ def qdump__QScriptValue(d, value):
     #    warn("DYNAMIC TYPE: %s" % dtype)
     #    warn("STATUC  %s" % cell.type)
     #    type = cell["m_structure"]["m_typeInfo"]["m_type"]
-    #    isObject = long(type) == 7 # ObjectType;
+    #    isObject = int(type) == 7 # ObjectType;
     #    className = "UNKNOWN NAME"
     #warn("IS OBJECT: %s " % isObject)
 
@@ -2778,14 +2775,14 @@ def qdump__Utils__ElfSection(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Token(d, value):
-    k = value["f"]["kind"];
-    if long(k) == 6:
+    k = int(value["f"]["kind"])
+    if int(k) == 6:
         d.putValue("T_IDENTIFIER. offset: %d, len: %d"
             % (value["offset"], value["f"]["length"]))
-    elif long(k) == 7:
+    elif int(k) == 7:
         d.putValue("T_NUMERIC_LITERAL. offset: %d, value: %d"
             % (value["offset"], value["f"]["length"]))
-    elif long(k) == 60:
+    elif int(k) == 60:
         d.putValue("T_RPAREN")
     else:
         d.putValue("Type: %s" % k)
@@ -2794,8 +2791,8 @@ def qdump__CPlusPlus__Token(d, value):
 def qdump__CPlusPlus__Internal__PPToken(d, value):
     k = value["f"]["kind"];
     data, size, alloc = d.byteArrayData(value["m_src"])
-    length = long(value["f"]["length"])
-    offset = long(value["offset"])
+    length = int(value["f"]["length"])
+    offset = int(value["offset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
     d.putValue(encodeCharArray(data + offset, 100, length),

@@ -1025,12 +1025,8 @@ def checkPointer(p, align = 1):
     if not isNull(p):
         p.dereference()
 
-def isAccessible(p):
-    try:
-        long(p)
-        return True
-    except:
-        return False
+def pointerValue(p):
+    return long(p)
 
 def isNull(p):
     # The following can cause evaluation to abort with "UnicodeEncodeError"
