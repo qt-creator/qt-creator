@@ -1305,8 +1305,7 @@
 
     \section1 Advanced Search
 
-    To search through projects, files on a file system or the currently open
-    file:
+    To search through projects, files on a file system or currently open files:
 
     \list 1
 
@@ -1333,6 +1332,8 @@
                     matching the defined file pattern in the selected directory.
 
                 \li \gui{Current File} searches only the current file.
+
+                \li \gui {Open Documents} searches all open files.
 
             \endlist
 
