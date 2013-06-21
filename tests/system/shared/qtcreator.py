@@ -275,11 +275,9 @@ origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "setting
 if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
     origSettingsDir = os.path.join(origSettingsDir, "windows")
-    defaultQtVersion = "Qt 4.7.4 for Desktop - MinGW 4.4 (Qt SDK)"
 else:
     sdkPath = os.path.expanduser("~/QtSDK")
     origSettingsDir = os.path.join(origSettingsDir, "unix")
-    defaultQtVersion = "Desktop Qt 4.7.4 for GCC (Qt SDK)"
 srcPath = os.getenv("SYSTEST_SRCPATH", sdkPath + "/src")
 
 overrideStartApplication()

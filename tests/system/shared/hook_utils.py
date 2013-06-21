@@ -33,7 +33,7 @@ import re
 # the application compiled by Creator
 def modifyRunSettingsForHookInto(projectName, kitCount, port):
     prepareBuildSettings(kitCount, 0)
-    # this uses the defaultQtVersion currently
+    # this uses the default Qt version which Creator activates when opening the project
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.BUILD)
     qtVersion, mkspec, qtBinPath, qtLibPath = getQtInformationForBuildSettings(kitCount, True)
