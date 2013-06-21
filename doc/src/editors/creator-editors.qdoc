@@ -890,8 +890,10 @@
     \endlist
 
     To configure the server, select \gui{Tools} > \gui{Options} >
-    \gui{Code Pasting}. In \gui CodePaster, specify the host name of the
-    CodePaster service. In \gui Fileshare, specify the path to a shared
+    \gui{Code Pasting} > \gui CodePaster. In the \gui Server field, specify the
+    host name of the CodePaster service.
+
+    Select \gui Fileshare to specify the path to a shared
     network drive. The code snippets are copied to the drive as simple files.
     You have to delete obsolete files from the drive manually.
 
@@ -902,6 +904,10 @@
 
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}.
+
+    To fetch content from a URL on a CodePaster service, select \gui{Tools} >
+    \gui{Code Pasting} > \gui{Fetch from URL}. The content is opened in the code
+    editor.
 
     \note To use \gui{Pastebin.Com}, configure the domain
     prefix in \gui{Tools} > \gui{Options} > \gui{Code Pasting} >
