@@ -32,6 +32,9 @@ def directBaseClass(typeobj, index = 0):
 def createPointerValue(context, address, pointeeType):
     return gdb.Value(address).cast(pointeeType.pointer())
 
+def createReferenceValue(context, address, referencedType):
+    return gdb.Value(address).cast(referencedType.pointer()).dereference()
+
 def savePrint(output):
     try:
         print(output)
