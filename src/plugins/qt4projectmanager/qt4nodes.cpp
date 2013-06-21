@@ -720,69 +720,7 @@ void Qt4PriFileNode::watchFolders(const QSet<QString> &folders)
 
 void Qt4PriFileNode::folderChanged(const QString &changedFolder)
 {
-    //qDebug()<<"########## Qt4PriFileNode::folderChanged";
-    // So, we need to figure out which files changed.
-
-    // Collect all the files
-    QSet<Utils::FileName> newFiles;
-    newFiles += recursiveEnumerate(changedFolder);
-
-    foreach (const Utils::FileName &file, m_recursiveEnumerateFiles) {
-        if (!file.isChildOf(Utils::FileName::fromString(changedFolder)))
-            newFiles.insert(file);
-    }
-
-    QSet<Utils::FileName> addedFiles = newFiles;
-    addedFiles.subtract(m_recursiveEnumerateFiles);
-
-    QSet<Utils::FileName> removedFiles = m_recursiveEnumerateFiles;
-    removedFiles.subtract(newFiles);
-
-    if (addedFiles.isEmpty() && removedFiles.isEmpty())
-        return;
-
-    m_recursiveEnumerateFiles = newFiles;
-
-    // Apply the differences
-    // per file type
-    const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
-    for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i).type;
-        QSet<Utils::FileName> add = filterFilesRecursiveEnumerata(type, addedFiles);
-        QSet<Utils::FileName> remove = filterFilesRecursiveEnumerata(type, removedFiles);
-
-        if (!add.isEmpty() || !remove.isEmpty()) {
-            // Scream :)
-//            qDebug()<<"For type"<<fileTypes.at(i).typeName<<"\n"
-//                    <<"added files"<<add<<"\n"
-//                    <<"removed files"<<remove;
-
-            m_files[type].unite(add);
-            m_files[type].subtract(remove);
-        }
-    }
-
-    // Now apply stuff
-    InternalNode contents;
-    for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i).type;
-        if (!m_files[type].isEmpty()) {
-            InternalNode *subfolder = new InternalNode;
-            subfolder->type = type;
-            subfolder->icon = fileTypes.at(i).icon;
-            subfolder->fullPath = m_projectDir;
-            subfolder->typeName = fileTypes.at(i).typeName;
-            subfolder->priority = -i;
-            subfolder->displayName = fileTypes.at(i).typeName;
-            contents.virtualfolders.append(subfolder);
-            // create the hierarchy with subdirectories
-            subfolder->create(m_projectDir, m_files[type], type);
-        }
-    }
-
-    contents.updateSubFolders(this, this);
-    m_project->updateFileList();
-    m_project->updateCodeModels();
+    scheduleUpdate();
 }
 
 bool Qt4PriFileNode::deploysFolder(const QString &folder) const
