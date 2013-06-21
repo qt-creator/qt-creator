@@ -163,7 +163,7 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
     Q_UNUSED(fileMode);
     QSet<QString> result;
     if (m_rootProjectNode && m_rootProjectNode->qbsProjectData()) {
-        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData()->products()) {
+        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData()->allProducts()) {
             foreach (const qbs::GroupData &grp, prd.groups()) {
                 foreach (const QString &file, grp.allFilePaths())
                     result.insert(file);
@@ -191,7 +191,7 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList prod
         QList<qbs::ProductData> products;
         foreach (const QString &productName, productNames) {
             bool found = false;
-            foreach (const qbs::ProductData &data, qbsProjectData()->products()) {
+            foreach (const qbs::ProductData &data, qbsProjectData()->allProducts()) {
                 if (data.name() == productName) {
                     found = true;
                     products.append(data);
@@ -525,7 +525,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
     }
 
     QStringList allFiles;
-    foreach (const qbs::ProductData &prd, prj->products()) {
+    foreach (const qbs::ProductData &prd, prj->allProducts()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
 
