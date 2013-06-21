@@ -433,7 +433,8 @@ void AutotoolsProject::updateCppCodeModel()
     pinfo.appendProjectPart(part);
 
     modelManager->updateProjectInfo(pinfo);
-    modelManager->updateSourceFiles(m_files);
+    modelManager->updateSourceFiles(m_files,
+                                    CppTools::CppModelManagerInterface::ForcedProgressNotification);
 
     setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
 }

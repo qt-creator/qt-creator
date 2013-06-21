@@ -597,7 +597,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
     // Register update the code model:
     modelmanager->updateProjectInfo(pinfo);
-    m_codeModelFuture = modelmanager->updateSourceFiles(allFiles);
+    m_codeModelFuture = modelmanager->updateSourceFiles(allFiles,
+        CppTools::CppModelManagerInterface::ForcedProgressNotification);
 }
 
 void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData &prj)

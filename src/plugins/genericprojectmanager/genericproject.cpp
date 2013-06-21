@@ -286,7 +286,8 @@ void GenericProject::refresh(RefreshOptions options)
         setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
 
         modelManager->updateProjectInfo(pinfo);
-        m_codeModelFuture = modelManager->updateSourceFiles(filesToUpdate);
+        m_codeModelFuture = modelManager->updateSourceFiles(filesToUpdate,
+            CppTools::CppModelManagerInterface::ForcedProgressNotification);
     }
 }
 

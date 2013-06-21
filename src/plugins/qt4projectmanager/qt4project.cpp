@@ -615,7 +615,8 @@ void Qt4Project::updateCppCodeModel()
     setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !allFiles.isEmpty());
 
     modelmanager->updateProjectInfo(pinfo);
-    m_codeModelFuture = modelmanager->updateSourceFiles(allFiles);
+    m_codeModelFuture = modelmanager->updateSourceFiles(allFiles,
+        CppTools::CppModelManagerInterface::ForcedProgressNotification);
 }
 
 void Qt4Project::updateQmlJSCodeModel()
