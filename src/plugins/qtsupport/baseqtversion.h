@@ -219,6 +219,7 @@ public:
     virtual QList<ProjectExplorer::Task> validateKit(const ProjectExplorer::Kit *k);
 
     Utils::FileName headerPath() const;
+    Utils::FileName docsPath() const;
     Utils::FileName libraryPath() const;
     Utils::FileName binPath() const;
     Utils::FileName mkspecsPath() const;
@@ -226,6 +227,9 @@ public:
     QString qtNamespace() const;
     QString qtLibInfix() const;
     bool isFrameworkBuild() const;
+    // Note: A Qt version can have both a debug and a release built at the same time!
+    bool hasDebugBuild() const;
+    bool hasReleaseBuild() const;
 
 protected:
     BaseQtVersion();

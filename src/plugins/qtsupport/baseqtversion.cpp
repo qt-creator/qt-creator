@@ -321,6 +321,11 @@ FileName BaseQtVersion::headerPath() const
     return Utils::FileName::fromUserInput(qmakeProperty("QT_INSTALL_HEADERS"));
 }
 
+FileName BaseQtVersion::docsPath() const
+{
+    return Utils::FileName::fromUserInput(qmakeProperty("QT_INSTALL_DOCS"));
+}
+
 FileName BaseQtVersion::libraryPath() const
 {
     return Utils::FileName::fromUserInput(qmakeProperty("QT_INSTALL_LIBS"));
@@ -356,6 +361,16 @@ QString BaseQtVersion::qtLibInfix() const
 bool BaseQtVersion::isFrameworkBuild() const
 {
     return m_frameworkBuild;
+}
+
+bool BaseQtVersion::hasDebugBuild() const
+{
+    return m_defaultConfigIsDebug || m_defaultConfigIsDebugAndRelease;
+}
+
+bool BaseQtVersion::hasReleaseBuild() const
+{
+    return !m_defaultConfigIsDebug || m_defaultConfigIsDebugAndRelease;
 }
 
 void BaseQtVersion::setId(int id)
