@@ -237,6 +237,35 @@ static int commonStringLength(const QString &s1, const QString &s2)
     return length;
 }
 
+static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
+                                                    const QStringList &candidateFileNames,
+                                                    const ProjectExplorer::Project *project)
+{
+    QString bestFileName;
+    int compareValue = 0;
+    const QString filePath = fileInfo.filePath();
+    foreach (const QString &candidateFileName, candidateFileNames) {
+        const QStringList projectFiles = findFilesInProject(candidateFileName, project);
+        // Find the file having the most common path with fileName
+        foreach (const QString &projectFile, projectFiles) {
+            int value = commonStringLength(filePath, projectFile);
+            if (value > compareValue) {
+                compareValue = value;
+                bestFileName = projectFile;
+            }
+        }
+    }
+    if (!bestFileName.isEmpty()) {
+        const QFileInfo candidateFi(bestFileName);
+        QTC_ASSERT(candidateFi.isFile(), return QString());
+        m_headerSourceMapping[fileInfo.absoluteFilePath()] = candidateFi.absoluteFilePath();
+        m_headerSourceMapping[candidateFi.absoluteFilePath()] = fileInfo.absoluteFilePath();
+        return candidateFi.absoluteFilePath();
+    }
+
+    return QString();
+}
+
 } // namespace Internal
 
 QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
@@ -287,29 +316,26 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
         }
     }
 
-    // Find files in the project
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    if (project) {
-        QString bestFileName;
-        int compareValue = 0;
-        foreach (const QString &candidateFileName, candidateFileNames) {
-            const QStringList projectFiles = findFilesInProject(candidateFileName, project);
-            // Find the file having the most common path with fileName
-            foreach (const QString &projectFile, projectFiles) {
-                int value = commonStringLength(fileName, projectFile);
-                if (value > compareValue) {
-                    compareValue = value;
-                    bestFileName = projectFile;
-                }
-            }
-        }
-        if (!bestFileName.isEmpty()) {
-            const QFileInfo candidateFi(bestFileName);
-            QTC_ASSERT(candidateFi.isFile(), return QString());
-            m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
-            m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
-            return candidateFi.absoluteFilePath();
-        }
+    // Find files in the current project
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    if (currentProject) {
+        const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
+                                                                  currentProject);
+        if (!path.isEmpty())
+            return path;
+    }
+
+    // Find files in other projects
+    CppModelManager *modelManager = CppModelManager::instance();
+    QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
+    foreach (const CppModelManagerInterface::ProjectInfo &projectInfo, projectInfos) {
+        const ProjectExplorer::Project *project = projectInfo.project().data();
+        if (project == currentProject)
+            continue; // We have already checked the current project.
+
+        const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames, project);
+        if (!path.isEmpty())
+            return path;
     }
 
     return QString();
