@@ -92,7 +92,7 @@ public:
     Utils::FileName defaultBuildDirectory() const;
 
     const qbs::Project *qbsProject() const;
-    const qbs::ProjectData *qbsProjectData() const;
+    const qbs::ProjectData qbsProjectData() const;
 
     bool needsSpecialDeployment() const;
 
@@ -123,8 +123,8 @@ private:
     void generateErrors(const qbs::ErrorInfo &e);
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);
-    void updateCppCodeModel(const qbs::ProjectData *prj);
-    void updateQmlJsCodeModel(const qbs::ProjectData *prj);
+    void updateCppCodeModel(const qbs::ProjectData &prj);
+    void updateQmlJsCodeModel(const qbs::ProjectData &prj);
     QString qbsBuildDir() const;
 
     QbsManager *const m_manager;

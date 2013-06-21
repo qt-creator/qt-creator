@@ -134,10 +134,10 @@ QString QbsInstallStep::installRoot() const
 
 QString QbsInstallStep::absoluteInstallRoot() const
 {
-    const qbs::ProjectData *data = static_cast<QbsProject *>(project())->qbsProjectData();
+    const qbs::ProjectData data = static_cast<QbsProject *>(project())->qbsProjectData();
     QString path = installRoot();
-    if (data && !data->buildDirectory().isEmpty() && !path.isEmpty())
-        path = QDir(data->buildDirectory()).absoluteFilePath(path);
+    if (data.isValid() && !data.buildDirectory().isEmpty() && !path.isEmpty())
+        path = QDir(data.buildDirectory()).absoluteFilePath(path);
     return path;
 }
 
@@ -306,9 +306,9 @@ void QbsInstallStepConfigWidget::updateState()
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
     }
 
-    const qbs::ProjectData *data = static_cast<QbsProject *>(m_step->project())->qbsProjectData();
-    if (data)
-        m_ui->installRootChooser->setBaseDirectory(data->buildDirectory());
+    const qbs::ProjectData data = static_cast<QbsProject *>(m_step->project())->qbsProjectData();
+    if (data.isValid())
+        m_ui->installRootChooser->setBaseDirectory(data.buildDirectory());
 
     QString command = QLatin1String("qbs install ");
     if (m_step->dryRun())

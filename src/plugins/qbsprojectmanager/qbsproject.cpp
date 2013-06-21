@@ -162,8 +162,8 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
 {
     Q_UNUSED(fileMode);
     QSet<QString> result;
-    if (m_rootProjectNode && m_rootProjectNode->qbsProjectData()) {
-        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData()->allProducts()) {
+    if (m_rootProjectNode && m_rootProjectNode->qbsProjectData().isValid()) {
+        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData().allProducts()) {
             foreach (const qbs::GroupData &grp, prd.groups()) {
                 foreach (const QString &file, grp.allFilePaths())
                     result.insert(file);
@@ -171,7 +171,7 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
             }
             result.insert(prd.location().fileName());
         }
-        result.insert(m_rootProjectNode->qbsProjectData()->location().fileName());
+        result.insert(m_rootProjectNode->qbsProjectData().location().fileName());
     }
     return result.toList();
 }
@@ -191,7 +191,7 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList prod
         QList<qbs::ProductData> products;
         foreach (const QString &productName, productNames) {
             bool found = false;
-            foreach (const qbs::ProductData &data, qbsProjectData()->allProducts()) {
+            foreach (const qbs::ProductData &data, qbsProjectData().allProducts()) {
                 if (data.name() == productName) {
                     found = true;
                     products.append(data);
@@ -249,10 +249,10 @@ const qbs::Project *QbsProject::qbsProject() const
     return m_rootProjectNode->qbsProject();
 }
 
-const qbs::ProjectData *QbsProject::qbsProjectData() const
+const qbs::ProjectData QbsProject::qbsProjectData() const
 {
     if (!m_rootProjectNode)
-        return 0;
+        return qbs::ProjectData();
     return m_rootProjectNode->qbsProjectData();
 }
 
@@ -494,9 +494,9 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     m_qbsDocuments.unite(toAdd);
 }
 
-void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
+void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 {
-    if (!prj)
+    if (!prj.isValid())
         return;
 
     ProjectExplorer::Kit *k = 0;
@@ -525,7 +525,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
     }
 
     QStringList allFiles;
-    foreach (const qbs::ProductData &prd, prj->allProducts()) {
+    foreach (const qbs::ProductData &prd, prj.allProducts()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
 
@@ -600,7 +600,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
     m_codeModelFuture = modelmanager->updateSourceFiles(allFiles);
 }
 
-void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData *prj)
+void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData &prj)
 {
     Q_UNUSED(prj);
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
