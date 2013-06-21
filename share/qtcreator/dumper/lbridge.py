@@ -455,6 +455,9 @@ class SubItem:
             value = component
             value.SetPreferSyntheticValue(False)
             self.name = value.GetName()
+            if self.name is None:
+                d.anonNumber += 1
+                self.name = "#%d" % d.anonNumber
         else:
             self.name = component
         self.iname = "%s.%s" % (d.currentIName, self.name)
@@ -1064,6 +1067,7 @@ class Dumper:
         frame = self.currentThread().GetSelectedFrame()
         self.currentIName = 'local'
         self.put('data=[')
+        self.anonNumber = -1
         for value in frame.GetVariables(True, True, False, False):
             if self.dummyValue is None:
                 self.dummyValue = value
