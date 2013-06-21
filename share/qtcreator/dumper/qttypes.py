@@ -711,20 +711,12 @@ def qform__QImage():
     return "Normal,Displayed"
 
 def qdump__QImage(d, value):
-    try:
-        painters = int(value["painters"])
-    except:
-        d.putPlainChildren(value)
-        return
-    check(0 <= painters and painters < 1000)
-    d_ptr = value["d"]
-    if isNull(d_ptr):
-        d.putValue("(null)")
-    else:
-        checkSimpleRef(d_ptr["ref"])
-        d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
-    bits = d_ptr["data"]
-    nbytes = d_ptr["nbytes"]
+    # This relies on current QImage layout
+    intPtrType = d.lookupType("int").pointer()
+    base = createReferenceValue(value, d.addressOf(value) + 3 * intPtrType.sizeof, intPtrType)
+    width = int(base[1])
+    height = int(base[2])
+    d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(0)
     #d.putNumChild(1)
     if d.isExpanded():
@@ -737,13 +729,16 @@ def qdump__QImage(d, value):
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
+        d_ptr = value["d"]
+        bits = d_ptr["data"]
+        nbytes = d_ptr["nbytes"]
         if False:
             # Take four bytes at a time, this is critical for performance.
             # In fact, even four at a time is too slow beyond 100x100 or so.
             d.putField("editformat", DisplayImageData)
             d.put('%s="' % name)
-            d.put("%08x" % int(d_ptr["width"]))
-            d.put("%08x" % int(d_ptr["height"]))
+            d.put("%08x" % width)
+            d.put("%08x" % height)
             d.put("%08x" % int(d_ptr["format"]))
             p = bits.cast(d.intType().pointer())
             for i in xrange(nbytes / 4):
@@ -758,7 +753,7 @@ def qdump__QImage(d, value):
             gdb.execute("dump binary memory %s %s %s" %
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
             d.putDisplay(DisplayImageFile, " %d %d %d %s"
-                % (d_ptr["width"], d_ptr["height"], d_ptr["format"], filename))
+                % (width, height, d_ptr["format"], filename))
 
 
 def qdump__QLinkedList(d, value):
