@@ -337,17 +337,19 @@ def qdump__QTime(d, value):
         d.putValue(value["mds"], MillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
-            qt = d.ns + "Qt::"
+            qtdate = d.ns + "Qt::"
+            qttime = d.ns + "Qt::"
             if lldbLoaded:
-                qt += "DateFormat::" # FIXME: Bug?...
+                qtdate += "DateFormat::" # FIXME: Bug?...
+                qttime += "TimeSpec::"
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                d.putCallItem("toString", value, "toString", qt + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
+                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
                 d.putCallItem("(SystemLocale)", value, "toString",
-                     qt + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
-                d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
+                     qtdate + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
+                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -368,16 +370,18 @@ def qdump__QDateTime(d, value):
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                qt = d.ns + "Qt::"
+                qtdate = d.ns + "Qt::"
+                qttime = d.ns + "Qt::"
                 if lldbLoaded:
-                    qt += "DateFormat::" # FIXME: Bug?...
+                    qtdate += "DateFormat::" # FIXME: Bug?...
+                    qttime += "TimeSpec::" # FIXME: Bug?...
                 d.putCallItem("toTime_t", value, "toTime_t")
-                d.putCallItem("toString", value, "toString", qt + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
-                d.putCallItem("(SystemLocale)", value, "toString", qt + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
-                d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
-                d.putCallItem("toLocalTime", value, "toTimeSpec", qt + "LocalTime")
+                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
+                d.putCallItem("(SystemLocale)", value, "toString", qtdate + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
+                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
+                d.putCallItem("toLocalTime", value, "toTimeSpec", qttime + "LocalTime")
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
