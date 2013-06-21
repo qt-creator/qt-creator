@@ -403,7 +403,7 @@ void QbsBuildStepConfigWidget::updateState()
     if (m_step->keepGoing())
         command += QLatin1String("--keep-going ");
     command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
-    command += QString::fromLatin1("profile:%1 %2").arg(m_step->profile(), buildVariant);
+    command += QString::fromLatin1("%1 profile:%2").arg(buildVariant, m_step->profile());
 
     QList<QPair<QString, QString> > propertyList = m_ui->propertyEdit->properties();
     for (int i = 0; i < propertyList.count(); ++i) {
