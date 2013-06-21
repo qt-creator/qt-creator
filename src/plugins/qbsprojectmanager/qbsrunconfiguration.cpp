@@ -402,7 +402,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
             this, SLOT(workDirectoryEdited()));
 
     connect(resetButton, SIGNAL(clicked()),
-            this, SLOT(workingDirectoryReseted()));
+            this, SLOT(workingDirectoryWasReset()));
 
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
@@ -449,7 +449,7 @@ void QbsRunConfigurationWidget::workDirectoryEdited()
     m_ignoreChange = false;
 }
 
-void QbsRunConfigurationWidget::workingDirectoryReseted()
+void QbsRunConfigurationWidget::workingDirectoryWasReset()
 {
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit

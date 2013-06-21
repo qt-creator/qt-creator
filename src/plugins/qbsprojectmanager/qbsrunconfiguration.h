@@ -146,7 +146,7 @@ public:
 private slots:
     void runConfigurationEnabledChange();
     void workDirectoryEdited();
-    void workingDirectoryReseted();
+    void workingDirectoryWasReset();
     void argumentsEdited(const QString &arguments);
     void environmentWasChanged();
 
