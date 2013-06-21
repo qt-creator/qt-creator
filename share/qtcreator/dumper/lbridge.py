@@ -1016,15 +1016,16 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
-            origType = value.GetType()
             innerType = value.GetType().GetPointeeType()
             self.putType(innerType)
             savedCurrentChildType = self.currentChildType
             self.currentChildType = str(innerType)
-            self.putItem(value.dereference())
-            self.currentChildType = savedCurrentChildType
-            self.put('origaddr="%s",' % value.address)
-            return
+            inner = value.Dereference()
+            if inner.IsValid():
+                self.putItem(inner)
+                self.currentChildType = savedCurrentChildType
+                self.put('origaddr="%s",' % value.address)
+                return
 
         #warn("VALUE: %s" % value)
         #warn("FANCY: %s" % self.useFancy)
