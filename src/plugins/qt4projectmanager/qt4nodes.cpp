@@ -720,6 +720,7 @@ void Qt4PriFileNode::watchFolders(const QSet<QString> &folders)
 
 void Qt4PriFileNode::folderChanged(const QString &changedFolder)
 {
+    Q_UNUSED(changedFolder);
     scheduleUpdate();
 }
 
