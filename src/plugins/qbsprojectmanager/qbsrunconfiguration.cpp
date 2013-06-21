@@ -199,7 +199,7 @@ QString QbsRunConfiguration::executable() const
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
     const qbs::ProductData *product = findProduct(pro->qbsProjectData(), m_qbsProduct);
 
-    if (!product)
+    if (!product || !pro->qbsProject())
         return QString();
 
     return pro->qbsProject()->targetExecutable(*product, installOptions());
@@ -562,7 +562,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
         return result;
 
     QbsProject *project = static_cast<QbsProject *>(parent->project());
-    if (!project || !project->qbsProjectData())
+    if (!project || !project->qbsProjectData() || !project->qbsProject())
         return result;
 
     foreach (const qbs::ProductData &product, project->qbsProjectData()->products()) {
