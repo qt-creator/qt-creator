@@ -937,6 +937,8 @@
     or press \key {Alt+(}. To stop recording, select \gui {Tools > Macros >
     Stop Recording Macro} or press \key {Alt+)}.
 
+    \note The macro recorder does not support code completion.
+
     To play the last macro, select \gui {Tools > Macros > Play Last Macro} or
     press \key {Alt+R}.
 
