@@ -76,7 +76,7 @@ const qbs::ProductData *findProduct(const qbs::ProjectData *pro, const QString &
     if (!pro)
         return 0;
 
-    foreach (const qbs::ProductData &product, pro->products()) {
+    foreach (const qbs::ProductData &product, pro->allProducts()) {
         if (product.name() == name)
             return &product;
     }
@@ -565,7 +565,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!project || !project->qbsProjectData() || !project->qbsProject())
         return result;
 
-    foreach (const qbs::ProductData &product, project->qbsProjectData()->products()) {
+    foreach (const qbs::ProductData &product, project->qbsProjectData()->allProducts()) {
         if (!project->qbsProject()->targetExecutable(product, qbs::InstallOptions()).isEmpty())
             result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
     }
