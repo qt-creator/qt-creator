@@ -36,14 +36,14 @@ class Targets:
     MAEMO5 = 4
     HARMATTAN = 8
     EMBEDDED_LINUX = 16
-    DESKTOP_474_MSVC2008 = 32
+    DESKTOP_480_MSVC2010 = 32
     DESKTOP_501_DEFAULT = 64
 
     @staticmethod
     def desktopTargetClasses():
         desktopTargets = Targets.DESKTOP_474_GCC | Targets.DESKTOP_501_DEFAULT
         if platform.system() in ('Windows', 'Microsoft'):
-            desktopTargets |= Targets.DESKTOP_474_MSVC2008
+            desktopTargets |= Targets.DESKTOP_480_MSVC2010
         return desktopTargets
 
     @staticmethod
@@ -58,8 +58,8 @@ class Targets:
             return "Harmattan"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
-        elif target == Targets.DESKTOP_474_MSVC2008:
-            return "Desktop 474 MSVC2008"
+        elif target == Targets.DESKTOP_480_MSVC2010:
+            return "Desktop 480 MSVC2010"
         elif target == Targets.DESKTOP_501_DEFAULT:
             return "Desktop 501 default"
         else:
@@ -78,7 +78,7 @@ class Targets:
     @staticmethod
     def intToArray(targets):
         available = [Targets.DESKTOP_474_GCC, Targets.SIMULATOR, Targets.MAEMO5, Targets.HARMATTAN,
-                     Targets.EMBEDDED_LINUX, Targets.DESKTOP_474_MSVC2008,
+                     Targets.EMBEDDED_LINUX, Targets.DESKTOP_480_MSVC2010,
                      Targets.DESKTOP_501_DEFAULT]
         return filter(lambda x: x & targets == x, available)
 
