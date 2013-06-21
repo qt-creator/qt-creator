@@ -300,9 +300,6 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 
     if (subComponentLoaded)
         activateCurrentModel(m_inFileComponentTextModifier.data());
-
-    if (!componentNode.id().isEmpty())
-        QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
 }
 
 void DesignDocument::changeToExternalSubComponent(const QString &fileName)
