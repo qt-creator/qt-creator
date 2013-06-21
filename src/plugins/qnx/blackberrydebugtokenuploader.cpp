@@ -37,6 +37,7 @@ namespace {
 static const char ERR_NO_ROUTE_HOST[] = "Cannot connect";
 static const char ERR_AUTH_FAILED[] = "Authentication failed";
 static const char ERR_DEVELOPMENT_MODE_DISABLED[] = "Device is not in the Development Mode";
+static const char ERR_FILE_NOT_EXIST[] = "File does not exist";
 }
 
 namespace Qnx {
@@ -48,6 +49,7 @@ BlackBerryDebugTokenUploader::BlackBerryDebugTokenUploader(QObject *parent) :
     addErrorStringMapping(QLatin1String(ERR_NO_ROUTE_HOST), NoRouteToHost);
     addErrorStringMapping(QLatin1String(ERR_AUTH_FAILED), AuthenticationFailed);
     addErrorStringMapping(QLatin1String(ERR_DEVELOPMENT_MODE_DISABLED), DevelopmentModeDisabled);
+    addErrorStringMapping(QLatin1String(ERR_FILE_NOT_EXIST), InvalidDebugTokenPath);
 }
 
 void BlackBerryDebugTokenUploader::uploadDebugToken(const QString &path,

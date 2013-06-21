@@ -51,7 +51,8 @@ public:
         InferiorProcessTimedOut,
         InferiorProcessCrashed,
         InferiorProcessWriteError,
-        InferiorProcessReadError
+        InferiorProcessReadError,
+        InvalidDebugTokenPath
     };
 
     explicit BlackBerryDebugTokenUploader(QObject *parent = 0);
