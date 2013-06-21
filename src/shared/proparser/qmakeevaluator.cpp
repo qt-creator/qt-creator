@@ -1026,7 +1026,7 @@ void QMakeEvaluator::loadDefaults()
 # endif
 #elif defined(Q_OS_UNIX)
     struct utsname name;
-    if (!uname(&name)) {
+    if (uname(&name) != -1) {
         vars[ProKey("QMAKE_HOST.os")] << ProString(name.sysname);
         vars[ProKey("QMAKE_HOST.name")] << ProString(QString::fromLocal8Bit(name.nodename));
         vars[ProKey("QMAKE_HOST.version")] << ProString(name.release);
