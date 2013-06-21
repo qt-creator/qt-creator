@@ -71,9 +71,8 @@
     definition files as the primary location.
 
     When you open a file for editing and the editor cannot find the highlight
-    definition for it, an alert appears. You can turn off the alerts. You can
-    also specify patterns for ignoring files. The editor will not alert you if
-    highlight definitions for the ignored files are not found.
+    definition for it, an alert appears. To suppress the alerts, you can specify
+    patterns for ignoring files.
 
     To download highlight definition files:
 
@@ -103,8 +102,8 @@
             definition files on your system, or click \gui Browse to locate
             them in the file system yourself.
 
-        \li In the \gui {Ignored file patterns} field, specify file patterns.
-            You will not receive alerts if the highlight definitions for the
+        \li In the \gui {Ignored file patterns} field, specify file patterns to
+            suppress alerts if the highlight definitions for the
             specified files are not found.
 
         \li Click \gui OK to save your changes.
