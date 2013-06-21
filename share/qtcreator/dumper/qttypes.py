@@ -355,17 +355,16 @@ def qdump__QTime(d, value):
         d.putNumChild(0)
 
 
+# This relies on the Qt4/Qt5 internal structure layout:
+# {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
-    try:
-        # Fails without debug info.
-        p = value["d"]["d"].dereference()
-    except:
-        d.putPlainChildren(value)
-        return
-    mds = int(p["time"]["mds"])
+    intType = d.lookupType("int")
+    intPtrType = intType.pointer()
+    base = pointerValue(value.cast(intPtrType))
+    mds = int(createReferenceValue(value, base + intPtrType.sizeof + 8, intType))
     if mds >= 0:
-        d.putValue("%s/%s" % (int(p["date"]["jd"]), mds),
-            JulianDateAndMillisecondsSinceMidnight)
+        jd = int(createReferenceValue(value, base + intPtrType.sizeof, intType))
+        d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
