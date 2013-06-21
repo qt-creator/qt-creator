@@ -46,8 +46,10 @@ public:
     BuiltinIndexingSupport();
     ~BuiltinIndexingSupport();
 
-    virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
-    virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters, QSet<QString> fileNames);
+    virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
+        CppModelManagerInterface::ProgressNotificationMode mode);
+    virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
+                                                 QSet<QString> fileNames);
 
 private:
     QFutureSynchronizer<void> m_synchronizer;

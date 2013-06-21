@@ -32,6 +32,8 @@
 
 #include "cpptools_global.h"
 
+#include "cppmodelmanagerinterface.h"
+
 #include <find/searchresultwindow.h>
 #include <find/textfindconstants.h>
 
@@ -80,8 +82,10 @@ class CPPTOOLS_EXPORT CppIndexingSupport
 public:
     virtual ~CppIndexingSupport() = 0;
 
-    virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles) = 0;
-    virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters, QSet<QString> fileNames) = 0;
+    virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
+        CppModelManagerInterface::ProgressNotificationMode mode) = 0;
+    virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
+                                                 QSet<QString> fileNames) = 0;
 };
 
 } // namespace CppTools

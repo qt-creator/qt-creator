@@ -67,7 +67,8 @@ public:
 
     static CppModelManager *instance();
 
-    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles);
+    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles,
+        ProgressNotificationMode mode = ReservedProgressNotification);
     virtual WorkingCopy workingCopy() const;
 
     virtual QList<ProjectInfo> projectInfos() const;

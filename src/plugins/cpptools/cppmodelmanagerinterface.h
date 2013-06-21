@@ -117,6 +117,12 @@ class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
 
 public:
 
+    // Documented in source file.
+     enum ProgressNotificationMode {
+        ForcedProgressNotification,
+        ReservedProgressNotification
+    };
+
     class CPPTOOLS_EXPORT ProjectInfo
     {
     public:
@@ -251,8 +257,10 @@ Q_SIGNALS:
     void projectPartsUpdated(ProjectExplorer::Project *project);
 
 public Q_SLOTS:
+
     virtual void updateModifiedSourceFiles() = 0;
-    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles) = 0;
+    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles,
+        ProgressNotificationMode mode = ReservedProgressNotification) = 0;
     virtual void GC() = 0;
 };
 
