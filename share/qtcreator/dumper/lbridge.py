@@ -1056,6 +1056,9 @@ class Dumper:
         m = value.GetType().GetNumberOfDirectBaseClasses()
         if n > 10000:
             n = 10000
+        # seems to happen in the 'inheritance' autotest
+        if m > n:
+            m = n
         for i in xrange(m):
             child = value.GetChildAtIndex(i)
             with UnnamedSubItem(self, "@%d" % (i + 1)):
