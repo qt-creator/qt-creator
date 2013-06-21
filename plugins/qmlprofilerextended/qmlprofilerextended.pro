@@ -1,6 +1,7 @@
 TARGET = QmlProfilerExtended
 TEMPLATE = lib
 
+PROVIDER = Digia
 include(../../qtcreatorplugin.pri)
 include(qmlprofilerextended_dependencies.pri)
 
