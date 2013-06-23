@@ -104,14 +104,15 @@ void BranchDialog::enableButtons()
     const bool currentSelected = hasSelection && idx == m_model->currentBranch();
     const bool isLocal = m_model->isLocal(idx);
     const bool isLeaf = m_model->isLeaf(idx);
+    const bool hasActions = hasSelection && isLeaf;
 
-    m_ui->removeButton->setEnabled(hasSelection && !currentSelected && isLocal && isLeaf);
-    m_ui->renameButton->setEnabled(hasSelection && isLocal && isLeaf);
-    m_ui->logButton->setEnabled(hasSelection && isLeaf);
-    m_ui->diffButton->setEnabled(hasSelection && isLeaf);
-    m_ui->checkoutButton->setEnabled(hasSelection && !currentSelected && isLeaf);
-    m_ui->rebaseButton->setEnabled(hasSelection && !currentSelected && isLeaf);
-    m_ui->mergeButton->setEnabled(hasSelection && !currentSelected && isLeaf);
+    m_ui->removeButton->setEnabled(hasActions && !currentSelected && isLocal);
+    m_ui->renameButton->setEnabled(hasActions && isLocal);
+    m_ui->logButton->setEnabled(hasActions);
+    m_ui->diffButton->setEnabled(hasActions);
+    m_ui->checkoutButton->setEnabled(hasActions && !currentSelected);
+    m_ui->rebaseButton->setEnabled(hasActions && !currentSelected);
+    m_ui->mergeButton->setEnabled(hasActions && !currentSelected);
 }
 
 void BranchDialog::refresh()
