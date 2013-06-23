@@ -387,6 +387,21 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
         refresh(m_workingDirectory, &errorMessage);
 }
 
+void BranchModel::renameTag(const QString &oldName, const QString &newName)
+{
+    QString errorMessage;
+    QString output;
+    if (!m_client->synchronousTagCmd(m_workingDirectory, QStringList() << newName << oldName,
+                                     &output, &errorMessage)
+     || !m_client->synchronousTagCmd(m_workingDirectory,
+                                     QStringList() << QLatin1String("-d") << oldName,
+                                     &output, &errorMessage)) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+    } else {
+        refresh(m_workingDirectory, &errorMessage);
+    }
+}
+
 QString BranchModel::workingDirectory() const
 {
     return m_workingDirectory;
@@ -412,6 +427,8 @@ QString BranchModel::branchName(const QModelIndex &idx) const
     if (!node || !node->isLeaf())
         return QString();
     QStringList path = node->fullName();
+    if (node->isTag())
+        path.removeFirst();
     return path.join(QString(QLatin1Char('/')));
 }
 
@@ -469,16 +486,25 @@ void BranchModel::removeBranch(const QModelIndex &idx)
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         return;
     }
+    removeNode(idx);
+}
 
-    QModelIndex tmp = idx; // tmp is a leaf, so count must be 0.
-    while (indexToNode(tmp)->count() == 0) {
-        QModelIndex tmpParent = parent(tmp);
-        beginRemoveRows(tmpParent, tmp.row(), tmp.row());
-        indexToNode(tmpParent)->children.removeAt(tmp.row());
-        delete indexToNode(tmp);
-        endRemoveRows();
-        tmp = tmpParent;
+void BranchModel::removeTag(const QModelIndex &idx)
+{
+    QString tag = branchName(idx);
+    if (tag.isEmpty())
+        return;
+
+    QString errorMessage;
+    QString output;
+    QStringList args;
+
+    args << QLatin1String("-d") << tag;
+    if (!m_client->synchronousTagCmd(m_workingDirectory, args, &output, &errorMessage)) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        return;
     }
+    removeNode(idx);
 }
 
 void BranchModel::checkoutBranch(const QModelIndex &idx)
@@ -645,6 +671,19 @@ QModelIndex BranchModel::nodeToIndex(BranchNode *node) const
     if (node == m_rootNode)
         return QModelIndex();
     return createIndex(node->parent->rowOf(node), 0, static_cast<void *>(node));
+}
+
+void BranchModel::removeNode(const QModelIndex &idx)
+{
+    QModelIndex tmp = idx; // tmp is a leaf, so count must be 0.
+    while (indexToNode(tmp)->count() == 0) {
+        QModelIndex tmpParent = parent(tmp);
+        beginRemoveRows(tmpParent, tmp.row(), tmp.row());
+        indexToNode(tmpParent)->children.removeAt(tmp.row());
+        delete indexToNode(tmp);
+        endRemoveRows();
+        tmp = tmpParent;
+    }
 }
 
 QString BranchModel::toolTip(const QString &sha) const

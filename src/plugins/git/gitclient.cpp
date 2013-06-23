@@ -1936,6 +1936,21 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     return true;
 }
 
+bool GitClient::synchronousTagCmd(const QString &workingDirectory, QStringList tagArgs, QString *output, QString *errorMessage)
+{
+    tagArgs.push_front(QLatin1String("tag"));
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = fullySynchronousGit(workingDirectory, tagArgs, &outputText, &errorText);
+    *output = commandOutputFromLocal8Bit(outputText);
+    if (!rc) {
+        *errorMessage = msgCannotRun(QLatin1String("git tag"), workingDirectory,
+                                     commandOutputFromLocal8Bit(errorText));
+        return false;
+    }
+    return true;
+}
+
 bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
                                       QString *output, QString *errorMessage)
 {
