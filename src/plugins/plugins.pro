@@ -340,6 +340,7 @@ plugin_qnx.depends = plugin_remotelinux
 plugin_qnx.depends += plugin_qt4projectmanager
 plugin_qnx.depends += plugin_coreplugin
 plugin_qnx.depends += plugin_texteditor
+plugin_qnx.depends += plugin_debugger
 
 plugin_qbsprojectmanager.subdir = qbsprojectmanager
 plugin_qbsprojectmanager.depends = plugin_texteditor
