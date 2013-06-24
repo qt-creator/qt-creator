@@ -332,7 +332,10 @@ lldb.SBType.unqualified = lambda self: self.GetUnqualifiedType()
 lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
-lldb.SBType.strip_typedefs = lambda self: self.GetCanonicalType()
+
+
+lldb.SBType.strip_typedefs = \
+    lambda self: self.GetCanonicalType() if hasattr(self, 'GetCanonicalType') else self
 
 lldb.SBType.__orig__str__ = lldb.SBType.__str__
 lldb.SBType.__str__ = lldb.SBType.GetName
@@ -1442,7 +1445,6 @@ class Dumper:
         self.reportData()
 
     def updateData(self, args):
-        warn("UPDATE 1")
         if 'expanded' in args:
             self.expandedINames = set(args['expanded'].split(','))
         if 'autoderef' in args:
@@ -1455,7 +1457,6 @@ class Dumper:
             self.passExceptions = int(args['passexceptions'])
         self.passExceptions = True # FIXME
         self.reportVariables(args)
-        warn("UPDATE 2")
 
     def disassemble(self, args):
         frame = self.currentFrame();
