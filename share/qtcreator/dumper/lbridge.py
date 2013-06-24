@@ -1228,10 +1228,11 @@ class Dumper:
             result += ',threadid="%s"' % bp.GetThreadID()
         if hasattr(bp, 'IsOneShot'):
             result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
-        cond = bp.GetCondition()
+        if hasattr(bp, 'GetCondition'):
+            cond = bp.GetCondition()
+            result += ',condition="%s"' % binascii.hexlify("" if cond is None else cond)
         result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
-        result += ',condition="%s"' % binascii.hexlify("" if cond is None else cond)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
         result += ',locations=['
         if hasattr(bp, 'GetNumLocations'):
@@ -1285,7 +1286,8 @@ class Dumper:
             warn("UNKNOWN BREAKPOINT TYPE: %s" % bpType)
             return
         bpNew.SetIgnoreCount(int(args["ignorecount"]))
-        bpNew.SetCondition(binascii.unhexlify(args["condition"]))
+        if hasattr(bpNew, 'SetCondition'):
+            bpNew.SetCondition(binascii.unhexlify(args["condition"]))
         bpNew.SetEnabled(int(args["enabled"]))
         if hasattr(bpNew, 'SetOneShot'):
             bpNew.SetOneShot(int(args["oneshot"]))
