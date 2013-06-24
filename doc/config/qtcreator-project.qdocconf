@@ -1,7 +1,7 @@
 project     = "QtCreator"
 description = "Qt Creator Manual"
 
-headerdirs = 
+headerdirs =
 sourcedirs = $SRCDIR/src
 imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
