@@ -75,7 +75,7 @@ QString BlackBerryRunConfigurationFactory::displayNameForId(const Core::Id id) c
         return QString();
 
     if (id.name().startsWith(Constants::QNX_BB_RUNCONFIGURATION_PREFIX))
-        return tr("%1 on BlackBerry Device").arg(QFileInfo(path).completeBaseName());
+        return QFileInfo(path).completeBaseName();
 
     return QString();
 }
