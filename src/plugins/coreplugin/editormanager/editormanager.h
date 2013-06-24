@@ -210,6 +210,7 @@ public slots:
     void revertToSaved(Core::IEditor *editor);
     void closeEditor();
     void closeOtherEditors();
+    void doEscapeKeyFocusMoveMagic();
 
 private slots:
     void gotoNextDocHistory();
