@@ -23,7 +23,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace QmlProfilerExtended {
+namespace QmlProfilerExtension {
 namespace Internal {
 
 using namespace QmlProfiler::Internal;
@@ -472,4 +472,4 @@ void SceneGraphTimelineModel::dataChanged()
 
 
 } // namespace Internal
-} // namespace QmlProfilerExtended
+} // namespace QmlProfilerExtension

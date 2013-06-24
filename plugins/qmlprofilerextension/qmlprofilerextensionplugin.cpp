@@ -16,8 +16,8 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilerextendedplugin.h"
-#include "qmlprofilerextendedconstants.h"
+#include "qmlprofilerextensionplugin.h"
+#include "qmlprofilerextensionconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -36,20 +36,20 @@
 #include "scenegraphtimelinemodel.h"
 #include "pixmapcachemodel.h"
 
-using namespace QmlProfilerExtended::Internal;
+using namespace QmlProfilerExtension::Internal;
 
-QmlProfilerExtendedPlugin::QmlProfilerExtendedPlugin()
+QmlProfilerExtensionPlugin::QmlProfilerExtensionPlugin()
 {
     // Create your members
 }
 
-QmlProfilerExtendedPlugin::~QmlProfilerExtendedPlugin()
+QmlProfilerExtensionPlugin::~QmlProfilerExtensionPlugin()
 {
     // Unregister objects from the plugin manager's object pool
     // Delete members
 }
 
-bool QmlProfilerExtendedPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool QmlProfilerExtensionPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     // Register objects in the plugin manager's object pool
     // Load settings
@@ -67,14 +67,14 @@ bool QmlProfilerExtendedPlugin::initialize(const QStringList &arguments, QString
     return true;
 }
 
-void QmlProfilerExtendedPlugin::extensionsInitialized()
+void QmlProfilerExtensionPlugin::extensionsInitialized()
 {
     // Retrieve objects from the plugin manager's object pool
     // In the extensionsInitialized method, a plugin can be sure that all
     // plugins that depend on it are completely initialized.
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerExtendedPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerExtensionPlugin::aboutToShutdown()
 {
     // Save settings
     // Disconnect from signals that are not needed during shutdown
@@ -82,12 +82,12 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerExtendedPlugin::aboutToShutdow
     return SynchronousShutdown;
 }
 
-void QmlProfilerExtendedPlugin::triggerAction()
+void QmlProfilerExtensionPlugin::triggerAction()
 {
     QMessageBox::information(Core::ICore::mainWindow(),
                              tr("Action triggered"),
-                             tr("This is an action from QmlProfilerExtended."));
+                             tr("This is an action from QmlProfilerExtension."));
 }
 
-Q_EXPORT_PLUGIN2(QmlProfilerExtended, QmlProfilerExtendedPlugin)
+Q_EXPORT_PLUGIN2(QmlProfilerExtension, QmlProfilerExtensionPlugin)
 

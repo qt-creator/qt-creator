@@ -16,8 +16,8 @@
 **
 ****************************************************************************/
 
-#ifndef PIXMAPCACHEMODEL_H
-#define PIXMAPCACHEMODEL_H
+#ifndef SCENEGRAPHTIMELINEMODEL_H
+#define SCENEGRAPHTIMELINEMODEL_H
 
 #include "qmlprofiler/abstracttimelinemodel.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
@@ -26,38 +26,26 @@
 #include <QStringList>
 #include <QColor>
 
-namespace QmlProfilerExtended {
+namespace QmlProfilerExtension {
 namespace Internal {
 
-class PixmapCacheModel : public QmlProfiler::AbstractTimelineModel
+#define timingFieldCount 16
+
+class SceneGraphTimelineModel : public QmlProfiler::AbstractTimelineModel
 {
     Q_OBJECT
 public:
 
-    struct PixmapCacheEvent {
-        int eventId;
+    struct SceneGraphEvent {
         qint64 startTime;
         qint64 duration;
-        int pixmapEventType;
-        int urlIndex;
-        qint64 cacheSize;
-        int rowNumberExpanded;
-        int rowNumberCollapsed;
+        int sgEventType;
+        qint64 timing[timingFieldCount];
     };
 
-    enum PixmapEventType {
-        PixmapSizeKnown,
-        PixmapReferenceCountChanged,
-        PixmapCacheCountChanged,
-        PixmapLoadingStarted,
-        PixmapLoadingFinished,
-        PixmapLoadingError,
 
-        MaximumPixmapEventType
-    };
-
-    PixmapCacheModel(QObject *parent = 0);
-    ~PixmapCacheModel();
+    SceneGraphTimelineModel(QObject *parent = 0);
+    ~SceneGraphTimelineModel();
 
 
 //    void setModelManager(QmlProfiler::Internal::QmlProfilerModelManager *modelManager);
@@ -110,12 +98,12 @@ protected slots:
     void dataChanged();
 
 private:
-    class PixmapCacheModelPrivate;
-    PixmapCacheModelPrivate *d;
+    class SceneGraphTimelineModelPrivate;
+    SceneGraphTimelineModelPrivate *d;
 
 };
 
 } // namespace Internal
-} // namespace QmlProfilerExtended
+} // namespace QmlProfilerExtension
 
-#endif // PIXMAPCACHEMODEL_H
+#endif // SCENEGRAPHTIMELINEMODEL_H

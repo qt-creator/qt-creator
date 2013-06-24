@@ -16,24 +16,24 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREXTENDED_H
-#define QMLPROFILEREXTENDED_H
+#ifndef QMLPROFILEREXTENSION_H
+#define QMLPROFILEREXTENSION_H
 
-#include "qmlprofilerextended_global.h"
+#include "qmlprofilerextension_global.h"
 
 #include <extensionsystem/iplugin.h>
 
-namespace QmlProfilerExtended {
+namespace QmlProfilerExtension {
 namespace Internal {
 
-class QmlProfilerExtendedPlugin : public ExtensionSystem::IPlugin
+class QmlProfilerExtensionPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfilerExtended.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfilerExtension.json")
 
 public:
-    QmlProfilerExtendedPlugin();
-    ~QmlProfilerExtendedPlugin();
+    QmlProfilerExtensionPlugin();
+    ~QmlProfilerExtensionPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
@@ -44,7 +44,7 @@ private slots:
 };
 
 } // namespace Internal
-} // namespace QmlProfilerExtended
+} // namespace QmlProfilerExtension
 
-#endif // QMLPROFILEREXTENDED_H
+#endif // QMLPROFILEREXTENSION_H
 

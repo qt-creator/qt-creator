@@ -1,4 +1,4 @@
-QTC_PLUGIN_NAME = QmlProfilerExtended
+QTC_PLUGIN_NAME = QmlProfilerExtension
 #QTC_LIB_DEPENDS += \
 #    qmldebug \
 #    extensionsystem

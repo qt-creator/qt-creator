@@ -22,7 +22,7 @@
 
 #include <QDebug>
 
-namespace QmlProfilerExtended {
+namespace QmlProfilerExtension {
 namespace Internal {
 
 using namespace QmlProfiler::Internal;
@@ -539,4 +539,4 @@ void PixmapCacheModel::PixmapCacheModelPrivate::computeRowCounts()
 
 
 } // namespace Internal
-} // namespace QmlProfilerExtended
+} // namespace QmlProfilerExtension

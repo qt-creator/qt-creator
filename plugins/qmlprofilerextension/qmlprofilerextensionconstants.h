@@ -16,17 +16,17 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREXTENDEDCONSTANTS_H
-#define QMLPROFILEREXTENDEDCONSTANTS_H
+#ifndef QMLPROFILEREXTENSIONCONSTANTS_H
+#define QMLPROFILEREXTENSIONCONSTANTS_H
 
-namespace QmlProfilerExtended {
+namespace QmlProfilerExtension {
 namespace Constants {
 
-const char ACTION_ID[] = "QmlProfilerExtended.Action";
-const char MENU_ID[] = "QmlProfilerExtended.Menu";
+const char ACTION_ID[] = "QmlProfilerExtension.Action";
+const char MENU_ID[] = "QmlProfilerExtension.Menu";
 
-} // namespace QmlProfilerExtended
+} // namespace QmlProfilerExtension
 } // namespace Constants
 
-#endif // QMLPROFILEREXTENDEDCONSTANTS_H
+#endif // QMLPROFILEREXTENSIONCONSTANTS_H
 
