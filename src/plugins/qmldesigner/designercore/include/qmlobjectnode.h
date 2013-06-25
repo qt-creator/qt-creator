@@ -89,7 +89,7 @@ public:
     QList<QmlModelState> allAffectingStates() const;
     QList<QmlModelStateOperation> allAffectingStatesOperations() const;
 
-    void removeVariantProperty(const PropertyName &name);
+    void removeProperty(const PropertyName &name);
 
     void setParent(QmlObjectNode newParent);
 

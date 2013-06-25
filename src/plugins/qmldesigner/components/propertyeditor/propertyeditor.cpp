@@ -508,7 +508,7 @@ void PropertyEditor::changeValue(const QString &name)
 
         try {
             if (!value->value().isValid()) { //reset
-                fxObjectNode.removeVariantProperty(propertyName);
+                fxObjectNode.removeProperty(propertyName);
             } else {
                 if (castedValue.isValid() && !castedValue.isNull()) {
                     m_locked = true;

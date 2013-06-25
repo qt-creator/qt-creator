@@ -363,7 +363,7 @@ void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
         if (valueObject->value().isValid())
             fxObjectNode.setVariantProperty(name, valueObject->value());
         else
-            fxObjectNode.removeVariantProperty(name);
+            fxObjectNode.removeProperty(name);
     }
 }
 

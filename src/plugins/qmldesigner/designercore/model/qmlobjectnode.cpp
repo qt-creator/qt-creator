@@ -364,7 +364,7 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
 
 */
 
-void  QmlObjectNode::removeVariantProperty(const PropertyName &name)
+void  QmlObjectNode::removeProperty(const PropertyName &name)
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
