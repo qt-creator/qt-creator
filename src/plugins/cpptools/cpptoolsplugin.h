@@ -156,6 +156,13 @@ private slots:
     void test_completion_enum_inside_block_inside_function_QTCREATORBUG5456();
     void test_completion_enum_inside_function_QTCREATORBUG5456();
 
+    //lambda
+    void test_completion_lambdaCalls_1();
+    void test_completion_lambdaCalls_2();
+    void test_completion_lambdaCalls_3();
+    void test_completion_lambdaCalls_4();
+    void test_completion_lambdaCalls_5();
+
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
     void test_format_pointerdeclaration_in_controlflowstatements();

@@ -366,6 +366,18 @@ bool ResolveExpression::visit(CompoundExpressionAST *ast)
     return false;
 }
 
+bool ResolveExpression::visit(LambdaExpressionAST *ast)
+{
+    accept(ast->statement);
+    return false;
+}
+
+bool ResolveExpression::visit(ReturnStatementAST *ast)
+{
+    accept(ast->expression);
+    return false;
+}
+
 bool ResolveExpression::visit(NestedExpressionAST *ast)
 {
     accept(ast->expression);
@@ -625,6 +637,11 @@ bool ResolveExpression::implicitConversion(const FullySpecifiedType &sourceTy, c
 bool ResolveExpression::visit(CallAST *ast)
 {
     const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
+
+    if (ast->base_expression->asLambdaExpression()) {
+        _results = baseResults;
+        return false;
+    }
 
     // Compute the types of the actual arguments.
     unsigned actualArgumentCount = 0;

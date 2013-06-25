@@ -2690,3 +2690,138 @@ void CppToolsPlugin::test_completion_enum_inside_function_QTCREATORBUG5456()
     QVERIFY(completions.contains(QLatin1String("e2")));
     QVERIFY(completions.contains(QLatin1String("e3")));
 }
+
+void CppToolsPlugin::test_completion_lambdaCalls_1()
+{
+    TestData data;
+    data.srcText =
+            "struct S { int bar; };\n"
+            "void foo()\n"
+            "{\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("[](){ return new S; } ()->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_lambdaCalls_2()
+{
+    TestData data;
+    data.srcText =
+            "struct S { int bar; };\n"
+            "void foo()\n"
+            "{\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("[] { return new S; } ()->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_lambdaCalls_3()
+{
+    TestData data;
+    data.srcText =
+            "struct S { int bar; };\n"
+            "void foo()\n"
+            "{\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("[]() ->S* { return new S; } ()->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_lambdaCalls_4()
+{
+    TestData data;
+    data.srcText =
+            "struct S { int bar; };\n"
+            "void foo()\n"
+            "{\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("[]() throw() { return new S; } ()->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_lambdaCalls_5()
+{
+    TestData data;
+    data.srcText =
+            "struct S { int bar; };\n"
+            "void foo()\n"
+            "{\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("[]() throw()->S* { return new S; } ()->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
