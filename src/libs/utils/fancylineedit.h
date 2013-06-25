@@ -35,6 +35,10 @@
 #include <QLineEdit>
 #include <QAbstractButton>
 
+QT_BEGIN_NAMESPACE
+class QEvent;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 class FancyLineEditPrivate;
@@ -109,7 +113,8 @@ private slots:
     void iconClicked();
 
 protected:
-    virtual void resizeEvent(QResizeEvent *e);
+    void resizeEvent(QResizeEvent *e);
+    bool event(QEvent *e);
 
 private:
     // Unimplemented, to force the user to make a decision on

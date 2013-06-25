@@ -36,6 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 class QCompleter;
+class QEvent;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -59,6 +60,7 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *e);
     void focusInEvent(QFocusEvent *e);
+    bool event(QEvent *e);
 
 private:
     class CompletingTextEditPrivate *d;

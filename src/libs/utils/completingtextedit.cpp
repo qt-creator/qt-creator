@@ -190,6 +190,20 @@ void CompletingTextEdit::focusInEvent(QFocusEvent *e)
     QTextEdit::focusInEvent(e);
 }
 
+bool CompletingTextEdit::event(QEvent *e)
+{
+    // workaround for QTCREATORBUG-9453
+    if (e->type() == QEvent::ShortcutOverride && completer()
+            && completer()->popup() && completer()->popup()->isVisible()) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QTextEdit::event(e);
+}
+
 } // namespace Utils
 
 #include "moc_completingtextedit.cpp"
