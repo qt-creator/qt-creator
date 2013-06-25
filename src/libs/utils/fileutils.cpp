@@ -480,7 +480,10 @@ FileName FileName::fromString(const QString &filename)
 /// \a fileName is only passed through QDir::cleanPath
 FileName FileName::fromUserInput(const QString &filename)
 {
-    return FileName(QDir::cleanPath(filename));
+    QString clean = QDir::cleanPath(filename);
+    if (clean.startsWith(QLatin1String("~/")))
+        clean = QDir::homePath() + clean.midRef(1);
+    return FileName(clean);
 }
 
 FileName::FileName(const QString &string)
