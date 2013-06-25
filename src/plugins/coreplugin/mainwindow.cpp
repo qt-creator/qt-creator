@@ -316,6 +316,8 @@ MainWindow::~MainWindow()
 
     delete m_helpManager;
     m_helpManager = 0;
+    delete m_variableManager;
+    m_variableManager = 0;
 }
 
 bool MainWindow::init(QString *errorMessage)
@@ -355,7 +357,7 @@ void MainWindow::extensionsInitialized()
     m_navigationWidget->setFactories(ExtensionSystem::PluginManager::getObjects<INavigationWidgetFactory>());
 
     // reading the shortcut settings must be done after all shortcuts have been registered
-    m_actionManager->d->initialize();
+    m_actionManager->initialize();
 
     readSettings();
     updateContext();
@@ -1004,7 +1006,7 @@ ScriptManager *MainWindow::scriptManager() const
 
 VariableManager *MainWindow::variableManager() const
 {
-     return m_variableManager.data();
+     return m_variableManager;
 }
 
 ModeManager *MainWindow::modeManager() const
@@ -1168,7 +1170,7 @@ void MainWindow::writeSettings()
     m_settings->endGroup();
 
     DocumentManager::saveSettings();
-    m_actionManager->d->saveSettings(m_settings);
+    m_actionManager->saveSettings(m_settings);
     m_editorManager->saveSettings();
     m_navigationWidget->saveSettings(m_settings);
 }
@@ -1211,7 +1213,7 @@ void MainWindow::updateContext()
             uniquecontexts.add(id);
     }
 
-    m_actionManager->d->setContext(uniquecontexts);
+    m_actionManager->setContext(uniquecontexts);
     emit m_coreImpl->contextChanged(m_activeContext, m_additionalContexts);
 }
 

@@ -52,6 +52,7 @@ class MimeDatabasePrivate;
 namespace Internal {
     class BaseMimeTypeParser;
     class FileMatchContext;
+    class MainWindow;
 }
 
 class CORE_EXPORT IMagicMatcher
@@ -260,9 +261,6 @@ public:
     typedef IMagicMatcher::IMagicMatcherList IMagicMatcherList;
     typedef IMagicMatcher::IMagicMatcherSharedPointer IMagicMatcherSharedPointer;
 
-    MimeDatabase();
-    ~MimeDatabase();
-
     bool addMimeTypes(const QString &fileName, QString *errorMessage);
     bool addMimeTypes(QIODevice *device, QString *errorMessage);
     bool addMimeType(const  MimeType &mt);
@@ -315,10 +313,15 @@ public:
     friend QDebug operator<<(QDebug d, const MimeDatabase &mt);
 
 private:
+    MimeDatabase();
+    ~MimeDatabase();
+
     MimeType findByFileUnlocked(const QFileInfo &f) const;
 
     MimeDatabasePrivate *d;
     mutable QMutex m_mutex;
+
+    friend class Core::Internal::MainWindow;
 };
 
 template <class Iterator, typename Function>

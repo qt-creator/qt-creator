@@ -43,16 +43,13 @@ class AbstractMacroExpander;
 
 namespace Core {
 
-class VariableManagerPrivate;
+namespace Internal { class MainWindow; }
 
 class CORE_EXPORT VariableManager : public QObject
 {
     Q_OBJECT
 
 public:
-    VariableManager();
-    ~VariableManager();
-
     static VariableManager *instance();
 
     static void insert(const QByteArray &variable, const QString &value);
@@ -78,6 +75,12 @@ public:
 
 signals:
     void variableUpdateRequested(const QByteArray &variable);
+
+private:
+    VariableManager();
+    ~VariableManager();
+
+    friend class Core::Internal::MainWindow;
 };
 
 } // namespace Core

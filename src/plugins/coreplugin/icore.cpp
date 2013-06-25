@@ -99,22 +99,21 @@
     \fn ActionManager *ICore::actionManager()
     \obsolete
 
-    Use \c ActionManager::actionManager() directly.
+    Use Core::ActionManager directly.
 */
 
 /*!
     \fn DocumentManager *ICore::documentManager()
     \obsolete
 
-    Use \c DocumentManager::documentManager() directly.
+    Use Core::DocumentManager directly.
 */
 
 /*!
     \fn MessageManager *ICore::messageManager()
-    \brief Returns the application's message manager.
+    \obsolete
 
-    The message manager is the interface to the "General" output pane for
-    general application debug messages.
+    Use Core::MessageManager directly.
 */
 
 /*!
@@ -132,11 +131,6 @@
 
     Use the progress manager to register a concurrent task to
     show a progress bar the way Qt Creator does it.
-*/
-
-/*!
-    \fn ScriptManager *ICore::scriptManager()
-    \internal
 */
 
 /*!
@@ -169,6 +163,13 @@
     \brief Returns the application's mime database.
 
     Use the mime database to manage mime types.
+*/
+
+/*!
+    \fn HelpManager *ICore::helpManager()
+    \brief Returns the application's help manager.
+
+    Use the help manager to register documentation sets.
 */
 
 /*!

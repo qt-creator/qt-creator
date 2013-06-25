@@ -40,6 +40,7 @@ namespace Core {
 
 namespace Internal {
 class MessageOutputWindow;
+class MainWindow;
 }
 
 class CORE_EXPORT MessageManager : public QObject
@@ -47,12 +48,7 @@ class CORE_EXPORT MessageManager : public QObject
     Q_OBJECT
 
 public:
-    MessageManager();
-    ~MessageManager();
-
-    void init();
-
-    static MessageManager *instance() { return m_instance; }
+    static MessageManager *instance();
 
     void showOutputPane();
     enum PrintToOutputPaneFlag {
@@ -69,9 +65,13 @@ public slots:
     void printToOutputPane(const QString &text, Core::MessageManager::PrintToOutputPaneFlags flags);
 
 private:
+    MessageManager();
+    ~MessageManager();
+    void init();
+
     Internal::MessageOutputWindow *m_messageOutputWindow;
 
-    static MessageManager *m_instance;
+    friend class Core::Internal::MainWindow;
 };
 
 } // namespace Core

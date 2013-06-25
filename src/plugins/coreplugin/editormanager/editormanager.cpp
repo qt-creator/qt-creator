@@ -172,8 +172,9 @@ EditorManagerPlaceHolder* EditorManagerPlaceHolder::current()
 namespace Core {
 
 
-struct EditorManagerPrivate
+class EditorManagerPrivate
 {
+public:
     explicit EditorManagerPrivate(QWidget *parent);
     ~EditorManagerPrivate();
     QList<EditLocation> m_globalHistory;
@@ -265,13 +266,14 @@ EditorManagerPrivate::~EditorManagerPrivate()
 }
 
 static EditorManager *m_instance = 0;
+static EditorManagerPrivate *d;
 
 EditorManager *EditorManager::instance() { return m_instance; }
 
 EditorManager::EditorManager(QWidget *parent) :
-    QWidget(parent),
-    d(new EditorManagerPrivate(parent))
+    QWidget(parent)
 {
+    d = new EditorManagerPrivate(parent);
     m_instance = this;
 
     connect(ICore::instance(), SIGNAL(contextAboutToChange(QList<Core::IContext*>)),
@@ -612,7 +614,7 @@ SplitterOrView *EditorManager::findRoot(const EditorView *view, int *rootIndex)
 {
     SplitterOrView *current = view->parentSplitterOrView();
     while (current) {
-        int index = m_instance->d->m_root.indexOf(current);
+        int index = d->m_root.indexOf(current);
         if (index >= 0) {
             if (rootIndex)
                 *rootIndex = index;
@@ -647,7 +649,7 @@ QList<IEditor *> EditorManager::editorsForDocument(IDocument *document) const
 
 IEditor *EditorManager::currentEditor()
 {
-    return m_instance->d->m_currentEditor;
+    return d->m_currentEditor;
 }
 
 void EditorManager::emptyView(Core::Internal::EditorView *view)
@@ -702,8 +704,8 @@ void EditorManager::splitNewWindow(Internal::EditorView *view)
     context->setContext(Context(Constants::C_EDITORMANAGER));
     context->setWidget(splitter);
     ICore::addContextObject(context);
-    m_instance->d->m_root.append(splitter);
-    m_instance->d->m_rootContext.append(context);
+    d->m_root.append(splitter);
+    d->m_rootContext.append(context);
     connect(splitter, SIGNAL(destroyed(QObject*)), m_instance, SLOT(rootDestroyed(QObject*)));
     splitter->show();
     ICore::raiseWindow(splitter);

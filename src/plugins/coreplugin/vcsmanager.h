@@ -37,8 +37,9 @@
 
 namespace Core {
 
-class VcsManagerPrivate;
 class IVersionControl;
+
+namespace Internal { class MainWindow; }
 
 /* VcsManager:
  * 1) Provides functionality for finding the IVersionControl * for a given
@@ -57,9 +58,6 @@ class CORE_EXPORT VcsManager : public QObject
     Q_OBJECT
 
 public:
-    explicit VcsManager(QObject *parent = 0);
-    virtual ~VcsManager();
-
     void extensionsInitialized();
 
     void resetVersionControlForDirectory(const QString &inputDirectory);
@@ -104,7 +102,10 @@ private slots:
     void configureVcs();
 
 private:
-    VcsManagerPrivate *d;
+    explicit VcsManager(QObject *parent = 0);
+    virtual ~VcsManager();
+
+    friend class Core::Internal::MainWindow;
 };
 
 } // namespace Core

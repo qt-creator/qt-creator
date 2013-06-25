@@ -141,15 +141,16 @@ using namespace Core::Internal;
 */
 
 static ActionManager *m_instance = 0;
+static ActionManagerPrivate *d;
 
 /*!
     \internal
 */
 ActionManager::ActionManager(QObject *parent)
-    : QObject(parent),
-      d(new ActionManagerPrivate())
+    : QObject(parent)
 {
     m_instance = this;
+    d = new ActionManagerPrivate;
 }
 
 /*!
@@ -179,8 +180,8 @@ ActionManager *ActionManager::instance()
 */
 ActionContainer *ActionManager::createMenu(Id id)
 {
-    const ActionManagerPrivate::IdContainerMap::const_iterator it = m_instance->d->m_idContainerMap.constFind(id);
-    if (it !=  m_instance->d->m_idContainerMap.constEnd())
+    const ActionManagerPrivate::IdContainerMap::const_iterator it = d->m_idContainerMap.constFind(id);
+    if (it !=  d->m_idContainerMap.constEnd())
         return it.value();
 
     QMenu *m = new QMenu(ICore::mainWindow());
@@ -189,8 +190,8 @@ ActionContainer *ActionManager::createMenu(Id id)
     MenuActionContainer *mc = new MenuActionContainer(id);
     mc->setMenu(m);
 
-    m_instance->d->m_idContainerMap.insert(id, mc);
-    connect(mc, SIGNAL(destroyed()), m_instance->d, SLOT(containerDestroyed()));
+    d->m_idContainerMap.insert(id, mc);
+    connect(mc, SIGNAL(destroyed()), d, SLOT(containerDestroyed()));
 
     return mc;
 }
@@ -204,8 +205,8 @@ ActionContainer *ActionManager::createMenu(Id id)
 */
 ActionContainer *ActionManager::createMenuBar(Id id)
 {
-    const ActionManagerPrivate::IdContainerMap::const_iterator it = m_instance->d->m_idContainerMap.constFind(id);
-    if (it !=  m_instance->d->m_idContainerMap.constEnd())
+    const ActionManagerPrivate::IdContainerMap::const_iterator it = d->m_idContainerMap.constFind(id);
+    if (it !=  d->m_idContainerMap.constEnd())
         return it.value();
 
     QMenuBar *mb = new QMenuBar; // No parent (System menu bar on Mac OS X)
@@ -214,8 +215,8 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     MenuBarActionContainer *mbc = new MenuBarActionContainer(id);
     mbc->setMenuBar(mb);
 
-    m_instance->d->m_idContainerMap.insert(id, mbc);
-    connect(mbc, SIGNAL(destroyed()), m_instance->d, SLOT(containerDestroyed()));
+    d->m_idContainerMap.insert(id, mbc);
+    connect(mbc, SIGNAL(destroyed()), d, SLOT(containerDestroyed()));
 
     return mbc;
 }
@@ -233,7 +234,7 @@ ActionContainer *ActionManager::createMenuBar(Id id)
 */
 Command *ActionManager::registerAction(QAction *action, Id id, const Context &context, bool scriptable)
 {
-    Action *a = m_instance->d->overridableAction(id);
+    Action *a = d->overridableAction(id);
     if (a) {
         a->addOverrideAction(action, context, scriptable);
         emit m_instance->commandListChanged();
@@ -257,7 +258,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
 {
     QTC_CHECK(!context.isEmpty());
     Shortcut *sc = 0;
-    if (CommandPrivate *c = m_instance->d->m_idCmdMap.value(id, 0)) {
+    if (CommandPrivate *c = d->m_idCmdMap.value(id, 0)) {
         sc = qobject_cast<Shortcut *>(c);
         if (!sc) {
             qWarning() << "registerShortcut: id" << id.name()
@@ -266,7 +267,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
         }
     } else {
         sc = new Shortcut(id);
-        m_instance->d->m_idCmdMap.insert(id, sc);
+        d->m_idCmdMap.insert(id, sc);
     }
 
     if (sc->shortcut()) {
@@ -274,7 +275,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
         return sc;
     }
 
-    if (!m_instance->d->hasContext(context))
+    if (!d->hasContext(context))
         shortcut->setEnabled(false);
     shortcut->setObjectName(id.toString());
     shortcut->setParent(ICore::mainWindow());
@@ -287,7 +288,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
     emit m_instance->commandAdded(id.toString());
 
     if (isPresentationModeEnabled())
-        connect(sc->shortcut(), SIGNAL(activated()), m_instance->d, SLOT(shortcutTriggered()));
+        connect(sc->shortcut(), SIGNAL(activated()), d, SLOT(shortcutTriggered()));
     return sc;
 }
 
@@ -299,8 +300,8 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
 */
 Command *ActionManager::command(Id id)
 {
-    const ActionManagerPrivate::IdCmdMap::const_iterator it = m_instance->d->m_idCmdMap.constFind(id);
-    if (it == m_instance->d->m_idCmdMap.constEnd()) {
+    const ActionManagerPrivate::IdCmdMap::const_iterator it = d->m_idCmdMap.constFind(id);
+    if (it == d->m_idCmdMap.constEnd()) {
         if (warnAboutFindFailures)
             qWarning() << "ActionManagerPrivate::command(): failed to find :"
                        << id.name();
@@ -318,8 +319,8 @@ Command *ActionManager::command(Id id)
 */
 ActionContainer *ActionManager::actionContainer(Id id)
 {
-    const ActionManagerPrivate::IdContainerMap::const_iterator it = m_instance->d->m_idContainerMap.constFind(id);
-    if (it == m_instance->d->m_idContainerMap.constEnd()) {
+    const ActionManagerPrivate::IdContainerMap::const_iterator it = d->m_idContainerMap.constFind(id);
+    if (it == d->m_idContainerMap.constEnd()) {
         if (warnAboutFindFailures)
             qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :"
                        << id.name();
@@ -335,7 +336,7 @@ QList<Command *> ActionManager::commands()
 {
     // transform list of CommandPrivate into list of Command
     QList<Command *> result;
-    foreach (Command *cmd, m_instance->d->m_idCmdMap.values())
+    foreach (Command *cmd, d->m_idCmdMap.values())
         result << cmd;
     return result;
 }
@@ -351,7 +352,7 @@ QList<Command *> ActionManager::commands()
 void ActionManager::unregisterAction(QAction *action, Id id)
 {
     Action *a = 0;
-    CommandPrivate *c = m_instance->d->m_idCmdMap.value(id, 0);
+    CommandPrivate *c = d->m_idCmdMap.value(id, 0);
     QTC_ASSERT(c, return);
     a = qobject_cast<Action *>(c);
     if (!a) {
@@ -365,7 +366,7 @@ void ActionManager::unregisterAction(QAction *action, Id id)
         // ActionContainers listen to the commands' destroyed signals
         ICore::mainWindow()->removeAction(a->action());
         delete a->action();
-        m_instance->d->m_idCmdMap.remove(id);
+        d->m_idCmdMap.remove(id);
         delete a;
     }
     emit m_instance->commandListChanged();
@@ -382,7 +383,7 @@ void ActionManager::unregisterAction(QAction *action, Id id)
 void ActionManager::unregisterShortcut(Id id)
 {
     Shortcut *sc = 0;
-    CommandPrivate *c = m_instance->d->m_idCmdMap.value(id, 0);
+    CommandPrivate *c = d->m_idCmdMap.value(id, 0);
     QTC_ASSERT(c, return);
     sc = qobject_cast<Shortcut *>(c);
     if (!sc) {
@@ -391,7 +392,7 @@ void ActionManager::unregisterShortcut(Id id)
         return;
     }
     delete sc->shortcut();
-    m_instance->d->m_idCmdMap.remove(id);
+    d->m_idCmdMap.remove(id);
     delete sc;
     emit m_instance->commandListChanged();
 }
@@ -406,38 +407,53 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
     foreach (Command *c, commands()) {
         if (c->action()) {
             if (enabled)
-                connect(c->action(), SIGNAL(triggered()), m_instance->d, SLOT(actionTriggered()));
+                connect(c->action(), SIGNAL(triggered()), d, SLOT(actionTriggered()));
             else
-                disconnect(c->action(), SIGNAL(triggered()), m_instance->d, SLOT(actionTriggered()));
+                disconnect(c->action(), SIGNAL(triggered()), d, SLOT(actionTriggered()));
         }
         if (c->shortcut()) {
             if (enabled)
-                connect(c->shortcut(), SIGNAL(activated()), m_instance->d, SLOT(shortcutTriggered()));
+                connect(c->shortcut(), SIGNAL(activated()), d, SLOT(shortcutTriggered()));
             else
-                disconnect(c->shortcut(), SIGNAL(activated()), m_instance->d, SLOT(shortcutTriggered()));
+                disconnect(c->shortcut(), SIGNAL(activated()), d, SLOT(shortcutTriggered()));
         }
     }
 
     // The label for the shortcuts:
-    if (!m_instance->d->m_presentationLabel) {
-        m_instance->d->m_presentationLabel = new QLabel(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
-        QFont font = m_instance->d->m_presentationLabel->font();
+    if (!d->m_presentationLabel) {
+        d->m_presentationLabel = new QLabel(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
+        QFont font = d->m_presentationLabel->font();
         font.setPixelSize(45);
-        m_instance->d->m_presentationLabel->setFont(font);
-        m_instance->d->m_presentationLabel->setAlignment(Qt::AlignCenter);
-        m_instance->d->m_presentationLabel->setMargin(5);
+        d->m_presentationLabel->setFont(font);
+        d->m_presentationLabel->setAlignment(Qt::AlignCenter);
+        d->m_presentationLabel->setMargin(5);
 
-        connect(&m_instance->d->m_presentationLabelTimer, SIGNAL(timeout()), m_instance->d->m_presentationLabel, SLOT(hide()));
+        connect(&d->m_presentationLabelTimer, SIGNAL(timeout()), d->m_presentationLabel, SLOT(hide()));
     } else {
-        m_instance->d->m_presentationLabelTimer.stop();
-        delete m_instance->d->m_presentationLabel;
-        m_instance->d->m_presentationLabel = 0;
+        d->m_presentationLabelTimer.stop();
+        delete d->m_presentationLabel;
+        d->m_presentationLabel = 0;
     }
 }
 
 bool ActionManager::isPresentationModeEnabled()
 {
-    return m_instance->d->m_presentationLabel;
+    return d->m_presentationLabel;
+}
+
+void ActionManager::initialize()
+{
+    d->initialize();
+}
+
+void ActionManager::saveSettings(QSettings *settings)
+{
+    d->saveSettings(settings);
+}
+
+void ActionManager::setContext(const Context &context)
+{
+    d->setContext(context);
 }
 
 /*!

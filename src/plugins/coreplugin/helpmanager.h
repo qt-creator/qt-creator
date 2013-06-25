@@ -45,6 +45,7 @@ struct HelpManagerPrivate;
 
 namespace Internal {
 class CorePlugin;
+class MainWindow;
 }
 
 class CORE_EXPORT HelpManager : public QObject
@@ -53,8 +54,6 @@ class CORE_EXPORT HelpManager : public QObject
 
 public:
     typedef QHash<QString, QStringList> Filters;
-    explicit HelpManager(QObject *parent = 0);
-    virtual ~HelpManager();
 
     static HelpManager* instance();
     static QString collectionFilePath();
@@ -93,10 +92,13 @@ signals:
     void helpRequested(const QUrl &url);
 
 private:
+    explicit HelpManager(QObject *parent = 0);
+    virtual ~HelpManager();
+
     void setupHelpManager();
     void verifyDocumenation();
-    HelpManagerPrivate *d;
-    friend class Internal::CorePlugin; // setupHelpManager
+    friend class Core::Internal::CorePlugin; // setupHelpManager
+    friend class Core::Internal::MainWindow; // constructor/destructor
 };
 
 }   // Core

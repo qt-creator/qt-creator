@@ -39,6 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QSettings;
 class QShortcut;
 class QString;
 QT_END_NAMESPACE
@@ -47,10 +48,7 @@ namespace Core {
 
 class ActionContainer;
 
-namespace Internal {
-class ActionManagerPrivate;
-class MainWindow;
-}
+namespace Internal { class MainWindow; }
 
 class CORE_EXPORT ActionManager : public QObject
 {
@@ -82,7 +80,9 @@ signals:
 private:
     ActionManager(QObject *parent = 0);
     ~ActionManager();
-    Internal::ActionManagerPrivate *d;
+    void initialize();
+    void saveSettings(QSettings *settings);
+    void setContext(const Context &context);
 
     friend class Core::Internal::MainWindow;
 };

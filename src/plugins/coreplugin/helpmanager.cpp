@@ -65,6 +65,7 @@ struct HelpManagerPrivate
 };
 
 static HelpManager *m_instance = 0;
+static HelpManagerPrivate *d;
 
 static const char linksForKeyQuery[] = "SELECT d.Title, f.Name, e.Name, "
     "d.Name, a.Anchor FROM IndexTable a, FileNameTable d, FolderTable e, "
@@ -83,10 +84,11 @@ struct DbCleaner
 // -- HelpManager
 
 HelpManager::HelpManager(QObject *parent) :
-    QObject(parent), d(new HelpManagerPrivate)
+    QObject(parent)
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
+    d = new HelpManagerPrivate;
 }
 
 HelpManager::~HelpManager()

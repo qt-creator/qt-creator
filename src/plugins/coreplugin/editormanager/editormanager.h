@@ -63,18 +63,15 @@ enum MakeWritableResult {
     Failed
 };
 
-struct EditorManagerPrivate;
 class OpenEditorsModel;
 
 namespace Internal {
-class OpenEditorsWindow;
-class EditorView;
-class SplitterOrView;
-
 class EditorClosingCoreListener;
+class EditorView;
+class MainWindow;
 class OpenEditorsViewFactory;
-
-
+class OpenEditorsWindow;
+class SplitterOrView;
 } // namespace Internal
 
 class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
@@ -99,9 +96,6 @@ public:
     typedef QList<IEditorFactory *> EditorFactoryList;
     typedef QList<IExternalEditor *> ExternalEditorList;
 
-    explicit EditorManager(QWidget *parent);
-    virtual ~EditorManager();
-    void init();
     static EditorManager *instance();
 
     static EditorToolBar *createToolBar(QWidget *parent = 0);
@@ -251,6 +245,10 @@ public slots:
     void gotoOtherSplit();
 
 private:
+    explicit EditorManager(QWidget *parent);
+    virtual ~EditorManager();
+    void init();
+
     QList<IDocument *> documentsForEditors(QList<IEditor *> editors) const;
     static IEditor *createEditor(const Id &id = Id(), const QString &fileName = QString());
     void addEditor(IEditor *editor, bool isDuplicate = false);
@@ -285,8 +283,7 @@ private:
     QString fileNameForEditor(IEditor *editor);
     void setupSaveActions(IEditor *editor, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction);
 
-    EditorManagerPrivate *d;
-
+    friend class Core::Internal::MainWindow;
     friend class Core::Internal::SplitterOrView;
     friend class Core::Internal::EditorView;
     friend class Core::EditorToolBar;

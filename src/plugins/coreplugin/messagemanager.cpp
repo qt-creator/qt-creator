@@ -34,7 +34,8 @@
 
 using namespace Core;
 
-MessageManager *MessageManager::m_instance = 0;
+static MessageManager *m_instance = 0;
+MessageManager *MessageManager::instance() { return m_instance; }
 
 MessageManager::MessageManager()
     : m_messageOutputWindow(0)

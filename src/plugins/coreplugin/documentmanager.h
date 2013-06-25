@@ -47,6 +47,8 @@ namespace Core {
 class IContext;
 class IDocument;
 
+namespace Internal { class MainWindow; }
+
 class CORE_EXPORT DocumentManager : public QObject
 {
     Q_OBJECT
@@ -57,9 +59,6 @@ public:
     };
 
     typedef QPair<QString, Id> RecentFile;
-
-    explicit DocumentManager(QMainWindow *ew);
-    virtual ~DocumentManager();
 
     static DocumentManager *instance();
 
@@ -152,6 +151,12 @@ private slots:
     void checkForReload();
     void changedFile(const QString &file);
     void syncWithEditor(const QList<Core::IContext *> &context);
+
+private:
+    explicit DocumentManager(QMainWindow *ew);
+    virtual ~DocumentManager();
+
+    friend class Core::Internal::MainWindow;
 };
 
 /*! The FileChangeBlocker blocks all change notifications to all IDocument * that

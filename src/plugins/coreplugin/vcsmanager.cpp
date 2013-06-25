@@ -177,10 +177,12 @@ public:
     IVersionControl *m_unconfiguredVcs;
 };
 
+static VcsManagerPrivate *d;
+
 VcsManager::VcsManager(QObject *parent) :
-   QObject(parent),
-   d(new VcsManagerPrivate)
+   QObject(parent)
 {
+    d = new VcsManagerPrivate;
 }
 
 // ---- VCSManager:

@@ -52,10 +52,6 @@ class CORE_EXPORT ModeManager : public QObject
     Q_OBJECT
 
 public:
-    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
-    virtual ~ModeManager();
-
-    static void init();
     static ModeManager *instance();
 
     static IMode *currentMode();
@@ -88,6 +84,14 @@ private slots:
     void enabledStateChanged();
     void handleStartup();
     void handleShutdown();
+
+private:
+    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
+    virtual ~ModeManager();
+
+    static void init();
+
+    friend class Core::Internal::MainWindow;
 };
 
 } // namespace Core

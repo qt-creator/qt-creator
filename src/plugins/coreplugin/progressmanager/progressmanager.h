@@ -38,6 +38,8 @@
 namespace Core {
 class FutureProgress;
 
+namespace Internal { class ProgressManagerPrivate; }
+
 class CORE_EXPORT ProgressManager : public QObject
 {
     Q_OBJECT
@@ -47,9 +49,6 @@ public:
         ShowInApplicationIcon = 0x02
     };
     Q_DECLARE_FLAGS(ProgressFlags, ProgressFlag)
-
-    ProgressManager(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ProgressManager() {}
 
     virtual FutureProgress *addTask(const QFuture<void> &future, const QString &title,
                                     const QString &type, ProgressFlags flags = 0) = 0;
@@ -61,6 +60,12 @@ public slots:
 signals:
     void taskStarted(const QString &type);
     void allTasksFinished(const QString &type);
+
+private:
+    ProgressManager(QObject *parent = 0) : QObject(parent) {}
+    virtual ~ProgressManager() {}
+
+    friend class Core::Internal::ProgressManagerPrivate;
 };
 
 } // namespace Core
