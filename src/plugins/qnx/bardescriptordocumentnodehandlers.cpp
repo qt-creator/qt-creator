@@ -386,7 +386,7 @@ QDomNode BarDescriptorDocumentSplashScreenNodeHandler::toNode(QDomDocument &doc)
     if (splashScreens.isEmpty())
         return QDomElement();
 
-    QDomElement splashScreenElement = doc.createElement(QLatin1String("splashscreens"));
+    QDomElement splashScreenElement = doc.createElement(QLatin1String("splashScreens"));
     foreach (const QString &splashScreen, splashScreens)
         splashScreenElement.appendChild(createSimpleTextElement(doc, QLatin1String("image"), splashScreen));
 
