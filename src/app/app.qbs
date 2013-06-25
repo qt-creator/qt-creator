@@ -5,7 +5,7 @@ Application {
     name: project.ide_app_target
     consoleApplication: qbs.debugInformation
 
-    cpp.rpaths: qbs.targetOS.contains("mac") ? ["@executable_path/.."]
+    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/.."]
                                              : ["$ORIGIN/../lib/qtcreator"]
     cpp.defines: Defaults.defines(qbs)
     cpp.linkerFlags: {
@@ -40,7 +40,7 @@ Application {
 
     Group {
         name: "qtcreator.sh"
-        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("mac")
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
         files: "../../bin/qtcreator.sh"
         qbs.install: true
         qbs.installDir: "bin"

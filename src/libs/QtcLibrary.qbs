@@ -14,7 +14,7 @@ DynamicLibrary {
             return ["-Wl,-s"]
     }
     cpp.installNamePrefix: "@rpath/PlugIns/"
-    cpp.rpaths: qbs.targetOS.contains("mac")
+    cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@loader_path/..", "@executable_path/.."]
             : ["$ORIGIN", "$ORIGIN/.."]
     cpp.includePaths: [ ".", ".." ]

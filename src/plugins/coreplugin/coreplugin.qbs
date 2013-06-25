@@ -31,7 +31,7 @@ QtcPlugin {
         ]
     }
 
-    cpp.frameworks: qbs.targetOS.contains("mac") ? ["AppKit"] : undefined
+    cpp.frameworks: qbs.targetOS.contains("osx") ? ["AppKit"] : undefined
 
     files: [
         "basefilewizard.cpp",
@@ -241,7 +241,7 @@ QtcPlugin {
 
     Group {
         name: "ProgressManager_mac"
-        condition: qbs.targetOS.contains("mac")
+        condition: qbs.targetOS.contains("osx")
         files: [
             "macfullscreen.h",
             "macfullscreen.mm",
@@ -251,7 +251,7 @@ QtcPlugin {
 
     Group {
         name: "ProgressManager_x11"
-        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("mac")
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
         files: [
             "progressmanager/progressmanager_x11.cpp",
         ]
