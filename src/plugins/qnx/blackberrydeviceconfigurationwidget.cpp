@@ -36,6 +36,7 @@
 #include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "qnxconstants.h"
+#include "qnxutils.h"
 
 #include <ssh/sshconnection.h>
 #include <texteditor/texteditorsettings.h>
@@ -81,7 +82,7 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     ui->debugToken->addButton(tr("Upload"), this, SLOT(uploadDebugToken()));
     uploadButton = ui->debugToken->buttonAtIndex(2);
 
-    QString debugTokenBrowsePath = BlackBerryConfiguration::instance().dataDirPath();
+    QString debugTokenBrowsePath = QnxUtils::dataDirPath();
     if (!QFileInfo(debugTokenBrowsePath).exists())
         debugTokenBrowsePath = QDir::homePath();
     ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);

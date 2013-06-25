@@ -296,7 +296,7 @@ DeviceProcess DeviceProcessesDialogPrivate::selectedProcess() const
 /*!
      \class ProjectExplorer::DeviceProcessesDialog
 
-     \brief Shows a list of processes.
+     \brief The DeviceProcessesDialog class shows a list of processes.
 
      The dialog can be used as a
      \list

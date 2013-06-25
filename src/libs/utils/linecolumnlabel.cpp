@@ -34,7 +34,8 @@
 /*!
     \class Utils::LineColumnLabel
 
-    \brief A label suitable for displaying cursor positions, etc. with a fixed
+    \brief The LineColumnLabel class is a label suitable for displaying cursor
+    positions, and so on, with a fixed
     width derived from a sample text.
 */
 

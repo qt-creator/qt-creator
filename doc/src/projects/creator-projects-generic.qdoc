@@ -45,7 +45,7 @@
 
     \list 1
 
-        \li Select \gui File > \gui{New File or Project} > \gui{Other Project}
+        \li Select \gui File > \gui{New File or Project} > \gui{Import Project}
             > \gui{Import Existing Project}.
 
         \li In \gui{Import Existing Project}, enter the project name

@@ -148,19 +148,19 @@ class QbsProductNode : public QbsBaseProjectNode
     Q_OBJECT
 
 public:
-    explicit QbsProductNode(const qbs::ProductData *prd);
+    explicit QbsProductNode(const qbs::ProductData &prd);
 
     bool isEnabled() const;
 
-    void setQbsProductData(const qbs::ProductData *prd);
-    const qbs::ProductData *qbsProductData() const { return m_qbsProductData; }
+    void setQbsProductData(const qbs::ProductData prd);
+    const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
 private:
     QbsGroupNode *findGroupNode(const QString &name);
 
-    const qbs::ProductData *m_qbsProductData;
+    qbs::ProductData m_qbsProductData;
     static QIcon m_productIcon;
 };
 
@@ -174,21 +174,26 @@ class QbsProjectNode : public QbsBaseProjectNode
 
 public:
     explicit QbsProjectNode(QbsProject *project);
+    explicit QbsProjectNode(const QString &path);
     ~QbsProjectNode();
 
     void update(const qbs::Project *prj);
+    void update(const qbs::ProjectData &prjData);
 
     QbsProject *project() const;
     const qbs::Project *qbsProject() const;
-    const qbs::ProjectData *qbsProjectData() const;
+    const qbs::ProjectData qbsProjectData() const;
 
 private:
+    void ctor();
+
     QbsProductNode *findProductNode(const QString &name);
+    QbsProjectNode *findProjectNode(const QString &name);
 
     QbsProject *m_project;
 
     const qbs::Project *m_qbsProject;
-    const qbs::ProjectData *m_qbsProjectData;
+    qbs::ProjectData m_qbsProjectData;
     static QIcon m_projectIcon;
 };
 } // namespace Internal

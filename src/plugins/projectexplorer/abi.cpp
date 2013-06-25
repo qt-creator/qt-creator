@@ -41,7 +41,8 @@
 /*!
     \class ProjectExplorer::Abi
 
-    \brief Represents the Application Binary Interface (ABI) of a target platform.
+    \brief The Abi class represents the Application Binary Interface (ABI) of
+    a target platform.
 
     \sa ProjectExplorer::ToolChain
 */
@@ -736,6 +737,14 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
     }
 
     return result;
+}
+
+ProjectExplorer::Abi::Endianness Abi::endianness() const
+{
+    if (m_architecture == X86Architecture)
+        return LittleEndian;
+    // All other architectures are bi-endian:/
+    return UnknownEndian; // Todo: Add a field for endianness to the Abi struct!
 }
 
 } // namespace ProjectExplorer

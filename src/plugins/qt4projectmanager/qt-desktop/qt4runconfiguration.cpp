@@ -649,16 +649,12 @@ bool Qt4RunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
 ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
 {
     Qt4RunConfiguration *rc = new Qt4RunConfiguration(parent, id);
-    QList<Qt4ProFileNode *> profiles = static_cast<Qt4Project *>(parent->project())->applicationProFiles();
-    foreach (Qt4ProFileNode *node, profiles) {
-        if (node->path() != rc->proFilePath())
-            continue;
+    const Qt4ProFileNode *node = static_cast<Qt4Project *>(parent->project())->rootQt4ProjectNode()->findProFileFor(rc->proFilePath());
+    if (node) // should always be found
         rc->setRunMode(node->variableValue(ConfigVar).contains(QLatin1String("console"))
                        && !node->variableValue(QtVar).contains(QLatin1String("testlib"))
                        ? ProjectExplorer::LocalApplicationRunConfiguration::Console
                        : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
-        break;
-    }
     return rc;
 }
 

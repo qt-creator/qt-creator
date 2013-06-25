@@ -54,7 +54,7 @@ private slots:
     void sendMessages();
 
 private:
-    void doPrintWarning(const qbs::Error &warning);
+    void doPrintWarning(const qbs::ErrorInfo &warning);
     void doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag);
 
     QStringList m_messages;

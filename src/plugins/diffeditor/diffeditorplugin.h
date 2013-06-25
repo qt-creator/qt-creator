@@ -33,17 +33,8 @@
 #include "diffeditor_global.h"
 
 #include <extensionsystem/iplugin.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/idocument.h>
-
-#include <QStringList>
-
-namespace Core { class IEditor; }
 
 namespace DiffEditor {
-
-class DiffEditorWidget;
 
 namespace Internal {
 
@@ -59,9 +50,6 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 
-    // Connect editor to settings changed signals.
-    void initializeEditor(DiffEditorWidget *editor);
-
 private slots:
     void diff();
 
@@ -72,23 +60,6 @@ private slots:
 private:
     QString getFileContents(const QString &fileName, QTextCodec *codec) const;
 
-};
-
-class DiffEditorFactory : public Core::IEditorFactory
-{
-    Q_OBJECT
-
-public:
-    explicit DiffEditorFactory(DiffEditorPlugin *owner);
-
-    QStringList mimeTypes() const;
-    Core::IEditor *createEditor(QWidget *parent);
-    Core::Id id() const;
-    QString displayName() const;
-
-private:
-    const QStringList m_mimeTypes;
-    DiffEditorPlugin *m_owner;
 };
 
 } // namespace Internal

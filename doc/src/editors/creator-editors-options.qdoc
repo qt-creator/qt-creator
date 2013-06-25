@@ -35,7 +35,7 @@
     \gui{Text Editor}.
 
     These settings apply to all projects. To specify editor behavior for an
-    open project, select \gui {Projects > Editor Settings}. For more
+    open project, select \gui Projects > \gui Editor. For more
     information, see \l{Specifying Editor Settings}.
 
     You can also specify indentation settings separately for C++ and QML files

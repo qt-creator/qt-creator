@@ -49,7 +49,7 @@ using namespace ProjectExplorer;
 /*!
   \class ProjectExplorer::Node
 
-  \brief Base class of all nodes in the node hierarchy.
+  \brief The Node class is the base class of all nodes in the node hierarchy.
 
   The nodes are arranged in a tree where leaves are FileNodes and non-leaves are FolderNodes
   A Project is a special Folder that manages the files and normal folders underneath it.

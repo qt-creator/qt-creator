@@ -32,12 +32,15 @@
 
 #include "callgrindcostdelegate.h"
 
-#include <QTreeView>
+#include <utils/basetreeview.h>
 
 namespace Valgrind {
 namespace Internal {
 
-class CostView : public QTreeView
+class CostDelegate;
+class NameDelegate;
+
+class CostView : public Utils::BaseTreeView
 {
     Q_OBJECT
 
@@ -57,9 +60,11 @@ public:
     void setCostFormat(CostDelegate::CostFormat format);
     CostDelegate::CostFormat costFormat() const;
 
+    void contextMenuEvent(QContextMenuEvent *ev);
+
 private:
-    class Private;
-    Private *d;
+    CostDelegate *m_costDelegate;
+    NameDelegate *m_nameDelegate;
 };
 
 } // namespace Internal

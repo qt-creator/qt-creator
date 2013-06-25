@@ -40,7 +40,7 @@
 /*!
     \class QSsh::SftpChannel
 
-    \brief This class provides SFTP operations.
+    \brief The SftpChannel class provides SFTP operations.
 
     Objects are created via SshConnection::createSftpChannel().
     The channel needs to be initialized with

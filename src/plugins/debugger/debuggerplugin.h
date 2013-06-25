@@ -60,7 +60,6 @@ public:
     //static void startDebugger(ProjectExplorer::RunControl *runControl);
 
     // Used by QmlJSInspector.
-    static bool isActiveDebugLanguage(int language);
     static DebuggerMainWindow *mainWindow();
     static QAction *visibleDebugAction();
 

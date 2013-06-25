@@ -1768,7 +1768,6 @@ namespace qobject {
     void testQObject2()
     {
         //QString longString = QString(10000, QLatin1Char('A'));
-    #if 1
         Names::Bar::TestObject test;
         test.setMyProp1("HELLO");
         test.setMyProp2("WORLD");
@@ -1779,19 +1778,22 @@ namespace qobject {
         // Check test  qobject::Names::Bar::TestObject.
         // Continue.
         dummyStatement(&s);
-    #endif
+    }
 
-    #if 0
-        QAction act("xxx", &app);
+    void testQObject3()
+    {
+        QAction act("xxx", qApp);
         QString t = act.text();
         t += "y";
         t += "y";
         t += "y";
         t += "y";
         t += "y";
-    #endif
+        dummyStatement(&act, &t);
+    }
 
-    #if 1
+    void testQObject4()
+    {
         #if USE_GUILIB
         QWidget ob;
         ob.setObjectName("An Object");
@@ -1801,19 +1803,29 @@ namespace qobject {
         ob1.setObjectName("Another Object");
 
         QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-        QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-        //QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
+        QObject::connect(&ob1, SIGNAL(destroyed()), &ob, SLOT(deleteLater()));
+        BREAK_HERE;
+        QObject::disconnect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
+        QObject::disconnect(&ob1, SIGNAL(destroyed()), &ob, SLOT(deleteLater()));
+        dummyStatement(&ob, &ob1);
         #endif
-    #endif
+    }
 
-    #if 0
+    void testQObject5()
+    {
+        QWidget ob;
+        ob.setObjectName("An Object");
+        ob.setProperty("USER DEFINED 1", 44);
+        ob.setProperty("USER DEFINED 2", QStringList() << "FOO" << "BAR");
+        QObject ob1;
         QList<QObject *> obs;
         obs.append(&ob);
         obs.append(&ob1);
         obs.append(0);
-        obs.append(&app);
-        ob1.setObjectName("A Subobject");
-    #endif
+        obs.append(qApp);
+        ob1.setObjectName("Another Object");
+        BREAK_HERE;
+        dummyStatement(&obs);
     }
 
     class Sender : public QObject
@@ -1960,6 +1972,9 @@ namespace qobject {
         testQObjectData();
         testQObject1();
         testQObject2();
+        testQObject3();
+        testQObject4();
+        testQObject5();
         testSignalSlot();
     }
 

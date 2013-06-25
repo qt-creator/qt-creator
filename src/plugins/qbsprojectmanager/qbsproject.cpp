@@ -103,9 +103,11 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_rootProjectNode(0),
     m_qbsSetupProjectJob(0),
     m_qbsUpdateFutureInterface(0),
+    m_currentProgressBase(0),
+    m_forceParsing(false),
     m_currentBc(0)
 {
-    m_parsingDelay.setInterval(1000); // delay (some) parsing by 1s.
+    m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setProjectContext(Core::Context(Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -118,7 +120,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 
     connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(parseCurrentBuildConfiguration()));
 
-    updateDocuments(0);
+    updateDocuments(QSet<QString>() << fileName);
     m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
 }
 
@@ -160,8 +162,8 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
 {
     Q_UNUSED(fileMode);
     QSet<QString> result;
-    if (m_rootProjectNode && m_rootProjectNode->qbsProjectData()) {
-        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData()->products()) {
+    if (m_rootProjectNode && m_rootProjectNode->qbsProjectData().isValid()) {
+        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData().allProducts()) {
             foreach (const qbs::GroupData &grp, prd.groups()) {
                 foreach (const QString &file, grp.allFilePaths())
                     result.insert(file);
@@ -169,7 +171,7 @@ QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) cons
             }
             result.insert(prd.location().fileName());
         }
-        result.insert(m_rootProjectNode->qbsProjectData()->location().fileName());
+        result.insert(m_rootProjectNode->qbsProjectData().location().fileName());
     }
     return result.toList();
 }
@@ -189,7 +191,7 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList prod
         QList<qbs::ProductData> products;
         foreach (const QString &productName, productNames) {
             bool found = false;
-            foreach (const qbs::ProductData &data, qbsProjectData()->products()) {
+            foreach (const qbs::ProductData &data, qbsProjectData().allProducts()) {
                 if (data.name() == productName) {
                     found = true;
                     products.append(data);
@@ -247,10 +249,10 @@ const qbs::Project *QbsProject::qbsProject() const
     return m_rootProjectNode->qbsProject();
 }
 
-const qbs::ProjectData *QbsProject::qbsProjectData() const
+const qbs::ProjectData QbsProject::qbsProjectData() const
 {
     if (!m_rootProjectNode)
-        return 0;
+        return qbs::ProjectData();
     return m_rootProjectNode->qbsProjectData();
 }
 
@@ -280,7 +282,7 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     m_rootProjectNode->update(project);
 
-    updateDocuments(m_rootProjectNode->qbsProjectData());
+    updateDocuments(project ? project->buildSystemFiles() : QSet<QString>() << m_fileName);
 
     updateCppCodeModel(m_rootProjectNode->qbsProjectData());
     updateQmlJsCodeModel(m_rootProjectNode->qbsProjectData());
@@ -310,8 +312,8 @@ void QbsProject::handleQbsParsingTaskSetup(const QString &description, int maxim
 void QbsProject::targetWasAdded(ProjectExplorer::Target *t)
 {
     connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(delayParsing()));
-    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayParsing()));
+            this, SLOT(delayForcedParsing()));
+    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayForcedParsing()));
 }
 
 void QbsProject::changeActiveTarget(ProjectExplorer::Target *t)
@@ -339,6 +341,12 @@ void QbsProject::buildConfigurationChanged(ProjectExplorer::BuildConfiguration *
 void QbsProject::delayParsing()
 {
     m_parsingDelay.start();
+}
+
+void QbsProject::delayForcedParsing()
+{
+    m_forceParsing = true;
+    delayParsing();
 }
 
 void QbsProject::parseCurrentBuildConfiguration()
@@ -370,25 +378,46 @@ bool QbsProject::fromMap(const QVariantMap &map)
     return true;
 }
 
-void QbsProject::generateErrors(const qbs::Error &e)
+void QbsProject::generateErrors(const qbs::ErrorInfo &e)
 {
-    foreach (const qbs::ErrorData &data, e.entries())
+    foreach (const qbs::ErrorItem &item, e.items())
         taskHub()->addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                                 data.description(),
-                                                 Utils::FileName::fromString(data.codeLocation().fileName()),
-                                                 data.codeLocation().line(),
+                                                 item.description(),
+                                                 Utils::FileName::fromString(item.codeLocation().fileName()),
+                                                 item.codeLocation().line(),
                                                  ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
 void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir)
 {
     QTC_ASSERT(!dir.isNull(), return);
-    prepareForParsing();
-
-    QTC_ASSERT(!m_qbsSetupProjectJob, return);
 
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
+    qbs::ErrorInfo err = params.expandBuildConfiguration(m_manager->settings());
+    if (err.hasError()) {
+        generateErrors(err);
+        return;
+    }
+
+    // Avoid useless reparsing:
+    const qbs::Project *currentProject = qbsProject();
+    if (!m_forceParsing
+            && currentProject
+            && currentProject->projectConfiguration() == params.buildConfiguration()) {
+        QHash<QString, QString> usedEnv = currentProject->usedEnvironment();
+        bool canSkip = true;
+        for (QHash<QString, QString>::const_iterator i = usedEnv.constBegin();
+             i != usedEnv.constEnd(); ++i) {
+            if (env.value(i.key()) != i.value()) {
+                canSkip = false;
+                break;
+            }
+        }
+        if (canSkip)
+            return;
+    }
+
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_fileName);
     params.setIgnoreDifferentProjectFilePath(false);
@@ -398,8 +427,12 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
     params.setSearchPaths(prefs->searchPaths(buildDir));
     params.setPluginPaths(prefs->pluginPaths(buildDir));
 
+    // Do the parsing:
+    prepareForParsing();
+    QTC_ASSERT(!m_qbsSetupProjectJob, return);
+
     m_qbsSetupProjectJob
-            = qbs::Project::setupProject(params, m_manager->settings(), m_manager->logSink(), 0);
+            = qbs::Project::setupProject(params, m_manager->logSink(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));
@@ -413,6 +446,8 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
 
 void QbsProject::prepareForParsing()
 {
+    m_forceParsing = false;
+
     taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     if (m_qbsUpdateFutureInterface)
         m_qbsUpdateFutureInterface->reportCanceled();
@@ -430,17 +465,11 @@ void QbsProject::prepareForParsing()
     m_qbsUpdateFutureInterface->reportStarted();
 }
 
-void QbsProject::updateDocuments(const qbs::ProjectData *prj)
+void QbsProject::updateDocuments(const QSet<QString> &files)
 {
     // Update documents:
-    QSet<QString> newFiles;
-    newFiles.insert(m_fileName); // make sure we always have the project file...
-
-    if (prj) {
-        newFiles.insert(prj->location().fileName());
-        foreach (const qbs::ProductData &prd, prj->products())
-            newFiles.insert(prd.location().fileName());
-    }
+    QSet<QString> newFiles = files;
+    QTC_ASSERT(!newFiles.isEmpty(), newFiles << m_fileName);
     QSet<QString> oldFiles;
     foreach (Core::IDocument *doc, m_qbsDocuments)
         oldFiles.insert(doc->fileName());
@@ -465,9 +494,9 @@ void QbsProject::updateDocuments(const qbs::ProjectData *prj)
     m_qbsDocuments.unite(toAdd);
 }
 
-void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
+void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 {
-    if (!prj)
+    if (!prj.isValid())
         return;
 
     ProjectExplorer::Kit *k = 0;
@@ -496,7 +525,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
     }
 
     QStringList allFiles;
-    foreach (const qbs::ProductData &prd, prj->products()) {
+    foreach (const qbs::ProductData &prd, prj.allProducts()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
 
@@ -568,10 +597,11 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
 
     // Register update the code model:
     modelmanager->updateProjectInfo(pinfo);
-    m_codeModelFuture = modelmanager->updateSourceFiles(allFiles);
+    m_codeModelFuture = modelmanager->updateSourceFiles(allFiles,
+        CppTools::CppModelManagerInterface::ForcedProgressNotification);
 }
 
-void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData *prj)
+void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData &prj)
 {
     Q_UNUSED(prj);
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();

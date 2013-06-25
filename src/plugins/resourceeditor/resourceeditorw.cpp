@@ -259,9 +259,9 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
     } else {
         emit aboutToReload();
         QString fn = m_parent->m_resourceEditor->fileName();
-        if (!m_parent->open(errorString, fn, fn))
-            return false;
-        emit reloaded();
+        const bool success = m_parent->open(errorString, fn, fn);
+        emit reloadFinished(success);
+        return success;
     }
     return true;
 }

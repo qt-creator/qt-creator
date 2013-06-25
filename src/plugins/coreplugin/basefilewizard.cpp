@@ -100,8 +100,9 @@ void BaseFileWizardParameterData::clear()
 
 /*!
     \class Core::BaseFileWizardParameters
-    \brief Parameter class for passing parameters to instances of class Wizard
-     containing name, icon and such.
+    \brief The BaseFileWizardParameters class is a parameter class for
+    passing parameters to instances of the class Wizard containing name, icon,
+    and so on.
 
     \sa Core::GeneratedFile, Core::BaseFileWizard, Core::StandardFileWizard
     \sa Core::Internal::WizardEventLoop
@@ -341,7 +342,8 @@ void WizardEventLoop::rejected()
 
 /*!
     \class Core::BaseFileWizard
-    \brief A generic wizard for creating files.
+    \brief The BaseFileWizard class implements a generic wizard for
+    creating files.
 
     The abstract methods:
     \list
@@ -780,7 +782,8 @@ QString BaseFileWizard::preferredSuffix(const QString &mimeType)
 
 /*!
     \class Core::StandardFileWizard
-    \brief Convenience class for creating one file.
+    \brief The StandardFileWizard class is a convenience class for
+    creating one file.
 
     It uses Utils::FileWizardDialog and introduces a new virtual to generate the
     files from path and name.

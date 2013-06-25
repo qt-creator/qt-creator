@@ -85,12 +85,13 @@ protected:
 
     void deleteSnapLines();
 
-    QHash<FormEditorItem*, QRectF> tanslatedBoundingRects(const QHash<FormEditorItem*, QRectF> &boundingRectHash, const QPointF& offset);
+    QHash<FormEditorItem*, QRectF> tanslatedBoundingRects(const QHash<FormEditorItem*, QRectF> &boundingRectHash,
+                                                          const QPointF& offset,
+                                                          const QTransform &transform);
     QPointF calculateBoundingRectMovementOffset(const QPointF& updatePoint);
     QRectF boundingRect(FormEditorItem* item, const QPointF& updatePoint);
 
     void generateSnappingLines(const QHash<FormEditorItem*, QRectF> &boundingRectHash);
-    void updateHashes();
 
     bool itemsCanReparented() const;
 
@@ -103,8 +104,7 @@ private:
     QWeakPointer<LayerItem> m_layerItem;
     QWeakPointer<FormEditorView> m_view;
     QList<FormEditorItem*> m_itemList;
-    QHash<FormEditorItem*, QRectF> m_beginItemRectHash;
-    QHash<FormEditorItem*, QPointF> m_beginPositionHash;
+    QHash<FormEditorItem*, QRectF> m_beginItemRectInSceneSpaceHash;
     QHash<FormEditorItem*, QPointF> m_beginPositionInSceneSpaceHash;
     QPointF m_beginPoint;
     QHash<FormEditorItem*, double> m_beginTopMarginHash;

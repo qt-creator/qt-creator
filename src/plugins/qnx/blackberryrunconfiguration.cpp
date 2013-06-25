@@ -70,7 +70,7 @@ void BlackBerryRunConfiguration::init()
 void BlackBerryRunConfiguration::updateDisplayName()
 {
     if (!m_proFilePath.isEmpty())
-        setDefaultDisplayName(tr("%1 on BlackBerry device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setDefaultDisplayName(QFileInfo(m_proFilePath).completeBaseName());
     else
         setDefaultDisplayName(tr("Run on BlackBerry device"));
 }

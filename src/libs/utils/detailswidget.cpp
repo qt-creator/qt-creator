@@ -41,7 +41,8 @@
 /*!
     \class Utils::DetailsWidget
 
-    \brief Widget a button to expand a 'Details' area.
+    \brief The DetailsWidget class implements a button to expand a \e Details
+    area.
 
     This widget is using a grid layout and places the items
     in the following way:

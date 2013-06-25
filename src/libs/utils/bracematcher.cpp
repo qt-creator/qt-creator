@@ -34,7 +34,8 @@
 
 /*!
     \class Utils::BraceMatcher
-    \brief Generic autocompleter of braces and quotes.
+    \brief The BraceMatcher class implements a generic autocompleter of braces
+    and quotes.
 
     This is a helper class for autocompleter implementations. To use it,
     define "brace", "quote", and "delimiter" characters for given language.

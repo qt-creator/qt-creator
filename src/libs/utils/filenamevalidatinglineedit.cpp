@@ -36,7 +36,10 @@
 /*!
   \class Utils::FileNameValidatingLineEdit
 
-  \brief A control that let's the user choose a (base) file name, based on a QLineEdit. Has
+  \brief The FileNameValidatingLineEdit class is a control that lets the user
+  choose a (base) file name, based on a QLineEdit.
+
+  The class has
    some validation logic for embedding into QWizardPage.
 */
 

@@ -88,7 +88,7 @@ def main():
     installer_name = args[0]
     config_postfix = ''
     if sys.platform == 'darwin':
-        installer_name = installer_name + '.dmg'
+        config_postfix = '-mac'
     if sys.platform.startswith('win'):
         config_postfix = '-windows'
     if sys.platform.startswith('linux'):

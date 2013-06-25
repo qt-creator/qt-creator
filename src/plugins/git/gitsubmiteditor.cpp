@@ -61,7 +61,8 @@ public:
             for (; j < source->rowCount(); ++j) {
                 CommitData::StateFilePair sourceStateFile = gitSource->stateFilePair(j);
                 if (stateFile == sourceStateFile) {
-                    setChecked(i, source->checked(j));
+                    if (isCheckable(i) && source->isCheckable(j))
+                        setChecked(i, source->checked(j));
                     break;
                 } else if (stateFile < sourceStateFile) {
                     break;
@@ -176,6 +177,7 @@ void GitSubmitEditor::updateFileModel()
     CommitData data(m_commitType);
     if (client->getCommitData(m_workingDirectory, &commitTemplate, data, &errorMessage)) {
         setCommitData(data);
+        submitEditorWidget()->refreshLog(m_workingDirectory);
     } else {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
         m_forceClose = true;

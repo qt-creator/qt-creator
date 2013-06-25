@@ -33,8 +33,8 @@
     \class Core::IExternalEditor
     \mainclass
 
-    \brief Core::IExternalEditor allows for registering an external
-    Editor in the \gui{Open With...} dialogs .
+    \brief The IExternalEditor class enables registering an external
+    editor in the \gui{Open with} dialog.
 */
 
 /*!

@@ -51,7 +51,7 @@
 
     \list 1
 
-        \li Select \gui {Projects > Code Style Settings}.
+        \li Select \gui Projects > \gui {Code Style}.
 
         \li In the \gui Language field, select \gui C++ or \gui {Qt Quick}.
 

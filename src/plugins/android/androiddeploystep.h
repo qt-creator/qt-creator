@@ -96,6 +96,7 @@ public:
 
     void cleanLibsOnDevice();
     void installQASIPackage(const QString &packagePath);
+    bool bundleQtOptionAvailable();
 
 public slots:
     void setDeployAction(AndroidDeployAction deploy);
@@ -103,12 +104,14 @@ public slots:
 signals:
     void done();
     void error();
+    void deployOptionsChanged();
 
 private slots:
     bool deployPackage();
     void handleBuildOutput();
     void handleBuildError();
     void processFinished();
+    void kitUpdated(ProjectExplorer::Kit *kit);
 
 private:
     AndroidDeployStep(ProjectExplorer::BuildStepList *bc,
@@ -151,6 +154,7 @@ private:
     AndroidDeployAction m_runDeployAction;
     QString m_ndkToolChainVersion;
     QString m_libgnustl;
+    bool m_bundleQtAvailable;
     static const Core::Id Id;
 };
 

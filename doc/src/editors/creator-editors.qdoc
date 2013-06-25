@@ -71,9 +71,8 @@
     definition files as the primary location.
 
     When you open a file for editing and the editor cannot find the highlight
-    definition for it, an alert appears. You can turn off the alerts. You can
-    also specify patterns for ignoring files. The editor will not alert you if
-    highlight definitions for the ignored files are not found.
+    definition for it, an alert appears. To suppress the alerts, you can specify
+    patterns for ignoring files.
 
     To download highlight definition files:
 
@@ -103,8 +102,8 @@
             definition files on your system, or click \gui Browse to locate
             them in the file system yourself.
 
-        \li In the \gui {Ignored file patterns} field, specify file patterns.
-            You will not receive alerts if the highlight definitions for the
+        \li In the \gui {Ignored file patterns} field, specify file patterns to
+            suppress alerts if the highlight definitions for the
             specified files are not found.
 
         \li Click \gui OK to save your changes.
@@ -890,8 +889,10 @@
     \endlist
 
     To configure the server, select \gui{Tools} > \gui{Options} >
-    \gui{Code Pasting}. In \gui CodePaster, specify the host name of the
-    CodePaster service. In \gui Fileshare, specify the path to a shared
+    \gui{Code Pasting} > \gui CodePaster. In the \gui Server field, specify the
+    host name of the CodePaster service.
+
+    Select \gui Fileshare to specify the path to a shared
     network drive. The code snippets are copied to the drive as simple files.
     You have to delete obsolete files from the drive manually.
 
@@ -902,6 +903,10 @@
 
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}.
+
+    To fetch content from a URL on a CodePaster service, select \gui{Tools} >
+    \gui{Code Pasting} > \gui{Fetch from URL}. The content is opened in the code
+    editor.
 
     \note To use \gui{Pastebin.Com}, configure the domain
     prefix in \gui{Tools} > \gui{Options} > \gui{Code Pasting} >
@@ -930,6 +935,8 @@
     To record a text editing macro, select \gui {Tools > Macros > Record Macro}
     or press \key {Alt+(}. To stop recording, select \gui {Tools > Macros >
     Stop Recording Macro} or press \key {Alt+)}.
+
+    \note The macro recorder does not support code completion.
 
     To play the last macro, select \gui {Tools > Macros > Play Last Macro} or
     press \key {Alt+R}.
@@ -1104,8 +1111,8 @@
 
     \image qtcreator-indentation.png "Text Editor Behavior options"
 
-    To specify different settings for a particular project, select \gui {Projects >
-    Editor Settings}.
+    To specify different settings for a particular project, select \gui Projects
+    > \gui Editor.
 
     You can specify how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.
@@ -1297,8 +1304,7 @@
 
     \section1 Advanced Search
 
-    To search through projects, files on a file system or the currently open
-    file:
+    To search through projects, files on a file system or currently open files:
 
     \list 1
 
@@ -1325,6 +1331,8 @@
                     matching the defined file pattern in the selected directory.
 
                 \li \gui{Current File} searches only the current file.
+
+                \li \gui {Open Documents} searches all open files.
 
             \endlist
 

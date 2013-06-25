@@ -36,6 +36,20 @@
 #include <QtCore/QSet>
 
 /*!
+    \enum CppTools::CppModelManagerInterface::ProgressNotificationMode
+
+    This enum type specifies whether a progress bar notification should be
+    shown if more than one file is requested to update via
+    CppModelManagerInterface::updateSourceFiles().
+
+    \value ForcedProgressNotification
+           Notify regardless of the number of files requested for update.
+
+    \value ReservedProgressNotification
+           Notify only if more than one file is requested for update.
+*/
+
+/*!
     \enum CppTools::CppModelManagerInterface::QtVersion
     Allows C++ parser engine to inject headers or change inner settings as
     needed to parse Qt language extensions for concrete major Qt version

@@ -35,7 +35,7 @@ QtcPlugin {
     cpp.rpaths: base.concat([qbs_build_dir + "/lib"])
     cpp.dynamicLibraries: {
         var libs = []
-        if (qbs.targetOS === "windows") {
+        if (qbs.targetOS.contains("windows")) {
             libs.push("shell32")
             if (qbs.enableDebugCode)
                 libs.push("qbscored")

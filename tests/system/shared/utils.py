@@ -276,6 +276,7 @@ def selectFromFileDialog(fileName, waitForFile=False):
         pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
         waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}")
         pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+        snooze(1)
         replaceEditorContent(pathLine, pName)
         clickButton(waitForObject("{text='Open' type='QPushButton'}"))
         waitFor("str(pathLine.text)==''")
@@ -287,8 +288,9 @@ def selectFromFileDialog(fileName, waitForFile=False):
         if not waitFor("str(fileCombo.currentText) in fileName", 5000):
             test.fail("%s could not be opened in time." % fileName)
 
-# add qt.qch from SDK path
-def addHelpDocumentationFromSDK():
+# add Qt documentations from given paths
+# param which a list/tuple of the paths to the qch files to be added
+def addHelpDocumentation(which):
     global sdkPath
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Help")
@@ -302,8 +304,9 @@ def addHelpDocumentationFromSDK():
         mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
         type(listWidget, "<Ctrl+A>")
         mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
-    clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
-    selectFromFileDialog("%s/Documentation/qt.qch" % sdkPath)
+    for qch in which:
+        clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
+        selectFromFileDialog(qch)
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def verifyOutput(string, substring, outputFrom, outputIn):
@@ -640,7 +643,9 @@ def checkIfObjectExists(name, shouldExist = True, timeout = 3000, verboseOnFail 
 
 # wait for progress bar(s) to appear and disappear
 def progressBarWait(timeout=60000):
-    checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", True, 2000)
+    if not checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", True, 6000):
+        test.warning("progressBarWait() timed out when waiting for ProgressBar.",
+                     "This may lead to unforeseen behavior. Consider increasing the timeout.")
     checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", False, timeout)
 
 def readFile(filename):

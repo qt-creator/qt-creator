@@ -46,7 +46,9 @@ enum { debug = 0 };
 // ------------- SymbolGroup
 
 /*!
-  \class SymbolGroup A symbol group storing a tree of expanded symbols rooted on a fake "locals" root element.
+  \class SymbolGroup
+  \brief The SymbolGroup class creates a symbol group storing a tree of
+  expanded symbols rooted on a fake "locals" root element.
 
   Provides a find() method based on inames ("locals.this.i1.data") and
   dump() methods used for GDBMI-format dumping and debug helpers.
@@ -533,8 +535,10 @@ AbstractSymbolGroupNode *SymbolGroup::find(const std::string &iname) const
 
 /*!
     \class LocalsSymbolGroup
+    \brief The LocalsSymbolGroup class creates a Symbol group representing the
+    Locals view.
 
-    Symbol group representing the Locals view. It is firmly associated
+    It is firmly associated
     with stack frame, function (module) and thread.
     \ingroup qtcreatorcdbext
 */
@@ -624,7 +628,9 @@ std::string LocalsSymbolGroup::module() const
 /*!
   \class WatchesSymbolGroup
 
-  Watch symbol group. Contains watches as added by Qt Creator as iname='watch.0',
+  \brief The WatchesSymbolGroup class creates a watch symbol group.
+
+  Contains watches as added by \QC as iname='watch.0',
   name='<expression>'. The IDebugSymbolGroup is created without scope.
   \ingroup qtcreatorcdbext
 */

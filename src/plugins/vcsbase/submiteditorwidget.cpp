@@ -50,7 +50,8 @@ enum { defaultLineWidth = 72 };
 /*!
     \class VcsBase::SubmitEditorWidget
 
-    \brief Presents a VCS commit message in a text editor and a
+    \brief The SubmitEditorWidget class presents a VCS commit message in a text
+    editor and a
      checkable list of modified files in a list window.
 
     The user can delete files from the list by unchecking them or diff the selection

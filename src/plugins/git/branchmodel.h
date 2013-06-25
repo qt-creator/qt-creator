@@ -74,11 +74,12 @@ public:
     QString sha(const QModelIndex &idx) const;
     bool isLocal(const QModelIndex &idx) const;
     bool isLeaf(const QModelIndex &idx) const;
+    bool isTag(const QModelIndex &idx) const;
 
     void removeBranch(const QModelIndex &idx);
     void checkoutBranch(const QModelIndex &idx);
     bool branchIsMerged(const QModelIndex &idx);
-    QModelIndex addBranch(const QString &branchName, bool track, const QString &trackedBranch);
+    QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
 
 private:
     void parseOutputLine(const QString &line);

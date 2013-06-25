@@ -136,6 +136,8 @@ private slots:
     void test_doxygen_comments_cpp_styleA_corner_case();
 
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefix();
+    void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace();
+    void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
     void test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix();
     void test_quickfix_GenerateGetterSetter_customType();
     void test_quickfix_GenerateGetterSetter_constMember();
@@ -151,6 +153,7 @@ private slots:
     void test_quickfix_ReformatPointerDeclaration();
 
     void test_quickfix_InsertDefFromDecl_basic();
+    void test_quickfix_InsertDefFromDecl_afterClass();
     void test_quickfix_InsertDefFromDecl_headerSource_basic1();
     void test_quickfix_InsertDefFromDecl_headerSource_basic2();
     void test_quickfix_InsertDefFromDecl_headerSource_namespace1();
@@ -159,6 +162,7 @@ private slots:
     void test_quickfix_InsertDefFromDecl_insideClass();
     void test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists();
     void test_quickfix_InsertDefFromDecl_notTriggeringStatement();
+    void test_quickfix_InsertDefFromDecl_findRightImplementationFile();
 
     void test_quickfix_InsertDeclFromDef();
 
@@ -184,8 +188,10 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
     void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCppStyleCommentOnTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCStyleCommentOnTop();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomethingInQtIncludePaths();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
+    void test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutside1();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutside2();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS();
@@ -195,6 +201,7 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS();
     void test_quickfix_MoveFuncDefOutside_CtorWithInitialization1();
     void test_quickfix_MoveFuncDefOutside_CtorWithInitialization2();
+    void test_quickfix_MoveFuncDefOutside_afterClass();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();
@@ -216,8 +223,10 @@ private slots:
     void test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction();
     void test_quickfix_AssignToLocalVariable_noFunctionInExpression();
     void test_quickfix_AssignToLocalVariable_noFunctionInFunction();
-    void test_quickfix_AssignToLocalVariable_noReturnClass();
-    void test_quickfix_AssignToLocalVariable_noReturnFunc();
+    void test_quickfix_AssignToLocalVariable_noReturnClass1();
+    void test_quickfix_AssignToLocalVariable_noReturnClass2();
+    void test_quickfix_AssignToLocalVariable_noReturnFunc1();
+    void test_quickfix_AssignToLocalVariable_noReturnFunc2();
     void test_quickfix_AssignToLocalVariable_noSignatureMatch();
 
     void test_quickfix_InsertVirtualMethods_onlyDecl();

@@ -1161,6 +1161,8 @@ bool QMakeEvaluator::loadSpec()
 
     {
         QMakeEvaluator evaluator(m_option, m_parser, m_vfs, m_handler);
+        evaluator.m_sourceRoot = m_sourceRoot;
+        evaluator.m_buildRoot = m_buildRoot;
         if (!m_superfile.isEmpty()) {
             valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             if (evaluator.evaluateFile(
@@ -1212,7 +1214,7 @@ bool QMakeEvaluator::loadSpec()
     m_qmakespec = QDir::cleanPath(qmakespec);
 
     if (!m_superfile.isEmpty()
-        && evaluateFile(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue) {
+        && evaluateFile(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly|LoadHidden) != ReturnTrue) {
         return false;
     }
     if (!loadSpecInternal())
@@ -1416,6 +1418,7 @@ void QMakeEvaluator::updateMkspecPaths()
         ret << m_sourceRoot + concat;
 
     ret << m_option->propertyValue(ProKey("QT_HOST_DATA/get")) + concat;
+    ret << m_option->propertyValue(ProKey("QT_HOST_DATA/src")) + concat;
 
     ret.removeDuplicates();
     m_mkspecPaths = ret;
@@ -1437,10 +1440,14 @@ void QMakeEvaluator::updateFeaturePaths()
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
     QStringList feature_bases;
-    if (!m_buildRoot.isEmpty())
+    if (!m_buildRoot.isEmpty()) {
+        feature_bases << m_buildRoot + mkspecs_concat;
         feature_bases << m_buildRoot;
-    if (!m_sourceRoot.isEmpty())
+    }
+    if (!m_sourceRoot.isEmpty()) {
+        feature_bases << m_sourceRoot + mkspecs_concat;
         feature_bases << m_sourceRoot;
+    }
 
     foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
         feature_bases << (item + mkspecs_concat);
@@ -1464,8 +1471,8 @@ void QMakeEvaluator::updateFeaturePaths()
         }
     }
 
-    feature_bases << (m_option->propertyValue(ProKey("QT_HOST_DATA/get")).toQString(m_mtmp)
-                      + mkspecs_concat);
+    feature_bases << (m_option->propertyValue(ProKey("QT_HOST_DATA/get")) + mkspecs_concat);
+    feature_bases << (m_option->propertyValue(ProKey("QT_HOST_DATA/src")) + mkspecs_concat);
 
     foreach (const QString &fb, feature_bases) {
         foreach (const ProString &sfx, values(ProKey("QMAKE_PLATFORM")))
@@ -1803,7 +1810,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFile(
         m_current = m_locationStack.pop();
         pro->deref();
 #ifdef PROEVALUATOR_FULL
-        if (ok == ReturnTrue) {
+        if (ok == ReturnTrue && !(flags & LoadHidden)) {
             ProStringList &iif = m_valuemapStack.first()[ProKey("QMAKE_INTERNAL_INCLUDED_FILES")];
             ProString ifn(fileName);
             if (!iif.contains(ifn))

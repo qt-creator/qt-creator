@@ -41,8 +41,10 @@
 /*!
 \class QmlDesigner::Exception
 \ingroup CoreExceptions
-\brief This is the abstract base class for all excetions.
-    Exceptions should be used in cases there is no other way to say something goes wrong. For example
+\brief The Exception class is the abstract base class for all exceptions.
+
+    Exceptions should be used if there is no other way to indicate that
+    something is going wrong. For example,
     the result would be a inconsistent model or a crash.
 */
 

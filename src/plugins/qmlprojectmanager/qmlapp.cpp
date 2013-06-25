@@ -146,7 +146,7 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
     const QStringRef elementLanguage = reader.attributes().value(QLatin1String("xml:lang"));
     if (elementLanguage.isEmpty()) {
         // Try to find a translation for our Wizards
-        *target = QCoreApplication::translate("QmlProjectManager::Internal::QmlApplicationWizard",
+        *target = QCoreApplication::translate("QmlProjectManager::QmlApplicationWizard",
                     reader.readElementText().toLatin1().constData());
         return true;
     }

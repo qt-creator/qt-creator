@@ -108,7 +108,8 @@ public:
         LoadPreFiles = 1,
         LoadPostFiles = 2,
         LoadAll = LoadPreFiles|LoadPostFiles,
-        LoadSilent = 0x10
+        LoadSilent = 0x10,
+        LoadHidden = 0x20
     };
     Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
 

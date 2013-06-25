@@ -58,8 +58,9 @@ namespace Internal {
 
 /*!
     \class ProjectExplorer::Internal::TextFieldComboBox
-    \brief  A non-editable combo for text editing purposes that plays
-    with QWizard::registerField (providing a settable 'text' property).
+    \brief The TextFieldComboBox class is a non-editable combo box for text
+    editing purposes that plays with \c QWizard::registerField (providing a
+    settable 'text' property).
 
     Allows for a separation of values to be used for wizard fields replacement
     and display texts.
@@ -110,7 +111,8 @@ QString TextFieldComboBox::valueAt(int i) const
 
 /*!
     \class ProjectExplorer::Internal::TextFieldCheckBox
-    \brief A Checkbox that plays with QWizard::registerField.
+    \brief The TextFieldCheckBox class is a aheckbox that plays with
+    \c QWizard::registerField.
 
     Provides a settable 'text' property containing predefined strings for 'true'/'false').
 
@@ -141,7 +143,8 @@ void TextFieldCheckBox::slotStateChanged(int cs)
 
 /*!
     \class ProjectExplorer::Internal::CustomWizardFieldPage
-    \brief A simple custom wizard page presenting the fields to be used
+    \brief The CustomWizardFieldPage class is a simple custom wizard page
+    presenting the fields to be used
     as page 2 of a BaseProjectWizardDialog if there are any fields.
 
     Uses the 'field' functionality of QWizard.

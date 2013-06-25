@@ -38,7 +38,7 @@
 
 /*! \class Utils::Wizard
 
-  \brief A wizard with a progress bar on the left.
+  \brief The Wizard class implements a wizard with a progress bar on the left.
 
   Informs the user about the progress.
 */

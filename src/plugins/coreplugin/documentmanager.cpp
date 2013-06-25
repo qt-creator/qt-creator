@@ -52,7 +52,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
-#include <QSet>
 #include <QSettings>
 #include <QTimer>
 #include <QAction>
@@ -65,7 +64,7 @@
   \class Core::DocumentManager
   \mainclass
   \inheaderfile documentmanager.h
-  \brief Manages a set of IDocument objects.
+  \brief The DocumentManager class manages a set of IDocument objects.
 
   The DocumentManager service monitors a set of IDocument's. Plugins should register
   files they work with at the service. The files the IDocument's point to will be
@@ -157,7 +156,6 @@ struct DocumentManagerPrivate
     QString m_projectsDirectory;
     bool m_useProjectsDirectory;
     QString m_buildDirectory;
-    QSet<QString> m_expectedDirectories;
     // When we are callling into a IDocument
     // we don't want to receive a changed()
     // signal
@@ -218,10 +216,9 @@ DocumentManager::DocumentManager(QMainWindow *mw)
 {
     d = new DocumentManagerPrivate(mw);
     m_instance = this;
-    connect(d->m_mainWindow, SIGNAL(windowActivated()),
-        this, SLOT(mainWindowActivated()));
     connect(ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
         this, SLOT(syncWithEditor(QList<Core::IContext*>)));
+    qApp->installEventFilter(this);
 
     readSettings();
 }
@@ -549,46 +546,6 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
         updateExpectedState(fixedResolvedName);
 }
 
-static QString dirWithTrailingSlash(const QString &directory)
-{
-    static const QChar slash(QLatin1Char('/'));
-    return directory.endsWith(slash) ? directory : directory + slash;
-}
-
-/*!
- * Any subsequent change to any file inside \a directory is treated as
- * an expected file change.
- *
- * \see DocumentManager::unexpectDirectoryChange(const QString &directory)
- */
-void DocumentManager::expectDirectoryChange(const QString &directory)
-{
-    QTC_ASSERT(!directory.isEmpty(), return);
-    d->m_expectedDirectories.insert(dirWithTrailingSlash(directory));
-}
-
-/*!
- * Any subsequent change to any file inside \a directory is unexpected again.
- *
- * \see DocumentManager::expectDirectoryChange(const QString &directory)
- */
-void DocumentManager::unexpectDirectoryChange(const QString &directory)
-{
-    QTimer *timer = new QTimer;
-    timer->setProperty("directory", QString(dirWithTrailingSlash(directory)));
-    connect(timer, SIGNAL(timeout()), instance(), SLOT(clearExpectedDirectory()));
-    timer->setSingleShot(true);
-    timer->start(300);
-}
-
-
-void DocumentManager::clearExpectedDirectory()
-{
-    if (QTimer *timer = qobject_cast<QTimer *>(sender())) {
-        d->m_expectedDirectories.remove(timer->property("directory").toString());
-        timer->deleteLater();
-    }
-}
 
 /*!
     Tries to save the files listed in \a documents. The \a cancelled argument is set to true
@@ -854,19 +811,11 @@ void DocumentManager::changedFile(const QString &fileName)
         QTimer::singleShot(200, this, SLOT(checkForReload()));
 }
 
-void DocumentManager::mainWindowActivated()
-{
-    //we need to do this asynchronously because
-    //opening a dialog ("Reload?") in a windowactivated event
-    //freezes on Mac
-    QTimer::singleShot(0, this, SLOT(checkForReload()));
-}
-
 void DocumentManager::checkForReload()
 {
     if (d->m_changedFiles.isEmpty())
         return;
-    if (QApplication::activeWindow() != d->m_mainWindow)
+    if (!QApplication::activeWindow() || QApplication::activeModalWidget())
         return;
 
     if (d->m_blockActivated)
@@ -945,18 +894,9 @@ void DocumentManager::checkForReload()
                 continue;
 
             // was the change unexpected?
-            if ((currentState.modified != expectedState.modified
-                 || currentState.permissions != expectedState.permissions)
+            if ((currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions)
                     && !expectedFileNames.contains(fileName)) {
-                bool expectedDir = false;
-                foreach (const QString &expectedDirectory, d->m_expectedDirectories) {
-                    if (fileName.startsWith(expectedDirectory)) {
-                        expectedDir = true;
-                        break;
-                    }
-                }
-                if (!expectedDir)
-                    trigger = IDocument::TriggerExternal;
+                trigger = IDocument::TriggerExternal;
             }
 
             // find out the type
@@ -1414,6 +1354,15 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
 void DocumentManager::slotExecuteOpenWithMenuAction(QAction *action)
 {
     executeOpenWithMenuAction(action);
+}
+
+bool DocumentManager::eventFilter(QObject *obj, QEvent *e)
+{
+    if (obj == qApp && e->type() == QEvent::ApplicationActivate) {
+        // activeWindow is not necessarily set yet, do checkForReload asynchronously
+        QTimer::singleShot(0, this, SLOT(checkForReload()));
+    }
+    return false;
 }
 
 // -------------- FileChangeBlocker

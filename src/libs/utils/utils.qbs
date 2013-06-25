@@ -7,7 +7,7 @@ QtcLibrary {
     cpp.defines: base.concat("QTCREATOR_UTILS_LIB")
 
     Properties {
-        condition: qbs.targetOS == "windows"
+        condition: qbs.targetOS.contains("windows")
         cpp.dynamicLibraries: [
             "user32",
             "iphlpapi",
@@ -15,7 +15,7 @@ QtcLibrary {
         ]
     }
     Properties {
-        condition: qbs.targetPlatform.indexOf("unix") != -1 && qbs.targetOS != "mac"
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("mac")
         cpp.dynamicLibraries: ["X11"]
     }
 
@@ -197,7 +197,7 @@ QtcLibrary {
 
     Group {
         name: "WindowsUtils"
-        condition: qbs.targetOS == "windows"
+        condition: qbs.targetOS.contains("windows")
         files: [
             "consoleprocess_win.cpp",
             "winutils.cpp",
@@ -207,7 +207,7 @@ QtcLibrary {
 
     Group {
         name: "ConsoleProcess_unix"
-        condition: qbs.targetPlatform.indexOf("unix") != -1
+        condition: qbs.targetOS.contains("unix")
         files: [
             "consoleprocess_unix.cpp",
         ]

@@ -31,7 +31,8 @@
 /*!
 \class QmlDesigner::InvalidReparentingException
 \ingroup CoreExceptions
-\brief Exception for a invalid reparinting
+    \brief The InvalidReparentingException class provides an exception for
+    invalid reparenting.
 
 \see ModelNode
 */

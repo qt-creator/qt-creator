@@ -51,7 +51,8 @@
 /*!
     \class QSsh::SshConnection
 
-    \brief This class provides an SSH connection, implementing protocol version 2.0
+    \brief The SshConnection class provides an SSH connection, implementing
+    protocol version 2.0.
 
     It can spawn channels for remote execution and SFTP operations (version 3).
     It operates asynchronously (non-blocking) and is not thread-safe.

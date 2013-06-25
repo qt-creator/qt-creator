@@ -21,11 +21,7 @@
     \contentspage index.html
     \previouspage creator-developing-maemo.html
     \page creator-developing-meego.html
-    \if defined(qcmanual)
     \nextpage creator-developing-qnx.html
-    \else
-    \nextpage creator-developing-maemo.html
-    \endif
 
     \title Connecting MeeGo Harmattan Devices
 
@@ -39,12 +35,9 @@
     development is disabled by default. To enable it, select \gui Help >
     \gui {About Plugins} > \gui {Device Support} > \gui Madde and restart \QC.
 
-    \if defined(qcmanual)
     For more information about the Harmattan platform, see
     \l{http://library.developer.nokia.com/topic/MeeGo_1.2_Harmattan_API/html/guide/html/Developer_Library_Harmattan_overview_5dcf.html}
     {Harmattan Overview} in the MeeGo 1.2 Harmattan Developer Library.
-    \endif
-
 
     \note Qt 4 SDK does not contain the tool chains for building applications for
     other MeeGo devices than MeeGo Harmattan. You can try to run applications
@@ -247,13 +240,7 @@
     If you write applications that use Qt Mobility APIs, you might want to test
     them with real user data. To create a connection as a user, specify the
     \gui Username and \gui Password in \QC. For more information, see
-    \if defined(qcmanual)
     \l{Testing with User Data on MeeGo Devices}.
-    \else
-    \l{http://doc.qt.digia.com/qtcreator/creator-developing-meego.html#testing-with-user-data-on-meego-devices}
-    {Testing with User Data on MeeGo Devices}.
-    \endif
-
 
     You can protect the connections between \QC and a device by using
     either a password or an SSH key. If you use a password, you must generate it
@@ -262,23 +249,11 @@
 
     If you do not have an SSH key, you can create it in \QC. Encrypted
     keys are not supported. For more information, see
-    \if defined(qcmanual)
     \l{Generating SSH Keys}.
-    \else
-    \l{http://doc.qt.digia.com/qtcreator/creator-developing-meego.html#generating-ssh-keys}
-    {Generating SSH Keys}.
-    \endif
-
 
     You can view processes running on devices and kill them. For more
     information, see
-    \if defined(qcmanual)
     \l{Managing Device Processes}.
-    \else
-    \l{http://doc.qt.digia.com/qtcreator/creator-developing-meego.html#managing-device-processes}
-    {Managing Device Processes}.
-    \endif
-
 
     To configure connections between \QC and a device:
 
@@ -324,8 +299,6 @@
 
             \endlist
 
-        \if defined(qcmanual)
-
         \li To test applications on the emulator (QEMU), you must
             create a connection to it from the development PC. If you installed
             Qt 4 SDK, the connection is created automatically and you can omit this
@@ -354,8 +327,6 @@
                     connection.
 
             \endlist
-
-        \endif
 
             \li Select \gui Tools > \gui Options > \gui {Build & Run} >
                 \gui Kits > \gui Add to add a kit for building for the device:
@@ -410,8 +381,6 @@
 
         \endlist
 
-    \if defined(qcmanual)
-
     \section2 Testing with User Data on MeeGo Devices
 
     To run your application as the default user, you must first assign a
@@ -435,8 +404,6 @@
 
     \include linux-mobile/linuxdev-keys.qdocinc
     \include linux-mobile/linuxdev-processes.qdocinc
-
-    \endif
 
     \section1 Troubleshooting Harmattan Connections
 

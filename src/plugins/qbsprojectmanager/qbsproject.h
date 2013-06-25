@@ -92,7 +92,7 @@ public:
     Utils::FileName defaultBuildDirectory() const;
 
     const qbs::Project *qbsProject() const;
-    const qbs::ProjectData *qbsProjectData() const;
+    const qbs::ProjectData qbsProjectData() const;
 
     bool needsSpecialDeployment() const;
 
@@ -100,6 +100,7 @@ public slots:
     void invalidate();
     void parseCurrentBuildConfiguration();
     void delayParsing();
+    void delayForcedParsing();
 
 signals:
     void projectParsingStarted();
@@ -119,11 +120,11 @@ private:
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
 
-    void generateErrors(const qbs::Error &e);
+    void generateErrors(const qbs::ErrorInfo &e);
     void prepareForParsing();
-    void updateDocuments(const qbs::ProjectData *prj);
-    void updateCppCodeModel(const qbs::ProjectData *prj);
-    void updateQmlJsCodeModel(const qbs::ProjectData *prj);
+    void updateDocuments(const QSet<QString> &files);
+    void updateCppCodeModel(const qbs::ProjectData &prj);
+    void updateQmlJsCodeModel(const qbs::ProjectData &prj);
     QString qbsBuildDir() const;
 
     QbsManager *const m_manager;
@@ -136,6 +137,7 @@ private:
 
     QFutureInterface<void> *m_qbsUpdateFutureInterface;
     int m_currentProgressBase;
+    bool m_forceParsing;
 
     QFuture<void> m_codeModelFuture;
 

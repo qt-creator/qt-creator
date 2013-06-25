@@ -144,7 +144,8 @@ CleanDialogPrivate::CleanDialogPrivate() :
 /*!
     \class VcsBase::CleanDialog
 
-    \brief File selector dialog for files not under version control.
+    \brief The CleanDialog class provides a file selector dialog for files not
+    under version control.
 
     Completely clean a directory under version control
     from all files that are not under version control based on a list

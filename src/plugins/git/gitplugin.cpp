@@ -59,6 +59,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -427,9 +428,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Amend Last Commit..."), Core::Id("Git.AmendCommit"),
                            globalcontext, true, SLOT(startAmendCommit()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Fixup Previous Commit..."), Core::Id("Git.FixupCommit"),
-                           globalcontext, true, SLOT(startFixupCommit()));
+    m_fixupCommitAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Fixup Previous Commit..."), Core::Id("Git.FixupCommit"),
+                                   globalcontext, true, SLOT(startFixupCommit())).first;
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
 
@@ -437,9 +439,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Reset..."), Core::Id("Git.Reset"),
                            globalcontext, true, SLOT(resetRepository()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Interactive Rebase..."), Core::Id("Git.InteractiveRebase"),
-                           globalcontext, true, SLOT(startRebase()));
+    m_interactiveRebaseAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Interactive Rebase..."), Core::Id("Git.InteractiveRebase"),
+                                   globalcontext, true, SLOT(startRebase())).first;
 
     m_submoduleUpdateAction =
             createRepositoryAction(localRepositoryMenu,
@@ -684,6 +687,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_redoAction = new QAction(tr("&Redo"), this);
     command = Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, submitContext);
 
+    connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
+            this, SLOT(updateContinueAndAbortCommands()));
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(RC_GIT_MIME_XML), errorMessage))
         return false;
@@ -1149,13 +1154,13 @@ void GitPlugin::continueOrAbortCommand()
     if (action == m_abortMergeAction)
         m_gitClient->synchronousMerge(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_abortRebaseAction)
-        m_gitClient->synchronousRebase(state.topLevel(), QLatin1String("--abort"));
+        m_gitClient->rebase(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_abortCherryPickAction)
         m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_abortRevertAction)
         m_gitClient->synchronousRevert(state.topLevel(), QLatin1String("--abort"));
     else if (action == m_continueRebaseAction)
-        m_gitClient->synchronousRebase(state.topLevel(), QLatin1String("--continue"));
+        m_gitClient->rebase(state.topLevel(), QLatin1String("--continue"));
     else if (action == m_continueCherryPickAction)
         m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--continue"));
     else if (action == m_continueRevertAction)
@@ -1232,7 +1237,7 @@ void GitPlugin::updateSubmodules()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_gitClient->submoduleUpdate(state.topLevel());
+    m_gitClient->updateSubmodulesIfNeeded(state.topLevel(), false);
 }
 
 // If the file is modified in an editor, make sure it is saved.
@@ -1408,6 +1413,8 @@ void GitPlugin::updateContinueAndAbortCommands()
         m_continueRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
         m_continueRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
                                            || gitCommandInProgress == GitClient::RebaseMerge);
+        m_fixupCommitAction->setEnabled(gitCommandInProgress == GitClient::NoCommand);
+        m_interactiveRebaseAction->setEnabled(gitCommandInProgress == GitClient::NoCommand);
     } else {
         m_mergeToolAction->setVisible(false);
         m_abortMergeAction->setVisible(false);

@@ -55,6 +55,7 @@ public:
 
     QString state(int row) const;
     QString file(int row) const;
+    bool isCheckable(int row) const;
     bool checked(int row) const;
     void setChecked(int row, bool check);
     void setAllChecked(bool check);

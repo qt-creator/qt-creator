@@ -142,6 +142,7 @@ private slots:
     void push();
     void startMergeTool();
     void continueOrAbortCommand();
+    void updateContinueAndAbortCommands();
 
 #ifdef WITH_TESTS
     void testStatusParsing_data();
@@ -190,7 +191,6 @@ private:
                                            const Core::Context &context,
                                            bool addToLocator, GitClientMemberFunc);
 
-    void updateContinueAndAbortCommands();
     void updateRepositoryBrowserAction();
     bool isCommitEditorOpen() const;
     Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
@@ -218,6 +218,8 @@ private:
     QAction *m_continueRebaseAction;
     QAction *m_continueCherryPickAction;
     QAction *m_continueRevertAction;
+    QAction *m_fixupCommitAction;
+    QAction *m_interactiveRebaseAction;
 
     QVector<Utils::ParameterAction *> m_fileActions;
     QVector<Utils::ParameterAction *> m_projectActions;

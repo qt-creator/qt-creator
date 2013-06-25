@@ -55,7 +55,7 @@ using namespace Core::Internal;
     \class Core::ActionManager
     \mainclass
 
-    \brief The action manager is responsible for registration of menus and
+    \brief The ActionManager class is responsible for registration of menus and
     menu items and keyboard shortcuts.
 
     The ActionManager is the central bookkeeper of actions and their shortcuts and layout.

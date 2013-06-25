@@ -47,7 +47,7 @@ namespace QmlDesigner {
  /*!
 \class QmlDesigner::AbstractProperty
 \ingroup CoreModel
-\brief AbstractProperty is a value holder for a property
+\brief The AbstractProperty class is a value holder for a property.
 */
 
 AbstractProperty::AbstractProperty():

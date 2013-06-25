@@ -43,7 +43,8 @@
 /*!
     \class QSsh::SshRemoteProcess
 
-    \brief This class implements an SSH channel for running a remote process.
+    \brief The SshRemoteProcess class implements an SSH channel for running a
+    remote process.
 
     Objects are created via SshConnection::createRemoteProcess.
     The process is started via the start() member function.

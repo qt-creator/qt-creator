@@ -32,7 +32,8 @@
 /*!
 \class QmlDesigner::RemoveBaseStateException
 \ingroup CoreExceptions
-\brief Exception if you try to remove a BaseState
+    \brief The RemoveBaseStateException class provides an exception if you try
+    to remove a BaseState.
 
 /see NodeState ModelState
 */

@@ -43,7 +43,7 @@
 
     \list 1
 
-        \li Select \gui {Projects > Editor Settings}.
+        \li Select \gui Projects > \gui Editor.
 
         \li In the \gui {Editor Settings} field, select \gui {Custom}.
 
@@ -51,7 +51,7 @@
 
     \endlist
 
-    \image qtcreator-editor-settings.png "Editor Settings view"
+    \image qtcreator-editor-settings.png "Editor view"
 
     Click \gui {Restore Global} to revert to the global settings.
 

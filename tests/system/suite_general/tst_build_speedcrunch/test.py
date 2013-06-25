@@ -48,7 +48,7 @@ def main():
         return
     suitableKits = Targets.DESKTOP_474_GCC
     if platform.system() in ('Windows', 'Microsoft'):
-        suitableKits |= Targets.DESKTOP_474_MSVC2008
+        suitableKits |= Targets.DESKTOP_480_MSVC2010
     checkedTargets = openQmakeProject(SpeedCrunchPath, suitableKits)
     progressBarWait(30000)
 

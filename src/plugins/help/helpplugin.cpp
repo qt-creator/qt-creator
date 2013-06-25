@@ -384,8 +384,7 @@ void HelpPlugin::extensionsInitialized()
 {
     QStringList filesToRegister;
     // we might need to register creators inbuild help
-    filesToRegister.append(QDir::cleanPath(QCoreApplication::applicationDirPath()
-        + ICore::documentationPath() + QLatin1String("/qtcreator.qch")));
+    filesToRegister.append(ICore::documentationPath() + QLatin1String("/qtcreator.qch"));
     Core::HelpManager::instance()->registerDocumentation(filesToRegister);
 }
 

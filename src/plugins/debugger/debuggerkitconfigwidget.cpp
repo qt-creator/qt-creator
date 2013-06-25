@@ -95,6 +95,7 @@ QString DebuggerKitConfigWidget::displayName() const
 void DebuggerKitConfigWidget::makeReadOnly()
 {
     m_editButton->setEnabled(false);
+    m_autoDetectButton->setEnabled(false);
 }
 
 void DebuggerKitConfigWidget::refresh()

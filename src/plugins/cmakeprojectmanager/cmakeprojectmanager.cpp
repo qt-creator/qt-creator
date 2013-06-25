@@ -115,6 +115,9 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
+    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+        return;
+
     CMakeBuildConfiguration *bc
             = static_cast<CMakeBuildConfiguration *>(cmakeProject->activeTarget()->activeBuildConfiguration());
 

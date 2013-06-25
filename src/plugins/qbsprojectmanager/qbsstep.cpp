@@ -176,9 +176,9 @@ void QbsStep::jobDone(bool success)
 {
     // Report errors:
     if (m_job) {
-        foreach (const qbs::ErrorData &data, m_job->error().entries())
-            createTaskAndOutput(ProjectExplorer::Task::Error, data.description(),
-                                data.codeLocation().fileName(), data.codeLocation().line());
+        foreach (const qbs::ErrorItem &item, m_job->error().items())
+            createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
+                                item.codeLocation().fileName(), item.codeLocation().line());
         m_job->deleteLater();
         m_job = 0;
     }

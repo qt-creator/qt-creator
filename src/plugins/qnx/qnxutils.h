@@ -57,6 +57,9 @@ public:
     static QString envFilePath(const QString & ndkPath);
     static void prependQnxMapToEnvironment(const QMultiMap<QString, QString> &qnxMap, Utils::Environment &env);
     static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
+    static QString dataDirPath();
+    static QString qConfigPath();
+    static QString ndkVersion(const QString& ndkPath);
 };
 
 } // namespace Internal

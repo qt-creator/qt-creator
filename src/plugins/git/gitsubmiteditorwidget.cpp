@@ -102,6 +102,12 @@ void GitSubmitEditorWidget::initialize(CommitType commitType, const QString &rep
     insertTopWidget(m_gitSubmitPanel);
 }
 
+void GitSubmitEditorWidget::refreshLog(const QString &repository)
+{
+    if (m_logChangeWidget)
+        m_logChangeWidget->init(repository, QString(), false);
+}
+
 GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
 {
     GitSubmitEditorPanelData rc;

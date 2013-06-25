@@ -334,7 +334,7 @@ QtcPlugin {
 
     Group {
         name: "WindowsToolChains"
-        condition: qbs.targetOS == "windows" || Defaults.testsEnabled(qbs)
+        condition: qbs.targetOS.contains("windows") || Defaults.testsEnabled(qbs)
         files: [
            "abstractmsvctoolchain.cpp",
            "abstractmsvctoolchain.h",

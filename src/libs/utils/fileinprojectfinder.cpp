@@ -41,7 +41,8 @@ namespace Utils {
 /*!
   \class Utils::FileInProjectFinder
 
-  \brief Helper class to find the 'original' file in the project directory for a given file url.
+  \brief The FileInProjectFinder class is a helper class to find the \e original
+  file in the project directory for a given file URL.
 
   Often files are copied in the build + deploy process. findFile() searches for an existing file
   in the project directory for a given file path:

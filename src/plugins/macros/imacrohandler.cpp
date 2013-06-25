@@ -35,7 +35,7 @@ using namespace Macros;
 
 /*!
     \class Macro::IEventHandler
-    \brief Base class for all macro event handlers.
+    \brief The IEventHandler class is a base class for all macro event handlers.
 
     An event handler is used to handle a specific type of macro events.
     They are used to create and replay macro events, use MacroManager::registerEventHandler

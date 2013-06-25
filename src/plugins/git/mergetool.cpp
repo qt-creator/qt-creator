@@ -102,7 +102,6 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     if (m_process->waitForStarted()) {
         connect(m_process, SIGNAL(finished(int)), this, SLOT(done()));
         connect(m_process, SIGNAL(readyRead()), this, SLOT(readData()));
-        Core::DocumentManager::expectDirectoryChange(workingDirectory);
     }
     else {
         delete m_process;
@@ -269,7 +268,6 @@ void MergeTool::done()
     } else {
         outputWindow->append(tr("Merge tool process terminated with exit code %1").arg(exitCode));
     }
-    Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
     GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     deleteLater();
 }

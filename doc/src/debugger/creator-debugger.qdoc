@@ -238,11 +238,7 @@
     debugging) or runs a separate process (e.g. when using GDB server
     on embedded Linux). The host side typically
     consists of \QC itself, often with the help of an external process, such as
-    \if defined(qcmanual)
     GDB or CDB.
-    \else
-    GDB.
-    \endif
 
     While this setup might look daunting, it is mostly invisible to
     the user of \QC. To start debugging on a remote target with the

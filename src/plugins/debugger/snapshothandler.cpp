@@ -113,7 +113,8 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 
 /*!
     \class Debugger::Internal::SnapshotHandler
-    \brief A model to represent the snapshots in a QTreeView.
+    \brief The SnapshotHandler class provides a model to represent the
+    snapshots in a QTreeView.
 
     A snapshot represents a debugging session.
 */

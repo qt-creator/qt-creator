@@ -75,6 +75,11 @@ class MyClass11 : public MyClass1
     Q_OBJECT
 };
 
+static QString pluginFolder(const QLatin1String &folder)
+{
+    return QLatin1String(PLUGINMANAGER_TESTS_DIR) + QLatin1String("/") + folder;
+}
+
 void tst_PluginManager::init()
 {
     m_pm = new PluginManager;
@@ -176,7 +181,7 @@ void tst_PluginManager::getObjects()
 
 void tst_PluginManager::plugins()
 {
-    m_pm->setPluginPaths(QStringList() << "plugins");
+    m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("plugins")));
     QCOMPARE(m_pluginsChanged->count(), 1);
     QList<PluginSpec *> plugins = m_pm->plugins();
     QCOMPARE(plugins.count(), 3);
@@ -194,7 +199,7 @@ void tst_PluginManager::plugins()
 
 void tst_PluginManager::circularPlugins()
 {
-    m_pm->setPluginPaths(QStringList() << "circularplugins");
+    m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("circularplugins")));
     m_pm->loadPlugins();
     foreach (PluginSpec *spec, m_pm->plugins()) {
         if (spec->name() == "plugin1") {
@@ -215,7 +220,7 @@ void tst_PluginManager::circularPlugins()
 void tst_PluginManager::correctPlugins1()
 {
     m_pm->setFileExtension("spec");
-    m_pm->setPluginPaths(QStringList() << "correctplugins1");
+    m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("correctplugins1")));
     m_pm->loadPlugins();
     foreach (PluginSpec *spec, m_pm->plugins()) {
         if (spec->hasError())

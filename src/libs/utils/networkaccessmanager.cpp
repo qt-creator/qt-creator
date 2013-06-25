@@ -40,7 +40,8 @@
 /*!
    \class Utils::NetworkManager
 
-   \brief Network Access Manager for use with Qt Creator.
+    \brief The NetworkManager class provides a network access manager for use
+    with \QC.
 
    Common initialization, Qt Creator User Agent
 

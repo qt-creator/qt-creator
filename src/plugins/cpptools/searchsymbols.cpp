@@ -139,9 +139,12 @@ bool SearchSymbols::visit(Namespace *symbol)
 bool SearchSymbols::visit(Declaration *symbol)
 {
     if (!(symbolsToSearchFor & SymbolSearcher::Declarations)) {
-        // if we're searching for functions, still allow function declarations to show up.
+        // if we're searching for functions, still allow signal declarations to show up.
         if (symbolsToSearchFor & SymbolSearcher::Functions) {
-            if (!symbol->type()->asFunctionType())
+            Function *funTy = symbol->type()->asFunctionType();
+            if (!funTy)
+                return false;
+            if (!funTy->isSignal())
                 return false;
         } else {
             return false;

@@ -37,7 +37,8 @@
 #include <valgrind/callgrind/callgrindcallmodel.h>
 
 #include <QAbstractProxyModel>
-#include <QHeaderView>
+#include <QContextMenuEvent>
+#include <QMenu>
 #include <QDebug>
 
 using namespace Valgrind::Callgrind;
@@ -45,24 +46,10 @@ using namespace Valgrind::Callgrind;
 namespace Valgrind {
 namespace Internal {
 
-class CostView::Private
-{
-public:
-    explicit Private(CostView *qq);
-
-    CostDelegate *m_costDelegate;
-    NameDelegate *m_nameDelegate;
-};
-
-CostView::Private::Private(CostView *qq)
-    : m_costDelegate(new CostDelegate(qq))
-    , m_nameDelegate(new NameDelegate(qq))
-{}
-
-
 CostView::CostView(QWidget *parent)
-    : QTreeView(parent)
-    , d(new Private(this))
+    : Utils::BaseTreeView(parent)
+    , m_costDelegate(new CostDelegate(this))
+    , m_nameDelegate(new NameDelegate(this))
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -76,7 +63,6 @@ CostView::CostView(QWidget *parent)
 
 CostView::~CostView()
 {
-    delete d;
 }
 
 void CostView::setModel(QAbstractItemModel *model)
@@ -85,43 +71,43 @@ void CostView::setModel(QAbstractItemModel *model)
 
     forever {
         QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel *>(model);
-        if (proxy)
-            model = proxy->sourceModel();
-        else
+        if (!proxy)
             break;
+        model = proxy->sourceModel();
     }
 
-    QHeaderView *headerView = header();
     setItemDelegate(new QStyledItemDelegate(this));
-    headerView->setResizeMode(QHeaderView::Interactive);
-    headerView->setStretchLastSection(false);
 
     if (qobject_cast<CallModel *>(model)) {
-        headerView->setResizeMode(CallModel::CallsColumn, QHeaderView::ResizeToContents);
-        headerView->setResizeMode(CallModel::CostColumn, QHeaderView::ResizeToContents);
-        setItemDelegateForColumn(CallModel::CalleeColumn, d->m_nameDelegate);
-        setItemDelegateForColumn(CallModel::CallerColumn, d->m_nameDelegate);
-        setItemDelegateForColumn(CallModel::CostColumn, d->m_costDelegate);
+        setItemDelegateForColumn(CallModel::CalleeColumn, m_nameDelegate);
+        setItemDelegateForColumn(CallModel::CallerColumn, m_nameDelegate);
+        setItemDelegateForColumn(CallModel::CostColumn, m_costDelegate);
     } else if (qobject_cast<DataModel *>(model)) {
-        headerView->setResizeMode(DataModel::InclusiveCostColumn, QHeaderView::ResizeToContents);
-        headerView->setResizeMode(DataModel::SelfCostColumn, QHeaderView::ResizeToContents);
-        setItemDelegateForColumn(DataModel::InclusiveCostColumn, d->m_costDelegate);
-        setItemDelegateForColumn(DataModel::NameColumn, d->m_nameDelegate);
-        setItemDelegateForColumn(DataModel::SelfCostColumn, d->m_costDelegate);
+        setItemDelegateForColumn(DataModel::InclusiveCostColumn, m_costDelegate);
+        setItemDelegateForColumn(DataModel::NameColumn, m_nameDelegate);
+        setItemDelegateForColumn(DataModel::SelfCostColumn, m_costDelegate);
     }
 
-    d->m_costDelegate->setModel(model);
+    m_costDelegate->setModel(model);
 }
 
 void CostView::setCostFormat(CostDelegate::CostFormat format)
 {
-    d->m_costDelegate->setFormat(format);
+    m_costDelegate->setFormat(format);
     viewport()->update();
 }
 
 CostDelegate::CostFormat CostView::costFormat() const
 {
-    return d->m_costDelegate->format();
+    return m_costDelegate->format();
+}
+
+void CostView::contextMenuEvent(QContextMenuEvent *ev)
+{
+    QMenu menu;
+    addBaseContextActions(&menu);
+    QAction *act = menu.exec(ev->globalPos());
+    handleBaseContextAction(act);
 }
 
 } // namespace Internal

@@ -45,7 +45,7 @@ using namespace ProjectExplorer::Internal;
 /*!
     \class ProjectExplorer::Internal::ProjectFileFactory
 
-    \brief Factory for project files.
+    \brief The ProjectFileFactory class provides a factory for project files.
 */
 
 ProjectFileFactory::ProjectFileFactory(IProjectManager *manager)

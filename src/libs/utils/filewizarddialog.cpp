@@ -37,8 +37,10 @@
 /*!
   \class Utils::FileWizardDialog
 
-  \brief Standard wizard for a single file letting the user choose name
-   and path. Custom pages can be added via Core::IWizardExtension.
+  \brief The FileWizardDialog class is a standard wizard for a single file
+  letting the user choose name and path.
+
+  Custom pages can be added via Core::IWizardExtension.
 */
 
 namespace Utils {

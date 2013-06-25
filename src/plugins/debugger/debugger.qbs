@@ -268,7 +268,7 @@ QtcPlugin {
 
     Group {
         name: "RegistryAccess"
-        condition: qbs.targetOS == "windows"
+        condition: qbs.targetOS.contains("windows")
         prefix: "../../shared/registryaccess/"
         files: [
             "registryaccess.cpp",
@@ -278,7 +278,7 @@ QtcPlugin {
 
     Group {
         name: "RegisterPostMortem"
-        condition: qbs.targetOS == "windows"
+        condition: qbs.targetOS.contains("windows")
         files: [
             "registerpostmortemaction.cpp",
             "registerpostmortemaction.h",
@@ -287,7 +287,7 @@ QtcPlugin {
 
     Group {
         name: "LLDBOptions"
-        condition: qbs.targetOS == "mac"
+        condition: qbs.targetOS.contains("mac")
         files: [
             "lldblib/lldboptionspage.cpp",
             "lldblib/lldboptionspage.h",
@@ -296,7 +296,7 @@ QtcPlugin {
     }
 
     Properties {
-        condition: qbs.targetOS == "windows"
+        condition: qbs.targetOS.contains("windows")
         cpp.dynamicLibraries: [
             "advapi32",
             "ole32",

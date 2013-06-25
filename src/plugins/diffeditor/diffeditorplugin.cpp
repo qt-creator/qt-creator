@@ -29,10 +29,12 @@
 
 #include "diffeditorplugin.h"
 #include "diffeditor.h"
-#include "diffeditorwidget.h"
 #include "diffeditorconstants.h"
+#include "diffeditorfactory.h"
+#include "diffeditorwidget.h"
+#include "diffshoweditor.h"
+#include "diffshoweditorfactory.h"
 
-#include <QCoreApplication>
 #include <QFileDialog>
 #include <QTextCodec>
 #include <QtPlugin>
@@ -44,39 +46,7 @@
 
 namespace DiffEditor {
 
-///////////////////////////////// DiffEditorFactory //////////////////////////////////
-
 namespace Internal {
-
-DiffEditorFactory::DiffEditorFactory(DiffEditorPlugin *owner)
-    : m_mimeTypes(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE)),
-      m_owner(owner)
-{
-}
-
-Core::Id DiffEditorFactory::id() const
-{
-    return Constants::DIFF_EDITOR_ID;
-}
-
-QString DiffEditorFactory::displayName() const
-{
-    return qApp->translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME);
-}
-
-Core::IEditor *DiffEditorFactory::createEditor(QWidget *parent)
-{
-    DiffEditorWidget *editorWidget = new DiffEditorWidget(parent);
-    DiffEditor *editor = new DiffEditor(editorWidget);
-    return editor;
-}
-
-QStringList DiffEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
-}
-
-///////////////////////////////// DiffEditorPlugin //////////////////////////////////
 
 DiffEditorPlugin::DiffEditorPlugin()
 {
@@ -84,11 +54,6 @@ DiffEditorPlugin::DiffEditorPlugin()
 
 DiffEditorPlugin::~DiffEditorPlugin()
 {
-}
-
-void DiffEditorPlugin::initializeEditor(DiffEditorWidget *editor)
-{
-    Q_UNUSED(editor)
 }
 
 bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -110,6 +75,7 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     toolsContainer->addAction(diffCommand, Constants::G_TOOLS_DIFF);
 
     addAutoReleasedObject(new DiffEditorFactory(this));
+    addAutoReleasedObject(new DiffShowEditorFactory(this));
 
     return true;
 }

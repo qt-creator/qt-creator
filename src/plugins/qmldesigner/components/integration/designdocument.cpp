@@ -153,8 +153,6 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 
     if (!componentNode.isRootNode()) {
         //change to subcomponent model
-        if (m_inFileComponentTextModifier)
-            delete m_inFileComponentTextModifier.data();
 
         m_inFileComponentTextModifier.reset(createComponentTextModifier(m_documentTextModifier.data(), rewriterView(), componentText, componentNode));
 

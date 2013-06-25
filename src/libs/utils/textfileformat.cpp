@@ -58,7 +58,8 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 /*!
     \class Utils::TextFileFormat
 
-    \brief Describes the format of a text file and provides autodetection.
+    \brief The TextFileFormat class describes the format of a text file and
+    provides autodetection.
 
     The format comprises
     \list

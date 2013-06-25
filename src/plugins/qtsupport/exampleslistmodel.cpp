@@ -48,13 +48,13 @@
 namespace QtSupport {
 namespace Internal {
 
-const int allQtVersionsId = -0xff;
+const int noQtVersionsId = -0xff;
 static const char currentQtVersionFilterSettingsKeyC[] = "WelcomePageQtVersionFilter";
 
 int uniqueQtVersionIdSetting()
 {
     QSettings *settings = Core::ICore::settings();
-    int id =  settings->value(QLatin1String(currentQtVersionFilterSettingsKeyC), allQtVersionsId).toInt();
+    int id =  settings->value(QLatin1String(currentQtVersionFilterSettingsKeyC), noQtVersionsId).toInt();
     return id;
 }
 
@@ -77,6 +77,38 @@ public:
         setRoleNames(roleNames);
     }
 
+    int findHighestQtVersion()
+    {
+        QtVersionManager *versionManager = QtVersionManager::instance();
+        QList <BaseQtVersion *> qtVersions = versionManager->validVersions();
+
+        BaseQtVersion *newVersion = 0;
+
+        foreach (BaseQtVersion *version, qtVersions) {
+
+            if (version->isValid() && version->hasDemos() && version->hasExamples()) {
+                if (!newVersion) {
+                    newVersion = version;
+                } else {
+                    if (version->qtVersion() > newVersion->qtVersion()) {
+                        newVersion = version;
+                    } else if (version->qtVersion() == newVersion->qtVersion()
+                               && version->uniqueId() < newVersion->uniqueId()) {
+                        newVersion = version;
+                    }
+                }
+            }
+        }
+
+        if (!newVersion && !qtVersions.isEmpty())
+            newVersion = qtVersions.first();
+
+        if (!newVersion)
+            return noQtVersionsId;
+
+        return newVersion->uniqueId();
+    }
+
     void setupQtVersions()
     {
         beginResetModel();
@@ -90,30 +122,33 @@ public:
         if (defaultVersion && qtVersions.contains(defaultVersion))
             qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
 
-        QStandardItem *newItem = new QStandardItem();
-        newItem->setData(tr("All Versions"), Qt::UserRole + 1);
-        newItem->setData(allQtVersionsId, Qt::UserRole + 2);
-        appendRow(newItem);
-
         int qtVersionSetting = uniqueQtVersionIdSetting();
-        if (qtVersionSetting != allQtVersionsId) {
+        int newQtVersionSetting = noQtVersionsId;
+        if (qtVersionSetting != noQtVersionsId) {
             //ensure that the unique Qt id is valid
-            int newQtVersionSetting = allQtVersionsId;
             foreach (BaseQtVersion *version, qtVersions) {
-                if (version->uniqueId() == qtVersionSetting)
+                if (version->uniqueId() == qtVersionSetting) {
                     newQtVersionSetting = qtVersionSetting;
-            }
-
-            if (newQtVersionSetting != qtVersionSetting) {
-                setUniqueQtVersionIdSetting(newQtVersionSetting);
+                }
             }
         }
 
+        if (newQtVersionSetting == noQtVersionsId) {
+            newQtVersionSetting = findHighestQtVersion();
+        }
+
+        if (newQtVersionSetting != qtVersionSetting) {
+            setUniqueQtVersionIdSetting(newQtVersionSetting);
+        }
+
+
         foreach (BaseQtVersion *version, qtVersions) {
-            QStandardItem *newItem = new QStandardItem();
-            newItem->setData(version->displayName(), Qt::UserRole + 1);
-            newItem->setData(version->uniqueId(), Qt::UserRole + 2);
-            appendRow(newItem);
+            if (version->hasDemos() || version->hasExamples()) {
+                QStandardItem *newItem = new QStandardItem();
+                newItem->setData(version->displayName(), Qt::UserRole + 1);
+                newItem->setData(version->uniqueId(), Qt::UserRole + 2);
+                appendRow(newItem);
+            }
         }
         endResetModel();
     }
@@ -147,7 +182,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     m_updateOnQtVersionsChanged(false),
     m_initialized(false),
     m_helpInitialized(false),
-    m_uniqueQtId(allQtVersionsId)
+    m_uniqueQtId(noQtVersionsId)
 {
     QHash<int, QByteArray> roleNames;
     roleNames[Name] = "name";
@@ -517,7 +552,7 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
     foreach (BaseQtVersion *version, qtVersions) {
 
         //filter for qt versions
-        if (version->uniqueId() != m_uniqueQtId && m_uniqueQtId != allQtVersionsId)
+        if (version->uniqueId() != m_uniqueQtId && m_uniqueQtId != noQtVersionsId)
             continue;
 
         // qt5 with examples OR demos manifest

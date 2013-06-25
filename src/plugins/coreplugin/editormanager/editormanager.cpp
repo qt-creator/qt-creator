@@ -1249,8 +1249,7 @@ Core::IEditor *EditorManager::activateEditorForDocument(Core::Internal::EditorVi
     if (editors.isEmpty())
         return 0;
 
-    activateEditor(view, editors.first(), flags);
-    return editors.first();
+    return activateEditor(view, editors.first(), flags);
 }
 
 /* For something that has a 'QStringList mimeTypes' (IEditorFactory

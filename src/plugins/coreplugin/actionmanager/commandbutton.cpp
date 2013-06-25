@@ -37,7 +37,8 @@ using namespace Core;
 /*!
     \class Core::CommandButton
 
-    \brief A tool button associated with one of registered Command objects.
+    \brief The CommandButton class is a tool button associated with one of
+    the registered Command objects.
 
     Tooltip of this button consists of toolTipBase property value and Command's
     key sequence which is automatically updated when user changes it.

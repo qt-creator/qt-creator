@@ -109,7 +109,6 @@
 
     \endlist
 
-    \if defined(qcmanual)
     The following sections contain examples of how to create some common
     components:
 
@@ -130,5 +129,4 @@
     top level when you are done editing the component.
 
     \image qmldesigner-breadcrumbs.png "Go into Component command"
-    \endif
 */

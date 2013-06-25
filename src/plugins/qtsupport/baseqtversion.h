@@ -121,7 +121,9 @@ public:
 
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
-    static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name);
+    enum PropertyVariant { PropertyVariantGet, PropertyVariantSrc };
+    static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
+                                 PropertyVariant variant = PropertyVariantGet);
     QString qmakeProperty(const QByteArray &name) const;
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     virtual Utils::Environment qmakeRunEnvironment() const;
@@ -219,6 +221,7 @@ public:
     virtual QList<ProjectExplorer::Task> validateKit(const ProjectExplorer::Kit *k);
 
     Utils::FileName headerPath() const;
+    Utils::FileName docsPath() const;
     Utils::FileName libraryPath() const;
     Utils::FileName binPath() const;
     Utils::FileName mkspecsPath() const;
@@ -226,6 +229,9 @@ public:
     QString qtNamespace() const;
     QString qtLibInfix() const;
     bool isFrameworkBuild() const;
+    // Note: A Qt version can have both a debug and a release built at the same time!
+    bool hasDebugBuild() const;
+    bool hasReleaseBuild() const;
 
 protected:
     BaseQtVersion();

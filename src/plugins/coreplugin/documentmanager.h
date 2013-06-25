@@ -74,9 +74,6 @@ public:
     static void expectFileChange(const QString &fileName);
     static void unexpectFileChange(const QString &fileName);
 
-    static void expectDirectoryChange(const QString &directory);
-    static void unexpectDirectoryChange(const QString &directory);
-
     // recent files
     static void addToRecentFiles(const QString &fileName, const Id &editorId = Id());
     Q_SLOT void clearRecentFiles();
@@ -145,15 +142,16 @@ signals:
     /// emitted if one document changed its name e.g. due to save as
     void documentRenamed(Core::IDocument *document, const QString &from, const QString &to);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *e);
+
 private slots:
     void documentDestroyed(QObject *obj);
     void fileNameChanged(const QString &oldName, const QString &newName);
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);
-    void mainWindowActivated();
     void syncWithEditor(const QList<Core::IContext *> &context);
-    void clearExpectedDirectory();
 };
 
 /*! The FileChangeBlocker blocks all change notifications to all IDocument * that

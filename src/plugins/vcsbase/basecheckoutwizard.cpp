@@ -42,8 +42,8 @@
 /*!
     \class VcsBase::BaseCheckoutWizard
 
-    \brief A Core::IWizard implementing a wizard for initially checking out a project using
-    a version control system.
+    \brief The BaseCheckoutWizard class implements a wizard for initially
+    checking out a project using a version control system.
 
    Implements all of Core::IWizard with the exception of
    name()/description() and icon().

@@ -54,8 +54,9 @@ namespace ProjectExplorer {
 
 /*!
     \class ProjectExplorer::ICustomWizardFactory
-    \brief Factory for creating custom wizards extending the base class
-           (CustomWizard or CustomProjectWizard)
+    \brief The ICustomWizardFactory class implements a factory for creating
+    custom wizards extending the base classes: CustomWizard and
+    CustomProjectWizard.
 
     The factory can be registered under a name in CustomWizard. The name can
     be specified in the  \c <wizard class=''...> attribute in the \c wizard.xml file
@@ -79,7 +80,8 @@ int CustomWizardPrivate::verbose = 0;
 /*!
     \class ProjectExplorer::CustomWizard
 
-    \brief Base classes for custom wizards based on file templates and a XML
+    \brief The CustomWizard class is a base class for custom wizards based on
+    file templates and an XML
     configuration file (\c share/qtcreator/templates/wizards).
 
     Presents CustomWizardDialog (fields page containing path control) for wizards

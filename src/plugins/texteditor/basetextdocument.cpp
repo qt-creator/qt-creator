@@ -415,8 +415,7 @@ bool BaseTextDocument::reload(QString *errorString)
 
     if (documentLayout)
         documentLayout->documentReloaded(marks); // readds text marks
-    if (success)
-        emit reloaded();
+    emit reloadFinished(success);
     return success;
 }
 

@@ -63,12 +63,13 @@ enum { debug = 0, debugRepositorySearch = 0, debugExecution = 0 };
 
 /*!
     \namespace VcsBase
-    \brief VcsBase plugin namespace
+    \brief The VcsBase namespace contains classes for the VcsBase plugin.
 */
 
 /*!
     \namespace VcsBase::Internal
-    \brief Internal namespace of the VcsBase plugin
+    \brief The Internal namespace contains internal classes for the VcsBase
+    plugin.
     \internal
 */
 
@@ -76,9 +77,10 @@ namespace VcsBase {
 namespace Internal {
 
 /*!
-    \struct VcsBase::Internal::State
+    \class VcsBase::Internal::State
 
-    \brief Internal state created by the state listener and VcsBasePluginState.
+    \brief The State class provides the internal state created by the state
+    listener and VcsBasePluginState.
 
     Aggregated in the QSharedData of VcsBase::VcsBasePluginState.
 */
@@ -179,7 +181,8 @@ QDebug operator<<(QDebug in, const State &state)
 /*!
     \class VcsBase::Internal::StateListener
 
-    \brief Connects to the relevant signals of Qt Creator, tries to find version
+    \brief The StateListener class connects to the relevant signals of \QC,
+    tries to find version
     controls and emits signals to the plugin instances.
 
     Singleton (as not to do checks multiple times).
@@ -305,7 +308,8 @@ public:
 /*!
     \class  VcsBase::VcsBasePluginState
 
-    \brief Relevant state information of the VCS plugins
+    \brief The VcsBasePluginState class provides relevant state information
+    about the VCS plugins.
 
     Qt Creator's state relevant to VCS plugins is a tuple of
 
@@ -455,7 +459,8 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 /*!
     \class VcsBase::VcsBasePlugin
 
-    \brief Base class for all version control plugins.
+    \brief The VcsBasePlugin class is the base class for all version control
+    plugins.
 
     The plugin connects to the
     relevant change signals in Qt Creator and calls the virtual
@@ -544,6 +549,8 @@ void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc)
     // VCSes might have become (un-)available, so clear the VCS directory cache
     connect(vc, SIGNAL(configurationChanged()),
             Core::ICore::vcsManager(), SLOT(clearVersionControlCache()));
+    connect(vc, SIGNAL(configurationChanged()),
+            VcsBasePluginPrivate::m_listener, SLOT(slotStateChanged()));
 }
 
 void VcsBasePlugin::extensionsInitialized()
@@ -929,8 +936,9 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
 
     VcsBase::VcsBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
 
-    if (flags & ExpectRepoChanges)
-        Core::DocumentManager::expectDirectoryChange(workingDir);
+    // TODO tell the document manager about expected repository changes
+    //    if (flags & ExpectRepoChanges)
+    //        Core::DocumentManager::expectDirectoryChange(workingDir);
     if (flags & FullySynchronously) {
         response = runVcsFullySynchronously(workingDir, binary, arguments, timeOutMS,
                                              env, flags, outputCodec);
@@ -979,8 +987,9 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
         if (!(flags & SuppressFailMessageInLogWindow))
             outputWindow->appendError(response.exitMessage(binary, timeOutMS));
     }
-    if (flags & ExpectRepoChanges)
-        Core::DocumentManager::unexpectDirectoryChange(workingDir);
+    // TODO tell the document manager that the directory now received all expected changes
+    // if (flags & ExpectRepoChanges)
+    //    Core::DocumentManager::unexpectDirectoryChange(workingDir);
 
     return response;
 }
@@ -1000,8 +1009,9 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
     if (!(flags & SuppressCommandLogging))
         VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, binary, arguments);
 
-    if (flags & ExpectRepoChanges)
-        Core::DocumentManager::expectDirectoryChange(workingDirectory);
+    // TODO tell the document manager about expected repository changes
+    // if (flags & ExpectRepoChanges)
+    //    Core::DocumentManager::expectDirectoryChange(workingDirectory);
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
     process.setProcessEnvironment(env);
@@ -1023,8 +1033,9 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
         SynchronousProcess::stopProcess(process);
         return false;
     }
-    if (flags & ExpectRepoChanges)
-        Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
+    // TODO tell the document manager that the directory now received all expected changes
+    // if (flags & ExpectRepoChanges)
+    //    Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
 
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }

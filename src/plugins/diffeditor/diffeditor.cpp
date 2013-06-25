@@ -51,9 +51,9 @@ namespace DiffEditor {
 
 DiffEditor::DiffEditor(DiffEditorWidget *editorWidget)
     : IEditor(0),
+      m_toolWidget(0),
       m_file(new Internal::DiffEditorFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this)),
       m_editorWidget(editorWidget),
-      m_toolWidget(0),
       m_entriesComboBox(0)
 {
     setWidget(editorWidget);

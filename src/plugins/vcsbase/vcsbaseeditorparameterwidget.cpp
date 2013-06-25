@@ -96,7 +96,8 @@ public:
 /*!
     \class VcsBase::VcsBaseEditorParameterWidget
 
-    \brief A toolbar-like widget for use with VcsBase::VcsBaseEditor::setConfigurationWidget()
+    \brief The VcsBaseEditorParameterWidget is a toolbar-like widget for use
+    with VcsBase::VcsBaseEditor::setConfigurationWidget()
     influencing for example the generation of VCS diff output.
 
     The widget maintains a list of command line arguments (starting from baseArguments())

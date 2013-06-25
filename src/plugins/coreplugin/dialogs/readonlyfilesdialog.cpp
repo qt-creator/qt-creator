@@ -106,7 +106,8 @@ ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
 
 /*!
  * \class ReadOnlyFilesDialog
- * \brief Dialog to show a set of files which are classified as not writable.
+ * \brief The ReadOnlyFilesDialog class implements a dialog to show a set of
+ * files that are classified as not writable.
  *
  * Automatically checks which operations are allowed to make the file writable. These operations
  * are Make Writable which tries to set the file permissions in the file system,

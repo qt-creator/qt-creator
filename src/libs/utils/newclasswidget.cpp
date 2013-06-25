@@ -39,9 +39,9 @@ enum { debugNewClassWidget = 0 };
 
 /*! \class Utils::NewClassWidget
 
-    \brief Utility widget for 'New Class' wizards
+    \brief The NewClassWidget class is a utility widget for 'New Class' wizards.
 
-    Utility widget for 'New Class' wizards. Prompts the user
+    This widget prompts the user
     to enter a class name (optionally derived from some base class) and file
     names for header, source and form files. Has some smart logic to derive
     the file names from the class name. */

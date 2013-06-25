@@ -165,7 +165,7 @@ bool AddToolChainOperation::test() const
     map = addToolChain(map, QLatin1String("testId"), QLatin1String("name"), QLatin1String("/tmp/test"),
                             QLatin1String("test-abi"), QLatin1String("test-abi,test-abi2"),
                             KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))));
-    if (!map.value(QLatin1String(COUNT)).toInt() == 1
+    if (map.value(QLatin1String(COUNT)).toInt() != 1
             || !map.contains(QString::fromLatin1(PREFIX) + QLatin1Char('0')))
         return false;
     QVariantMap tcData = map.value(QString::fromLatin1(PREFIX) + QLatin1Char('0')).toMap();

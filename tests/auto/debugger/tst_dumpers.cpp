@@ -1056,8 +1056,8 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QByteArray3")
             << Data("#include <QByteArray>\n",
-                    "const char *str1 = \"\356\";\n"
-                    "const char *str2 = \"\xee\";\n"
+                    "const char *str1 = \"\\356\";\n"
+                    "const char *str2 = \"\\xee\";\n"
                     "const char *str3 = \"\\\\ee\";\n"
                     "QByteArray buf1(str1);\n"
                     "QByteArray buf2(str2);\n"
@@ -3288,86 +3288,72 @@ void tst_Dumpers::dumper_data()
                % Check("variant.data.1", "[1]", "2", "int")
                % Check("variant.data.2", "[2]", "3", "int");
 
-//    QTest::newRow("QVariantList")
-//                                  << Data(
-//        "QVariantList vl;\n"
-//        " % Check("vl <0 items> QVariantList");\n"
-//        "// Continue");\n"
-//        "vl.append(QVariant(1));\n"
-//        "vl.append(QVariant(2));\n"
-//        "vl.append(QVariant("Some String"));\n"
-//        "vl.append(QVariant(21));\n"
-//        "vl.append(QVariant(22));\n"
-//        "vl.append(QVariant("2Some String"));\n"
-//         % Check("vl <6 items> QVariantList");
-//         % CheckType("vl.0 QVariant (int)");
-//         % CheckType("vl.2 QVariant (QString)");
+    QTest::newRow("QVariantList")
+            << Data("#include <QVariantList>\n",
+                    "QVariantList vl;\n"
+                    "vl.append(QVariant(1));\n"
+                    "vl.append(QVariant(2));\n"
+                    "vl.append(QVariant(\"Some String\"));\n"
+                    "vl.append(QVariant(21));\n"
+                    "vl.append(QVariant(22));\n"
+                    "vl.append(QVariant(\"2Some String\"));\n")
+         % Check("vl", "<6 items>", "@QVariantList")
+         % CheckType("vl.0", "[0]", "@QVariant (int)")
+         % CheckType("vl.2", "[2]", "@QVariant (QString)");
 
-//    QTest::newRow("QVariantMap")
-//                                      << Data(
-//        "QVariantMap vm;\n"
-//         % Check("vm <0 items> QVariantMap");
-//        "// Continue");\n"
-//        "vm["a"] = QVariant(1);\n"
-//        "vm["b"] = QVariant(2);\n"
-//        "vm["c"] = QVariant("Some String");\n"
-//        "vm["d"] = QVariant(21);\n"
-//        "vm["e"] = QVariant(22);\n"
-//        "vm["f"] = QVariant("2Some String");\n"
-//         % Check("vm <6 items> QVariantMap");
-//         % Check("vm.0   QMapNode<QString, QVariant>");
-//         % Check("vm.0.key "a" QString");
-//         % Check("vm.0.value 1 QVariant (int)");
-//         % Check("vm.5   QMapNode<QString, QVariant>");
-//         % Check("vm.5.key "f" QString");
-//         % Check("vm.5.value "2Some String" QVariant (QString)");
+    QTest::newRow("QVariantMap")
+            << Data("#include <QVariantMap>\n",
+                    "QVariantMap vm;\n"
+                    "vm[\"a\"] = QVariant(1);\n"
+                    "vm[\"b\"] = QVariant(2);\n"
+                    "vm[\"c\"] = QVariant(\"Some String\");\n"
+                    "vm[\"d\"] = QVariant(21);\n"
+                    "vm[\"e\"] = QVariant(22);\n"
+                    "vm[\"f\"] = QVariant(\"2Some String\");\n")
+         % Check("vm", "<6 items>", "@QVariantMap")
+         % Check("vm.0", "[0]", "", "@QMapNode<@QString, @QVariant>")
+         % Check("vm.0.key", Value4("\"a\""), "@QString")
+         % Check("vm.0.value", Value4("1"), "@QVariant (int)")
+         % Check("vm.0.key", Value5("\"b\""), "@QString")
+         % Check("vm.0.value", Value5("2"), "@QVariant (int)")
+         % Check("vm.5", "[5]", "", "@QMapNode<@QString, @QVariant>")
+         % Check("vm.5.key", Value4("\"f\""), "@QString")
+         % Check("vm.5.value", Value4("\"2Some String\""), "@QVariant (@QString)")
+         % Check("vm.5.key", Value5("\"f\""), "@QString")
+         % Check("vm.5.value", Value5("\"2Some String\""), "@QVariant (@QString)");
 
-//    QTest::newRow("QVectorIntBig")
-//          << Data(
-//        // This tests the display of a big vector");
-//        QVector<int> vec(10000);
-//        for (int i = 0; i != vec.size(); ++i)
-//            vec[i] = i * i;
-//         % Check("vec <10000 items> QVector<int>");
-//         % Check("vec.0", "0", "int");
-//         % Check("vec.1999", "3996001", "int");
-//        // Continue");
+    QTest::newRow("QVectorIntBig")
+            << Data("#include <QVector>\n",
+                   "QVector<int> vec(10000);\n"
+                   "for (int i = 0; i != vec.size(); ++i)\n"
+                   "     vec[i] = i * i;\n")
+         % Check("vec", "<10000 items>", "@QVector<int>")
+         % Check("vec.0", "[0]", "0", "int")
+         % Check("vec.1999", "[1999]", "3996001", "int");
 
-//        // step over
-//        // check that the display updates in reasonable time
-//        vec[1] = 1;
-//        vec[2] = 2;
-//        vec.append(1);
-//        vec.append(1);
-//         % Check("vec <10002 items> QVector<int>");
-//         % Check("vec.1", "1", "int");
-//         % Check("vec.2", "2", "int");
+    QTest::newRow("QVectorFoo")
+            << Data("#include <QVector>\n" + fooData,
+                    "QVector<Foo> vec;\n"
+                    "vec.append(1);\n"
+                    "vec.append(2);\n")
+         % Check("vec", "<2 items>", "@QVector<Foo>")
+         % Check("vec.0", "[0]", "", "Foo")
+         % Check("vec.0.a", "1", "int")
+         % Check("vec.1", "[1]", "", "Foo")
+         % Check("vec.1.a", "2", "int");
 
-//    QTest::newRow("QVectorFoo")
-//                 << Data(
-//        // This tests the display of a vector of pointers to custom structs");\n"
-//        "QVector<Foo> vec;\n"
-//         % Check("vec <0 items> QVector<Foo>");
-//        // Continue");\n"
-//        // step over, check display");\n"
-//        "vec.append(1);\n"
-//        "vec.append(2);\n"
-//         % Check("vec <2 items> QVector<Foo>");
-//         % Check("vec.0", "Foo");
-//         % Check("vec.0.a", "1", "int");
-//         % Check("vec.1", "Foo");
-//         % Check("vec.1.a", "2", "int");
+    QTest::newRow("QVectorFooTypedef")
+            << Data("#include <QVector>\n" + fooData +
+                    "typedef QVector<Foo> FooVector;\n",
+                    "FooVector vec;\n"
+                    "vec.append(1);\n"
+                    "vec.append(2);\n")
+         % Check("vec", "<2 items>", "@FooVector")
+         % Check("vec.0", "[0]", "", "Foo")
+         % Check("vec.0.a", "1", "int")
+         % Check("vec.1", "[1]", "", "Foo")
+         % Check("vec.1.a", "2", "int");
 
-//    typedef QVector<Foo> FooVector;
-
-//    QTest::newRow("QVectorFooTypedef")
-//                 << Data(
-//    {
-//        "FooVector vec;\n"
-//        "vec.append(Foo(2));\n"
-//        "vec.append(Foo(3));\n"
-//        unused(&vec);
-//    }
 
 //    QTest::newRow("QVectorFooStar")
 //                     << Data(
@@ -3762,26 +3748,17 @@ void tst_Dumpers::dumper_data()
 //         % Check("t1", "0", "basic::myType1");
 //         % Check("t2", "0", "basic::myType2");
 
-//    QTest::newRow("Struct")
-//                  << Data(
-//    "Foo f(2);\n"
-//    "f.doit();\n"
-//    "f.doit();\n"
-//    "f.doit();\n"
-//         % Check("f", "Foo");
-//         % Check("f.a", "5", "int");
-//         % Check("f.b", "2", "int");
+    QTest::newRow("Struct")
+            << Data(fooData, "Foo f(3);\n")
+               % Check("f", "", "Foo")
+               % Check("f.a", "3", "int")
+               % Check("f.b", "2", "int");
 
-//    QTest::newRow("Union")
-//                  << Data(
-//    "union U\n"
-//    "{\n"
-//    "  int a;\n"
-//    "  int b;\n"
-//    "} u;\n"
-//         % Check("u", "basic::U");
-//         % Check("u.a", "int");
-//         % Check("u.b", "int");
+    QTest::newRow("Union")
+            << Data("union U { int a; int b; };", "U u;")
+               % Check("u", "", "U")
+               % CheckType("u.a", "int")
+               % CheckType("u.b", "int");
 
 //    QTest::newRow("TypeFormats")
 //                  << Data(
@@ -3871,31 +3848,29 @@ void tst_Dumpers::dumper_data()
                % CheckType("b1", "DerivedClass") // autoderef
                % CheckType("b2", "DerivedClass &");
 
-//    QTest::newRow("LongEvaluation1")
-//                  << Data(
-//        "QDateTime time = QDateTime::currentDateTime();\n"
-//        "const int N = 10000;\n"
-//        "QDateTime bigv[N];\n"
-//        "for (int i = 0; i < 10000; ++i) {\n"
-//        "    bigv[i] = time;\n"
-//        "    time = time.addDays(1);\n"
-//        "}\n"
-//         % Check("N", "10000", "int");
-//         % CheckType("bigv QDateTime [10000]");
-//         % Check("bigv.0", "QDateTime");
-//         % Check("bigv.9999", "QDateTime");
-//         % Check("time", "QDateTime");
+    QTest::newRow("LongEvaluation1")
+            << Data("#include <QDateTime>",
+                    "QDateTime time = QDateTime::currentDateTime();\n"
+                    "const int N = 10000;\n"
+                    "QDateTime bigv[N];\n"
+                    "for (int i = 0; i < 10000; ++i) {\n"
+                    "    bigv[i] = time;\n"
+                    "    time = time.addDays(1);\n"
+                    "}\n")
+             % Check("N", "10000", "int")
+             % CheckType("bigv", "@QDateTime [10000]")
+             % CheckType("bigv.0", "[0]", "@QDateTime")
+             % CheckType("bigv.9999", "[9999]", "@QDateTime");
 
-//    QTest::newRow("LongEvaluation2")
-//                  << Data(
-//        "const int N = 10000;\n"
-//        "int bigv[N];\n"
-//        "for (int i = 0; i < 10000; ++i)\n"
-//        "    bigv[i] = i;\n"
-//         % Check("N", "10000", "int");
-//         % CheckType("bigv int [10000]");
-//         % Check("bigv.0", "0", "int");
-//         % Check("bigv.9999", "9999", "int");
+    QTest::newRow("LongEvaluation2")
+            << Data("const int N = 10000;\n"
+                    "int bigv[N];\n"
+                    "for (int i = 0; i < 10000; ++i)\n"
+                    "    bigv[i] = i;\n")
+             % Check("N", "10000", "int")
+             % CheckType("bigv", "int [10000]")
+             % Check("bigv.0", "[0]", "0", "int")
+             % Check("bigv.9999", "[9999]", "9999", "int");
 
 //    QTest::newRow("Fork")
 //                  << Data(
@@ -3908,53 +3883,50 @@ void tst_Dumpers::dumper_data()
 //         % Check("proc  QProcess");
 
 
-//    QTest::newRow("FunctionPointer")
-//                  << Data(
-//        "int testFunctionPointerHelper(int x) { return x; }\n"
-//        "typedef int (*func_t)(int);\n"
-//        "func_t f = testFunctionPointerHelper;\n"
-//        "int a = f(43);\n"
-//         % Check("f", "basic::func_t");
+    QTest::newRow("FunctionPointer")
+            << Data("int testFunctionPointerHelper(int x) { return x; }\n"
+                    "typedef int (*func_t)(int);\n",
+                    "func_t f = testFunctionPointerHelper;\n"
+                    "int a = f(43);\n")
+             % CheckType("f", "func_t");
 
-//    QByteArray dataClass = "struct Class
-//    "{\n"
-//    "    Class() : a(34) {}\n"
-//    "    int testFunctionPointerHelper(int x) { return x; }\n"
-//    "    int a;\n"
-//    "};\n"
 
-//    QTest::newRow("MemberFunctionPointer")
-//                  << Data(
+    QByteArray dataClass = "struct Class\n"
+                           "{\n"
+                           "    Class() : a(34) {}\n"
+                           "    int testFunctionPointerHelper(int x) { return x; }\n"
+                           "    int a;\n"
+                           "};\n";
 
-//        "Class x;\n"
-//        "typedef int (Class::*func_t)(int);\n"
-//        "func_t f = &Class::testFunctionPointerHelper;\n"
-//        "int a = (x.*f)(43);\n"
-//         % Check("f", "basic::func_t");
+    QTest::newRow("MemberFunctionPointer")
+            << Data(dataClass  + "Class x;\n"
+                    "typedef int (Class::*func_t)(int);\n",
+                    "func_t f = &Class::testFunctionPointerHelper;\n"
+                    "int a = (x.*f)(43);\n")
+             % CheckType("f", "func_t");
 
-//    QTest::newRow("MemberPointer")
-//                  << Data(
-//        Class x;\n"
-//        typedef int (Class::*member_t);\n"
-//        member_t m = &Class::a;\n"
-//        int a = x.*m;\n"
-//         % Check("m", "basic::member_t");\n"
-//        // Continue");\n"
 
-//         % Check("there's a valid display for m");
+    QTest::newRow("MemberPointer")
+            << Data(dataClass  + "Class x;\n"
+                    "typedef int (Class::*member_t);\n",
+                    "member_t m = &Class::a;\n"
+                    "int a = x.*m;\n")
+             % CheckType("m", "member_t");
 
-//    QTest::newRow("PassByReferenceHelper(Foo &f)
-//         % CheckType("f Foo &");\n"
-//         % Check("f.a", "12", "int");\n"
-//        // Continue");\n"
-//        ++f.a;\n"
-//         % CheckType("f Foo &");\n"
-//         % Check("f.a", "13", "int");\n"
+//  QTest::newRow("PassByReferenceHelper")
+//          << Data(fooData
+//      (Foo &f)
+//       % CheckType("f Foo &");\n"
+//       % Check("f.a", "12", "int");\n"
+//      // Continue");\n"
+//      ++f.a;\n"
+//       % CheckType("f Foo &");\n"
+//       % Check("f.a", "13", "int");\n"
 
-//    QTest::newRow("PassByReference")
-//                  << Data(
-//        "Foo f(12);\n"
-//        "testPassByReferenceHelper(f);\n"
+//  QTest::newRow("PassByReference")
+//                << Data(
+//      "Foo f(12);\n"
+//      "testPassByReferenceHelper(f);\n"
 
     QTest::newRow("BigInt")
             << Data("#include <QString>\n"
@@ -4039,124 +4011,93 @@ void tst_Dumpers::dumper_data()
                % Check("sseB", "", "__m128");
 
 
-//namespace qscript {
+    QTest::newRow("BoostOptional1")
+            << Data("#include <boost/optional.hpp>\n",
+                    "boost::optional<int> i0, i1;\n"
+                    "i1 = 1;\n"
+                    "unused(&i0, &i1);\n")
+             % Check("i0", "<uninitialized>", "boost::optional<int>")
+             % Check("i1", "1", "boost::optional<int>");
 
-//    QTest::newRow("QScript")
-//                  << Data(
-//"        QScriptEngine engine;n"
-//"        QDateTime date = QDateTime::currentDateTime();n"
-//"        QScriptValue s;n"
-//"n"
-//"         % Check("engine  QScriptEngine");n"
-//"         % Check("s", "(invalid)", "QScriptValue");n"
-//"         % Check("x1 <not accessible> QString");n"
-//"        // Continue");n"
-//"        s = QScriptValue(33);n"
-//"        int x = s.toInt32();n"
-//"n"
-//"        s = QScriptValue(QString("34"));n"
-//"        QString x1 = s.toString();n"
-//"n"
-//"        s = engine.newVariant(QVariant(43));n"
-//"        QVariant v = s.toVariant();n"
-//"n"
-//"        s = engine.newVariant(QVariant(43.0));n"
-//"        s = engine.newVariant(QVariant(QString("sss")));n"
-//"        s = engine.newDate(date);n"
-//"        date = s.toDateTime();n"
-//"        s.setProperty("a", QScriptValue());n"
-//"        QScriptValue d = s.data();n"
-//         % Check("d", "(invalid)", "QScriptValue");
-//         % Check("v 43 QVariant (int)");
-//         % Check("x", "33", "int");
-//         % Check("x1 "34" QString");
+    QTest::newRow("BoostOptional2")
+            << Data("#include <QStringList>\n"
+                    "#include <boost/optional.hpp>\n",
+                    "boost::optional<QStringList> sl0, sl;\n"
+                    "sl = (QStringList() << \"xxx\" << \"yyy\");\n"
+                    "sl.get().append(\"zzz\");\n")
+             % Check("sl", "<3 items>", "boost::optional<QStringList>");
 
+    QTest::newRow("BoostSharedPtr")
+            << Data("#include <QStringList>\n"
+                    "#include <boost/shared_ptr.hpp>\n",
+                    "boost::shared_ptr<int> s;\n"
+                    "boost::shared_ptr<int> i(new int(43));\n"
+                    "boost::shared_ptr<int> j = i;\n"
+                    "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));\n")
+             % Check("s", "(null)", "boost::shared_ptr<int>")
+             % Check("i", "43", "boost::shared_ptr<int>")
+             % Check("j", "43", "boost::shared_ptr<int>")
+             % Check("sl", "", " boost::shared_ptr<@QStringList>")
+             % Check("sl.data", "<1 items>", "@QStringList");
 
-//    QTest::newRow("WTFString")
-//                  << Data(
-//        "QWebPage p;
-//         % Check("p", "QWebPage");
+    QTest::newRow("BoostGregorianDate")
+            << Data("#include <boost/date_time.hpp>\n"
+                    "#include <boost/date_time/gregorian/gregorian.hpp>\n",
+                    "using namespace boost;\n"
+                    "using namespace gregorian;\n"
+                    "date d(2005, Nov, 29);\n"
+                    "date d0 = d;\n"
+                    "date d1 = d += months(1);\n"
+                    "date d2 = d += months(1);\n"
+                    "// snap-to-end-of-month behavior kicks in:\n"
+                    "date d3 = d += months(1);\n"
+                    "// Also end of the month (expected in boost)\n"
+                    "date d4 = d += months(1);\n"
+                    "// Not where we started (expected in boost)\n"
+                    "date d5 = d -= months(4);\n")
+             % Check("d0", "Tue Nov 29 2005", "boost::gregorian::date")
+             % Check("d1", "Thu Dec 29 2005", "boost::gregorian::date")
+             % Check("d2", "Sun Jan 29 2006", "boost::gregorian::date")
+             % Check("d3", "Tue Feb 28 2006", "boost::gregorian::date")
+             % Check("d4", "Fri Mar 31 2006", "boost::gregorian::date")
+             % Check("d5", "Wed Nov 30 2005", "boost::gregorian::date");
 
-//    QTest::newRow("BoostOptional1")
-//                  << Data(
-//        "boost::optional<int> i0, i;
-//        "i = 1;
-//         % Check("i0", "<uninitialized>", "boost::optional<int>");
-//         % Check("i", "1", "boost::optional<int>");
+    QTest::newRow("BoostPosixTimeTimeDuration")
+            << Data("#include <boost/date_time.hpp>\n"
+                    "#include <boost/date_time/gregorian/gregorian.hpp>\n"
+                    "#include <boost/date_time/posix_time/posix_time.hpp>\n",
+                    "using namespace boost;\n"
+                    "using namespace posix_time;\n"
+                    "time_duration d1(1, 0, 0);\n"
+                    "time_duration d2(0, 1, 0);\n"
+                    "time_duration d3(0, 0, 1);\n")
+             % Check("d1", "01:00:00", "boost::posix_time::time_duration")
+             % Check("d2", "00:01:00", "boost::posix_time::time_duration")
+             % Check("d3", "00:00:01", "boost::posix_time::time_duration");
 
-//    QTest::newRow("BoostOptional2")
-//                  << Data(
-//        "boost::optional<QStringList> sl0, sl;\n"
-//        "sl = (QStringList() << "xxx" << "yyy");\n"
-//        "sl.get().append("zzz");\n"
-//         % Check("sl", "<uninitialized>", "boost::optional<QStringList>");
-//         % Check("sl <3 items> boost::optional<QStringList>");
+    QTest::newRow("BoostBimap")
+            << Data("#include <boost/bimap.hpp>\n",
+                    "typedef boost::bimap<int, int> B;\n"
+                    "B b;\n"
+                    "b.left.insert(B::left_value_type(1, 2));\n"
+                    "B::left_const_iterator it = b.left.begin();\n"
+                    "int l = it->first;\n"
+                    "int r = it->second;\n")
+             % Check("b", "<1 items>", "B");
 
-//    QTest::newRow("BoostSharedPtr")
-//                  << Data(
-//        "boost::shared_ptr<int> s;\n"
-//        "boost::shared_ptr<int> i(new int(43));\n"
-//        "boost::shared_ptr<int> j = i;\n"
-//        "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << "HUH!"));
-//         % Check("s", "(null)", "boost::shared_ptr<int>");
-//         % Check("i", "43", "boost::shared_ptr<int>");
-//         % Check("j", "43", "boost::shared_ptr<int>");
-//         % Check("sl  boost::shared_ptr<QStringList>");
-//         % Check("sl.data <1 items> QStringList
-
-//    QTest::newRow("BoostGregorianDate")
-//                  << Data(
-//        "using namespace boost;\n"
-//        "using namespace gregorian;\n"
-//        "date d(2005, Nov, 29);\n"
-//        "d += months(1);\n"
-//        "d += months(1);\n"
-//        "// snap-to-end-of-month behavior kicks in:\n"
-//        "d += months(1);\n"
-//        "// Also end of the month (expected in boost)\n"
-//        "d += months(1);\n"
-//        "// Not where we started (expected in boost)\n"
-//        "d -= months(4);\n"
-//         % Check("d Tue Nov 29 2005 boost::gregorian::date");
-//         % Check("d Thu Dec 29 2005 boost::gregorian::date");
-//         % Check("d Sun Jan 29 2006 boost::gregorian::date");
-//         % Check("d Tue Feb 28 2006 boost::gregorian::date");
-//         % Check("d Fri Mar 31 2006 boost::gregorian::date");
-//         % Check("d Wed Nov 30 2005 boost::gregorian::date");
-
-//    QTest::newRow("BoostPosixTimeTimeDuration")
-//                  << Data(
-//        "using namespace boost;\n"
-//        "using namespace posix_time;\n"
-//        "time_duration d1(1, 0, 0);\n"
-//        "time_duration d2(0, 1, 0);\n"
-//        "time_duration d3(0, 0, 1);\n"
-//         % Check("d1", "01:00:00", "boost::posix_time::time_duration");
-//         % Check("d2", "00:01:00", "boost::posix_time::time_duration");
-//         % Check("d3", "00:00:01", "boost::posix_time::time_duration");
-
-//    QTest::newRow("BoostBimap")
-//                  << Data(
-//        "typedef boost::bimap<int, int> B;\n"
-//        "B b;\n"
-//        "b.left.insert(B::left_value_type(1, 2));\n"
-//        "B::left_const_iterator it = b.left.begin();\n"
-//        "int l = it->first;\n"
-//        "int r = it->second;\n"
-//         % Check("b <0 items> boost::B");
-//         % Check("b <1 items> boost::B");
-
-//    QTest::newRow("BoostPosixTimePtime")
-//                  << Data(
-//        "using namespace boost;\n"
-//        "using namespace gregorian;\n"
-//        "using namespace posix_time;\n"
-//        "ptime p1(date(2002, 1, 10), time_duration(1, 0, 0));\n"
-//        "ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));\n"
-//        "ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));\n"
-//         % Check("p1 Thu Jan 10 01:00:00 2002 boost::posix_time::ptime");
-//         % Check("p2 Thu Jan 10 00:00:00 2002 boost::posix_time::ptime");
-//         % Check("p3 Thu Jan 1 00:00:00 1970 boost::posix_time::ptime");
+    QTest::newRow("BoostPosixTimePtime")
+            << Data("#include <boost/date_time.hpp>\n"
+                    "#include <boost/date_time/gregorian/gregorian.hpp>\n"
+                    "#include <boost/date_time/posix_time/posix_time.hpp>\n"
+                    "using namespace boost;\n"
+                    "using namespace gregorian;\n"
+                    "using namespace posix_time;\n",
+                    "ptime p1(date(2002, 1, 10), time_duration(1, 0, 0));\n"
+                    "ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));\n"
+                    "ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));\n")
+             % Check("p1", "Thu Jan 10 01:00:00 2002", "boost::posix_time::ptime")
+             % Check("p2", "Thu Jan 10 00:00:00 2002", "boost::posix_time::ptime")
+             % Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
 
 
 
@@ -4445,23 +4386,23 @@ void tst_Dumpers::dumper_data()
 //         % Check("file.@1.@1.@1 "A file" QObject");
 
 
-//namespace bug6858 {
-
-//    class MyFile : public QFile\n"
-//    {\n"
-//    public:\n"
-//        MyFile(const QString &fileName)\n"
-//            : QFile(fileName) {}\n"
-//    };\n"
-
-//    QTest::newRow("6858")
-//                                  << Data(
-//        MyFile file("/tmp/tt");\n"
-//        file.setObjectName("Another file");\n"
-//        QFile *pfile = &file;\n"
-//         % Check("pfile  bug6858::MyFile");
-//         % Check("pfile.@1 "/tmp/tt" QFile");
-//         % Check("pfile.@1.@1.@1 "Another file" QObject");
+#if 0
+    QTest::newRow("bug6858")
+            << Data("#include <QFile>\n"
+                    "#include <QString>\n"
+                    "class MyFile : public QFile\n"
+                    "{\n"
+                    "public:\n"
+                    "    MyFile(const QString &fileName)\n"
+                    "        : QFile(fileName) {}\n"
+                    "};\n",
+                    "MyFile file(\"/tmp/tt\");\n"
+                    "file.setObjectName(\"Another file\");\n"
+                    "QFile *pfile = &file;\n")
+         % Check("pfile", "\"Another file\"", "MyFile")
+         % Check("pfile.@1", "\"/tmp/tt\"", "@QFile")
+         % Check("pfile.@1.@1", "\"Another file\"", "@QObject");
+#endif
 
 //namespace bug6863 {
 

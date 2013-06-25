@@ -247,7 +247,8 @@ void TcpPortsGathererPrivate::updateNetstat()
 /*!
   \class Utils::TcpPortsGatherer
 
-  \brief Gather the list of local TCP ports already in use.
+    \brief The TcpPortsGatherer class gathers the list of local TCP ports
+    already in use.
 
   Query the system for the list of local TCP ports already in use. This information can be used
   to select a port for use in a range.

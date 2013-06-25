@@ -43,7 +43,8 @@
 /*!
     \class Utils::PersistentSettingsReader
 
-    \brief Reads a QVariantMap of arbitrary, nested data structures from a XML file.
+    \brief The PersistentSettingsReader class reads a QVariantMap of arbitrary,
+    nested data structures from an XML file.
 
     Handles all string-serializable simple types and QVariantList and QVariantMap. Example:
     \code
@@ -321,7 +322,8 @@ bool PersistentSettingsReader::load(const Utils::FileName &fileName)
 /*!
     \class Utils::PersistentSettingsWriter
 
-    \brief Serializes a QVariantMap of arbitrary, nested data structures to a XML file.
+    \brief The PersistentSettingsWriter class serializes a QVariantMap of
+    arbitrary, nested data structures to an XML file.
     \sa Utils::PersistentSettingsReader
 */
 

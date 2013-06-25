@@ -32,7 +32,7 @@
 /*!
     \class Utils::ParameterAction
 
-    \brief Intended for actions that act on a 'current',
+    \brief The ParameterAction class is intended for actions that act on a 'current',
      string-type parameter (typically a file name), for example 'Save file %1'.
 
     The action has 2 states:

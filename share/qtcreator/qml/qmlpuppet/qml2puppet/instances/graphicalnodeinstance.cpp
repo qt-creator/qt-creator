@@ -103,12 +103,9 @@ void GraphicalNodeInstance::createEffectItem(bool createEffectItem)
     s_createEffectItem = createEffectItem;
 }
 
-void GraphicalNodeInstance::updateDirtyNodeRecursive()
+void GraphicalNodeInstance::updateAllDirtyNodesRecursive()
 {
-    foreach (QQuickItem *childItem, quickItem()->childItems())
-            updateDirtyNodeRecursive(childItem);
-
-    DesignerSupport::updateDirtyNode(quickItem());
+    updateAllDirtyNodesRecursive(quickItem());
 }
 
 GraphicalNodeInstance::~GraphicalNodeInstance()
@@ -117,27 +114,27 @@ GraphicalNodeInstance::~GraphicalNodeInstance()
         designerSupport()->derefFromEffectItem(quickItem());
 }
 
-void GraphicalNodeInstance::updateDirtyNodeRecursive(QQuickItem *parentItem) const
+void GraphicalNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) const
 {
     foreach (QQuickItem *childItem, parentItem->childItems()) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem))
-            updateDirtyNodeRecursive(childItem);
+            updateDirtyNodesRecursive(childItem);
     }
 
     DesignerSupport::updateDirtyNode(parentItem);
 }
 
-void GraphicalNodeInstance::updateAllDirtyNodeRecursive(QQuickItem *parentItem) const
+void GraphicalNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem) const
 {
     foreach (QQuickItem *childItem, parentItem->childItems())
-            updateDirtyNodeRecursive(childItem);
+            updateAllDirtyNodesRecursive(childItem);
 
     DesignerSupport::updateDirtyNode(parentItem);
 }
 
 QImage GraphicalNodeInstance::renderImage() const
 {
-    updateDirtyNodeRecursive(quickItem());
+    updateDirtyNodesRecursive(quickItem());
 
     QRectF renderBoundingRect = boundingRect();
 
@@ -485,20 +482,6 @@ QPair<PropertyName, ServerNodeInstance> GraphicalNodeInstance::anchor(const Prop
 
 }
 
-static void doComponentCompleteRecursive(QQuickItem *item)
-{
-    if (item) {
-        if (DesignerSupport::isComponentComplete(item))
-            return;
-
-        foreach (QQuickItem *childItem, item->childItems())
-            doComponentCompleteRecursive(childItem);
-
-        static_cast<QQmlParserStatus*>(item)->componentComplete();
-    }
-}
-
-
 static void disableTextCursor(QQuickItem *item)
 {
     foreach (QQuickItem *childItem, item->childItems())
@@ -515,7 +498,7 @@ static void disableTextCursor(QQuickItem *item)
 
 void GraphicalNodeInstance::doComponentComplete()
 {
-    doComponentCompleteRecursive(quickItem());
+    doComponentCompleteRecursive(quickItem(), nodeInstanceServer());
 
     disableTextCursor(quickItem());
 

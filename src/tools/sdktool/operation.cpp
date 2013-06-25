@@ -120,9 +120,14 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
         return false;
     }
 
-    Utils::FileName dir = path.parentDir();
-    if (!dir.toFileInfo().exists())
-        QDir(dir.toString()).mkpath(dir.toString());
+    Utils::FileName dirName = path.parentDir();
+    QDir dir(dirName.toString());
+    if (!dir.exists() && !dir.mkpath(dirName.toString())) {
+        std::cerr << "Error: Could not create directory " << qPrintable(dirName.toString())
+                  << "." << std::endl;
+        return false;
+    }
+
 
     Utils::PersistentSettingsWriter writer(path, QLatin1String("unknown"));
     return writer.save(map, 0)

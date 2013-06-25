@@ -102,6 +102,7 @@ def call(value, func, *args):
 #######################################################################
 
 qqStringCutOff = 10000
+qqWatchpointOffset = 10000
 
 # This is a cache mapping from 'type name' to 'display alternatives'.
 qqFormats = {}
@@ -220,11 +221,11 @@ BreakpointAtCatch = 5
 BreakpointAtMain = 6
 BreakpointAtFork = 7
 BreakpointAtExec = 8
-BreakpointAtSysCall = 10
-WatchpointAtAddress = 11
-WatchpointAtExpression = 12
-BreakpointOnQmlSignalEmit = 13
-BreakpointAtJavaScriptThrow = 14
+BreakpointAtSysCall = 9
+WatchpointAtAddress = 10
+WatchpointAtExpression = 11
+BreakpointOnQmlSignalEmit = 12
+BreakpointAtJavaScriptThrow = 13
 
 # See db.StateType
 stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "stopped",
@@ -248,25 +249,16 @@ def isNull(p):
 
 Value = lldb.SBValue
 
-def checkSimpleRef(ref):
-    count = int(ref["_q_value"])
-    check(count > 0)
-    check(count < 1000000)
-
-def checkRef(ref):
-    try:
-        count = int(ref["atomic"]["_q_value"]) # Qt 5.
-        minimum = -1
-    except:
-        count = int(ref["_q_value"]) # Qt 4.
-        minimum = 0
-    # Assume there aren't a million references to any object.
-    check(count >= minimum)
-    check(count < 1000000)
+def pointerValue(value):
+    return value.GetValueAsUnsigned()
 
 def createPointerValue(context, address, pointeeType):
     addr = int(address) & 0xFFFFFFFFFFFFFFFF
     return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
+
+def createReferenceValue(context, address, referencedType):
+    addr = int(address) & 0xFFFFFFFFFFFFFFFF
+    return context.CreateValueFromAddress(None, addr, referencedType)
 
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
@@ -340,7 +332,10 @@ lldb.SBType.unqualified = lambda self: self.GetUnqualifiedType()
 lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
-lldb.SBType.strip_typedefs = lambda self: self.GetCanonicalType()
+
+
+lldb.SBType.strip_typedefs = \
+    lambda self: self.GetCanonicalType() if hasattr(self, 'GetCanonicalType') else self
 
 lldb.SBType.__orig__str__ = lldb.SBType.__str__
 lldb.SBType.__str__ = lldb.SBType.GetName
@@ -466,6 +461,9 @@ class SubItem:
             value = component
             value.SetPreferSyntheticValue(False)
             self.name = value.GetName()
+            if self.name is None:
+                d.anonNumber += 1
+                self.name = "#%d" % d.anonNumber
         else:
             self.name = component
         self.iname = "%s.%s" % (d.currentIName, self.name)
@@ -517,6 +515,12 @@ class SubItem:
         self.d.currentTypePriority = self.savedTypePriority
         self.d.currentAddress = self.savedCurrentAddress
         return True
+
+class UnnamedSubItem(SubItem):
+    def __init__(self, d, component):
+        self.d = d
+        self.iname = "%s.%s" % (self.d.currentIName, component)
+        self.name = None
 
 class Dumper:
     def __init__(self):
@@ -851,6 +855,16 @@ class Dumper:
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
+    def firstUsableFrame(self):
+        thread = self.currentThread()
+        for i in xrange(4):
+            frame = thread.GetFrameAtIndex(i)
+            lineEntry = frame.GetLineEntry()
+            line = lineEntry.GetLine()
+            if line != 0:
+                return i
+        return None
+
     def reportStack(self, _ = None):
         if self.process is None:
             self.report('msg="No process"')
@@ -862,14 +876,11 @@ class Dumper:
             n = thread.GetNumFrames()
             if n > 4:
                 n = 4
-            firstUsable = None
             for i in xrange(n):
                 frame = thread.GetFrameAtIndex(i)
                 lineEntry = frame.GetLineEntry()
                 line = lineEntry.GetLine()
                 usable = line != 0
-                if usable and not firstUsable:
-                    firstUsable = i
                 result += '{pc="0x%x"' % frame.GetPC()
                 result += ',level="%d"' % frame.idx
                 result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
@@ -878,9 +889,7 @@ class Dumper:
                 result += ',fullname="%s"' % fileName(lineEntry.file)
                 result += ',usable="%d"' % usable
                 result += ',file="%s"},' % fileName(lineEntry.file)
-            if not firstUsable:
-                firstUsable = 0
-            result += '],hasmore="0",first-usable="%s"},' % firstUsable
+            result += '],hasmore="0"},'
             self.report(result)
 
     def putType(self, type, priority = 0):
@@ -915,8 +924,7 @@ class Dumper:
         if limit is None:
             return size
         if limit == 0:
-            #return min(size, qqStringCutOff)
-            return min(size, 100)
+            return min(size, qqStringCutOff)
         return min(size, limit)
 
     def putValue(self, value, encoding = None, priority = 0):
@@ -956,6 +964,7 @@ class Dumper:
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
+        value.SetPreferDynamicValue(tryDynamic)
 
         if tryDynamic:
             self.putAddress(value.address)
@@ -995,13 +1004,9 @@ class Dumper:
 
         # References
         if value.GetType().IsReferenceType():
-            type = value.GetType().GetDereferencedType().GetPointerType()
-            # FIXME: Find something more direct.
             origType = value.GetTypeName();
-            value = value.CreateValueFromAddress(value.GetName(),
-                value.AddressOf().GetValueAsUnsigned(), type).Dereference()
-            #value = value.cast(value.dynamic_type)
-            self.putItem(value)
+            type = value.GetType().GetDereferencedType()
+            self.putItem(createReferenceValue(value, value.GetAddress(), type))
             self.putBetterType(origType)
             return
 
@@ -1014,15 +1019,16 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
-            origType = value.GetType()
             innerType = value.GetType().GetPointeeType()
             self.putType(innerType)
             savedCurrentChildType = self.currentChildType
             self.currentChildType = str(innerType)
-            self.putItem(value.dereference())
-            self.currentChildType = savedCurrentChildType
-            self.put('origaddr="%s",' % value.address)
-            return
+            inner = value.Dereference()
+            if inner.IsValid():
+                self.putItem(inner)
+                self.currentChildType = savedCurrentChildType
+                self.put('origaddr="%s",' % value.address)
+                return
 
         #warn("VALUE: %s" % value)
         #warn("FANCY: %s" % self.useFancy)
@@ -1050,9 +1056,19 @@ class Dumper:
 
     def putFields(self, value):
         n = value.GetNumChildren()
+        m = value.GetType().GetNumberOfDirectBaseClasses()
         if n > 10000:
             n = 10000
-        for i in xrange(n):
+        # seems to happen in the 'inheritance' autotest
+        if m > n:
+            m = n
+        for i in xrange(m):
+            child = value.GetChildAtIndex(i)
+            with UnnamedSubItem(self, "@%d" % (i + 1)):
+                #self.put('iname="%s",' % self.currentIName)
+                self.put('name="[%s]",' % child.name)
+                self.putItem(child)
+        for i in xrange(m, n):
             child = value.GetChildAtIndex(i)
             with SubItem(self, child):
                 self.putItem(child)
@@ -1061,6 +1077,7 @@ class Dumper:
         frame = self.currentThread().GetSelectedFrame()
         self.currentIName = 'local'
         self.put('data=[')
+        self.anonNumber = -1
         for value in frame.GetVariables(True, True, False, False):
             if self.dummyValue is None:
                 self.dummyValue = value
@@ -1171,7 +1188,15 @@ class Dumper:
                 self.report('exited={status="%s",desc="%s"}'
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
-            self.reportData()
+            state = self.process.GetState()
+            if state == lldb.eStateStopped:
+                usableFrame = self.firstUsableFrame()
+                if usableFrame:
+                    self.currentThread().SetSelectedFrame(usableFrame)
+                self.reportStack()
+                self.reportThreads()
+                self.reportLocation()
+                self.reportVariables()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1193,30 +1218,37 @@ class Dumper:
             self.handleEvent(event)
 
     def describeBreakpoint(self, bp, modelId):
-        cond = bp.GetCondition()
-        result  = 'lldbid="%s"' % bp.GetID()
+        isWatch = isinstance(bp, lldb.SBWatchpoint)
+        if isWatch:
+            result  = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
+        else:
+            result  = 'lldbid="%s"' % bp.GetID()
         result += ',modelid="%s"' % modelId
+        if not bp.IsValid():
+            return
         result += ',hitcount="%s"' % bp.GetHitCount()
-        result += ',threadid="%s"' % bp.GetThreadID()
-        try:
+        if hasattr(bp, 'GetThreadID'):
+            result += ',threadid="%s"' % bp.GetThreadID()
+        if hasattr(bp, 'IsOneShot'):
             result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
-        except:
-            pass
+        if hasattr(bp, 'GetCondition'):
+            cond = bp.GetCondition()
+            result += ',condition="%s"' % binascii.hexlify("" if cond is None else cond)
         result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
-        result += ',condition="%s"' % ("" if cond is None else cond)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
         result += ',locations=['
-        for i in xrange(bp.GetNumLocations()):
-            loc = bp.GetLocationAtIndex(i)
-            addr = loc.GetAddress()
-            result += '{locid="%s"' % loc.GetID()
-            result += ',func="%s"' % addr.GetFunction().GetName()
-            result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
-            result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
-            result += ',valid="%s"' % (1 if loc.IsValid() else 0)
-            result += ',ignorecount="%s"' % loc.GetIgnoreCount()
-            result += ',addr="%s"},' % loc.GetLoadAddress()
+        if hasattr(bp, 'GetNumLocations'):
+            for i in xrange(bp.GetNumLocations()):
+                loc = bp.GetLocationAtIndex(i)
+                addr = loc.GetAddress()
+                result += '{locid="%s"' % loc.GetID()
+                result += ',func="%s"' % addr.GetFunction().GetName()
+                result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
+                result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
+                result += ',valid="%s"' % (1 if loc.IsValid() else 0)
+                result += ',ignorecount="%s"' % loc.GetIgnoreCount()
+                result += ',addr="%s"},' % loc.GetLoadAddress()
         result += '],'
         return result
 
@@ -1227,6 +1259,8 @@ class Dumper:
                 str(args["file"]), int(args["line"]))
         elif bpType == BreakpointByFunction:
             bpNew = self.target.BreakpointCreateByName(args["function"])
+        elif bpType == BreakpointByAddress:
+            bpNew = self.target.BreakpointCreateByAddress(args["address"])
         elif bpType == BreakpointAtMain:
             bpNew = self.target.BreakpointCreateByName(
                 "main", self.target.GetExecutable().GetFilename())
@@ -1236,29 +1270,49 @@ class Dumper:
         elif bpType == BreakpointAtCatch:
             bpNew = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, True, False)
+        elif bpType == WatchpointAtAddress:
+            error = lldb.SBError()
+            bpNew = self.target.WatchAddress(args["address"], 4, False, True, error)
+            #warn("BPNEW: %s" % bpNew)
+            self.reportError(error)
+        elif bpType == WatchpointAtExpression:
+            # FIXME: Top level-only for now.
+            try:
+                frame = self.currentFrame()
+                value = frame.FindVariable(args["expression"])
+                error = lldb.SBError()
+                bpNew = self.target.WatchAddress(value.GetAddress(),
+                    value.GetByteSize(), False, True, error)
+            except:
+                return
         else:
-            warn("UNKNOWN TYPE")
+            warn("UNKNOWN BREAKPOINT TYPE: %s" % bpType)
+            return
         bpNew.SetIgnoreCount(int(args["ignorecount"]))
-        bpNew.SetCondition(str(args["condition"]))
+        if hasattr(bpNew, 'SetCondition'):
+            bpNew.SetCondition(binascii.unhexlify(args["condition"]))
         bpNew.SetEnabled(int(args["enabled"]))
-        try:
+        if hasattr(bpNew, 'SetOneShot'):
             bpNew.SetOneShot(int(args["oneshot"]))
-        except:
-            pass
         return bpNew
 
     def changeBreakpoint(self, args):
-        bpChange = self.target.FindBreakpointByID(int(args["lldbid"]))
-        bpChange.SetIgnoreCount(int(args["ignorecount"]))
-        bpChange.SetCondition(str(args["condition"]))
-        bpChange.SetEnabled(int(args["enabled"]))
-        try:
-            bpChange.SetOneShot(int(args["oneshot"]))
-        except:
-            pass
+        id = int(args["lldbid"])
+        if id > qqWatchpointOffset:
+            bp = self.target.FindWatchpointByID(id)
+        else:
+            bp = self.target.FindBreakpointByID(id)
+        bp.SetIgnoreCount(int(args["ignorecount"]))
+        bp.SetCondition(binascii.unhexlify(args["condition"]))
+        bp.SetEnabled(int(args["enabled"]))
+        if hasattr(bp, 'SetOneShot'):
+            bp.SetOneShot(int(args["oneshot"]))
 
     def removeBreakpoint(self, args):
-        return self.target.BreakpointDelete(int(args["lldbid"]))
+        id = int(args['lldbid'])
+        if id > qqWatchpointOffset:
+            return self.target.DeleteWatchpoint(id - qqWatchpointOffset)
+        return self.target.BreakpointDelete(id)
 
     def handleBreakpoints(self, args):
         result = 'bkpts=['
@@ -1391,7 +1445,6 @@ class Dumper:
         self.reportData()
 
     def updateData(self, args):
-        warn("UPDATE 1")
         if 'expanded' in args:
             self.expandedINames = set(args['expanded'].split(','))
         if 'autoderef' in args:
@@ -1404,7 +1457,6 @@ class Dumper:
             self.passExceptions = int(args['passexceptions'])
         self.passExceptions = True # FIXME
         self.reportVariables(args)
-        warn("UPDATE 2")
 
     def disassemble(self, args):
         frame = self.currentFrame();

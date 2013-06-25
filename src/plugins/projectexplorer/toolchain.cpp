@@ -75,7 +75,7 @@ public:
 
 /*!
     \class ProjectExplorer::ToolChain
-    \brief Representation of a ToolChain.
+    \brief The ToolChain class represents a tool chain.
     \sa ProjectExplorer::ToolChainManager
 */
 

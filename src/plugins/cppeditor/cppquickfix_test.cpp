@@ -344,18 +344,25 @@ private:
     const QString m_include;
 };
 
+QString includeBaseDirectory()
+{
+    return QLatin1String(SRCDIR)
+        + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data");
+}
+
+QString globalQtCoreIncludePath()
+{
+    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/QtCore"));
+}
+
 QString globalIncludePath()
 {
-    const QString path = QLatin1String(SRCDIR)
-        + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data/global");
-    return QDir::cleanPath(path);
+    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/global"));
 }
 
 QString directoryOfTestFile()
 {
-    const QString path = QLatin1String(SRCDIR)
-        + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data/local");
-    return QDir::cleanPath(path);
+    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/local"));
 }
 
 } // anonymous namespace
@@ -398,6 +405,99 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
 
     GenerateGetterSetter factory;
     TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
+/// generated definitions should fit in the namespace.
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace()
+{
+    const QByteArray original =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int @it;\n"
+        "};\n"
+        "}\n";
+
+    const QByteArray expected =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int value);\n"
+        "};\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        "}\n\n";
+
+    GenerateGetterSetter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
+/// generated definitions should fit in the namespace.
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int @it;\n"
+        "};\n"
+        "}\n";
+    expected =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int value);\n"
+        "};\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    GenerateGetterSetter factory;
+    TestCase data(testFiles);
     data.run(&factory);
 }
 
@@ -774,6 +874,50 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_basic()
     data.run(&factory);
 }
 
+/// Check if definition is inserted right after class for insert definition outside
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a@();\n"
+        "};\n"
+        "\n"
+        "class Bar {};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a();\n"
+        "};\n"
+        "\n"
+        "void Foo::a()\n"
+        "{\n\n}\n"
+        "\n"
+        "class Bar {};\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::Foo()\n"
+        "{\n\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory, 1);
+}
+
 /// Check from header file: If there is a source file, insert the definition in the source file.
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
 {
@@ -979,6 +1123,58 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringStatement()
 
     InsertDefFromDecl factory;
     TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Find right implementation file.
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFile()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "struct Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a();\n"
+        "    void b@();\n"
+        "};\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File #1
+    original =
+            "#include \"file.h\"\n"
+            "\n"
+            "Foo::Foo()\n"
+            "{\n\n"
+            "}\n"
+            "\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+
+    // Source File #2
+    original =
+            "#include \"file.h\"\n"
+            "\n"
+            "void Foo::a()\n"
+            "{\n\n"
+            "}\n";
+    expected = original +
+            "\n"
+            "void Foo::b()\n"
+            "{\n\n"
+            "}\n"
+            "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file2.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
     data.run(&factory);
 }
 
@@ -1741,6 +1937,32 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
     data.run(&factory);
 }
 
+/// Check: If a "Qt Class" was not found by the locator, check the header files in the Qt
+/// include paths
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomethingInQtIncludePaths()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+        "@QDir dir;\n"
+        ;
+    expected =
+        "#include <QDir>\n"
+        "\n"
+        "QDir dir;\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+                                      + QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles, QStringList(globalQtCoreIncludePath()));
+    data.run(&factory);
+}
+
 /// Check: Move definition from header to cpp.
 void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 {
@@ -1778,6 +2000,53 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
         "    return 5;\n"
         "}\n"
         "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace SomeNamespace {\n"
+        "class Foo {\n"
+        "  int ba@r()\n"
+        "  {\n"
+        "    return 5;\n"
+        "  }\n"
+        "};\n"
+        "}\n";
+    expected =
+        "namespace SomeNamespace {\n"
+        "class Foo {\n"
+        "  int ba@r();\n"
+        "};\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "\n"
+        "}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "\n"
+        "int Foo::bar()\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n"
+        "\n"
+        "}\n\n";
     testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
 
     MoveFuncDefOutside factory;
@@ -1843,7 +2112,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
         "    int f2();\n"
         "    void f3();\n"
         "};\n"
-        "\n"
         "\n"
         "int Foo::f2()\n"
         "{\n"
@@ -2145,6 +2413,49 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
     data.run(&factory);
+}
+
+/// Check if definition is inserted right after class for move definition outside
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a@() {}\n"
+        "};\n"
+        "\n"
+        "class Bar {};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "    Foo();\n"
+        "    void a();\n"
+        "};\n"
+        "\n"
+        "void Foo::a() {}\n"
+        "\n"
+        "class Bar {};\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::Foo()\n"
+        "{\n\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    MoveFuncDefOutside factory;
+    TestCase data(testFiles);
+    data.run(&factory, 1);
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
@@ -2637,7 +2948,7 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInFunction()
 }
 
 /// Check: No trigger for functions in return statements (classes).
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass()
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass1()
 {
     const QByteArray original =
         "class Foo {public: static void fooFunc();}\n"
@@ -2651,14 +2962,43 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass()
     data.run(&factory);
 }
 
+/// Check: No trigger for functions in return statements (classes). (QTCREATORBUG-9525)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass2()
+{
+    const QByteArray original =
+        "class Foo {public: int fooFunc();}\n"
+        "int bar() {\n"
+        "    return (new Fo@o)->fooFunc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Check: No trigger for functions in return statements (functions).
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc()
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc1()
 {
     const QByteArray original =
         "class Foo {public: int fooFunc();}\n"
         "int bar() {\n"
         "    return Foo::fooFu@nc();\n"
         "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (functions). (QTCREATORBUG-9525)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc2()
+{
+    const QByteArray original =
+        "int bar() {\n"
+        "    return list.firs@t().foo;\n"
+        "}\n";
     const QByteArray expected = original + "\n";
 
     AssignToLocalVariable factory;

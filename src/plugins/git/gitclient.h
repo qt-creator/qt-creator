@@ -179,8 +179,7 @@ public:
     bool synchronousCheckout(const QString &workingDirectory, const QString &ref, QString *errorMessage);
     bool synchronousCheckout(const QString &workingDirectory, const QString &ref)
          { return synchronousCheckout(workingDirectory, ref, 0); }
-    void submoduleUpdate(const QString &workingDirectory);
-    void promptSubmoduleUpdate(const QString &workingDirectory);
+    void updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt);
 
     // Do a stash and return identier.
     enum { StashPromptDescription = 0x1, StashImmediateRestore = 0x2, StashIgnoreUnchanged = 0x4 };
@@ -208,6 +207,8 @@ public:
 
     QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
                                                  QString *errorMessage = 0);
+    QStringList synchronousSubmoduleStatus(const QString &workingDirectory,
+                                           QString *errorMessage = 0);
     SubmoduleDataMap submoduleList(const QString &workingDirectory);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
@@ -240,9 +241,7 @@ public:
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch);
     bool canRebase(const QString &workingDirectory) const;
-    bool synchronousRebase(const QString &workingDirectory,
-                           const QString &baseBranch,
-                           const QString &topicBranch = QString());
+    void rebase(const QString &workingDirectory, const QString &baseBranch);
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
     void interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup);
@@ -309,7 +308,7 @@ public:
     StashInfo &stashInfo(const QString &workingDirectory);
     void endStashScope(const QString &workingDirectory);
     bool isValidRevision(const QString &revision) const;
-    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
+    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QStringList &files, const QString &abortCommand);
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
@@ -326,6 +325,7 @@ private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
     void appendOutputData(const QByteArray &data) const;
     void appendOutputDataSilently(const QByteArray &data) const;
+    void finishSubmoduleUpdate();
 
 private:
     QTextCodec *getSourceCodec(const QString &file) const;
@@ -333,7 +333,8 @@ private:
                                                   const QString &dynamicPropertyValue) const;
     DiffEditor::DiffEditor *findExistingOrOpenNewDiffEditor(const char *registerDynamicProperty,
                                                const QString &dynamicPropertyValue,
-                                               const QString &titlePattern) const;
+                                               const QString &titlePattern,
+                                               const Core::Id editorId) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
@@ -394,6 +395,7 @@ private:
     GitSettings *m_settings;
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;
+    QStringList m_updatedSubmodules;
     bool m_disableEditor;
 };
 

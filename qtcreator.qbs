@@ -8,32 +8,36 @@ Project {
     property string ide_version_minor: '8'
     property string ide_version_release: '81'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
-    property string ide_app_path: qbs.targetOS == "mac" ? "" : "bin"
-    property string ide_app_target: qbs.targetOS == "mac" ? "Qt Creator" : "qtcreator"
+    property string ide_app_path: qbs.targetOS.contains("mac") ? "" : "bin"
+    property string ide_app_target: qbs.targetOS.contains("mac") ? "Qt Creator" : "qtcreator"
     property string ide_library_path: {
-        if (qbs.targetOS == "mac")
+        if (qbs.targetOS.contains("mac"))
             return ide_app_target + ".app/Contents/PlugIns"
-        else if (qbs.targetOS == "windows")
+        else if (qbs.targetOS.contains("windows"))
             return ide_app_path
         else
             return "lib/qtcreator"
     }
     property string ide_plugin_path: {
-        if (qbs.targetOS == "mac")
+        if (qbs.targetOS.contains("mac"))
             return ide_library_path
-        else if (qbs.targetOS == "windows")
+        else if (qbs.targetOS.contains("windows"))
             return "lib/qtcreator/plugins"
         else
             return ide_library_path + "/plugins"
     }
-    property string ide_data_path: qbs.targetOS == "mac" ? ide_app_target + ".app/Contents/Resources"
-                                                         : "share/qtcreator"
-    property string ide_libexec_path: qbs.targetOS == "mac" ? ide_data_path
-                                                            : ide_app_path
-    property string ide_doc_path: qbs.targetOS == "mac" ? ide_data_path + "/doc"
-                                                        : "share/doc/qtcreator"
-    property string ide_bin_path: qbs.targetOS == "mac" ? ide_app_target + ".app/Contents/MacOS"
-                                                        : ide_app_path
+    property string ide_data_path: qbs.targetOS.contains("mac")
+            ? ide_app_target + ".app/Contents/Resources"
+            : "share/qtcreator"
+    property string ide_libexec_path: qbs.targetOS.contains("mac")
+            ? ide_data_path
+            : ide_app_path
+    property string ide_doc_path: qbs.targetOS.contains("mac")
+            ? ide_data_path + "/doc"
+            : "share/doc/qtcreator"
+    property string ide_bin_path: qbs.targetOS.contains("mac")
+            ? ide_app_target + ".app/Contents/MacOS"
+            : ide_app_path
     moduleSearchPaths: "qbs"
 
     references: [
@@ -170,7 +174,7 @@ Project {
         name: project.ide_app_target
         consoleApplication: qbs.debugInformation
 
-        cpp.rpaths: qbs.targetOS == "mac" ? ["@executable_path/.."]
+        cpp.rpaths: qbs.targetOS.contains("mac") ? ["@executable_path/.."]
                                           : ["$ORIGIN/../lib/qtcreator"]
         cpp.defines: Defaults.defines(qbs)
         cpp.linkerFlags: {
@@ -205,7 +209,7 @@ Project {
 
         Group {
             name: "qtcreator.sh"
-            condition: qbs.targetPlatform.indexOf("unix") != -1 && qbs.targetOS != "mac"
+            condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("mac")
             files: "bin/qtcreator.sh"
             qbs.install: true
             qbs.installDir: "bin"
@@ -213,7 +217,7 @@ Project {
 
         Group {
             name: "QtLockedFile_unix"
-            condition: qbs.targetPlatform.indexOf("unix") != -1
+            condition: qbs.targetOS.contains("unix")
             files: [
                 "src/shared/qtlockedfile/qtlockedfile_unix.cpp"
             ]
@@ -221,7 +225,7 @@ Project {
 
         Group {
             name: "QtLockedFile_win"
-            condition: qbs.targetOS == "windows"
+            condition: qbs.targetOS.contains("windows")
             files: [
                 "src/shared/qtlockedfile/qtlockedfile_win.cpp"
             ]

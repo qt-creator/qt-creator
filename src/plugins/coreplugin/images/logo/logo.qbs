@@ -1,7 +1,7 @@
 import qbs.base 1.0
 
 Product {
-    condition: qbs.targetOS == "linux"
+    condition: qbs.targetOS.contains("linux")
     name: "LogoImages"
 
     Group {

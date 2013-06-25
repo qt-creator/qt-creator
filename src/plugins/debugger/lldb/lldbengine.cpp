@@ -342,7 +342,8 @@ bool LldbEngine::attemptBreakpointSynchronizationHelper(Command *cmd)
     cmd->beginList("bkpts");
     foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
         const BreakpointResponse &response = handler->response(id);
-        switch (handler->state(id)) {
+        const BreakpointState bpState = handler->state(id);
+        switch (bpState) {
         case BreakpointNew:
             // Should not happen once claimed.
             QTC_CHECK(false);
@@ -354,12 +355,14 @@ bool LldbEngine::attemptBreakpointSynchronizationHelper(Command *cmd)
                     .arg("modelid", id.toByteArray())
                     .arg("type", handler->type(id))
                     .arg("ignorecount", handler->ignoreCount(id))
-                    .arg("condition", handler->condition(id))
+                    .arg("condition", handler->condition(id).toHex())
                     .arg("function", handler->functionName(id).toUtf8())
                     .arg("oneshot", handler->isOneShot(id))
                     .arg("enabled", handler->isEnabled(id))
                     .arg("file", handler->fileName(id).toUtf8())
                     .arg("line", handler->lineNumber(id))
+                    .arg("address", handler->address(id))
+                    .arg("expression", handler->expression(id))
                     .endGroup();
             handler->notifyBreakpointInsertProceeding(id);
             break;
@@ -371,12 +374,14 @@ bool LldbEngine::attemptBreakpointSynchronizationHelper(Command *cmd)
                     .arg("lldbid", response.id.toByteArray())
                     .arg("type", handler->type(id))
                     .arg("ignorecount", handler->ignoreCount(id))
-                    .arg("condition", handler->condition(id))
+                    .arg("condition", handler->condition(id).toHex())
                     .arg("function", handler->functionName(id).toUtf8())
                     .arg("oneshot", handler->isOneShot(id))
                     .arg("enabled", handler->isEnabled(id))
                     .arg("file", handler->fileName(id).toUtf8())
                     .arg("line", handler->lineNumber(id))
+                    .arg("address", handler->address(id))
+                    .arg("expression", handler->expression(id))
                     .endGroup();
             handler->notifyBreakpointChangeProceeding(id);
             break;
@@ -394,10 +399,10 @@ bool LldbEngine::attemptBreakpointSynchronizationHelper(Command *cmd)
         case BreakpointRemoveProceeding:
         case BreakpointInserted:
         case BreakpointDead:
-            QTC_CHECK(false);
+            QTC_ASSERT(false, qDebug() << "UNEXPECTED STATE" << bpState << "FOR BP " << id);
             break;
         default:
-            QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
+            QTC_ASSERT(false, qDebug() << "UNKNOWN STATE" << bpState << "FOR BP" << id);
         }
     }
     cmd->endList();
@@ -433,7 +438,7 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
     response.address = 0;
     response.enabled = bkpt["enabled"].toInt();
     response.ignoreCount = bkpt["ignorecount"].toInt();
-    response.condition = bkpt["condition"].data();
+    response.condition = QByteArray::fromHex(bkpt["condition"].data());
     response.hitCount = bkpt["hitcount"].toInt();
 
     if (added) {
@@ -814,14 +819,16 @@ void LldbEngine::readLldbStandardError()
     QByteArray err = m_lldbProc.readAllStandardError();
     qDebug() << "\nLLDB STDERR" << err;
     //qWarning() << "Unexpected lldb stderr:" << err;
-    showMessage(_("Lldb stderr: " + err));
-    m_lldbProc.kill();
+    showMessage(_(err), LogError);
+    if (!err.startsWith("warning:"))
+        m_lldbProc.kill();
 }
 
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
-    showMessage(_("Lldb stdout: " + out));
+    //showMessage(_("Lldb stdout: " + out));
+    showMessage(_(out), LogDebug);
     m_inbuffer.append(out);
     while (true) {
         int pos = m_inbuffer.indexOf("@\n");

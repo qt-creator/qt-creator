@@ -44,9 +44,11 @@ enum { FileNameRole = Qt::UserRole + 1 };
 
 /*!
     \class Core::Internal::PromptOverwriteDialog
-    \brief Prompts the user to overwrite a list of files, which he can check.
+    \brief The PromptOverwriteDialog class implements a dialog that asks
+    users whether they want to overwrite files.
 
-    Displays the common folder and the files in a checkable list.
+    The dialog displays the common folder and the files in a list where users
+    can select the files to overwrite.
 */
 
 static inline QString fileNameOfItem(const QStandardItem *item)

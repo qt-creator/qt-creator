@@ -37,7 +37,8 @@ namespace Git {
 namespace Internal {
 
 /*!
- * \brief Validates the corresponding string as a valid git branch name
+ * \brief The BranchNameValidator class validates the corresponding string as
+ * a valid Git branch name.
  *
  * The class does this by a couple of rules that are applied on the string.
  *
@@ -124,12 +125,14 @@ QString BranchAddDialog::branchName() const
 void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
 {
     m_ui->trackingCheckBox->setVisible(true);
-    if (!name.isEmpty())
+    if (!name.isEmpty()) {
         m_ui->trackingCheckBox->setText(remote ? tr("Track remote branch \'%1\'").arg(name) :
                                                  tr("Track local branch \'%1\'").arg(name));
-    else
+        m_ui->trackingCheckBox->setChecked(remote);
+    } else {
         m_ui->trackingCheckBox->setVisible(false);
-    m_ui->trackingCheckBox->setChecked(remote);
+        m_ui->trackingCheckBox->setChecked(false);
+    }
 }
 
 bool BranchAddDialog::track()

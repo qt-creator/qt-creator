@@ -32,7 +32,8 @@
 /*!
 \class QmlDesigner::InvalidQmlSourceException
 \ingroup CoreExceptions
-\brief Exception for invalid qml source code
+\brief The InvalidQmlSourceException class provides an exception for invalid QML
+source code.
 
 */
 namespace QmlDesigner {

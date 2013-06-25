@@ -68,7 +68,8 @@ typedef long suseconds_t;
 /*!
   \namespace ZeroConf
 
-  \brief namespace for zeroconf (Bonjour/DNS-SD) functionality, currently mostly for browsing services.
+    \brief The ZeroConf namespace provides zeroconf (Bonjour/DNS-SD)
+    functionality, currently mostly for browsing services.
 */
 
 namespace { // anonymous namespace for free functions
@@ -220,9 +221,8 @@ int gQuickStop = 0;
 /*!
   \class ZeroConf::ErrorMessage
 
-  \brief class representing an error message
+  \brief The ErrorMessage class represents an error message.
 
-  very simple class representing an error message
  */
 
 /// empty constructor (required by qRegisterMetaType)
@@ -258,7 +258,7 @@ QDebug operator<<(QDebug dbg, const ErrorMessage &eMsg)
 /*!
   \class ZeroConf::Service
 
-  \brief class representing a zeroconf service
+  \brief The Service class represents a zeroconf service.
 
   Instances of this class are basically constant, but can be outdated. They are normally accessed
   through a Shared pointer.
@@ -448,7 +448,8 @@ QDebug operator<<(QDebug dbg, const Service::ConstPtr &service){
 /*!
   \class ZeroConf::ServiceBrowser
 
-  \brief class that browses (searches) for a given zeronconf service
+  \brief The ServiceBrowser class browses (searches) for a given zeronconf
+  service.
 
   The actual browsing starts only when startBrowsing() is called. If you want to receive all service
   changes connect before starting browsing.

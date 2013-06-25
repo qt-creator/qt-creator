@@ -55,6 +55,14 @@ using namespace CppTools;
 using namespace CPlusPlus;
 using namespace TextEditor;
 
+///
+/// Adding New Quick Fixes
+///
+/// When adding new Quick Fixes, make sure that the match() function is "cheap".
+/// Otherwise, since the match() functions are also called to generate context menu
+/// entries, the user might experience a delay opening the context menu.
+///
+
 namespace CppEditor {
 namespace Internal {
 

@@ -67,13 +67,13 @@ using namespace Macros::Internal;
 
 /*!
     \namespace Macros
-    \brief The Macros namespace contains support for macros in Qt Creator.
+    \brief The Macros namespace contains support for macros in \QC.
 */
 
 /*!
 
     \class Macro::MacroManager
-    \brief Manager for macros.
+    \brief The MacroManager class implements a manager for macros.
 
     The MacroManager manage all macros, it loads them on startup, keep track of the
     current macro and create new macros.

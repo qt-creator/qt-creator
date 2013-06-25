@@ -18,23 +18,40 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
-def qByteArrayData(d, value):
-    private = value['d'].dereference()
-    checkRef(private['ref'])
-    size = int(private['size'])
-    alloc = int(private['alloc'])
+def checkSimpleRef(ref):
+    count = int(ref["_q_value"])
+    check(count > 0)
+    check(count < 1000000)
+
+def checkRef(ref):
+    try:
+        count = int(ref["atomic"]["_q_value"]) # Qt 5.
+        minimum = -1
+    except:
+        count = int(ref["_q_value"]) # Qt 4.
+        minimum = 0
+    # Assume there aren't a million references to any object.
+    check(count >= minimum)
+    check(count < 1000000)
+
+
+def qByteArrayDataData(d, value):
+    checkRef(value['ref'])
+    size = int(value['size'])
+    alloc = int(value['alloc'])
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        addr = d.addressOf(private) + int(private['offset'])
+        addr = d.addressOf(value) + int(value['offset'])
     except:
         # Qt 4:
-        addr = private['data']
+        addr = value['data']
     return createPointerValue(value, addr, d.charType()), size, alloc
 
-qStringData = qByteArrayData
+def qByteArrayData(d, value):
+    return d.byteArrayDataData(value['d'].dereference())
 
 def qEncodeByteArray(d, value, limit = None):
-    data, size, alloc = qByteArrayData(d, value)
+    data, size, alloc = d.byteArrayData(value)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     limit = d.computeLimit(size, limit)
@@ -44,7 +61,7 @@ def qEncodeByteArray(d, value, limit = None):
     return s
 
 def qEncodeString(d, value, limit = 0):
-    data, size, alloc = qStringData(d, value)
+    data, size, alloc = d.stringData(value)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     limit = d.computeLimit(size, limit)
@@ -52,12 +69,6 @@ def qEncodeString(d, value, limit = 0):
     if limit < size:
         s += "2e002e002e00"
     return s
-
-def qPutByteArrayValue(d, value):
-    d.putValue(qEncodeByteArray(d, value), Hex2EncodedLatin1)
-
-def qPutStringValue(d, value):
-    d.putValue(qEncodeString(d, value), Hex4EncodedLittleEndian)
 
 def mapForms():
     return "Normal,Compact"
@@ -87,16 +98,21 @@ def qPutMapName(d, value):
 
 Dumper.encodeByteArray = qEncodeByteArray
 Dumper.byteArrayData = qByteArrayData
-Dumper.putByteArrayValue = qPutByteArrayValue
+Dumper.byteArrayDataData = qByteArrayDataData
+Dumper.putByteArrayValue = \
+    lambda d, value: d.putValue(d.encodeByteArray(value), Hex2EncodedLatin1)
+Dumper.putStringValue = \
+    lambda d, value: d.putValue(d.encodeString(value), Hex4EncodedLittleEndian)
+
 Dumper.encodeString = qEncodeString
-Dumper.stringData = qStringData
-Dumper.putStringValue = qPutStringValue
+Dumper.stringData = Dumper.byteArrayData
 Dumper.putMapName = qPutMapName
 
 Dumper.isMapCompact = \
     lambda d, keyType, valueType: qMapCompact(d.currentItemFormat(), keyType, valueType)
 
 
+# Returns True when it encounters a QObject or derived class.
 def tryPutObjectNameValue(d, value):
     try:
         # Is this derived from QObject?
@@ -116,8 +132,9 @@ def tryPutObjectNameValue(d, value):
             if size > 0:
                 str = d.readRawMemory(data, 2 * size)
                 d.putValue(str, Hex4EncodedLittleEndian, 1)
+        return True
     except:
-        pass
+        return False
 
 Dumper.tryPutObjectNameValue = tryPutObjectNameValue
 
@@ -144,22 +161,29 @@ def qdump__QBasicAtomicPointer(d, value):
         with Children(d):
            d.putItem(value["_q_value"])
 
+def qdump__QByteArrayData(d, value):
+    data, size, alloc = d.byteArrayDataData(value)
+    d.putValue(d.readRawMemory(data, size), Hex2EncodedLatin1)
+    d.putNumChild(size)
+    if d.isExpanded():
+        d.putArrayData(d.charType(), data, size)
+
 def qform__QByteArray():
     return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
 
 def qdump__QByteArray(d, value):
     d.putByteArrayValue(value)
-    data, size, alloc = qByteArrayData(d, value)
+    data, size, alloc = d.byteArrayData(value)
     d.putNumChild(size)
     format = d.currentItemFormat()
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayLatin1String)
-        d.putField("editvalue", qEncodeByteArray(d, value, None))
+        d.putField("editvalue", d.encodeByteArray(value, None))
     elif format == 3:
         d.putField("editformat", DisplayUtf8String)
-        d.putField("editvalue", qEncodeByteArray(d, value, None))
+        d.putField("editvalue", d.encodeByteArray(value, None))
     if d.isExpanded():
         d.putArrayData(d.charType(), data, size)
 
@@ -313,47 +337,50 @@ def qdump__QTime(d, value):
         d.putValue(value["mds"], MillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
-            qt = d.ns + "Qt::"
+            qtdate = d.ns + "Qt::"
+            qttime = d.ns + "Qt::"
             if lldbLoaded:
-                qt += "DateFormat::" # FIXME: Bug?...
+                qtdate += "DateFormat::" # FIXME: Bug?...
+                qttime += "TimeSpec::"
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                d.putCallItem("toString", value, "toString", qt + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
+                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
                 d.putCallItem("(SystemLocale)", value, "toString",
-                     qt + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
-                d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
+                     qtdate + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
+                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
 
 
+# This relies on the Qt4/Qt5 internal structure layout:
+# {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
-    try:
-        # Fails without debug info.
-        p = value["d"]["d"].dereference()
-    except:
-        d.putPlainChildren(value)
-        return
-    mds = int(p["time"]["mds"])
+    intType = d.lookupType("int")
+    intPtrType = intType.pointer()
+    base = pointerValue(value.cast(intPtrType))
+    mds = int(createReferenceValue(value, base + intPtrType.sizeof + 8, intType))
     if mds >= 0:
-        d.putValue("%s/%s" % (int(p["date"]["jd"]), mds),
-            JulianDateAndMillisecondsSinceMidnight)
+        jd = int(createReferenceValue(value, base + intPtrType.sizeof, intType))
+        d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                qt = d.ns + "Qt::"
+                qtdate = d.ns + "Qt::"
+                qttime = d.ns + "Qt::"
                 if lldbLoaded:
-                    qt += "DateFormat::" # FIXME: Bug?...
+                    qtdate += "DateFormat::" # FIXME: Bug?...
+                    qttime += "TimeSpec::" # FIXME: Bug?...
                 d.putCallItem("toTime_t", value, "toTime_t")
-                d.putCallItem("toString", value, "toString", qt + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
-                d.putCallItem("(SystemLocale)", value, "toString", qt + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
-                d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
-                d.putCallItem("toLocalTime", value, "toTimeSpec", qt + "LocalTime")
+                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
+                d.putCallItem("(SystemLocale)", value, "toString", qtdate + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
+                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
+                d.putCallItem("toLocalTime", value, "toTimeSpec", qttime + "LocalTime")
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -627,7 +654,7 @@ def qdump__QHostAddress(d, value):
     if int(data["ipString"]["d"]["size"]):
         d.putStringValue(data["ipString"])
     else:
-        a = long(data["a"])
+        a = int(data["a"])
         a, n4 = divmod(a, 256)
         a, n3 = divmod(a, 256)
         a, n2 = divmod(a, 256)
@@ -684,20 +711,12 @@ def qform__QImage():
     return "Normal,Displayed"
 
 def qdump__QImage(d, value):
-    try:
-        painters = int(value["painters"])
-    except:
-        d.putPlainChildren(value)
-        return
-    check(0 <= painters and painters < 1000)
-    d_ptr = value["d"]
-    if isNull(d_ptr):
-        d.putValue("(null)")
-    else:
-        checkSimpleRef(d_ptr["ref"])
-        d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
-    bits = d_ptr["data"]
-    nbytes = d_ptr["nbytes"]
+    # This relies on current QImage layout
+    intPtrType = d.lookupType("int").pointer()
+    base = createReferenceValue(value, d.addressOf(value) + 3 * intPtrType.sizeof, intPtrType)
+    width = int(base[1])
+    height = int(base[2])
+    d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(0)
     #d.putNumChild(1)
     if d.isExpanded():
@@ -710,13 +729,16 @@ def qdump__QImage(d, value):
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
+        d_ptr = value["d"]
+        bits = d_ptr["data"]
+        nbytes = d_ptr["nbytes"]
         if False:
             # Take four bytes at a time, this is critical for performance.
             # In fact, even four at a time is too slow beyond 100x100 or so.
             d.putField("editformat", DisplayImageData)
             d.put('%s="' % name)
-            d.put("%08x" % int(d_ptr["width"]))
-            d.put("%08x" % int(d_ptr["height"]))
+            d.put("%08x" % width)
+            d.put("%08x" % height)
             d.put("%08x" % int(d_ptr["format"]))
             p = bits.cast(d.intType().pointer())
             for i in xrange(nbytes / 4):
@@ -731,7 +753,7 @@ def qdump__QImage(d, value):
             gdb.execute("dump binary memory %s %s %s" %
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
             d.putDisplay(DisplayImageFile, " %d %d %d %s"
-                % (d_ptr["width"], d_ptr["height"], d_ptr["format"], filename))
+                % (width, height, d_ptr["format"], filename))
 
 
 def qdump__QLinkedList(d, value):
@@ -970,9 +992,6 @@ def qdump__QObject(d, value):
     d_ptr = dd.cast(privateType.pointer()).dereference()
     #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
-    if not isAccessible(mo):
-        d.putInaccessible()
-        return
     if isNull(mo):
         mo = staticMetaObject
     #warn("MO: %s " % mo)
@@ -1067,7 +1086,7 @@ def qdump__QObject(d, value):
                         for i in xrange(dynamicPropertyCount):
                             with SubItem(d, i):
                                 pp = p.cast(namesType.pointer()).dereference();
-                                d.putField("key", qEncodeByteArray(d, pp))
+                                d.putField("key", d.encodeByteArray(pp))
                                 d.putField("keyencoded", Hex2EncodedLatin1)
                                 qq = q.cast(valuesType.pointer().pointer())
                                 qq = qq.dereference();
@@ -1599,7 +1618,7 @@ def qedit__QString(expr, value):
     cmd = "call (%s).resize(%d)" % (expr, len(value))
     gdb.execute(cmd)
     d = gdb.parse_and_eval(expr)["d"]["data"]
-    cmd = "set {short[%d]}%s={" % (len(value), long(d))
+    cmd = "set {short[%d]}%s={" % (len(value), pointerValue(d))
     for i in range(len(value)):
         if i != 0:
             cmd += ','
@@ -1618,12 +1637,12 @@ def qdump__QString(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayUtf16String)
-        d.putField("editvalue", qEncodeString(d, value, None))
+        d.putField("editvalue", d.encodeString(value, None))
 
 
 def qdump__QStringRef(d, value):
     s = value["m_string"].dereference()
-    data, size, alloc = qStringData(d, s)
+    data, size, alloc = d.stringData(s)
     data += 2 * int(value["m_position"])
     size = value["m_size"]
     s = d.readRawMemory(data, 2 * size)
@@ -1695,10 +1714,10 @@ def qdump__QUrl(d, value):
         try:
             # Qt 5
             data = value["d"].dereference()
-            str = qEncodeString(d, data["scheme"])
+            str = d.encodeString(data["scheme"])
             str += "3a002f002f00"
-            str += qEncodeString(d, data["host"])
-            str += qEncodeString(d, data["path"])
+            str += d.encodeString(data["host"])
+            str += d.encodeString(data["path"])
             d.putValue(str, Hex4EncodedLittleEndian)
         except:
             d.putPlainChildren(value)
@@ -1907,7 +1926,7 @@ def qedit__QVector(expr, value):
     gdb.execute(cmd)
     innerType = d.templateArgument(ob.type, 0)
     ptr = ob["p"]["array"].cast(d.voidPtrType())
-    cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), long(ptr), value)
+    cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), pointerValue(ptr), value)
     gdb.execute(cmd)
 
 
@@ -2003,7 +2022,7 @@ def qdump____c_style_array__(d, value):
         # Explicitly requested Local 8-bit formatting.
         d.putValue(blob, Hex2EncodedLocal8Bit)
     else:
-        d.putValue("@0x%x" % long(value.cast(targetType.pointer())))
+        d.putValue("@0x%x" % pointerValue(value.cast(targetType.pointer())))
 
     if d.currentIName in d.expandedINames:
         p = value.address
@@ -2295,10 +2314,10 @@ def qdump__std__shared_ptr(d, value):
         return
 
     if isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference(), long(i)))
+        d.putValue("%s @0x%x" % (i.dereference(), pointerValue(i)))
     else:
         i = expensiveDowncast(i)
-        d.putValue("@0x%x" % long(i))
+        d.putValue("@0x%x" % pointerValue(i))
 
     d.putNumChild(3)
     with Children(d, 3):
@@ -2316,10 +2335,10 @@ def qdump__std__unique_ptr(d, value):
         return
 
     if isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference(), long(i)))
+        d.putValue("%s @0x%x" % (i.dereference(), pointerValue(i)))
     else:
         i = expensiveDowncast(i)
-        d.putValue("@0x%x" % long(i))
+        d.putValue("@0x%x" % pointerValue(i))
 
     d.putNumChild(1)
     with Children(d, 1):
@@ -2440,17 +2459,17 @@ def qdump__boost__bimaps__bimap(d, value):
 
 
 def qdump__boost__optional(d, value):
-    if value["m_initialized"] == False:
+    if int(value["m_initialized"]) == 0:
         d.putValue("<uninitialized>")
         d.putNumChild(0)
     else:
-        d.putBetterType(value.type)
         type = d.templateArgument(value.type, 0)
         storage = value["m_storage"]
         if type.code == ReferenceCode:
             d.putItem(storage.cast(type.target().pointer()).dereference())
         else:
             d.putItem(storage.cast(type))
+        d.putBetterType(value.type)
 
 
 def qdump__boost__shared_ptr(d, value):
@@ -2479,6 +2498,7 @@ def qdump__boost__shared_ptr(d, value):
     if isSimpleType(val.type):
         d.putNumChild(3)
         d.putItem(val)
+        d.putBetterType(value.type)
     else:
         d.putEmptyValue()
 
@@ -2491,18 +2511,18 @@ def qdump__boost__shared_ptr(d, value):
 
 
 def qdump__boost__gregorian__date(d, value):
-    d.putValue(value["days_"], JulianDate)
+    d.putValue(int(value["days_"]), JulianDate)
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__ptime(d, item):
-    ms = long(item["time_"]["time_count_"]["value_"]) / 1000
+    ms = int(item["time_"]["time_count_"]["value_"]) / 1000
     d.putValue("%s/%s" % divmod(ms, 86400000), JulianDateAndMillisecondsSinceMidnight)
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__time_duration(d, item):
-    d.putValue(long(item["ticks_"]["value_"]) / 1000, MillisecondsSinceMidnight)
+    d.putValue(int(item["ticks_"]["value_"]) / 1000, MillisecondsSinceMidnight)
     d.putNumChild(0)
 
 
@@ -2569,11 +2589,11 @@ def qdump__QTJSC__JSValue(d, value):
             payload = value["u"]["asBits"]["payload"]
             #d.putIntItem("tag", tag)
             with SubItem(d, "tag"):
-                d.putValue(jstagAsString(long(tag)))
+                d.putValue(jstagAsString(int(tag)))
                 d.putNoType()
                 d.putNumChild(0)
 
-            d.putIntItem("payload", long(payload))
+            d.putIntItem("payload", int(payload))
             d.putFields(value["u"])
 
             if tag == -2:
@@ -2607,12 +2627,12 @@ def qdump__QScriptValue(d, value):
         d.putValue("(invalid)")
         d.putNumChild(0)
         return
-    if long(dd["type"]) == 1: # Number
+    if int(dd["type"]) == 1: # Number
         d.putValue(dd["numberValue"])
         d.putType("%sQScriptValue (Number)" % d.ns)
         d.putNumChild(0)
         return
-    if long(dd["type"]) == 2: # String
+    if int(dd["type"]) == 2: # String
         d.putStringValue(dd["stringValue"])
         d.putType("%sQScriptValue (String)" % d.ns)
         return
@@ -2621,8 +2641,8 @@ def qdump__QScriptValue(d, value):
     x = dd["jscValue"]["u"]
     tag = x["asBits"]["tag"]
     payload = x["asBits"]["payload"]
-    #isValid = long(x["asBits"]["tag"]) != -6   # Empty
-    #isCell = long(x["asBits"]["tag"]) == -2
+    #isValid = int(x["asBits"]["tag"]) != -6   # Empty
+    #isCell = int(x["asBits"]["tag"]) == -2
     #warn("IS CELL: %s " % isCell)
     #isObject = False
     #className = "UNKNOWN NAME"
@@ -2639,7 +2659,7 @@ def qdump__QScriptValue(d, value):
     #    warn("DYNAMIC TYPE: %s" % dtype)
     #    warn("STATUC  %s" % cell.type)
     #    type = cell["m_structure"]["m_typeInfo"]["m_type"]
-    #    isObject = long(type) == 7 # ObjectType;
+    #    isObject = int(type) == 7 # ObjectType;
     #    className = "UNKNOWN NAME"
     #warn("IS OBJECT: %s " % isObject)
 
@@ -2753,14 +2773,14 @@ def qdump__Utils__ElfSection(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Token(d, value):
-    k = value["f"]["kind"];
-    if long(k) == 6:
+    k = int(value["f"]["kind"])
+    if int(k) == 6:
         d.putValue("T_IDENTIFIER. offset: %d, len: %d"
             % (value["offset"], value["f"]["length"]))
-    elif long(k) == 7:
+    elif int(k) == 7:
         d.putValue("T_NUMERIC_LITERAL. offset: %d, value: %d"
             % (value["offset"], value["f"]["length"]))
-    elif long(k) == 60:
+    elif int(k) == 60:
         d.putValue("T_RPAREN")
     else:
         d.putValue("Type: %s" % k)
@@ -2769,8 +2789,8 @@ def qdump__CPlusPlus__Token(d, value):
 def qdump__CPlusPlus__Internal__PPToken(d, value):
     k = value["f"]["kind"];
     data, size, alloc = d.byteArrayData(value["m_src"])
-    length = long(value["f"]["length"])
-    offset = long(value["offset"])
+    length = int(value["f"]["length"])
+    offset = int(value["offset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
     d.putValue(encodeCharArray(data + offset, 100, length),
@@ -2909,9 +2929,9 @@ if False:
     def qdump__basic__Function(d, value):
         min = value["min"]
         max = value["max"]
-        data, size, alloc = qByteArrayData(d, value["var"])
+        data, size, alloc = d.byteArrayData(value["var"])
         var = extractCString(data, 0)
-        data, size, alloc = qByteArrayData(d, value["f"])
+        data, size, alloc = d.byteArrayData(value["f"])
         f = extractCString(data, 0)
         d.putValue("%s, %s=%f..%f" % (f, var, min, max))
         d.putNumChild(0)

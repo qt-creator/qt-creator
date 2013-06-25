@@ -29,7 +29,6 @@
 
 #include "command.h"
 
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
@@ -202,8 +201,6 @@ void Command::execute()
     if (d->m_jobs.empty())
         return;
 
-    if (d->m_expectChanges)
-        Core::DocumentManager::expectDirectoryChange(d->m_workingDirectory);
     // For some reason QtConcurrent::run() only works on this
     QFuture<void> task = QtConcurrent::run(this, &Command::run);
     QString binary = QFileInfo(d->m_binaryPath).baseName();
@@ -305,9 +302,6 @@ void Command::run()
         if (d->m_expectChanges)
             Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
     }
-
-    if (d->m_expectChanges)
-        Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
 
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();

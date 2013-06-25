@@ -33,7 +33,8 @@ using namespace QmlJS;
 
 /*!
     \class QmlJS::ModelManagerInterface
-    \brief Interface to the global state of the QmlJS code model.
+    \brief The ModelManagerInterface class acts as an interface to the
+    global state of the QmlJS code model.
     \sa QmlJS::Document QmlJS::Snapshot QmlJSTools::Internal::ModelManager
 
     The ModelManagerInterface is an interface for global state and actions in

@@ -68,13 +68,13 @@ void QbsLogSink::sendMessages()
         mm->printToOutputPane(msg, Core::MessageManager::NoModeSwitch);
 }
 
-void QbsLogSink::doPrintWarning(const qbs::Error &warning)
+void QbsLogSink::doPrintWarning(const qbs::ErrorInfo &warning)
 {
-    foreach (const qbs::ErrorData &data, warning.entries())
+    foreach (const qbs::ErrorItem &item, warning.items())
         emit newTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
-                                           data.description(),
-                                           Utils::FileName::fromString(data.codeLocation().fileName()),
-                                           data.codeLocation().line(),
+                                           item.description(),
+                                           Utils::FileName::fromString(item.codeLocation().fileName()),
+                                           item.codeLocation().line(),
                                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 

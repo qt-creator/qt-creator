@@ -785,7 +785,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.enableMessage(StaticAnalysis::WarnImperativeCodeNotEditableInVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnUnsupportedTypeInVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
-            check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
+            //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnStatesOnlyInRootItemForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {

@@ -33,7 +33,8 @@
     \class Core::IFeatureProvider
     \mainclass
 
-    \brief The class IFeatureProvider defines an interface to manage features for wizards
+    \brief The IFeatureProvider class defines an interface to manage features
+    for wizards.
 
     The features provided by an object in the object pool implementing IFeatureProvider
     will be respected by wizards implementing IWizard.
@@ -68,10 +69,8 @@
 /*!
     \class Core::Feature
 
-    \brief This class describes a single Feature
-
-    This class describes a single Feature to be used
-    in Core::FeatureProvider::Features.
+    \brief The Feature class describes a single feature to be used in
+    Core::FeatureProvider::Features.
 
     \sa Core::FeaturesSet
     \sa Core::IWizard
@@ -81,12 +80,10 @@
 /*!
     \class Core::FeatureSet
 
-    \brief This class is a set of features
+    \brief The FeatureSet class is a set of available or required feature sets.
 
-    Features is used to describe available or
-    required feature sets and behaves similar to QFlags.
-
-    But instead of enums Features relies on string ids
+    This class behaves similarly to QFlags. However, instead of enums, Features
+    relies on string ids
     and is therefore extendable.
 
     \sa Core::Feature

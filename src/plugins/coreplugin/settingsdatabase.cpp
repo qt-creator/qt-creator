@@ -42,7 +42,8 @@
 
 /*!
     \class Core::SettingsDatabase
-    \brief An alternative to the application-wide QSettings that is more
+    \brief The SettingsDatabase class offers an alternative to the
+    application-wide QSettings that is more
     suitable for storing large amounts of data.
 
     The settings database is SQLite based, and lazily retrieves data when it

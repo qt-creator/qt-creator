@@ -101,6 +101,8 @@ AndroidRunner::AndroidRunner(QObject *parent,
     QByteArray which = psProc.readAll();
     m_isBusyBox = which.startsWith("busybox");
 
+    m_checkPIDTimer.setInterval(1000);
+
     connect(&m_adbLogcatProcess, SIGNAL(readyReadStandardOutput()), SLOT(logcatReadStandardOutput()));
     connect(&m_adbLogcatProcess, SIGNAL(readyReadStandardError()), SLOT(logcatReadStandardError()));
     connect(&m_checkPIDTimer, SIGNAL(timeout()), SLOT(checkPID()));
@@ -154,8 +156,10 @@ void AndroidRunner::checkPID()
         return;
     QByteArray psOut = runPs();
     m_processPID = extractPid(m_packageName, psOut);
-    if (m_processPID == -1)
+    if (m_processPID == -1) {
+        m_checkPIDTimer.stop();
         emit remoteProcessFinished(tr("\n\n'%1' died.").arg(m_packageName));
+    }
 }
 
 void AndroidRunner::forceStop()
@@ -186,7 +190,6 @@ void AndroidRunner::start()
 {
     m_adbLogcatProcess.start(m_adb, selector() << _("logcat"));
     m_wasStarted = false;
-    m_checkPIDTimer.start(1000); // check if the application is alive every 1 seconds
     QtConcurrent::run(this, &AndroidRunner::asyncStart);
 }
 
@@ -299,6 +302,8 @@ void AndroidRunner::asyncStart()
         emit remoteProcessFinished(tr("Unable to start '%1'.").arg(m_packageName));
         return;
     }
+
+    QMetaObject::invokeMethod(&m_checkPIDTimer, "start");
 
     m_wasStarted = true;
     if (m_useCppDebugger) {

@@ -32,6 +32,9 @@ def directBaseClass(typeobj, index = 0):
 def createPointerValue(context, address, pointeeType):
     return gdb.Value(address).cast(pointeeType.pointer())
 
+def createReferenceValue(context, address, referencedType):
+    return gdb.Value(address).cast(referencedType.pointer()).dereference()
+
 def savePrint(output):
     try:
         print(output)
@@ -1006,23 +1009,6 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
-def checkSimpleRef(ref):
-    count = ref["_q_value"]
-    check(count > 0)
-    check(count < 1000000)
-
-def checkRef(ref):
-    try:
-        count = ref["atomic"]["_q_value"] # Qt 5.
-        minimum = -1
-    except:
-        count = ref["_q_value"] # Qt 4.
-        minimum = 0
-    # Assume there aren't a million references to any object.
-    check(count >= minimum)
-    check(count < 1000000)
-
-
 #def couldBePointer(p, align):
 #    type = lookupType("unsigned int")
 #    ptr = gdb.Value(p).cast(type)
@@ -1042,12 +1028,8 @@ def checkPointer(p, align = 1):
     if not isNull(p):
         p.dereference()
 
-def isAccessible(p):
-    try:
-        long(p)
-        return True
-    except:
-        return False
+def pointerValue(p):
+    return long(p)
 
 def isNull(p):
     # The following can cause evaluation to abort with "UnicodeEncodeError"
@@ -2152,29 +2134,6 @@ class Dumper:
         if self.currentIName in self.expandedINames:
             with Children(self):
                self.putFields(value)
-
-    def tryPutObjectNameValue(self, value):
-        try:
-            # Is this derived from QObject?
-            dd = value["d_ptr"]["d"]
-            privateTypeName = self.ns + "QObjectPrivate"
-            privateType = lookupType(privateTypeName)
-            staticMetaObject = value["staticMetaObject"]
-            d_ptr = dd.cast(privateType.pointer()).dereference()
-            objectName = None
-            try:
-                objectName = d_ptr["objectName"]
-            except: # Qt 5
-                p = d_ptr["extraData"]
-                if not isNull(p):
-                    objectName = p.dereference()["objectName"]
-            if not objectName is None:
-                data, size, alloc = qStringData(self, objectName)
-                if size > 0:
-                    str = readRawMemory(data, 2 * size)
-                    self.putValue(str, Hex4EncodedLittleEndian, 1)
-        except:
-            pass
 
     def readRawMemory(self, base, size):
         return readRawMemory(base, size)

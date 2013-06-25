@@ -77,8 +77,7 @@ def openCmakeProject(projectPath, buildDir):
     generatorText = "Unix Generator (Desktop 474 GCC)"
     if "win32-" in mkspec:
         generatorName = {"win32-g++" : "MinGW Generator (Desktop 474 GCC)",
-                         "win32-msvc2008" : "NMake Generator (Desktop 474 MSVC2008)",
-                         "win32-msvc2010" : "NMake Generator (Desktop 474 MSVC2010)"}
+                         "win32-msvc2010" : "NMake Generator (Desktop 480 MSVC2010)"}
         if mkspec in generatorName:
             generatorText = generatorName[mkspec]
     index = generatorCombo.findText(generatorText)
@@ -295,7 +294,7 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
                      Targets.EMBEDDED_LINUX, Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
-            available.append(Targets.DESKTOP_474_MSVC2008)
+            available.append(Targets.DESKTOP_480_MSVC2010)
     if isMaddeDisabled:
         for target in filter(lambda x: x in available,
                              (Targets.MAEMO5, Targets.HARMATTAN)):
@@ -486,7 +485,7 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
             if platform.system() in ("Linux", "Darwin"):
                 result.append(Targets.EMBEDDED_LINUX)
             elif platform.system() in ('Windows', 'Microsoft'):
-                result.append(Targets.DESKTOP_474_MSVC2008)
+                result.append(Targets.DESKTOP_480_MSVC2010)
         if 'MeeGo/Harmattan' in supports:
             result.append(Targets.HARMATTAN)
         if 'Maemo/Fremantle' in supports:
@@ -498,7 +497,7 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
         result = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_501_DEFAULT, Targets.MAEMO5,
                   Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
-            result.append(Targets.DESKTOP_474_MSVC2008)
+            result.append(Targets.DESKTOP_480_MSVC2010)
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)

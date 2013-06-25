@@ -104,11 +104,9 @@
 
         \li  Creating new CMake projects with \QC is not supported.
 
-        \if defined(qcmanual)
         \li  On Windows, you must create projects for Maemo 5 and Harmattan
             device types on the same partition where you installed Qt 4 SDK, \QC, and
             MADDE.
-        \endif
 
         \li  If error messages displayed in the \gui {Compile Output} pane contain
             paths where slashes are missing (for example, C:QtSDK),

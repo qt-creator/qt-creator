@@ -71,16 +71,13 @@ QString productFromId(Core::Id id)
     return id.suffixAfter(QBS_RC_PREFIX);
 }
 
-const qbs::ProductData *findProduct(const qbs::ProjectData *pro, const QString &name)
+const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &name)
 {
-    if (!pro)
-        return 0;
-
-    foreach (const qbs::ProductData &product, pro->products()) {
+    foreach (const qbs::ProductData &product, pro.allProducts()) {
         if (product.name() == name)
-            return &product;
+            return product;
     }
-    return 0;
+    return qbs::ProductData();
 }
 
 } // namespace
@@ -197,12 +194,12 @@ void QbsRunConfiguration::installStepChanged()
 QString QbsRunConfiguration::executable() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData *product = findProduct(pro->qbsProjectData(), m_qbsProduct);
+    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
 
-    if (!product)
+    if (product.isValid() || !pro->qbsProject())
         return QString();
 
-    return pro->qbsProject()->targetExecutable(*product, installOptions());
+    return pro->qbsProject()->targetExecutable(product, installOptions());
 }
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
@@ -402,7 +399,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
             this, SLOT(workDirectoryEdited()));
 
     connect(resetButton, SIGNAL(clicked()),
-            this, SLOT(workingDirectoryReseted()));
+            this, SLOT(workingDirectoryWasReset()));
 
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
@@ -449,7 +446,7 @@ void QbsRunConfigurationWidget::workDirectoryEdited()
     m_ignoreChange = false;
 }
 
-void QbsRunConfigurationWidget::workingDirectoryReseted()
+void QbsRunConfigurationWidget::workingDirectoryWasReset()
 {
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
@@ -521,7 +518,7 @@ bool QbsRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
         return false;
 
     QbsProject *project = static_cast<QbsProject *>(parent->project());
-    return findProduct(project->qbsProjectData(), productFromId(id));
+    return !findProduct(project->qbsProjectData(), productFromId(id)).isValid();
 }
 
 ProjectExplorer::RunConfiguration *QbsRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
@@ -562,10 +559,10 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
         return result;
 
     QbsProject *project = static_cast<QbsProject *>(parent->project());
-    if (!project || !project->qbsProjectData())
+    if (!project || !project->qbsProject())
         return result;
 
-    foreach (const qbs::ProductData &product, project->qbsProjectData()->products()) {
+    foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
         if (!project->qbsProject()->targetExecutable(product, qbs::InstallOptions()).isEmpty())
             result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
     }

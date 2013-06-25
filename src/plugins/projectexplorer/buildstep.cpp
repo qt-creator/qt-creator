@@ -37,22 +37,24 @@
 /*!
     \class ProjectExplorer::BuildStep
 
-    \brief BuildSteps are the primary way plugin developers can customize
-    how their projects (or projects from other plugins) are build.
+    \brief The BuildStep class provides build steps for projects.
 
-    Building a project, is done by taking the list of buildsteps
-    from the project and calling first init() than run() on them.
+    Build steps are the primary way plugin developers can customize
+    how their projects (or projects from other plugins) are built.
 
-    That means to change the way your project is build, reimplemnt
-    this class and add your Step to the buildStep list of the project.
+    Projects are built by taking the list of build steps
+    from the project and calling first \c init() and then \c run() on them.
 
-    Note: The projects own the buildstep, do not delete them yourself.
+    To change the way your project is built, reimplement
+    this class and add your build step to the build step list of the project.
 
-    init() is called in the GUI thread and can be used to query the
+    \note The projects own the build step. Do not delete them yourself.
+
+    \c init() is called in the GUI thread and can be used to query the
     project for any information you need.
 
-    run() is run via QtConccurrent in a own thread, if you need an
-    eventloop you need to create it yourself!
+    \c run() is run via QtConcurrent in a separate thread. If you need an
+    event loop, you need to create it yourself.
 */
 
 /*!

@@ -194,8 +194,8 @@ void CppModelManager::updateModifiedSourceFiles()
 
 /*!
     \class CppTools::CppModelManager
-    \brief The CppModelManager keeps track of one CppCodeModel instance
-           for each project and all related CppCodeModelPart instances.
+    \brief The CppModelManager class keeps track of one CppCodeModel instance
+           for each project and all the related CppCodeModelPart instances.
 
     It also takes care of updating the code models when C++ files are
     modified within Qt Creator.
@@ -512,7 +512,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     // add the project configuration file
     QByteArray conf(pp_configuration);
     conf += definedMacros();
-    workingCopy.insert(configurationFileName(), QString::fromUtf8(conf));
+    workingCopy.insert(configurationFileName(), QString::fromLocal8Bit(conf));
 
     return workingCopy;
 }
@@ -522,14 +522,15 @@ CppModelManager::WorkingCopy CppModelManager::workingCopy() const
     return const_cast<CppModelManager *>(this)->buildWorkingCopyList();
 }
 
-QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles)
+QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles,
+                                                 ProgressNotificationMode mode)
 {
     if (sourceFiles.isEmpty() || !m_indexerEnabled)
         return QFuture<void>();
 
     if (m_indexingSupporter)
-        m_indexingSupporter->refreshSourceFiles(sourceFiles);
-    return m_internalIndexingSupport->refreshSourceFiles(sourceFiles);
+        m_indexingSupporter->refreshSourceFiles(sourceFiles, mode);
+    return m_internalIndexingSupport->refreshSourceFiles(sourceFiles, mode);
 }
 
 QList<CppModelManager::ProjectInfo> CppModelManager::projectInfos() const

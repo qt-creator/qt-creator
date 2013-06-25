@@ -32,7 +32,8 @@
 /*!
     \class Utils::FilterLineEdit
 
-    \brief A fancy line edit customized for filtering purposes with a clear button.
+    \brief The FilterLineEdit class is a fancy line edit customized for
+    filtering purposes with a clear button.
 */
 
 namespace Utils {

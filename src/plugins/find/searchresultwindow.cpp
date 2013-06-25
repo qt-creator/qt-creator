@@ -201,7 +201,8 @@ using namespace Find::Internal;
 
 /*!
     \class Find::SearchResult
-    \brief Reports user interaction like activation of a search result item.
+    \brief The SearchResult class reports user interaction, such as the
+    activation of a search result item.
 
     Whenever a new search is initiated via startNewSearch, an instance of this
     class is returned to provide the initiator with the hooks for handling user

@@ -57,7 +57,7 @@ Component.prototype.beginInstallation = function()
     else if (installer.value("os") == "x11")
         component.qtCreatorBinaryPath = component.qtCreatorBinaryPath + "/bin/qtcreator";
     else if (installer.value("os") == "mac")
-        component.qtCreatorBinaryPath = "\"" + component.qtCreatorBinaryPath + "/Qt Creator.app/Contents/MacOS/Qt Creator\"";
+        component.qtCreatorBinaryPath = component.qtCreatorBinaryPath + "/Qt Creator.app/Contents/MacOS/Qt Creator";
 
     if ( installer.value("os") === "win" ) {
         component.setStopProcessForUpdateRequest(component.qtCreatorBinaryPath, true);
@@ -202,7 +202,7 @@ Component.prototype.installationFinished = function()
         if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success) {
             var isLaunchQtCreatorCheckBoxChecked = component.userInterface("LaunchQtCreatorCheckBoxForm").launchQtCreatorCheckBox.checked;
             if (isLaunchQtCreatorCheckBoxChecked)
-                installer.executeDetached(component.qtCreatorBinaryPath);
+                installer.executeDetached(component.qtCreatorBinaryPath, new Array(), "@homeDir@");
         }
     } catch(e) {
         print(e);

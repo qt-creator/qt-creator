@@ -47,7 +47,8 @@ typedef QmlJS::QmlLanguageBundles QmlLanguageBundles;
 /*!
   \class QmlJSEditor::BasicBundleProvider
 
-  \brief a class that sets up the default bundles for qt and various qml states.
+    \brief The BasicBundleProvider class sets up the default bundles for Qt and
+    various QML states.
   */
 BasicBundleProvider::BasicBundleProvider(QObject *parent) :
     IBundleProvider(parent)

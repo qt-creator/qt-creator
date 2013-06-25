@@ -100,9 +100,7 @@
     You can look up any issue in the
     \l{http://bugreports.qt-project.org/}{Qt bug tracker}.
 
-    \if defined(qcmanual)
     \include widgets/creator-faq-qtdesigner.qdocinc
-    \endif
 
     \section1 Help Questions
 

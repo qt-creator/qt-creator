@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Installer>
+    <Name>Qt Creator</Name>
+    <Version>{version}</Version>
+    <Title>Qt Creator {version}</Title>
+    <Publisher>Qt Project</Publisher>
+    <ProductUrl>http://qt-project.org</ProductUrl>
+
+    <Icon>logo.png</Icon>
+    <Watermark>watermark.png</Watermark>
+    <UninstallerName>Uninstall Qt Creator</UninstallerName>
+    <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
+    <TargetDir>@homeDir@/Applications/Qt Creator {version}</TargetDir>
+    <AllowSpaceInPath>true</AllowSpaceInPath>
+</Installer>

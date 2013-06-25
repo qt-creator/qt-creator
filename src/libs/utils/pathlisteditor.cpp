@@ -46,7 +46,8 @@
 /*!
     \class Utils::PathListEditor
 
-    \brief A control that let's the user edit a list of (directory) paths
+    \brief The PathListEditor class is a control that lets the user edit a list
+    of (directory) paths
     using the platform separator (';',':').
 
     Typically used for

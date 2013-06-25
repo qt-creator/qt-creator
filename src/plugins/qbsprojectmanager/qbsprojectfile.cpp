@@ -96,7 +96,7 @@ bool QbsProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
     Q_UNUSED(flag)
     if (type == TypePermissions)
         return true;
-    m_project->delayParsing();
+    m_project->delayForcedParsing();
     return true;
 }
 

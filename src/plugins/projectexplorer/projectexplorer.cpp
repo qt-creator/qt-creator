@@ -139,8 +139,8 @@
 /*!
     \class ProjectExplorer::ProjectExplorerPlugin
 
-    \brief ProjectExplorerPlugin with static accessor and utility functions to obtain
-    current project, open projects, etc.
+    \brief The ProjectExplorerPlugin class contains static accessor and utility
+    functions to obtain the current project, open projects, and so on.
 */
 
 namespace {
@@ -1929,7 +1929,18 @@ void ProjectExplorerPlugin::updateActions()
 
     d->m_cancelBuildAction->setEnabled(d->m_buildManager->isBuilding());
 
-    d->m_publishAction->setEnabled(!d->m_session->projects().isEmpty());
+    bool canPublish = false;
+    if (project) {
+        const QList<IPublishingWizardFactory *> &factories
+                = ExtensionSystem::PluginManager::getObjects<IPublishingWizardFactory>();
+        foreach (const IPublishingWizardFactory *const factory, factories) {
+            if (factory->canCreateWizard(project)) {
+                canPublish = true;
+                break;
+            }
+        }
+    }
+    d->m_publishAction->setEnabled(canPublish);
 
     d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
     d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());

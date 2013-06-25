@@ -56,6 +56,7 @@ private slots:
     void setQASIPackagePath();
     void cleanLibsOnDevice();
 
+    void deployOptionsChanged();
 private:
     virtual QString summaryText() const;
     virtual QString displayName() const;

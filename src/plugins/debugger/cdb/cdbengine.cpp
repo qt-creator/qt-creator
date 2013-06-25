@@ -2243,7 +2243,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
                     executeStepOut();
                     return;
                 case ParseStackWow64:
-                    postBuiltinCommand("!wow64exts.info", 0, &CdbEngine::handleCheckWow64,
+                    postBuiltinCommand("lm m wow64", 0, &CdbEngine::handleCheckWow64,
                                        0, qVariantFromValue(stack));
                     break;
                 }
@@ -2275,15 +2275,17 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
 
 void CdbEngine::handleCheckWow64(const CdbBuiltinCommandPtr &cmd)
 {
-    // Using the stack command from the wow64exts cdb extension to
-    // check if there is a 32bit subsystem in this debuggee.
-    if (cmd->reply.first().startsWith("Could not get the address of the 32bit PEB")) {
-        m_wow64State = noWow64Stack;
-        if (cmd->cookie.canConvert<GdbMi>())
-            parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
+    // Using the lm (list modules) command to check if there is a 32 bit subsystem in this debuggee.
+    // expected reply if there is a 32 bit stack:
+    // start             end                 module name
+    // 00000000`77490000 00000000`774d5000   wow64      (deferred)
+    if (cmd->reply.value(1).contains("wow64")) {
+        postBuiltinCommand("k", 0, &CdbEngine::ensureUsing32BitStackInWow64, 0, cmd->cookie);
         return;
     }
-    postBuiltinCommand("k", 0, &CdbEngine::ensureUsing32BitStackInWow64, 0, cmd->cookie);
+    m_wow64State = noWow64Stack;
+    if (cmd->cookie.canConvert<GdbMi>())
+        parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
 }
 
 void CdbEngine::ensureUsing32BitStackInWow64(const CdbEngine::CdbBuiltinCommandPtr &cmd)
@@ -2990,7 +2992,7 @@ void CdbEngine::handleStackTrace(const CdbExtensionCommandPtr &command)
         GdbMi data;
         data.fromString(command->reply);
         if (parseStackTrace(data, false) == ParseStackWow64) {
-            postBuiltinCommand("!wow64exts.info", 0, &CdbEngine::handleCheckWow64,
+            postBuiltinCommand("lm m wow64", 0, &CdbEngine::handleCheckWow64,
                                0, qVariantFromValue(data));
         }
         postCommandSequence(command->commandSequence);

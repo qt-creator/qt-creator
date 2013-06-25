@@ -45,7 +45,7 @@
 /*!
     \class ProjectExplorer::Project
 
-    \brief A project.
+    \brief The Project class implements a project node in the project explorer.
 */
 
 /*!

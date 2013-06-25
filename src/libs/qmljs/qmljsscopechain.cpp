@@ -36,7 +36,8 @@ using namespace QmlJS;
 
 /*!
     \class QmlJS::ScopeChain
-    \brief Describes the scopes used for global lookup in a specific location.
+    \brief The ScopeChain class describes the scopes used for global lookup in
+    a specific location.
     \sa Document Context ScopeBuilder
 
     A ScopeChain is used to perform global lookup with the lookup() method and

@@ -94,7 +94,6 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
                     m_snapper.setContainerFormEditorItem(m_view->scene()->itemForQmlItemNode(parentItemNode));
                     m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
                     m_snapper.updateSnappingLines(m_itemList);
-                    updateHashes();
                     snapperUpdated = true;
                 }
             }
@@ -109,19 +108,6 @@ void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &it
 {
     if (m_view->model() && !m_itemList.isEmpty() && m_itemList.first()->qmlItemNode().instanceParent().isValid())
         synchronizeParent(itemList, m_itemList.first()->qmlItemNode().instanceParent());
-}
-
-void MoveManipulator::updateHashes()
-{
-//    foreach (FormEditorItem* item, m_itemList)
-//        m_beginItemRectHash[item] = item->mapRectToParent(item->qmlItemNode().instanceBoundingRect());
-
-    QTransform fromSceneToContentItemTransform = m_snapper.containerFormEditorItem()->qmlItemNode().instanceSceneContentItemTransform().inverted();
-    foreach (FormEditorItem* item, m_itemList) {
-        QPointF positionInParentSpace = fromSceneToContentItemTransform.map(m_beginPositionInSceneSpaceHash.value(item));
-        m_beginItemRectHash[item].translate(positionInParentSpace - m_beginPositionHash.value(item));
-        m_beginPositionHash.insert(item, positionInParentSpace);
-    }
 }
 
 bool MoveManipulator::itemsCanReparented() const
@@ -142,27 +128,23 @@ void MoveManipulator::begin(const QPointF &beginPoint)
 
     m_snapper.updateSnappingLines(m_itemList);
 
-
     foreach (FormEditorItem* item, m_itemList) {
-        if (item && item->qmlItemNode().isValid())
-            m_beginItemRectHash.insert(item, m_snapper.containerFormEditorItem()->mapRectFromItem(item, item->qmlItemNode().instanceBoundingRect()));
+        if (item && item->qmlItemNode().isValid()) {
+            QTransform fromItemToSceneTransform = item->qmlItemNode().instanceSceneTransform();
+            m_beginItemRectInSceneSpaceHash.insert(item, fromItemToSceneTransform.mapRect(item->qmlItemNode().instanceBoundingRect()));
+        }
     }
 
     QTransform fromContentItemToSceneTransform = m_snapper.containerFormEditorItem()->qmlItemNode().instanceSceneContentItemTransform();
     foreach (FormEditorItem* item, m_itemList) {
         if (item && item->qmlItemNode().isValid()) {
-            QPointF positionInParentSpace(item->qmlItemNode().instancePosition());
-            QPointF positionInScenesSpace = fromContentItemToSceneTransform.map(positionInParentSpace);
+            QPointF positionInScenesSpace = fromContentItemToSceneTransform.map(item->qmlItemNode().instancePosition());
             m_beginPositionInSceneSpaceHash.insert(item, positionInScenesSpace);
         }
     }
 
-    QTransform fromSceneToContentItemTransform = m_snapper.containerFormEditorItem()->qmlItemNode().instanceSceneContentItemTransform().inverted();
     foreach (FormEditorItem* item, m_itemList) {
         if (item && item->qmlItemNode().isValid()) {
-            QPointF positionInParentSpace = fromSceneToContentItemTransform.map(m_beginPositionInSceneSpaceHash.value(item));
-            m_beginPositionHash.insert(item, positionInParentSpace);
-
             QmlAnchors anchors(item->qmlItemNode().anchors());
             m_beginTopMarginHash.insert(item, anchors.instanceMargin(AnchorLine::Top));
             m_beginLeftMarginHash.insert(item, anchors.instanceMargin(AnchorLine::Left));
@@ -234,7 +216,9 @@ void MoveManipulator::generateSnappingLines(const QHash<FormEditorItem*, QRectF>
 
 
 
-QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHash<FormEditorItem*, QRectF> &boundingRectHash, const QPointF& offsetVector)
+QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHash<FormEditorItem*, QRectF> &boundingRectHash,
+                                                                       const QPointF& offsetVector,
+                                                                       const QTransform &transform)
 {
     QHash<FormEditorItem*, QRectF> translatedBoundingRectHash;
 
@@ -243,7 +227,7 @@ QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHa
         QPointF alignedOffset(offsetVector);
         hashIterator.next();
         FormEditorItem *formEditorItem = hashIterator.key();
-        QRectF boundingRect = hashIterator.value();
+        QRectF boundingRect = transform.mapRect(hashIterator.value());
 
         if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
             continue;
@@ -274,18 +258,20 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSn
         return;
     } else {
         QTransform fromSceneToContentItemTransform = m_snapper.containerFormEditorItem()->qmlItemNode().instanceSceneContentItemTransform().inverted();
-        QPointF updatePointInContainerSpace(fromSceneToContentItemTransform.map(updatePoint));
-        QPointF beginPointInContainerSpace(fromSceneToContentItemTransform.map(m_beginPoint));
+        QTransform fromSceneToItemTransform = m_snapper.containerFormEditorItem()->qmlItemNode().instanceSceneTransform().inverted();
 
-        QPointF offsetVector(updatePointInContainerSpace - beginPointInContainerSpace);
+        QPointF updatePointInContainerSpace = fromSceneToItemTransform.map(updatePoint);
+        QPointF beginPointInContainerSpace = fromSceneToItemTransform.map(m_beginPoint);
+
+        QPointF offsetVector = updatePointInContainerSpace - beginPointInContainerSpace;
 
         if (useSnapping == Snapper::UseSnapping || useSnapping == Snapper::UseSnappingAndAnchoring) {
-            offsetVector -= findSnappingOffset(tanslatedBoundingRects(m_beginItemRectHash, offsetVector));
-            generateSnappingLines(tanslatedBoundingRects(m_beginItemRectHash, offsetVector));
+            offsetVector -= findSnappingOffset(tanslatedBoundingRects(m_beginItemRectInSceneSpaceHash, offsetVector, fromSceneToItemTransform));
+            generateSnappingLines(tanslatedBoundingRects(m_beginItemRectInSceneSpaceHash, offsetVector, fromSceneToItemTransform));
         }
 
         foreach (FormEditorItem* item, m_itemList) {
-            QPointF positionInContainerSpace(m_beginPositionHash.value(item) + offsetVector);
+            QPointF positionInContainerSpace(fromSceneToContentItemTransform.map(m_beginPositionInSceneSpaceHash.value(item)) + offsetVector);
 
             if (!item || !item->qmlItemNode().isValid())
                 continue;
@@ -324,8 +310,7 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSn
 void MoveManipulator::clear()
 {
     deleteSnapLines();
-    m_beginItemRectHash.clear();
-    m_beginPositionHash.clear();
+    m_beginItemRectInSceneSpaceHash.clear();
     m_beginPositionInSceneSpaceHash.clear();
     m_itemList.clear();
     m_lastPosition = QPointF();

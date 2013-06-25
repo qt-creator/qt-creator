@@ -475,8 +475,13 @@ QList<ServerNodeInstance>  NodeInstanceServer::setupInstances(const CreateSceneC
         setInstanceAuxiliaryData(container);
     }
 
-    foreach (ServerNodeInstance instance, instanceList)
+
+    QListIterator<ServerNodeInstance> instanceListIterator(instanceList);
+    instanceListIterator.toBack();
+    while (instanceListIterator.hasPrevious()) {
+        ServerNodeInstance instance = instanceListIterator.previous();
         instance.doComponentComplete();
+    }
 
     return instanceList;
 }

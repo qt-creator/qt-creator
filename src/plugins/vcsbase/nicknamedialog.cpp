@@ -43,7 +43,7 @@ enum { NickNameRole = Qt::UserRole + 1 };
 /*!
     \class VcsBase::Internal::NickNameDialog
 
-    \brief Show users from mail cap file.
+    \brief The NickNameDialog class shows users from a mail cap file.
 
     Manages a list of users read from an extended
     mail cap file, consisting of 4 columns:  "Name Mail [AliasName [AliasMail]]".

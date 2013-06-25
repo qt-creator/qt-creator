@@ -37,7 +37,7 @@ using namespace QmlJS;
 
 /*!
     \class QmlJS::Evaluate
-    \brief Evaluates \l{AST::Node}s to \l{Value}s.
+    \brief The Evaluate class evaluates \l{AST::Node}s to \l{Value}s.
     \sa Value ScopeChain
 
     The Evaluate visitor is constructed with a ScopeChain and accepts JavaScript

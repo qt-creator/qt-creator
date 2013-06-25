@@ -53,7 +53,8 @@ static void inline setComboBlocked(QComboBox *cb, int index)
 
 /*!
     \class VcsBase::SubmitFieldWidget
-    \brief A widget for editing submit message fields like "reviewed-by:",
+    \brief The SubmitFieldWidget class is a widget for editing submit message
+    fields like "reviewed-by:",
     "signed-off-by:".
 
     It displays them in a vertical row of combo/line edit fields

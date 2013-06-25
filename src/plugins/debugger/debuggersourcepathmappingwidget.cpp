@@ -68,7 +68,8 @@ typedef DebuggerSourcePathMappingWidget::SourcePathMap SourcePathMap;
 /*!
     \class Debugger::Internal::SourcePathMappingModel
 
-    \brief Model for DebuggerSourcePathMappingWidget.
+    \brief The SourcePathMappingModel class is a model for the
+    DebuggerSourcePathMappingWidget class.
 
     Maintains mappings and a dummy placeholder row for adding new mappings.
 */
@@ -189,7 +190,8 @@ void SourcePathMappingModel::setTarget(int row, const QString &t)
 /*!
     \class Debugger::Internal::DebuggerSourcePathMappingWidget
 
-    \brief Widget for maintaining a set of source path mappings for the debugger.
+    \brief The DebuggerSourcePathMappingWidget class is a widget for maintaining
+    a set of source path mappings for the debugger.
 
     Path mappings to be applied using source path substitution in gdb.
 */

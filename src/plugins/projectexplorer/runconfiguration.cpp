@@ -64,7 +64,7 @@ const char USE_MULTIPROCESS_KEY[] = "RunConfiguration.UseMultiProcess";
 
 /*!
     \class ProjectExplorer::ProcessHandle
-    \brief  Helper class to describe a process.
+    \brief The ProcessHandle class is a helper class to describe a process.
 
     Encapsulates parameters of a running process, local (PID) or remote (to be done,
     address, port, etc).
@@ -115,15 +115,19 @@ RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget()
 
 /*!
     \class ProjectExplorer::RunConfiguration
-    \brief  Base class for a run configuration. A run configuration specifies how a
-    target should be run, while the runner (see below) does the actual running.
+    \brief The RunConfiguration class is the base class for a run configuration.
 
-    Note that all RunControls and the target hold a shared pointer to the RunConfiguration.
-    That is the lifetime of the RunConfiguration might exceed the life of the target.
+    A run configuration specifies how a target should be run, while a runner
+    does the actual running.
+
+    All RunControls and the target hold a shared pointer to the run
+    configuration. That is, the lifetime of the run configuration might exceed
+    the life of the target.
     The user might still have a RunControl running (or output tab of that RunControl open)
     and yet unloaded the target.
 
-    Also, a RunConfiguration might be already removed from the list of RunConfigurations
+    Also, a run configuration might be already removed from the list of run
+    configurations
     for a target, but still be runnable via the output tab.
 */
 
@@ -249,7 +253,8 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 /*!
     \class ProjectExplorer::IRunConfigurationAspect
 
-    \brief Extra configuration aspect.
+    \brief The IRunConfigurationAspect class provides an additional
+    configuration aspect.
 
     Aspects are a mechanism to add RunControl-specific options to a RunConfiguration without
     subclassing the RunConfiguration for every addition, preventing a combinatorical explosion
@@ -277,7 +282,8 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
 /*!
     \class ProjectExplorer::IRunConfigurationFactory
 
-    \brief Restores RunConfigurations from settings.
+    \brief The IRunConfigurationFactory class restores run configurations from
+    settings.
 
     The run configuration factory is used for restoring run configurations from
     settings. And used to create new runconfigurations in the "Run Settings" Dialog.
@@ -368,7 +374,8 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 /*!
     \class ProjectExplorer::IRunControlFactory
 
-    \brief Creates RunControl objects matching a RunConfiguration
+    \brief The IRunControlFactory class creates RunControl objects matching a
+    run configuration.
 */
 
 /*!
@@ -406,7 +413,7 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunCon
 
 /*!
     \class ProjectExplorer::RunControl
-    \brief Each instance of this class represents one item that is run.
+    \brief The RunControl class instances represent one item that is run.
 */
 
 /*!

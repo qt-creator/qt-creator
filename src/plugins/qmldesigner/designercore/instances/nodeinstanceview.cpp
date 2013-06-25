@@ -79,7 +79,8 @@ enum {
 /*!
 \class QmlDesigner::NodeInstanceView
 \ingroup CoreInstance
-\brief Central class to create and manage instances of a ModelNode.
+    \brief The NodeInstanceView class is the central class to create and manage
+    instances of the ModelNode class.
 
 This view is used to instance the ModelNodes. Many AbstractViews hold a
 NodeInstanceView to get values from tghe NodeInstances back.

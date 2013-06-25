@@ -37,7 +37,8 @@
 /*!
     \class Utils::ClassNameValidatingLineEdit
 
-    \brief A Line edit that validates a C++ class name and emits a signal
+    \brief The ClassNameValidatingLineEdit class implements a line edit that
+    validates a C++ class name and emits a signal
     to derive suggested file names from it.
 */
 
