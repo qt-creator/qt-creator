@@ -317,12 +317,21 @@ static inline ParseState nextClosingState(ParseState current, const QStringRef &
    return ParseError;
 }
 
-static inline QStringList parseLists(QIODevice *io)
+static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
 {
     enum { maxEntries = 200 }; // Limit the archive, which can grow quite large.
 
     QStringList rc;
-    QXmlStreamReader reader(io);
+    // Read answer and delete part up to the main table since the input form has
+    // parts that can no longer be parsed using XML parsers (<input type="text" x-webkit-speech />)
+    QByteArray data = io->readAll();
+    const int tablePos = data.indexOf("<table class=\"maintable\" cellspacing=\"0\">");
+    if (tablePos < 0) {
+        *errorMessage = QLatin1String("Could not locate beginning of table.");
+        return rc;
+    }
+    data.remove(0, tablePos);
+    QXmlStreamReader reader(data);
     ParseState state = OutSideTable;
     int tableRow = 0;
     int tableColumn = 0;
@@ -410,6 +419,8 @@ static inline QStringList parseLists(QIODevice *io)
             break;
         } // switch reader state
     }
+    if (reader.hasError())
+        *errorMessage = QString::fromLatin1("Error at line %1:%2").arg(reader.lineNumber()).arg(reader.errorString());
     return rc;
 }
 
@@ -420,7 +431,10 @@ void PasteBinDotComProtocol::listFinished()
         if (debug)
             qDebug() << "listFinished: error" << m_listReply->errorString();
     } else {
-        QStringList list = parseLists(m_listReply);
+        QString errorMessage;
+        const QStringList list = parseLists(m_listReply, &errorMessage);
+        if (list.isEmpty())
+            qWarning().nospace() << "Failed to read list from " << PASTEBIN_BASE <<  ':' << errorMessage;
         emit listDone(name(), list);
         if (debug)
             qDebug() << list;
