@@ -72,8 +72,8 @@ static const char fixedOptionsC[] =
 "    -client                       Attempt to connect to already running first instance\n"
 "    -settingspath <path>          Override the default path where user settings are stored\n"
 "    -pid <pid>                    Attempt to connect to instance given by pid\n"
-"    -block                        Block until editor is closed\n";
-
+"    -block                        Block until editor is closed\n"
+"    -pluginpath <path>            Add a custom search path for plugins\n";
 
 static const char HELP_OPTION1[] = "-h";
 static const char HELP_OPTION2[] = "-help";
@@ -84,6 +84,7 @@ static const char CLIENT_OPTION[] = "-client";
 static const char SETTINGS_OPTION[] = "-settingspath";
 static const char PID_OPTION[] = "-pid";
 static const char BLOCK_OPTION[] = "-block";
+static const char PLUGINPATH_OPTION[] = "-pluginpath";
 
 typedef QList<PluginSpec *> PluginSpecSet;
 
@@ -315,6 +316,7 @@ int main(int argc, char **argv)
     // We can't use the regular way of the plugin manager, because that needs to parse pluginspecs
     // but the settings path can influence which plugins are enabled
     QString settingsPath;
+    QStringList customPluginPaths;
     QStringList arguments = app.arguments(); // adapted arguments list is passed to plugin manager later
     QMutableStringListIterator it(arguments);
     while (it.hasNext()) {
@@ -323,6 +325,12 @@ int main(int argc, char **argv)
             it.remove();
             if (it.hasNext()) {
                 settingsPath = QDir::fromNativeSeparators(it.next());
+                it.remove();
+            }
+        } else if (arg == QLatin1String(PLUGINPATH_OPTION)) {
+            it.remove();
+            if (it.hasNext()) {
+                customPluginPaths << QDir::fromNativeSeparators(it.next());
                 it.remove();
             }
         }
@@ -402,9 +410,8 @@ int main(int argc, char **argv)
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 #endif
     // Load
-    const QStringList pluginPaths = getPluginPaths();
+    const QStringList pluginPaths = getPluginPaths() + customPluginPaths;
     PluginManager::setPluginPaths(pluginPaths);
-
     QMap<QString, QString> foundAppOptions;
     if (arguments.size() > 1) {
         QMap<QString, bool> appOptions;
