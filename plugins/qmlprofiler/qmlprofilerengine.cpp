@@ -259,6 +259,10 @@ void QmlProfilerEngine::cancelProcess()
 {
     QTC_ASSERT(d->m_profilerState, return);
 
+     // no process to be canceled? (there might be multiple engines, but only one runs a process)
+    if (!d->m_runner)
+        return;
+
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
