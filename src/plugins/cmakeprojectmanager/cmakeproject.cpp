@@ -111,6 +111,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
+    m_projectName = QFileInfo(fileName).absoluteDir().dirName();
+
     m_file = new CMakeFile(this, fileName);
 
     connect(this, SIGNAL(buildTargetsChanged()),
