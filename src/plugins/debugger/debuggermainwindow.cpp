@@ -57,6 +57,7 @@
 
 #include <QDockWidget>
 #include <QVBoxLayout>
+#include <QToolButton>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -113,6 +114,7 @@ public:
     DebuggerLanguages m_supportedLanguages;
 
     QWidget *m_debugToolBar;
+    QToolButton *m_viewButton;
     QHBoxLayout *m_debugToolBarLayout;
 
     QHash<DebuggerLanguage, Context> m_contextsForLanguage;
@@ -500,6 +502,12 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     documentAndRightPane->setStretchFactor(0, 1);
     documentAndRightPane->setStretchFactor(1, 0);
 
+    d->m_viewButton = new QToolButton();
+    // FIXME: Use real thing after string freeze.
+    QString hackyName = QCoreApplication::translate("Core::Internal::MainWindow", "&Views");
+    hackyName.replace(QLatin1Char('&'), QString());
+    d->m_viewButton->setText(hackyName);
+
     Utils::StyledBar *debugToolBar = new Utils::StyledBar;
     debugToolBar->setProperty("topBorder", true);
     QHBoxLayout *debugToolBarLayout = new QHBoxLayout(debugToolBar);
@@ -507,6 +515,9 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     debugToolBarLayout->setSpacing(0);
     debugToolBarLayout->addWidget(d->m_debugToolBar);
     debugToolBarLayout->addWidget(new Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(d->m_viewButton);
+
+    connect(d->m_viewButton, SIGNAL(clicked()), this, SLOT(showViewsMenu()));
 
     QDockWidget *dock = new QDockWidget(DebuggerMainWindowPrivate::tr("Debugger Toolbar"));
     dock->setObjectName(QLatin1String("Debugger Toolbar"));
@@ -567,6 +578,13 @@ void DebuggerMainWindow::writeSettings() const
         settings->setValue(it.key(), it.value());
     }
     settings->endGroup();
+}
+
+void DebuggerMainWindow::showViewsMenu()
+{
+    QMenu *menu = createPopupMenu();
+    menu->exec(d->m_viewButton->mapToGlobal(QPoint()));
+    delete menu;
 }
 
 void DebuggerMainWindow::readSettings()
