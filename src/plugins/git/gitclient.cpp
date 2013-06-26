@@ -2331,6 +2331,11 @@ void GitClient::finishSubmoduleUpdate()
     m_updatedSubmodules.clear();
 }
 
+void GitClient::fetchFinished(const QVariant &cookie)
+{
+    GitPlugin::instance()->updateBranches(cookie.toString());
+}
+
 // Trim a git status file spec: "modified:    foo .cpp" -> "modified: foo .cpp"
 static inline QString trimFileSpecification(QString fileSpec)
 {
@@ -2930,7 +2935,9 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
 {
     QStringList arguments(QLatin1String("fetch"));
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
-    executeGit(workingDirectory, arguments, 0, true);
+    VcsBase::Command *command = executeGit(workingDirectory, arguments, 0, true);
+    command->setCookie(workingDirectory);
+    connect(command, SIGNAL(success(QVariant)), this, SLOT(fetchFinished(QVariant)));
 }
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,

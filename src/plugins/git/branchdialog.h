@@ -61,6 +61,7 @@ public:
 
 public slots:
     void refresh(const QString &repository, bool force);
+    void refreshIfSame(const QString &repository);
 
 private slots:
     void enableButtons();

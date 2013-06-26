@@ -323,6 +323,7 @@ private slots:
     void appendOutputData(const QByteArray &data) const;
     void appendOutputDataSilently(const QByteArray &data) const;
     void finishSubmoduleUpdate();
+    void fetchFinished(const QVariant &cookie);
 
 private:
     QTextCodec *getSourceCodec(const QString &file) const;

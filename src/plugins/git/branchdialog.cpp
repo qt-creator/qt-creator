@@ -97,6 +97,12 @@ void BranchDialog::refresh(const QString &repository, bool force)
     m_ui->branchView->expandAll();
 }
 
+void BranchDialog::refreshIfSame(const QString &repository)
+{
+    if (m_repository == repository)
+        refresh();
+}
+
 void BranchDialog::enableButtons()
 {
     QModelIndex idx = selectedIndex();
