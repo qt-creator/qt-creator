@@ -252,13 +252,23 @@ void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             data.insert(QLatin1String(QBS_TARGETOS), QLatin1String("windows"));
             data.insert(QLatin1String(QBS_TOOLCHAIN),
-                               targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor ?
-                                   QLatin1String("mingw") : QLatin1String("msvc"));
+                               targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor
+                                   ? QStringList() << QLatin1String("mingw") << QLatin1String("gcc")
+                                   : QStringList() << QLatin1String("msvc"));
         } else if (targetAbi.os() == ProjectExplorer::Abi::MacOS) {
-            data.insert(QLatin1String(QBS_TARGETOS), QLatin1String("mac"));
-            data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
+            data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("osx")
+                        << QLatin1String("darwin") << QLatin1String("unix"));
+            if (tc->type() != QLatin1String("clang")) {
+                data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
+            } else {
+                data.insert(QLatin1String(QBS_TOOLCHAIN),
+                            QStringList() << QLatin1String("clang")
+                            << QLatin1String("llvm")
+                            << QLatin1String("gcc"));
+            }
         } else if (targetAbi.os() == ProjectExplorer::Abi::LinuxOS) {
-            data.insert(QLatin1String(QBS_TARGETOS), QLatin1String("linux"));
+            data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("linux")
+                        << QLatin1String("unix"));
             if (tc->type() != QLatin1String("clang")) {
                 data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
             } else {
