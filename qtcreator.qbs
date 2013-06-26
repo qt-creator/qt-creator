@@ -3,7 +3,7 @@ import qbs.base 1.0
 Project {
     property string ide_version_major: '2'
     property string ide_version_minor: '7'
-    property string ide_version_release: '83'
+    property string ide_version_release: '84'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     property string ide_app_path: qbs.targetOS.contains("mac") ? "" : "bin"
     property string ide_app_target: qbs.targetOS.contains("mac") ? "Qt Creator" : "qtcreator"
