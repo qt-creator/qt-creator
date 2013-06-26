@@ -344,7 +344,6 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                             }
                         }
                     }
-
                 }
             }
         }
