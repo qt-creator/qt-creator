@@ -287,8 +287,8 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
             }
             return versionControl;
         } else {
-            InfoBar *infoBar = curDocument->infoBar();
-            if (infoBar->canInfoBeAdded(vcsWarning)) {
+            InfoBar *infoBar = curDocument ? curDocument->infoBar() : 0;
+            if (infoBar && infoBar->canInfoBeAdded(vcsWarning)) {
                 InfoBarEntry info(vcsWarning,
                                   tr("%1 repository was detected but %1 is not configured.")
                                   .arg(versionControl->displayName()),
