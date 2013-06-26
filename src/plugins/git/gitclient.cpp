@@ -118,8 +118,8 @@ public:
 
     // index -> working tree
     void diffFile(const QString &fileName);
-    // stagedFileNames - files in index, diff will compare the state in HEAD to the one in the index
-    // unstagedFileNames - diff will compare the state in the index to the one in the working tree
+    // stagedFileNames:   HEAD -> index
+    // unstagedFileNames: index -> working tree
     void diffFiles(const QStringList &stagedFileNames, const QStringList &unstagedFileNames);
     // index -> working tree
     void diffProjects(const QStringList &projectPaths);
@@ -191,7 +191,7 @@ GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditor *editor,
 void GitDiffHandler::diffFile(const QString &fileName)
 {
     m_requestedRevisionRange = RevisionRange(
-                Revision(Other, QLatin1String(HEAD)),
+                Revision(Index),
                 Revision(WorkingTree));
 
     collectFilesList(QStringList() << QLatin1String("--") << fileName);
@@ -201,7 +201,7 @@ void GitDiffHandler::diffFiles(const QStringList &stagedFileNames, const QString
 {
     RevisionRange stagedRange = RevisionRange(
                 Revision(Other, QLatin1String(HEAD)),
-                Revision(WorkingTree));
+                Revision(Index));
     RevisionRange unstagedRange = RevisionRange(
                 Revision(Index),
                 Revision(WorkingTree));
@@ -219,7 +219,7 @@ void GitDiffHandler::diffFiles(const QStringList &stagedFileNames, const QString
 void GitDiffHandler::diffProjects(const QStringList &projectPaths)
 {
     m_requestedRevisionRange = RevisionRange(
-                Revision(Other, QLatin1String(HEAD)),
+                Revision(Index),
                 Revision(WorkingTree));
 
     collectFilesList(QStringList() << QLatin1String("--") << projectPaths);
@@ -228,7 +228,7 @@ void GitDiffHandler::diffProjects(const QStringList &projectPaths)
 void GitDiffHandler::diffRepository()
 {
     m_requestedRevisionRange = RevisionRange(
-                Revision(Other, QLatin1String(HEAD)),
+                Revision(Index),
                 Revision(WorkingTree));
 
     collectFilesList(QStringList());
