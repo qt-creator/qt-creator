@@ -180,6 +180,9 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
         m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
         m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
         m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
+        GitClient *client = GitPlugin::instance()->gitClient();
+        m_resetTypeComboBox->setCurrentIndex(client->settings()->intValue(
+                                                 GitSettings::lastResetIndexKey));
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
     }
@@ -203,7 +206,15 @@ bool LogChangeDialog::runDialog(const QString &repository, const QString &commit
     if (!widget->init(repository, commit, includeRemote))
         return false;
 
-    return QDialog::exec() == QDialog::Accepted;
+    if (QDialog::exec() == QDialog::Accepted) {
+        if (m_resetTypeComboBox) {
+            GitClient *client = GitPlugin::instance()->gitClient();
+            client->settings()->setValue(GitSettings::lastResetIndexKey,
+                                         m_resetTypeComboBox->currentIndex());
+        }
+        return true;
+    }
+    return false;
 }
 
 QString LogChangeDialog::commit() const
