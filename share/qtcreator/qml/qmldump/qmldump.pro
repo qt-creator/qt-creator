@@ -13,12 +13,10 @@ TEMPLATE = app
 SOURCES += main.cpp \
     qmlstreamwriter.cpp
 
-OTHER_FILES += Info.plist.in
-macx {
-    info.input = Info.plist.in
-    info.output = $$DESTDIR/$${TARGET}.app/Contents/Info.plist
-    QMAKE_SUBSTITUTES += info
-}
+# generation of Info.plist from Info.plist.in is handled by static.pro
+# compiling this project directly from the Qt Creator source tree does not work
+OTHER_FILES += Info.plist
+macx:QMAKE_INFO_PLIST = Info.plist
 
 HEADERS += \
     qmlstreamwriter.h

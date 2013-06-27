@@ -60,12 +60,13 @@ symbian {
         LIBS += -lavkon -lcone
     }
 }
-OTHER_FILES+=Info.plist.in
+
+# generation of Info.plist from Info.plist.in is handled by static.pro
+# compiling this project directly from the Qt Creator source tree does not work
+OTHER_FILES+=Info.plist
 mac {
+    QMAKE_INFO_PLIST=Info.plist
     TARGET=QMLObserver
-    info.input = Info.plist.in
-    info.output = $$DESTDIR/$${TARGET}.app/Contents/Info.plist
-    QMAKE_SUBSTITUTES += info
     ICON=qml.icns
 } else {
     TARGET=qmlobserver
