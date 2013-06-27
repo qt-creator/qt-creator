@@ -358,6 +358,9 @@ qqDumpers = {}
 # This is a cache of all dumpers that support writing.
 qqEditable = {}
 
+# This is an approximation of the Qt Version found
+qqVersion = None
+
 def registerDumper(function):
     global qqDumpers, qqFormats, qqEditable
     try:
@@ -1134,7 +1137,7 @@ def qtNamespace():
     if not qqNs is None:
         return qqNs
     try:
-        str = catchCliOutput("ptype QString::Null")[0]
+        str = gdb.execute("ptype QString::Null", to_string=True)
         # The result looks like:
         # "type = const struct myns::QString::Null {"
         # "    <no data fields>"
@@ -1558,6 +1561,18 @@ class Dumper:
         if self.currentMaxNumChild is None:
             return xrange(0, self.currentNumChild)
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
+
+    def qtVersion(self):
+        global qqVersion
+        if not qqVersion is None:
+            return qqVersion
+        try:
+            # This will fail on Qt 5
+            gdb.execute("ptype QString::shared_empty", to_string=True)
+            qqVersion = 0x040800
+        except:
+            qqVersion = 0x050000
+        return qqVersion
 
     # Convenience function.
     def putItemCount(self, count, maximum = 1000000000):

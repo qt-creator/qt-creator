@@ -609,6 +609,9 @@ class Dumper:
         inner = self.extractTemplateArgument(typeobj.GetName(), index)
         return int(inner)
 
+    def qtVersion(self):
+        return 0x050000
+
     def intType(self):
         if self.intType_ is None:
              self.intType_ = self.target.FindFirstType('int')

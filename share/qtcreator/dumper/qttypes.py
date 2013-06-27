@@ -713,7 +713,8 @@ def qform__QImage():
 def qdump__QImage(d, value):
     # This relies on current QImage layout
     intPtrType = d.lookupType("int").pointer()
-    base = createReferenceValue(value, d.addressOf(value) + 3 * intPtrType.sizeof, intPtrType)
+    offset = (3 if d.qtVersion() >= 0x050000 else 2) * intPtrType.sizeof
+    base = createReferenceValue(value, d.addressOf(value) + offset, intPtrType)
     width = int(base[1])
     height = int(base[2])
     d.putValue("(%dx%d)" % (width, height))
