@@ -482,7 +482,7 @@ FileName FileName::fromUserInput(const QString &filename)
 {
     QString clean = QDir::cleanPath(filename);
     if (clean.startsWith(QLatin1String("~/")))
-        clean = QDir::homePath() + clean.midRef(1);
+        clean = QDir::homePath() + clean.mid(1);
     return FileName(clean);
 }
 
