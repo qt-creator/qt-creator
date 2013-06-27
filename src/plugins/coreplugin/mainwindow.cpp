@@ -48,7 +48,6 @@
 #include "mimedatabase.h"
 #include "newdialog.h"
 #include "outputpanemanager.h"
-#include "outputpane.h"
 #include "plugindialog.h"
 #include "progressmanager_p.h"
 #include "progressview.h"
@@ -73,7 +72,6 @@
 #endif
 
 #include <app/app_version.h>
-#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/settingsdatabase.h>
@@ -877,48 +875,7 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesF
 
 void MainWindow::setFocusToEditor()
 {
-    bool focusWasMovedToEditor = false;
-
-    // give focus to the editor if we have one
-    if (IEditor *editor = EditorManager::currentEditor()) {
-        if (qApp->focusWidget() != editor->widget()->focusWidget()) {
-            QWidget *w = editor->widget()->focusWidget();
-            if (!w)
-                w = editor->widget();
-            w->setFocus();
-            focusWasMovedToEditor = w->hasFocus();
-        }
-    }
-
-    // check for some maximized pane which we want to unmaximize
-    if (OutputPanePlaceHolder::getCurrent()
-        && OutputPanePlaceHolder::getCurrent()->isVisible()
-        && OutputPanePlaceHolder::getCurrent()->isMaximized()) {
-        OutputPanePlaceHolder::getCurrent()->unmaximize();
-        return;
-    }
-
-    if (focusWasMovedToEditor)
-        return;
-
-    // check for some visible bar which we want to hide
-    bool stuffVisible =
-            (FindToolBarPlaceHolder::getCurrent() &&
-             FindToolBarPlaceHolder::getCurrent()->isVisible())
-            || (OutputPanePlaceHolder::getCurrent() &&
-                OutputPanePlaceHolder::getCurrent()->isVisible())
-            || (RightPanePlaceHolder::current() &&
-                RightPanePlaceHolder::current()->isVisible());
-    if (stuffVisible) {
-        if (FindToolBarPlaceHolder::getCurrent())
-            FindToolBarPlaceHolder::getCurrent()->hide();
-        OutputPaneManager::instance()->slotHide();
-        RightPaneWidget::instance()->setShown(false);
-        return;
-    }
-
-    // switch to edit mode if necessary
-    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+    m_editorManager->doEscapeKeyFocusMoveMagic();
 }
 
 void MainWindow::showNewItemDialog(const QString &title,

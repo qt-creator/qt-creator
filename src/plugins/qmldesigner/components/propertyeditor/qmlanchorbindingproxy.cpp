@@ -418,8 +418,11 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
 }
  QRectF QmlAnchorBindingProxy::parentBoundingBox()
 {
-    if (m_fxItemNode.hasInstanceParent())
+    if (m_fxItemNode.hasInstanceParent()) {
+        if (m_fxItemNode.instanceParent().toQmlItemNode().instanceContentItemBoundingRect().isValid())
+            return m_fxItemNode.instanceParent().toQmlItemNode().instanceContentItemBoundingRect();
         return m_fxItemNode.instanceParent().toQmlItemNode().instanceBoundingRect();
+    }
 
     return QRect();
 }
@@ -434,7 +437,7 @@ QRectF QmlAnchorBindingProxy::boundingBox(QmlItemNode node)
 
 QRectF QmlAnchorBindingProxy::transformedBoundingBox()
 {
-    return m_fxItemNode.instanceTransform().mapRect(m_fxItemNode.instanceBoundingRect());
+    return m_fxItemNode.instanceTransformWithContentTransform().mapRect(m_fxItemNode.instanceBoundingRect());
 }
 
 void QmlAnchorBindingProxy::calcTopMargin()

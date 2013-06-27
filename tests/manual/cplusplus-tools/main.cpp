@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 /*
- Folow includes
+ Follow includes
  */
 #include <QDebug>
 #include <QString>

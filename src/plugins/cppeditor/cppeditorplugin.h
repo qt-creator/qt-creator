@@ -163,6 +163,8 @@ private slots:
     void test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists();
     void test_quickfix_InsertDefFromDecl_notTriggeringStatement();
     void test_quickfix_InsertDefFromDecl_findRightImplementationFile();
+    void test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1();
+    void test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2();
 
     void test_quickfix_InsertDeclFromDef();
 
@@ -202,6 +204,8 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_CtorWithInitialization1();
     void test_quickfix_MoveFuncDefOutside_CtorWithInitialization2();
     void test_quickfix_MoveFuncDefOutside_afterClass();
+    void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames1();
+    void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();

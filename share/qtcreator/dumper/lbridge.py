@@ -567,6 +567,7 @@ class Dumper:
         self.charPtrType_ = None
         self.voidType_ = None
         self.isShuttingDown_ = False
+        self.isInterrupting_ = False
         self.dummyValue = None
 
     def extractTemplateArgument(self, typename, index):
@@ -1082,8 +1083,9 @@ class Dumper:
             if self.dummyValue is None:
                 self.dummyValue = value
             with SubItem(self, value):
-                self.put('iname="%s",' % self.currentIName)
-                self.putItem(value)
+                if value.IsValid():
+                    self.put('iname="%s",' % self.currentIName)
+                    self.putItem(value)
 
         # 'watchers':[{'id':'watch.0','exp':'23'},...]
         if not self.dummyValue is None:
@@ -1144,13 +1146,9 @@ class Dumper:
         if self.process is None:
             self.report('msg="No process"')
             return
+        self.isInterrupting_ = True
         error = self.process.Stop()
         self.reportError(error)
-        self.consumeEvents()
-        if error.GetType() == 1:
-            state = self.process.GetState()
-            if state != lldb.eStateStopped:
-                self.report('state="inferiorstopfailed"')
 
     def detachInferior(self, _ = None):
         if self.process is None:
@@ -1167,6 +1165,10 @@ class Dumper:
             error = self.process.Continue()
             self.reportError(error)
 
+    def quitDebugger(self, _ = None):
+        self.report('state="inferiorshutdownrequested"')
+        self.process.Kill()
+
     def handleEvent(self, event):
         out = lldb.SBStream()
         event.GetDescription(out)
@@ -1178,7 +1180,6 @@ class Dumper:
         self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
             % (type, out.GetData(), msg, flavor, state))
         if state != self.eventState:
-            self.report('state="%s"' % stateNames[state])
             self.eventState = state
             if state == lldb.eStateExited:
                 if self.isShuttingDown_:
@@ -1187,6 +1188,14 @@ class Dumper:
                     self.report('state="inferiorexited"')
                 self.report('exited={status="%s",desc="%s"}'
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
+            elif state == lldb.eStateStopped:
+                if self.isInterrupting_:
+                    self.isInterrupting_ = False
+                    self.report('state="inferiorstopok"')
+                else:
+                    self.report('state="stopped"')
+            else:
+                self.report('state="%s"' % stateNames[state])
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
             state = self.process.GetState()
             if state == lldb.eStateStopped:

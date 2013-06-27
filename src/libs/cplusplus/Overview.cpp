@@ -45,6 +45,7 @@ Overview::Overview()
       showFunctionSignatures(true),
       showDefaultArguments(true),
       showTemplateParameters(false),
+      includeWhiteSpaceInOperatorName(true),
       markedArgument(0),
       markedArgumentBegin(0),
       markedArgumentEnd(0)

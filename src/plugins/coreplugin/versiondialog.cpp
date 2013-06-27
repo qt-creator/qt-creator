@@ -36,6 +36,7 @@
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
 
@@ -96,4 +97,16 @@ VersionDialog::VersionDialog(QWidget *parent)
     layout->addWidget(logoLabel , 0, 0, 1, 1);
     layout->addWidget(copyRightLabel, 0, 1, 4, 4);
     layout->addWidget(buttonBox, 4, 0, 1, 5);
+}
+
+bool VersionDialog::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QDialog::event(event);
 }

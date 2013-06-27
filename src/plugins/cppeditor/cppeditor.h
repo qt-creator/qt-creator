@@ -128,6 +128,8 @@ public:
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
+    void updateContentsChangedSignal();
+
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
 

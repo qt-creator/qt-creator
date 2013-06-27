@@ -108,6 +108,7 @@ public:
     bool showFunctionSignatures: 1;
     bool showDefaultArguments: 1;
     bool showTemplateParameters: 1;
+    bool includeWhiteSpaceInOperatorName: 1; /// "operator =()" vs "operator=()"
 
     /*!
         You can get the start and end position of a function argument

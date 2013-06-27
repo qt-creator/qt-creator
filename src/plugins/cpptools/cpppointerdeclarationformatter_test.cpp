@@ -349,9 +349,13 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations_data()
         << source << stripCursor(source);
 
     // Respect white space within operator names
-    QTest::newRow("operators")
+    QTest::newRow("operators1")
         << "class C { C@&operator = (const C &); };"
         << "class C { C & operator = (const C &); };";
+
+    QTest::newRow("operators2")
+        << "C &C::operator = (const C &) {}"
+        << "C & C::operator = (const C &) {}";
 }
 
 void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements()

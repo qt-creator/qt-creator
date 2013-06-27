@@ -103,13 +103,9 @@ d too.
 NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface::RunModus runModus)
         : AbstractView(parent),
           m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32),
-          m_runModus(runModus),
-          m_puppetRestarted(false)
+          m_runModus(runModus)
 {
     m_baseStatePreviewImage.fill(0xFFFFFF);
-    m_singleShotTimerRestartProcessDelayed.setSingleShot(true);
-    m_singleShotTimerRestartProcessDelayed.setInterval(400);
-    connect(&m_singleShotTimerRestartProcessDelayed, SIGNAL(timeout()), this, SLOT(restartProcessDelayedTimeOut()));
 }
 
 
@@ -194,15 +190,10 @@ void NodeInstanceView::handleChrash()
         emit  qmlPuppetCrashed();
 }
 
-void NodeInstanceView::restartProcessDelayedTimeOut()
-{
-    if (!m_puppetRestarted)
-        restartProcess();
-}
+
 
 void NodeInstanceView::restartProcess()
 {
-    m_puppetRestarted = true;
     if (model()) {
         delete nodeInstanceServer();
 
@@ -218,12 +209,6 @@ void NodeInstanceView::restartProcess()
             activateState(newStateInstance);
         }
     }
-}
-
-void NodeInstanceView::restartProcessDelayed()
-{
-    m_puppetRestarted = false;
-    m_singleShotTimerRestartProcessDelayed.start();
 }
 
 void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
@@ -1136,16 +1121,7 @@ void NodeInstanceView::setPathToQt(const QString &pathToQt)
 {
     if (m_pathToQt != pathToQt) {
         m_pathToQt = pathToQt;
-
-        /* The restart is done delayed, because when creating a new project we switch to that project
-         * before we open the new file. This means the user can get an error about a missing puppet,
-         * because the new project is based on another Qt version.
-         *
-         * See QTCREATORBUG-8756 for more details.
-         *
-         */
-
-        restartProcessDelayed();
+        restartProcess();
     }
 }
 

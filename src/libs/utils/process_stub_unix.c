@@ -198,8 +198,6 @@ int main(int argc, char *argv[])
     isDebug = !strcmp(argv[ArgAction], "debug");
     isDetached = 0;
 
-    sendMsg("spid %ld\n", (long)getpid());
-
     if (*argv[ArgDir] && chdir(argv[ArgDir])) {
         /* Only expected error: no such file or direcotry */
         sendMsg("err:chdir %d\n", errno);
@@ -235,6 +233,8 @@ int main(int argc, char *argv[])
         env[count] = 0;
     }
 
+    /* send our pid after we read the environment file (creator will get rid of it) */
+    sendMsg("spid %ld\n", (long)getpid());
 
     /*
      * set up the signal handlers

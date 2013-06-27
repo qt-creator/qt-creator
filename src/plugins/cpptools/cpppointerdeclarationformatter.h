@@ -78,7 +78,7 @@ public:
     enum CursorHandling { RespectCursor, IgnoreCursor };
 
     explicit PointerDeclarationFormatter(const CppRefactoringFilePtr refactoringFile,
-                                         const Overview &overview,
+                                         Overview &overview,
                                          CursorHandling cursorHandling = IgnoreCursor);
 
     /*!
@@ -113,11 +113,10 @@ private:
     void processIfWhileForStatement(ExpressionAST *expression, Symbol *symbol);
     void checkAndRewrite(DeclaratorAST *declarator, Symbol *symbol, TokenRange range,
                          unsigned charactersToRemove = 0);
-    QString rewriteDeclaration(FullySpecifiedType type, const Name *name) const;
     void printCandidate(AST *ast);
 
     const CppRefactoringFilePtr m_cppRefactoringFile;
-    const Overview &m_overview;
+    Overview &m_overview;
     const CursorHandling m_cursorHandling;
 
     ChangeSet m_changeSet;

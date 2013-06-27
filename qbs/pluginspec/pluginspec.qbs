@@ -83,7 +83,7 @@ Module {
         }
 
         prepare: {
-            var xslFile = project.path + "/src/pluginjsonmetadata.xsl";
+            var xslFile = project.path + "/../pluginjsonmetadata.xsl"; // project is "Plugins"
             var xmlPatternsPath = product.moduleProperty("Qt/core", "binPath") + "/xmlpatterns";
             var args = [
                 "-no-format",

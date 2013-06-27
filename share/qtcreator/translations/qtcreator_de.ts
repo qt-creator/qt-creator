@@ -35464,7 +35464,8 @@ Kurznamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
     <message>
         <source>Mixed</source>
-        <translation>Gemischt</translation>
+        <translatorcomment>Using the English original because this is what will be passed to git (--mixed).</translatorcomment>
+        <translation>Mixed</translation>
     </message>
     <message>
         <source>Hard</source>

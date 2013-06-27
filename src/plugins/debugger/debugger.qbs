@@ -287,7 +287,7 @@ QtcPlugin {
 
     Group {
         name: "LLDBOptions"
-        condition: qbs.targetOS.contains("mac")
+        condition: qbs.targetOS.contains("osx")
         files: [
             "lldblib/lldboptionspage.cpp",
             "lldblib/lldboptionspage.h",

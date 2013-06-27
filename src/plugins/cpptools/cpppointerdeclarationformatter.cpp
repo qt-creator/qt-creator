@@ -115,7 +115,7 @@ static unsigned firstTypeSpecifierWithoutFollowingAttribute(
 
 PointerDeclarationFormatter::PointerDeclarationFormatter(
         const CppRefactoringFilePtr refactoringFile,
-        const Overview &overview,
+        Overview &overview,
         CursorHandling cursorHandling)
     : ASTVisitor(refactoringFile->cppDocument()->translationUnit())
     , m_cppRefactoringFile(refactoringFile)
@@ -413,21 +413,14 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
     QString rewrittenDeclaration;
     const Name *name = symbol->name();
     if (name) {
-        if (name->isOperatorNameId()) {
-            // Take the operator name from the file instead from the AST, so the white
-            // spaces within the operator names can be respected, e.g. in "operator =".
-            const QByteArray operatorText
-                    = m_cppRefactoringFile->textOf(declarator->core_declarator).toLatin1();
-            Identifier operatorName(operatorText.constData(), operatorText.size());
-            rewrittenDeclaration = rewriteDeclaration(type, &operatorName);
-        } else {
-            rewrittenDeclaration = rewriteDeclaration(type, name);
+        if (name->isOperatorNameId()
+                || (name->isQualifiedNameId()
+                    && name->asQualifiedNameId()->name()->isOperatorNameId())) {
+            const QString operatorText = m_cppRefactoringFile->textOf(declarator->core_declarator);
+            m_overview.includeWhiteSpaceInOperatorName = operatorText.contains(QLatin1Char(' '));
         }
-    } else {
-        // The declaration will be correctly rewritten for name == 0 (e.g. "int *").
-        rewrittenDeclaration = rewriteDeclaration(type, name);
     }
-
+    rewrittenDeclaration = m_overview.prettyType(type, name);
     rewrittenDeclaration.remove(0, charactersToRemove);
 
     CHECK_R(originalDeclaration != rewrittenDeclaration, "Rewritten is same as original");
@@ -458,21 +451,6 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
         m_changeSet = change;
     else if (DEBUG_OUTPUT)
         qDebug() << "Replacement operation failed";
-}
-
-/*! Rewrite/format the given type and name. */
-QString PointerDeclarationFormatter::rewriteDeclaration(FullySpecifiedType type, const Name *name)
-    const
-{
-    CHECK_RV(type.isValid(), "Invalid type", QString());
-
-    const char *identifier = 0;
-    if (const Name *declarationName = name) {
-        if (const Identifier *id = declarationName->identifier())
-            identifier = id->chars();
-    }
-
-    return m_overview.prettyType(type, QLatin1String(identifier));
 }
 
 void PointerDeclarationFormatter::printCandidate(AST *ast)

@@ -641,9 +641,9 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateOutlineIndex()));
     connect(m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
-    connect(document(), SIGNAL(contentsChange(int,int,int)),
-            this, SLOT(onContentsChanged(int,int,int)));
 
+    // set up slots to document changes
+    updateContentsChangedSignal();
     connect(editorDocument(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
     // set up function declaration - definition link
@@ -1870,6 +1870,8 @@ Core::IEditor *CPPEditor::duplicate(QWidget *parent)
 {
     CPPEditorWidget *newEditor = new CPPEditorWidget(parent);
     newEditor->duplicateFrom(editorWidget());
+    // A new QTextDocument was set, so update our signal/slot connection to the new document
+    newEditor->updateContentsChangedSignal();
     CppEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editor();
 }
@@ -2216,6 +2218,12 @@ void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
     m_declDefLink->apply(this, jumpToMatch);
     abortDeclDefLink();
     updateFunctionDeclDefLink();
+}
+
+void CPPEditorWidget::updateContentsChangedSignal()
+{
+    connect(document(), SIGNAL(contentsChange(int,int,int)),
+            this, SLOT(onContentsChanged(int,int,int)));
 }
 
 void CPPEditorWidget::abortDeclDefLink()

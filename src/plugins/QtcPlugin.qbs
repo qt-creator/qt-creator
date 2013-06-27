@@ -19,6 +19,7 @@ Product {
         }
         return name;
     }
+    moduleSearchPaths: "../../../qbs" // TODO: Should get inherited from project, but doesn't.
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginspec" }
@@ -30,7 +31,7 @@ Product {
 
     cpp.defines: Defaults.defines(qbs).concat([name.toUpperCase() + "_LIBRARY"])
     cpp.installNamePrefix: "@rpath/PlugIns/" + provider + "/"
-    cpp.rpaths: qbs.targetOS.contains("mac") ? ["@loader_path/../..", "@executable_path/.."]
+    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/../..", "@executable_path/.."]
                                       : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
     cpp.linkerFlags: {
         if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))

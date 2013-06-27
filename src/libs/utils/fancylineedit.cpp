@@ -31,13 +31,15 @@
 #include "historycompleter.h"
 #include "qtcassert.h"
 
-#include <QDebug>
-#include <QPropertyAnimation>
+#include <QAbstractItemView>
 #include <QApplication>
+#include <QDebug>
+#include <QDesktopWidget>
+#include <QKeyEvent>
 #include <QMenu>
 #include <QPainter>
+#include <QPropertyAnimation>
 #include <QStyle>
-#include <QDesktopWidget>
 
 /*! Opens a menu at the specified widget position.
  * This functions computes the position where to show the menu, and opens it with
@@ -249,6 +251,20 @@ void FancyLineEdit::updateButtonPositions()
 void FancyLineEdit::resizeEvent(QResizeEvent *)
 {
     updateButtonPositions();
+}
+
+bool FancyLineEdit::event(QEvent *e)
+{
+    // workaround for QTCREATORBUG-9453
+    if (e->type() == QEvent::ShortcutOverride && completer()
+            && completer()->popup() && completer()->popup()->isVisible()) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QLineEdit::event(e);
 }
 
 void FancyLineEdit::setButtonPixmap(Side side, const QPixmap &buttonPixmap)

@@ -246,9 +246,9 @@ void CrashHandler::runCommand(QStringList commandLine, QStringList environment, 
             qFatal("%s: freopen() failed for stderr: %s.\n.", Q_FUNC_INFO, strerror(errno));
 
         if (environment.isEmpty())
-            execv(argv[0], argv.data());
+            execvp(argv[0], argv.data());
         else
-            execve(argv[0], argv.data(), envp.data());
+            execvpe(argv[0], argv.data(), envp.data());
         _exit(EXIT_FAILURE);
     } default: // parent
         if (waitMode == WaitForExit) {

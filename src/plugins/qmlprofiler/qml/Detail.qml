@@ -56,5 +56,6 @@ Item {
         anchors.baseline: lbl.baseline
         anchors.left: guideline.right
         onLinkActivated: detail.linkActivated(link)
+        textFormat: Text.PlainText
     }
 }

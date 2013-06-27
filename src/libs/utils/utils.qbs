@@ -15,7 +15,7 @@ QtcLibrary {
         ]
     }
     Properties {
-        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("mac")
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
         cpp.dynamicLibraries: ["X11"]
     }
 

@@ -158,6 +158,7 @@ public:
     ToolChain *clone() const;
 
     QList<Utils::FileName> suggestedMkspecList() const;
+    void addToEnvironment(Utils::Environment &env) const;
 
 protected:
     virtual CompilerFlags defaultCompilerFlags() const;

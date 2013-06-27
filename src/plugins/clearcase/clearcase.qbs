@@ -6,7 +6,7 @@ QtcPlugin {
     name: "ClearCase"
 //    provider: "AudioCodes"
 
-    condition: !qbs.targetOS.contains("mac")
+    condition: !qbs.targetOS.contains("osx")
 
     Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
