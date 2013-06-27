@@ -1392,14 +1392,10 @@ def qdump__QObject(d, value):
 # }
 
 def qdump__QPixmap(d, value):
-    painters = int(value["painters"])
-    check(0 <= painters and painters < 1000)
-    d_ptr = value["data"]["d"]
-    if isNull(d_ptr):
-        d.putValue("(null)")
-    else:
-        checkSimpleRef(d_ptr["ref"])
-        d.putValue("(%dx%d)" % (d_ptr["w"], d_ptr["h"]))
+    intPtrType = d.lookupType("int").pointer()
+    offset = (3 if d.qtVersion() >= 0x050000 else 2) * intPtrType.sizeof
+    base = createReferenceValue(value, d.addressOf(value) + offset, intPtrType)
+    d.putValue("(%dx%d)" % (base[1], base[2]))
     d.putNumChild(0)
 
 
