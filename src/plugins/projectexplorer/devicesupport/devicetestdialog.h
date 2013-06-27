@@ -26,42 +26,39 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef LINUXDEVICETESTDIALOG_H
-#define LINUXDEVICETESTDIALOG_H
+#ifndef DEVICETESTDIALOG_H
+#define DEVICETESTDIALOG_H
 
-#include "linuxdevicetester.h"
-#include "remotelinux_export.h"
+#include "idevice.h"
 
 #include <QDialog>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
-class LinuxDeviceTestDialogPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT LinuxDeviceTestDialog : public QDialog
+class DeviceTestDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    // Note: The dialog takes ownership of deviceTester
-    LinuxDeviceTestDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration,
-        AbstractLinuxDeviceTester * deviceTester, QWidget *parent = 0);
-    ~LinuxDeviceTestDialog();
+    DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration, QWidget *parent = 0);
+    ~DeviceTestDialog();
 
     void reject();
 
 private slots:
     void handleProgressMessage(const QString &message);
     void handleErrorMessage(const QString &message);
-    void handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
+    void handleTestFinished(ProjectExplorer::DeviceTester::TestResult result);
 
 private:
     void addText(const QString &text, const QString &color, bool bold);
 
-    Internal::LinuxDeviceTestDialogPrivate * const d;
+    class DeviceTestDialogPrivate;
+    DeviceTestDialogPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace ProjectExplorer
 
-#endif // LINUXDEVICETESTDIALOG_H
+#endif // Include guard.

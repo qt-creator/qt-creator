@@ -121,6 +121,7 @@ HEADERS += projectexplorer.h \
     devicesupport/deviceprocessesdialog.h \
     devicesupport/devicesettingswidget.h \
     devicesupport/devicesettingspage.h \
+    devicesupport/devicetestdialog.h \
     devicesupport/deviceusedportsgatherer.h \
     devicesupport/deviceapplicationrunner.h \
     devicesupport/localprocesslist.h \
@@ -237,6 +238,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/deviceprocessesdialog.cpp \
     devicesupport/devicesettingswidget.cpp \
     devicesupport/devicesettingspage.cpp \
+    devicesupport/devicetestdialog.cpp \
     devicesupport/deviceusedportsgatherer.cpp \
     devicesupport/deviceapplicationrunner.cpp \
     devicesupport/localprocesslist.cpp \
@@ -257,6 +259,7 @@ FORMS += processstep.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \
     devicesupport/devicesettingswidget.ui \
+    devicesupport/devicetestdialog.ui \
     devicesupport/desktopdeviceconfigurationwidget.ui
 
 WINSOURCES += \

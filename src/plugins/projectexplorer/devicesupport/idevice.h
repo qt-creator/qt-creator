@@ -35,11 +35,11 @@
 
 #include <QAbstractSocket>
 #include <QList>
+#include <QObject>
 #include <QSharedPointer>
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
-class QObject;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -52,6 +52,7 @@ class DeviceProcessList;
 namespace Internal { class IDevicePrivate; }
 
 class IDeviceWidget;
+class DeviceTester;
 
 class PROJECTEXPLORER_EXPORT DeviceProcessSupport
 {
@@ -72,7 +73,6 @@ public:
     virtual QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
     virtual QList<int> usedPorts(const QByteArray &commandOutput) const = 0;
 };
-
 
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
@@ -118,6 +118,8 @@ public:
     virtual PortsGatheringMethod::Ptr portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;
+    virtual bool hasDeviceTester() const { return false; }
+    virtual DeviceTester *createDeviceTester() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
@@ -157,6 +159,26 @@ private:
 
     Internal::IDevicePrivate *d;
     friend class DeviceManager;
+};
+
+
+class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
+{
+    Q_OBJECT
+
+public:
+    enum TestResult { TestSuccess, TestFailure };
+
+    virtual void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration) = 0;
+    virtual void stopTest() = 0;
+
+signals:
+    void progressMessage(const QString &message);
+    void errorMessage(const QString &message);
+    void finished(ProjectExplorer::DeviceTester::TestResult result);
+
+protected:
+    explicit DeviceTester(QObject *parent = 0);
 };
 
 } // namespace ProjectExplorer

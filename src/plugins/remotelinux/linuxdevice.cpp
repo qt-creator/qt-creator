@@ -30,7 +30,7 @@
 #include "linuxdevice.h"
 
 #include "genericlinuxdeviceconfigurationwidget.h"
-#include "linuxdevicetestdialog.h"
+#include "linuxdevicetester.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
 
@@ -192,16 +192,13 @@ ProjectExplorer::IDeviceWidget *LinuxDevice::createWidget()
 
 QList<Core::Id> LinuxDevice::actionIds() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::GenericTestDeviceActionId)
-            << Core::Id(Constants::GenericDeployKeyToDeviceActionId);
+    return QList<Core::Id>() << Core::Id(Constants::GenericDeployKeyToDeviceActionId);
 }
 
 QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return QString());
 
-    if (actionId == Constants::GenericTestDeviceActionId)
-        return tr("Test");
     if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         return tr("Deploy Public Key...");
     return QString(); // Can't happen.
@@ -213,9 +210,7 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent) const
 
     QDialog *d = 0;
     const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
-    if (actionId == Constants::GenericTestDeviceActionId)
-        d = new LinuxDeviceTestDialog(device, createDeviceTester(), parent);
-    else if (actionId == Constants::GenericDeployKeyToDeviceActionId)
+    if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     if (d)
         d->exec();
@@ -264,7 +259,7 @@ DeviceProcessList *LinuxDevice::createProcessListModel(QObject *parent) const
     return new LinuxDeviceProcessList(sharedFromThis(), parent);
 }
 
-AbstractLinuxDeviceTester *LinuxDevice::createDeviceTester() const
+DeviceTester *LinuxDevice::createDeviceTester() const
 {
     return new GenericLinuxDeviceTester;
 }

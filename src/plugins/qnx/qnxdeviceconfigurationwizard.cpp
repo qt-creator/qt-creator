@@ -37,7 +37,6 @@
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
-#include <remotelinux/linuxdevicetestdialog.h>
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
@@ -75,9 +74,6 @@ IDevice::Ptr QnxDeviceConfigurationWizard::device()
         Core::Id(Constants::QNX_QNX_OS_TYPE), IDevice::Hardware);
     device->setSshParameters(sshParams);
     device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
-
-    RemoteLinux::LinuxDeviceTestDialog dlg(device, device->createDeviceTester(), this);
-    dlg.exec();
 
     return device;
 }

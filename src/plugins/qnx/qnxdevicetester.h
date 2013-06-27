@@ -43,7 +43,7 @@ class SshRemoteProcessRunner;
 namespace Qnx {
 namespace Internal {
 
-class QnxDeviceTester : public RemoteLinux::AbstractLinuxDeviceTester
+class QnxDeviceTester : public ProjectExplorer::DeviceTester
 {
     Q_OBJECT
 public:
@@ -53,7 +53,7 @@ public:
     void stopTest();
 
 private slots:
-    void handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
+    void handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult result);
 
     void handleProcessFinished(int exitStatus);
     void handleConnectionError();
@@ -70,7 +70,7 @@ private:
 
     RemoteLinux::GenericLinuxDeviceTester *m_genericTester;
     ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
-    TestResult m_result;
+    ProjectExplorer::DeviceTester::TestResult m_result;
     State m_state;
 
     int m_currentCommandIndex;

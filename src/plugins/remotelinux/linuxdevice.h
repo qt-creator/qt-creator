@@ -41,7 +41,6 @@ namespace Utils { class PortList; }
 
 namespace RemoteLinux {
 namespace Internal { class LinuxDevicePrivate; }
-class AbstractLinuxDeviceTester;
 
 class REMOTELINUX_EXPORT LinuxDeviceProcessSupport : public ProjectExplorer::DeviceProcessSupport
 {
@@ -74,7 +73,8 @@ public:
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
     bool canCreateProcessModel() const { return true; }
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
-    virtual AbstractLinuxDeviceTester *createDeviceTester() const;
+    bool hasDeviceTester() const { return true; }
+    ProjectExplorer::DeviceTester *createDeviceTester() const;
 
 protected:
     LinuxDevice() {}

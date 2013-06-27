@@ -35,7 +35,6 @@ HEADERS += \
     packageuploader.h \
     linuxdevicetester.h \
     remotelinux_constants.h \
-    linuxdevicetestdialog.h \
     remotelinuxenvironmentreader.h \
     sshkeydeployer.h \
     typespecificdeviceconfigurationlistmodel.h \
@@ -81,7 +80,6 @@ SOURCES += \
     remotelinuxpackageinstaller.cpp \
     packageuploader.cpp \
     linuxdevicetester.cpp \
-    linuxdevicetestdialog.cpp \
     remotelinuxenvironmentreader.cpp \
     sshkeydeployer.cpp \
     typespecificdeviceconfigurationlistmodel.cpp \
@@ -98,7 +96,6 @@ SOURCES += \
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
-    linuxdevicetestdialog.ui \
     remotelinuxdeployconfigurationwidget.ui \
     genericlinuxdeviceconfigurationwidget.ui \
     remotelinuxcheckforfreediskspacestepwidget.ui

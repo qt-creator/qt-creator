@@ -54,7 +54,7 @@ public:
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
 
-    RemoteLinux::AbstractLinuxDeviceTester *createDeviceTester() const;
+    ProjectExplorer::DeviceTester *createDeviceTester() const;
 
     QString displayType() const;
 

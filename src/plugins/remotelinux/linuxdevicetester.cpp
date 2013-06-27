@@ -61,13 +61,8 @@ public:
 
 using namespace Internal;
 
-AbstractLinuxDeviceTester::AbstractLinuxDeviceTester(QObject *parent) : QObject(parent)
-{
-}
-
-
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
-    : AbstractLinuxDeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate)
+    : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate)
 {
 }
 

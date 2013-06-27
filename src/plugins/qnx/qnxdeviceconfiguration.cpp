@@ -187,7 +187,7 @@ ProjectExplorer::DeviceProcessList *QnxDeviceConfiguration::createProcessListMod
     return new QnxDeviceProcessList(sharedFromThis(), parent);
 }
 
-RemoteLinux::AbstractLinuxDeviceTester *QnxDeviceConfiguration::createDeviceTester() const
+ProjectExplorer::DeviceTester *QnxDeviceConfiguration::createDeviceTester() const
 {
     return new QnxDeviceTester;
 }

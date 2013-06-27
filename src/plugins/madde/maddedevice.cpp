@@ -31,7 +31,6 @@
 #include "maddedevicetester.h"
 #include "maemoconstants.h"
 
-#include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/publickeydeploymentdialog.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/qtcassert.h>
@@ -111,7 +110,7 @@ QSize MaddeDevice::packageManagerIconSize(Core::Id type)
     return QSize();
 }
 
-AbstractLinuxDeviceTester *MaddeDevice::createDeviceTester() const
+DeviceTester *MaddeDevice::createDeviceTester() const
 {
     return new MaddeDeviceTester;
 }

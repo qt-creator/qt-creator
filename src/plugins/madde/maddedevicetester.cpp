@@ -47,7 +47,7 @@ const char QmlToolingDirectory[] = "/usr/lib/qt4/plugins/qmltooling";
 } // anonymous namespace
 
 MaddeDeviceTester::MaddeDeviceTester(QObject *parent)
-    : AbstractLinuxDeviceTester(parent),
+    : ProjectExplorer::DeviceTester(parent),
       m_genericTester(new GenericLinuxDeviceTester(this)),
       m_state(Inactive),
       m_processRunner(0)
@@ -68,8 +68,8 @@ void MaddeDeviceTester::testDevice(const ProjectExplorer::IDevice::ConstPtr &dev
     m_state = GenericTest;
     connect(m_genericTester, SIGNAL(progressMessage(QString)), SIGNAL(progressMessage(QString)));
     connect(m_genericTester, SIGNAL(errorMessage(QString)), SIGNAL(errorMessage(QString)));
-    connect(m_genericTester, SIGNAL(finished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)),
-        SLOT(handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)));
+    connect(m_genericTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
+        SLOT(handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult)));
     m_genericTester->testDevice(deviceConfiguration);
 }
 

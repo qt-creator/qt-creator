@@ -38,7 +38,7 @@ class SshRemoteProcessRunner;
 namespace Madde {
 namespace Internal {
 
-class MaddeDeviceTester : public RemoteLinux::AbstractLinuxDeviceTester
+class MaddeDeviceTester : public ProjectExplorer::DeviceTester
 {
     Q_OBJECT
 
@@ -50,7 +50,7 @@ public:
     void stopTest();
 
 private slots:
-    void handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
+    void handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult result);
     void handleConnectionError();
     void handleProcessFinished(int exitStatus);
 
@@ -66,7 +66,7 @@ private:
 
     RemoteLinux::GenericLinuxDeviceTester * const m_genericTester;
     State m_state;
-    TestResult m_result;
+    ProjectExplorer::DeviceTester::TestResult m_result;
     QSsh::SshRemoteProcessRunner *m_processRunner;
     ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
 };

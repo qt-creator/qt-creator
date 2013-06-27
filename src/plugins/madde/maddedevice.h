@@ -58,7 +58,7 @@ public:
 
     static QSize packageManagerIconSize(Core::Id type);
 
-    RemoteLinux::AbstractLinuxDeviceTester *createDeviceTester() const;
+    ProjectExplorer::DeviceTester *createDeviceTester() const;
 
 private:
     MaddeDevice();

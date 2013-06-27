@@ -40,7 +40,6 @@
 #include "maemoglobal.h"
 
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
-#include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/sshkeydeployer.h>
 #include <utils/fileutils.h>
 #include <ssh/sshkeygenerator.h>
@@ -553,7 +552,6 @@ MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard()
 
 IDevice::Ptr MaemoDeviceConfigWizard::device()
 {
-    bool doTest;
     QString freePortsSpec;
     QSsh::SshConnectionParameters sshParams;
     sshParams.userName = defaultUser();
@@ -564,24 +562,16 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
         sshParams.password.clear();
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");
-        doTest = false;
     } else {
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
         sshParams.privateKeyFile = d->wizardData.privateKeyFilePath;
         sshParams.timeout = 10;
         freePortsSpec = QLatin1String("10000-10100");
-        doTest = true;
     }
     const MaddeDevice::Ptr device = MaddeDevice::create(d->wizardData.configName,
         d->wizardData.deviceType, d->wizardData.machineType);
     device->setFreePorts(PortList::fromString(freePortsSpec));
     device->setSshParameters(sshParams);
-    if (doTest) {
-        // Might be called after accept.
-        QWidget *parent = isVisible() ? this : static_cast<QWidget *>(0);
-        LinuxDeviceTestDialog dlg(device, new MaddeDeviceTester(this), parent);
-        dlg.exec();
-    }
     return device;
 }
 

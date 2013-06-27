@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "linuxdevicetestdialog.h"
-#include "ui_linuxdevicetestdialog.h"
+#include "devicetestdialog.h"
+#include "ui_devicetestdialog.h"
 
 #include <QBrush>
 #include <QColor>
@@ -35,72 +35,70 @@
 #include <QPushButton>
 #include <QTextCharFormat>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
-class LinuxDeviceTestDialogPrivate {
+
+class DeviceTestDialog::DeviceTestDialogPrivate
+{
 public:
-    LinuxDeviceTestDialogPrivate(AbstractLinuxDeviceTester *tester)
+    DeviceTestDialogPrivate(DeviceTester *tester)
         : deviceTester(tester), finished(false)
     {
     }
 
-    Ui::LinuxDeviceTestDialog ui;
-    AbstractLinuxDeviceTester * const deviceTester;
+    Ui::DeviceTestDialog ui;
+    DeviceTester * const deviceTester;
     bool finished;
 };
 
-} // namespace Internal
-
-using namespace Internal;
-
-LinuxDeviceTestDialog::LinuxDeviceTestDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration,
-        AbstractLinuxDeviceTester *deviceTester, QWidget *parent)
-    : QDialog(parent), d(new LinuxDeviceTestDialogPrivate(deviceTester))
+DeviceTestDialog::DeviceTestDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration,
+                                   QWidget *parent)
+    : QDialog(parent), d(new DeviceTestDialogPrivate(deviceConfiguration->createDeviceTester()))
 {
     d->ui.setupUi(this);
 
     d->deviceTester->setParent(this);
     connect(d->deviceTester, SIGNAL(progressMessage(QString)), SLOT(handleProgressMessage(QString)));
     connect(d->deviceTester, SIGNAL(errorMessage(QString)), SLOT(handleErrorMessage(QString)));
-    connect(d->deviceTester, SIGNAL(finished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)),
-        SLOT(handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)));
+    connect(d->deviceTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
+        SLOT(handleTestFinished(ProjectExplorer::DeviceTester::TestResult)));
     d->deviceTester->testDevice(deviceConfiguration);
 }
 
-LinuxDeviceTestDialog::~LinuxDeviceTestDialog()
+DeviceTestDialog::~DeviceTestDialog()
 {
     delete d;
 }
 
-void LinuxDeviceTestDialog::reject()
+void DeviceTestDialog::reject()
 {
     if (!d->finished)
         d->deviceTester->stopTest();
     QDialog::reject();
 }
 
-void LinuxDeviceTestDialog::handleProgressMessage(const QString &message)
+void DeviceTestDialog::handleProgressMessage(const QString &message)
 {
     addText(message, QLatin1String("black"), false);
 }
 
-void LinuxDeviceTestDialog::handleErrorMessage(const QString &message)
+void DeviceTestDialog::handleErrorMessage(const QString &message)
 {
     addText(message, QLatin1String("red"), false);
 }
 
-void LinuxDeviceTestDialog::handleTestFinished(AbstractLinuxDeviceTester::TestResult result)
+void DeviceTestDialog::handleTestFinished(ProjectExplorer::DeviceTester::TestResult result)
 {
     d->finished = true;
     d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
 
-    if (result == AbstractLinuxDeviceTester::TestSuccess)
+    if (result == ProjectExplorer::DeviceTester::TestSuccess)
         addText(tr("Device test finished successfully."), QLatin1String("blue"), true);
     else
         addText(tr("Device test failed."), QLatin1String("red"), true);
 }
 
-void LinuxDeviceTestDialog::addText(const QString &text, const QString &color, bool bold)
+void DeviceTestDialog::addText(const QString &text, const QString &color, bool bold)
 {
     QTextCharFormat format = d->ui.textEdit->currentCharFormat();
     format.setForeground(QBrush(QColor(color)));
@@ -111,4 +109,5 @@ void LinuxDeviceTestDialog::addText(const QString &text, const QString &color, b
     d->ui.textEdit->appendPlainText(text);
 }
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace ProjectExplorer

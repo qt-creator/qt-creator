@@ -31,8 +31,6 @@
 
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "linuxdevice.h"
-#include "linuxdevicetestdialog.h"
-#include "linuxdevicetester.h"
 #include "remotelinux_constants.h"
 
 #include <utils/portlist.h>
@@ -91,10 +89,6 @@ IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
         Core::Id(Constants::GenericLinuxOsType), IDevice::Hardware);
     device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
     device->setSshParameters(sshParams);
-    // Might be called after accept.
-    QWidget *parent = isVisible() ? this : static_cast<QWidget *>(0);
-    LinuxDeviceTestDialog dlg(device, new GenericLinuxDeviceTester(this), parent);
-    dlg.exec();
     return device;
 }
 

@@ -38,7 +38,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 QnxDeviceTester::QnxDeviceTester(QObject *parent)
-    : RemoteLinux::AbstractLinuxDeviceTester(parent)
+    : ProjectExplorer::DeviceTester(parent)
     , m_result(TestSuccess)
     , m_state(Inactive)
     , m_currentCommandIndex(-1)
@@ -70,8 +70,8 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::ConstPtr &devic
 
     connect(m_genericTester, SIGNAL(progressMessage(QString)), SIGNAL(progressMessage(QString)));
     connect(m_genericTester, SIGNAL(errorMessage(QString)), SIGNAL(errorMessage(QString)));
-    connect(m_genericTester, SIGNAL(finished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)),
-        SLOT(handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)));
+    connect(m_genericTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
+        SLOT(handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult)));
 
     m_state = GenericTest;
     m_genericTester->testDevice(deviceConfiguration);
@@ -96,7 +96,7 @@ void QnxDeviceTester::stopTest()
     setFinished();
 }
 
-void QnxDeviceTester::handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result)
+void QnxDeviceTester::handleGenericTestFinished(TestResult result)
 {
     QTC_ASSERT(m_state == GenericTest, return);
 

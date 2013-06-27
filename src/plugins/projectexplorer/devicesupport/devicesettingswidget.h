@@ -68,6 +68,7 @@ private slots:
     void removeDevice();
     void deviceNameEditingFinished();
     void setDefaultDevice();
+    void testDevice();
     void handleAdditionalActionRequest(int actionId);
     void handleProcessListRequested();
 

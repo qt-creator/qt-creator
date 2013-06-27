@@ -194,6 +194,7 @@ public:
 
 PortsGatheringMethod::~PortsGatheringMethod() { }
 DeviceProcessSupport::~DeviceProcessSupport() { }
+DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
 { }
@@ -265,6 +266,12 @@ DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
 {
     Q_UNUSED(parent);
     QTC_ASSERT(false, qDebug("This should not have been called..."); return 0);
+    return 0;
+}
+
+DeviceTester *IDevice::createDeviceTester() const
+{
+    QTC_ASSERT(false, qDebug("This should not have been called..."));
     return 0;
 }
 
