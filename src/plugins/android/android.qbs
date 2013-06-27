@@ -55,6 +55,8 @@ QtcPlugin {
         "androiddevice.h",
         "androiddevicefactory.cpp",
         "androiddevicefactory.h",
+        "androiderrormessage.h",
+        "androiderrormessage.cpp",
         "androidgdbserverkitinformation.cpp",
         "androidgdbserverkitinformation.h",
         "androidglobal.h",

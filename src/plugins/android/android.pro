@@ -23,6 +23,7 @@ HEADERS += \
     androiddeploystep.h \
     androiddeploystepwidget.h \
     androiddeploystepfactory.h \
+    androiderrormessage.h \
     androidglobal.h \
     androidrunner.h \
     androiddebugsupport.h \
@@ -59,6 +60,7 @@ SOURCES += \
     androiddeploystep.cpp \
     androiddeploystepwidget.cpp \
     androiddeploystepfactory.cpp \
+    androiderrormessage.cpp \
     androidrunner.cpp \
     androiddebugsupport.cpp \
     androidqtversionfactory.cpp \
