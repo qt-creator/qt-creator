@@ -53,7 +53,6 @@
 #include "progressview.h"
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
-#include "scriptmanager_p.h"
 #include "settingsdialog.h"
 #include "variablemanager.h"
 #include "versiondialog.h"
@@ -130,7 +129,6 @@ MainWindow::MainWindow() :
     m_editorManager(0),
     m_externalToolManager(0),
     m_progressManager(new ProgressManagerPrivate()),
-    m_scriptManager(new ScriptManagerPrivate(this)),
     m_variableManager(new VariableManager),
     m_vcsManager(new VcsManager),
     m_statusBarManager(0),
@@ -997,11 +995,6 @@ EditorManager *MainWindow::editorManager() const
 ProgressManager *MainWindow::progressManager() const
 {
     return m_progressManager;
-}
-
-ScriptManager *MainWindow::scriptManager() const
-{
-     return m_scriptManager;
 }
 
 VariableManager *MainWindow::variableManager() const

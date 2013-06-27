@@ -98,7 +98,6 @@ public:
     static QT_DEPRECATED MessageManager *messageManager(); // Use MessageManager::... directly.
     static EditorManager *editorManager();
     static ProgressManager *progressManager();
-    static ScriptManager *scriptManager();
     static QT_DEPRECATED VariableManager *variableManager(); // Use VariableManager::... directly.
     static VcsManager *vcsManager();
     static QT_DEPRECATED ModeManager *modeManager(); // Use ModeManager::... directly.

@@ -432,11 +432,6 @@ ProgressManager *ICore::progressManager()
     return m_mainwindow->progressManager();
 }
 
-ScriptManager *ICore::scriptManager()
-{
-    return m_mainwindow->scriptManager();
-}
-
 VariableManager *ICore::variableManager()
 {
     return m_mainwindow->variableManager();

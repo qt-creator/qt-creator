@@ -20,7 +20,6 @@ QtcPlugin {
         "dialogs",
         "editormanager",
         "progressmanager",
-        "scriptmanager",
         "actionmanager"
     ])
 
@@ -225,10 +224,6 @@ QtcPlugin {
         "progressmanager/progressmanager_p.h",
         "progressmanager/progressview.cpp",
         "progressmanager/progressview.h",
-        "scriptmanager/metatypedeclarations.h",
-        "scriptmanager/scriptmanager.cpp",
-        "scriptmanager/scriptmanager.h",
-        "scriptmanager/scriptmanager_p.h",
     ]
 
     Group {

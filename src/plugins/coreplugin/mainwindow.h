@@ -61,7 +61,6 @@ class ModeManager;
 class ProgressManager;
 class NavigationWidget;
 class RightPaneWidget;
-class ScriptManager;
 class SettingsDatabase;
 class VariableManager;
 class VcsManager;
@@ -101,7 +100,6 @@ public:
     Core::MessageManager *messageManager() const;
     Core::EditorManager *editorManager() const;
     Core::ProgressManager *progressManager() const;
-    Core::ScriptManager *scriptManager() const;
     Core::VariableManager *variableManager() const;
     Core::ModeManager *modeManager() const;
     Core::MimeDatabase *mimeDatabase() const;
@@ -183,7 +181,6 @@ private:
     ExternalToolManager *m_externalToolManager;
     MessageManager *m_messageManager;
     ProgressManagerPrivate *m_progressManager;
-    ScriptManager *m_scriptManager;
     VariableManager *m_variableManager;
     VcsManager *m_vcsManager;
     StatusBarManager *m_statusBarManager;

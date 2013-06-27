@@ -15,8 +15,7 @@ win32-msvc*:QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
 INCLUDEPATH += dialogs \
     actionmanager \
     editormanager \
-    progressmanager \
-    scriptmanager
+    progressmanager
 SOURCES += mainwindow.cpp \
     editmode.cpp \
     tabpositionindicator.cpp \
@@ -55,7 +54,6 @@ SOURCES += mainwindow.cpp \
     progressmanager/progressview.cpp \
     progressmanager/progressbar.cpp \
     progressmanager/futureprogress.cpp \
-    scriptmanager/scriptmanager.cpp \
     statusbarwidget.cpp \
     coreplugin.cpp \
     variablemanager.cpp \
@@ -155,9 +153,6 @@ HEADERS += mainwindow.h \
     ifilewizardextension.h \
     icorelistener.h \
     versiondialog.h \
-    scriptmanager/metatypedeclarations.h \
-    scriptmanager/scriptmanager.h \
-    scriptmanager/scriptmanager_p.h \
     core_global.h \
     statusbarwidget.h \
     coreplugin.h \

@@ -72,7 +72,6 @@ namespace Internal {
 
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *error);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp);
-DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp, QString *error);
@@ -86,8 +85,6 @@ static const char *engineTypeName(DebuggerEngineType et)
         break;
     case Debugger::GdbEngineType:
         return "Gdb engine";
-    case Debugger::ScriptEngineType:
-        return "Script engine";
     case Debugger::CdbEngineType:
         return "Cdb engine";
     case Debugger::PdbEngineType:
@@ -428,11 +425,6 @@ static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, 
     if (sp.masterEngineType != NoEngineType)
         return true;
 
-    if (sp.executable.endsWith(_(".js"))) {
-        sp.masterEngineType = ScriptEngineType;
-        return true;
-    }
-
     if (sp.executable.endsWith(_(".py"))) {
         sp.masterEngineType = PdbEngineType;
         return true;
@@ -518,8 +510,6 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
     switch (et) {
     case GdbEngineType:
         return createGdbEngine(sp);
-    case ScriptEngineType:
-        return createScriptEngine(sp);
     case CdbEngineType:
         return createCdbEngine(sp, errorMessage);
     case PdbEngineType:

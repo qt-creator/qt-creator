@@ -141,7 +141,6 @@ LIBS  *= -lole32 \
 }
 include(cdb/cdb.pri)
 include(gdb/gdb.pri)
-include(script/script.pri)
 include(pdb/pdb.pri)
 include(lldb/lldb.pri)
 include(lldblib/lldbhost.pri)
