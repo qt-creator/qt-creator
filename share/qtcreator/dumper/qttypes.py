@@ -34,18 +34,31 @@ def checkRef(ref):
     check(count >= minimum)
     check(count < 1000000)
 
-
 def qByteArrayDataData(d, value):
-    checkRef(value['ref'])
-    size = int(value['size'])
-    alloc = int(value['alloc'])
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        addr = d.addressOf(value) + int(value['offset'])
-    except:
-        # Qt 4:
-        addr = value['data']
-    return createPointerValue(value, addr, d.charType()), size, alloc
+    intType = d.intType()
+    base = d.addressOf(value)
+    if d.qtVersion() >= 0x050000:
+        # QTypedArray:
+        # - QtPrivate::RefCount ref
+        # - int size
+        # - uint alloc : 31, capacityReserved : 1
+        # - qptrdiff offset
+        size = int(createReferenceValue(value, base + intType.sizeof, intType))
+        alloc = int(createReferenceValue(value, base + 2 * intType.sizeof, intType)) \
+            & 0x7ffffff
+        data = base + pointerValue(createReferenceValue(value,
+            base + 2 * intType.sizeof + intType.pointer().sizeof,
+            d.charPtrType()))
+    else:
+        # Data:
+        # - QBasicAtomicInt ref;
+        # - int alloc, size;
+        # - char *data;
+        # - char array[1];
+        alloc = int(createReferenceValue(value, base + intType.sizeof, intType))
+        size = int(createReferenceValue(value, base + 2 * intType.sizeof, intType))
+        data = pointerCbase + 3 * intType.sizeof + intType.pointer().sizeof
+    return data, size, alloc
 
 def qByteArrayData(d, value):
     return d.byteArrayDataData(value['d'].dereference())
@@ -1703,22 +1716,16 @@ def qdump__QTextDocument(d, value):
 
 
 def qdump__QUrl(d, value):
-    try:
-        # Qt 4
+    if d.qtVersion() < 0x050000:
         data = value["d"].dereference()
         d.putByteArrayValue(data["encodedOriginal"])
-    except:
-        try:
-            # Qt 5
-            data = value["d"].dereference()
-            str = d.encodeString(data["scheme"])
-            str += "3a002f002f00"
-            str += d.encodeString(data["host"])
-            str += d.encodeString(data["path"])
-            d.putValue(str, Hex4EncodedLittleEndian)
-        except:
-            d.putPlainChildren(value)
-            return
+    else:
+        data = value["d"].dereference()
+        str = d.encodeString(data["scheme"])
+        str += "3a002f002f00"
+        str += d.encodeString(data["host"])
+        str += d.encodeString(data["path"])
+        d.putValue(str, Hex4EncodedLittleEndian)
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
