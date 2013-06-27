@@ -66,7 +66,9 @@ PerforceEditor::PerforceEditor(const VcsBase::VcsBaseEditorParameters *type,
     // Diff format:
     // 1) "==== //depot/.../mainwindow.cpp#2 - /depot/.../mainwindow.cpp ====" (created by p4 diff)
     // 2) "==== //depot/.../mainwindow.cpp#15 (text) ====" (created by p4 describe)
-    setDiffFilePattern(QRegExp(QLatin1String("^==== (.+)#\\d")));
+    // 3) --- //depot/XXX/closingkit/trunk/source/cui/src/cui_core.cpp<tab>2012-02-08 13:54:01.000000000 0100
+    //    +++ P:/XXX\closingkit\trunk\source\cui\src\cui_core.cpp<tab>2012-02-08 13:54:01.000000000 0100
+    setDiffFilePattern(QRegExp(QLatin1String("^(?:={4}|\\+{3}) (.+)(?:\\t|#\\d)")));
     setLogEntryPattern(QRegExp(QLatin1String("^... #\\d change (\\d+) ")));
     setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
     if (Perforce::Constants::debug)
