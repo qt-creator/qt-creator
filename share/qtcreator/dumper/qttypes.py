@@ -125,33 +125,65 @@ Dumper.isMapCompact = \
     lambda d, keyType, valueType: qMapCompact(d.currentItemFormat(), keyType, valueType)
 
 
-# Returns True when it encounters a QObject or derived class.
-def tryPutObjectNameValue(d, value):
+def putQObjectNameValue(d, value):
     try:
-        # Is this derived from QObject?
-        dd = value["d_ptr"]["d"]
-        privateType = d.lookupType(d.ns + "QObjectPrivate")
-        staticMetaObject = value["staticMetaObject"]
-        d_ptr = dd.cast(privateType.pointer()).dereference()
+        intType = d.lookupType("int")
+        ptrType = intType.pointer()
+        # dd = value["d_ptr"]["d"] is just behind the vtable.
+        dd = createReferenceValue(value, d.addressOf(value) + ptrType.sizeof, ptrType)
+
         objectName = None
-        try:
-            objectName = d_ptr["objectName"]
-        except: # Qt 5
-            p = d_ptr["extraData"]
-            if not isNull(p):
-                objectName = p.dereference()["objectName"]
+        if d.qtVersion() < 0x050000:
+            # Size of QObjectData: 5 pointer + 2 int
+            #  - vtable
+            #   - QObject *q_ptr;
+            #   - QObject *parent;
+            #   - QObjectList children;
+            #   - uint isWidget : 1; etc..
+            #   - int postedEvents;
+            #   - QMetaObject *metaObject;
+
+            # Offset of objectName in QObjectPrivate: 5 pointer + 2 int
+            #   - [QObjectData base]
+            #   - QString objectName
+            objectName = createReferenceValue(value,
+                pointerValue(dd) + 5 * ptrType.sizeof + 2 * intType.sizeof,
+                d.lookupType(d.ns + "QString"))
+        else:
+            # Size of QObjectData: 5 pointer + 2 int
+            #   - vtable
+            #   - QObject *q_ptr;
+            #   - QObject *parent;
+            #   - QObjectList children;
+            #   - uint isWidget : 1; etc...
+            #   - int postedEvents;
+            #   - QDynamicMetaObjectData *metaObject;
+            offset = 5 * ptrType.sizeof + 2 * intType.sizeof
+            extra = createReferenceValue(value, pointerValue(dd) + offset, ptrType)
+
+            # Offset of objectName in ExtraData: 6 pointer
+            #   - QVector<QObjectUserData *> userData; only #ifndef QT_NO_USERDATA
+            #   - QList<QByteArray> propertyNames;
+            #   - QList<QVariant> propertyValues;
+            #   - QVector<int> runningTimers;
+            #   - QList<QPointer<QObject> > eventFilters;
+            #   - QString objectName
+            if pointerValue(extra):
+                objectName = createReferenceValue(value,
+                    pointerValue(extra) + 5 * ptrType.sizeof,
+                    d.lookupType(d.ns + "QString"))
+
         if not objectName is None:
             data, size, alloc = d.stringData(objectName)
             if size > 0:
                 str = d.readRawMemory(data, 2 * size)
                 d.putValue(str, Hex4EncodedLittleEndian, 1)
-        return True
     except:
-        return False
+        pass
 
-Dumper.tryPutObjectNameValue = tryPutObjectNameValue
+Dumper.putQObjectNameValue = putQObjectNameValue
 
-############################################################################################
+###################################################################################
 
 
 def qdump__QAtomicInt(d, value):
@@ -974,8 +1006,7 @@ def extractCString(table, offset):
 
 
 def qdump__QObject(d, value):
-    #warn("OBJECT: %s " % value)
-    d.tryPutObjectNameValue(value)
+    d.putQObjectNameValue(value)
 
     try:
         privateTypeName = d.ns + "QObjectPrivate"

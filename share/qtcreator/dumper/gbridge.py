@@ -1554,6 +1554,20 @@ class Dumper:
     def addressOf(self, value):
         return long(value.address)
 
+    def isQObject(self, value):
+        entryType = self.lookupType("int").pointer().pointer()
+        try:
+            vtable = createReferenceValue(value, value.address, entryType)
+            metaObjectEntry = vtable.dereference() # It's the first entry.
+            return str(metaObjectEntry).find("::metaObject() const") > 0
+        except:
+            return False
+        # Alternative: Check for specific values, like targeting the
+        # 'childEvent' member which is typically not overwritten, slot 8.
+        # entry = pointerValue(vtable) + 8 * ptrType.sizeof
+        # childEventEntry = createReferenceValue(value, entry, ptrType)
+        #warn("CHILDEVENT: %s " % childEventEntry)
+
     def put(self, value):
         self.output.append(value)
 
@@ -2136,7 +2150,8 @@ class Dumper:
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        self.tryPutObjectNameValue(value)  # Is this too expensive?
+        if self.isQObject(value):
+            self.putQObjectNameValue(value)  # Is this too expensive?
         self.putType(typeName)
         self.putEmptyValue()
         self.putNumChild(fieldCount(type))
