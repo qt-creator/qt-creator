@@ -60,6 +60,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
+    int openDocumentCount() const;
+
     void addEditor(IEditor *editor, bool isDuplicate = false);
     void addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id);
     QModelIndex firstRestoredEditor() const;

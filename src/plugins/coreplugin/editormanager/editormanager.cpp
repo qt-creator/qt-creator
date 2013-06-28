@@ -2053,7 +2053,7 @@ void EditorManager::updateActions()
 {
     IEditor *curEditor = currentEditor();
     const QString fileName = fileNameForEditor(curEditor);
-    int openedCount = openedEditors().count() + d->m_editorModel->restoredEditors().count();
+    int openedCount = d->m_editorModel->openDocumentCount();
 
     if (curEditor) {
         if (HostOsInfo::isMacHost())

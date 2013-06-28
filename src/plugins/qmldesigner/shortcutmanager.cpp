@@ -172,8 +172,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
 void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 {
-    int openedCount = Core::ICore::editorManager()->openedEditors().count()
-                      + Core::ICore::editorManager()->openedEditorsModel()->restoredEditors().count();
+    int openedCount = Core::ICore::editorManager()->openedEditorsModel()->openDocumentCount();
 
     QString fileName;
     if (currentEditor) {

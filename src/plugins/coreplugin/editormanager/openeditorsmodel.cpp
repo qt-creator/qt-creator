@@ -295,6 +295,11 @@ QModelIndex OpenEditorsModel::index(int row, int column, const QModelIndex &pare
     return createIndex(row, column);
 }
 
+int OpenEditorsModel::openDocumentCount() const
+{
+    return d->m_editors.count();
+}
+
 QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (index.column() != 0 && role < Qt::UserRole))
