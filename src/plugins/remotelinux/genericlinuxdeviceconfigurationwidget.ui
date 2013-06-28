@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>206</height>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,16 @@
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::FieldsStayAtSizeHint</enum>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item row="1" column="0">
@@ -30,7 +39,16 @@
    <item row="1" column="1">
     <widget class="QWidget" name="authTypeButtonsWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item>
@@ -233,6 +251,20 @@
    <item row="0" column="1">
     <widget class="QLabel" name="machineTypeValueLabel"/>
    </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="gdbServerLabel">
+     <property name="text">
+      <string>GDB server executable:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="gdbServerLineEdit">
+     <property name="placeholderText">
+      <string>Leave empty to look up executable in $PATH</string>
+     </property>
+    </widget>
+   </item>
   </layout>
   <zorder>passwordLabel</zorder>
   <zorder>authTypeButtonsWidget</zorder>
@@ -244,6 +276,8 @@
   <zorder>keyLabel</zorder>
   <zorder>machineTypeLabel</zorder>
   <zorder>machineTypeValueLabel</zorder>
+  <zorder>gdbServerLabel</zorder>
+  <zorder>gdbServerLineEdit</zorder>
  </widget>
  <customwidgets>
   <customwidget>

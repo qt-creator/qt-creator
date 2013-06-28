@@ -149,6 +149,9 @@ public:
 
     MachineType machineType() const;
 
+    QString debugServerPath() const;
+    void setDebugServerPath(const QString &path);
+
 protected:
     IDevice();
     IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id = Core::Id());

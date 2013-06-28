@@ -162,6 +162,8 @@ const char KeyFileKey[] = "KeyFile";
 const char PasswordKey[] = "Password";
 const char TimeoutKey[] = "Timeout";
 
+const char DebugServerKey[] = "DebugServerKey";
+
 typedef QSsh::SshConnectionParameters::AuthenticationType AuthType;
 const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
 const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
@@ -189,6 +191,7 @@ public:
 
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
+    QString debugServerPath;
 };
 } // namespace Internal
 
@@ -325,6 +328,8 @@ void IDevice::fromMap(const QVariantMap &map)
         QLatin1String("10000-10100")).toString());
     d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
+
+    d->debugServerPath = map.value(QLatin1String(DebugServerKey)).toString();
 }
 
 QVariantMap IDevice::toMap() const
@@ -346,6 +351,8 @@ QVariantMap IDevice::toMap() const
 
     map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
     map.insert(QLatin1String(VersionKey), d->version);
+
+    map.insert(QLatin1String(DebugServerKey), d->debugServerPath);
 
     return map;
 }
@@ -395,6 +402,16 @@ Utils::PortList IDevice::freePorts() const
 IDevice::MachineType IDevice::machineType() const
 {
     return d->machineType;
+}
+
+QString IDevice::debugServerPath() const
+{
+    return d->debugServerPath;
+}
+
+void IDevice::setDebugServerPath(const QString &path)
+{
+    d->debugServerPath = path;
 }
 
 int IDevice::version() const

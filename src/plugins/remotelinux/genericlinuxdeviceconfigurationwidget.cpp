@@ -60,6 +60,7 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     connect(m_ui->showPasswordCheckBox, SIGNAL(toggled(bool)), this, SLOT(showPassword(bool)));
     connect(m_ui->portsLineEdit, SIGNAL(editingFinished()), this, SLOT(handleFreePortsChanged()));
     connect(m_ui->createKeyButton, SIGNAL(clicked()), SLOT(createNewKey()));
+    connect(m_ui->gdbServerLineEdit, SIGNAL(editingFinished()), SLOT(gdbServerEditingFinished()));
 
     initGui();
 }
@@ -125,6 +126,11 @@ void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
     device()->setSshParameters(sshParams);
 }
 
+void GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished()
+{
+    device()->setDebugServerPath(m_ui->gdbServerLineEdit->text());
+}
+
 void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()
 {
     device()->setFreePorts(PortList::fromString(m_ui->portsLineEdit->text()));
@@ -159,6 +165,7 @@ void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
     passwordEditingFinished();
     keyFileEditingFinished();
     handleFreePortsChanged();
+    gdbServerEditingFinished();
 }
 
 void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()
@@ -199,5 +206,6 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->pwdLineEdit->setText(sshParams.password);
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
+    m_ui->gdbServerLineEdit->setText(device()->debugServerPath());
     updatePortsWarningLabel();
 }
