@@ -141,6 +141,7 @@ private slots:
     void maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
     void queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan);
     void startCppQmlTypeUpdate();
+    void asyncReset();
 
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
@@ -160,6 +161,7 @@ private:
     QFutureSynchronizer<void> m_synchronizer;
 
     QTimer *m_updateCppQmlTypesTimer;
+    QTimer *m_asyncResetTimer;
     QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
     QFuture<void> m_cppQmlTypesUpdater;
     QmlJS::QrcCache m_qrcCache;
