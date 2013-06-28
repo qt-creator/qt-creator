@@ -632,6 +632,7 @@ public:
         m_enableAnnotationContextMenu(enableAnnotationContextMenu),
         m_fileNames(fileNames)
     {
+        QTC_ASSERT(!directory.isEmpty(), return);
         QToolButton *diffButton = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
                                               tr("Show difference."));
         mapSetting(diffButton, m_client->settings()->boolPointer(GitSettings::logDiffKey));
