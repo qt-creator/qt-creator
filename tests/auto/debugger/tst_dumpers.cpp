@@ -776,7 +776,7 @@ void tst_Dumpers::dumper()
                     "run " + nograb + "\n"
                     "up\n"
                     "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
-                    "bb options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:\n";
+                    "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
         } else {
             cmds += "run\n";
             foreach (const Check &check, data.checks) {

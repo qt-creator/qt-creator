@@ -29,12 +29,6 @@ def directBaseClass(typeobj, index = 0):
     # FIXME: Check it's really a base.
     return typeobj.fields()[index]
 
-def createPointerValue(context, address, pointeeType):
-    return gdb.Value(address).cast(pointeeType.pointer())
-
-def createReferenceValue(context, address, referencedType):
-    return gdb.Value(address).cast(referencedType.pointer()).dereference()
-
 def savePrint(output):
     try:
         print(output)
@@ -1548,11 +1542,33 @@ class Dumper:
     def voidPtrType(self):
         return self.lookupType('void*')
 
-    def voidPtrSize(self):
-        return self.voidPtrType().sizeof
-
     def addressOf(self, value):
         return long(value.address)
+
+    def createPointerValue(self, address, pointeeType):
+        return gdb.Value(address).cast(pointeeType.pointer())
+
+    def intSize(self):
+        return 4
+
+    def ptrSize(self):
+        return self.lookupType('void*').sizeof
+
+    def createValue(self, address, referencedType):
+        return gdb.Value(address).cast(referencedType.pointer()).dereference()
+
+    # Returns the address stored at another address.
+    def derefAddress(self, addr):
+        return long(gdb.Value(addr).cast(self.voidPtrType()))
+
+    def dereference(self, addr):
+        return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
+
+    def extractInt(self, addr):
+        return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
+
+    def dereferenceValue(self, value):
+        return self.dereference(value.address)
 
     def isQObject(self, value):
         entryType = self.lookupType("int").pointer().pointer()

@@ -18,6 +18,7 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
+
 def checkSimpleRef(ref):
     count = int(ref["_q_value"])
     check(count > 0)
@@ -34,37 +35,34 @@ def checkRef(ref):
     check(count >= minimum)
     check(count < 1000000)
 
-def qByteArrayDataData(d, value):
-    intType = d.intType()
-    base = d.addressOf(value)
+def qByteArrayDataData(d, addr):
+    intSize = d.intSize()
+    ptrSize = d.ptrSize()
     if d.qtVersion() >= 0x050000:
         # QTypedArray:
         # - QtPrivate::RefCount ref
         # - int size
         # - uint alloc : 31, capacityReserved : 1
         # - qptrdiff offset
-        size = int(createReferenceValue(value, base + intType.sizeof, intType))
-        alloc = int(createReferenceValue(value, base + 2 * intType.sizeof, intType)) \
-            & 0x7ffffff
-        data = base + pointerValue(createReferenceValue(value,
-            base + 2 * intType.sizeof + intType.pointer().sizeof,
-            d.charPtrType()))
+        size = d.extractInt(addr + intSize)
+        alloc = d.extractInt(addr + 2 * intSize) & 0x7ffffff
+        data = addr + d.dereference(addr + 2 * intSize + ptrSize)
     else:
         # Data:
         # - QBasicAtomicInt ref;
         # - int alloc, size;
         # - char *data;
         # - char array[1];
-        alloc = int(createReferenceValue(value, base + intType.sizeof, intType))
-        size = int(createReferenceValue(value, base + 2 * intType.sizeof, intType))
-        data = pointerCbase + 3 * intType.sizeof + intType.pointer().sizeof
+        alloc = d.extractInt(addr + intSize)
+        size = d.extractInt(addr + 2 * intSize)
+        data = addr + 3 * intSize + ptrSize
     return data, size, alloc
 
-def qByteArrayData(d, value):
-    return d.byteArrayDataData(value['d'].dereference())
+def qByteArrayData(d, addr):
+    return qByteArrayDataData(d, d.derefAddress(addr))
 
-def qEncodeByteArray(d, value, limit = None):
-    data, size, alloc = d.byteArrayData(value)
+def qEncodeByteArray(d, addr, limit = None):
+    data, size, alloc = d.byteArrayData(addr)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     limit = d.computeLimit(size, limit)
@@ -73,8 +71,8 @@ def qEncodeByteArray(d, value, limit = None):
         s += "2e2e2e"
     return s
 
-def qEncodeString(d, value, limit = 0):
-    data, size, alloc = d.stringData(value)
+def qEncodeString(d, addr, limit = 0):
+    data, size, alloc = qByteArrayData(d, addr)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     limit = d.computeLimit(size, limit)
@@ -118,21 +116,20 @@ Dumper.putStringValue = \
     lambda d, value: d.putValue(d.encodeString(value), Hex4EncodedLittleEndian)
 
 Dumper.encodeString = qEncodeString
-Dumper.stringData = Dumper.byteArrayData
+Dumper.stringData = qByteArrayData
 Dumper.putMapName = qPutMapName
 
 Dumper.isMapCompact = \
     lambda d, keyType, valueType: qMapCompact(d.currentItemFormat(), keyType, valueType)
 
 
-def putQObjectNameValue(d, value):
+def qPutQObjectNameValue(d, value):
     try:
-        intType = d.lookupType("int")
-        ptrType = intType.pointer()
+        intSize = d.intSize()
+        ptrSize = d.ptrSize()
         # dd = value["d_ptr"]["d"] is just behind the vtable.
-        dd = createReferenceValue(value, d.addressOf(value) + ptrType.sizeof, ptrType)
+        dd = d.dereference(d.addressOf(value) + ptrSize)
 
-        objectName = None
         if d.qtVersion() < 0x050000:
             # Size of QObjectData: 5 pointer + 2 int
             #  - vtable
@@ -146,9 +143,8 @@ def putQObjectNameValue(d, value):
             # Offset of objectName in QObjectPrivate: 5 pointer + 2 int
             #   - [QObjectData base]
             #   - QString objectName
-            objectName = createReferenceValue(value,
-                pointerValue(dd) + 5 * ptrType.sizeof + 2 * intType.sizeof,
-                d.lookupType(d.ns + "QString"))
+            objectName = d.dereference(dd + 5 * ptrSize + 2 * intSize)
+
         else:
             # Size of QObjectData: 5 pointer + 2 int
             #   - vtable
@@ -158,8 +154,9 @@ def putQObjectNameValue(d, value):
             #   - uint isWidget : 1; etc...
             #   - int postedEvents;
             #   - QDynamicMetaObjectData *metaObject;
-            offset = 5 * ptrType.sizeof + 2 * intType.sizeof
-            extra = createReferenceValue(value, pointerValue(dd) + offset, ptrType)
+            extra = d.dereference(dd + 5 * ptrSize + 2 * intSize)
+            if extra == 0:
+                return
 
             # Offset of objectName in ExtraData: 6 pointer
             #   - QVector<QObjectUserData *> userData; only #ifndef QT_NO_USERDATA
@@ -168,20 +165,17 @@ def putQObjectNameValue(d, value):
             #   - QVector<int> runningTimers;
             #   - QList<QPointer<QObject> > eventFilters;
             #   - QString objectName
-            if pointerValue(extra):
-                objectName = createReferenceValue(value,
-                    pointerValue(extra) + 5 * ptrType.sizeof,
-                    d.lookupType(d.ns + "QString"))
+            objectName = d.dereference(extra + 5 * ptrSize)
 
-        if not objectName is None:
-            data, size, alloc = d.stringData(objectName)
-            if size > 0:
-                str = d.readRawMemory(data, 2 * size)
-                d.putValue(str, Hex4EncodedLittleEndian, 1)
+        data, size, alloc = d.stringData(objectName)
+        if size > 0:
+            str = d.readRawMemory(data, 2 * size)
+            d.putValue(str, Hex4EncodedLittleEndian, 1)
+
     except:
         pass
 
-Dumper.putQObjectNameValue = putQObjectNameValue
+Dumper.putQObjectNameValue = qPutQObjectNameValue
 
 ###################################################################################
 
@@ -403,12 +397,10 @@ def qdump__QTime(d, value):
 # This relies on the Qt4/Qt5 internal structure layout:
 # {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
-    intType = d.lookupType("int")
-    intPtrType = intType.pointer()
-    base = pointerValue(value.cast(intPtrType))
-    mds = int(createReferenceValue(value, base + intPtrType.sizeof + 8, intType))
+    base = d.dereferenceValue(value)
+    mds = d.extractInt(base + d.ptrSize() + 8)
     if mds >= 0:
-        jd = int(createReferenceValue(value, base + intPtrType.sizeof, intType))
+        jd = d.extractInt(base + d.ptrSize())
         d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
@@ -737,15 +729,15 @@ def qdump__QList(d, value):
         addr = d.addressOf(array) + begin * stepSize
         if isInternal:
             if innerSize == stepSize:
-                p = createPointerValue(value, addr, innerType)
+                p = d.createPointerValue(addr, innerType)
                 d.putArrayData(innerType, p, size)
             else:
                 with Children(d, size, childType=innerType):
                     for i in d.childRange():
-                        p = createPointerValue(value, addr + i * stepSize, innerType)
-                        d.putSubItem(i, p.dereference())
+                        p = d.createValue(addr + i * stepSize, innerType)
+                        d.putSubItem(i, p)
         else:
-            p = createPointerValue(value, addr, innerType.pointer())
+            p = d.createPointerValue(addr, innerType.pointer())
             # about 0.5s / 1000 items
             with Children(d, size, maxNumChild=2000, childType=innerType):
                 for i in d.childRange():
@@ -759,7 +751,7 @@ def qdump__QImage(d, value):
     # This relies on current QImage layout
     intPtrType = d.lookupType("int").pointer()
     offset = (3 if d.qtVersion() >= 0x050000 else 2) * intPtrType.sizeof
-    base = createReferenceValue(value, d.addressOf(value) + offset, intPtrType)
+    base = d.createValue(d.addressOf(value) + offset, intPtrType)
     width = int(base[1])
     height = int(base[2])
     d.putValue("(%dx%d)" % (width, height))
@@ -1438,7 +1430,7 @@ def qdump__QObject(d, value):
 def qdump__QPixmap(d, value):
     intPtrType = d.lookupType("int").pointer()
     offset = (3 if d.qtVersion() >= 0x050000 else 2) * intPtrType.sizeof
-    base = createReferenceValue(value, d.addressOf(value) + offset, intPtrType)
+    base = d.createValue(d.addressOf(value) + offset, intPtrType)
     d.putValue("(%dx%d)" % (base[1], base[2]))
     d.putNumChild(0)
 
@@ -1751,12 +1743,27 @@ def qdump__QUrl(d, value):
         data = value["d"].dereference()
         d.putByteArrayValue(data["encodedOriginal"])
     else:
-        data = value["d"].dereference()
-        str = d.encodeString(data["scheme"])
+        # QUrlPrivate:
+        # - QAtomicInt ref;
+        # - int port;
+        # - QString scheme;
+        # - QString userName;
+        # - QString password;
+        # - QString host;
+        # - QString path;
+        # - QString query;
+        # - QString fragment;
+        schemeAddr = d.dereferenceValue(value) + 2 * d.intSize()
+        scheme = d.dereference(schemeAddr)
+        host = d.dereference(schemeAddr + 3 * d.ptrSize())
+        path = d.dereference(schemeAddr + 4 * d.ptrSize())
+
+        str = d.encodeString(scheme)
         str += "3a002f002f00"
-        str += d.encodeString(data["host"])
-        str += d.encodeString(data["path"])
+        str += d.encodeString(host)
+        str += d.encodeString(path)
         d.putValue(str, Hex4EncodedLittleEndian)
+
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):

@@ -252,14 +252,6 @@ Value = lldb.SBValue
 def pointerValue(value):
     return value.GetValueAsUnsigned()
 
-def createPointerValue(context, address, pointeeType):
-    addr = int(address) & 0xFFFFFFFFFFFFFFFF
-    return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
-
-def createReferenceValue(context, address, referencedType):
-    addr = int(address) & 0xFFFFFFFFFFFFFFFF
-    return context.CreateValueFromAddress(None, addr, referencedType)
-
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
         if isinstance(offset, int) or isinstance(offset, long):
@@ -750,6 +742,14 @@ class Dumper:
 
     def parseAndEvalute(self, expr):
         return expr
+
+    def createPointerValue(self, address, pointeeType):
+        addr = int(address) & 0xFFFFFFFFFFFFFFFF
+        return self.context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
+
+    def createValue(self, address, referencedType):
+        addr = int(address) & 0xFFFFFFFFFFFFFFFF
+        return self.context.CreateValueFromAddress(None, addr, referencedType)
 
     def putCallItem(self, name, value, func, *args):
         result = call2(value, func, args)
