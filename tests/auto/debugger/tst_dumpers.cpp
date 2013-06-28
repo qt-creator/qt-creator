@@ -1019,6 +1019,13 @@ void tst_Dumpers::dumper_data()
                % Check("a.f", "5.88545355e-44", "float")
                % Check("a.i", "42", "int");
 
+    QTest::newRow("QByteArrayData")
+            << Data("#include <QByteArray>\n",
+                    "QByteArrayData ba;"
+               % CoreProfile()
+               % Check("ba", Value4(""), "@QByteArrayData")
+               % Check("ba", Value5(""), "@QByteArrayData");
+
     QTest::newRow("QByteArray0")
             << Data("#include <QByteArray>\n",
                     "QByteArray ba;")
