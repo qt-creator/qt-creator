@@ -419,7 +419,7 @@ QModelIndex BranchModel::currentBranch() const
     return nodeToIndex(m_currentBranch);
 }
 
-QString BranchModel::branchName(const QModelIndex &idx) const
+QString BranchModel::fullName(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return QString();
@@ -473,7 +473,7 @@ bool BranchModel::isTag(const QModelIndex &idx) const
 
 void BranchModel::removeBranch(const QModelIndex &idx)
 {
-    QString branch = branchName(idx);
+    QString branch = fullName(idx);
     if (branch.isEmpty())
         return;
 
@@ -491,7 +491,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
 
 void BranchModel::removeTag(const QModelIndex &idx)
 {
-    QString tag = branchName(idx);
+    QString tag = fullName(idx);
     if (tag.isEmpty())
         return;
 
@@ -509,7 +509,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
 
 void BranchModel::checkoutBranch(const QModelIndex &idx)
 {
-    QString branch = branchName(idx);
+    QString branch = fullName(idx);
     if (branch.isEmpty())
         return;
 
@@ -535,7 +535,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)
 {
-    QString branch = branchName(idx);
+    QString branch = fullName(idx);
     if (branch.isEmpty())
         return false;
 
@@ -573,7 +573,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     if (!m_rootNode || !m_rootNode->count())
         return QModelIndex();
 
-    const QString trackedBranch = branchName(startPoint);
+    const QString trackedBranch = fullName(startPoint);
     QString output;
     QString errorMessage;
 
