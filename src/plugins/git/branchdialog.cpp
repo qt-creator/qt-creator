@@ -287,7 +287,7 @@ void BranchDialog::rename()
 
 void BranchDialog::diff()
 {
-    QString fullName = m_model->fullName(selectedIndex());
+    QString fullName = m_model->fullName(selectedIndex(), true);
     if (fullName.isEmpty())
         return;
     // Do not pass working dir by reference since it might change
@@ -296,7 +296,7 @@ void BranchDialog::diff()
 
 void BranchDialog::log()
 {
-    QString branchName = m_model->fullName(selectedIndex());
+    QString branchName = m_model->fullName(selectedIndex(), true);
     if (branchName.isEmpty())
         return;
     // Do not pass working dir by reference since it might change
@@ -309,7 +309,7 @@ void BranchDialog::merge()
     QTC_CHECK(m_model->isLocal(m_model->currentBranch())); // otherwise the button would not be enabled!
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
-    const QString branch = m_model->fullName(idx);
+    const QString branch = m_model->fullName(idx, true);
     GitClient *client = GitPlugin::instance()->gitClient();
     if (client->beginStashScope(m_repository, QLatin1String("merge"), AllowUnstashed))
         client->synchronousMerge(m_repository, branch);
@@ -321,7 +321,7 @@ void BranchDialog::rebase()
     QTC_CHECK(m_model->isLocal(m_model->currentBranch())); // otherwise the button would not be enabled!
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
-    const QString baseBranch = m_model->fullName(idx);
+    const QString baseBranch = m_model->fullName(idx, true);
     GitClient *client = GitPlugin::instance()->gitClient();
     if (client->beginStashScope(m_repository, QLatin1String("rebase")))
         client->rebase(m_repository, baseBranch);

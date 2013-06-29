@@ -38,6 +38,12 @@
 namespace Git {
 namespace Internal {
 
+enum RootNodes {
+    LocalBranches = 0,
+    RemoteBranches = 1,
+    Tags = 2
+};
+
 // --------------------------------------------------------------------------
 // BranchNode:
 // --------------------------------------------------------------------------
@@ -77,18 +83,6 @@ public:
         return children.isEmpty();
     }
 
-    bool isTag() const
-    {
-        if (!parent)
-            return false;
-        for (const BranchNode *p = this; p->parent; p = p->parent) {
-            // find root child with name "tags"
-            if (!p->parent->parent && p->name == QLatin1String("tags"))
-                return true;
-        }
-        return false;
-    }
-
     bool childOf(BranchNode *node) const
     {
         if (this == node)
@@ -96,12 +90,22 @@ public:
         return parent ? parent->childOf(node) : false;
     }
 
-    bool isLocal() const
+    bool childOfRoot(RootNodes root) const
     {
         BranchNode *rn = rootNode();
         if (rn->isLeaf())
             return false;
-        return childOf(rn->children.at(0));
+        return childOf(rn->children.at(root));
+    }
+
+    bool isTag() const
+    {
+        return childOfRoot(Tags);
+    }
+
+    bool isLocal() const
+    {
+        return childOfRoot(LocalBranches);
     }
 
     BranchNode *childOfName(const QString &name) const
@@ -113,7 +117,7 @@ public:
         return 0;
     }
 
-    QStringList fullName() const
+    QStringList fullName(bool includePrefix = false) const
     {
         QTC_ASSERT(isLeaf(), return QStringList());
 
@@ -125,8 +129,9 @@ public:
             current = current->parent;
         }
 
-        if (current->children.at(0) == nodes.at(0))
-            nodes.removeFirst(); // remove local branch designation
+        if (includePrefix)
+            fn.append(nodes.first()->sha);
+        nodes.removeFirst();
 
         foreach (const BranchNode *n, nodes)
             fn.append(n->name);
@@ -191,7 +196,12 @@ BranchModel::BranchModel(GitClient *client, QObject *parent) :
     m_currentBranch(0)
 {
     QTC_CHECK(m_client);
-    m_rootNode->append(new BranchNode(tr("Local Branches")));
+
+    // Abuse the sha field for ref prefix
+    m_rootNode->append(new BranchNode(tr("Local Branches"), QLatin1String("refs/heads")));
+    m_rootNode->append(new BranchNode(tr("Remote Branches"), QLatin1String("refs/remotes")));
+    if (m_client->settings()->boolValue(GitSettings::showTagsKey))
+        m_rootNode->append(new BranchNode(tr("Tags"), QLatin1String("refs/tags")));
 }
 
 BranchModel::~BranchModel()
@@ -320,11 +330,9 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 
 void BranchModel::clear()
 {
-    while (m_rootNode->count() > 1)
-        delete m_rootNode->children.takeLast();
-    BranchNode *locals = m_rootNode->children.at(0);
-    while (locals->count())
-        delete locals->children.takeLast();
+    foreach (BranchNode *root, m_rootNode->children)
+        while (root->count())
+            delete root->children.takeLast();
 
     m_currentBranch = 0;
 }
@@ -419,22 +427,20 @@ QModelIndex BranchModel::currentBranch() const
     return nodeToIndex(m_currentBranch);
 }
 
-QString BranchModel::fullName(const QModelIndex &idx) const
+QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
 {
     if (!idx.isValid())
         return QString();
     BranchNode *node = indexToNode(idx);
     if (!node || !node->isLeaf())
         return QString();
-    QStringList path = node->fullName();
-    if (node->isTag())
-        path.removeFirst();
+    QStringList path = node->fullName(includePrefix);
     return path.join(QString(QLatin1Char('/')));
 }
 
 QStringList BranchModel::localBranchNames() const
 {
-    if (!m_rootNode || m_rootNode->children.isEmpty())
+    if (!m_rootNode || !m_rootNode->count())
         return QStringList();
 
     return m_rootNode->children.at(0)->childrenNames();
@@ -509,7 +515,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
 
 void BranchModel::checkoutBranch(const QModelIndex &idx)
 {
-    QString branch = fullName(idx);
+    QString branch = fullName(idx, !isLocal(idx));
     if (branch.isEmpty())
         return;
 
@@ -574,14 +580,15 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         return QModelIndex();
 
     const QString trackedBranch = fullName(startPoint);
+    const QString fullTrackedBranch = fullName(startPoint, true);
     QString output;
     QString errorMessage;
 
     QStringList args;
     args << (track ? QLatin1String("--track") : QLatin1String("--no-track"));
     args << name;
-    if (!trackedBranch.isEmpty())
-        args << trackedBranch;
+    if (!fullTrackedBranch.isEmpty())
+        args << fullTrackedBranch;
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
@@ -632,14 +639,17 @@ void BranchModel::parseOutputLine(const QString &line)
     QStringList nameParts = fullName.split(QLatin1Char('/'));
     nameParts.removeFirst(); // remove refs...
 
+    BranchNode *root = 0;
     if (nameParts.first() == QLatin1String("heads"))
-        nameParts[0] = m_rootNode->children.at(0)->name; // Insert the local designator
+        root = m_rootNode->children.at(0); // Insert the local designator
     else if (nameParts.first() == QLatin1String("remotes"))
-        nameParts.removeFirst(); // remove "remotes"
-    else if (nameParts.first() == QLatin1String("stash"))
+        root = m_rootNode->children.at(1);
+    else if (showTags && nameParts.first() == QLatin1String("tags"))
+        root = m_rootNode->children.at(2);
+    else
         return;
-    else if (!showTags && (nameParts.first() == QLatin1String("tags")))
-        return;
+
+    nameParts.removeFirst();
 
     // limit depth of list. Git basically only ever wants one / and considers the rest as part of
     // the name.
@@ -652,7 +662,7 @@ void BranchModel::parseOutputLine(const QString &line)
     nameParts.removeLast();
 
     BranchNode *newNode = new BranchNode(name, sha, lineParts.at(2));
-    m_rootNode->insert(nameParts, newNode);
+    root->insert(nameParts, newNode);
     if (current)
         m_currentBranch = newNode;
 }
