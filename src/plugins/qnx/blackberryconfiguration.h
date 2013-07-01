@@ -54,7 +54,8 @@ class BlackBerryConfig
 {
     QString ndkPath;
     QString targetName;
-    Utils::FileName qmakeBinaryFile;
+    Utils::FileName qmake4BinaryFile;
+    Utils::FileName qmake5BinaryFile;
     Utils::FileName gccCompiler;
     Utils::FileName deviceDebuger;
     Utils::FileName simulatorDebuger;
@@ -72,7 +73,8 @@ class BlackBerryConfiguration: public QObject
 public:
     static BlackBerryConfiguration &instance();
     BlackBerryConfig config() const;
-    Utils::FileName qmakePath() const;
+    Utils::FileName qmake4Path() const;
+    Utils::FileName qmake5Path() const;
     Utils::FileName gccPath() const;
     Utils::FileName deviceGdbPath() const;
     Utils::FileName simulatorGdbPath() const;
@@ -110,7 +112,8 @@ private:
     void saveNdkSettings();
     bool refresh();
     bool setNdkPath(const QString &ndkPath);
-    QtSupport::BaseQtVersion* createQtVersion();
+    void setupNdkConfigPerQtVersion(const Utils::FileName &qmakePath, ProjectExplorer::GccToolChain* tc);
+    QtSupport::BaseQtVersion* createQtVersion(const Utils::FileName &qmakePath);
     ProjectExplorer::GccToolChain* createGccToolChain();
     ProjectExplorer::Kit* createKit(QnxArchitecture arch, QtSupport::BaseQtVersion* qtVersion, ProjectExplorer::GccToolChain* tc);
 

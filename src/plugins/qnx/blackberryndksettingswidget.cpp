@@ -137,7 +137,8 @@ void BlackBerryNDKSettingsWidget::updateInfoTable()
         m_infoModel->appendRow(row);
     }
 
-    m_infoModel->appendRow( QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("QMAKE"))) << new QStandardItem(m_bbConfig->qmakePath().toString()));
+    m_infoModel->appendRow( QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("QMAKE 4"))) << new QStandardItem(m_bbConfig->qmake4Path().toString()));
+    m_infoModel->appendRow( QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("QMAKE 5"))) << new QStandardItem(m_bbConfig->qmake5Path().toString()));
     m_infoModel->appendRow( QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("COMPILER"))) << new QStandardItem(m_bbConfig->gccPath().toString()));
 
     m_ui->removeButton->setEnabled(true);
