@@ -748,50 +748,57 @@ def qform__QImage():
     return "Normal,Displayed"
 
 def qdump__QImage(d, value):
-    # This relies on current QImage layout
-    intPtrType = d.lookupType("int").pointer()
-    offset = (3 if d.qtVersion() >= 0x050000 else 2) * intPtrType.sizeof
-    base = d.createValue(d.addressOf(value) + offset, intPtrType)
-    width = int(base[1])
-    height = int(base[2])
+    # This relies on current QImage layout:
+    # QImageData:
+    # - QAtomicInt ref
+    # - int width, height, depth, nbytes
+    # - qreal devicePixelRatio  (+20)  # Assume qreal == double, Qt 5 only
+    # - QVector<QRgb> colortable (+20 + gap)
+    # - uchar *data (+20 + gap + ptr)
+    # [- uchar **jumptable jumptable with Qt 3 suppor]
+    # - enum format (+20 + gap + 2 * ptr)
+
+    ptrSize = d.ptrSize()
+    isQt5 = d.qtVersion() >= 0x050000
+    offset = (3 if isQt5 else 2) * ptrSize
+    base = d.dereference(d.addressOf(value) + offset)
+    width = d.extractInt(base + 4)
+    height = d.extractInt(base + 8)
+    nbytes = d.extractInt(base + 16)
+    pixelRatioSize = 8 if isQt5 else 0
+    jumpTableSize = ptrSize if not isQt5 else 0  # FIXME: Assumes Qt3 Support
+    bits = d.dereference(base + 20 + pixelRatioSize + ptrSize)
+    iformat = d.extractInt(base + 20 + pixelRatioSize + jumpTableSize + 2 * ptrSize)
     d.putValue("(%dx%d)" % (width, height))
-    d.putNumChild(0)
-    #d.putNumChild(1)
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
+            d.putIntItem("width", width)
+            d.putIntItem("height", height)
+            d.putIntItem("nbytes", nbytes)
+            d.putIntItem("format", iformat)
             with SubItem(d, "data"):
-                d.putNoType()
+                d.putValue("0x%x" % bits)
                 d.putNumChild(0)
-                d.putValue("size: %s bytes" % nbytes);
+                d.putType("void *")
+
     format = d.currentItemFormat()
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
-        d_ptr = value["d"]
-        bits = d_ptr["data"]
-        nbytes = d_ptr["nbytes"]
-        if False:
-            # Take four bytes at a time, this is critical for performance.
-            # In fact, even four at a time is too slow beyond 100x100 or so.
-            d.putField("editformat", DisplayImageData)
-            d.put('%s="' % name)
-            d.put("%08x" % width)
-            d.put("%08x" % height)
-            d.put("%08x" % int(d_ptr["format"]))
-            p = bits.cast(d.intType().pointer())
-            for i in xrange(nbytes / 4):
-                d.put("%08x" % int(p.dereference()))
-                p += 1
-            d.put('",')
-        else:
-            # Write to an external file. Much faster ;-(
-            file = tempfile.mkstemp(prefix="gdbpy_")
-            filename = file[1].replace("\\", "\\\\")
-            p = bits.cast(d.charType().pointer())
-            gdb.execute("dump binary memory %s %s %s" %
-                (filename, cleanAddress(p), cleanAddress(p + nbytes)))
-            d.putDisplay(DisplayImageFile, " %d %d %d %s"
-                % (width, height, d_ptr["format"], filename))
+        # This is critical for performance. Writing to an external
+        # file using the following is faster when using GDB.
+        #   file = tempfile.mkstemp(prefix="gdbpy_")
+        #   filename = file[1].replace("\\", "\\\\")
+        #   gdb.execute("dump binary memory %s %s %s" %
+        #       (filename, bits, bits + nbytes))
+        #   d.putDisplay(DisplayImageFile, " %d %d %d %d %s"
+        #       % (width, height, nbytes, iformat, filename))
+        d.putField("editformat", DisplayImageData)
+        d.put('editvalue="')
+        d.put('%08x%08x%08x%08x' % (width, height, nbytes, iformat))
+        d.put(d.readRawMemory(bits, nbytes))
+        d.put('",')
 
 
 def qdump__QLinkedList(d, value):

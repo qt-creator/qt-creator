@@ -69,6 +69,7 @@ void ImageWidget::setImage(const QImage &image)
 {
     setFixedSize(image.size() + QSize(2, 2));
     m_image = image;
+    update();
 }
 
 void ImageWidget::mousePressEvent(QMouseEvent *ev)
