@@ -76,7 +76,8 @@
 static const char GIT_DIRECTORY[] = ".git";
 static const char graphLogFormatC[] = "%h %d %an %s %ci";
 static const char HEAD[] = "HEAD";
-
+static const char noColorOption[] = "--no-color";
+static const char decorateOption[] = "--decorate";
 
 namespace Git {
 namespace Internal {
@@ -791,9 +792,6 @@ GitClient::~GitClient()
 {
 }
 
-const char *GitClient::noColorOption = "--no-color";
-const char *GitClient::decorateOption = "--decorate";
-
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
     if (dir.isEmpty() || dir.endsWith(QLatin1String("/.git"))
@@ -1308,7 +1306,7 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
     QByteArray outputText;
     QByteArray errorText;
     QStringList allArguments;
-    allArguments << QLatin1String("log") << QLatin1String(GitClient::noColorOption);
+    allArguments << QLatin1String("log") << QLatin1String(noColorOption);
     allArguments.append(arguments);
     const bool rc = fullySynchronousGit(workingDirectory, allArguments, &outputText, &errorText);
     if (rc) {
@@ -1786,7 +1784,7 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
-    arguments << QLatin1String("log") << QLatin1String(GitClient::noColorOption)
+    arguments << QLatin1String("log") << QLatin1String(noColorOption)
               << (QLatin1String("--pretty=format:") + format)
               << QLatin1String("--max-count=1") << revision;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
