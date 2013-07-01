@@ -377,7 +377,7 @@ void AndroidSettingsWidget::browseAntLocation()
 void AndroidSettingsWidget::browseOpenJDKLocation()
 {
     Utils::FileName openJDKPath = AndroidConfigurations::instance().openJDKPath();
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select OpenJDK Path"), openJDKPath.toString()));
+    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getExistingDirectory(this, tr("Select OpenJDK Path"), openJDKPath.toString()));
     if (file.isEmpty())
         return;
     m_ui->OpenJDKLocationLineEdit->setText(file.toUserOutput());
