@@ -177,8 +177,6 @@ private:
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
 
-    static QString qmakeVarName(ProjectExplorer::FileType type);
-
     void updateBuildSystemData();
     void collectData(const Qt4ProFileNode *node, ProjectExplorer::DeploymentData &deploymentData);
     void collectApplicationData(const Qt4ProFileNode *node,
