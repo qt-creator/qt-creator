@@ -777,6 +777,12 @@ static inline QString currentDocumentPath()
     return QString();
 }
 
+static inline QStringList statusArguments()
+{
+    return QStringList() << QLatin1String("-c") << QLatin1String("color.status=false")
+                         << QLatin1String("status");
+}
+
 // ---------------- GitClient
 
 const char *GitClient::stashNamePrefix = "stash@{";
@@ -1089,8 +1095,7 @@ void GitClient::merge(const QString &workingDirectory, const QStringList &unmerg
 
 void GitClient::status(const QString &workingDirectory)
 {
-    // @TODO: Use "--no-color" once it is supported
-    QStringList statusArgs(QLatin1String("status"));
+    QStringList statusArgs = statusArguments();
     statusArgs << QLatin1String("-u");
     VcsBase::VcsBaseOutputWindow *outwin = outputWindow();
     outwin->setRepository(workingDirectory);
@@ -2368,7 +2373,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     QByteArray outputText;
     QByteArray errorText;
 
-    QStringList statusArgs(QLatin1String("status"));
+    QStringList statusArgs = statusArguments();
     if (mode & NoUntracked)
         statusArgs << QLatin1String("--untracked-files=no");
     else

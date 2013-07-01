@@ -66,10 +66,6 @@ public:
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 
-    // Clean output from carriage return and ANSI color codes
-    // Workaround until all relevant commands support "--no-color"
-    static void removeColorCodes(QByteArray *data);
-
     const QString &binaryPath() const;
     const QString &workingDirectory() const;
     const QProcessEnvironment &processEnvironment() const;
