@@ -259,7 +259,8 @@ void GitDiffHandler::collectShowDescription(const QString &id)
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
     connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotShowDescriptionReceived(QByteArray)));
     QStringList arguments;
-    arguments << QLatin1String("show") << QLatin1String("-s") << QLatin1String("--format=fuller") << id;
+    arguments << QLatin1String("show") << QLatin1String("-s") << QLatin1String("--format=fuller")
+              << QLatin1String(noColorOption) << QLatin1String(decorateOption) << id;
     command->addJob(arguments, m_timeout);
     command->execute();
 }
