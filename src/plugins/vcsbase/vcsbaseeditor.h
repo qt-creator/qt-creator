@@ -78,7 +78,7 @@ class VCSBASE_EXPORT DiffChunk
 {
 public:
     bool isValid() const;
-    QByteArray asPatch() const;
+    QByteArray asPatch(const QString &workingDirectory) const;
 
     QString fileName;
     QByteArray chunk;

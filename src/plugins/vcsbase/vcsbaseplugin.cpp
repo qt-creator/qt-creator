@@ -1056,7 +1056,7 @@ bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     QStringList args(QLatin1String("-p") + QString::number(strip));
     if (reverse)
         args << QLatin1String("-R");
-    ow->appendCommand(QString(), patch, args);
+    ow->appendCommand(workingDirectory, patch, args);
     patchProcess.start(patch, args);
     if (!patchProcess.waitForStarted()) {
         ow->appendError(tr("Unable to launch '%1': %2").arg(patch, patchProcess.errorString()));
