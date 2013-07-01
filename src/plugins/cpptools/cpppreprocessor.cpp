@@ -227,6 +227,8 @@ QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType
         QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
         if (checkFile(path))
             return path;
+        // Fall through! "16.2 Source file inclusion" from the standard states to continue
+        // searching as if this would be a global include.
     }
 
     foreach (const QString &includePath, m_includePaths) {
