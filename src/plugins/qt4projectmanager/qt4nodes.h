@@ -162,7 +162,7 @@ public:
     bool renameFile(const FileType fileType,
                     const QString &filePath, const QString &newFilePath);
 
-    void folderChanged(const QString &changedFolder);
+    bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
     bool deploysFolder(const QString &folder) const;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
@@ -172,6 +172,7 @@ public:
     // Set by parent
     bool includedInExactParse() const;
 
+    static QSet<Utils::FileName> recursiveEnumerate(const QString &folder);
 protected:
     void setIncludedInExactParse(bool b);
     static QStringList varNames(FileType type);
