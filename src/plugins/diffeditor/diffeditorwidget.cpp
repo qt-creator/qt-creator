@@ -418,6 +418,8 @@ void DiffViewEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton && !(e->modifiers() & Qt::ShiftModifier)) {
         QTextCursor cursor = cursorForPosition(e->pos());
         jumpToOriginalFile(cursor);
+        e->accept();
+        return;
     }
     SnippetEditorWidget::mouseDoubleClickEvent(e);
 }
