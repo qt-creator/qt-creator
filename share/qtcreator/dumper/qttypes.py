@@ -51,11 +51,11 @@ def qByteArrayDataData(d, addr):
         # Data:
         # - QBasicAtomicInt ref;
         # - int alloc, size;
+        # - [padding]
         # - char *data;
-        # - char array[1];
         alloc = d.extractInt(addr + intSize)
         size = d.extractInt(addr + 2 * intSize)
-        data = addr + 3 * intSize + ptrSize
+        data = d.dereference(addr + 2 * intSize + ptrSize)
     return data, size, alloc
 
 def qByteArrayData(d, addr):
@@ -168,6 +168,7 @@ def qPutQObjectNameValue(d, value):
             objectName = d.dereference(extra + 5 * ptrSize)
 
         data, size, alloc = d.stringData(objectName)
+
         if size > 0:
             str = d.readRawMemory(data, 2 * size)
             d.putValue(str, Hex4EncodedLittleEndian, 1)
@@ -398,9 +399,17 @@ def qdump__QTime(d, value):
 # {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
     base = d.dereferenceValue(value)
-    mds = d.extractInt(base + d.ptrSize() + 8)
+    # QDateTimePrivate:
+    # - QAtomicInt ref;
+    # -     [QDate date;]  (+4)
+    # -      -  uint jd in Qt 4,  qint64 in Qt 5
+    # -     [QTime time;]  (+4 + dateSize)
+    # -      -  uint mds;
+    # -  Spec spec;
+    dateSize = 8 if d.qtVersion() >= 0x050000 else 4
+    mds = d.extractInt(base + 4 + dateSize)
     if mds >= 0:
-        jd = d.extractInt(base + d.ptrSize())
+        jd = d.extractInt(base + 4)
         d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
@@ -412,12 +421,12 @@ def qdump__QDateTime(d, value):
                     qtdate += "DateFormat::" # FIXME: Bug?...
                     qttime += "TimeSpec::" # FIXME: Bug?...
                 d.putCallItem("toTime_t", value, "toTime_t")
-                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
-                d.putCallItem("(SystemLocale)", value, "toString", qtdate + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
-                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
-                d.putCallItem("toLocalTime", value, "toTimeSpec", qttime + "LocalTime")
+                #d.putCallItem("toString", value, "toString", qtdate + "TextDate")
+                #d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
+                #d.putCallItem("(SystemLocale)", value, "toString", qtdate + "SystemLocaleDate")
+                #d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
+                #d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
+                #d.putCallItem("toLocalTime", value, "toTimeSpec", qttime + "LocalTime")
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -1435,10 +1444,11 @@ def qdump__QObject(d, value):
 # }
 
 def qdump__QPixmap(d, value):
-    intPtrType = d.lookupType("int").pointer()
-    offset = (3 if d.qtVersion() >= 0x050000 else 2) * intPtrType.sizeof
-    base = d.createValue(d.addressOf(value) + offset, intPtrType)
-    d.putValue("(%dx%d)" % (base[1], base[2]))
+    offset = (3 if d.qtVersion() >= 0x050000 else 2) * d.ptrSize()
+    base = d.dereference(d.addressOf(value) + offset)
+    width = d.extractInt(base + 4)
+    height = d.extractInt(base + 8)
+    d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(0)
 
 

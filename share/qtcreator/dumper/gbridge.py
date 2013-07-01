@@ -1320,6 +1320,7 @@ class Dumper:
         self.formats = {}
         self.useDynamicType = True
         self.expandedINames = {}
+        self.childEventAddress = None
 
     def __init__(self, args):
         self.defaultInit()
@@ -1571,18 +1572,36 @@ class Dumper:
         return self.dereference(value.address)
 
     def isQObject(self, value):
-        entryType = self.lookupType("int").pointer().pointer()
         try:
-            vtable = createReferenceValue(value, value.address, entryType)
-            metaObjectEntry = vtable.dereference() # It's the first entry.
-            return str(metaObjectEntry).find("::metaObject() const") > 0
+        #if True:
+            vtable = self.dereference(long(value.address)) # + ptrSize
+            metaObjectEntry = self.dereference(vtable) # It's the first entry.
+            warn("MO: 0x%x " % metaObjectEntry)
+            s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
+            warn("S: %s " % s)
+            #return s.find("::metaObject() const") > 0
+            return s.find("::metaObject() const") > 0 or s.find("10metaObjectEv") > 0
+            #return str(metaObjectEntry).find("::metaObject() const") > 0
         except:
             return False
+
+    def isQObject_B(self, value):
         # Alternative: Check for specific values, like targeting the
         # 'childEvent' member which is typically not overwritten, slot 8.
-        # entry = pointerValue(vtable) + 8 * ptrType.sizeof
-        # childEventEntry = createReferenceValue(value, entry, ptrType)
-        #warn("CHILDEVENT: %s " % childEventEntry)
+        # ~"Symbol \"Myns::QObject::childEvent(Myns::QChildEvent*)\" is a
+        #  function at address 0xb70f691a.\n"
+        if self.childEventAddress == None:
+            try:
+                loc = gdb.execute("info address ::QObject::childEvent", to_string=True)
+                self.childEventAddress = long(loc[loc.rfind(' '):-2], 16)
+            except:
+                self.childEventAddress = 0
+
+        try:
+            vtable = self.dereference(long(value.address))
+            return self.childEventAddress == self.dereference(vtable + 8 * self.ptrSize())
+        except:
+            return False
 
     def put(self, value):
         self.output.append(value)
