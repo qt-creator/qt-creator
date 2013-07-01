@@ -943,6 +943,12 @@ static inline AbstractSymbolGroupNodePtrVector qMap5Nodes(const SymbolGroupValue
     SymbolGroupValue root = head["left"];
     if (!root)
         return AbstractSymbolGroupNodePtrVector();
+
+    const std::string nodeType = qHashNodeType(v, "Node");
+    const std::string nodePtrType = nodeType +  " *";
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << v.type() << "," << nodeType;
+
     RedBlackTreeNode *nodeTree =
         RedBlackTreeNode::buildMapRecursion(root, head.address(), 0, "left", "right");
     if (!nodeTree)
@@ -951,10 +957,6 @@ static inline AbstractSymbolGroupNodePtrVector qMap5Nodes(const SymbolGroupValue
         nodeTree->debug(DebugPrint(), debugQMap5Node);
     VectorIndexType i = 0;
     // Finally convert them into real nodes 'QHashNode<K,V> (potentially expensive)
-    const std::string nodeType = qHashNodeType(v, "Node");
-    const std::string nodePtrType = nodeType +  " *";
-    if (SymbolGroupValue::verbose)
-        DebugPrint() << v.type() << "," << nodeType;
     AbstractSymbolGroupNodePtrVector result;
     result.reserve(count);
     for (const RedBlackTreeNode *n = nodeTree->begin() ; n && i < count; n = RedBlackTreeNode::next(n), i++) {
