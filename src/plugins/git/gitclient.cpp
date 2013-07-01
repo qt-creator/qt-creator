@@ -2247,12 +2247,12 @@ bool GitClient::isValidRevision(const QString &revision) const
 Utils::SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirectory,
                                                             const QStringList &gitArguments,
                                                             unsigned flags,
-                                                            QTextCodec *stdOutCodec)
+                                                            QTextCodec *outputCodec)
 {
     return VcsBasePlugin::runVcs(workingDirectory, gitBinaryPath(), gitArguments,
                                  settings()->intValue(GitSettings::timeoutKey) * 1000,
                                  processEnvironment(),
-                                 flags, stdOutCodec);
+                                 flags, outputCodec);
 }
 
 bool GitClient::fullySynchronousGit(const QString &workingDirectory,

@@ -90,8 +90,8 @@ public:
     void setTimeout(int timeoutMS);
     int timeout() const;
 
-    void setStdOutCodec(QTextCodec *c);
-    QTextCodec *stdOutCodec() const;
+    void setCodec(QTextCodec *c);
+    QTextCodec *codec() const;
 
     QProcess::ProcessChannelMode processChannelMode () const;
     void setProcessChannelMode(QProcess::ProcessChannelMode m);
@@ -155,8 +155,7 @@ private slots:
 private:
     void processStdOut(bool emitSignals);
     void processStdErr(bool emitSignals);
-    static QString convertStdErr(const QByteArray &);
-    QString convertStdOut(const QByteArray &) const;
+    QString convertOutput(const QByteArray &) const;
 
     SynchronousProcessPrivate *d;
 };

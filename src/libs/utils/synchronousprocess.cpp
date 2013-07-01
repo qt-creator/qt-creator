@@ -197,7 +197,7 @@ struct SynchronousProcessPrivate {
     SynchronousProcessPrivate();
     void clearForRun();
 
-    QTextCodec *m_stdOutCodec;
+    QTextCodec *m_codec;
     TerminalControllingProcess m_process;
     QTimer m_timer;
     QEventLoop m_eventLoop;
@@ -214,7 +214,7 @@ struct SynchronousProcessPrivate {
 };
 
 SynchronousProcessPrivate::SynchronousProcessPrivate() :
-    m_stdOutCodec(0),
+    m_codec(0),
     m_hangTimerCount(0),
     m_maxHangTimerCount(defaultMaxHangTimerCount),
     m_startFailure(false),
@@ -267,14 +267,14 @@ int SynchronousProcess::timeout() const
     return d->m_maxHangTimerCount == INT_MAX ? -1 : 1000 * d->m_maxHangTimerCount;
 }
 
-void SynchronousProcess::setStdOutCodec(QTextCodec *c)
+void SynchronousProcess::setCodec(QTextCodec *c)
 {
-    d->m_stdOutCodec = c;
+    d->m_codec = c;
 }
 
-QTextCodec *SynchronousProcess::stdOutCodec() const
+QTextCodec *SynchronousProcess::codec() const
 {
-    return d->m_stdOutCodec;
+    return d->m_codec;
 }
 
 bool SynchronousProcess::stdOutBufferedSignalsEnabled() const
@@ -380,8 +380,8 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
             processStdErr(false);
         }
 
-        d->m_result.stdOut = convertStdOut(d->m_stdOut.data);
-        d->m_result.stdErr = convertStdErr(d->m_stdErr.data);
+        d->m_result.stdOut = convertOutput(d->m_stdOut.data);
+        d->m_result.stdErr = convertOutput(d->m_stdErr.data);
 
         d->m_timer.stop();
         QApplication::restoreOverrideCursor();
@@ -474,15 +474,10 @@ void SynchronousProcess::stdErrReady()
     processStdErr(true);
 }
 
-QString SynchronousProcess::convertStdErr(const QByteArray &ba)
+QString SynchronousProcess::convertOutput(const QByteArray &ba) const
 {
-    return QString::fromLocal8Bit(ba.constData(), ba.size()).remove(QLatin1Char('\r'));
-}
-
-QString SynchronousProcess::convertStdOut(const QByteArray &ba) const
-{
-    QString stdOut = d->m_stdOutCodec ? d->m_stdOutCodec->toUnicode(ba) : QString::fromLocal8Bit(ba.constData(), ba.size());
-    return stdOut.remove(QLatin1Char('\r'));
+    QString output = d->m_codec ? d->m_codec->toUnicode(ba) : QString::fromLocal8Bit(ba.constData(), ba.size());
+    return output.remove(QLatin1Char('\r'));
 }
 
 void SynchronousProcess::processStdOut(bool emitSignals)
@@ -501,7 +496,7 @@ void SynchronousProcess::processStdOut(bool emitSignals)
             if (d->m_stdOut.bufferedSignalsEnabled) {
                 const QByteArray lines = d->m_stdOut.linesRead();
                 if (!lines.isEmpty()) {
-                    emit stdOutBuffered(convertStdOut(lines), d->m_stdOut.firstBuffer);
+                    emit stdOutBuffered(convertOutput(lines), d->m_stdOut.firstBuffer);
                     d->m_stdOut.firstBuffer = false;
                 }
             }
@@ -525,7 +520,7 @@ void SynchronousProcess::processStdErr(bool emitSignals)
                 // Buffered. Emit complete lines?
                 const QByteArray lines = d->m_stdErr.linesRead();
                 if (!lines.isEmpty()) {
-                    emit stdErrBuffered(convertStdErr(lines), d->m_stdErr.firstBuffer);
+                    emit stdErrBuffered(convertOutput(lines), d->m_stdErr.firstBuffer);
                     d->m_stdErr.firstBuffer = false;
                 }
             }

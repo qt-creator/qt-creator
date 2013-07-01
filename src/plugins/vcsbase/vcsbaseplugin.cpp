@@ -951,7 +951,7 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
         process.setProcessEnvironment(env);
         process.setTimeout(timeOutMS);
         if (outputCodec)
-            process.setStdOutCodec(outputCodec);
+            process.setCodec(outputCodec);
 
         // Suppress terminal on UNIX for ssh prompts if it is configured.
         if (sshPromptConfigured && (flags & SshPasswordPrompt))

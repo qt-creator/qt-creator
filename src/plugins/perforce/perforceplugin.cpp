@@ -981,7 +981,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     Utils::SynchronousProcess process;
     const int timeOut = (flags & LongTimeOut) ? m_settings.longTimeOutMS() : m_settings.timeOutMS();
     process.setTimeout(timeOut);
-    process.setStdOutCodec(outputCodec);
+    process.setCodec(outputCodec);
     if (flags & OverrideDiffEnvironment)
         process.setProcessEnvironment(overrideDiffEnvironmentVariable());
     if (!workingDir.isEmpty())
