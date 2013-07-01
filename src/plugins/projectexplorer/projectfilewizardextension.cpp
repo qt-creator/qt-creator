@@ -472,8 +472,6 @@ bool ProjectFileWizardExtension::processProject(
         const QList<Core::GeneratedFile> &files,
         bool *removeOpenProjectAttribute, QString *errorMessage)
 {
-    typedef QMultiMap<FileType, QString> TypeFileMap;
-
     *removeOpenProjectAttribute = false;
 
     QString generatedProject = generatedProjectFilePath(files);
@@ -491,20 +489,13 @@ bool ProjectFileWizardExtension::processProject(
         }
         *removeOpenProjectAttribute = true;
     } else {
-        // Split into lists by file type and bulk-add them.
-        TypeFileMap typeFileMap;
-        const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-        foreach (const Core::GeneratedFile &generatedFile, files) {
-            const QString path = generatedFile.path();
-            typeFileMap.insert(typeForFileName(mdb, path), path);
-        }
-        foreach (FileType type, typeFileMap.uniqueKeys()) {
-            const QStringList typeFiles = typeFileMap.values(type);
-            if (!project->addFiles(type, typeFiles)) {
-                *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
-                                arg(project->path(), typeFiles.join(QString(QLatin1Char(','))));
-                return false;
-            }
+        QStringList filePaths;
+        foreach (const Core::GeneratedFile &generatedFile, files)
+            filePaths << generatedFile.path();
+        if (!project->addFiles(filePaths)) {
+            *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
+                    arg(project->path(), filePaths.join(QString(QLatin1Char(','))));
+            return false;
         }
     }
     return true;

@@ -48,17 +48,13 @@ public:
 
     virtual bool addSubProjects(const QStringList &proFilePaths);
     virtual bool removeSubProjects(const QStringList &proFilePaths);
-    virtual bool addFiles(const ProjectExplorer::FileType fileType,
-                          const QStringList &filePaths,
+    virtual bool addFiles( const QStringList &filePaths,
                           QStringList *notAdded = 0);
-    virtual bool removeFiles(const ProjectExplorer::FileType fileType,
-                             const QStringList &filePaths,
+    virtual bool removeFiles(const QStringList &filePaths,
                              QStringList *notRemoved = 0);
-    virtual bool deleteFiles(const ProjectExplorer::FileType fileType,
-                             const QStringList &filePaths);
-    virtual bool renameFile(const ProjectExplorer::FileType fileType,
-                             const QString &filePath,
-                             const QString &newFilePath);
+    virtual bool deleteFiles(const QStringList &filePaths);
+    virtual bool renameFile(const QString &filePath,
+                            const QString &newFilePath);
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 };
 

@@ -214,18 +214,10 @@ public:
 
     virtual bool removeSubProjects(const QStringList &proFilePaths) = 0;
 
-    virtual bool addFiles(const FileType fileType,
-                          const QStringList &filePaths,
-                          QStringList *notAdded = 0) = 0;
-    // TODO: Maybe remove fileType, can be detected by project
-    virtual bool removeFiles(const FileType fileType,
-                             const QStringList &filePaths,
-                             QStringList *notRemoved = 0) = 0;
-    virtual bool deleteFiles(const FileType fileType,
-                             const QStringList &filePaths) = 0;
-    virtual bool renameFile(const FileType fileType,
-                             const QString &filePath,
-                             const QString &newFilePath) = 0;
+    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) = 0;
+    virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) = 0;
+    virtual bool deleteFiles(const QStringList &filePaths) = 0;
+    virtual bool renameFile(const QString &filePath, const QString &newFilePath) = 0;
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
 
@@ -342,8 +334,5 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-// HACK: THERE SHOULD BE ONE PLACE TO MAKE THE FILE ENDING->FILE TYPE ASSOCIATION
-ProjectExplorer::FileType typeForFileName(const Core::MimeDatabase *db, const QFileInfo &file);
 
 #endif // PROJECTNODES_H

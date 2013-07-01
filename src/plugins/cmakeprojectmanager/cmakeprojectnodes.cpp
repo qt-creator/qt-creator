@@ -67,32 +67,28 @@ bool CMakeProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool CMakeProjectNode::addFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths, QStringList *notAdded)
+bool CMakeProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
-    Q_UNUSED(fileType)
     Q_UNUSED(filePaths)
     Q_UNUSED(notAdded)
     return false;
 }
 
-bool CMakeProjectNode::removeFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths,  QStringList *notRemoved)
+bool CMakeProjectNode::removeFiles(const QStringList &filePaths,  QStringList *notRemoved)
 {
-    Q_UNUSED(fileType)
     Q_UNUSED(filePaths)
     Q_UNUSED(notRemoved)
     return false;
 }
 
-bool CMakeProjectNode::deleteFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths)
+bool CMakeProjectNode::deleteFiles(const QStringList &filePaths)
 {
-    Q_UNUSED(fileType)
     Q_UNUSED(filePaths)
     return false;
 }
 
-bool CMakeProjectNode::renameFile(const ProjectExplorer::FileType fileType, const QString &filePath, const QString &newFilePath)
+bool CMakeProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(fileType)
     Q_UNUSED(filePath)
     Q_UNUSED(newFilePath)
     return false;

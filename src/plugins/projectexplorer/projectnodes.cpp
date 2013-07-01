@@ -837,27 +837,3 @@ NodesWatcher::NodesWatcher(QObject *parent)
         : QObject(parent)
 {
 }
-
-// TODO Maybe put this in core, so that all can benefit
-FileType typeForFileName(const Core::MimeDatabase *db, const QFileInfo &file)
-{
-    const Core::MimeType mt = db->findByFile(file);
-    if (!mt)
-        return UnknownFileType;
-
-    const QString typeName = mt.type();
-    if (typeName == QLatin1String(Constants::CPP_SOURCE_MIMETYPE)
-        || typeName == QLatin1String(Constants::C_SOURCE_MIMETYPE))
-        return SourceType;
-    if (typeName == QLatin1String(Constants::CPP_HEADER_MIMETYPE)
-        || typeName == QLatin1String(Constants::C_HEADER_MIMETYPE))
-        return HeaderType;
-    if (typeName == QLatin1String(Constants::RESOURCE_MIMETYPE))
-        return ResourceType;
-    if (typeName == QLatin1String(Constants::FORM_MIMETYPE))
-        return FormType;
-    if (mt.subClassesOf().contains(QLatin1String(Constants::QML_MIMETYPE))
-            || typeName == QLatin1String(Constants::QML_MIMETYPE))
-        return QMLType;
-    return UnknownFileType;
-}

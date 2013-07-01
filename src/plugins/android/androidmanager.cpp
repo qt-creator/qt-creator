@@ -515,7 +515,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         }
     }
     if (!androidFiles.isEmpty())
-        qt4Project->rootProjectNode()->addFiles(ProjectExplorer::UnknownFileType, androidFiles);
+        qt4Project->rootProjectNode()->addFiles(androidFiles);
 
     int minApiLevel = 4;
     if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit()))

@@ -259,37 +259,28 @@ bool GenericProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool GenericProjectNode::addFiles(const FileType fileType,
-                                  const QStringList &filePaths, QStringList *notAdded)
+bool GenericProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
-    Q_UNUSED(fileType)
     Q_UNUSED(notAdded)
 
     return m_project->addFiles(filePaths);
 }
 
-bool GenericProjectNode::removeFiles(const FileType fileType,
-                                     const QStringList &filePaths, QStringList *notRemoved)
+bool GenericProjectNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
 {
-    Q_UNUSED(fileType)
     Q_UNUSED(notRemoved)
 
     return m_project->removeFiles(filePaths);
 }
 
-bool GenericProjectNode::deleteFiles(const FileType fileType,
-                                     const QStringList &filePaths)
+bool GenericProjectNode::deleteFiles(const QStringList &filePaths)
 {
-    Q_UNUSED(fileType)
     Q_UNUSED(filePaths)
     return false;
 }
 
-bool GenericProjectNode::renameFile(const FileType fileType,
-                                    const QString &filePath, const QString &newFilePath)
+bool GenericProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(fileType)
-
     return m_project->renameFile(filePath, newFilePath);
 }
 

@@ -286,32 +286,28 @@ bool QbsBaseProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool QbsBaseProjectNode::addFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths, QStringList *notAdded)
+bool QbsBaseProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     Q_UNUSED(notAdded);
     return false;
 }
 
-bool QbsBaseProjectNode::removeFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths, QStringList *notRemoved)
+bool QbsBaseProjectNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     Q_UNUSED(notRemoved);
     return false;
 }
 
-bool QbsBaseProjectNode::deleteFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths)
+bool QbsBaseProjectNode::deleteFiles(const QStringList &filePaths)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     return false;
 }
 
-bool QbsBaseProjectNode::renameFile(const ProjectExplorer::FileType fileType, const QString &filePath, const QString &newFilePath)
+bool QbsBaseProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePath);
     Q_UNUSED(newFilePath);
     return false;

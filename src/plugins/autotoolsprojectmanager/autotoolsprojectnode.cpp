@@ -74,39 +74,31 @@ bool AutotoolsProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool AutotoolsProjectNode::addFiles(const FileType fileType,
-                                    const QStringList &filePaths,
+bool AutotoolsProjectNode::addFiles( const QStringList &filePaths,
                                     QStringList *notAdded)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     Q_UNUSED(notAdded);
     return false;
 }
 
-bool AutotoolsProjectNode::removeFiles(const FileType fileType,
-                                       const QStringList &filePaths,
+bool AutotoolsProjectNode::removeFiles(const QStringList &filePaths,
                                        QStringList *notRemoved)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     Q_UNUSED(notRemoved);
     return false;
 }
 
-bool AutotoolsProjectNode::deleteFiles(const FileType fileType,
-                                       const QStringList &filePaths)
+bool AutotoolsProjectNode::deleteFiles(const QStringList &filePaths)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     return false;
 }
 
-bool AutotoolsProjectNode::renameFile(const FileType fileType,
-                                      const QString &filePath,
+bool AutotoolsProjectNode::renameFile(const QString &filePath,
                                       const QString &newFilePath)
 {
-    Q_UNUSED(fileType);
     Q_UNUSED(filePath);
     Q_UNUSED(newFilePath);
     return false;

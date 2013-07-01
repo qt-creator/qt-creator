@@ -64,17 +64,11 @@ public:
     bool canAddSubProject(const QString &proFilePath) const;
     bool addSubProjects(const QStringList &proFilePaths);
     bool removeSubProjects(const QStringList &proFilePaths);
-    bool addFiles(const ProjectExplorer::FileType fileType,
-                           const QStringList &filePaths,
-                           QStringList *notAdded = 0);
-    bool removeFiles(const ProjectExplorer::FileType fileType,
-                              const QStringList &filePaths,
-                              QStringList *notRemoved = 0);
-    bool deleteFiles(const ProjectExplorer::FileType fileType,
-                             const QStringList &filePaths);
-    bool renameFile(const ProjectExplorer::FileType fileType,
-                             const QString &filePath,
-                             const QString &newFilePath);
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
+    bool deleteFiles(const QStringList &filePaths);
+    bool renameFile(const QString &filePath,
+                    const QString &newFilePath);
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
 private:

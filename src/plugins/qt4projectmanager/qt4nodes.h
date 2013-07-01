@@ -153,14 +153,10 @@ public:
     bool addSubProjects(const QStringList &proFilePaths);
     bool removeSubProjects(const QStringList &proFilePaths);
 
-    bool addFiles(const FileType fileType, const QStringList &filePaths,
-                  QStringList *notAdded = 0);
-    bool removeFiles(const FileType fileType, const QStringList &filePaths,
-                     QStringList *notRemoved = 0);
-    bool deleteFiles(const FileType fileType,
-                     const QStringList &filePaths);
-    bool renameFile(const FileType fileType,
-                    const QString &filePath, const QString &newFilePath);
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
+    bool deleteFiles(const QStringList &filePaths);
+    bool renameFile(const QString &filePath, const QString &newFilePath);
 
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
@@ -175,7 +171,8 @@ public:
     static QSet<Utils::FileName> recursiveEnumerate(const QString &folder);
 protected:
     void setIncludedInExactParse(bool b);
-    static QStringList varNames(FileType type);
+    static QStringList varNames(ProjectExplorer::FileType type);
+    static QStringList varNames(const QString &mimeType);
     static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative, QtSupport::BaseQtVersion *qtVersion);
     static QSet<Utils::FileName> filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
     static QSet<Utils::FileName> filterFilesRecursiveEnumerata(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
@@ -185,7 +182,7 @@ protected:
         RemoveFromProFile
     };
 
-    void changeFiles(const FileType fileType,
+    void changeFiles(const QString &mimeType,
                      const QStringList &filePaths,
                      QStringList *notChanged,
                      ChangeType change);

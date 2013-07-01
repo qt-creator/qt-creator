@@ -216,7 +216,7 @@ void SuppressionDialog::accept()
     if (!session->projectForFile(path)) {
         foreach (ProjectExplorer::Project *p, session->projects()) {
             if (path.startsWith(p->projectDirectory())) {
-                p->rootProjectNode()->addFiles(ProjectExplorer::UnknownFileType, QStringList() << path);
+                p->rootProjectNode()->addFiles(QStringList() << path);
                 break;
             }
         }

@@ -52,6 +52,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
@@ -921,7 +922,7 @@ bool Qt4PriFileNode::addSubProjects(const QStringList &proFilePaths)
             uniqueProFilePaths.append(simplifyProFilePath(proFile));
 
     QStringList failedFiles;
-    changeFiles(ProjectExplorer::ProjectFileType, uniqueProFilePaths, &failedFiles, AddToProFile);
+    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), uniqueProFilePaths, &failedFiles, AddToProFile);
 
     return failedFiles.isEmpty();
 }
@@ -929,20 +930,19 @@ bool Qt4PriFileNode::addSubProjects(const QStringList &proFilePaths)
 bool Qt4PriFileNode::removeSubProjects(const QStringList &proFilePaths)
 {
     QStringList failedOriginalFiles;
-    changeFiles(ProjectExplorer::ProjectFileType, proFilePaths, &failedOriginalFiles, RemoveFromProFile);
+    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), proFilePaths, &failedOriginalFiles, RemoveFromProFile);
 
     QStringList simplifiedProFiles;
     foreach (const QString &proFile, failedOriginalFiles)
         simplifiedProFiles.append(simplifyProFilePath(proFile));
 
     QStringList failedSimplifiedFiles;
-    changeFiles(ProjectExplorer::ProjectFileType, simplifiedProFiles, &failedSimplifiedFiles, RemoveFromProFile);
+    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), simplifiedProFiles, &failedSimplifiedFiles, RemoveFromProFile);
 
     return failedSimplifiedFiles.isEmpty();
 }
 
-bool Qt4PriFileNode::addFiles(const FileType fileType, const QStringList &filePaths,
-                           QStringList *notAdded)
+bool Qt4PriFileNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
     // If a file is already referenced in the .pro file then we don't add them.
     // That ignores scopes and which variable was used to reference the file
@@ -953,68 +953,103 @@ bool Qt4PriFileNode::addFiles(const FileType fileType, const QStringList &filePa
     accept(&visitor);
     const QStringList &allFiles = visitor.filePaths();
 
-    QStringList qrcFiles; // the list of qrc files referenced from ui files
-    if (fileType == ProjectExplorer::FormType) {
-        foreach (const QString &formFile, filePaths) {
-            QStringList resourceFiles = formResources(formFile);
-            foreach (const QString &resourceFile, resourceFiles)
-                if (!qrcFiles.contains(resourceFile))
-                    qrcFiles.append(resourceFile);
-        }
-    }
-
-    QStringList uniqueQrcFiles;
-    foreach (const QString &file, qrcFiles) {
-        if (!allFiles.contains(file))
-            uniqueQrcFiles.append(file);
-    }
-
-    QStringList uniqueFilePaths;
-    foreach (const QString &file, filePaths) {
-        if (!allFiles.contains(file))
-            uniqueFilePaths.append(file);
+    typedef QMap<QString, QStringList> TypeFileMap;
+    // Split into lists by file type and bulk-add them.
+    TypeFileMap typeFileMap;
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
+    foreach (const QString file, filePaths) {
+        const Core::MimeType mt = mdb->findByFile(file);
+        typeFileMap[mt.type()] << file;
     }
 
     QStringList failedFiles;
-    changeFiles(fileType, uniqueFilePaths, &failedFiles, AddToProFile);
-    if (notAdded)
-        *notAdded = failedFiles;
-    changeFiles(ProjectExplorer::ResourceType, uniqueQrcFiles, &failedFiles, AddToProFile);
-    if (notAdded)
-        *notAdded += failedFiles;
+    foreach (const QString &type, typeFileMap.keys()) {
+        const QStringList typeFiles = typeFileMap.value(type);
+        QStringList qrcFiles; // the list of qrc files referenced from ui files
+        if (type == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE)) {
+            foreach (const QString &formFile, typeFiles) {
+                QStringList resourceFiles = formResources(formFile);
+                foreach (const QString &resourceFile, resourceFiles)
+                    if (!qrcFiles.contains(resourceFile))
+                        qrcFiles.append(resourceFile);
+            }
+        }
+
+        QStringList uniqueQrcFiles;
+        foreach (const QString &file, qrcFiles) {
+            if (!allFiles.contains(file))
+                uniqueQrcFiles.append(file);
+        }
+
+        QStringList uniqueFilePaths;
+        foreach (const QString &file, typeFiles) {
+            if (!allFiles.contains(file))
+                uniqueFilePaths.append(file);
+        }
+
+        changeFiles(type, uniqueFilePaths, &failedFiles, AddToProFile);
+        if (notAdded)
+            *notAdded += failedFiles;
+        changeFiles(QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE), uniqueQrcFiles, &failedFiles, AddToProFile);
+        if (notAdded)
+            *notAdded += failedFiles;
+    }
     return failedFiles.isEmpty();
 }
 
-bool Qt4PriFileNode::removeFiles(const FileType fileType, const QStringList &filePaths,
+bool Qt4PriFileNode::removeFiles(const QStringList &filePaths,
                               QStringList *notRemoved)
 {
     QStringList failedFiles;
-    changeFiles(fileType, filePaths, &failedFiles, RemoveFromProFile);
-    if (notRemoved)
-        *notRemoved = failedFiles;
+    typedef QMap<QString, QStringList> TypeFileMap;
+    // Split into lists by file type and bulk-add them.
+    TypeFileMap typeFileMap;
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
+    foreach (const QString file, filePaths) {
+        const Core::MimeType mt = mdb->findByFile(file);
+        typeFileMap[mt.type()] << file;
+    }
+    foreach (const QString &type, typeFileMap.keys()) {
+        const QStringList typeFiles = typeFileMap.value(type);
+        changeFiles(type, typeFiles, &failedFiles, RemoveFromProFile);
+        if (notRemoved)
+            *notRemoved = failedFiles;
+    }
     return failedFiles.isEmpty();
 }
 
-bool Qt4PriFileNode::deleteFiles(const FileType fileType, const QStringList &filePaths)
+bool Qt4PriFileNode::deleteFiles(const QStringList &filePaths)
 {
     QStringList failedFiles;
-    changeFiles(fileType, filePaths, &failedFiles, RemoveFromProFile);
+    typedef QMap<QString, QStringList> TypeFileMap;
+    // Split into lists by file type and bulk-add them.
+    TypeFileMap typeFileMap;
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
+    foreach (const QString file, filePaths) {
+        const Core::MimeType mt = mdb->findByFile(file);
+        typeFileMap[mt.type()] << file;
+    }
+    foreach (const QString &type, typeFileMap.keys()) {
+        const QStringList typeFiles = typeFileMap.value(type);
+        changeFiles(type, typeFiles, &failedFiles, RemoveFromProFile);
+    }
     return true;
 }
 
-bool Qt4PriFileNode::renameFile(const FileType fileType, const QString &filePath,
-                             const QString &newFilePath)
+bool Qt4PriFileNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
     if (newFilePath.isEmpty())
         return false;
 
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
-
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
+    const Core::MimeType mt = mdb->findByFile(filePath);
     QStringList dummy;
-    changeFiles(fileType, QStringList() << filePath, &dummy, RemoveFromProFile);
+
+    changeFiles(mt.type(), QStringList() << filePath, &dummy, RemoveFromProFile);
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
-    changeFiles(fileType, QStringList() << newFilePath, &dummy, AddToProFile);
+    changeFiles(mt.type(), QStringList() << newFilePath, &dummy, AddToProFile);
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
     return true;
@@ -1086,7 +1121,7 @@ QStringList Qt4PriFileNode::formResources(const QString &formFile) const
     return resourceFiles;
 }
 
-void Qt4PriFileNode::changeFiles(const FileType fileType,
+void Qt4PriFileNode::changeFiles(const QString &mimeType,
                                  const QStringList &filePaths,
                                  QStringList *notChanged,
                                  ChangeType change)
@@ -1137,12 +1172,11 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
         includeFile = parser.parsedProBlock(contents, m_projectFilePath, 1);
     }
 
-    const QStringList vars = varNames(fileType);
+    const QStringList vars = varNames(mimeType);
     QDir priFileDir = QDir(m_qt4ProFileNode->m_projectDir);
 
     if (change == AddToProFile) {
         // Use the first variable for adding.
-        // Yes, that's broken for adding objective c sources or other stuff.
         ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, vars.first());
         notChanged->clear();
     } else { // RemoveFromProFile
@@ -1213,6 +1247,40 @@ QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
         vars << QLatin1String("OTHER_FILES");
         vars << QLatin1String("ICON");
         break;
+    }
+    return vars;
+}
+
+//!
+//! \brief Qt4PriFileNode::varNames
+//! \param mimeType
+//! \return the qmake variable name for the mime type
+//! Note: For adding the first variable in the list is used
+//! For removal all variables returned a searched for the file
+//!
+QStringList Qt4PriFileNode::varNames(const QString &mimeType)
+{
+    QStringList vars;
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE)
+            || mimeType == QLatin1String(ProjectExplorer::Constants::C_HEADER_MIMETYPE)) {
+        vars << QLatin1String("HEADERS");
+        vars << QLatin1String("OBJECTIVE_HEADERS");
+    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
+               || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE)) {
+        vars << QLatin1String("SOURCES");
+    } else if (mimeType == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)) {
+        vars << QLatin1String("OBJECTIVE_SOURCES");
+    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE)) {
+        vars << QLatin1String("RESOURCES");
+    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE)) {
+        vars << QLatin1String("FORMS");
+    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)) {
+        vars << QLatin1String("OTHER_FILES");
+    } else if (mimeType == QLatin1String(Constants::PROFILE_MIMETYPE)) {
+        vars << QLatin1String("SUBDIRS");
+    } else {
+        vars << QLatin1String("OTHER_FILES");
+        vars << QLatin1String("ICON");
     }
     return vars;
 }

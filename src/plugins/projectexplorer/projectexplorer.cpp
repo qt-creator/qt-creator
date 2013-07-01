@@ -2844,16 +2844,9 @@ void ProjectExplorerPlugin::addExistingFiles(ProjectNode *projectNode, const QSt
 
     const QString dir = directoryFor(projectNode);
     QStringList fileNames = filePaths;
-    QHash<FileType, QString> fileTypeToFiles;
-    foreach (const QString &fileName, fileNames) {
-        FileType fileType = typeForFileName(Core::ICore::mimeDatabase(), QFileInfo(fileName));
-        fileTypeToFiles.insertMulti(fileType, fileName);
-    }
-
     QStringList notAdded;
-    foreach (const FileType type, fileTypeToFiles.uniqueKeys()) {
-        projectNode->addFiles(type, fileTypeToFiles.values(type), &notAdded);
-    }
+    projectNode->addFiles(fileNames, &notAdded);
+
     if (!notAdded.isEmpty()) {
         QString message = tr("Could not add following files to project %1:\n").arg(projectNode->displayName());
         QString files = notAdded.join(QString(QLatin1Char('\n')));
@@ -2919,7 +2912,7 @@ void ProjectExplorerPlugin::removeFile()
         ProjectNode *projectNode = fileNode->projectNode();
         Q_ASSERT(projectNode);
 
-        if (!projectNode->removeFiles(fileNode->fileType(), QStringList(filePath))) {
+        if (!projectNode->removeFiles(QStringList(filePath))) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Removing File Failed"),
                                  tr("Could not remove file %1 from project %2.").arg(filePath).arg(projectNode->displayName()));
             return;
@@ -2947,7 +2940,7 @@ void ProjectExplorerPlugin::deleteFile()
     ProjectNode *projectNode = fileNode->projectNode();
     QTC_ASSERT(projectNode, return);
 
-    projectNode->deleteFiles(fileNode->fileType(), QStringList(filePath));
+    projectNode->deleteFiles(QStringList(filePath));
 
     Core::DocumentManager::expectFileChange(filePath);
     if (Core::IVersionControl *vc =
@@ -2988,7 +2981,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     if (Core::FileUtils::renameFile(orgFilePath, newFilePath)) {
         // Tell the project plugin about rename
         ProjectNode *projectNode = fileNode->projectNode();
-        if (!projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath)) {
+        if (!projectNode->renameFile(orgFilePath, newFilePath)) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Project Editing Failed"),
                                  tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
                                  .arg(orgFilePath)

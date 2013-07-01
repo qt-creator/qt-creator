@@ -198,26 +198,22 @@ bool QmlProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool QmlProjectNode::addFiles(const ProjectExplorer::FileType /*fileType*/,
-                              const QStringList &filePaths, QStringList * /*notAdded*/)
+bool QmlProjectNode::addFiles(const QStringList &filePaths, QStringList * /*notAdded*/)
 {
     return m_project->addFiles(filePaths);
 }
 
-bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType /*fileType*/,
-                                 const QStringList & /*filePaths*/, QStringList * /*notRemoved*/)
+bool QmlProjectNode::removeFiles(const QStringList & /*filePaths*/, QStringList * /*notRemoved*/)
 {
     return false;
 }
 
-bool QmlProjectNode::deleteFiles(const ProjectExplorer::FileType /*fileType*/,
-                                 const QStringList & /*filePaths*/)
+bool QmlProjectNode::deleteFiles(const QStringList & /*filePaths*/)
 {
     return true;
 }
 
-bool QmlProjectNode::renameFile(const ProjectExplorer::FileType /*fileType*/,
-                                    const QString & /*filePath*/, const QString & /*newFilePath*/)
+bool QmlProjectNode::renameFile(const QString & /*filePath*/, const QString & /*newFilePath*/)
 {
     return true;
 }
