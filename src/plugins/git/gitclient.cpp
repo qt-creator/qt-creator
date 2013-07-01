@@ -255,6 +255,8 @@ void GitDiffHandler::show(const QString &id)
 
 void GitDiffHandler::collectShowDescription(const QString &id)
 {
+    if (m_editor.isNull())
+        return;
     m_editor->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
     connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotShowDescriptionReceived(QByteArray)));
@@ -267,12 +269,13 @@ void GitDiffHandler::collectShowDescription(const QString &id)
 
 void GitDiffHandler::slotShowDescriptionReceived(const QByteArray &data)
 {
+    if (m_editor.isNull())
+        return;
     const QString description = m_editor->editorWidget()->codec()->toUnicode(data).remove(QLatin1Char('\r'));
 
     DiffEditor::DiffShowEditor *editor = qobject_cast<DiffEditor::DiffShowEditor *>(m_editor);
-    if (editor) {
+    if (editor)
         editor->setDescription(description);
-    }
 
     collectFilesList(QStringList()
                      << m_requestedRevisionRange.begin.id
@@ -281,6 +284,8 @@ void GitDiffHandler::slotShowDescriptionReceived(const QByteArray &data)
 
 void GitDiffHandler::collectFilesList(const QStringList &additionalArguments)
 {
+    if (m_editor.isNull())
+        return;
     m_editor->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
     connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(slotFileListReceived(QByteArray)));
