@@ -231,7 +231,7 @@ QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType
 
     foreach (const QString &includePath, m_includePaths) {
         QString path = includePath + fileName;
-        if (checkFile(path))
+        if (m_workingCopy.contains(path) || checkFile(path))
             return path;
     }
 

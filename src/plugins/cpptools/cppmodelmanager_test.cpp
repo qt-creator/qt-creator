@@ -32,6 +32,9 @@
 #include "cpppreprocessor.h"
 #include "modelmanagertesthelper.h"
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QtTest>
@@ -359,4 +362,54 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
         QVERIFY(mm->snapshot().contains(file));
     foreach (const QString &file, project2.projectFiles)
         QVERIFY(mm->snapshot().contains(file));
+}
+
+void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
+{
+    TestDataDirectory testDataDirectory(QLatin1String("testdata_guiproject1"));
+    const QString projectFile = testDataDirectory.file(QLatin1String("testdata_guiproject1.pro"));
+
+    // Open project with *.ui file
+    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+    QString errorOpeningProject;
+    Project *project = pe->openProject(projectFile, &errorOpeningProject);
+    QVERIFY(errorOpeningProject.isEmpty());
+    project->configureAsExampleProject(QStringList());
+
+    // Check working copy.
+    // An AbstractEditorSupport object should have been added for the ui_* file.
+    CppModelManagerInterface *mm = CppModelManagerInterface::instance();
+    CppModelManagerInterface::WorkingCopy workingCopy = mm->workingCopy();
+
+    QCOMPARE(workingCopy.size(), 2); // mm->configurationFileName() and "ui_*.h"
+
+    QStringList fileNamesInWorkinCopy;
+    QHashIterator<QString, QPair<QString, unsigned> > it = workingCopy.iterator();
+    while (it.hasNext()) {
+        it.next();
+        fileNamesInWorkinCopy << QFileInfo(it.key()).fileName();
+    }
+    fileNamesInWorkinCopy.sort();
+    const QString expectedUiHeaderFileName = QLatin1String("ui_mainwindow.h");
+    QCOMPARE(fileNamesInWorkinCopy.at(0), mm->configurationFileName());
+    QCOMPARE(fileNamesInWorkinCopy.at(1), expectedUiHeaderFileName);
+
+    // Check CppPreprocessor / includes.
+    // The CppPreprocessor is expected to find the ui_* file in the working copy.
+    const QString fileIncludingTheUiFile = testDataDirectory.file(QLatin1String("mainwindow.cpp"));
+    while (!mm->snapshot().document(fileIncludingTheUiFile))
+        QCoreApplication::processEvents();
+
+    const CPlusPlus::Snapshot snapshot = mm->snapshot();
+    const Document::Ptr document = snapshot.document(fileIncludingTheUiFile);
+    QVERIFY(document);
+    const QStringList includedFiles = document->includedFiles();
+    QCOMPARE(includedFiles.size(), 2);
+    QCOMPARE(QFileInfo(includedFiles.at(0)).fileName(), QLatin1String("mainwindow.h"));
+    QCOMPARE(QFileInfo(includedFiles.at(1)).fileName(), QLatin1String("ui_mainwindow.h"));
+
+    // Close Project
+    ProjectExplorer::SessionManager *sm = pe->session();
+    sm->removeProject(project);
+    ModelManagerTestHelper::verifyClean();
 }
