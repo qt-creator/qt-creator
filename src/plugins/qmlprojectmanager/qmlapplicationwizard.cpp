@@ -136,22 +136,6 @@ QWizard *QmlApplicationWizard::createWizardDialog(QWidget *parent,
     return wizardDialog;
 }
 
-void QmlApplicationWizard::writeUserFile(const QString &fileName) const
-{
-    Manager *manager = ExtensionSystem::PluginManager::getObject<Manager>();
-
-    QmlProject *project = new QmlProject(manager, fileName);
-    QtSupport::QtVersionKitMatcher featureMatcher(requiredFeatures());
-    QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::instance()->kits();
-    foreach (ProjectExplorer::Kit *kit, kits)
-        if (featureMatcher.matches(kit)
-                && project->supportsKit(kit, 0)) // checks for desktop device
-            project->addTarget(project->createTarget(kit));
-
-    project->saveSettings();
-    delete project;
-}
-
 GeneratedFiles QmlApplicationWizard::generateFiles(const QWizard * /*wizard*/,
                                                        QString *errorMessage) const
 {
@@ -161,7 +145,6 @@ GeneratedFiles QmlApplicationWizard::generateFiles(const QWizard * /*wizard*/,
 bool QmlApplicationWizard::postGenerateFiles(const QWizard * /*wizard*/, const GeneratedFiles &l,
     QString *errorMessage)
 {
-    writeUserFile(m_qmlApp->creatorFileName());
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
