@@ -1096,15 +1096,21 @@ QString PropertyEditor::locateQmlFile(const NodeMetaInfo &info, const QString &r
     const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QLatin1String(".qml");
 
     //Check for qml files with versions first
+    const QString withoutDirWithVersion = relativePathWithVersion.split(QLatin1String("/")).last();
     if (importDir.exists(relativePathWithVersion))
         return importDir.absoluteFilePath(relativePathWithVersion);
+    if (importDir.exists(withoutDirWithVersion)) //Since we are in a subfolder of the import we do not require the directory
+        return importDir.absoluteFilePath(withoutDirWithVersion);
     if (fileSystemDir.exists(relativePathWithVersion))
         return fileSystemDir.absoluteFilePath(relativePathWithVersion);
     if (resourcesDir.exists(relativePathWithVersion))
         return resourcesDir.absoluteFilePath(relativePathWithVersion);
 
+    const QString withoutDir = relativePath.split(QLatin1String("/")).last();
     if (importDir.exists(relativePath))
         return importDir.absoluteFilePath(relativePath);
+    if (importDir.exists(withoutDir)) //Since we are in a subfolder of the import we do not require the directory
+        return importDir.absoluteFilePath(withoutDir);
     if (fileSystemDir.exists(relativePath))
         return fileSystemDir.absoluteFilePath(relativePath);
     if (resourcesDir.exists(relativePath))
