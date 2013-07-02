@@ -195,7 +195,7 @@ QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
         Core::MimeType qbsSourceTy = db->findByType(QLatin1String(Constants::QBS_MIMETYPE));
         mergeSuffixes(qbsSuffixes, qbsSourceTy.suffixes());
         Core::MimeType qmlProjectSourceTy = db->findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
-        mergeSuffixes(qbsSuffixes, qmlProjectSourceTy.suffixes());
+        mergeSuffixes(qmlProjectSuffixes, qmlProjectSourceTy.suffixes());
         Core::MimeType jsonSourceTy = db->findByType(QLatin1String(Constants::JSON_MIMETYPE));
         mergeSuffixes(jsonSuffixes, jsonSourceTy.suffixes());
     }
