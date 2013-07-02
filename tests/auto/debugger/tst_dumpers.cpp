@@ -1021,7 +1021,7 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QByteArrayData")
             << Data("#include <QByteArray>\n",
-                    "QByteArrayData ba;"
+                    "QByteArrayData ba;")
                % CoreProfile()
                % Check("ba", Value4(""), "@QByteArrayData")
                % Check("ba", Value5(""), "@QByteArrayData");
