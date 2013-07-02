@@ -7,7 +7,7 @@ Supported Platforms
 The standalone binary packages support the following platforms:
 
 Windows XP SP2 or later
-(K)Ubuntu Linux 10.04 (32-bit and 64-bit) or later
+(K)Ubuntu Linux 11.10 (32-bit and 64-bit) or later
 Mac OS 10.6 or later
 
 Building the sources requires Qt 4.8.0 or later.
