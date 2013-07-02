@@ -1555,6 +1555,9 @@ class Dumper:
     def ptrSize(self):
         return self.lookupType('void*').sizeof
 
+    def is32bit(self):
+        return self.lookupType('void*').sizeof == 4
+
     def createValue(self, address, referencedType):
         return gdb.Value(address).cast(referencedType.pointer()).dereference()
 
@@ -1576,9 +1579,9 @@ class Dumper:
         #if True:
             vtable = self.dereference(long(value.address)) # + ptrSize
             metaObjectEntry = self.dereference(vtable) # It's the first entry.
-            warn("MO: 0x%x " % metaObjectEntry)
+            #warn("MO: 0x%x " % metaObjectEntry)
             s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
-            warn("S: %s " % s)
+            #warn("S: %s " % s)
             #return s.find("::metaObject() const") > 0
             return s.find("::metaObject() const") > 0 or s.find("10metaObjectEv") > 0
             #return str(metaObjectEntry).find("::metaObject() const") > 0

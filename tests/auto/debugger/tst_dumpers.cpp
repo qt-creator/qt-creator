@@ -1147,8 +1147,8 @@ void tst_Dumpers::dumper_data()
                     "unused(&dir, &s);\n")
                % CoreProfile()
                % Check("dir", tempDir, "@QDir")
-               % Check("dir.absolutePath", tempDir, "@QString")
-               % Check("dir.canonicalPath", tempDir, "@QString");
+               % Check("dir.absolutePath", tempDir, "@QString");
+            // % Check("dir.canonicalPath", tempDir, "@QString");
 
     QTest::newRow("QFileInfo")
 #ifdef Q_OS_WIN

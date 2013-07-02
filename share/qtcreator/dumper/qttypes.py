@@ -398,7 +398,7 @@ def qdump__QTime(d, value):
 # This relies on the Qt4/Qt5 internal structure layout:
 # {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
-    base = d.dereferenceValue(value)
+    base = d.dereference(d.addressOf(value))
     # QDateTimePrivate:
     # - QAtomicInt ref;
     # -     [QDate date;]  (+4)
@@ -434,31 +434,55 @@ def qdump__QDateTime(d, value):
 
 def qdump__QDir(d, value):
     d.putNumChild(1)
-    data = value["d_ptr"]["d"].dereference()
-    try:
-        # Up to Qt 4.7
-        d.putStringValue(data["path"])
-    except:
-        # Qt 4.8 and later.
-        d.putStringValue(data["dirEntry"]["m_filePath"])
+    privAddress = d.dereference(d.addressOf(value))
+    bit32 = d.is32bit()
+    qt5 = d.qtVersion() >= 0x050000
+    offset = (32 if bit32 else 40) if qt5 else 36
+    filePathAddress = privAddress + offset
+    #try:
+    #    # Up to Qt 4.7
+    #    d.putStringValue(data["path"])
+    #except:
+    #    # Qt 4.8 and later.
+    #    d.putStringValue(data["dirEntry"]["m_filePath"])
+    d.putStringValue(d.dereference(filePathAddress))
     if d.isExpanded():
         with Children(d):
-            qdir = d.ns + "QDir::"
-            d.putCallItem("absolutePath", value, "absolutePath")
-            d.putCallItem("canonicalPath", value, "canonicalPath")
-            d.putSubItem("entryList", data["files"])
-            d.putSubItem("entryInfoList", data["fileInfos"])
+            call(value, "count")  # Fill cache.
+            #data = value["d_ptr"]["d"].dereference()
+            #qdir = d.ns + "QDir::"
+            #d.putCallItem("absolutePath", value, "absolutePath")
+            #d.putCallItem("canonicalPath", value, "canonicalPath")
+            with SubItem(d, "absolutePath"):
+                # d_ptr.d.priv.absoluteDirEntry.m_filePath
+                offset = (48 if bit32 else 60) if qt5 else 36
+                typ = d.lookupType(d.ns + "QString")
+                d.putItem(d.createValue(privAddress + offset, typ))
+            with SubItem(d, "entryInfoList"):
+                # d_ptr.d.priv.fileInfos
+                offset = (28 if bit32 else 32) if qt5 else 32
+                typ = d.lookupType(d.ns + "QFileInfoList")
+                d.putItem(d.createValue(privAddress + offset, typ))
+            with SubItem(d, "entryList"):
+                # d.ptr.d.priv.files
+                offset = 24 if qt5 else 28
+                typ = d.lookupType(d.ns + "QStringList")
+                d.putItem(d.createValue(privAddress + offset, typ))
+            #d.putSubItem("entryList", data["files"])
+            #d.putSubItem("entryInfoList", data["fileInfos"])
 
 
 def qdump__QFile(d, value):
     try:
         ptype = d.lookupType(d.ns + "QFilePrivate").pointer()
         d_ptr = value["d_ptr"]["d"]
-        d.putStringValue(d_ptr.cast(ptype).dereference()["fileName"])
+        fileNameAddress = d.addressOf(d_ptr.cast(ptype).dereference()["fileName"])
+        d.putNumChild(1)
     except:
-        d.putPlainChildren(value)
-        return
-    d.putNumChild(1)
+        privAddress = d.dereference(d.addressOf(value) + d.ptrSize())
+        fileNameAddress = privAddress + 176 # Qt 5, 32 bit
+        d.putNumChild(0)
+    d.putStringValue(d.dereference(fileNameAddress))
     if d.isExpanded():
         with Children(d):
             base = fieldAt(value.type, 0).type
@@ -467,11 +491,16 @@ def qdump__QFile(d, value):
 
 
 def qdump__QFileInfo(d, value):
-    try:
-        d.putStringValue(value["d_ptr"]["d"].dereference()["fileNames"][3])
-    except:
-        d.putPlainChildren(value)
-        return
+    privAddress = d.dereference(d.addressOf(value))
+    #bit32 = d.is32bit()
+    #qt5 = d.qtVersion() >= 0x050000
+    #try:
+    #    d.putStringValue(value["d_ptr"]["d"].dereference()["fileNames"][3])
+    #except:
+    #    d.putPlainChildren(value)
+    #    return
+    filePathAddress = privAddress + d.ptrSize()
+    d.putStringValue(d.dereference(filePathAddress))
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d, childType=d.lookupType(d.ns + "QString")):
@@ -696,11 +725,16 @@ def qdump__QHash__iterator(d, value):
 
 
 def qdump__QHostAddress(d, value):
-    data = value["d"]["d"].dereference()
-    if int(data["ipString"]["d"]["size"]):
-        d.putStringValue(data["ipString"])
+    privAddress = d.dereference(d.addressOf(value))
+    isQt5 = d.qtVersion() >= 0x050000
+    ipStringAddress = privAddress + (0 if isQt5 else 24)
+    # value["d"]["d"].dereference()["ipString"]
+    ipString = d.encodeString(d.dereference(ipStringAddress))
+    if len(ipString) > 0:
+        d.putValue(ipString, Hex4EncodedLittleEndian)
     else:
-        a = int(data["a"])
+        # value["d"]["d"].dereference()["a"]
+        a = d.extractInt(privAddress + (2 * d.ptrSize() if isQt5 else 0))
         a, n4 = divmod(a, 256)
         a, n3 = divmod(a, 256)
         a, n2 = divmod(a, 256)
@@ -709,7 +743,7 @@ def qdump__QHostAddress(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-           d.putFields(data)
+           d.putFields(value["d"]["d"].dereference())
 
 def qdump__QList(d, value):
     dptr = childAt(value, 0)["d"]
@@ -1510,16 +1544,35 @@ def qdump__QRectF(d, value):
 
 
 def qdump__QRegExp(d, value):
-    d.putStringValue(value["priv"]["engineKey"]["pattern"])
+    # value["priv"]["engineKey"]["pattern"]
+    privAddress = d.dereference(d.addressOf(value))
+    engineKeyAddress = privAddress + d.ptrSize()
+    patternAddress = engineKeyAddress
+    d.putStringValue(d.dereference(patternAddress))
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            # FIXME: Remove need to call
+            # QRegExpPrivate:
+            # - QRegExpEngine *eng               (+0)
+            # - QRegExpEngineKey:                (+1ptr)
+            #   - QString pattern;               (+1ptr)
+            #   - QRegExp::PatternSyntax patternSyntax;  (+2ptr)
+            #   - Qt::CaseSensitivity cs;        (+2ptr +1enum +pad?)
+            # - bool minimal                     (+2ptr +2enum +2pad?)
+            # - QString t                        (+2ptr +2enum +1bool +3pad?)
+            # - QStringList captures             (+3ptr +2enum +1bool +3pad?)
+            # FIXME: Remove need to call. Needed to warm up cache.
             call(value, "capturedTexts") # create cache
             with SubItem(d, "syntax"):
-                d.putItem(value["priv"]["engineKey"]["patternSyntax"])
+                # value["priv"]["engineKey"["capturedCache"]
+                address = engineKeyAddress + d.ptrSize()
+                typ = d.lookupType(d.ns + "QRegExp::PatternSyntax")
+                d.putItem(d.createValue(address, typ))
             with SubItem(d, "captures"):
-                d.putItem(value["priv"]["capturedCache"])
+                # value["priv"]["capturedCache"]
+                address = privAddress + 3 * d.ptrSize() + 12
+                typ = d.lookupType(d.ns + "QStringList")
+                d.putItem(d.createValue(address, typ))
 
 
 def qdump__QRegion(d, value):
@@ -1724,23 +1777,20 @@ def qdump__QTextCodec(d, value):
 
 
 def qdump__QTextCursor(d, value):
-    dd = value["d"]["d"]
-    if isNull(dd):
+    privAddress = d.dereference(d.addressOf(value))
+    if privAddress == 0:
         d.putValue("(invalid)")
         d.putNumChild(0)
     else:
-        try:
-            p = dd.dereference()
-            d.putValue(p["position"])
-        except:
-            d.putPlainChildren(value)
-            return
+        positionAddress = privAddress + 2 * d.ptrSize() + 8
+        d.putValue(d.extractInt(positionAddress))
         d.putNumChild(1)
-        if d.isExpanded():
-            with Children(d):
-                d.putIntItem("position", p["position"])
-                d.putIntItem("anchor", p["anchor"])
-                d.putCallItem("selected", value, "selectedText")
+    if d.isExpanded():
+        with Children(d):
+            positionAddress = privAddress + 2 * d.ptrSize() + 8
+            d.putIntItem("position", d.extractInt(positionAddress))
+            d.putIntItem("anchor", d.extractInt(positionAddress + intSize))
+            d.putCallItem("selected", value, "selectedText")
 
 
 def qdump__QTextDocument(d, value):
@@ -1770,7 +1820,7 @@ def qdump__QUrl(d, value):
         # - QString path;
         # - QString query;
         # - QString fragment;
-        schemeAddr = d.dereferenceValue(value) + 2 * d.intSize()
+        schemeAddr = d.dereference(d.addressOf(value)) + 2 * d.intSize()
         scheme = d.dereference(schemeAddr)
         host = d.dereference(schemeAddr + 3 * d.ptrSize())
         path = d.dereference(schemeAddr + 4 * d.ptrSize())
