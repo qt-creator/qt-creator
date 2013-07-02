@@ -1678,7 +1678,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
         DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
     DebuggerKitChooser *kitChooser = new DebuggerKitChooser(mode);
     DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, mainWindow());
-    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
+    dlg->addAcceptButton(ProjectExplorer::DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
         delete dlg;
