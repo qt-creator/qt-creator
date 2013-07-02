@@ -615,9 +615,14 @@ void CppModelManager::deleteEditorSupport(TextEditor::BaseTextEditor *textEditor
     if (!isCppEditor(textEditor))
         return;
 
-    QMutexLocker locker(&m_editorSupportMutex);
-    CppEditorSupport *editorSupport = m_editorSupport.value(textEditor, 0);
-    m_editorSupport.remove(textEditor);
+    CppEditorSupport *editorSupport;
+
+    { // only lock the operations on m_editorSupport
+        QMutexLocker locker(&m_editorSupportMutex);
+        editorSupport = m_editorSupport.value(textEditor, 0);
+        m_editorSupport.remove(textEditor);
+    }
+
     delete editorSupport;
 }
 
