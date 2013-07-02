@@ -35,7 +35,7 @@ def checkRef(ref):
     check(count >= minimum)
     check(count < 1000000)
 
-def qByteArrayDataData(d, addr):
+def qByteArrayData(d, addr):
     intSize = d.intSize()
     ptrSize = d.ptrSize()
     if d.qtVersion() >= 0x050000:
@@ -58,11 +58,9 @@ def qByteArrayDataData(d, addr):
         data = d.dereference(addr + 2 * intSize + ptrSize)
     return data, size, alloc
 
-def qByteArrayData(d, addr):
-    return qByteArrayDataData(d, d.derefAddress(addr))
 
 def qEncodeByteArray(d, addr, limit = None):
-    data, size, alloc = d.byteArrayData(addr)
+    data, size, alloc = qByteArrayData(d, addr)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     limit = d.computeLimit(size, limit)
@@ -71,6 +69,7 @@ def qEncodeByteArray(d, addr, limit = None):
         s += "2e2e2e"
     return s
 
+# addr is the begin of a QByteArrayData structure
 def qEncodeString(d, addr, limit = 0):
     data, size, alloc = qByteArrayData(d, addr)
     if alloc != 0:
@@ -80,6 +79,24 @@ def qEncodeString(d, addr, limit = 0):
     if limit < size:
         s += "2e002e002e00"
     return s
+
+def qPutStringValueByAddress(d, addr):
+    d.putValue(qEncodeString(d, d.dereference(addr)), Hex4EncodedLittleEndian)
+
+Dumper.encodeByteArray = \
+    lambda d, value: qEncodeByteArray(d, d.dereferenceValue(value))
+Dumper.byteArrayData = \
+    lambda d, value: qByteArrayData(d, d.dereferenceValue(value))
+Dumper.putByteArrayValue = \
+    lambda d, value: d.putValue(d.encodeByteArray(value), Hex2EncodedLatin1)
+
+Dumper.encodeString = \
+    lambda d, value: qEncodeString(d, d.dereferenceValue(value))
+Dumper.stringData = \
+    lambda d, value: qByteArrayData(d, d.dereferenceValue(value))
+Dumper.putStringValue = \
+    lambda d, value: d.putValue(d.encodeString(value), Hex4EncodedLittleEndian)
+
 
 def mapForms():
     return "Normal,Compact"
@@ -107,16 +124,6 @@ def qPutMapName(d, value):
         else:
             d.put('name="%s",' % value)
 
-Dumper.encodeByteArray = qEncodeByteArray
-Dumper.byteArrayData = qByteArrayData
-Dumper.byteArrayDataData = qByteArrayDataData
-Dumper.putByteArrayValue = \
-    lambda d, value: d.putValue(d.encodeByteArray(value), Hex2EncodedLatin1)
-Dumper.putStringValue = \
-    lambda d, value: d.putValue(d.encodeString(value), Hex4EncodedLittleEndian)
-
-Dumper.encodeString = qEncodeString
-Dumper.stringData = qByteArrayData
 Dumper.putMapName = qPutMapName
 
 Dumper.isMapCompact = \
@@ -167,7 +174,7 @@ def qPutQObjectNameValue(d, value):
             #   - QString objectName
             objectName = d.dereference(extra + 5 * ptrSize)
 
-        data, size, alloc = d.stringData(objectName)
+        data, size, alloc = qByteArrayData(d, objectName)
 
         if size > 0:
             str = d.readRawMemory(data, 2 * size)
@@ -200,13 +207,6 @@ def qdump__QBasicAtomicPointer(d, value):
     if d.isExpanded():
         with Children(d):
            d.putItem(value["_q_value"])
-
-def qdump__QByteArrayData(d, value):
-    data, size, alloc = d.byteArrayDataData(value)
-    d.putValue(d.readRawMemory(data, size), Hex2EncodedLatin1)
-    d.putNumChild(size)
-    if d.isExpanded():
-        d.putArrayData(d.charType(), data, size)
 
 def qform__QByteArray():
     return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
@@ -398,7 +398,7 @@ def qdump__QTime(d, value):
 # This relies on the Qt4/Qt5 internal structure layout:
 # {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
-    base = d.dereference(d.addressOf(value))
+    base = d.dereferenceValue(value)
     # QDateTimePrivate:
     # - QAtomicInt ref;
     # -     [QDate date;]  (+4)
@@ -434,7 +434,7 @@ def qdump__QDateTime(d, value):
 
 def qdump__QDir(d, value):
     d.putNumChild(1)
-    privAddress = d.dereference(d.addressOf(value))
+    privAddress = d.dereferenceValue(value)
     bit32 = d.is32bit()
     qt5 = d.qtVersion() >= 0x050000
     offset = (32 if bit32 else 40) if qt5 else 36
@@ -445,12 +445,10 @@ def qdump__QDir(d, value):
     #except:
     #    # Qt 4.8 and later.
     #    d.putStringValue(data["dirEntry"]["m_filePath"])
-    d.putStringValue(d.dereference(filePathAddress))
+    qPutStringValueByAddress(d, filePathAddress)
     if d.isExpanded():
         with Children(d):
             call(value, "count")  # Fill cache.
-            #data = value["d_ptr"]["d"].dereference()
-            #qdir = d.ns + "QDir::"
             #d.putCallItem("absolutePath", value, "absolutePath")
             #d.putCallItem("canonicalPath", value, "canonicalPath")
             with SubItem(d, "absolutePath"):
@@ -468,21 +466,21 @@ def qdump__QDir(d, value):
                 offset = 24 if qt5 else 28
                 typ = d.lookupType(d.ns + "QStringList")
                 d.putItem(d.createValue(privAddress + offset, typ))
-            #d.putSubItem("entryList", data["files"])
-            #d.putSubItem("entryInfoList", data["fileInfos"])
 
 
 def qdump__QFile(d, value):
     try:
+        # Try using debug info first.
         ptype = d.lookupType(d.ns + "QFilePrivate").pointer()
         d_ptr = value["d_ptr"]["d"]
         fileNameAddress = d.addressOf(d_ptr.cast(ptype).dereference()["fileName"])
         d.putNumChild(1)
     except:
+        # 176 is the best guess.
         privAddress = d.dereference(d.addressOf(value) + d.ptrSize())
         fileNameAddress = privAddress + 176 # Qt 5, 32 bit
         d.putNumChild(0)
-    d.putStringValue(d.dereference(fileNameAddress))
+    qPutStringValueByAddress(d, fileNameAddress)
     if d.isExpanded():
         with Children(d):
             base = fieldAt(value.type, 0).type
@@ -491,7 +489,7 @@ def qdump__QFile(d, value):
 
 
 def qdump__QFileInfo(d, value):
-    privAddress = d.dereference(d.addressOf(value))
+    privAddress = d.dereferenceValue(value)
     #bit32 = d.is32bit()
     #qt5 = d.qtVersion() >= 0x050000
     #try:
@@ -500,7 +498,7 @@ def qdump__QFileInfo(d, value):
     #    d.putPlainChildren(value)
     #    return
     filePathAddress = privAddress + d.ptrSize()
-    d.putStringValue(d.dereference(filePathAddress))
+    qPutStringValueByAddress(d, filePathAddress)
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d, childType=d.lookupType(d.ns + "QString")):
@@ -725,15 +723,15 @@ def qdump__QHash__iterator(d, value):
 
 
 def qdump__QHostAddress(d, value):
-    privAddress = d.dereference(d.addressOf(value))
+    privAddress = d.dereferenceValue(value)
     isQt5 = d.qtVersion() >= 0x050000
     ipStringAddress = privAddress + (0 if isQt5 else 24)
-    # value["d"]["d"].dereference()["ipString"]
-    ipString = d.encodeString(d.dereference(ipStringAddress))
+    # value.d.d->ipString
+    ipString = qEncodeString(d, d.dereference(ipStringAddress))
     if len(ipString) > 0:
         d.putValue(ipString, Hex4EncodedLittleEndian)
     else:
-        # value["d"]["d"].dereference()["a"]
+        # value.d.d->a
         a = d.extractInt(privAddress + (2 * d.ptrSize() if isQt5 else 0))
         a, n4 = divmod(a, 256)
         a, n3 = divmod(a, 256)
@@ -1544,11 +1542,11 @@ def qdump__QRectF(d, value):
 
 
 def qdump__QRegExp(d, value):
-    # value["priv"]["engineKey"]["pattern"]
-    privAddress = d.dereference(d.addressOf(value))
+    # value.priv.engineKey.pattern
+    privAddress = d.dereferenceValue(value)
     engineKeyAddress = privAddress + d.ptrSize()
     patternAddress = engineKeyAddress
-    d.putStringValue(d.dereference(patternAddress))
+    qPutStringValueByAddress(d, patternAddress)
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
@@ -1777,7 +1775,7 @@ def qdump__QTextCodec(d, value):
 
 
 def qdump__QTextCursor(d, value):
-    privAddress = d.dereference(d.addressOf(value))
+    privAddress = d.dereferenceValue(value)
     if privAddress == 0:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -1820,15 +1818,15 @@ def qdump__QUrl(d, value):
         # - QString path;
         # - QString query;
         # - QString fragment;
-        schemeAddr = d.dereference(d.addressOf(value)) + 2 * d.intSize()
+        schemeAddr = d.dereferenceValue(value) + 2 * d.intSize()
         scheme = d.dereference(schemeAddr)
         host = d.dereference(schemeAddr + 3 * d.ptrSize())
         path = d.dereference(schemeAddr + 4 * d.ptrSize())
 
-        str = d.encodeString(scheme)
+        str = qEncodeString(d, scheme)
         str += "3a002f002f00"
-        str += d.encodeString(host)
-        str += d.encodeString(path)
+        str += qEncodeString(d, host)
+        str += qEncodeString(d, path)
         d.putValue(str, Hex4EncodedLittleEndian)
 
     d.putNumChild(1)

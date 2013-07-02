@@ -1561,18 +1561,16 @@ class Dumper:
     def createValue(self, address, referencedType):
         return gdb.Value(address).cast(referencedType.pointer()).dereference()
 
-    # Returns the address stored at another address.
-    def derefAddress(self, addr):
-        return long(gdb.Value(addr).cast(self.voidPtrType()))
-
     def dereference(self, addr):
         return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
 
     def extractInt(self, addr):
         return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
 
+    # Do not use value.address here as this might not have one,
+    # i.e. be the result of an inferior call
     def dereferenceValue(self, value):
-        return self.dereference(value.address)
+        return value.cast(self.voidPtrType())
 
     def isQObject(self, value):
         try:
