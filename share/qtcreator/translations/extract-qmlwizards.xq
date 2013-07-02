@@ -1,6 +1,6 @@
-let $prefix := string("QT_TRANSLATE_NOOP(&quot;QmlProjectManager::QmlApplicationWizardDialog&quot;, &quot;")
+let $prefix := string("QT_TRANSLATE_NOOP(&quot;QmlProjectManager::QmlApplicationWizard&quot;, &quot;")
 let $suffix := concat("&quot;)", codepoints-to-string(10))
 for $file in tokenize($files, string("\|"))
     let $doc := doc($file)
-    for $text in ($doc/*:template/*:description, $doc/*:wizard/*:displayname)
+    for $text in ($doc/*:template/*:description, $doc/*:template/*:displayname)
         return fn:concat($prefix, data($text), $suffix)
