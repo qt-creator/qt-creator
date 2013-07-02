@@ -623,6 +623,18 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     return nodeToIndex(newNode);
 }
 
+void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
+{
+    QModelIndex current = currentBranch();
+    QTC_ASSERT(current.isValid(), return);
+    const QString currentName = fullName(current);
+    const QString shortTracking = fullName(trackingIndex);
+    const QString tracking = fullName(trackingIndex, true);
+    m_client->synchronousSetTrackingBranch(m_workingDirectory, currentName, tracking);
+    m_currentBranch->tracking = shortTracking;
+    emit dataChanged(current, current);
+}
+
 void BranchModel::parseOutputLine(const QString &line)
 {
     if (line.size() < 3)

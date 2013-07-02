@@ -251,6 +251,9 @@ public:
     void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
     QString synchronousTrackingBranch(const QString &workingDirectory,
                                       const QString &branch = QString());
+    bool synchronousSetTrackingBranch(const QString &workingDirectory,
+                                      const QString &branch,
+                                      const QString &tracking);
 
     // git svn support (asynchronous).
     void synchronousSubversionFetch(const QString &workingDirectory);

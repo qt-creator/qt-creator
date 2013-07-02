@@ -3059,6 +3059,26 @@ QString GitClient::synchronousTrackingBranch(const QString &workingDirectory, co
     return remote + QLatin1Char('/') + rBranch;
 }
 
+bool GitClient::synchronousSetTrackingBranch(const QString &workingDirectory,
+                                             const QString &branch, const QString &tracking)
+{
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("branch");
+    if (gitVersion() >= 0x010800)
+        arguments << (QLatin1String("--set-upstream-to=") + tracking) << branch;
+    else
+        arguments << QLatin1String("--set-upstream") << branch << tracking;
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    if (!rc) {
+        const QString errorMessage = tr("Cannot set tracking branch: %1")
+                                     .arg(commandOutputFromLocal8Bit(errorText));
+        outputWindow()->appendError(errorMessage);
+    }
+    return rc;
+}
+
 void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit,
                                      const QStringList &files, const QString &abortCommand)
 {

@@ -82,6 +82,7 @@ public:
     void checkoutBranch(const QModelIndex &idx);
     bool branchIsMerged(const QModelIndex &idx);
     QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
+    void setRemoteTracking(const QModelIndex &trackingIndex);
 
 private:
     void parseOutputLine(const QString &line);

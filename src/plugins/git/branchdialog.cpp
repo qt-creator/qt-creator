@@ -69,6 +69,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_ui->logButton, SIGNAL(clicked()), this, SLOT(log()));
     connect(m_ui->mergeButton, SIGNAL(clicked()), this, SLOT(merge()));
     connect(m_ui->rebaseButton, SIGNAL(clicked()), this, SLOT(rebase()));
+    connect(m_ui->trackButton, SIGNAL(clicked()), this, SLOT(setRemoteTracking()));
 
     m_ui->branchView->setModel(m_model);
 
@@ -106,12 +107,14 @@ void BranchDialog::refreshIfSame(const QString &repository)
 void BranchDialog::enableButtons()
 {
     QModelIndex idx = selectedIndex();
+    QModelIndex currentBranch = m_model->currentBranch();
     const bool hasSelection = idx.isValid();
-    const bool currentSelected = hasSelection && idx == m_model->currentBranch();
+    const bool currentSelected = hasSelection && idx == currentBranch;
     const bool isLocal = m_model->isLocal(idx);
     const bool isLeaf = m_model->isLeaf(idx);
     const bool isTag = m_model->isTag(idx);
     const bool hasActions = hasSelection && isLeaf;
+    const bool currentLocal = m_model->isLocal(currentBranch);
 
     m_ui->removeButton->setEnabled(hasActions && !currentSelected && (isLocal || isTag));
     m_ui->renameButton->setEnabled(hasActions && (isLocal || isTag));
@@ -120,6 +123,7 @@ void BranchDialog::enableButtons()
     m_ui->checkoutButton->setEnabled(hasActions && !currentSelected);
     m_ui->rebaseButton->setEnabled(hasActions && !currentSelected);
     m_ui->mergeButton->setEnabled(hasActions && !currentSelected);
+    m_ui->trackButton->setEnabled(hasActions && currentLocal && !currentSelected && !isTag);
 }
 
 void BranchDialog::refresh()
@@ -329,6 +333,11 @@ void BranchDialog::rebase()
     GitClient *client = GitPlugin::instance()->gitClient();
     if (client->beginStashScope(m_repository, QLatin1String("rebase")))
         client->rebase(m_repository, baseBranch);
+}
+
+void BranchDialog::setRemoteTracking()
+{
+    m_model->setRemoteTracking(selectedIndex());
 }
 
 QModelIndex BranchDialog::selectedIndex()
