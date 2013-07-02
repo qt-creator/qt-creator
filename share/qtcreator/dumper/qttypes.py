@@ -36,26 +36,24 @@ def checkRef(ref):
     check(count < 1000000)
 
 def qByteArrayData(d, addr):
-    intSize = d.intSize()
-    ptrSize = d.ptrSize()
     if d.qtVersion() >= 0x050000:
         # QTypedArray:
         # - QtPrivate::RefCount ref
         # - int size
         # - uint alloc : 31, capacityReserved : 1
         # - qptrdiff offset
-        size = d.extractInt(addr + intSize)
-        alloc = d.extractInt(addr + 2 * intSize) & 0x7ffffff
-        data = addr + d.dereference(addr + 2 * intSize + ptrSize)
+        size = d.extractInt(addr + 4)
+        alloc = d.extractInt(addr + 8) & 0x7ffffff
+        data = addr + d.dereference(addr + 8 + d.ptrSize())
     else:
         # Data:
         # - QBasicAtomicInt ref;
         # - int alloc, size;
         # - [padding]
         # - char *data;
-        alloc = d.extractInt(addr + intSize)
-        size = d.extractInt(addr + 2 * intSize)
-        data = d.dereference(addr + 2 * intSize + ptrSize)
+        alloc = d.extractInt(addr + 4)
+        size = d.extractInt(addr + 8)
+        data = d.dereference(addr + 8 + d.ptrSize())
     return data, size, alloc
 
 
@@ -400,16 +398,18 @@ def qdump__QTime(d, value):
 def qdump__QDateTime(d, value):
     base = d.dereferenceValue(value)
     # QDateTimePrivate:
-    # - QAtomicInt ref;
-    # -     [QDate date;]  (+4)
-    # -      -  uint jd in Qt 4,  qint64 in Qt 5
-    # -     [QTime time;]  (+4 + dateSize)
+    # - QAtomicInt ref;    (padded on 64 bit)
+    # -     [QDate date;]
+    # -      -  uint jd in Qt 4,  qint64 in Qt 5; padded on 64 bit
+    # -     [QTime time;]
     # -      -  uint mds;
     # -  Spec spec;
-    dateSize = 8 if d.qtVersion() >= 0x050000 else 4
-    mds = d.extractInt(base + 4 + dateSize)
+    dateSize = 4 if d.qtVersion() < 0x050000 and d.is32bit() else 8
+    dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
+    timeBase = dateBase + dateSize
+    mds = d.extractInt(timeBase)
     if mds >= 0:
-        jd = d.extractInt(base + 4)
+        jd = d.extractInt(dateBase)
         d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
@@ -421,12 +421,12 @@ def qdump__QDateTime(d, value):
                     qtdate += "DateFormat::" # FIXME: Bug?...
                     qttime += "TimeSpec::" # FIXME: Bug?...
                 d.putCallItem("toTime_t", value, "toTime_t")
-                #d.putCallItem("toString", value, "toString", qtdate + "TextDate")
-                #d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
-                #d.putCallItem("(SystemLocale)", value, "toString", qtdate + "SystemLocaleDate")
-                #d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
-                #d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
-                #d.putCallItem("toLocalTime", value, "toTimeSpec", qttime + "LocalTime")
+                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
+                d.putCallItem("(SystemLocale)", value, "toString", qtdate + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
+                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
+                d.putCallItem("toLocalTime", value, "toTimeSpec", qttime + "LocalTime")
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -437,7 +437,8 @@ def qdump__QDir(d, value):
     privAddress = d.dereferenceValue(value)
     bit32 = d.is32bit()
     qt5 = d.qtVersion() >= 0x050000
-    offset = (32 if bit32 else 40) if qt5 else 36
+    # value.d_ptr.d.dirEntry.m_filePath - value.d_ptr.d
+    offset = (32 if bit32 else 56) if qt5 else 36
     filePathAddress = privAddress + offset
     #try:
     #    # Up to Qt 4.7
@@ -452,18 +453,18 @@ def qdump__QDir(d, value):
             #d.putCallItem("absolutePath", value, "absolutePath")
             #d.putCallItem("canonicalPath", value, "canonicalPath")
             with SubItem(d, "absolutePath"):
-                # d_ptr.d.priv.absoluteDirEntry.m_filePath
-                offset = (48 if bit32 else 60) if qt5 else 36
+                # value.d_ptr.d.absoluteDirEntry.m_filePath - value.d_ptr.d
+                offset = (48 if bit32 else 80) if qt5 else 36
                 typ = d.lookupType(d.ns + "QString")
                 d.putItem(d.createValue(privAddress + offset, typ))
             with SubItem(d, "entryInfoList"):
-                # d_ptr.d.priv.fileInfos
-                offset = (28 if bit32 else 32) if qt5 else 32
-                typ = d.lookupType(d.ns + "QFileInfoList")
+                # value.d_ptr.d.fileInfos - value.d_ptr.d
+                offset = (28 if bit32 else 48) if qt5 else 32
+                typ = d.lookupType(d.ns + "QList<" + d.ns + "QFileInfo>")
                 d.putItem(d.createValue(privAddress + offset, typ))
             with SubItem(d, "entryList"):
-                # d.ptr.d.priv.files
-                offset = 24 if qt5 else 28
+                # d.ptr.d.files - value.d_ptr.d
+                offset = (24 if bit32 else 40) if qt5 else 28
                 typ = d.lookupType(d.ns + "QStringList")
                 d.putItem(d.createValue(privAddress + offset, typ))
 
@@ -1745,7 +1746,7 @@ def qdump__QStringRef(d, value):
     s = value["m_string"].dereference()
     data, size, alloc = d.stringData(s)
     data += 2 * int(value["m_position"])
-    size = value["m_size"]
+    size = int(value["m_size"])
     s = d.readRawMemory(data, 2 * size)
     d.putValue(s, Hex4EncodedLittleEndian)
     d.putNumChild(3)

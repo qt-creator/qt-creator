@@ -1128,12 +1128,11 @@ void tst_Dumpers::dumper_data()
                     "unused(&date);\n")
                % CoreProfile()
                % Check("date", "Tue Jan 1 13:15:32 1980", "@QDateTime")
-               //% Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
-               //% CheckType("date.(Locale)", "@QString")
-               //% CheckType("date.(SystemLocale)", "@QString")
-               //% Check("date.toString", "\"Tue Jan 1 13:15:32 1980\"", "@QString")
-               //% Check("date.toUTC", "Tue Jan 1 13:15:32 1980", "@QDateTime"
-               % Check("date.toTime_t", "315580532", "unsigned int");
+               % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
+               % CheckType("date.(Locale)", "@QString")
+               % CheckType("date.(SystemLocale)", "@QString")
+               % Check("date.toString", "\"Tue Jan 1 13:15:32 1980\"", "@QString")
+               % Check("date.toUTC", "Tue Jan 1 13:15:32 1980", "@QDateTime");
 
 #ifdef Q_OS_WIN
     QByteArray tempDir = "\"C:/Program Files\"";
@@ -1144,7 +1143,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QDir>\n",
                     "QDir dir(" + tempDir + ");\n"
                     "QString s = dir.absolutePath();\n"
-                    "unused(&dir, &s);\n")
+                    "QFileInfoList fi = dir.entryInfoList();\n"
+                    "unused(&dir, &s, &fi);\n")
                % CoreProfile()
                % Check("dir", tempDir, "@QDir")
                % Check("dir.absolutePath", tempDir, "@QString");
@@ -2742,6 +2742,7 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(str);\n"
                     "l.push_back(str);\n"
                     "l.push_back(str);\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<std::string>")
                % Check("l", "<2 items>", "@QList<std::string>")
                % Check("str", "\"foo\"", "std::string")
@@ -3118,7 +3119,6 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QThread>\n"
                     "struct Thread : QThread\n"
                     "{\n"
-                    "    virtual ~Thread() {}\n"
                     "    void run()\n"
                     "    {\n"
                     "        if (m_id == 3)\n"
