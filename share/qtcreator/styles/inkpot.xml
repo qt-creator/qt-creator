@@ -53,7 +53,7 @@
   <style name="JsScopeVar" foreground="#8888ff" italic="true"/>
   <style name="JsImportVar" foreground="#8888ff" italic="true"/>
   <style name="JsGlobalVar" foreground="#8888ff" italic="true"/>
-  <style name="DillFileLine" foreground="#404040" background="#dcb178"/>
+  <style name="DiffFileLine" foreground="#404040" background="#dcb178"/>
   <style name="DiffContextLine" foreground="#404040" background="#97bac7"/>
   <style name="DiffSourceLine" background="#8c2d2d"/>
   <style name="DiffSourceChar" background="#c34141"/>

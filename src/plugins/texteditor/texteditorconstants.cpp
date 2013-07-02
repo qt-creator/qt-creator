@@ -87,7 +87,7 @@ const char *nameForStyle(TextStyle style)
     case C_DIFF_FILE:           return "DiffFile";
     case C_DIFF_LOCATION:       return "DiffLocation";
 
-    case C_DIFF_FILE_LINE:      return "DillFileLine";
+    case C_DIFF_FILE_LINE:      return "DiffFileLine";
     case C_DIFF_CONTEXT_LINE:   return "DiffContextLine";
     case C_DIFF_SOURCE_LINE:    return "DiffSourceLine";
     case C_DIFF_SOURCE_CHAR:    return "DiffSourceChar";
