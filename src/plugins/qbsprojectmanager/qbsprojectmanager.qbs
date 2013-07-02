@@ -5,36 +5,15 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QbsProjectManager"
 
-    property var qbs_source_dir: qbs.getenv("QBS_SOURCE_DIR")
-    property var qbs_build_dir: qbs.getenv("QBS_BUILD_DIR")
-
-    condition: qbs_source_dir !== undefined && qbs_build_dir !== undefined
-
-    Depends { name: "Qt"; submodules: [ "widgets", "script" ] }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "Core" }
-    Depends { name: "CppTools" }
-    Depends { name: "TextEditor" }
-    Depends { name: "QtSupport" }
-    Depends { name: "QmlJS" }
-    Depends { name: "QmlJSTools" }
-
-
-    cpp.includePaths: base.concat([
-        qbs_source_dir + "/src",
-        qbs_source_dir + "/src/lib",
-    ])
-
-    cpp.defines: base.concat([
-        'QBS_SOURCE_DIR="' + qbs_source_dir + '"',
-        'QBS_BUILD_DIR="' + qbs_build_dir +'"',
-        'QML_BUILD_STATIC_LIB'
-    ])
-
-    cpp.libraryPaths: base.concat([qbs_build_dir + "/lib"])
-    cpp.rpaths: base.concat([qbs_build_dir + "/lib"])
-    cpp.dynamicLibraries: {
+    property var externalQbsDefines: project.useExternalQbs
+                                     ? ['QBS_BUILD_DIR="' + project.qbs_build_dir +'"'] : []
+    property var externalQbsIncludes: project.useExternalQbs ? [project.qbs_source_dir + "/src/lib"] : []
+    property var externalQbsLibraryPaths: project.useExternalQbs ? [project.qbs_build_dir + "/lib"] : []
+    property var externalQbsRPaths: project.useExternalQbs ? [project.qbs_build_dir + "/lib"] : []
+    property var externalQbsDynamicLibraries: {
         var libs = []
+        if (!project.useExternalQbs)
+            return libs;
         if (qbs.targetOS.contains("windows")) {
             libs.push("shell32")
             if (qbs.enableDebugCode)
@@ -46,6 +25,29 @@ QtcPlugin {
         }
         return libs
     }
+
+    condition: project.useExternalQbs || project.qbsSubModuleExists
+
+    Depends { name: "Qt"; submodules: [ "widgets", "script" ] }
+    Depends { name: "ProjectExplorer" }
+    Depends { name: "Core" }
+    Depends { name: "CppTools" }
+    Depends { name: "TextEditor" }
+    Depends { name: "QtSupport" }
+    Depends { name: "QmlJS" }
+    Depends { name: "QmlJSTools" }
+    Depends {
+        name: "qbscore"
+        condition: project.qbsSubModuleExists && !project.useExternalQbs
+    }
+
+    cpp.defines: base.concat([
+        'QML_BUILD_STATIC_LIB'
+    ]).concat(externalQbsDefines)
+    cpp.includePaths: base.concat(externalQbsIncludes)
+    cpp.libraryPaths: base.concat(externalQbsLibraryPaths)
+    cpp.rpaths: base.concat(externalQbsRPaths)
+    cpp.dynamicLibraries: base.concat(externalQbsDynamicLibraries)
 
     files: [
         "qbsbuildconfiguration.cpp",
