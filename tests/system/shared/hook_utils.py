@@ -349,6 +349,9 @@ def __configureFW__(workingDir, projectName, isReleaseBuild, addToFW=True):
         mode = "delete"
         enable = ""
         projectName = ""
+    # Needs admin privileges on Windows 7
+    # Using the deprecated "netsh firewall" because the newer
+    # "netsh advfirewall" would need admin privileges on Windows Vista, too.
     return subprocess.call('netsh firewall %s allowedprogram "%s.exe" %s %s' % (mode, path, projectName, enable))
 
 # helper to check whether win firewall is running or not
