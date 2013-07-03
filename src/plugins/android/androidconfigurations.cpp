@@ -388,7 +388,7 @@ QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const 
             return device.serialNumber;
         }
     }
-    return startAVD(apiLevel);
+    return QString();
 }
 
 QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(int apiLevel) const
