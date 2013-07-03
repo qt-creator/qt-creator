@@ -45,7 +45,7 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     , m_autoExpandResults(false)
 {
     setModel(m_model);
-    setItemDelegate(new SearchResultTreeItemDelegate(this));
+    setItemDelegate(new SearchResultTreeItemDelegate(8, this));
     setIndentation(14);
     setUniformRowHeights(true);
     setExpandsOnDoubleClick(true);
@@ -89,6 +89,13 @@ void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
     SearchResultItem item = model()->data(index, ItemDataRoles::ResultItemRole).value<SearchResultItem>();
 
     emit jumpToSearchResult(item);
+}
+
+void SearchResultTreeView::setTabWidth(int tabWidth)
+{
+    SearchResultTreeItemDelegate *delegate = static_cast<SearchResultTreeItemDelegate *>(itemDelegate());
+    delegate->setTabWidth(tabWidth);
+    doItemsLayout();
 }
 
 SearchResultTreeModel *SearchResultTreeView::model() const

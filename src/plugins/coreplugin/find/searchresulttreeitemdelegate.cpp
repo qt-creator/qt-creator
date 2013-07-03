@@ -39,9 +39,10 @@
 
 using namespace Core::Internal;
 
-SearchResultTreeItemDelegate::SearchResultTreeItemDelegate(QObject *parent)
-  : QItemDelegate(parent)
+SearchResultTreeItemDelegate::SearchResultTreeItemDelegate(int tabWidth, QObject *parent)
+    : QItemDelegate(parent)
 {
+    setTabWidth(tabWidth);
 }
 
 void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -100,6 +101,11 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
     painter->restore();
 }
 
+void SearchResultTreeItemDelegate::setTabWidth(int width)
+{
+    m_tabString = QString(width, QLatin1Char(' '));
+}
+
 // returns the width of the line number area
 int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option,
                                                  const QRect &rect,
@@ -156,14 +162,18 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
     const int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
     if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1) {
-        QItemDelegate::drawDisplay(painter, option, rect, text);
+        QItemDelegate::drawDisplay(painter, option, rect, text.replace(QLatin1Char('\t'), m_tabString));
         return;
     }
+
     // clip searchTermLength to end of line
     searchTermLength = qMin(searchTermLength, text.length() - searchTermStart);
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
-    int searchTermStartPixels = painter->fontMetrics().width(text.left(searchTermStart));
-    int searchTermLengthPixels = painter->fontMetrics().width(text.mid(searchTermStart, searchTermLength));
+    const QString textBefore = text.left(searchTermStart).replace(QLatin1Char('\t'), m_tabString);
+    const QString textHighlight = text.mid(searchTermStart, searchTermLength).replace(QLatin1Char('\t'), m_tabString);
+    const QString textAfter = text.mid(searchTermStart + searchTermLength).replace(QLatin1Char('\t'), m_tabString);
+    int searchTermStartPixels = painter->fontMetrics().width(textBefore);
+    int searchTermLengthPixels = painter->fontMetrics().width(textHighlight);
 
     // rects
     QRect beforeHighlightRect(rect);
@@ -203,19 +213,16 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
     noHighlightOpt.textElideMode = Qt::ElideNone;
     if (isSelected)
         noHighlightOpt.palette.setColor(QPalette::Text, noHighlightOpt.palette.color(cg, QPalette::HighlightedText));
-    QItemDelegate::drawDisplay(painter, noHighlightOpt,
-                               beforeHighlightRect, text.mid(0, searchTermStart));
+    QItemDelegate::drawDisplay(painter, noHighlightOpt, beforeHighlightRect, textBefore);
 
     // Highlight text
     QStyleOptionViewItem highlightOpt = noHighlightOpt;
     const QColor highlightForeground =
             index.model()->data(index, ItemDataRoles::ResultHighlightForegroundColor).value<QColor>();
     highlightOpt.palette.setColor(QPalette::Text, highlightForeground);
-    QItemDelegate::drawDisplay(painter, highlightOpt, resultHighlightRect,
-                               text.mid(searchTermStart, searchTermLength));
+    QItemDelegate::drawDisplay(painter, highlightOpt, resultHighlightRect, textHighlight);
 
     // Text after the Highlight
     noHighlightOpt.rect = afterHighlightRect;
-    QItemDelegate::drawDisplay(painter, noHighlightOpt, afterHighlightRect,
-                               text.mid(searchTermStart + searchTermLength));
+    QItemDelegate::drawDisplay(painter, noHighlightOpt, afterHighlightRect, textAfter);
 }

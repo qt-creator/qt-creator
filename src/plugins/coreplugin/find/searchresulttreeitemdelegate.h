@@ -39,14 +39,16 @@ namespace Internal {
 class SearchResultTreeItemDelegate: public QItemDelegate
 {
 public:
-    SearchResultTreeItemDelegate(QObject *parent = 0);
+    SearchResultTreeItemDelegate(int tabWidth, QObject *parent = 0);
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void setTabWidth(int width);
 
 private:
     int drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option, const QRect &rect, const QModelIndex &index) const;
     void drawText(QPainter *painter, const QStyleOptionViewItem &option,
                            const QRect &rect, const QModelIndex &index) const;
 
+    QString m_tabString;
     static const int m_minimumLineNumberDigits = 6;
 };
 

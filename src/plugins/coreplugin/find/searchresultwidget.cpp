@@ -354,6 +354,11 @@ void SearchResultWidget::setTextEditorFont(const QFont &font, const SearchResult
     m_searchResultTreeView->setTextEditorFont(font, color);
 }
 
+void SearchResultWidget::setTabWidth(int tabWidth)
+{
+    m_searchResultTreeView->setTabWidth(tabWidth);
+}
+
 void SearchResultWidget::setAutoExpandResults(bool expand)
 {
     m_searchResultTreeView->setAutoExpandResults(expand);

@@ -50,6 +50,7 @@ public:
 
     void setAutoExpandResults(bool expand);
     void setTextEditorFont(const QFont &font, const SearchResultColor &color);
+    void setTabWidth(int tabWidth);
 
     SearchResultTreeModel *model() const;
     void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
