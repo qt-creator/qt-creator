@@ -295,6 +295,7 @@ public:
 
     void launchGitK(const QString &workingDirectory, const QString &fileName);
     void launchGitK(const QString &workingDirectory) { launchGitK(workingDirectory, QString()); }
+    bool launchGitGui(const QString &workingDirectory);
 
     void launchRepositoryBrowser(const QString &workingDirectory);
 

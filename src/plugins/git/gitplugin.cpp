@@ -634,6 +634,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
     gitToolsMenu->addSeparator(globalcontext);
 
+    createRepositoryAction(gitToolsMenu, tr("Git Gui"), Core::Id("Git.GitGui"),
+                           globalcontext, true, SLOT(gitGui()));
+
+    // --------------
+    gitToolsMenu->addSeparator(globalcontext);
+
     m_repositoryBrowserAction
             = createRepositoryAction(gitToolsMenu,
                                      tr("Repository Browser"), Core::Id("Git.LaunchRepositoryBrowser"),
@@ -925,6 +931,13 @@ void GitPlugin::gitkForCurrentFolder()
         folderName = folderName.remove(0, dir.absolutePath().length() + 1);
         m_gitClient->launchGitK(dir.absolutePath(), folderName);
     }
+}
+
+void GitPlugin::gitGui()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient->launchGitGui(state.topLevel());
 }
 
 void GitPlugin::startAmendCommit()

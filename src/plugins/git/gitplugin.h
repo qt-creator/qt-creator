@@ -123,6 +123,7 @@ private slots:
     void unstageFile();
     void gitkForCurrentFile();
     void gitkForCurrentFolder();
+    void gitGui();
     void cleanProject();
     void cleanRepository();
     void updateSubmodules();

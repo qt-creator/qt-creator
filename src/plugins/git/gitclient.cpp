@@ -2576,6 +2576,19 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     return success;
 }
 
+bool GitClient::launchGitGui(const QString &workingDirectory) {
+    bool success;
+    QString gitBinary = gitBinaryPath(&success);
+    if (success)
+        success = QProcess::startDetached(gitBinary, QStringList(QLatin1String("gui")),
+                                          workingDirectory);
+
+    if (!success)
+        outputWindow()->appendError(tr("Cannot launch git gui"));
+
+    return success;
+}
+
 QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 {
     return settings()->gitBinaryPath(ok, errorMessage);
