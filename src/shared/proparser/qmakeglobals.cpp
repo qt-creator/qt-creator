@@ -237,7 +237,8 @@ void QMakeGlobals::setDirectories(const QString &input_dir, const QString &outpu
         int srcLen = srcpath.length();
         int dstLen = dstpath.length();
         int lastSl = -1;
-        while (++lastSl, srcpath.at(--srcLen) == dstpath.at(--dstLen))
+        while (++lastSl, --srcLen, --dstLen,
+               srcLen && dstLen && srcpath.at(srcLen) == dstpath.at(dstLen))
             if (srcpath.at(srcLen) == QLatin1Char('/'))
                 lastSl = 0;
         source_root = srcpath.left(srcLen + lastSl);
