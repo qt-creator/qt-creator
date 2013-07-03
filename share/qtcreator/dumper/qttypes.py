@@ -847,20 +847,21 @@ def qdump__QImage(d, value):
 
 
 def qdump__QLinkedList(d, value):
-    d_ptr = value["d"]
-    e_ptr = value["e"]
-    n = int(d_ptr["size"])
+    dd = d.dereferenceValue(value)
+    ptrSize = d.ptrSize()
+    n = d.extractInt(dd + 4 + 2 * ptrSize);
+    ref = d.extractInt(dd + 2 * ptrSize);
     check(0 <= n and n <= 100*1000*1000)
-    checkRef(d_ptr["ref"])
+    check(-1 <= ref and ref <= 1000)
     d.putItemCount(n)
     d.putNumChild(n)
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
         with Children(d, n, maxNumChild=1000, childType=innerType):
-            p = e_ptr["n"]
+            pp = d.dereference(dd)
             for i in d.childRange():
-                d.putSubItem(i, p["t"])
-                p = p["n"]
+                d.putSubItem(i, d.createValue(pp + 2 * ptrSize, innerType))
+                pp = d.dereference(pp)
 
 qqLocalesCount = None
 
@@ -937,7 +938,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # QMapPayloadNode is QMapNode except for the 'forward' member, so
         # its size is most likely the offset of the 'forward' member therein.
         # Or possibly 2 * sizeof(void *)
-        nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
+        nodeType = d.lookupType(d.ns + "QMapNode<%s,%s>" % (keyType, valueType))
         nodePointerType = nodeType.pointer()
         payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
 
@@ -979,7 +980,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
         isCompact = d.isMapCompact(keyType, valueType)
-        nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
+        nodeType = d.lookupType(d.ns + "QMapNode<%s,%s>" % (keyType, valueType))
         if isCompact:
             innerType = valueType
         else:
@@ -1482,8 +1483,8 @@ def qdump__QObject(d, value):
 def qdump__QPixmap(d, value):
     offset = (3 if d.qtVersion() >= 0x050000 else 2) * d.ptrSize()
     base = d.dereference(d.addressOf(value) + offset)
-    width = d.extractInt(base + 4)
-    height = d.extractInt(base + 8)
+    width = d.extractInt(base + d.ptrSize())
+    height = d.extractInt(base + d.ptrSize() + 4)
     d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(0)
 
@@ -2204,14 +2205,14 @@ def qdump__std____debug__deque(d, value):
 
 
 def qdump__std__list(d, value):
+    head = d.dereferenceValue(value)
     impl = value["_M_impl"]
     node = impl["_M_node"]
-    head = node.address
     size = 0
-    p = node["_M_next"]
-    while p != head and size <= 1001:
+    pp = d.dereference(head)
+    while head != pp and size <= 1001:
         size += 1
-        p = p["_M_next"]
+        pp = d.dereference(pp)
 
     d.putItemCount(size, 1000)
     d.putNumChild(size)

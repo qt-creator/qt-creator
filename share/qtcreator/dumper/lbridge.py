@@ -654,8 +654,6 @@ class Dumper:
         if type.GetTypeClass() in (lldb.eTypeClassBuiltin,
                 lldb.eTypeClassPointer):
             return True
-        warn("MOVABLE: %s" % type)
-        warn("CODE: %s" % type.GetTypeClass())
         return self.stripNamespaceFromType(type.GetName()) in movableTypes
 
     def putIntItem(self, name, value):
@@ -1009,6 +1007,18 @@ class Dumper:
                         child = formatter.get_child_at_index(i)
                         with SubItem(self, i):
                             self.putItem(child)
+            return
+
+        # Typedefs
+        if typeClass == lldb.eTypeClassTypedef:
+            if typeName in qqDumpers:
+                self.putType(typeName)
+                self.context = value
+                qqDumpers[typeName](self, value)
+                return
+            value = value.Cast(value.GetType().GetCanonicalType().GetUnqualifiedType())
+            self.putItem(value)
+            self.putBetterType(typeName)
             return
 
         # Our turf now.
