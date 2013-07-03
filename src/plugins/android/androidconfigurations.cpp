@@ -378,12 +378,28 @@ FileName AndroidConfigurations::zipalignPath() const
     return path.appendPath(QLatin1String("tools/zipalign" QTC_HOST_EXE_SUFFIX));
 }
 
-QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const QString &abi) const
+QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const QString &abi, QString *error) const
 {
-    QVector<AndroidDeviceInfo> devices = connectedDevices();
+    QVector<AndroidDeviceInfo> devices = connectedDevices(error);
 
     foreach (AndroidDeviceInfo device, devices) {
-        if (device.sdk >= *apiLevel && device.cpuAbi.contains(abi)) {
+        if (!device.cpuAbi.contains(abi)) {
+            if (error) {
+                *error += tr("Skipping %1: ABI is incompatible, device supports ABIs: %2.")
+                    .arg(getProductModel(device.serialNumber))
+                    .arg(device.cpuAbi.join(QLatin1String(" ")));
+                *error += QLatin1Char('\n');
+            }
+        } else if (device.sdk < *apiLevel) {
+            if (error) {
+                *error += tr("Skipping %1: API Level of device is: %2.")
+                        .arg(getProductModel(device.serialNumber))
+                        .arg(device.sdk);
+                *error += QLatin1Char('\n');
+            }
+        } else {
+            if (error)
+                error->clear(); // no errors if we found a device
             *apiLevel = device.sdk;
             return device.serialNumber;
         }
@@ -391,13 +407,15 @@ QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const 
     return QString();
 }
 
-QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices() const
+QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *error) const
 {
     QVector<AndroidDeviceInfo> devices;
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), QStringList() << QLatin1String("devices"));
     if (!adbProc.waitForFinished(-1)) {
         adbProc.kill();
+        if (error)
+            *error = tr("Could not run: %1").arg(adbToolPath().toString() + QLatin1String(" devices"));
         return devices;
     }
     QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
@@ -425,6 +443,8 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices() const
         devices.push_back(dev);
     }
     qSort(devices.begin(), devices.end(), androidDevicesLessThan);
+    if (devices.isEmpty() && error)
+        *error = tr("No devices found in output of: %1").arg(adbToolPath().toString() + QLatin1String(" devices"));
     return devices;
 }
 
@@ -601,6 +621,30 @@ int AndroidConfigurations::getSDKVersion(const QString &device) const
         return -1;
     }
     return adbProc.readAll().trimmed().toInt();
+}
+
+//!
+//! \brief AndroidConfigurations::getProductModel
+//! \param device serial number
+//! \return the produce model of the device or if that cannot be read the serial number
+//!
+QString AndroidConfigurations::getProductModel(const QString &device) const
+{
+    // workaround for '????????????' serial numbers
+    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
+    arguments << QLatin1String("shell") << QLatin1String("getprop")
+              << QLatin1String("ro.product.model");
+
+    QProcess adbProc;
+    adbProc.start(adbToolPath().toString(), arguments);
+    if (!adbProc.waitForFinished(-1)) {
+        adbProc.kill();
+        return device;
+    }
+    QString model = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+    if (model.isEmpty())
+        return device;
+    return model;
 }
 
 QStringList AndroidConfigurations::getAbis(const QString &device) const

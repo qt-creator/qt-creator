@@ -92,10 +92,10 @@ public:
     Utils::FileName zipalignPath() const;
     Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    QString getDeployDeviceSerialNumber(int *apiLevel, const QString &abi) const;
+    QString getDeployDeviceSerialNumber(int *apiLevel, const QString &abi, QString *error = 0) const;
     bool createAVD(const QString &target, const QString &name, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
-    QVector<AndroidDeviceInfo> connectedDevices() const;
+    QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
     QString startAVD(int *apiLevel, const QString &name = QString()) const;
     QString bestMatch(const QString &targetAPI) const;
@@ -108,6 +108,8 @@ public:
 
     // called from AndroidPlugin
     void updateAndroidDevice();
+
+    QString getProductModel(const QString &device) const;
 
 signals:
     void updated();
