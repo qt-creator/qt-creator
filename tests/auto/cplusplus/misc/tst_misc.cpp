@@ -46,6 +46,7 @@ private slots:
 
     void findBreakpoints();
     void findBreakpoints2();
+    void findBreakpoints3();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -155,7 +156,7 @@ void tst_Misc::findBreakpoints2()
                          "  }\n"
                          "}\n"
                          );
-    Document::Ptr doc = Document::create("findContstructorBreakpoint");
+    Document::Ptr doc = Document::create("findSwitchBreakpoint");
     QVERIFY(!doc.isNull());
     doc->setUtf8Source(src);
     bool success = doc->parse();
@@ -170,6 +171,33 @@ void tst_Misc::findBreakpoints2()
     QCOMPARE(findBreakpoint(4), 5U);
     QCOMPARE(findBreakpoint(5), 5U);
     QCOMPARE(findBreakpoint(6), 6U);
+    QCOMPARE(findBreakpoint(7), 7U);
+}
+
+void tst_Misc::findBreakpoints3()
+{
+    const QByteArray src("\n"                       // line 0
+                         "int foo() {\n"
+                         "  try {\n"                // line 2
+                         "    bar();\n"             // line 3
+                         "  } catch (Mooze &m) {\n" // line 4
+                         "    wooze();\n"           // line 5
+                         "  }\n"
+                         "  return 0;\n"            // line 7
+                         "}\n"
+                         );
+    Document::Ptr doc = Document::create("findCatchBreakpoint");
+    QVERIFY(!doc.isNull());
+    doc->setUtf8Source(src);
+    bool success = doc->parse();
+    QVERIFY(success);
+    QCOMPARE(doc->diagnosticMessages().size(), 0);
+    FindCdbBreakpoint findBreakpoint(doc->translationUnit());
+
+    QCOMPARE(findBreakpoint(2), 3U);
+    QCOMPARE(findBreakpoint(3), 3U);
+    QCOMPARE(findBreakpoint(4), 5U);
+    QCOMPARE(findBreakpoint(5), 5U);
     QCOMPARE(findBreakpoint(7), 7U);
 }
 

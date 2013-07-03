@@ -19,7 +19,6 @@ Product {
         }
         return name;
     }
-    moduleSearchPaths: "../../../qbs" // TODO: Should get inherited from project, but doesn't.
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginspec" }

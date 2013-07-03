@@ -545,9 +545,9 @@ private:
 void tst_Dumpers::initTestCase()
 {
     m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH_FOR_TEST");
-
     if (m_debuggerBinary.isEmpty())
         m_debuggerBinary = "gdb";
+    qDebug() << "Debugger    : " << m_debuggerBinary.constData();
 
     m_debuggerEngine = DumpTestGdbEngine;
     if (m_debuggerBinary.endsWith("cdb.exe"))
@@ -559,6 +559,7 @@ void tst_Dumpers::initTestCase()
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH_FOR_TEST");
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
+    qDebug() << "QMake       : " << m_qmakeBinary.constData();
 
     Environment utilsEnv = Environment::systemEnvironment();
     utilsEnv.appendOrSet(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
@@ -574,8 +575,8 @@ void tst_Dumpers::initTestCase()
         QByteArray output = debugger.readAllStandardOutput();
         //qDebug() << "stdout: " << output;
         m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
-        qDebug() << (m_usePython ? "Python is available" : "Python is not available");
-        qDebug() << "Dumper dir: " << DUMPERDIR;
+        qDebug() << "Python      : " << (m_usePython ? "ok" : "*** not ok ***");
+        qDebug() << "Dumper dir  : " << DUMPERDIR;
 
         QString version = QString::fromLocal8Bit(output);
         int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
@@ -587,7 +588,7 @@ void tst_Dumpers::initTestCase()
         version = version.mid(pos1, pos2 - pos1);
         extractGdbVersion(version, &m_gdbVersion,
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
-        qDebug() << "Gdb version " << m_gdbVersion;
+        qDebug() << "Gdb version : " << m_gdbVersion;
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
@@ -776,7 +777,7 @@ void tst_Dumpers::dumper()
                     "run " + nograb + "\n"
                     "up\n"
                     "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
-                    "bb options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:\n";
+                    "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
         } else {
             cmds += "run\n";
             foreach (const Check &check, data.checks) {
@@ -1123,13 +1124,15 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QDateTime0")
             << Data("#include <QDateTime>\n",
-                    "QDateTime date;\n")
+                    "QDateTime date;\n"
+                    "unused(&date);\n")
                % CoreProfile()
                % Check("date", "(invalid)", "@QDateTime");
 
     QTest::newRow("QDateTime1")
             << Data("#include <QDateTime>\n",
-                    "QDateTime date(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n")
+                    "QDateTime date(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n"
+                    "unused(&date);\n")
                % CoreProfile()
                % Check("date", "Tue Jan 1 13:15:32 1980", "@QDateTime")
                % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
@@ -1147,11 +1150,12 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QDir>\n",
                     "QDir dir(" + tempDir + ");\n"
                     "QString s = dir.absolutePath();\n"
-                    "unused(&dir, &s);\n")
+                    "QFileInfoList fi = dir.entryInfoList();\n"
+                    "unused(&dir, &s, &fi);\n")
                % CoreProfile()
                % Check("dir", tempDir, "@QDir")
-               % Check("dir.absolutePath", tempDir, "@QString")
-               % Check("dir.canonicalPath", tempDir, "@QString");
+               % Check("dir.absolutePath", tempDir, "@QString");
+            // % Check("dir.canonicalPath", tempDir, "@QString");
 
     QTest::newRow("QFileInfo")
 #ifdef Q_OS_WIN
@@ -2745,6 +2749,7 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(str);\n"
                     "l.push_back(str);\n"
                     "l.push_back(str);\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<std::string>")
                % Check("l", "<2 items>", "@QList<std::string>")
                % Check("str", "\"foo\"", "std::string")
@@ -3118,7 +3123,7 @@ void tst_Dumpers::dumper_data()
                % Check("anc", "1", "int");
 
     QTest::newRow("QThread1")
-            << Data("#include <QThread>\n",
+            << Data("#include <QThread>\n"
                     "struct Thread : QThread\n"
                     "{\n"
                     "    void run()\n"
@@ -3127,7 +3132,7 @@ void tst_Dumpers::dumper_data()
                     "            breakHere();\n"
                     "    }\n"
                     "    int m_id;\n"
-                    "};\n"
+                    "};\n",
                     "const int N = 14;\n"
                     "Thread thread[N];\n"
                     "for (int i = 0; i != N; ++i) {\n"
@@ -3135,9 +3140,10 @@ void tst_Dumpers::dumper_data()
                     "    thread[i].setObjectName(\"This is thread #\" + QString::number(i));\n"
                     "    thread[i].start();\n"
                     "}\n")
-                    % CheckType("this", "Thread")
-                    % Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread")
-                    % Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
+               % CoreProfile()
+               % CheckType("this", "Thread")
+               % Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread")
+               % Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
 
     QTest::newRow("QVariant1")
             << Data("#include <QVariant>\n",
@@ -3256,6 +3262,7 @@ void tst_Dumpers::dumper_data()
                     "QVariant var;\n"
                     "var.setValue(my);\n"
                     "breakHere();\n")
+               % CoreProfile()
                % Check("my", "<2 items>", "MyType")
                % Check("my.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
                % Check("my.0.key", "1", "unsigned int")
@@ -3304,6 +3311,7 @@ void tst_Dumpers::dumper_data()
                     "vl.append(QVariant(21));\n"
                     "vl.append(QVariant(22));\n"
                     "vl.append(QVariant(\"2Some String\"));\n")
+         % CoreProfile()
          % Check("vl", "<6 items>", "@QVariantList")
          % CheckType("vl.0", "[0]", "@QVariant (int)")
          % CheckType("vl.2", "[2]", "@QVariant (QString)");
@@ -3317,6 +3325,7 @@ void tst_Dumpers::dumper_data()
                     "vm[\"d\"] = QVariant(21);\n"
                     "vm[\"e\"] = QVariant(22);\n"
                     "vm[\"f\"] = QVariant(\"2Some String\");\n")
+         % CoreProfile()
          % Check("vm", "<6 items>", "@QVariantMap")
          % Check("vm.0", "[0]", "", "@QMapNode<@QString, @QVariant>")
          % Check("vm.0.key", Value4("\"a\""), "@QString")
@@ -3325,15 +3334,16 @@ void tst_Dumpers::dumper_data()
          % Check("vm.0.value", Value5("2"), "@QVariant (int)")
          % Check("vm.5", "[5]", "", "@QMapNode<@QString, @QVariant>")
          % Check("vm.5.key", Value4("\"f\""), "@QString")
-         % Check("vm.5.value", Value4("\"2Some String\""), "@QVariant (@QString)")
+         % Check("vm.5.value", Value4("\"2Some String\""), "@QVariant (QString)")
          % Check("vm.5.key", Value5("\"f\""), "@QString")
-         % Check("vm.5.value", Value5("\"2Some String\""), "@QVariant (@QString)");
+         % Check("vm.5.value", Value5("\"2Some String\""), "@QVariant (QString)");
 
     QTest::newRow("QVectorIntBig")
             << Data("#include <QVector>\n",
                    "QVector<int> vec(10000);\n"
                    "for (int i = 0; i != vec.size(); ++i)\n"
                    "     vec[i] = i * i;\n")
+         % CoreProfile()
          % Check("vec", "<10000 items>", "@QVector<int>")
          % Check("vec.0", "[0]", "0", "int")
          % Check("vec.1999", "[1999]", "3996001", "int");
@@ -3343,6 +3353,7 @@ void tst_Dumpers::dumper_data()
                     "QVector<Foo> vec;\n"
                     "vec.append(1);\n"
                     "vec.append(2);\n")
+         % CoreProfile()
          % Check("vec", "<2 items>", "@QVector<Foo>")
          % Check("vec.0", "[0]", "", "Foo")
          % Check("vec.0.a", "1", "int")
@@ -3355,7 +3366,8 @@ void tst_Dumpers::dumper_data()
                     "FooVector vec;\n"
                     "vec.append(1);\n"
                     "vec.append(2);\n")
-         % Check("vec", "<2 items>", "@FooVector")
+         % CoreProfile()
+         % Check("vec", "<2 items>", "FooVector")
          % Check("vec.0", "[0]", "", "Foo")
          % Check("vec.0.a", "1", "int")
          % Check("vec.1", "[1]", "", "Foo")
@@ -4032,7 +4044,7 @@ void tst_Dumpers::dumper_data()
                     "boost::optional<QStringList> sl0, sl;\n"
                     "sl = (QStringList() << \"xxx\" << \"yyy\");\n"
                     "sl.get().append(\"zzz\");\n")
-             % Check("sl", "<3 items>", "boost::optional<QStringList>");
+             % Check("sl", "<3 items>", "boost::optional<@QStringList>");
 
     QTest::newRow("BoostSharedPtr")
             << Data("#include <QStringList>\n"

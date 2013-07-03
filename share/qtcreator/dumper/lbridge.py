@@ -84,12 +84,12 @@ def isSimpleType(typeobj):
 def call2(value, func, args):
     # args is a tuple.
     arg = ','.join(args)
-    warn("CALL: %s -> %s(%s)" % (value, func, arg))
+    #warn("CALL: %s -> %s(%s)" % (value, func, arg))
     type = value.type.name
     exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
-    warn("CALL: %s" % exp)
+    #warn("CALL: %s" % exp)
     result = value.CreateValueFromExpression('$tmp', exp)
-    warn("  -> %s" % result)
+    #warn("  -> %s" % result)
     return result
 
 def call(value, func, *args):
@@ -252,14 +252,6 @@ Value = lldb.SBValue
 def pointerValue(value):
     return value.GetValueAsUnsigned()
 
-def createPointerValue(context, address, pointeeType):
-    addr = int(address) & 0xFFFFFFFFFFFFFFFF
-    return context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
-
-def createReferenceValue(context, address, referencedType):
-    addr = int(address) & 0xFFFFFFFFFFFFFFFF
-    return context.CreateValueFromAddress(None, addr, referencedType)
-
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
         if isinstance(offset, int) or isinstance(offset, long):
@@ -269,7 +261,12 @@ def impl_SBValue__add__(self, offset):
         itemsize = self.GetType().GetPointeeType().GetByteSize()
         address = self.GetValueAsUnsigned() + offset * itemsize
         address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-        return createPointerValue(self, address, self.GetType().GetPointeeType())
+
+        # We don't have a dumper object
+        #return createPointerValue(self, address, self.GetType().GetPointeeType())
+        addr = int(address) & 0xFFFFFFFFFFFFFFFF
+        return self.CreateValueFromAddress(None, addr, self.GetType().GetPointeeType()).AddressOf()
+
     raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
 
@@ -565,7 +562,7 @@ class Dumper:
         self.intType_ = None
         self.sizetType_ = None
         self.charPtrType_ = None
-        self.voidType_ = None
+        self.voidPtrType_ = None
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.dummyValue = None
@@ -609,6 +606,15 @@ class Dumper:
         inner = self.extractTemplateArgument(typeobj.GetName(), index)
         return int(inner)
 
+    def qtVersion(self):
+        return 0x050000
+
+    def is32bit(self):
+        return False
+
+    def intSize(self):
+        return 4
+
     def intType(self):
         if self.intType_ is None:
              self.intType_ = self.target.FindFirstType('int')
@@ -625,11 +631,11 @@ class Dumper:
         return self.charPtrType_
 
     def voidPtrType(self):
-        return None
-        return self.charPtrType()  # FIXME
+        if self.voidPtrType_ is None:
+             self.voidPtrType_ = self.target.FindFirstType('void').GetPointerType()
+        return self.voidPtrType_
 
-    def voidPtrSize(self):
-        return None
+    def ptrSize(self):
         return self.charPtrType().GetByteSize()
 
     def sizetType(self):
@@ -639,6 +645,15 @@ class Dumper:
 
     def addressOf(self, value):
         return int(value.GetLoadAddress())
+
+    def dereferenceValue(self, value):
+        return long(value.Cast(self.voidPtrType()))
+
+    def dereference(self, address):
+        return long(self.createValue(address, self.voidPtrType()))
+
+    def extractInt(self, address):
+        return int(self.createValue(address, self.intType()))
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -747,6 +762,14 @@ class Dumper:
 
     def parseAndEvalute(self, expr):
         return expr
+
+    def createPointerValue(self, address, pointeeType):
+        addr = int(address) & 0xFFFFFFFFFFFFFFFF
+        return self.context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
+
+    def createValue(self, address, referencedType):
+        addr = int(address) & 0xFFFFFFFFFFFFFFFF
+        return self.context.CreateValueFromAddress(None, addr, referencedType)
 
     def putCallItem(self, name, value, func, *args):
         result = call2(value, func, args)
@@ -858,7 +881,7 @@ class Dumper:
 
     def firstUsableFrame(self):
         thread = self.currentThread()
-        for i in xrange(4):
+        for i in xrange(10):
             frame = thread.GetFrameAtIndex(i)
             lineEntry = frame.GetLineEntry()
             line = lineEntry.GetLine()
@@ -875,8 +898,6 @@ class Dumper:
             result += ',current-thread="%s"' % thread.GetThreadID()
             result += ',frames=['
             n = thread.GetNumFrames()
-            if n > 4:
-                n = 4
             for i in xrange(n):
                 frame = thread.GetFrameAtIndex(i)
                 lineEntry = frame.GetLineEntry()
@@ -1007,7 +1028,8 @@ class Dumper:
         if value.GetType().IsReferenceType():
             origType = value.GetTypeName();
             type = value.GetType().GetDereferencedType()
-            self.putItem(createReferenceValue(value, value.GetAddress(), type))
+            addr = int(value.GetAddress()) & 0xFFFFFFFFFFFFFFFF
+            self.putItem(value.CreateValueFromAddress(None, addr, type))
             self.putBetterType(origType)
             return
 
@@ -1039,6 +1061,7 @@ class Dumper:
             #warn("DUMPABLE: %s" % (stripped in qqDumpers))
             if stripped in qqDumpers:
                 self.putType(typeName)
+                self.context = value
                 qqDumpers[stripped](self, value)
                 return
 

@@ -44,6 +44,7 @@ macx: DATA_DIRS += scripts
 for(data_dir, DATA_DIRS) {
     files = $$files($$PWD/$$data_dir/*, true)
     win32:files ~= s|\\\\|/|g
+    # Info.plist.in are handled below
     for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!exists($$file/*):FILES += $$file
 }
 OTHER_FILES += $$FILES
@@ -74,6 +75,12 @@ OTHER_FILES += $$FILES
    observerinfo.input = qml/qmlobserver/Info.plist.in
    observerinfo.output = $$IDE_DATA_PATH/qml/qmlobserver/Info.plist
    QMAKE_SUBSTITUTES += observerinfo
+   puppetinfo.input = qml/qmlpuppet/qmlpuppet/Info.plist.in
+   puppetinfo.output = $$IDE_DATA_PATH/qml/qmlpuppet/qmlpuppet/Info.plist
+   QMAKE_SUBSTITUES += puppetinfo
+   puppet2info.input = qml/qmlpuppet/qml2puppet/Info.plist.in
+   puppet2info.output = $$IDE_DATA_PATH/qml/qmlpuppet/qml2puppet/Info.plist
+   QMAKE_SUBSTITUES += puppetinfo
 }
 
 SRCRESOURCEDIR = $$IDE_SOURCE_TREE/src/share/qtcreator/

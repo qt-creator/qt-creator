@@ -212,6 +212,7 @@ bool FindCdbBreakpoint::visit(SwitchStatementAST *ast)
 bool FindCdbBreakpoint::visit(TryBlockStatementAST *ast)
 {
     accept(ast->statement);
+    accept(ast->catch_clause_list);
     return false;
 }
 

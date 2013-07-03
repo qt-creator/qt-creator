@@ -1679,28 +1679,37 @@ void WatchHandler::showEditValue(const WatchData &data)
             showSeparateWidget(l);
             m_model->m_editHandlers[key] = l;
         }
-        int width = 0, height = 0, format = 0;
+        int width = 0, height = 0, nbytes = 0, format = 0;
         QByteArray ba;
         uchar *bits = 0;
         if (data.editformat == DisplayImageData) {
             ba = QByteArray::fromHex(data.editvalue);
+            QTC_ASSERT(ba.size() > 16, return);
             const int *header = (int *)(ba.data());
             if (!ba.at(0) && !ba.at(1)) // Check on 'width' for Python dumpers returning 4-byte swapped-data.
-                swapEndian(ba.data(), ba.size());
-            bits = 12 + (uchar *)(ba.data());
+                swapEndian(ba.data(), 16);
+            bits = 16 + (uchar *)(ba.data());
             width = header[0];
             height = header[1];
-            format = header[2];
+            nbytes = header[2];
+            format = header[3];
         } else if (data.editformat == DisplayImageFile) {
             QTextStream ts(data.editvalue);
             QString fileName;
-            ts >> width >> height >> format >> fileName;
+            ts >> width >> height >> nbytes >> format >> fileName;
             QFile f(fileName);
             f.open(QIODevice::ReadOnly);
             ba = f.readAll();
             bits = (uchar*)ba.data();
+            nbytes = width * height;
         }
-        l->setImage(QImage(bits, width, height, QImage::Format(format)));
+        QTC_ASSERT(0 < width && width < 10000, return);
+        QTC_ASSERT(0 < height && height < 10000, return);
+        QTC_ASSERT(0 < nbytes && nbytes < 10000 * 10000, return);
+        QTC_ASSERT(0 < format && format < 32, return);
+        QImage im(width, height, QImage::Format(format));
+        qMemCopy(im.bits(), bits, nbytes);
+        l->setImage(im);
         showSeparateWidget(l);
     }
         break;

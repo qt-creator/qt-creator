@@ -195,7 +195,7 @@ QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
         Core::MimeType qbsSourceTy = db->findByType(QLatin1String(Constants::QBS_MIMETYPE));
         mergeSuffixes(qbsSuffixes, qbsSourceTy.suffixes());
         Core::MimeType qmlProjectSourceTy = db->findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
-        mergeSuffixes(qbsSuffixes, qmlProjectSourceTy.suffixes());
+        mergeSuffixes(qmlProjectSuffixes, qmlProjectSourceTy.suffixes());
         Core::MimeType jsonSourceTy = db->findByType(QLatin1String(Constants::JSON_MIMETYPE));
         mergeSuffixes(jsonSuffixes, jsonSourceTy.suffixes());
     }
@@ -242,6 +242,11 @@ ModelManager::ModelManager(QObject *parent):
     m_updateCppQmlTypesTimer->setInterval(1000);
     m_updateCppQmlTypesTimer->setSingleShot(true);
     connect(m_updateCppQmlTypesTimer, SIGNAL(timeout()), SLOT(startCppQmlTypeUpdate()));
+
+    m_asyncResetTimer = new QTimer(this);
+    m_asyncResetTimer->setInterval(1000);
+    m_asyncResetTimer->setSingleShot(true);
+    connect(m_asyncResetTimer, SIGNAL(timeout()), SLOT(resetCodeModel()));
 
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
@@ -1056,6 +1061,11 @@ void ModelManager::startCppQmlTypeUpdate()
     m_queuedCppDocuments.clear();
 }
 
+void ModelManager::asyncReset()
+{
+    m_asyncResetTimer->start();
+}
+
 void ModelManager::updateCppQmlTypes(QFutureInterface<void> &interface,
                                      ModelManager *qmlModelManager,
                                      CPlusPlus::Snapshot snapshot,
@@ -1100,7 +1110,7 @@ void ModelManager::updateCppQmlTypes(QFutureInterface<void> &interface,
     qmlModelManager->m_cppDataHash = newData;
     if (hasNewInfo)
         // one could get away with re-linking the cpp types...
-        QMetaObject::invokeMethod(qmlModelManager, "resetCodeModel");
+        QMetaObject::invokeMethod(qmlModelManager, "asyncReset");
 }
 
 ModelManager::CppDataHash ModelManager::cppData() const

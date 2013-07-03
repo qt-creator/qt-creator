@@ -98,9 +98,11 @@ bool DiffChunk::isValid() const
     return !fileName.isEmpty() && !chunk.isEmpty();
 }
 
-QByteArray DiffChunk::asPatch() const
+QByteArray DiffChunk::asPatch(const QString &workingDirectory) const
 {
-    const QByteArray fileNameBA = QFile::encodeName(fileName);
+    QString relativeFile = workingDirectory.isEmpty() ?
+                fileName : QDir(workingDirectory).relativeFilePath(fileName);
+    const QByteArray fileNameBA = QFile::encodeName(relativeFile);
     QByteArray rc = "--- ";
     rc += fileNameBA;
     rc += "\n+++ ";
@@ -1466,7 +1468,8 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 // (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
 {
-    return VcsBasePlugin::runPatch(dc.asPatch(), QString(), 0, revert);
+    return VcsBasePlugin::runPatch(dc.asPatch(d->m_diffBaseDirectory),
+                                   d->m_diffBaseDirectory, 0, revert);
 }
 
 QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock) const

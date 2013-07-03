@@ -690,9 +690,9 @@ bool AndroidPackageCreationStep::createPackage()
     buildProc->setProcessEnvironment(m_environment.toProcessEnvironment());
 
     connect(buildProc, SIGNAL(readyReadStandardOutput()), this,
-        SLOT(handleBuildStdOutOutput()));
+        SLOT(handleBuildStdOutOutput()), Qt::DirectConnection);
     connect(buildProc, SIGNAL(readyReadStandardError()), this,
-        SLOT(handleBuildStdErrOutput()));
+        SLOT(handleBuildStdErrOutput()), Qt::DirectConnection);
 
     buildProc->setWorkingDirectory(m_androidDir.toString());
 

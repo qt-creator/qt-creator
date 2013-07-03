@@ -14440,10 +14440,6 @@ Verwenden Sie die Eigenschaft importPaths, um Importpfade zu qmlproject-basierte
         <translation>C++-Projekt (CMake)</translation>
     </message>
     <message>
-        <source>Creates a C++ plugin to load extensions dynamically into applications using the QDeclarativeEngine class.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.7.0&amp;lt;/b&amp;gt; or newer.</source>
-        <translation>Erstellt ein C++-Plugin zum dynamischen Laden von Erweiterungen in Anwendungen mittels der Klasse QDeclarativeEngine.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Erfordert &amp;lt;b&amp;gt;Qt 4.7.0&amp;lt;/b&amp;gt; oder neuer.</translation>
-    </message>
-    <message>
         <source>Custom QML Extension  Plugin Parameters</source>
         <oldsource>QML Runtime Plug-in Parameters</oldsource>
         <translation>Parameter des Plugins zur Erweiterung von QML</translation>
@@ -14611,16 +14607,20 @@ Verwenden Sie die Eigenschaft importPaths, um Importpfade zu qmlproject-basierte
         <translation>Lokale Benutzer-Einstellungen</translation>
     </message>
     <message>
+        <source>Creates a C++ plugin to load extensions dynamically into applications using the QDeclarativeEngine class. Requires Qt 4.7.0 or newer.</source>
+        <translation>Erstellt ein C++-Plugin zum dynamischen Laden von Erweiterungen in Anwendungen mittels der Klasse QDeclarativeEngine. Erfordert Qt 4.7.0 oder neuer.</translation>
+    </message>
+    <message>
         <source>Object class-name:</source>
         <translation>Klassenname des Objektes:</translation>
     </message>
     <message>
-        <source>Creates a C++ plugin to load extensions dynamically into applications using the QQmlEngine class.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; or newer.</source>
-        <translation>Erstellt ein C++-Plugin zum dynamischen Laden von Erweiterungen in Anwendungen mittels der Klasse QQmlEngine.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Erfordert &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; oder neuer.</translation>
-    </message>
-    <message>
         <source>Qt Quick 1 Extension Plugin</source>
         <translation>Plugin zur Erweiterung von QtQuick 1</translation>
+    </message>
+    <message>
+        <source>Creates a C++ plugin to load extensions dynamically into applications using the QQmlEngine class. Requires Qt 5.0 or newer.</source>
+        <translation>Erstellt ein C++-Plugin zum dynamischen Laden von Erweiterungen in Anwendungen mittels der Klasse QQmlEngine. Erfordert Qt 5.0 oder neuer.</translation>
     </message>
     <message>
         <source>Qt Quick 2 Extension Plugin</source>
@@ -18795,7 +18795,7 @@ Sie können diese Anwendung erstellen und sowohl auf Desktop- als auch auf mobil
     </message>
     <message>
         <source>Creates a qmake-based subdirs project. This allows you to group your projects in a tree structure.</source>
-        <translation>Erstellt qmake-basiertes Projekt vom Typ subdirs. Dies ermöglicht es Ihnen, Ihre Projekte in einer Baumstruktur zu gruppieren.</translation>
+        <translation>Erstellt ein qmake-basiertes Projekt vom Typ subdirs. Dies ermöglicht es Ihnen, Ihre Projekte in einer Baumstruktur zu gruppieren.</translation>
     </message>
     <message>
         <source>Done &amp;&amp; Add Subproject</source>
@@ -30824,19 +30824,8 @@ Möchten Sie, dass Qt Creator sie für Ihr Projekt anlegt?</translation>
 <context>
     <name>Qnx::Internal::BlackBerryRunConfiguration</name>
     <message>
-        <source>%1 on BlackBerry device</source>
-        <translation>%1 auf BlackBerry-Gerät</translation>
-    </message>
-    <message>
         <source>Run on BlackBerry device</source>
         <translation>Ausführung auf BlackBerry-Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationFactory</name>
-    <message>
-        <source>%1 on BlackBerry Device</source>
-        <translation>%1 auf BlackBerry-Gerät</translation>
     </message>
 </context>
 <context>
@@ -31265,6 +31254,10 @@ Qt Creator know about a likely URI.</source>
     <message>
         <source>List of Processes</source>
         <translation>Liste der Prozesse</translation>
+    </message>
+    <message>
+        <source>&amp;Attach to Process</source>
+        <translation>&amp;An Prozess anhängen</translation>
     </message>
 </context>
 <context>
@@ -32009,13 +32002,6 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>&amp;Recent:</source>
         <translation>&amp;Letzte:</translation>
-    </message>
-</context>
-<context>
-    <name>DeviceProcessesDialog</name>
-    <message>
-        <source>&amp;Attach to Process</source>
-        <translation>&amp;An Prozess anhängen</translation>
     </message>
 </context>
 <context>
@@ -35712,21 +35698,6 @@ Kurznamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizardDialog</name>
-    <message>
-        <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; or newer.</source>
-        <translation>Erstellt ein Qt Quick 1-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält.&amp;lt;br/&amp;gt;Sie können Qt Quick 1-UI-Projekte mit dem QML-Viewer ohne Erstellung betrachten. Sie benötigen keine Entwicklungsumgebung auf Ihrem Computer, um solche Projekte zu erstellen und auszuführen.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Erfordert &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; oder neuer.</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; or newer.</source>
-        <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält.&amp;lt;br/&amp;gt;Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Sie benötigen keine Entwicklungsumgebung auf Ihrem Computer, um solche Projekte zu erstellen und auszuführen.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Erfordert &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; oder neuer.</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; or newer.</source>
-        <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält und Qt Quick Controls verwendet.&amp;lt;br/&amp;gt;Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Dieses Projekt erfordert, dass die Qt Quick Controls für die Qt-Version installiert sind.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Erfordert &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; oder neuer.</translation>
-    </message>
-</context>
-<context>
     <name>CppEditor::QuickFix</name>
     <message>
         <source>Move Definition Outside Class</source>
@@ -37056,6 +37027,33 @@ Dieser Wizard führt Sie durch die essentiellen Schritte, die zum Deployment ein
     <message>
         <source>Show Change Description</source>
         <translation>Beschreibung der Änderung einblenden</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::QmlApplicationWizard</name>
+    <message>
+        <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects. Requires Qt 4.8 or newer.</source>
+        <translation>Erstellt ein Qt Quick 1-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält. Sie können Qt Quick 1-UI-Projekte mit dem QML-Viewer ohne Erstellung betrachten. Sie benötigen keine Entwicklungsumgebung auf Ihrem Computer, um solche Projekte zu erstellen und auszuführen. Erfordert Qt 4.8 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 1 UI</source>
+        <translation>Qt Quick 1-UI</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects. Requires Qt 5.0 or newer.</source>
+        <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält. Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Sie benötigen keine Entwicklungsumgebung auf Ihrem Computer, um solche Projekte zu erstellen und auszuführen. Erfordert Qt 5.0 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2 UI</source>
+        <translation>Qt Quick 2-UI</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.1 or newer.</source>
+        <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält und Qt Quick Controls verwendet. Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Dieses Projekt erfordert, dass die Qt Quick Controls für die Qt-Version installiert sind. Erfordert Qt 5.1 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2 UI with Controls</source>
+        <translation>Qt Quick 2-UI mit Controls</translation>
     </message>
 </context>
 </TS>

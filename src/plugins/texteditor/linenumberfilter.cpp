@@ -64,10 +64,13 @@ QList<FilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Locator::Filter
     int sectionCount = lineAndColumn.size();
     int line = 0;
     int column = 0;
+    bool ok;
     if (sectionCount > 0)
-        line = lineAndColumn.at(0).toInt();
-    if (sectionCount > 1)
-        column = lineAndColumn.at(1).toInt();
+        line = lineAndColumn.at(0).toInt(&ok);
+    if (ok && sectionCount > 1)
+        column = lineAndColumn.at(1).toInt(&ok);
+    if (!ok)
+        return value;
     if (currentTextEditor() && (line > 0 || column > 0)) {
         LineColumn data;
         data.first = line;

@@ -146,7 +146,7 @@ class CentralizedFolderWatcher : public QObject
 {
     Q_OBJECT
 public:
-    CentralizedFolderWatcher(QObject *parent);
+    CentralizedFolderWatcher(Qt4Project *parent);
     ~CentralizedFolderWatcher();
     void watchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node);
     void unwatchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node);
@@ -157,6 +157,7 @@ private slots:
     void delayedFolderChanged(const QString &folder);
 
 private:
+    Qt4Project *m_project;
     QSet<QString> recursiveDirs(const QString &folder);
     QFileSystemWatcher m_watcher;
     QMultiMap<QString, Qt4ProjectManager::Qt4PriFileNode *> m_map;
@@ -1215,7 +1216,8 @@ namespace {
     bool debugCFW = false;
 }
 
-CentralizedFolderWatcher::CentralizedFolderWatcher(QObject *parent) : QObject(parent)
+CentralizedFolderWatcher::CentralizedFolderWatcher(Qt4Project *parent)
+    : QObject(parent), m_project(parent)
 {
     m_compressTimer.setSingleShot(true);
     m_compressTimer.setInterval(200);
@@ -1337,12 +1339,19 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 
     QString dir = folder;
     const QChar slash = QLatin1Char('/');
+    bool newOrRemovedFiles = false;
     while (true) {
         if (!dir.endsWith(slash))
             dir.append(slash);
         QList<Qt4ProjectManager::Qt4PriFileNode *> nodes = m_map.values(dir);
-        foreach (Qt4ProjectManager::Qt4PriFileNode *node, nodes) {
-            node->folderChanged(folder);
+        if (!nodes.isEmpty()) {
+            // Collect all the files
+            QSet<Utils::FileName> newFiles;
+            newFiles += Qt4PriFileNode::recursiveEnumerate(folder);
+            foreach (Qt4ProjectManager::Qt4PriFileNode *node, nodes) {
+                newOrRemovedFiles = newOrRemovedFiles
+                        || node->folderChanged(folder, newFiles);
+            }
         }
 
         // Chop off last part, and break if there's nothing to chop off
@@ -1356,7 +1365,6 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
             break;
         dir.truncate(index + 1);
     }
-
 
     QString folderWithSlash = folder;
     if (!folder.endsWith(slash))
@@ -1373,6 +1381,11 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         if (!tmp.isEmpty())
             m_watcher.addPaths(tmp.toList());
         m_recursiveWatchedFolders += tmp;
+    }
+
+    if (newOrRemovedFiles) {
+        m_project->updateFileList();
+        m_project->updateCodeModels();
     }
 }
 

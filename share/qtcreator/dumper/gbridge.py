@@ -29,12 +29,6 @@ def directBaseClass(typeobj, index = 0):
     # FIXME: Check it's really a base.
     return typeobj.fields()[index]
 
-def createPointerValue(context, address, pointeeType):
-    return gdb.Value(address).cast(pointeeType.pointer())
-
-def createReferenceValue(context, address, referencedType):
-    return gdb.Value(address).cast(referencedType.pointer()).dereference()
-
 def savePrint(output):
     try:
         print(output)
@@ -357,6 +351,9 @@ qqDumpers = {}
 
 # This is a cache of all dumpers that support writing.
 qqEditable = {}
+
+# This is an approximation of the Qt Version found
+qqVersion = None
 
 def registerDumper(function):
     global qqDumpers, qqFormats, qqEditable
@@ -1134,7 +1131,7 @@ def qtNamespace():
     if not qqNs is None:
         return qqNs
     try:
-        str = catchCliOutput("ptype QString::Null")[0]
+        str = gdb.execute("ptype QString::Null", to_string=True)
         # The result looks like:
         # "type = const struct myns::QString::Null {"
         # "    <no data fields>"
@@ -1323,6 +1320,7 @@ class Dumper:
         self.formats = {}
         self.useDynamicType = True
         self.expandedINames = {}
+        self.childEventAddress = None
 
     def __init__(self, args):
         self.defaultInit()
@@ -1539,14 +1537,72 @@ class Dumper:
     def charPtrType(self):
         return self.lookupType('char*')
 
+    def intPtrType(self):
+        return self.lookupType('int*')
+
     def voidPtrType(self):
         return self.lookupType('void*')
 
-    def voidPtrSize(self):
-        return self.voidPtrType().sizeof
-
     def addressOf(self, value):
         return long(value.address)
+
+    def createPointerValue(self, address, pointeeType):
+        return gdb.Value(address).cast(pointeeType.pointer())
+
+    def intSize(self):
+        return 4
+
+    def ptrSize(self):
+        return self.lookupType('void*').sizeof
+
+    def is32bit(self):
+        return self.lookupType('void*').sizeof == 4
+
+    def createValue(self, address, referencedType):
+        return gdb.Value(address).cast(referencedType.pointer()).dereference()
+
+    def dereference(self, addr):
+        return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
+
+    def extractInt(self, addr):
+        return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
+
+    # Do not use value.address here as this might not have one,
+    # i.e. be the result of an inferior call
+    def dereferenceValue(self, value):
+        return value.cast(self.voidPtrType())
+
+    def isQObject(self, value):
+        try:
+        #if True:
+            vtable = self.dereference(long(value.address)) # + ptrSize
+            metaObjectEntry = self.dereference(vtable) # It's the first entry.
+            #warn("MO: 0x%x " % metaObjectEntry)
+            s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
+            #warn("S: %s " % s)
+            #return s.find("::metaObject() const") > 0
+            return s.find("::metaObject() const") > 0 or s.find("10metaObjectEv") > 0
+            #return str(metaObjectEntry).find("::metaObject() const") > 0
+        except:
+            return False
+
+    def isQObject_B(self, value):
+        # Alternative: Check for specific values, like targeting the
+        # 'childEvent' member which is typically not overwritten, slot 8.
+        # ~"Symbol \"Myns::QObject::childEvent(Myns::QChildEvent*)\" is a
+        #  function at address 0xb70f691a.\n"
+        if self.childEventAddress == None:
+            try:
+                loc = gdb.execute("info address ::QObject::childEvent", to_string=True)
+                self.childEventAddress = long(loc[loc.rfind(' '):-2], 16)
+            except:
+                self.childEventAddress = 0
+
+        try:
+            vtable = self.dereference(long(value.address))
+            return self.childEventAddress == self.dereference(vtable + 8 * self.ptrSize())
+        except:
+            return False
 
     def put(self, value):
         self.output.append(value)
@@ -1558,6 +1614,18 @@ class Dumper:
         if self.currentMaxNumChild is None:
             return xrange(0, self.currentNumChild)
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
+
+    def qtVersion(self):
+        global qqVersion
+        if not qqVersion is None:
+            return qqVersion
+        try:
+            # This will fail on Qt 5
+            gdb.execute("ptype QString::shared_empty", to_string=True)
+            qqVersion = 0x040800
+        except:
+            qqVersion = 0x050000
+        return qqVersion
 
     # Convenience function.
     def putItemCount(self, count, maximum = 1000000000):
@@ -2118,7 +2186,8 @@ class Dumper:
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        self.tryPutObjectNameValue(value)  # Is this too expensive?
+        if self.isQObject(value):
+            self.putQObjectNameValue(value)  # Is this too expensive?
         self.putType(typeName)
         self.putEmptyValue()
         self.putNumChild(fieldCount(type))

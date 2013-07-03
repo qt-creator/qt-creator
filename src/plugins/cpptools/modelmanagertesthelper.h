@@ -79,7 +79,7 @@ public:
     ~ModelManagerTestHelper();
 
     void cleanup();
-    void verifyClean();
+    static void verifyClean();
 
     Project *createProject(const QString &name);
 
