@@ -164,6 +164,7 @@ class SplitterOrView  : public QWidget
     Q_OBJECT
 public:
     explicit SplitterOrView(Core::IEditor *editor = 0);
+    explicit SplitterOrView(EditorView *view);
     ~SplitterOrView();
 
     void split(Qt::Orientation orientation);

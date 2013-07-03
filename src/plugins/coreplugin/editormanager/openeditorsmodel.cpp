@@ -103,7 +103,7 @@ int OpenEditorsModel::columnCount(const QModelIndex &parent) const
 int OpenEditorsModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return d->m_editors.count();
+        return d->m_editors.count() + 1/*<no document>*/;
     return 0;
 }
 
@@ -214,10 +214,11 @@ void OpenEditorsModel::removeEditor(const QString &fileName)
 
 void OpenEditorsModel::removeEditor(int idx)
 {
-    if (idx < 0 || idx >= d->m_editors.size())
+    if (idx < 0)
         return;
+    QTC_ASSERT(idx < d->m_editors.size(), return);
     IEditor *editor = d->m_editors.at(idx)->editor;
-    int row = idx;
+    int row = idx + 1/*<no document>*/;
     beginRemoveRows(QModelIndex(), row, row);
     d->m_editors.removeAt(idx);
     endRemoveRows();
@@ -229,7 +230,7 @@ void OpenEditorsModel::removeAllRestoredEditors()
 {
     for (int i = d->m_editors.count()-1; i >= 0; --i) {
         if (!d->m_editors.at(i)->editor) {
-            int row = i;
+            int row = i + 1/*<no document>*/;
             beginRemoveRows(QModelIndex(), row, row);
             d->m_editors.removeAt(i);
             endRemoveRows();
@@ -286,21 +287,21 @@ void OpenEditorsModel::emitDataChanged(IEditor *editor)
     int idx = findEditor(editor);
     if (idx < 0)
         return;
-    QModelIndex mindex = index(idx, 0);
+    QModelIndex mindex = index(idx + 1/*<no document>*/, 0);
     emit dataChanged(mindex, mindex);
 }
 
 QModelIndex OpenEditorsModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    if (column < 0 || column > 1 || row < 0 || row >= d->m_editors.count())
+    if (column < 0 || column > 1 || row < 0 || row >= d->m_editors.count() + 1/*<no document>*/)
         return QModelIndex();
     return createIndex(row, column);
 }
 
 OpenEditorsModel::Entry *OpenEditorsModel::entryAtRow(int row) const
 {
-    int editorIndex = row;
+    int editorIndex = row - 1/*<no document>*/;
     if (editorIndex < 0)
         return 0;
     return d->m_editors[editorIndex];
@@ -315,7 +316,7 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (index.column() != 0 && role < Qt::UserRole))
         return QVariant();
-    int editorIndex = index.row();
+    int editorIndex = index.row() - 1/*<no document>*/;
     if (editorIndex < 0) {
         // <no document> entry
         switch (role) {
@@ -364,8 +365,8 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
 int OpenEditorsModel::rowOfEditor(IEditor *editor) const
 {
     if (!editor)
-        return -1;
-    return findEditor(originalForDuplicate(editor));
+        return 0 /*<no document>*/;
+    return findEditor(originalForDuplicate(editor)) + 1/*<no document>*/;
 }
 
 QString OpenEditorsModel::displayNameForDocument(IDocument *document) const

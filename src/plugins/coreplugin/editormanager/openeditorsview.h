@@ -32,6 +32,7 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <QAbstractProxyModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
 
@@ -39,6 +40,34 @@ namespace Core {
 class IEditor;
 
 namespace Internal {
+
+class ProxyModel : public QAbstractProxyModel
+{
+    Q_OBJECT
+public:
+    explicit ProxyModel(QObject *parent = 0);
+    QModelIndex mapFromSource(const QModelIndex & sourceIndex) const;
+    QModelIndex mapToSource(const QModelIndex & proxyIndex) const;
+
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    void setSourceModel(QAbstractItemModel *sourceModel);
+
+#if QT_VERSION >= 0x050000
+    // QAbstractProxyModel::sibling is broken in Qt 5
+    QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+#endif
+
+private slots:
+    void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void sourceRowsRemoved(const QModelIndex &parent, int start, int end);
+    void sourceRowsInserted(const QModelIndex &parent, int start, int end);
+    void sourceRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+    void sourceRowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
+};
 
 class OpenEditorsDelegate : public QStyledItemDelegate
 {
@@ -73,6 +102,7 @@ private:
     using QAbstractItemView::closeEditor;
 
     OpenEditorsDelegate *m_delegate;
+    ProxyModel *m_model;
 };
 
 class OpenEditorsViewFactory : public Core::INavigationWidgetFactory

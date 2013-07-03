@@ -1258,7 +1258,12 @@ void EditorManager::activateEditorForEntry(OpenEditorsModel::Entry *entry, OpenE
 void EditorManager::activateEditorForEntry(Internal::EditorView *view, OpenEditorsModel::Entry *entry, OpenEditorFlags flags)
 {
     QTC_ASSERT(view, return);
-    QTC_ASSERT(entry, return);
+    if (!entry) { // no document
+        view->setCurrentEditor(0);
+        setCurrentView(view);
+        setCurrentEditor(0);
+        return;
+    }
     IEditor *editor = entry->editor;
     if (editor)  {
         activateEditor(view, editor, flags);
