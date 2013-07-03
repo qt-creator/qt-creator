@@ -391,7 +391,7 @@ QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const 
     return QString();
 }
 
-QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(int apiLevel) const
+QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices() const
 {
     QVector<AndroidDeviceInfo> devices;
     QProcess adbProc;
@@ -422,8 +422,6 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(int apiLevel)
         dev.serialNumber = serialNo;
         dev.sdk = getSDKVersion(dev.serialNumber);
         dev.cpuABI = getAbis(dev.serialNumber);
-        if (apiLevel != -1 && dev.sdk != apiLevel)
-            continue;
         devices.push_back(dev);
     }
     qSort(devices.begin(), devices.end(), androidDevicesLessThan);
@@ -581,7 +579,7 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
     }
 
     // get connected devices
-    devices = connectedDevices(*apiLevel);
+    devices = connectedDevices();
     foreach (AndroidDeviceInfo device, devices)
         if (device.sdk == *apiLevel)
             return device.serialNumber;

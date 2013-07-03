@@ -95,7 +95,7 @@ public:
     QString getDeployDeviceSerialNumber(int *apiLevel, const QString &abi) const;
     bool createAVD(const QString &target, const QString &name, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
-    QVector<AndroidDeviceInfo> connectedDevices(int apiLevel = -1) const;
+    QVector<AndroidDeviceInfo> connectedDevices() const;
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
     QString startAVD(int *apiLevel, const QString &name = QString()) const;
     QString bestMatch(const QString &targetAPI) const;
