@@ -18795,7 +18795,7 @@ Sie können diese Anwendung erstellen und sowohl auf Desktop- als auch auf mobil
     </message>
     <message>
         <source>Creates a qmake-based subdirs project. This allows you to group your projects in a tree structure.</source>
-        <translation>Erstellt qmake-basiertes Projekt vom Typ subdirs. Dies ermöglicht es Ihnen, Ihre Projekte in einer Baumstruktur zu gruppieren.</translation>
+        <translation>Erstellt ein qmake-basiertes Projekt vom Typ subdirs. Dies ermöglicht es Ihnen, Ihre Projekte in einer Baumstruktur zu gruppieren.</translation>
     </message>
     <message>
         <source>Done &amp;&amp; Add Subproject</source>
