@@ -203,15 +203,15 @@ void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, Edi
     addHistoryItems(globalHistory, view, model, documentsDone);
 
     // add purely restored editors which are not initialised yet
-    foreach (const OpenEditorsModel::Entry &entry, model->entries()) {
-        if (entry.editor)
+    foreach (OpenEditorsModel::Entry *entry, model->entries()) {
+        if (entry->editor)
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        QString title = entry.displayName();
+        QString title = entry->displayName();
         item->setIcon(0, m_emptyIcon);
         item->setText(0, title);
-        item->setToolTip(0, entry.fileName());
-        item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry.id()));
+        item->setToolTip(0, entry->fileName());
+        item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry->id()));
         item->setTextAlignment(0, Qt::AlignLeft);
 
         m_editorList->addTopLevelItem(item);

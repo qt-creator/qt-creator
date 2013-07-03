@@ -1999,19 +1999,19 @@ int FakeVimPluginPrivate::currentFile() const
 {
     OpenEditorsModel *model = EditorManager::instance()->openedEditorsModel();
     IEditor *editor = EditorManager::currentEditor();
-    return model->indexOf(editor).row();
+    return model->indexOfEditor(editor);
 }
 
 void FakeVimPluginPrivate::switchToFile(int n)
 {
     EditorManager *editorManager = ICore::editorManager();
     OpenEditorsModel *model = editorManager->openedEditorsModel();
-    int size = model->rowCount();
+    int size = model->openDocumentCount();
     QTC_ASSERT(size, return);
     n = n % size;
     if (n < 0)
         n += size;
-    editorManager->activateEditorForIndex(model->index(n, 0));
+    editorManager->activateEditorForEntry(model->entries().at(n));
 }
 
 ExCommandMap &FakeVimExCommandsPage::exCommandMap()

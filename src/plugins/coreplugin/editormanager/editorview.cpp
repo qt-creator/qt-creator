@@ -291,15 +291,15 @@ void EditorView::removeEditor(IEditor *editor)
 
 IEditor *EditorView::currentEditor() const
 {
-    if (m_container->count() > 0)
+    if (m_editors.size() > 0)
         return m_widgetEditorMap.value(m_container->currentWidget());
     return 0;
 }
 
 void EditorView::listSelectionActivated(int index)
 {
-    QAbstractItemModel *model = EditorManager::instance()->openedEditorsModel();
-    EditorManager::instance()->activateEditorForIndex(this, model->index(index, 0));
+    OpenEditorsModel *model = EditorManager::instance()->openedEditorsModel();
+    EditorManager::instance()->activateEditorForEntry(this, model->entryAtRow(index));
 }
 
 void EditorView::splitHorizontally()
@@ -338,7 +338,7 @@ void EditorView::setParentSplitterOrView(SplitterOrView *splitterOrView)
 void EditorView::setCurrentEditor(IEditor *editor)
 {
     if (!editor || m_container->count() <= 0
-        || m_container->indexOf(editor->widget()) == -1) {
+            || m_container->indexOf(editor->widget()) == -1) {
         m_toolBar->updateEditorStatus(0);
         m_infoBarDisplay->setInfoBar(0);
         QTC_CHECK(m_container->count() == 0);
@@ -360,12 +360,12 @@ void EditorView::setCurrentEditor(IEditor *editor)
 
 int EditorView::editorCount() const
 {
-    return m_container->count();
+    return m_editors.size();
 }
 
 QList<IEditor *> EditorView::editors() const
 {
-    return m_widgetEditorMap.values();
+    return m_editors;
 }
 
 void EditorView::updateEditorHistory(IEditor *editor)
@@ -788,9 +788,9 @@ void SplitterOrView::restoreState(const QByteArray &state)
                                     | Core::EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
-            QModelIndex idx = em->openedEditorsModel()->firstRestoredEditor();
-            if (idx.isValid())
-                em->activateEditorForIndex(view(), idx, Core::EditorManager::IgnoreNavigationHistory
+            OpenEditorsModel::Entry *entry = em->openedEditorsModel()->firstRestoredEditor();
+            if (entry)
+                em->activateEditorForEntry(view(), entry, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::DoNotChangeCurrentEditor);
         }
 

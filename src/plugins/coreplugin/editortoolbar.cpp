@@ -290,13 +290,12 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
-    QTC_ASSERT(editor, return);
-    d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
+    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfEditor(editor));
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
     if (!d->m_isStandalone)
-        updateToolBar(editor->toolBar());
+        updateToolBar(editor ? editor->toolBar() : 0);
 
     updateEditorStatus(editor);
 }
@@ -304,28 +303,28 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 {
     if (newSelection)
-        d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(newSelection).row());
+        d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfEditor(newSelection));
 }
 
 void EditorToolBar::changeActiveEditor(int row)
 {
-    EditorManager *em = ICore::editorManager();
-    QAbstractItemModel *model = d->m_editorList->model();
-    em->activateEditorForIndex(model->index(row, 0));
+    EditorManager *em = EditorManager::instance();
+    em->activateEditorForEntry(d->m_editorsListModel->entryAtRow(row));
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)
 {
-    QModelIndex index = d->m_editorsListModel->index(d->m_editorList->currentIndex(), 0);
-    QString fileName = d->m_editorsListModel->data(index, Qt::UserRole + 1).toString();
+    OpenEditorsModel::Entry *entry = EditorManager::instance()
+            ->openedEditorsModel()->entryAtRow(d->m_editorList->currentIndex());
+    QString fileName = entry ? entry->fileName() : QString();
     if (fileName.isEmpty())
         return;
     QMenu menu;
     QAction *copyPath = menu.addAction(tr("Copy Full Path to Clipboard"));
     menu.addSeparator();
-    EditorManager::instance()->addSaveAndCloseEditorActions(&menu, index);
+    EditorManager::instance()->addSaveAndCloseEditorActions(&menu, entry);
     menu.addSeparator();
-    EditorManager::instance()->addNativeDirActions(&menu, index);
+    EditorManager::instance()->addNativeDirActions(&menu, entry);
     QAction *result = menu.exec(d->m_editorList->mapToGlobal(pos));
     if (result == copyPath)
         QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
@@ -376,7 +375,7 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
         return;
     }
 
-    d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
+    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfEditor(editor));
 
     if (editor->document()->fileName().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());

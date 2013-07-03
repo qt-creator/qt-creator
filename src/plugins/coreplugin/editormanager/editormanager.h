@@ -32,6 +32,8 @@
 
 #include "../core_global.h"
 
+#include "openeditorsmodel.h"
+
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h> // enumerations
 
@@ -40,7 +42,6 @@
 #include <QMenu>
 
 QT_BEGIN_NAMESPACE
-class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -62,8 +63,6 @@ enum MakeWritableResult {
     SavedAs,
     Failed
 };
-
-class OpenEditorsModel;
 
 namespace Internal {
 class EditorClosingCoreListener;
@@ -132,11 +131,11 @@ public:
     QList<IEditor*> openedEditors() const;
 
     static void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
-    void activateEditorForIndex(const QModelIndex &index, OpenEditorFlags = 0);
+    void activateEditorForEntry(OpenEditorsModel::Entry *entry, OpenEditorFlags flags = 0);
     IEditor *activateEditorForDocument(Internal::EditorView *view, IDocument *document, OpenEditorFlags flags = 0);
 
     OpenEditorsModel *openedEditorsModel() const;
-    void closeEditor(const QModelIndex &index);
+    void closeEditor(OpenEditorsModel::Entry *entry);
     void closeOtherEditors(IEditor *editor);
 
     QList<IEditor*> editorsForDocuments(QList<IDocument *> documents) const;
@@ -184,8 +183,8 @@ public:
     void setWindowTitleAddition(const QString &addition);
     QString windowTitleAddition() const;
 
-    void addSaveAndCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex);
-    void addNativeDirActions(QMenu *contextMenu, const QModelIndex &editorIndex);
+    void addSaveAndCloseEditorActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry);
+    void addNativeDirActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry);
 
 signals:
     void currentEditorChanged(Core::IEditor *editor);
@@ -259,7 +258,7 @@ private:
     IEditor *placeEditor(Internal::EditorView *view, IEditor *editor);
     IEditor *duplicateEditor(IEditor *editor);
     IEditor *activateEditor(Internal::EditorView *view, IEditor *editor, OpenEditorFlags flags = 0);
-    void activateEditorForIndex(Internal::EditorView *view, const QModelIndex &index, OpenEditorFlags = 0);
+    void activateEditorForEntry(Internal::EditorView *view, OpenEditorsModel::Entry *entry, OpenEditorFlags flags = 0);
     void activateView(Internal::EditorView *view);
     IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
         const Id &id = Id(), OpenEditorFlags flags = 0, bool *newEditor = 0);

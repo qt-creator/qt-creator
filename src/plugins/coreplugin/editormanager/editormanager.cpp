@@ -212,7 +212,7 @@ public:
     QAction *m_closeOtherEditorsContextAction;
     QAction *m_openGraphicalShellAction;
     QAction *m_openTerminalAction;
-    QModelIndex m_contextMenuEditorIndex;
+    OpenEditorsModel::Entry *m_contextMenuEntry;
 
     Internal::OpenEditorsWindow *m_windowPopup;
     Internal::EditorClosingCoreListener *m_coreListener;
@@ -812,16 +812,16 @@ static void assignAction(QAction *self, QAction *other)
     self->setIconVisibleInMenu(other->isIconVisibleInMenu());
 }
 
-void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex)
+void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry)
 {
     QTC_ASSERT(contextMenu, return);
-    d->m_contextMenuEditorIndex = editorIndex;
+    d->m_contextMenuEntry = entry;
 
     assignAction(d->m_saveCurrentEditorContextAction, ActionManager::command(Constants::SAVE)->action());
     assignAction(d->m_saveAsCurrentEditorContextAction, ActionManager::command(Constants::SAVEAS)->action());
     assignAction(d->m_revertToSavedCurrentEditorContextAction, ActionManager::command(Constants::REVERTTOSAVED)->action());
 
-    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+    IEditor *editor = entry ? entry->editor : 0;
 
     setupSaveActions(editor,
                      d->m_saveCurrentEditorContextAction,
@@ -835,25 +835,26 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, const QMode
 
     contextMenu->addSeparator();
 
-    d->m_closeCurrentEditorContextAction->setText(editorIndex.isValid()
-                                                    ? tr("Close \"%1\"").arg(editorIndex.data().toString())
+    d->m_closeCurrentEditorContextAction->setText(entry
+                                                    ? tr("Close \"%1\"").arg(entry->displayName())
                                                     : tr("Close Editor"));
-    d->m_closeOtherEditorsContextAction->setText(editorIndex.isValid()
-                                                   ? tr("Close All Except \"%1\"").arg(editorIndex.data().toString())
+    d->m_closeOtherEditorsContextAction->setText(entry
+                                                   ? tr("Close All Except \"%1\"").arg(entry->displayName())
                                                    : tr("Close Other Editors"));
-    d->m_closeCurrentEditorContextAction->setEnabled(editorIndex.isValid());
-    d->m_closeOtherEditorsContextAction->setEnabled(editorIndex.isValid());
+    d->m_closeCurrentEditorContextAction->setEnabled(entry != 0);
+    d->m_closeOtherEditorsContextAction->setEnabled(entry != 0);
     d->m_closeAllEditorsContextAction->setEnabled(!openedEditors().isEmpty());
     contextMenu->addAction(d->m_closeCurrentEditorContextAction);
     contextMenu->addAction(d->m_closeAllEditorsContextAction);
     contextMenu->addAction(d->m_closeOtherEditorsContextAction);
 }
 
-void EditorManager::addNativeDirActions(QMenu *contextMenu, const QModelIndex &editorIndex)
+void EditorManager::addNativeDirActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry)
 {
     QTC_ASSERT(contextMenu, return);
-    d->m_openGraphicalShellAction->setEnabled(editorIndex.isValid());
-    d->m_openTerminalAction->setEnabled(editorIndex.isValid());
+    bool enabled = entry && !entry->fileName().isEmpty();
+    d->m_openGraphicalShellAction->setEnabled(enabled);
+    d->m_openTerminalAction->setEnabled(enabled);
     contextMenu->addAction(d->m_openGraphicalShellAction);
     contextMenu->addAction(d->m_openTerminalAction);
 }
@@ -953,45 +954,50 @@ void EditorManager::doEscapeKeyFocusMoveMagic()
 
 void EditorManager::saveDocumentFromContextMenu()
 {
-    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+    IEditor *editor = d->m_contextMenuEntry ? d->m_contextMenuEntry->editor : 0;
     if (editor)
         saveDocument(editor->document());
 }
 
 void EditorManager::saveDocumentAsFromContextMenu()
 {
-    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+    IEditor *editor = d->m_contextMenuEntry ? d->m_contextMenuEntry->editor : 0;
     if (editor)
         saveDocumentAs(editor->document());
 }
 
 void EditorManager::revertToSavedFromContextMenu()
 {
-    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+    IEditor *editor = d->m_contextMenuEntry ? d->m_contextMenuEntry->editor : 0;
     if (editor)
         revertToSaved(editor);
 }
 
 void EditorManager::closeEditorFromContextMenu()
 {
-    closeEditor(d->m_contextMenuEditorIndex);
+    IEditor *editor = d->m_contextMenuEntry ? d->m_contextMenuEntry->editor : 0;
+    if (editor)
+        closeEditor(editor);
 }
 
 void EditorManager::closeOtherEditorsFromContextMenu()
 {
-    closeOtherEditors(d->m_contextMenuEditorIndex.data(Qt::UserRole).value<IEditor *>());
+    IEditor *editor = d->m_contextMenuEntry ? d->m_contextMenuEntry->editor : 0;
+    closeOtherEditors(editor);
 }
 
 void EditorManager::showInGraphicalShell()
 {
-    const QString path = d->m_contextMenuEditorIndex.data(Qt::UserRole + 1).toString();
-    Core::FileUtils::showInGraphicalShell(ICore::mainWindow(), path);
+    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
+        return;
+    Core::FileUtils::showInGraphicalShell(ICore::mainWindow(), d->m_contextMenuEntry->fileName());
 }
 
 void EditorManager::openTerminal()
 {
-    const QString path = QFileInfo(d->m_contextMenuEditorIndex.data(Qt::UserRole + 1).toString()).path();
-    Core::FileUtils::openTerminal(path);
+    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
+        return;
+    Core::FileUtils::openTerminal(QFileInfo(d->m_contextMenuEntry->fileName()).path());
 }
 
 void EditorManager::rootDestroyed(QObject *root)
@@ -1057,13 +1063,14 @@ void EditorManager::closeEditor(Core::IEditor *editor)
     closeEditors(QList<IEditor *>() << editor);
 }
 
-void EditorManager::closeEditor(const QModelIndex &index)
+void EditorManager::closeEditor(OpenEditorsModel::Entry *entry)
 {
-    IEditor *editor = index.data(Qt::UserRole).value<Core::IEditor*>();
-    if (editor)
-        closeEditor(editor);
+    if (!entry)
+        return;
+    if (entry->editor)
+        closeEditor(entry->editor);
     else
-        d->m_editorModel->removeEditor(index);
+        d->m_editorModel->removeEntry(entry);
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
@@ -1143,20 +1150,26 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         }
     }
 
+    bool currentViewHandled = false;
     foreach (EditorView *view, closedViews) {
+        OpenEditorFlags flags;
+        if (view == currentView)
+            currentViewHandled = true;
+        else
+            flags = OpenEditorFlags(DoNotChangeCurrentEditor);
         IEditor *newCurrent = view->currentEditor();
         if (!newCurrent)
             newCurrent = pickUnusedEditor();
         if (newCurrent) {
-            activateEditor(view, newCurrent, DoNotChangeCurrentEditor);
+            activateEditor(view, newCurrent, flags);
         } else {
-            QModelIndex idx = d->m_editorModel->firstRestoredEditor();
-            if (idx.isValid()) {
-                activateEditorForIndex(view, idx, DoNotChangeCurrentEditor);
+            OpenEditorsModel::Entry *entry = d->m_editorModel->firstRestoredEditor();
+            if (entry) {
+                activateEditorForEntry(view, entry, flags);
             } else {
                 const QList<IEditor *> editors = d->m_editorModel->editors();
                 if (!editors.isEmpty())
-                    activateEditor(view, editors.last(), DoNotChangeCurrentEditor);
+                    activateEditor(view, editors.last(), flags);
             }
         }
     }
@@ -1167,7 +1180,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         delete editor;
     }
 
-    if (currentView) {
+    if (currentView && !currentViewHandled) {
         if (IEditor *editor = currentView->currentEditor())
             activateEditor(currentView, editor);
         else
@@ -1213,9 +1226,9 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
         if (newCurrent) {
             activateEditor(view, newCurrent, DoNotChangeCurrentEditor);
         } else {
-            QModelIndex idx = d->m_editorModel->firstRestoredEditor();
-            if (idx.isValid())
-                activateEditorForIndex(view, idx, DoNotChangeCurrentEditor);
+            OpenEditorsModel::Entry *entry = d->m_editorModel->firstRestoredEditor();
+            if (entry)
+                activateEditorForEntry(view, entry, DoNotChangeCurrentEditor);
         }
     }
 
@@ -1237,24 +1250,23 @@ Core::IEditor *EditorManager::pickUnusedEditor() const
     return 0;
 }
 
-void EditorManager::activateEditorForIndex(const QModelIndex &index, OpenEditorFlags flags)
+void EditorManager::activateEditorForEntry(OpenEditorsModel::Entry *entry, OpenEditorFlags flags)
 {
-    activateEditorForIndex(currentEditorView(), index, flags);
+    activateEditorForEntry(currentEditorView(), entry, flags);
 }
 
-void EditorManager::activateEditorForIndex(Internal::EditorView *view, const QModelIndex &index, OpenEditorFlags flags)
+void EditorManager::activateEditorForEntry(Internal::EditorView *view, OpenEditorsModel::Entry *entry, OpenEditorFlags flags)
 {
-    Q_ASSERT(view);
-    IEditor *editor = index.data(Qt::UserRole).value<IEditor*>();
+    QTC_ASSERT(view, return);
+    QTC_ASSERT(entry, return);
+    IEditor *editor = entry->editor;
     if (editor)  {
         activateEditor(view, editor, flags);
         return;
     }
 
-    QString fileName = index.data(Qt::UserRole + 1).toString();
-    Core::Id id = index.data(Qt::UserRole + 2).value<Core::Id>();
-    if (!openEditor(view, fileName, id, flags))
-        d->m_editorModel->removeEditor(index);
+    if (!openEditor(view, entry->fileName(), entry->id(), flags))
+        d->m_editorModel->removeEntry(entry);
 }
 
 void EditorManager::activateView(EditorView *view)
@@ -2226,19 +2238,19 @@ QByteArray EditorManager::saveState() const
 
     stream << d->m_editorStates;
 
-    QList<OpenEditorsModel::Entry> entries = d->m_editorModel->entries();
+    QList<OpenEditorsModel::Entry *> entries = d->m_editorModel->entries();
     int entriesCount = 0;
-    foreach (const OpenEditorsModel::Entry &entry, entries) {
+    foreach (OpenEditorsModel::Entry *entry, entries) {
         // The editor may be 0 if it was not loaded yet: In that case it is not temporary
-        if (!entry.editor || !entry.editor->isTemporary())
+        if (!entry->editor || !entry->editor->isTemporary())
             ++entriesCount;
     }
 
     stream << entriesCount;
 
-    foreach (const OpenEditorsModel::Entry &entry, entries) {
-        if (!entry.editor || !entry.editor->isTemporary())
-            stream << entry.fileName() << entry.displayName() << entry.id();
+    foreach (OpenEditorsModel::Entry *entry, entries) {
+        if (!entry->editor || !entry->editor->isTemporary())
+            stream << entry->fileName() << entry->displayName() << entry->id();
     }
 
     stream << d->m_root.first()->saveState(); // TODO

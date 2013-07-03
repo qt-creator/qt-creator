@@ -51,7 +51,6 @@ QT_END_NAMESPACE
 namespace Core {
     class SideBar;
     class SideBarItem;
-    class OpenEditorsModel;
     class EditorToolBar;
     class OutputPanePlaceHolder;
 }

@@ -60,12 +60,6 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
-    int openDocumentCount() const;
-
-    void addEditor(IEditor *editor, bool isDuplicate = false);
-    void addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id);
-    QModelIndex firstRestoredEditor() const;
-
     struct CORE_EXPORT Entry {
         Entry();
         IEditor *editor;
@@ -76,24 +70,30 @@ public:
         QString m_displayName;
         Id m_id;
     };
-    QList<Entry> entries() const;
 
-    IEditor *editorAt(int row) const;
+    Entry *entryAtRow(int row) const;
+    int rowOfEditor(IEditor *editor) const;
 
+    int openDocumentCount() const;
+
+    void addEditor(IEditor *editor, bool isDuplicate = false);
+    void addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id);
+    Entry *firstRestoredEditor() const;
+
+    QList<Entry *> entries() const;
+
+    void removeEntry(Entry *entry);
     void removeEditor(IEditor *editor);
-    void removeEditor(const QModelIndex &index);
     void removeEditor(const QString &fileName);
 
     void removeAllRestoredEditors();
-    void emitDataChanged(IEditor *editor);
 
     QList<IEditor *> editors() const;
-    QList<Entry> restoredEditors() const;
     bool isDuplicate(IEditor *editor) const;
     QList<IEditor *> duplicatesFor(IEditor *editor) const;
     IEditor *originalForDuplicate(IEditor *duplicate) const;
     void makeOriginal(IEditor *duplicate);
-    QModelIndex indexOf(IEditor *editor) const;
+    int indexOfEditor(IEditor *editor) const;
 
     QString displayNameForDocument(IDocument *document) const;
 
@@ -101,10 +101,11 @@ private slots:
     void itemChanged();
 
 private:
-    void addEntry(const Entry &entry);
+    void addEntry(Entry *entry);
     int findEditor(IEditor *editor) const;
     int findFileName(const QString &filename) const;
     void removeEditor(int idx);
+    void emitDataChanged(IEditor *editor);
 
     OpenEditorsModelPrivate *d;
 };

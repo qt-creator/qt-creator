@@ -31,6 +31,8 @@
 #include "ieditor.h"
 #include "idocument.h"
 
+#include <utils/qtcassert.h>
+
 #include <QDir>
 #include <QIcon>
 
@@ -43,7 +45,7 @@ struct OpenEditorsModelPrivate
     const QIcon m_lockedIcon;
     const QIcon m_unlockedIcon;
 
-    QList<OpenEditorsModel::Entry> m_editors;
+    QList<OpenEditorsModel::Entry *> m_editors;
     QList<IEditor *> m_duplicateEditors;
 };
 
@@ -93,8 +95,9 @@ Id OpenEditorsModel::Entry::id() const
 
 int OpenEditorsModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
-    return 2;
+    if (!parent.isValid())
+        return 2;
+    return 0;
 }
 
 int OpenEditorsModel::rowCount(const QModelIndex &parent) const
@@ -107,9 +110,9 @@ int OpenEditorsModel::rowCount(const QModelIndex &parent) const
 QList<IEditor *> OpenEditorsModel::editors() const
 {
     QList<IEditor *> result;
-    foreach (const Entry &entry, d->m_editors)
-        if (entry.editor)
-            result += entry.editor;
+    foreach (const Entry *entry, d->m_editors)
+        if (entry->editor)
+            result += entry->editor;
     return result;
 }
 
@@ -123,52 +126,52 @@ void OpenEditorsModel::addEditor(IEditor *editor, bool isDuplicate)
         return;
     }
 
-    Entry entry;
-    entry.editor = editor;
+    Entry *entry = new Entry;
+    entry->editor = editor;
     addEntry(entry);
 }
 
 void OpenEditorsModel::addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id)
 {
-    Entry entry;
-    entry.m_fileName = fileName;
-    entry.m_displayName = displayName;
-    entry.m_id = id;
+    Entry *entry = new Entry;
+    entry->m_fileName = fileName;
+    entry->m_displayName = displayName;
+    entry->m_id = id;
     addEntry(entry);
 }
 
-QModelIndex OpenEditorsModel::firstRestoredEditor() const
+OpenEditorsModel::Entry *OpenEditorsModel::firstRestoredEditor() const
 {
     for (int i = 0; i < d->m_editors.count(); ++i)
-        if (!d->m_editors.at(i).editor)
-            return createIndex(i, 0);
-    return QModelIndex();
+        if (!d->m_editors.at(i)->editor)
+            return d->m_editors.at(i);
+    return 0;
 }
 
-void OpenEditorsModel::addEntry(const Entry &entry)
+void OpenEditorsModel::addEntry(Entry *entry)
 {
-    QString fileName = entry.fileName();
+    QString fileName = entry->fileName();
 
     int previousIndex = findFileName(fileName);
     if (previousIndex >= 0) {
-        if (entry.editor && d->m_editors.at(previousIndex).editor == 0) {
+        if (entry->editor && d->m_editors.at(previousIndex)->editor == 0) {
             d->m_editors[previousIndex] = entry;
-            connect(entry.editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+            connect(entry->editor, SIGNAL(changed()), this, SLOT(itemChanged()));
         }
         return;
     }
 
     int index;
-    QString displayName = entry.displayName();
+    QString displayName = entry->displayName();
     for (index = 0; index < d->m_editors.count(); ++index) {
-        if (displayName < d->m_editors.at(index).displayName())
+        if (displayName < d->m_editors.at(index)->displayName())
             break;
     }
-
-    beginInsertRows(QModelIndex(), index, index);
+    int row = index + 1/*<no document>*/;
+    beginInsertRows(QModelIndex(), row, row);
     d->m_editors.insert(index, entry);
-    if (entry.editor)
-        connect(entry.editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+    if (entry->editor)
+        connect(entry->editor, SIGNAL(changed()), this, SLOT(itemChanged()));
     endInsertRows();
 }
 
@@ -176,7 +179,7 @@ void OpenEditorsModel::addEntry(const Entry &entry)
 int OpenEditorsModel::findEditor(IEditor *editor) const
 {
     for (int i = 0; i < d->m_editors.count(); ++i)
-        if (d->m_editors.at(i).editor == editor)
+        if (d->m_editors.at(i)->editor == editor)
             return i;
     return -1;
 }
@@ -186,21 +189,22 @@ int OpenEditorsModel::findFileName(const QString &filename) const
     if (filename.isEmpty())
         return -1;
     for (int i = 0; i < d->m_editors.count(); ++i) {
-        if (d->m_editors.at(i).fileName() == filename)
+        if (d->m_editors.at(i)->fileName() == filename)
             return i;
     }
     return -1;
+}
+
+void OpenEditorsModel::removeEntry(OpenEditorsModel::Entry *entry)
+{
+    int index = d->m_editors.indexOf(entry);
+    removeEditor(index);
 }
 
 void OpenEditorsModel::removeEditor(IEditor *editor)
 {
     d->m_duplicateEditors.removeAll(editor);
     removeEditor(findEditor(editor));
-}
-
-void OpenEditorsModel::removeEditor(const QModelIndex &index)
-{
-    removeEditor(index.row());
 }
 
 void OpenEditorsModel::removeEditor(const QString &fileName)
@@ -210,10 +214,11 @@ void OpenEditorsModel::removeEditor(const QString &fileName)
 
 void OpenEditorsModel::removeEditor(int idx)
 {
-    if (idx < 0)
+    if (idx < 0 || idx >= d->m_editors.size())
         return;
-    IEditor *editor= d->m_editors.at(idx).editor;
-    beginRemoveRows(QModelIndex(), idx, idx);
+    IEditor *editor = d->m_editors.at(idx)->editor;
+    int row = idx;
+    beginRemoveRows(QModelIndex(), row, row);
     d->m_editors.removeAt(idx);
     endRemoveRows();
     if (editor)
@@ -223,22 +228,13 @@ void OpenEditorsModel::removeEditor(int idx)
 void OpenEditorsModel::removeAllRestoredEditors()
 {
     for (int i = d->m_editors.count()-1; i >= 0; --i) {
-        if (!d->m_editors.at(i).editor) {
-            beginRemoveRows(QModelIndex(), i, i);
+        if (!d->m_editors.at(i)->editor) {
+            int row = i;
+            beginRemoveRows(QModelIndex(), row, row);
             d->m_editors.removeAt(i);
             endRemoveRows();
         }
     }
-}
-
-QList<OpenEditorsModel::Entry> OpenEditorsModel::restoredEditors() const
-{
-    QList<Entry> result;
-    for (int i = d->m_editors.count()-1; i >= 0; --i) {
-        if (!d->m_editors.at(i).editor)
-            result.append(d->m_editors.at(i));
-    }
-    return result;
 }
 
 bool OpenEditorsModel::isDuplicate(IEditor *editor) const
@@ -249,9 +245,9 @@ bool OpenEditorsModel::isDuplicate(IEditor *editor) const
 IEditor *OpenEditorsModel::originalForDuplicate(IEditor *duplicate) const
 {
     IDocument *document = duplicate->document();
-    foreach (const Entry &e, d->m_editors)
-        if (e.editor && e.editor->document() == document)
-            return e.editor;
+    foreach (const Entry *e, d->m_editors)
+        if (e->editor && e->editor->document() == document)
+            return e->editor;
     return 0;
 }
 
@@ -271,11 +267,18 @@ void OpenEditorsModel::makeOriginal(IEditor *duplicate)
     IEditor *original = originalForDuplicate(duplicate);
     Q_ASSERT(original);
     int i = findEditor(original);
-    d->m_editors[i].editor = duplicate;
+    d->m_editors[i]->editor = duplicate;
     d->m_duplicateEditors.removeOne(duplicate);
     d->m_duplicateEditors.append(original);
     disconnect(original, SIGNAL(changed()), this, SLOT(itemChanged()));
     connect(duplicate, SIGNAL(changed()), this, SLOT(itemChanged()));
+}
+
+int OpenEditorsModel::indexOfEditor(IEditor *editor) const
+{
+    if (!editor)
+        return -1;
+    return findEditor(editor);
 }
 
 void OpenEditorsModel::emitDataChanged(IEditor *editor)
@@ -295,6 +298,14 @@ QModelIndex OpenEditorsModel::index(int row, int column, const QModelIndex &pare
     return createIndex(row, column);
 }
 
+OpenEditorsModel::Entry *OpenEditorsModel::entryAtRow(int row) const
+{
+    int editorIndex = row;
+    if (editorIndex < 0)
+        return 0;
+    return d->m_editors[editorIndex];
+}
+
 int OpenEditorsModel::openDocumentCount() const
 {
     return d->m_editors.count();
@@ -304,51 +315,64 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (index.column() != 0 && role < Qt::UserRole))
         return QVariant();
-    Entry e = d->m_editors.at(index.row());
+    int editorIndex = index.row();
+    if (editorIndex < 0) {
+        // <no document> entry
+        switch (role) {
+        case Qt::DisplayRole:
+            return tr("<no document>");
+        case Qt::ToolTipRole:
+            return tr("No document is selected.");
+        default:
+            return QVariant();
+        }
+    }
+    const Entry *e = d->m_editors.at(editorIndex);
     switch (role) {
     case Qt::DisplayRole:
-        return (e.editor && e.editor->document()->isModified())
-                ? e.displayName() + QLatin1Char('*')
-                : e.displayName();
+        return (e->editor && e->editor->document()->isModified())
+                ? e->displayName() + QLatin1Char('*')
+                : e->displayName();
     case Qt::DecorationRole:
     {
         bool showLock = false;
-        if (e.editor) {
-            showLock = e.editor->document()->fileName().isEmpty()
+        if (e->editor) {
+            showLock = e->editor->document()->fileName().isEmpty()
                     ? false
-                    : e.editor->document()->isFileReadOnly();
+                    : e->editor->document()->isFileReadOnly();
         } else {
-            showLock = !QFileInfo(e.m_fileName).isWritable();
+            showLock = !QFileInfo(e->m_fileName).isWritable();
         }
         return showLock ? d->m_lockedIcon : QIcon();
     }
     case Qt::ToolTipRole:
-        return e.fileName().isEmpty()
-                ? e.displayName()
-                : QDir::toNativeSeparators(e.fileName());
+        return e->fileName().isEmpty()
+                ? e->displayName()
+                : QDir::toNativeSeparators(e->fileName());
     case Qt::UserRole:
-        return qVariantFromValue(e.editor);
+        return qVariantFromValue(e->editor);
     case Qt::UserRole + 1:
-        return e.fileName();
+        return e->fileName();
     case Qt::UserRole + 2:
-        return QVariant::fromValue(e.editor ? Core::Id(e.editor->id()) : e.id());
+        return QVariant::fromValue(e->editor ? Core::Id(e->editor->id()) : e->id());
     default:
         return QVariant();
     }
     return QVariant();
 }
 
-QModelIndex OpenEditorsModel::indexOf(IEditor *editor) const
+int OpenEditorsModel::rowOfEditor(IEditor *editor) const
 {
-    int idx = findEditor(originalForDuplicate(editor));
-    return createIndex(idx, 0);
+    if (!editor)
+        return -1;
+    return findEditor(originalForDuplicate(editor));
 }
 
 QString OpenEditorsModel::displayNameForDocument(IDocument *document) const
 {
     for (int i = 0; i < d->m_editors.count(); ++i)
-        if (d->m_editors.at(i).editor && d->m_editors.at(i).editor->document() == document)
-            return d->m_editors.at(i).editor->displayName();
+        if (d->m_editors.at(i)->editor && d->m_editors.at(i)->editor->document() == document)
+            return d->m_editors.at(i)->editor->displayName();
     return QString();
 }
 
@@ -357,14 +381,9 @@ void OpenEditorsModel::itemChanged()
     emitDataChanged(qobject_cast<IEditor*>(sender()));
 }
 
-QList<OpenEditorsModel::Entry> OpenEditorsModel::entries() const
+QList<OpenEditorsModel::Entry *> OpenEditorsModel::entries() const
 {
     return d->m_editors;
-}
-
-IEditor *OpenEditorsModel::editorAt(int row) const
-{
-    return d->m_editors.at(row).editor;
 }
 
 } // namespace Core

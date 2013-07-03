@@ -124,12 +124,13 @@ OpenEditorsWidget::~OpenEditorsWidget()
 
 void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
 {
-    if (!editor) {
+    EditorManager *em = EditorManager::instance();
+    QModelIndex index = model()->index(em->openedEditorsModel()->rowOfEditor(editor), 0);
+    if (!index.isValid()) {
         clearSelection();
         return;
     }
-    EditorManager *em = EditorManager::instance();
-    setCurrentIndex(em->openedEditorsModel()->indexOf(editor));
+    setCurrentIndex(index);
     selectionModel()->select(currentIndex(),
                                               QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());
@@ -189,12 +190,14 @@ void OpenEditorsWidget::handleClicked(const QModelIndex &index)
 void OpenEditorsWidget::activateEditor(const QModelIndex &index)
 {
     selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    EditorManager::instance()->activateEditorForIndex(index);
+    EditorManager *em = EditorManager::instance();
+    em->activateEditorForEntry(em->openedEditorsModel()->entryAtRow(index.row()));
 }
 
 void OpenEditorsWidget::closeEditor(const QModelIndex &index)
 {
-    EditorManager::instance()->closeEditor(index);
+    EditorManager *em = EditorManager::instance();
+    em->closeEditor(em->openedEditorsModel()->entryAtRow(index.row()));
     // work around selection changes
     updateCurrentItem(EditorManager::currentEditor());
 }
@@ -203,9 +206,11 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
 {
     QMenu contextMenu;
     QModelIndex editorIndex = indexAt(pos);
-    EditorManager::instance()->addSaveAndCloseEditorActions(&contextMenu, editorIndex);
+    OpenEditorsModel::Entry *entry = EditorManager::instance()->openedEditorsModel()->entryAtRow(
+                editorIndex.row());
+    EditorManager::instance()->addSaveAndCloseEditorActions(&contextMenu, entry);
     contextMenu.addSeparator();
-    EditorManager::instance()->addNativeDirActions(&contextMenu, editorIndex);
+    EditorManager::instance()->addNativeDirActions(&contextMenu, entry);
     contextMenu.exec(mapToGlobal(pos));
 }
 
