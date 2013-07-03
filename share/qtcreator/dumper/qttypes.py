@@ -161,7 +161,7 @@ def qPutQObjectNameValue(d, value):
             #   - QDynamicMetaObjectData *metaObject;
             extra = d.dereference(dd + 5 * ptrSize + 2 * intSize)
             if extra == 0:
-                return
+                return False
 
             # Offset of objectName in ExtraData: 6 pointer
             #   - QVector<QObjectUserData *> userData; only #ifndef QT_NO_USERDATA
@@ -174,9 +174,12 @@ def qPutQObjectNameValue(d, value):
 
         data, size, alloc = qByteArrayData(d, objectName)
 
-        if size > 0:
-            str = d.readRawMemory(data, 2 * size)
-            d.putValue(str, Hex4EncodedLittleEndian, 1)
+        if size == 0:
+            return False
+
+        str = d.readRawMemory(data, 2 * size)
+        d.putValue(str, Hex4EncodedLittleEndian, 1)
+        return True
 
     except:
         pass
@@ -1973,7 +1976,7 @@ def qdumpHelper__QVariant(d, value):
         sizePD = d.lookupType(d.ns + 'QVariant::Private::Data').sizeof
         if innerType.sizeof > sizePD:
             sizePS = d.lookupType(d.ns + 'QVariant::PrivateShared').sizeof
-            val = (sizePS + data.cast(d.charPtrType())) \
+            val = (data.cast(d.charPtrType()) + sizePS) \
                 .cast(innerType.pointer()).dereference()
         else:
             val = data.cast(innerType)
@@ -2573,7 +2576,7 @@ def qdump__boost__optional(d, value):
     else:
         type = d.templateArgument(value.type, 0)
         storage = value["m_storage"]
-        if type.code == ReferenceCode:
+        if d.isReferenceType(type):
             d.putItem(storage.cast(type.target().pointer()).dereference())
         else:
             d.putItem(storage.cast(type))
@@ -2925,7 +2928,7 @@ def qdump__Eigen__Matrix(d, value):
     nrows = value["m_storage"]["m_rows"] if argRow == -1 else int(argRow)
     ncols = value["m_storage"]["m_cols"] if argCol == -1 else int(argCol)
     p = storage["m_data"]
-    if p.type.code == StructCode: # Static
+    if d.isStructType(p.type): # Static
         p = p["array"].cast(innerType.pointer())
     d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
     d.putField("keeporder", "1")

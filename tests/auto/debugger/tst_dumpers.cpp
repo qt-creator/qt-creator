@@ -3138,6 +3138,17 @@ void tst_Dumpers::dumper_data()
                % Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread")
                % Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
 
+    QTest::newRow("QVariant0")
+            << Data("#include <QVariant>\n",
+                    "QVariant value;\n"
+                    "QVariant::Type t = QVariant::String;\n"
+                    "value = QVariant(t, (void*)0);\n"
+                    "*(QString*)value.data() = QString(\"Some string\");\n")
+               % CoreProfile()
+               % GdbOnly()
+               % Check("t", "@QVariant::String (10)", "@QVariant::Type")
+               % Check("value", "\"Some string\"", "@QVariant (QString)");
+
     QTest::newRow("QVariant1")
             << Data("#include <QVariant>\n",
                     "QVariant value;\n"
@@ -3145,7 +3156,8 @@ void tst_Dumpers::dumper_data()
                     "value = QVariant(t, (void*)0);\n"
                     "*(QString*)value.data() = QString(\"Some string\");\n")
                % CoreProfile()
-               % Check("t", "@QVariant::String (10)", "@QVariant::Type")
+               % LldbOnly()
+               % Check("t", "String", "@QVariant::Type")
                % Check("value", "\"Some string\"", "@QVariant (QString)");
 
     QTest::newRow("QVariant2")

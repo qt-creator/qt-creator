@@ -73,9 +73,6 @@ DisplayLatin1String, \
 DisplayUtf8String \
     = range(7)
 
-def lookupType(name):
-    return None
-
 def isSimpleType(typeobj):
     typeClass = typeobj.GetTypeClass()
     #warn("TYPECLASS: %s" % typeClass)
@@ -179,36 +176,7 @@ def fileName(file):
     return str(file) if file.IsValid() else ''
 
 
-PointerCode = None
-ArrayCode = None
-StructCode = None
-UnionCode = None
-EnumCode = None
-FlagsCode = None
-FunctionCode = None
-IntCode = None
-FloatCode = None
-VoidCode = None
-SetCode = None
-RangeCode = None
-StringCode = None
-BitStringCode = None
-ErrorTypeCode = None
-MethodCode = None
-MethodPointerCode = None
-MemberPointerCode = None
-ReferenceCode = None
-CharCode = None
-BoolCode = None
-ComplexCode = None
-TypedefCode = None
-NamespaceCode = None
-SimpleValueCode = None # LLDB only
-
-
 # Data members
-SimpleValueCode = 100
-StructCode = 101
 PointerCode = 102
 
 # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
@@ -245,7 +213,7 @@ def checkPointer(p, align = 1):
         p.Dereference()
 
 def isNull(p):
-    return long(p) == 0
+    return p.GetValueAsUnsigned() == 0
 
 Value = lldb.SBValue
 
@@ -340,9 +308,6 @@ lldb.SBType.__str__ = lldb.SBType.GetName
 def simpleEncoding(typeobj):
     code = typeobj.GetTypeClass()
     size = typeobj.sizeof
-    #if code == BoolCode or code == CharCode:
-    #    return Hex2EncodedInt1
-    #if code == IntCode:
     if code == lldb.eTypeClassBuiltin:
         name = str(typeobj)
         if name == "float":
@@ -390,7 +355,7 @@ class Children:
                 #if isSimpleType(childType):
                 #    self.d.put('childnumchild="0",')
                 #    self.childNumChild = 0
-                #elif childType.code == PointerCode:
+                #elif childType.code == lldb.eTypeClassPointer:
                 #    self.d.put('childnumchild="1",')
                 #    self.childNumChild = 1
             else:
@@ -469,6 +434,8 @@ class SubItem:
         self.d.put('{')
         #if not self.name is None:
         if isinstance(self.name, str):
+            if self.name == '**&':
+                self.name = '*'
             self.d.put('name="%s",' % self.name)
         self.savedIName = self.d.currentIName
         self.savedCurrentAddress = self.d.currentAddress
@@ -597,7 +564,7 @@ class Dumper:
 
     def templateArgument(self, typeobj, index):
         type = typeobj.GetTemplateArgumentType(index)
-        if len(type.GetName()):
+        if type.IsValid():
             return type
         inner = self.extractTemplateArgument(typeobj.GetName(), index)
         return self.lookupType(inner)
@@ -605,6 +572,12 @@ class Dumper:
     def numericTemplateArgument(self, typeobj, index):
         inner = self.extractTemplateArgument(typeobj.GetName(), index)
         return int(inner)
+
+    def isReferenceType(self, typeobj):
+        return typeobj.IsReferenceType()
+
+    def isStructType(self, typeobj):
+        return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
 
     def qtVersion(self):
         return 0x050000
@@ -678,10 +651,11 @@ class Dumper:
         return format
 
     def isMovableType(self, type):
-        if type.code == PointerCode:
+        if type.GetTypeClass() in (lldb.eTypeClassBuiltin,
+                lldb.eTypeClassPointer):
             return True
-        if isSimpleType(type):
-            return True
+        warn("MOVABLE: %s" % type)
+        warn("CODE: %s" % type.GetTypeClass())
         return self.stripNamespaceFromType(type.GetName()) in movableTypes
 
     def putIntItem(self, name, value):
@@ -745,7 +719,7 @@ class Dumper:
         return True
 
     def putPlotData(self, type, base, n, plotFormat):
-        warn("PLOTDATA: %s %s" % (type, n))
+        #warn("PLOTDATA: %s %s" % (type, n))
         if self.isExpanded():
             self.putArrayData(type, base, n)
         self.putValue(self.currentValue)
@@ -789,9 +763,14 @@ class Dumper:
                self.putFields(value)
 
     def lookupType(self, name):
+        if name.endswith('*'):
+            type = self.lookupType(name[:-1].strip())
+            return type.GetPointerType() if type.IsValid() else None
         #warn("LOOKUP TYPE NAME: %s" % name)
         #warn("LOOKUP RESULT: %s" % self.target.FindFirstType(name))
-        return self.target.FindFirstType(name)
+        #warn("LOOKUP RESULT: %s" % self.target.FindFirstType(name))
+        type = self.target.FindFirstType(name)
+        return type if type.IsValid() else None
 
     def setupInferior(self, args):
         executable = args['executable']
@@ -942,6 +921,17 @@ class Dumper:
         contents = self.process.ReadMemory(base, size, error)
         return binascii.hexlify(contents)
 
+    def isQObject(self, value):
+        try:
+            vtable = value.Cast(self.voidPtrType().GetPointerType())
+            metaObjectEntry = vtable.Dereference()
+            addr = lldb.SBAddress(long(metaObjectEntry), self.target)
+            symbol = addr.GetSymbol()
+            name = symbol.GetMangledName()
+            return name.find("10metaObjectEv") > 0
+        except:
+            return False
+
     def computeLimit(self, size, limit):
         if limit is None:
             return size
@@ -967,6 +957,10 @@ class Dumper:
             pos1 = type.rfind(">", pos)
             type = type[0:pos] + type[pos1+1:]
             pos = type.find("<")
+        if type.startswith("const "):
+            type = type[6:]
+        if type.startswith("volatile "):
+            type = type[9:]
         return type
 
     def putSubItem(self, component, value, tryDynamic=True):
@@ -987,6 +981,7 @@ class Dumper:
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetTypeName()
         value.SetPreferDynamicValue(tryDynamic)
+        typeClass = value.GetType().GetTypeClass()
 
         if tryDynamic:
             self.putAddress(value.address)
@@ -1020,38 +1015,53 @@ class Dumper:
         value.SetPreferSyntheticValue(False)
 
         # Arrays
-        if value.GetType().GetTypeClass() == lldb.eTypeClassArray:
+        if typeClass == lldb.eTypeClassArray:
             qdump____c_style_array__(self, value)
             return
 
         # References
         if value.GetType().IsReferenceType():
             origType = value.GetTypeName();
-            type = value.GetType().GetDereferencedType()
-            addr = int(value.GetAddress()) & 0xFFFFFFFFFFFFFFFF
+            type = value.GetType().GetDereferencedType().GetUnqualifiedType()
+            addr = int(value) & 0xFFFFFFFFFFFFFFFF
             self.putItem(value.CreateValueFromAddress(None, addr, type))
+            #self.putItem(value.CreateValueFromData(None, value.GetData(), type))
             self.putBetterType(origType)
             return
 
         # Pointers
-        if value.GetType().IsPointerType() and self.autoDerefPointers:
-
+        if value.GetType().IsPointerType():
             if isNull(value):
                 self.putType(typeName)
                 self.putValue("0x0")
                 self.putNumChild(0)
                 return
 
-            innerType = value.GetType().GetPointeeType()
-            self.putType(innerType)
-            savedCurrentChildType = self.currentChildType
-            self.currentChildType = str(innerType)
-            inner = value.Dereference()
-            if inner.IsValid():
-                self.putItem(inner)
-                self.currentChildType = savedCurrentChildType
-                self.put('origaddr="%s",' % value.address)
-                return
+            if self.autoDerefPointers:
+                innerType = value.GetType().GetPointeeType().GetUnqualifiedType()
+                self.putType(innerType)
+                savedCurrentChildType = self.currentChildType
+                self.currentChildType = str(innerType)
+                inner = value.Dereference()
+                if inner.IsValid():
+                    self.putItem(inner)
+                    self.currentChildType = savedCurrentChildType
+                    self.put('origaddr="%s",' % value.address)
+                    return
+
+            else:
+                numchild = value.GetNumChildren()
+                self.put('iname="%s",' % self.currentIName)
+                self.putType(typeName)
+                self.putValue('0x%x' % value.GetValueAsUnsigned())
+                self.put('numchild="1",')
+                self.put('addr="0x%x",' % value.GetLoadAddress())
+                if self.currentIName in self.expandedINames:
+                    with Children(self):
+                        child = value.Dereference()
+                        with SubItem(self, child):
+                            self.putItem(child)
+
 
         #warn("VALUE: %s" % value)
         #warn("FANCY: %s" % self.useFancy)
@@ -1066,12 +1076,24 @@ class Dumper:
                 return
 
         # Normal value
-        v = value.GetValue()
         #numchild = 1 if value.MightHaveChildren() else 0
         numchild = value.GetNumChildren()
         self.put('iname="%s",' % self.currentIName)
         self.putType(typeName)
-        self.putValue('' if v is None else v)
+        if typeClass == lldb.eTypeClassStruct or typeClass == lldb.eTypeClassClass:
+            if self.isQObject(value):
+                self.context = value
+                if not self.putQObjectNameValue(value):  # Is this too expensive?
+                    self.putEmptyValue()
+            else:
+                self.putEmptyValue()
+        else:
+            v = value.GetValue()
+            if v:
+                self.putValue(v)
+            else:
+                self.putEmptyValue()
+
         self.put('numchild="%s",' % numchild)
         self.put('addr="0x%x",' % value.GetLoadAddress())
         if self.currentIName in self.expandedINames:
