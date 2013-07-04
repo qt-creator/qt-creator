@@ -94,7 +94,7 @@ bool BarDescriptorDocument::open(QString *errorString, const QString &fileName) 
     if (read(fileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
         return false;
 
-    setFileName(fileName);
+    setFilePath(fileName);
 
     bool result = loadContent(contents);
 
@@ -109,7 +109,7 @@ bool BarDescriptorDocument::save(QString *errorString, const QString &fn, bool a
     QTC_ASSERT(!autoSave, return false);
     QTC_ASSERT(fn.isEmpty(), return false);
 
-    bool result = write(fileName(), xmlSource(), errorString);
+    bool result = write(filePath(), xmlSource(), errorString);
     if (!result)
         return false;
 
@@ -120,13 +120,13 @@ bool BarDescriptorDocument::save(QString *errorString, const QString &fn, bool a
 
 QString BarDescriptorDocument::defaultPath() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.absolutePath();
 }
 
 QString BarDescriptorDocument::suggestedFileName() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.fileName();
 }
 
@@ -166,13 +166,13 @@ bool BarDescriptorDocument::reload(QString *errorString, Core::IDocument::Reload
     if (flag == Core::IDocument::FlagIgnore)
         return true;
 
-    return open(errorString, fileName());
+    return open(errorString, filePath());
 }
 
-void BarDescriptorDocument::setFileName(const QString &newName)
+void BarDescriptorDocument::setFilePath(const QString &newName)
 {
     m_editorWidget->editor()->setDisplayName(QFileInfo(newName).fileName());
-    IDocument::setFileName(newName);
+    IDocument::setFilePath(newName);
 }
 
 QString BarDescriptorDocument::xmlSource() const

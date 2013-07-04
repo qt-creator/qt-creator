@@ -4899,7 +4899,7 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     if (inNextSplit) {
         editorManager->gotoOtherSplit();
-    } else if (baseTextDocument()->fileName() == link.targetFileName) {
+    } else if (baseTextDocument()->filePath() == link.targetFileName) {
         editorManager->addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
@@ -6724,7 +6724,7 @@ IAssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,
                                                               AssistReason reason) const
 {
     Q_UNUSED(kind);
-    return new DefaultAssistInterface(document(), position(), d->m_document->fileName(), reason);
+    return new DefaultAssistInterface(document(), position(), d->m_document->filePath(), reason);
 }
 
 QString TextEditor::BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const

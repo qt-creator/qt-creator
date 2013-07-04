@@ -696,7 +696,7 @@ void DebianManager::controlWasChanged()
     WatchableFile *file = qobject_cast<WatchableFile *>(sender());
     if (!file)
         return;
-    emit controlChanged(Utils::FileName::fromString(file->fileName()).parentDir());
+    emit controlChanged(Utils::FileName::fromString(file->filePath()).parentDir());
 }
 
 void DebianManager::changelogWasChanged()
@@ -704,7 +704,7 @@ void DebianManager::changelogWasChanged()
     WatchableFile *file = qobject_cast<WatchableFile *>(sender());
     if (!file)
         return;
-    emit changelogChanged(Utils::FileName::fromString(file->fileName()).parentDir());
+    emit changelogChanged(Utils::FileName::fromString(file->filePath()).parentDir());
 }
 
 Utils::FileName DebianManager::changelogFilePath(const Utils::FileName &debianDir)

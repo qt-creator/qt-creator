@@ -161,7 +161,7 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
         }
     }
 
-    QDir dir(QFileInfo(editorDocument()->fileName()).absolutePath());
+    QDir dir(QFileInfo(editorDocument()->filePath()).absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
     if (fi.exists()) {
@@ -220,13 +220,13 @@ ProFileDocument::ProFileDocument()
 
 QString ProFileDocument::defaultPath() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.absolutePath();
 }
 
 QString ProFileDocument::suggestedFileName() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.fileName();
 }
 

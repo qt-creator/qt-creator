@@ -500,7 +500,7 @@ void AndroidManifestEditorWidget::preSave()
         syncToEditor();
 
     if (m_setAppName) {
-        QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->fileName()).absolutePath();
+        QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->filePath()).absolutePath();
         QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
         QFile f(fileName);
         if (f.open(QIODevice::ReadOnly)) {
@@ -524,7 +524,7 @@ void AndroidManifestEditorWidget::preSave()
         m_setAppName = false;
     }
 
-    QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->fileName()).absolutePath();
+    QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->filePath()).absolutePath();
     if (!m_lIconPath.isEmpty()) {
         copyIcon(LowDPI, baseDir, m_lIconPath);
         m_lIconPath.clear();
@@ -644,7 +644,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     m_versionCode->setValue(manifest.attribute(QLatin1String("android:versionCode")).toInt());
     m_versionNameLinedit->setText(manifest.attribute(QLatin1String("android:versionName")));
 
-    QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->fileName()).absolutePath();
+    QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->filePath()).absolutePath();
     QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
 
     QFile f(fileName);

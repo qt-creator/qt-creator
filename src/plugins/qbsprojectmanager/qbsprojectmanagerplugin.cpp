@@ -226,7 +226,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
     QString file;
 
     if (Core::IEditor *currentEditor = Core::EditorManager::currentEditor()) {
-        file = currentEditor->document()->fileName();
+        file = currentEditor->document()->filePath();
         ProjectExplorer::SessionManager *session = m_projectExplorer->session();
         ProjectExplorer::Node *node  = session->nodeForFile(file);
         ProjectExplorer::Project *project
@@ -297,7 +297,7 @@ void QbsProjectManagerPlugin::buildFile()
     QString file;
     QbsProject *project = 0;
     if (Core::IEditor *currentEditor = Core::EditorManager::currentEditor()) {
-        file = currentEditor->document()->fileName();
+        file = currentEditor->document()->filePath();
         project = qobject_cast<QbsProject *>(m_projectExplorer->session()->projectForFile(file));
     }
 
@@ -320,7 +320,7 @@ void QbsProjectManagerPlugin::buildProduct()
     QbsProject *project = 0;
     QbsProductNode *product = 0;
     if (Core::IEditor *currentEditor = Core::EditorManager::currentEditor()) {
-        const QString file = currentEditor->document()->fileName();
+        const QString file = currentEditor->document()->filePath();
         ProjectExplorer::SessionManager *session = m_projectExplorer->session();
 
         project = qobject_cast<QbsProject *>(session->projectForFile(file));

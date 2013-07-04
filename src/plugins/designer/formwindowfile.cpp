@@ -64,7 +64,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
 
 bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
 {
-    const QString actualName = name.isEmpty() ? fileName() : name;
+    const QString actualName = name.isEmpty() ? filePath() : name;
 
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << name << "->" << actualName;
@@ -96,19 +96,19 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
 
     emit setDisplayName(fi.fileName());
     m_formWindow->setDirty(false);
-    setFileName(fi.absoluteFilePath());
+    setFilePath(fi.absoluteFilePath());
     emit changed();
     emit saved();
 
     return true;
 }
 
-void FormWindowFile::setFileName(const QString &newName)
+void FormWindowFile::setFilePath(const QString &newName)
 {
     m_formWindow->setFileName(newName);
     QFileInfo fi(newName);
     emit setDisplayName(fi.fileName());
-    IDocument::setFileName(fi.absoluteFilePath());
+    IDocument::setFilePath(fi.absoluteFilePath());
 }
 
 bool FormWindowFile::shouldAutoSave() const
@@ -134,7 +134,7 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         emit changed();
     } else {
         emit aboutToReload();
-        emit reload(errorString, fileName());
+        emit reload(errorString, filePath());
         const bool success = errorString->isEmpty();
         emit reloadFinished(success);
         return success;
@@ -150,7 +150,7 @@ QString FormWindowFile::defaultPath() const
 void FormWindowFile::setSuggestedFileName(const QString &fn)
 {
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << fileName() << fn;
+        qDebug() << Q_FUNC_INFO << filePath() << fn;
 
     m_suggestedName = fn;
 }
@@ -168,7 +168,7 @@ QString FormWindowFile::mimeType() const
 bool FormWindowFile::writeFile(const QString &fn, QString *errorString) const
 {
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << fileName() << fn;
+        qDebug() << Q_FUNC_INFO << filePath() << fn;
     return write(fn, format(), m_formWindow->contents(), errorString);
 }
 

@@ -209,7 +209,7 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
 
     EditLocation location;
     location.document = document;
-    location.fileName = document->fileName();
+    location.fileName = document->filePath();
     location.id = editor->id();
     location.state = QVariant(state);
 
@@ -400,7 +400,7 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
 
     EditLocation location;
     location.document = document;
-    location.fileName = document->fileName();
+    location.fileName = document->filePath();
     location.id = editor->id();
     location.state = QVariant(state);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
@@ -455,7 +455,7 @@ void EditorView::updateCurrentPositionInNavigationHistory()
         location = &m_navigationHistory[m_navigationHistory.size()-1];
     }
     location->document = document;
-    location->fileName = document->fileName();
+    location->fileName = document->filePath();
     location->id = editor->id();
     location->state = QVariant(editor->saveState());
 }
@@ -737,11 +737,11 @@ QByteArray SplitterOrView::saveState() const
         IEditor* e = editor();
 
         // don't save state of temporary or ad-hoc editors
-        if (e && (e->isTemporary() || e->document()->fileName().isEmpty())) {
+        if (e && (e->isTemporary() || e->document()->filePath().isEmpty())) {
             // look for another editor that is more suited
             e = 0;
             foreach (IEditor *otherEditor, editors()) {
-                if (!otherEditor->isTemporary() && !otherEditor->document()->fileName().isEmpty()) {
+                if (!otherEditor->isTemporary() && !otherEditor->document()->filePath().isEmpty()) {
                     e = otherEditor;
                     break;
                 }
@@ -752,10 +752,10 @@ QByteArray SplitterOrView::saveState() const
             stream << QByteArray("empty");
         } else if (e == EditorManager::currentEditor()) {
             stream << QByteArray("currenteditor")
-                    << e->document()->fileName() << e->id().toString() << e->saveState();
+                    << e->document()->filePath() << e->id().toString() << e->saveState();
         } else {
             stream << QByteArray("editor")
-                    << e->document()->fileName() << e->id().toString() << e->saveState();
+                    << e->document()->filePath() << e->id().toString() << e->saveState();
         }
     }
     return bytes;

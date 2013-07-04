@@ -252,7 +252,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     QList<Core::IEditor *> opened = Core::EditorManager::instance()->openedEditors();
     foreach (Core::IEditor *editor, opened) {
         if (BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
-            Project *project = session->projectForFile(editor->document()->fileName());
+            Project *project = session->projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
                 switchSettings(baseTextEditor);
         }

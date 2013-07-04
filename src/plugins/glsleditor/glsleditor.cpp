@@ -416,7 +416,7 @@ TextEditor::IAssistInterface *GLSLTextEditorWidget::createAssistInterface(
     if (kind == TextEditor::Completion)
         return new GLSLCompletionAssistInterface(document(),
                                                  position(),
-                                                 editor()->document()->fileName(),
+                                                 editor()->document()->filePath(),
                                                  reason,
                                                  mimeType(),
                                                  glslDocument());

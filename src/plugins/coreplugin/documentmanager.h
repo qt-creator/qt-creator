@@ -146,7 +146,7 @@ protected:
 
 private slots:
     void documentDestroyed(QObject *obj);
-    void fileNameChanged(const QString &oldName, const QString &newName);
+    void filePathChanged(const QString &oldName, const QString &newName);
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);

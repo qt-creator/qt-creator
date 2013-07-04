@@ -52,7 +52,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
     BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID)), m_useNinja(false)
 {
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
-    m_buildDirectory = project->shadowBuildDirectory(project->document()->fileName(),
+    m_buildDirectory = project->shadowBuildDirectory(project->document()->filePath(),
                                                      parent->kit(),
                                                      displayName());
 }
@@ -181,7 +181,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     info.sourceDirectory = project->projectDirectory();
     info.environment = Utils::Environment::systemEnvironment();
     parent->kit()->addToEnvironment(info.environment);
-    info.buildDirectory = project->shadowBuildDirectory(project->document()->fileName(),
+    info.buildDirectory = project->shadowBuildDirectory(project->document()->filePath(),
                                                         parent->kit(),
                                                         buildConfigurationName);
     info.kit = parent->kit();

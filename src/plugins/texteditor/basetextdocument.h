@@ -84,7 +84,7 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     virtual QString mimeType() const;
     void setMimeType(const QString &mt);
-    void setFileName(const QString &newName);
+    void setFilePath(const QString &newName);
 
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;

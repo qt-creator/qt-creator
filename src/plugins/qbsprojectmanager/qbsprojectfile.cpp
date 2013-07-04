@@ -38,7 +38,7 @@ namespace Internal {
 QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDocument(parent),
     m_project(parent)
 {
-    setFileName(fileName);
+    setFilePath(fileName);
 }
 
 QbsProjectFile::~QbsProjectFile()

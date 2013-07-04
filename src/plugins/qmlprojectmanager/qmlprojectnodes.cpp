@@ -41,11 +41,11 @@ namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IDocument *projectFile)
-    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absoluteFilePath()),
+    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->filePath()).absoluteFilePath()),
       m_project(project),
       m_projectFile(projectFile)
 {
-    setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
+    setDisplayName(QFileInfo(projectFile->filePath()).completeBaseName());
     // make overlay
     const QSize desiredSize = QSize(16, 16);
     const QIcon projectBaseIcon(QLatin1String(":/qmlproject/images/qmlfolder.png"));
@@ -62,7 +62,7 @@ Core::IDocument *QmlProjectNode::projectFile() const
 { return m_projectFile; }
 
 QString QmlProjectNode::projectFilePath() const
-{ return m_projectFile->fileName(); }
+{ return m_projectFile->filePath(); }
 
 void QmlProjectNode::refresh()
 {

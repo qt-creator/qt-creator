@@ -377,7 +377,7 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
 
     d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfEditor(editor));
 
-    if (editor->document()->fileName().isEmpty()) {
+    if (editor->document()->filePath().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
@@ -393,9 +393,9 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
     IEditor *current = EditorManager::currentEditor();
     if (editor == current)
         d->m_editorList->setToolTip(
-                current->document()->fileName().isEmpty()
+                current->document()->filePath().isEmpty()
                 ? current->displayName()
-                    : QDir::toNativeSeparators(editor->document()->fileName())
+                    : QDir::toNativeSeparators(editor->document()->filePath())
                     );
 }
 

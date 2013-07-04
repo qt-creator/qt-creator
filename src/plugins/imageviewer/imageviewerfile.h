@@ -46,7 +46,7 @@ public:
     explicit ImageViewerFile(ImageViewer *parent = 0);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    void setFileName(const QString &newName);
+    void setFilePath(const QString &newName);
 
     QString defaultPath() const;
     QString suggestedFileName() const;

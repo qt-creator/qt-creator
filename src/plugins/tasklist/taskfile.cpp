@@ -95,12 +95,12 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
         deleteLater();
         return true;
     }
-    return open(errorString, fileName());
+    return open(errorString, filePath());
 }
 
 bool TaskFile::open(QString *errorString, const QString &fileName)
 {
-    setFileName(fileName);
+    setFilePath(fileName);
     return TaskList::TaskListPlugin::instance()->loadFile(errorString, m_context, fileName);
 }
 

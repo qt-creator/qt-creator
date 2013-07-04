@@ -102,7 +102,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
     m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher);
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setImportSearch(true);
-    m_targetSetupPage->setProFilePath(project->document()->fileName());
+    m_targetSetupPage->setProFilePath(project->document()->filePath());
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     updateNoteText();

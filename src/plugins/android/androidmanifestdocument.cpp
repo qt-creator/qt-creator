@@ -54,13 +54,13 @@ bool AndroidManifestDocument::save(QString *errorString, const QString &fileName
 
 QString AndroidManifestDocument::defaultPath() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.absolutePath();
 }
 
 QString AndroidManifestDocument::suggestedFileName() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.fileName();
 }
 

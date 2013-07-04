@@ -312,7 +312,7 @@ void TestCase::run()
     BaseTextEditor *currentTextEditor = dynamic_cast<BaseTextEditor*>(currentEditor);
     QVERIFY(currentTextEditor);
 
-    QCOMPARE(currentTextEditor->document()->fileName(), targetTestFile->filePath());
+    QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
     currentTextEditor->convertPosition(targetTestFile->targetCursorPosition,
                                        &expectedLine, &expectedColumn);

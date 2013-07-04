@@ -465,7 +465,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
     if (Core::IEditor *editor = Core::EditorManager::currentEditor()) {
         // get current file name
         if (Core::IDocument *document = editor->document())
-            fileName = document->fileName();
+            fileName = document->filePath();
 
         // if text file - what is current position?
         TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);

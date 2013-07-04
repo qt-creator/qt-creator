@@ -185,7 +185,7 @@ void BookmarksPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
     m_bookmarkMarginActionLineNumber = lineNumber;
-    m_bookmarkMarginActionFileName = editor->document()->fileName();
+    m_bookmarkMarginActionFileName = editor->document()->filePath();
 
     menu->addAction(m_bookmarkMarginAction);
     if (m_bookmarkManager->hasBookmarkInPosition(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber))

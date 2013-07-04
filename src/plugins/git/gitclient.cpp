@@ -773,7 +773,7 @@ static inline QString msgParseFilesFailed()
 static inline QString currentDocumentPath()
 {
     if (Core::IEditor *editor = Core::EditorManager::currentEditor())
-        return QFileInfo(editor->document()->fileName()).path();
+        return QFileInfo(editor->document()->filePath()).path();
     return QString();
 }
 

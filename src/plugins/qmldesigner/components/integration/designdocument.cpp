@@ -212,7 +212,7 @@ void DesignDocument::updateFileName(const QString & /*oldFileName*/, const QStri
 
 QString DesignDocument::fileName() const
 {
-    return editor()->document()->fileName();
+    return editor()->document()->filePath();
 }
 
 int DesignDocument::qtVersionId() const

@@ -192,7 +192,7 @@ public:
     explicit DebuggerToolTipEditor(IEditor *ie = 0);
     bool isValid() const { return textEditor && baseTextEditor && document; }
     operator bool() const { return isValid(); }
-    QString fileName() const { return document ? document->fileName() : QString(); }
+    QString fileName() const { return document ? document->filePath() : QString(); }
 
     static DebuggerToolTipEditor currentToolTipEditor();
 
@@ -535,7 +535,7 @@ DebuggerToolTipContext DebuggerToolTipContext::fromEditor(IEditor *ie, int pos)
     DebuggerToolTipContext rc;
     if (const IDocument *document = ie->document()) {
         if (const ITextEditor *te = qobject_cast<const ITextEditor *>(ie)) {
-            rc.fileName = document->fileName();
+            rc.fileName = document->filePath();
             rc.position = pos;
             te->convertPosition(pos, &rc.line, &rc.column);
         }

@@ -76,7 +76,7 @@ void FormEditorCrumbleBar::pushInFileComponent(const QString &componentId)
 {
     CrumbleBarInfo crumbleBarInfo;
     crumbleBarInfo.componentId = componentId;
-    crumbleBarInfo.fileName = currentDesignDocument()->textEditor()->document()->fileName();
+    crumbleBarInfo.fileName = currentDesignDocument()->textEditor()->document()->filePath();
 
     CrumbleBarInfo lastElementCrumbleBarInfo = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();
 

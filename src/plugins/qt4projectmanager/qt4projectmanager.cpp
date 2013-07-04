@@ -132,7 +132,7 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
         if (m_dirty) {
             const QString contents = formWindowEditorContents(m_lastEditor);
             foreach (Qt4Project *project, m_projects)
-                project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
+                project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->filePath(), contents);
             m_dirty = false;
         }
     }
@@ -154,7 +154,7 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
             if (m_dirty) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
                 foreach (Qt4Project *project, m_projects)
-                    project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
+                    project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->filePath(), contents);
                 m_dirty = false;
             }
         }
@@ -226,7 +226,7 @@ void Qt4Manager::addLibrary()
     ProFileEditorWidget *editor =
         qobject_cast<ProFileEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
-        addLibrary(editor->editorDocument()->fileName(), editor);
+        addLibrary(editor->editorDocument()->filePath(), editor);
 }
 
 void Qt4Manager::addLibraryContextMenu()
@@ -327,7 +327,7 @@ void Qt4Manager::buildFileContextMenu()
 void Qt4Manager::buildFile()
 {
     if (Core::IEditor *currentEditor = Core::EditorManager::currentEditor()) {
-        QString file = currentEditor->document()->fileName();
+        QString file = currentEditor->document()->filePath();
         ProjectExplorer::SessionManager *session = projectExplorer()->session();
         ProjectExplorer::FileNode *node  = qobject_cast<FileNode *>(session->nodeForFile(file));
         ProjectExplorer::Project *project = session->projectForFile(file);

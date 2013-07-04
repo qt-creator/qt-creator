@@ -99,7 +99,7 @@ void CMakeEditor::build()
     foreach (ProjectExplorer::Project *p, projects) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject) {
-            if (cmakeProject->isProjectFile(document()->fileName())) {
+            if (cmakeProject->isProjectFile(document()->filePath())) {
                 ProjectExplorer::ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
                 break;
             }
@@ -219,7 +219,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     // TODO: Resolve variables
 
-    QDir dir(QFileInfo(editorDocument()->fileName()).absolutePath());
+    QDir dir(QFileInfo(editorDocument()->filePath()).absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
     if (fi.exists()) {
@@ -250,12 +250,12 @@ CMakeDocument::CMakeDocument()
 
 QString CMakeDocument::defaultPath() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.absolutePath();
 }
 
 QString CMakeDocument::suggestedFileName() const
 {
-    QFileInfo fi(fileName());
+    QFileInfo fi(filePath());
     return fi.fileName();
 }

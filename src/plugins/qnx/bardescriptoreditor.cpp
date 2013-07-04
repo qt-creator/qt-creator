@@ -163,7 +163,7 @@ void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
         QString errorMsg;
         int errorLine;
         if (!m_file->loadContent(editorWidget->xmlSource(), &errorMsg, &errorLine)) {
-            const ProjectExplorer::Task task(ProjectExplorer::Task::Error, errorMsg, Utils::FileName::fromString(m_file->fileName()),
+            const ProjectExplorer::Task task(ProjectExplorer::Task::Error, errorMsg, Utils::FileName::fromString(m_file->filePath()),
                                        errorLine, Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
             taskHub()->addTask(task);
             taskHub()->requestPopup();

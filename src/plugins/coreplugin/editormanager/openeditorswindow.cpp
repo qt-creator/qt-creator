@@ -260,10 +260,10 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
         QTreeWidgetItem *item = new QTreeWidgetItem();
         if (hi.document->isModified())
             title += tr("*");
-        item->setIcon(0, !hi.document->fileName().isEmpty() && hi.document->isFileReadOnly()
+        item->setIcon(0, !hi.document->filePath().isEmpty() && hi.document->isFileReadOnly()
                       ? model->lockedIcon() : m_emptyIcon);
         item->setText(0, title);
-        item->setToolTip(0, hi.document->fileName());
+        item->setToolTip(0, hi.document->filePath());
         item->setData(0, Qt::UserRole, QVariant::fromValue(hi.document.data()));
         item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
         item->setTextAlignment(0, Qt::AlignLeft);

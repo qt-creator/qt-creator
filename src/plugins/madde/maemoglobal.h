@@ -58,7 +58,7 @@ public:
     WatchableFile(const QString &fileName, QObject *parent = 0)
         : Core::IDocument(parent)
     {
-        setFileName(fileName);
+        setFilePath(fileName);
     }
 
     bool save(QString *, const QString &, bool) { return false; }

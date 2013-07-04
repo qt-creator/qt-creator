@@ -62,7 +62,7 @@ public:
     QString defaultPath() const;
     QString suggestedFileName() const;
     QString mimeType() const;
-    void setFileName(const QString &newName);
+    void setFilePath(const QString &newName);
 
 private:
     const QString m_mimeType;

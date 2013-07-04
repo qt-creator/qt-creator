@@ -76,7 +76,7 @@ QVariant CurrentProjectFind::additionalParameters() const
 {
     Project *project = ProjectExplorerPlugin::currentProject();
     if (project && project->document())
-        return qVariantFromValue(project->document()->fileName());
+        return qVariantFromValue(project->document()->filePath());
     return QVariant();
 }
 
@@ -87,7 +87,7 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
     QList<Project *> allProjects = m_plugin->session()->projects();
     QString projectFile = additionalParameters.toString();
     foreach (Project *project, allProjects) {
-        if (project->document() && projectFile == project->document()->fileName())
+        if (project->document() && projectFile == project->document()->filePath())
             return filesForProjects(nameFilters, QList<Project *>() << project);
     }
     return new Utils::FileIterator();
@@ -112,7 +112,7 @@ void CurrentProjectFind::recheckEnabled()
     QString projectFile = getAdditionalParameters(search).toString();
     QList<Project *> allProjects = m_plugin->session()->projects();
     foreach (Project *project, allProjects) {
-        if (project->document() && projectFile == project->document()->fileName()) {
+        if (project->document() && projectFile == project->document()->filePath()) {
             search->setSearchAgainEnabled(true);
             return;
         }

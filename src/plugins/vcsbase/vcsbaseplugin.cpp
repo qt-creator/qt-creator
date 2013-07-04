@@ -237,7 +237,7 @@ void StateListener::slotStateChanged()
     if (!currentEditor || !currentEditor->document())
         state.currentFile.clear();
     else
-        state.currentFile = currentEditor->document()->fileName();
+        state.currentFile = currentEditor->document()->filePath();
     QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
     if (!state.currentFile.isEmpty()) {
         const bool isTempFile = state.currentFile.startsWith(QDir::tempPath());
@@ -646,7 +646,7 @@ void VcsBasePlugin::createRepository()
     // Find current starting directory
     QString directory;
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject())
-        directory = QFileInfo(currentProject->document()->fileName()).absolutePath();
+        directory = QFileInfo(currentProject->document()->filePath()).absolutePath();
     // Prompt for a directory that is not under version control yet
     QWidget *mw = Core::ICore::mainWindow();
     do {

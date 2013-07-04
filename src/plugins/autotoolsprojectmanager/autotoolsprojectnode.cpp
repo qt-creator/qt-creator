@@ -39,7 +39,7 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 AutotoolsProjectNode::AutotoolsProjectNode(AutotoolsProject *project, Core::IDocument *projectFile) :
-    ProjectNode(projectFile->fileName()),
+    ProjectNode(projectFile->filePath()),
     m_project(project),
     m_projectFile(projectFile)
 {

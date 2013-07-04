@@ -631,7 +631,7 @@ QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) cons
     QList<IEditor *> found;
     QString fixedname = DocumentManager::fixFileName(filename, DocumentManager::KeepLinks);
     foreach (IEditor *editor, openedEditors()) {
-        if (fixedname == DocumentManager::fixFileName(editor->document()->fileName(), DocumentManager::KeepLinks))
+        if (fixedname == DocumentManager::fixFileName(editor->document()->filePath(), DocumentManager::KeepLinks))
             found << editor;
     }
     return found;
@@ -1130,11 +1130,11 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     // remove the editors
     foreach (IEditor *editor, acceptedEditors) {
         emit editorAboutToClose(editor);
-        if (!editor->document()->fileName().isEmpty()
+        if (!editor->document()->filePath().isEmpty()
                 && !editor->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
-                d->m_editorStates.insert(editor->document()->fileName(), QVariant(state));
+                d->m_editorStates.insert(editor->document()->filePath(), QVariant(state));
         }
 
         removeEditor(editor);
@@ -1486,7 +1486,7 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
         const bool addWatcher = !isTemporary;
         DocumentManager::addDocument(editor->document(), addWatcher);
         if (!isTemporary)
-            DocumentManager::addToRecentFiles(editor->document()->fileName(), editor->id());
+            DocumentManager::addToRecentFiles(editor->document()->filePath(), editor->id());
     }
     emit editorOpened(editor);
 }
@@ -1716,7 +1716,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
             int i = 1;
             QSet<QString> docnames;
             foreach (IEditor *editor, m_instance->openedEditors()) {
-                QString name = editor->document()->fileName();
+                QString name = editor->document()->filePath();
                 if (name.isEmpty())
                     name = editor->displayName();
                 else
@@ -1764,7 +1764,7 @@ bool EditorManager::hasEditor(const QString &fileName) const
 void EditorManager::restoreEditorState(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    QString fileName = editor->document()->fileName();
+    QString fileName = editor->document()->filePath();
     editor->restoreState(d->m_editorStates.value(fileName).toByteArray());
 }
 
@@ -1783,7 +1783,7 @@ bool EditorManager::saveDocument(IDocument *documentParam)
 
     document->checkPermissions();
 
-    const QString &fileName = document->fileName();
+    const QString &fileName = document->filePath();
 
     if (fileName.isEmpty())
         return saveDocumentAs(document);
@@ -1821,10 +1821,10 @@ void EditorManager::autoSave()
         IDocument *document = editor->document();
         if (!document->isModified() || !document->shouldAutoSave())
             continue;
-        if (document->fileName().isEmpty()) // FIXME: save them to a dedicated directory
+        if (document->filePath().isEmpty()) // FIXME: save them to a dedicated directory
             continue;
         QString errorString;
-        if (!document->autoSave(&errorString, autoSaveName(document->fileName())))
+        if (!document->autoSave(&errorString, autoSaveName(document->filePath())))
             errors << errorString;
     }
     if (!errors.isEmpty())
@@ -1862,14 +1862,14 @@ bool EditorManager::saveDocumentAs(IDocument *documentParam)
 
     const QString &filter = ICore::mimeDatabase()->allFiltersString();
     QString selectedFilter =
-        ICore::mimeDatabase()->findByFile(QFileInfo(document->fileName())).filterString();
+        ICore::mimeDatabase()->findByFile(QFileInfo(document->filePath())).filterString();
     const QString &absoluteFilePath =
         DocumentManager::getSaveAsFileName(document, filter, &selectedFilter);
 
     if (absoluteFilePath.isEmpty())
         return false;
 
-    if (absoluteFilePath != document->fileName()) {
+    if (absoluteFilePath != document->filePath()) {
         // close existing editors for the new file name
         const QList<IEditor *> existList = editorsForFileName(absoluteFilePath);
         if (!existList.isEmpty())
@@ -1906,7 +1906,7 @@ void EditorManager::addDocumentToRecentFiles(IDocument *document)
         }
     }
     if (!isTemporary)
-        DocumentManager::addToRecentFiles(document->fileName(), editorId);
+        DocumentManager::addToRecentFiles(document->filePath(), editorId);
 }
 
 void EditorManager::gotoNextDocHistory()
@@ -1947,12 +1947,12 @@ void EditorManager::vcsOpenCurrentEditor()
     if (!curEditor)
         return;
 
-    const QString directory = QFileInfo(curEditor->document()->fileName()).absolutePath();
+    const QString directory = QFileInfo(curEditor->document()->filePath()).absolutePath();
     IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
     if (!versionControl || versionControl->openSupportMode() == IVersionControl::NoOpen)
         return;
 
-    if (!versionControl->vcsOpen(curEditor->document()->fileName())) {
+    if (!versionControl->vcsOpen(curEditor->document()->filePath())) {
         QMessageBox::warning(ICore::mainWindow(), tr("Cannot Open File"),
                              tr("Cannot open the file for editing with VCS."));
     }
@@ -1969,7 +1969,7 @@ void EditorManager::updateWindowTitle()
         QString editorName = curEditor->displayName();
         if (!editorName.isEmpty())
             windowTitle.prepend(editorName + dashSep);
-        QString filePath = QFileInfo(curEditor->document()->fileName()).absoluteFilePath();
+        QString filePath = QFileInfo(curEditor->document()->filePath()).absoluteFilePath();
         if (!filePath.isEmpty())
             ICore::mainWindow()->setWindowFilePath(filePath);
     } else {
@@ -2001,7 +2001,7 @@ void EditorManager::updateMakeWritableWarning()
         // Do this after setWriteWarning so we don't re-evaluate this part even
         // if we do not really show a warning.
         bool promptVCS = false;
-        const QString directory = QFileInfo(curEditor->document()->fileName()).absolutePath();
+        const QString directory = QFileInfo(curEditor->document()->filePath()).absolutePath();
         IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
         if (versionControl && versionControl->openSupportMode() != IVersionControl::NoOpen) {
             if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
@@ -2037,8 +2037,8 @@ QString EditorManager::fileNameForEditor(IEditor *editor)
     QString fileName;
 
     if (editor) {
-        if (!editor->document()->fileName().isEmpty()) {
-            QFileInfo fileInfo(editor->document()->fileName());
+        if (!editor->document()->filePath().isEmpty()) {
+            QFileInfo fileInfo(editor->document()->filePath());
             fileName = fileInfo.fileName();
         } else {
             fileName = editor->displayName();
@@ -2052,7 +2052,7 @@ void EditorManager::setupSaveActions(IEditor *editor, QAction *saveAction, QActi
     saveAction->setEnabled(editor != 0 && editor->document()->isModified());
     saveAsAction->setEnabled(editor != 0 && editor->document()->isSaveAsAllowed());
     revertToSavedAction->setEnabled(editor != 0
-                                    && !editor->document()->fileName().isEmpty() && editor->document()->isModified());
+                                    && !editor->document()->filePath().isEmpty() && editor->document()->isModified());
 
     const QString fileName = fileNameForEditor(editor);
     QString quotedName;
@@ -2233,11 +2233,11 @@ QByteArray EditorManager::saveState() const
 
     QList<IEditor *> editors = openedEditors();
     foreach (IEditor *editor, editors) {
-        if (!editor->document()->fileName().isEmpty()
+        if (!editor->document()->filePath().isEmpty()
                 && !editor->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
-                d->m_editorStates.insert(editor->document()->fileName(), QVariant(state));
+                d->m_editorStates.insert(editor->document()->filePath(), QVariant(state));
         }
     }
 
@@ -2373,7 +2373,7 @@ void EditorManager::revertToSaved(Core::IEditor *editor)
 {
     if (!editor)
         return;
-    const QString fileName =  editor->document()->fileName();
+    const QString fileName =  editor->document()->filePath();
     if (fileName.isEmpty())
         return;
     if (editor->document()->isModified()) {
@@ -2458,7 +2458,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
     IEditor *duplicate = editor->duplicate(0);
     duplicate->restoreState(editor->saveState());
     connect(duplicate, SIGNAL(changed()), this, SLOT(handleEditorStateChange()));
-    emit editorCreated(duplicate, duplicate->document()->fileName());
+    emit editorCreated(duplicate, duplicate->document()->filePath());
     addEditor(duplicate, true);
     return duplicate;
 }
@@ -2603,7 +2603,7 @@ void EditorManager::updateVariable(const QByteArray &variable)
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor) {
-            QString fileName = curEditor->document()->fileName();
+            QString fileName = curEditor->document()->filePath();
             if (!fileName.isEmpty())
                 value = VariableManager::fileVariableValue(variable, kCurrentDocumentPrefix,
                                                                        fileName);

@@ -457,7 +457,7 @@ GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
       m_project(parent),
       m_options(options)
 {
-    setFileName(fileName);
+    setFilePath(fileName);
 }
 
 bool GenericProjectFile::save(QString *, const QString &, bool)

@@ -298,7 +298,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
             != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
         return;
 
-    QString filename = newEditor->document()->fileName();
+    QString filename = newEditor->document()->filePath();
     QmlJS::ModelManagerInterface *modelManager =
             QmlJS::ModelManagerInterface::instance();
     if (modelManager) {
@@ -330,7 +330,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
             connect(preview, SIGNAL(reloadRequest()),
                     this, SLOT(onReload()));
 
-            m_textPreviews.insert(newEditor->document()->fileName(), preview);
+            m_textPreviews.insert(newEditor->document()->filePath(), preview);
             preview->associateEditor(newEditor);
             preview->updateDebugIds();
         }
@@ -340,7 +340,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
 void QmlInspectorAdapter::removePreviewForEditor(Core::IEditor *editor)
 {
     if (QmlLiveTextPreview *preview
-            = m_textPreviews.value(editor->document()->fileName())) {
+            = m_textPreviews.value(editor->document()->filePath())) {
         preview->unassociateEditor(editor);
     }
 }
@@ -365,7 +365,7 @@ void QmlInspectorAdapter::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc
     Core::IEditor *editor = editors.takeFirst();
     createPreviewForEditor(editor);
     QmlLiveTextPreview *preview
-            = m_textPreviews.value(editor->document()->fileName());
+            = m_textPreviews.value(editor->document()->filePath());
     foreach (Core::IEditor *editor, editors)
         preview->associateEditor(editor);
 }

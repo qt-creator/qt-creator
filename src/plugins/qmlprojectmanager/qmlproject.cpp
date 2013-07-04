@@ -157,7 +157,7 @@ void QmlProject::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 
 QDir QmlProject::projectDir() const
 {
-    return QFileInfo(document()->fileName()).dir();
+    return QFileInfo(document()->filePath()).dir();
 }
 
 QString QmlProject::filesFileName() const

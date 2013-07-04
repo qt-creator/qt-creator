@@ -134,7 +134,7 @@ bool ImageViewer::open(QString *errorString, const QString &fileName, const QStr
         return false;
     }
     setDisplayName(QFileInfo(fileName).fileName());
-    d->file->setFileName(fileName);
+    d->file->setFilePath(fileName);
     d->ui_toolbar.toolButtonPlayPause->setVisible(d->imageView->isAnimated());
     setPaused(!d->imageView->isAnimated());
     // d_ptr->file->setMimeType

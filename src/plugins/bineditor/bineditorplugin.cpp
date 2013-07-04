@@ -199,18 +199,18 @@ public:
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
         const QString fileNameToUse
-                = fn.isEmpty() ? fileName() : fn;
-        if (m_widget->save(errorString, fileName(), fileNameToUse)) {
-            setFileName(fileNameToUse);
+                = fn.isEmpty() ? filePath() : fn;
+        if (m_widget->save(errorString, filePath(), fileNameToUse)) {
+            setFilePath(fileNameToUse);
             return true;
         } else {
             return false;
         }
     }
 
-    void setFileName(const QString &newName) {
+    void setFilePath(const QString &newName) {
         m_widget->editor()->setDisplayName(QFileInfo(newName).fileName());
-        IDocument::setFileName(newName);
+        IDocument::setFilePath(newName);
     }
 
     bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
@@ -228,7 +228,7 @@ public:
             return false;
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
-            setFileName(fileName);
+            setFilePath(fileName);
             m_widget->setSizes(offset, file.size());
             return true;
         }
@@ -244,7 +244,7 @@ public:
 private slots:
     void provideData(quint64 block)
     {
-        const QString fn = fileName();
+        const QString fn = filePath();
         if (fn.isEmpty())
             return;
         QFile file(fn);
@@ -266,7 +266,7 @@ private slots:
 
     void provideNewRange(quint64 offset)
     {
-        open(0, fileName(), offset);
+        open(0, filePath(), offset);
     }
 
 public:
@@ -278,7 +278,7 @@ public:
     bool isModified() const { return m_widget->isMemoryView() ? false : m_widget->isModified(); }
 
     bool isFileReadOnly() const {
-        const QString fn = fileName();
+        const QString fn = filePath();
         if (m_widget->isMemoryView() || fn.isEmpty())
             return false;
         const QFileInfo fi(fn);
@@ -294,7 +294,7 @@ public:
             emit changed();
         } else {
             emit aboutToReload();
-            const bool success = open(errorString, fileName());
+            const bool success = open(errorString, filePath());
             emit reloadFinished(success);
             return success;
         }
@@ -349,7 +349,7 @@ public:
 
     bool createNew(const QString & /* contents */ = QString()) {
         m_widget->clear();
-        m_file->setFileName(QString());
+        m_file->setFilePath(QString());
         return true;
     }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName) {

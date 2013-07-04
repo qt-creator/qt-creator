@@ -246,7 +246,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
         cursor.endEditBlock();
       }
 
-    QString fName = fileName();
+    QString fName = filePath();
     if (!saveFileName.isEmpty())
         fName = saveFileName;
 
@@ -289,7 +289,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
     // inform about the new filename
     const QFileInfo fi(fName);
     d->m_document->setModified(false);
-    setFileName(QDir::cleanPath(fi.absoluteFilePath()));
+    setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     emit changed();
     return true;
 }
@@ -299,18 +299,18 @@ bool BaseTextDocument::shouldAutoSave() const
     return d->m_autoSaveRevision != d->m_document->revision();
 }
 
-void BaseTextDocument::setFileName(const QString &newName)
+void BaseTextDocument::setFilePath(const QString &newName)
 {
-    if (newName == fileName())
+    if (newName == filePath())
         return;
     const QFileInfo fi(newName);
-    IDocument::setFileName(QDir::cleanPath(fi.absoluteFilePath()));
+    IDocument::setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     emit titleChanged(fi.fileName());
 }
 
 bool BaseTextDocument::isFileReadOnly() const
 {
-    if (fileName().isEmpty()) //have no corresponding file, so editing is ok
+    if (filePath().isEmpty()) //have no corresponding file, so editing is ok
         return false;
     return d->m_fileIsReadOnly;
 }
@@ -323,8 +323,8 @@ bool BaseTextDocument::isModified() const
 void BaseTextDocument::checkPermissions()
 {
     bool previousReadOnly = d->m_fileIsReadOnly;
-    if (!fileName().isEmpty()) {
-        const QFileInfo fi(fileName());
+    if (!filePath().isEmpty()) {
+        const QFileInfo fi(filePath());
         d->m_fileIsReadOnly = !fi.isWritable();
     } else {
         d->m_fileIsReadOnly = false;
@@ -375,7 +375,7 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName, const
         QTC_ASSERT(documentLayout, return true);
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document->revision();
         d->m_document->setModified(fileName != realFileName);
-        setFileName(QDir::cleanPath(fi.absoluteFilePath()));
+        setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     }
     return readResult == Utils::TextFileFormat::ReadSuccess
            || readResult == Utils::TextFileFormat::ReadEncodingError;
@@ -397,7 +397,7 @@ bool BaseTextDocument::reload(QString *errorString)
     if (documentLayout)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
-    bool success = open(errorString, fileName(), fileName());
+    bool success = open(errorString, filePath(), filePath());
 
     if (documentLayout)
         documentLayout->documentReloaded(marks); // readds text marks

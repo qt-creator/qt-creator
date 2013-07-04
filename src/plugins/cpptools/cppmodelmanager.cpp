@@ -377,7 +377,7 @@ void CppModelManager::dumpModelManagerConfiguration()
     // Tons of debug output...
     qDebug()<<"========= CppModelManager::dumpModelManagerConfiguration ======";
     foreach (const ProjectInfo &pinfo, m_projects) {
-        qDebug()<<" for project:"<< pinfo.project().data()->document()->fileName();
+        qDebug()<<" for project:"<< pinfo.project().data()->document()->filePath();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             qDebug() << "=== part ===";
             const char* cVersion;

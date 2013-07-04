@@ -690,7 +690,7 @@ bool BazaarPlugin::submitEditorAboutToClose()
         // Whether local commit or not
         if (commitWidget->isLocalOptionEnabled())
             extraOptions += QLatin1String("--local");
-        m_client->commit(m_submitRepository, files, editorDocument->fileName(), extraOptions);
+        m_client->commit(m_submitRepository, files, editorDocument->filePath(), extraOptions);
     }
     return true;
 }

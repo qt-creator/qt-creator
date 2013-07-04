@@ -264,8 +264,8 @@ static void addFileInfo(const QString &fileName, IDocument *document, bool isLin
    (The added file names are guaranteed to be absolute and cleaned.) */
 static void addFileInfo(IDocument *document)
 {
-    const QString fixedName = DocumentManager::fixFileName(document->fileName(), DocumentManager::KeepLinks);
-    const QString fixedResolvedName = DocumentManager::fixFileName(document->fileName(), DocumentManager::ResolveLinks);
+    const QString fixedName = DocumentManager::fixFileName(document->filePath(), DocumentManager::KeepLinks);
+    const QString fixedResolvedName = DocumentManager::fixFileName(document->filePath(), DocumentManager::ResolveLinks);
     addFileInfo(fixedResolvedName, document, false);
     if (fixedName != fixedResolvedName)
         addFileInfo(fixedName, document, true);
@@ -284,7 +284,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
         foreach (IDocument *document, documents) {
             if (document && !d->m_documentsWithoutWatch.contains(document)) {
                 connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
-                connect(document, SIGNAL(fileNameChanged(QString,QString)), m_instance, SLOT(fileNameChanged(QString,QString)));
+                connect(document, SIGNAL(filePathChanged(QString,QString)), m_instance, SLOT(filePathChanged(QString,QString)));
                 d->m_documentsWithoutWatch.append(document);
             }
         }
@@ -295,7 +295,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
         if (document && !d->m_documentsWithWatch.contains(document)) {
             connect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
             connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
-            connect(document, SIGNAL(fileNameChanged(QString,QString)), m_instance, SLOT(fileNameChanged(QString,QString)));
+            connect(document, SIGNAL(filePathChanged(QString,QString)), m_instance, SLOT(filePathChanged(QString,QString)));
             addFileInfo(document);
         }
     }
@@ -385,14 +385,14 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
     foreach (IDocument *document, documentsToRename) {
         d->m_blockedIDocument = document;
         removeFileInfo(document);
-        document->setFileName(to);
+        document->setFilePath(to);
         addFileInfo(document);
         d->m_blockedIDocument = 0;
     }
     emit m_instance->allDocumentsRenamed(from, to);
 }
 
-void DocumentManager::fileNameChanged(const QString &oldName, const QString &newName)
+void DocumentManager::filePathChanged(const QString &oldName, const QString &newName)
 {
     IDocument *doc = qobject_cast<IDocument *>(sender());
     QTC_ASSERT(doc, return);
@@ -593,7 +593,7 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
 
     foreach (IDocument *document, documents) {
         if (document->isModified()) {
-            QString name = document->fileName();
+            QString name = document->filePath();
             if (name.isEmpty())
                 name = document->suggestedFileName();
 
@@ -659,7 +659,7 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
 bool DocumentManager::saveDocument(IDocument *document, const QString &fileName, bool *isReadOnly)
 {
     bool ret = true;
-    QString effName = fileName.isEmpty() ? document->fileName() : fileName;
+    QString effName = fileName.isEmpty() ? document->filePath() : fileName;
     expectFileChange(effName); // This only matters to other IDocuments which refer to this file
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
@@ -746,7 +746,7 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
 {
     if (!document)
         return QLatin1String("");
-    QString absoluteFilePath = document->fileName();
+    QString absoluteFilePath = document->filePath();
     const QFileInfo fi(absoluteFilePath);
     QString fileName = fi.fileName();
     QString path = fi.absolutePath();
@@ -957,7 +957,7 @@ void DocumentManager::checkForReload()
                     success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
                 } else {
                     // Ask about content change
-                    previousAnswer = Utils::reloadPrompt(document->fileName(), document->isModified(), QApplication::activeWindow());
+                    previousAnswer = Utils::reloadPrompt(document->filePath(), document->isModified(), QApplication::activeWindow());
                     switch (previousAnswer) {
                     case Utils::ReloadAll:
                     case Utils::ReloadCurrent:
@@ -977,9 +977,9 @@ void DocumentManager::checkForReload()
                 // Ask about removed file
                 bool unhandled = true;
                 while (unhandled) {
-                    switch (Utils::fileDeletedPrompt(document->fileName(), trigger == IDocument::TriggerExternal, QApplication::activeWindow())) {
+                    switch (Utils::fileDeletedPrompt(document->filePath(), trigger == IDocument::TriggerExternal, QApplication::activeWindow())) {
                     case Utils::FileDeletedSave:
-                        documentsToSave.insert(document, document->fileName());
+                        documentsToSave.insert(document, document->filePath());
                         unhandled = false;
                         break;
                     case Utils::FileDeletedSaveAs:
@@ -1001,7 +1001,7 @@ void DocumentManager::checkForReload()
         }
         if (!success) {
             if (errorString.isEmpty())
-                errorStrings << tr("Cannot reload %1").arg(QDir::toNativeSeparators(document->fileName()));
+                errorStrings << tr("Cannot reload %1").arg(QDir::toNativeSeparators(document->filePath()));
             else
                 errorStrings << errorString;
         }
@@ -1039,7 +1039,7 @@ void DocumentManager::syncWithEditor(const QList<Core::IContext *> &context)
         return;
     foreach (IContext *c, context) {
         if (editor->widget() == c->widget()) {
-            setCurrentFile(editor->document()->fileName());
+            setCurrentFile(editor->document()->filePath());
             break;
         }
     }

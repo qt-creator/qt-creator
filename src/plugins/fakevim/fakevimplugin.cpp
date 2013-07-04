@@ -1662,7 +1662,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()),
         SLOT(writeSettings()));
 
-    handler->setCurrentFileName(editor->document()->fileName());
+    handler->setCurrentFileName(editor->document()->filePath());
     handler->installEventFilter();
 
     // pop up the bar
@@ -1773,7 +1773,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         // :w[rite]
         IEditor *editor = m_editorToHandler.key(handler);
         const QString fileName = handler->currentFileName();
-        if (editor && editor->document()->fileName() == fileName) {
+        if (editor && editor->document()->filePath() == fileName) {
             // Handle that as a special case for nicer interaction with core
             DocumentManager::saveDocument(editor->document());
             // Check result by reading back.

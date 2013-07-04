@@ -866,7 +866,7 @@ static QString currentFile()
 {
     if (Core::IEditor *editor = Core::EditorManager::currentEditor())
         if (const Core::IDocument *document = editor->document()) {
-            const QString fileName = document->fileName();
+            const QString fileName = document->filePath();
             if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
                 return fileName;
         }

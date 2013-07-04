@@ -69,7 +69,7 @@ public:
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void setFileName(const QString &newName);
+    void setFilePath(const QString &newName);
 
     QString xmlSource() const;
     bool loadContent(const QString &xmlSource, QString *errorMessage = 0, int *errorLine = 0);

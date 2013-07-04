@@ -73,23 +73,23 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
 
 QVariant FindInCurrentFile::additionalParameters() const
 {
-    return qVariantFromValue(m_currentDocument->fileName());
+    return qVariantFromValue(m_currentDocument->filePath());
 }
 
 QString FindInCurrentFile::label() const
 {
-    return tr("File '%1':").arg(QFileInfo(m_currentDocument->fileName()).fileName());
+    return tr("File '%1':").arg(QFileInfo(m_currentDocument->filePath()).fileName());
 }
 
 QString FindInCurrentFile::toolTip() const
 {
     // %2 is filled by BaseFileFind::runNewSearch
-    return tr("File path: %1\n%2").arg(QDir::toNativeSeparators(m_currentDocument->fileName()));
+    return tr("File path: %1\n%2").arg(QDir::toNativeSeparators(m_currentDocument->filePath()));
 }
 
 bool FindInCurrentFile::isEnabled() const
 {
-    return m_currentDocument && !m_currentDocument->fileName().isEmpty();
+    return m_currentDocument && !m_currentDocument->filePath().isEmpty();
 }
 
 void FindInCurrentFile::handleFileChange(Core::IEditor *editor)

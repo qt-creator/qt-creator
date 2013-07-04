@@ -42,9 +42,9 @@ namespace GenericProjectManager {
 namespace Internal {
 
 GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IDocument *projectFile)
-    : ProjectNode(projectFile->fileName()), m_project(project), m_projectFile(projectFile)
+    : ProjectNode(projectFile->filePath()), m_project(project), m_projectFile(projectFile)
 {
-    setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
+    setDisplayName(QFileInfo(projectFile->filePath()).completeBaseName());
 }
 
 Core::IDocument *GenericProjectNode::projectFile() const
@@ -54,7 +54,7 @@ Core::IDocument *GenericProjectNode::projectFile() const
 
 QString GenericProjectNode::projectFilePath() const
 {
-    return m_projectFile->fileName();
+    return m_projectFile->filePath();
 }
 
 QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> files)

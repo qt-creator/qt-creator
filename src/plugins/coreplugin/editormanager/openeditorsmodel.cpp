@@ -81,7 +81,7 @@ QIcon OpenEditorsModel::unlockedIcon() const
 }
 
 QString OpenEditorsModel::Entry::fileName() const {
-    return editor ? editor->document()->fileName() : m_fileName;
+    return editor ? editor->document()->filePath() : m_fileName;
 }
 
 QString OpenEditorsModel::Entry::displayName() const {
@@ -338,7 +338,7 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
     {
         bool showLock = false;
         if (e->editor) {
-            showLock = e->editor->document()->fileName().isEmpty()
+            showLock = e->editor->document()->filePath().isEmpty()
                     ? false
                     : e->editor->document()->isFileReadOnly();
         } else {

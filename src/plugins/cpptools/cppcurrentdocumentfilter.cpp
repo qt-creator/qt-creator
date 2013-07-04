@@ -127,7 +127,7 @@ void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
 void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor * currentEditor)
 {
     if (currentEditor)
-        m_currentFileName = currentEditor->document()->fileName();
+        m_currentFileName = currentEditor->document()->filePath();
     else
         m_currentFileName.clear();
     m_itemsOfCurrentDoc.clear();
@@ -136,7 +136,7 @@ void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor * currentEdi
 void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor * editorAboutToClose)
 {
     if (!editorAboutToClose) return;
-    if (m_currentFileName == editorAboutToClose->document()->fileName()) {
+    if (m_currentFileName == editorAboutToClose->document()->filePath()) {
         m_currentFileName.clear();
         m_itemsOfCurrentDoc.clear();
     }

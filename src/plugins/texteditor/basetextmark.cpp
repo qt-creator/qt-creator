@@ -78,10 +78,10 @@ void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
     ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
     if (!textEditor)
         return;
-    if (!m_marks.contains(Utils::FileName::fromString(editor->document()->fileName())))
+    if (!m_marks.contains(Utils::FileName::fromString(editor->document()->filePath())))
         return;
 
-    foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(editor->document()->fileName()))) {
+    foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(editor->document()->filePath()))) {
         ITextMarkable *markableInterface = textEditor->markableInterface();
         markableInterface->addMark(mark);
     }

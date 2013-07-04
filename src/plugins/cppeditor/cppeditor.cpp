@@ -1047,7 +1047,7 @@ bool CPPEditorWidget::sortedOutline() const
 void CPPEditorWidget::updateOutlineNow()
 {
     const Snapshot snapshot = m_modelManager->snapshot();
-    Document::Ptr document = snapshot.document(editorDocument()->fileName());
+    Document::Ptr document = snapshot.document(editorDocument()->filePath());
 
     if (!document)
         return;
@@ -1506,7 +1506,7 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
     }
 
     // Now we prefer the doc from the snapshot with macros expanded.
-    Document::Ptr doc = snapshot.document(editorDocument()->fileName());
+    Document::Ptr doc = snapshot.document(editorDocument()->filePath());
     if (!doc) {
         doc = m_lastSemanticInfo.doc;
         if (!doc)
@@ -1600,7 +1600,7 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
         foreach (const LookupItem &r, resolvedSymbols) {
             if (Symbol *d = r.declaration()) {
                 if (d->isDeclaration() || d->isFunction()) {
-                    if (editorDocument()->fileName() == QString::fromUtf8(d->fileName(), d->fileNameLength())) {
+                    if (editorDocument()->filePath() == QString::fromUtf8(d->fileName(), d->fileNameLength())) {
                         if (unsigned(lineNumber) == d->line() && unsigned(positionInBlock) >= d->column()) { // ### TODO: check the end
                             result = r; // take the symbol under cursor.
                             break;
@@ -2038,7 +2038,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     // We can use the semanticInfo's snapshot (and avoid locking), but not its
     // document, since it doesn't contain expanded macros.
-    LookupContext context(semanticInfo.snapshot.document(editorDocument()->fileName()),
+    LookupContext context(semanticInfo.snapshot.document(editorDocument()->filePath()),
                           semanticInfo.snapshot);
 
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);

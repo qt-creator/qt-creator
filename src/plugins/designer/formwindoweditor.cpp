@@ -121,7 +121,7 @@ bool FormWindowEditor::createNew(const QString &contents)
         return false;
 
     syncXmlEditor(contents);
-    d->m_file.setFileName(QString());
+    d->m_file.setFilePath(QString());
     d->m_file.setShouldAutoSave(false);
     return true;
 }
@@ -168,7 +168,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     syncXmlEditor(contents);
 
     setDisplayName(fi.fileName());
-    d->m_file.setFileName(absfileName);
+    d->m_file.setFilePath(absfileName);
     d->m_file.setShouldAutoSave(false);
 
     if (Internal::ResourceHandler *rh = form->findChild<Designer::Internal::ResourceHandler*>())
@@ -182,7 +182,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
 void FormWindowEditor::syncXmlEditor()
 {
     if (Designer::Constants::Internal::debug)
-        qDebug() << "FormWindowEditor::syncXmlEditor" << d->m_file.fileName();
+        qDebug() << "FormWindowEditor::syncXmlEditor" << d->m_file.filePath();
     syncXmlEditor(contents());
 }
 

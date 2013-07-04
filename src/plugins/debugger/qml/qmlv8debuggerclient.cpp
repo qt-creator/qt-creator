@@ -1994,7 +1994,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
     errorFormat.setUnderlineColor(Qt::red);
 
     foreach (IEditor *editor, openedEditors) {
-        if (editor->document()->fileName() == filePath) {
+        if (editor->document()->filePath() == filePath) {
             TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
             if (!ed)
                 continue;

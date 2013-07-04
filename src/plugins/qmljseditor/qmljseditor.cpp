@@ -607,7 +607,7 @@ void QmlJSTextEditorWidget::reparseDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    const QString fileName = editorDocument()->fileName();
+    const QString fileName = editorDocument()->filePath();
     m_modelManager->updateSourceFiles(QStringList() << fileName, false);
 }
 
@@ -649,7 +649,7 @@ static void appendExtraSelectionsForMessages(
 
 void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
-    if (editorDocument()->fileName() != doc->fileName())
+    if (editorDocument()->filePath() != doc->fileName())
         return;
 
     if (doc->editorRevision() != editorRevision()) {
@@ -681,7 +681,7 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 void QmlJSTextEditorWidget::modificationChanged(bool changed)
 {
     if (!changed && m_modelManager)
-        m_modelManager->fileChangedOnDisk(editorDocument()->fileName());
+        m_modelManager->fileChangedOnDisk(editorDocument()->filePath());
 }
 
 void QmlJSTextEditorWidget::jumpToOutlineElement(int /*index*/)
@@ -1152,12 +1152,12 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
 
 void QmlJSTextEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(editorDocument()->fileName(), textCursor().position());
+    m_findReferences->findUsages(editorDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::renameUsages()
 {
-    m_findReferences->renameUsages(editorDocument()->fileName(), textCursor().position());
+    m_findReferences->renameUsages(editorDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::showContextPane()
@@ -1429,7 +1429,7 @@ TextEditor::IAssistInterface *QmlJSTextEditorWidget::createAssistInterface(
     if (assistKind == TextEditor::Completion) {
         return new QmlJSCompletionAssistInterface(document(),
                                                   position(),
-                                                  editor()->document()->fileName(),
+                                                  editor()->document()->filePath(),
                                                   reason,
                                                   m_semanticInfo);
     } else if (assistKind == TextEditor::QuickFix) {

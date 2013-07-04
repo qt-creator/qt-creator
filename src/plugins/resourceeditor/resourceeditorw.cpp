@@ -65,7 +65,7 @@ ResourceEditorDocument::ResourceEditorDocument(ResourceEditorW *parent) :
     m_mimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE)),
     m_parent(parent)
 {
-    setFileName(parent->m_resourceEditor->fileName());
+    setFilePath(parent->m_resourceEditor->fileName());
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
 }
@@ -143,7 +143,7 @@ bool ResourceEditorW::createNew(const QString &contents)
         return false;
 
     const bool rc = m_resourceEditor->load(saver.fileName());
-    m_resourceDocument->setFileName(QString());
+    m_resourceDocument->setFilePath(QString());
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.fileName() << ") returns " << rc;
@@ -169,7 +169,7 @@ bool ResourceEditorW::open(QString *errorString, const QString &fileName, const 
         return false;
     }
 
-    m_resourceDocument->setFileName(fileName);
+    m_resourceDocument->setFilePath(fileName);
     m_resourceEditor->setDirty(fileName != realFileName);
     m_shouldAutoSave = false;
     m_diskIo = false;
@@ -183,7 +183,7 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (debugResourceEditorW)
         qDebug(">ResourceEditorW::save: %s", qPrintable(name));
 
-    const QString oldFileName = fileName();
+    const QString oldFileName = filePath();
     const QString actualName = name.isEmpty() ? oldFileName : name;
     if (actualName.isEmpty())
         return false;
@@ -205,14 +205,14 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
         return true;
     }
 
-    setFileName(actualName);
+    setFilePath(actualName);
     m_parent->m_diskIo = false;
 
     emit changed();
     return true;
 }
 
-void ResourceEditorDocument::setFileName(const QString &newName)
+void ResourceEditorDocument::setFilePath(const QString &newName)
 {
     if (newName != m_parent->m_resourceEditor->fileName())
         m_parent->m_resourceEditor->setFileName(newName);
@@ -220,7 +220,7 @@ void ResourceEditorDocument::setFileName(const QString &newName)
         m_parent->setDisplayName(m_parent->tr("untitled"));
     else
         m_parent->setDisplayName(QFileInfo(newName).fileName());
-    IDocument::setFileName(newName);
+    IDocument::setFilePath(newName);
 }
 
 Core::Id ResourceEditorW::id() const
@@ -256,7 +256,7 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
         emit changed();
     } else {
         emit aboutToReload();
-        QString fn = fileName();
+        QString fn = filePath();
         const bool success = m_parent->open(errorString, fn, fn);
         emit reloadFinished(success);
         return success;

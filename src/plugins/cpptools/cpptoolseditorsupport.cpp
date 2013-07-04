@@ -163,7 +163,7 @@ CppEditorSupport::~CppEditorSupport()
 
 QString CppEditorSupport::fileName() const
 {
-    return m_textEditor->document()->fileName();
+    return m_textEditor->document()->filePath();
 }
 
 QString CppEditorSupport::contents() const
@@ -246,7 +246,7 @@ void CppEditorSupport::updateDocumentNow()
         if (m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
             startHighlighting();
 
-        const QStringList sourceFiles(m_textEditor->document()->fileName());
+        const QStringList sourceFiles(m_textEditor->document()->filePath());
         m_documentParser = m_modelManager->updateSourceFiles(sourceFiles);
     }
 }

@@ -630,7 +630,7 @@ bool MercurialPlugin::submitEditorAboutToClose()
         QStringList extraOptions;
         if (!commitEditor->committerInfo().isEmpty())
             extraOptions << QLatin1String("-u") << commitEditor->committerInfo();
-        m_client->commit(m_submitRepository, files, editorFile->fileName(),
+        m_client->commit(m_submitRepository, files, editorFile->filePath(),
                          extraOptions);
     }
     return true;

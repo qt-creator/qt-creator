@@ -64,7 +64,7 @@ static QStringList getCompletions(TestData &data, bool *replaceAccessOperator = 
     QStringList completions;
 
     CppCompletionAssistInterface *ai = new CppCompletionAssistInterface(data.editor->document(), data.pos,
-                                                                        data.editor->editorDocument()->fileName(), ExplicitlyInvoked,
+                                                                        data.editor->editorDocument()->filePath(), ExplicitlyInvoked,
                                                                         data.snapshot, QStringList(), QStringList());
     CppCompletionAssistProcessor processor;
     IAssistProposal *proposal = processor.perform(ai);

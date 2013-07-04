@@ -517,7 +517,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
     const EditorData ed = m_few->activeEditor();
     QTC_ASSERT(ed, return false);
-    const QString currentUiFile = ed.formWindowEditor->document()->fileName();
+    const QString currentUiFile = ed.formWindowEditor->document()->filePath();
 #if 0
     return Designer::Internal::navigateToSlot(currentUiFile, objectName, signalSignature, parameterNames, errorMessage);
 #endif

@@ -153,7 +153,7 @@ QString QmlProjectRunConfiguration::viewerArguments() const
 
 QString QmlProjectRunConfiguration::workingDirectory() const
 {
-    QFileInfo projectFile(target()->project()->document()->fileName());
+    QFileInfo projectFile(target()->project()->document()->filePath());
     return canonicalCapsPath(projectFile.absolutePath());
 }
 
@@ -273,7 +273,7 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
 {
     if (editor)
-        m_currentFileFilename = editor->document()->fileName();
+        m_currentFileFilename = editor->document()->filePath();
     updateEnabled();
 }
 
@@ -284,7 +284,7 @@ void QmlProjectRunConfiguration::updateEnabled()
         Core::IEditor *editor = Core::EditorManager::currentEditor();
         Core::MimeDatabase *db = ICore::mimeDatabase();
         if (editor) {
-            m_currentFileFilename = editor->document()->fileName();
+            m_currentFileFilename = editor->document()->filePath();
             if (db->findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
                 qmlFileFound = true;
         }

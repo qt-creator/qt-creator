@@ -73,7 +73,7 @@ signals:
     void setDisplayName(const QString &);
 
 public slots:
-    void setFileName(const QString &);
+    void setFilePath(const QString &);
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
 
 private slots:

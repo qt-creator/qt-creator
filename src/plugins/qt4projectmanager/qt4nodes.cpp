@@ -173,7 +173,7 @@ using namespace Qt4ProjectManager::Internal;
 Qt4PriFile::Qt4PriFile(Qt4ProjectManager::Qt4PriFileNode *qt4PriFile)
     : IDocument(qt4PriFile), m_priFile(qt4PriFile)
 {
-    setFileName(m_priFile->path());
+    setFilePath(m_priFile->path());
 }
 
 bool Qt4PriFile::save(QString *errorString, const QString &fileName, bool autoSave)

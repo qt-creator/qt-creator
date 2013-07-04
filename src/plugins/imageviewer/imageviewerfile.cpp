@@ -61,7 +61,7 @@ bool ImageViewerFile::reload(QString *errorString,
         emit changed();
         return true;
     }
-    return m_editor->open(errorString, fileName(), fileName());
+    return m_editor->open(errorString, filePath(), filePath());
 }
 
 bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -72,10 +72,10 @@ bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool a
     return false;
 }
 
-void ImageViewerFile::setFileName(const QString &newName)
+void ImageViewerFile::setFilePath(const QString &newName)
 {
     m_editor->setDisplayName(QFileInfo(newName).fileName());
-    IDocument::setFileName(newName);
+    IDocument::setFilePath(newName);
 }
 
 QString ImageViewerFile::defaultPath() const

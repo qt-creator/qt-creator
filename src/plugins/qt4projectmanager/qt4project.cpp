@@ -269,7 +269,7 @@ Qt4ProjectFile::Qt4ProjectFile(const QString &filePath, QObject *parent)
     : Core::IDocument(parent),
       m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE))
 {
-    setFileName(filePath);
+    setFilePath(filePath);
 }
 
 bool Qt4ProjectFile::save(QString *, const QString &, bool)
@@ -383,7 +383,7 @@ void Qt4Project::updateFileList()
 bool Qt4Project::setupTarget(ProjectExplorer::Target *t)
 {
     QList<BuildConfigurationInfo> infoList
-            = Qt4BuildConfigurationFactory::availableBuildConfigurations(t->kit(), m_fileInfo->fileName());
+            = Qt4BuildConfigurationFactory::availableBuildConfigurations(t->kit(), m_fileInfo->filePath());
     setupTarget(t, infoList);
     return true;
 }
@@ -423,7 +423,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
 
     m_manager->registerProject(this);
 
-    m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
+    m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->filePath(), this);
     m_rootProjectNode->registerWatcher(m_nodesWatcher);
 
     update();
@@ -901,7 +901,7 @@ bool Qt4Project::supportsKit(Kit *k, QString *errorMessage) const
 
 QString Qt4Project::displayName() const
 {
-    return QFileInfo(document()->fileName()).completeBaseName();
+    return QFileInfo(document()->filePath()).completeBaseName();
 }
 
 Core::Id Qt4Project::id() const
@@ -1022,7 +1022,7 @@ void Qt4Project::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
     delete reader;
     if (!--m_qmakeGlobalsRefCnt) {
-        QString dir = QFileInfo(m_fileInfo->fileName()).absolutePath();
+        QString dir = QFileInfo(m_fileInfo->filePath()).absolutePath();
         if (!dir.endsWith(QLatin1Char('/')))
             dir += QLatin1Char('/');
         QtSupport::ProFileCacheManager::instance()->discardFiles(dir);
@@ -1392,7 +1392,7 @@ void Qt4Project::configureAsExampleProject(const QStringList &platforms)
             continue;
 
         QList<BuildConfigurationInfo> infoList
-                = Qt4BuildConfigurationFactory::availableBuildConfigurations(k, document()->fileName());
+                = Qt4BuildConfigurationFactory::availableBuildConfigurations(k, document()->filePath());
         if (infoList.isEmpty())
             continue;
         addTarget(createTarget(k, infoList));

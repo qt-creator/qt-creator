@@ -440,7 +440,7 @@ public:
         return new CppTools::Internal::CppCompletionAssistInterface(
                     document,
                     position,
-                    editor()->document()->fileName(),
+                    editor()->document()->filePath(),
                     reason,
                     modelManager->snapshot(),
                     includePaths,

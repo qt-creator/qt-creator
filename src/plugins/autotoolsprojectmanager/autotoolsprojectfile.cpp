@@ -40,7 +40,7 @@ AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QStr
     Core::IDocument(project),
     m_project(project)
 {
-    setFileName(fileName);
+    setFilePath(fileName);
 }
 
 bool AutotoolsProjectFile::save(QString *errorString, const QString &fileName, bool autoSave)

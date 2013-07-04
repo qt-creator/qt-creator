@@ -176,8 +176,8 @@ void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 
     QString fileName;
     if (currentEditor) {
-        if (!currentEditor->document()->fileName().isEmpty()) {
-            QFileInfo fileInfo(currentEditor->document()->fileName());
+        if (!currentEditor->document()->filePath().isEmpty()) {
+            QFileInfo fileInfo(currentEditor->document()->filePath());
             fileName = fileInfo.fileName();
         } else {
             fileName = currentEditor->displayName();
@@ -187,7 +187,7 @@ void ShortCutManager::updateActions(Core::IEditor* currentEditor)
     m_saveAction.setEnabled(currentEditor != 0 && currentEditor->document()->isModified());
     m_saveAsAction.setEnabled(currentEditor != 0 && currentEditor->document()->isSaveAsAllowed());
     m_revertToSavedAction.setEnabled(currentEditor != 0
-                                      && !currentEditor->document()->fileName().isEmpty()
+                                      && !currentEditor->document()->filePath().isEmpty()
                                       && currentEditor->document()->isModified());
 
     QString quotedName;

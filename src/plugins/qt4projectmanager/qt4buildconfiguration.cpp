@@ -188,7 +188,7 @@ NamedWidget *Qt4BuildConfiguration::createConfigWidget()
 QString Qt4BuildConfiguration::defaultShadowBuildDirectory() const
 {
     // todo displayName isn't ideal
-    return Qt4Project::shadowBuildDirectory(target()->project()->document()->fileName(),
+    return Qt4Project::shadowBuildDirectory(target()->project()->document()->filePath(),
                                             target()->kit(), displayName());
 }
 

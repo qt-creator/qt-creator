@@ -328,7 +328,7 @@ QVariantMap Project::toMap() const
 
 QString Project::projectDirectory() const
 {
-    return projectDirectory(document()->fileName());
+    return projectDirectory(document()->filePath());
 }
 
 QString Project::projectDirectory(const QString &top)

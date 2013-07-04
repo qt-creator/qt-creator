@@ -457,7 +457,7 @@ bool CvsPlugin::submitEditorAboutToClose()
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile(editorDocument->fileName());
+    const QFileInfo editorFile(editorDocument->filePath());
     const QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!

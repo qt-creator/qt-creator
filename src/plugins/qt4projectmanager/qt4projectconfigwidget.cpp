@@ -171,7 +171,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
 {
     m_ui->shadowBuildDirEdit->triggerChanged();
     ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
-    const QString proFileName = m_buildConfiguration->target()->project()->document()->fileName();
+    const QString proFileName = m_buildConfiguration->target()->project()->document()->filePath();
 
     // Check for Qt version:
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);

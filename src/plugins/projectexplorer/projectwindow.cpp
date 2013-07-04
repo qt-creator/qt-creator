@@ -347,7 +347,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     }
 
     m_tabIndexToProject.insert(index, project);
-    m_tabWidget->insertTab(index, project->displayName(), project->document()->fileName(), subtabs);
+    m_tabWidget->insertTab(index, project->displayName(), project->document()->filePath(), subtabs);
 
     connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
             this, SLOT(removedTarget(ProjectExplorer::Target*)));

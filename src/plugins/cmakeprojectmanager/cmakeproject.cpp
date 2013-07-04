@@ -222,7 +222,7 @@ bool CMakeProject::parseCMakeLists()
 
     CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors())
-        if (isProjectFile(editor->document()->fileName()))
+        if (isProjectFile(editor->document()->filePath()))
             editor->document()->infoBar()->removeInfo(Core::Id("CMakeEditor.RunCMake"));
 
     // Find cbp file
@@ -845,7 +845,7 @@ void CMakeProject::editorChanged(Core::IEditor *editor)
         disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
         if (m_dirtyUic) {
             const QString contents =  formWindowEditorContents(m_lastEditor);
-            updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
+            updateCodeModelSupportFromEditor(m_lastEditor->document()->filePath(), contents);
             m_dirtyUic = false;
         }
     }
@@ -866,7 +866,7 @@ void CMakeProject::editorAboutToClose(Core::IEditor *editor)
             disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
             if (m_dirtyUic) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
-                updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
+                updateCodeModelSupportFromEditor(m_lastEditor->document()->filePath(), contents);
                 m_dirtyUic = false;
             }
         }
@@ -899,7 +899,7 @@ void CMakeProject::buildStateChanged(ProjectExplorer::Project *project)
 CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
     : Core::IDocument(parent), m_project(parent)
 {
-    setFileName(fileName);
+    setFilePath(fileName);
 }
 
 bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSave)

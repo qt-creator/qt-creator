@@ -369,7 +369,7 @@ bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
     if (!createNew(text))
         return false;
 
-    d->m_file->setFileName(QFileInfo(fileName).absoluteFilePath());
+    d->m_file->setFilePath(QFileInfo(fileName).absoluteFilePath());
     d->m_file->setModified(fileName != realFileName);
     return true;
 }
@@ -529,7 +529,7 @@ void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QList<int> &rawList)
 
 bool VcsBaseSubmitEditor::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    const QString fName = fileName.isEmpty() ? d->m_file->fileName() : fileName;
+    const QString fName = fileName.isEmpty() ? d->m_file->filePath() : fileName;
     Utils::FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(fileContents());
     if (!saver.finalize(errorString))
@@ -537,7 +537,7 @@ bool VcsBaseSubmitEditor::save(QString *errorString, const QString &fileName, bo
     if (autoSave)
         return true;
     const QFileInfo fi(fName);
-    d->m_file->setFileName(fi.absoluteFilePath());
+    d->m_file->setFilePath(fi.absoluteFilePath());
     d->m_file->setModified(false);
     return true;
 }

@@ -35,10 +35,10 @@
 #include <QFileInfo>
 
 /*!
-    \fn QString Core::IDocument::fileName() const
+    \fn QString Core::IDocument::filePath() const
     Returns the absolute path of the file that this document refers to. May be empty for
     non-file documents.
-    \sa setFileName()
+    \sa setFilePath()
 */
 
 namespace Core {
@@ -73,9 +73,9 @@ bool IDocument::shouldAutoSave() const
 
 bool IDocument::isFileReadOnly() const
 {
-    if (fileName().isEmpty())
+    if (filePath().isEmpty())
         return false;
-    return !QFileInfo(fileName()).isWritable();
+    return !QFileInfo(filePath()).isWritable();
 }
 
 bool IDocument::autoSave(QString *errorString, const QString &fileName)
@@ -118,18 +118,18 @@ InfoBar *IDocument::infoBar()
 }
 
 /*!
-    Set absolute file path for this file to \a fileName. Can be empty.
-    The default implementation sets the file name and sends fileNameChanged() and changed()
+    Set absolute file path for this file to \a filePath. Can be empty.
+    The default implementation sets the file name and sends filePathChanged() and changed()
     signals. Can be reimplemented by subclasses to do more.
-    \sa fileName()
+    \sa filePath()
 */
-void IDocument::setFileName(const QString &fileName)
+void IDocument::setFilePath(const QString &filePath)
 {
-    if (m_fileName == fileName)
+    if (m_filePath == filePath)
         return;
-    QString oldName = m_fileName;
-    m_fileName = fileName;
-    emit fileNameChanged(oldName, m_fileName);
+    QString oldName = m_filePath;
+    m_filePath = filePath;
+    emit filePathChanged(oldName, m_filePath);
     emit changed();
 }
 

@@ -318,7 +318,7 @@ bool isCppEditor(Core::IEditor *editor)
     if (!document)
         return false;
 
-    return CppTools::ProjectFile::classify(document->fileName()) != CppTools::ProjectFile::Unclassified;
+    return CppTools::ProjectFile::classify(document->filePath()) != CppTools::ProjectFile::Unclassified;
 }
 
 // Return the Cpp expression, and, if desired, the function
@@ -359,7 +359,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         if (const Core::IDocument *document= editor->document())
             if (modelManager)
                 *function = AbstractEditorSupport::functionAt(modelManager,
-                    document->fileName(), *line, *column);
+                    document->filePath(), *line, *column);
 
     return expr;
 }
