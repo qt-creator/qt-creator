@@ -64,7 +64,7 @@ QList<FilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Locator::Filter
     int sectionCount = lineAndColumn.size();
     int line = 0;
     int column = 0;
-    bool ok;
+    bool ok = false;
     if (sectionCount > 0)
         line = lineAndColumn.at(0).toInt(&ok);
     if (ok && sectionCount > 1)
