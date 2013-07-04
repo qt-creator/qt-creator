@@ -383,7 +383,7 @@ QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const 
     QVector<AndroidDeviceInfo> devices = connectedDevices();
 
     foreach (AndroidDeviceInfo device, devices) {
-        if (device.sdk >= *apiLevel && device.cpuABI.contains(abi)) {
+        if (device.sdk >= *apiLevel && device.cpuAbi.contains(abi)) {
             *apiLevel = device.sdk;
             return device.serialNumber;
         }
@@ -421,7 +421,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices() const
 
         dev.serialNumber = serialNo;
         dev.sdk = getSDKVersion(dev.serialNumber);
-        dev.cpuABI = getAbis(dev.serialNumber);
+        dev.cpuAbi = getAbis(dev.serialNumber);
         devices.push_back(dev);
     }
     qSort(devices.begin(), devices.end(), androidDevicesLessThan);
@@ -509,7 +509,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
             if (line.contains(QLatin1String("Target:")))
                 dev.sdk = line.mid(line.lastIndexOf(QLatin1Char(' '))).remove(QLatin1Char(')')).toInt();
             if (line.contains(QLatin1String("ABI:")))
-                dev.cpuABI = QStringList() << line.mid(line.lastIndexOf(QLatin1Char(' '))).trimmed();
+                dev.cpuAbi = QStringList() << line.mid(line.lastIndexOf(QLatin1Char(' '))).trimmed();
         }
         devices.push_back(dev);
     }

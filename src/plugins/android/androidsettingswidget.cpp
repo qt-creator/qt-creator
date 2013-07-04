@@ -75,7 +75,7 @@ QVariant AvdModel::data(const QModelIndex &index, int role) const
         case 1:
             return QString::fromLatin1("API %1").arg(m_list[index.row()].sdk);
         case 2:
-            return m_list[index.row()].cpuABI;
+            return m_list[index.row()].cpuAbi;
     }
     return QVariant();
 }
