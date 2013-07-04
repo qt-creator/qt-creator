@@ -190,24 +190,24 @@ Dumper.putQObjectNameValue = qPutQObjectNameValue
 
 
 def qdump__QAtomicInt(d, value):
-    d.putValue(value["_q_value"])
+    d.putValue(int(value["_q_value"]))
     d.putNumChild(0)
 
 
 def qdump__QBasicAtomicInt(d, value):
-    d.putValue(value["_q_value"])
+    d.putValue(int(value["_q_value"]))
     d.putNumChild(0)
 
 
-def qdump__QBasicAtomicPointer(d, value):
+def qdump__QAtomicPointer(d, value):
     d.putType(value.type)
-    p = cleanAddress(value["_q_value"])
-    d.putValue(p)
-    d.putPointerValue(value.address)
-    d.putNumChild(p)
+    q = value["_q_value"]
+    p = int(q)
+    d.putValue("@0x%x" % p)
+    d.putNumChild(1 if p else 0)
     if d.isExpanded():
         with Children(d):
-           d.putItem(value["_q_value"])
+           d.putSubItem("_q_value", q.dereference())
 
 def qform__QByteArray():
     return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
@@ -373,16 +373,15 @@ def qdump__QDate(d, value):
 
 
 def qdump__QTime(d, value):
-    mds = value["mds"]
-    if int(mds) >= 0:
-        d.putValue(value["mds"], MillisecondsSinceMidnight)
+    mds = int(value["mds"])
+    if mds >= 0:
+        d.putValue(mds, MillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
             qtdate = d.ns + "Qt::"
             qttime = d.ns + "Qt::"
             if lldbLoaded:
                 qtdate += "DateFormat::" # FIXME: Bug?...
-                qttime += "TimeSpec::"
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 d.putCallItem("toString", value, "toString", qtdate + "TextDate")
@@ -390,7 +389,6 @@ def qdump__QTime(d, value):
                 d.putCallItem("(SystemLocale)", value, "toString",
                      qtdate + "SystemLocaleDate")
                 d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
-                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -2562,13 +2560,13 @@ def qdump____gnu_cxx__hash_set(d, value):
 #######################################################################
 
 def qdump__boost__bimaps__bimap(d, value):
-    leftType = d.templateArgument(value.type, 0)
-    rightType = d.templateArgument(value.type, 1)
-    size = value["core"]["node_count"]
+    #leftType = d.templateArgument(value.type, 0)
+    #rightType = d.templateArgument(value.type, 1)
+    size = int(value["core"]["node_count"])
     d.putItemCount(size)
     d.putNumChild(size)
-    #if d.isExpanded():
-    d.putPlainChildren(value)
+    if d.isExpanded():
+        d.putPlainChildren(value)
 
 
 def qdump__boost__optional(d, value):
