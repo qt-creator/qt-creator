@@ -35,36 +35,40 @@
 #include "blackberryutils.h"
 #include "blackberrysetupwizard.h"
 
+#include "blackberryconfigurationmanager.h"
+#include "blackberryconfiguration.h"
+
 #include <utils/pathchooser.h>
 
 #include <coreplugin/icore.h>
 
 #include <QMessageBox>
+#include <QFileDialog>
+
+#include <QStandardItemModel>
+#include <QTreeWidgetItem>
 
 namespace Qnx {
 namespace Internal {
 
 BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     QWidget(parent),
-    m_ui(new Ui_BlackBerryNDKSettingsWidget)
+    m_ui(new Ui_BlackBerryNDKSettingsWidget),
+    m_autoDetectedNdks(0),
+    m_manualNdks(0)
 {
-    m_bbConfig = &BlackBerryConfiguration::instance();
+    m_bbConfigManager = &BlackBerryConfigurationManager::instance();
     m_ui->setupUi(this);
-    m_ui->sdkPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_ui->sdkPath->setPath(m_bbConfig->ndkPath());
-    m_hasValidSdkPath = QnxUtils::isValidNdkPath(m_ui->sdkPath->path());
+
+    m_ui->removeNdkButton->setEnabled(false);
 
     initInfoTable();
+    initNdkList();
 
     connect(m_ui->wizardButton, SIGNAL(clicked()), this, SLOT(launchBlackBerrySetupWizard()));
-    connect(m_ui->sdkPath, SIGNAL(changed(QString)), this, SLOT(checkSdkPath()));
-    connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(cleanConfiguration()));
-    connect(m_bbConfig, SIGNAL(updated()), this, SLOT(updateInfoTable()));
-}
-
-void BlackBerryNDKSettingsWidget::setRemoveButtonVisible(bool visible)
-{
-    m_ui->removeButton->setVisible(visible);
+    connect(m_ui->addNdkButton, SIGNAL(clicked()), this, SLOT(addNdk()));
+    connect(m_ui->removeNdkButton, SIGNAL(clicked()), this, SLOT(removeNdk()));
+    connect(m_ui->ndksTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(updateInfoTable(QTreeWidgetItem*)));
 }
 
 void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
@@ -73,9 +77,9 @@ void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
     m_ui->wizardButton->setVisible(visible);
 }
 
-QString BlackBerryNDKSettingsWidget::sdkPath() const
+bool BlackBerryNDKSettingsWidget::hasActiveNdk() const
 {
-    return m_ui->sdkPath->path();
+    return !m_bbConfigManager->configurations().isEmpty();
 }
 
 void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
@@ -92,30 +96,16 @@ void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
     wizard.exec();
 }
 
-void BlackBerryNDKSettingsWidget::checkSdkPath()
+void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentNdk)
 {
-    if (!m_ui->sdkPath->path().isEmpty() &&
-            QnxUtils::isValidNdkPath(m_ui->sdkPath->path())) {
-        m_bbConfig->setupNdkConfiguration(m_ui->sdkPath->path());
-        m_hasValidSdkPath = true;
-    } else {
-        m_hasValidSdkPath = false;
+    QString ndkPath = currentNdk->text(1);
+    if (ndkPath.isEmpty()) {
+        m_ui->removeNdkButton->setEnabled(false);
+        return;
     }
 
-    emit sdkPathChanged(m_ui->sdkPath->path());
-}
-
-bool BlackBerryNDKSettingsWidget::hasValidSdkPath() const
-{
-    return m_hasValidSdkPath;
-}
-
-void BlackBerryNDKSettingsWidget::updateInfoTable()
-{
-    QMultiMap<QString, QString> env = m_bbConfig->qnxEnv();
-
+    QMultiMap<QString, QString> env = QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(ndkPath));
     if (env.isEmpty()) {
-        // clear
         clearInfoTable();
         return;
     }
@@ -137,30 +127,83 @@ void BlackBerryNDKSettingsWidget::updateInfoTable()
         m_infoModel->appendRow(row);
     }
 
-    m_infoModel->appendRow( QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("QMAKE 4"))) << new QStandardItem(m_bbConfig->qmake4Path().toString()));
-    m_infoModel->appendRow( QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("QMAKE 5"))) << new QStandardItem(m_bbConfig->qmake5Path().toString()));
-    m_infoModel->appendRow( QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("COMPILER"))) << new QStandardItem(m_bbConfig->gccPath().toString()));
+    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromNdkPath(ndkPath);
+    if (!config)
+        return;
 
-    m_ui->removeButton->setEnabled(true);
+    QString qmake4Path = config->qmake4BinaryFile().toString();
+    QString qmake5Path = config->qmake5BinaryFile().toString();
+
+    if (!qmake4Path.isEmpty())
+        m_infoModel->appendRow(QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("QMAKE 4"))) << new QStandardItem(qmake4Path));
+
+    if (!qmake5Path.isEmpty())
+        m_infoModel->appendRow(QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("QMAKE 5"))) << new QStandardItem(qmake5Path));
+
+    m_infoModel->appendRow(QList<QStandardItem*>() << new QStandardItem(QString(QLatin1String("COMPILER"))) << new QStandardItem(config->gccCompiler().toString()));
+
+    m_ui->removeNdkButton->setEnabled(!config->isAutoDetected());
+}
+
+void BlackBerryNDKSettingsWidget::updateNdkList()
+{
+    foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations()) {
+        QTreeWidgetItem *parent = config->isAutoDetected() ? m_autoDetectedNdks : m_manualNdks;
+        QTreeWidgetItem *item = new QTreeWidgetItem(parent);
+        item->setText(0, config->displayName());
+        item->setText(1, config->ndkPath()); // TODO: should be target name for NDKs >= v10.2
+    }
+
+    if (m_autoDetectedNdks->child(0)) {
+        m_autoDetectedNdks->child(0)->setSelected(true);
+        updateInfoTable(m_autoDetectedNdks->child(0));
+    }
 }
 
 void BlackBerryNDKSettingsWidget::clearInfoTable()
 {
     m_infoModel->clear();
-    m_ui->sdkPath->setPath(QString());
-    m_ui->removeButton->setEnabled(false);
 }
 
-void BlackBerryNDKSettingsWidget::cleanConfiguration()
+void BlackBerryNDKSettingsWidget::addNdk()
 {
+    QString selectedPath = QFileDialog::getExistingDirectory(0, tr("Select the NDK path"),
+                                                             QString(),
+                                                             QFileDialog::ShowDirsOnly);
+    if (selectedPath.isEmpty())
+        return;
+
+    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromNdkPath(selectedPath);
+    if (!config) {
+        config = new BlackBerryConfiguration(selectedPath, false);
+        if (!m_bbConfigManager->addConfiguration(config)) {
+            delete config;
+            return;
+        }
+
+        QTreeWidgetItem *item = new QTreeWidgetItem(m_manualNdks);
+        item->setText(0, selectedPath.split(QDir::separator()).last());
+        item->setText(1, selectedPath);
+        updateInfoTable(item);
+    }
+}
+
+void BlackBerryNDKSettingsWidget::removeNdk()
+{
+    QString ndkPath = m_ui->ndksTreeWidget->currentItem()->text(1);
     QMessageBox::StandardButton button =
             QMessageBox::question(Core::ICore::mainWindow(),
                                   tr("Clean BlackBerry 10 Configuration"),
-                                  tr("Are you sure you want to remove the current BlackBerry configuration?"),
+                                  tr("Are you sure you want to remove:\n %1?").arg(ndkPath),
                                   QMessageBox::Yes | QMessageBox::No);
 
-    if (button == QMessageBox::Yes)
-        m_bbConfig->cleanNdkConfiguration();
+    if (button == QMessageBox::Yes) {
+        BlackBerryConfiguration *config = m_bbConfigManager->configurationFromNdkPath(ndkPath);
+        if (config)
+            m_bbConfigManager->removeConfiguration(config);
+            m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
+    }
+
 }
 
 void BlackBerryNDKSettingsWidget::initInfoTable()
@@ -170,8 +213,27 @@ void BlackBerryNDKSettingsWidget::initInfoTable()
     m_ui->ndkInfosTableView->setModel(m_infoModel);
     m_ui->ndkInfosTableView->verticalHeader()->hide();
     m_ui->ndkInfosTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
 
-    updateInfoTable();
+void BlackBerryNDKSettingsWidget::initNdkList()
+{
+    m_ui->ndksTreeWidget->header()->setResizeMode(QHeaderView::Stretch);
+    m_ui->ndksTreeWidget->header()->setStretchLastSection(false);
+    m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("NDK") << tr("Path")));
+    m_ui->ndksTreeWidget->setTextElideMode(Qt::ElideNone);
+    m_ui->ndksTreeWidget->setColumnCount(2);
+    m_autoDetectedNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
+    m_autoDetectedNdks->setText(0, tr("Auto-Detected"));
+    m_autoDetectedNdks->setFirstColumnSpanned(true);
+    m_autoDetectedNdks->setFlags(Qt::ItemIsEnabled);
+    m_manualNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
+    m_manualNdks->setText(0, tr("Manual"));
+    m_manualNdks->setFirstColumnSpanned(true);
+    m_manualNdks->setFlags(Qt::ItemIsEnabled);
+
+    m_ui->ndksTreeWidget->expandAll();
+
+    updateNdkList();
 }
 
 } // namespace Internal

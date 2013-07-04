@@ -34,7 +34,7 @@
 #include "blackberrydeviceconfiguration.h"
 #include "blackberrycsjregistrar.h"
 #include "blackberrycertificate.h"
-#include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 #include "blackberrydebugtokenrequester.h"
 #include "blackberrydebugtokenuploader.h"
 #include "blackberrydeviceinformation.h"
@@ -185,8 +185,8 @@ void BlackBerrySetupWizard::certificateCreated(int status)
         return;
     }
 
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
-    configuration.addCertificate(m_certificate);
+    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
+    configManager.addCertificate(m_certificate);
 
     emit stepFinished();
 }
@@ -297,7 +297,7 @@ void BlackBerrySetupWizard::setBusy(bool busy)
 
 void BlackBerrySetupWizard::cleanupFiles() const
 {
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     QFile f(configuration.barsignerCskPath());
     f.remove();
@@ -327,7 +327,7 @@ void BlackBerrySetupWizard::reset()
     m_currentStep = -1;
 
     if (m_certificate) {
-        BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+        BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
         configuration.removeCertificate(m_certificate);
         m_certificate = 0;
     }
@@ -353,7 +353,7 @@ void BlackBerrySetupWizard::createKeys()
 
 void BlackBerrySetupWizard::generateDeveloperCertificate()
 {
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     m_certificate = new BlackBerryCertificate(configuration.defaultKeystorePath(),
             BlackBerryUtils::getCsjAuthor(rdkPath()), password());
@@ -430,7 +430,7 @@ void BlackBerrySetupWizard::requestDebugToken()
         return;
     }
 
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     m_requester->requestDebugToken(configuration.defaultDebugTokenPath(),
             password(), configuration.defaultKeystorePath(), password(), m_devicePin);
@@ -443,7 +443,7 @@ void BlackBerrySetupWizard::uploadDebugToken()
         return;
     }
 
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     m_uploader->uploadDebugToken(configuration.defaultDebugTokenPath(),
             hostName(), devicePassword());
@@ -530,7 +530,7 @@ IDevice::Ptr BlackBerrySetupWizard::device()
             deviceName(), Core::Id(Constants::QNX_BB_OS_TYPE), machineType);
 
     configuration->setSshParameters(sshParams);
-    configuration->setDebugToken(BlackBerryConfiguration::instance().defaultDebugTokenPath());
+    configuration->setDebugToken(BlackBerryConfigurationManager::instance().defaultDebugTokenPath());
 
     return configuration;
 }

@@ -32,7 +32,7 @@
 #include "blackberrydebugtokenrequestdialog.h"
 #include "blackberrydebugtokenrequester.h"
 #include "blackberrydeviceinformation.h"
-#include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 #include "blackberrycertificate.h"
 #include "ui_blackberrydebugtokenrequestdialog.h"
 
@@ -283,9 +283,9 @@ void BlackBerryDebugTokenRequestDialog::setBusy(bool busy)
 
 void BlackBerryDebugTokenRequestDialog::populateComboBox()
 {
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
 
-    QList<BlackBerryCertificate*> certificates = configuration.certificates();
+    QList<BlackBerryCertificate*> certificates = configManager.certificates();
 
     foreach (const BlackBerryCertificate *certificate, certificates)
         m_ui->keystore->addItem(certificate->fileName());

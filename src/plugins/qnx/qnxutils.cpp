@@ -262,9 +262,20 @@ QString QnxUtils::qConfigPath()
 
 QString QnxUtils::ndkVersion(const QString &ndkPath)
 {
+    foreach (const NdkInstallInformation &ndkInfo, installedNdks()) {
+        if (!ndkInfo.path.compare(ndkPath, Utils::HostOsInfo::fileNameCaseSensitivity()))
+            return ndkInfo.version;
+    }
+
+    return QString();
+}
+
+QList<NdkInstallInformation> QnxUtils::installedNdks()
+{
+    QList<NdkInstallInformation> ndkList;
     QString ndkConfigPath = qConfigPath();
     if (!QDir(ndkConfigPath).exists())
-        return QString();
+        return ndkList;
 
     QFileInfoList ndkfileList = QDir(ndkConfigPath).entryInfoList(QStringList() << QLatin1String("*.xml"),
                                                                   QDir::Files, QDir::Time);
@@ -285,11 +296,16 @@ QString QnxUtils::ndkVersion(const QString &ndkPath)
         // The file contains only one installation node
         if (!childElt.isNull()) {
             // The file contains only one base node
-            QDomElement elt = childElt.firstChildElement(QLatin1String("base"));
-            if (!elt.text().compare(ndkPath, Utils::HostOsInfo::fileNameCaseSensitivity()))
-                return childElt.firstChildElement(QLatin1String("version")).text();
+            NdkInstallInformation ndkInfo;
+            ndkInfo.path = childElt.firstChildElement(QLatin1String("base")).text();
+            ndkInfo.name = childElt.firstChildElement(QLatin1String("name")).text();
+            ndkInfo.host = childElt.firstChildElement(QLatin1String("host")).text();
+            ndkInfo.target = childElt.firstChildElement(QLatin1String("target")).text();
+            ndkInfo.version = childElt.firstChildElement(QLatin1String("version")).text();
+
+            ndkList.append(ndkInfo);
         }
     }
 
-    return QString();
+    return ndkList;
 }

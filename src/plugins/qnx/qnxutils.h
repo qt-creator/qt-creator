@@ -46,6 +46,16 @@ namespace Internal {
 
 class QnxAbstractQtVersion;
 
+class NdkInstallInformation
+{
+public:
+    QString path;
+    QString name;
+    QString host;
+    QString target;
+    QString version;
+};
+
 class QnxUtils
 {
 public:
@@ -60,6 +70,7 @@ public:
     static QString dataDirPath();
     static QString qConfigPath();
     static QString ndkVersion(const QString& ndkPath);
+    static QList<NdkInstallInformation> installedNdks();
 };
 
 } // namespace Internal

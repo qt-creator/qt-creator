@@ -31,7 +31,7 @@
 
 #include "blackberrykeyswidget.h"
 #include "blackberryregisterkeydialog.h"
-#include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 #include "blackberrycertificatemodel.h"
 #include "blackberryimportcertificatedialog.h"
 #include "blackberrycreatecertificatedialog.h"
@@ -75,9 +75,9 @@ BlackBerryKeysWidget::BlackBerryKeysWidget(QWidget *parent) :
 
 void BlackBerryKeysWidget::apply()
 {
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
 
-    configuration.syncCertificates(m_model->certificates(), m_model->activeCertificate());
+    configManager.syncCertificates(m_model->certificates(), m_model->activeCertificate());
 }
 
 void BlackBerryKeysWidget::registerKey()
@@ -109,12 +109,12 @@ void BlackBerryKeysWidget::unregisterKey()
     if (answer & QMessageBox::No)
         return;
 
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
 
-    QFile f(configuration.barsignerCskPath());
+    QFile f(configManager.barsignerCskPath());
     f.remove();
 
-    f.setFileName(configuration.barsignerDbPath());
+    f.setFileName(configManager.barsignerDbPath());
     f.remove();
 
     updateRegisterSection();

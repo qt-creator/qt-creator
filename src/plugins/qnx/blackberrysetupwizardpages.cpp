@@ -83,9 +83,8 @@ BlackBerrySetupWizardNdkPage::BlackBerrySetupWizardNdkPage(QWidget *parent) :
 
     m_widget = new BlackBerryNDKSettingsWidget(this);
     m_widget->setWizardMessageVisible(false);
-    m_widget->setRemoveButtonVisible(false);
 
-    connect(m_widget, SIGNAL(sdkPathChanged(QString)), this, SIGNAL(completeChanged()));
+    connect(m_widget, SIGNAL(kitsUpdated()), this, SIGNAL(completeChanged()));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(m_widget);
@@ -99,7 +98,7 @@ BlackBerrySetupWizardNdkPage::~BlackBerrySetupWizardNdkPage()
 
 bool BlackBerrySetupWizardNdkPage::isComplete() const
 {
-    return m_widget->hasValidSdkPath();
+    return m_widget->hasActiveNdk();
 }
 
 //-----------------------------------------------------------------------------

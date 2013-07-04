@@ -32,17 +32,16 @@
 #ifndef BLACKBERRYNDKSETTINGSWIDGET_H
 #define BLACKBERRYNDKSETTINGSWIDGET_H
 
-#include "blackberryconfiguration.h"
-
 #include <QWidget>
-#include <QStandardItemModel>
 
+class QStandardItemModel;
+class QTreeWidgetItem;
 
 namespace Qnx {
 namespace Internal {
 
+class BlackBerryConfigurationManager;
 class Ui_BlackBerryNDKSettingsWidget;
-
 
 class BlackBerryNDKSettingsWidget : public QWidget
 {
@@ -50,30 +49,30 @@ class BlackBerryNDKSettingsWidget : public QWidget
 public:
     explicit BlackBerryNDKSettingsWidget(QWidget *parent = 0);
 
-   void setRemoveButtonVisible(bool visible);
    void setWizardMessageVisible(bool visible);
 
-   QString sdkPath() const;
-
-   bool hasValidSdkPath() const;
+   bool hasActiveNdk() const;
 
 signals:
-    void sdkPathChanged(const QString &newPath);
+    void kitsUpdated();
 
 public slots:
     void launchBlackBerrySetupWizard() const;
-    void checkSdkPath();
-    void updateInfoTable();
+    void updateInfoTable(QTreeWidgetItem* currentNdk);
+    void updateNdkList();
     void clearInfoTable();
-    void cleanConfiguration();
+    void addNdk();
+    void removeNdk();
 
 private:
     void initInfoTable();
-    Ui_BlackBerryNDKSettingsWidget *m_ui;
-    BlackBerryConfiguration *m_bbConfig;
-    QStandardItemModel *m_infoModel;
-    bool m_hasValidSdkPath;
+    void initNdkList();
 
+    Ui_BlackBerryNDKSettingsWidget *m_ui;
+    BlackBerryConfigurationManager *m_bbConfigManager;
+    QStandardItemModel *m_infoModel;
+    QTreeWidgetItem *m_autoDetectedNdks;
+    QTreeWidgetItem *m_manualNdks;
 };
 
 } // namespace Internal

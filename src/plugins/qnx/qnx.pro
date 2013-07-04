@@ -93,7 +93,8 @@ SOURCES += qnxplugin.cpp \
     blackberrysetupwizard.cpp \
     blackberrysetupwizardpages.cpp \
     blackberryutils.cpp \
-    qnxdevicetester.cpp
+    qnxdevicetester.cpp \
+    blackberryconfigurationmanager.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -186,7 +187,8 @@ HEADERS += qnxplugin.h\
     blackberrysetupwizard.h \
     blackberrysetupwizardpages.h \
     blackberryutils.h \
-    qnxdevicetester.h
+    qnxdevicetester.h \
+    blackberryconfigurationmanager.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

@@ -32,6 +32,7 @@
 #include "blackberrydeviceconnection.h"
 
 #include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 #include "qnxutils.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -61,7 +62,11 @@ BlackBerryDeviceConnection::BlackBerryDeviceConnection() :
 void BlackBerryDeviceConnection::connectDevice(const ProjectExplorer::IDevice::ConstPtr &device)
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    QnxUtils::prependQnxMapToEnvironment(BlackBerryConfiguration::instance().qnxEnv(), env);
+
+    QMultiMap<QString, QString> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
+    if (!qnxEnv.isEmpty())
+        QnxUtils::prependQnxMapToEnvironment(qnxEnv, env);
+
     m_process->setEnvironment(env.toStringList());
 
     m_host = device->sshParameters().host;

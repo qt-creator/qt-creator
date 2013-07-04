@@ -42,83 +42,50 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/gcctoolchain.h>
 
-#include <QSettings>
 #include <QObject>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryCertificate;
-
-class BlackBerryConfig
+class BlackBerryConfiguration
 {
-    QString ndkPath;
-    QString targetName;
-    Utils::FileName qmake4BinaryFile;
-    Utils::FileName qmake5BinaryFile;
-    Utils::FileName gccCompiler;
-    Utils::FileName deviceDebuger;
-    Utils::FileName simulatorDebuger;
-    Utils::FileName sysRoot;
-    QMultiMap<QString, QString> qnxEnv;
-    QList<BlackBerryCertificate*> certificates;
-    BlackBerryCertificate *activeCertificate;
-
-    friend class BlackBerryConfiguration;
-};
-
-class BlackBerryConfiguration: public QObject
-{
-    Q_OBJECT
 public:
-    static BlackBerryConfiguration &instance();
-    BlackBerryConfig config() const;
-    Utils::FileName qmake4Path() const;
-    Utils::FileName qmake5Path() const;
-    Utils::FileName gccPath() const;
-    Utils::FileName deviceGdbPath() const;
-    Utils::FileName simulatorGdbPath() const;
+    BlackBerryConfiguration(const QString& ndkPath, bool isAutoDetected, const QString &displayName = QString());
+    bool activate();
+    void deactivate();
+    QString ndkPath() const;
+    QString displayName() const;
+    QString targetName() const;
+    bool isAutoDetected() const;
+    bool isActive() const;
+    bool isValid() const;
+    Utils::FileName qmake4BinaryFile() const;
+    Utils::FileName qmake5BinaryFile() const;
+    Utils::FileName gccCompiler() const;
+    Utils::FileName deviceDebuger() const;
+    Utils::FileName simulatorDebuger() const;
     Utils::FileName sysRoot() const;
     QMultiMap<QString, QString> qnxEnv() const;
-    void setupNdkConfiguration(const QString &ndkPath);
-    QString ndkPath() const;
-    QString targetName() const;
-    QString barsignerCskPath() const;
-    QString barsignerDbPath() const;
-    QString defaultKeystorePath() const;
-    QString defaultDebugTokenPath() const;
-    void loadSettings();
-    void clearNdkSettings();
-    void cleanNdkConfiguration();
-    void syncCertificates(QList<BlackBerryCertificate*> certificates,
-            BlackBerryCertificate *activeCertificate);
-    void addCertificate(BlackBerryCertificate *certificate);
-    void removeCertificate(BlackBerryCertificate *certificate);
-
-    QList<BlackBerryCertificate*> certificates() const;
-    BlackBerryCertificate *activeCertificate();
-
-public slots:
-    void saveSettings();
 
 private:
-    BlackBerryConfiguration(QObject *parent = 0);
-    static BlackBerryConfiguration *m_instance;
-    BlackBerryConfig m_config;
+    QString m_ndkPath;
+    QString m_displayName;
+    QString m_targetName;
+    bool m_isAutoDetected;
+    Utils::FileName m_qmake4BinaryFile;
+    Utils::FileName m_qmake5BinaryFile;
+    Utils::FileName m_gccCompiler;
+    Utils::FileName m_deviceDebuger;
+    Utils::FileName m_simulatorDebuger;
+    Utils::FileName m_sysRoot;
+    QMultiMap<QString, QString> m_qnxEnv;
 
-    void loadCertificates();
-    void loadNdkSettings();
-    void saveCertificates();
-    void saveNdkSettings();
-    bool refresh();
-    bool setNdkPath(const QString &ndkPath);
-    void setupNdkConfigPerQtVersion(const Utils::FileName &qmakePath, ProjectExplorer::GccToolChain* tc);
+    void setupConfigurationPerQtVersion(const Utils::FileName &qmakePath, ProjectExplorer::GccToolChain* tc);
     QtSupport::BaseQtVersion* createQtVersion(const Utils::FileName &qmakePath);
     ProjectExplorer::GccToolChain* createGccToolChain();
     ProjectExplorer::Kit* createKit(QnxArchitecture arch, QtSupport::BaseQtVersion* qtVersion, ProjectExplorer::GccToolChain* tc);
+    void setSticky(ProjectExplorer::Kit* kit);
 
-signals:
-    void updated();
 };
 
 } // namespace Internal

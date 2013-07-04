@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include "blackberrycsjregistrar.h"
+#include "blackberryconfigurationmanager.h"
 #include "blackberryconfiguration.h"
 
 #include <utils/hostosinfo.h>
@@ -57,9 +58,15 @@ void BlackBerryCsjRegistrar::tryRegister(const QStringList &csjFiles,
     if (m_process->state() != QProcess::NotRunning)
         return;
 
-    QString command = BlackBerryConfiguration::instance()
-        .qnxEnv().value(QLatin1String("QNX_HOST"))
-        + (QLatin1String("/usr/bin/blackberry-signer"));
+    if (BlackBerryConfigurationManager::instance().configurations().isEmpty())
+        return;
+
+    QMultiMap<QString, QString> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
+    if (qnxEnv.isEmpty())
+        return;
+
+    QString command = qnxEnv.value(QLatin1String("QNX_HOST"))
+                                + (QLatin1String("/usr/bin/blackberry-signer"));
 
     if (Utils::HostOsInfo::isWindowsHost())
         command += QLatin1String(".bat");

@@ -31,7 +31,7 @@
 
 #include "blackberryregisterkeydialog.h"
 #include "blackberrycsjregistrar.h"
-#include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 #include "blackberrycertificate.h"
 #include "blackberryutils.h"
 #include "ui_blackberryregisterkeydialog.h"
@@ -69,7 +69,7 @@ BlackBerryRegisterKeyDialog::BlackBerryRegisterKeyDialog(QWidget *parent,
 
     m_okButton->setEnabled(false);
 
-    QFileInfo authorP12(BlackBerryConfiguration::instance().defaultKeystorePath());
+    QFileInfo authorP12(BlackBerryConfigurationManager::instance().defaultKeystorePath());
 
     if (authorP12.exists()) {
         m_ui->genCert->setEnabled(false);
@@ -259,8 +259,8 @@ QString BlackBerryRegisterKeyDialog::keystorePassword() const
 QString BlackBerryRegisterKeyDialog::keystorePath() const
 {
     if (m_ui->genCert->isChecked()) {
-        BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
-        return configuration.defaultKeystorePath();
+        BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
+        return configManager.defaultKeystorePath();
     }
 
     return QString();
@@ -283,7 +283,7 @@ void BlackBerryRegisterKeyDialog::generateDeveloperCertificate()
 
 void BlackBerryRegisterKeyDialog::cleanup() const
 {
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     QFile f(configuration.barsignerCskPath());
     f.remove();

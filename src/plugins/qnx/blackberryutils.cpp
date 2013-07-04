@@ -31,6 +31,7 @@
 
 #include "blackberryutils.h"
 #include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 
 #include <QFileInfo>
 #include <QString>
@@ -41,7 +42,7 @@ using namespace Qnx::Internal;
 
 bool BlackBerryUtils::hasRegisteredKeys()
 {
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     QFileInfo cskFile(configuration.barsignerCskPath());
 

@@ -31,7 +31,7 @@
 
 #include "blackberrycertificatemodel.h"
 #include "blackberrycertificate.h"
-#include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 
 #include <coreplugin/icore.h>
 
@@ -196,9 +196,9 @@ bool BlackBerryCertificateModel::insertCertificate(BlackBerryCertificate *certif
 
 void BlackBerryCertificateModel::load()
 {
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
-    m_certificates = configuration.certificates();
-    m_activeCertificate = configuration.activeCertificate();
+    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
+    m_certificates = configManager.certificates();
+    m_activeCertificate = configManager.activeCertificate();
 }
 
 } // namespace Internal
