@@ -1513,10 +1513,10 @@ def qdump__QRect(d, value):
     def pp(l):
         if l >= 0: return "+%s" % l
         return l
-    x1 = value["x1"]
-    y1 = value["y1"]
-    x2 = value["x2"]
-    y2 = value["y2"]
+    x1 = int(value["x1"])
+    y1 = int(value["y1"])
+    x2 = int(value["x2"])
+    y2 = int(value["y2"])
     w = x2 - x1 + 1
     h = y2 - y1 + 1
     d.putValue("%sx%s%s%s" % (w, h, pp(x1), pp(y1)))
@@ -1530,15 +1530,10 @@ def qdump__QRectF(d, value):
     def pp(l):
         if l >= 0: return "+%s" % l
         return l
-    x = value["xp"]
-    y = value["yp"]
-    w = value["w"]
-    h = value["h"]
-    # FIXME: workaround, see QPoint
-    x = x.cast(x.type.strip_typedefs())
-    y = y.cast(y.type.strip_typedefs())
-    w = w.cast(w.type.strip_typedefs())
-    h = h.cast(h.type.strip_typedefs())
+    x = float(value["xp"])
+    y = float(value["yp"])
+    w = float(value["w"])
+    h = float(value["h"])
     d.putValue("%sx%s%s%s" % (w, h, pp(x), pp(y)))
     d.putNumChild(4)
     if d.isExpanded():
@@ -1695,8 +1690,8 @@ def qdump__QSharedPointer(d, value):
 
 
 def qdump__QSize(d, value):
-    w = value["wd"]
-    h = value["ht"]
+    w = int(value["wd"])
+    h = int(value["ht"])
     d.putValue("(%s, %s)" % (w, h))
     d.putNumChild(2)
     if d.isExpanded():
@@ -1705,7 +1700,13 @@ def qdump__QSize(d, value):
 
 
 def qdump__QSizeF(d, value):
-    qdump__QSize(d, value)
+    w = float(value["wd"])
+    h = float(value["ht"])
+    d.putValue("(%s, %s)" % (w, h))
+    d.putNumChild(2)
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
 
 
 def qdump__QStack(d, value):

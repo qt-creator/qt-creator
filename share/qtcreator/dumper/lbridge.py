@@ -258,7 +258,16 @@ def impl_SBValue__le__(self, other):
 
 def impl_SBValue__int__(self):
     return self.GetValueAsSigned()
-    #return int(self.GetValue(), 0)
+
+def impl_SBValue__float__(self):
+    error = lldb.SBError()
+    if self.GetType().GetByteSize() == 4:
+        result = self.GetData().GetFloat(error, 0)
+    else:
+        result = self.GetData().GetDouble(error, 0)
+    if error.Success():
+        return result
+    return NotImplemented
 
 def impl_SBValue__long__(self):
     return int(self.GetValue(), 0)
@@ -286,6 +295,7 @@ lldb.SBValue.__le__ = impl_SBValue__le__
 
 lldb.SBValue.__getitem__ = impl_SBValue__getitem__
 lldb.SBValue.__int__ = impl_SBValue__int__
+lldb.SBValue.__float__ = impl_SBValue__float__
 lldb.SBValue.__long__ = lambda self: long(self.GetValue(), 0)
 
 lldb.SBValue.code = lambda self: self.GetTypeClass()

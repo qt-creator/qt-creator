@@ -2053,10 +2053,10 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QPointF s0, s;\n"
-                    "s = QPointF(100, 200);\n")
+                    "s = QPointF(100.5, 200.5);\n")
                % CoreProfile()
                % Check("s0", "(0.0, 0.0)", "@QPointF")
-               % Check("s", "(100.0, 200.0)", "@QPointF");
+               % Check("s", "(100.5, 200.5)", "@QPointF");
 
     QTest::newRow("QRect")
             << Data("#include <QRect>\n"
@@ -2072,9 +2072,9 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QRectF rect0, rect;\n"
-                    "rect = QRectF(100, 100, 200, 200);\n")
+                    "rect = QRectF(100.25, 100.25, 200.5, 200.5);\n")
                % Check("rect", "0x0+0+0", "@QRectF")
-               % Check("rect", "200x200+100+100", "@QRectF");
+               % Check("rect", "200.5x200.5+100.25+100.25", "@QRectF");
 
     QTest::newRow("QSize")
             << Data("#include <QSize>\n"
@@ -2091,10 +2091,10 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QSizeF s0, s;\n"
-                    "s = QSizeF(100, 200);\n")
+                    "s = QSizeF(100.5, 200.5);\n")
                % CoreProfile()
-               % Check("s0", "(-1, -1)", "@QSizeF")
-               % Check("s", "(100, 200)", "@QSizeF");
+               % Check("s0", "(-1.0, -1.0)", "@QSizeF")
+               % Check("s", "(100.5, 200.5)", "@QSizeF");
 
     QTest::newRow("QRegion")
             << Data("#include <QRegion>\n"
@@ -3181,7 +3181,7 @@ void tst_Dumpers::dumper_data()
                     "QVariant var10(QString(\"Hello 10\"));      // 10, QString\n"
                     "QVariant var11(QStringList() << \"Hello\" << \"World\"); // 11, QStringList\n"
                     "QVariant var19(QRect(100, 200, 300, 400));  // 19 QRect\n"
-                    "QVariant var20(QRectF(100, 200, 300, 400)); // 20 QRectF\n"
+                    "QVariant var20(QRectF(100.5, 200.5, 300.5, 400.5)); // 20 QRectF\n"
                     )
                % CoreProfile()
                % Check("var", "(invalid)", "@QVariant (invalid)")
@@ -3196,7 +3196,7 @@ void tst_Dumpers::dumper_data()
                % Check("var11", "<2 items>", "@QVariant (QStringList)")
                % Check("var11.1", "[1]", "\"World\"", "@QString")
                % Check("var19", "300x400+100+200", "@QVariant (QRect)")
-               % Check("var20", "300x400+100+200", "@QVariant (QRectF)");
+               % Check("var20", "300.5x400.5+100.5+200.5", "@QVariant (QRectF)");
 
         /*
          "QByteArray",  # 12
