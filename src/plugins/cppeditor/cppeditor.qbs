@@ -60,6 +60,8 @@ QtcPlugin {
         "cppsnippetprovider.h",
         "cpptypehierarchy.cpp",
         "cpptypehierarchy.h",
+        "cppvirtualfunctionassistprovider.cpp",
+        "cppvirtualfunctionassistprovider.h",
     ]
 
     Group {

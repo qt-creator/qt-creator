@@ -72,7 +72,8 @@ public:
     void unCommentSelection();
 
 protected:
-    virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
+    virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
+                            bool inNextSplit = false);
     TextEditor::BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *);
 

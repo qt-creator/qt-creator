@@ -128,6 +128,13 @@ private slots:
     void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace();
     void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_namespace();
     void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_insideFunction();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_allOverrides();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides1();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides2();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQualified();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDeclaration();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDefinition();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnNonPointerNonReference();
 
     void test_doxygen_comments_qt_style();
     void test_doxygen_comments_qt_style_continuation();

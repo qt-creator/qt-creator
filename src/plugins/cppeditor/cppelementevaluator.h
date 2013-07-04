@@ -135,6 +135,7 @@ public:
     explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
 
 public:
+    CPlusPlus::Symbol *declaration;
     QString name;
     QString qualifiedName;
     QString type;
@@ -152,6 +153,8 @@ class CppClass : public CppDeclarableElement
 public:
     CppClass();
     explicit CppClass(CPlusPlus::Symbol *declaration);
+
+    bool operator==(const CppClass &other);
 
     void lookupBases(CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
     void lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);

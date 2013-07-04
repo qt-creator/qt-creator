@@ -23,7 +23,8 @@ HEADERS += cppeditorplugin.h \
     cppincludehierarchy.h \
     cppincludehierarchymodel.h \
     cppincludehierarchyitem.h \
-    cppincludehierarchytreeview.h
+    cppincludehierarchytreeview.h \
+    cppvirtualfunctionassistprovider.h
 
 SOURCES += cppeditorplugin.cpp \
     cppautocompleter.cpp \
@@ -45,7 +46,8 @@ SOURCES += cppeditorplugin.cpp \
     cppincludehierarchy.cpp \
     cppincludehierarchymodel.cpp \
     cppincludehierarchyitem.cpp \
-    cppincludehierarchytreeview.cpp
+    cppincludehierarchytreeview.cpp \
+    cppvirtualfunctionassistprovider.cpp
 
 RESOURCES += cppeditor.qrc
 

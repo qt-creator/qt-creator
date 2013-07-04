@@ -547,9 +547,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
             if (fe->reason() == Qt::OtherFocusReason) {
                 // Qt/carbon workaround
                 // focus out is received before the key press event.
-                if (d->m_completionListView->currentIndex().isValid())
-                    emit proposalItemActivated(d->m_model->proposalItem(
-                                                   d->m_completionListView->currentIndex().row()));
+                activateCurrentProposalItem();
             }
         }
         if (d->m_infoFrame)
@@ -593,9 +591,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_Return:
             if (!useCarbonWorkaround()) {
                 abort();
-                if (d->m_completionListView->currentIndex().isValid())
-                    emit proposalItemActivated(d->m_model->proposalItem(
-                                                   d->m_completionListView->currentIndex().row()));
+                activateCurrentProposalItem();
             }
             return true;
 
@@ -653,6 +649,16 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         if (isVisible())
             d->m_assistant->notifyChange();
 
+        return true;
+    }
+    return false;
+}
+
+bool GenericProposalWidget::activateCurrentProposalItem()
+{
+    if (d->m_completionListView->currentIndex().isValid()) {
+        const int currentRow = d->m_completionListView->currentIndex().row();
+        emit proposalItemActivated(d->m_model->proposalItem(currentRow));
         return true;
     }
     return false;

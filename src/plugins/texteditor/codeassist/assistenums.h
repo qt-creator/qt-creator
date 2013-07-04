@@ -35,7 +35,8 @@ namespace TextEditor {
 enum AssistKind
 {
     Completion,
-    QuickFix
+    QuickFix,
+    FollowSymbol
 };
 
 enum AssistReason

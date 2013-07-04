@@ -30,6 +30,7 @@
 #ifndef CPPEDITOR_H
 #define CPPEDITOR_H
 
+#include "cppfollowsymbolundercursor.h"
 #include "cppfunctiondecldeflink.h"
 
 #include <cpptools/commentssettings.h>
@@ -132,6 +133,8 @@ public:
 
     void updateContentsChangedSignal();
 
+    FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
+
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
 
@@ -204,7 +207,7 @@ private:
 
     Q_SLOT void abortDeclDefLink();
 
-    Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
+    Link findLinkAt(const QTextCursor &, bool resolveTarget = true, bool inNextSplit = false);
     bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
     QModelIndex indexForPosition(int line, int column,
@@ -254,6 +257,8 @@ private:
     QSharedPointer<FunctionDeclDefLink> m_declDefLink;
 
     CppTools::CommentsSettings m_commentsSettings;
+
+    QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
 };
 
 } // namespace Internal

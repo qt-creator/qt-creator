@@ -1063,7 +1063,9 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
-TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
+TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                                                         bool /*resolveTarget*/,
+                                                                         bool /*inNextSplit*/)
 {
     const SemanticInfo semanticInfo = m_semanticInfo;
     if (! semanticInfo.isValid())

@@ -32,11 +32,13 @@
 
 #include "iassistproposalwidget.h"
 
+#include <texteditor/texteditor_global.h>
+
 namespace TextEditor {
 
 class GenericProposalWidgetPrivate;
 
-class GenericProposalWidget : public IAssistProposalWidget
+class TEXTEDITOR_EXPORT GenericProposalWidget : public IAssistProposalWidget
 {
     Q_OBJECT
     friend class GenericProposalWidgetPrivate;
@@ -69,6 +71,7 @@ private slots:
 
 protected:
     virtual bool eventFilter(QObject *o, QEvent *e);
+    bool activateCurrentProposalItem();
 
 private:
     GenericProposalWidgetPrivate *d;

@@ -78,8 +78,7 @@ public:
     CMakeEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 
-    Link findLinkAt(const QTextCursor &cursor,
-                                     bool resolveTarget = true);
+    Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
 
 protected:
     TextEditor::BaseTextEditor *createEditor();

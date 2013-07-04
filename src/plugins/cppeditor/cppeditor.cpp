@@ -511,6 +511,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_firstRenameChange(false)
     , m_objcEnabled(false)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
+    , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(this))
 {
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
@@ -1239,14 +1240,14 @@ QString CPPEditorWidget::identifierUnderCursor(QTextCursor *macroCursor)
     return macroCursor->selectedText();
 }
 
-CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, bool resolveTarget)
+CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, bool resolveTarget,
+                                                  bool inNextSplit)
 {
     if (!m_modelManager)
         return Link();
 
-    FollowSymbolUnderCursor followSymbolUnderCursor(this, cursor, resolveTarget,
-        m_modelManager->snapshot(), m_lastSemanticInfo.doc, symbolFinder());
-    return followSymbolUnderCursor.findLink();
+    return m_followSymbolUnderCursor->findLink(cursor, resolveTarget, m_modelManager->snapshot(),
+                                               m_lastSemanticInfo.doc, symbolFinder(), inNextSplit);
 }
 
 unsigned CPPEditorWidget::editorRevision() const
@@ -1720,6 +1721,8 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
         if (!semanticInfo().doc || isOutdated())
             return 0;
         return new CppQuickFixAssistInterface(const_cast<CPPEditorWidget *>(this), reason);
+    } else {
+        return BaseTextEditorWidget::createAssistInterface(kind, reason);
     }
     return 0;
 }
@@ -1810,6 +1813,11 @@ void CPPEditorWidget::updateContentsChangedSignal()
 {
     connect(document(), SIGNAL(contentsChange(int,int,int)),
             this, SLOT(onContentsChanged(int,int,int)));
+}
+
+FollowSymbolUnderCursor *CPPEditorWidget::followSymbolUnderCursorDelegate()
+{
+    return m_followSymbolUnderCursor.data();
 }
 
 void CPPEditorWidget::abortDeclDefLink()

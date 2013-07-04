@@ -112,7 +112,8 @@ static bool isValidFileNameChar(const QChar &c)
 }
 
 ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                      bool /* resolveTarget */)
+                                                          bool /*resolveTarget*/,
+                                                          bool /*inNextSplit*/)
 {
     Link link;
 

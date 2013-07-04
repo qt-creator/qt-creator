@@ -1047,16 +1047,16 @@ void BaseTextEditorWidget::unindent()
 
 void BaseTextEditorWidget::openLinkUnderCursor()
 {
-    Link symbolLink = findLinkAt(textCursor());
-
-    openLink(symbolLink, alwaysOpenLinksInNextSplit());
+    const bool openInNextSplit = alwaysOpenLinksInNextSplit();
+    Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
+    openLink(symbolLink, openInNextSplit);
 }
 
 void BaseTextEditorWidget::openLinkUnderCursorInNextSplit()
 {
-    Link symbolLink = findLinkAt(textCursor());
-
-    openLink(symbolLink, !alwaysOpenLinksInNextSplit());
+    const bool openInNextSplit = !alwaysOpenLinksInNextSplit();
+    Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
+    openLink(symbolLink, openInNextSplit);
 }
 
 void BaseTextEditorWidget::abortAssist()
@@ -4803,7 +4803,7 @@ void BaseTextEditorWidget::reindent(QTextDocument *doc, const QTextCursor &curso
     d->m_indenter->reindent(doc, cursor, tabSettings());
 }
 
-BaseTextEditorWidget::Link BaseTextEditorWidget::findLinkAt(const QTextCursor &, bool)
+BaseTextEditorWidget::Link BaseTextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)
 {
     return Link();
 }

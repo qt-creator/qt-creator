@@ -272,10 +272,11 @@ CppMacro::CppMacro(const Macro &macro)
 
 // CppDeclarableElement
 
-CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
+CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
+    : CppElement()
+    , declaration(declaration)
+    , icon(Icons().iconForSymbol(declaration))
 {
-    icon = Icons().iconForSymbol(declaration);
-
     Overview overview;
     overview.showArgumentNames = true;
     overview.showReturnTypes = true;
@@ -307,6 +308,11 @@ CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 {
     helpCategory = TextEditor::HelpItem::ClassOrNamespace;
     tooltip = qualifiedName;
+}
+
+bool CppClass::operator==(const CppClass &other)
+{
+    return this->declaration == other.declaration;
 }
 
 void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &context)

@@ -27,47 +27,54 @@
 **
 ****************************************************************************/
 
+#ifndef CPPFOLLOWVIRTUALSYMBOLS_H
+#define CPPFOLLOWVIRTUALSYMBOLS_H
 
-#ifndef CPPFOLLOWSYMBOLUNDERCURSOR_H
-#define CPPFOLLOWSYMBOLUNDERCURSOR_H
+#include <texteditor/codeassist/iassistprovider.h>
 
 #include <cplusplus/CppDocument.h>
-#include <texteditor/basetexteditor.h>
-
-QT_BEGIN_NAMESPACE
-class QTextCursor;
-QT_END_NAMESPACE
-
-namespace CppTools { class SymbolFinder; }
+#include <cplusplus/Symbols.h>
 
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
-class VirtualFunctionAssistProvider;
-
-class FollowSymbolUnderCursor
+class VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
 {
 public:
-    typedef TextEditor::BaseTextEditorWidget::Link Link;
+    VirtualFunctionAssistProvider();
 
-    FollowSymbolUnderCursor(CPPEditorWidget *widget);
-    ~FollowSymbolUnderCursor();
+    virtual bool configure(CPlusPlus::Class *startClass, CPlusPlus::Function *function,
+        const CPlusPlus::Snapshot &snapshot, bool openInNextSplit);
+    CPlusPlus::Class *startClass() const { return m_startClass; }
+    CPlusPlus::Function *function() const { return m_function; }
+    CPlusPlus::Snapshot snapshot() const { return m_snapshot; }
+    bool openInNextSplit() const { return m_openInNextSplit; }
 
-    Link findLink(const QTextCursor &cursor, bool resolveTarget,
-                  const CPlusPlus::Snapshot &snapshot,
-                  const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                  CppTools::SymbolFinder *symbolFinder, bool inNextSplit);
-
-    VirtualFunctionAssistProvider *virtualFunctionAssistProvider();
-    void setVirtualFunctionAssistProvider(VirtualFunctionAssistProvider *provider);
+    bool isAsynchronous() const;
+    bool supportsEditor(const Core::Id &editorId) const;
+    TextEditor::IAssistProcessor *createProcessor() const;
 
 private:
-    CPPEditorWidget *m_widget;
-    VirtualFunctionAssistProvider *m_virtualFunctionAssistProvider;
+    CPlusPlus::Class *m_startClass;
+    CPlusPlus::Function *m_function;
+    CPlusPlus::Snapshot m_snapshot;
+    bool m_openInNextSplit;
+};
+
+class FunctionHelper
+{
+public:
+    static bool isVirtualFunction(CPlusPlus::Function *function,
+        const CPlusPlus::Snapshot &snapshot);
+
+    static bool isPureVirtualFunction(CPlusPlus::Function *function,
+        const CPlusPlus::Snapshot &snapshot);
+
+    static QList<CPlusPlus::Symbol *> overrides(CPlusPlus::Class *startClass,
+        CPlusPlus::Function *function, const CPlusPlus::Snapshot &snapshot);
 };
 
 } // namespace Internal
 } // namespace CppEditor
 
-#endif // CPPFOLLOWSYMBOLUNDERCURSOR_H
+#endif // CPPFOLLOWVIRTUALSYMBOLS_H

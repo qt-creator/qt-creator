@@ -161,7 +161,9 @@ protected:
     void scrollContentsBy(int dx, int dy);
     TextEditor::BaseTextEditor *createEditor();
     void createToolBar(QmlJSEditor *editable);
-    TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
+    TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
+                                                      bool resolveTarget = true,
+                                                      bool inNextSplit = false);
     QString foldReplacementText(const QTextBlock &block) const;
 
 private:

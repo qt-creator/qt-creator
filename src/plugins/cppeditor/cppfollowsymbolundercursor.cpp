@@ -30,6 +30,7 @@
 
 #include "cppfollowsymbolundercursor.h"
 #include "cppeditor.h"
+#include "cppvirtualfunctionassistprovider.h"
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/BackwardsScanner.h>
@@ -53,6 +54,37 @@ using namespace TextEditor;
 typedef BaseTextEditorWidget::Link Link;
 
 namespace {
+
+bool lookupVirtualFunctionOverrides(const QString &expression, Function *function, Scope *scope,
+                                    const Snapshot &snapshot)
+{
+    if (expression.isEmpty() || !function || !scope || scope->isClass() || snapshot.isEmpty())
+        return false;
+
+    bool result = false;
+
+    Document::Ptr expressionDocument = documentForExpression(expression.toUtf8());
+    if (ExpressionAST *expressionAST = extractExpressionAST(expressionDocument)) {
+        if (CallAST *callAST = expressionAST->asCall()) {
+            if (ExpressionAST *baseExpressionAST = callAST->base_expression) {
+                if (IdExpressionAST *idExpressionAST = baseExpressionAST->asIdExpression()) {
+                    NameAST *name = idExpressionAST->name;
+                    result = name && !name->asQualifiedName();
+                } else if (MemberAccessAST *memberAccessAST = baseExpressionAST->asMemberAccess()) {
+                    NameAST *name = memberAccessAST->member_name;
+                    const bool nameIsQualified = name && name->asQualifiedName();
+
+                    TranslationUnit *unit = expressionDocument->translationUnit();
+                    QTC_ASSERT(unit, return false);
+                    const int tokenKind = unit->tokenKind(memberAccessAST->access_token);
+                    result = tokenKind == T_ARROW && !nameIsQualified;
+                }
+            }
+        }
+    }
+
+    return result && FunctionHelper::isVirtualFunction(function, snapshot);
+}
 
 Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snapshot &snapshot,
                           QSet<QString> *processed)
@@ -138,262 +170,15 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
     return result;
 }
 
-} // anonymous namespace
-
-FollowSymbolUnderCursor::FollowSymbolUnderCursor(CPPEditorWidget *widget, const QTextCursor &cursor,
-    bool resolveTarget, const Snapshot &snapshot, const Document::Ptr &documentFromSemanticInfo,
-    CppTools::SymbolFinder *symbolFinder)
-    : m_widget(widget)
-    , m_cursor(cursor)
-    , m_resolveTarget(resolveTarget)
-    , m_snapshot(snapshot)
-    , m_document(documentFromSemanticInfo)
-    , m_symbolFinder(symbolFinder)
+CPPEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
+    CPPEditorWidget *widget, CPlusPlus::Snapshot snapshot, const CPlusPlus::Document::Ptr &document,
+    SymbolFinder *symbolFinder)
 {
-}
-
-BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink()
-{
-    Link link;
-
-    // Move to end of identifier
-    QTextCursor tc = m_cursor;
-    QChar ch = m_widget->document()->characterAt(tc.position());
-    while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
-        tc.movePosition(QTextCursor::NextCharacter);
-        ch = m_widget->document()->characterAt(tc.position());
-    }
-
-    // Try to match decl/def. For this we need the semantic doc with the AST.
-    if (m_document
-            && m_document->translationUnit()
-            && m_document->translationUnit()->ast()) {
-        int pos = tc.position();
-        while (m_widget->document()->characterAt(pos).isSpace())
-            ++pos;
-        if (m_widget->document()->characterAt(pos) == QLatin1Char('(')) {
-            link = attemptFuncDeclDef(m_cursor);
-            if (link.hasValidLinkText())
-                return link;
-        }
-    }
-
-    int lineNumber = 0, positionInBlock = 0;
-    m_widget->convertPosition(m_cursor.position(), &lineNumber, &positionInBlock);
-    const unsigned line = lineNumber;
-    const unsigned column = positionInBlock + 1;
-
-    // Try to find a signal or slot inside SIGNAL() or SLOT()
-    int beginOfToken = 0;
-    int endOfToken = 0;
-
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(true);
-    const QString blockText = m_cursor.block().text();
-    const QList<Token> tokens = tokenize(blockText,
-                                         BackwardsScanner::previousBlockState(m_cursor.block()));
-
-    bool recognizedQtMethod = false;
-
-    for (int i = 0; i < tokens.size(); ++i) {
-        const Token &tk = tokens.at(i);
-
-        if (((unsigned) positionInBlock) >= tk.begin()
-                && ((unsigned) positionInBlock) <= tk.end()) {
-            if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
-                && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
-
-                // token[i] == T_IDENTIFIER
-                // token[i + 1] == T_LPAREN
-                // token[.....] == ....
-                // token[i + n] == T_RPAREN
-
-                if (i + 1 < tokens.size() && tokens.at(i + 1).is(T_LPAREN)) {
-                    // skip matched parenthesis
-                    int j = i - 1;
-                    int depth = 0;
-
-                    for (; j < tokens.size(); ++j) {
-                        if (tokens.at(j).is(T_LPAREN)) {
-                            ++depth;
-                        } else if (tokens.at(j).is(T_RPAREN)) {
-                            if (!--depth)
-                                break;
-                        }
-                    }
-
-                    if (j < tokens.size()) {
-                        QTextBlock block = m_cursor.block();
-
-                        beginOfToken = block.position() + tokens.at(i).begin();
-                        endOfToken = block.position() + tokens.at(i).end();
-
-                        tc.setPosition(block.position() + tokens.at(j).end());
-                        recognizedQtMethod = true;
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    // Now we prefer the doc from the snapshot with macros expanded.
-    Document::Ptr doc = m_snapshot.document(m_widget->editorDocument()->filePath());
-    if (!doc) {
-        doc = m_document;
-        if (!doc)
-            return link;
-    }
-
-    if (!recognizedQtMethod) {
-        const QTextBlock block = tc.block();
-        int pos = m_cursor.positionInBlock();
-        QChar ch = m_widget->document()->characterAt(m_cursor.position());
-        if (pos > 0 && !(ch.isLetterOrNumber() || ch == QLatin1Char('_')))
-            --pos; // positionInBlock points to a delimiter character.
-        const Token tk = SimpleLexer::tokenAt(block.text(), pos,
-                                              BackwardsScanner::previousBlockState(block), true);
-
-        beginOfToken = block.position() + tk.begin();
-        endOfToken = block.position() + tk.end();
-
-        // Handle include directives
-        if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
-            const unsigned lineno = m_cursor.blockNumber() + 1;
-            foreach (const Document::Include &incl, doc->resolvedIncludes()) {
-                if (incl.line() == lineno) {
-                    link.targetFileName = incl.resolvedFileName();
-                    link.linkTextStart = beginOfToken + 1;
-                    link.linkTextEnd = endOfToken - 1;
-                    return link;
-                }
-            }
-        }
-
-        if (tk.isNot(T_IDENTIFIER) && tk.kind() < T_FIRST_QT_KEYWORD && tk.kind() > T_LAST_KEYWORD)
-            return link;
-
-        tc.setPosition(endOfToken);
-    }
-
-    // Handle macro uses
-    const Macro *macro = doc->findMacroDefinitionAt(line);
-    if (macro) {
-        QTextCursor macroCursor = m_cursor;
-        const QByteArray name = CPPEditorWidget::identifierUnderCursor(&macroCursor).toLatin1();
-        if (macro->name() == name)
-            return link;    //already on definition!
-    } else {
-        const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
-        if (use && use->macro().fileName() != CppModelManagerInterface::configurationFileName()) {
-            const Macro &macro = use->macro();
-            link.targetFileName = macro.fileName();
-            link.targetLine = macro.line();
-            link.linkTextStart = use->begin();
-            link.linkTextEnd = use->end();
-            return link;
-        }
-    }
-
-    // Find the last symbol up to the cursor position
-    Scope *scope = doc->scopeAt(line, column);
-    if (!scope)
-        return link;
-
-    // Evaluate the type of the expression under the cursor
-    ExpressionUnderCursor expressionUnderCursor;
-    QString expression = expressionUnderCursor(tc);
-
-    for (int pos = tc.position();; ++pos) {
-        const QChar ch = m_widget->document()->characterAt(pos);
-        if (ch.isSpace())
-            continue;
-        if (ch == QLatin1Char('(') && !expression.isEmpty()) {
-            tc.setPosition(pos);
-            if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true))
-                expression.append(tc.selectedText());
-        }
-
-        break;
-    }
-
-    TypeOfExpression typeOfExpression;
-    typeOfExpression.init(doc, m_snapshot);
-    // make possible to instantiate templates
-    typeOfExpression.setExpandTemplates(true);
-    const QList<LookupItem> resolvedSymbols =
-            typeOfExpression.reference(expression.toUtf8(), scope, TypeOfExpression::Preprocess);
-
-    if (!resolvedSymbols.isEmpty()) {
-        LookupItem result = skipForwardDeclarations(resolvedSymbols);
-
-        foreach (const LookupItem &r, resolvedSymbols) {
-            if (Symbol *d = r.declaration()) {
-                if (d->isDeclaration() || d->isFunction()) {
-                    const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
-                    if (m_widget->editorDocument()->filePath() == fileName) {
-                        if (unsigned(lineNumber) == d->line()
-                            && unsigned(positionInBlock) >= d->column()) { // TODO: check the end
-                            result = r; // take the symbol under cursor.
-                            break;
-                        }
-                    }
-                } else if (d->isUsingDeclaration()) {
-                    int tokenBeginLineNumber = 0, tokenBeginColumnNumber = 0;
-                    m_widget->convertPosition(beginOfToken, &tokenBeginLineNumber,
-                                              &tokenBeginColumnNumber);
-                    if (unsigned(tokenBeginLineNumber) > d->line()
-                            || (unsigned(tokenBeginLineNumber) == d->line()
-                                && unsigned(tokenBeginColumnNumber) > d->column())) {
-                        result = r; // take the symbol under cursor.
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (Symbol *symbol = result.declaration()) {
-            Symbol *def = 0;
-
-            if (m_resolveTarget) {
-                Symbol *lastVisibleSymbol = doc->lastVisibleSymbolAt(line, column);
-
-                def = findDefinition(symbol, m_snapshot);
-
-                if (def == lastVisibleSymbol)
-                    def = 0; // jump to declaration then.
-
-                if (symbol->isForwardClassDeclaration())
-                    def = m_symbolFinder->findMatchingClassDeclaration(symbol, m_snapshot);
-            }
-
-            link = m_widget->linkToSymbol(def ? def : symbol);
-            link.linkTextStart = beginOfToken;
-            link.linkTextEnd = endOfToken;
-            return link;
-        }
-    }
-
-    // Handle macro uses
-    QTextCursor macroCursor = m_cursor;
-    const QByteArray name = CPPEditorWidget::identifierUnderCursor(&macroCursor).toLatin1();
-    link = findMacroLink(name, m_document);
-    if (link.hasValidTarget()) {
-        link.linkTextStart = macroCursor.selectionStart();
-        link.linkTextEnd = macroCursor.selectionEnd();
-        return link;
-    }
-
-    return Link();
-}
-
-CPPEditorWidget::Link FollowSymbolUnderCursor::attemptFuncDeclDef(const QTextCursor &cursor)
-{
-    m_snapshot.insert(m_document);
+    snapshot.insert(document);
 
     Link result;
 
-    QList<AST *> path = ASTPath(m_document)(cursor);
+    QList<AST *> path = ASTPath(document)(cursor);
 
     if (path.size() < 5)
         return result;
@@ -434,22 +219,22 @@ CPPEditorWidget::Link FollowSymbolUnderCursor::attemptFuncDeclDef(const QTextCur
     Symbol *target = 0;
     if (FunctionDefinitionAST *funDef = declParent->asFunctionDefinition()) {
         QList<Declaration *> candidates =
-                m_symbolFinder->findMatchingDeclaration(LookupContext(m_document, m_snapshot),
+                symbolFinder->findMatchingDeclaration(LookupContext(document, snapshot),
                                                         funDef->symbol);
         if (!candidates.isEmpty()) // TODO: improve disambiguation
             target = candidates.first();
     } else if (declParent->asSimpleDeclaration()) {
-        target = m_symbolFinder->findMatchingDefinition(funcDecl->symbol, m_snapshot);
+        target = symbolFinder->findMatchingDefinition(funcDecl->symbol, snapshot);
     }
 
     if (target) {
-        result = m_widget->linkToSymbol(target);
+        result = widget->linkToSymbol(target);
 
         unsigned startLine, startColumn, endLine, endColumn;
-        m_document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
-                                                             &startColumn);
-        m_document->translationUnit()->getTokenEndPosition(name->lastToken() - 1, &endLine,
-                                                           &endColumn);
+        document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
+                                                           &startColumn);
+        document->translationUnit()->getTokenEndPosition(name->lastToken() - 1, &endLine,
+                                                         &endColumn);
 
         QTextDocument *textDocument = cursor.document();
         result.linkTextStart =
@@ -461,7 +246,7 @@ CPPEditorWidget::Link FollowSymbolUnderCursor::attemptFuncDeclDef(const QTextCur
     return result;
 }
 
-Symbol *FollowSymbolUnderCursor::findDefinition(Symbol *symbol, const Snapshot &snapshot) const
+Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *symbolFinder)
 {
     if (symbol->isFunction())
         return 0; // symbol is a function definition.
@@ -469,5 +254,282 @@ Symbol *FollowSymbolUnderCursor::findDefinition(Symbol *symbol, const Snapshot &
     else if (!symbol->type()->isFunctionType())
         return 0; // not a function declaration
 
-    return m_symbolFinder->findMatchingDefinition(symbol, snapshot);
+    return symbolFinder->findMatchingDefinition(symbol, snapshot);
+}
+
+} // anonymous namespace
+
+FollowSymbolUnderCursor::FollowSymbolUnderCursor(CPPEditorWidget *widget)
+    : m_widget(widget)
+    , m_virtualFunctionAssistProvider(new VirtualFunctionAssistProvider)
+{
+}
+
+FollowSymbolUnderCursor::~FollowSymbolUnderCursor()
+{
+    delete m_virtualFunctionAssistProvider;
+}
+
+BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &cursor,
+    bool resolveTarget, const Snapshot &theSnapshot, const Document::Ptr &documentFromSemanticInfo,
+    SymbolFinder *symbolFinder, bool inNextSplit)
+{
+    Link link;
+
+    Snapshot snapshot = theSnapshot;
+
+    // Move to end of identifier
+    QTextCursor tc = cursor;
+    QChar ch = m_widget->document()->characterAt(tc.position());
+    while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+        tc.movePosition(QTextCursor::NextCharacter);
+        ch = m_widget->document()->characterAt(tc.position());
+    }
+
+    // Try to macth decl/def. For this we need the semantic doc with the AST.
+    if (documentFromSemanticInfo
+            && documentFromSemanticInfo->translationUnit()
+            && documentFromSemanticInfo->translationUnit()->ast()) {
+        int pos = tc.position();
+        while (m_widget->document()->characterAt(pos).isSpace())
+            ++pos;
+        if (m_widget->document()->characterAt(pos) == QLatin1Char('(')) {
+            link = attemptFuncDeclDef(cursor, m_widget, snapshot, documentFromSemanticInfo,
+                                      symbolFinder);
+            if (link.hasValidLinkText())
+                return link;
+        }
+    }
+
+    int lineNumber = 0, positionInBlock = 0;
+    m_widget->convertPosition(cursor.position(), &lineNumber, &positionInBlock);
+    const unsigned line = lineNumber;
+    const unsigned column = positionInBlock + 1;
+
+    // Try to find a signal or slot inside SIGNAL() or SLOT()
+    int beginOfToken = 0;
+    int endOfToken = 0;
+
+    SimpleLexer tokenize;
+    tokenize.setQtMocRunEnabled(true);
+    const QString blockText = cursor.block().text();
+    const QList<Token> tokens = tokenize(blockText,
+                                         BackwardsScanner::previousBlockState(cursor.block()));
+
+    bool recognizedQtMethod = false;
+
+    for (int i = 0; i < tokens.size(); ++i) {
+        const Token &tk = tokens.at(i);
+
+        if (((unsigned) positionInBlock) >= tk.begin()
+                && ((unsigned) positionInBlock) <= tk.end()) {
+            if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
+                && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
+
+                // token[i] == T_IDENTIFIER
+                // token[i + 1] == T_LPAREN
+                // token[.....] == ....
+                // token[i + n] == T_RPAREN
+
+                if (i + 1 < tokens.size() && tokens.at(i + 1).is(T_LPAREN)) {
+                    // skip matched parenthesis
+                    int j = i - 1;
+                    int depth = 0;
+
+                    for (; j < tokens.size(); ++j) {
+                        if (tokens.at(j).is(T_LPAREN)) {
+                            ++depth;
+                        } else if (tokens.at(j).is(T_RPAREN)) {
+                            if (!--depth)
+                                break;
+                        }
+                    }
+
+                    if (j < tokens.size()) {
+                        QTextBlock block = cursor.block();
+
+                        beginOfToken = block.position() + tokens.at(i).begin();
+                        endOfToken = block.position() + tokens.at(i).end();
+
+                        tc.setPosition(block.position() + tokens.at(j).end());
+                        recognizedQtMethod = true;
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    // Now we prefer the doc from the snapshot with macros expanded.
+    Document::Ptr doc = snapshot.document(m_widget->editorDocument()->filePath());
+    if (!doc) {
+        doc = documentFromSemanticInfo;
+        if (!doc)
+            return link;
+    }
+
+    if (!recognizedQtMethod) {
+        const QTextBlock block = tc.block();
+        int pos = cursor.positionInBlock();
+        QChar ch = m_widget->document()->characterAt(cursor.position());
+        if (pos > 0 && !(ch.isLetterOrNumber() || ch == QLatin1Char('_')))
+            --pos; // positionInBlock points to a delimiter character.
+        const Token tk = SimpleLexer::tokenAt(block.text(), pos,
+                                              BackwardsScanner::previousBlockState(block), true);
+
+        beginOfToken = block.position() + tk.begin();
+        endOfToken = block.position() + tk.end();
+
+        // Handle include directives
+        if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
+            const unsigned lineno = cursor.blockNumber() + 1;
+            foreach (const Document::Include &incl, doc->resolvedIncludes()) {
+                if (incl.line() == lineno) {
+                    link.targetFileName = incl.resolvedFileName();
+                    link.linkTextStart = beginOfToken + 1;
+                    link.linkTextEnd = endOfToken - 1;
+                    return link;
+                }
+            }
+        }
+
+        if (tk.isNot(T_IDENTIFIER) && tk.kind() < T_FIRST_QT_KEYWORD && tk.kind() > T_LAST_KEYWORD)
+            return link;
+
+        tc.setPosition(endOfToken);
+    }
+
+    // Handle macro uses
+    const Macro *macro = doc->findMacroDefinitionAt(line);
+    if (macro) {
+        QTextCursor macroCursor = cursor;
+        const QByteArray name = CPPEditorWidget::identifierUnderCursor(&macroCursor).toLatin1();
+        if (macro->name() == name)
+            return link;    //already on definition!
+    } else {
+        const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
+        if (use && use->macro().fileName() != CppModelManagerInterface::configurationFileName()) {
+            const Macro &macro = use->macro();
+            link.targetFileName = macro.fileName();
+            link.targetLine = macro.line();
+            link.linkTextStart = use->begin();
+            link.linkTextEnd = use->end();
+            return link;
+        }
+    }
+
+    // Find the last symbol up to the cursor position
+    Scope *scope = doc->scopeAt(line, column);
+    if (!scope)
+        return link;
+
+    // Evaluate the type of the expression under the cursor
+    ExpressionUnderCursor expressionUnderCursor;
+    QString expression = expressionUnderCursor(tc);
+
+    for (int pos = tc.position();; ++pos) {
+        const QChar ch = m_widget->document()->characterAt(pos);
+        if (ch.isSpace())
+            continue;
+        if (ch == QLatin1Char('(') && !expression.isEmpty()) {
+            tc.setPosition(pos);
+            if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true))
+                expression.append(tc.selectedText());
+        }
+
+        break;
+    }
+
+    TypeOfExpression typeOfExpression;
+    typeOfExpression.init(doc, snapshot);
+    // make possible to instantiate templates
+    typeOfExpression.setExpandTemplates(true);
+    const QList<LookupItem> resolvedSymbols =
+            typeOfExpression.reference(expression.toUtf8(), scope, TypeOfExpression::Preprocess);
+
+    if (!resolvedSymbols.isEmpty()) {
+        LookupItem result = skipForwardDeclarations(resolvedSymbols);
+
+        foreach (const LookupItem &r, resolvedSymbols) {
+            if (Symbol *d = r.declaration()) {
+                if (d->isDeclaration() || d->isFunction()) {
+                    const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
+                    if (m_widget->editorDocument()->filePath() == fileName) {
+                        if (unsigned(lineNumber) == d->line()
+                            && unsigned(positionInBlock) >= d->column()) { // TODO: check the end
+                            result = r; // take the symbol under cursor.
+                            break;
+                        }
+                    }
+                } else if (d->isUsingDeclaration()) {
+                    int tokenBeginLineNumber = 0, tokenBeginColumnNumber = 0;
+                    m_widget->convertPosition(beginOfToken, &tokenBeginLineNumber,
+                                              &tokenBeginColumnNumber);
+                    if (unsigned(tokenBeginLineNumber) > d->line()
+                            || (unsigned(tokenBeginLineNumber) == d->line()
+                                && unsigned(tokenBeginColumnNumber) > d->column())) {
+                        result = r; // take the symbol under cursor.
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (Symbol *symbol = result.declaration()) {
+            Symbol *def = 0;
+
+            // Consider to show a pop-up displaying overrides for the function
+            Function *function = symbol->type()->asFunctionType();
+            if (lookupVirtualFunctionOverrides(expression, function, scope, snapshot)) {
+                Class *klass = symbolFinder->findMatchingClassDeclaration(function, snapshot);
+                QTC_CHECK(klass);
+
+                if (m_virtualFunctionAssistProvider->configure(klass, function, snapshot,
+                                                               inNextSplit)) {
+                    m_widget->invokeAssist(TextEditor::FollowSymbol,
+                                           m_virtualFunctionAssistProvider);
+                }
+                return Link();
+            }
+
+            if (resolveTarget) {
+                Symbol *lastVisibleSymbol = doc->lastVisibleSymbolAt(line, column);
+
+                def = findDefinition(symbol, snapshot, symbolFinder);
+
+                if (def == lastVisibleSymbol)
+                    def = 0; // jump to declaration then.
+
+                if (symbol->isForwardClassDeclaration())
+                    def = symbolFinder->findMatchingClassDeclaration(symbol, snapshot);
+            }
+
+            link = m_widget->linkToSymbol(def ? def : symbol);
+            link.linkTextStart = beginOfToken;
+            link.linkTextEnd = endOfToken;
+            return link;
+        }
+    }
+
+    // Handle macro uses
+    QTextCursor macroCursor = cursor;
+    const QByteArray name = CPPEditorWidget::identifierUnderCursor(&macroCursor).toLatin1();
+    link = findMacroLink(name, documentFromSemanticInfo);
+    if (link.hasValidTarget()) {
+        link.linkTextStart = macroCursor.selectionStart();
+        link.linkTextEnd = macroCursor.selectionEnd();
+        return link;
+    }
+
+    return Link();
+}
+
+VirtualFunctionAssistProvider *FollowSymbolUnderCursor::virtualFunctionAssistProvider()
+{
+    return m_virtualFunctionAssistProvider;
+}
+
+void FollowSymbolUnderCursor::setVirtualFunctionAssistProvider(VirtualFunctionAssistProvider *provider)
+{
+    m_virtualFunctionAssistProvider = provider;
 }

@@ -159,7 +159,7 @@ static bool isValidFileNameChar(const QChar &c)
 }
 
 CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                                      bool/* resolveTarget*/)
+                                                      bool/* resolveTarget*/, bool /*inNextSplit*/)
 {
     Link link;
 
