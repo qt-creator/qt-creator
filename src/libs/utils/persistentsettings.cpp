@@ -36,9 +36,29 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDateTime>
+#include <QTextStream>
+#include <QRegExp>
+#include <QRect>
 
 #include <utils/qtcassert.h>
 
+// Read and write rectangle in X11 resource syntax "12x12+4+3"
+static QString rectangleToString(const QRect &r)
+{
+    QString result;
+    QTextStream(&result) << r.width() << 'x' << r.height() << forcesign << r.x() << r.y();
+    return result;
+}
+
+static QRect stringToRectangle(const QString &v)
+{
+    static QRegExp pattern(QLatin1String("(\\d+)x(\\d+)([-+]\\d+)([-+]\\d+)"));
+    Q_ASSERT(pattern.isValid());
+    return pattern.exactMatch(v) ?
+        QRect(QPoint(pattern.cap(3).toInt(), pattern.cap(4).toInt()),
+              QSize(pattern.cap(1).toInt(), pattern.cap(2).toInt())) :
+        QRect();
+}
 
 /*!
     \class Utils::PersistentSettingsReader
@@ -302,6 +322,10 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
         QTC_ASSERT(text.size() == 1, return QVariant());
         return QVariant(QChar(text.at(0)));
     }
+    if (type == QLatin1String("QRect")) {
+        const QRect rectangle = stringToRectangle(text);
+        return rectangle.isValid() ? QVariant(rectangle) : QVariant();
+    }
     QVariant value;
     value.setValue(text);
     value.convert(QVariant::nameToType(type.toLatin1().data()));
@@ -381,7 +405,14 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         w.writeAttribute(ctx.typeAttribute, QLatin1String(variant.typeName()));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
-        w.writeCharacters(variant.toString());
+        switch (variant.type()) {
+        case QVariant::Rect:
+            w.writeCharacters(rectangleToString(variant.toRect()));
+            break;
+        default:
+            w.writeCharacters(variant.toString());
+            break;
+        }
         w.writeEndElement();
         break;
     }
