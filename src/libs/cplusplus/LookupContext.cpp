@@ -360,6 +360,15 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
 
     } else if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingTemplateInstantiation)) {
         return b->lookupType(name);
+    } else if (Class *scopeAsClass = scope->asClass()) {
+        if (scopeAsClass->enclosingScope()->isBlock()) {
+            if (ClassOrNamespace *b = lookupType(scopeAsClass->name(),
+                                                 scopeAsClass->enclosingScope(),
+                                                 enclosingTemplateInstantiation,
+                                                 typedefsBeingResolved)) {
+                return b->lookupType(name);
+            }
+        }
     }
 
     return 0;

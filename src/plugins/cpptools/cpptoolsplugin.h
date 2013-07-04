@@ -163,6 +163,13 @@ private slots:
     void test_completion_lambdaCalls_4();
     void test_completion_lambdaCalls_5();
 
+    void test_completion_local_type_and_member_1();
+    void test_completion_local_type_and_member_2();
+    void test_completion_local_type_and_member_3();
+    void test_completion_local_type_and_member_4();
+    void test_completion_local_type_and_member_5();
+    void test_completion_local_type_and_member_6();
+
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
     void test_format_pointerdeclaration_in_controlflowstatements();

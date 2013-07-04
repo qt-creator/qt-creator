@@ -2825,3 +2825,205 @@ void CppToolsPlugin::test_completion_lambdaCalls_5()
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("bar")));
 }
+
+void CppToolsPlugin::test_completion_local_type_and_member_1()
+{
+    TestData data;
+    data.srcText =
+            "struct OtherType { int otherTypeMember; };\n"
+            "void foo()\n"
+            "{\n"
+            "    struct LocalType\n"
+            "    {\n"
+            "        int localTypeMember;\n"
+            "        OtherType ot;\n"
+            "    };\n"
+            "    LocalType lt;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("lt.ot.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("OtherType")));
+    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
+}
+
+void CppToolsPlugin::test_completion_local_type_and_member_2()
+{
+    TestData data;
+    data.srcText =
+            "void foo()\n"
+            "{\n"
+            "    struct OtherType { int otherTypeMember; };\n"
+            "    struct LocalType\n"
+            "    {\n"
+            "        int localTypeMember;\n"
+            "        OtherType ot;\n"
+            "    };\n"
+            "    LocalType lt;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("lt.ot.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("OtherType")));
+    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
+}
+
+void CppToolsPlugin::test_completion_local_type_and_member_3()
+{
+    TestData data;
+    data.srcText =
+            "void foo()\n"
+            "{\n"
+            "    struct OtherType { int otherTypeMember; };\n"
+            "    {\n"
+            "       struct LocalType\n"
+            "       {\n"
+            "           int localTypeMember;\n"
+            "           OtherType ot;\n"
+            "       };\n"
+            "       LocalType lt;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "    }\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("lt.ot.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("OtherType")));
+    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
+}
+
+void CppToolsPlugin::test_completion_local_type_and_member_4()
+{
+    TestData data;
+    data.srcText =
+            "namespace NS {struct OtherType { int otherTypeMember; };}\n"
+            "void foo()\n"
+            "{\n"
+            "    struct LocalType\n"
+            "    {\n"
+            "        int localTypeMember;\n"
+            "        NS::OtherType ot;\n"
+            "    };\n"
+            "    LocalType lt;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("lt.ot.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("OtherType")));
+    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
+}
+
+void CppToolsPlugin::test_completion_local_type_and_member_5()
+{
+    TestData data;
+    data.srcText =
+            "namespace NS {struct OtherType { int otherTypeMember; };}\n"
+            "void foo()\n"
+            "{\n"
+            "    using namespace NS;\n"
+            "    struct LocalType\n"
+            "    {\n"
+            "        int localTypeMember;\n"
+            "        OtherType ot;\n"
+            "    };\n"
+            "    LocalType lt;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("lt.ot.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("OtherType")));
+    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
+}
+
+void CppToolsPlugin::test_completion_local_type_and_member_6()
+{
+    TestData data;
+    data.srcText =
+            "namespace NS {struct OtherType { int otherTypeMember; };}\n"
+            "void foo()\n"
+            "{\n"
+            "    using NS::OtherType;\n"
+            "    struct LocalType\n"
+            "    {\n"
+            "        int localTypeMember;\n"
+            "        OtherType ot;\n"
+            "    };\n"
+            "    LocalType lt;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("lt.ot.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("OtherType")));
+    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
+}
