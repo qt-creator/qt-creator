@@ -174,6 +174,8 @@ private:
     bool handleStartElement(QXmlStreamReader &r);
     bool handleEndElement(const QStringRef &name);
 
+    static QString formatWarning(const QXmlStreamReader &r, const QString &message);
+
     QStack<ParseValueStackEntry> m_valueStack;
     QVariantMap m_result;
     QString m_currentVariableName;
@@ -223,10 +225,16 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
     const QString key = attributes.hasAttribute(keyAttribute) ?
                 attributes.value(keyAttribute).toString() : QString();
     switch (e) {
-    case SimpleValueElement:
+    case SimpleValueElement: {
         // This reads away the end element, so, handle end element right here.
-        m_valueStack.push_back(ParseValueStackEntry(readSimpleValue(r, attributes), key));
+        const QVariant v = readSimpleValue(r, attributes);
+        if (!v.isValid()) {
+            qWarning() << ParseContext::formatWarning(r, QString::fromLatin1("Failed to read element \"%1\".").arg(name.toString()));
+            return false;
+        }
+        m_valueStack.push_back(ParseValueStackEntry(v, key));
         return handleEndElement(name);
+    }
     case ListValueElement:
         m_valueStack.push_back(ParseValueStackEntry(QVariant::List, key));
         break;
@@ -254,6 +262,18 @@ bool ParseContext::handleEndElement(const QStringRef &name)
         m_valueStack.top().addChild(top.key, top.value());
     }
     return e == QtCreatorElement;
+}
+
+QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &message)
+{
+    QString result = QLatin1String("Warning reading ");
+    if (const QIODevice *device = r.device())
+        if (const QFile *file = qobject_cast<const QFile *>(device))
+            result += QDir::toNativeSeparators(file->fileName()) + QLatin1Char(':');
+    result += QString::number(r.lineNumber());
+    result += QLatin1String(": ");
+    result += message;
+    return result;
 }
 
 ParseContext::Element ParseContext::element(const QStringRef &r) const
