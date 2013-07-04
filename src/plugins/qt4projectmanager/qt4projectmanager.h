@@ -105,7 +105,7 @@ public slots:
 
 private slots:
     void editorAboutToClose(Core::IEditor *editor);
-    void uiEditorContentsChanged();
+    void uiDocumentContentsChanged();
     void editorChanged(Core::IEditor*);
 
 private:

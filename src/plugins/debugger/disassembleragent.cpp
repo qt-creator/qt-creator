@@ -334,7 +334,7 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
     plainTextEdit->setPlainText(str);
     plainTextEdit->setReadOnly(true);
 
-    d->editor->setDisplayName(_("Disassembler (%1)")
+    d->editor->document()->setDisplayName(_("Disassembler (%1)")
         .arg(d->location.functionName()));
 
     updateBreakpointMarkers();

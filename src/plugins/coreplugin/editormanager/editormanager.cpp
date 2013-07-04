@@ -1468,7 +1468,7 @@ IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName
 
     IEditor *editor = factories.front()->createEditor(m_instance);
     if (editor)
-        connect(editor, SIGNAL(changed()), m_instance, SLOT(handleEditorStateChange()));
+        connect(editor->document(), SIGNAL(changed()), m_instance, SLOT(handleDocumentStateChange()));
     if (editor)
         emit m_instance->editorCreated(editor, fileName);
     return editor;
@@ -1718,7 +1718,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
             foreach (IEditor *editor, m_instance->openedEditors()) {
                 QString name = editor->document()->filePath();
                 if (name.isEmpty())
-                    name = editor->displayName();
+                    name = editor->document()->displayName();
                 else
                     name = QFileInfo(name).completeBaseName();
                 docnames << name;
@@ -1747,10 +1747,10 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
         return 0;
     }
 
-    if (title.isEmpty())
-        title = edt->displayName();
+    if (!title.isEmpty())
+        edt->document()->setDisplayName(title);
 
-    edt->setDisplayName(title);
+
     m_instance->addEditor(edt);
     QApplication::restoreOverrideCursor();
     return edt;
@@ -1966,7 +1966,7 @@ void EditorManager::updateWindowTitle()
         windowTitle.prepend(d->m_titleAddition + dashSep);
     IEditor *curEditor = currentEditor();
     if (curEditor) {
-        QString editorName = curEditor->displayName();
+        QString editorName = curEditor->document()->displayName();
         if (!editorName.isEmpty())
             windowTitle.prepend(editorName + dashSep);
         QString filePath = QFileInfo(curEditor->document()->filePath()).absoluteFilePath();
@@ -1978,16 +1978,16 @@ void EditorManager::updateWindowTitle()
     ICore::mainWindow()->setWindowTitle(windowTitle);
 }
 
-void EditorManager::handleEditorStateChange()
+void EditorManager::handleDocumentStateChange()
 {
     updateActions();
-    IEditor *theEditor = qobject_cast<IEditor *>(sender());
-    if (!theEditor->document()->isModified())
-        theEditor->document()->removeAutoSaveFile();
+    IDocument *document= qobject_cast<IDocument *>(sender());
+    if (!document->isModified())
+        document->removeAutoSaveFile();
     IEditor *currEditor = currentEditor();
-    if (theEditor == currEditor) {
+    if (currEditor && currEditor->document() == document) {
         updateWindowTitle();
-        emit currentEditorStateChanged(currEditor);
+        emit currentDocumentStateChanged();
     }
 }
 
@@ -2032,21 +2032,6 @@ void EditorManager::updateMakeWritableWarning()
     }
 }
 
-QString EditorManager::fileNameForEditor(IEditor *editor)
-{
-    QString fileName;
-
-    if (editor) {
-        if (!editor->document()->filePath().isEmpty()) {
-            QFileInfo fileInfo(editor->document()->filePath());
-            fileName = fileInfo.fileName();
-        } else {
-            fileName = editor->displayName();
-        }
-    }
-    return fileName;
-}
-
 void EditorManager::setupSaveActions(IEditor *editor, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction)
 {
     saveAction->setEnabled(editor != 0 && editor->document()->isModified());
@@ -2054,12 +2039,11 @@ void EditorManager::setupSaveActions(IEditor *editor, QAction *saveAction, QActi
     revertToSavedAction->setEnabled(editor != 0
                                     && !editor->document()->filePath().isEmpty() && editor->document()->isModified());
 
-    const QString fileName = fileNameForEditor(editor);
+    const QString documentName = editor ? editor->document()->displayName() : QString();
     QString quotedName;
 
-    if (!fileName.isEmpty())
-        quotedName = QLatin1Char('"') + fileName + QLatin1Char('"');
-    if (!quotedName.isEmpty()) {
+    if (!documentName.isEmpty()) {
+        quotedName = QLatin1Char('"') + documentName + QLatin1Char('"');
         saveAction->setText(tr("&Save %1").arg(quotedName));
         saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
         revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
@@ -2069,7 +2053,6 @@ void EditorManager::setupSaveActions(IEditor *editor, QAction *saveAction, QActi
 void EditorManager::updateActions()
 {
     IEditor *curEditor = currentEditor();
-    const QString fileName = fileNameForEditor(curEditor);
     int openedCount = d->m_editorModel->openDocumentCount();
 
     if (curEditor) {
@@ -2084,8 +2067,8 @@ void EditorManager::updateActions()
         setCloseSplitEnabled(root, root->isSplitter());
 
     QString quotedName;
-    if (!fileName.isEmpty())
-        quotedName = QLatin1Char('"') + fileName + QLatin1Char('"');
+    if (curEditor)
+        quotedName = QLatin1Char('"') + curEditor->document()->displayName() + QLatin1Char('"');
     setupSaveActions(curEditor, d->m_saveAction, d->m_saveAsAction, d->m_revertToSavedAction);
 
     d->m_closeCurrentEditorAction->setEnabled(curEditor != 0);
@@ -2457,7 +2440,6 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 
     IEditor *duplicate = editor->duplicate(0);
     duplicate->restoreState(editor->saveState());
-    connect(duplicate, SIGNAL(changed()), this, SLOT(handleEditorStateChange()));
     emit editorCreated(duplicate, duplicate->document()->filePath());
     addEditor(duplicate, true);
     return duplicate;

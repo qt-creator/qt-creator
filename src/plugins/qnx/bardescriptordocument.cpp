@@ -169,12 +169,6 @@ bool BarDescriptorDocument::reload(QString *errorString, Core::IDocument::Reload
     return open(errorString, filePath());
 }
 
-void BarDescriptorDocument::setFilePath(const QString &newName)
-{
-    m_editorWidget->editor()->setDisplayName(QFileInfo(newName).fileName());
-    IDocument::setFilePath(newName);
-}
-
 QString BarDescriptorDocument::xmlSource() const
 {
     BarDescriptorEditor *editor = qobject_cast<BarDescriptorEditor*>(m_editorWidget->editor());

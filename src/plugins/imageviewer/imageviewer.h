@@ -58,8 +58,6 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
     Core::Id id() const;
-    QString displayName() const;
-    void setDisplayName(const QString &title);
     bool isTemporary() const;
     QWidget *toolBar();
 

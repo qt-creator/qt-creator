@@ -32,6 +32,7 @@
 #include "perforceplugin.h"
 #include "perforceconstants.h"
 
+#include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
 #include <utils/qtcassert.h>
 
@@ -46,7 +47,7 @@ PerforceSubmitEditor::PerforceSubmitEditor(const VcsBase::VcsBaseSubmitEditorPar
     VcsBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget(parent)),
     m_fileModel(new VcsBase::SubmitFileModel(this))
 {
-    setDisplayName(tr("Perforce Submit"));
+    document()->setDisplayName(tr("Perforce Submit"));
     setFileModel(m_fileModel);
 }
 

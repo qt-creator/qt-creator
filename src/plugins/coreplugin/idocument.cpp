@@ -133,4 +133,31 @@ void IDocument::setFilePath(const QString &filePath)
     emit changed();
 }
 
+/*!
+    Returns the string to display for this document, e.g. in the open document combo box
+    and pane.
+    \sa setDisplayName()
+*/
+QString IDocument::displayName() const
+{
+    if (!m_displayName.isEmpty())
+        return m_displayName;
+    return QFileInfo(m_filePath).fileName();
+}
+
+/*!
+    Sets the string that is displayed for this document, e.g. in the open document combo box
+    and pane, to \a name. Defaults to the file name of the file path for this document.
+    You can reset the display name to the default by passing an empty string.
+    \sa displayName()
+    \sa filePath()
+ */
+void IDocument::setDisplayName(const QString &name)
+{
+    if (name == m_displayName)
+        return;
+    m_displayName = name;
+    emit changed();
+}
+
 } // namespace Core

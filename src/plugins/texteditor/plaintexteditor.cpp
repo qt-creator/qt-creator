@@ -69,7 +69,6 @@ PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
     setIndenter(new NormalIndenter); // Currently only "normal" indentation is supported.
 
     setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
-    setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
 
     m_commentDefinition.clearCommentStyles();
 

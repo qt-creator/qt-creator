@@ -207,7 +207,7 @@ EditorToolBar::~EditorToolBar()
 void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    disconnect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
+    disconnect(editor->document(), SIGNAL(changed()), this, SLOT(checkEditorStatus()));
 
     QWidget *toolBar = editor->toolBar();
     if (toolBar != 0) {
@@ -245,7 +245,7 @@ void EditorToolBar::closeEditor()
 void EditorToolBar::addEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
+    connect(editor->document(), SIGNAL(changed()), this, SLOT(checkEditorStatus()));
     QWidget *toolBar = editor->toolBar();
 
     if (toolBar && !d->m_isStandalone)
@@ -394,7 +394,7 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
     if (editor == current)
         d->m_editorList->setToolTip(
                 current->document()->filePath().isEmpty()
-                ? current->displayName()
+                ? current->document()->displayName()
                     : QDir::toNativeSeparators(editor->document()->filePath())
                     );
 }

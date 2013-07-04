@@ -110,6 +110,8 @@ void DiffShowEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 DiffShowEditor::DiffShowEditor(DiffEditorWidget *editorWidget)
     : DiffEditor(editorWidget)
 {
+    document()->setDisplayName(QCoreApplication::translate("DiffShowEditor",
+                                                           Constants::DIFF_SHOW_EDITOR_DISPLAY_NAME));
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
     m_diffShowWidget = new Internal::DiffShowEditorWidget(splitter);
     m_diffShowWidget->setReadOnly(true);
@@ -134,19 +136,6 @@ DiffShowEditor::~DiffShowEditor()
 void DiffShowEditor::setDescription(const QString &description)
 {
     m_diffShowWidget->setPlainText(description);
-}
-
-QString DiffShowEditor::displayName() const
-{
-    if (m_displayName.isEmpty())
-        m_displayName = QCoreApplication::translate("DiffShowEditor", Constants::DIFF_SHOW_EDITOR_DISPLAY_NAME);
-    return m_displayName;
-}
-
-void DiffShowEditor::setDisplayName(const QString &title)
-{
-    m_displayName = title;
-    emit changed();
 }
 
 Core::Id DiffShowEditor::id() const

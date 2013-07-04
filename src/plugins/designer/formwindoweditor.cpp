@@ -72,12 +72,8 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
                              Designer::Constants::C_DESIGNER_XML_EDITOR));
     setWidget(d->m_textEditor.widget());
 
-    connect(form, SIGNAL(changed()), this, SIGNAL(changed()));
     // Revert to saved/load externally modified files.
     connect(&d->m_file, SIGNAL(reload(QString*,QString)), this, SLOT(slotOpen(QString*,QString)));
-    // Force update of open editors model.
-    connect(&d->m_file, SIGNAL(saved()), this, SIGNAL(changed()));
-    connect(&d->m_file, SIGNAL(changed()), this, SIGNAL(changed()));
 }
 
 FormWindowEditor::~FormWindowEditor()
@@ -139,10 +135,8 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     QDesignerFormWindowInterface *form = d->m_file.formWindow();
     QTC_ASSERT(form, return false);
 
-    if (fileName.isEmpty()) {
-        setDisplayName(tr("untitled"));
+    if (fileName.isEmpty())
         return true;
-    }
 
     const QFileInfo fi(fileName);
     const QString absfileName = fi.absoluteFilePath();
@@ -167,14 +161,11 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     form->setDirty(fileName != realFileName);
     syncXmlEditor(contents);
 
-    setDisplayName(fi.fileName());
     d->m_file.setFilePath(absfileName);
     d->m_file.setShouldAutoSave(false);
 
     if (Internal::ResourceHandler *rh = form->findChild<Designer::Internal::ResourceHandler*>())
         rh->updateResources();
-
-    emit changed();
 
     return true;
 }
@@ -190,6 +181,7 @@ void FormWindowEditor::syncXmlEditor(const QString &contents)
 {
     d->m_textEditor.editorWidget()->setPlainText(contents);
     d->m_textEditor.editorWidget()->setReadOnly(true);
+    d->m_textEditor.document()->setDisplayName(d->m_file.displayName());
     static_cast<TextEditor::PlainTextEditorWidget *>
             (d->m_textEditor.editorWidget())->configure(document()->mimeType());
 }
@@ -202,17 +194,6 @@ Core::IDocument *FormWindowEditor::document()
 Core::Id FormWindowEditor::id() const
 {
     return Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
-}
-
-QString FormWindowEditor::displayName() const
-{
-    return d->m_textEditor.displayName();
-}
-
-void FormWindowEditor::setDisplayName(const QString &title)
-{
-    d->m_textEditor.setDisplayName(title);
-    emit changed();
 }
 
 QByteArray FormWindowEditor::saveState() const

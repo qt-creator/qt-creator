@@ -84,6 +84,9 @@ public:
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     QString filePath() const { return m_filePath; }
     virtual void setFilePath(const QString &filePath);
+    QString displayName() const;
+    void setDisplayName(const QString &name);
+
     virtual bool isFileReadOnly() const;
 
     virtual QString defaultPath() const = 0;
@@ -118,6 +121,7 @@ signals:
 
 private:
     QString m_filePath;
+    QString m_displayName;
     QString m_autoSaveName;
     InfoBar *m_infoBar;
     bool m_hasWriteWarning;

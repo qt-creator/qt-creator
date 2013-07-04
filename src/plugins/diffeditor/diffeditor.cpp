@@ -35,7 +35,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 
-#include <QCoreApplication>
 #include <QToolButton>
 #include <QSpinBox>
 #include <QStyle>
@@ -85,19 +84,6 @@ bool DiffEditor::open(QString *errorString, const QString &fileName, const QStri
 Core::IDocument *DiffEditor::document()
 {
     return m_file;
-}
-
-QString DiffEditor::displayName() const
-{
-    if (m_displayName.isEmpty())
-        m_displayName = QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME);
-    return m_displayName;
-}
-
-void DiffEditor::setDisplayName(const QString &title)
-{
-    m_displayName = title;
-    emit changed();
 }
 
 Core::Id DiffEditor::id() const

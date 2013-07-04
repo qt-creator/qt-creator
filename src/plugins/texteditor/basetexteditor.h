@@ -140,7 +140,6 @@ public:
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
-    QString displayName() const;
 
     void gotoLine(int line, int column = 0);
 
@@ -245,8 +244,6 @@ public:
     QMimeData *duplicateMimeData(const QMimeData *source) const;
 
 public slots:
-    void setDisplayName(const QString &title);
-
     virtual void copy();
     virtual void paste();
     virtual void cut();
@@ -617,8 +614,6 @@ public:
     Core::IDocument *document() { return m_editorWidget->editorDocument(); }
     bool createNew(const QString &contents) { return m_editorWidget->createNew(contents); }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    QString displayName() const { return m_editorWidget->displayName(); }
-    void setDisplayName(const QString &title) { m_editorWidget->setDisplayName(title); emit changed(); }
 
     QByteArray saveState() const { return m_editorWidget->saveState(); }
     bool restoreState(const QByteArray &state) { return m_editorWidget->restoreState(state); }

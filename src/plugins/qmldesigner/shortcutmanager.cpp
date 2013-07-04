@@ -174,16 +174,6 @@ void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 {
     int openedCount = Core::ICore::editorManager()->openedEditorsModel()->openDocumentCount();
 
-    QString fileName;
-    if (currentEditor) {
-        if (!currentEditor->document()->filePath().isEmpty()) {
-            QFileInfo fileInfo(currentEditor->document()->filePath());
-            fileName = fileInfo.fileName();
-        } else {
-            fileName = currentEditor->displayName();
-        }
-    }
-
     m_saveAction.setEnabled(currentEditor != 0 && currentEditor->document()->isModified());
     m_saveAsAction.setEnabled(currentEditor != 0 && currentEditor->document()->isSaveAsAllowed());
     m_revertToSavedAction.setEnabled(currentEditor != 0
@@ -191,8 +181,8 @@ void ShortCutManager::updateActions(Core::IEditor* currentEditor)
                                       && currentEditor->document()->isModified());
 
     QString quotedName;
-    if (!fileName.isEmpty())
-        quotedName = '"' + fileName + '"';
+    if (currentEditor)
+        quotedName = '"' + currentEditor->document()->displayName() + '"';
 
     m_saveAsAction.setText(tr("Save %1 As...").arg(quotedName));
     m_saveAction.setText(tr("&Save %1").arg(quotedName));

@@ -163,7 +163,7 @@ Core::IEditor *BarDescriptorEditorWidget::editor() const
 {
     if (!m_editor) {
         m_editor = const_cast<BarDescriptorEditorWidget *>(this)->createEditor();
-        connect(this, SIGNAL(changed()), m_editor, SIGNAL(changed()));
+        connect(this, SIGNAL(changed()), m_editor->document(), SIGNAL(changed()));
     }
 
     return m_editor;

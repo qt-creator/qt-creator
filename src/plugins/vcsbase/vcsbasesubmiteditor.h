@@ -114,8 +114,6 @@ public:
     bool createNew(const QString &contents);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
-    QString displayName() const;
-    void setDisplayName(const QString &title);
     Core::Id id() const;
     bool isTemporary() const { return true; }
 

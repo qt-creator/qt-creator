@@ -68,13 +68,13 @@ public:
 
 signals:
     // Internal
-    void saved();
     void reload(QString *errorString, const QString &);
     void setDisplayName(const QString &);
 
 public slots:
     void setFilePath(const QString &);
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
+    void updateIsModified();
 
 private slots:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);
@@ -87,6 +87,7 @@ private:
     // Might actually go out of scope before the IEditor due
     // to deleting the WidgetHost which owns it.
     QPointer<QDesignerFormWindowInterface> m_formWindow;
+    bool m_isModified;
 };
 
 } // namespace Internal

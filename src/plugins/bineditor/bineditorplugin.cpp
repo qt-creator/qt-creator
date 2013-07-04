@@ -208,11 +208,6 @@ public:
         }
     }
 
-    void setFilePath(const QString &newName) {
-        m_widget->editor()->setDisplayName(QFileInfo(newName).fileName());
-        IDocument::setFilePath(newName);
-    }
-
     bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
         quint64 size = static_cast<quint64>(file.size());
@@ -337,9 +332,8 @@ public:
         widget->setEditor(this);
 
         connect(m_widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
-        connect(m_file, SIGNAL(changed()), SIGNAL(changed()));
         connect(m_addressEdit, SIGNAL(editingFinished()), SLOT(jumpToAddress()));
-        connect(m_widget, SIGNAL(modificationChanged(bool)), SIGNAL(changed()));
+        connect(m_widget, SIGNAL(modificationChanged(bool)), m_file, SIGNAL(changed()));
         updateCursorPosition(m_widget->cursorPosition());
     }
 
@@ -358,8 +352,6 @@ public:
     }
     Core::IDocument *document() { return m_file; }
     Core::Id id() const { return Core::Id(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID); }
-    QString displayName() const { return m_displayName; }
-    void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
 
     QWidget *toolBar() { return m_toolBar; }
 
@@ -377,7 +369,6 @@ private slots:
 
 private:
     BinEditorWidget *m_widget;
-    QString m_displayName;
     BinEditorDocument *m_file;
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;

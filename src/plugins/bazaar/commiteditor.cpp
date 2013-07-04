@@ -30,6 +30,7 @@
 #include "branchinfo.h"
 #include "bazaarcommitwidget.h"
 
+#include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
 
 #include <QDebug>
@@ -40,7 +41,7 @@ CommitEditor::CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *paramet
     : VcsBase::VcsBaseSubmitEditor(parameters, new BazaarCommitWidget(parent)),
       m_fileModel(0)
 {
-    setDisplayName(tr("Commit Editor"));
+    document()->setDisplayName(tr("Commit Editor"));
 }
 
 BazaarCommitWidget *CommitEditor::commitWidget()

@@ -63,6 +63,7 @@ enum { debugResourceEditorW = 0 };
 ResourceEditorDocument::ResourceEditorDocument(ResourceEditorW *parent) :
     IDocument(parent),
     m_mimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE)),
+    m_blockDirtyChanged(false),
     m_parent(parent)
 {
     setFilePath(parent->m_resourceEditor->fileName());
@@ -83,7 +84,6 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
         m_resourceDocument(new ResourceEditorDocument(this)),
         m_plugin(plugin),
         m_shouldAutoSave(false),
-        m_diskIo(false),
         m_contextMenu(new QMenu),
         m_toolBar(new QToolBar)
 {
@@ -113,7 +113,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
             Core::DocumentManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)),
             Qt::QueuedConnection);
 
-    connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), this, SLOT(dirtyChanged(bool)));
+    connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), m_resourceDocument, SLOT(dirtyChanged(bool)));
     connect(m_resourceEditor, SIGNAL(undoStackChanged(bool,bool)),
             this, SLOT(onUndoStackChanged(bool,bool)));
     connect(m_resourceEditor, SIGNAL(showContextMenu(QPoint,QString)),
@@ -122,7 +122,6 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
             this, SLOT(openFile(QString)));
     connect(m_resourceEditor->commandHistory(), SIGNAL(indexChanged(int)),
             this, SLOT(setShouldAutoSave()));
-    connect(m_resourceDocument, SIGNAL(changed()), this, SIGNAL(changed()));
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::ResourceEditorW()";
 }
@@ -155,26 +154,21 @@ bool ResourceEditorW::open(QString *errorString, const QString &fileName, const 
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << fileName;
 
-    if (fileName.isEmpty()) {
-        setDisplayName(tr("untitled"));
+    if (fileName.isEmpty())
         return true;
-    }
 
-    const QFileInfo fi(fileName);
-
-    m_diskIo = true;
+    m_resourceDocument->setBlockDirtyChanged(true);
     if (!m_resourceEditor->load(realFileName)) {
         *errorString = m_resourceEditor->errorMessage();
-        m_diskIo = false;
+        m_resourceDocument->setBlockDirtyChanged(false);
         return false;
     }
 
     m_resourceDocument->setFilePath(fileName);
+    m_resourceDocument->setBlockDirtyChanged(false);
     m_resourceEditor->setDirty(fileName != realFileName);
     m_shouldAutoSave = false;
-    m_diskIo = false;
 
-    emit changed();
     return true;
 }
 
@@ -188,12 +182,12 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (actualName.isEmpty())
         return false;
 
-    m_parent->m_diskIo = true;
+    m_blockDirtyChanged = true;
     m_parent->m_resourceEditor->setFileName(actualName);
     if (!m_parent->m_resourceEditor->save()) {
         *errorString = m_parent->m_resourceEditor->errorMessage();
         m_parent->m_resourceEditor->setFileName(oldFileName);
-        m_parent->m_diskIo = false;
+        m_blockDirtyChanged = false;
         return false;
     }
 
@@ -201,12 +195,12 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (autoSave) {
         m_parent->m_resourceEditor->setFileName(oldFileName);
         m_parent->m_resourceEditor->setDirty(true);
-        m_parent->m_diskIo = false;
+        m_blockDirtyChanged = false;
         return true;
     }
 
     setFilePath(actualName);
-    m_parent->m_diskIo = false;
+    m_blockDirtyChanged = false;
 
     emit changed();
     return true;
@@ -216,11 +210,12 @@ void ResourceEditorDocument::setFilePath(const QString &newName)
 {
     if (newName != m_parent->m_resourceEditor->fileName())
         m_parent->m_resourceEditor->setFileName(newName);
-    if (newName.isEmpty())
-        m_parent->setDisplayName(m_parent->tr("untitled"));
-    else
-        m_parent->setDisplayName(QFileInfo(newName).fileName());
     IDocument::setFilePath(newName);
+}
+
+void ResourceEditorDocument::setBlockDirtyChanged(bool value)
+{
+    m_blockDirtyChanged = value;
 }
 
 Core::Id ResourceEditorW::id() const
@@ -279,9 +274,9 @@ QString ResourceEditorDocument::suggestedFileName() const
     return m_parent->m_suggestedName;
 }
 
-void ResourceEditorW::dirtyChanged(bool dirty)
+void ResourceEditorDocument::dirtyChanged(bool dirty)
 {
-    if (m_diskIo)
+    if (m_blockDirtyChanged)
         return; // We emit changed() afterwards, unless it was an autosave
 
     if (debugResourceEditorW)

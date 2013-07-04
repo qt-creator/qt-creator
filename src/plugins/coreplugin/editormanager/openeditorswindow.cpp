@@ -255,7 +255,7 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
         if (hi.document.isNull() || documentsDone.contains(hi.document))
             continue;
         documentsDone.insert(hi.document.data());
-        QString title = model->displayNameForDocument(hi.document);
+        QString title = hi.document->displayName();
         QTC_ASSERT(!title.isEmpty(), continue);
         QTreeWidgetItem *item = new QTreeWidgetItem();
         if (hi.document->isModified())

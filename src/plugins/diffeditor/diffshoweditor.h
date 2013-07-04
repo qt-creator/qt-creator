@@ -56,8 +56,6 @@ public:
 public:
     void setDescription(const QString &description);
     // Core::IEditor
-    QString displayName() const;
-    void setDisplayName(const QString &title);
     Core::Id id() const;
 
     QWidget *toolBar();
@@ -69,7 +67,6 @@ private:
     void updateEntryToolTip();
 
     TextEditor::BaseTextEditorWidget *m_diffShowWidget;
-    mutable QString m_displayName;
     QToolButton *m_toggleDescriptionButton;
 };
 

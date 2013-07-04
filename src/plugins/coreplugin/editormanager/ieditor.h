@@ -51,8 +51,6 @@ public:
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName) = 0;
     virtual IDocument *document() = 0;
     virtual Core::Id id() const = 0;
-    virtual QString displayName() const = 0;
-    virtual void setDisplayName(const QString &title) = 0;
 
     virtual bool duplicateSupported() const { return false; }
     virtual IEditor *duplicate(QWidget * /*parent*/) { return 0; }
@@ -69,9 +67,6 @@ public:
     virtual QWidget *toolBar() = 0;
 
     virtual bool isDesignModePreferred() const { return false; }
-
-signals:
-    void changed();
 };
 
 } // namespace Core

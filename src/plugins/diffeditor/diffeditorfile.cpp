@@ -28,6 +28,9 @@
 ****************************************************************************/
 
 #include "diffeditorfile.h"
+#include "diffeditorconstants.h"
+
+#include <QCoreApplication>
 
 namespace DiffEditor {
 namespace Internal {
@@ -39,6 +42,7 @@ DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
     m_mimeType(mimeType),
     m_modified(false)
 {
+    setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
 }
 
 void DiffEditorFile::setModified(bool modified)

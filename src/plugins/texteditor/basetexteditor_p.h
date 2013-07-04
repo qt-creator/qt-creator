@@ -123,7 +123,6 @@ public:
     QByteArray m_tempState;
     QByteArray m_tempNavigationState;
 
-    QString m_displayName;
     bool m_parenthesesMatchingEnabled;
     QTimer *m_updateTimer;
 

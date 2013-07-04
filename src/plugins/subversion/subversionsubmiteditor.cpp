@@ -30,6 +30,7 @@
 
 #include "subversionsubmiteditor.h"
 
+#include <coreplugin/idocument.h>
 #include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
@@ -39,7 +40,7 @@ SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEdito
                                                QWidget *parentWidget) :
     VcsBase::VcsBaseSubmitEditor(parameters, new VcsBase::SubmitEditorWidget(parentWidget))
 {
-    setDisplayName(tr("Subversion Submit"));
+    document()->setDisplayName(tr("Subversion Submit"));
     setDescriptionMandatory(false);
 }
 

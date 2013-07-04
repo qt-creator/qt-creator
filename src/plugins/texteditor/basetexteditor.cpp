@@ -335,7 +335,7 @@ void BaseTextEditorWidgetPrivate::print(QPrinter *printer)
 {
     QTextDocument *doc = q->document();
 
-    QString title = q->displayName();
+    QString title = m_document->displayName();
     if (title.isEmpty())
         printer->setDocName(title);
 
@@ -499,7 +499,7 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
         connect(this, SIGNAL(textChanged()),
                 d->m_editor, SIGNAL(contentsChanged()));
         connect(this, SIGNAL(changed()),
-                d->m_editor, SIGNAL(changed()));
+                d->m_editor->document(), SIGNAL(changed()));
     }
     return d->m_editor;
 }
@@ -557,7 +557,7 @@ void BaseTextEditorWidget::updateCannotDecodeInfo()
     if (d->m_document->hasDecodingError()) {
         Core::InfoBarEntry info(Core::Id(Constants::SELECT_ENCODING),
             tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
-            .arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())));
+            .arg(d->m_document->displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())));
         info.setCustomButtonInfo(tr("Select Encoding"), this, SLOT(selectEncoding()));
         d->m_document->infoBar()->addInfo(info);
     } else {
@@ -2153,23 +2153,11 @@ void BaseTextEditorWidget::duplicateFrom(BaseTextEditorWidget *widget)
 {
     if (this == widget)
         return;
-    setDisplayName(widget->displayName());
     d->m_revisionsVisible = widget->d->m_revisionsVisible;
     if (d->m_document == widget->d->m_document)
         return;
     d->setupDocumentSignals(widget->d->m_document);
     d->m_document = widget->d->m_document;
-}
-
-QString BaseTextEditorWidget::displayName() const
-{
-    return d->m_displayName;
-}
-
-void BaseTextEditorWidget::setDisplayName(const QString &title)
-{
-    d->m_displayName = title;
-    emit changed();
 }
 
 QSharedPointer<BaseTextDocument> BaseTextEditorWidget::baseTextDocument() const
@@ -2584,8 +2572,6 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<Base
     QObject::connect(doc, SIGNAL(modificationChanged(bool)), q, SIGNAL(changed()));
     QObject::connect(doc, SIGNAL(contentsChange(int,int,int)), q,
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
-    QObject::connect(document.data(), SIGNAL(changed()), q, SIGNAL(changed()));
-    QObject::connect(document.data(), SIGNAL(titleChanged(QString)), q, SLOT(setDisplayName(QString)));
     QObject::connect(document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
     QObject::connect(document.data(), SIGNAL(reloadFinished(bool)), q, SLOT(documentReloadFinished(bool)));
     q->slotUpdateExtraAreaWidth();

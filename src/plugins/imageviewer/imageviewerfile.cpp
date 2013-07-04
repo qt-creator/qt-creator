@@ -72,12 +72,6 @@ bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool a
     return false;
 }
 
-void ImageViewerFile::setFilePath(const QString &newName)
-{
-    m_editor->setDisplayName(QFileInfo(newName).fileName());
-    IDocument::setFilePath(newName);
-}
-
 QString ImageViewerFile::defaultPath() const
 {
     return QString();

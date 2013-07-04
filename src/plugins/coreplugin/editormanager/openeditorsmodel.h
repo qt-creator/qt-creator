@@ -95,17 +95,15 @@ public:
     void makeOriginal(IEditor *duplicate);
     int indexOfEditor(IEditor *editor) const;
 
-    QString displayNameForDocument(IDocument *document) const;
-
 private slots:
     void itemChanged();
 
 private:
     void addEntry(Entry *entry);
+    int findDocument(IDocument *document) const;
     int findEditor(IEditor *editor) const;
     int findFileName(const QString &filename) const;
     void removeEditor(int idx);
-    void emitDataChanged(IEditor *editor);
 
     OpenEditorsModelPrivate *d;
 };

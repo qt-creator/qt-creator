@@ -85,9 +85,9 @@ using namespace ProjectExplorer;
 // Who sets up the environment for cl.exe ? INCLUDEPATH and so on
 
 // Test for form editor (loosely coupled)
-static inline bool isFormWindowEditor(const QObject *o)
+static inline bool isFormWindowDocument(const QObject *o)
 {
-    return o && !qstrcmp(o->metaObject()->className(), "Designer::FormWindowEditor");
+    return o && !qstrcmp(o->metaObject()->className(), "Designer::Internal::FormWindowFile");
 }
 
 // Return contents of form editor (loosely coupled)
@@ -822,8 +822,8 @@ void CMakeProject::updateCodeModelSupportFromEditor(const QString &uiFileName,
 void CMakeProject::editorChanged(Core::IEditor *editor)
 {
     // Handle old editor
-    if (isFormWindowEditor(m_lastEditor)) {
-        disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    if (m_lastEditor && isFormWindowDocument(m_lastEditor->document())) {
+        disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsChanged()));
         if (m_dirtyUic) {
             const QString contents =  formWindowEditorContents(m_lastEditor);
             updateCodeModelSupportFromEditor(m_lastEditor->document()->filePath(), contents);
@@ -834,8 +834,8 @@ void CMakeProject::editorChanged(Core::IEditor *editor)
     m_lastEditor = editor;
 
     // Handle new editor
-    if (isFormWindowEditor(editor))
-        connect(editor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    if (editor && isFormWindowDocument(editor->document()))
+        connect(editor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsChanged()));
 }
 
 void CMakeProject::editorAboutToClose(Core::IEditor *editor)
@@ -843,8 +843,8 @@ void CMakeProject::editorAboutToClose(Core::IEditor *editor)
     if (m_lastEditor == editor) {
         // Oh no our editor is going to be closed
         // get the content first
-        if (isFormWindowEditor(m_lastEditor)) {
-            disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+        if (isFormWindowDocument(m_lastEditor->document())) {
+            disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsChanged()));
             if (m_dirtyUic) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
                 updateCodeModelSupportFromEditor(m_lastEditor->document()->filePath(), contents);
@@ -855,10 +855,10 @@ void CMakeProject::editorAboutToClose(Core::IEditor *editor)
     }
 }
 
-void CMakeProject::uiEditorContentsChanged()
+void CMakeProject::uiDocumentContentsChanged()
 {
     // cast sender, get filename
-    if (!m_dirtyUic && isFormWindowEditor(sender()))
+    if (!m_dirtyUic && isFormWindowDocument(sender()))
         m_dirtyUic = true;
 }
 

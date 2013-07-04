@@ -535,7 +535,7 @@ void QmlEngine::gotoLocation(const Location &location)
         //Check if there are open editors with the same title
         QList<Core::IEditor *> editors = editorManager->openedEditors();
         foreach (Core::IEditor *ed, editors) {
-            if (ed->displayName() == titlePattern) {
+            if (ed->document()->displayName() == titlePattern) {
                 editor = ed;
                 break;
             }
@@ -1301,7 +1301,7 @@ void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int 
     //Check if there are open editors with the same title
     QList<Core::IEditor *> editors = Core::EditorManager::instance()->openedEditors();
     foreach (Core::IEditor *editor, editors) {
-        if (editor->displayName() == titlePattern) {
+        if (editor->document()->displayName() == titlePattern) {
             updateEditor(editor, document);
             break;
         }

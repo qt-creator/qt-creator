@@ -52,7 +52,8 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
   : Core::TextDocument(parent),
     m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
     m_shouldAutoSave(false),
-    m_formWindow(form)
+    m_formWindow(form),
+    m_isModified(false)
 {
     // Designer needs UTF-8 regardless of settings.
     setCodec(QTextCodec::codecForName("UTF-8"));
@@ -60,6 +61,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             this, SLOT(slotFormWindowRemoved(QDesignerFormWindowInterface*)));
     connect(m_formWindow->commandHistory(), SIGNAL(indexChanged(int)),
             this, SLOT(setShouldAutoSave()));
+    connect(m_formWindow, SIGNAL(changed()), SLOT(updateIsModified()));
 }
 
 bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
@@ -94,11 +96,9 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
         return false;
     }
 
-    emit setDisplayName(fi.fileName());
     m_formWindow->setDirty(false);
     setFilePath(fi.absoluteFilePath());
     emit changed();
-    emit saved();
 
     return true;
 }
@@ -106,9 +106,16 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
 void FormWindowFile::setFilePath(const QString &newName)
 {
     m_formWindow->setFileName(newName);
-    QFileInfo fi(newName);
-    emit setDisplayName(fi.fileName());
-    IDocument::setFilePath(fi.absoluteFilePath());
+    IDocument::setFilePath(newName);
+}
+
+void FormWindowFile::updateIsModified()
+{
+    bool value = m_formWindow && m_formWindow->isDirty();
+    if (value == m_isModified)
+        return;
+    m_isModified = value;
+    emit changed();
 }
 
 bool FormWindowFile::shouldAutoSave() const

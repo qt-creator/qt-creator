@@ -188,7 +188,7 @@ public:
 
 signals:
     void currentEditorChanged(Core::IEditor *editor);
-    void currentEditorStateChanged(Core::IEditor *editor);
+    void currentDocumentStateChanged();
     void editorCreated(Core::IEditor *editor, const QString &fileName);
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
@@ -213,7 +213,7 @@ private slots:
     void makeCurrentEditorWritable();
     void vcsOpenCurrentEditor();
     void updateWindowTitle();
-    void handleEditorStateChange();
+    void handleDocumentStateChange();
     void updateVariable(const QByteArray &variable);
     void autoSave();
 
@@ -279,7 +279,6 @@ private:
     void updateAutoSave();
     void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
     void updateMakeWritableWarning();
-    QString fileNameForEditor(IEditor *editor);
     void setupSaveActions(IEditor *editor, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction);
 
     friend class Core::Internal::MainWindow;

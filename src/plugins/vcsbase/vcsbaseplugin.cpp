@@ -207,7 +207,7 @@ StateListener::StateListener(QObject *parent) :
 {
     connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(slotStateChanged()));
-    connect(Core::ICore::editorManager(), SIGNAL(currentEditorStateChanged(Core::IEditor*)),
+    connect(Core::ICore::editorManager(), SIGNAL(currentDocumentStateChanged()),
             this, SLOT(slotStateChanged()));
     connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(slotStateChanged()));
@@ -221,7 +221,7 @@ static inline QString displayNameOfEditor(const QString &fileName)
 {
     const QList<Core::IEditor*> editors = Core::EditorManager::instance()->editorsForFileName(fileName);
     if (!editors.isEmpty())
-        return editors.front()->displayName();
+        return editors.front()->document()->displayName();
     return QString();
 }
 

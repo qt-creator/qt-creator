@@ -30,6 +30,7 @@
 #include "commiteditor.h"
 #include "mercurialcommitwidget.h"
 
+#include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
 
 #include <QDebug>
@@ -42,7 +43,7 @@ CommitEditor::CommitEditor(const VcsBaseSubmitEditorParameters *parameters, QWid
         : VcsBaseSubmitEditor(parameters, new MercurialCommitWidget(parent)),
         fileModel(0)
 {
-    setDisplayName(tr("Commit Editor"));
+    document()->setDisplayName(tr("Commit Editor"));
 }
 
 MercurialCommitWidget *CommitEditor::commitWidget()

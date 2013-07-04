@@ -60,7 +60,7 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
 {
     setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
-    connect(this, SIGNAL(changed()), this, SLOT(markAsChanged()));
+    connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
 }
 
 Core::IEditor *CMakeEditor::duplicate(QWidget *parent)

@@ -183,6 +183,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
 {
     setContext(Core::Context(parameters->context));
     setWidget(d->m_widget);
+    document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
 
     // Message font according to settings
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();
@@ -377,19 +378,6 @@ bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
 Core::IDocument *VcsBaseSubmitEditor::document()
 {
     return d->m_file;
-}
-
-QString VcsBaseSubmitEditor::displayName() const
-{
-    if (d->m_displayName.isEmpty())
-        d->m_displayName = QCoreApplication::translate("VCS", d->m_parameters->displayName);
-    return d->m_displayName;
-}
-
-void VcsBaseSubmitEditor::setDisplayName(const QString &title)
-{
-    d->m_displayName = title;
-    emit changed();
 }
 
 QString VcsBaseSubmitEditor::checkScriptWorkingDirectory() const

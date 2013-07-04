@@ -201,7 +201,7 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
 
     bool mimeEditorAvailable = false;
 
-    if (editor && editor->document()) {
+    if (editor) {
         const QString mimeType = editor->document()->mimeType();
         if (!mimeType.isEmpty()) {
             foreach (DesignEditorInfo *editorInfo, d->m_editors) {
@@ -220,7 +220,7 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         }
     }
     if (d->m_currentEditor)
-        disconnect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
+        disconnect(d->m_currentEditor.data()->document(), SIGNAL(changed()), this, SLOT(updateActions()));
 
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
@@ -233,7 +233,7 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         d->m_currentEditor = editor;
 
         if (d->m_currentEditor)
-            connect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
+            connect(d->m_currentEditor.data()->document(), SIGNAL(changed()), this, SLOT(updateActions()));
 
         emit actionsUpdated(d->m_currentEditor.data());
     }

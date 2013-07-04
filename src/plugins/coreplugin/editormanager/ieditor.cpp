@@ -45,8 +45,6 @@
   \list
   \li displayName() is used as a user visible description of the document (usually filename w/o path).
   \li kind() must be the same value as the kind() of the corresponding EditorFactory.
-  \li The changed() signal should be emitted when the modified state of the document changes
-     (so /bold{not} every time the document changes, but /bold{only once}).
   \li If duplication is supported, you need to ensure that all duplicates
         return the same file().
   \li QString preferredMode() const is the mode the editor manager should activate.

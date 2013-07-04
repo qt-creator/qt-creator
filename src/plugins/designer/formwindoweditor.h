@@ -71,8 +71,6 @@ public:
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual Core::IDocument *document();
     virtual Core::Id id() const;
-    virtual QString displayName() const;
-    virtual void setDisplayName(const QString &title);
 
     virtual QByteArray saveState() const;
     virtual bool restoreState(const QByteArray &state);

@@ -31,6 +31,7 @@
 #include "clearcasesubmiteditor.h"
 #include "clearcasesubmiteditorwidget.h"
 
+#include <coreplugin/idocument.h>
 #include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
@@ -40,7 +41,7 @@ ClearCaseSubmitEditor::ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorP
                                              QWidget *parentWidget) :
     VcsBase::VcsBaseSubmitEditor(parameters, new ClearCaseSubmitEditorWidget(parentWidget))
 {
-    setDisplayName(tr("ClearCase Check In"));
+    document()->setDisplayName(tr("ClearCase Check In"));
 }
 
 ClearCaseSubmitEditorWidget *ClearCaseSubmitEditor::submitEditorWidget()

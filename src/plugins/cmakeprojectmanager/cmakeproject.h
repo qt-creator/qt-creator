@@ -119,7 +119,7 @@ private slots:
 
     void editorChanged(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
-    void uiEditorContentsChanged();
+    void uiDocumentContentsChanged();
     void buildStateChanged(ProjectExplorer::Project *project);
     void updateRunConfigurations();
 

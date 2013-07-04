@@ -71,9 +71,9 @@ static const char *qt4FileTypes[] = {
 };
 
 // Test for form editor (loosely coupled)
-static inline bool isFormWindowEditor(const QObject *o)
+static inline bool isFormWindowDocument(const QObject *o)
 {
-    return o && !qstrcmp(o->metaObject()->className(), "Designer::FormWindowEditor");
+    return o && !qstrcmp(o->metaObject()->className(), "Designer::Internal::FormWindowFile");
 }
 
 // Return contents of form editor (loosely coupled)
@@ -126,8 +126,8 @@ void Qt4Manager::init()
 void Qt4Manager::editorChanged(Core::IEditor *editor)
 {
     // Handle old editor
-    if (isFormWindowEditor(m_lastEditor)) {
-        disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    if (m_lastEditor && isFormWindowDocument(m_lastEditor->document())) {
+        disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsChanged()));
 
         if (m_dirty) {
             const QString contents = formWindowEditorContents(m_lastEditor);
@@ -140,8 +140,8 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
     m_lastEditor = editor;
 
     // Handle new editor
-    if (isFormWindowEditor(m_lastEditor))
-        connect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    if (m_lastEditor && isFormWindowDocument(m_lastEditor->document()))
+        connect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsChanged()));
 }
 
 void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
@@ -149,8 +149,8 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
     if (m_lastEditor == editor) {
         // Oh no our editor is going to be closed
         // get the content first
-        if (isFormWindowEditor(m_lastEditor)) {
-            disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+        if (isFormWindowDocument(m_lastEditor->document())) {
+            disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsChanged()));
             if (m_dirty) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
                 foreach (Qt4Project *project, m_projects)
@@ -162,10 +162,10 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
     }
 }
 
-void Qt4Manager::uiEditorContentsChanged()
+void Qt4Manager::uiDocumentContentsChanged()
 {
     // cast sender, get filename
-    if (!m_dirty && isFormWindowEditor(sender()))
+    if (!m_dirty && isFormWindowDocument(sender()))
         m_dirty = true;
 }
 

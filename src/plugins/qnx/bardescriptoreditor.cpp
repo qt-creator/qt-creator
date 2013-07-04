@@ -104,20 +104,6 @@ Core::Id BarDescriptorEditor::id() const
     return Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID;
 }
 
-QString BarDescriptorEditor::displayName() const
-{
-    return m_displayName;
-}
-
-void BarDescriptorEditor::setDisplayName(const QString &title)
-{
-    if (title == m_displayName)
-        return;
-
-    m_displayName = title;
-    emit changed();
-}
-
 bool BarDescriptorEditor::isTemporary() const
 {
     return false;
