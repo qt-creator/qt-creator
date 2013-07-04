@@ -46,7 +46,6 @@ public:
     ~QbsProjectFile();
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString fileName() const;
     bool isReadOnly() const;
 
     QString defaultPath() const;
@@ -58,11 +57,9 @@ public:
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void rename(const QString &newName);
 
 private:
     QbsProject *m_project;
-    QString m_fileName;
 };
 
 } // namespace Internal

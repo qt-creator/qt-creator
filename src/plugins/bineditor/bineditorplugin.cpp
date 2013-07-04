@@ -195,25 +195,22 @@ public:
         return QLatin1String(Constants::C_BINEDITOR_MIMETYPE);
     }
 
-    bool save(QString *errorString, const QString &fileName, bool autoSave)
+    bool save(QString *errorString, const QString &fn, bool autoSave)
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
         const QString fileNameToUse
-            = fileName.isEmpty() ? m_fileName : fileName;
-        if (m_widget->save(errorString, m_fileName, fileNameToUse)) {
-            m_fileName = fileNameToUse;
-            m_widget->editor()->setDisplayName(QFileInfo(fileNameToUse).fileName());
-            emit changed();
+                = fn.isEmpty() ? fileName() : fn;
+        if (m_widget->save(errorString, fileName(), fileNameToUse)) {
+            setFileName(fileNameToUse);
             return true;
         } else {
             return false;
         }
     }
 
-    void rename(const QString &newName) {
-        m_fileName = newName;
-        m_widget->editor()->setDisplayName(QFileInfo(fileName()).fileName());
-        emit changed();
+    void setFileName(const QString &newName) {
+        m_widget->editor()->setDisplayName(QFileInfo(newName).fileName());
+        IDocument::setFileName(newName);
     }
 
     bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
@@ -231,9 +228,8 @@ public:
             return false;
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
-            m_fileName = fileName;
+            setFileName(fileName);
             m_widget->setSizes(offset, file.size());
-            m_widget->editor()->setDisplayName(QFileInfo(fileName).fileName());
             return true;
         }
         QString errStr = tr("Cannot open %1: %2").arg(
@@ -248,9 +244,10 @@ public:
 private slots:
     void provideData(quint64 block)
     {
-        if (m_fileName.isEmpty())
+        const QString fn = fileName();
+        if (fn.isEmpty())
             return;
-        QFile file(m_fileName);
+        QFile file(fn);
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_widget->dataBlockSize();
             file.seek(block * blockSize);
@@ -263,22 +260,16 @@ private slots:
         } else {
             QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
-                                        QDir::toNativeSeparators(m_fileName), file.errorString()));
+                                        QDir::toNativeSeparators(fn), file.errorString()));
         }
     }
 
     void provideNewRange(quint64 offset)
     {
-        open(0, m_fileName, offset);
+        open(0, fileName(), offset);
     }
 
 public:
-
-    void setFilename(const QString &filename) {
-        m_fileName = filename;
-    }
-
-    QString fileName() const { return m_fileName; }
 
     QString defaultPath() const { return QString(); }
 
@@ -287,9 +278,10 @@ public:
     bool isModified() const { return m_widget->isMemoryView() ? false : m_widget->isModified(); }
 
     bool isFileReadOnly() const {
-        if (m_widget->isMemoryView() || m_fileName.isEmpty())
+        const QString fn = fileName();
+        if (m_widget->isMemoryView() || fn.isEmpty())
             return false;
-        const QFileInfo fi(m_fileName);
+        const QFileInfo fi(fn);
         return !fi.isWritable();
     }
 
@@ -302,7 +294,7 @@ public:
             emit changed();
         } else {
             emit aboutToReload();
-            const bool success = open(errorString, m_fileName);
+            const bool success = open(errorString, fileName());
             emit reloadFinished(success);
             return success;
         }
@@ -311,7 +303,6 @@ public:
 
 private:
     BinEditorWidget *m_widget;
-    QString m_fileName;
 };
 
 class BinEditor : public Core::IEditor
@@ -358,7 +349,7 @@ public:
 
     bool createNew(const QString & /* contents */ = QString()) {
         m_widget->clear();
-        m_file->setFilename(QString());
+        m_file->setFileName(QString());
         return true;
     }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName) {

@@ -82,7 +82,8 @@ public:
     virtual ~IDocument();
 
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
-    virtual QString fileName() const = 0;
+    QString fileName() const { return m_fileName; }
+    virtual void setFileName(const QString &fileName);
     virtual bool isFileReadOnly() const;
 
     virtual QString defaultPath() const = 0;
@@ -95,7 +96,6 @@ public:
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type) = 0;
-    virtual void rename(const QString &newName) = 0;
 
     virtual void checkPermissions();
 
@@ -117,6 +117,7 @@ signals:
     void fileNameChanged(const QString &oldName, const QString &newName);
 
 private:
+    QString m_fileName;
     QString m_autoSaveName;
     InfoBar *m_infoBar;
     bool m_hasWriteWarning;

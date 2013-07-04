@@ -46,8 +46,7 @@ public:
     explicit ImageViewerFile(ImageViewer *parent = 0);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    void rename(const QString &newName);
-    QString fileName() const;
+    void setFileName(const QString &newName);
 
     QString defaultPath() const;
     QString suggestedFileName() const;
@@ -60,10 +59,8 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
     void setMimetype(const QString &mimetype);
-    void setFileName(const QString &filename);
 
 private:
-    QString m_fileName;
     QString m_mimeType;
     ImageViewer *m_editor;
 };

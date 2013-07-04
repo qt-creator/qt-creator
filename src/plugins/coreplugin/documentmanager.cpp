@@ -385,7 +385,7 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
     foreach (IDocument *document, documentsToRename) {
         d->m_blockedIDocument = document;
         removeFileInfo(document);
-        document->rename(to);
+        document->setFileName(to);
         addFileInfo(document);
         d->m_blockedIDocument = 0;
     }

@@ -105,7 +105,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager),
       m_activeTarget(0),
       m_fileName(fileName),
-      m_rootNode(new CMakeProjectNode(m_fileName)),
+      m_rootNode(new CMakeProjectNode(fileName)),
       m_lastEditor(0)
 {
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
@@ -897,9 +897,9 @@ void CMakeProject::buildStateChanged(ProjectExplorer::Project *project)
 // CMakeFile
 
 CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
-    : Core::IDocument(parent), m_project(parent), m_fileName(fileName)
+    : Core::IDocument(parent), m_project(parent)
 {
-
+    setFileName(fileName);
 }
 
 bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -910,11 +910,6 @@ bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSav
     Q_UNUSED(fileName)
     Q_UNUSED(autoSave)
     return false;
-}
-
-QString CMakeFile::fileName() const
-{
-    return m_fileName;
 }
 
 QString CMakeFile::defaultPath() const
@@ -941,13 +936,6 @@ bool CMakeFile::isModified() const
 bool CMakeFile::isSaveAsAllowed() const
 {
     return false;
-}
-
-void CMakeFile::rename(const QString &newName)
-{
-    Q_ASSERT(false);
-    Q_UNUSED(newName);
-    // Can't happen....
 }
 
 Core::IDocument::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

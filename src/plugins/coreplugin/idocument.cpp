@@ -34,6 +34,13 @@
 #include <QFile>
 #include <QFileInfo>
 
+/*!
+    \fn QString Core::IDocument::fileName() const
+    Returns the absolute path of the file that this document refers to. May be empty for
+    non-file documents.
+    \sa setFileName()
+*/
+
 namespace Core {
 
 IDocument::IDocument(QObject *parent) : QObject(parent), m_infoBar(0), m_hasWriteWarning(false), m_restored(false)
@@ -108,6 +115,22 @@ InfoBar *IDocument::infoBar()
     if (!m_infoBar)
         m_infoBar = new InfoBar;
     return m_infoBar;
+}
+
+/*!
+    Set absolute file path for this file to \a fileName. Can be empty.
+    The default implementation sets the file name and sends fileNameChanged() and changed()
+    signals. Can be reimplemented by subclasses to do more.
+    \sa fileName()
+*/
+void IDocument::setFileName(const QString &fileName)
+{
+    if (m_fileName == fileName)
+        return;
+    QString oldName = m_fileName;
+    m_fileName = fileName;
+    emit fileNameChanged(oldName, m_fileName);
+    emit changed();
 }
 
 } // namespace Core

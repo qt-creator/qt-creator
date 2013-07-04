@@ -120,8 +120,6 @@ public:
     Qt4ProjectFile(const QString &filePath, QObject *parent = 0);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString fileName() const;
-    virtual void rename(const QString &newName);
 
     QString defaultPath() const;
     QString suggestedFileName() const;
@@ -135,7 +133,6 @@ public:
 
 private:
     const QString m_mimeType;
-    QString m_filePath;
 };
 
 /// Watches folders for Qt4PriFile nodes
@@ -270,27 +267,15 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 namespace Internal {
 Qt4ProjectFile::Qt4ProjectFile(const QString &filePath, QObject *parent)
     : Core::IDocument(parent),
-      m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
-      m_filePath(filePath)
+      m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE))
 {
+    setFileName(filePath);
 }
 
 bool Qt4ProjectFile::save(QString *, const QString &, bool)
 {
     // This is never used
     return false;
-}
-
-void Qt4ProjectFile::rename(const QString &newName)
-{
-    // Can't happen
-    Q_UNUSED(newName);
-    Q_ASSERT(false);
-}
-
-QString Qt4ProjectFile::fileName() const
-{
-    return m_filePath;
 }
 
 QString Qt4ProjectFile::defaultPath() const

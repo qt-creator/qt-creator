@@ -47,8 +47,6 @@ public:
     virtual ~QmlProjectFile();
 
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
-    virtual QString fileName() const;
-    virtual void rename(const QString &newName);
 
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;
@@ -62,7 +60,6 @@ public:
 
 private:
     QmlProject *m_project;
-    QString m_fileName;
 };
 
 } // namespace Internal

@@ -38,9 +38,9 @@ using namespace AutotoolsProjectManager::Internal;
 
 AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QString &fileName) :
     Core::IDocument(project),
-    m_project(project),
-    m_fileName(fileName)
+    m_project(project)
 {
+    setFileName(fileName);
 }
 
 bool AutotoolsProjectFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -50,11 +50,6 @@ bool AutotoolsProjectFile::save(QString *errorString, const QString &fileName, b
     Q_UNUSED(autoSave);
 
     return false;
-}
-
-QString AutotoolsProjectFile::fileName() const
-{
-    return m_fileName;
 }
 
 QString AutotoolsProjectFile::defaultPath() const
@@ -89,9 +84,4 @@ bool AutotoolsProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeT
     Q_UNUSED(type);
 
     return false;
-}
-
-void AutotoolsProjectFile::rename(const QString &newName)
-{
-    Q_UNUSED(newName);
 }

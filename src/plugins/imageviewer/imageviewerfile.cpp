@@ -61,7 +61,7 @@ bool ImageViewerFile::reload(QString *errorString,
         emit changed();
         return true;
     }
-    return m_editor->open(errorString, m_fileName, m_fileName);
+    return m_editor->open(errorString, fileName(), fileName());
 }
 
 bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -72,18 +72,10 @@ bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool a
     return false;
 }
 
-void ImageViewerFile::rename(const QString &newName)
+void ImageViewerFile::setFileName(const QString &newName)
 {
-    const QString oldFilename = m_fileName;
-    m_fileName = newName;
-    m_editor->setDisplayName(QFileInfo(m_fileName).fileName());
-    emit fileNameChanged(oldFilename, newName);
-    emit changed();
-}
-
-QString ImageViewerFile::fileName() const
-{
-    return m_fileName;
+    m_editor->setDisplayName(QFileInfo(newName).fileName());
+    IDocument::setFileName(newName);
 }
 
 QString ImageViewerFile::defaultPath() const
@@ -114,12 +106,6 @@ bool ImageViewerFile::isSaveAsAllowed() const
 void ImageViewerFile::setMimetype(const QString &mimetype)
 {
     m_mimeType = mimetype;
-    emit changed();
-}
-
-void ImageViewerFile::setFileName(const QString &filename)
-{
-    m_fileName = filename;
     emit changed();
 }
 

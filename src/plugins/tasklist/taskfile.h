@@ -46,7 +46,6 @@ public:
     ~TaskFile();
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString fileName() const;
 
     QString defaultPath() const;
     QString suggestedFileName() const;
@@ -57,7 +56,6 @@ public:
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void rename(const QString &newName);
 
     bool open(QString *errorString, const QString &fileName);
 
@@ -65,7 +63,6 @@ public:
     void setContext(ProjectExplorer::Project *context);
 
 private:
-    QString m_fileName;
     ProjectExplorer::Project *m_context;
 };
 

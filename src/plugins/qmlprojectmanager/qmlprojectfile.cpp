@@ -37,11 +37,11 @@ namespace Internal {
 
 QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
     : Core::IDocument(parent),
-      m_project(parent),
-      m_fileName(fileName)
+      m_project(parent)
 {
     QTC_CHECK(m_project);
     QTC_CHECK(!fileName.isEmpty());
+    setFileName(fileName);
 }
 
 QmlProjectFile::~QmlProjectFile()
@@ -51,18 +51,6 @@ QmlProjectFile::~QmlProjectFile()
 bool QmlProjectFile::save(QString *, const QString &, bool)
 {
     return false;
-}
-
-void QmlProjectFile::rename(const QString &newName)
-{
-    // Can't happen...
-    Q_UNUSED(newName);
-    Q_ASSERT(false);
-}
-
-QString QmlProjectFile::fileName() const
-{
-    return m_fileName;
 }
 
 QString QmlProjectFile::defaultPath() const

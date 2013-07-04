@@ -42,7 +42,6 @@ public:
     explicit SubmitEditorFile(const QString &mimeType,
                               QObject *parent = 0);
 
-    QString fileName() const { return m_fileName; }
     QString defaultPath() const { return QString(); }
     QString suggestedFileName() const { return QString(); }
 
@@ -52,9 +51,7 @@ public:
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void rename(const QString &newName);
 
-    void setFileName(const QString &name);
     void setModified(bool modified = true);
 
 signals:
@@ -63,7 +60,6 @@ signals:
 private:
     const QString m_mimeType;
     bool m_modified;
-    QString m_fileName;
 };
 
 

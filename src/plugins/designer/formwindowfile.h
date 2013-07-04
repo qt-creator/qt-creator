@@ -51,7 +51,6 @@ public:
 
     // IDocument
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
-    virtual QString fileName() const;
     virtual bool shouldAutoSave() const;
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;
@@ -59,7 +58,6 @@ public:
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;
     virtual QString mimeType() const;
-    virtual void rename(const QString &newName);
 
     // Internal
     void setSuggestedFileName(const QString &fileName);
@@ -84,7 +82,6 @@ private slots:
 private:
     const QString m_mimeType;
 
-    QString m_fileName;
     QString m_suggestedName;
     bool m_shouldAutoSave;
     // Might actually go out of scope before the IEditor due

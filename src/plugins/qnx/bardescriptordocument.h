@@ -58,7 +58,6 @@ public:
 
     bool open(QString *errorString, const QString &fileName);
     bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
-    QString fileName() const;
 
     QString defaultPath() const;
     QString suggestedFileName() const;
@@ -70,7 +69,7 @@ public:
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void rename(const QString &newName);
+    void setFileName(const QString &newName);
 
     QString xmlSource() const;
     bool loadContent(const QString &xmlSource, QString *errorMessage = 0, int *errorLine = 0);
@@ -81,8 +80,6 @@ private:
     void removeUnknownNodeHandlers();
 
     QList<BarDescriptorDocumentAbstractNodeHandler *> m_nodeHandlers;
-
-    QString m_fileName;
 
     BarDescriptorEditorWidget *m_editorWidget;
 };

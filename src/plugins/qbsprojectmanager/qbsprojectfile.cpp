@@ -36,9 +36,10 @@ namespace QbsProjectManager {
 namespace Internal {
 
 QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDocument(parent),
-    m_project(parent),
-    m_fileName(fileName)
-{ }
+    m_project(parent)
+{
+    setFileName(fileName);
+}
 
 QbsProjectFile::~QbsProjectFile()
 { }
@@ -46,11 +47,6 @@ QbsProjectFile::~QbsProjectFile()
 bool QbsProjectFile::save(QString *, const QString &, bool)
 {
     return false;
-}
-
-QString QbsProjectFile::fileName() const
-{
-    return m_fileName;
 }
 
 bool QbsProjectFile::isReadOnly() const
@@ -98,13 +94,6 @@ bool QbsProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         return true;
     m_project->delayForcedParsing();
     return true;
-}
-
-void QbsProjectFile::rename(const QString &newName)
-{
-    // Can't happen
-    Q_UNUSED(newName);
-    Q_ASSERT(false);
 }
 
 } // namespace Internal

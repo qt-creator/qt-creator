@@ -56,10 +56,12 @@ class WatchableFile : public Core::IDocument
     Q_OBJECT
 public:
     WatchableFile(const QString &fileName, QObject *parent = 0)
-        : Core::IDocument(parent), m_fileName(fileName) {}
+        : Core::IDocument(parent)
+    {
+        setFileName(fileName);
+    }
 
     bool save(QString *, const QString &, bool) { return false; }
-    QString fileName() const { return m_fileName; }
     QString defaultPath() const { return QString(); }
     QString suggestedFileName() const { return QString(); }
     QString mimeType() const { return QLatin1String("text/plain"); }
@@ -67,13 +69,9 @@ public:
     bool isSaveAsAllowed() const { return false; }
     ReloadBehavior reloadBehavior(ChangeTrigger, ChangeType) const { return BehaviorSilent; }
     bool reload(QString *, ReloadFlag, ChangeType) { emit modified(); return true; }
-    void rename(const QString &) {}
 
 signals:
     void modified();
-
-private:
-    QString m_fileName;
 };
 
 class MaemoGlobal

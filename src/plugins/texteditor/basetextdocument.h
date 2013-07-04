@@ -76,7 +76,6 @@ public:
 
     // IDocument implementation.
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
-    virtual QString fileName() const;
     virtual bool shouldAutoSave() const;
     virtual bool isFileReadOnly() const;
     virtual bool isModified() const;
@@ -85,7 +84,7 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     virtual QString mimeType() const;
     void setMimeType(const QString &mt);
-    virtual void rename(const QString &newName);
+    void setFileName(const QString &newName);
 
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;

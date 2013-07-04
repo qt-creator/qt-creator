@@ -41,20 +41,6 @@ DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
 {
 }
 
-void DiffEditorFile::rename(const QString &newName)
-{
-    Q_UNUSED(newName);
-    return;
-}
-
-void DiffEditorFile::setFileName(const QString &name)
-{
-    if (m_fileName == name)
-        return;
-    m_fileName = name;
-    emit changed();
-}
-
 void DiffEditorFile::setModified(bool modified)
 {
     if (m_modified == modified)

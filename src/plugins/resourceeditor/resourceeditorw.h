@@ -55,15 +55,14 @@ public:
 
     //IDocument
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString fileName() const;
     bool shouldAutoSave() const;
     bool isModified() const;
     bool isSaveAsAllowed() const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     QString defaultPath() const;
     QString suggestedFileName() const;
-    virtual QString mimeType() const;
-    virtual void rename(const QString &newName);
+    QString mimeType() const;
+    void setFileName(const QString &newName);
 
 private:
     const QString m_mimeType;

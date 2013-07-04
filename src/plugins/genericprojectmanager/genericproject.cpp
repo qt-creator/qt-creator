@@ -455,18 +455,14 @@ bool GenericProject::fromMap(const QVariantMap &map)
 GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options)
     : IDocument(parent),
       m_project(parent),
-      m_fileName(fileName),
       m_options(options)
-{ }
+{
+    setFileName(fileName);
+}
 
 bool GenericProjectFile::save(QString *, const QString &, bool)
 {
     return false;
-}
-
-QString GenericProjectFile::fileName() const
-{
-    return m_fileName;
 }
 
 QString GenericProjectFile::defaultPath() const
@@ -492,13 +488,6 @@ bool GenericProjectFile::isModified() const
 bool GenericProjectFile::isSaveAsAllowed() const
 {
     return false;
-}
-
-void GenericProjectFile::rename(const QString &newName)
-{
-    // Can't happen
-    Q_UNUSED(newName);
-    QTC_CHECK(false);
 }
 
 IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

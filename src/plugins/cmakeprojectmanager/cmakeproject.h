@@ -204,7 +204,6 @@ public:
     CMakeFile(CMakeProject *parent, QString fileName);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString fileName() const;
 
     QString defaultPath() const;
     QString suggestedFileName() const;
@@ -216,11 +215,8 @@ public:
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
-    void rename(const QString &newName);
-
 private:
     CMakeProject *m_project;
-    QString m_fileName;
 };
 
 class CMakeBuildSettingsWidget : public ProjectExplorer::NamedWidget
