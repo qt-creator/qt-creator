@@ -97,6 +97,8 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     connect(m_aspect, SIGNAL(baseEnvironmentChanged()), this, SLOT(changeBaseEnvironment()));
     connect(m_aspect, SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
             this, SLOT(changeUserChanges(QList<Utils::EnvironmentItem>)));
+    connect(m_aspect, SIGNAL(environmentChanged()),
+            this, SLOT(environmentChanged()));
 }
 
 QString EnvironmentAspectWidget::displayName() const
@@ -118,6 +120,7 @@ void EnvironmentAspectWidget::baseEnvironmentSelected(int idx)
 {
     m_ignoreChange = true;
     m_aspect->setBaseEnvironmentBase(m_baseEnvironmentComboBox->itemData(idx).toInt());
+    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
     m_ignoreChange = false;
 }
 
@@ -132,6 +135,7 @@ void EnvironmentAspectWidget::changeBaseEnvironment()
             m_baseEnvironmentComboBox->setCurrentIndex(i);
     }
     m_environmentWidget->setBaseEnvironmentText(m_aspect->baseEnvironmentDisplayName(base));
+    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
 }
 
 void EnvironmentAspectWidget::userChangesEdited()
@@ -146,6 +150,13 @@ void EnvironmentAspectWidget::changeUserChanges(QList<Utils::EnvironmentItem> ch
     if (m_ignoreChange)
         return;
     m_environmentWidget->setUserChanges(changes);
+}
+
+void EnvironmentAspectWidget::environmentChanged()
+{
+    if (m_ignoreChange)
+        return;
+    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
 }
 
 } // namespace ProjectExplorer

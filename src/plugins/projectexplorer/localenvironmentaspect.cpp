@@ -84,10 +84,8 @@ Utils::Environment LocalEnvironmentAspect::baseEnvironment() const
 
 void LocalEnvironmentAspect::buildEnvironmentHasChanged()
 {
-    if (baseEnvironmentBase() == static_cast<int>(BuildEnvironmentBase)) {
-        emit baseEnvironmentChanged();
+    if (baseEnvironmentBase() == static_cast<int>(BuildEnvironmentBase))
         emit environmentChanged();
-    }
 }
 
 LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *rc) :

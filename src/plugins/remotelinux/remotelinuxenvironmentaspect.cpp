@@ -87,11 +87,8 @@ void RemoteLinuxEnvironmentAspect::setRemoteEnvironment(const Utils::Environment
 {
     if (env != m_remoteEnvironment) {
         m_remoteEnvironment = env;
-        emit remoteEnvironmentChanged();
-        if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment)) {
-            emit baseEnvironmentChanged();
+        if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment))
             emit environmentChanged();
-        }
     }
 }
 
