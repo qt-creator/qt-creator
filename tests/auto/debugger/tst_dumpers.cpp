@@ -270,6 +270,7 @@ struct Type
         actualType.replace(' ', "");
         QByteArray expectedType = type;
         expectedType.replace(' ', "");
+        expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
         return actualType == expectedType;
     }
