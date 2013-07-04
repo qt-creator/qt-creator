@@ -1121,6 +1121,14 @@ class Dumper:
                 self.putFields(value)
 
     def putFields(self, value):
+        # Suppress printing of 'name' field for arrays.
+        if value.GetType().GetTypeClass() == lldb.eTypeClassArray:
+            for i in xrange(value.GetNumChildren()):
+                child = value.GetChildAtIndex(i)
+                with UnnamedSubItem(self, "%d" % (i + 1)):
+                    self.putItem(child)
+            return
+
         n = value.GetNumChildren()
         m = value.GetType().GetNumberOfDirectBaseClasses()
         if n > 10000:
