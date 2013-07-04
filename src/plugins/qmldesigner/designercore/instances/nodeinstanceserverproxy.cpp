@@ -38,6 +38,7 @@
 #include <QDir>
 #include <QTimer>
 #include <QTextStream>
+#include <QMessageBox>
 
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
@@ -240,6 +241,13 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    } else {
            QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"), missingQmlPuppetErrorMessage(applicationPath));
    }
+
+   int indexOfCapturePuppetStream = QCoreApplication::arguments().indexOf("-capture-puppet-stream");
+   if (indexOfCapturePuppetStream > 0) {
+       m_captureFileForTest.setFileName(QCoreApplication::arguments().at(indexOfCapturePuppetStream + 1));
+       bool isOpen = m_captureFileForTest.open(QIODevice::WriteOnly);
+       qDebug() << "file is open: " << isOpen;
+   }
 }
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
@@ -333,9 +341,9 @@ QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &app
     return message;
 }
 
-static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket, unsigned int commandCounter)
+static void writeCommandToIODecive(const QVariant &command, QIODevice *ioDevice, unsigned int commandCounter)
 {
-    if (socket) {
+    if (ioDevice) {
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_8);
@@ -345,22 +353,29 @@ static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket, 
         out.device()->seek(0);
         out << quint32(block.size() - sizeof(quint32));
 
-        socket->write(block);
+        ioDevice->write(block);
     }
 }
 
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
-    writeCommandToSocket(command, m_firstSocket.data(), m_writeCommandCounter);
-    writeCommandToSocket(command, m_secondSocket.data(), m_writeCommandCounter);
-    writeCommandToSocket(command, m_thirdSocket.data(), m_writeCommandCounter);
+    writeCommandToIODecive(command, m_firstSocket.data(), m_writeCommandCounter);
+    writeCommandToIODecive(command, m_secondSocket.data(), m_writeCommandCounter);
+    writeCommandToIODecive(command, m_thirdSocket.data(), m_writeCommandCounter);
+
+    if (m_captureFileForTest.isWritable()) {
+        qDebug() << "Write strean to file: " << m_captureFileForTest.fileName();
+        writeCommandToIODecive(command, &m_captureFileForTest, m_writeCommandCounter);
+        qDebug() << "\twrite file: " << m_captureFileForTest.pos();
+    }
+
     m_writeCommandCounter++;
     if (m_runModus == TestModus) {
         static int synchronizeId = 0;
         synchronizeId++;
         SynchronizeCommand synchronizeCommand(synchronizeId);
 
-        writeCommandToSocket(QVariant::fromValue(synchronizeCommand), m_firstSocket.data(), m_writeCommandCounter);
+        writeCommandToIODecive(QVariant::fromValue(synchronizeCommand), m_firstSocket.data(), m_writeCommandCounter);
         m_writeCommandCounter++;
 
         while (m_firstSocket->waitForReadyRead(100)) {
@@ -374,6 +389,14 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
 {
     qDebug() << "Process finished:" << sender();
+
+    if (m_captureFileForTest.isOpen()) {
+        m_captureFileForTest.close();
+        m_captureFileForTest.remove();
+        QMessageBox::warning(0, tr("Qml Puppet crashes"), tr("Your are recording a Puppet stream and the puppet crashes. "
+                                                             "It is recommended to reopen the Qml Designer and start again."));
+    }
+
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 

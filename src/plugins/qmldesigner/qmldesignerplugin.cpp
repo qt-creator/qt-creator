@@ -41,6 +41,7 @@
 #include <coreplugin/designmode.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 

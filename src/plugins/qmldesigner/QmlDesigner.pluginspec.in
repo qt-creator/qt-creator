@@ -20,4 +20,7 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Visual Designer for QML files.</description>
     <url>http://www.qt-project.org</url>
     $$dependencyList
+   <argumentList>
+      <argument name=\"-capture-puppet-stream\" parameter=\"capture file\">Captures the Qml Puppet stream</argument>
+    </argumentList>
 </plugin>

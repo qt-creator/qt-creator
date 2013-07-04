@@ -34,6 +34,7 @@
 
 #include <QWeakPointer>
 #include <QProcess>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 class QLocalServer;
@@ -75,6 +76,8 @@ protected:
     void dispatchCommand(const QVariant &command);
     NodeInstanceClientInterface *nodeInstanceClient() const;
     QString missingQmlPuppetErrorMessage(const QString &applicationPath) const;
+    QString qmlPuppetApplicationName() const;
+    QString macOSBundlePath(const QString &path) const;
 
 signals:
     void processCrashed();
@@ -86,9 +89,7 @@ private slots:
     void readThirdDataStream();
 
 private:
-    QString qmlPuppetApplicationName() const;
-    QString macOSBundlePath(const QString &path) const;
-
+    QFile m_captureFileForTest;
     QWeakPointer<QLocalServer> m_localServer;
     QWeakPointer<QLocalSocket> m_firstSocket;
     QWeakPointer<QLocalSocket> m_secondSocket;
