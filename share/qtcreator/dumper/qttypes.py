@@ -622,18 +622,17 @@ def qform__QHash():
 
 def qdump__QHash(d, value):
 
-    def hashDataFirstNode(value, numBuckets):
-        valPtr = value.cast(dataTypePtr)
-        bucket = valPtr.dereference()["buckets"]  # gives a Node **
-        e = valPtr.cast(nodeTypePtr)
+    def hashDataFirstNode(dPtr, numBuckets):
+        ePtr = dPtr.cast(nodeTypePtr)
+        bucket = dPtr.dereference()["buckets"]
         for n in xrange(numBuckets - 1, -1, -1):
             n = n - 1
             if n < 0:
                 break
-            if bucket.dereference() != e:
+            if pointerValue(bucket.dereference()) != pointerValue(ePtr):
                 return bucket.dereference()
             bucket = bucket + 1
-        return e;
+        return ePtr;
 
     def hashDataNextNode(nodePtr, numBuckets):
         nextPtr = nodePtr.dereference()["next"]
@@ -643,7 +642,7 @@ def qdump__QHash(d, value):
         dPtr = nextPtr.cast(dataTypePtr)
         bucket = dPtr.dereference()["buckets"] + start
         for n in xrange(numBuckets - start):
-            if bucket.dereference() != nextPtr:
+            if pointerValue(bucket.dereference()) != pointerValue(nextPtr):
                 return bucket.dereference()
             bucket += 1
         return nextPtr
@@ -656,8 +655,8 @@ def qdump__QHash(d, value):
     e_ptr = anon["e"]
     size = int(d_ptr["size"])
 
-    dataTypePtr = d_ptr.type
-    nodeTypePtr = e_ptr.type
+    dataTypePtr = d_ptr.type    # QHashData *  = { Node *fakeNext, Node *buckets }
+    nodeTypePtr = d_ptr.dereference()["fakeNext"].type    # QHashData::Node
 
     check(0 <= size and size <= 100 * 1000 * 1000)
     checkRef(d_ptr["ref"])
@@ -666,7 +665,7 @@ def qdump__QHash(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         numBuckets = int(d_ptr.dereference()["numBuckets"])
-        nodePtr = hashDataFirstNode(value, numBuckets)
+        nodePtr = hashDataFirstNode(d_ptr, numBuckets)
         innerType = e_ptr.dereference().type
         isCompact = d.isMapCompact(keyType, valueType)
         childType = valueType if isCompact else innerType
