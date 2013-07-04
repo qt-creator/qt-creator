@@ -42,6 +42,8 @@ namespace QmlDesigner {
 class PropertyValueContainer
 {
     friend QDataStream &operator>>(QDataStream &in, PropertyValueContainer &container);
+    friend bool operator ==(const PropertyValueContainer &first, const PropertyValueContainer &second);
+    friend bool operator <(const PropertyValueContainer &first, const PropertyValueContainer &second);
 
 public:
     PropertyValueContainer();
@@ -62,6 +64,9 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const PropertyValueContainer &container);
 QDataStream &operator>>(QDataStream &in, PropertyValueContainer &container);
+
+bool operator ==(const PropertyValueContainer &first, const PropertyValueContainer &second);
+bool operator <(const PropertyValueContainer &first, const PropertyValueContainer &second);
 
 } // namespace QmlDesigner
 

@@ -41,6 +41,7 @@ class ValuesChangedCommand
 {
     friend QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command);
     friend QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command);
+    friend bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second);
 
 public:
     ValuesChangedCommand();
@@ -51,6 +52,8 @@ public:
 
     static void removeSharedMemorys(const QVector<qint32> &keyNumberVector);
 
+    void sort();
+
 private:
     QVector<PropertyValueContainer> m_valueChangeVector;
     mutable quint32 m_keyNumber;
@@ -58,6 +61,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command);
 QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command);
+
+bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second);
 
 } // namespace QmlDesigner
 

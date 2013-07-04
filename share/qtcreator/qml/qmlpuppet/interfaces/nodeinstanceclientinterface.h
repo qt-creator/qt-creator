@@ -59,7 +59,6 @@ public:
     virtual void flush() {};
     virtual void synchronizeWithClientProcess() {}
     virtual qint64 bytesToWrite() const {return 0;}
-
 };
 
 }

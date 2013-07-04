@@ -61,5 +61,9 @@ QDataStream &operator>>(QDataStream &in, SynchronizeCommand &command)
     return in;
 }
 
+bool operator ==(const SynchronizeCommand &first, const SynchronizeCommand &second)
+{
+    return first.m_synchronizeId == second.m_synchronizeId;
+}
 
 } // namespace QmlDesigner

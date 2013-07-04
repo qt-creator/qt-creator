@@ -35,9 +35,11 @@
 #include <QObject>
 #include <QHash>
 #include <QWeakPointer>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 class QLocalSocket;
+class QIODevice;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -82,6 +84,7 @@ public:
 
 protected:
     void initializeSocket();
+    void initializeCapturedStream(const QString &fileName);
     void writeCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);
     NodeInstanceServerInterface *nodeInstanceServer() const;
@@ -104,16 +107,18 @@ protected:
     void removeSharedMemory(const RemoveSharedMemoryCommand &command);
     void redirectToken(const TokenCommand &command);
     void redirectToken(const EndPuppetCommand &command);
+    static QVariant readCommandFromIOStream(QIODevice *ioDevice, quint32 *readCommandCounter, quint32 *blockSize);
 
-private slots:
+protected slots:
     void readDataStream();
 
 private:
-    QLocalSocket *m_socket;
+    QFile m_controlStream;
+    QIODevice *m_inputIoDevice;
+    QIODevice *m_outputIoDevice;
     NodeInstanceServerInterface *m_nodeInstanceServer;
     quint32 m_blockSize;
     quint32 m_writeCommandCounter;
-    quint32 m_lastReadCommandCounter;
     int m_synchronizeId;
 };
 

@@ -34,6 +34,7 @@
 #include "qt5informationnodeinstanceserver.h"
 #include "qt5previewnodeinstanceserver.h"
 #include "qt5rendernodeinstanceserver.h"
+#include "qt5testnodeinstanceserver.h"
 
 #include <designersupport.h>
 
@@ -43,15 +44,22 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     NodeInstanceClientProxy(parent)
 {
     DesignerSupport::activateDesignerWindowManager();
-    if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
+    if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
+        qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");
+        setNodeInstanceServer(new Qt5TestNodeInstanceServer(this));
+        initializeCapturedStream(QCoreApplication::arguments().at(2));
+        readDataStream();
+        QCoreApplication::exit();
+    } else if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
         setNodeInstanceServer(new Qt5PreviewNodeInstanceServer(this));
+        initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
         setNodeInstanceServer(new Qt5InformationNodeInstanceServer(this));
+        initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("rendermode")) {
         setNodeInstanceServer(new Qt5RenderNodeInstanceServer(this));
+        initializeSocket();
     }
-
-    initializeSocket();
 }
 
 } // namespace QmlDesigner

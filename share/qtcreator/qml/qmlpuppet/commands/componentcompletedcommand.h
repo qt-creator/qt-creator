@@ -38,6 +38,7 @@ namespace QmlDesigner {
 class ComponentCompletedCommand
 {
     friend QDataStream &operator>>(QDataStream &in, ComponentCompletedCommand &command);
+    friend bool operator ==(const ComponentCompletedCommand &first, const ComponentCompletedCommand &second);
 
 public:
     ComponentCompletedCommand();
@@ -45,12 +46,16 @@ public:
 
     QVector<qint32> instances() const;
 
+    void sort();
+
 private:
     QVector<qint32> m_instanceVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const ComponentCompletedCommand &command);
 QDataStream &operator>>(QDataStream &in, ComponentCompletedCommand &command);
+
+bool operator ==(const ComponentCompletedCommand &first, const ComponentCompletedCommand &second);
 
 } // namespace QmlDesigner
 

@@ -39,6 +39,7 @@ namespace QmlDesigner {
 class DebugOutputCommand
 {
     friend QDataStream &operator>>(QDataStream &in, DebugOutputCommand &command);
+    friend bool operator ==(const DebugOutputCommand &first, const DebugOutputCommand &second);
 
 public:
     enum Type {
@@ -61,6 +62,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const DebugOutputCommand &command);
 QDataStream &operator>>(QDataStream &in, DebugOutputCommand &command);
+
+bool operator ==(const DebugOutputCommand &first, const DebugOutputCommand &second);
 
 } // namespace QmlDesigner
 

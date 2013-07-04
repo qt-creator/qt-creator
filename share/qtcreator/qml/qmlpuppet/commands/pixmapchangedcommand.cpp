@@ -49,6 +49,11 @@ QVector<ImageContainer> PixmapChangedCommand::images() const
     return m_imageVector;
 }
 
+void PixmapChangedCommand::sort()
+{
+    qSort(m_imageVector);
+}
+
 QDataStream &operator<<(QDataStream &out, const PixmapChangedCommand &command)
 {
     out << command.images();
@@ -61,6 +66,11 @@ QDataStream &operator>>(QDataStream &in, PixmapChangedCommand &command)
     in >> command.m_imageVector;
 
     return in;
+}
+
+bool operator ==(const PixmapChangedCommand &first, const PixmapChangedCommand &second)
+{
+    return first.m_imageVector == second.m_imageVector;
 }
 
 } // namespace QmlDesigner

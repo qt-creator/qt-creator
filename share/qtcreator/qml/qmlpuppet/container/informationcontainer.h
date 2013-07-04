@@ -43,6 +43,8 @@ class InformationContainer
 {
     friend QDataStream &operator>>(QDataStream &in, InformationContainer &container);
     friend QDataStream &operator<<(QDataStream &out, const InformationContainer &container);
+    friend bool operator ==(const InformationContainer &first, const InformationContainer &second);
+    friend bool operator <(const InformationContainer &first, const InformationContainer &second);
 
 public:
     InformationContainer();
@@ -68,6 +70,9 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const InformationContainer &container);
 QDataStream &operator>>(QDataStream &in, InformationContainer &container);
+
+bool operator ==(const InformationContainer &first, const InformationContainer &second);
+bool operator <(const InformationContainer &first, const InformationContainer &second);
 
 } // namespace QmlDesigner
 

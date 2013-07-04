@@ -39,6 +39,8 @@ namespace QmlDesigner {
 class ChildrenChangedCommand
 {
     friend QDataStream &operator>>(QDataStream &in, ChildrenChangedCommand &command);
+    friend bool operator ==(const ChildrenChangedCommand &first, const ChildrenChangedCommand &second);
+
 public:
     ChildrenChangedCommand();
     explicit ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &childrenInstancesconst, const QVector<InformationContainer> &informationVector);
@@ -46,6 +48,8 @@ public:
     QVector<qint32> childrenInstances() const;
     qint32 parentInstanceId() const;
     QVector<InformationContainer> informations() const;
+
+    void sort();
 
 private:
     qint32 m_parentInstanceId;
@@ -55,6 +59,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const ChildrenChangedCommand &command);
 QDataStream &operator>>(QDataStream &in, ChildrenChangedCommand &command);
+
+bool operator ==(const ChildrenChangedCommand &first, const ChildrenChangedCommand &second);
 
 } // namespace QmlDesigner
 

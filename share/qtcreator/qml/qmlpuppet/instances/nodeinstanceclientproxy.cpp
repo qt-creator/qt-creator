@@ -33,6 +33,9 @@
 #include <QVariant>
 #include <QCoreApplication>
 #include <QStringList>
+#include <QFile>
+#include <QFileInfo>
+#include <QBuffer>
 
 #include "nodeinstanceserverinterface.h"
 
@@ -72,37 +75,116 @@ namespace QmlDesigner {
 
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
+      m_inputIoDevice(0),
+      m_outputIoDevice(0),
       m_nodeInstanceServer(0),
-      m_blockSize(0),
       m_writeCommandCounter(0),
-      m_lastReadCommandCounter(0),
       m_synchronizeId(-1)
 {
 }
 
 void NodeInstanceClientProxy::initializeSocket()
 {
-    m_socket = new QLocalSocket(this);
-    connect(m_socket, SIGNAL(readyRead()), this, SLOT(readDataStream()));
-    connect(m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), QCoreApplication::instance(), SLOT(quit()));
-    connect(m_socket, SIGNAL(disconnected()), QCoreApplication::instance(), SLOT(quit()));
-    m_socket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
-    m_socket->waitForConnected(-1);
+    QLocalSocket *localSocket = new QLocalSocket(this);
+    connect(localSocket, SIGNAL(readyRead()), this, SLOT(readDataStream()));
+    connect(localSocket, SIGNAL(error(QLocalSocket::LocalSocketError)), QCoreApplication::instance(), SLOT(quit()));
+    connect(localSocket, SIGNAL(disconnected()), QCoreApplication::instance(), SLOT(quit()));
+    localSocket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
+    localSocket->waitForConnected(-1);
+
+    m_inputIoDevice = localSocket;
+    m_outputIoDevice = localSocket;
+}
+
+void NodeInstanceClientProxy::initializeCapturedStream(const QString &fileName)
+{
+    m_inputIoDevice = new QFile(fileName, this);
+    bool inputStreamCanBeOpened = m_inputIoDevice->open(QIODevice::ReadOnly);
+    if (!inputStreamCanBeOpened) {
+        qDebug() << "Input stream file cannot be opened: " << fileName;
+        QCoreApplication::exit(-1);
+    }
+
+    if (QCoreApplication::arguments().count() == 3) {
+        QFileInfo inputFileInfo(fileName);
+        m_outputIoDevice = new QFile(inputFileInfo.path()+ "/" + inputFileInfo.baseName() + ".commandcontrolstream", this);
+        bool outputStreamCanBeOpened = m_outputIoDevice->open(QIODevice::WriteOnly);
+        if (!outputStreamCanBeOpened) {
+            qDebug() << "Output stream file cannot be opened";
+            QCoreApplication::exit(-1);
+        }
+    } else if (QCoreApplication::arguments().count() == 4) {
+        m_controlStream.setFileName(QCoreApplication::arguments().at(3));
+        bool controlStreamCanBeOpened = m_controlStream.open(QIODevice::ReadOnly);
+        if (!controlStreamCanBeOpened) {
+            qDebug() << "Control stream file cannot be opened";
+            QCoreApplication::exit(-1);
+        }
+    }
+
+}
+
+bool compareCommands(const QVariant &command, const QVariant &controlCommand)
+{
+    static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
+    static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
+    static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
+    static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
+    static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
+    static const int componentCompletedCommandType = QMetaType::type("ComponentCompletedCommand");
+    static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
+    static const int tokenCommandType = QMetaType::type("TokenCommand");
+    static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
+
+    if (command.userType() == controlCommand.userType()) {
+        if (command.userType() == informationChangedCommandType)
+            return command.value<InformationChangedCommand>() == controlCommand.value<InformationChangedCommand>();
+        else if (command.userType() == valuesChangedCommandType)
+            return command.value<ValuesChangedCommand>() == controlCommand.value<ValuesChangedCommand>();
+        else if (command.userType() == pixmapChangedCommandType)
+            return command.value<PixmapChangedCommand>() == controlCommand.value<PixmapChangedCommand>();
+        else if (command.userType() == childrenChangedCommandType)
+            return command.value<ChildrenChangedCommand>() == controlCommand.value<ChildrenChangedCommand>();
+        else if (command.userType() == statePreviewImageChangedCommandType)
+            return command.value<StatePreviewImageChangedCommand>() == controlCommand.value<StatePreviewImageChangedCommand>();
+        else if (command.userType() == componentCompletedCommandType)
+            return command.value<ComponentCompletedCommand>() == controlCommand.value<ComponentCompletedCommand>();
+        else if (command.userType() == synchronizeCommandType)
+            return command.value<SynchronizeCommand>() == controlCommand.value<SynchronizeCommand>();
+        else if (command.userType() == tokenCommandType)
+            return command.value<TokenCommand>() == controlCommand.value<TokenCommand>();
+        else if (command.userType() == debugOutputCommandType)
+            return command.value<DebugOutputCommand>() == controlCommand.value<DebugOutputCommand>();
+    }
+
+    return false;
 }
 
 void NodeInstanceClientProxy::writeCommand(const QVariant &command)
 {
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_8);
-    out << quint32(0);
-    out << quint32(m_writeCommandCounter);
-    m_writeCommandCounter++;
-    out << command;
-    out.device()->seek(0);
-    out << quint32(block.size() - sizeof(quint32));
+    if (m_controlStream.isReadable()) {
+        static quint32 readCommandCounter = 0;
+        static quint32 blockSize = 0;
 
-    m_socket->write(block);
+        QVariant controlCommand = readCommandFromIOStream(&m_controlStream, &readCommandCounter, &blockSize);
+
+        if (!compareCommands(command, controlCommand)) {
+            qDebug() << "Commands differ!";
+            QCoreApplication::exit(-1);
+        }
+    } else if (m_outputIoDevice) {
+        QByteArray block;
+        QDataStream out(&block, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_8);
+        out << quint32(0);
+        out << quint32(m_writeCommandCounter);
+        m_writeCommandCounter++;
+        out << command;
+        out.device()->seek(0);
+        out << quint32(block.size() - sizeof(quint32));
+
+        m_outputIoDevice->write(block);
+    }
 }
 
 void NodeInstanceClientProxy::informationChanged(const InformationChangedCommand &command)
@@ -159,44 +241,60 @@ void NodeInstanceClientProxy::synchronizeWithClientProcess()
 
 qint64 NodeInstanceClientProxy::bytesToWrite() const
 {
-    return m_socket->bytesToWrite();
+    return m_inputIoDevice->bytesToWrite();
+}
+
+QVariant NodeInstanceClientProxy::readCommandFromIOStream(QIODevice *ioDevice, quint32 *readCommandCounter, quint32 *blockSize)
+{
+
+
+
+    QDataStream in(ioDevice);
+    in.setVersion(QDataStream::Qt_4_8);
+
+    if (*blockSize == 0) {
+        in >> *blockSize;
+    }
+
+    if (ioDevice->bytesAvailable() < *blockSize)
+        return QVariant();
+
+    quint32 commandCounter;
+    in >> commandCounter;
+    bool commandLost = !((commandCounter == 0 && *readCommandCounter == 0) || (*readCommandCounter + 1 == commandCounter));
+    if (commandLost)
+        qDebug() << "client command lost: " << *readCommandCounter <<  commandCounter;
+    *readCommandCounter = commandCounter;
+
+    QVariant command;
+    in >> command;
+    *blockSize = 0;
+
+    if (in.status() != QDataStream::Ok) {
+        qWarning() << "Stream is no ok!!!";
+        exit(1);
+    }
+
+    return command;
 }
 
 void NodeInstanceClientProxy::readDataStream()
 {
     QList<QVariant> commandList;
 
-    while (!m_socket->atEnd()) {
-        if (m_socket->bytesAvailable() < int(sizeof(quint32)))
+    while (!m_inputIoDevice->atEnd()) {
+        if (m_inputIoDevice->bytesAvailable() < int(sizeof(quint32)))
             break;
 
-        QDataStream in(m_socket);
-        in.setVersion(QDataStream::Qt_4_8);
+        static quint32 readCommandCounter = 0;
+        static quint32 blockSize = 0;
 
-        if (m_blockSize == 0) {
-            in >> m_blockSize;
-        }
+        QVariant command = readCommandFromIOStream(m_inputIoDevice, &readCommandCounter, &blockSize);
 
-        if (m_socket->bytesAvailable() < m_blockSize)
+        if (command.isValid())
+            commandList.append(command);
+        else
             break;
-
-        quint32 commandCounter;
-        in >> commandCounter;
-        bool commandLost = !((m_lastReadCommandCounter == 0 && commandCounter == 0) || (m_lastReadCommandCounter + 1 == commandCounter));
-        if (commandLost)
-            qDebug() << "client command lost: " << m_lastReadCommandCounter <<  commandCounter;
-        m_lastReadCommandCounter = commandCounter;
-
-        QVariant command;
-        in >> command;
-        m_blockSize = 0;
-
-        if (in.status() != QDataStream::Ok) {
-            qWarning() << "Stream is no ok!!!";
-            exit(1);
-        }
-
-        commandList.append(command);
     }
 
     foreach (const QVariant &command, commandList) {
@@ -295,6 +393,15 @@ void NodeInstanceClientProxy::redirectToken(const TokenCommand &command)
 
 void NodeInstanceClientProxy::redirectToken(const EndPuppetCommand & /*command*/)
 {
+    if (m_outputIoDevice && m_outputIoDevice->isOpen())
+        m_outputIoDevice->close();
+
+    if (m_inputIoDevice && m_inputIoDevice->isOpen())
+        m_inputIoDevice->close();
+
+    if (m_controlStream.isOpen())
+        m_controlStream.close();
+
     qDebug() << "End Process: " << QCoreApplication::applicationPid();
     QCoreApplication::exit();
 }

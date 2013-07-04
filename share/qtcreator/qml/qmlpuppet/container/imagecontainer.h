@@ -38,6 +38,9 @@ namespace QmlDesigner {
 class ImageContainer
 {
     friend QDataStream &operator>>(QDataStream &in, ImageContainer &container);
+    friend bool operator ==(const ImageContainer &first, const ImageContainer &second);
+    friend bool operator <(const ImageContainer &first, const ImageContainer &second);
+
 public:
     ImageContainer();
     ImageContainer(qint32 instanceId, const QImage &image, qint32 keyNumber);
@@ -58,6 +61,9 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container);
 QDataStream &operator>>(QDataStream &in, ImageContainer &container);
+
+bool operator ==(const ImageContainer &first, const ImageContainer &second);
+bool operator <(const ImageContainer &first, const ImageContainer &second);
 
 } // namespace QmlDesigner
 

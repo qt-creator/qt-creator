@@ -55,6 +55,7 @@ class Qt4NodeInstanceServer;
 class Qt4PreviewNodeInstanceServer;
 class Qt5NodeInstanceServer;
 class Qt5PreviewNodeInstanceServer;
+class Qt5TestNodeInstanceServer;
 class InstanceContainer;
 
 namespace Internal {
@@ -73,6 +74,7 @@ class ServerNodeInstance
     friend class Qt4PreviewNodeInstanceServer;
     friend class Qt5NodeInstanceServer;
     friend class Qt5PreviewNodeInstanceServer;
+    friend class Qt5TestNodeInstanceServer;
     friend class QHash<qint32, ServerNodeInstance>;
     friend uint qHash(const ServerNodeInstance &instance);
     friend bool operator==(const ServerNodeInstance &first, const ServerNodeInstance &second);
@@ -209,8 +211,9 @@ private: // variables
 };
 
 uint qHash(const ServerNodeInstance &instance);
-bool operator==(const ServerNodeInstance &first, const ServerNodeInstance &second);
-QDebug operator<<(QDebug debug, const ServerNodeInstance &instance);
+bool operator ==(const ServerNodeInstance &first, const ServerNodeInstance &second);
+bool operator <(const ServerNodeInstance &first, const ServerNodeInstance &second);
+QDebug operator <<(QDebug debug, const ServerNodeInstance &instance);
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ServerNodeInstance)

@@ -40,6 +40,7 @@ namespace QmlDesigner {
 class SynchronizeCommand
 {
     friend QDataStream &operator>>(QDataStream &in, SynchronizeCommand &command);
+    friend bool operator ==(const SynchronizeCommand &first, const SynchronizeCommand &second);
 
 public:
     SynchronizeCommand();
@@ -53,6 +54,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const SynchronizeCommand &command);
 QDataStream &operator>>(QDataStream &in, SynchronizeCommand &command);
+
+bool operator ==(const SynchronizeCommand &first, const SynchronizeCommand &second);
 
 } // namespace QmlDesigner
 

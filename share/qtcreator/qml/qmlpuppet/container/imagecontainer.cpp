@@ -231,4 +231,15 @@ QDataStream &operator>>(QDataStream &in, ImageContainer &container)
     return in;
 }
 
+bool operator ==(const ImageContainer &first, const ImageContainer &second)
+{
+    return first.m_instanceId == second.m_instanceId
+            && first.m_image == second.m_image;
+}
+
+bool operator <(const ImageContainer &first, const ImageContainer &second)
+{
+    return first.m_instanceId < second.m_instanceId;
+}
+
 } // namespace QmlDesigner

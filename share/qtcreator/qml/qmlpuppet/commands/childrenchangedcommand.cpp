@@ -58,6 +58,12 @@ QVector<InformationContainer> ChildrenChangedCommand::informations() const
     return m_informationVector;
 }
 
+void ChildrenChangedCommand::sort()
+{
+    qSort(m_childrenVector);
+    qSort(m_informationVector);
+}
+
 QDataStream &operator<<(QDataStream &out, const ChildrenChangedCommand &command)
 {
     out << command.parentInstanceId();
@@ -73,6 +79,13 @@ QDataStream &operator>>(QDataStream &in, ChildrenChangedCommand &command)
     in >> command.m_informationVector;
 
     return in;
+}
+
+bool operator ==(const ChildrenChangedCommand &first, const ChildrenChangedCommand &second)
+{
+    return first.m_parentInstanceId == second.m_parentInstanceId
+            && first.m_childrenVector == second.m_childrenVector
+            && first.m_informationVector == second.m_informationVector;
 }
 
 } // namespace QmlDesigner

@@ -98,4 +98,30 @@ QDataStream &operator>>(QDataStream &in, InformationContainer &container)
     return in;
 }
 
+bool operator ==(const InformationContainer &first, const InformationContainer &second)
+{
+    return first.m_instanceId == second.m_instanceId
+            && first.m_name == second.m_name
+            && first.m_information == second.m_information
+            && first.m_secondInformation == second.m_secondInformation
+            && first.m_thirdInformation == second.m_thirdInformation;
+}
+
+static bool operator <(const QVariant &first, const QVariant &second)
+{
+    if (first.userType() == second.userType()) {
+        if (first.canConvert<QByteArray>())
+            return first.value<QByteArray>() < second.value<QByteArray>();
+    }
+
+    return true;
+}
+
+bool operator <(const InformationContainer &first, const InformationContainer &second)
+{
+    return (first.m_instanceId < second.m_instanceId)
+        || (first.m_instanceId == second.m_instanceId && first.m_name < second.m_name)
+        || (first.m_instanceId == second.m_instanceId && first.m_name == second.m_name && first.m_information < second.m_information);
+}
+
 } // namespace QmlDesigner

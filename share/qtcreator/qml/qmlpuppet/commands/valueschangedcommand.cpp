@@ -67,6 +67,11 @@ void ValuesChangedCommand::removeSharedMemorys(const QVector<qint32> &keyNumberV
     }
 }
 
+void ValuesChangedCommand::sort()
+{
+    qSort(m_valueChangeVector);
+}
+
 static const QLatin1String valueKeyTemplateString("Values-%1");
 
 static QSharedMemory *createSharedMemory(qint32 key, int byteCount)
@@ -140,6 +145,11 @@ QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command)
         in >> command.m_valueChangeVector;
     }
     return in;
+}
+
+bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second)
+{
+    return first.m_valueChangeVector == second.m_valueChangeVector;
 }
 
 } // namespace QmlDesigner

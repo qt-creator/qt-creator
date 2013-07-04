@@ -47,6 +47,11 @@ QVector<qint32> ComponentCompletedCommand::instances() const
     return m_instanceVector;
 }
 
+void ComponentCompletedCommand::sort()
+{
+    qSort(m_instanceVector);
+}
+
 QDataStream &operator<<(QDataStream &out, const ComponentCompletedCommand &command)
 {
     out << command.instances();
@@ -59,6 +64,11 @@ QDataStream &operator>>(QDataStream &in, ComponentCompletedCommand &command)
     in >> command.m_instanceVector;
 
     return in;
+}
+
+bool operator ==(const ComponentCompletedCommand &first, const ComponentCompletedCommand &second)
+{
+    return first.m_instanceVector == second.m_instanceVector;
 }
 
 } // namespace QmlDesigner

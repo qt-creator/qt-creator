@@ -60,6 +60,11 @@ QVector<qint32> TokenCommand::instances() const
     return m_instanceIdVector;
 }
 
+void TokenCommand::sort()
+{
+    qSort(m_instanceIdVector);
+}
+
 QDataStream &operator<<(QDataStream &out, const TokenCommand &command)
 {
     out << command.tokenName();
@@ -77,5 +82,11 @@ QDataStream &operator>>(QDataStream &in, TokenCommand &command)
     return in;
 }
 
+bool operator ==(const TokenCommand &first, const TokenCommand &second)
+{
+    return first.m_tokenNumber == second.m_tokenNumber
+            && first.m_tokenNumber == second.m_tokenNumber
+            && first.m_instanceIdVector == second.m_instanceIdVector;
+}
 
 } // namespace QmlDesigner

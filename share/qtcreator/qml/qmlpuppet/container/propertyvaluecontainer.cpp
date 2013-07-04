@@ -29,6 +29,8 @@
 
 #include "propertyvaluecontainer.h"
 
+#include <QtDebug>
+
 namespace QmlDesigner {
 
 PropertyValueContainer::PropertyValueContainer()
@@ -88,5 +90,20 @@ QDataStream &operator>>(QDataStream &in, PropertyValueContainer &container)
 
     return in;
 }
+
+bool operator ==(const PropertyValueContainer &first, const PropertyValueContainer &second)
+{
+    return first.m_instanceId == second.m_instanceId
+            && first.m_name == second.m_name
+            && first.m_value == second.m_value
+            && first.m_dynamicTypeName == second.m_dynamicTypeName;
+}
+
+bool operator <(const PropertyValueContainer &first, const PropertyValueContainer &second)
+{
+    return  (first.m_instanceId < second.m_instanceId)
+        || (first.m_instanceId == second.m_instanceId && first.m_name < second.m_name);
+}
+
 
 } // namespace QmlDesigner

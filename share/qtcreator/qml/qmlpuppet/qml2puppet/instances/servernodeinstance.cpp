@@ -446,7 +446,7 @@ QPair<PropertyName, ServerNodeInstance> ServerNodeInstance::anchor(const Propert
     return m_nodeInstance->anchor(name);
 }
 
-QDebug operator<<(QDebug debug, const ServerNodeInstance &instance)
+QDebug operator <<(QDebug debug, const ServerNodeInstance &instance)
 {
     if (instance.isValid()) {
         debug.nospace() << "ServerNodeInstance("
@@ -466,10 +466,16 @@ uint qHash(const ServerNodeInstance &instance)
     return ::qHash(instance.instanceId());
 }
 
-bool operator==(const ServerNodeInstance &first, const ServerNodeInstance &second)
+bool operator ==(const ServerNodeInstance &first, const ServerNodeInstance &second)
 {
     return first.instanceId() == second.instanceId();
 }
+
+bool operator <(const ServerNodeInstance &first, const ServerNodeInstance &second)
+{
+    return first.instanceId() < second.instanceId();
+}
+
 
 bool ServerNodeInstance::isWrappingThisObject(QObject *object) const
 {

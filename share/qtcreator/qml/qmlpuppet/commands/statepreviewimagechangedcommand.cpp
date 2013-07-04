@@ -45,6 +45,11 @@ QVector<ImageContainer> StatePreviewImageChangedCommand::previews()const
     return m_previewVector;
 }
 
+void StatePreviewImageChangedCommand::sort()
+{
+    qSort(m_previewVector);
+}
+
 QDataStream &operator<<(QDataStream &out, const StatePreviewImageChangedCommand &command)
 {
     out << command.previews();
@@ -58,4 +63,10 @@ QDataStream &operator>>(QDataStream &in, StatePreviewImageChangedCommand &comman
 
     return in;
 }
+
+bool operator ==(const StatePreviewImageChangedCommand &first, const StatePreviewImageChangedCommand &second)
+{
+    return first.m_previewVector == second.m_previewVector;
+}
+
 } // namespace QmlDesigner

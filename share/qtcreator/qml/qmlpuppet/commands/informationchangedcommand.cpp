@@ -49,6 +49,11 @@ QVector<InformationContainer> InformationChangedCommand::informations() const
     return m_informationVector;
 }
 
+void InformationChangedCommand::sort()
+{
+    qSort(m_informationVector);
+}
+
 QDataStream &operator<<(QDataStream &out, const InformationChangedCommand &command)
 {
     out << command.informations();
@@ -61,6 +66,11 @@ QDataStream &operator>>(QDataStream &in, InformationChangedCommand &command)
     in >> command.m_informationVector;
 
     return in;
+}
+
+bool operator ==(const InformationChangedCommand &first, const InformationChangedCommand &second)
+{
+    return first.m_informationVector == second.m_informationVector;
 }
 
 } // namespace QmlDesigner

@@ -41,6 +41,7 @@ namespace QmlDesigner {
 class InformationChangedCommand
 {
     friend QDataStream &operator>>(QDataStream &in, InformationChangedCommand &command);
+    friend bool operator ==(const InformationChangedCommand &first, const InformationChangedCommand &second);
 
 public:
     InformationChangedCommand();
@@ -48,12 +49,16 @@ public:
 
     QVector<InformationContainer> informations() const;
 
+    void sort();
+
 private:
     QVector<InformationContainer> m_informationVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const InformationChangedCommand &command);
 QDataStream &operator>>(QDataStream &in, InformationChangedCommand &command);
+
+bool operator ==(const InformationChangedCommand &first, const InformationChangedCommand &second);
 
 } // namespace QmlDesigner
 
