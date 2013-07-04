@@ -622,11 +622,11 @@ def qform__QHash():
 
 def qdump__QHash(d, value):
 
-    def hashDataFirstNode(value):
-        val = value.cast(hashDataType)
-        bucket = val["buckets"]
-        e = val.cast(hashNodeType)
-        for n in xrange(int(val["numBuckets"]) - 1, -1, -1):
+    def hashDataFirstNode(value, numBuckets):
+        valPtr = value.cast(dataTypePtr)
+        bucket = valPtr.dereference()["buckets"]  # gives a Node **
+        e = valPtr.cast(nodeTypePtr)
+        for n in xrange(numBuckets - 1, -1, -1):
             n = n - 1
             if n < 0:
                 break
@@ -635,29 +635,29 @@ def qdump__QHash(d, value):
             bucket = bucket + 1
         return e;
 
-    def hashDataNextNode(node):
-        next = node["next"]
-        if next["next"]:
-            return next
-        d = node.cast(hashDataType.pointer()).dereference()
-        numBuckets = int(d["numBuckets"])
-        start = (int(node["h"]) % numBuckets) + 1
-        bucket = d["buckets"] + start
+    def hashDataNextNode(nodePtr, numBuckets):
+        nextPtr = nodePtr.dereference()["next"]
+        if pointerValue(nextPtr.dereference()["next"]):
+            return nextPtr
+        start = (int(nodePtr.dereference()["h"]) % numBuckets) + 1
+        dPtr = nextPtr.cast(dataTypePtr)
+        bucket = dPtr.dereference()["buckets"] + start
         for n in xrange(numBuckets - start):
-            if bucket.dereference() != next:
+            if bucket.dereference() != nextPtr:
                 return bucket.dereference()
             bucket += 1
-        return node
+        return nextPtr
 
     keyType = d.templateArgument(value.type, 0)
     valueType = d.templateArgument(value.type, 1)
 
-    d_ptr = value["d"]
-    e_ptr = value["e"]
+    anon = childAt(value, 0)
+    d_ptr = anon["d"]
+    e_ptr = anon["e"]
     size = int(d_ptr["size"])
 
-    hashDataType = d_ptr.type
-    hashNodeType = e_ptr.type
+    dataTypePtr = d_ptr.type
+    nodeTypePtr = e_ptr.type
 
     check(0 <= size and size <= 100 * 1000 * 1000)
     checkRef(d_ptr["ref"])
@@ -665,15 +665,14 @@ def qdump__QHash(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        isCompact = d.isMapCompact(keyType, valueType)
-        node = hashDataFirstNode(value)
+        numBuckets = int(d_ptr.dereference()["numBuckets"])
+        nodePtr = hashDataFirstNode(value, numBuckets)
         innerType = e_ptr.dereference().type
-        childType = innerType
-        if isCompact:
-            childType = valueType
+        isCompact = d.isMapCompact(keyType, valueType)
+        childType = valueType if isCompact else innerType
         with Children(d, size, maxNumChild=1000, childType=childType):
             for i in d.childRange():
-                it = node.dereference().cast(innerType)
+                it = nodePtr.dereference().cast(innerType)
                 with SubItem(d, i):
                     if isCompact:
                         d.putMapName(it["key"])
@@ -681,7 +680,7 @@ def qdump__QHash(d, value):
                         d.putType(valueType)
                     else:
                         d.putItem(it)
-                node = hashDataNextNode(node)
+                nodePtr = hashDataNextNode(nodePtr, numBuckets)
 
 
 def qdump__QHashNode(d, value):
@@ -1603,7 +1602,7 @@ def qdump__QSet(d, value):
     def hashDataFirstNode(value):
         val = value.cast(hashDataType)
         bucket = val["buckets"]
-        e = value.cast(hashNodeType)
+        e = value.cast(nodeTypePtr)
         for n in xrange(val["numBuckets"] - 1, -1, -1):
             n = n - 1
             if n < 0:
@@ -1634,7 +1633,7 @@ def qdump__QSet(d, value):
     size = int(d_ptr["size"])
 
     hashDataType = d_ptr.type
-    hashNodeType = e_ptr.type
+    nodeTypePtr = e_ptr.type
 
     check(0 <= size and size <= 100 * 1000 * 1000)
     checkRef(d_ptr["ref"])
