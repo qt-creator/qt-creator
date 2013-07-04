@@ -3168,20 +3168,24 @@ void tst_Dumpers::dumper_data()
                     "#include <QRectF>\n"
                     "#include <QStringList>\n"
                     "#include <QString>\n",
+                    "QRect r(100, 200, 300, 400);\n"
+                    "QRectF rf(100.5, 200.5, 300.5, 400.5);\n"
                     "QVariant var;                               // Type 0, invalid\n"
                     "QVariant var1(true);                        // 1, bool\n"
                     "QVariant var2(2);                           // 2, int\n"
                     "QVariant var3(3u);                          // 3, uint\n"
                     "QVariant var4(qlonglong(4));                // 4, qlonglong\n"
                     "QVariant var5(qulonglong(5));               // 5, qulonglong\n"
-                    "QVariant var6(double(6));                   // 6, double\n"
+                    "QVariant var6(double(6.0));                 // 6, double\n"
                     "QVariant var7(QChar(7));                    // 7, QChar\n"
                     //None,          # 8, QVariantMap
                     // None,          # 9, QVariantList
                     "QVariant var10(QString(\"Hello 10\"));      // 10, QString\n"
                     "QVariant var11(QStringList() << \"Hello\" << \"World\"); // 11, QStringList\n"
-                    "QVariant var19(QRect(100, 200, 300, 400));  // 19 QRect\n"
-                    "QVariant var20(QRectF(100.5, 200.5, 300.5, 400.5)); // 20 QRectF\n"
+                    "QVariant var19(r);                          // 19 QRect\n"
+                    "QVariant var20(rf);                         // 20 QRectF\n"
+                    "unused(&var, &var1, &var2, &var3, &var4, &var5, &var6);\n"
+                    "unused(&var, &var7, &var10, &var11, &var19, &var20);\n"
                     )
                % CoreProfile()
                % Check("var", "(invalid)", "@QVariant (invalid)")
@@ -3190,7 +3194,7 @@ void tst_Dumpers::dumper_data()
                % Check("var3", "3", "@QVariant (uint)")
                % Check("var4", "4", "@QVariant (qlonglong)")
                % Check("var5", "5", "@QVariant (qulonglong)")
-               % Check("var6", "6", "@QVariant (double)")
+               % Check("var6", "6.0", "@QVariant (double)")
                % Check("var7", "'?' (7)", "@QVariant (QChar)")
                % Check("var10", "\"Hello 10\"", "@QVariant (QString)")
                % Check("var11", "<2 items>", "@QVariant (QStringList)")

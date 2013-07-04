@@ -1855,27 +1855,27 @@ def qdumpHelper_QVariant_1(d, data):
 def qdumpHelper_QVariant_2(d, data):
     # QVariant::Int
     d.putBetterType("%sQVariant (int)" % d.ns)
-    d.putValue(data["i"])
+    d.putValue(int(data["i"]))
 
 def qdumpHelper_QVariant_3(d, data):
     # uint
     d.putBetterType("%sQVariant (uint)" % d.ns)
-    d.putValue(data["u"])
+    d.putValue(int(data["u"]))
 
 def qdumpHelper_QVariant_4(d, data):
     # qlonglong
     d.putBetterType("%sQVariant (qlonglong)" % d.ns)
-    d.putValue(data["ll"])
+    d.putValue(int(data["ll"]))
 
 def qdumpHelper_QVariant_5(d, data):
     # qulonglong
     d.putBetterType("%sQVariant (qulonglong)" % d.ns)
-    d.putValue(data["ull"])
+    d.putValue(int(data["ull"]))
 
 def qdumpHelper_QVariant_6(d, data):
     # QVariant::Double
     d.putBetterType("%sQVariant (double)" % d.ns)
-    d.putValue(data["d"])
+    d.putValue(float(data["d"]))
 
 qdumpHelper_QVariants_A = [
     qdumpHelper_QVariant_0,
@@ -1958,13 +1958,13 @@ def qdumpHelper__QVariant(d, value):
         if not inner is None:
             innert = inner
         elif variantType == 8:  # QVariant::VariantMap
-            inner = d.ns + "QMap<" + d.ns + "QString, " + d.ns + "QVariant>"
+            inner = d.ns + "QMap<" + d.ns + "QString," + d.ns + "QVariant>"
             innert = d.ns + "QVariantMap"
         elif variantType == 9:  # QVariant::VariantList
             inner = d.ns + "QList<" + d.ns + "QVariant>"
             innert = d.ns + "QVariantList"
         elif variantType == 28: # QVariant::VariantHash
-            inner = d.ns + "QHash<" + d.ns + "QString, " + d.ns + "QVariant>"
+            inner = d.ns + "QHash<" + d.ns + "QString," + d.ns + "QVariant>"
             innert = d.ns + "QVariantHash"
 
     elif variantType <= 86:
@@ -1973,9 +1973,9 @@ def qdumpHelper__QVariant(d, value):
 
     if len(inner):
         innerType = d.lookupType(inner)
-        sizePD = d.lookupType(d.ns + 'QVariant::Private::Data').sizeof
+        sizePD = 8 # sizeof(QVariant::Private::Data)
         if innerType.sizeof > sizePD:
-            sizePS = d.lookupType(d.ns + 'QVariant::PrivateShared').sizeof
+            sizePS = 2 * d.ptrSize() # sizeof(QVariant::PrivateShared)
             val = (data.cast(d.charPtrType()) + sizePS) \
                 .cast(innerType.pointer()).dereference()
         else:
@@ -1995,9 +1995,14 @@ def qdump__QVariant(d, value):
 
     if len(inner):
         innerType = d.lookupType(inner)
-        # FIXME: Why "shared"?
         if innerType.sizeof > d_data.type.sizeof:
-            v = d_data["shared"]["ptr"].cast(innerType.pointer()).dereference()
+            # FIXME:
+            #if int(d_ptr["is_shared"]):
+            #    v = d_data["ptr"].cast(innerType.pointer().pointer().pointer()) \
+            #        .dereference().dereference().dereference()
+            #else:
+                v = d_data["ptr"].cast(innerType.pointer().pointer()) \
+                    .dereference().dereference()
         else:
             v = d_data.cast(innerType)
         d.putEmptyValue(-99)
@@ -2006,12 +2011,13 @@ def qdump__QVariant(d, value):
         return innert
 
     # User types.
+    typeCode = int(d_ptr["type"])
     if gdbLoaded:
         type = str(call(value, "typeToName",
-            "('%sQVariant::Type')%d" % (d.ns, d_ptr["type"])))
+            "('%sQVariant::Type')%d" % (d.ns, typeCode)))
     if lldbLoaded:
         type = str(call(value, "typeToName",
-            "(%sQVariant::Type)%d" % (d.ns, d_ptr["type"])))
+            "(%sQVariant::Type)%d" % (d.ns, typeCode)))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
