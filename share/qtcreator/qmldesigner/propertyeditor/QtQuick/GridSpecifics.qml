@@ -75,24 +75,27 @@ QWidget {
                         }
                     }
                 } //QWidget
-//                Qt namespace enums not supported by the rewriter
-//                QWidget {
-//                    layout: HorizontalLayout {
-//                        Label {
-//                            text: qsTr("Layout direction")
-//                        }
+                //Qt namespace enums not supported by the rewriter
+                QWidget {
+                    layout: HorizontalLayout {
+                        Label {
+                            text: qsTr("Layout direction")
+                        }
 
-//                        ComboBox {
-//                            baseStateFlag: isBaseState
-//                            items : { ["LeftToRight", "RightToLeft"] }
-//                            currentText: backendValues.layoutDirection.value;
-//                            onItemsChanged: {
-//                                currentText =  backendValues.layoutDirection.value;
-//                            }
-//                            backendValue: backendValues.layoutDirection
-//                        }
-//                    }
-//                } //QWidget
+                        ComboBox {
+                            id: alignmentBox
+                            baseStateFlag: isBaseState
+                            items : { ["LeftToRight", "RightToLeft"] }
+                            currentText: backendValues.layoutDirection.value;
+                            onItemsChanged: {
+                                alignmentBox.currentText =  backendValues.layoutDirection.value;
+                                print("blab");
+                                print(alignmentBox.currentText);
+                            }
+                            backendValue: backendValues.layoutDirection
+                        }
+                    }
+                } //QWidget
                 IntEditor {
                     backendValue: backendValues.spacing
                     caption: qsTr("Spacing")
