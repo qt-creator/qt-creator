@@ -5,10 +5,6 @@ Module {
     Depends { id: qtcore; name: "Qt.core" }
 
     additionalProductFileTags: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["qt_plugin_metadata"]
-    property int ide_version_major: project.ide_version_major
-    property int ide_version_minor: project.ide_version_minor
-    property int ide_version_release: project.ide_version_release
-    property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
 
     Rule {
         inputs: ["pluginSpecIn"]
@@ -22,11 +18,6 @@ Module {
             var cmd = new JavaScriptCommand();
             cmd.description = "prepare " + FileInfo.fileName(output.fileName);
             cmd.highlight = "codegen";
-            cmd.qtcreator_version = product.moduleProperty("pluginspec", "qtcreator_version");
-            cmd.ide_version_major = product.moduleProperty("pluginspec", "ide_version_major");
-            cmd.ide_version_minor = product.moduleProperty("pluginspec", "ide_version_minor");
-            cmd.ide_version_release = product.moduleProperty("pluginspec", "ide_version_release");
-
             cmd.pluginspecreplacements = product.pluginspecreplacements;
             cmd.plugin_depends = [];
             var deps = product.dependencies;
@@ -49,16 +40,16 @@ Module {
                 // replace quoted quotes
                 all = all.replace(/\\\"/g, '"');
                 // replace config vars
-                vars['QTCREATOR_VERSION'] = qtcreator_version;
-                vars['IDE_VERSION_MAJOR'] = ide_version_major;
-                vars['IDE_VERSION_MINOR'] = ide_version_minor;
-                vars['IDE_VERSION_RELEASE'] = ide_version_release;
+                vars['QTCREATOR_VERSION'] = project.qtcreator_version;
+                vars['IDE_VERSION_MAJOR'] = project.ide_version_major;
+                vars['IDE_VERSION_MINOR'] = project.ide_version_minor;
+                vars['IDE_VERSION_RELEASE'] = project.ide_version_release;
                 var deplist = ["<dependencyList>"];
                 for (i in plugin_depends) {
-                    deplist.push("        <dependency name=\"" + plugin_depends[i] + "\" version=\"" + qtcreator_version + "\"/>");
+                    deplist.push("        <dependency name=\"" + plugin_depends[i] + "\" version=\"" + project.qtcreator_version + "\"/>");
                 }
                 for (i in plugin_recommends) {
-                    deplist.push("        <dependency name=\"" + plugin_recommends[i] + "\" version=\"" + qtcreator_version + "\" type=\"optional\"/>");
+                    deplist.push("        <dependency name=\"" + plugin_recommends[i] + "\" version=\"" + project.qtcreator_version + "\" type=\"optional\"/>");
                 }
                 deplist.push("    </dependencyList>");
                 vars['dependencyList'] = deplist.join("\n");
