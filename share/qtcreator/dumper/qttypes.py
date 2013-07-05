@@ -976,7 +976,9 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
         isCompact = d.isMapCompact(keyType, valueType)
-        nodeType = d.lookupType(d.ns + "QMapNode<%s,%s>" % (keyType, valueType))
+        # Note: The space in the QMapNode lookup below is
+        # important for LLDB.
+        nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
         if isCompact:
             innerType = valueType
         else:
