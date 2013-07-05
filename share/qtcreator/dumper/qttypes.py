@@ -2380,9 +2380,11 @@ def qdump__std__string(d, value):
     refcount = int(sizePtr[-1])
     check(refcount >= -1) # Can be -1 accoring to docs.
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    qdump_stringHelper(d, sizePtr, size * charSize, charSize)
 
-    n = min(size, qqStringCutOff)
-    mem = d.readRawMemory(data, n * charSize)
+def qdump_stringHelper(d, data, size, charSize):
+    cutoff = min(size, qqStringCutOff)
+    mem = d.readRawMemory(data, cutoff)
     if charSize == 1:
         encodingType = Hex2EncodedLatin1
         displayType = DisplayLatin1String
@@ -2402,15 +2404,26 @@ def qdump__std__string(d, value):
     elif format == 2:
         d.putField("editformat", displayType)
         if n != size:
-            mem = d.readRawMemory(p, size * charType.sizeof)
+            mem = d.readRawMemory(p, size)
         d.putField("editvalue", mem)
 
-#def qdump__std__string(d, value):
-#    data = value["__r_"]
-#    d.putValue("SSSS")
-#    d.putType("std::string")
-#    d.putNumChild(1)
-#    d.putPlainChildren(value)
+
+def qdump__std____1__string(d, value):
+    inner = childAt(childAt(value["__r_"]["__first_"], 0), 0)
+    size = int(inner["__size_"])
+    alloc = int(inner["__cap_"])
+    data = pointerValue(inner["__data_"])
+    qdump_stringHelper(d, data, size, 1)
+    d.putType("std::string")
+
+
+def qdump__std____1__wstring(d, value):
+    inner = childAt(childAt(value["__r_"]["__first_"], 0), 0)
+    size = int(inner["__size_"]) * 4
+    alloc = int(inner["__cap_"])
+    data = pointerValue(inner["__data_"])
+    qdump_stringHelper(d, data, size, 4)
+    d.putType("std::wstring")
 
 
 def qdump__std__shared_ptr(d, value):
