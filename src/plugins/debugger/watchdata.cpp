@@ -358,6 +358,13 @@ QString WatchData::toToolTip() const
     if (!displayedType.isEmpty())
         formatToolTipRow(str, tr("Displayed Type"), displayedType);
     QString val = valuetooltip.isEmpty() ? value : valuetooltip;
+    // Automatically display hex value for unsigned integers.
+    if (!val.isEmpty() && val.at(0).isDigit() && isIntType(type)) {
+        bool ok;
+        const quint64 intValue = val.toULongLong(&ok);
+        if (ok && intValue)
+            val += QLatin1String(" (hex) ") + QString::number(intValue, 16);
+    }
     if (val.size() > 1000) {
         val.truncate(1000);
         val += tr(" ... <cut off>");
