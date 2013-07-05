@@ -34,7 +34,7 @@
 #include <coreplugin/icore.h>
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/hostosinfo.h>
@@ -57,7 +57,7 @@ namespace Core {
 struct EditorToolBarPrivate {
     explicit EditorToolBarPrivate(QWidget *parent, EditorToolBar *q);
 
-    Core::OpenEditorsModel *m_editorsListModel;
+    Core::DocumentModel *m_editorsListModel;
     QComboBox *m_editorList;
     QToolButton *m_closeEditorButton;
     QToolButton *m_lockButton;
@@ -115,7 +115,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_lockButton->setAutoRaise(true);
     d->m_lockButton->setEnabled(false);
 
-    d->m_editorsListModel = EditorManager::instance()->openedEditorsModel();
+    d->m_editorsListModel = EditorManager::instance()->documentModel();
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
 
@@ -310,13 +310,13 @@ void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 void EditorToolBar::changeActiveEditor(int row)
 {
     EditorManager *em = EditorManager::instance();
-    em->activateEditorForEntry(d->m_editorsListModel->entryAtRow(row));
+    em->activateEditorForEntry(d->m_editorsListModel->documentAtRow(row));
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)
 {
-    OpenEditorsModel::Entry *entry = EditorManager::instance()
-            ->openedEditorsModel()->entryAtRow(d->m_editorList->currentIndex());
+    DocumentModel::Entry *entry = EditorManager::instance()
+            ->documentModel()->documentAtRow(d->m_editorList->currentIndex());
     QString fileName = entry ? entry->fileName() : QString();
     if (fileName.isEmpty())
         return;

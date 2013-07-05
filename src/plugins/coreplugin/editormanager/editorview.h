@@ -57,7 +57,7 @@ class IContext;
 class IDocument;
 class IEditor;
 class InfoBarDisplay;
-class OpenEditorsModel;
+class DocumentModel;
 class EditorToolBar;
 
 namespace Internal {

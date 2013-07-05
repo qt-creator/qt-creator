@@ -33,7 +33,7 @@ SOURCES += mainwindow.cpp \
     versiondialog.cpp \
     editormanager/editormanager.cpp \
     editormanager/editorview.cpp \
-    editormanager/openeditorsmodel.cpp \
+    editormanager/documentmodel.cpp \
     editormanager/openeditorsview.cpp \
     editormanager/openeditorswindow.cpp \
     editormanager/ieditorfactory.cpp \
@@ -115,7 +115,7 @@ HEADERS += mainwindow.h \
     statusbarmanager.h \
     editormanager/editormanager.h \
     editormanager/editorview.h \
-    editormanager/openeditorsmodel.h \
+    editormanager/documentmodel.h \
     editormanager/openeditorsview.h \
     editormanager/openeditorswindow.h \
     editormanager/ieditor.h \

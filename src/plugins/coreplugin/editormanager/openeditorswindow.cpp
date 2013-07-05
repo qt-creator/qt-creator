@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "openeditorswindow.h"
-#include "openeditorsmodel.h"
+#include "documentmodel.h"
 #include "editormanager.h"
 #include "editorview.h"
 #include "idocument.h"
@@ -193,7 +193,7 @@ void OpenEditorsWindow::centerOnItem(int selectedIndex)
     }
 }
 
-void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view, OpenEditorsModel *model)
+void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view, DocumentModel *model)
 {
     m_editorList->clear();
 
@@ -203,7 +203,7 @@ void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, Edi
     addHistoryItems(globalHistory, view, model, documentsDone);
 
     // add purely restored editors which are not initialised yet
-    foreach (OpenEditorsModel::Entry *entry, model->entries()) {
+    foreach (DocumentModel::Entry *entry, model->documents()) {
         if (entry->document)
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -229,7 +229,7 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
     } else {
         if (!EditorManager::openEditor(
                     item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>())) {
-            EditorManager::instance()->openedEditorsModel()->removeDocument(item->toolTip(0));
+            EditorManager::instance()->documentModel()->removeDocument(item->toolTip(0));
             delete item;
         }
     }
@@ -249,7 +249,7 @@ void OpenEditorsWindow::ensureCurrentVisible()
 
 
 void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, EditorView *view,
-                                        OpenEditorsModel *model, QSet<IDocument *> &documentsDone)
+                                        DocumentModel *model, QSet<IDocument *> &documentsDone)
 {
     foreach (const EditLocation &hi, history) {
         if (hi.document.isNull() || documentsDone.contains(hi.document))

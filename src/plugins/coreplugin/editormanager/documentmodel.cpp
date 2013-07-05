@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "openeditorsmodel.h"
+#include "documentmodel.h"
 #include "ieditor.h"
 #include "idocument.h"
 
@@ -38,75 +38,75 @@
 
 namespace Core {
 
-struct OpenEditorsModelPrivate
+struct DocumentModelPrivate
 {
-    OpenEditorsModelPrivate();
-    ~OpenEditorsModelPrivate();
+    DocumentModelPrivate();
+    ~DocumentModelPrivate();
 
     const QIcon m_lockedIcon;
     const QIcon m_unlockedIcon;
 
-    QList<OpenEditorsModel::Entry *> m_documents;
+    QList<DocumentModel::Entry *> m_documents;
     QMap<IDocument *, QList<IEditor *> > m_editors;
 };
 
-OpenEditorsModelPrivate::OpenEditorsModelPrivate() :
+DocumentModelPrivate::DocumentModelPrivate() :
     m_lockedIcon(QLatin1String(":/core/images/locked.png")),
     m_unlockedIcon(QLatin1String(":/core/images/unlocked.png"))
 {
 }
 
-OpenEditorsModelPrivate::~OpenEditorsModelPrivate()
+DocumentModelPrivate::~DocumentModelPrivate()
 {
     qDeleteAll(m_documents);
 }
 
-OpenEditorsModel::Entry::Entry() :
+DocumentModel::Entry::Entry() :
     document(0)
 {
 }
 
-OpenEditorsModel::OpenEditorsModel(QObject *parent) :
-    QAbstractItemModel(parent), d(new OpenEditorsModelPrivate)
+DocumentModel::DocumentModel(QObject *parent) :
+    QAbstractItemModel(parent), d(new DocumentModelPrivate)
 {
 }
 
-OpenEditorsModel::~OpenEditorsModel()
+DocumentModel::~DocumentModel()
 {
     delete d;
 }
 
-QIcon OpenEditorsModel::lockedIcon() const
+QIcon DocumentModel::lockedIcon() const
 {
     return d->m_lockedIcon;
 }
 
-QIcon OpenEditorsModel::unlockedIcon() const
+QIcon DocumentModel::unlockedIcon() const
 {
     return d->m_unlockedIcon;
 }
 
-QString OpenEditorsModel::Entry::fileName() const {
+QString DocumentModel::Entry::fileName() const {
     return document ? document->filePath() : m_fileName;
 }
 
-QString OpenEditorsModel::Entry::displayName() const {
+QString DocumentModel::Entry::displayName() const {
     return document ? document->displayName() : m_displayName;
 }
 
-Id OpenEditorsModel::Entry::id() const
+Id DocumentModel::Entry::id() const
 {
     return m_id;
 }
 
-int OpenEditorsModel::columnCount(const QModelIndex &parent) const
+int DocumentModel::columnCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return 2;
     return 0;
 }
 
-int OpenEditorsModel::rowCount(const QModelIndex &parent) const
+int DocumentModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return d->m_documents.count() + 1/*<no document>*/;
@@ -114,7 +114,7 @@ int OpenEditorsModel::rowCount(const QModelIndex &parent) const
 }
 
 // TODO remove
-QList<IEditor *> OpenEditorsModel::oneEditorForEachDocument() const
+QList<IEditor *> DocumentModel::oneEditorForEachOpenedDocument() const
 {
     QList<IEditor *> result;
     QMapIterator<IDocument *, QList<IEditor *> > it(d->m_editors);
@@ -123,7 +123,7 @@ QList<IEditor *> OpenEditorsModel::oneEditorForEachDocument() const
     return result;
 }
 
-void OpenEditorsModel::addEditor(IEditor *editor, bool *isNewDocument)
+void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
 {
     if (!editor)
         return;
@@ -141,7 +141,7 @@ void OpenEditorsModel::addEditor(IEditor *editor, bool *isNewDocument)
     }
 }
 
-void OpenEditorsModel::addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id)
+void DocumentModel::addRestoredDocument(const QString &fileName, const QString &displayName, const Id &id)
 {
     Entry *entry = new Entry;
     entry->m_fileName = fileName;
@@ -150,7 +150,7 @@ void OpenEditorsModel::addRestoredEditor(const QString &fileName, const QString 
     addEntry(entry);
 }
 
-OpenEditorsModel::Entry *OpenEditorsModel::firstRestoredEditor() const
+DocumentModel::Entry *DocumentModel::firstRestoredDocument() const
 {
     for (int i = 0; i < d->m_documents.count(); ++i)
         if (!d->m_documents.at(i)->document)
@@ -158,7 +158,7 @@ OpenEditorsModel::Entry *OpenEditorsModel::firstRestoredEditor() const
     return 0;
 }
 
-void OpenEditorsModel::addEntry(Entry *entry)
+void DocumentModel::addEntry(Entry *entry)
 {
     QString fileName = entry->fileName();
 
@@ -190,7 +190,7 @@ void OpenEditorsModel::addEntry(Entry *entry)
     endInsertRows();
 }
 
-int OpenEditorsModel::indexofFileName(const QString &filename) const
+int DocumentModel::indexofFileName(const QString &filename) const
 {
     if (filename.isEmpty())
         return -1;
@@ -201,14 +201,14 @@ int OpenEditorsModel::indexofFileName(const QString &filename) const
     return -1;
 }
 
-void OpenEditorsModel::removeEntry(OpenEditorsModel::Entry *entry)
+void DocumentModel::removeEntry(DocumentModel::Entry *entry)
 {
     QTC_ASSERT(!entry->document, return); // we wouldn't know what to do with the associated editors
     int index = d->m_documents.indexOf(entry);
     removeDocument(index);
 }
 
-void OpenEditorsModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
+void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
 {
     if (lastOneForDocument)
         *lastOneForDocument = false;
@@ -224,14 +224,14 @@ void OpenEditorsModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
     }
 }
 
-void OpenEditorsModel::removeDocument(const QString &fileName)
+void DocumentModel::removeDocument(const QString &fileName)
 {
     int index = indexofFileName(fileName);
     QTC_ASSERT(!d->m_documents.at(index)->document, return); // we wouldn't know what to do with the associated editors
     removeDocument(index);
 }
 
-void OpenEditorsModel::removeDocument(int idx)
+void DocumentModel::removeDocument(int idx)
 {
     if (idx < 0)
         return;
@@ -245,7 +245,7 @@ void OpenEditorsModel::removeDocument(int idx)
         disconnect(document, SIGNAL(changed()), this, SLOT(itemChanged()));
 }
 
-void OpenEditorsModel::removeAllRestoredEditors()
+void DocumentModel::removeAllRestoredDocuments()
 {
     for (int i = d->m_documents.count()-1; i >= 0; --i) {
         if (!d->m_documents.at(i)->document) {
@@ -257,12 +257,12 @@ void OpenEditorsModel::removeAllRestoredEditors()
     }
 }
 
-QList<IEditor *> OpenEditorsModel::editorsForDocument(IDocument *document) const
+QList<IEditor *> DocumentModel::editorsForDocument(IDocument *document) const
 {
     return d->m_editors.value(document);
 }
 
-QList<IEditor *> OpenEditorsModel::editorsForDocuments(const QList<IDocument *> &documents) const
+QList<IEditor *> DocumentModel::editorsForDocuments(const QList<IDocument *> &documents) const
 {
     QList<IEditor *> result;
     foreach (IDocument *document, documents)
@@ -270,7 +270,7 @@ QList<IEditor *> OpenEditorsModel::editorsForDocuments(const QList<IDocument *> 
     return result;
 }
 
-int OpenEditorsModel::indexOfDocument(IDocument *document) const
+int DocumentModel::indexOfDocument(IDocument *document) const
 {
     for (int i = 0; i < d->m_documents.count(); ++i)
         if (d->m_documents.at(i)->document == document)
@@ -278,7 +278,7 @@ int OpenEditorsModel::indexOfDocument(IDocument *document) const
     return -1;
 }
 
-QModelIndex OpenEditorsModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex DocumentModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
     if (column < 0 || column > 1 || row < 0 || row >= d->m_documents.count() + 1/*<no document>*/)
@@ -286,7 +286,7 @@ QModelIndex OpenEditorsModel::index(int row, int column, const QModelIndex &pare
     return createIndex(row, column);
 }
 
-OpenEditorsModel::Entry *OpenEditorsModel::entryAtRow(int row) const
+DocumentModel::Entry *DocumentModel::documentAtRow(int row) const
 {
     int entryIndex = row - 1/*<no document>*/;
     if (entryIndex < 0)
@@ -294,12 +294,12 @@ OpenEditorsModel::Entry *OpenEditorsModel::entryAtRow(int row) const
     return d->m_documents[entryIndex];
 }
 
-int OpenEditorsModel::openDocumentCount() const
+int DocumentModel::documentCount() const
 {
     return d->m_documents.count();
 }
 
-QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
+QVariant DocumentModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (index.column() != 0 && role < Qt::UserRole))
         return QVariant();
@@ -343,14 +343,14 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-int OpenEditorsModel::rowOfDocument(IDocument *document) const
+int DocumentModel::rowOfDocument(IDocument *document) const
 {
     if (!document)
         return 0 /*<no document>*/;
     return indexOfDocument(document) + 1/*<no document>*/;
 }
 
-void OpenEditorsModel::itemChanged()
+void DocumentModel::itemChanged()
 {
     IDocument *document = qobject_cast<IDocument *>(sender());
 
@@ -361,7 +361,7 @@ void OpenEditorsModel::itemChanged()
     emit dataChanged(mindex, mindex);
 }
 
-QList<OpenEditorsModel::Entry *> OpenEditorsModel::entries() const
+QList<DocumentModel::Entry *> DocumentModel::documents() const
 {
     return d->m_documents;
 }

@@ -30,7 +30,7 @@
 #include "openeditorsview.h"
 #include "editormanager.h"
 #include "ieditor.h"
-#include "openeditorsmodel.h"
+#include "documentmodel.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -98,7 +98,7 @@ OpenEditorsWidget::OpenEditorsWidget()
     setAttribute(Qt::WA_MacShowFocusRect, false);
     EditorManager *em = EditorManager::instance();
     m_model = new ProxyModel(this);
-    m_model->setSourceModel(em->openedEditorsModel());
+    m_model->setSourceModel(em->documentModel());
     setModel(m_model);
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -129,7 +129,7 @@ void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
 {
     IDocument *document = editor ? editor->document() : 0;
     EditorManager *em = EditorManager::instance();
-    QModelIndex index = m_model->index(em->openedEditorsModel()->indexOfDocument(document), 0);
+    QModelIndex index = m_model->index(em->documentModel()->indexOfDocument(document), 0);
     if (!index.isValid()) {
         clearSelection();
         return;
@@ -195,13 +195,13 @@ void OpenEditorsWidget::activateEditor(const QModelIndex &index)
 {
     selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     EditorManager *em = EditorManager::instance();
-    em->activateEditorForEntry(em->openedEditorsModel()->entryAtRow(m_model->mapToSource(index).row()));
+    em->activateEditorForEntry(em->documentModel()->documentAtRow(m_model->mapToSource(index).row()));
 }
 
 void OpenEditorsWidget::closeEditor(const QModelIndex &index)
 {
     EditorManager *em = EditorManager::instance();
-    em->closeEditor(em->openedEditorsModel()->entryAtRow(m_model->mapToSource(index).row()));
+    em->closeEditor(em->documentModel()->documentAtRow(m_model->mapToSource(index).row()));
     // work around selection changes
     updateCurrentItem(EditorManager::currentEditor());
 }
@@ -210,7 +210,7 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
 {
     QMenu contextMenu;
     QModelIndex editorIndex = indexAt(pos);
-    OpenEditorsModel::Entry *entry = EditorManager::instance()->openedEditorsModel()->entryAtRow(
+    DocumentModel::Entry *entry = EditorManager::instance()->documentModel()->documentAtRow(
                 m_model->mapToSource(editorIndex).row());
     EditorManager::instance()->addSaveAndCloseEditorActions(&contextMenu, entry);
     contextMenu.addSeparator();

@@ -3,7 +3,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/hostosinfo.h>
 
@@ -172,7 +172,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
 void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 {
-    int openedCount = Core::ICore::editorManager()->openedEditorsModel()->openDocumentCount();
+    int openedCount = Core::ICore::editorManager()->documentModel()->documentCount();
 
     m_saveAction.setEnabled(currentEditor != 0 && currentEditor->document()->isModified());
     m_saveAsAction.setEnabled(currentEditor != 0 && currentEditor->document()->isSaveAsAllowed());

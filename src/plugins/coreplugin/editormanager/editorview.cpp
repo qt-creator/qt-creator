@@ -31,7 +31,7 @@
 #include "editormanager.h"
 #include "icore.h"
 #include "minisplitter.h"
-#include "openeditorsmodel.h"
+#include "documentmodel.h"
 
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
@@ -303,8 +303,8 @@ IEditor *EditorView::currentEditor() const
 
 void EditorView::listSelectionActivated(int index)
 {
-    OpenEditorsModel *model = EditorManager::instance()->openedEditorsModel();
-    EditorManager::instance()->activateEditorForEntry(this, model->entryAtRow(index));
+    DocumentModel *model = EditorManager::instance()->documentModel();
+    EditorManager::instance()->activateEditorForEntry(this, model->documentAtRow(index));
 }
 
 void EditorView::splitHorizontally()
@@ -786,7 +786,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
                                     | Core::EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
-            OpenEditorsModel::Entry *entry = em->openedEditorsModel()->firstRestoredEditor();
+            DocumentModel::Entry *entry = em->documentModel()->firstRestoredDocument();
             if (entry)
                 em->activateEditorForEntry(view(), entry, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::DoNotChangeCurrentEditor);

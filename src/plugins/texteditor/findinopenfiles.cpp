@@ -33,7 +33,7 @@
 #include <utils/filesearch.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <QSettings>
 
@@ -67,8 +67,8 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
     QMap<QString, QTextCodec *> openEditorEncodings = ITextEditor::openedTextEditorsEncodings();
     QStringList fileNames;
     QList<QTextCodec *> codecs;
-    foreach (Core::OpenEditorsModel::Entry *entry,
-             Core::EditorManager::instance()->openedEditorsModel()->entries()) {
+    foreach (Core::DocumentModel::Entry *entry,
+             Core::EditorManager::instance()->documentModel()->documents()) {
         QString fileName = entry->fileName();
         if (!fileName.isEmpty()) {
             fileNames.append(fileName);

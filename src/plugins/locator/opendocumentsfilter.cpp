@@ -66,7 +66,7 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::Fil
     QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return value;
-    foreach (const OpenEditorsModel::Entry &editorEntry, m_editors) {
+    foreach (const DocumentModel::Entry &editorEntry, m_editors) {
         if (future.isCanceled())
             break;
         QString fileName = editorEntry.fileName();
@@ -87,8 +87,8 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::Fil
 void OpenDocumentsFilter::refreshInternally()
 {
     m_editors.clear();
-    foreach (OpenEditorsModel::Entry *e, EditorManager::instance()->openedEditorsModel()->entries()) {
-        OpenEditorsModel::Entry entry;
+    foreach (DocumentModel::Entry *e, EditorManager::instance()->documentModel()->documents()) {
+        DocumentModel::Entry entry;
         // create copy with only the information relevant to use
         // to avoid model deleting entries behind our back
         entry.m_displayName = e->displayName();

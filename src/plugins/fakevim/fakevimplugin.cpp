@@ -41,7 +41,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -1997,7 +1997,7 @@ void FakeVimPluginPrivate::highlightMatches(const QString &needle)
 
 int FakeVimPluginPrivate::currentFile() const
 {
-    OpenEditorsModel *model = EditorManager::instance()->openedEditorsModel();
+    DocumentModel *model = EditorManager::instance()->documentModel();
     IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return -1;
@@ -2007,13 +2007,13 @@ int FakeVimPluginPrivate::currentFile() const
 void FakeVimPluginPrivate::switchToFile(int n)
 {
     EditorManager *editorManager = ICore::editorManager();
-    OpenEditorsModel *model = editorManager->openedEditorsModel();
-    int size = model->openDocumentCount();
+    DocumentModel *model = editorManager->documentModel();
+    int size = model->documentCount();
     QTC_ASSERT(size, return);
     n = n % size;
     if (n < 0)
         n += size;
-    editorManager->activateEditorForEntry(model->entries().at(n));
+    editorManager->activateEditorForEntry(model->documents().at(n));
 }
 
 ExCommandMap &FakeVimExCommandsPage::exCommandMap()

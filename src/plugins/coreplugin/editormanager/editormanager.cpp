@@ -32,7 +32,7 @@
 #include "findplaceholder.h"
 #include "openeditorswindow.h"
 #include "openeditorsview.h"
-#include "openeditorsmodel.h"
+#include "documentmodel.h"
 #include "openwithdialog.h"
 #include "outputpane.h"
 #include "outputpanemanager.h"
@@ -212,7 +212,7 @@ public:
     QAction *m_closeOtherEditorsContextAction;
     QAction *m_openGraphicalShellAction;
     QAction *m_openTerminalAction;
-    OpenEditorsModel::Entry *m_contextMenuEntry;
+    DocumentModel::Entry *m_contextMenuEntry;
 
     Internal::OpenEditorsWindow *m_windowPopup;
     Internal::EditorClosingCoreListener *m_coreListener;
@@ -220,7 +220,7 @@ public:
     QMap<QString, QVariant> m_editorStates;
     Internal::OpenEditorsViewFactory *m_openEditorsFactory;
 
-    OpenEditorsModel *m_editorModel;
+    DocumentModel *m_documentModel;
 
     IDocument::ReloadSetting m_reloadSetting;
 
@@ -258,7 +258,7 @@ EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
     m_autoSaveEnabled(true),
     m_autoSaveInterval(5)
 {
-    m_editorModel = new OpenEditorsModel(parent);
+    m_documentModel = new DocumentModel(parent);
 }
 
 EditorManagerPrivate::~EditorManagerPrivate()
@@ -508,7 +508,7 @@ EditorToolBar *EditorManager::createToolBar(QWidget *parent)
 void EditorManager::removeEditor(IEditor *editor)
 {
     bool lastOneForDocument = false;
-    d->m_editorModel->removeEditor(editor, &lastOneForDocument);
+    d->m_documentModel->removeEditor(editor, &lastOneForDocument);
     if (lastOneForDocument)
         DocumentManager::removeDocument(editor->document());
     ICore::removeContextObject(editor);
@@ -660,7 +660,7 @@ void EditorManager::emptyView(Core::Internal::EditorView *view)
 
     QList<IEditor *> editors = view->editors();
     foreach (IEditor *editor, editors) {
-        if (d->m_editorModel->editorsForDocument(editor->document()).size() == 1) {
+        if (d->m_documentModel->editorsForDocument(editor->document()).size() == 1) {
             // it's the only editor for that file
             // so we need to keep it around (--> in the editor model)
             if (currentEditor() == editor) {
@@ -741,7 +741,7 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
-    d->m_editorModel->removeAllRestoredEditors();
+    d->m_documentModel->removeAllRestoredDocuments();
     if (closeEditors(openedEditors(), askAboutModifiedEditors)) {
 //        d->clearNavigationHistory();
         return true;
@@ -751,7 +751,7 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 
 void EditorManager::closeOtherEditors(IDocument *document)
 {
-    d->m_editorModel->removeAllRestoredEditors();
+    d->m_documentModel->removeAllRestoredDocuments();
     QList<IEditor *> editorsToClose;
     foreach (IEditor *editor, openedEditors())
         if (editor->document() != document)
@@ -784,7 +784,7 @@ static void assignAction(QAction *self, QAction *other)
     self->setIconVisibleInMenu(other->isIconVisibleInMenu());
 }
 
-void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry)
+void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry)
 {
     QTC_ASSERT(contextMenu, return);
     d->m_contextMenuEntry = entry;
@@ -821,7 +821,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, OpenEditors
     contextMenu->addAction(d->m_closeOtherEditorsContextAction);
 }
 
-void EditorManager::addNativeDirActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry)
+void EditorManager::addNativeDirActions(QMenu *contextMenu, DocumentModel::Entry *entry)
 {
     QTC_ASSERT(contextMenu, return);
     bool enabled = entry && !entry->fileName().isEmpty();
@@ -949,7 +949,7 @@ void EditorManager::closeEditorFromContextMenu()
 {
     IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : 0;
     if (document)
-        closeEditors(d->m_editorModel->editorsForDocument(document));
+        closeEditors(d->m_documentModel->editorsForDocument(document));
 }
 
 void EditorManager::closeOtherEditorsFromContextMenu()
@@ -1035,14 +1035,14 @@ void EditorManager::closeEditor(Core::IEditor *editor)
     closeEditors(QList<IEditor *>() << editor);
 }
 
-void EditorManager::closeEditor(OpenEditorsModel::Entry *entry)
+void EditorManager::closeEditor(DocumentModel::Entry *entry)
 {
     if (!entry)
         return;
     if (entry->document)
-        closeEditors(d->m_editorModel->editorsForDocument(entry->document));
+        closeEditors(d->m_documentModel->editorsForDocument(entry->document));
     else
-        d->m_editorModel->removeEntry(entry);
+        d->m_documentModel->removeEntry(entry);
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
@@ -1068,7 +1068,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
             }
         }
         if (editorAccepted) {
-            acceptedEditors += d->m_editorModel->editorsForDocument(editor->document()).toSet();
+            acceptedEditors += d->m_documentModel->editorsForDocument(editor->document()).toSet();
             acceptedDocuments.insert(editor->document());
         }
     }
@@ -1083,7 +1083,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         if (!list.isEmpty()) {
             closingFailed = true;
             acceptedDocuments.subtract(list.toSet());
-            QSet<IEditor*> skipSet = d->m_editorModel->editorsForDocuments(list).toSet();
+            QSet<IEditor*> skipSet = d->m_documentModel->editorsForDocuments(list).toSet();
             acceptedEditors = acceptedEditors.subtract(skipSet);
         }
     }
@@ -1131,12 +1131,12 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         if (newCurrent) {
             activateEditor(view, newCurrent, flags);
         } else {
-            OpenEditorsModel::Entry *entry = d->m_editorModel->firstRestoredEditor();
+            DocumentModel::Entry *entry = d->m_documentModel->firstRestoredDocument();
             if (entry) {
                 activateEditorForEntry(view, entry, flags);
             } else {
                 // no "restored" ones, so any entry left should have a document
-                const QList<OpenEditorsModel::Entry *> documents = d->m_editorModel->entries();
+                const QList<DocumentModel::Entry *> documents = d->m_documentModel->documents();
                 if (!documents.isEmpty()) {
                     IDocument *document = documents.last()->document;
                     if (document)
@@ -1178,12 +1178,12 @@ Core::IEditor *EditorManager::pickUnusedEditor() const
     return 0;
 }
 
-void EditorManager::activateEditorForEntry(OpenEditorsModel::Entry *entry, OpenEditorFlags flags)
+void EditorManager::activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags)
 {
     activateEditorForEntry(currentEditorView(), entry, flags);
 }
 
-void EditorManager::activateEditorForEntry(Internal::EditorView *view, OpenEditorsModel::Entry *entry, OpenEditorFlags flags)
+void EditorManager::activateEditorForEntry(Internal::EditorView *view, DocumentModel::Entry *entry, OpenEditorFlags flags)
 {
     QTC_ASSERT(view, return);
     if (!entry) { // no document
@@ -1199,7 +1199,7 @@ void EditorManager::activateEditorForEntry(Internal::EditorView *view, OpenEdito
     }
 
     if (!openEditor(view, entry->fileName(), entry->id(), flags))
-        d->m_editorModel->removeEntry(entry);
+        d->m_documentModel->removeEntry(entry);
 }
 
 void EditorManager::activateView(EditorView *view)
@@ -1409,7 +1409,7 @@ void EditorManager::addEditor(IEditor *editor)
     ICore::addContextObject(editor);
 
     bool isNewDocument = false;
-    d->m_editorModel->addEditor(editor, &isNewDocument);
+    d->m_documentModel->addEditor(editor, &isNewDocument);
     if (isNewDocument) {
         const bool isTemporary = editor->isTemporary();
         const bool addWatcher = !isTemporary;
@@ -1845,7 +1845,7 @@ void EditorManager::gotoNextDocHistory()
         dialog->selectNextEditor();
     } else {
         EditorView *view = currentEditorView();
-        dialog->setEditors(d->m_globalHistory, view, d->m_editorModel);
+        dialog->setEditors(d->m_globalHistory, view, d->m_documentModel);
         dialog->selectNextEditor();
         showPopupOrSelectDocument();
     }
@@ -1858,7 +1858,7 @@ void EditorManager::gotoPreviousDocHistory()
         dialog->selectPreviousEditor();
     } else {
         EditorView *view = currentEditorView();
-        dialog->setEditors(d->m_globalHistory, view, d->m_editorModel);
+        dialog->setEditors(d->m_globalHistory, view, d->m_documentModel);
         dialog->selectPreviousEditor();
         showPopupOrSelectDocument();
     }
@@ -1985,7 +1985,7 @@ void EditorManager::updateActions()
 {
     IEditor *curEditor = currentEditor();
     IDocument *curDocument = curEditor ? curEditor->document() : 0;
-    int openedCount = d->m_editorModel->openDocumentCount();
+    int openedCount = d->m_documentModel->documentCount();
 
     if (curDocument) {
         if (HostOsInfo::isMacHost())
@@ -2009,8 +2009,8 @@ void EditorManager::updateActions()
     d->m_closeOtherEditorsAction->setEnabled(openedCount > 1);
     d->m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
 
-    d->m_gotoNextDocHistoryAction->setEnabled(d->m_editorModel->rowCount() != 0);
-    d->m_gotoPreviousDocHistoryAction->setEnabled(d->m_editorModel->rowCount() != 0);
+    d->m_gotoNextDocHistoryAction->setEnabled(d->m_documentModel->rowCount() != 0);
+    d->m_gotoPreviousDocHistoryAction->setEnabled(d->m_documentModel->rowCount() != 0);
     EditorView *view  = currentEditorView();
     d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
     d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
@@ -2068,15 +2068,15 @@ QList<IEditor*> EditorManager::visibleEditors() const
     return editors;
 }
 
-// TODO code using this should probably better use OpenEditorsModel
+// TODO code using this should probably better use DocumentModel
 QList<IEditor*> EditorManager::openedEditors() const
 {
-    return d->m_editorModel->oneEditorForEachDocument();
+    return d->m_documentModel->oneEditorForEachOpenedDocument();
 }
 
-OpenEditorsModel *EditorManager::openedEditorsModel() const
+DocumentModel *EditorManager::documentModel() const
 {
-    return d->m_editorModel;
+    return d->m_documentModel;
 }
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
@@ -2159,12 +2159,12 @@ QByteArray EditorManager::saveState() const
 
     stream << d->m_editorStates;
 
-    QList<OpenEditorsModel::Entry *> entries = d->m_editorModel->entries();
+    QList<DocumentModel::Entry *> entries = d->m_documentModel->documents();
     int entriesCount = 0;
-    foreach (OpenEditorsModel::Entry *entry, entries) {
+    foreach (DocumentModel::Entry *entry, entries) {
         // TODO: isTemporary should move to IDocument
         IEditor *editor = entry->document
-                ? d->m_editorModel->editorsForDocument(entry->document).first()
+                ? d->m_documentModel->editorsForDocument(entry->document).first()
                 : 0;
         // The editor may be 0 if it was not loaded yet: In that case it is not temporary
         if (!editor || !editor->isTemporary())
@@ -2173,9 +2173,9 @@ QByteArray EditorManager::saveState() const
 
     stream << entriesCount;
 
-    foreach (OpenEditorsModel::Entry *entry, entries) {
+    foreach (DocumentModel::Entry *entry, entries) {
         IEditor *editor = entry->document
-                ? d->m_editorModel->editorsForDocument(entry->document).first()
+                ? d->m_documentModel->editorsForDocument(entry->document).first()
                 : 0;
         if (!editor || !editor->isTemporary())
             stream << entry->fileName() << entry->displayName() << entry->id();
@@ -2224,7 +2224,7 @@ bool EditorManager::restoreState(const QByteArray &state)
             if (rfi.exists() && fi.lastModified() < rfi.lastModified())
                 openEditor(fileName, id, DoNotMakeVisible);
             else
-                d->m_editorModel->addRestoredEditor(fileName, displayName, id);
+                d->m_documentModel->addRestoredDocument(fileName, displayName, id);
         }
     }
 

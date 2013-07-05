@@ -32,7 +32,7 @@
 
 #include "ilocatorfilter.h"
 
-#include <coreplugin/editormanager/openeditorsmodel.h>
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <QString>
 #include <QList>
@@ -61,7 +61,7 @@ public slots:
 private:
     Core::EditorManager *m_editorManager;
 
-    QList<Core::OpenEditorsModel::Entry> m_editors;
+    QList<Core::DocumentModel::Entry> m_editors;
 };
 
 } // namespace Internal
