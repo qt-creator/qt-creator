@@ -1171,7 +1171,8 @@ QStringList NodeMetaInfo::propertyKeysForEnum(const PropertyName &propertyName) 
 QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const
 {
 
-    QVariant variant = value;
+    const QVariant variant = value;
+    QVariant copyVariant = variant;
     if (propertyIsEnumType(propertyName))
         return variant;
 
@@ -1195,8 +1196,8 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
     } else if (typeName == "alias") {
         // TODO: The QML compiler resolves the alias type. We probably should do the same.
         return variant;
-    } else if (variant.convert(typeId)) {
-        return variant;
+    } else if (copyVariant.convert(typeId)) {
+        return copyVariant;
     }
 
     return Internal::PropertyParser::variantFromString(variant.toString());
