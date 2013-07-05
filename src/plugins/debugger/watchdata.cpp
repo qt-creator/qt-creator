@@ -355,8 +355,9 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Name"), name);
     formatToolTipRow(str, tr("Expression"), QLatin1String(exp));
     formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
-    formatToolTipRow(str, tr("Displayed Type"), displayedType);
-    QString val = valuetooltip.isEmpty() ? valuetooltip : value;
+    if (!displayedType.isEmpty())
+        formatToolTipRow(str, tr("Displayed Type"), displayedType);
+    QString val = valuetooltip.isEmpty() ? value : valuetooltip;
     if (val.size() > 1000) {
         val.truncate(1000);
         val += tr(" ... <cut off>");
