@@ -453,9 +453,8 @@ bool AndroidConfigurations::createAVD(int minApiLevel) const
     QDialog d;
     Ui::AddNewAVDDialog avdDialog;
     avdDialog.setupUi(&d);
-    QStringListModel model(sdkTargets(minApiLevel));
-    avdDialog.targetComboBox->setModel(&model);
-    if (!model.rowCount()) {
+    avdDialog.targetComboBox->addItems(sdkTargets(minApiLevel));
+    if (!avdDialog.targetComboBox->count()) {
         QMessageBox::critical(0, tr("Error Creating AVD"),
                               tr("Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
                                  "Please install an SDK of at least API version %1.").
