@@ -186,8 +186,13 @@ bool AndroidSettingsWidget::checkSDK(const Utils::FileName &location)
             || (!androidExe.appendPath(QLatin1String("/tools/android" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()
                 && !androidBat.appendPath(QLatin1String("/tools/android" ANDROID_BAT_SUFFIX)).toFileInfo().exists())
             || !emulator.appendPath(QLatin1String("/tools/emulator" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()) {
-        QMessageBox::critical(this, tr("Android SDK Folder"), tr("\"%1\" does not seem to be an Android SDK top folder.").arg(location.toUserOutput()));
+        m_ui->sdkWarningIconLabel->setVisible(true);
+        m_ui->sdkWarningLabel->setVisible(true);
+        m_ui->sdkWarningLabel->setText(tr("\"%1\" does not seem to be an Android SDK top folder.").arg(location.toUserOutput()));
         return false;
+    } else {
+        m_ui->sdkWarningIconLabel->setVisible(false);
+        m_ui->sdkWarningLabel->setVisible(false);
     }
     return true;
 }
