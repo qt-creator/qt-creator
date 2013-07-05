@@ -527,6 +527,7 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
     if (type.startsWith(QLatin1String("struct ")))
         type.remove(0, 7);
 
+    type.replace(QLatin1String("std::__1::"), QLatin1String("std::"));
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
 
     for (int i = 0; i < 10; ++i) {
