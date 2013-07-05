@@ -857,27 +857,22 @@ void GitPlugin::startChangeRelatedAction()
 
     if (!ensureAllDocumentsSaved())
         return;
-    QString command;
     bool (GitClient::*commandFunction)(const QString&, const QString&);
     switch (dialog.command()) {
     case CherryPick:
-        command = QLatin1String("Cherry-pick");
         commandFunction = &GitClient::synchronousCherryPick;
         break;
     case Revert:
-        command = QLatin1String("Revert");
         commandFunction = &GitClient::synchronousRevert;
         break;
     case Checkout:
-        command =  QLatin1String("Checkout");
+        if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Checkout")))
+            return;
         commandFunction = &GitClient::synchronousCheckout;
         break;
     default:
         return;
     }
-
-    if (!m_gitClient->beginStashScope(workingDirectory, command))
-        return;
 
     (m_gitClient->*commandFunction)(workingDirectory, change);
 }

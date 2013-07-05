@@ -3155,7 +3155,11 @@ void GitClient::rebase(const QString &workingDirectory, const QString &baseBranc
 bool GitClient::synchronousRevert(const QString &workingDirectory, const QString &commit)
 {
     QStringList arguments;
-    QString command = QLatin1String("revert");
+    const QString command = QLatin1String("revert");
+    // Do not stash if --continue or --abort is given as the commit
+    if (!commit.startsWith(QLatin1Char('-')) && !beginStashScope(workingDirectory, command))
+        return false;
+
     arguments << command << QLatin1String("--no-edit") << commit;
 
     return executeAndHandleConflicts(workingDirectory, arguments, command);
@@ -3164,7 +3168,11 @@ bool GitClient::synchronousRevert(const QString &workingDirectory, const QString
 bool GitClient::synchronousCherryPick(const QString &workingDirectory, const QString &commit)
 {
     QStringList arguments;
-    QString command = QLatin1String("cherry-pick");
+    const QString command = QLatin1String("cherry-pick");
+    // Do not stash if --continue or --abort is given as the commit
+    if (!commit.startsWith(QLatin1Char('-')) && !beginStashScope(workingDirectory, command))
+        return false;
+
     arguments << command << commit;
 
     return executeAndHandleConflicts(workingDirectory, arguments, command);
