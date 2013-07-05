@@ -2513,6 +2513,24 @@ def qdump__std__vector(d, value):
         else:
             d.putArrayData(type, start, size)
 
+def qdump__std____1__vector(d, value):
+    innerType = d.templateArgument(value.type, 0)
+    if lldbLoaded and childAt(value, 0).type == innerType:
+        # That's old lldb automatically formatting
+        begin = d.dereferenceValue(value)
+        size = value.GetNumChildren()
+    else:
+        # Normal case
+        begin = pointerValue(value['__begin_'])
+        end = pointerValue(value['__end_'])
+        size = (end - begin) / innerType.sizeof
+
+    d.putItemCount(size)
+    d.putNumChild(size)
+    if d.isExpanded():
+        d.putArrayData(innerType, begin, size)
+
+
 def qdump__std____debug__vector(d, value):
     qdump__std__vector(d, value)
 
