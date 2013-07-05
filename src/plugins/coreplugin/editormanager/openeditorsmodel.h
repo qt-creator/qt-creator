@@ -62,7 +62,7 @@ public:
 
     struct CORE_EXPORT Entry {
         Entry();
-        IEditor *editor;
+        IDocument *document;
         QString fileName() const;
         QString displayName() const;
         Id id() const;
@@ -72,28 +72,25 @@ public:
     };
 
     Entry *entryAtRow(int row) const;
-    int rowOfEditor(IEditor *editor) const;
+    int rowOfDocument(IDocument *document) const;
 
     int openDocumentCount() const;
 
-    void addEditor(IEditor *editor, bool isDuplicate = false);
-    void addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id);
-    Entry *firstRestoredEditor() const;
-
     QList<Entry *> entries() const;
 
+    QList<IEditor *> editorsForDocument(IDocument *document) const;
+    QList<IEditor *> editorsForDocuments(const QList<IDocument *> &documents) const;
+    QList<IEditor *> oneEditorForEachDocument() const;
+    int indexOfDocument(IDocument *document) const;
+
+    // editor manager related methods, nobody else should call it
+    void addEditor(IEditor *editor, bool *isNewDocument);
+    void addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id);
+    Entry *firstRestoredEditor() const;
     void removeEntry(Entry *entry);
-    void removeEditor(IEditor *editor);
-    void removeEditor(const QString &fileName);
-
+    void removeEditor(IEditor *editor, bool *lastOneForDocument);
+    void removeDocument(const QString &fileName);
     void removeAllRestoredEditors();
-
-    QList<IEditor *> editors() const;
-    bool isDuplicate(IEditor *editor) const;
-    QList<IEditor *> duplicatesFor(IEditor *editor) const;
-    IEditor *originalForDuplicate(IEditor *duplicate) const;
-    void makeOriginal(IEditor *duplicate);
-    int indexOfEditor(IEditor *editor) const;
 
 private slots:
     void itemChanged();
@@ -101,9 +98,8 @@ private slots:
 private:
     void addEntry(Entry *entry);
     int findDocument(IDocument *document) const;
-    int findEditor(IEditor *editor) const;
     int findFileName(const QString &filename) const;
-    void removeEditor(int idx);
+    void removeDocument(int idx);
 
     OpenEditorsModelPrivate *d;
 };

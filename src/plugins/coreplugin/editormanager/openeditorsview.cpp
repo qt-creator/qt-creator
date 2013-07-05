@@ -29,6 +29,7 @@
 
 #include "openeditorsview.h"
 #include "editormanager.h"
+#include "ieditor.h"
 #include "openeditorsmodel.h"
 
 #include <coreplugin/coreconstants.h>
@@ -126,8 +127,9 @@ OpenEditorsWidget::~OpenEditorsWidget()
 
 void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
 {
+    IDocument *document = editor ? editor->document() : 0;
     EditorManager *em = EditorManager::instance();
-    QModelIndex index = m_model->index(em->openedEditorsModel()->indexOfEditor(editor), 0);
+    QModelIndex index = m_model->index(em->openedEditorsModel()->indexOfDocument(document), 0);
     if (!index.isValid()) {
         clearSelection();
         return;

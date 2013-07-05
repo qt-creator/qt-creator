@@ -1999,7 +1999,9 @@ int FakeVimPluginPrivate::currentFile() const
 {
     OpenEditorsModel *model = EditorManager::instance()->openedEditorsModel();
     IEditor *editor = EditorManager::currentEditor();
-    return model->indexOfEditor(editor);
+    if (!editor)
+        return -1;
+    return model->indexOfDocument(editor->document());
 }
 
 void FakeVimPluginPrivate::switchToFile(int n)

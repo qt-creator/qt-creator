@@ -290,7 +290,8 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
-    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfEditor(editor));
+    IDocument *document = editor ? editor->document() : 0;
+    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(document));
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
@@ -303,7 +304,7 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 {
     if (newSelection)
-        d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfEditor(newSelection));
+        d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(newSelection->document()));
 }
 
 void EditorToolBar::changeActiveEditor(int row)
@@ -375,7 +376,7 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
         return;
     }
 
-    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfEditor(editor));
+    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(editor->document()));
 
     if (editor->document()->filePath().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());

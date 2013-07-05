@@ -136,9 +136,8 @@ public:
 
     OpenEditorsModel *openedEditorsModel() const;
     void closeEditor(OpenEditorsModel::Entry *entry);
-    void closeOtherEditors(IEditor *editor);
+    void closeOtherEditors(IDocument *document);
 
-    QList<IEditor*> editorsForDocuments(QList<IDocument *> documents) const;
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     void cutForwardNavigationHistory();
 
@@ -203,7 +202,7 @@ public slots:
     bool saveDocument(Core::IDocument *documentParam = 0);
     bool saveDocumentAs(Core::IDocument *documentParam = 0);
     void revertToSaved();
-    void revertToSaved(Core::IEditor *editor);
+    void revertToSaved(IDocument *document);
     void closeEditor();
     void closeOtherEditors();
     void doEscapeKeyFocusMoveMagic();
@@ -251,9 +250,8 @@ private:
     virtual ~EditorManager();
     void init();
 
-    QList<IDocument *> documentsForEditors(QList<IEditor *> editors) const;
     static IEditor *createEditor(const Id &id = Id(), const QString &fileName = QString());
-    void addEditor(IEditor *editor, bool isDuplicate = false);
+    void addEditor(IEditor *editor);
     void removeEditor(IEditor *editor);
 
     void restoreEditorState(IEditor *editor);
@@ -273,7 +271,6 @@ private:
     static Internal::SplitterOrView *findRoot(const Internal::EditorView *view, int *rootIndex = 0);
 
     void closeEditor(IEditor *editor);
-    void closeDuplicate(IEditor *editor);
     void closeView(Internal::EditorView *view);
     void emptyView(Internal::EditorView *view);
     static void splitNewWindow(Internal::EditorView *view);
@@ -282,7 +279,7 @@ private:
     void updateAutoSave();
     void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
     void updateMakeWritableWarning();
-    void setupSaveActions(IEditor *editor, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction);
+    void setupSaveActions(IDocument *document, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction);
 
     friend class Core::Internal::MainWindow;
     friend class Core::Internal::SplitterOrView;
