@@ -721,6 +721,9 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const PropertyName &propertyName) const
     if (!isValid())
         return false;
 
+    if (propertyType(propertyName).contains("Qt::"))
+        return true;
+
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
         const PropertyName objectName = parts.first();
@@ -747,6 +750,9 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
 {
     if (!isValid())
         return QString();
+
+    if (propertyType(propertyName).contains("Qt::"))
+        return QLatin1String("Qt");
 
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
