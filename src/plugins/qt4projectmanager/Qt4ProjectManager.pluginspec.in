@@ -1,4 +1,4 @@
-<plugin name=\"Qt4ProjectManager\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
+<plugin name=\"Qt4ProjectManager\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\">
     <vendor>Digia Plc</vendor>
     <copyright>(C) 2013 Digia Plc</copyright>
     <license>

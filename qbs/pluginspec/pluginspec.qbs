@@ -42,6 +42,7 @@ Module {
                 all = all.replace(/\\\"/g, '"');
                 // replace config vars
                 vars['QTCREATOR_VERSION'] = project.qtcreator_version;
+                vars['QTCREATOR_COMPAT_VERSION'] = project.qtcreator_compat_version;
                 vars['IDE_VERSION_MAJOR'] = project.ide_version_major;
                 vars['IDE_VERSION_MINOR'] = project.ide_version_minor;
                 vars['IDE_VERSION_RELEASE'] = project.ide_version_release;
