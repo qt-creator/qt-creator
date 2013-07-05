@@ -2144,8 +2144,8 @@ void tst_Dumpers::dumper_data()
                     "s.insert(22);\n")
                % CoreProfile()
                % Check("s", "<2 items>", "@QSet<int>")
-               % Check("s.22", "[22]", "22", "int")
-               % Check("s.11", "[11]", "11", "int");
+               % Check("s.0", "[0]", "22", "int")
+               % Check("s.1", "[1]", "11", "int");
 
     QTest::newRow("QSet2")
             << Data("#include <QSet>\n"

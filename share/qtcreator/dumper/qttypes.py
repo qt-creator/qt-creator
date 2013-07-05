@@ -1598,41 +1598,37 @@ def qdump__QScopedPointer(d, value):
 
 def qdump__QSet(d, value):
 
-    def hashDataFirstNode(value):
-        val = value.cast(hashDataType)
-        bucket = val["buckets"]
-        e = value.cast(nodeTypePtr)
-        for n in xrange(val["numBuckets"] - 1, -1, -1):
+    def hashDataFirstNode(dPtr, numBuckets):
+        ePtr = dPtr.cast(nodeTypePtr)
+        bucket = dPtr["buckets"]
+        for n in xrange(numBuckets - 1, -1, -1):
             n = n - 1
             if n < 0:
                 break
-            if bucket.dereference() != e:
+            if pointerValue(bucket.dereference()) != pointerValue(ePtr):
                 return bucket.dereference()
             bucket = bucket + 1
-        return e
+        return ePtr
 
-    def hashDataNextNode(node):
-        next = node["next"]
-        if next["next"]:
-            return next
-        d = node.cast(hashDataType.pointer()).dereference()
-        numBuckets = d["numBuckets"]
-        start = (node["h"] % numBuckets) + 1
-        bucket = d["buckets"] + start
+    def hashDataNextNode(nodePtr, numBuckets):
+        nextPtr = nodePtr.dereference()["next"]
+        if pointerValue(nextPtr.dereference()["next"]):
+            return nextPtr
+        dPtr = nodePtr.cast(hashDataType.pointer()).dereference()
+        start = (int(nodePtr.dereference()["h"]) % numBuckets) + 1
+        bucket = dPtr.dereference()["buckets"] + start
         for n in xrange(numBuckets - start):
-            if bucket.dereference() != next:
+            if pointerValue(bucket.dereference()) != pointerValue(nextPtr):
                 return bucket.dereference()
             bucket += 1
-        return node
+        return nodePtr
 
-    keyType = d.templateArgument(value.type, 0)
-
-    d_ptr = value["q_hash"]["d"]
-    e_ptr = value["q_hash"]["e"]
-    size = int(d_ptr["size"])
-
-    hashDataType = d_ptr.type
-    nodeTypePtr = e_ptr.type
+    anon = childAt(value, 0)
+    if lldbLoaded: # Skip the inheritance level.
+        anon = childAt(anon, 0)
+    d_ptr = anon["d"]
+    e_ptr = anon["e"]
+    size = int(d_ptr.dereference()["size"])
 
     check(0 <= size and size <= 100 * 1000 * 1000)
     checkRef(d_ptr["ref"])
@@ -1640,21 +1636,17 @@ def qdump__QSet(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        isSimpleKey = isSimpleType(keyType)
-        node = hashDataFirstNode(value)
+        hashDataType = d_ptr.type
+        nodeTypePtr = d_ptr.dereference()["fakeNext"].type
+        numBuckets = int(d_ptr.dereference()["numBuckets"])
+        node = hashDataFirstNode(d_ptr, numBuckets)
         innerType = e_ptr.dereference().type
         with Children(d, size, maxNumChild=1000, childType=innerType):
-            for i in xrange(size):
+            for i in d.childRange():
                 it = node.dereference().cast(innerType)
                 with SubItem(d, i):
-                    key = it["key"]
-                    if isSimpleKey:
-                        d.putType(keyType)
-                        d.putItem(key)
-                        d.putName(key)
-                    else:
-                        d.putItem(key)
-                node = hashDataNextNode(node)
+                    d.putItem(it["key"])
+                node = hashDataNextNode(node, numBuckets)
 
 
 def qdump__QSharedData(d, value):
