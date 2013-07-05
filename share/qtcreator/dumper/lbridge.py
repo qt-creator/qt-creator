@@ -303,12 +303,13 @@ lldb.SBValue.cast = lambda self, typeObj: self.Cast(typeObj)
 lldb.SBValue.dereference = lambda self: self.Dereference()
 lldb.SBValue.address = property(lambda self: self.GetAddress())
 
-lldb.SBType.unqualified = lambda self: self.GetUnqualifiedType()
 lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
 
 
+lldb.SBType.unqualified = \
+    lambda self: self.GetUnqualifiedType() if hasattr(self, 'GetUnqualifiedType') else self
 lldb.SBType.strip_typedefs = \
     lambda self: self.GetCanonicalType() if hasattr(self, 'GetCanonicalType') else self
 
@@ -1026,10 +1027,13 @@ class Dumper:
                 self.context = value
                 qqDumpers[typeName](self, value)
                 return
-            value = value.Cast(value.GetType().GetCanonicalType().GetUnqualifiedType())
-            self.putItem(value)
-            self.putBetterType(typeName)
-            return
+            realType = value.GetType()
+            if hasattr(realType, 'GetCanonicalType'):
+                realType = realType.GetCanonicalType()
+                value = value.Cast(realType.unqualified())
+                self.putItem(value)
+                self.putBetterType(typeName)
+                return
 
         # Our turf now.
         value.SetPreferSyntheticValue(False)
@@ -1042,7 +1046,7 @@ class Dumper:
         # References
         if value.GetType().IsReferenceType():
             origType = value.GetTypeName();
-            type = value.GetType().GetDereferencedType().GetUnqualifiedType()
+            type = value.GetType().GetDereferencedType().unqualified()
             addr = int(value) & 0xFFFFFFFFFFFFFFFF
             self.putItem(value.CreateValueFromAddress(None, addr, type))
             #self.putItem(value.CreateValueFromData(None, value.GetData(), type))
@@ -1058,7 +1062,7 @@ class Dumper:
                 return
 
             if self.autoDerefPointers:
-                innerType = value.GetType().GetPointeeType().GetUnqualifiedType()
+                innerType = value.GetType().GetPointeeType().unqualified()
                 self.putType(innerType)
                 savedCurrentChildType = self.currentChildType
                 self.currentChildType = str(innerType)
@@ -1144,8 +1148,9 @@ class Dumper:
                 self.putItem(child)
         for i in xrange(m, n):
             child = value.GetChildAtIndex(i)
-            with SubItem(self, child):
-                self.putItem(child)
+            if child.IsValid():  # FIXME: Anon members?
+                with SubItem(self, child):
+                    self.putItem(child)
 
     def reportVariables(self, _ = None):
         frame = self.currentThread().GetSelectedFrame()
