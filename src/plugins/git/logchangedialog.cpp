@@ -177,8 +177,8 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     if (isReset) {
         popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
         m_resetTypeComboBox = new QComboBox(this);
-        m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
         m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
+        m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
         m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
