@@ -489,7 +489,7 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData prd)
     if (m_qbsProductData == prd)
         return;
 
-    bool productWasEnabled = m_qbsProductData.isEnabled();
+    bool productWasEnabled = m_qbsProductData.isValid() && m_qbsProductData.isEnabled();
     bool productIsEnabled = prd.isEnabled();
     bool updateExisting = productWasEnabled != productIsEnabled;
 
