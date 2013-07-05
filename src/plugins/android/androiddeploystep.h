@@ -138,10 +138,12 @@ private:
 private:
     QString m_deviceSerialNumber;
     int m_deviceAPILevel;
+    QString m_targetArch;
 
     AndroidDeployAction m_deployAction;
 
     // members to transfer data from init() to run
+    QString m_avdName;
     QString m_packageName;
     QString m_qtVersionSourcePath;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qtVersionQMakeBuildConfig;

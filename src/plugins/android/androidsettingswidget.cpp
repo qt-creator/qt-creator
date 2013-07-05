@@ -75,7 +75,7 @@ QVariant AvdModel::data(const QModelIndex &index, int role) const
         case 1:
             return QString::fromLatin1("API %1").arg(m_list[index.row()].sdk);
         case 2:
-            return m_list[index.row()].cpuAbi;
+            return m_list[index.row()].cpuAbi.first();
     }
     return QVariant();
 }
@@ -401,8 +401,7 @@ void AndroidSettingsWidget::removeAVD()
 
 void AndroidSettingsWidget::startAVD()
 {
-    int tempApiLevel = -1;
-    AndroidConfigurations::instance().startAVD(&tempApiLevel, m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
+    AndroidConfigurations::instance().startAVDAsync(m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
 }
 
 void AndroidSettingsWidget::avdActivated(QModelIndex index)

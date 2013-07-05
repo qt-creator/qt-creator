@@ -93,11 +93,15 @@ public:
     Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     QString getDeployDeviceSerialNumber(int *apiLevel, const QString &abi, QString *error = 0) const;
-    bool createAVD(const QString &target, const QString &name, int sdcardSize) const;
+    QString createAVD(int minApiLevel = 0, QString targetArch = QString()) const;
+    QString createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
-    QString startAVD(int *apiLevel, const QString &name = QString()) const;
+    QString findAvd(int *apiLevel, const QString &cpuAbi);
+    QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
+    bool startAVDAsync(const QString &avdName) const;
+    QString waitForAvd(int apiLevel, const QString &cpuAbi) const;
     QString bestMatch(const QString &targetAPI) const;
 
     QStringList makeExtraSearchDirectories() const;
@@ -110,12 +114,12 @@ public:
     void updateAndroidDevice();
 
     QString getProductModel(const QString &device) const;
+    bool hasFinishedBooting(const QString &device) const;
 
 signals:
     void updated();
 
 public slots:
-    bool createAVD(int minApiLevel = 0) const;
     void updateAutomaticKitList();
 
 private:

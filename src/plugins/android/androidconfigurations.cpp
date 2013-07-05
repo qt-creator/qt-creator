@@ -449,44 +449,57 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
     return devices;
 }
 
-bool AndroidConfigurations::createAVD(int minApiLevel) const
+QString AndroidConfigurations::createAVD(int minApiLevel, QString targetArch) const
 {
     QDialog d;
     Ui::AddNewAVDDialog avdDialog;
     avdDialog.setupUi(&d);
     avdDialog.targetComboBox->addItems(sdkTargets(minApiLevel));
+
+    if (targetArch.isEmpty())
+        avdDialog.abiComboBox->addItems(QStringList()
+                                        << QLatin1String("armeabi-v7a")
+                                        << QLatin1String("armeabi")
+                                        << QLatin1String("x86")
+                                        << QLatin1String("mips"));
+    else
+        avdDialog.abiComboBox->addItems(QStringList(targetArch));
+
     if (!avdDialog.targetComboBox->count()) {
         QMessageBox::critical(0, tr("Error Creating AVD"),
                               tr("Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
                                  "Please install an SDK of at least API version %1.").
                               arg(minApiLevel));
-        return false;
+        return QString();
     }
 
     QRegExp rx(QLatin1String("\\S+"));
     QRegExpValidator v(rx, 0);
     avdDialog.nameLineEdit->setValidator(&v);
     if (d.exec() != QDialog::Accepted)
-        return false;
-    return createAVD(avdDialog.targetComboBox->currentText(), avdDialog.nameLineEdit->text(), avdDialog.sizeSpinBox->value());
+        return QString();
+    return createAVD(avdDialog.targetComboBox->currentText(), avdDialog.nameLineEdit->text(), avdDialog.abiComboBox->currentText(), avdDialog.sizeSpinBox->value());
 }
 
-bool AndroidConfigurations::createAVD(const QString &target, const QString &name, int sdcardSize ) const
+QString AndroidConfigurations::createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize ) const
 {
     QProcess proc;
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("create") << QLatin1String("avd")
                << QLatin1String("-a") << QLatin1String("-t") << target
                << QLatin1String("-n") << name
+               << QLatin1String("-b") << abi
                << QLatin1String("-c") << QString::fromLatin1("%1M").arg(sdcardSize));
     if (!proc.waitForStarted())
-        return false;
+        return QString();
     proc.write(QByteArray("no\n"));
     if (!proc.waitForFinished(-1)) {
         proc.terminate();
-        return false;
+        return QString();
     }
-    return !proc.exitCode();
+    if (proc.exitCode()) // error!
+        return QString();
+    return name;
 }
 
 bool AndroidConfigurations::removeAVD(const QString &name) const
@@ -531,6 +544,9 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
             if (line.contains(QLatin1String("ABI:")))
                 dev.cpuAbi = QStringList() << line.mid(line.lastIndexOf(QLatin1Char(' '))).trimmed();
         }
+        // armeabi-v7a devices can also run armeabi code
+        if (dev.cpuAbi == QStringList(QLatin1String("armeabi-v7a")))
+            dev.cpuAbi << QLatin1String("armeabi");
         devices.push_back(dev);
     }
     qSort(devices.begin(), devices.end(), androidDevicesLessThan);
@@ -538,37 +554,31 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
     return devices;
 }
 
-QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) const
+QString AndroidConfigurations::findAvd(int *apiLevel, const QString &cpuAbi)
+{
+    QVector<AndroidDeviceInfo> devices = androidVirtualDevices();
+    foreach (const AndroidDeviceInfo &device, devices) {
+        // take first emulator how supports this package
+        if (device.sdk >= *apiLevel && device.cpuAbi.contains(cpuAbi)) {
+            *apiLevel = device.sdk;
+            return device.serialNumber;
+        }
+    }
+    return QString();
+}
+
+QString AndroidConfigurations::startAVD(const QString &name, int apiLevel, QString cpuAbi) const
+{
+    if (startAVDAsync(name))
+        return waitForAvd(apiLevel, cpuAbi);
+    return QString();
+}
+
+bool AndroidConfigurations::startAVDAsync(const QString &avdName) const
 {
     QProcess *avdProcess = new QProcess();
     connect(this, SIGNAL(destroyed()), avdProcess, SLOT(deleteLater()));
     connect(avdProcess, SIGNAL(finished(int)), avdProcess, SLOT(deleteLater()));
-
-    QString avdName = name;
-    QVector<AndroidDeviceInfo> devices;
-    bool createAVDOnce = false;
-    while (true) {
-        if (avdName.isEmpty()) {
-            devices = androidVirtualDevices();
-            foreach (const AndroidDeviceInfo &device, devices)
-                if (device.sdk >= *apiLevel) { // take first emulator how supports this package
-                    *apiLevel = device.sdk;
-                    avdName = device.serialNumber;
-                    break;
-                }
-        }
-        // if no emulators found try to create one once
-        if (avdName.isEmpty() && !createAVDOnce) {
-            createAVDOnce = true;
-            QMetaObject::invokeMethod(const_cast<QObject*>(static_cast<const QObject*>(this)), "createAVD", Qt::AutoConnection,
-                                      Q_ARG(int, *apiLevel));
-        } else {
-            break;
-        }
-    }
-
-    if (avdName.isEmpty())// stop here if no emulators found
-        return avdName;
 
     // start the emulator
     avdProcess->start(emulatorToolPath().toString(),
@@ -576,34 +586,38 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
                         << QLatin1String("-avd") << avdName);
     if (!avdProcess->waitForStarted(-1)) {
         delete avdProcess;
-        return QString();
+        return false;
     }
+    return true;
+}
 
-    // wait until the emulator is online
-    QProcess proc;
-    proc.start(adbToolPath().toString(), QStringList() << QLatin1String("-e") << QLatin1String("wait-for-device"));
-    while (!proc.waitForFinished(500)) {
-        if (avdProcess->waitForFinished(0)) {
-            proc.kill();
-            proc.waitForFinished(-1);
+QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) const
+{
+    // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
+
+    // 15 rounds of 8s sleeping, a minute for the avd to start
+    QString serialNumber;
+    for (int i = 0; i < 15; ++i) {
+        QVector<AndroidDeviceInfo> devices = connectedDevices();
+        foreach (AndroidDeviceInfo device, devices) {
+            if (!device.serialNumber.startsWith(QLatin1String("emulator")))
+                continue;
+            if (!device.cpuAbi.contains(cpuAbi))
+                continue;
+            if (!device.sdk == apiLevel)
+                continue;
+            serialNumber = device.serialNumber;
+            // found a serial number, now wait until it's done booting...
+            for (int i = 0; i < 15; ++i) {
+                if (hasFinishedBooting(serialNumber))
+                    return serialNumber;
+                else
+                    sleep(8);
+            }
             return QString();
         }
+        sleep(8);
     }
-    sleep(5);// wait for pm to start
-
-    // workaround for stupid adb bug
-    proc.start(adbToolPath().toString(), QStringList() << QLatin1String("devices"));
-    if (!proc.waitForFinished(-1)) {
-        proc.kill();
-        return QString();
-    }
-
-    // get connected devices
-    devices = connectedDevices();
-    foreach (AndroidDeviceInfo device, devices)
-        if (device.sdk == *apiLevel)
-            return device.serialNumber;
-    // this should not happen, but ...
     return QString();
 }
 
@@ -645,6 +659,24 @@ QString AndroidConfigurations::getProductModel(const QString &device) const
     if (model.isEmpty())
         return device;
     return model;
+}
+
+bool AndroidConfigurations::hasFinishedBooting(const QString &device) const
+{
+    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
+    arguments << QLatin1String("shell") << QLatin1String("getprop")
+              << QLatin1String("init.svc.bootanim");
+
+    QProcess adbProc;
+    adbProc.start(adbToolPath().toString(), arguments);
+    if (!adbProc.waitForFinished(-1)) {
+        adbProc.kill();
+        return false;
+    }
+    QString value = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+    if (value == QLatin1String("stopped"))
+        return true;
+    return false;
 }
 
 QStringList AndroidConfigurations::getAbis(const QString &device) const

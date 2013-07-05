@@ -97,21 +97,26 @@ bool AndroidDeployStep::init()
 {
     m_packageName = AndroidManager::packageName(target());
     const QString targetSDK = AndroidManager::targetSDK(target());
-    const QString targetArch = AndroidManager::targetArch(target());
+    m_targetArch = AndroidManager::targetArch(target());
 
-    writeOutput(tr("Please wait, searching for a suitable device for target:%1, ABI:%2").arg(targetSDK).arg(targetArch));
+    writeOutput(tr("Please wait, searching for a suitable device for target:%1, ABI:%2").arg(targetSDK).arg(m_targetArch));
     m_deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
     QString error;
-    m_deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&m_deviceAPILevel, targetArch, &error);
+    m_deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&m_deviceAPILevel, m_targetArch, &error);
     if (!error.isEmpty())
         writeOutput(error);
 
+    m_avdName.clear();
     if (m_deviceSerialNumber.isEmpty()) {
         writeOutput(tr("Falling back to Android virtual machine device."));
-        m_deviceSerialNumber = AndroidConfigurations::instance().startAVD(&m_deviceAPILevel);
+        m_avdName = AndroidConfigurations::instance().findAvd(&m_deviceAPILevel, m_targetArch);
+        if (m_avdName.isEmpty())
+            m_avdName = AndroidConfigurations::instance().createAVD(m_deviceAPILevel, m_targetArch);
+        if (m_avdName.isEmpty()) // user canceled
+            return false;
     }
 
-    if (!m_deviceSerialNumber.length()) {
+    if (m_deviceSerialNumber.isEmpty() && m_avdName.isEmpty()) {
         m_deviceSerialNumber.clear();
         raiseError(tr("Cannot deploy: no devices or emulators found for your package."));
         return false;
@@ -196,8 +201,15 @@ void AndroidDeployStep::cleanLibsOnDevice()
 
     int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
     QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel, targetArch);
-    if (deviceSerialNumber.isEmpty())
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(&deviceAPILevel);
+    if (deviceSerialNumber.isEmpty()) {
+        QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
+        if (avdName.isEmpty()) {
+            // No avd found, don't create one just error out
+            Core::MessageManager::instance()->printToOutputPane(tr("Could not find a device."), Core::MessageManager::NoModeSwitch);
+            return;
+        }
+        deviceSerialNumber = AndroidConfigurations::instance().startAVD(avdName, deviceAPILevel, targetArch);
+    }
     if (!deviceSerialNumber.length()) {
         Core::MessageManager::instance()->printToOutputPane(tr("Could not run adb. No device found."), Core::MessageManager::NoModeSwitch);
         return;
@@ -249,8 +261,15 @@ void AndroidDeployStep::installQASIPackage(const QString &packagePath)
     const QString targetSDK = AndroidManager::targetSDK(target());
     int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
     QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel, targetArch);
-    if (deviceSerialNumber.isEmpty())
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(&deviceAPILevel);
+    if (deviceSerialNumber.isEmpty()) {
+        QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
+        if (avdName.isEmpty()) {
+            Core::MessageManager::instance()->printToOutputPane(tr("No device found."),
+                                                                Core::MessageManager::NoModeSwitch);
+            return;
+        }
+        deviceSerialNumber = AndroidConfigurations::instance().startAVD(avdName, deviceAPILevel, targetArch);
+    }
     if (!deviceSerialNumber.length()) {
         Core::MessageManager::instance()->printToOutputPane(tr("Could not run adb. No device found."), Core::MessageManager::NoModeSwitch);
         return;
@@ -292,8 +311,8 @@ bool AndroidDeployStep::runCommand(QProcess *buildProc,
             .arg(program).arg(arguments.join(QLatin1String(" "))).arg(buildProc->errorString()), BuildStep::ErrorMessageOutput);
         return false;
     }
-    buildProc->waitForFinished(-1);
-    if (buildProc->error() != QProcess::UnknownError
+    if (!buildProc->waitForFinished(2 * 60 * 1000)
+            || buildProc->error() != QProcess::UnknownError
             || buildProc->exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command '%1 %2' failed.")
                 .arg(program).arg(arguments.join(QLatin1String(" ")));
@@ -452,6 +471,12 @@ void AndroidDeployStep::deployFiles(QProcess *process, const QList<DeployItem> &
 
 bool AndroidDeployStep::deployPackage()
 {
+    if (!m_avdName.isEmpty()) {
+        if (!AndroidConfigurations::instance().startAVDAsync(m_avdName))
+            return false;
+        m_deviceSerialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch);
+    }
+
     QProcess *const deployProc = new QProcess;
     connect(deployProc, SIGNAL(readyReadStandardOutput()), this,
         SLOT(handleBuildOutput()));
