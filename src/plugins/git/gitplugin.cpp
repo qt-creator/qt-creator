@@ -690,7 +690,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(updateContinueAndAbortCommands()));
     connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
-            this, SLOT(updateBranches(QString)));
+            this, SLOT(updateBranches(QString)), Qt::QueuedConnection);
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(RC_GIT_MIME_XML), errorMessage))
         return false;
