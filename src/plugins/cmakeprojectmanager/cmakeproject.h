@@ -125,6 +125,7 @@ private:
     void createUiCodeModelSupport();
     QString uiHeaderFile(const QString &uiFile);
     void updateRunConfigurations(ProjectExplorer::Target *t);
+    void updateApplicationAndDeploymentTargets();
 
     CMakeManager *m_manager;
     ProjectExplorer::Target *m_activeTarget;

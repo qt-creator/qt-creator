@@ -41,11 +41,13 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/baseqtversion.h>
@@ -261,6 +263,7 @@ bool CMakeProject::parseCMakeLists()
 //            qDebug()<<"";
 //        }
 
+    updateApplicationAndDeploymentTargets();
 
     createUiCodeModelSupport();
 
@@ -562,9 +565,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
         t->addBuildConfiguration(bc);
 
-        DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>();
-        ProjectExplorer::DeployConfiguration *dc = fac->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
-        t->addDeployConfiguration(dc);
+        t->updateDefaultDeployConfigurations();
 
         addTarget(t);
     } else {
@@ -608,17 +609,9 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
 bool CMakeProject::setupTarget(Target *t)
 {
-    CMakeBuildConfigurationFactory *factory
-            = ExtensionSystem::PluginManager::getObject<CMakeBuildConfigurationFactory>();
-    CMakeBuildConfiguration *bc = factory->create(t, Constants::CMAKE_BC_ID, QLatin1String("all"));
-    if (!bc)
-        return false;
+    t->updateDefaultBuildConfigurations();
+    t->updateDefaultDeployConfigurations();
 
-    t->addBuildConfiguration(bc);
-
-    DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>();
-    ProjectExplorer::DeployConfiguration *dc = fac->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
-    t->addDeployConfiguration(dc);
     return true;
 }
 
@@ -718,6 +711,50 @@ void CMakeProject::updateRunConfigurations(Target *t)
         // create a custom executable run configuration
         t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     }
+}
+
+void CMakeProject::updateApplicationAndDeploymentTargets()
+{
+    Target *t = activeTarget();
+
+    QFile deploymentFile;
+    QTextStream deploymentStream;
+    QString deploymentPrefix;
+    QDir sourceDir;
+
+    sourceDir.setPath(t->project()->projectDirectory());
+    deploymentFile.setFileName(sourceDir.filePath(QLatin1String("QtCreatorDeployment.txt")));
+    if (deploymentFile.open(QFile::ReadOnly | QFile::Text)) {
+        deploymentStream.setDevice(&deploymentFile);
+        deploymentPrefix = deploymentStream.readLine();
+        if (!deploymentPrefix.endsWith(QLatin1Char('/')))
+            deploymentPrefix.append(QLatin1Char('/'));
+    }
+
+    BuildTargetInfoList appTargetList;
+    DeploymentData deploymentData;
+    QDir buildDir(t->activeBuildConfiguration()->buildDirectory().toString());
+    foreach (const CMakeBuildTarget &ct, m_buildTargets) {
+        if (ct.executable.isEmpty())
+            continue;
+
+        deploymentData.addFile(ct.executable, deploymentPrefix + buildDir.relativeFilePath(QFileInfo(ct.executable).dir().path()), DeployableFile::TypeExecutable);
+        if (!ct.library) {
+            // TODO: Put a path to corresponding .cbp file into projectFilePath?
+            appTargetList.list << BuildTargetInfo(ct.executable, ct.executable);
+        }
+    }
+
+    QString absoluteSourcePath = sourceDir.absolutePath();
+    if (!absoluteSourcePath.endsWith(QLatin1Char('/')))
+        absoluteSourcePath.append(QLatin1Char('/'));
+    while (!deploymentStream.atEnd()) {
+        QStringList file = deploymentStream.readLine().split(QLatin1Char(':'));
+        deploymentData.addFile(absoluteSourcePath + file.at(0), deploymentPrefix + file.at(1));
+    }
+
+    t->setApplicationTargets(appTargetList);
+    t->setDeploymentData(deploymentData);
 }
 
 void CMakeProject::createUiCodeModelSupport()
