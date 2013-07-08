@@ -52,7 +52,7 @@ class QbsProject;
 class QbsProjectManagerPlugin;
 } // namespace Internal
 
-class QBSPROJECTMANAGER_EXPORT QbsManager : public ProjectExplorer::IProjectManager
+class QbsManager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 
