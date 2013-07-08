@@ -339,15 +339,6 @@ bool SessionManager::save()
         ++i;
     }
     data.insert(QLatin1String("ProjectDependencies"), QVariant(depMap));
-
-    int editorCount = 0;
-    QList<Core::IEditor *> editors = ICore::editorManager()->openedEditors();
-    foreach (Core::IEditor *editor, editors) {
-        Q_ASSERT(editor);
-        if (!editor->isTemporary())
-            ++editorCount;
-    }
-    data.insert(QLatin1String("OpenEditors"), editorCount);
     data.insert(QLatin1String("EditorSettings"), ICore::editorManager()->saveState().toBase64());
 
     QMap<QString, QVariant>::const_iterator it, end;
@@ -783,12 +774,9 @@ void SessionManager::restoreEditors(const Utils::PersistentSettingsReader &reade
 {
     const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
     if (editorsettings.isValid()) {
-        connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
-                this, SLOT(sessionLoadingProgress()));
         ICore::editorManager()->restoreState(
             QByteArray::fromBase64(editorsettings.toByteArray()));
-        disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
-                   this, SLOT(sessionLoadingProgress()));
+        sessionLoadingProgress();
     }
 }
 
@@ -866,6 +854,9 @@ bool SessionManager::loadSession(const QString &session)
         ICore::progressManager()->addTask(m_future.future(), tr("Session"),
            QLatin1String("ProjectExplorer.SessionFile.Load"));
 
+        m_future.setProgressRange(0, 1);
+        m_future.setProgressValue(0);
+
         restoreValues(reader);
         emit aboutToLoadSession(session);
 
@@ -875,9 +866,8 @@ bool SessionManager::loadSession(const QString &session)
 
         QStringList fileList =
             reader.restoreValue(QLatin1String("ProjectList")).toStringList();
-        int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
 
-        m_future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
+        m_future.setProgressRange(0, fileList.count() + 1/*initialization above*/ + 1/*editors*/);
         m_future.setProgressValue(1);
 
         // if one processEvents doesn't get the job done
