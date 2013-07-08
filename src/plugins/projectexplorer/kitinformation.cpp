@@ -446,12 +446,11 @@ void DeviceKitInformation::kitsWereLoaded()
     foreach (Kit *k, KitManager::instance()->kits())
         fix(k);
 
-    connect(DeviceManager::instance(), SIGNAL(deviceAdded(Core::Id)),
-            this, SLOT(deviceAdded(Core::Id)));
-    connect(DeviceManager::instance(), SIGNAL(deviceRemoved(Core::Id)),
-            this, SLOT(deviceRemoved(Core::Id)));
-    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
-            this, SLOT(deviceUpdated(Core::Id)));
+    DeviceManager *dm = DeviceManager::instance();
+    connect(dm, SIGNAL(deviceListChanged()), this, SLOT(devicesChanged()));
+    connect(dm, SIGNAL(deviceAdded(Core::Id)), this, SLOT(devicesChanged()));
+    connect(dm, SIGNAL(deviceRemoved(Core::Id)), this, SLOT(devicesChanged()));
+    connect(dm, SIGNAL(deviceUpdated(Core::Id)), this, SLOT(deviceUpdated(Core::Id)));
 
     connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
             this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
@@ -472,19 +471,9 @@ void DeviceKitInformation::kitUpdated(Kit *k)
     setup(k); // Set default device if necessary
 }
 
-void DeviceKitInformation::deviceAdded(const Core::Id &id)
+void DeviceKitInformation::devicesChanged()
 {
-    Q_UNUSED(id);
-    DeviceMatcher m;
-    foreach (Kit *k, KitManager::instance()->kits(&m)) {
-        setup(k); // Set default device if necessary
-    }
-}
-
-void DeviceKitInformation::deviceRemoved(const Core::Id &id)
-{
-    DeviceMatcher m(id);
-    foreach (Kit *k, KitManager::instance()->kits(&m))
+    foreach (Kit *k, KitManager::instance()->kits())
         setup(k); // Set default device if necessary
 }
 
