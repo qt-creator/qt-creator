@@ -401,9 +401,13 @@ struct GuiProfile {};
 
 struct DataBase
 {
-    DataBase() : useQt(false), forceC(false), gdbOnly(false), lldbOnly(false) {}
+    DataBase()
+      : useQt(false), useQHash(false),
+        forceC(false), gdbOnly(false), lldbOnly(false)
+    {}
 
     mutable bool useQt;
+    mutable bool useQHash;
     mutable bool forceC;
     mutable bool gdbOnly;
     mutable bool lldbOnly;
@@ -461,34 +465,33 @@ public:
     {
         profileExtra +=
             "CONFIG += QT\n"
-            "QT += gui\n"
-            "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
+            "QT += core\n";
 
         useQt = true;
+        useQHash = true;
+
         return *this;
     }
 
     const Data &operator%(const GuiProfile &) const
     {
+        this->operator%(CoreProfile());
         profileExtra +=
-            "CONFIG += QT\n"
             "QT += gui\n"
             "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
 
-        useQt = true;
         return *this;
     }
 
     const Data &operator%(const CorePrivateProfile &) const
     {
+        this->operator%(CoreProfile());
         profileExtra +=
-            "CONFIG += QT\n"
             "greaterThan(QT_MAJOR_VERSION, 4) {\n"
-            "  QT += core core-private\n"
+            "  QT += core-private\n"
             "  CONFIG += no_private_qt_headers_warning\n"
             "}";
 
-        useQt = true;
         return *this;
     }
 
@@ -500,8 +503,8 @@ public:
 
 public:
     mutable QByteArray profileExtra;
-    QByteArray includes;
-    QByteArray code;
+    mutable QByteArray includes;
+    mutable QByteArray code;
     mutable QMap<QByteArray, Check> checks; // IName -> Action
 };
 
@@ -586,7 +589,6 @@ void tst_Dumpers::initTestCase()
     qDebug() << "QMake       : " << m_qmakeBinary.constData();
 
     Environment utilsEnv = Environment::systemEnvironment();
-    utilsEnv.appendOrSet(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
         QProcess debugger;
@@ -717,9 +719,20 @@ void tst_Dumpers::dumper()
             "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n\nvoid breakHere() {}"
             "\n\n" + data.includes +
+            "\n\n" + (data.useQHash ?
+                "\n#include <QByteArray>"
+                "\n#if QT_VERSION >= 0x050000"
+                "\nQT_BEGIN_NAMESPACE"
+                "\nQ_CORE_EXPORT extern QBasicAtomicInt qt_qhash_seed; // from qhash.cpp"
+                "\nQT_END_NAMESPACE"
+                "\n#endif" : "") +
             "\n\nint main(int argc, char *argv[])"
             "\n{"
-            "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + ";\n"
+            "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + ";"
+            "\n" + (data.useQHash ?
+                "\n#if QT_VERSION >= 0x050000"
+                "\nqt_qhash_seed.testAndSetRelaxed(-1, 0);"
+                "\n#endif\n" : "") +
             "\n    unused(&argc, &argv, &qtversion);\n"
             "\n" + data.code +
             "\n    breakHere();"
