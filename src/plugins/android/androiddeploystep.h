@@ -139,7 +139,6 @@ private:
     QString m_deviceSerialNumber;
     int m_deviceAPILevel;
 
-    QString m_QASIPackagePath;
     AndroidDeployAction m_deployAction;
 
     // members to transfer data from init() to run
@@ -150,7 +149,6 @@ private:
     QString m_apkPathDebug;
     QString m_apkPathRelease;
     QString m_buildDirectory;
-    QString m_runQASIPackagePath;
     AndroidDeployAction m_runDeployAction;
     QString m_ndkToolChainVersion;
     QString m_libgnustl;
