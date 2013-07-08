@@ -1155,7 +1155,7 @@ class Dumper:
         frame = self.currentThread().GetSelectedFrame()
         self.currentIName = 'local'
         self.put('data=[')
-        self.anonNumber = -1
+        self.anonNumber = 0
         for value in frame.GetVariables(True, True, False, False):
             if self.dummyValue is None:
                 self.dummyValue = value
