@@ -108,6 +108,7 @@ private:
     QWidget *m_summaryProgressWidget;
     QHBoxLayout *m_summaryProgressLayout;
     QWidget *m_currentStatusDetailsWidget;
+    QPointer<FutureProgress> m_currentStatusDetailsProgress;
     ProgressBar *m_summaryProgressBar;
     QGraphicsOpacityEffect *m_opacityEffect;
     QPointer<QPropertyAnimation> m_opacityAnimation;
