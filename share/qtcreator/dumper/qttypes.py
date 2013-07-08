@@ -2148,7 +2148,11 @@ def qdump__std__array(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
-        d.putArrayData(innerType, value.address, size)
+        d.putArrayData(innerType, d.addressOf(value), size)
+
+
+def qdump__std____1__array(d, value):
+    qdump__std__array(d, value)
 
 
 def qdump__std__complex(d, value):

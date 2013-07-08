@@ -330,8 +330,30 @@ struct Profile
 
 struct Cxx11Profile : public Profile
 {
-    //Cxx11Profile() : Profile("CONFIG += c++11") {}
-    Cxx11Profile() : Profile("QMAKE_CXXFLAGS += -std=c++0x") {}
+    Cxx11Profile()
+      : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
+                "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+    {}
+};
+
+struct MacLibStdCppProfile : public Profile
+{
+    MacLibStdCppProfile()
+      : Profile("macx {\n"
+                "QMAKE_CXXFLAGS += -stdlib=libc++\n"
+                "LIBS += -stdlib=libc++\n"
+                "QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7\n"
+                "QMAKE_IOS_DEPLOYMENT_TARGET = 10.7\n"
+                "QMAKE_CFLAGS -= -mmacosx-version-min=10.6\n"
+                "QMAKE_CFLAGS += -mmacosx-version-min=10.7\n"
+                "QMAKE_CXXFLAGS -= -mmacosx-version-min=10.6\n"
+                "QMAKE_CXXFLAGS += -mmacosx-version-min=10.7\n"
+                "QMAKE_OBJECTIVE_CFLAGS -= -mmacosx-version-min=10.6\n"
+                "QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.7\n"
+                "QMAKE_LFLAGS -= -mmacosx-version-min=10.6\n"
+                "QMAKE_LFLAGS += -mmacosx-version-min=10.7\n"
+                "}")
+    {}
 };
 
 struct GdbOnly {};
@@ -959,6 +981,7 @@ void tst_Dumpers::dumper()
         qDebug() << "CONTENTS     : " << contents;
         qDebug() << "Qt VERSION   : "
             << qPrintable(QString::number(context.qtVersion, 16));
+        qDebug() << "BUILD DIR    : " << qPrintable(t->buildPath);
     }
     QVERIFY(ok);
     t->buildTemp.setAutoRemove(m_keepTemp);
@@ -2317,6 +2340,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&a, &b);\n")
                % CoreProfile()
                % Cxx11Profile()
+               % MacLibStdCppProfile()
                % Check("a", "<4 items>", "std::array<int, 4u>")
                % Check("b", "<4 items>", "std::array<@QString, 4u>");
 
