@@ -90,9 +90,9 @@ int RmKitOperation::execute() const
     QVariantMap result = rmKit(map, m_id);
 
     if (result == map)
-        return -2;
+        return 2;
 
-    return save(result, QLatin1String("profiles")) ? 0 : -3;
+    return save(result, QLatin1String("profiles")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

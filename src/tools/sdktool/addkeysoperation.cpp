@@ -83,10 +83,10 @@ int AddKeysOperation::execute() const
 
     QVariantMap result = addKeys(map, m_data);
     if (result.isEmpty() || map == result)
-        return -4;
+        return 4;
 
     // Write data again:
-    return save(result, m_file) ? 0 : -5;
+    return save(result, m_file) ? 0 : 5;
 }
 
 #ifdef WITH_TESTS

@@ -70,7 +70,7 @@ int GetOperation::execute() const
     foreach (const QString &key, m_keys) {
         const QVariant result = get(map, key);
         if (result.isValid())
-            return -2;
+            return 2;
         std::cout << qPrintable(result.toString()) << std::endl;
     }
 

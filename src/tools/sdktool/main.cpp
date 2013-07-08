@@ -111,7 +111,7 @@ int parseArguments(const QStringList &args, Settings *s, const QList<Operation *
                 if (next.isNull()) {
                     std::cerr << "Missing argument to '-s'." << std::endl << std::endl;
                     printHelp(operations);
-                    return -1;
+                    return 1;
                 }
                 s->sdkPath = Utils::FileName::fromString(next);
                 ++i; // skip next;
@@ -135,19 +135,19 @@ int parseArguments(const QStringList &args, Settings *s, const QList<Operation *
 
         std::cerr << "Unknown parameter given." << std::endl << std::endl;
         printHelp(operations);
-        return -1;
+        return 1;
     }
 
     if (!s->operation) {
         std::cerr << "No operation requested." << std::endl << std::endl;
         printHelp(operations);
-        return -1;
+        return 1;
     }
     if (!s->operation->setArguments(opArgs)) {
         std::cerr << "Argument parsing failed." << std::endl << std::endl;
         printHelp(s->operation);
         s->operation = 0;
-        return -1;
+        return 1;
     }
 
     return 0;

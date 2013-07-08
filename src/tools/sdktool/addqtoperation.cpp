@@ -155,9 +155,9 @@ int AddQtOperation::execute() const
     QVariantMap result = addQt(map, m_id, m_displayName, m_type, m_qmake, m_extra);
 
     if (result.isEmpty() || result == map)
-        return -2;
+        return 2;
 
-    return save(result, QLatin1String("qtversions")) ? 0 : -3;
+    return save(result, QLatin1String("qtversions")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS
