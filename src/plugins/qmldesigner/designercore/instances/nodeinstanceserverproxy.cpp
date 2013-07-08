@@ -170,8 +170,10 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
        connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
        bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
-       if (fowardQmlpuppetOutput)
-           m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+       if (fowardQmlpuppetOutput) {
+           m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::MergedChannels);
+           connect(m_qmlPuppetEditorProcess.data(), SIGNAL(readyRead()), this, SLOT(printEditorProcessOutput()));
+       }
        m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
        if (runModus == NormalModus) {
@@ -180,8 +182,10 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            m_qmlPuppetPreviewProcess->setObjectName("PreviewProcess");
            connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
            connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
-           if (fowardQmlpuppetOutput)
-               m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+           if (fowardQmlpuppetOutput) {
+               m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::MergedChannels);
+               connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(readyRead()), this, SLOT(printPreviewProcessOutput()));
+           }
            m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
 
            m_qmlPuppetRenderProcess = new QProcess;
@@ -189,8 +193,10 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            m_qmlPuppetRenderProcess->setObjectName("RenderProcess");
            connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
            connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetRenderProcess.data(), SLOT(kill()));
-           if (fowardQmlpuppetOutput)
-               m_qmlPuppetRenderProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+           if (fowardQmlpuppetOutput) {
+               m_qmlPuppetRenderProcess->setProcessChannelMode(QProcess::MergedChannels);
+               connect(m_qmlPuppetRenderProcess.data(), SIGNAL(readyRead()), this, SLOT(printRenderProcessOutput()));
+           }
            m_qmlPuppetRenderProcess->start(applicationPath, QStringList() << socketToken << "rendermode" << "-graphicssystem raster");
 
        }
@@ -521,6 +527,37 @@ void NodeInstanceServerProxy::readThirdDataStream()
     foreach (const QVariant &command, commandList) {
         dispatchCommand(command);
     }
+}
+
+void NodeInstanceServerProxy::printEditorProcessOutput()
+{
+    while (m_qmlPuppetEditorProcess->canReadLine()) {
+        QByteArray line = m_qmlPuppetEditorProcess->readLine();
+        line.chop(1);
+        qDebug().nospace() << "Editor Puppet: " << qPrintable(line);
+    }
+    qDebug() << "\n";
+}
+
+void NodeInstanceServerProxy::printPreviewProcessOutput()
+{
+    while (m_qmlPuppetPreviewProcess->canReadLine()) {
+        QByteArray line = m_qmlPuppetPreviewProcess->readLine();
+        line.chop(1);
+        qDebug().nospace() << "Preview Puppet: " << qPrintable(line);
+    }
+    qDebug() << "\n";
+}
+
+void NodeInstanceServerProxy::printRenderProcessOutput()
+{
+    while (m_qmlPuppetRenderProcess->canReadLine()) {
+        QByteArray line = m_qmlPuppetRenderProcess->readLine();
+        line.chop(1);
+        qDebug().nospace() << "Render Puppet: " << qPrintable(line);
+    }
+
+    qDebug() << "\n";
 }
 
 QString NodeInstanceServerProxy::qmlPuppetApplicationName() const

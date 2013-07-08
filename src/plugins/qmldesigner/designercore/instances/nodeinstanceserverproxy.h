@@ -88,6 +88,9 @@ private slots:
     void readSecondDataStream();
     void readThirdDataStream();
 
+    void printEditorProcessOutput();
+    void printPreviewProcessOutput();
+    void printRenderProcessOutput();
 private:
     QFile m_captureFileForTest;
     QWeakPointer<QLocalServer> m_localServer;
