@@ -2388,15 +2388,27 @@ void tst_Dumpers::dumper_data()
                     "std::complex<double> c(1, 2);\n")
                % Check("c", "(1.000000, 2.000000)", "std::complex<double>");
 
-    QTest::newRow("CComplex")
+    QTest::newRow("CComplexGdb")
             << Data("#include <complex.h>\n",
                     "// Doesn't work when compiled as C++.\n"
                     "double complex a = 0;\n"
                     "double _Complex b = 0;\n"
                     "unused(&a, &b);\n")
                % ForceC()
+               % GdbOnly()
                % Check("a", "0 + 0 * I", "complex double")
                % Check("b", "0 + 0 * I", "complex double");
+
+    QTest::newRow("CComplexLldb")
+            << Data("#include <complex.h>\n",
+                    "// Doesn't work when compiled as C++.\n"
+                    "double complex a = 0;\n"
+                    "double _Complex b = 0;\n"
+                    "unused(&a, &b);\n")
+               % ForceC()
+               % LldbOnly()
+               % Check("a", "0 + 0i", "_Complex double")
+               % Check("b", "0 + 0i", "_Complex double");
 
     QTest::newRow("StdDequeInt")
             << Data("#include <deque>\n",
