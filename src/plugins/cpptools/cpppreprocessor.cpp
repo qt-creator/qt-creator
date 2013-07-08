@@ -1,5 +1,6 @@
-#include "cppmodelmanager.h"
 #include "cpppreprocessor.h"
+
+#include "cppmodelmanager.h"
 
 #include <utils/hostosinfo.h>
 
@@ -21,7 +22,8 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing)
+CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager,
+                                 bool dumpFileNameWhileParsing)
     : m_snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
       m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
@@ -68,10 +70,8 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
 void CppPreprocessor::setFrameworkPaths(const QStringList &frameworkPaths)
 {
     m_frameworkPaths.clear();
-
-    foreach (const QString &frameworkPath, frameworkPaths) {
+    foreach (const QString &frameworkPath, frameworkPaths)
         addFrameworkPath(frameworkPath);
-    }
 }
 
 // Add the given framework path, and expand private frameworks.
@@ -86,7 +86,7 @@ void CppPreprocessor::addFrameworkPath(const QString &frameworkPath)
     // The algorithm below is a bit too eager, but that's because we're not getting
     // in the frameworks we're linking against. If we would have that, then we could
     // add only those private frameworks.
-    QString cleanFrameworkPath = cleanPath(frameworkPath);
+    const QString cleanFrameworkPath = cleanPath(frameworkPath);
     if (!m_frameworkPaths.contains(cleanFrameworkPath))
         m_frameworkPaths.append(cleanFrameworkPath);
 
@@ -95,7 +95,8 @@ void CppPreprocessor::addFrameworkPath(const QString &frameworkPath)
     foreach (const QFileInfo &framework, frameworkDir.entryInfoList(filter)) {
         if (!framework.isDir())
             continue;
-        const QFileInfo privateFrameworks(framework.absoluteFilePath(), QLatin1String("Frameworks"));
+        const QFileInfo privateFrameworks(framework.absoluteFilePath(),
+                                          QLatin1String("Frameworks"));
         if (privateFrameworks.exists() && privateFrameworks.isDir())
             addFrameworkPath(privateFrameworks.absoluteFilePath());
     }
@@ -119,7 +120,6 @@ public:
           _doc(doc),
           _mode(Document::FastCheck)
     {
-
         if (workingCopy.contains(_doc->fileName()))
             _mode = Document::FullCheck;
     }
@@ -161,7 +161,7 @@ void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
         return;
 
     if (m_workingCopy.contains(absoluteFilePath)) {
-        QPair<QString, unsigned> entry = m_workingCopy.get(absoluteFilePath);
+        const QPair<QString, unsigned> entry = m_workingCopy.get(absoluteFilePath);
         if (contents)
             *contents = entry.first;
         if (revision)
@@ -187,7 +187,7 @@ bool CppPreprocessor::checkFile(const QString &absoluteFilePath) const
     if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath))
         return true;
 
-    QFileInfo fileInfo(absoluteFilePath);
+    const QFileInfo fileInfo(absoluteFilePath);
     return fileInfo.isFile() && fileInfo.isReadable();
 }
 
@@ -218,13 +218,13 @@ QString CppPreprocessor::cleanPath(const QString &path)
 
 QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType type)
 {
-    QFileInfo fileInfo(fileName);
+    const QFileInfo fileInfo(fileName);
     if (fileName == Preprocessor::configurationFileName || fileInfo.isAbsolute())
         return fileName;
 
     if (type == IncludeLocal && m_currentDoc) {
-        QFileInfo currentFileInfo(m_currentDoc->fileName());
-        QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
+        const QFileInfo currentFileInfo(m_currentDoc->fileName());
+        const QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
         if (checkFile(path))
             return path;
         // Fall through! "16.2 Source file inclusion" from the standard states to continue
@@ -232,24 +232,24 @@ QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType
     }
 
     foreach (const QString &includePath, m_includePaths) {
-        QString path = includePath + fileName;
+        const QString path = includePath + fileName;
         if (m_workingCopy.contains(path) || checkFile(path))
             return path;
     }
 
-    int index = fileName.indexOf(QLatin1Char('/'));
+    const int index = fileName.indexOf(QLatin1Char('/'));
     if (index != -1) {
-        QString frameworkName = fileName.left(index);
-        QString name = frameworkName + QLatin1String(".framework/Headers/") + fileName.mid(index + 1);
+        const QString frameworkName = fileName.left(index);
+        const QString name = frameworkName + QLatin1String(".framework/Headers/")
+            + fileName.mid(index + 1);
 
         foreach (const QString &frameworkPath, m_frameworkPaths) {
-            QString path = frameworkPath + name;
+            const QString path = frameworkPath + name;
             if (checkFile(path))
                 return path;
         }
     }
 
-    //qDebug() << "**** file" << fileName << "not found!";
     return QString();
 }
 
@@ -261,7 +261,8 @@ void CppPreprocessor::macroAdded(const Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
-static inline const Macro revision(const CppModelManagerInterface::WorkingCopy &s, const Macro &macro)
+static inline const Macro revision(const CppModelManagerInterface::WorkingCopy &s,
+                                   const Macro &macro)
 {
     Macro newMacro(macro);
     newMacro.setFileRevision(s.get(macro.fileName()).second);
@@ -301,15 +302,14 @@ void CppPreprocessor::startExpandingMacro(unsigned offset, unsigned line,
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line, actuals);
+    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
+                              actuals);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
 {
     if (! m_currentDoc)
         return;
-
-    //qDebug() << "stop expanding:" << macro.name;
 }
 
 void CppPreprocessor::markAsIncludeGuard(const QByteArray &macroName)
@@ -333,7 +333,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
     m_processed.insert(fn);
 
     foreach (const Document::Include &incl, doc->includes()) {
-        QString includedFile = incl.resolvedFileName();
+        const QString includedFile = incl.resolvedFileName();
 
         if (Document::Ptr includedDoc = m_snapshot.document(includedFile))
             mergeEnvironment(includedDoc);
@@ -346,14 +346,12 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
 
 void CppPreprocessor::startSkippingBlocks(unsigned offset)
 {
-    //qDebug() << "start skipping blocks:" << offset;
     if (m_currentDoc)
         m_currentDoc->startSkippingBlocks(offset);
 }
 
 void CppPreprocessor::stopSkippingBlocks(unsigned offset)
 {
-    //qDebug() << "stop skipping blocks:" << offset;
     if (m_currentDoc)
         m_currentDoc->stopSkippingBlocks(offset);
 }
@@ -386,17 +384,14 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
                                           msg);
 
             m_currentDoc->addDiagnosticMessage(d);
-
-            //qWarning() << "file not found:" << fileName << m_currentDoc->fileName() << env.current_line;
-
             return;
         }
     }
 
     if (m_dumpFileNameWhileParsing) {
         qDebug() << "Parsing file:" << absoluteFileName
-//             << "contents:" << contents.size()
-                    ;
+                 << "contents:" << contents.size()
+        ;
     }
 
     Document::Ptr doc = m_snapshot.document(absoluteFileName);
@@ -409,15 +404,19 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
     doc->setRevision(m_revision);
     doc->setEditorRevision(editorRevision);
 
-    QFileInfo info(absoluteFileName);
+    const QFileInfo info(absoluteFileName);
     if (info.exists())
         doc->setLastModified(info.lastModified());
 
-    Document::Ptr previousDoc = switchDocument(doc);
+    const Document::Ptr previousDoc = switchDocument(doc);
 
     const QByteArray preprocessedCode = m_preprocess.run(absoluteFileName, contents);
-
-//    { QByteArray b(preprocessedCode); b.replace("\n", "<<<\n"); qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData()); }
+//    {
+//        QByteArray b(preprocessedCode);
+//        b.replace("\n", "<<<\n");
+//        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(),
+//               b.constData());
+//    }
 
     doc->setUtf8Source(preprocessedCode);
     doc->keepSourceAndAST();
@@ -434,7 +433,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
 {
-    Document::Ptr previousDoc = m_currentDoc;
+    const Document::Ptr previousDoc = m_currentDoc;
     m_currentDoc = doc;
     return previousDoc;
 }
