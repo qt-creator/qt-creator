@@ -67,6 +67,7 @@ private slots:
     void changeBaseEnvironment();
     void userChangesEdited();
     void changeUserChanges(QList<Utils::EnvironmentItem> changes);
+    void environmentChanged();
 
 private:
     EnvironmentAspect *m_aspect;

@@ -1037,7 +1037,12 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
     // if (flags & ExpectRepoChanges)
     //    Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
 
-    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
+    if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0) {
+        if (flags & ExpectRepoChanges)
+            Core::ICore::vcsManager()->emitRepositoryChanged(workingDirectory);
+        return true;
+    }
+    return false;
 }
 
 bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDirectory,

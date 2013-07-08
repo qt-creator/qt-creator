@@ -80,7 +80,7 @@ public:
 
     bool isLeaf() const
     {
-        return children.isEmpty();
+        return children.isEmpty() && parent && parent->parent;
     }
 
     bool childOf(BranchNode *node) const
@@ -339,8 +339,12 @@ void BranchModel::clear()
 
 bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
 {
-    if (workingDirectory.isEmpty())
+    beginResetModel();
+    clear();
+    if (workingDirectory.isEmpty()) {
+        endResetModel();
         return false;
+    }
 
     m_currentSha = m_client->synchronousTopRevision(workingDirectory);
     QStringList args;
@@ -348,9 +352,6 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     QString output;
     if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
         VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
-
-    beginResetModel();
-    clear();
 
     m_workingDirectory = workingDirectory;
     const QStringList lines = output.split(QLatin1Char('\n'));

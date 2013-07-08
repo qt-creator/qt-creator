@@ -36,9 +36,29 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDateTime>
+#include <QTextStream>
+#include <QRegExp>
+#include <QRect>
 
 #include <utils/qtcassert.h>
 
+// Read and write rectangle in X11 resource syntax "12x12+4+3"
+static QString rectangleToString(const QRect &r)
+{
+    QString result;
+    QTextStream(&result) << r.width() << 'x' << r.height() << forcesign << r.x() << r.y();
+    return result;
+}
+
+static QRect stringToRectangle(const QString &v)
+{
+    static QRegExp pattern(QLatin1String("(\\d+)x(\\d+)([-+]\\d+)([-+]\\d+)"));
+    Q_ASSERT(pattern.isValid());
+    return pattern.exactMatch(v) ?
+        QRect(QPoint(pattern.cap(3).toInt(), pattern.cap(4).toInt()),
+              QSize(pattern.cap(1).toInt(), pattern.cap(2).toInt())) :
+        QRect();
+}
 
 /*!
     \class Utils::PersistentSettingsReader
@@ -174,6 +194,8 @@ private:
     bool handleStartElement(QXmlStreamReader &r);
     bool handleEndElement(const QStringRef &name);
 
+    static QString formatWarning(const QXmlStreamReader &r, const QString &message);
+
     QStack<ParseValueStackEntry> m_valueStack;
     QVariantMap m_result;
     QString m_currentVariableName;
@@ -223,10 +245,16 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
     const QString key = attributes.hasAttribute(keyAttribute) ?
                 attributes.value(keyAttribute).toString() : QString();
     switch (e) {
-    case SimpleValueElement:
+    case SimpleValueElement: {
         // This reads away the end element, so, handle end element right here.
-        m_valueStack.push_back(ParseValueStackEntry(readSimpleValue(r, attributes), key));
+        const QVariant v = readSimpleValue(r, attributes);
+        if (!v.isValid()) {
+            qWarning() << ParseContext::formatWarning(r, QString::fromLatin1("Failed to read element \"%1\".").arg(name.toString()));
+            return false;
+        }
+        m_valueStack.push_back(ParseValueStackEntry(v, key));
         return handleEndElement(name);
+    }
     case ListValueElement:
         m_valueStack.push_back(ParseValueStackEntry(QVariant::List, key));
         break;
@@ -256,6 +284,18 @@ bool ParseContext::handleEndElement(const QStringRef &name)
     return e == QtCreatorElement;
 }
 
+QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &message)
+{
+    QString result = QLatin1String("Warning reading ");
+    if (const QIODevice *device = r.device())
+        if (const QFile *file = qobject_cast<const QFile *>(device))
+            result += QDir::toNativeSeparators(file->fileName()) + QLatin1Char(':');
+    result += QString::number(r.lineNumber());
+    result += QLatin1String(": ");
+    result += message;
+    return result;
+}
+
 ParseContext::Element ParseContext::element(const QStringRef &r) const
 {
     if (r == valueElement)
@@ -281,6 +321,10 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
     if (type == QLatin1String("QChar")) { // Workaround: QTBUG-12345
         QTC_ASSERT(text.size() == 1, return QVariant());
         return QVariant(QChar(text.at(0)));
+    }
+    if (type == QLatin1String("QRect")) {
+        const QRect rectangle = stringToRectangle(text);
+        return rectangle.isValid() ? QVariant(rectangle) : QVariant();
     }
     QVariant value;
     value.setValue(text);
@@ -361,7 +405,14 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         w.writeAttribute(ctx.typeAttribute, QLatin1String(variant.typeName()));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
-        w.writeCharacters(variant.toString());
+        switch (variant.type()) {
+        case QVariant::Rect:
+            w.writeCharacters(rectangleToString(variant.toRect()));
+            break;
+        default:
+            w.writeCharacters(variant.toString());
+            break;
+        }
         w.writeEndElement();
         break;
     }

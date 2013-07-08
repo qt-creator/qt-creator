@@ -42,6 +42,7 @@ const char *description[] =
     "g++_stringset",
     "g++_stringvector",
     "g++_wstringvector",
+    "libc++_stringvector",
     "msvc_stdstring",
     "msvc_stdwstring",
     "msvc_stringmap",
@@ -63,6 +64,8 @@ const char *input[] =
 "std::set<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >",
 "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >",
 "std::vector<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >, std::allocator<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > > >",
+// libc++
+"std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > >",
 // MSVC
 "class std::basic_string<char,std::char_traits<char>,std::allocator<char> >",
 "class std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >",
@@ -76,6 +79,7 @@ const char *input[] =
 
 const char *output[] =
 {
+    // Gcc
     "std::string",
     "std::wstring",
     "std::map<std::string, std::string>",
@@ -84,6 +88,9 @@ const char *output[] =
     "std::set<std::string>",
     "std::vector<std::string>",
     "std::vector<std::wstring>",
+    // libc++
+    "std::vector<std::string>",
+    // MSVC
     "std::string",
     "std::wstring",
     "std::map<std::string, std::string>",

@@ -1777,6 +1777,12 @@ class Dumper:
         self.put('",')
         return True
 
+    def isReferenceType(self, typeobj):
+        return typeobj.code == gdb.TYPE_CODE_REF
+
+    def isStructType(self, typeobj):
+        return typeobj.code == gdb.TYPE_CODE_STRUCT
+
     def putPlotData(self, type, base, n, plotFormat):
         if self.isExpanded():
             self.putArrayData(type, base, n)

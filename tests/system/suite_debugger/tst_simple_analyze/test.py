@@ -91,7 +91,10 @@ def main():
                 if qtVersion.startswith("5."):
                     compareEventsTab(model, "events_qt50.tsv")
                 else:
-                    compareEventsTab(model, "events_qt47.tsv")
+                    if qtVersion.startswith("4.8"):
+                        compareEventsTab(model, "events_qt48.tsv")
+                    else:
+                        compareEventsTab(model, "events_qt47.tsv")
                     test.verify(str(model.index(0, 8).data()).endswith(' ms'))
                     test.xverify(str(model.index(1, 8).data()).endswith(' ms')) # QTCREATORBUG-8996
                 test.compare(dumpItems(model, column=2)[0], '100.00 %')

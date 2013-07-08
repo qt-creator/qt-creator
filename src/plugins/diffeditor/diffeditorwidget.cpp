@@ -139,7 +139,6 @@ public:
     QMap<int, int> skippedLines() const { return m_skippedLines; }
     QMap<int, DiffEditorWidget::DiffFileInfo> fileInfo() const { return m_fileInfo; }
 
-    void setWorkingDirectory(const QString &workingDirectory) { m_workingDirectory = workingDirectory; }
     void setLineNumber(int blockNumber, int lineNumber);
     void setFileInfo(int blockNumber, const DiffEditorWidget::DiffFileInfo &fileInfo) { m_fileInfo[blockNumber] = fileInfo; setSeparator(blockNumber, true); }
     void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; setSeparator(blockNumber, true); }
@@ -156,6 +155,11 @@ public:
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
     void setFontSettings(const TextEditor::FontSettings &fs);
+
+signals:
+    void jumpToOriginalFileRequested(int diffFileIndex,
+                                     int lineNumber,
+                                     int columnNumber);
 
 protected:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const { return BaseTextEditorWidget::extraAreaWidth(markWidthPtr); }
@@ -180,7 +184,6 @@ private:
                         const QTextBlock &block, int top);
     void jumpToOriginalFile(const QTextCursor &cursor);
 
-    QString m_workingDirectory;
     QMap<int, int> m_lineNumbers;
     int m_lineNumberDigits;
     // block number, fileInfo
@@ -430,20 +433,13 @@ void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
         return;
 
     const int blockNumber = cursor.blockNumber();
-    const int position = cursor.positionInBlock();
+    const int columnNumber = cursor.positionInBlock();
     if (!m_lineNumbers.contains(blockNumber))
         return;
 
-    const int lineNr = m_lineNumbers.value(blockNumber);
-    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it = m_fileInfo.upperBound(blockNumber);
-    if (it != m_fileInfo.constBegin())
-        --it;
-    const QDir dir(m_workingDirectory);
-    const QString fileName = dir.absoluteFilePath(it.value().fileName);
+    const int lineNumber = m_lineNumbers.value(blockNumber);
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(fileName);
-    if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
-        editor->gotoLine(lineNr, position);
+    emit jumpToOriginalFileRequested(fileIndexForBlockNumber(blockNumber), lineNumber, columnNumber);
 }
 
 void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
@@ -609,6 +605,8 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
             m_leftEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     m_leftEditor->setDisplaySettings(settings->displaySettings());
     m_leftEditor->setCodeStyle(settings->codeStyle());
+    connect(m_leftEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
+            this, SLOT(slotLeftJumpToOriginalFileRequested(int,int,int)));
 
     m_rightEditor = new DiffViewEditorWidget(this);
     m_rightEditor->setReadOnly(true);
@@ -616,6 +614,8 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
             m_rightEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     m_rightEditor->setDisplaySettings(settings->displaySettings());
     m_rightEditor->setCodeStyle(settings->codeStyle());
+    connect(m_rightEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
+            this, SLOT(slotRightJumpToOriginalFileRequested(int,int,int)));
 
     connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             this, SLOT(setFontSettings(TextEditor::FontSettings)));
@@ -680,8 +680,7 @@ void DiffEditorWidget::clear(const QString &message)
 
 void DiffEditorWidget::setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory)
 {
-    m_leftEditor->setWorkingDirectory(workingDirectory);
-    m_rightEditor->setWorkingDirectory(workingDirectory);
+    m_workingDirectory = workingDirectory;
     Differ differ;
     QList<DiffList> diffList;
     for (int i = 0; i < diffFileList.count(); i++) {
@@ -1438,6 +1437,63 @@ void DiffEditorWidget::setFontSettings(const TextEditor::FontSettings &fontSetti
     m_rightCharFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_DEST_CHAR);
 
     colorDiff(m_contextFileData);
+}
+
+void DiffEditorWidget::slotLeftJumpToOriginalFileRequested(int diffFileIndex,
+                                                           int lineNumber,
+                                                           int columnNumber)
+{
+    if (diffFileIndex < 0 || diffFileIndex >= m_contextFileData.count())
+        return;
+
+    const FileData fileData = m_contextFileData.at(diffFileIndex);
+    const QString leftFileName = fileData.leftFileInfo.fileName;
+    const QString rightFileName = fileData.rightFileInfo.fileName;
+    if (leftFileName == rightFileName) {
+        // The same file (e.g. in git diff), jump to the line number taken from the right editor.
+        // Warning: git show SHA^ vs SHA or git diff HEAD vs Index
+        // (when Working tree has changed in meantime) will not work properly.
+        int leftLineNumber = 0;
+        int rightLineNumber = 0;
+
+        for (int i = 0; i < fileData.chunks.count(); i++) {
+            const ChunkData chunkData = fileData.chunks.at(i);
+            for (int j = 0; j < chunkData.rows.count(); j++) {
+                const RowData rowData = chunkData.rows.at(j);
+                if (rowData.leftLine.textLineType == TextLineData::TextLine)
+                    leftLineNumber++;
+                if (rowData.rightLine.textLineType == TextLineData::TextLine)
+                    rightLineNumber++;
+                if (leftLineNumber == lineNumber) {
+                    int colNr = rowData.equal ? columnNumber : 0;
+                    jumpToOriginalFile(leftFileName, rightLineNumber, colNr);
+                    return;
+                }
+            }
+        }
+    } else {
+        // different file (e.g. in Tools | Diff...)
+        jumpToOriginalFile(leftFileName, lineNumber, columnNumber);
+    }
+}
+
+void DiffEditorWidget::slotRightJumpToOriginalFileRequested(int diffFileIndex,
+                                                            int lineNumber, int columnNumber)
+{
+    if (diffFileIndex < 0 || diffFileIndex >= m_contextFileData.count())
+        return;
+
+    const FileData fileData = m_contextFileData.at(diffFileIndex);
+    const QString fileName = fileData.rightFileInfo.fileName;
+    jumpToOriginalFile(fileName, lineNumber, columnNumber);
+}
+
+void DiffEditorWidget::jumpToOriginalFile(const QString &fileName,
+                                          int lineNumber, int columnNumber)
+{
+    const QDir dir(m_workingDirectory);
+    const QString absoluteFileName = dir.absoluteFilePath(fileName);
+    Core::EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
 }
 
 void DiffEditorWidget::leftVSliderChanged()

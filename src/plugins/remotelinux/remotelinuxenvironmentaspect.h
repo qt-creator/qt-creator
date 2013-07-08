@@ -60,9 +60,6 @@ public:
 
     QString userEnvironmentChangesAsString() const;
 
-signals:
-    void remoteEnvironmentChanged();
-
 private:
     enum BaseEnvironmentBase {
         CleanBaseEnvironment = 0,

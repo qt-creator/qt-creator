@@ -51,6 +51,10 @@ int main(int argc, char *argv[])
     QtSimulatorPrivate::SimulatorConnection::createStubInstance();
 #endif
 
+#ifdef Q_OS_MAC //This keeps qml2puppet from stealing focus
+    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+#endif
+
     QApplication application(argc, argv);
 
     QCoreApplication::setOrganizationName("QtProject");

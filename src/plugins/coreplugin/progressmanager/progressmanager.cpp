@@ -46,6 +46,7 @@
 #include <QAction>
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPropertyAnimation>
 #include <QStyle>
@@ -379,6 +380,19 @@ bool ProgressManagerPrivate::eventFilter(QObject *obj, QEvent *event)
         m_hovered = false;
         // give the progress view the chance to get the mouse enter event
         updateVisibilityWithDelay();
+    } else if (obj == m_statusBarWidget && event->type() == QEvent::MouseButtonPress
+               && !m_taskList.isEmpty()) {
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        if (me->button() == Qt::LeftButton && !me->modifiers()) {
+            FutureProgress *progress = m_currentStatusDetailsProgress;
+            if (!progress)
+                progress = m_taskList.last();
+            // don't send signal directly from an event filter, event filters should
+            // do as little a possible
+            QTimer::singleShot(0, progress, SIGNAL(clicked()));
+            event->accept();
+            return true;
+        }
     }
     return false;
 }
@@ -643,8 +657,10 @@ void ProgressManagerPrivate::updateStatusDetailsWidget()
     while (i != m_taskList.begin()) {
         --i;
         candidateWidget = (*i)->statusBarWidget();
-        if (candidateWidget)
+        if (candidateWidget) {
+            m_currentStatusDetailsProgress = *i;
             break;
+        }
     }
 
     if (candidateWidget == m_currentStatusDetailsWidget)

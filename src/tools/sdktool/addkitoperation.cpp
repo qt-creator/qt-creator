@@ -219,9 +219,9 @@ int AddKitOperation::execute() const
                                 m_deviceType.toUtf8(), m_sysRoot, m_tc, m_qt, m_mkspec, m_extra);
 
     if (result.isEmpty() || map == result)
-        return -2;
+        return 2;
 
-    return save(result, QLatin1String("profiles")) ? 0 : -3;
+    return save(result, QLatin1String("profiles")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

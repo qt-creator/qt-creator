@@ -76,8 +76,6 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, boo
                     GitPlugin::instance()->gitClient()->msgNoCommits(includeRemote));
         return false;
     }
-    selectionModel()->select(m_model->index(0, 0),
-                             QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
     return true;
 }
 
@@ -117,6 +115,8 @@ void LogChangeWidget::emitDoubleClicked(const QModelIndex &index)
 
 bool LogChangeWidget::populateLog(const QString &repository, const QString &commit, bool includeRemote)
 {
+    const QString currentCommit = this->commit();
+    int selected = currentCommit.isEmpty() ? 0 : -1;
     if (const int rowCount = m_model->rowCount())
         m_model->removeRows(0, rowCount);
 
@@ -144,12 +144,15 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
                 }
                 row.push_back(item);
             }
-            row[Sha1Column]->setText(line.left(colonPos));
+            const QString sha1 = line.left(colonPos);
+            row[Sha1Column]->setText(sha1);
             row[SubjectColumn]->setText(line.right(line.size() - colonPos - 1));
             m_model->appendRow(row);
+            if (selected == -1 && currentCommit == sha1)
+                selected = m_model->rowCount() - 1;
         }
     }
-    setCurrentIndex(m_model->index(0, 0));
+    setCurrentIndex(m_model->index(selected, 0));
     return true;
 }
 
@@ -174,8 +177,8 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     if (isReset) {
         popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
         m_resetTypeComboBox = new QComboBox(this);
-        m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
         m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
+        m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
         m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));

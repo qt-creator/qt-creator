@@ -103,6 +103,8 @@ protected:
 
 private slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void slotLeftJumpToOriginalFileRequested(int diffFileIndex, int lineNumber, int columnNumber);
+    void slotRightJumpToOriginalFileRequested(int diffFileIndex, int lineNumber, int columnNumber);
     void leftVSliderChanged();
     void rightVSliderChanged();
     void leftHSliderChanged();
@@ -135,6 +137,7 @@ private:
     FileData calculateContextData(const ChunkData &originalData) const;
     void showDiff();
     void synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination);
+    void jumpToOriginalFile(const QString &fileName, int lineNumber, int columnNumber);
 
     DiffViewEditorWidget *m_leftEditor;
     DiffViewEditorWidget *m_rightEditor;
@@ -143,6 +146,7 @@ private:
     QList<DiffList> m_diffList; // list of original outputs from differ
     QList<ChunkData> m_originalChunkData; // one big chunk for every file, ignoreWhitespaces taken into account
     QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
+    QString m_workingDirectory;
     int m_contextLinesNumber;
     bool m_ignoreWhitespaces;
     bool m_syncScrollBars;

@@ -2772,7 +2772,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
 
 void tst_TestCore::testRewriterPropertyDeclarations()
 {
-    // Work in progress. See task https://qtrequirements.europe.nokia.com/browse/BAUHAUS-170"
+    // Work in progress.
 
     //
     // test properties defined in qml

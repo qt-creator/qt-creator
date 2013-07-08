@@ -50,6 +50,9 @@ int main(int argc, char *argv[])
     // Since we always render text into an FBO, we need to globally disable
     // subpixel antialiasing and instead use gray.
     qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
+#ifdef Q_OS_MAC //This keeps qml2puppet from stealing focus
+    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+#endif
 
     QApplication application(argc, argv);
 

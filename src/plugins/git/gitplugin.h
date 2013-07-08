@@ -102,6 +102,7 @@ public:
 
 public slots:
     void startCommit();
+    void updateBranches(const QString &repository);
 
 private slots:
     void diffCurrentFile();

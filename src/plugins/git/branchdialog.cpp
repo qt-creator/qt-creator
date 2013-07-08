@@ -97,6 +97,12 @@ void BranchDialog::refresh(const QString &repository, bool force)
     m_ui->branchView->expandAll();
 }
 
+void BranchDialog::refreshIfSame(const QString &repository)
+{
+    if (m_repository == repository)
+        refresh();
+}
+
 void BranchDialog::enableButtons()
 {
     QModelIndex idx = selectedIndex();
@@ -306,8 +312,7 @@ void BranchDialog::log()
 void BranchDialog::merge()
 {
     QModelIndex idx = selectedIndex();
-    QTC_CHECK(m_model->isLocal(m_model->currentBranch())); // otherwise the button would not be enabled!
-    QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
+    QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
     const QString branch = m_model->fullName(idx, true);
     GitClient *client = GitPlugin::instance()->gitClient();
@@ -318,8 +323,7 @@ void BranchDialog::merge()
 void BranchDialog::rebase()
 {
     QModelIndex idx = selectedIndex();
-    QTC_CHECK(m_model->isLocal(m_model->currentBranch())); // otherwise the button would not be enabled!
-    QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
+    QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
     const QString baseBranch = m_model->fullName(idx, true);
     GitClient *client = GitPlugin::instance()->gitClient();

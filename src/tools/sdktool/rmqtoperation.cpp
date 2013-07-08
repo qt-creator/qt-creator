@@ -90,9 +90,9 @@ int RmQtOperation::execute() const
 
     QVariantMap result = rmQt(map, m_id);
     if (result == map)
-        return -2;
+        return 2;
 
-    return save(result, QLatin1String("qtversion")) ? 0 : -3;
+    return save(result, QLatin1String("qtversion")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

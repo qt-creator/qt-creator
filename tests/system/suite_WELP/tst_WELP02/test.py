@@ -57,7 +57,6 @@ def main():
     # select "Create Project" and try to create a new project.
     # create Qt Quick application from "Welcome" page -> "Develop" tab
     createNewQtQuickApplication(tempDir(), "SampleApp", fromWelcome = True)
-    progressBarWait(30000)
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text~='SampleApp( \(.*\))?' type='QModelIndex'}"),
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
