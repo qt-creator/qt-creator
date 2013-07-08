@@ -225,6 +225,7 @@ public:
     IDocument::ReloadSetting m_reloadSetting;
 
     QString m_titleAddition;
+    QString m_titleVcsTopic;
 
     bool m_autoSaveEnabled;
     int m_autoSaveInterval;
@@ -1962,6 +1963,8 @@ void EditorManager::updateWindowTitle()
 {
     QString windowTitle = tr("Qt Creator");
     const QString dashSep = QLatin1String(" - ");
+    if (!d->m_titleVcsTopic.isEmpty())
+        windowTitle.prepend(d->m_titleVcsTopic + dashSep);
     if (!d->m_titleAddition.isEmpty())
         windowTitle.prepend(d->m_titleAddition + dashSep);
     IEditor *curEditor = currentEditor();
@@ -2577,6 +2580,17 @@ void EditorManager::setWindowTitleAddition(const QString &addition)
 QString EditorManager::windowTitleAddition() const
 {
     return d->m_titleAddition;
+}
+
+void EditorManager::setWindowTitleVcsTopic(const QString &topic)
+{
+    d->m_titleVcsTopic = topic;
+    m_instance->updateWindowTitle();
+}
+
+QString EditorManager::windowTitleVcsTopic()
+{
+    return d->m_titleVcsTopic;
 }
 
 void EditorManager::updateVariable(const QByteArray &variable)

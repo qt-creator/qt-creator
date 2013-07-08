@@ -183,6 +183,9 @@ public:
     void setWindowTitleAddition(const QString &addition);
     QString windowTitleAddition() const;
 
+    static void setWindowTitleVcsTopic(const QString &topic);
+    static QString windowTitleVcsTopic();
+
     void addSaveAndCloseEditorActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry);
     void addNativeDirActions(QMenu *contextMenu, OpenEditorsModel::Entry *entry);
 

@@ -290,8 +290,10 @@ void StateListener::slotStateChanged()
     }
     // Assemble state and emit signal.
     Core::IVersionControl *vc = state.currentFile.isEmpty() ? projectControl : fileControl;
-    if (!vc) // Need a repository to patch
-        state.clearPatchFile();
+    if (!vc) {
+        state.clearPatchFile(); // Need a repository to patch
+        Core::EditorManager::setWindowTitleVcsTopic(QString());
+    }
     if (debug)
         qDebug() << state << (vc ? vc->displayName() : QString(QLatin1String("No version control")));
     emit stateChanged(state, vc);
@@ -581,6 +583,7 @@ void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternal
         if (!d->m_state.equals(newInternalState)) {
             d->m_state.setState(newInternalState);
             updateActions(VcsEnabled);
+            Core::EditorManager::setWindowTitleVcsTopic(vc->vcsTopic(d->m_state.topLevel()));
         }
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
