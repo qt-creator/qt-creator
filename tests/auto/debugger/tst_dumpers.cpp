@@ -347,9 +347,9 @@ struct Cxx11Profile : public Profile
     {}
 };
 
-struct MacLibStdCppProfile : public Profile
+struct MacLibCppProfile : public Profile
 {
-    MacLibStdCppProfile()
+    MacLibCppProfile()
       : Profile("macx {\n"
                 "QMAKE_CXXFLAGS += -stdlib=libc++\n"
                 "LIBS += -stdlib=libc++\n"
@@ -2379,7 +2379,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&a, &b);\n")
                % CoreProfile()
                % Cxx11Profile()
-               % MacLibStdCppProfile()
+               % MacLibCppProfile()
                % Check("a", "<4 items>", "std::array<int, 4u>")
                % Check("b", "<4 items>", "std::array<@QString, 4u>");
 
@@ -2682,6 +2682,7 @@ void tst_Dumpers::dumper_data()
                     "std::unique_ptr<int> pi(new int(32));\n"
                     "std::unique_ptr<Foo> pf(new Foo);\n")
                % Cxx11Profile()
+               % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
                % Check("pf", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >");
 
@@ -2690,6 +2691,7 @@ void tst_Dumpers::dumper_data()
                     "std::shared_ptr<int> pi(new int(32));\n"
                     "std::shared_ptr<Foo> pf(new Foo);\n")
                % Cxx11Profile()
+               % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::shared_ptr<int>")
                % Check("pf", Pointer(), "std::shared_ptr<Foo>");
 
