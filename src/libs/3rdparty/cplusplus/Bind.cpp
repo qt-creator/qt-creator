@@ -1862,7 +1862,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         setDeclSpecifiers(decl, type);
 
         if (Function *fun = decl->type()->asFunctionType()) {
-            fun->setScope(_scope);
+            fun->setEnclosingScope(_scope);
             fun->setSourceLocation(sourceLocation, translationUnit());
 
             setDeclSpecifiers(fun, type);

@@ -188,7 +188,7 @@ Symbol *CloneSymbol::cloneSymbol(Symbol *symbol, Subst *subst)
     SymbolSubstPair symbolSubstPair = std::make_pair(symbol, subst);
     if (_cache.find(symbolSubstPair) != _cache.end()) {
         Symbol *cachedSymbol = _cache[symbolSubstPair];
-        if (cachedSymbol->scope() == symbol->scope())
+        if (cachedSymbol->enclosingScope() == symbol->enclosingScope())
             return cachedSymbol;
     }
 
@@ -531,7 +531,7 @@ Symbol *Clone::instantiate(Template *templ, const FullySpecifiedType *const args
         }
     }
     if (Symbol *inst = symbol(templ->declaration(), &subst)) {
-        inst->setScope(templ->enclosingScope());
+        inst->setEnclosingScope(templ->enclosingScope());
         return inst;
     }
     return 0;

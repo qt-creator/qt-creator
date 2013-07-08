@@ -87,7 +87,7 @@ private:
 
 Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : _name(0),
-      _scope(0),
+      _enclosingScope(0),
       _next(0),
       _fileId(0),
       _sourceLocation(0),
@@ -107,7 +107,7 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const 
 
 Symbol::Symbol(Clone *clone, Subst *subst, Symbol *original)
     : _name(clone->name(original->_name, subst)),
-      _scope(0),
+      _enclosingScope(0),
       _next(0),
       _fileId(clone->control()->stringLiteral(original->fileName(), original->fileNameLength())),
       _sourceLocation(original->_sourceLocation),
@@ -231,22 +231,22 @@ const Identifier *Symbol::identifier() const
 }
 
 Scope *Symbol::enclosingScope() const
-{ return _scope; }
+{ return _enclosingScope; }
 
-void Symbol::setScope(Scope *scope)
+void Symbol::setEnclosingScope(Scope *scope)
 {
-    CPP_CHECK(! _scope);
-    _scope = scope;
+    CPP_CHECK(! _enclosingScope);
+    _enclosingScope = scope;
 }
 
-void Symbol::resetScope()
+void Symbol::resetEnclosingScope()
 {
-    _scope = 0;
+    _enclosingScope = 0;
 }
 
 Namespace *Symbol::enclosingNamespace() const
 {
-    for (Scope *s = _scope; s; s = s->enclosingScope()) {
+    for (Scope *s = _enclosingScope; s; s = s->enclosingScope()) {
         if (Namespace *ns = s->asNamespace())
             return ns;
     }
@@ -255,7 +255,7 @@ Namespace *Symbol::enclosingNamespace() const
 
 Template *Symbol::enclosingTemplate() const
 {
-    for (Scope *s = _scope; s; s = s->enclosingScope()) {
+    for (Scope *s = _enclosingScope; s; s = s->enclosingScope()) {
         if (Template *templ = s->asTemplate())
             return templ;
     }
@@ -264,7 +264,7 @@ Template *Symbol::enclosingTemplate() const
 
 Class *Symbol::enclosingClass() const
 {
-    for (Scope *s = _scope; s; s = s->enclosingScope()) {
+    for (Scope *s = _enclosingScope; s; s = s->enclosingScope()) {
         if (Class *klass = s->asClass())
             return klass;
     }
@@ -273,7 +273,7 @@ Class *Symbol::enclosingClass() const
 
 Enum *Symbol::enclosingEnum() const
 {
-    for (Scope *s = _scope; s; s = s->enclosingScope()) {
+    for (Scope *s = _enclosingScope; s; s = s->enclosingScope()) {
         if (Enum *e = s->asEnum())
             return e;
     }
@@ -282,7 +282,7 @@ Enum *Symbol::enclosingEnum() const
 
 Function *Symbol::enclosingFunction() const
 {
-    for (Scope *s = _scope; s; s = s->enclosingScope()) {
+    for (Scope *s = _enclosingScope; s; s = s->enclosingScope()) {
         if (Function *fun = s->asFunction())
             return fun;
     }
@@ -291,16 +291,11 @@ Function *Symbol::enclosingFunction() const
 
 Block *Symbol::enclosingBlock() const
 {
-    for (Scope *s = _scope; s; s = s->enclosingScope()) {
+    for (Scope *s = _enclosingScope; s; s = s->enclosingScope()) {
         if (Block *block = s->asBlock())
             return block;
     }
     return 0;
-}
-
-Scope *Symbol::scope() const
-{
-    return _scope;
 }
 
 unsigned Symbol::index() const
@@ -430,7 +425,7 @@ void Symbol::copy(Symbol *other)
     _hashCode = other->_hashCode;
     _storage = other->_storage;
     _visibility = other->_visibility;
-    _scope = other->_scope;
+    _enclosingScope = other->_enclosingScope;
     _index = other->_index;
     _next = other->_next;
     _fileId = other->_fileId;

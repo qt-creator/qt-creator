@@ -109,7 +109,7 @@ SymbolTable::~SymbolTable()
 
 void SymbolTable::enterSymbol(Symbol *symbol)
 {
-    CPP_ASSERT(! symbol->_scope || symbol->enclosingScope() == _owner, return);
+    CPP_ASSERT(! symbol->_enclosingScope || symbol->enclosingScope() == _owner, return);
 
     if (++_symbolCount == _allocatedSymbols) {
         _allocatedSymbols <<= 1;
@@ -120,7 +120,7 @@ void SymbolTable::enterSymbol(Symbol *symbol)
     }
 
     symbol->_index = _symbolCount;
-    symbol->_scope = _owner;
+    symbol->_enclosingScope = _owner;
     _symbols[_symbolCount] = symbol;
 
     if (_symbolCount * 5 >= _hashSize * 3)

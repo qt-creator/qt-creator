@@ -256,7 +256,7 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) c
 
                             // if it is not a global scope(scope of scope is not equal 0)
                             // then add current using declaration as a candidate
-                            if (scope->scope()) {
+                            if (scope->enclosingScope()) {
                                 LookupItem item;
                                 item.setDeclaration(u);
                                 item.setScope(scope);
@@ -1087,7 +1087,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
                 foreach (Symbol *s, reference->symbols()) {
                     Symbol *clone = cloner.symbol(s, &subst);
-                    clone->setScope(s->scope());
+                    clone->setEnclosingScope(s->enclosingScope());
                     instantiation->_symbols.append(clone);
 #ifdef DEBUG_LOOKUP
                     Overview oo;oo.showFunctionSignatures = true;
@@ -1242,7 +1242,7 @@ void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *en
             foreach (Symbol *s, nestedClassOrNamespace->_symbols) {
                 Symbol *clone = _cloner.symbol(s, &_subst);
                 if (!clone->enclosingScope()) // Not from the cache but just cloned.
-                    clone->setScope(s->enclosingScope());
+                    clone->setEnclosingScope(s->enclosingScope());
                 nestedClassOrNamespaceInstantiation->_symbols.append(clone);
             }
         }

@@ -4615,7 +4615,7 @@ public:
         const LookupContext targetContext(headerFile->cppDocument(), assistInterface()->snapshot());
 
         const Class *targetClass = m_classAST->symbol;
-        ClassOrNamespace *targetCoN = targetContext.lookupType(targetClass->scope());
+        ClassOrNamespace *targetCoN = targetContext.lookupType(targetClass->enclosingScope());
         if (!targetCoN)
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames useMinimalNames(targetCoN);

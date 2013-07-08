@@ -158,7 +158,7 @@ public:
 
                 // the copy() call above set the scope to 'type'
                 // reset it to 0 before adding addMember to avoid assert
-                newArg->resetScope();
+                newArg->resetEnclosingScope();
                 funTy->addMember(newArg);
             }
 
