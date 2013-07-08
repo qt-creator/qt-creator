@@ -44,7 +44,8 @@ using namespace Core::Internal;
 #define CANCELBUTTON_SIZE 15
 
 ProgressBar::ProgressBar(QWidget *parent)
-    : QWidget(parent), m_titleVisible(true), m_separatorVisible(true), m_progressHeight(0),
+    : QWidget(parent), m_titleVisible(true), m_separatorVisible(true), m_cancelEnabled(true),
+      m_progressHeight(0),
       m_minimum(1), m_maximum(100), m_value(1), m_cancelButtonFader(0), m_finished(false),
       m_error(false)
 {
