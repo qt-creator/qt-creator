@@ -40,6 +40,7 @@
 #include "temporarydir.h"
 
 #include <QtTest>
+#include <math.h>
 
 #if  QT_VERSION >= 0x050000
 #define MSKIP_SINGLE(x) QSKIP(x)
@@ -195,9 +196,10 @@ static QByteArray parentIName(const QByteArray &iname)
 
 struct ValueBase
 {
-    ValueBase() : hasPtrSuffix(false), version(0) {}
+    ValueBase() : hasPtrSuffix(false), isFloatValue(false), version(0) {}
 
     bool hasPtrSuffix;
+    bool isFloatValue;
     int version;
 };
 
@@ -235,6 +237,18 @@ struct Value : public ValueBase
         if (hasPtrSuffix)
             return actualValue.startsWith(expectedValue + QLatin1String(" @0x"))
                 || actualValue.startsWith(expectedValue + QLatin1String("@0x"));
+
+        if (isFloatValue) {
+            double f1 = fabs(expectedValue.toDouble());
+            double f2 = fabs(actualValue.toDouble());
+            //qDebug() << "expected float: " << qPrintable(expectedValue) << f1;
+            //qDebug() << "actual   float: " << qPrintable(actualValue) << f2;
+            if (f1 < f2)
+                std::swap(f1, f2);
+            return f1 - f2 <= 0.01 * f2;
+        }
+
+
         return actualValue == expectedValue;
     }
 
@@ -245,6 +259,12 @@ struct Pointer : Value
 {
     Pointer() { hasPtrSuffix = true; }
     Pointer(const QByteArray &value) : Value(value) { hasPtrSuffix = true; }
+};
+
+struct FloatValue : Value
+{
+    FloatValue() { isFloatValue = true; }
+    FloatValue(const QByteArray &value) : Value(value) { isFloatValue = true; }
 };
 
 struct Value4 : Value
@@ -309,15 +329,6 @@ struct CheckType : public Check
     CheckType(const QByteArray &iname, const Type &type)
         : Check(iname, noValue, type)
     {}
-};
-
-struct CheckPlain : public Check
-{
-    CheckPlain(const QByteArray &iname, const Name &name,
-         const Type &type)
-        : Check(iname, name, noValue, type)
-    {}
-
 };
 
 struct Profile
@@ -1046,17 +1057,32 @@ void tst_Dumpers::dumper_data()
            " } // namespace nsB\n"
            " } // namespace nsA\n";
 
-    QTest::newRow("AnonymousStruct")
+    QTest::newRow("AnonymousStructGdb")
             << Data("union {\n"
                     "     struct { int i; int b; };\n"
                     "     struct { float f; };\n"
                     "     double d;\n"
                     " } a = { { 42, 43 } };\n (void)a;")
+               % GdbOnly()
                % CheckType("a", "a", "union {...}")
                % Check("a.b", "43", "int")
-               % Check("a.d", "9.1245819032257467e-313", "double")
-               % Check("a.f", "5.88545355e-44", "float")
+               % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
+               % Check("a.f", FloatValue("5.88545355e-44"), "float")
                % Check("a.i", "42", "int");
+
+    // FIXME: Merge with GDB case
+    QTest::newRow("AnonymousStructLldb")
+            << Data("union {\n"
+                    "     struct { int i; int b; };\n"
+                    "     struct { float f; };\n"
+                    "     double d;\n"
+                    " } a = { { 42, 43 } };\n (void)a;")
+               //% CheckType("a", "a", "union {...}")
+               % LldbOnly()
+               % Check("a.#1.b", "43", "int")
+               % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
+               % Check("a.#2.f", FloatValue("5.88545355e-44"), "float")
+               % Check("a.#1.i", "42", "int");
 
     QTest::newRow("QByteArray0")
             << Data("#include <QByteArray>\n",
