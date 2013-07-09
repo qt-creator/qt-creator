@@ -1159,7 +1159,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
         unicode.append(QLatin1Char('\n'));
     for (block = block.next() ; block.isValid() ; block = block.next()) {
         const QString line = block.text();
-        if (checkChunkLine(line, &chunkStart)) {
+        if (checkChunkLine(line, &chunkStart) || d->m_diffFilePattern.indexIn(line) == 0) {
             break;
         } else {
             unicode += line;
