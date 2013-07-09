@@ -783,7 +783,7 @@ void tst_FindUsages::templateClass_className()
 
     FindUsages findUsages(src, doc, snapshot);
     findUsages(classTS);
-    QCOMPARE(findUsages.usages().size(), 6);
+    QCOMPARE(findUsages.usages().size(), 7);
 }
 
 void tst_FindUsages::templateFunctionParameters()
