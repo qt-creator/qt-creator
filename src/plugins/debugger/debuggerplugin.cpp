@@ -2119,29 +2119,26 @@ void DebuggerPluginPrivate::cleanupViews()
     if (!boolSetting(CloseBuffersOnExit))
         return;
 
-    EditorManager *editorManager = EditorManager::instance();
-    QTC_ASSERT(editorManager, return);
-    QList<IEditor *> toClose;
-    foreach (IEditor *editor, editorManager->openedEditors()) {
-        if (editor->property(Constants::OPENED_BY_DEBUGGER).toBool()) {
-            IDocument *doc = editor->document();
+    QList<IDocument *> toClose;
+    foreach (IDocument *document, EditorManager::documentModel()->openedDocuments()) {
+        if (document->property(Constants::OPENED_BY_DEBUGGER).toBool()) {
             bool keepIt = true;
-            if (editor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool())
+            if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool())
                 keepIt = false;
-            else if (doc->isModified())
+            else if (document->isModified())
                 keepIt = true;
-            else if (doc->filePath().contains(_("qeventdispatcher")))
+            else if (document->filePath().contains(_("qeventdispatcher")))
                 keepIt = false;
             else
-                keepIt = (editor == EditorManager::currentEditor());
+                keepIt = (document == EditorManager::currentDocument());
 
             if (keepIt)
-                editor->setProperty(Constants::OPENED_BY_DEBUGGER, false);
+                document->setProperty(Constants::OPENED_BY_DEBUGGER, false);
             else
-                toClose.append(editor);
+                toClose.append(document);
         }
     }
-    editorManager->closeEditors(toClose);
+    EditorManager::closeDocuments(toClose);
 }
 
 void DebuggerPluginPrivate::setBusyCursor(bool busy)

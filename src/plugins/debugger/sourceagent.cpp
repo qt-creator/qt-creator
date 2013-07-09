@@ -117,7 +117,7 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
                 CppEditor::Constants::CPPEDITOR_ID,
                 &titlePattern, content));
         QTC_ASSERT(d->editor, return);
-        d->editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
+        d->editor->document()->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
 
         BaseTextEditorWidget *baseTextEdit =
                 qobject_cast<BaseTextEditorWidget *>(d->editor->widget());

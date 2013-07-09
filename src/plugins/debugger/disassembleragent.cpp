@@ -310,8 +310,9 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern));
         QTC_ASSERT(d->editor, return);
-        d->editor->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
-        d->editor->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
+        IDocument *document = d->editor->document();
+        document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
+        document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
         d->configureMimeType();
 
         BaseTextEditorWidget *baseTextEdit =

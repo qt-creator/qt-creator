@@ -53,7 +53,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetextdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
@@ -528,28 +528,25 @@ void QmlEngine::gotoLocation(const Location &location)
     if (QUrl(fileName).isLocalFile()) {
         // internal file from source files -> show generated .js
         QTC_ASSERT(m_sourceDocuments.contains(fileName), return);
-        Core::IEditor *editor = 0;
 
-        Core::EditorManager *editorManager = Core::EditorManager::instance();
         QString titlePattern = tr("JS Source for %1").arg(fileName);
-        //Check if there are open editors with the same title
-        QList<Core::IEditor *> editors = editorManager->openedEditors();
-        foreach (Core::IEditor *ed, editors) {
-            if (ed->document()->displayName() == titlePattern) {
-                editor = ed;
-                break;
+        //Check if there are open documents with the same title
+        foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+            if (document->displayName() == titlePattern) {
+                Core::EditorManager::instance()->activateEditorForDocument(document);
+                return;
             }
         }
-        if (!editor) {
-            editor = Core::EditorManager::openEditorWithContents(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
-                                                           &titlePattern);
-            if (editor)
-                editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
-
-            updateEditor(editor, m_sourceDocuments.value(fileName));
+        Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+                    QmlJSEditor::Constants::C_QMLJSEDITOR_ID, &titlePattern);
+        if (editor) {
+            editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+            QPlainTextEdit *plainTextEdit =
+                    qobject_cast<QPlainTextEdit *>(editor->widget());
+            if (plainTextEdit)
+                plainTextEdit->setReadOnly(true);
+            updateDocument(editor->document(), m_sourceDocuments.value(fileName));
         }
-        Core::EditorManager::activateEditor(editor);
-
     } else {
         DebuggerEngine::gotoLocation(location);
     }
@@ -1299,27 +1296,22 @@ void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int 
     //update open editors
     QString titlePattern = tr("JS Source for %1").arg(fileName);
     //Check if there are open editors with the same title
-    QList<Core::IEditor *> editors = Core::EditorManager::instance()->openedEditors();
-    foreach (Core::IEditor *editor, editors) {
-        if (editor->document()->displayName() == titlePattern) {
-            updateEditor(editor, document);
+    foreach (Core::IDocument *doc, Core::EditorManager::documentModel()->openedDocuments()) {
+        if (doc->displayName() == titlePattern) {
+            updateDocument(doc, document);
             break;
         }
     }
 }
 
-void QmlEngine::updateEditor(Core::IEditor *editor, const QTextDocument *document)
+void QmlEngine::updateDocument(Core::IDocument *document, const QTextDocument *textDocument)
 {
-    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
-    if (!textEditor)
+    TextEditor::BaseTextDocument *baseTextDocument
+            = qobject_cast<TextEditor::BaseTextDocument *>(document);
+    if (!baseTextDocument)
         return;
 
-    QPlainTextEdit *plainTextEdit =
-            qobject_cast<QPlainTextEdit *>(editor->widget());
-    if (!plainTextEdit)
-        return;
-    plainTextEdit->setPlainText(document->toPlainText());
-    plainTextEdit->setReadOnly(true);
+    baseTextDocument->document()->setPlainText(textDocument->toPlainText());
 }
 
 bool QmlEngine::canEvaluateScript(const QString &script)

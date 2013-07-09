@@ -43,7 +43,7 @@
 #include <QTextDocument>
 
 namespace Core {
-class IEditor;
+class IDocument;
 }
 
 namespace Debugger {
@@ -181,7 +181,7 @@ private:
         const QString &oldBasePath, const QString &newBasePath) const;
     QString qmlImportPath() const;
 
-    void updateEditor(Core::IEditor *editor, const QTextDocument *document);
+    void updateDocument(Core::IDocument *document, const QTextDocument *textDocument);
     bool canEvaluateScript(const QString &script);
     bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
                                        quint32 *column, bool *valid);

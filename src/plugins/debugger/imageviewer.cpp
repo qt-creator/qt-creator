@@ -140,7 +140,7 @@ static void openImageViewer(const QImage &image)
         temporaryFile.close();
     }
     if (Core::IEditor *e = Core::EditorManager::instance()->openEditor(fileName))
-        e->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, QVariant(true));
+        e->document()->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, QVariant(true));
 }
 
 void ImageViewer::contextMenuEvent(QContextMenuEvent *ev)
