@@ -914,7 +914,9 @@ void tst_Dumpers::dumper()
         contents.replace("\\\"", "\"");
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
         //qDebug() << "GOT OUTPUT: " << output;
-        QVERIFY(output.startsWith("data="));
+        int pos = output.indexOf("data=[{");
+        QVERIFY(pos != -1);
+        output = output.mid(pos);
         contents = output;
 
         //int posNameSpaceStart = output.indexOf("@NS@");
