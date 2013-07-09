@@ -2593,7 +2593,8 @@ def qdump__std__wstring(d, value):
     qdump__std__stringHelper1(d, value, charSize)
 
 def qdump__std__basic_string(d, value):
-    qdump__std__string(d, value)
+    innerType = d.templateArgument(value.type, 0)
+    qdump__std__stringHelper1(d, value, innerType.sizeof)
 
 def qdump__wstring(d, value):
     qdump__std__wstring(d, value)
