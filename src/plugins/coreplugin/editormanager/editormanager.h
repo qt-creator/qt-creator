@@ -126,15 +126,18 @@ public:
     QList<IEditor *> editorsForFileName(const QString &filename) const;
     QList<IEditor *> editorsForDocument(IDocument *document) const;
 
+    static IDocument *currentDocument();
     static IEditor *currentEditor();
     QList<IEditor *> visibleEditors() const;
     QList<IEditor*> openedEditors() const;
 
     static void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
     void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = 0);
+    IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = 0);
     IEditor *activateEditorForDocument(Internal::EditorView *view, IDocument *document, OpenEditorFlags flags = 0);
 
-    DocumentModel *documentModel() const;
+    static DocumentModel *documentModel();
+    static void closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     void closeEditor(DocumentModel::Entry *entry);
     void closeOtherEditors(IDocument *document);
 

@@ -1997,23 +1997,20 @@ void FakeVimPluginPrivate::highlightMatches(const QString &needle)
 
 int FakeVimPluginPrivate::currentFile() const
 {
-    DocumentModel *model = EditorManager::instance()->documentModel();
     IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return -1;
-    return model->indexOfDocument(editor->document());
+    return EditorManager::documentModel()->indexOfDocument(editor->document());
 }
 
 void FakeVimPluginPrivate::switchToFile(int n)
 {
-    EditorManager *editorManager = ICore::editorManager();
-    DocumentModel *model = editorManager->documentModel();
-    int size = model->documentCount();
+    int size = EditorManager::documentModel()->documentCount();
     QTC_ASSERT(size, return);
     n = n % size;
     if (n < 0)
         n += size;
-    editorManager->activateEditorForEntry(model->documents().at(n));
+    EditorManager::instance()->activateEditorForEntry(EditorManager::documentModel()->documents().at(n));
 }
 
 ExCommandMap &FakeVimExCommandsPage::exCommandMap()

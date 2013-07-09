@@ -416,8 +416,8 @@ void Qt4ProjectManagerPlugin::updateBuildFileAction()
     bool enabled = false;
 
     QString file;
-    if (Core::IEditor *currentEditor = Core::EditorManager::currentEditor()) {
-        file = currentEditor->document()->filePath();
+    if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
+        file = currentDocument->filePath();
         ProjectExplorer::SessionManager *session = m_projectExplorer->session();
         ProjectExplorer::Node *node  = session->nodeForFile(file);
         ProjectExplorer::Project *project = session->projectForFile(file);

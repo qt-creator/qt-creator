@@ -648,6 +648,11 @@ QList<IEditor *> EditorManager::editorsForDocument(IDocument *document) const
     return found;
 }
 
+IDocument *EditorManager::currentDocument()
+{
+    return d->m_currentEditor ? d->m_currentEditor->document() : 0;
+}
+
 IEditor *EditorManager::currentEditor()
 {
     return d->m_currentEditor;
@@ -761,9 +766,9 @@ void EditorManager::closeOtherEditors(IDocument *document)
 
 void EditorManager::closeOtherEditors()
 {
-    IEditor *current = currentEditor();
+    IDocument *current = currentDocument();
     QTC_ASSERT(current, return);
-    closeOtherEditors(current->document());
+    closeOtherEditors(current);
 }
 
 // SLOT connected to action
@@ -1286,6 +1291,11 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
     return editor;
 }
 
+IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEditorFlags flags)
+{
+    return activateEditorForDocument(currentEditorView(), document, flags);
+}
+
 Core::IEditor *EditorManager::activateEditorForDocument(Core::Internal::EditorView *view, Core::IDocument *document, OpenEditorFlags flags)
 {
     Q_ASSERT(view);
@@ -1705,8 +1715,8 @@ bool EditorManager::saveEditor(IEditor *editor)
 bool EditorManager::saveDocument(IDocument *documentParam)
 {
     IDocument *document = documentParam;
-    if (!document && currentEditor())
-        document = currentEditor()->document();
+    if (!document && currentDocument())
+        document = currentDocument();
     if (!document)
         return false;
 
@@ -1784,8 +1794,8 @@ MakeWritableResult EditorManager::makeFileWritable(IDocument *document)
 bool EditorManager::saveDocumentAs(IDocument *documentParam)
 {
     IDocument *document = documentParam;
-    if (!document && currentEditor())
-        document = currentEditor()->document();
+    if (!document && currentDocument())
+        document = currentDocument();
     if (!document)
         return false;
 
@@ -1866,22 +1876,22 @@ void EditorManager::gotoPreviousDocHistory()
 
 void EditorManager::makeCurrentEditorWritable()
 {
-    if (IEditor* curEditor = currentEditor())
-        makeFileWritable(curEditor->document());
+    if (IDocument* doc = currentDocument())
+        makeFileWritable(doc);
 }
 
 void EditorManager::vcsOpenCurrentEditor()
 {
-    IEditor *curEditor = currentEditor();
-    if (!curEditor)
+    IDocument *document = currentDocument();
+    if (!document)
         return;
 
-    const QString directory = QFileInfo(curEditor->document()->filePath()).absolutePath();
+    const QString directory = QFileInfo(document->filePath()).absolutePath();
     IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
     if (!versionControl || versionControl->openSupportMode() == IVersionControl::NoOpen)
         return;
 
-    if (!versionControl->vcsOpen(curEditor->document()->filePath())) {
+    if (!versionControl->vcsOpen(document->filePath())) {
         QMessageBox::warning(ICore::mainWindow(), tr("Cannot Open File"),
                              tr("Cannot open the file for editing with VCS."));
     }
@@ -1895,12 +1905,12 @@ void EditorManager::updateWindowTitle()
         windowTitle.prepend(d->m_titleVcsTopic + dashSep);
     if (!d->m_titleAddition.isEmpty())
         windowTitle.prepend(d->m_titleAddition + dashSep);
-    IEditor *curEditor = currentEditor();
-    if (curEditor) {
-        QString editorName = curEditor->document()->displayName();
+    IDocument *document = currentDocument();
+    if (document) {
+        QString editorName = document->displayName();
         if (!editorName.isEmpty())
             windowTitle.prepend(editorName + dashSep);
-        QString filePath = QFileInfo(curEditor->document()->filePath()).absoluteFilePath();
+        QString filePath = QFileInfo(document->filePath()).absoluteFilePath();
         if (!filePath.isEmpty())
             ICore::mainWindow()->setWindowFilePath(filePath);
     } else {
@@ -1912,11 +1922,10 @@ void EditorManager::updateWindowTitle()
 void EditorManager::handleDocumentStateChange()
 {
     updateActions();
-    IDocument *document= qobject_cast<IDocument *>(sender());
+    IDocument *document = qobject_cast<IDocument *>(sender());
     if (!document->isModified())
         document->removeAutoSaveFile();
-    IEditor *currEditor = currentEditor();
-    if (currEditor && currEditor->document() == document) {
+    if (currentDocument() == document) {
         updateWindowTitle();
         emit currentDocumentStateChanged();
     }
@@ -1924,15 +1933,16 @@ void EditorManager::handleDocumentStateChange()
 
 void EditorManager::updateMakeWritableWarning()
 {
-    IEditor *curEditor = currentEditor();
-    bool ww = curEditor->document()->isModified() && curEditor->document()->isFileReadOnly();
-    if (ww != curEditor->document()->hasWriteWarning()) {
-        curEditor->document()->setWriteWarning(ww);
+    IDocument *document = currentDocument();
+    QTC_ASSERT(document, return);
+    bool ww = document->isModified() && document->isFileReadOnly();
+    if (ww != document->hasWriteWarning()) {
+        document->setWriteWarning(ww);
 
         // Do this after setWriteWarning so we don't re-evaluate this part even
         // if we do not really show a warning.
         bool promptVCS = false;
-        const QString directory = QFileInfo(curEditor->document()->filePath()).absolutePath();
+        const QString directory = QFileInfo(document->filePath()).absolutePath();
         IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
         if (versionControl && versionControl->openSupportMode() != IVersionControl::NoOpen) {
             if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
@@ -1950,15 +1960,15 @@ void EditorManager::updateMakeWritableWarning()
                                   tr("<b>Warning:</b> This file was not opened in %1 yet.")
                                   .arg(versionControl->displayName()));
                 info.setCustomButtonInfo(tr("Open"), this, SLOT(vcsOpenCurrentEditor()));
-                curEditor->document()->infoBar()->addInfo(info);
+                document->infoBar()->addInfo(info);
             } else {
                 InfoBarEntry info(Id(kMakeWritableWarning),
                                   tr("<b>Warning:</b> You are changing a read-only file."));
                 info.setCustomButtonInfo(tr("Make Writable"), this, SLOT(makeCurrentEditorWritable()));
-                curEditor->document()->infoBar()->addInfo(info);
+                document->infoBar()->addInfo(info);
             }
         } else {
-            curEditor->document()->infoBar()->removeInfo(Id(kMakeWritableWarning));
+            document->infoBar()->removeInfo(Id(kMakeWritableWarning));
         }
     }
 }
@@ -1983,8 +1993,7 @@ void EditorManager::setupSaveActions(IDocument *document, QAction *saveAction, Q
 
 void EditorManager::updateActions()
 {
-    IEditor *curEditor = currentEditor();
-    IDocument *curDocument = curEditor ? curEditor->document() : 0;
+    IDocument *curDocument = currentDocument();
     int openedCount = d->m_documentModel->documentCount();
 
     if (curDocument) {
@@ -2074,9 +2083,14 @@ QList<IEditor*> EditorManager::openedEditors() const
     return d->m_documentModel->oneEditorForEachOpenedDocument();
 }
 
-DocumentModel *EditorManager::documentModel() const
+DocumentModel *EditorManager::documentModel()
 {
     return d->m_documentModel;
+}
+
+void EditorManager::closeDocuments(const QList<IDocument *> &document, bool askAboutModifiedEditors)
+{
+    m_instance->closeEditors(d->m_documentModel->editorsForDocuments(document), askAboutModifiedEditors);
 }
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
@@ -2289,8 +2303,7 @@ void EditorManager::readSettings()
 
 void EditorManager::revertToSaved()
 {
-    IEditor *editor = currentEditor();
-    revertToSaved(editor ? editor->document() : 0);
+    revertToSaved(currentDocument());
 }
 
 void EditorManager::revertToSaved(Core::IDocument *document)
@@ -2535,9 +2548,9 @@ void EditorManager::updateVariable(const QByteArray &variable)
 {
     if (VariableManager::instance()->isFileVariable(variable, kCurrentDocumentPrefix)) {
         QString value;
-        IEditor *curEditor = currentEditor();
-        if (curEditor) {
-            QString fileName = curEditor->document()->filePath();
+        IDocument *document = currentDocument();
+        if (document) {
+            QString fileName = document->filePath();
             if (!fileName.isEmpty())
                 value = VariableManager::fileVariableValue(variable, kCurrentDocumentPrefix,
                                                                        fileName);

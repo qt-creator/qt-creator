@@ -993,10 +993,7 @@ void GitPlugin::updateVersionWarning()
     unsigned version = m_gitClient->gitVersion();
     if (!version || version >= minimumRequiredVersion)
         return;
-    Core::IEditor *curEditor = Core::EditorManager::currentEditor();
-    if (!curEditor)
-        return;
-    Core::IDocument *curDocument = curEditor->document();
+    Core::IDocument *curDocument = Core::EditorManager::currentDocument();
     if (!curDocument)
         return;
     Core::InfoBar *infoBar = curDocument->infoBar();

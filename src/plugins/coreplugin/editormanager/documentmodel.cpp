@@ -278,6 +278,11 @@ int DocumentModel::indexOfDocument(IDocument *document) const
     return -1;
 }
 
+QList<IDocument *> DocumentModel::openedDocuments() const
+{
+    return d->m_editors.keys();
+}
+
 QModelIndex DocumentModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)

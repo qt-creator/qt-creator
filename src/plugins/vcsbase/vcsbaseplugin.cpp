@@ -233,11 +233,11 @@ void StateListener::slotStateChanged()
     // temporary path prefix or does the file contains a hash, indicating a project
     // folder?
     State state;
-    Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
-    if (!currentEditor || !currentEditor->document())
+    Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
+    if (!currentDocument)
         state.currentFile.clear();
     else
-        state.currentFile = currentEditor->document()->filePath();
+        state.currentFile = currentDocument->filePath();
     QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
     if (!state.currentFile.isEmpty()) {
         const bool isTempFile = state.currentFile.startsWith(QDir::tempPath());

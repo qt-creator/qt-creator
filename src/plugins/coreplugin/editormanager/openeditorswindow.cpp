@@ -229,7 +229,7 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
     } else {
         if (!EditorManager::openEditor(
                     item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>())) {
-            EditorManager::instance()->documentModel()->removeDocument(item->toolTip(0));
+            EditorManager::documentModel()->removeDocument(item->toolTip(0));
             delete item;
         }
     }

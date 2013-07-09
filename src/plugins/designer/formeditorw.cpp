@@ -864,12 +864,11 @@ void FormEditorW::print()
 // Find out current existing editor file
 static QString currentFile()
 {
-    if (Core::IEditor *editor = Core::EditorManager::currentEditor())
-        if (const Core::IDocument *document = editor->document()) {
-            const QString fileName = document->filePath();
-            if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
-                return fileName;
-        }
+    if (const Core::IDocument *document = Core::EditorManager::currentDocument()) {
+        const QString fileName = document->filePath();
+        if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
+            return fileName;
+    }
     return QString();
 }
 

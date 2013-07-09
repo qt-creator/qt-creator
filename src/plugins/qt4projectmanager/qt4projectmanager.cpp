@@ -326,8 +326,8 @@ void Qt4Manager::buildFileContextMenu()
 
 void Qt4Manager::buildFile()
 {
-    if (Core::IEditor *currentEditor = Core::EditorManager::currentEditor()) {
-        QString file = currentEditor->document()->filePath();
+    if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
+        QString file = currentDocument->filePath();
         ProjectExplorer::SessionManager *session = projectExplorer()->session();
         ProjectExplorer::FileNode *node  = qobject_cast<FileNode *>(session->nodeForFile(file));
         ProjectExplorer::Project *project = session->projectForFile(file);

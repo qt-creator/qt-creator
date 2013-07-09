@@ -115,7 +115,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_lockButton->setAutoRaise(true);
     d->m_lockButton->setEnabled(false);
 
-    d->m_editorsListModel = EditorManager::instance()->documentModel();
+    d->m_editorsListModel = EditorManager::documentModel();
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
 
@@ -315,8 +315,8 @@ void EditorToolBar::changeActiveEditor(int row)
 
 void EditorToolBar::listContextMenu(QPoint pos)
 {
-    DocumentModel::Entry *entry = EditorManager::instance()
-            ->documentModel()->documentAtRow(d->m_editorList->currentIndex());
+    DocumentModel::Entry *entry = EditorManager::documentModel()->documentAtRow(
+                d->m_editorList->currentIndex());
     QString fileName = entry ? entry->fileName() : QString();
     if (fileName.isEmpty())
         return;
@@ -333,8 +333,8 @@ void EditorToolBar::listContextMenu(QPoint pos)
 
 void EditorToolBar::makeEditorWritable()
 {
-    if (IEditor *current = EditorManager::currentEditor())
-        EditorManager::instance()->makeFileWritable(current->document());
+    if (IDocument *current = EditorManager::currentDocument())
+        EditorManager::instance()->makeFileWritable(current);
 }
 
 void EditorToolBar::setCanGoBack(bool canGoBack)

@@ -154,7 +154,7 @@ ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()
 void CppToolsPlugin::switchHeaderSource()
 {
     QString otherFile = correspondingHeaderOrSource(
-                Core::EditorManager::currentEditor()->document()->filePath());
+                Core::EditorManager::currentDocument()->filePath());
     if (!otherFile.isEmpty())
         Core::EditorManager::openEditor(otherFile);
 }
@@ -162,7 +162,7 @@ void CppToolsPlugin::switchHeaderSource()
 void CppToolsPlugin::switchHeaderSourceInNextSplit()
 {
     QString otherFile = correspondingHeaderOrSource(
-                Core::EditorManager::currentEditor()->document()->filePath());
+                Core::EditorManager::currentDocument()->filePath());
     if (!otherFile.isEmpty())
         Core::EditorManager::openEditor(otherFile, Core::Id(), Core::EditorManager::OpenInOtherSplit);
 }

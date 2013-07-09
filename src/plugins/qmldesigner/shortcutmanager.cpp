@@ -172,7 +172,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
 void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 {
-    int openedCount = Core::ICore::editorManager()->documentModel()->documentCount();
+    int openedCount = Core::EditorManager::documentModel()->documentCount();
 
     m_saveAction.setEnabled(currentEditor != 0 && currentEditor->document()->isModified());
     m_saveAsAction.setEnabled(currentEditor != 0 && currentEditor->document()->isSaveAsAllowed());

@@ -279,9 +279,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     const bool isVcsConfigured = versionControl->isConfigured();
     if (!isVcsConfigured || d->m_unconfiguredVcs) {
         Id vcsWarning("VcsNotConfiguredWarning");
-        IDocument *curDocument = 0;
-        if (IEditor *curEditor = EditorManager::currentEditor())
-            curDocument = curEditor->document();
+        IDocument *curDocument = EditorManager::currentDocument();
         if (isVcsConfigured) {
             if (curDocument && d->m_unconfiguredVcs == versionControl) {
                 curDocument->infoBar()->removeInfo(vcsWarning);

@@ -68,7 +68,7 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
     QStringList fileNames;
     QList<QTextCodec *> codecs;
     foreach (Core::DocumentModel::Entry *entry,
-             Core::EditorManager::instance()->documentModel()->documents()) {
+             Core::EditorManager::documentModel()->documents()) {
         QString fileName = entry->fileName();
         if (!fileName.isEmpty()) {
             fileNames.append(fileName);

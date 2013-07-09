@@ -281,14 +281,14 @@ void QmlProjectRunConfiguration::updateEnabled()
 {
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
-        Core::IEditor *editor = Core::EditorManager::currentEditor();
+        Core::IDocument *document= Core::EditorManager::currentDocument();
         Core::MimeDatabase *db = ICore::mimeDatabase();
-        if (editor) {
-            m_currentFileFilename = editor->document()->filePath();
+        if (document) {
+            m_currentFileFilename = document->filePath();
             if (db->findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
                 qmlFileFound = true;
         }
-        if (!editor
+        if (!document
                 || db->findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.

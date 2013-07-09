@@ -303,8 +303,8 @@ IEditor *EditorView::currentEditor() const
 
 void EditorView::listSelectionActivated(int index)
 {
-    DocumentModel *model = EditorManager::instance()->documentModel();
-    EditorManager::instance()->activateEditorForEntry(this, model->documentAtRow(index));
+    EditorManager::instance()->activateEditorForEntry(
+                this, EditorManager::documentModel()->documentAtRow(index));
 }
 
 void EditorView::splitHorizontally()
@@ -786,7 +786,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
                                     | Core::EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
-            DocumentModel::Entry *entry = em->documentModel()->firstRestoredDocument();
+            DocumentModel::Entry *entry = EditorManager::documentModel()->firstRestoredDocument();
             if (entry)
                 em->activateEditorForEntry(view(), entry, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::DoNotChangeCurrentEditor);

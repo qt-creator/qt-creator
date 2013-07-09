@@ -1020,12 +1020,10 @@ void ProjectExplorerPlugin::loadAction()
 
     // for your special convenience, we preselect a pro file if it is
     // the current file
-    if (Core::IEditor *editor = Core::EditorManager::currentEditor()) {
-        if (const Core::IDocument *document= editor->document()) {
-            const QString fn = document->filePath();
-            const bool isProject = d->m_profileMimeTypes.contains(document->mimeType());
-            dir = isProject ? fn : QFileInfo(fn).absolutePath();
-        }
+    if (const Core::IDocument *document = Core::EditorManager::currentDocument()) {
+        const QString fn = document->filePath();
+        const bool isProject = d->m_profileMimeTypes.contains(document->mimeType());
+        dir = isProject ? fn : QFileInfo(fn).absolutePath();
     }
 
     QString filename = QFileDialog::getOpenFileName(0, tr("Load Project"),
@@ -1827,8 +1825,8 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     }
     d->m_currentProject = project;
 
-    if (!node && Core::EditorManager::currentEditor()) {
-        connect(Core::EditorManager::currentEditor()->document(), SIGNAL(changed()),
+    if (!node && Core::EditorManager::currentDocument()) {
+        connect(Core::EditorManager::currentDocument(), SIGNAL(changed()),
                 this, SLOT(updateExternalFileWarning()), Qt::UniqueConnection);
     }
     if (projectChanged || d->m_currentNode != node) {
