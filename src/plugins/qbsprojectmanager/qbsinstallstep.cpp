@@ -229,7 +229,7 @@ void QbsInstallStep::setInstallRoot(const QString &ir)
 {
     if (m_qbsInstallOptions.installRoot() == ir)
         return;
-    m_qbsInstallOptions.installRoot() = ir;
+    m_qbsInstallOptions.setInstallRoot(ir);
     emit changed();
 }
 
