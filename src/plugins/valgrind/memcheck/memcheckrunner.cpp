@@ -168,6 +168,7 @@ void MemcheckRunner::logSocketConnected()
 
 void MemcheckRunner::readLogSocket()
 {
+    QTC_ASSERT(d->logSocket, return);
     emit logMessageReceived(d->logSocket->readAll());
 }
 
