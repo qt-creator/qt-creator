@@ -31,7 +31,6 @@
 #include "qt4project.h"
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtuicodemodelsupport.h"
 #include "qt4buildconfiguration.h"
 #include "qmakerunconfigurationfactory.h"
 
@@ -50,6 +49,7 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/uicodemodelsupport.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -1470,7 +1470,7 @@ Qt4ProFileNode::~Qt4ProFileNode()
 {
     CppTools::CppModelManagerInterface *modelManager
             = CppTools::CppModelManagerInterface::instance();
-    QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
+    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     end = m_uiCodeModelSupport.constEnd();
     for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
         modelManager->removeEditorSupport(it.value());
@@ -2253,7 +2253,7 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
 
 void Qt4ProFileNode::updateCodeModelSupportFromBuild()
 {
-    QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
+    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     end = m_uiCodeModelSupport.constEnd();
     for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it)
         it.value()->updateFromBuild();
@@ -2262,7 +2262,7 @@ void Qt4ProFileNode::updateCodeModelSupportFromBuild()
 void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
                                                       const QString &contents)
 {
-    const QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it =
+    const QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it =
             m_uiCodeModelSupport.constFind(uiFileName);
     if (it != m_uiCodeModelSupport.constEnd())
         it.value()->updateFromEditor(contents);
@@ -2295,7 +2295,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
             = CppTools::CppModelManagerInterface::instance();
 
     // First move all to
-    QMap<QString, Internal::Qt4UiCodeModelSupport *> oldCodeModelSupport;
+    QMap<QString, QtSupport::UiCodeModelSupport *> oldCodeModelSupport;
     oldCodeModelSupport = m_uiCodeModelSupport;
     m_uiCodeModelSupport.clear();
 
@@ -2314,23 +2314,23 @@ void Qt4ProFileNode::createUiCodeModelSupport()
             const QString uiHeaderFilePath = uiHeaderFile(uiDir, uiFile->path());
             m_uiHeaderFiles << uiHeaderFilePath;
 //            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
-            QMap<QString, Internal::Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
+            QMap<QString, QtSupport::UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
             if (it != oldCodeModelSupport.end()) {
 //                qDebug()<<"updated old codemodelsupport";
-                Internal::Qt4UiCodeModelSupport *cms = it.value();
+                QtSupport::UiCodeModelSupport *cms = it.value();
                 cms->setFileName(uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(it.key(), cms);
                 oldCodeModelSupport.erase(it);
             } else {
 //                qDebug()<<"adding new codemodelsupport";
-                Internal::Qt4UiCodeModelSupport *cms = new Internal::Qt4UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
+                QtSupport::UiCodeModelSupport *cms = new QtSupport::UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(uiFile->path(), cms);
                 modelManager->addEditorSupport(cms);
             }
         }
     }
     // Remove old
-    QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
+    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     end = oldCodeModelSupport.constEnd();
     for (it = oldCodeModelSupport.constBegin(); it!=end; ++it) {
         modelManager->removeEditorSupport(it.value());

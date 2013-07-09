@@ -27,21 +27,29 @@
 **
 ****************************************************************************/
 
-#include "uicodecompletionsupport.h"
+#include "uicodemodelsupport.h"
 
-#include <QProcess>
+#include "qtkitinformation.h"
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+
 #include <QFile>
 #include <QFileInfo>
 
 enum { debug = 0 };
 
-using namespace CppTools;
 using namespace CPlusPlus;
 
-UiCodeModelSupport::UiCodeModelSupport(CppModelManagerInterface *modelmanager,
+namespace QtSupport {
+
+UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+                                       ProjectExplorer::Project *project,
                                        const QString &source,
                                        const QString &uiHeaderFile)
-    : AbstractEditorSupport(modelmanager),
+    : CppTools::AbstractEditorSupport(modelmanager),
+      m_project(project),
       m_sourceName(source),
       m_fileName(uiHeaderFile),
       m_state(BARE)
@@ -178,34 +186,6 @@ void UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
             updateDocument();
 }
 
-bool UiCodeModelSupport::finishProcess() const
-{
-    if (m_state != RUNNING)
-        return false;
-    if (!m_process.waitForFinished(3000)
-            && m_process.exitStatus() != QProcess::NormalExit
-            && m_process.exitCode() != 0) {
-        if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
-            return false;
-
-        if (debug)
-            qDebug() << "failed" << m_process.readAllStandardError();
-        m_process.kill();
-        m_state = FINISHED;
-        return false;
-    }
-
-    if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
-        return true;
-
-    m_contents = m_process.readAllStandardOutput();
-    m_cacheTime = QDateTime::currentDateTime();
-    if (debug)
-        qDebug() << "ok" << m_contents.size() << "bytes.";
-    m_state = FINISHED;
-    return true;
-}
-
 void UiCodeModelSupport::updateFromBuild()
 {
     if (debug)
@@ -244,3 +224,57 @@ void UiCodeModelSupport::updateFromBuild()
     }
 }
 
+QString UiCodeModelSupport::uicCommand() const
+{
+    QtSupport::BaseQtVersion *version;
+    if (m_project->needsConfiguration()) {
+        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::instance()->defaultKit());
+    } else {
+        ProjectExplorer::Target *target = m_project->activeTarget();
+        version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    }
+    return version ? version->uicCommand() : QString();
+}
+
+QStringList UiCodeModelSupport::environment() const
+{
+    if (m_project->needsConfiguration()) {
+        return Utils::Environment::systemEnvironment().toStringList();
+    } else {
+        ProjectExplorer::Target *target = m_project->activeTarget();
+        if (!target)
+            return QStringList();
+        ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration();
+        return bc ? bc->environment().toStringList() : QStringList();
+    }
+}
+
+bool UiCodeModelSupport::finishProcess() const
+{
+    if (m_state != RUNNING)
+        return false;
+    if (!m_process.waitForFinished(3000)
+            && m_process.exitStatus() != QProcess::NormalExit
+            && m_process.exitCode() != 0) {
+        if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
+            return false;
+
+        if (debug)
+            qDebug() << "failed" << m_process.readAllStandardError();
+        m_process.kill();
+        m_state = FINISHED;
+        return false;
+    }
+
+    if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
+        return true;
+
+    m_contents = m_process.readAllStandardOutput();
+    m_cacheTime = QDateTime::currentDateTime();
+    if (debug)
+        qDebug() << "ok" << m_contents.size() << "bytes.";
+    m_state = FINISHED;
+    return true;
+}
+
+} // namespace QtSupport

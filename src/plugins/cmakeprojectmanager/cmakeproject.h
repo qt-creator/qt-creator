@@ -52,13 +52,13 @@ class QFileSystemWatcher;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Target; }
+namespace QtSupport { class UiCodeModelSupport; }
 
 namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeFile;
 class CMakeBuildSettingsWidget;
-class CMakeUiCodeModelSupport;
 
 struct CMakeBuildTarget
 {
@@ -96,8 +96,6 @@ public:
 
     QString shadowBuildDirectory(const QString &projectFilePath, const ProjectExplorer::Kit *k,
                                  const QString &bcName);
-
-    QString uicCommand() const;
 
     bool isProjectFile(const QString &fileName);
 
@@ -139,7 +137,6 @@ private:
     QString m_fileName;
     CMakeFile *m_file;
     QString m_projectName;
-    QString m_uicCommand;
 
     // TODO probably need a CMake specific node structure
     CMakeProjectNode *m_rootNode;
@@ -149,7 +146,7 @@ private:
     QSet<QString> m_watchedFiles;
     QFuture<void> m_codeModelFuture;
 
-    QMap<QString, CMakeUiCodeModelSupport *> m_uiCodeModelSupport;
+    QMap<QString, QtSupport::UiCodeModelSupport *> m_uiCodeModelSupport;
     Core::IEditor *m_lastEditor;
     bool m_dirtyUic;
 };

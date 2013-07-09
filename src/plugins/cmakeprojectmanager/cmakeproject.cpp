@@ -35,7 +35,6 @@
 #include "cmakerunconfiguration.h"
 #include "makestep.h"
 #include "cmakeopenprojectwizard.h"
-#include "cmakeuicodemodelsupport.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -51,6 +50,7 @@
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/uicodemodelsupport.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -124,7 +124,7 @@ CMakeProject::~CMakeProject()
     // Remove CodeModel support
     CppTools::CppModelManagerInterface *modelManager
             = CppTools::CppModelManagerInterface::instance();
-    QMap<QString, CMakeUiCodeModelSupport *>::const_iterator it, end;
+    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     it = m_uiCodeModelSupport.constBegin();
     end = m_uiCodeModelSupport.constEnd();
     for (; it!=end; ++it) {
@@ -288,20 +288,6 @@ bool CMakeProject::parseCMakeLists()
 //            qDebug()<<"";
 //        }
 
-
-    // TOOD this code ain't very pretty ...
-    m_uicCommand.clear();
-    QFile cmakeCache(activeBC->buildDirectory() + QLatin1String("/CMakeCache.txt"));
-    cmakeCache.open(QIODevice::ReadOnly);
-    while (!cmakeCache.atEnd()) {
-        QByteArray line = cmakeCache.readLine();
-        if (line.startsWith("QT_UIC_EXECUTABLE")) {
-            if (int pos = line.indexOf('='))
-                m_uicCommand = QString::fromLocal8Bit(line.mid(pos + 1).trimmed());
-            break;
-        }
-    }
-    cmakeCache.close();
 
     createUiCodeModelSupport();
 
@@ -692,11 +678,6 @@ CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
     return CMakeBuildTarget();
 }
 
-QString CMakeProject::uicCommand() const
-{
-    return m_uicCommand;
-}
-
 QString CMakeProject::uiHeaderFile(const QString &uiFile)
 {
     QFileInfo fi(uiFile);
@@ -794,7 +775,7 @@ void CMakeProject::createUiCodeModelSupport()
             = CppTools::CppModelManagerInterface::instance();
 
     // First move all to
-    QMap<QString, CMakeUiCodeModelSupport *> oldCodeModelSupport;
+    QMap<QString, QtSupport::UiCodeModelSupport *> oldCodeModelSupport;
     oldCodeModelSupport = m_uiCodeModelSupport;
     m_uiCodeModelSupport.clear();
 
@@ -803,17 +784,17 @@ void CMakeProject::createUiCodeModelSupport()
         if (uiFile.endsWith(QLatin1String(".ui"))) {
             // UI file, not convert to
             QString uiHeaderFilePath = uiHeaderFile(uiFile);
-            QMap<QString, CMakeUiCodeModelSupport *>::iterator it
+            QMap<QString, QtSupport::UiCodeModelSupport *>::iterator it
                     = oldCodeModelSupport.find(uiFile);
             if (it != oldCodeModelSupport.end()) {
                 //                qDebug()<<"updated old codemodelsupport";
-                CMakeUiCodeModelSupport *cms = it.value();
+                QtSupport::UiCodeModelSupport *cms = it.value();
                 cms->setFileName(uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(it.key(), cms);
                 oldCodeModelSupport.erase(it);
             } else {
                 //                qDebug()<<"adding new codemodelsupport";
-                CMakeUiCodeModelSupport *cms = new CMakeUiCodeModelSupport(modelManager, this, uiFile, uiHeaderFilePath);
+                QtSupport::UiCodeModelSupport *cms = new QtSupport::UiCodeModelSupport(modelManager, this, uiFile, uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(uiFile, cms);
                 modelManager->addEditorSupport(cms);
             }
@@ -821,7 +802,7 @@ void CMakeProject::createUiCodeModelSupport()
     }
 
     // Remove old
-    QMap<QString, CMakeUiCodeModelSupport *>::const_iterator it, end;
+    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     end = oldCodeModelSupport.constEnd();
     for (it = oldCodeModelSupport.constBegin(); it!=end; ++it) {
         modelManager->removeEditorSupport(it.value());
@@ -832,7 +813,7 @@ void CMakeProject::createUiCodeModelSupport()
 void CMakeProject::updateCodeModelSupportFromEditor(const QString &uiFileName,
                                                     const QString &contents)
 {
-    const QMap<QString, CMakeUiCodeModelSupport *>::const_iterator it =
+    const QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it =
             m_uiCodeModelSupport.constFind(uiFileName);
     if (it != m_uiCodeModelSupport.constEnd())
         it.value()->updateFromEditor(contents);
@@ -885,7 +866,7 @@ void CMakeProject::buildStateChanged(ProjectExplorer::Project *project)
 {
     if (project == this) {
         if (!ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(this)) {
-            QMap<QString, CMakeUiCodeModelSupport *>::const_iterator it, end;
+            QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
             end = m_uiCodeModelSupport.constEnd();
             for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
                 it.value()->updateFromBuild();

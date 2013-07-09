@@ -46,8 +46,6 @@ QtcPlugin {
         "cmakeprojectplugin.h",
         "cmakerunconfiguration.cpp",
         "cmakerunconfiguration.h",
-        "cmakeuicodemodelsupport.cpp",
-        "cmakeuicodemodelsupport.h",
         "cmakevalidator.cpp",
         "cmakevalidator.h",
         "makestep.cpp",

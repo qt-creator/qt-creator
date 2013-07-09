@@ -27,36 +27,61 @@
 **
 ****************************************************************************/
 
-#ifndef QTUICODEMODELSUPPORT_H
-#define QTUICODEMODELSUPPORT_H
+#ifndef UICODEMODELSUPPORT_H
+#define UICODEMODELSUPPORT_H
 
-#include <cpptools/uicodecompletionsupport.h>
+#include "qtsupport_global.h"
 
-namespace CPlusPlus {
-class CppModelManagerInterface;
-}
+#include <cpptools/abstracteditorsupport.h>
 
-namespace Qt4ProjectManager {
-class Qt4Project;
-namespace Internal {
+#include <QDateTime>
+#include <QProcess>
 
-class Qt4UiCodeModelSupport : public CppTools::UiCodeModelSupport
+namespace CPlusPlus { class CppModelManagerInterface; }
+namespace ProjectExplorer { class Project; }
+
+namespace QtSupport {
+
+class QTSUPPORT_EXPORT UiCodeModelSupport : public CppTools::AbstractEditorSupport
 {
     Q_OBJECT
+
 public:
-    Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
-                          Qt4Project *project,
-                          const QString &sourceFile,
-                          const QString &uiHeaderFile);
-    virtual ~Qt4UiCodeModelSupport();
-protected:
-    virtual QString uicCommand() const;
-    virtual QStringList environment() const;
+    UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+                       ProjectExplorer::Project *project,
+                       const QString &sourceFile,
+                       const QString &uiHeaderFile);
+    ~UiCodeModelSupport();
+
+    void setFileName(const QString &name);
+    void setSourceName(const QString &name);
+    QByteArray contents() const;
+    QString fileName() const;
+    void updateFromEditor(const QString &formEditorContents);
+    void updateFromBuild();
+
 private:
-    Qt4Project *m_project;
+    QString uicCommand() const;
+    QStringList environment() const;
+
+private slots:
+    bool finishProcess() const;
+
+private:
+    ProjectExplorer::Project *m_project;
+    enum State { BARE, RUNNING, FINISHED };
+
+    void init() const;
+    bool runUic(const QString &ui) const;
+    mutable QProcess m_process;
+    QString m_sourceName;
+    QString m_fileName;
+    mutable State m_state;
+    mutable QByteArray m_contents;
+    mutable QDateTime m_cacheTime;
+    static QList<UiCodeModelSupport *> m_waitingForStart;
 };
 
+} // QtSupport
 
-} // Internal
-} // Qt4ProjectManager
-#endif // QTUICODEMODELSUPPORT_H
+#endif // UICODEMODELSUPPORT_H

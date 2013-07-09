@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "QmlJS" }
+    Depends { name: "CppTools" }
 
     cpp.includePaths: base.concat([
         "../../shared",
@@ -94,6 +95,8 @@ QtcPlugin {
         "qtsupportconstants.h",
         "qtsupportplugin.cpp",
         "qtsupportplugin.h",
+        "qtuicodemodelsupport.cpp",
+        "qtuicodemodelsupport.h",
         "qtversionfactory.cpp",
         "qtversionfactory.h",
         "qtversioninfo.ui",

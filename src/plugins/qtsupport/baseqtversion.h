@@ -129,7 +129,7 @@ public:
     virtual Utils::Environment qmakeRunEnvironment() const;
 
     virtual Utils::FileName sourcePath() const;
-    // used by QtUiCodeModelSupport
+    // used by UiCodeModelSupport
     virtual QString uicCommand() const;
     virtual QString designerCommand() const;
     virtual QString linguistCommand() const;

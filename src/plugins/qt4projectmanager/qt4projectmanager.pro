@@ -53,7 +53,6 @@ HEADERS += \
     qmakestep.h \
     qtmodulesinfo.h \
     qt4projectconfigwidget.h \
-    qtuicodemodelsupport.h \
     externaleditors.h \
     qt4buildconfiguration.h \
     qmakeparser.h \
@@ -116,7 +115,6 @@ SOURCES += \
     qmakestep.cpp \
     qtmodulesinfo.cpp \
     qt4projectconfigwidget.cpp \
-    qtuicodemodelsupport.cpp \
     externaleditors.cpp \
     qt4buildconfiguration.cpp \
     qmakeparser.cpp \

@@ -82,8 +82,6 @@ QtcPlugin {
         "qt4targetsetupwidget.h",
         "qtmodulesinfo.cpp",
         "qtmodulesinfo.h",
-        "qtuicodemodelsupport.cpp",
-        "qtuicodemodelsupport.h",
         "unconfiguredprojectpanel.cpp",
         "unconfiguredprojectpanel.h",
         "winceqtversion.cpp",

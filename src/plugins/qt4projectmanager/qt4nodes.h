@@ -34,6 +34,7 @@
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
+#include <qtsupport/uicodemodelsupport.h>
 
 #include <QHash>
 #include <QStringList>
@@ -126,7 +127,6 @@ using ProjectExplorer::ProjectFileType;
 using ProjectExplorer::FileType;
 
 namespace Internal {
-class Qt4UiCodeModelSupport;
 class Qt4PriFile;
 struct InternalNode;
 }
@@ -204,7 +204,7 @@ private:
     QString m_projectFilePath;
     QString m_projectDir;
 
-    QMap<QString, Internal::Qt4UiCodeModelSupport *> m_uiCodeModelSupport;
+    QMap<QString, QtSupport::UiCodeModelSupport *> m_uiCodeModelSupport;
     Internal::Qt4PriFile *m_qt4PriFile;
 
     // Memory is cheap...

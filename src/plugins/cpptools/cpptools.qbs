@@ -102,8 +102,6 @@ QtcPlugin {
         "symbolsfindfilter.h",
         "typehierarchybuilder.cpp",
         "typehierarchybuilder.h",
-        "uicodecompletionsupport.cpp",
-        "uicodecompletionsupport.h",
         "builtinindexingsupport.cpp",
         "builtinindexingsupport.h",
         "cpppreprocessor.cpp",

@@ -14,6 +14,7 @@ HEADERS += \
     qtoutputformatter.h \
     qtversionmanager.h \
     qtversionfactory.h \
+    uicodemodelsupport.h \
     baseqtversion.h \
     qmldumptool.h \
     qmlobservertool.h \
@@ -39,6 +40,7 @@ SOURCES += \
     qtoutputformatter.cpp \
     qtversionmanager.cpp \
     qtversionfactory.cpp \
+    uicodemodelsupport.cpp \
     baseqtversion.cpp \
     qmldumptool.cpp \
     qmlobservertool.cpp \
