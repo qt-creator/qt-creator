@@ -75,6 +75,9 @@ class tst_FindUsages: public QObject
 {
     Q_OBJECT
 
+private:
+    void dump(const QList<Usage> &usages) const;
+
 private Q_SLOTS:
     void inlineMethod();
     void lambdaCaptureByValue();
@@ -106,6 +109,20 @@ private Q_SLOTS:
     void using_insideFunction();
     void templatedFunction_QTCREATORBUG9749();
 };
+
+void tst_FindUsages::dump(const QList<Usage> &usages) const
+{
+    QTextStream err(stderr, QIODevice::WriteOnly);
+    err << "DEBUG  : " << usages.size() << " usages:" << endl;
+    foreach (const Usage &usage, usages) {
+        err << "DEBUG  : "
+            << usage.path << ":"
+            << usage.line << ":"
+            << usage.col << ":"
+            << usage.len << ":"
+            << usage.lineText << endl;
+    }
+}
 
 void tst_FindUsages::inlineMethod()
 {
