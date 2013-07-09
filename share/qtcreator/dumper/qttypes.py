@@ -221,10 +221,10 @@ def qdump__QByteArray(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayLatin1String)
-        d.putField("editvalue", d.encodeByteArray(value, None))
+        d.putField("editvalue", d.encodeByteArray(value))
     elif format == 3:
         d.putField("editformat", DisplayUtf8String)
-        d.putField("editvalue", d.encodeByteArray(value, None))
+        d.putField("editvalue", d.encodeByteArray(value))
     if d.isExpanded():
         d.putArrayData(d.charType(), data, size)
 
@@ -1734,7 +1734,7 @@ def qdump__QString(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayUtf16String)
-        d.putField("editvalue", d.encodeString(value, None))
+        d.putField("editvalue", d.encodeString(value))
 
 
 def qdump__QStringRef(d, value):
@@ -2413,9 +2413,7 @@ def qdump_stringHelper(d, data, size, charSize):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", displayType)
-        if n != size:
-            mem = d.readRawMemory(p, size)
-        d.putField("editvalue", mem)
+        d.putField("editvalue", d.readRawMemory(data, size))
 
 
 def qdump__std____1__string(d, value):
