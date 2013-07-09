@@ -1146,7 +1146,7 @@ class Dumper:
         for i in xrange(m):
             child = value.GetChildAtIndex(i)
             with UnnamedSubItem(self, "@%d" % (i + 1)):
-                #self.put('iname="%s",' % self.currentIName)
+                self.put('iname="%s",' % self.currentIName)
                 self.put('name="[%s]",' % child.name)
                 self.putItem(child)
         for i in xrange(m, n):
