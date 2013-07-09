@@ -78,7 +78,7 @@ void QmlProfilerSimpleModel::addRangedEvent(int type, int bindingType, qint64 st
 void QmlProfilerSimpleModel::addFrameEvent(qint64 time, int framerate, int animationcount)
 {
     qint64 duration = 1e9 / framerate;
-    QmlEventData eventData = {tr("Animations"), QmlDebug::Painting, QmlDebug::AnimationFrame, time - duration, duration, QStringList(), QmlDebug::QmlEventLocation(), framerate, animationcount, 0, 0, 0};
+    QmlEventData eventData = {tr("Animations"), QmlDebug::Painting, QmlDebug::AnimationFrame, time, duration, QStringList(), QmlDebug::QmlEventLocation(), framerate, animationcount, 0, 0, 0};
     eventList.append(eventData);
 }
 
@@ -110,11 +110,12 @@ void QmlProfilerSimpleModel::complete()
 
 QString QmlProfilerSimpleModel::getHashString(const QmlProfilerSimpleModel::QmlEventData &event)
 {
-    return QString::fromLatin1("%1:%2:%3:%4").arg(
+    return QString::fromLatin1("%1:%2:%3:%4:%5").arg(
                 event.location.filename,
                 QString::number(event.location.line),
                 QString::number(event.location.column),
-                QString::number(event.eventType));
+                QString::number(event.eventType),
+                QString::number(event.bindingType));
 }
 
 

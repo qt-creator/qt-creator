@@ -61,6 +61,13 @@ struct QmlEvent {
 struct Range {
     qint64 startTime;
     qint64 duration;
+
+    // numeric data used by animations, pixmap cache, scenegraph
+    qint64 numericData1;
+    qint64 numericData2;
+    qint64 numericData3;
+    qint64 numericData4;
+    qint64 numericData5;
 };
 
 class QmlProfilerFileReader : public QObject
@@ -80,7 +87,9 @@ signals:
 
     void rangedEvent(int type, int bindingType, qint64 startTime, qint64 length,
                      const QStringList &data, const QmlDebug::QmlEventLocation &location);
-
+    void frame(qint64 time, int frameRate, int animationCount);
+    void sceneGraphFrame(int eventType, int sgEventType, qint64 time, qint64 param1, qint64 param2, qint64 param3, qint64 param4, qint64 param5);
+    void pixmapCacheEvent(qint64 time, int cacheEventType, const QString& url, int width, int height, int refCount);
     void error(const QString &error);
 
 private:

@@ -151,19 +151,22 @@ void PaintEventsModelProxy::loadData()
         if (!eventAccepted(event))
             continue;
 
+        // the profiler registers the animation events at the end of them
+        qint64 realStartTime = event.startTime - event.duration;
+
         // the duration of the events is estimated from the framerate
         // we need to correct it before appending a new event
         if (d->eventList.count() > 0) {
             QmlPaintEventData *lastEvent = &d->eventList[d->eventList.count()-1];
-            if (lastEvent->startTime + lastEvent->duration >= event.startTime) {
+            if (lastEvent->startTime + lastEvent->duration >= realStartTime) {
                 // 1 nanosecond less to prevent overlap
-                lastEvent->duration = event.startTime - lastEvent->startTime - 1;
+                lastEvent->duration = realStartTime - lastEvent->startTime - 1;
                 lastEvent->framerate = 1e9/lastEvent->duration;
             }
         }
 
         QmlPaintEventData newEvent = {
-            event.startTime,
+            realStartTime,
             event.duration,
             (int)event.numericData1,
             (int)event.numericData2

@@ -48,6 +48,8 @@ const char TYPE_COMPILING_STR[] = "Compiling";
 const char TYPE_CREATING_STR[] = "Creating";
 const char TYPE_BINDING_STR[] = "Binding";
 const char TYPE_HANDLINGSIGNAL_STR[] = "HandlingSignal";
+const char TYPE_PIXMAPCACHE_STR[] = "PixmapCache";
+const char TYPE_SCENEGRAPH_STR[] = "SceneGraph";
 
 #define _(X) QLatin1String(X)
 
@@ -71,6 +73,10 @@ static QmlEventType qmlEventTypeAsEnum(const QString &typeString)
         return Binding;
     } else if (typeString == _(TYPE_HANDLINGSIGNAL_STR)) {
         return HandlingSignal;
+    } else if (typeString == _(TYPE_PIXMAPCACHE_STR)) {
+        return PixmapCacheEvent;
+    } else if (typeString == _(TYPE_SCENEGRAPH_STR)) {
+        return SceneGraphFrameEvent;
     } else {
         bool isNumber = false;
         int type = typeString.toUInt(&isNumber);
@@ -98,6 +104,12 @@ static QString qmlEventTypeAsString(QmlEventType typeEnum)
         break;
     case HandlingSignal:
         return _(TYPE_HANDLINGSIGNAL_STR);
+        break;
+    case PixmapCacheEvent:
+        return _(TYPE_PIXMAPCACHE_STR);
+        break;
+    case SceneGraphFrameEvent:
+        return _(TYPE_SCENEGRAPH_STR);
         break;
     default:
         return QString::number((int)typeEnum);
@@ -249,7 +261,10 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
                 break;
             }
 
-            if (elementName == _("bindingType")) {
+            if (elementName == _("bindingType") ||
+                    elementName == _("animationFrame") ||
+                    elementName == _("cacheEventType") ||
+                    elementName == _("sgEventType")) {
                 event.bindingType = readData.toInt();
                 break;
             }
@@ -288,19 +303,44 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("range")) {
-                Range range = { 0, 0 };
+                Range range = { 0, 0, 0, 0, 0, 0, 0 };
 
                 const QXmlStreamAttributes attributes = stream.attributes();
                 if (!attributes.hasAttribute(_("startTime"))
-                        || !attributes.hasAttribute(_("duration"))
                         || !attributes.hasAttribute(_("eventIndex"))) {
                     // ignore incomplete entry
                     continue;
                 }
 
                 range.startTime = attributes.value(_("startTime")).toString().toLongLong();
-                range.duration = attributes.value(_("duration")).toString().toLongLong();
+                if (attributes.hasAttribute(_("duration")))
+                    range.duration = attributes.value(_("duration")).toString().toLongLong();
+
+                // attributes for special events
+                if (attributes.hasAttribute(_("framerate")))
+                    range.numericData1 = attributes.value(_("framerate")).toString().toLongLong();
+                if (attributes.hasAttribute(_("animationcount")))
+                    range.numericData2 = attributes.value(_("animationcount")).toString().toLongLong();
+                if (attributes.hasAttribute(_("width")))
+                    range.numericData1 = attributes.value(_("width")).toString().toLongLong();
+                if (attributes.hasAttribute(_("height")))
+                    range.numericData2 = attributes.value(_("height")).toString().toLongLong();
+                if (attributes.hasAttribute(_("refCount")))
+                    range.numericData3 = attributes.value(_("refCount")).toString().toLongLong();
+                if (attributes.hasAttribute(_("timing1")))
+                    range.numericData1 = attributes.value(_("timing1")).toString().toLongLong();
+                if (attributes.hasAttribute(_("timing2")))
+                    range.numericData2 = attributes.value(_("timing2")).toString().toLongLong();
+                if (attributes.hasAttribute(_("timing3")))
+                    range.numericData3 = attributes.value(_("timing3")).toString().toLongLong();
+                if (attributes.hasAttribute(_("timing4")))
+                    range.numericData4 = attributes.value(_("timing4")).toString().toLongLong();
+                if (attributes.hasAttribute(_("timing5")))
+                    range.numericData5 = attributes.value(_("timing5")).toString().toLongLong();
+
+
                 int eventIndex = attributes.value(_("eventIndex")).toString().toInt();
+
 
                 m_ranges.append(QPair<Range,int>(range, eventIndex));
             }
@@ -332,10 +372,18 @@ void QmlProfilerFileReader::processQmlEvents()
 
         QmlEvent &event = m_qmlEvents[eventIndex];
 
-        emit rangedEvent(event.type, event.bindingType, range.startTime, range.duration,
+        if (event.type == Painting && event.bindingType == QmlDebug::AnimationFrame) {
+            emit frame(range.startTime, range.numericData1, range.numericData2);
+        } else if (event.type == PixmapCacheEvent) {
+            emit pixmapCacheEvent(range.startTime, event.bindingType, event.filename, range.numericData1, range.numericData2, range.numericData3);
+        } else if (event.type == SceneGraphFrameEvent) {
+            emit sceneGraphFrame(SceneGraphFrameEvent, event.bindingType, range.startTime, range.numericData1, range.numericData2, range.numericData3, range.numericData4, range.numericData5);
+        } else {
+            emit rangedEvent(event.type, event.bindingType, range.startTime, range.duration,
                          QStringList(event.displayName), QmlEventLocation(event.filename,
                                                                           event.line,
                                                                           event.column));
+        }
     }
 }
 
@@ -377,7 +425,7 @@ void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerSimpleModel::Q
             m_qmlEvents.insert(hashStr, e);
         }
 
-        Range r = { event.startTime, event.duration,  };
+        Range r = { event.startTime, event.duration, event.numericData1, event.numericData2, event.numericData3, event.numericData4, event.numericData5 };
         m_ranges.append(QPair<Range, QString>(r, hashStr));
     }
 
@@ -415,7 +463,13 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         }
         stream.writeTextElement(_("details"), event.details);
         if (event.type == Binding)
-            stream.writeTextElement(_("bindingType"), QString::number((int)event.bindingType));
+            stream.writeTextElement(_("bindingType"), QString::number(event.bindingType));
+        if (event.type == Painting && event.bindingType == AnimationFrame)
+            stream.writeTextElement(_("animationFrame"), QString::number(event.bindingType));
+        if (event.type == PixmapCacheEvent)
+            stream.writeTextElement(_("cacheEventType"), QString::number(event.bindingType));
+        if (event.type == SceneGraphFrameEvent)
+            stream.writeTextElement(_("sgEventType"), QString::number(event.bindingType));
         stream.writeEndElement();
     }
     stream.writeEndElement(); // eventData
@@ -429,10 +483,45 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
         stream.writeStartElement(_("range"));
         stream.writeAttribute(_("startTime"), QString::number(range.startTime));
-        stream.writeAttribute(_("duration"), QString::number(range.duration));
+        if (range.duration > 0) // no need to store duration of instantaneous events
+            stream.writeAttribute(_("duration"), QString::number(range.duration));
         stream.writeAttribute(_("eventIndex"), QString::number(m_qmlEvents.keys().indexOf(eventHash)));
 
         QmlEvent event = m_qmlEvents.value(eventHash);
+
+        // special: animation event
+        if (event.type == QmlDebug::Painting && event.bindingType == QmlDebug::AnimationFrame) {
+
+            stream.writeAttribute(_("framerate"), QString::number(range.numericData1));
+            stream.writeAttribute(_("animationcount"), QString::number(range.numericData2));
+        }
+
+        // special: pixmap cache event
+        if (event.type == QmlDebug::PixmapCacheEvent) {
+            // pixmap image size
+            if (event.bindingType == 0) {
+                stream.writeAttribute(_("width"), QString::number(range.numericData1));
+                stream.writeAttribute(_("height"), QString::number(range.numericData2));
+            }
+
+            // reference count (1) / cache size changed (2)
+            if (event.bindingType == 1 || event.bindingType == 2)
+                stream.writeAttribute(_("refCount"), QString::number(range.numericData3));
+        }
+
+        if (event.type == QmlDebug::SceneGraphFrameEvent) {
+            // special: scenegraph frame events
+            if (range.numericData1 > 0)
+                stream.writeAttribute(_("timing1"), QString::number(range.numericData1));
+            if (range.numericData2 > 0)
+                stream.writeAttribute(_("timing2"), QString::number(range.numericData2));
+            if (range.numericData3 > 0)
+                stream.writeAttribute(_("timing3"), QString::number(range.numericData3));
+            if (range.numericData4 > 0)
+                stream.writeAttribute(_("timing4"), QString::number(range.numericData4));
+            if (range.numericData5 > 0)
+                stream.writeAttribute(_("timing5"), QString::number(range.numericData5));
+        }
 //        if (event.type == QmlDebug::Painting && range.animationCount >= 0) {
 //            // animation frame
 //            stream.writeAttribute(_("framerate"), QString::number(rangedEvent.frameRate));

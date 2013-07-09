@@ -190,6 +190,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         while (!stream.atEnd()) {
             stream >> params[count++];
         }
+        while (count<5)
+            params[count++] = 0;
         emit sceneGraphFrame(SceneGraphFrameEvent, sgEventType, time, params[0], params[1], params[2], params[3], params[4]);
     } else if (messageType == PixmapCacheEvent) {
         int pixEvTy, width = -1, height = -1, refcount = -1;

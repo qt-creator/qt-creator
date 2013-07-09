@@ -302,7 +302,11 @@ void QmlProfilerModelManager::load()
             SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
     connect(&reader, SIGNAL(traceStartTime(qint64)), traceTime(), SLOT(setStartTime(qint64)));
     connect(&reader, SIGNAL(traceEndTime(qint64)), traceTime(), SLOT(setEndTime(qint64)));
-
+    connect(&reader, SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
+            this, SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
+    connect(&reader, SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
+            this, SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
+    connect(&reader, SIGNAL(frame(qint64,int,int)), this, SLOT(addFrameEvent(qint64,int,int)));
     reader.setV8DataModel(d->v8Model);
     reader.load(&file);
 
