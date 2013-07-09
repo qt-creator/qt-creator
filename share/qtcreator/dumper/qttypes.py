@@ -741,6 +741,15 @@ def qdump__QHostAddress(d, value):
     d.putPlainChildren(value["d"]["d"].dereference())
 
 
+def qdump__Q_IPV6ADDR(d, value):
+    data = d.readRawMemory(d.addressOf(value), 16)
+    d.putValue(':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
+    d.putPlainChildren(value["c"])
+
+def qdump__QIPv6Address(d, value):
+    qdump__Q_IPV6ADDR(d, value)
+
+
 def qdump__QList(d, value):
     dptr = childAt(value, 0)["d"]
     private = dptr.dereference()

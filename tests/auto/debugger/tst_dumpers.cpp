@@ -1400,7 +1400,7 @@ void tst_Dumpers::dumper_data()
                % Check("it6.key", "33", "int")
                % Check("it6.value", "33", "float");
 
-    QTest::newRow("QHostAddress")
+    QTest::newRow("QHostAddress1")
             << Data("#include <QHostAddress>\n",
                     "QHostAddress ha1(129u * 256u * 256u * 256u + 130u);\n"
                     "QHostAddress ha2(\"127.0.0.1\");\n")
@@ -1408,6 +1408,30 @@ void tst_Dumpers::dumper_data()
                % Profile("QT += network\n")
                % Check("ha1", "129.0.0.130", "@QHostAddress")
                % Check("ha2", "\"127.0.0.1\"", "@QHostAddress");
+
+    QTest::newRow("QHostAddress2")
+            << Data("#include <QHostAddress>\n",
+                    "QIPv6Address addr;\n"
+                    "addr.c[0] = 0;\n"
+                    "addr.c[1] = 1;\n"
+                    "addr.c[2] = 2;\n"
+                    "addr.c[3] = 3;\n"
+                    "addr.c[4] = 5;\n"
+                    "addr.c[5] = 6;\n"
+                    "addr.c[6] = 0;\n"
+                    "addr.c[7] = 0;\n"
+                    "addr.c[8] = 8;\n"
+                    "addr.c[9] = 9;\n"
+                    "addr.c[10] = 10;\n"
+                    "addr.c[11] = 11;\n"
+                    "addr.c[12] = 0;\n"
+                    "addr.c[13] = 0;\n"
+                    "addr.c[14] = 0;\n"
+                    "addr.c[15] = 0;\n"
+                    "QHostAddress ha1(addr);\n")
+               % CoreProfile()
+               % Profile("QT += network\n")
+               % Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
 
     QTest::newRow("QImage")
             << Data("#include <QImage>\n"
