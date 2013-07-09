@@ -2378,9 +2378,10 @@ def qform__std__string():
     return "Inline,In Separate Window"
 
 def qdump__std__string(d, value):
+    qdump__std__stringHelper1(d, value, 1)
+
+def qdump__std__stringHelper1(d, value, charSize):
     data = value["_M_dataplus"]["_M_p"]
-    baseType = value.type.strip_typedefs()
-    charSize = d.templateArgument(baseType, 0).sizeof
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position
     # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
@@ -2588,13 +2589,14 @@ def qdump__string(d, value):
     qdump__std__string(d, value)
 
 def qdump__std__wstring(d, value):
-    qdump__std__string(d, value)
+    charSize = d.lookupType('wchar_t').sizeof
+    qdump__std__stringHelper1(d, value, charSize)
 
 def qdump__std__basic_string(d, value):
     qdump__std__string(d, value)
 
 def qdump__wstring(d, value):
-    qdump__std__string(d, value)
+    qdump__std__wstring(d, value)
 
 
 def qdump____gnu_cxx__hash_set(d, value):
