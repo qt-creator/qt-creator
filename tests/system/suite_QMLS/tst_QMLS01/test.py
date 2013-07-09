@@ -95,8 +95,10 @@ def testSuggestionsManual(lineText, textToType, expectedText):
     else:
         type(editorArea, "<Ctrl+Space>")
     # check if suggestions are shown
-    test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView"),
-                "Verifying if suggestions in manual mode are shown manually")
+    if not test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView"),
+                       "Verifying if suggestions in manual mode are shown manually"):
+        __endTestSuggestions__(editorArea)
+        return False
     # verify proposed suggestions
     verifySuggestions(textToType)
     # test if suggestion can be used
