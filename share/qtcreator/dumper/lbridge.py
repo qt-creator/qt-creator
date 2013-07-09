@@ -507,6 +507,10 @@ class Dumper:
         #self.debugger.EnableLog("lldb", ["all"])
         self.debugger.Initialize()
         self.debugger.HandleCommand("settings set auto-confirm on")
+        if not hasattr(lldb.SBType, 'GetCanonicalType'): # "Test" for 179.5
+            warn("DISABLING DEFAULT FORMATTERS")
+            self.debugger.HandleCommand('type category delete gnu-libstdc++')
+            self.debugger.HandleCommand('type category delete libcxx')
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
@@ -1618,6 +1622,7 @@ execfile(os.path.join(currentDir, "qttypes.py"))
 def doit():
 
     db = Dumper()
+    db.report('lldbversion="%s"' % lldb.SBDebugger.GetVersionString())
     db.report('state="enginesetupok"')
 
     while True:
