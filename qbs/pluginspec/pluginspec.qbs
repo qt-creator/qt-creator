@@ -1,4 +1,5 @@
 import qbs.base 1.0
+import qbs.TextFile
 import qbs.fileinfo as FileInfo
 
 Module {

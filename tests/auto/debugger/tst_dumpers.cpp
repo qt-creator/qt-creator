@@ -40,6 +40,7 @@
 #include "temporarydir.h"
 
 #include <QtTest>
+#include <math.h>
 
 #if  QT_VERSION >= 0x050000
 #define MSKIP_SINGLE(x) QSKIP(x)
@@ -195,9 +196,10 @@ static QByteArray parentIName(const QByteArray &iname)
 
 struct ValueBase
 {
-    ValueBase() : hasPtrSuffix(false), version(0) {}
+    ValueBase() : hasPtrSuffix(false), isFloatValue(false), version(0) {}
 
     bool hasPtrSuffix;
+    bool isFloatValue;
     int version;
 };
 
@@ -235,6 +237,18 @@ struct Value : public ValueBase
         if (hasPtrSuffix)
             return actualValue.startsWith(expectedValue + QLatin1String(" @0x"))
                 || actualValue.startsWith(expectedValue + QLatin1String("@0x"));
+
+        if (isFloatValue) {
+            double f1 = fabs(expectedValue.toDouble());
+            double f2 = fabs(actualValue.toDouble());
+            //qDebug() << "expected float: " << qPrintable(expectedValue) << f1;
+            //qDebug() << "actual   float: " << qPrintable(actualValue) << f2;
+            if (f1 < f2)
+                std::swap(f1, f2);
+            return f1 - f2 <= 0.01 * f2;
+        }
+
+
         return actualValue == expectedValue;
     }
 
@@ -245,6 +259,12 @@ struct Pointer : Value
 {
     Pointer() { hasPtrSuffix = true; }
     Pointer(const QByteArray &value) : Value(value) { hasPtrSuffix = true; }
+};
+
+struct FloatValue : Value
+{
+    FloatValue() { isFloatValue = true; }
+    FloatValue(const QByteArray &value) : Value(value) { isFloatValue = true; }
 };
 
 struct Value4 : Value
@@ -311,15 +331,6 @@ struct CheckType : public Check
     {}
 };
 
-struct CheckPlain : public Check
-{
-    CheckPlain(const QByteArray &iname, const Name &name,
-         const Type &type)
-        : Check(iname, name, noValue, type)
-    {}
-
-};
-
 struct Profile
 {
     Profile(const QByteArray &contents) : contents(contents) {}
@@ -336,9 +347,9 @@ struct Cxx11Profile : public Profile
     {}
 };
 
-struct MacLibStdCppProfile : public Profile
+struct MacLibCppProfile : public Profile
 {
-    MacLibStdCppProfile()
+    MacLibCppProfile()
       : Profile("macx {\n"
                 "QMAKE_CXXFLAGS += -stdlib=libc++\n"
                 "LIBS += -stdlib=libc++\n"
@@ -401,9 +412,13 @@ struct GuiProfile {};
 
 struct DataBase
 {
-    DataBase() : useQt(false), forceC(false), gdbOnly(false), lldbOnly(false) {}
+    DataBase()
+      : useQt(false), useQHash(false),
+        forceC(false), gdbOnly(false), lldbOnly(false)
+    {}
 
     mutable bool useQt;
+    mutable bool useQHash;
     mutable bool forceC;
     mutable bool gdbOnly;
     mutable bool lldbOnly;
@@ -461,34 +476,33 @@ public:
     {
         profileExtra +=
             "CONFIG += QT\n"
-            "QT += gui\n"
-            "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
+            "QT += core\n";
 
         useQt = true;
+        useQHash = true;
+
         return *this;
     }
 
     const Data &operator%(const GuiProfile &) const
     {
+        this->operator%(CoreProfile());
         profileExtra +=
-            "CONFIG += QT\n"
             "QT += gui\n"
             "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
 
-        useQt = true;
         return *this;
     }
 
     const Data &operator%(const CorePrivateProfile &) const
     {
+        this->operator%(CoreProfile());
         profileExtra +=
-            "CONFIG += QT\n"
             "greaterThan(QT_MAJOR_VERSION, 4) {\n"
-            "  QT += core core-private\n"
+            "  QT += core-private\n"
             "  CONFIG += no_private_qt_headers_warning\n"
             "}";
 
-        useQt = true;
         return *this;
     }
 
@@ -500,8 +514,8 @@ public:
 
 public:
     mutable QByteArray profileExtra;
-    QByteArray includes;
-    QByteArray code;
+    mutable QByteArray includes;
+    mutable QByteArray code;
     mutable QMap<QByteArray, Check> checks; // IName -> Action
 };
 
@@ -586,7 +600,6 @@ void tst_Dumpers::initTestCase()
     qDebug() << "QMake       : " << m_qmakeBinary.constData();
 
     Environment utilsEnv = Environment::systemEnvironment();
-    utilsEnv.appendOrSet(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
         QProcess debugger;
@@ -717,9 +730,20 @@ void tst_Dumpers::dumper()
             "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n\nvoid breakHere() {}"
             "\n\n" + data.includes +
+            "\n\n" + (data.useQHash ?
+                "\n#include <QByteArray>"
+                "\n#if QT_VERSION >= 0x050000"
+                "\nQT_BEGIN_NAMESPACE"
+                "\nQ_CORE_EXPORT extern QBasicAtomicInt qt_qhash_seed; // from qhash.cpp"
+                "\nQT_END_NAMESPACE"
+                "\n#endif" : "") +
             "\n\nint main(int argc, char *argv[])"
             "\n{"
-            "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + ";\n"
+            "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + ";"
+            "\n" + (data.useQHash ?
+                "\n#if QT_VERSION >= 0x050000"
+                "\nqt_qhash_seed.testAndSetRelaxed(-1, 0);"
+                "\n#endif\n" : "") +
             "\n    unused(&argc, &argv, &qtversion);\n"
             "\n" + data.code +
             "\n    breakHere();"
@@ -1033,16 +1057,17 @@ void tst_Dumpers::dumper_data()
            " } // namespace nsB\n"
            " } // namespace nsA\n";
 
-    QTest::newRow("AnonymousStruct")
+    QTest::newRow("AnonymousStructGdb")
             << Data("union {\n"
                     "     struct { int i; int b; };\n"
                     "     struct { float f; };\n"
                     "     double d;\n"
                     " } a = { { 42, 43 } };\n (void)a;")
+               % GdbOnly()
                % CheckType("a", "a", "union {...}")
                % Check("a.b", "43", "int")
-               % Check("a.d", "9.1245819032257467e-313", "double")
-               % Check("a.f", "5.88545355e-44", "float")
+               % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
+               % Check("a.f", FloatValue("5.88545355e-44"), "float")
                % Check("a.i", "42", "int");
 
     QTest::newRow("QByteArrayData")
@@ -1051,6 +1076,20 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Check("ba", Value4(""), "@QByteArrayData")
                % Check("ba", Value5(""), "@QByteArrayData");
+
+    // FIXME: Merge with GDB case
+    QTest::newRow("AnonymousStructLldb")
+            << Data("union {\n"
+                    "     struct { int i; int b; };\n"
+                    "     struct { float f; };\n"
+                    "     double d;\n"
+                    " } a = { { 42, 43 } };\n (void)a;")
+               //% CheckType("a", "a", "union {...}")
+               % LldbOnly()
+               % Check("a.#1.b", "43", "int")
+               % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
+               % Check("a.#2.f", FloatValue("5.88545355e-44"), "float")
+               % Check("a.#1.i", "42", "int");
 
     QTest::newRow("QByteArray0")
             << Data("#include <QByteArray>\n",
@@ -2347,7 +2386,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&a, &b);\n")
                % CoreProfile()
                % Cxx11Profile()
-               % MacLibStdCppProfile()
+               % MacLibCppProfile()
                % Check("a", "<4 items>", "std::array<int, 4u>")
                % Check("b", "<4 items>", "std::array<@QString, 4u>");
 
@@ -2356,15 +2395,27 @@ void tst_Dumpers::dumper_data()
                     "std::complex<double> c(1, 2);\n")
                % Check("c", "(1.000000, 2.000000)", "std::complex<double>");
 
-    QTest::newRow("CComplex")
+    QTest::newRow("CComplexGdb")
             << Data("#include <complex.h>\n",
                     "// Doesn't work when compiled as C++.\n"
                     "double complex a = 0;\n"
                     "double _Complex b = 0;\n"
                     "unused(&a, &b);\n")
                % ForceC()
+               % GdbOnly()
                % Check("a", "0 + 0 * I", "complex double")
                % Check("b", "0 + 0 * I", "complex double");
+
+    QTest::newRow("CComplexLldb")
+            << Data("#include <complex.h>\n",
+                    "// Doesn't work when compiled as C++.\n"
+                    "double complex a = 0;\n"
+                    "double _Complex b = 0;\n"
+                    "unused(&a, &b);\n")
+               % ForceC()
+               % LldbOnly()
+               % Check("a", "0 + 0i", "_Complex double")
+               % Check("b", "0 + 0i", "_Complex double");
 
     QTest::newRow("StdDequeInt")
             << Data("#include <deque>\n",
@@ -2638,6 +2689,7 @@ void tst_Dumpers::dumper_data()
                     "std::unique_ptr<int> pi(new int(32));\n"
                     "std::unique_ptr<Foo> pf(new Foo);\n")
                % Cxx11Profile()
+               % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
                % Check("pf", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >");
 
@@ -2646,6 +2698,7 @@ void tst_Dumpers::dumper_data()
                     "std::shared_ptr<int> pi(new int(32));\n"
                     "std::shared_ptr<Foo> pf(new Foo);\n")
                % Cxx11Profile()
+               % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::shared_ptr<int>")
                % Check("pf", Pointer(), "std::shared_ptr<Foo>");
 

@@ -642,10 +642,11 @@ def checkIfObjectExists(name, shouldExist = True, timeout = 3000, verboseOnFail 
     return result
 
 # wait for progress bar(s) to appear and disappear
-def progressBarWait(timeout=60000):
+def progressBarWait(timeout=60000, warn=True):
     if not checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", True, 6000):
-        test.warning("progressBarWait() timed out when waiting for ProgressBar.",
-                     "This may lead to unforeseen behavior. Consider increasing the timeout.")
+        if warn:
+            test.warning("progressBarWait() timed out when waiting for ProgressBar.",
+                         "This may lead to unforeseen behavior. Consider increasing the timeout.")
     checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", False, timeout)
 
 def readFile(filename):

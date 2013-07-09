@@ -196,7 +196,7 @@ QString QbsRunConfiguration::executable() const
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
     const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
 
-    if (product.isValid() || !pro->qbsProject())
+    if (!product.isValid() || !pro->qbsProject())
         return QString();
 
     return pro->qbsProject()->targetExecutable(product, installOptions());
@@ -518,7 +518,7 @@ bool QbsRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
         return false;
 
     QbsProject *project = static_cast<QbsProject *>(parent->project());
-    return !findProduct(project->qbsProjectData(), productFromId(id)).isValid();
+    return findProduct(project->qbsProjectData(), productFromId(id)).isValid();
 }
 
 ProjectExplorer::RunConfiguration *QbsRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)

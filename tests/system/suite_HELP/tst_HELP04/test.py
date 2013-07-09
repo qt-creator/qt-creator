@@ -93,7 +93,7 @@ def main():
         mouseClick(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"))
         replaceEditorContent(":Qt Creator.Help_Search for:_QLineEdit", searchKeyword)
         type(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"), "<Return>")
-        progressBarWait()
+        progressBarWait(warn=False)
         if shouldFind:
             test.verify(waitFor("re.match('[1-9]\d* - [1-9]\d* of [1-9]\d* Hits',"
                                 "str(findObject(':Hits_QLabel').text))", 2000),
@@ -129,7 +129,7 @@ def main():
     # advanced search - do search
     clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
-    progressBarWait()
+    progressBarWait(warn=False)
     # verify that advanced search results found
     test.verify(waitFor("re.search('1 - 2 of 2 Hits',"
                         "str(findObject(':Hits_QLabel').text))", 3000),

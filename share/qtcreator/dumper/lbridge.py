@@ -1102,7 +1102,6 @@ class Dumper:
         # Normal value
         #numchild = 1 if value.MightHaveChildren() else 0
         numchild = value.GetNumChildren()
-        self.put('iname="%s",' % self.currentIName)
         self.putType(typeName)
         if typeClass == lldb.eTypeClassStruct or typeClass == lldb.eTypeClassClass:
             if self.isQObject(value):
@@ -1129,7 +1128,7 @@ class Dumper:
         if value.GetType().GetTypeClass() == lldb.eTypeClassArray:
             for i in xrange(value.GetNumChildren()):
                 child = value.GetChildAtIndex(i)
-                with UnnamedSubItem(self, "%d" % (i + 1)):
+                with UnnamedSubItem(self, str(i)):
                     self.putItem(child)
             return
 
@@ -1156,7 +1155,7 @@ class Dumper:
         frame = self.currentThread().GetSelectedFrame()
         self.currentIName = 'local'
         self.put('data=[')
-        self.anonNumber = -1
+        self.anonNumber = 0
         for value in frame.GetVariables(True, True, False, False):
             if self.dummyValue is None:
                 self.dummyValue = value

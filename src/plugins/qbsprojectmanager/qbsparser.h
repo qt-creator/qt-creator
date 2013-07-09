@@ -39,7 +39,7 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-class QBSPROJECTMANAGER_EXPORT QbsParser : public ProjectExplorer::IOutputParser
+class QbsParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 

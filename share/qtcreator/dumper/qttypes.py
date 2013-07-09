@@ -2452,6 +2452,24 @@ def qdump__std__shared_ptr(d, value):
         d.putIntItem("usecount", refcount["_M_use_count"])
         d.putIntItem("weakcount", refcount["_M_weak_count"])
 
+def qdump__std____1__shared_ptr(d, value):
+    i = value["__ptr_"]
+    if isNull(i):
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+
+    if isSimpleType(d.templateArgument(value.type, 0)):
+        d.putValue("%s @0x%x" % (i.dereference().value, pointerValue(i)))
+    else:
+        d.putValue("@0x%x" % pointerValue(i))
+
+    d.putNumChild(3)
+    with Children(d, 3):
+        d.putSubItem("data", i.dereference())
+        d.putFields(value["__cntrl_"].dereference())
+        #d.putIntItem("usecount", refcount["_M_use_count"])
+        #d.putIntItem("weakcount", refcount["_M_weak_count"])
 
 def qdump__std__unique_ptr(d, value):
     i = value["_M_t"]["_M_head_impl"]
@@ -2469,6 +2487,23 @@ def qdump__std__unique_ptr(d, value):
     d.putNumChild(1)
     with Children(d, 1):
         d.putSubItem("data", i)
+
+def qdump__std____1__unique_ptr(d, value):
+    i = childAt(childAt(value["__ptr_"], 0), 0)
+    if isNull(i):
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+
+    if isSimpleType(d.templateArgument(value.type, 0)):
+        d.putValue("%s @0x%x" % (i.dereference().value, pointerValue(i)))
+    else:
+        d.putValue("@0x%x" % pointerValue(i))
+
+    d.putNumChild(1)
+    with Children(d, 1):
+        d.putSubItem("data", i.dereference())
+
 
 
 def qedit__std__vector(expr, value):

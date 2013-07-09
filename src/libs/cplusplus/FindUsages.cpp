@@ -233,7 +233,15 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
                     if (scopeOfTemplEnclosingCandidateSymbol !=  scopeOfTemplEnclosingDeclSymbol)
                         return false;
                 } else if (s->enclosingScope()->isTemplate() && ! _declSymbol->isTypenameArgument()) {
-                    if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope())
+                    if (_declSymbol->enclosingScope()->isTemplate()) {
+                        if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope()->enclosingScope())
+                            return false;
+                    } else {
+                        if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope())
+                            return false;
+                    }
+                } else if (_declSymbol->enclosingScope()->isTemplate() && s->isTemplate()) {
+                    if (_declSymbol->enclosingScope()->enclosingScope() != s->enclosingScope())
                         return false;
                 } else if (! s->isUsingDeclaration()
                            && s->enclosingScope() != _declSymbol->enclosingScope()) {

@@ -1,4 +1,5 @@
 import qbs
+import qbs.TextFile
 
 Product {
     name: "app_version_header"
