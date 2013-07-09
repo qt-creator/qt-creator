@@ -1078,8 +1078,11 @@ static inline bool checkChunkLine(const QString &line, int *modifiedLineNumber, 
         return false;
     const int lineNumberPos = plusPos + 1;
     const int commaPos = line.indexOf(QLatin1Char(','), lineNumberPos);
-    if (commaPos == -1 || commaPos > endPos)
-        return false;
+    if (commaPos == -1 || commaPos > endPos) {
+        // Git submodule appears as "@@ -1 +1 @@"
+        *modifiedLineNumber = 1;
+        return true;
+    }
     const QString lineNumberStr = line.mid(lineNumberPos, commaPos - lineNumberPos);
     bool ok;
     *modifiedLineNumber = lineNumberStr.toInt(&ok);
