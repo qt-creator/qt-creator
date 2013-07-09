@@ -559,7 +559,7 @@ class Dumper:
             elif c == ',':
                 if level == 0:
                     if index == 0:
-                        return inner
+                        return inner.strip()
                     index -= 1
                     inner = ''
                 else:
@@ -571,7 +571,7 @@ class Dumper:
                 else:
                     inner += c
                     skipSpace = False
-        return inner
+        return inner.strip()
 
     def templateArgument(self, typeobj, index):
         type = typeobj.GetTemplateArgumentType(index)
