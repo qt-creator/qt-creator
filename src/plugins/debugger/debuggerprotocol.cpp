@@ -32,6 +32,7 @@
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
+#include <QHostAddress>
 
 #include <ctype.h>
 
@@ -610,6 +611,18 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QDate date = dateFromData(ba.left(p).toInt());
             const QTime time = timeFromData(ba.mid(p + 1 ).toInt());
             return QDateTime(date, time).toString(Qt::TextDate);
+        }
+        case IPv6AddressAndHexScopeId: { // 27, 16 hex-encoded bytes, "%" and the string-encoded scope
+            const int p = ba.indexOf('%');
+            QHostAddress ip6(QString::fromLatin1(p == -1 ? ba : ba.left(p)));
+            if (ip6.isNull())
+                break;
+
+            const QByteArray scopeId = p == -1 ? QByteArray() : QByteArray::fromHex(ba.mid(p + 1));
+            if (!scopeId.isEmpty())
+                ip6.setScopeId(QString::fromUtf16(reinterpret_cast<const ushort *>(scopeId.constData()),
+                                                  scopeId.length() / 2));
+            return ip6.toString();
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;

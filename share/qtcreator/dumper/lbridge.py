@@ -60,8 +60,9 @@ Hex2EncodedUInt2, \
 Hex2EncodedUInt4, \
 Hex2EncodedUInt8, \
 Hex2EncodedFloat4, \
-Hex2EncodedFloat8 \
-    = range(27)
+Hex2EncodedFloat8, \
+IPv6AddressAndHexScopeId \
+    = range(28)
 
 # Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
 StopDisplay, \
@@ -642,6 +643,9 @@ class Dumper:
 
     def extractInt(self, address):
         return int(self.createValue(address, self.intType()))
+
+    def extractByte(self, address):
+        return int(self.createValue(address, self.charType())) & 0xFF
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()

@@ -723,21 +723,55 @@ def qdump__QHash__iterator(d, value):
 
 
 def qdump__QHostAddress(d, value):
+    # QHostAddress in Qt 4.5 (byte offsets)
+    #   quint32 a        (0)
+    #   Q_IPV6ADDR a6    (4)
+    #   protocol         (20)
+    #   QString ipString (24)
+    #   QString scopeId  (24 + ptrSize)
+    #   bool isParsed    (24 + 2 * ptrSize)
+    # QHostAddress in Qt 5.0
+    #   QString ipString (0)
+    #   QString scopeId  (ptrSize)
+    #   quint32 a        (2*ptrSize)
+    #   Q_IPV6ADDR a6    (2*ptrSize + 4)
+    #   protocol         (2*ptrSize + 20)
+    #   bool isParsed    (2*ptrSize + 24)
+
     privAddress = d.dereferenceValue(value)
     isQt5 = d.qtVersion() >= 0x050000
+    sizeofQString = d.ptrSize()
     ipStringAddress = privAddress + (0 if isQt5 else 24)
+    isParsedAddress = privAddress + 24 + 2 * sizeofQString
     # value.d.d->ipString
     ipString = qEncodeString(d, d.dereference(ipStringAddress))
-    if len(ipString) > 0:
+    if d.extractByte(isParsedAddress) and len(ipString) > 0:
         d.putValue(ipString, Hex4EncodedLittleEndian)
     else:
-        # value.d.d->a
-        a = d.extractInt(privAddress + (2 * d.ptrSize() if isQt5 else 0))
-        a, n4 = divmod(a, 256)
-        a, n3 = divmod(a, 256)
-        a, n2 = divmod(a, 256)
-        a, n1 = divmod(a, 256)
-        d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4))
+        # value.d.d->protocol:
+        #  QAbstractSocket::IPv4Protocol = 0
+        #  QAbstractSocket::IPv6Protocol = 1
+        protoAddress = privAddress + 20 + (2 * sizeofQString if isQt5 else 0);
+        proto = d.extractInt(protoAddress)
+        if proto == 1:
+            # value.d.d->a6
+            a6 = privAddress + 4 + (2 * sizeofQString if isQt5 else 0)
+            data = d.readRawMemory(a6, 16)
+            address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
+            scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
+            scopeId = qEncodeString(d, d.dereference(scopeId))
+            d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
+        elif proto == 0:
+            # value.d.d->a
+            a = d.extractInt(privAddress + (2 * sizeofQString if isQt5 else 0))
+            a, n4 = divmod(a, 256)
+            a, n3 = divmod(a, 256)
+            a, n2 = divmod(a, 256)
+            a, n1 = divmod(a, 256)
+            d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
+        else:
+            d.putValue("<unspecified>")
+
     d.putPlainChildren(value["d"]["d"].dereference())
 
 

@@ -1020,11 +1020,12 @@ namespace qhostaddress {
     {
         QHostAddress ha1(129u * 256u * 256u * 256u + 130u);
         QHostAddress ha2("127.0.0.1");
+        uint ip2 = ha2.toIPv4Address();
         BREAK_HERE;
         // Check ha1 129.0.0.130 QHostAddress.
         // Check ha2 "127.0.0.1" QHostAddress.
         // Continue.
-        dummyStatement(&ha1, &ha2);
+        dummyStatement(&ha1, &ha2, &ip2);
     }
 
     void testQHostAddress2()
@@ -1041,6 +1042,7 @@ namespace qhostaddress {
         addr.c[14] = 0;
         addr.c[15] = 0;
         QHostAddress ha1(addr);
+        ha1.setScopeId(QLatin1String("wlan0"));
         BREAK_HERE;
         // Continue.
         dummyStatement(&ha1);
