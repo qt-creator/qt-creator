@@ -27,7 +27,9 @@
 #include "Name.h"
 #include "NameVisitor.h"
 #include "SymbolVisitor.h"
+
 #include <map>
+#include <utility>
 
 namespace CPlusPlus {
 
@@ -93,6 +95,9 @@ protected:
     virtual void visit(ObjCForwardProtocolDeclaration *type);
 
 protected:
+    typedef std::pair <const FullySpecifiedType, Subst *> TypeSubstPair;
+    std::map<TypeSubstPair, FullySpecifiedType> _cache;
+
     Clone *_clone;
     Control *_control;
     Subst *_subst;
@@ -118,6 +123,9 @@ protected:
     virtual void visit(const SelectorNameId *name);
 
 protected:
+    typedef std::pair <const Name *, Subst *> NameSubstPair;
+    std::map<NameSubstPair, const Name *> _cache;
+
     Clone *_clone;
     Control *_control;
     Subst *_subst;
@@ -163,6 +171,9 @@ protected:
     virtual bool visit(ObjCPropertyDeclaration *symbol);
 
 protected:
+    typedef std::pair <Symbol *, Subst *> SymbolSubstPair;
+    std::map<SymbolSubstPair, Symbol *> _cache;
+
     Clone *_clone;
     Control *_control;
     Subst *_subst;
