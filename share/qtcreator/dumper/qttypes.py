@@ -1738,6 +1738,10 @@ def qdump__QString(d, value):
 
 
 def qdump__QStringRef(d, value):
+    if isNull(value["m_string"]):
+        d.putValue("(null)");
+        d.putNumChild(0)
+        return
     s = value["m_string"].dereference()
     data, size, alloc = d.stringData(s)
     data += 2 * int(value["m_position"])

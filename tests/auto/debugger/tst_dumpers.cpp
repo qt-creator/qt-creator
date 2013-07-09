@@ -3113,9 +3113,12 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QStringRef1")
             << Data("#include <QStringRef>\n",
                     "QString str = \"Hello\";\n"
-                    "QStringRef ref(&str, 1, 2);")
+                    "QStringRef ref1(&str, 1, 2);\n"
+                    "QStringRef ref2;\n"
+                    "unused(&ref1, &ref2);\n")
                % CoreProfile()
-               % Check("ref", "\"el\"", "@QStringRef");
+               % Check("ref1", "\"el\"", "@QStringRef")
+               % Check("ref2", "(null)", "@QStringRef");
 
     QTest::newRow("QStringList")
             << Data("#include <QStringList>\n",
