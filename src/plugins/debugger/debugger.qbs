@@ -251,8 +251,6 @@ QtcPlugin {
         "qml/qmlv8debuggerclientconstants.h",
         "qml/qscriptdebuggerclient.cpp",
         "qml/qscriptdebuggerclient.h",
-        "script/scriptengine.cpp",
-        "script/scriptengine.h",
         "shared/backtrace.cpp",
         "shared/backtrace.h",
         "shared/cdbsymbolpathlisteditor.cpp",
