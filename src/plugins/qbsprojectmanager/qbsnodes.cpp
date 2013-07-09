@@ -624,7 +624,10 @@ void QbsProjectNode::update(const qbs::ProjectData &prjData)
         }
     }
 
-    setDisplayName(prjData.name());
+    if (!prjData.name().isEmpty())
+        setDisplayName(prjData.name());
+    else
+        setDisplayName(m_project->displayName());
 
     removeProjectNodes(toRemove);
     addProjectNodes(toAdd);
