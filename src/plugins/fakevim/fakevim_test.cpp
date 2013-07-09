@@ -3292,8 +3292,16 @@ void FakeVimPlugin::test_vim_qtcreator()
          "");
 
     // Record long insert mode.
-    KEYS("qb" "4s" "bool" "<down>" "Q_<insert>ASSERT" "<down><down>" "<insert><bs>2"
-         "<c-o>2w<delete>1" "<c-o>:s/true/false<cr><esc>" "q",
+    KEYS("qb"
+         "4s" "bool" // 1
+         "<down>"
+         "Q_<insert>ASSERT" // 2
+         "<down><down>"
+         "<insert><bs>2" // 3
+         "<c-o>2w"
+         "<delete>1" // 4
+         "<c-o>:s/true/false<cr><esc>" // 5
+         "q",
          "bool f(int arg1, int arg2 = 0) {" N
          "    Q_ASSERT(arg1 >= 0);" N
          "    if (arg1 > 0) return true;" N
@@ -3301,35 +3309,35 @@ void FakeVimPlugin::test_vim_qtcreator()
          "}" N
          "");
 
-    KEYS("u",
+    KEYS("u", // 5
          "bool f(int arg1, int arg2 = 0) {" N
          "    Q_ASSERT(arg1 >= 0);" N
          "    if (arg1 > 0) return true;" N
          X "    if (arg2 > 1) return true;" N
          "}" N
          "");
-    KEYS("u",
+    KEYS("u", // 4
          "bool f(int arg1, int arg2 = 0) {" N
          "    Q_ASSERT(arg1 >= 0);" N
          "    if (arg1 > 0) return true;" N
          "    if (arg2 > " X "0) return true;" N
          "}" N
          "");
-    KEYS("u",
+    KEYS("u", // 3
          "bool f(int arg1, int arg2 = 0) {" N
          "    Q_ASSERT(arg1 >= 0);" N
          "    if (arg1 > 0) return true;" N
          "    if (arg1" X " > 0) return true;" N
          "}" N
          "");
-    KEYS("u",
+    KEYS("u", // 2
          "bool f(int arg1, int arg2 = 0) {" N
          "    " X "assert(arg1 >= 0);" N
          "    if (arg1 > 0) return true;" N
          "    if (arg1 > 0) return true;" N
          "}" N
          "");
-    KEYS("u",
+    KEYS("u", // 1
          X "void f(int arg1, int arg2 = 0) {" N
          "    assert(arg1 >= 0);" N
          "    if (arg1 > 0) return true;" N
@@ -3372,6 +3380,30 @@ void FakeVimPlugin::test_vim_qtcreator()
          "    Q_ASSERT(arg1 >= 0);" N
          "    if (arg1 > 0) return true;" N
          "    if (arg2 > 1) return false;" N
+         "}" N
+         "");
+
+    // Macros
+    data.setText(
+         "void f(int arg1) {" N
+         "}" N
+         "");
+    KEYS("2o" "#ifdef HAS_FEATURE<cr>doSomething();<cr>"
+         "#else<cr>"
+         "doSomethingElse<bs><bs><bs><bs>2();<cr>"
+         "#endif"
+         "<esc>",
+         "void f(int arg1) {" N
+         "#ifdef HAS_FEATURE" N
+         "    doSomething();" N
+         "#else" N
+         "    doSomething2();" N
+         "#endif" N
+         "#ifdef HAS_FEATURE" N
+         "    doSomething();" N
+         "#else" N
+         "    doSomething2();" N
+         "#endi" X "f" N
          "}" N
          "");
 }
