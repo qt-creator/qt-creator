@@ -103,7 +103,7 @@ public:
     static void escape();
 
     /// Undoing changes
-    static void undoChangesInEditorWidget(BaseTextEditorWidget *editorWidget);
+    static void undoChangesInDocument(BaseTextDocument *editorDocument);
     static void undoChangesInAllEditorWidgets();
 
     /// Execute actions for the current cursor position of editorWidget.
@@ -173,10 +173,10 @@ void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileAc
         undoAllChangesAndCloseAllEditors();
 
         // Open editor
-        QCOMPARE(em->openedEditors().size(), 0);
+        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
         CPPEditor *editor = dynamic_cast<CPPEditor *>(em->openEditor(filePath));
         QVERIFY(editor);
-        QCOMPARE(em->openedEditors().size(), 1);
+        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
         QVERIFY(mm->workingCopy().contains(filePath));
 
@@ -250,21 +250,19 @@ void TestActionsTestCase::escape()
         QTest::keyClick(w, Qt::Key_Escape);
 }
 
-void TestActionsTestCase::undoChangesInEditorWidget(BaseTextEditorWidget *editorWidget)
+void TestActionsTestCase::undoChangesInDocument(BaseTextDocument *editorDocument)
 {
-    QTextDocument * const document = editorWidget->document();
+    QTextDocument * const document = editorDocument->document();
     QVERIFY(document);
     while (document->isUndoAvailable())
-        editorWidget->undo();
+        document->undo();
 }
 
 void TestActionsTestCase::undoChangesInAllEditorWidgets()
 {
-    EditorManager *em = EditorManager::instance();
-    foreach (IEditor *editor, em->openedEditors()) {
-        BaseTextEditor *baseTextEditor = qobject_cast<BaseTextEditor*>(editor);
-        BaseTextEditorWidget *baseTextEditorWidget = baseTextEditor->editorWidget();
-        undoChangesInEditorWidget(baseTextEditorWidget);
+    foreach (IDocument *document, EditorManager::documentModel()->openedDocuments()) {
+        BaseTextDocument *baseTextDocument = qobject_cast<BaseTextDocument *>(document);
+        undoChangesInDocument(baseTextDocument);
     }
 }
 
@@ -304,7 +302,7 @@ void TestActionsTestCase::undoAllChangesAndCloseAllEditors()
     undoChangesInAllEditorWidgets();
     em->closeAllEditors(/*askAboutModifiedEditors =*/ false);
     QApplication::processEvents();
-    QCOMPARE(em->openedEditors().size(), 0);
+    QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
 }
 
 void TestActionsTestCase::configureAllProjects(const QList<QPointer<ProjectExplorer::Project> >
@@ -442,7 +440,8 @@ void InvokeCompletionTokenAction::run(CPPEditorWidget *editorWidget)
     //    editorWidget->setFocus();
     QApplication::processEvents();
 
-    TestActionsTestCase::undoChangesInEditorWidget(editorWidget);
+    BaseTextDocument *doc = qobject_cast<BaseTextDocument *>(editorWidget->editorDocument());
+    TestActionsTestCase::undoChangesInDocument(doc);
 }
 
 class RunAllQuickFixesTokenAction : public TestActionsTestCase::AbstractAction
