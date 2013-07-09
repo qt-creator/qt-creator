@@ -221,9 +221,9 @@ bool CMakeProject::parseCMakeLists()
     }
 
     CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors())
-        if (isProjectFile(editor->document()->filePath()))
-            editor->document()->infoBar()->removeInfo(Core::Id("CMakeEditor.RunCMake"));
+    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments())
+        if (isProjectFile(document->filePath()))
+            document->infoBar()->removeInfo(Core::Id("CMakeEditor.RunCMake"));
 
     // Find cbp file
     QString cbpFile = CMakeManager::findCbpFile(activeBC->buildDirectory());
