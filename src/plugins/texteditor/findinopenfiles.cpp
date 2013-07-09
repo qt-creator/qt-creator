@@ -100,7 +100,7 @@ QString FindInOpenFiles::toolTip() const
 
 bool FindInOpenFiles::isEnabled() const
 {
-    return Core::EditorManager::instance()->openedEditors().count() > 0;
+    return Core::EditorManager::documentModel()->documentCount() > 0;
 }
 
 void FindInOpenFiles::writeSettings(QSettings *settings)
