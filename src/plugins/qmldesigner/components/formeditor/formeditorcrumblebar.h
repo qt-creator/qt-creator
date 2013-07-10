@@ -35,8 +35,6 @@
 
 namespace QmlDesigner {
 
-
-
 class FormEditorCrumbleBar : public QObject
 {
     Q_OBJECT
