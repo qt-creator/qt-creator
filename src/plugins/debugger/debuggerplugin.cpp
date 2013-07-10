@@ -3259,7 +3259,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_mainWindow->setToolBar(CppLanguage, toolbarContainer);
 
-    QWidget *qmlToolbar = new QWidget;
+    QWidget *qmlToolbar = new QWidget(m_mainWindow);
     hbox = new QHBoxLayout(qmlToolbar);
     hbox->setMargin(0);
     hbox->setSpacing(0);
