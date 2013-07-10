@@ -97,26 +97,26 @@ bool ValgrindEngine::start()
     emit outputReceived(tr("Commandline arguments: %1").arg(sp.debuggeeArgs), DebugFormat);
 #endif
 
-    runner()->setWorkingDirectory(sp.workingDirectory);
+    ValgrindRunner *run = runner();
+    run->setWorkingDirectory(sp.workingDirectory);
     QString valgrindExe = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
     if (!sp.analyzerCmdPrefix.isEmpty())
         valgrindExe = sp.analyzerCmdPrefix + QLatin1Char(' ') + valgrindExe;
-    runner()->setValgrindExecutable(valgrindExe);
-    runner()->setValgrindArguments(toolArguments());
-    runner()->setDebuggeeExecutable(sp.debuggee);
-    runner()->setDebuggeeArguments(sp.debuggeeArgs);
-    runner()->setEnvironment(sp.environment);
-    runner()->setConnectionParameters(sp.connParams);
-    runner()->setStartMode(sp.startMode);
+    run->setValgrindExecutable(valgrindExe);
+    run->setValgrindArguments(toolArguments());
+    run->setDebuggeeExecutable(sp.debuggee);
+    run->setDebuggeeArguments(sp.debuggeeArgs);
+    run->setEnvironment(sp.environment);
+    run->setConnectionParameters(sp.connParams);
+    run->setStartMode(sp.startMode);
 
-    connect(runner(), SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
+    connect(run, SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
             SLOT(receiveProcessOutput(QByteArray,Utils::OutputFormat)));
-    connect(runner(), SIGNAL(processErrorReceived(QString,QProcess::ProcessError)),
+    connect(run, SIGNAL(processErrorReceived(QString,QProcess::ProcessError)),
             SLOT(receiveProcessError(QString,QProcess::ProcessError)));
-    connect(runner(), SIGNAL(finished()),
-            SLOT(runnerFinished()));
+    connect(run, SIGNAL(finished()), SLOT(runnerFinished()));
 
-    if (!runner()->start()) {
+    if (!run->start()) {
         m_progress->cancel();
         return false;
     }
