@@ -35,9 +35,6 @@
 #include "qtfeatureprovider.h"
 #include "qtsupportconstants.h"
 
-// only for legay restore
-#include <projectexplorer/gcctoolchain.h>
-
 #include <qtsupport/debugginghelper.h>
 
 #include <coreplugin/icore.h>
@@ -75,20 +72,6 @@ static const char QTVERSION_LEGACY_FILENAME[] = "/qtversion.xml"; // TODO: pre 2
 static const char QtVersionsSectionName[] = "QtVersions";
 
 enum { debug = 0 };
-
-template<class T>
-static T *createToolChain(const QString &id)
-{
-    QList<ProjectExplorer::ToolChainFactory *> factories =
-            ExtensionSystem::PluginManager::getObjects<ProjectExplorer::ToolChainFactory>();
-    foreach (ProjectExplorer::ToolChainFactory *f, factories) {
-       if (f->id() == id) {
-           Q_ASSERT(f->canCreate());
-           return static_cast<T *>(f->create());
-       }
-    }
-    return 0;
-}
 
 static Utils::FileName globalSettingsFileName()
 {
