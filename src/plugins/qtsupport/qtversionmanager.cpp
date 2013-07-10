@@ -294,6 +294,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
                     qDebug() << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
                 m_versions.remove(id);
                 qtversionMap[QLatin1String(Constants::QTVERSIONID)] = id;
+                qtversionMap[QLatin1String(Constants::QTVERSIONNAME)] = v->displayName();
                 delete v;
 
                 if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {

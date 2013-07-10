@@ -1026,7 +1026,7 @@ void QtOptionsPageWidget::updateWidgets()
     const bool enabled = version != 0;
     const bool isAutodetected = enabled && version->isAutodetected();
     m_ui->delButton->setEnabled(enabled && !isAutodetected);
-    m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
+    m_versionUi->nameEdit->setEnabled(enabled);
     m_versionUi->editPathPushButton->setEnabled(enabled && !isAutodetected);
 }
 
