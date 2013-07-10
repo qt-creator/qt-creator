@@ -14,7 +14,8 @@ HEADERS = cmakeproject.h \
     cmakehighlighter.h \
     cmakelocatorfilter.h \
     cmakefilecompletionassist.h \
-    cmakevalidator.h
+    cmakevalidator.h \
+    cmakeparser.h
 
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
@@ -29,6 +30,8 @@ SOURCES = cmakeproject.cpp \
     cmakehighlighter.cpp \
     cmakelocatorfilter.cpp \
     cmakefilecompletionassist.cpp \
-    cmakevalidator.cpp
+    cmakevalidator.cpp \
+    cmakeparser.cpp
+
 
 RESOURCES += cmakeproject.qrc

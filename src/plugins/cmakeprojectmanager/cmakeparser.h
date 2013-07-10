@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Axonian LLC.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,38 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTPLUGIN_H
-#define CMAKEPROJECTPLUGIN_H
+#ifndef CMAKEOUTPUTPARSER_H
+#define CMAKEOUTPUTPARSER_H
 
-#include <extensionsystem/iplugin.h>
-
-#include <QObject>
+#include <projectexplorer/ioutputparser.h>
+#include <projectexplorer/task.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProjectPlugin
-  : public ExtensionSystem::IPlugin
+class CMakeParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
 
 public:
-    CMakeProjectPlugin();
-    ~CMakeProjectPlugin();
+    explicit CMakeParser();
+    void stdError(const QString &line);
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+protected:
+    void doFlush();
 
-    void extensionsInitialized();
-
-private slots:
-#ifdef WITH_TESTS
-    void testCMakeParser_data();
-    void testCMakeParser();
-#endif
+private:
+    ProjectExplorer::Task m_lastTask;
+    QRegExp m_commonError;
+    QRegExp m_nextSubError;
+    bool m_skippedFirstEmptyLine;
 };
 
+} // namespace CMakeProjectManager
 } // namespace Internal
-} // namespace CMakeProject
 
-#endif // CMAKEPROJECTPLUGIN_H
+#endif // CMAKEOUTPUTPARSER_H

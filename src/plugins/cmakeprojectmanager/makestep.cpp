@@ -29,16 +29,16 @@
 
 #include "makestep.h"
 
+#include "cmakebuildconfiguration.h"
+#include "cmakeparser.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
-#include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -197,7 +197,7 @@ bool MakeStep::init()
     pp->setArguments(arguments);
     pp->resolveAll();
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser());
+    setOutputParser(new CMakeParser());
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);
