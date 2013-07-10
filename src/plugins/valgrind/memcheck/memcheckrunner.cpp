@@ -94,57 +94,40 @@ void MemcheckRunner::setParser(XmlProtocol::ThreadedParser *parser)
 
 bool MemcheckRunner::start()
 {
+    QTC_ASSERT(d->parser, return false);
+
+    QString ip;
+    QHostAddress hostAddr;
+
     if (startMode() == Analyzer::StartLocal) {
-        QTC_ASSERT(d->parser, return false);
-
-        bool check = d->xmlServer.listen(QHostAddress(QHostAddress::LocalHost));
-        QTC_ASSERT(check, return false);
-        d->xmlServer.setMaxPendingConnections(1);
-        const quint16 xmlPortNumber = d->xmlServer.serverPort();
-        connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
-
-        check = d->logServer.listen(QHostAddress(QHostAddress::LocalHost));
-        QTC_ASSERT(check, return false);
-        d->logServer.setMaxPendingConnections(1);
-        const quint16 logPortNumber = d->logServer.serverPort();
-        connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
-
-        QStringList memcheckArguments;
-        memcheckArguments << QLatin1String("--xml=yes")
-                          << QString::fromLatin1("--xml-socket=127.0.0.1:%1").arg(xmlPortNumber)
-                          << QLatin1String("--child-silent-after-fork=yes")
-                          << QString::fromLatin1("--log-socket=127.0.0.1:%1").arg(logPortNumber)
-                          << valgrindArguments();
-        setValgrindArguments(memcheckArguments);
+        ip = QLatin1String("127.0.0.1");
+        hostAddr = QHostAddress(QHostAddress::LocalHost);
     }
-
 
     if (startMode() == Analyzer::StartRemote) {
-        QTC_ASSERT(d->parser, return false);
-
-        QString ip = connectionParameters().host;
+        ip = connectionParameters().host;
         QTC_ASSERT(!ip.isEmpty(), return false);
-
-        QHostAddress hostAddr(ip);
-        bool check = d->xmlServer.listen(hostAddr);
-        QTC_ASSERT(check, return false);
-        d->xmlServer.setMaxPendingConnections(1);
-        const quint16 xmlPortNumber = d->xmlServer.serverPort();
-        connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
-
-        check = d->logServer.listen(hostAddr);
-        QTC_ASSERT(check, return false);
-        d->logServer.setMaxPendingConnections(1);
-        const quint16 logPortNumber = d->logServer.serverPort();
-        connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
-
-        QStringList memcheckArguments;
-        memcheckArguments << QLatin1String("--xml=yes")
-                          << QString::fromLatin1("--xml-socket=%1:%2").arg(ip).arg(xmlPortNumber)
-                          << QLatin1String("--child-silent-after-fork=yes")
-                          << QString::fromLatin1("--log-socket=%1:%2").arg(ip).arg(logPortNumber);
-        setValgrindArguments(memcheckArguments);
+        hostAddr = QHostAddress(ip);
     }
+
+    bool check = d->xmlServer.listen(hostAddr);
+    QTC_ASSERT(check, return false);
+    d->xmlServer.setMaxPendingConnections(1);
+    const quint16 xmlPortNumber = d->xmlServer.serverPort();
+    connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
+
+    check = d->logServer.listen(hostAddr);
+    QTC_ASSERT(check, return false);
+    d->logServer.setMaxPendingConnections(1);
+    const quint16 logPortNumber = d->logServer.serverPort();
+    connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
+
+    QStringList memcheckArguments;
+    memcheckArguments << QLatin1String("--xml=yes")
+                      << QString::fromLatin1("--xml-socket=%1:%2").arg(ip).arg(xmlPortNumber)
+                      << QLatin1String("--child-silent-after-fork=yes")
+                      << QString::fromLatin1("--log-socket=%1:%2").arg(ip).arg(logPortNumber);
+    setValgrindArguments(memcheckArguments);
 
     return ValgrindRunner::start();
 }
