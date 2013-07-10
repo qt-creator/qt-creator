@@ -57,6 +57,7 @@
 #include "rewriterview.h"
 #include "rewritingexception.h"
 #include "invalididexception.h"
+#include "textmodifier.h"
 
 /*!
 \defgroup CoreModel
@@ -1796,6 +1797,16 @@ Model *Model::metaInfoProxyModel()
         return d->m_metaInfoProxyModel->metaInfoProxyModel();
     else
         return this;
+}
+
+TextModifier *Model::textModifier() const
+{
+    return d->m_textModifier.data();
+}
+
+void Model::setTextModifier(TextModifier *textModifier)
+{
+    d->m_textModifier = textModifier;
 }
 
 #if 0

@@ -246,6 +246,7 @@ private:
     QUrl m_fileUrl;
     QWeakPointer<RewriterView> m_rewriterView;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
+    QWeakPointer<TextModifier> m_textModifier;
     QWeakPointer<Model> m_metaInfoProxyModel;
     bool m_writeLock;
     qint32 m_internalIdCounter;

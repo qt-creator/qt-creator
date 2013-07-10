@@ -58,6 +58,7 @@ class NodeAnchors;
 class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
+class TextModifier;
 
 typedef QList<QPair<PropertyName, QVariant> > PropertyListType;
 
@@ -106,6 +107,9 @@ public:
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
     Model *metaInfoProxyModel();
+
+    TextModifier *textModifier() const;
+    void setTextModifier(TextModifier *textModifier);
 
 protected:
     Model();

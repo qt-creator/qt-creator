@@ -149,6 +149,9 @@ Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 
 void RewriterView::modelAttached(Model *model)
 {
+    if (model && model->textModifier())
+        setTextModifier(model->textModifier());
+
     AbstractView::modelAttached(model);
 
     ModelAmender differenceHandler(m_textToModelMerger.data());
