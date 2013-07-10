@@ -142,11 +142,12 @@ private: // functions
 
     QmlModelView *qmlModelView();
 
+    Model *createInFileComponentModel();
+
 private: // variables
     QScopedPointer<QStackedWidget> m_stackedWidget;
     QScopedPointer<Model> m_documentModel;
     QScopedPointer<Model> m_inFileComponentModel;
-    QWeakPointer<Model> m_currentModel;
     QWeakPointer<Core::IEditor> m_textEditor;
     QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
     QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;
