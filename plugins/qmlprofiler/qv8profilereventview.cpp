@@ -464,7 +464,7 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
             newRow.at(0)->setData(QString::fromLatin1("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
             newRow.at(0)->setData(QVariant(v8event->filename), FilenameRole);
             newRow.at(0)->setData(QVariant(v8event->line), LineRole);
-            newRow.at(0)->setData(QVariant(0),ColumnRole); // v8 events have no column info
+            newRow.at(0)->setData(QVariant(-1),ColumnRole); // v8 events have no column info
             newRow.at(0)->setData(QVariant(v8event->eventId), EventIdRole);
 
             // append
@@ -527,9 +527,6 @@ void QV8ProfilerEventsMainView::jumpToItem(const QModelIndex &index)
     // show in callers/callees subwindow
     emit eventSelected(infoItem->data(EventIdRole).toInt());
 
-    // show in timelinerenderer
-    emit showEventInTimeline(infoItem->data(EventIdRole).toInt());
-
     d->m_preventSelectBounce = false;
 }
 
@@ -552,7 +549,9 @@ void QV8ProfilerEventsMainView::selectEventByLocation(const QString &filename, i
 
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (currentIndex() != d->m_model->indexFromItem(infoItem) && infoItem->data(FilenameRole).toString() == filename && infoItem->data(LineRole).toInt() == line) {
+        if (currentIndex() != d->m_model->indexFromItem(infoItem) &&
+                infoItem->data(FilenameRole).toString() == filename &&
+                infoItem->data(LineRole).toInt() == line) {
             setCurrentIndex(d->m_model->indexFromItem(infoItem));
             jumpToItem(currentIndex());
             return;
@@ -567,18 +566,6 @@ QModelIndex QV8ProfilerEventsMainView::selectedItem() const
         return QModelIndex();
     else
         return sel.first();
-}
-
-void QV8ProfilerEventsMainView::changeDetailsForEvent(int eventId, const QString &newString)
-{
-    for (int i=0; i<d->m_model->rowCount(); i++) {
-        QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (infoItem->data(EventIdRole).toInt() == eventId) {
-            d->m_model->item(i,d->m_columnIndex[Details])->setData(QVariant(newString),Qt::DisplayRole);
-            d->m_model->item(i,d->m_columnIndex[Details])->setData(QVariant(newString));
-            return;
-        }
-    }
 }
 
 QString QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::textForItem(QStandardItem *item, bool recursive = true) const

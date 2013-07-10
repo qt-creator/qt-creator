@@ -99,7 +99,8 @@ public:
 
 public slots:
     void clearDisplay();
-    void selectNextEventWithId(int eventId);
+    void selectNextEventByHash(const QString &eventHash);
+    void selectNextEventByLocation(const QString &filename, const int line, const int column);
 
 private slots:
     void updateCursorPosition();

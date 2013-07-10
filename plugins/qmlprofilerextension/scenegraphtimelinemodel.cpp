@@ -353,6 +353,16 @@ const QVariantMap SceneGraphTimelineModel::getEventLocation(int /*index*/) const
     return map;
 }
 
+int SceneGraphTimelineModel::getEventIdForHash(const QString &) const
+{
+    return -1;
+}
+
+int SceneGraphTimelineModel::getEventIdForLocation(const QString &/*filename*/, int /*line*/, int /*column*/) const
+{
+    return -1;
+}
+
 bool compareStartTimes(const SceneGraphTimelineModel::SceneGraphEvent&t1, const SceneGraphTimelineModel::SceneGraphEvent &t2)
 {
     return t1.startTime < t2.startTime;

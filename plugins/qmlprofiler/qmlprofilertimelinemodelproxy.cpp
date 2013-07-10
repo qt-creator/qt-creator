@@ -670,5 +670,24 @@ const QVariantMap BasicTimelineModel::getEventLocation(int index) const
     return result;
 }
 
+int BasicTimelineModel::getEventIdForHash(const QString &eventHash) const
+{
+    return d->eventHashes.indexOf(eventHash);
+}
+
+int BasicTimelineModel::getEventIdForLocation(const QString &filename, int line, int column) const
+{
+    // if this is called from v8 view, we don't have the column number, it will be -1
+    foreach (const QmlRangeEventData &eventData, d->eventDict) {
+        if (eventData.location.filename == filename &&
+                eventData.location.line == line &&
+                (column == -1 || eventData.location.column == column))
+            return eventData.eventId;
+    }
+    return -1;
+}
+
+
+
 }
 }

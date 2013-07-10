@@ -91,6 +91,8 @@ public:
 
     // returned map should contain "file", "line", "column" properties, or be empty
     Q_INVOKABLE virtual const QVariantMap getEventLocation(int index) const = 0;
+    Q_INVOKABLE virtual int getEventIdForHash(const QString &eventHash) const = 0;
+    Q_INVOKABLE virtual int getEventIdForLocation(const QString &filename, int line, int column) const = 0;
 
 signals:
     void countChanged();

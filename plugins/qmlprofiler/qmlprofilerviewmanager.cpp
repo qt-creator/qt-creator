@@ -105,11 +105,21 @@ void QmlProfilerViewManager::createViews()
                                                 d->profilerModelManager);
     connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
             SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->eventsView, SIGNAL(showEventInTimeline(int)), d->traceView,
-            SLOT(selectNextEventWithId(int)));
+    connect(d->eventsView, SIGNAL(eventSelectedByHash(QString)), d->traceView,
+            SLOT(selectNextEventByHash(QString)));
+    connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
+            d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
 
     d->v8profilerView = new QV8ProfilerEventsWidget(mw, d->profilerTool, this,
                                                     d->profilerModelManager);
+    connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
+            d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
+    connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
+            d->traceView, SLOT(selectNextEventByLocation(QString,int,int)));
+    connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
+            d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
+    connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)),
+            d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (d->profilerTool, tr("Events"), d->eventsView, Qt::BottomDockWidgetArea);

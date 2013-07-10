@@ -125,6 +125,9 @@ public:
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
     Q_INVOKABLE const QVariantMap getEventLocation(int index) const;
 
+    Q_INVOKABLE int getEventIdForHash(const QString &eventHash) const;
+    Q_INVOKABLE int getEventIdForLocation(const QString &filename, int line, int column) const;
+
 private slots:
     bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
 protected slots:

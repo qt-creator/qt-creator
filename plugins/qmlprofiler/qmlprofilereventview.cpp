@@ -128,7 +128,7 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
 
     d->m_eventTree = new QmlProfilerEventsMainView(this, d->modelProxy);
     connect(d->m_eventTree, SIGNAL(gotoSourceLocation(QString,int,int)), this, SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->m_eventTree, SIGNAL(showEventInTimeline(int)), this, SIGNAL(showEventInTimeline(int)));
+    connect(d->m_eventTree, SIGNAL(eventSelected(QString)), this, SIGNAL(eventSelectedByHash(QString)));
 
     d->m_eventChildren = new QmlProfilerEventRelativesView(
                 profilerModelManager,
@@ -283,11 +283,7 @@ void QmlProfilerEventsWidget::updateSelectedEvent(const QString &eventHash) cons
 
 void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line, int column)
 {
-    // This slot is used to connect the javascript pane with the qml events pane
-    // Our javascript trace data does not store column information
-    // thus we ignore it here
-    Q_UNUSED(column);
-    d->m_eventTree->selectEventByLocation(filename, line);
+    d->m_eventTree->selectEventByLocation(filename, line, column);
 }
 
 bool QmlProfilerEventsWidget::hasGlobalStats() const
@@ -668,9 +664,6 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
     // show in callers/callees subwindow
     emit eventSelected(infoItem->data(EventHashStrRole).toString());
 
-    // show in timelinerenderer
-    emit showEventInTimeline(infoItem->data(EventIdRole).toInt());
-
     d->m_preventSelectBounce = false;
 }
 
@@ -686,14 +679,18 @@ void QmlProfilerEventsMainView::selectEvent(const QString &eventHash)
     }
 }
 
-void QmlProfilerEventsMainView::selectEventByLocation(const QString &filename, int line)
+void QmlProfilerEventsMainView::selectEventByLocation(const QString &filename, int line, int column)
 {
     if (d->m_preventSelectBounce)
         return;
 
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (currentIndex() != d->m_model->indexFromItem(infoItem) && infoItem->data(FilenameRole).toString() == filename && infoItem->data(LineRole).toInt() == line) {
+        if (currentIndex() != d->m_model->indexFromItem(infoItem) &&
+                infoItem->data(FilenameRole).toString() == filename &&
+                infoItem->data(LineRole).toInt() == line &&
+                (column == -1 ||
+                infoItem->data(ColumnRole).toInt() == column)) {
             setCurrentIndex(d->m_model->indexFromItem(infoItem));
             jumpToItem(currentIndex());
             return;
@@ -708,18 +705,6 @@ QModelIndex QmlProfilerEventsMainView::selectedItem() const
         return QModelIndex();
     else
         return sel.first();
-}
-
-void QmlProfilerEventsMainView::changeDetailsForEvent(int eventId, const QString &newString)
-{
-    for (int i=0; i<d->m_model->rowCount(); i++) {
-        QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (infoItem->data(EventIdRole).toInt() == eventId) {
-            d->m_model->item(i,d->m_columnIndex[Details])->setData(QVariant(newString),Qt::DisplayRole);
-            d->m_model->item(i,d->m_columnIndex[Details])->setData(QVariant(newString));
-            return;
-        }
-    }
 }
 
 QString QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::textForItem(QStandardItem *item, bool recursive) const
@@ -852,7 +837,6 @@ void QmlProfilerEventRelativesView::rebuildTree(QmlProfilerEventRelativesModelPr
 //        newRow << new EventsViewItem(QString::number(event->calls));
 //        newRow << new EventsViewItem(event->reference->details);
         newRow.at(0)->setData(QVariant(key), EventHashStrRole);
-//        newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
         newRow.at(2)->setData(QVariant(event.duration));
         newRow.at(3)->setData(QVariant(event.calls));
 

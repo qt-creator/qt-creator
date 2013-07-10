@@ -111,7 +111,6 @@ public:
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void eventSelected(int eventId);
-    void showEventInTimeline(int eventId);
 
 public slots:
     void clear();
@@ -119,7 +118,6 @@ public slots:
     void selectEvent(int eventId);
     void selectEventByLocation(const QString &filename, int line);
     void buildModel();
-    void changeDetailsForEvent(int eventId, const QString &newString);
 
 private:
     void setHeaderLabels();

@@ -152,10 +152,12 @@ Rectangle {
 
     // ***** functions
     function gotoSourceLocation(file,line,column) {
-        root.fileName = file;
-        root.lineNumber = line;
-        root.columnNumber = column;
-        root.updateCursorPosition();
+        if (file !== undefined) {
+            root.fileName = file;
+            root.lineNumber = line;
+            root.columnNumber = column;
+            root.updateCursorPosition();
+        }
     }
 
     function clearData() {
@@ -293,7 +295,14 @@ Rectangle {
         rangeDetails.isBindingLoop = false;
     }
 
-    function selectNextWithId( eventId )
+    function selectNextByHash(hash) {
+        var eventId = qmlProfilerModelProxy.getEventIdForHash(hash);
+        if (eventId !== -1) {
+            selectNextById(eventId);
+        }
+    }
+
+    function selectNextById(eventId)
     {
         // this is a slot responding to events from the other pane
         // which tracks only events from the basic model
@@ -327,9 +336,9 @@ Rectangle {
     onSelectedItemChanged: {
         if (selectedItem != -1 && !lockItemSelection) {
             lockItemSelection = true;
-            /*
-            selectedEventChanged( qmlProfilerDataModel.getEventId(selectedItem) );
-            */
+            // update in other views
+            var eventLocation = qmlProfilerModelProxy.getEventLocation(view.selectedModel, view.selectedItem);
+            gotoSourceLocation(eventLocation.file, eventLocation.line, eventLocation.column);
             lockItemSelection = false;
         }
     }

@@ -421,6 +421,18 @@ const QVariantMap PaintEventsModelProxy::getEventLocation(int /*index*/) const
     return map;
 }
 
+int PaintEventsModelProxy::getEventIdForHash(const QString &/*eventHash*/) const
+{
+    // paint events do not have an eventHash
+    return -1;
+}
+
+int PaintEventsModelProxy::getEventIdForLocation(const QString &/*filename*/, int /*line*/, int /*column*/) const
+{
+    // paint events do not have a defined location
+    return -1;
+}
+
 }
 }
 

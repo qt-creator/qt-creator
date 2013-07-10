@@ -81,7 +81,7 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void showEventInTimeline(int eventId);
+    void eventSelectedByHash(const QString &eventHash);
     void resized();
 
 public slots:
@@ -129,15 +129,13 @@ public:
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void eventSelected(const QString &eventHash);
-    void showEventInTimeline(int eventId);
 
 public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
     void selectEvent(const QString &eventHash);
-    void selectEventByLocation(const QString &filename, int line);
+    void selectEventByLocation(const QString &filename, int line, int column);
     void buildModel();
-    void changeDetailsForEvent(int eventId, const QString &newString);
 
 private slots:
     void profilerDataModelStateChanged();

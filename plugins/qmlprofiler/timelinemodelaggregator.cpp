@@ -152,7 +152,7 @@ bool TimelineModelAggregator::isEmpty() const
     return true;
 }
 
-bool TimelineModelAggregator::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
+bool TimelineModelAggregator::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &/*event*/) const
 {
     // accept all events
     return true;
@@ -317,6 +317,26 @@ const QVariantList TimelineModelAggregator::getEventDetails(int modelIndex, int 
 const QVariantMap TimelineModelAggregator::getEventLocation(int modelIndex, int index) const
 {
     return d->modelList[modelIndex]->getEventLocation(index);
+}
+
+int TimelineModelAggregator::getEventIdForHash(const QString &hash) const
+{
+    foreach (const AbstractTimelineModel *model, d->modelList) {
+        int eventId = model->getEventIdForHash(hash);
+        if (eventId != -1)
+            return eventId;
+    }
+    return -1;
+}
+
+int TimelineModelAggregator::getEventIdForLocation(const QString &filename, int line, int column) const
+{
+    foreach (const AbstractTimelineModel *model, d->modelList) {
+        int eventId = model->getEventIdForLocation(filename, line, column);
+        if (eventId != -1)
+            return eventId;
+    }
+    return -1;
 }
 
 void TimelineModelAggregator::dataChanged()

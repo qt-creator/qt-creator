@@ -348,6 +348,16 @@ const QVariantMap PixmapCacheModel::getEventLocation(int /*index*/) const
     return map;
 }
 
+int PixmapCacheModel::getEventIdForHash(const QString &/*eventHash*/) const
+{
+    return -1;
+}
+
+int PixmapCacheModel::getEventIdForLocation(const QString &/*filename*/, int /*line*/, int /*column*/) const
+{
+    return -1;
+}
+
 bool compareStartTimes(const PixmapCacheModel::PixmapCacheEvent&t1, const PixmapCacheModel::PixmapCacheEvent &t2)
 {
     return t1.startTime < t2.startTime;
