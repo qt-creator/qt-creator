@@ -334,9 +334,6 @@ void DesignDocument::activateCurrentModel(TextModifier *textModifier)
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Q_ASSERT(m_documentModel);
 
-    if (!plainTextEdit()->parent()) // hack to prevent changing owner of external text edit
-        m_stackedWidget->addWidget(plainTextEdit());
-
     viewManager().attachRewriterView(textModifier);
 
     Q_ASSERT(m_documentModel);

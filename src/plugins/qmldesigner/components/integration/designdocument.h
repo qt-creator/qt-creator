@@ -145,7 +145,6 @@ private: // functions
     Model *createInFileComponentModel();
 
 private: // variables
-    QScopedPointer<QStackedWidget> m_stackedWidget;
     QScopedPointer<Model> m_documentModel;
     QScopedPointer<Model> m_inFileComponentModel;
     QWeakPointer<Core::IEditor> m_textEditor;
