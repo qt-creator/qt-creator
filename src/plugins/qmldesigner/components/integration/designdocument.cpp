@@ -257,8 +257,6 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     m_inFileComponentTextModifier.reset();
 
-    //masterModel = Model::create(textModifier, searchPath, errors);
-
     updateFileName(QString(), fileName());
 
     m_subComponentManager->update(QUrl::fromLocalFile(fileName()), currentModel()->imports());
