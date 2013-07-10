@@ -486,12 +486,14 @@ QString RewriterView::textModifierContent() const
 
 void RewriterView::reactivateTextMofifierChangeSignals()
 {
-    textModifier()->reactivateChangeSignals();
+    if (textModifier())
+        textModifier()->reactivateChangeSignals();
 }
 
 void RewriterView::deactivateTextMofifierChangeSignals()
 {
-    textModifier()->deactivateChangeSignals();
+    if (textModifier())
+        textModifier()->deactivateChangeSignals();
 }
 
 void RewriterView::applyModificationGroupChanges()
