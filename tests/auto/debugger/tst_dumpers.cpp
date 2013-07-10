@@ -1070,13 +1070,6 @@ void tst_Dumpers::dumper_data()
                % Check("a.f", FloatValue("5.88545355e-44"), "float")
                % Check("a.i", "42", "int");
 
-    QTest::newRow("QByteArrayData")
-            << Data("#include <QByteArray>\n",
-                    "QByteArrayData ba;")
-               % CoreProfile()
-               % Check("ba", Value4(""), "@QByteArrayData")
-               % Check("ba", Value5(""), "@QByteArrayData");
-
     // FIXME: Merge with GDB case
     QTest::newRow("AnonymousStructLldb")
             << Data("union {\n"
