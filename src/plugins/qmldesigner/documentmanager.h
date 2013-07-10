@@ -42,7 +42,7 @@ class IEditor;
 
 namespace QmlDesigner {
 
-class DocumentManager : public QObject
+class QMLDESIGNERCORE_EXPORT DocumentManager : public QObject
 {
     Q_OBJECT
 public:
