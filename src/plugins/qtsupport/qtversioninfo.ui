@@ -6,11 +6,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
-    <height>87</height>
+    <width>208</width>
+    <height>60</height>
    </rect>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="horizontalSpacing">
+    <number>0</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="versionNameLabel">
      <property name="text">
