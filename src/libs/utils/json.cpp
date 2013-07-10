@@ -39,6 +39,11 @@
 
 using namespace Utils;
 
+JsonMemoryPool::~JsonMemoryPool()
+{
+    foreach (char *obj, _objs)
+        delete[] obj;
+}
 
 JsonValue::JsonValue(Kind kind)
     : m_kind(kind)
@@ -47,7 +52,7 @@ JsonValue::JsonValue(Kind kind)
 JsonValue::~JsonValue()
 {}
 
-JsonValue *JsonValue::create(const QString &s)
+JsonValue *JsonValue::create(const QString &s, JsonMemoryPool *pool)
 {
     QScriptEngine engine;
     QScriptValue jsonParser = engine.evaluate(QLatin1String("JSON.parse"));
@@ -55,8 +60,17 @@ JsonValue *JsonValue::create(const QString &s)
     if (engine.hasUncaughtException() || !value.isValid())
         return 0;
 
-    return build(value.toVariant());
+    return build(value.toVariant(), pool);
 }
+
+void *JsonValue::operator new(size_t size, JsonMemoryPool *pool)
+{ return pool->allocate(size); }
+
+void JsonValue::operator delete(void *)
+{ }
+
+void JsonValue::operator delete(void *, JsonMemoryPool *)
+{ }
 
 QString JsonValue::kindToString(JsonValue::Kind kind)
 {
@@ -78,39 +92,39 @@ QString JsonValue::kindToString(JsonValue::Kind kind)
     return QLatin1String("unkown");
 }
 
-JsonValue *JsonValue::build(const QVariant &variant)
+JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
 {
     switch (variant.type()) {
 
     case QVariant::List: {
-        JsonArrayValue *newValue = new JsonArrayValue;
+        JsonArrayValue *newValue = new (pool) JsonArrayValue;
         foreach (const QVariant &element, variant.toList())
-            newValue->addElement(build(element));
+            newValue->addElement(build(element, pool));
         return newValue;
     }
 
     case QVariant::Map: {
-        JsonObjectValue *newValue = new JsonObjectValue;
+        JsonObjectValue *newValue = new (pool) JsonObjectValue;
         const QVariantMap variantMap = variant.toMap();
         for (QVariantMap::const_iterator it = variantMap.begin(); it != variantMap.end(); ++it)
-            newValue->addMember(it.key(), build(it.value()));
+            newValue->addMember(it.key(), build(it.value(), pool));
         return newValue;
     }
 
     case QVariant::String:
-        return new JsonStringValue(variant.toString());
+        return new (pool) JsonStringValue(variant.toString());
 
     case QVariant::Int:
-        return new JsonIntValue(variant.toInt());
+        return new (pool) JsonIntValue(variant.toInt());
 
     case QVariant::Double:
-        return new JsonDoubleValue(variant.toDouble());
+        return new (pool) JsonDoubleValue(variant.toDouble());
 
     case QVariant::Bool:
-        return new JsonBooleanValue(variant.toBool());
+        return new (pool) JsonBooleanValue(variant.toBool());
 
     case QVariant::Invalid:
-        return new JsonNullValue;
+        return new (pool) JsonNullValue;
 
     default:
         break;
@@ -727,7 +741,7 @@ JsonSchema *JsonSchemaManager::parseSchema(const QString &schemaFileName) const
     FileReader reader;
     if (reader.fetch(schemaFileName, QIODevice::Text)) {
         const QString &contents = QString::fromUtf8(reader.data());
-        JsonValue *json = JsonValue::create(contents);
+        JsonValue *json = JsonValue::create(contents, &m_pool);
         if (json && json->kind() == JsonValue::Object)
             return new JsonSchema(json->toObject(), this);
     }

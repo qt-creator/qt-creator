@@ -49,6 +49,22 @@ class JsonArrayValue;
 class JsonBooleanValue;
 class JsonNullValue;
 
+class QTCREATOR_UTILS_EXPORT JsonMemoryPool
+{
+public:
+    ~JsonMemoryPool();
+
+    inline void *allocate(size_t size)
+    {
+        char *obj = new char[size];
+        _objs.append(obj);
+        return obj;
+    }
+
+private:
+    QVector<char *> _objs;
+};
+
 /*!
  * \brief The JsonValue class
  */
@@ -79,13 +95,16 @@ public:
     virtual JsonBooleanValue *toBoolean() { return 0; }
     virtual JsonNullValue *toNull() { return 0; }
 
-    static JsonValue *create(const QString &s);
+    static JsonValue *create(const QString &s, JsonMemoryPool *pool);
+    void *operator new(size_t size, JsonMemoryPool *pool);
+    void operator delete(void *);
+    void operator delete(void *, JsonMemoryPool *);
 
 protected:
     JsonValue(Kind kind);
 
 private:
-    static JsonValue *build(const QVariant &varixant);
+    static JsonValue *build(const QVariant &varixant, JsonMemoryPool *pool);
 
     Kind m_kind;
 };
@@ -398,6 +417,7 @@ private:
 
     QStringList m_searchPaths;
     mutable QHash<QString, JsonSchemaData> m_schemas;
+    mutable JsonMemoryPool m_pool;
 };
 
 } // namespace Utils

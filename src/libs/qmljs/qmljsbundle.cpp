@@ -250,6 +250,8 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
 
 bool QmlBundle::readFrom(QString path, QStringList *errors)
 {
+    Utils::JsonMemoryPool pool;
+
     using namespace Utils;
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -257,7 +259,7 @@ bool QmlBundle::readFrom(QString path, QStringList *errors)
             (*errors) << QString::fromLatin1("Could not open file at %1 .").arg(path);
         return false;
     }
-    JsonObjectValue *config = JsonValue::create(QString::fromUtf8(f.readAll()))->toObject();
+    JsonObjectValue *config = JsonValue::create(QString::fromUtf8(f.readAll()), &pool)->toObject();
     if (config == 0) {
         if (errors)
             (*errors) << QString::fromLatin1("Could not parse json object in file at %1 .").arg(path);
