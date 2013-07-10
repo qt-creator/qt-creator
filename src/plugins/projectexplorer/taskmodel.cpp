@@ -341,7 +341,7 @@ void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 /////
 
 TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent) : QAbstractItemModel(parent),
-    m_sourceModel(sourceModel)
+    m_sourceModel(sourceModel), m_mappingUpToDate(false)
 {
     Q_ASSERT(m_sourceModel);
     connect(m_sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
