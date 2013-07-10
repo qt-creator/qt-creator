@@ -1834,7 +1834,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
 
     if (!node && Core::EditorManager::currentEditor()) {
         connect(Core::EditorManager::currentEditor(), SIGNAL(changed()),
-                this, SLOT(updateExternalFileWarning()));
+                this, SLOT(updateExternalFileWarning()), Qt::UniqueConnection);
     }
     if (projectChanged || d->m_currentNode != node) {
         d->m_currentNode = node;
