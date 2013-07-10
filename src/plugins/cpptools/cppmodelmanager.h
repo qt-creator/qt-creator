@@ -72,7 +72,7 @@ public:
 
     virtual QList<ProjectInfo> projectInfos() const;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    virtual QFuture<void> updateProjectInfo(const ProjectInfo &pinfo);
+    virtual QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
     virtual QList<CppTools::ProjectPart::Ptr> projectPart(const QString &fileName) const;
 
     virtual CPlusPlus::Snapshot snapshot() const;
@@ -141,6 +141,8 @@ public:
         return m_definedMacros;
     }
 
+    static QStringList timeStampModifiedFiles(const QList<Document::Ptr> documentsToCheck);
+
 signals:
     void aboutToRemoveFiles(const QStringList &files);
     void gcFinished(); // Needed for tests.
@@ -160,6 +162,9 @@ private slots:
 private:
     void delayedGC();
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
+    void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
+    void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
+
     WorkingCopy buildWorkingCopyList();
 
     void ensureUpdated();

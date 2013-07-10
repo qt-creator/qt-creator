@@ -192,6 +192,9 @@ private slots:
     void test_modelmanager_refresh_also_includes_of_project_files();
     void test_modelmanager_refresh_several_times();
     void test_modelmanager_refresh_test_for_changes();
+    void test_modelmanager_refresh_added_and_purge_removed();
+    void test_modelmanager_refresh_timeStampModified_if_sourcefiles_change();
+    void test_modelmanager_refresh_timeStampModified_if_sourcefiles_change_data();
     void test_modelmanager_snapshot_after_two_projects();
     void test_modelmanager_extraeditorsupport_uiFiles();
     void test_modelmanager_gc_if_last_cppeditor_closed();

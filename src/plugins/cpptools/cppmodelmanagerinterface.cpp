@@ -68,6 +68,37 @@ using namespace ProjectExplorer;
            Parser may enable tricks for Qt v5.x
 */
 
+/*!
+    \fn virtual QFuture<void> updateProjectInfo(const ProjectInfo &pinfo) = 0;
+    \param pinfo Updated ProjectInfo.
+    \return A future that reports progress and allows to cancel the reparsing operation.
+
+    This function is expected to be called by the project managers to update the
+    code model with new project information.
+
+    In particular, the function should be called in case:
+        1. A new project is opened/created
+        2. The project configuration changed. This includes
+             2.1 Changes of defines, includes, framework paths
+             2.2 Addition/Removal of project files
+
+    \sa CppTools::CppModelManagerInterface::updateSourceFiles()
+*/
+
+/*!
+    \fn virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles, ProgressNotificationMode mode = ReservedProgressNotification) = 0;
+    \param sourceFiles List of source file to update. The items are absolute paths.
+    \param mode The progress modification mode.
+    \return A future that reports progress and allows to cancel the reparsing operation.
+
+    Trigger an asynchronous reparsing of the given source files.
+
+    This function is not meant to be called by the project managers.
+
+    \sa CppTools::CppModelManagerInterface::ProgressNotificationMode
+    \sa CppTools::CppModelManagerInterface::updateProjectInfo()
+*/
+
 ProjectPart::ProjectPart()
     : cVersion(C89)
     , cxxVersion(CXX11)

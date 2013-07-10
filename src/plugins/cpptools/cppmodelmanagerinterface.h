@@ -249,6 +249,9 @@ public:
     virtual CppTools::CppIndexingSupport *indexingSupport() = 0;
 
 signals:
+    /// Project data might be locked while this is emitted.
+    void aboutToRemoveFiles(const QStringList &files);
+
     void documentUpdated(CPlusPlus::Document::Ptr doc);
     void sourceFilesRefreshed(const QStringList &files);
 
@@ -258,9 +261,11 @@ signals:
     void projectPartsUpdated(ProjectExplorer::Project *project);
 
 public slots:
-    virtual void updateModifiedSourceFiles() = 0;
+    // Documented in source file.
     virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles,
         ProgressNotificationMode mode = ReservedProgressNotification) = 0;
+
+    virtual void updateModifiedSourceFiles() = 0;
     virtual void GC() = 0;
 };
 

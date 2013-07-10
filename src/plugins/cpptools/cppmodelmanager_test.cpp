@@ -48,6 +48,8 @@ typedef CppTools::ProjectPart ProjectPart;
 typedef CppTools::ProjectFile ProjectFile;
 typedef ProjectExplorer::Project Project;
 
+Q_DECLARE_METATYPE(ProjectFile)
+
 namespace {
 
 class TestDataDirectory
@@ -176,6 +178,52 @@ private:
     QString m_fileToRemove;
 };
 
+/// Changes a file on the disk and restores its original contents on destruction
+class FileChangerAndRestorer
+{
+public:
+    FileChangerAndRestorer(const QString &filePath)
+        : m_filePath(filePath)
+    {
+    }
+
+    ~FileChangerAndRestorer()
+    {
+        restoreContents();
+    }
+
+    /// Saves the contents also internally so it can be restored on destruction
+    bool readContents(QByteArray *contents)
+    {
+        Utils::FileReader fileReader;
+        const bool isFetchOk = fileReader.fetch(m_filePath);
+        if (isFetchOk) {
+            m_originalFileContents = fileReader.data();
+            if (contents)
+                *contents = m_originalFileContents;
+        }
+        return isFetchOk;
+    }
+
+    void writeContents(const QByteArray &contents) const
+    {
+        Utils::FileSaver fileSaver(m_filePath);
+        fileSaver.write(contents);
+        fileSaver.finalize();
+    }
+
+private:
+    void restoreContents() const
+    {
+        Utils::FileSaver fileSaver(m_filePath);
+        fileSaver.write(m_originalFileContents);
+        fileSaver.finalize();
+    }
+
+    QByteArray m_originalFileContents;
+    const QString &m_filePath;
+};
+
 } // anonymous namespace
 
 /// Check: The preprocessor cleans include and framework paths.
@@ -232,8 +280,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     part->files << ProjectFile(source, ProjectFile::CXXSource);
     pi.appendProjectPart(part);
 
-    mm->updateProjectInfo(pi);
-    mm->updateSourceFiles(QStringList(source)).waitForFinished();
+    mm->updateProjectInfo(pi).waitForFinished();
     QCoreApplication::processEvents();
 
     QVERIFY(mm->snapshot().contains(source));
@@ -280,7 +327,6 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     part->includePaths = QStringList() << testDataDir.includeDir(false);
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
-
     mm->updateProjectInfo(pi);
 
     QStringList refreshedFiles = helper.waitForRefreshedSourceFiles();
@@ -301,6 +347,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     pi.clearProjectParts();
     pi.appendProjectPart(part);
     mm->updateProjectInfo(pi);
+
     refreshedFiles = helper.waitForRefreshedSourceFiles();
 
     QCOMPARE(refreshedFiles.size(), 1);
@@ -342,7 +389,6 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
-
     mm->updateProjectInfo(pi);
 
     CPlusPlus::Snapshot snapshot;
@@ -364,6 +410,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
         pi.appendProjectPart(part);
 
         mm->updateProjectInfo(pi);
+
         refreshedFiles = helper.waitForRefreshedSourceFiles();
 
         QCOMPARE(refreshedFiles.size(), 3);
@@ -418,6 +465,165 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
     // No reindexing since nothing has changed
     QFuture<void> subsequentFuture = mm->updateProjectInfo(pi);
     QVERIFY(subsequentFuture.isCanceled() && subsequentFuture.isFinished());
+}
+
+/// Check: (1) Added project files are recognized and parsed.
+/// Check: (2) Removed project files are recognized and purged from the snapshot.
+void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
+{
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    const TestDataDirectory testDataDir(QLatin1String("testdata_refresh"));
+
+    const QString testHeader1(testDataDir.file(QLatin1String("header.h")));
+    const QString testHeader2(testDataDir.file(QLatin1String("defines.h")));
+    const QString testCpp(testDataDir.file(QLatin1String("source.cpp")));
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_3"));
+    ProjectInfo pi = mm->projectInfo(project);
+    QCOMPARE(pi.project().data(), project);
+
+    ProjectPart::Ptr part(new ProjectPart);
+    part->cxxVersion = ProjectPart::CXX98;
+    part->qtVersion = ProjectPart::Qt5;
+    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+    part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
+    pi.appendProjectPart(part);
+
+    CPlusPlus::Snapshot snapshot;
+    QStringList refreshedFiles;
+
+    mm->updateProjectInfo(pi);
+    refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+    QCOMPARE(refreshedFiles.size(), 2);
+    QVERIFY(refreshedFiles.contains(testHeader1));
+    QVERIFY(refreshedFiles.contains(testCpp));
+
+    snapshot = mm->snapshot();
+    QVERIFY(snapshot.contains(testHeader1));
+    QVERIFY(snapshot.contains(testCpp));
+
+    // Now add testHeader2 and remove testHeader1
+    pi.clearProjectParts();
+    ProjectPart::Ptr newPart(new ProjectPart);
+    newPart->cxxVersion = ProjectPart::CXX98;
+    newPart->qtVersion = ProjectPart::Qt5;
+    newPart->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+    newPart->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
+    pi.appendProjectPart(newPart);
+
+    mm->updateProjectInfo(pi);
+    refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+    // Only the added project file was reparsed
+    QCOMPARE(refreshedFiles.size(), 1);
+    QVERIFY(refreshedFiles.contains(testHeader2));
+
+    snapshot = mm->snapshot();
+    QVERIFY(snapshot.contains(testHeader2));
+    QVERIFY(snapshot.contains(testCpp));
+    // The removed project file is not anymore in the snapshot
+    QVERIFY(!snapshot.contains(testHeader1));
+}
+
+/// Check: Timestamp modified files are reparsed if project files are added or removed
+///        while the project configuration stays the same
+void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_change()
+{
+    QFETCH(QString, fileToChange);
+    QFETCH(QList<ProjectFile>, initialProjectFiles);
+    QFETCH(QList<ProjectFile>, finalProjectFiles);
+
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    Project *project = helper.createProject(
+        QLatin1String("test_modelmanager_refresh_timeStampModified"));
+    ProjectInfo pi = mm->projectInfo(project);
+    QCOMPARE(pi.project().data(), project);
+
+    ProjectPart::Ptr part(new ProjectPart);
+    part->cxxVersion = ProjectPart::CXX98;
+    part->qtVersion = ProjectPart::Qt5;
+    foreach (const ProjectFile &file, initialProjectFiles)
+        part->files.append(file);
+    pi.appendProjectPart(part);
+
+    Document::Ptr document;
+    CPlusPlus::Snapshot snapshot;
+    QStringList refreshedFiles;
+
+    mm->updateProjectInfo(pi);
+    refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+    QCOMPARE(refreshedFiles.size(), initialProjectFiles.size());
+    snapshot = mm->snapshot();
+    foreach (const ProjectFile &file, initialProjectFiles) {
+        QVERIFY(refreshedFiles.contains(file.path));
+        QVERIFY(snapshot.contains(file.path));
+    }
+
+    document = snapshot.document(fileToChange);
+    const QDateTime lastModifiedBefore = document->lastModified();
+    QCOMPARE(document->globalSymbolCount(), 1U);
+    QCOMPARE(document->globalSymbolAt(0)->name()->identifier()->chars(), "someGlobal");
+
+    // Modify the file
+    QTest::qSleep(1000); // Make sure the timestamp is different
+    FileChangerAndRestorer fileChangerAndRestorer(fileToChange);
+    QByteArray originalContents;
+    QVERIFY(fileChangerAndRestorer.readContents(&originalContents));
+    const QByteArray newFileContentes = originalContents + "\nint addedOtherGlobal;";
+    fileChangerAndRestorer.writeContents(newFileContentes);
+
+    // Add or remove source file. The configuration stays the same.
+    part->files.clear();
+    foreach (const ProjectFile &file, finalProjectFiles)
+        part->files.append(file);
+    pi.clearProjectParts();
+    pi.appendProjectPart(part);
+
+    mm->updateProjectInfo(pi);
+    refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+    QCOMPARE(refreshedFiles.size(), finalProjectFiles.size());
+    snapshot = mm->snapshot();
+    foreach (const ProjectFile &file, finalProjectFiles) {
+        QVERIFY(refreshedFiles.contains(file.path));
+        QVERIFY(snapshot.contains(file.path));
+    }
+    document = snapshot.document(fileToChange);
+    const QDateTime lastModifiedAfter = document->lastModified();
+    QVERIFY(lastModifiedAfter > lastModifiedBefore);
+    QCOMPARE(document->globalSymbolCount(), 2U);
+    QCOMPARE(document->globalSymbolAt(0)->name()->identifier()->chars(), "someGlobal");
+    QCOMPARE(document->globalSymbolAt(1)->name()->identifier()->chars(), "addedOtherGlobal");
+}
+
+void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_change_data()
+{
+    QTest::addColumn<QString>("fileToChange");
+    QTest::addColumn<QList<ProjectFile> >("initialProjectFiles");
+    QTest::addColumn<QList<ProjectFile> >("finalProjectFiles");
+
+    const TestDataDirectory testDataDir(QLatin1String("testdata_refresh2"));
+    const QString testCpp(testDataDir.file(QLatin1String("source.cpp")));
+    const QString testCpp2(testDataDir.file(QLatin1String("source2.cpp")));
+
+    const QString fileToChange = testCpp;
+    QList<ProjectFile> projectFiles1 = QList<ProjectFile>()
+        << ProjectFile(testCpp, ProjectFile::CXXSource);
+    QList<ProjectFile> projectFiles2 = QList<ProjectFile>()
+        << ProjectFile(testCpp, ProjectFile::CXXSource)
+        << ProjectFile(testCpp2, ProjectFile::CXXSource);
+
+    // Add a file
+    QTest::newRow("case: add project file") << fileToChange << projectFiles1 << projectFiles2;
+
+    // Remove a file
+    QTest::newRow("case: remove project file") << fileToChange << projectFiles2 << projectFiles1;
 }
 
 /// Check: If a second project is opened, the code model is still aware of
