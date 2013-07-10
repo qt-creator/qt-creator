@@ -61,6 +61,13 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Qml2Puppet");
     QCoreApplication::setApplicationVersion("1.0.0");
 
+    if (application.arguments().count() < 2) {
+        qDebug() << "Usage:\n";
+        qDebug() << "--test";
+        qDebug() << "--version";
+        return -1;
+    }
+
     if (application.arguments().count() == 2 && application.arguments().at(1) == "--test") {
         qDebug() << QCoreApplication::applicationVersion();
         QQmlEngine engine;
