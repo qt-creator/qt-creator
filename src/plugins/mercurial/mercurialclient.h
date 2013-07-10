@@ -49,6 +49,9 @@ public:
                           const QString &srcLocation,
                           const QString &dstLocation,
                           const QStringList &extraOptions = QStringList());
+    bool synchronousPull(const QString &workingDir,
+                         const QString &srcLocation,
+                         const QStringList &extraOptions = QStringList());
     bool manifestSync(const QString &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
     QStringList parentRevisionsSync(const QString &workingDirectory,
@@ -86,6 +89,13 @@ protected:
                                                             const QStringList &files,
                                                             const QStringList &extraOptions);
     StatusItem parseStatusLine(const QString &line) const;
+
+signals:
+    void needUpdate();
+    void needMerge();
+
+private:
+    void parsePullOutput(const QString &output);
 };
 
 } //namespace Internal

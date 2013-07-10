@@ -140,6 +140,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     mercurialSettings.readSettings(core->settings());
 
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
+    connect(m_client, SIGNAL(needUpdate()), this, SLOT(update()));
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(editorParameters[0]);

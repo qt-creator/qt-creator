@@ -130,6 +130,29 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
     }
 }
 
+bool MercurialClient::synchronousPull(const QString &workingDir, const QString &srcLocation, const QStringList &extraOptions)
+{
+    QStringList args;
+    args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
+    // Disable UNIX terminals to suppress SSH prompting
+    const unsigned flags =
+            VcsBase::VcsBasePlugin::SshPasswordPrompt
+            | VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
+            | VcsBase::VcsBasePlugin::ShowSuccessMessage;
+    const QString binary = settings()->binaryPath();
+    const int timeoutSec = settings()->value(settings()->timeoutKey).toInt();
+
+    // cause mercurial doesn`t understand LANG
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QLatin1String("LANGUAGE"), QLatin1String("C"));
+    const Utils::SynchronousProcessResponse resp = VcsBase::VcsBasePlugin::runVcs(
+                workingDir, binary, args, timeoutSec * 1000, env, flags);
+    const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
+
+    parsePullOutput(resp.stdOut.trimmed());
+    return ok;
+}
+
 QString MercurialClient::branchQuerySync(const QString &repositoryRoot)
 {
     QByteArray output;
@@ -375,6 +398,20 @@ MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line
         item.file = line.mid(2);
     }
     return item;
+}
+
+void MercurialClient::parsePullOutput(const QString &output)
+{
+    if (output.endsWith(QLatin1String("no changes found")))
+        return;
+
+    if (output.endsWith(QLatin1String("(run 'hg update' to get a working copy)"))) {
+        emit needUpdate();
+        return;
+    }
+
+    if (output.endsWith(QLatin1String("'hg merge' to merge)")))
+        emit needMerge();
 }
 
 // Collect all parameters required for a diff to be able to associate them
