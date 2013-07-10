@@ -63,8 +63,6 @@ using namespace QtSupport;
 using namespace QtSupport::Internal;
 using namespace Utils;
 
-static const char QTVERSIONID[] = "Id";
-static const char QTVERSIONNAME[] = "Name";
 static const char QTVERSIONAUTODETECTED[] = "isAutodetected";
 static const char QTVERSIONAUTODETECTIONSOURCE []= "autodetectionSource";
 static const char QTVERSIONQMAKEPATH[] = "QMakePath";
@@ -380,10 +378,10 @@ void BaseQtVersion::setId(int id)
 
 void BaseQtVersion::fromMap(const QVariantMap &map)
 {
-    m_id = map.value(QLatin1String(QTVERSIONID)).toInt();
+    m_id = map.value(QLatin1String(Constants::QTVERSIONID)).toInt();
     if (m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
         m_id = QtVersionManager::instance()->getUniqueId();
-    m_displayName = map.value(QLatin1String(QTVERSIONNAME)).toString();
+    m_displayName = map.value(QLatin1String(Constants::QTVERSIONNAME)).toString();
     m_isAutodetected = map.value(QLatin1String(QTVERSIONAUTODETECTED)).toBool();
     if (m_isAutodetected)
         m_autodetectionSource = map.value(QLatin1String(QTVERSIONAUTODETECTIONSOURCE)).toString();
@@ -396,8 +394,8 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
 QVariantMap BaseQtVersion::toMap() const
 {
     QVariantMap result;
-    result.insert(QLatin1String(QTVERSIONID), uniqueId());
-    result.insert(QLatin1String(QTVERSIONNAME), displayName());
+    result.insert(QLatin1String(Constants::QTVERSIONID), uniqueId());
+    result.insert(QLatin1String(Constants::QTVERSIONNAME), displayName());
     result.insert(QLatin1String(QTVERSIONAUTODETECTED), isAutodetected());
     if (isAutodetected())
         result.insert(QLatin1String(QTVERSIONAUTODETECTIONSOURCE), autodetectionSource());

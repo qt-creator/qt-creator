@@ -33,6 +33,7 @@
 #include "qtversionfactory.h"
 #include "baseqtversion.h"
 #include "qtfeatureprovider.h"
+#include "qtsupportconstants.h"
 
 // only for legay restore
 #include <projectexplorer/gcctoolchain.h>
@@ -309,7 +310,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
                 if (debug)
                     qDebug() << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
                 m_versions.remove(id);
-                qtversionMap[QLatin1String("Id")] = id;
+                qtversionMap[QLatin1String(Constants::QTVERSIONID)] = id;
                 delete v;
 
                 if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {

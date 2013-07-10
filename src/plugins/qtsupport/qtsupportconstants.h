@@ -43,6 +43,10 @@ const char DESKTOPQT[]   = "Qt4ProjectManager.QtVersion.Desktop";
 const char SIMULATORQT[] = "Qt4ProjectManager.QtVersion.Simulator";
 const char WINCEQT[]     = "Qt4ProjectManager.QtVersion.WinCE";
 
+// BaseQtVersion settings
+static const char QTVERSIONID[] = "Id";
+static const char QTVERSIONNAME[] = "Name";
+
 //Qt Features
 const char FEATURE_QT[] = "QtSupport.Wizards.FeatureQt";
 const char FEATURE_QWIDGETS[] = "QtSupport.Wizards.FeatureQWidgets";
