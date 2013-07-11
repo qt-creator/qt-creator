@@ -27,69 +27,27 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROJECTMANAGER_H
-#define QBSPROJECTMANAGER_H
+#ifndef PROPERTYPROVIDER_H
+#define PROPERTYPROVIDER_H
 
 #include "qbsprojectmanager_global.h"
 
-#include <projectexplorer/iprojectmanager.h>
+#include <QObject>
+#include <QVariantMap>
 
-#include <qbs.h>
-
-#include <QString>
-
-namespace ProjectExplorer {
-class Kit;
-class Project;
-class ProjectExplorerPlugin;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Kit; }
 
 namespace QbsProjectManager {
 
-namespace Internal {
-class QbsLogSink;
-class QbsProject;
-class QbsProjectManagerPlugin;
-} // namespace Internal
-
-class DefaultPropertyProvider;
-
-class QbsManager : public ProjectExplorer::IProjectManager
+class QBSPROJECTMANAGER_EXPORT PropertyProvider : public QObject
 {
     Q_OBJECT
 
 public:
-    QbsManager(Internal::QbsProjectManagerPlugin *plugin);
-    ~QbsManager();
-
-    QString mimeType() const;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
-
-    // QBS settings management:
-    QString profileForKit(const ProjectExplorer::Kit *k) const;
-    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
-    QStringList profileNames() const;
-
-    static qbs::Settings *settings();
-    static qbs::Preferences *preferences();
-    Internal::QbsLogSink *logSink() { return m_logSink; }
-
-private slots:
-    void pushKitsToQbs();
-
-private:
-    void addProfile(const QString &name, const QVariantMap &data);
-    void removeCreatorProfiles();
-    void addProfileFromKit(const ProjectExplorer::Kit *k);
-
-    Internal::QbsProjectManagerPlugin *m_plugin;
-    Internal::QbsLogSink *m_logSink;
-    static qbs::Settings *m_settings;
-    static qbs::Preferences *m_preferences;
-
-    DefaultPropertyProvider *m_defaultPropertyProvider;
+    virtual bool canHandle(const ProjectExplorer::Kit *k) const = 0;
+    virtual QVariantMap properties(const ProjectExplorer::Kit *k, const QVariantMap &defaultData) const = 0;
 };
 
 } // namespace QbsProjectManager
 
-#endif // QBSPROJECTMANAGER_H
+#endif // PROPERTYPROVIDER_H

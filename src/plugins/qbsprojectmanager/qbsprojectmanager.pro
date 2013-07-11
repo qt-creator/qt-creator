@@ -14,6 +14,8 @@ DEFINES += \
     QBSPROJECTMANAGER_LIBRARY
 
 HEADERS = \
+    defaultpropertyprovider.h \
+    propertyprovider.h \
     qbsbuildconfiguration.h \
     qbsbuildconfigurationwidget.h \
     qbsbuildstep.h \
@@ -34,6 +36,7 @@ HEADERS = \
     qbsstep.h
 
 SOURCES = \
+    defaultpropertyprovider.cpp \
     qbsbuildconfiguration.cpp \
     qbsbuildconfigurationwidget.cpp \
     qbsbuildstep.cpp \
