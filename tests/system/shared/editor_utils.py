@@ -244,6 +244,7 @@ def getEditorForFileSuffix(curFile):
     qmlEditorSuffixes = ["qml", "qmlproject", "js", "qs", "qtt"]
     proEditorSuffixes = ["pro", "pri", "prf"]
     glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
+    pytEditorSuffixes = ["py", "pyw", "wsgi"]
     suffix = __getFileSuffix__(curFile)
     if suffix in cppEditorSuffixes:
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
@@ -254,6 +255,8 @@ def getEditorForFileSuffix(curFile):
     elif suffix in glslEditorSuffixes:
         editor = waitForObject("{type='GLSLEditor::GLSLTextEditorWidget' unnamed='1' "
                                "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    elif suffix in pytEditorSuffixes:
+        editor = waitForObject(":Qt Creator_PythonEditor::EditorWidget")
     else:
         test.log("Trying PlainTextEditor (file suffix: %s)" % suffix)
         try:
