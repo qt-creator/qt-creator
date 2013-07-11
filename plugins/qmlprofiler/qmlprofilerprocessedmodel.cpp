@@ -44,7 +44,8 @@ QString getInitialDetails(const QmlProfilerSimpleModel::QmlEventData &event);
 QmlDebug::QmlEventLocation getLocation(const QmlProfilerSimpleModel::QmlEventData &event)
 {
     QmlDebug::QmlEventLocation eventLocation = event.location;
-    if (event.eventType == QmlDebug::Compiling && eventLocation.filename.isEmpty()) {
+    if ((event.eventType == QmlDebug::Creating || event.eventType == QmlDebug::Compiling)
+            && eventLocation.filename.isEmpty()) {
         eventLocation.filename = getInitialDetails(event);
         eventLocation.line = 1;
         eventLocation.column = 1;
