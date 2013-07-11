@@ -159,10 +159,10 @@ private slots:
     void test_format_pointerdeclaration_macros();
     void test_format_pointerdeclaration_macros_data();
 
-    void test_modelmanager_paths();
+    void test_modelmanager_paths_are_clean();
     void test_modelmanager_framework_headers();
-    void test_modelmanager_refresh_1();
-    void test_modelmanager_refresh_2();
+    void test_modelmanager_refresh_also_includes_of_project_files();
+    void test_modelmanager_refresh_several_times();
     void test_modelmanager_snapshot_after_two_projects();
     void test_modelmanager_extraeditorsupport_uiFiles();
 

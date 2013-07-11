@@ -120,13 +120,13 @@ public:
         QCOMPARE(projectInfo.project().data(), project);
 
         ProjectPart::Ptr part(new ProjectPart);
-        projectInfo.appendProjectPart(part);
         part->cxxVersion = ProjectPart::CXX98;
         part->qtVersion = ProjectPart::Qt5;
         foreach (const QString &file, projectFiles) {
             ProjectFile projectFile(file, ProjectFile::classify(file));
             part->files.append(projectFile);
         }
+        projectInfo.appendProjectPart(part);
     }
 
     ModelManagerTestHelper *modelManagerTestHelper;
@@ -134,27 +134,68 @@ public:
     QStringList projectFiles;
 };
 
+/// Open and configure given project as example project and remove
+/// generated *.user file on destruction.
+///
+/// Requirement: No *.user file exists for the project.
+class ExampleProjectConfigurator
+{
+public:
+    ExampleProjectConfigurator(const QString &projectFile,
+                               ProjectExplorer::ProjectExplorerPlugin *projectExplorer)
+    {
+        const QString projectUserFile = projectFile + QLatin1String(".user");
+        QVERIFY(!QFileInfo(projectUserFile).exists());
+
+        // Open project
+        QString errorOpeningProject;
+        m_project = projectExplorer->openProject(projectFile, &errorOpeningProject);
+        QVERIFY(m_project);
+        QVERIFY(errorOpeningProject.isEmpty());
+
+        // Configure project
+        m_project->configureAsExampleProject(QStringList());
+
+        m_fileToRemove = projectUserFile;
+    }
+
+    ~ExampleProjectConfigurator()
+    {
+        QVERIFY(!m_fileToRemove.isEmpty());
+        QVERIFY(QFile::remove(m_fileToRemove));
+    }
+
+    ProjectExplorer::Project *project() const
+    {
+        return m_project;
+    }
+
+private:
+    ProjectExplorer::Project *m_project;
+    QString m_fileToRemove;
+};
 
 } // anonymous namespace
 
-void CppToolsPlugin::test_modelmanager_paths()
+/// Check: The preprocessor cleans include and framework paths.
+void CppToolsPlugin::test_modelmanager_paths_are_clean()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
 
     const TestDataDirectory testDataDir(QLatin1String("testdata"));
 
-    Project *project = helper.createProject(QLatin1String("test_modelmanager_paths"));
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_paths_are_clean"));
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    pi.appendProjectPart(part);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
     part->includePaths = QStringList() << testDataDir.includeDir(false);
     part->frameworkPaths = QStringList() << testDataDir.frameworksDir(false);
+    pi.appendProjectPart(part);
 
     mm->updateProjectInfo(pi);
 
@@ -167,6 +208,7 @@ void CppToolsPlugin::test_modelmanager_paths()
     QVERIFY(frameworkPaths.contains(testDataDir.frameworksDir()));
 }
 
+/// Check: Frameworks headers are resolved.
 void CppToolsPlugin::test_modelmanager_framework_headers()
 {
     ModelManagerTestHelper helper;
@@ -179,7 +221,6 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    pi.appendProjectPart(part);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
@@ -188,6 +229,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     const QString &source = testDataDir.fileFromSourcesDir(
         QLatin1String("test_modelmanager_framework_headers.cpp"));
     part->files << ProjectFile(source, ProjectFile::CXXSource);
+    pi.appendProjectPart(part);
 
     mm->updateProjectInfo(pi);
     mm->updateSourceFiles(QStringList(source)).waitForFinished();
@@ -211,7 +253,9 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
 }
 
 /// QTCREATORBUG-9056
-void CppToolsPlugin::test_modelmanager_refresh_1()
+/// Check: If the project configuration changes, all project files and their
+///        includes have to be reparsed.
+void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -223,17 +267,18 @@ void CppToolsPlugin::test_modelmanager_refresh_1()
     const QString testHeader(testDataDir.fileFromSourcesDir(
         QLatin1String("test_modelmanager_refresh.h")));
 
-    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_1"));
+    Project *project = helper.createProject(
+                QLatin1String("test_modelmanager_refresh_also_includes_of_project_files"));
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    pi.appendProjectPart(part);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
     part->includePaths = QStringList() << testDataDir.includeDir(false);
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+    pi.appendProjectPart(part);
 
     mm->updateProjectInfo(pi);
     mm->updateSourceFiles(QStringList() << testCpp);
@@ -263,7 +308,9 @@ void CppToolsPlugin::test_modelmanager_refresh_1()
 }
 
 /// QTCREATORBUG-9205
-void CppToolsPlugin::test_modelmanager_refresh_2()
+/// Check: When reparsing the same files again, no errors occur
+///        (The CppPreprocessor's already seen files are properly cleared!).
+void CppToolsPlugin::test_modelmanager_refresh_several_times()
 {
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -274,17 +321,18 @@ void CppToolsPlugin::test_modelmanager_refresh_2()
     const QString testHeader2(testDataDir.file(QLatin1String("header.h")));
     const QString testCpp(testDataDir.file(QLatin1String("source.cpp")));
 
-    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_2"));
+    Project *project = helper.createProject(
+                QLatin1String("test_modelmanager_refresh_several_times"));
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    pi.appendProjectPart(part);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
     part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+    pi.appendProjectPart(part);
 
     mm->updateProjectInfo(pi);
 
@@ -318,6 +366,8 @@ void CppToolsPlugin::test_modelmanager_refresh_2()
     }
 }
 
+/// Check: If a second project is opened, the code model is still aware of
+///        files of the first project.
 void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
 {
     QStringList refreshedFiles;
@@ -327,7 +377,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
     CppModelManager *mm = CppModelManager::instance();
 
     // Project 1
-    project1.create(QLatin1String("snapshot_after_two_projects.1"),
+    project1.create(QLatin1String("test_modelmanager_snapshot_after_two_projects.1"),
                     QLatin1String("testdata_project1"),
                     QStringList() << QLatin1String("foo.h")
                                   << QLatin1String("foo.cpp")
@@ -343,7 +393,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
         QVERIFY(mm->snapshot().contains(file));
 
     // Project 2
-    project2.create(QLatin1String("snapshot_after_two_projects.2"),
+    project2.create(QLatin1String("test_modelmanager_snapshot_after_two_projects.2"),
                     QLatin1String("testdata_project2"),
                     QStringList() << QLatin1String("bar.h")
                                   << QLatin1String("bar.cpp")
@@ -364,6 +414,10 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
         QVERIFY(mm->snapshot().contains(file));
 }
 
+/// Check: (1) For a project with a *.ui file an AbstractEditorSupport object
+///            is added for the ui_* file.
+/// Check: (2) The CppPreprocessor can successfully resolve the ui_* file
+///            though it might not be actually generated in the build dir.
 void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 {
     TestDataDirectory testDataDirectory(QLatin1String("testdata_guiproject1"));
@@ -371,10 +425,8 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 
     // Open project with *.ui file
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    QString errorOpeningProject;
-    Project *project = pe->openProject(projectFile, &errorOpeningProject);
-    QVERIFY(errorOpeningProject.isEmpty());
-    project->configureAsExampleProject(QStringList());
+    ExampleProjectConfigurator exampleProjectConfigurator(projectFile, pe);
+    Project *project = exampleProjectConfigurator.project();
 
     // Check working copy.
     // An AbstractEditorSupport object should have been added for the ui_* file.
