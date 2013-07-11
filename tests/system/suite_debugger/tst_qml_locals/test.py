@@ -31,6 +31,9 @@ source("../../shared/qtcreator.py")
 source("Tree.py")
 
 def main():
+    if os.getenv("SYSTEST_OPENGL_MISSING") == "1":
+        test.xverify(False, "This test needs OpenGL - skipping...")
+        return
     projName = "simpleQuickUI2.qmlproject"
     projFolder = os.path.dirname(findFile("testdata", "simpleQuickUI2/%s" % projName))
     if not neededFilePresent(os.path.join(projFolder, projName)):
