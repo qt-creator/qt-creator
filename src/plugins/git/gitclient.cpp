@@ -484,16 +484,15 @@ class GitCommitDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
 
 public:
     GitCommitDiffArgumentsWidget(Git::Internal::GitClient *client, const QString &directory,
-                                 const QStringList &args, const QStringList &unstaged,
-                                 const QStringList &staged) :
-        BaseGitDiffArgumentsWidget(client, directory, args),
+                                 const QStringList &unstaged, const QStringList &staged) :
+        BaseGitDiffArgumentsWidget(client, directory, QStringList()),
         m_unstagedFileNames(unstaged),
         m_stagedFileNames(staged)
     { }
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, arguments(), m_unstagedFileNames, m_stagedFileNames);
+        m_client->diff(m_workingDirectory, m_unstagedFileNames, m_stagedFileNames);
     }
 
 private:
@@ -506,14 +505,14 @@ class GitFileDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
     Q_OBJECT
 public:
     GitFileDiffArgumentsWidget(Git::Internal::GitClient *client, const QString &directory,
-                               const QStringList &args, const QString &file) :
-        BaseGitDiffArgumentsWidget(client, directory, args),
+                               const QString &file) :
+        BaseGitDiffArgumentsWidget(client, directory, QStringList()),
         m_fileName(file)
     { }
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, arguments(), m_fileName);
+        m_client->diff(m_workingDirectory, m_fileName);
     }
 
 private:
@@ -924,7 +923,6 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
 }
 
 void GitClient::diff(const QString &workingDirectory,
-                     const QStringList &diffArgs,
                      const QStringList &unstagedFileNames,
                      const QStringList &stagedFileNames)
 {
@@ -957,7 +955,7 @@ void GitClient::diff(const QString &workingDirectory,
         VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("originalFileName", workingDirectory);
         if (!editor) {
             GitCommitDiffArgumentsWidget *argWidget =
-                    new GitCommitDiffArgumentsWidget(this, workingDirectory, diffArgs,
+                    new GitCommitDiffArgumentsWidget(this, workingDirectory,
                                                      unstagedFileNames, stagedFileNames);
 
             editor = createVcsEditor(editorId, title,
@@ -995,7 +993,7 @@ void GitClient::diff(const QString &workingDirectory,
             if (!stagedFileNames.empty()) {
                 QStringList arguments(cmdArgs);
                 arguments << userDiffArgs;
-                arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
+                arguments << QLatin1String("--cached") << QLatin1String("--") << stagedFileNames;
                 outputWindow()->appendCommand(workingDirectory, binary, arguments);
                 command->addJob(arguments, timeout);
             }
@@ -1005,7 +1003,6 @@ void GitClient::diff(const QString &workingDirectory,
 }
 
 void GitClient::diff(const QString &workingDirectory,
-                     const QStringList &diffArgs,
                      const QString &fileName)
 {
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
@@ -1029,7 +1026,7 @@ void GitClient::diff(const QString &workingDirectory,
         VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("originalFileName", sourceFile);
         if (!editor) {
             GitFileDiffArgumentsWidget *argWidget =
-                    new GitFileDiffArgumentsWidget(this, workingDirectory, diffArgs, fileName);
+                    new GitFileDiffArgumentsWidget(this, workingDirectory, fileName);
 
             editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "originalFileName", sourceFile, argWidget);
             connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));

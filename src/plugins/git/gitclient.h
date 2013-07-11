@@ -137,9 +137,9 @@ public:
     QString findRepositoryForDirectory(const QString &dir);
     QString findGitDirForRepository(const QString &repositoryDir) const;
 
-    void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
-    void diff(const QString &workingDirectory, const QStringList &diffArgs,
-              const QStringList &unstagedFileNames, const QStringList &stagedFileNames= QStringList());
+    void diff(const QString &workingDirectory, const QString &fileName);
+    void diff(const QString &workingDirectory, const QStringList &unstagedFileNames,
+              const QStringList &stagedFileNames = QStringList());
     void diffBranch(const QString &workingDirectory,
                     const QStringList &diffArgs,
                     const QString &branchName);

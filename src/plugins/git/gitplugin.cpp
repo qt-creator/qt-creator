@@ -717,7 +717,7 @@ GitVersionControl *GitPlugin::gitVersionControl() const
 
 void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
 {
-    m_gitClient->diff(m_submitRepository, QStringList(), unstaged, staged);
+    m_gitClient->diff(m_submitRepository, unstaged, staged);
 }
 
 void GitPlugin::submitEditorMerge(const QStringList &unmerged)
@@ -737,21 +737,21 @@ void GitPlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_gitClient->diff(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile());
+    m_gitClient->diff(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void GitPlugin::diffCurrentProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
-    m_gitClient->diff(state.currentProjectTopLevel(), QStringList(), state.relativeCurrentProject());
+    m_gitClient->diff(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void GitPlugin::diffRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_gitClient->diff(state.topLevel(), QStringList(), QStringList());
+    m_gitClient->diff(state.topLevel(), QStringList());
 }
 
 void GitPlugin::logFile()
