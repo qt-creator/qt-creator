@@ -74,7 +74,7 @@ QString getInitialDetails(const QmlProfilerSimpleModel::QmlEventData &event)
     QString details;
     // generate details string
     if (event.data.isEmpty())
-        details = QmlProfilerProcessedModel::tr("Source code not available");
+        details = QmlProfilerProcessedModel::tr("Source code not available.");
     else {
         details = event.data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
