@@ -507,6 +507,10 @@ class Dumper:
         #self.debugger.EnableLog("lldb", ["all"])
         self.debugger.Initialize()
         self.debugger.HandleCommand("settings set auto-confirm on")
+        if not hasattr(lldb.SBType, 'GetCanonicalType'): # "Test" for 179.5
+            warn("DISABLING DEFAULT FORMATTERS")
+            self.debugger.HandleCommand('type category delete gnu-libstdc++')
+            self.debugger.HandleCommand('type category delete libcxx')
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
@@ -559,7 +563,7 @@ class Dumper:
             elif c == ',':
                 if level == 0:
                     if index == 0:
-                        return inner
+                        return inner.strip()
                     index -= 1
                     inner = ''
                 else:
@@ -571,7 +575,7 @@ class Dumper:
                 else:
                     inner += c
                     skipSpace = False
-        return inner
+        return inner.strip()
 
     def templateArgument(self, typeobj, index):
         type = typeobj.GetTemplateArgumentType(index)
@@ -1142,7 +1146,7 @@ class Dumper:
         for i in xrange(m):
             child = value.GetChildAtIndex(i)
             with UnnamedSubItem(self, "@%d" % (i + 1)):
-                #self.put('iname="%s",' % self.currentIName)
+                self.put('iname="%s",' % self.currentIName)
                 self.put('name="[%s]",' % child.name)
                 self.putItem(child)
         for i in xrange(m, n):
@@ -1618,6 +1622,7 @@ execfile(os.path.join(currentDir, "qttypes.py"))
 def doit():
 
     db = Dumper()
+    db.report('lldbversion="%s"' % lldb.SBDebugger.GetVersionString())
     db.report('state="enginesetupok"')
 
     while True:

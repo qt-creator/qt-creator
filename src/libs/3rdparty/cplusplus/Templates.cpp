@@ -39,12 +39,18 @@ CloneType::CloneType(Clone *clone)
 
 FullySpecifiedType CloneType::cloneType(const FullySpecifiedType &type, Subst *subst)
 {
+    TypeSubstPair typeSubstPair = std::make_pair(type, subst);
+    if (_cache.find(typeSubstPair) != _cache.end())
+        return _cache[typeSubstPair];
+
     std::swap(_subst, subst);
     FullySpecifiedType ty(type);
     std::swap(_type, ty);
     accept(_type.type());
     std::swap(_type, ty);
     std::swap(_subst, subst);
+
+    _cache[typeSubstPair] = ty;
     return ty;
 }
 
@@ -179,13 +185,22 @@ Symbol *CloneSymbol::cloneSymbol(Symbol *symbol, Subst *subst)
     if (! symbol)
         return 0;
 
+    SymbolSubstPair symbolSubstPair = std::make_pair(symbol, subst);
+    if (_cache.find(symbolSubstPair) != _cache.end()) {
+        Symbol *cachedSymbol = _cache[symbolSubstPair];
+        if (cachedSymbol->scope() == symbol->scope())
+            return cachedSymbol;
+    }
+
     Symbol *r = 0;
     std::swap(_subst, subst);
     std::swap(_symbol, r);
     accept(symbol);
     std::swap(_symbol, r);
     std::swap(_subst, subst);
+
     CPP_CHECK(r != 0);
+    _cache[symbolSubstPair] = r;
     return r;
 }
 
@@ -394,6 +409,10 @@ const Name *CloneName::cloneName(const Name *name, Subst *subst)
     if (! name)
         return 0;
 
+    NameSubstPair nameSubstPair = std::make_pair(name, subst);
+    if (_cache.find(nameSubstPair) != _cache.end())
+        return _cache[nameSubstPair];
+
     const Name *r = 0;
     std::swap(_subst, subst);
     std::swap(_name, r);
@@ -401,6 +420,7 @@ const Name *CloneName::cloneName(const Name *name, Subst *subst)
     std::swap(_name, r);
     std::swap(_subst, subst);
     CPP_CHECK(r != 0);
+    _cache[nameSubstPair] = r;
     return r;
 }
 

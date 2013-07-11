@@ -1276,7 +1276,8 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
     QByteArray errorText;
     QStringList arguments;
     arguments << QLatin1String("checkout") << ref;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
+                                        VcsBasePlugin::ExpectRepoChanges);
     const QString output = commandOutputFromLocal8Bit(outputText);
     outputWindow()->append(output);
     if (!rc) {

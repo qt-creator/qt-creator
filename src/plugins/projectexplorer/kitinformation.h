@@ -215,9 +215,8 @@ public:
 
 private slots:
     void kitsWereLoaded();
-    void deviceAdded(const Core::Id &id);
-    void deviceRemoved(const Core::Id &id);
     void deviceUpdated(const Core::Id &id);
+    void devicesChanged();
     void kitUpdated(ProjectExplorer::Kit *k);
 };
 

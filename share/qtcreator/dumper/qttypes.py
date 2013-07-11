@@ -221,10 +221,10 @@ def qdump__QByteArray(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayLatin1String)
-        d.putField("editvalue", d.encodeByteArray(value, None))
+        d.putField("editvalue", d.encodeByteArray(value))
     elif format == 3:
         d.putField("editformat", DisplayUtf8String)
-        d.putField("editvalue", d.encodeByteArray(value, None))
+        d.putField("editvalue", d.encodeByteArray(value))
     if d.isExpanded():
         d.putArrayData(d.charType(), data, size)
 
@@ -1734,10 +1734,14 @@ def qdump__QString(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayUtf16String)
-        d.putField("editvalue", d.encodeString(value, None))
+        d.putField("editvalue", d.encodeString(value))
 
 
 def qdump__QStringRef(d, value):
+    if isNull(value["m_string"]):
+        d.putValue("(null)");
+        d.putNumChild(0)
+        return
     s = value["m_string"].dereference()
     data, size, alloc = d.stringData(s)
     data += 2 * int(value["m_position"])
@@ -2374,9 +2378,10 @@ def qform__std__string():
     return "Inline,In Separate Window"
 
 def qdump__std__string(d, value):
+    qdump__std__stringHelper1(d, value, 1)
+
+def qdump__std__stringHelper1(d, value, charSize):
     data = value["_M_dataplus"]["_M_p"]
-    baseType = value.type.strip_typedefs()
-    charSize = d.templateArgument(baseType, 0).sizeof
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position
     # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
@@ -2409,9 +2414,7 @@ def qdump_stringHelper(d, data, size, charSize):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", displayType)
-        if n != size:
-            mem = d.readRawMemory(p, size)
-        d.putField("editvalue", mem)
+        d.putField("editvalue", d.readRawMemory(data, size))
 
 
 def qdump__std____1__string(d, value):
@@ -2586,13 +2589,15 @@ def qdump__string(d, value):
     qdump__std__string(d, value)
 
 def qdump__std__wstring(d, value):
-    qdump__std__string(d, value)
+    charSize = d.lookupType('wchar_t').sizeof
+    qdump__std__stringHelper1(d, value, charSize)
 
 def qdump__std__basic_string(d, value):
-    qdump__std__string(d, value)
+    innerType = d.templateArgument(value.type, 0)
+    qdump__std__stringHelper1(d, value, innerType.sizeof)
 
 def qdump__wstring(d, value):
-    qdump__std__string(d, value)
+    qdump__std__wstring(d, value)
 
 
 def qdump____gnu_cxx__hash_set(d, value):

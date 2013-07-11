@@ -7,7 +7,7 @@ include(cpp/cpp.pri)
 INCLUDEPATH += ../../tools/utils
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += printsupport designer designercomponents
+    QT += printsupport designer designercomponents-private
 } else {
     # -- figure out shared dir location
     !exists($$[QT_INSTALL_HEADERS]/QtDesigner/private/qdesigner_integration_p.h) {

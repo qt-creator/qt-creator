@@ -380,11 +380,19 @@ const QList<Project *> &SessionManager::projects() const
 QStringList SessionManager::dependencies(const QString &proName) const
 {
     QStringList result;
-    foreach (const QString &dep, m_depMap.value(proName))
-        result += dependencies(dep);
-
-    result << proName;
+    dependencies(proName, result);
     return result;
+}
+
+void SessionManager::dependencies(const QString &proName, QStringList &result) const
+{
+    QStringList depends = m_depMap.value(proName);
+
+    foreach (const QString &dep, depends)
+        dependencies(dep, result);
+
+    if (!result.contains(proName))
+        result.append(proName);
 }
 
 QStringList SessionManager::dependenciesOrder() const

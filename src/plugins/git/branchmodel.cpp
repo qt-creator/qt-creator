@@ -522,22 +522,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
 
     // No StashGuard since this function for now is only used with clean working dir.
     // If it is ever used from another place, please add StashGuard here
-    QString errorMessage;
-    if (m_client->synchronousCheckout(m_workingDirectory, branch, &errorMessage)) {
-        if (errorMessage.isEmpty()) {
-            QModelIndex currentIdx = currentBranch();
-            if (currentIdx.isValid()) {
-                m_currentBranch = 0;
-                emit dataChanged(currentIdx, currentIdx);
-            }
-            m_currentBranch = indexToNode(idx);
-            emit dataChanged(idx, idx);
-        } else {
-            refresh(m_workingDirectory, &errorMessage); // not sure all went well... better refresh!
-        }
-    }
-    if (!errorMessage.isEmpty())
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+    m_client->synchronousCheckout(m_workingDirectory, branch);
 }
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)

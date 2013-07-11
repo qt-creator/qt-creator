@@ -392,6 +392,10 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
 {
     QTC_ASSERT(!dir.isNull(), return);
 
+    // Clear buildsystem related tasks:
+    ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub()
+            ->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
     qbs::ErrorInfo err = params.expandBuildConfiguration(m_manager->settings());

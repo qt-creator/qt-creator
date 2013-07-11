@@ -66,6 +66,7 @@ class QMLJS_EXPORT ValueOwner
     Q_DISABLE_COPY(ValueOwner)
 
 public:
+    static SharedValueOwner *sharedValueOwner(QString kind = QString());
     ValueOwner(const SharedValueOwner *shared = 0);
     ~ValueOwner();
 

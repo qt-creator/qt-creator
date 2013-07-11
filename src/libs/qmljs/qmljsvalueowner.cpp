@@ -67,7 +67,12 @@ private:
 class QmlJS::SharedValueOwner : public ValueOwner
 {
 public:
-    SharedValueOwner();
+    enum SharedValueOwnerKind{
+        Qt4Kind = 1,
+        Qt5Kind = 2
+    };
+
+    SharedValueOwner(SharedValueOwnerKind kind = Qt5Kind);
 
     ObjectValue *_objectPrototype;
     ObjectValue *_functionPrototype;
@@ -109,9 +114,18 @@ public:
     ColorValue _colorValue;
     AnchorLineValue _anchorLineValue;
 };
-Q_GLOBAL_STATIC(SharedValueOwner, sharedValueOwner)
 
-SharedValueOwner::SharedValueOwner()
+SharedValueOwner *ValueOwner::sharedValueOwner(QString kind)
+{
+    static SharedValueOwner qt5owner(SharedValueOwner::Qt5Kind);
+    static SharedValueOwner qt4owner(SharedValueOwner::Qt4Kind);
+    if (kind == QLatin1String("Qt4Kind"))
+        return &qt4owner;
+    else
+        return &qt5owner;
+}
+
+SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     : ValueOwner(this) // need to avoid recursing in ValueOwner ctor
 {
     _objectPrototype   = newObject(/*prototype = */ 0);
@@ -526,8 +540,21 @@ SharedValueOwner::SharedValueOwner()
 
     // firebug/webkit compat
     ObjectValue *consoleObject = newObject(/*prototype */ 0);
-    addFunction(consoleObject, QLatin1String("log"), 1);
-    addFunction(consoleObject, QLatin1String("debug"), 1);
+    addFunction(consoleObject, QLatin1String("log"), 1, 0, true);
+    addFunction(consoleObject, QLatin1String("debug"), 1, 0, true);
+    if (kind == Qt5Kind) {
+        addFunction(consoleObject, QLatin1String("info"), 1, 0, true);
+        addFunction(consoleObject, QLatin1String("warn"), 1, 0, true);
+        addFunction(consoleObject, QLatin1String("error"), 1, 0, true);
+        addFunction(consoleObject, QLatin1String("assert"), 1, 0, true);
+        addFunction(consoleObject, QLatin1String("count"), 0, 1);
+        addFunction(consoleObject, QLatin1String("profile"), 0);
+        addFunction(consoleObject, QLatin1String("profileEnd"), 0);
+        addFunction(consoleObject, QLatin1String("time"), 1);
+        addFunction(consoleObject, QLatin1String("timeEnd"), 1);
+        addFunction(consoleObject, QLatin1String("trace"), 0);
+        addFunction(consoleObject, QLatin1String("exception"), 1, 0, true);
+    }
     _globalObject->setMember(QLatin1String("console"), consoleObject);
 
     // translation functions
