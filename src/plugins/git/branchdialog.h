@@ -74,6 +74,7 @@ private slots:
     void log();
     void merge();
     void rebase();
+    void cherryPick();
     void setRemoteTracking();
 
 private:

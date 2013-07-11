@@ -69,6 +69,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_ui->logButton, SIGNAL(clicked()), this, SLOT(log()));
     connect(m_ui->mergeButton, SIGNAL(clicked()), this, SLOT(merge()));
     connect(m_ui->rebaseButton, SIGNAL(clicked()), this, SLOT(rebase()));
+    connect(m_ui->cherryPickButton, SIGNAL(clicked()), this, SLOT(cherryPick()));
     connect(m_ui->trackButton, SIGNAL(clicked()), this, SLOT(setRemoteTracking()));
 
     m_ui->branchView->setModel(m_model);
@@ -123,6 +124,7 @@ void BranchDialog::enableButtons()
     m_ui->checkoutButton->setEnabled(hasActions && !currentSelected);
     m_ui->rebaseButton->setEnabled(hasActions && !currentSelected);
     m_ui->mergeButton->setEnabled(hasActions && !currentSelected);
+    m_ui->cherryPickButton->setEnabled(hasActions && !currentSelected);
     m_ui->trackButton->setEnabled(hasActions && currentLocal && !currentSelected && !isTag);
 }
 
@@ -336,6 +338,15 @@ void BranchDialog::rebase()
     GitClient *client = GitPlugin::instance()->gitClient();
     if (client->beginStashScope(m_repository, QLatin1String("rebase")))
         client->rebase(m_repository, baseBranch);
+}
+
+void BranchDialog::cherryPick()
+{
+    QModelIndex idx = selectedIndex();
+    QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
+
+    const QString branch = m_model->fullName(idx, true);
+    GitPlugin::instance()->gitClient()->synchronousCherryPick(m_repository, branch);
 }
 
 void BranchDialog::setRemoteTracking()
