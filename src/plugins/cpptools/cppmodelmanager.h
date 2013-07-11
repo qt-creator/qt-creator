@@ -31,6 +31,7 @@
 #define CPPMODELMANAGER_H
 
 #include "cpptools_global.h"
+
 #include "cppmodelmanagerinterface.h"
 
 #include <projectexplorer/project.h>
@@ -40,10 +41,7 @@
 #include <QMutex>
 
 namespace Core { class IEditor; }
-
-namespace TextEditor {
-class BaseTextEditorWidget;
-} // namespace TextEditor
+namespace TextEditor { class BaseTextEditorWidget; }
 
 namespace CppTools {
 
@@ -81,14 +79,14 @@ public:
     bool replaceDocument(Document::Ptr newDoc);
     virtual void GC();
 
-    virtual bool isCppEditor(Core::IEditor *editor) const;
-
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
-    virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
-    virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
-    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *editor);
-    virtual void deleteEditorSupport(TextEditor::BaseTextEditor *textEditor);
+    virtual bool isCppEditor(Core::IEditor *editor) const;
+
+    virtual void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
+    virtual void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
+    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *textEditor);
+    virtual void deleteCppEditorSupport(TextEditor::BaseTextEditor *textEditor);
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
@@ -143,14 +141,14 @@ public:
         return m_definedMacros;
     }
 
-Q_SIGNALS:
+signals:
     void aboutToRemoveFiles(const QStringList &files);
 
-public Q_SLOTS:
+public slots:
     virtual void updateModifiedSourceFiles();
 
-private Q_SLOTS:
-    // this should be executed in the GUI thread.
+private slots:
+    // This should be executed in the GUI thread.
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onAboutToUnloadSession();
     void onCoreAboutToClose();
@@ -169,42 +167,46 @@ private:
     void dumpModelManagerConfiguration();
 
 private:
-    static QMutex m_modelManagerMutex;
-    static CppModelManager *m_modelManagerInstance;
+    static QMutex m_instanceMutex;
+    static CppModelManager *m_instance;
 
 private:
-    // snapshot
+    // Snapshot
     mutable QMutex m_snapshotMutex;
     CPlusPlus::Snapshot m_snapshot;
 
-    bool m_enableGC;
-
-    // project integration
+    // Project integration
     mutable QMutex m_projectMutex;
-    QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
-    QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_srcToProjectPart;
-    // cached/calculated from the projects and/or their project-parts
+    QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
+    QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_fileToProjectParts;
+    // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;
     QStringList m_includePaths;
     QStringList m_frameworkPaths;
     QByteArray m_definedMacros;
 
-    // editor integration
-    mutable QMutex m_editorSupportMutex;
-    QMap<TextEditor::BaseTextEditor *, CppEditorSupport *> m_editorSupport;
+    // Editor integration
+    mutable QMutex m_cppEditorSupportsMutex;
+    QMap<TextEditor::BaseTextEditor *, CppEditorSupport *> m_cppEditorSupports;
+    QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
-    QSet<AbstractEditorSupport *> m_addtionalEditorSupport;
-
-    CppFindReferences *m_findReferences;
-    bool m_indexerEnabled;
-
+    // Completion
     CppCompletionAssistProvider *m_completionAssistProvider;
     CppCompletionAssistProvider *m_completionFallback;
+
+    // Highlighting
     CppHighlightingSupportFactory *m_highlightingFactory;
     CppHighlightingSupportFactory *m_highlightingFallback;
+
+    // Indexing
     CppIndexingSupport *m_indexingSupporter;
     CppIndexingSupport *m_internalIndexingSupport;
+    bool m_indexerEnabled;
+
+    CppFindReferences *m_findReferences;
+
+    bool m_enableGC;
 };
 
 } // namespace Internal

@@ -128,7 +128,7 @@ CMakeProject::~CMakeProject()
     it = m_uiCodeModelSupport.constBegin();
     end = m_uiCodeModelSupport.constEnd();
     for (; it!=end; ++it) {
-        modelManager->removeEditorSupport(it.value());
+        modelManager->removeExtraEditorSupport(it.value());
         delete it.value();
     }
 
@@ -794,7 +794,7 @@ void CMakeProject::createUiCodeModelSupport()
                 //                qDebug()<<"adding new codemodelsupport";
                 QtSupport::UiCodeModelSupport *cms = new QtSupport::UiCodeModelSupport(modelManager, this, uiFile, uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(uiFile, cms);
-                modelManager->addEditorSupport(cms);
+                modelManager->addExtraEditorSupport(cms);
             }
         }
     }
@@ -803,7 +803,7 @@ void CMakeProject::createUiCodeModelSupport()
     QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     end = oldCodeModelSupport.constEnd();
     for (it = oldCodeModelSupport.constBegin(); it!=end; ++it) {
-        modelManager->removeEditorSupport(it.value());
+        modelManager->removeExtraEditorSupport(it.value());
         delete it.value();
     }
 }

@@ -29,11 +29,15 @@
 
 #include "cppmodelmanagerinterface.h"
 
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/headerpath.h>
 #include <cplusplus/pp-engine.h>
 
-#include <QtCore/QSet>
+#include <projectexplorer/headerpath.h>
+#include <projectexplorer/toolchain.h>
+
+#include <QSet>
+
+using namespace CppTools;
+using namespace ProjectExplorer;
 
 /*!
     \enum CppTools::CppModelManagerInterface::ProgressNotificationMode
@@ -44,15 +48,16 @@
 
     \value ForcedProgressNotification
            Notify regardless of the number of files requested for update.
-
     \value ReservedProgressNotification
            Notify only if more than one file is requested for update.
 */
 
 /*!
     \enum CppTools::CppModelManagerInterface::QtVersion
+
     Allows C++ parser engine to inject headers or change inner settings as
     needed to parse Qt language extensions for concrete major Qt version
+
     \value UnknownQt
            Parser may choose any policy
     \value NoQt
@@ -62,9 +67,6 @@
     \value Qt5
            Parser may enable tricks for Qt v5.x
 */
-
-using namespace CppTools;
-using namespace ProjectExplorer;
 
 ProjectPart::ProjectPart()
     : cVersion(C89)
@@ -76,12 +78,13 @@ ProjectPart::ProjectPart()
 {
 }
 
-/**
- * @brief Retrieves info from concrete compiler using it's flags.
- * @param tc Either nullptr or toolchain for project's active target.
- * @param cxxflags C++ or Objective-C++ flags.
- * @param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
- */
+/*!
+    \brief Retrieves info from concrete compiler using it's flags.
+
+    \param tc Either nullptr or toolchain for project's active target.
+    \param cxxflags C++ or Objective-C++ flags.
+    \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
+*/
 void ProjectPart::evaluateToolchain(const ToolChain *tc,
                                     const QStringList &cxxflags,
                                     const QStringList &cflags,
@@ -89,6 +92,7 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
 {
     if (!tc)
         return;
+
     ToolChain::CompilerFlags cxx = tc->compilerFlags(cxxflags);
     ToolChain::CompilerFlags c = (cxxflags == cflags)
             ? cxx : tc->compilerFlags(cflags);
@@ -117,14 +121,14 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     cWarningFlags = tc->warningFlags(cflags);
     cxxWarningFlags = tc->warningFlags(cxxflags);
 
-    QList<HeaderPath> headers = tc->systemHeaderPaths(cxxflags, sysRoot);
+    const QList<HeaderPath> headers = tc->systemHeaderPaths(cxxflags, sysRoot);
     foreach (const HeaderPath &header, headers)
         if (header.kind() == HeaderPath::FrameworkHeaderPath)
             frameworkPaths << header.path();
         else
             includePaths << header.path();
 
-    QByteArray macros = tc->predefinedMacros(cxxflags);
+    const QByteArray macros = tc->predefinedMacros(cxxflags);
     if (!macros.isEmpty()) {
         if (!defines.isEmpty())
             defines += '\n';
@@ -156,7 +160,6 @@ CppModelManagerInterface *CppModelManagerInterface::instance()
     return g_instance;
 }
 
-
 void CppModelManagerInterface::ProjectInfo::clearProjectParts()
 {
     m_projectParts.clear();
@@ -166,33 +169,32 @@ void CppModelManagerInterface::ProjectInfo::clearProjectParts()
     m_defines.clear();
 }
 
-void CppModelManagerInterface::ProjectInfo::appendProjectPart(
-        const ProjectPart::Ptr &part)
+void CppModelManagerInterface::ProjectInfo::appendProjectPart(const ProjectPart::Ptr &part)
 {
     if (!part)
         return;
 
     m_projectParts.append(part);
 
-    // update include paths
+    // Update include paths
     QSet<QString> incs = QSet<QString>::fromList(m_includePaths);
     foreach (const QString &ins, part->includePaths)
         incs.insert(ins);
     m_includePaths = incs.toList();
 
-    // update framework paths
+    // Update framework paths
     QSet<QString> frms = QSet<QString>::fromList(m_frameworkPaths);
     foreach (const QString &frm, part->frameworkPaths)
         frms.insert(frm);
     m_frameworkPaths = frms.toList();
 
-    // update source files
+    // Update source files
     QSet<QString> srcs = QSet<QString>::fromList(m_sourceFiles);
     foreach (const ProjectFile &file, part->files)
         srcs.insert(file.path);
     m_sourceFiles = srcs.toList();
 
-    // update defines
+    // Update defines
     if (!m_defines.isEmpty())
         m_defines.append('\n');
     m_defines.append(part->defines);

@@ -28,31 +28,30 @@
 ****************************************************************************/
 
 #include "cppmodelmanager.h"
-#include "cpppreprocessor.h"
-#include "cpptoolsconstants.h"
 
+#include "abstracteditorsupport.h"
 #include "builtinindexingsupport.h"
 #include "cppcompletionassist.h"
+#include "cppfindreferences.h"
 #include "cpphighlightingsupport.h"
 #include "cpphighlightingsupportinternal.h"
 #include "cppindexingsupport.h"
-#include "abstracteditorsupport.h"
+#include "cpppreprocessor.h"
+#include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
-#include "cppfindreferences.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QMutexLocker>
-#include <QTimer>
 #include <QTextBlock>
+#include <QTimer>
 
 #if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
 #define WITH_AST_DUMP
@@ -99,7 +98,7 @@ using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
-#ifdef WITH_AST_DUMP
+#ifdef QTCREATOR_WITH_DUMP_AST
 
 #include <cxxabi.h>
 
@@ -194,41 +193,44 @@ void CppModelManager::updateModifiedSourceFiles()
 
 /*!
     \class CppTools::CppModelManager
-    \brief The CppModelManager class keeps track of one CppCodeModel instance
-           for each project and all the related CppCodeModelPart instances.
+    \brief The CppModelManager keeps tracks of the source files the code model is aware of.
 
-    It also takes care of updating the code models when C++ files are
-    modified within Qt Creator.
+    The CppModelManager manages the source files in a Snapshot object.
+
+    The snapshot is updated in case e.g.
+        * New files are opened/edited (Editor integration)
+        * A project manager pushes updated project information (Project integration)
+        * Files are garbage collected
 */
 
-QMutex CppModelManager::m_modelManagerMutex;
-CppModelManager *CppModelManager::m_modelManagerInstance = 0;
+QMutex CppModelManager::m_instanceMutex;
+CppModelManager *CppModelManager::m_instance = 0;
 
 CppModelManager *CppModelManager::instance()
 {
-    if (m_modelManagerInstance)
-        return m_modelManagerInstance;
-    QMutexLocker locker(&m_modelManagerMutex);
-    if (!m_modelManagerInstance)
-        m_modelManagerInstance = new CppModelManager;
-    return m_modelManagerInstance;
+    if (m_instance)
+        return m_instance;
+
+    QMutexLocker locker(&m_instanceMutex);
+    if (!m_instance)
+        m_instance = new CppModelManager;
+
+    return m_instance;
 }
 
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
-    , m_enableGC(true)
     , m_completionAssistProvider(0)
     , m_highlightingFactory(0)
     , m_indexingSupporter(0)
+    , m_enableGC(true)
 {
     m_findReferences = new CppFindReferences(this);
     m_indexerEnabled = qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull();
 
     m_dirty = true;
 
-    ProjectExplorer::ProjectExplorerPlugin *pe =
-       ProjectExplorer::ProjectExplorerPlugin::instance();
-
+    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     QTC_ASSERT(pe, return);
 
     ProjectExplorer::SessionManager *session = pe->session();
@@ -306,10 +308,10 @@ void CppModelManager::ensureUpdated()
 QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
+    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projectToProjectsInfo);
     while (it.hasNext()) {
         it.next();
-        ProjectInfo pinfo = it.value();
+        const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             foreach (const ProjectFile &file, part->files)
                 files += file.path;
@@ -322,10 +324,10 @@ QStringList CppModelManager::internalProjectFiles() const
 QStringList CppModelManager::internalIncludePaths() const
 {
     QStringList includePaths;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
+    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projectToProjectsInfo);
     while (it.hasNext()) {
         it.next();
-        ProjectInfo pinfo = it.value();
+        const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
             foreach (const QString &path, part->includePaths)
                 includePaths.append(CppPreprocessor::cleanPath(path));
@@ -337,10 +339,10 @@ QStringList CppModelManager::internalIncludePaths() const
 QStringList CppModelManager::internalFrameworkPaths() const
 {
     QStringList frameworkPaths;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
+    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projectToProjectsInfo);
     while (it.hasNext()) {
         it.next();
-        ProjectInfo pinfo = it.value();
+        const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
             foreach (const QString &path, part->frameworkPaths)
                 frameworkPaths.append(CppPreprocessor::cleanPath(path));
@@ -353,10 +355,10 @@ QByteArray CppModelManager::internalDefinedMacros() const
 {
     QByteArray macros;
     QSet<QByteArray> alreadyIn;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
+    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projectToProjectsInfo);
     while (it.hasNext()) {
         it.next();
-        ProjectInfo pinfo = it.value();
+        const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             const QList<QByteArray> defs = part->defines.split('\n');
             foreach (const QByteArray &def, defs) {
@@ -375,9 +377,9 @@ QByteArray CppModelManager::internalDefinedMacros() const
 void CppModelManager::dumpModelManagerConfiguration()
 {
     // Tons of debug output...
-    qDebug()<<"========= CppModelManager::dumpModelManagerConfiguration ======";
-    foreach (const ProjectInfo &pinfo, m_projects) {
-        qDebug()<<" for project:"<< pinfo.project().data()->document()->filePath();
+    qDebug() << "========= CppModelManager::dumpModelManagerConfiguration ======";
+    foreach (const ProjectInfo &pinfo, m_projectToProjectsInfo) {
+        qDebug() << " for project:"<< pinfo.project().data()->document()->filePath();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             qDebug() << "=== part ===";
             const char* cVersion;
@@ -425,33 +427,62 @@ void CppModelManager::dumpModelManagerConfiguration()
         qDebug() << inc;
     qDebug() << "=== Merged defined macros ===";
     qDebug() << m_definedMacros;
-    qDebug()<<"========= End of dump ======";
+    qDebug() << "========= End of dump ======";
 }
 
-void CppModelManager::addEditorSupport(AbstractEditorSupport *editorSupport)
+void CppModelManager::addExtraEditorSupport(AbstractEditorSupport *editorSupport)
 {
-    m_addtionalEditorSupport.insert(editorSupport);
+    m_extraEditorSupports.insert(editorSupport);
 }
 
-void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
+void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupport)
 {
-    m_addtionalEditorSupport.remove(editorSupport);
+    m_extraEditorSupports.remove(editorSupport);
 }
 
 /// \brief Returns the \c CppEditorSupport for the given text editor. It will
 ///        create one when none exists yet.
-CppEditorSupport *CppModelManager::cppEditorSupport(TextEditor::BaseTextEditor *editor)
+CppEditorSupport *CppModelManager::cppEditorSupport(TextEditor::BaseTextEditor *textEditor)
 {
-    Q_ASSERT(editor);
+    Q_ASSERT(textEditor);
 
-    QMutexLocker locker(&m_editorSupportMutex);
+    QMutexLocker locker(&m_cppEditorSupportsMutex);
 
-    CppEditorSupport *editorSupport = m_editorSupport.value(editor, 0);
+    CppEditorSupport *editorSupport = m_cppEditorSupports.value(textEditor, 0);
     if (!editorSupport) {
-        editorSupport = new CppEditorSupport(this, editor);
-        m_editorSupport.insert(editor, editorSupport);
+        editorSupport = new CppEditorSupport(this, textEditor);
+        m_cppEditorSupports.insert(textEditor, editorSupport);
     }
     return editorSupport;
+}
+
+/// \brief Removes the CppEditorSupport for the closed editor.
+void CppModelManager::deleteCppEditorSupport(TextEditor::BaseTextEditor *textEditor)
+{
+    static short numberOfClosedEditors = 0;
+
+    QTC_ASSERT(textEditor, return);
+
+    if (!isCppEditor(textEditor))
+        return;
+
+    CppEditorSupport *editorSupport;
+    int numberOfOpenEditors = 0;
+
+    { // Only lock the operations on m_cppEditorSupport
+        QMutexLocker locker(&m_cppEditorSupportsMutex);
+        editorSupport = m_cppEditorSupports.value(textEditor, 0);
+        m_cppEditorSupports.remove(textEditor);
+        numberOfOpenEditors = m_cppEditorSupports.size();
+    }
+
+    delete editorSupport;
+
+    ++numberOfClosedEditors;
+    if (numberOfOpenEditors == 0 || numberOfClosedEditors == 5) {
+        numberOfClosedEditors = 0;
+        GC();
+    }
 }
 
 QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol, const LookupContext &context)
@@ -465,7 +496,8 @@ void CppModelManager::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::Loo
         m_findReferences->findUsages(symbol, context);
 }
 
-void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol,
+                                   const CPlusPlus::LookupContext &context,
                                    const QString &replacement)
 {
     if (symbol->identifier())
@@ -490,26 +522,26 @@ void CppModelManager::replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot)
 
 CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 {
-    QList<CppEditorSupport *> supporters;
+    QList<CppEditorSupport *> cppEditorSupports;
 
     {
-        QMutexLocker locker(&m_editorSupportMutex);
-        supporters = m_editorSupport.values();
+        QMutexLocker locker(&m_cppEditorSupportsMutex);
+        cppEditorSupports = m_cppEditorSupports.values();
     }
 
     WorkingCopy workingCopy;
-    foreach (const CppEditorSupport *editorSupport, supporters) {
+    foreach (const CppEditorSupport *editorSupport, cppEditorSupports) {
         workingCopy.insert(editorSupport->fileName(), editorSupport->contents(),
                            editorSupport->editorRevision());
     }
 
-    QSetIterator<AbstractEditorSupport *> jt(m_addtionalEditorSupport);
-    while (jt.hasNext()) {
-        AbstractEditorSupport *es =  jt.next();
+    QSetIterator<AbstractEditorSupport *> it(m_extraEditorSupports);
+    while (it.hasNext()) {
+        AbstractEditorSupport *es = it.next();
         workingCopy.insert(es->fileName(), QString::fromUtf8(es->contents()));
     }
 
-    // add the project configuration file
+    // Add the project configuration file
     QByteArray conf(pp_configuration);
     conf += definedMacros();
     workingCopy.insert(configurationFileName(), QString::fromLocal8Bit(conf));
@@ -536,27 +568,25 @@ QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles,
 QList<CppModelManager::ProjectInfo> CppModelManager::projectInfos() const
 {
     QMutexLocker locker(&m_projectMutex);
-
-    return m_projects.values();
+    return m_projectToProjectsInfo.values();
 }
 
 CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
     QMutexLocker locker(&m_projectMutex);
-
-    return m_projects.value(project, ProjectInfo(project));
+    return m_projectToProjectsInfo.value(project, ProjectInfo(project));
 }
 
 QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 {
-    { // only hold the mutex for a limited scope, so the dumping afterwards can aquire it without deadlocking.
+    if (!pinfo.isValid())
+        return QFuture<void>();
+
+    { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
         QMutexLocker locker(&m_projectMutex);
 
-        if (!pinfo.isValid())
-            return QFuture<void>();
-
         ProjectExplorer::Project *project = pinfo.project().data();
-        ProjectInfo oldProjectInfo = m_projects.value(project);
+        ProjectInfo oldProjectInfo = m_projectToProjectsInfo.value(project);
         if (oldProjectInfo.isValid()) {
             if (pinfo.defines() == oldProjectInfo.defines()
                     && pinfo.includePaths() == oldProjectInfo.includePaths()
@@ -577,14 +607,14 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
         }
         m_snapshot.remove(configurationFileName());
 
-        m_projects.insert(project, pinfo);
+        m_projectToProjectsInfo.insert(project, pinfo);
         m_dirty = true;
 
-        m_srcToProjectPart.clear();
-        foreach (const ProjectInfo &projectInfo, m_projects) {
+        m_fileToProjectParts.clear();
+        foreach (const ProjectInfo &projectInfo, m_projectToProjectsInfo) {
             foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
                 foreach (const ProjectFile &cxxFile, projectPart->files) {
-                    m_srcToProjectPart[cxxFile.path].append(projectPart);
+                    m_fileToProjectParts[cxxFile.path].append(projectPart);
                 }
             }
         }
@@ -600,49 +630,20 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
 QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
 {
-    QList<ProjectPart::Ptr> parts = m_srcToProjectPart.value(fileName);
+    QList<ProjectPart::Ptr> parts = m_fileToProjectParts.value(fileName);
     if (!parts.isEmpty())
         return parts;
 
     DependencyTable table;
     table.build(snapshot());
-    QStringList deps = table.filesDependingOn(fileName);
+    const QStringList deps = table.filesDependingOn(fileName);
     foreach (const QString &dep, deps) {
-        parts = m_srcToProjectPart.value(dep);
+        parts = m_fileToProjectParts.value(dep);
         if (!parts.isEmpty())
             return parts;
     }
 
     return parts;
-}
-
-/// \brief Removes the CppEditorSupport for the closed editor.
-void CppModelManager::deleteEditorSupport(TextEditor::BaseTextEditor *textEditor)
-{
-    static short numberOfClosedEditors = 0;
-
-    QTC_ASSERT(textEditor, return);
-
-    if (!isCppEditor(textEditor))
-        return;
-
-    CppEditorSupport *editorSupport;
-    int numberOfOpenEditors = 0;
-
-    { // only lock the operations on m_editorSupport
-        QMutexLocker locker(&m_editorSupportMutex);
-        editorSupport = m_editorSupport.value(textEditor, 0);
-        m_editorSupport.remove(textEditor);
-        numberOfOpenEditors = m_editorSupport.size();
-    }
-
-    delete editorSupport;
-
-    ++numberOfClosedEditors;
-    if (numberOfOpenEditors == 0 || numberOfClosedEditors == 5) {
-        numberOfClosedEditors = 0;
-        GC();
-    }
 }
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor) const
@@ -667,7 +668,7 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
     do {
         QMutexLocker locker(&m_projectMutex);
         m_dirty = true;
-        m_projects.remove(project);
+        m_projectToProjectsInfo.remove(project);
     } while (0);
 
     GC();
@@ -679,7 +680,7 @@ void CppModelManager::onAboutToUnloadSession()
         pm->cancelTasks(QLatin1String(CppTools::Constants::TASK_INDEX));
     do {
         QMutexLocker locker(&m_projectMutex);
-        m_projects.clear();
+        m_projectToProjectsInfo.clear();
         m_dirty = true;
     } while (0);
 
@@ -696,37 +697,37 @@ void CppModelManager::GC()
     if (!m_enableGC)
         return;
 
-    Snapshot currentSnapshot = snapshot();
-    QSet<QString> processed;
+    const Snapshot currentSnapshot = snapshot();
+    QSet<QString> reachableFiles;
     QStringList todo = projectFiles();
 
+    // Collect all files that are reachable from the project files
     while (!todo.isEmpty()) {
-        QString fn = todo.last();
+        const QString file = todo.last();
         todo.removeLast();
 
-        if (processed.contains(fn))
+        if (reachableFiles.contains(file))
             continue;
+        reachableFiles.insert(file);
 
-        processed.insert(fn);
-
-        if (Document::Ptr doc = currentSnapshot.document(fn))
+        if (Document::Ptr doc = currentSnapshot.document(file))
             todo += doc->includedFiles();
     }
 
-    QStringList removedFiles;
-
+    // Find out the files in the current snapshot that are not reachable from the project files
+    QStringList notReachableFiles;
     Snapshot newSnapshot;
     for (Snapshot::const_iterator it = currentSnapshot.begin(); it != currentSnapshot.end(); ++it) {
         const QString fileName = it.key();
 
-        if (processed.contains(fileName))
+        if (reachableFiles.contains(fileName))
             newSnapshot.insert(it.value());
         else
-            removedFiles.append(fileName);
+            notReachableFiles.append(fileName);
     }
 
-    emit aboutToRemoveFiles(removedFiles);
-
+    // Announce removing files and replace the snapshot
+    emit aboutToRemoveFiles(notReachableFiles);
     replaceSnapshot(newSnapshot);
 }
 
@@ -780,19 +781,20 @@ CppIndexingSupport *CppModelManager::indexingSupport()
     return m_indexingSupporter ? m_indexingSupporter : m_internalIndexingSupport;
 }
 
-void CppModelManager::setExtraDiagnostics(const QString &fileName, const QString &kind,
+void CppModelManager::setExtraDiagnostics(const QString &fileName,
+                                          const QString &kind,
                                           const QList<Document::DiagnosticMessage> &diagnostics)
 {
-    QList<CppEditorSupport *> supporters;
+    QList<CppEditorSupport *> cppEditorSupports;
 
     {
-        QMutexLocker locker(&m_editorSupportMutex);
-        supporters = m_editorSupport.values();
+        QMutexLocker locker(&m_cppEditorSupportsMutex);
+        cppEditorSupports = m_cppEditorSupports.values();
     }
 
-    foreach (CppEditorSupport *supporter, supporters) {
-        if (supporter->fileName() == fileName) {
-            supporter->setExtraDiagnostics(kind, diagnostics);
+    foreach (CppEditorSupport *editorSupport, cppEditorSupports) {
+        if (editorSupport->fileName() == fileName) {
+            editorSupport->setExtraDiagnostics(kind, diagnostics);
             break;
         }
     }

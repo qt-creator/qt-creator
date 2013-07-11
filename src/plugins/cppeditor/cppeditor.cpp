@@ -561,7 +561,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
 CPPEditorWidget::~CPPEditorWidget()
 {
     if (m_modelManager)
-        m_modelManager->deleteEditorSupport(editor());
+        m_modelManager->deleteCppEditorSupport(editor());
 
     delete m_completionSupport;
 }

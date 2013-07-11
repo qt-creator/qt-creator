@@ -1466,7 +1466,7 @@ Qt4ProFileNode::~Qt4ProFileNode()
     QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     end = m_uiCodeModelSupport.constEnd();
     for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
-        modelManager->removeEditorSupport(it.value());
+        modelManager->removeExtraEditorSupport(it.value());
         delete it.value();
     }
     m_parseFutureWatcher.waitForFinished();
@@ -2318,7 +2318,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
 //                qDebug()<<"adding new codemodelsupport";
                 QtSupport::UiCodeModelSupport *cms = new QtSupport::UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(uiFile->path(), cms);
-                modelManager->addEditorSupport(cms);
+                modelManager->addExtraEditorSupport(cms);
             }
         }
     }
@@ -2326,7 +2326,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
     QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
     end = oldCodeModelSupport.constEnd();
     for (it = oldCodeModelSupport.constBegin(); it!=end; ++it) {
-        modelManager->removeEditorSupport(it.value());
+        modelManager->removeExtraEditorSupport(it.value());
         delete it.value();
     }
 }

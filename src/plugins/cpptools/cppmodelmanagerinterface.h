@@ -31,16 +31,17 @@
 #define CPPMODELMANAGERINTERFACE_H
 
 #include "cpptools_global.h"
+
 #include "cppprojectfile.h"
 
 #include <cplusplus/CppDocument.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QObject>
+#include <QFuture>
 #include <QHash>
+#include <QObject>
 #include <QPointer>
 #include <QStringList>
-#include <QFuture>
 
 namespace Core { class IEditor; }
 namespace CPlusPlus { class LookupContext; }
@@ -49,9 +50,10 @@ namespace TextEditor { class BaseTextEditor; }
 namespace Utils { class FileName; }
 
 namespace CppTools {
+
 class AbstractEditorSupport;
-class CppCompletionSupport;
 class CppCompletionAssistProvider;
+class CppCompletionSupport;
 class CppEditorSupport;
 class CppHighlightingSupport;
 class CppHighlightingSupportFactory;
@@ -97,7 +99,7 @@ public:
 
     typedef QSharedPointer<ProjectPart> Ptr;
 
-public: //attributes
+public:
     QList<ProjectFile> files;
     QByteArray defines;
     QStringList includePaths;
@@ -116,8 +118,7 @@ class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
     Q_OBJECT
 
 public:
-
-    // Documented in source file.
+     // Documented in source file.
      enum ProgressNotificationMode {
         ForcedProgressNotification,
         ReservedProgressNotification
@@ -127,11 +128,11 @@ public:
     {
     public:
         ProjectInfo()
-        { }
+        {}
 
         ProjectInfo(QPointer<ProjectExplorer::Project> project)
             : m_project(project)
-        { }
+        {}
 
         operator bool() const
         { return !m_project.isNull(); }
@@ -163,10 +164,10 @@ public:
         const QByteArray defines() const
         { return m_defines; }
 
-    private: // attributes
+    private:
         QPointer<ProjectExplorer::Project> m_project;
         QList<ProjectPart::Ptr> m_projectParts;
-        // the attributes below are calculated from the project parts.
+        // The members below are (re)calculated from the project parts once a part is appended.
         QStringList m_includePaths;
         QStringList m_frameworkPaths;
         QStringList m_sourceFiles;
@@ -220,10 +221,10 @@ public:
 
     virtual QStringList includePaths() = 0;
 
-    virtual void addEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
-    virtual void removeEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
-    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *editor) = 0;
-    virtual void deleteEditorSupport(TextEditor::BaseTextEditor *textEditor) = 0;
+    virtual void addExtraEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
+    virtual void removeExtraEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
+    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *textEditor) = 0;
+    virtual void deleteCppEditorSupport(TextEditor::BaseTextEditor *textEditor) = 0;
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol,
                                   const CPlusPlus::LookupContext &context) = 0;
@@ -247,7 +248,7 @@ public:
     virtual void setIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
     virtual CppTools::CppIndexingSupport *indexingSupport() = 0;
 
-Q_SIGNALS:
+signals:
     void documentUpdated(CPlusPlus::Document::Ptr doc);
     void sourceFilesRefreshed(const QStringList &files);
 
@@ -256,8 +257,7 @@ Q_SIGNALS:
     /// Other classes can use this to get notified when the \c ProjectExplorer has updated the parts.
     void projectPartsUpdated(ProjectExplorer::Project *project);
 
-public Q_SLOTS:
-
+public slots:
     virtual void updateModifiedSourceFiles() = 0;
     virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles,
         ProgressNotificationMode mode = ReservedProgressNotification) = 0;
