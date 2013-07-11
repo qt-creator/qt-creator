@@ -57,6 +57,7 @@
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/uicodemodelsupport.h>
 
 #include <QDebug>
 #include <QDir>
@@ -107,6 +108,7 @@ void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &pro
         }
     }
 }
+
 } // namespace
 
 namespace Qt4ProjectManager {
@@ -532,6 +534,7 @@ void Qt4Project::updateCppCodeModel()
             qtVersionForPart = ProjectPart::Qt5;
     }
 
+    QHash<QString, QString> uiCodeModelData;
     QStringList allFiles;
     foreach (Qt4ProFileNode *pro, proFiles) {
         ProjectPart::Ptr part(new ProjectPart);
@@ -579,10 +582,14 @@ void Qt4Project::updateCppCodeModel()
             allFiles << file;
             part->files << ProjectFile(file, ProjectFile::CXXHeader);
         }
-        foreach (const QString &file, pro->uiFiles()) {
-            allFiles << file;
-            part->files << ProjectFile(file, ProjectFile::CXXHeader);
+
+        // Ui Files:
+        QHash<QString, QString> uiData = pro->uiFiles();
+        for (QHash<QString, QString>::const_iterator i = uiData.constBegin(); i != uiData.constEnd(); ++i) {
+            allFiles << i.value();
+            part->files << ProjectFile(i.value(), ProjectFile::CXXHeader);
         }
+        uiCodeModelData.unite(uiData);
 
         part->files.prepend(ProjectFile(CppTools::CppModelManagerInterface::configurationFileName(),
                                         ProjectFile::CXXSource));
@@ -601,6 +608,9 @@ void Qt4Project::updateCppCodeModel()
     }
 
     setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !allFiles.isEmpty());
+
+    // Also update Ui Code Model Support:
+    QtSupport::UiCodeModelManager::instance()->update(this, uiCodeModelData);
 
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 }

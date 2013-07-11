@@ -68,8 +68,6 @@ public:
     Qt4Manager(Internal::Qt4ProjectManagerPlugin *plugin);
     ~Qt4Manager();
 
-    void init();
-
     void registerProject(Qt4Project *project);
     void unregisterProject(Qt4Project *project);
     void notifyChanged(const QString &name);
@@ -103,11 +101,6 @@ public slots:
     void buildFileContextMenu();
     void buildFile();
 
-private slots:
-    void editorAboutToClose(Core::IEditor *editor);
-    void uiDocumentContentsChanged();
-    void editorChanged(Core::IEditor*);
-
 private:
     QList<Qt4Project *> m_projects;
     void handleSubDirContextMenu(Action action, bool isFileBuild);
@@ -122,9 +115,6 @@ private:
     ProjectExplorer::Node *m_contextNode;
     ProjectExplorer::Project *m_contextProject;
     ProjectExplorer::FileNode *m_contextFile;
-
-    Core::IEditor *m_lastEditor;
-    bool m_dirty;
 };
 
 } // namespace Qt4ProjectManager

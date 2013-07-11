@@ -52,7 +52,6 @@ class QFileSystemWatcher;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Target; }
-namespace QtSupport { class UiCodeModelSupport; }
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -117,17 +116,12 @@ private slots:
     void activeTargetWasChanged(ProjectExplorer::Target *target);
     void changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*);
 
-    void editorChanged(Core::IEditor *editor);
-    void editorAboutToClose(Core::IEditor *editor);
-    void uiDocumentContentsChanged();
-    void buildStateChanged(ProjectExplorer::Project *project);
     void updateRunConfigurations();
 
 private:
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
-    void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
     void createUiCodeModelSupport();
     QString uiHeaderFile(const QString &uiFile);
     void updateRunConfigurations(ProjectExplorer::Target *t);
@@ -145,10 +139,6 @@ private:
     QFileSystemWatcher *m_watcher;
     QSet<QString> m_watchedFiles;
     QFuture<void> m_codeModelFuture;
-
-    QMap<QString, QtSupport::UiCodeModelSupport *> m_uiCodeModelSupport;
-    Core::IEditor *m_lastEditor;
-    bool m_dirtyUic;
 };
 
 class CMakeCbpParser : public QXmlStreamReader

@@ -34,6 +34,7 @@
 #include "qtkitinformation.h"
 #include "qtversionmanager.h"
 #include "qtfeatureprovider.h"
+#include "uicodemodelsupport.h"
 
 #include "profilereader.h"
 
@@ -66,6 +67,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
         return false;
     QtVersionManager *mgr = new QtVersionManager;
     addAutoReleasedObject(mgr);
+    addAutoReleasedObject(new UiCodeModelManager);
 
     QtFeatureProvider *featureMgr = new QtFeatureProvider;
     addAutoReleasedObject(featureMgr);

@@ -35,14 +35,19 @@
 #include <cpptools/abstracteditorsupport.h>
 
 #include <QDateTime>
+#include <QHash>
 #include <QProcess>
+#include <QSet>
 
+namespace Core { class IEditor; }
 namespace CPlusPlus { class CppModelManagerInterface; }
 namespace ProjectExplorer { class Project; }
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT UiCodeModelSupport : public CppTools::AbstractEditorSupport
+namespace Internal { class QtSupportPlugin; }
+
+class UiCodeModelSupport : public CppTools::AbstractEditorSupport
 {
     Q_OBJECT
 
@@ -53,10 +58,11 @@ public:
                        const QString &uiHeaderFile);
     ~UiCodeModelSupport();
 
-    void setFileName(const QString &name);
-    void setSourceName(const QString &name);
+    void setHeaderFileName(const QString &name);
     QByteArray contents() const;
-    QString fileName() const;
+    QString uiFileName() const; // The .ui-file
+    QString fileName() const; // The header file
+    QString headerFileName() const { return fileName(); }
     void updateFromEditor(const QString &formEditorContents);
     void updateFromBuild();
 
@@ -74,12 +80,45 @@ private:
     void init() const;
     bool runUic(const QString &ui) const;
     mutable QProcess m_process;
-    QString m_sourceName;
-    QString m_fileName;
+    QString m_uiFileName;
+    QString m_headerFileName;
     mutable State m_state;
     mutable QByteArray m_contents;
     mutable QDateTime m_cacheTime;
     static QList<UiCodeModelSupport *> m_waitingForStart;
+};
+
+class QTSUPPORT_EXPORT UiCodeModelManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    static UiCodeModelManager *instance();
+    ~UiCodeModelManager();
+
+    // This needs to be called by the project *before* the C++ code model is updated!
+    void update(ProjectExplorer::Project *project,
+                QHash<QString, QString> uiHeaders);
+
+private slots:
+    void buildStateHasChanged(ProjectExplorer::Project *project);
+    void projectWasRemoved(ProjectExplorer::Project *project);
+    void editorIsAboutToClose(Core::IEditor *editor);
+    void editorWasChanged(Core::IEditor *editor);
+    void uiDocumentContentsHasChanged();
+
+private:
+    UiCodeModelManager();
+
+    void updateContents(const QString &uiFileName, const QString &contents);
+
+    QHash<ProjectExplorer::Project *, QList<UiCodeModelSupport *> > m_projectUiSupport;
+    Core::IEditor *m_lastEditor;
+    bool m_dirty;
+
+    static UiCodeModelManager *m_instance;
+
+    friend class Internal::QtSupportPlugin;
 };
 
 } // QtSupport

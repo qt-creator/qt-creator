@@ -369,15 +369,12 @@ public:
         return !m_subProjectsNotToDeploy.contains(filePath);
     }
 
-    void updateCodeModelSupportFromBuild();
-    void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
-
     QString sourceDir() const;
     QString buildDir(Qt4BuildConfiguration *bc = 0) const;
 
     QString uiDirectory() const;
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
-    QStringList uiFiles() const;
+    QHash<QString, QString> uiFiles() const;
 
     const Qt4ProFileNode *findProFileFor(const QString &string) const;
     TargetInformation targetInformation() const;
@@ -409,7 +406,6 @@ public slots:
     void asyncUpdate();
 
 private slots:
-    void buildStateChanged(ProjectExplorer::Project*);
     void applyAsyncEvaluate();
 
 private:
@@ -422,7 +418,7 @@ private:
 
     typedef QHash<Qt4Variable, QStringList> Qt4VariablesHash;
 
-    void createUiCodeModelSupport();
+    void updateUiFiles();
 
     QStringList fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
                                const QString &varName, const QString &projectDir, const QString &buildDir) const;
@@ -450,7 +446,7 @@ private:
     InstallsList m_installsList;
     friend class Qt4NodeHierarchy;
 
-    QStringList m_uiHeaderFiles;
+    QHash<QString, QString> m_uiFiles; // ui-file path, ui header path
 
     // Async stuff
     QFutureWatcher<EvalResult> m_parseFutureWatcher;

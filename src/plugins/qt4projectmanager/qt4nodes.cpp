@@ -1452,23 +1452,12 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
     if (parent)
         setParent(parent);
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
-            this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
-
     connect(&m_parseFutureWatcher, SIGNAL(finished()),
             this, SLOT(applyAsyncEvaluate()));
 }
 
 Qt4ProFileNode::~Qt4ProFileNode()
 {
-    CppTools::CppModelManagerInterface *modelManager
-            = CppTools::CppModelManagerInterface::instance();
-    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
-    end = m_uiCodeModelSupport.constEnd();
-    for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
-        modelManager->removeExtraEditorSupport(it.value());
-        delete it.value();
-    }
     m_parseFutureWatcher.waitForFinished();
     if (m_readerExact) {
         // Oh we need to clean up
@@ -1484,13 +1473,6 @@ bool Qt4ProFileNode::isParent(Qt4ProFileNode *node)
             return true;
     }
     return false;
-}
-
-void Qt4ProFileNode::buildStateChanged(ProjectExplorer::Project *project)
-{
-    if (project == m_project
-            && !ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(m_project))
-        updateCodeModelSupportFromBuild();
 }
 
 bool Qt4ProFileNode::hasBuildTargets() const
@@ -1525,9 +1507,9 @@ QString Qt4ProFileNode::singleVariableValue(const Qt4Variable var) const
     return values.isEmpty() ? QString() : values.first();
 }
 
-QStringList Qt4ProFileNode::uiFiles() const
+QHash<QString, QString> Qt4ProFileNode::uiFiles() const
 {
-    return m_uiHeaderFiles;
+    return m_uiFiles;
 }
 
 void Qt4ProFileNode::emitProFileUpdatedRecursive()
@@ -1982,7 +1964,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     setParseInProgress(false);
 
-    createUiCodeModelSupport();
+    updateUiFiles();
 
     m_project->destroyProFileReader(m_readerExact);
     m_project->destroyProFileReader(m_readerCumulative);
@@ -2244,26 +2226,6 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
     return QDir::cleanPath(QDir(bc->buildDirectory()).absoluteFilePath(relativeDir));
 }
 
-void Qt4ProFileNode::updateCodeModelSupportFromBuild()
-{
-    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
-    end = m_uiCodeModelSupport.constEnd();
-    for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it)
-        it.value()->updateFromBuild();
-}
-
-void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
-                                                      const QString &contents)
-{
-    const QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it =
-            m_uiCodeModelSupport.constFind(uiFileName);
-    if (it != m_uiCodeModelSupport.constEnd())
-        it.value()->updateFromEditor(contents);
-    foreach (ProjectExplorer::ProjectNode *pro, subProjectNodes())
-        if (Qt4ProFileNode *qt4proFileNode = qobject_cast<Qt4ProFileNode *>(pro))
-            qt4proFileNode->updateCodeModelSupportFromEditor(uiFileName, contents);
-}
-
 QString Qt4ProFileNode::uiDirectory() const
 {
     const Qt4VariablesHash::const_iterator it = m_varValues.constFind(UiDirVar);
@@ -2281,18 +2243,9 @@ QString Qt4ProFileNode::uiHeaderFile(const QString &uiDir, const QString &formFi
     return QDir::cleanPath(uiHeaderFilePath);
 }
 
-void Qt4ProFileNode::createUiCodeModelSupport()
+void Qt4ProFileNode::updateUiFiles()
 {
-//    qDebug()<<"creatUiCodeModelSupport()";
-    CppTools::CppModelManagerInterface *modelManager
-            = CppTools::CppModelManagerInterface::instance();
-
-    // First move all to
-    QMap<QString, QtSupport::UiCodeModelSupport *> oldCodeModelSupport;
-    oldCodeModelSupport = m_uiCodeModelSupport;
-    m_uiCodeModelSupport.clear();
-
-    m_uiHeaderFiles.clear();
+    m_uiFiles.clear();
 
     // Only those two project types can have ui files for us
     if (m_projectType == ApplicationTemplate || m_projectType == LibraryTemplate) {
@@ -2303,30 +2256,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
 
         // Find the UiDir, there can only ever be one
         const  QString uiDir = uiDirectory();
-        foreach (const ProjectExplorer::FileNode *uiFile, uiFiles) {
-            const QString uiHeaderFilePath = uiHeaderFile(uiDir, uiFile->path());
-            m_uiHeaderFiles << uiHeaderFilePath;
-//            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
-            QMap<QString, QtSupport::UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
-            if (it != oldCodeModelSupport.end()) {
-//                qDebug()<<"updated old codemodelsupport";
-                QtSupport::UiCodeModelSupport *cms = it.value();
-                cms->setFileName(uiHeaderFilePath);
-                m_uiCodeModelSupport.insert(it.key(), cms);
-                oldCodeModelSupport.erase(it);
-            } else {
-//                qDebug()<<"adding new codemodelsupport";
-                QtSupport::UiCodeModelSupport *cms = new QtSupport::UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
-                m_uiCodeModelSupport.insert(uiFile->path(), cms);
-                modelManager->addExtraEditorSupport(cms);
-            }
-        }
-    }
-    // Remove old
-    QMap<QString, QtSupport::UiCodeModelSupport *>::const_iterator it, end;
-    end = oldCodeModelSupport.constEnd();
-    for (it = oldCodeModelSupport.constBegin(); it!=end; ++it) {
-        modelManager->removeExtraEditorSupport(it.value());
-        delete it.value();
+        foreach (const ProjectExplorer::FileNode *uiFile, uiFiles)
+            m_uiFiles.insert(uiFile->path(), uiHeaderFile(uiDir, uiFile->path()));
     }
 }

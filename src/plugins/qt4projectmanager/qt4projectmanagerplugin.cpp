@@ -296,9 +296,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 }
 
 void Qt4ProjectManagerPlugin::extensionsInitialized()
-{
-    m_qt4ProjectManager->init();
-}
+{ }
 
 void Qt4ProjectManagerPlugin::startupProjectChanged()
 {
