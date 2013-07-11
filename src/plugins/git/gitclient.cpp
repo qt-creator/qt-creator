@@ -3569,16 +3569,19 @@ void GitClient::StashInfo::stashPrompt(const QString &keyword, const QString &st
 
     msgBox.setDetailedText(statusOutput);
 
+    QPushButton *stashAndPopButton = msgBox.addButton(tr("Stash && Pop"), QMessageBox::AcceptRole);
+    stashAndPopButton->setToolTip(tr("Stash local changes temporarily, pop when command finishes."));
+
     QPushButton *stashButton = msgBox.addButton(tr("Stash"), QMessageBox::AcceptRole);
-    stashButton->setToolTip(tr("Stash local changes and continue."));
+    stashButton->setToolTip(tr("Stash local changes and execute command."));
 
     QPushButton *discardButton = msgBox.addButton(tr("Discard"), QMessageBox::AcceptRole);
-    discardButton->setToolTip(tr("Discard (reset) local changes and continue."));
+    discardButton->setToolTip(tr("Discard (reset) local changes and execute command."));
 
     QPushButton *ignoreButton = 0;
     if (m_flags & AllowUnstashed) {
         ignoreButton = msgBox.addButton(QMessageBox::Ignore);
-        ignoreButton->setToolTip(tr("Continue with local changes in working directory."));
+        ignoreButton->setToolTip(tr("Execute command with local changes in working directory."));
     }
 
     QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
@@ -3587,15 +3590,16 @@ void GitClient::StashInfo::stashPrompt(const QString &keyword, const QString &st
     msgBox.exec();
 
     if (msgBox.clickedButton() == discardButton) {
-        if (!m_client->synchronousReset(m_workingDir, QStringList(), errorMessage))
-            m_stashResult = StashFailed;
-        else
-            m_stashResult = StashUnchanged;
+        m_stashResult = m_client->synchronousReset(m_workingDir, QStringList(), errorMessage) ?
+                        StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == ignoreButton) { // At your own risk, so.
         m_stashResult = NotStashed;
     } else if (msgBox.clickedButton() == cancelButton) {
         m_stashResult = StashCanceled;
     } else if (msgBox.clickedButton() == stashButton) {
+        m_stashResult = m_client->executeSynchronousStash(m_workingDir,
+                        creatorStashMessage(keyword), errorMessage) ? StashUnchanged : StashFailed;
+    } else if (msgBox.clickedButton() == stashAndPopButton) {
         executeStash(keyword, errorMessage);
     }
 }
