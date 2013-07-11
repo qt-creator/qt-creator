@@ -110,7 +110,6 @@ public:
 
     QmlProfilerViewManager *m_viewContainer;
     Utils::FileInProjectFinder m_projectFinder;
-    RunConfiguration *m_runConfiguration;
     QToolButton *m_recordButton;
     QToolButton *m_clearButton;
 
@@ -131,7 +130,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
-    d->m_runConfiguration = 0;
 
     qmlRegisterType<QmlProfilerCanvas>("Monitor", 1, 0, "Canvas2D");
     qmlRegisterType<Context2D>();
@@ -257,15 +255,13 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     if (isTcpConnection)
         d->m_profilerConnections->setTcpConnection(sp.analyzerHost, sp.analyzerPort);
 
-    d->m_runConfiguration = runConfiguration;
-
     //
     // Initialize m_projectFinder
     //
 
     QString projectDirectory;
-    if (d->m_runConfiguration) {
-        Project *project = d->m_runConfiguration->target()->project();
+    if (runConfiguration) {
+        Project *project = runConfiguration->target()->project();
         projectDirectory = project->projectDirectory();
     }
 
