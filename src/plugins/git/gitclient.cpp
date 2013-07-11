@@ -485,10 +485,16 @@ class GitCommitDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
 public:
     GitCommitDiffArgumentsWidget(Git::Internal::GitClient *client, const QString &directory,
                                  const QStringList &unstaged, const QStringList &staged) :
-        BaseGitDiffArgumentsWidget(client, directory, QStringList()),
-        m_unstagedFileNames(unstaged),
-        m_stagedFileNames(staged)
-    { }
+        BaseGitDiffArgumentsWidget(client, directory, QStringList())
+    {
+        setFileNames(unstaged, staged);
+    }
+
+    void setFileNames(const QStringList &unstaged, const QStringList &staged)
+    {
+        m_unstagedFileNames = unstaged;
+        m_stagedFileNames = staged;
+    }
 
     void executeCommand()
     {
@@ -496,8 +502,8 @@ public:
     }
 
 private:
-    const QStringList m_unstagedFileNames;
-    const QStringList m_stagedFileNames;
+    QStringList m_unstagedFileNames;
+    QStringList m_stagedFileNames;
 };
 
 class GitFileDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
@@ -531,7 +537,7 @@ public:
 
     void executeCommand()
     {
-        m_client->diffBranch(m_workingDirectory, arguments(), m_branchName);
+        m_client->diffBranch(m_workingDirectory, baseArguments(), m_branchName);
     }
 
 private:
@@ -566,7 +572,7 @@ public:
 
     void executeCommand()
     {
-        m_client->show(m_workingDirectory, m_id, arguments());
+        m_client->show(m_workingDirectory, m_id, baseArguments());
     }
 
 private:
@@ -611,7 +617,7 @@ public:
         int line = -1;
         if (m_editor)
             line = m_editor->lineNumberOfCurrentEditor();
-        m_client->blame(m_workingDirectory, arguments(), m_fileName, m_revision, line);
+        m_client->blame(m_workingDirectory, baseArguments(), m_fileName, m_revision, line);
     }
 
 private:
@@ -635,8 +641,7 @@ public:
         BaseGitDiffArgumentsWidget(client, directory, args),
         m_client(client),
         m_workingDirectory(directory),
-        m_enableAnnotationContextMenu(enableAnnotationContextMenu),
-        m_fileNames(fileNames)
+        m_enableAnnotationContextMenu(enableAnnotationContextMenu)
     {
         QTC_ASSERT(!directory.isEmpty(), return);
         QToolButton *diffButton = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
@@ -652,11 +657,17 @@ public:
         QToolButton *graphButton = addToggleButton(graphArguments, tr("Graph"),
                                               tr("Show textual graph log."));
         mapSetting(graphButton, m_client->settings()->boolPointer(GitSettings::graphLogKey));
+        setFileNames(fileNames);
+    }
+
+    void setFileNames(const QStringList &fileNames)
+    {
+        m_fileNames = fileNames;
     }
 
     void executeCommand()
     {
-        m_client->log(m_workingDirectory, m_fileNames, m_enableAnnotationContextMenu, arguments());
+        m_client->log(m_workingDirectory, m_fileNames, m_enableAnnotationContextMenu, baseArguments());
     }
 
 private:
@@ -964,6 +975,7 @@ void GitClient::diff(const QString &workingDirectory,
         }
 
         GitCommitDiffArgumentsWidget *argWidget = qobject_cast<GitCommitDiffArgumentsWidget *>(editor->configurationWidget());
+        argWidget->setFileNames(unstagedFileNames, stagedFileNames);
         QStringList userDiffArgs = argWidget->arguments();
         editor->setDiffBaseDirectory(workingDirectory);
 
@@ -1126,6 +1138,8 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
          arguments << QLatin1String("-n") << QString::number(logCount);
 
     GitLogArgumentsWidget *argWidget = qobject_cast<GitLogArgumentsWidget *>(editor->configurationWidget());
+    argWidget->setBaseArguments(args);
+    argWidget->setFileNames(fileNames);
     QStringList userArgs = argWidget->arguments();
 
     arguments.append(userArgs);
