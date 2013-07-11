@@ -1,4 +1,4 @@
-QT += network declarative
+QT += network
 
 include(../../qtcreatorplugin.pri)
 include(fileformat/fileformat.pri)

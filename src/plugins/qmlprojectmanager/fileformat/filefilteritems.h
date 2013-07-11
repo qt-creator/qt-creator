@@ -36,8 +36,6 @@
 #include <QSet>
 #include <QTimer>
 
-#include <qdeclarative.h>
-
 QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace Utils {
@@ -180,11 +178,5 @@ public:
 };
 
 } // namespace QmlProjectManager
-
-QML_DECLARE_TYPE(QmlProjectManager::QmlFileFilterItem)
-QML_DECLARE_TYPE(QmlProjectManager::JsFileFilterItem)
-QML_DECLARE_TYPE(QmlProjectManager::ImageFileFilterItem)
-QML_DECLARE_TYPE(QmlProjectManager::CssFileFilterItem)
-QML_DECLARE_TYPE(QmlProjectManager::OtherFileFilterItem)
 
 #endif // FILEFILTERITEMS_HPROJECTITEM_H

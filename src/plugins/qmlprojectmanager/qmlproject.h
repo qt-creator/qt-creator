@@ -34,7 +34,6 @@
 
 #include <projectexplorer/project.h>
 
-#include <QDeclarativeEngine>
 #include <QPointer>
 
 namespace ProjectExplorer { class RunConfiguration; }
@@ -119,8 +118,6 @@ private:
     // plain format
     QStringList m_files;
 
-    // qml based, new format
-    QDeclarativeEngine m_engine;
     QPointer<QmlProjectItem> m_projectItem;
 
     Internal::QmlProjectNode *m_rootNode;

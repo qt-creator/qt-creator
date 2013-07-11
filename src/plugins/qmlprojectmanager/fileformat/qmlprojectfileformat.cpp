@@ -30,26 +30,102 @@
 #include "qmlprojectfileformat.h"
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
+#include <qmljs/qmljssimplereader.h>
 
-#include <qdeclarative.h>
+enum {
+    debug = false
+};
+
+namespace   {
+
+void setupFileFilterItem(QmlProjectManager::FileFilterBaseItem *fileFilterItem, const QmlJS::SimpleReaderNode::Ptr &node)
+{
+    const QVariant directoryProperty = node->property(QLatin1String("directory"));
+    if (directoryProperty.isValid())
+        fileFilterItem->setDirectory(directoryProperty.toString());
+
+    const QVariant recursiveProperty = node->property(QLatin1String("recursive"));
+    if (recursiveProperty.isValid())
+        fileFilterItem->setRecursive(recursiveProperty.toBool());
+
+    const QVariant pathsProperty = node->property(QLatin1String("paths"));
+    if (pathsProperty.isValid())
+        fileFilterItem->setPathsProperty(pathsProperty.toStringList());
+
+    if (debug)
+        qDebug() << "directory:" << directoryProperty << "recursive" << recursiveProperty << "paths" << pathsProperty;
+}
+
+} //namespace
 
 namespace QmlProjectManager {
 
-void QmlProjectFileFormat::registerDeclarativeTypes()
+QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const QString &fileName, QString *errorMessage)
 {
-    qmlRegisterType<QmlProjectManager::QmlProjectContentItem>();
-    qmlRegisterType<QmlProjectManager::QmlProjectItem>("QmlProject",1,0,"Project");
-    qmlRegisterType<QmlProjectManager::QmlProjectItem>("QmlProject",1,1,"Project");
+    QmlJS::SimpleReader simpleQmlJSReader;
 
-    qmlRegisterType<QmlProjectManager::QmlFileFilterItem>("QmlProject",1,0,"QmlFiles");
-    qmlRegisterType<QmlProjectManager::QmlFileFilterItem>("QmlProject",1,1,"QmlFiles");
-    qmlRegisterType<QmlProjectManager::JsFileFilterItem>("QmlProject",1,0,"JavaScriptFiles");
-    qmlRegisterType<QmlProjectManager::JsFileFilterItem>("QmlProject",1,1,"JavaScriptFiles");
-    qmlRegisterType<QmlProjectManager::ImageFileFilterItem>("QmlProject",1,0,"ImageFiles");
-    qmlRegisterType<QmlProjectManager::ImageFileFilterItem>("QmlProject",1,1,"ImageFiles");
-    qmlRegisterType<QmlProjectManager::CssFileFilterItem>("QmlProject",1,0,"CssFiles");
-    qmlRegisterType<QmlProjectManager::CssFileFilterItem>("QmlProject",1,1,"CssFiles");
-    qmlRegisterType<QmlProjectManager::OtherFileFilterItem>("QmlProject",1,1,"Files");
+    const QmlJS::SimpleReaderNode::Ptr rootNode = simpleQmlJSReader.readFile(fileName);
+
+    if (!simpleQmlJSReader.errors().isEmpty() || !rootNode->isValid()) {
+        qWarning() << "unable to parse:" << fileName;
+        qWarning() << simpleQmlJSReader.errors();
+        if (errorMessage)
+            *errorMessage = simpleQmlJSReader.errors().join(QLatin1String(", "));
+        return 0;
+    }
+
+    if (rootNode->name() == QLatin1String("Project")) {
+        QmlProjectItem *projectItem = new QmlProjectItem();
+
+        const QVariant mainFileProperty = rootNode->property(QLatin1String("mainFile"));
+        if (mainFileProperty.isValid())
+            projectItem->setMainFile(mainFileProperty.toString());
+
+        const QVariant importPathsProperty = rootNode->property(QLatin1String("importPaths"));
+        if (importPathsProperty.isValid())
+            projectItem->setImportPaths(importPathsProperty.toStringList());
+
+        if (debug) {
+            qDebug() << "importPath:" << importPathsProperty << "mainFile:" << mainFileProperty;
+        }
+
+        foreach (const QmlJS::SimpleReaderNode::Ptr &childNode, rootNode->children()) {
+            if (childNode->name() == QLatin1String("QmlFiles")) {
+                if (debug)
+                    qDebug() << "QmlFiles";
+                QmlFileFilterItem *qmlFileFilterItem = new QmlFileFilterItem(projectItem);
+                setupFileFilterItem(qmlFileFilterItem, childNode);
+                projectItem->appendContent(qmlFileFilterItem);
+            } else if (childNode->name() == QLatin1String("JavaScriptFiles")) {
+                if (debug)
+                    qDebug() << "JavaScriptFiles";
+                JsFileFilterItem *jsFileFilterItem = new JsFileFilterItem(projectItem);
+                setupFileFilterItem(jsFileFilterItem, childNode);
+                projectItem->appendContent(jsFileFilterItem);
+            } else if (childNode->name() == QLatin1String("ImageFiles")) {
+                if (debug)
+                    qDebug() << "ImageFiles";
+                ImageFileFilterItem *imageFileFilterItem = new ImageFileFilterItem(projectItem);
+                setupFileFilterItem(imageFileFilterItem, childNode);
+                projectItem->appendContent(imageFileFilterItem);
+
+            } else if (childNode->name() == QLatin1String("CssFiles")) {
+                if (debug)
+                    qDebug() << "CssFiles";
+                CssFileFilterItem *cssFileFilterItem = new CssFileFilterItem(projectItem);
+                setupFileFilterItem(cssFileFilterItem, childNode);
+                projectItem->appendContent(cssFileFilterItem);
+            } else {
+                qWarning() << "Unkwown type:" << childNode->name();
+            }
+        }
+        return projectItem;
+    }
+
+    if (errorMessage)
+        *errorMessage = tr("Invalid root element: %1").arg(rootNode->name());
+
+    return 0;
 }
 
 } // namespace QmlProjectManager

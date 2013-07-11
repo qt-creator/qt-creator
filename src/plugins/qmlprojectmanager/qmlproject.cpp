@@ -29,6 +29,7 @@
 
 #include "qmlproject.h"
 #include "qmlprojectfile.h"
+#include "fileformat/qmlprojectfileformat.h"
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojectconstants.h"
@@ -46,12 +47,13 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QDeclarativeComponent>
 #include <QDebug>
 
 namespace QmlProjectManager {
 
 namespace Internal {
+
+
 
 class QmlProjectKitMatcher : public ProjectExplorer::KitMatcher
 {
@@ -182,22 +184,16 @@ void QmlProject::parseProject(RefreshOptions options)
         if (options & ProjectFile)
             delete m_projectItem.data();
         if (!m_projectItem) {
-            Utils::FileReader reader;
-            if (reader.fetch(m_fileName)) {
-                QDeclarativeComponent *component = new QDeclarativeComponent(&m_engine, this);
-                component->setData(reader.data(), QUrl::fromLocalFile(m_fileName));
-                if (component->isReady()
-                    && qobject_cast<QmlProjectItem*>(component->create())) {
-                    m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
-                    connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>,QSet<QString>)),
-                            this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
-                } else {
-                    messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName), Core::MessageManager::NoModeSwitch);
-                    messageManager->printToOutputPane(component->errorString(), Core::MessageManager::NoModeSwitch);
-                }
-            } else {
-                messageManager->printToOutputPane(tr("QML project: %1").arg(reader.errorString()), Core::MessageManager::NoModeSwitch);
-            }
+              QString errorMessage;
+              m_projectItem = QmlProjectFileFormat::parseProjectFile(m_fileName, &errorMessage);
+              if (m_projectItem) {
+                  connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>,QSet<QString>)),
+                          this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
+
+              } else {
+                  messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName), Core::MessageManager::NoModeSwitch);
+                  messageManager->printToOutputPane(errorMessage, Core::MessageManager::NoModeSwitch);
+              }
         }
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());

@@ -33,7 +33,6 @@
 #include <QObject>
 #include <QSet>
 #include <QStringList>
-#include <qdeclarative.h>
 
 namespace QmlProjectManager {
 
@@ -52,18 +51,13 @@ class QmlProjectItem : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QmlProjectItem)
 
-    Q_PROPERTY(QDeclarativeListProperty<QmlProjectManager::QmlProjectContentItem> content READ content DESIGNABLE false)
     Q_PROPERTY(QString sourceDirectory READ sourceDirectory NOTIFY sourceDirectoryChanged)
     Q_PROPERTY(QStringList importPaths READ importPaths WRITE setImportPaths NOTIFY importPathsChanged)
     Q_PROPERTY(QString mainFile READ mainFile WRITE setMainFile NOTIFY mainFileChanged)
 
-    Q_CLASSINFO("DefaultProperty", "content")
-
 public:
     QmlProjectItem(QObject *parent = 0);
     ~QmlProjectItem();
-
-    QDeclarativeListProperty<QmlProjectContentItem> content();
 
     QString sourceDirectory() const;
     void setSourceDirectory(const QString &directoryPath);
@@ -77,6 +71,7 @@ public:
     QString mainFile() const;
     void setMainFile(const QString &mainFilePath);
 
+    void appendContent(QmlProjectContentItem* contentItem);
 
 signals:
     void qmlFilesChanged(const QSet<QString> &, const QSet<QString> &);
@@ -89,9 +84,5 @@ protected:
 };
 
 } // namespace QmlProjectManager
-
-QML_DECLARE_TYPE(QmlProjectManager::QmlProjectItem)
-QML_DECLARE_TYPE(QmlProjectManager::QmlProjectContentItem)
-Q_DECLARE_METATYPE(QList<QmlProjectManager::QmlProjectContentItem *>)
 
 #endif // QMLPROJECTITEM_H

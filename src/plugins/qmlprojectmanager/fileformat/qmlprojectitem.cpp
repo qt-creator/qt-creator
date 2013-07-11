@@ -77,12 +77,6 @@ QmlProjectItem::~QmlProjectItem()
     delete d_ptr;
 }
 
-QDeclarativeListProperty<QmlProjectContentItem> QmlProjectItem::content()
-{
-    Q_D(QmlProjectItem);
-    return QDeclarativeListProperty<QmlProjectContentItem>(this, d->content);
-}
-
 QString QmlProjectItem::sourceDirectory() const
 {
     Q_D(const QmlProjectItem);
@@ -192,6 +186,12 @@ void QmlProjectItem::setMainFile(const QString &mainFilePath)
         return;
     d->mainFile = mainFilePath;
     emit mainFileChanged();
+}
+
+void QmlProjectItem::appendContent(QmlProjectContentItem *contentItem)
+{
+    Q_D(QmlProjectItem);
+    d->content.append(contentItem);
 }
 
 } // namespace QmlProjectManager
