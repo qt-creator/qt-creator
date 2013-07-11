@@ -97,7 +97,7 @@ int DeviceManager::deviceCount() const
 void DeviceManager::replaceInstance()
 {
     copy(DeviceManagerPrivate::clonedInstance, instance(), false);
-    emit instance()->deviceListChanged();
+    emit instance()->deviceListReplaced();
     emit instance()->updated();
 }
 
@@ -459,7 +459,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     QSignalSpy deviceAddedSpy(mgr, SIGNAL(deviceAdded(Core::Id)));
     QSignalSpy deviceRemovedSpy(mgr, SIGNAL(deviceRemoved(Core::Id)));
     QSignalSpy deviceUpdatedSpy(mgr, SIGNAL(deviceUpdated(Core::Id)));
-    QSignalSpy deviceListChangedSpy(mgr, SIGNAL(deviceListChanged()));
+    QSignalSpy deviceListReplacedSpy(mgr, SIGNAL(deviceListReplaced()));
     QSignalSpy updatedSpy(mgr, SIGNAL(updated()));
 
     mgr->addDevice(dev);
@@ -469,7 +469,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 1);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceAddedSpy.clear();
     updatedSpy.clear();
@@ -478,7 +478,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 0);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 0);
 
     mgr->setDeviceState(dev->id(), IDevice::DeviceReadyToUse);
@@ -486,7 +486,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 0);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 1);
-    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceUpdatedSpy.clear();
     updatedSpy.clear();
@@ -497,7 +497,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 0);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 1);
-    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceUpdatedSpy.clear();
     updatedSpy.clear();
@@ -512,7 +512,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 1);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceAddedSpy.clear();
     updatedSpy.clear();
@@ -525,7 +525,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 0);
     QCOMPARE(deviceRemovedSpy.count(), 2);
 //    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
-    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 2);
 }
 

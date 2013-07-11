@@ -447,7 +447,7 @@ void DeviceKitInformation::kitsWereLoaded()
         fix(k);
 
     DeviceManager *dm = DeviceManager::instance();
-    connect(dm, SIGNAL(deviceListChanged()), this, SLOT(devicesChanged()));
+    connect(dm, SIGNAL(deviceListReplaced()), this, SLOT(devicesChanged()));
     connect(dm, SIGNAL(deviceAdded(Core::Id)), this, SLOT(devicesChanged()));
     connect(dm, SIGNAL(deviceRemoved(Core::Id)), this, SLOT(devicesChanged()));
     connect(dm, SIGNAL(deviceUpdated(Core::Id)), this, SLOT(deviceUpdated(Core::Id)));

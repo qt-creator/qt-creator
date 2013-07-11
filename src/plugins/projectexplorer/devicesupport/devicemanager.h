@@ -76,7 +76,7 @@ signals:
     void deviceAdded(Core::Id id);
     void deviceRemoved(Core::Id id);
     void deviceUpdated(Core::Id id);
-    void deviceListChanged();
+    void deviceListReplaced(); // For bulk changes via the settings dialog.
     void updated(); // Emitted for all of the above.
 
     void devicesLoaded(); // Emitted once load() is done

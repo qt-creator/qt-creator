@@ -59,7 +59,7 @@ void BlackBerryDeviceConnectionManager::initialize()
     ProjectExplorer::DeviceManager *deviceManager = ProjectExplorer::DeviceManager::instance();
     connect(deviceManager, SIGNAL(deviceAdded(Core::Id)), this, SLOT(connectDevice(Core::Id)));
     connect(deviceManager, SIGNAL(deviceRemoved(Core::Id)), this, SLOT(disconnectDevice(Core::Id)));
-    connect(deviceManager, SIGNAL(deviceListChanged()), this, SLOT(handleDeviceListChanged()));
+    connect(deviceManager, SIGNAL(deviceListReplaced()), this, SLOT(handleDeviceListChanged()));
 }
 
 void BlackBerryDeviceConnectionManager::killAllConnections()
