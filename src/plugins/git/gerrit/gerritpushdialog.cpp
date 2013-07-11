@@ -33,6 +33,7 @@
 #include "../gitplugin.h"
 #include "../gitclient.h"
 
+#include <QDateTime>
 #include <QDir>
 
 namespace Gerrit {
@@ -94,20 +95,23 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     error.clear();
     args.clear();
 
-    args << QLatin1String("-r");
-
-    if (!gitClient->synchronousBranchCmd(m_workingDir, args, &output, &error))
+    QString remotesPrefix(QLatin1String("refs/remotes/"));
+    args << QLatin1String("--format=%(refname)\t%(committerdate:raw)")
+         << remotesPrefix;
+    if (!gitClient->synchronousForEachRefCmd(workingDir, args, &output))
         return;
 
     refs.clear();
     refs = output.split(QLatin1String("\n"));
     foreach (const QString &reference, refs) {
-        if (reference.contains(head) || reference.isEmpty())
+        QStringList entries = reference.split(QLatin1Char('\t'));
+        if (entries.count() < 2 || entries.first().endsWith(head))
             continue;
-
-        int refBranchIndex = reference.indexOf(QLatin1Char('/'));
-        m_remoteBranches.insertMulti(reference.left(refBranchIndex).trimmed(),
-                                     reference.mid(refBranchIndex + 1).trimmed());
+        const QString ref = entries.at(0).mid(remotesPrefix.size());
+        int refBranchIndex = ref.indexOf(QLatin1Char('/'));
+        int timeT = entries.at(1).left(entries.at(1).indexOf(QLatin1Char(' '))).toInt();
+        BranchDate bd(ref.mid(refBranchIndex + 1), QDateTime::fromTime_t(timeT).date());
+        m_remoteBranches.insertMulti(ref.left(refBranchIndex), bd);
     }
 
     int currIndex = 0;
@@ -165,6 +169,10 @@ QString GerritPushDialog::calculateChangeRange()
 
 void GerritPushDialog::setChangeRange()
 {
+    if (m_ui->branchComboBox->itemData(m_ui->branchComboBox->currentIndex()) == 1) {
+        setRemoteBranches(true);
+        return;
+    }
     QString remote = selectedRemoteName();
     remote += QLatin1Char('/');
     remote += selectedRemoteBranchName();
@@ -182,22 +190,31 @@ bool GerritPushDialog::valid() const
     return m_valid;
 }
 
-void GerritPushDialog::setRemoteBranches()
+void GerritPushDialog::setRemoteBranches(bool includeOld)
 {
     bool blocked = m_ui->branchComboBox->blockSignals(true);
     m_ui->branchComboBox->clear();
 
     int i = 0;
+    bool excluded = false;
     for (RemoteBranchesMap::const_iterator it = m_remoteBranches.constBegin(),
          end = m_remoteBranches.constEnd();
          it != end; ++it) {
         if (it.key() == selectedRemoteName()) {
-            m_ui->branchComboBox->addItem(it.value());
-            if (it.value() == m_suggestedRemoteBranch)
-                m_ui->branchComboBox->setCurrentIndex(i);
-            ++i;
+            const BranchDate &bd = it.value();
+            const bool isSuggested = bd.first == m_suggestedRemoteBranch;
+            if (includeOld || bd.second.daysTo(QDate::currentDate()) <= 60 || isSuggested) {
+                m_ui->branchComboBox->addItem(bd.first);
+                if (isSuggested)
+                    m_ui->branchComboBox->setCurrentIndex(i);
+                ++i;
+            } else {
+                excluded = true;
+            }
         }
     }
+    if (excluded)
+        m_ui->branchComboBox->addItem(tr("... Include older branches ..."), 1);
     setChangeRange();
     m_ui->branchComboBox->blockSignals(blocked);
 }

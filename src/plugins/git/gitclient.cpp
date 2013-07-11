@@ -1988,8 +1988,12 @@ bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStrin
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     *output = commandOutputFromLocal8Bit(outputText);
     if (!rc) {
-        *errorMessage = msgCannotRun(QLatin1String("git for-each-ref"), workingDirectory,
+        QString error = msgCannotRun(QLatin1String("git for-each-ref"), workingDirectory,
                                      commandOutputFromLocal8Bit(errorText));
+        if (errorMessage)
+            *errorMessage = error;
+        else
+            outputWindow()->appendError(error);
 
         return false;
     }

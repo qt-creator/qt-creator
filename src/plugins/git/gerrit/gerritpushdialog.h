@@ -32,6 +32,7 @@
 
 #include <QDialog>
 #include <QMultiMap>
+#include <QDate>
 
 namespace Gerrit {
 namespace Internal {
@@ -59,10 +60,11 @@ public:
 
 private slots:
     void setChangeRange();
-    void setRemoteBranches();
+    void setRemoteBranches(bool includeOld = false);
 
 private:
-    typedef QMultiMap<QString, QString> RemoteBranchesMap;
+    typedef QPair<QString, QDate> BranchDate;
+    typedef QMultiMap<QString, BranchDate> RemoteBranchesMap;
 
     QString calculateChangeRange();
     QString m_workingDir;
