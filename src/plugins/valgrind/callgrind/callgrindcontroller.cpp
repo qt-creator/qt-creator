@@ -99,10 +99,10 @@ void CallgrindController::run(Option option)
     }
     QTC_ASSERT(m_valgrindProc, return);
 
-    if (RemoteValgrindProcess *remote = qobject_cast<RemoteValgrindProcess *>(m_valgrindProc))
-        m_process = new RemoteValgrindProcess(remote->connection(), this);
-    else
-        m_process = new LocalValgrindProcess(this);
+    QSsh::SshConnection *connection = m_valgrindProc->connection();
+    m_process = new ValgrindProcess(m_valgrindProc->isLocal(),
+                connection ? connection->connectionParameters() : QSsh::SshConnectionParameters(),
+                connection, this);
 
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
             SLOT(processFinished(int,QProcess::ExitStatus)));
@@ -203,10 +203,10 @@ void CallgrindController::getLocalDataFile()
     // first, set the to-be-parsed file to callgrind.out.PID
     QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + QDir::separator() + baseFileName);
 
-    if (RemoteValgrindProcess *remote = qobject_cast<RemoteValgrindProcess *>(m_valgrindProc)) {
+    if (!m_valgrindProc->isLocal()) {
         ///TODO: error handling
         emit statusMessage(tr("Downloading remote profile data..."));
-        m_ssh = remote->connection();
+        m_ssh = m_valgrindProc->connection();
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         QString cmd = QString::fromLatin1("ls -t %1* | head -n 1").arg(fileName);
         m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());

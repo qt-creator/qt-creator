@@ -216,10 +216,7 @@ void ValgrindRunner::waitForFinished() const
 
 bool ValgrindRunner::start()
 {
-    if (d->startMode == Analyzer::StartLocal)
-        d->run(new LocalValgrindProcess(this));
-    else if (d->startMode == Analyzer::StartRemote)
-        d->run(new RemoteValgrindProcess(d->connParams, this));
+    d->run(new ValgrindProcess(d->startMode == Analyzer::StartLocal, d->connParams, 0, this));
     return true;
 }
 
