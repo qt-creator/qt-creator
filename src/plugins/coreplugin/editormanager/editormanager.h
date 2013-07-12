@@ -122,9 +122,7 @@ public:
     QStringList getOpenFileNames() const;
     Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0) const;
 
-    bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
-    QList<IEditor *> editorsForDocument(IDocument *document) const;
 
     static IDocument *currentDocument();
     static IEditor *currentEditor();

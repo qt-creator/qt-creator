@@ -638,16 +638,6 @@ QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) cons
     return found;
 }
 
-QList<IEditor *> EditorManager::editorsForDocument(IDocument *document) const
-{
-    QList<IEditor *> found;
-    foreach (IEditor *editor, openedEditors()) {
-        if (editor->document() == document)
-            found << editor;
-    }
-    return found;
-}
-
 IDocument *EditorManager::currentDocument()
 {
     return d->m_currentEditor ? d->m_currentEditor->document() : 0;
@@ -1299,7 +1289,7 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
 Core::IEditor *EditorManager::activateEditorForDocument(Core::Internal::EditorView *view, Core::IDocument *document, OpenEditorFlags flags)
 {
     Q_ASSERT(view);
-    const QList<IEditor*> editors = editorsForDocument(document);
+    const QList<IEditor*> editors = d->m_documentModel->editorsForDocument(document);
     if (editors.isEmpty())
         return 0;
 
@@ -1693,11 +1683,6 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
     m_instance->addEditor(edt);
     QApplication::restoreOverrideCursor();
     return edt;
-}
-
-bool EditorManager::hasEditor(const QString &fileName) const
-{
-    return !editorsForFileName(fileName).isEmpty();
 }
 
 void EditorManager::restoreEditorState(IEditor *editor)

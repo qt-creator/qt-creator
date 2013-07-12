@@ -826,7 +826,7 @@ void DocumentManager::checkForReload()
     IDocument::ReloadSetting defaultBehavior = EditorManager::instance()->reloadSetting();
     Utils::ReloadPromptAnswer previousAnswer = Utils::ReloadCurrent;
 
-    QList<IEditor*> editorsToClose;
+    QList<IDocument *> documentsToClose;
     QMap<IDocument*, QString> documentsToSave;
 
     // collect file information
@@ -931,7 +931,7 @@ void DocumentManager::checkForReload()
                    && type == IDocument::TypeRemoved && !document->isModified()) {
             // file removed, but unmodified files should be reloaded
             // so we close the file
-            editorsToClose << EditorManager::instance()->editorsForDocument(document);
+            documentsToClose << document;
         } else if (defaultBehavior == IDocument::IgnoreAll) {
             // content change or removed, but settings say ignore
             success = document->reload(&errorString, IDocument::FlagIgnore, type);
@@ -943,7 +943,7 @@ void DocumentManager::checkForReload()
             if (document->reloadBehavior(trigger, type) == IDocument::BehaviorSilent) {
                 // content change or removed, IDocument wants silent handling
                 if (type == IDocument::TypeRemoved)
-                    editorsToClose << EditorManager::instance()->editorsForDocument(document);
+                    documentsToClose << document;
                 else
                     success = document->reload(&errorString, IDocument::FlagReload, type);
             // IDocument wants us to ask
@@ -968,7 +968,7 @@ void DocumentManager::checkForReload()
                         success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                         break;
                     case Utils::CloseCurrent:
-                        editorsToClose << EditorManager::instance()->editorsForDocument(document);
+                        documentsToClose << document;
                         break;
                     }
                 }
@@ -992,7 +992,7 @@ void DocumentManager::checkForReload()
                         break;
                     }
                     case Utils::FileDeletedClose:
-                        editorsToClose << EditorManager::instance()->editorsForDocument(document);
+                        documentsToClose << document;
                         unhandled = false;
                         break;
                     }
@@ -1016,7 +1016,7 @@ void DocumentManager::checkForReload()
                               errorStrings.join(QLatin1String("\n")));
 
     // handle deleted files
-    EditorManager::instance()->closeEditors(editorsToClose, false);
+    EditorManager::closeDocuments(documentsToClose, false);
     QMapIterator<IDocument *, QString> it(documentsToSave);
     while (it.hasNext()) {
         it.next();
