@@ -35,6 +35,7 @@
 #include <QFileInfo>
 
 #include <utils/qtcassert.h>
+#include <utils/winutils.h>
 
 #ifdef Q_OS_WIN
 #    include <qt_windows.h>
@@ -135,7 +136,7 @@ void ValgrindProcess::run(const QString &valgrindExecutable, const QStringList &
         m_localProcess.start();
         m_localProcess.waitForStarted();
     #ifdef Q_OS_WIN
-        m_pid = m_process.pid()->dwProcessId;
+        m_pid = Utils::winQPidToPid(m_localProcess.pid());
     #else
         m_pid = m_localProcess.pid();
     #endif
