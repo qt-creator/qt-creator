@@ -1777,6 +1777,7 @@ def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
         data = value["d"].dereference()
         d.putByteArrayValue(data["encodedOriginal"])
+        d.putPlainChildren(data)
     else:
         # QUrlPrivate:
         # - QAtomicInt ref;
@@ -1798,8 +1799,7 @@ def qdump__QUrl(d, value):
         str += qEncodeString(d, host)
         str += qEncodeString(d, path)
         d.putValue(str, Hex4EncodedLittleEndian)
-
-    d.putPlainChildren(data)
+        d.putPlainChildren(value)
 
 
 def qdumpHelper_QVariant_0(d, data):
