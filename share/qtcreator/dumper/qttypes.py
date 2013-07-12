@@ -737,11 +737,9 @@ def qdump__QHostAddress(d, value):
         a, n3 = divmod(a, 256)
         a, n2 = divmod(a, 256)
         a, n1 = divmod(a, 256)
-        d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
-    d.putNumChild(1)
-    if d.isExpanded():
-        with Children(d):
-           d.putFields(value["d"]["d"].dereference())
+        d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4))
+    d.putPlainChildren(value["d"]["d"].dereference())
+
 
 def qdump__QList(d, value):
     dptr = childAt(value, 0)["d"]
@@ -1067,12 +1065,8 @@ def qdump__QObject(d, value):
     #    warn("SUPERDATA: %s" % superData)
 
     if privateType is None:
-        d.putNumChild(4)
         #d.putValue(cleanAddress(value.address))
         d.putPlainChildren(value)
-        if d.isExpanded():
-            with Children(d):
-                d.putFields(value)
         return
 
     #warn("OBJECTNAME: %s " % objectName)
@@ -1491,20 +1485,14 @@ def qdump__QPoint(d, value):
     x = int(value["xp"])
     y = int(value["yp"])
     d.putValue("(%s, %s)" % (x, y))
-    d.putNumChild(2)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 def qdump__QPointF(d, value):
     x = float(value["xp"])
     y = float(value["yp"])
     d.putValue("(%s, %s)" % (x, y))
-    d.putNumChild(2)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 def qdump__QRect(d, value):
@@ -1518,10 +1506,7 @@ def qdump__QRect(d, value):
     w = x2 - x1 + 1
     h = y2 - y1 + 1
     d.putValue("%sx%s%s%s" % (w, h, pp(x1), pp(y1)))
-    d.putNumChild(4)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 def qdump__QRectF(d, value):
@@ -1533,10 +1518,7 @@ def qdump__QRectF(d, value):
     w = float(value["w"])
     h = float(value["h"])
     d.putValue("%sx%s%s%s" % (w, h, pp(x), pp(y)))
-    d.putNumChild(4)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 def qdump__QRegExp(d, value):
@@ -1582,9 +1564,7 @@ def qdump__QRegion(d, value):
             n = int(p.dereference()["numRects"])
             d.putItemCount(n)
             d.putNumChild(n)
-            if d.isExpanded():
-                with Children(d):
-                    d.putFields(p.dereference())
+            d.putPlainChildren(p.dereference())
         except:
             warn("NO DEBUG INFO")
             d.putValue(p)
@@ -1683,20 +1663,13 @@ def qdump__QSize(d, value):
     w = int(value["wd"])
     h = int(value["ht"])
     d.putValue("(%s, %s)" % (w, h))
-    d.putNumChild(2)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
-
+    d.putPlainChildren(value)
 
 def qdump__QSizeF(d, value):
     w = float(value["wd"])
     h = float(value["ht"])
     d.putValue("(%s, %s)" % (w, h))
-    d.putNumChild(2)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 def qdump__QStack(d, value):
@@ -1748,10 +1721,7 @@ def qdump__QStringRef(d, value):
     size = int(value["m_size"])
     s = d.readRawMemory(data, 2 * size)
     d.putValue(s, Hex4EncodedLittleEndian)
-    d.putNumChild(3)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 def qdump__QStringList(d, value):
@@ -1829,10 +1799,7 @@ def qdump__QUrl(d, value):
         str += qEncodeString(d, path)
         d.putValue(str, Hex4EncodedLittleEndian)
 
-    d.putNumChild(1)
-    if d.isExpanded():
-        with Children(d):
-           d.putFields(data)
+    d.putPlainChildren(data)
 
 
 def qdumpHelper_QVariant_0(d, data):
@@ -2891,10 +2858,7 @@ def qdump__Core__Id(d, value):
     try:
         name = parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
         d.putValue(encodeCharArray(name), Hex2EncodedLatin1)
-        d.putNumChild(1)
-        if d.isExpanded():
-            with Children(d):
-                d.putFields(value)
+        d.putPlainChildren(value)
     except:
         d.putValue(value["m_id"])
         d.putNumChild(0)
@@ -3086,9 +3050,7 @@ if False:
     def qdump__Color(d, value):
         v = value
         d.putValue("(%s, %s, %s; %s)" % (v["r"], v["g"], v["b"], v["a"]))
-        if d.isExpanded():
-            with Children(d):
-                d.putFields(value)
+        d.putPlainChildren(value)
 
     def qdump__Color_(d, value):
         v = value
@@ -3227,17 +3189,11 @@ if False:
     def qdump__gdb13393__Base(d, value):
         d.putValue("Base (%s)" % value["a"])
         d.putType(value.type)
-        d.putNumChild(1)
-        if d.isExpanded():
-            with Children(d):
-                d.putFields(value)
+        d.putPlainChildren(value)
 
     def qdump__gdb13393__Derived(d, value):
         d.putValue("Derived (%s, %s)" % (value["a"], value["b"]))
         d.putType(value.type)
-        d.putNumChild(1)
-        if d.isExpanded():
-            with Children(d):
-                d.putFields(value)
+        d.putPlainChildren(value)
 
 
