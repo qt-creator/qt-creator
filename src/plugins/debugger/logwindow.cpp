@@ -41,7 +41,9 @@
 #include <QMenu>
 #include <QSyntaxHighlighter>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QFileDialog>
+#include <QToolButton>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
@@ -360,12 +362,18 @@ LogWindow::LogWindow(QWidget *parent)
     m_inputText->setSizePolicy(QSizePolicy::MinimumExpanding,
         QSizePolicy::MinimumExpanding);
 
-    m_commandLabel = new QLabel(tr("Command:"), this);
     m_commandEdit = new Utils::FancyLineEdit(this);
     m_commandEdit->setFrame(false);
     m_commandEdit->setHistoryCompleter(QLatin1String("DebuggerInput"));
+
+    QToolButton *repeatButton = new QToolButton(this);
+    repeatButton->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
+    repeatButton->setIconSize(QSize(12, 12));
+    repeatButton->setToolTip(tr("Repeat last command for debug reasons"));
+
     QHBoxLayout *commandBox = new QHBoxLayout;
-    commandBox->addWidget(m_commandLabel);
+    commandBox->addWidget(repeatButton);
+    commandBox->addWidget(new QLabel(tr("Command:"), this));
     commandBox->addWidget(m_commandEdit);
     commandBox->setMargin(2);
     commandBox->setSpacing(6);
@@ -407,6 +415,8 @@ LogWindow::LogWindow(QWidget *parent)
         SLOT(sendCommand()));
     connect(m_inputText, SIGNAL(executeLineRequested()),
         SLOT(executeLine()));
+    connect(repeatButton, SIGNAL(clicked()),
+        SLOT(repeatLastCommand()));
 
     connect(&m_outputTimer, SIGNAL(timeout()), SLOT(doOutput()));
 
@@ -418,6 +428,20 @@ void LogWindow::executeLine()
     m_ignoreNextInputEcho = true;
     debuggerCore()->executeDebuggerCommand(m_inputText->textCursor().block().text(),
                                            CppLanguage);
+}
+
+void LogWindow::repeatLastCommand()
+{
+    QTextCursor tc = m_inputText->textCursor();
+    QRegExp re = QRegExp(QLatin1String("^\\d+(bb options:)(.*)$"));
+    for (QTextBlock block = tc.block(); block.isValid(); block = block.previous()) {
+        QString line = block.text();
+        if (re.exactMatch(line)) {
+            QString cmd = re.cap(1) + QLatin1String("pe,") + re.cap(2);
+            debuggerCore()->executeDebuggerCommand(cmd, CppLanguage);
+            return;
+        }
+    }
 }
 
 void LogWindow::sendCommand()

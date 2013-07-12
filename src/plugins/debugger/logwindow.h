@@ -75,6 +75,7 @@ public slots:
     void showOutput(int channel, const QString &output);
     void showInput(int channel, const QString &input);
     void doOutput();
+    void repeatLastCommand();
 
 signals:
     void showPage();
@@ -86,7 +87,6 @@ private:
     QTimer m_outputTimer;
     QString m_queuedOutput;
     Utils::FancyLineEdit *m_commandEdit;
-    QLabel *m_commandLabel;
     bool m_ignoreNextInputEcho;
 };
 
