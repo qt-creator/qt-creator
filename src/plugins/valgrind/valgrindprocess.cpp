@@ -135,11 +135,7 @@ void ValgrindProcess::run(const QString &valgrindExecutable, const QStringList &
         m_localProcess.setCommand(valgrindExecutable, m_arguments);
         m_localProcess.start();
         m_localProcess.waitForStarted();
-    #ifdef Q_OS_WIN
-        m_pid = Utils::winQPidToPid(m_localProcess.pid());
-    #else
-        m_pid = m_localProcess.pid();
-    #endif
+        m_pid = Utils::qPidToPid(m_localProcess.pid());
     } else {
         m_remote.m_valgrindExe = valgrindExecutable;
         m_remote.m_debuggee = debuggeeExecutable;

@@ -59,6 +59,8 @@ QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name);
 // Returns long name with canonical capitalization.
 QTCREATOR_UTILS_EXPORT QString normalizePathName(const QString &name);
 
+// Converts the Q_PID into a integer value. This is a no-op
+// except on Windows.
 QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid);
 
 QTCREATOR_UTILS_EXPORT bool winIs64BitSystem();

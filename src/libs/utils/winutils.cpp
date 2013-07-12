@@ -177,12 +177,6 @@ QTCREATOR_UTILS_EXPORT QString normalizePathName(const QString &name)
     return canonicalName;
 }
 
-QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid)
-{
-    const PROCESS_INFORMATION *processInfo = reinterpret_cast<const PROCESS_INFORMATION*>(qpid);
-    return processInfo->dwProcessId;
-}
-
 QTCREATOR_UTILS_EXPORT bool winIs64BitSystem()
 {
     SYSTEM_INFO systemInfo;

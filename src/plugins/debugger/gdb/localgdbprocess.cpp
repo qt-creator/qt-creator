@@ -32,9 +32,7 @@
 #include "procinterrupt.h"
 #include "debuggerconstants.h"
 
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
+#include <utils/qtcprocess.h>
 
 namespace Debugger {
 namespace Internal {
@@ -84,12 +82,7 @@ void LocalGdbProcess::kill()
 
 bool LocalGdbProcess::interrupt()
 {
-    long pid;
-#ifdef Q_OS_WIN
-    pid = Utils::winQPidToPid(m_gdbProc.pid());
-#else
-    pid = m_gdbProc.pid();
-#endif
+    long pid = Utils::qPidToPid(m_gdbProc.pid());
     return interruptProcess(pid, GdbEngineType, &m_errorString);
 }
 
