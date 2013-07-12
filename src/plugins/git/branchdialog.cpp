@@ -221,7 +221,7 @@ void BranchDialog::checkout()
         }
 
         if (!stashMessage.isEmpty() && branchCheckoutDialog.moveLocalChangesToNextBranch())
-            gitClient->stashPop(m_repository);
+            gitClient->endStashScope(m_repository);
         else if (branchCheckoutDialog.popStashOfNextBranch())
             gitClient->synchronousStashRestore(m_repository, stashName, true);
     }

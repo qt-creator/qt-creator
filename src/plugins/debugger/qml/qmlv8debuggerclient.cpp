@@ -1770,11 +1770,19 @@ QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
 
     ConsoleItem *item = new ConsoleItem(parent, ConsoleItem::UndefinedType, text);
 
+    QSet<QString> childrenFetched;
     foreach (const QVariant &property, objectData.properties) {
-        ConsoleItem *child = constructLogItemTree(item, extractData(property, refsVal),
-                                                     refsVal);
-        if (child)
+        const QmlV8ObjectData childObjectData = extractData(property, refsVal);
+        if (childObjectData.handle == objectData.handle)
+            continue;
+        ConsoleItem *child = constructLogItemTree(item, childObjectData, refsVal);
+        if (child) {
+            const QString text = child->text();
+            if (childrenFetched.contains(text))
+                continue;
+            childrenFetched.insert(text);
             item->insertChild(child, sorted);
+        }
     }
 
     return item;

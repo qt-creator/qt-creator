@@ -6,3 +6,4 @@
 "creator/tests/manual/cplusplus-frontend/conf.c++"
 "creator/src/plugins/coreplugin/basefilewizard.cpp"
 "creator/src/plugins/coreplugin/basefilewizard.h"
+"creator/tests/system/suite_debugger/tst_simple_debug/test.py"

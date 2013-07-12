@@ -89,7 +89,10 @@ def main():
         type(editorWidget, "<Meta+Space>")
     else:
         type(editorWidget, "<Ctrl+Space>")
-    waitForObjectItem(":popupFrame_Proposal_QListView", "return")
+    try:
+        waitForObjectItem(":popupFrame_Proposal_QListView", "return")
+    except:
+        test.fail("Could not find proposal popup.")
     type(editorWidget, "<Right>")
     type(editorWidget, "<Backspace>")
     test.verify(str(editorWidget.plainText).startswith("ret#"),

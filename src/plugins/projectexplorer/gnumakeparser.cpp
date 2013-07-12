@@ -105,7 +105,7 @@ void GnuMakeParser::stdError(const QString &line)
             m_suppressIssues = true;
             QString description = m_makeLine.cap(8);
             Task::TaskType type = Task::Error;
-            if (description.startsWith(QLatin1String("warning: "))) {
+            if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
                 description = description.mid(9);
                 type = Task::Warning;
             }
