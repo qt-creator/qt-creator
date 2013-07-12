@@ -3017,17 +3017,9 @@ bool Bind::visit(EnumSpecifierAST *ast)
         this->enumerator(it->value, e);
     }
 
-    if (ast->stray_comma_token /* && ! translationUnit()->cxx0xEnabled()*/) {
-        const Token &tk = tokenAt(ast->stray_comma_token);
-        if (! tk.generated())
-            translationUnit()->warning(ast->stray_comma_token,
-                                       "commas at the end of enumerator lists are a C++0x-specific feature");
-    }
-
     (void) switchScope(previousScope);
     return false;
 }
-
 
 // PtrOperatorAST
 bool Bind::visit(PointerToMemberAST *ast)
