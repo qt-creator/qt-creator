@@ -97,8 +97,7 @@ private slots:
 
 private:
     void addEntry(Entry *entry);
-    int findDocument(IDocument *document) const;
-    int findFileName(const QString &filename) const;
+    int indexofFileName(const QString &filename) const;
     void removeDocument(int idx);
 
     OpenEditorsModelPrivate *d;
