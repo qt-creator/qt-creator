@@ -32,16 +32,17 @@ import operator
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
     DESKTOP_474_GCC = 1
-    SIMULATOR = 2
-    MAEMO5 = 4
-    HARMATTAN = 8
-    EMBEDDED_LINUX = 16
-    DESKTOP_480_MSVC2010 = 32
-    DESKTOP_501_DEFAULT = 64
+    DESKTOP_480_GCC = 2
+    SIMULATOR = 4
+    MAEMO5 = 8
+    HARMATTAN = 16
+    EMBEDDED_LINUX = 32
+    DESKTOP_480_MSVC2010 = 64
+    DESKTOP_501_DEFAULT = 128
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = Targets.DESKTOP_474_GCC | Targets.DESKTOP_501_DEFAULT
+        desktopTargets = Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_GCC | Targets.DESKTOP_501_DEFAULT
         if platform.system() in ('Windows', 'Microsoft'):
             desktopTargets |= Targets.DESKTOP_480_MSVC2010
         return desktopTargets
@@ -50,6 +51,8 @@ class Targets:
     def getStringForTarget(target):
         if target == Targets.DESKTOP_474_GCC:
             return "Desktop 474 GCC"
+        if target == Targets.DESKTOP_480_GCC:
+            return "Desktop 480 GCC"
         elif target == Targets.MAEMO5:
             return "Fremantle"
         elif target == Targets.SIMULATOR:
@@ -77,8 +80,8 @@ class Targets:
 
     @staticmethod
     def intToArray(targets):
-        available = [Targets.DESKTOP_474_GCC, Targets.SIMULATOR, Targets.MAEMO5, Targets.HARMATTAN,
-                     Targets.EMBEDDED_LINUX, Targets.DESKTOP_480_MSVC2010,
+        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.SIMULATOR, Targets.MAEMO5,
+                     Targets.HARMATTAN, Targets.EMBEDDED_LINUX, Targets.DESKTOP_480_MSVC2010,
                      Targets.DESKTOP_501_DEFAULT]
         return filter(lambda x: x & targets == x, available)
 
