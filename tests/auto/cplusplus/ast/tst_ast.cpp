@@ -94,6 +94,10 @@ public:
 
 private slots:
     void initTestCase();
+
+    // line/column positions
+    void line_and_column_1();
+
     // declarations
     void gcc_attributes_1();
     void gcc_attributes_2();
@@ -1607,6 +1611,20 @@ void tst_AST::q_enum_1()
 void tst_AST::initTestCase()
 {
     control.setDiagnosticClient(&diag);
+}
+
+void tst_AST::line_and_column_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "int i;\n",
+                                                          false, true));
+    unsigned line, column = 0;
+    QVERIFY(unit->ast());
+    QVERIFY(unit->tokenAt(1).is(T_INT));
+    unit->getTokenPosition(1, &line, &column);
+    QEXPECT_FAIL("", "See QTCREATORBUG-9799.", Continue);
+    QCOMPARE(line, 2U);
+    QCOMPARE(column, 1U);
 }
 
 QTEST_APPLESS_MAIN(tst_AST)
