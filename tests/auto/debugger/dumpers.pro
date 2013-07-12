@@ -1,4 +1,5 @@
-QTC_LIB_DEPENDS += cplusplus
+
+QTC_LIB_DEPENDS += cplusplus utils
 
 include(../qttest.pri)
 
