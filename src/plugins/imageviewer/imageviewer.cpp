@@ -148,11 +148,6 @@ Core::Id ImageViewer::id() const
     return Core::Id(Constants::IMAGEVIEWER_ID);
 }
 
-bool ImageViewer::isTemporary() const
-{
-    return false;
-}
-
 QWidget *ImageViewer::toolBar()
 {
     return d->toolbar;

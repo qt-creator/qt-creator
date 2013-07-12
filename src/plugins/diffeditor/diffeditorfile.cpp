@@ -43,6 +43,7 @@ DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
     m_modified(false)
 {
     setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
+    setTemporary(true);
 }
 
 void DiffEditorFile::setModified(bool modified)

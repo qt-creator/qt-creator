@@ -58,7 +58,6 @@ public:
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
-    bool isTemporary() const { return false; }
 
 private slots:
     void markAsChanged();

@@ -75,8 +75,6 @@ public:
     virtual QByteArray saveState() const;
     virtual bool restoreState(const QByteArray &state);
 
-    virtual bool isTemporary() const;
-
     virtual QWidget *toolBar();
 
     virtual bool isDesignModePreferred() const;

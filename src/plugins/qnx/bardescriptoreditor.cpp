@@ -104,11 +104,6 @@ Core::Id BarDescriptorEditor::id() const
     return Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID;
 }
 
-bool BarDescriptorEditor::isTemporary() const
-{
-    return false;
-}
-
 QWidget *BarDescriptorEditor::toolBar()
 {
     return m_toolBar;

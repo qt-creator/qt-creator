@@ -79,7 +79,6 @@ public:
     Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
 
-    bool isTemporary() const { return false; }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     const Utils::CommentDefinition *commentDefinition() const;

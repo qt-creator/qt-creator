@@ -206,11 +206,6 @@ bool FormWindowEditor::restoreState(const QByteArray &state)
     return d->m_textEditor.restoreState(state);
 }
 
-bool FormWindowEditor::isTemporary() const
-{
-    return false;
-}
-
 QWidget *FormWindowEditor::toolBar()
 {
     return 0;

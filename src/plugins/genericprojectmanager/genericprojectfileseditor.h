@@ -75,7 +75,6 @@ public:
     Core::Id id() const;
     bool duplicateSupported() const;
     Core::IEditor *duplicate(QWidget *parent);
-    bool isTemporary() const { return false; }
 };
 
 class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget

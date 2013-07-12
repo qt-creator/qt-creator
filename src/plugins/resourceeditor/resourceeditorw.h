@@ -92,7 +92,6 @@ public:
     QWidget *toolBar();
 
     void setSuggestedFileName(const QString &fileName);
-    bool isTemporary() const { return false; }
 
 private slots:
     void onUndoStackChanged(bool canUndo, bool canRedo);

@@ -182,7 +182,7 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
     if (!editor)
         return false;
     editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, QVariant(true));
-    editor->document()->setProperty(Constants::OPENED_WITH_MEMORY, QVariant(true));
+    editor->document()->setTemporary(true);
     QWidget *editorBinEditor = editor->widget();
     connectBinEditorWidget(editorBinEditor);
     MemoryView::setBinEditorReadOnly(editorBinEditor, readOnly);

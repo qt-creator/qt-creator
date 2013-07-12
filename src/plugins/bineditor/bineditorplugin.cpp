@@ -270,11 +270,12 @@ public:
 
     QString suggestedFileName() const { return QString(); }
 
-    bool isModified() const { return m_widget->isMemoryView() ? false : m_widget->isModified(); }
+    bool isModified() const { return isTemporary()/*e.g. memory view*/ ? false
+                                                                       : m_widget->isModified(); }
 
     bool isFileReadOnly() const {
         const QString fn = filePath();
-        if (m_widget->isMemoryView() || fn.isEmpty())
+        if (fn.isEmpty())
             return false;
         const QFileInfo fi(fn);
         return !fi.isWritable();
@@ -354,8 +355,6 @@ public:
     Core::Id id() const { return Core::Id(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID); }
 
     QWidget *toolBar() { return m_toolBar; }
-
-    bool isTemporary() const { return m_widget->isMemoryView(); }
 
 private slots:
     void updateCursorPosition(int position) {

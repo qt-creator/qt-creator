@@ -50,7 +50,6 @@ public:
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /* parent */ ) { return 0; }
-    bool isTemporary() const { return false; }
     Core::Id id() const;
 };
 

@@ -46,7 +46,6 @@ namespace Internal {
 
 const char OPENED_BY_DEBUGGER[]         = "OpenedByDebugger";
 const char OPENED_WITH_DISASSEMBLY[]    = "DisassemblerView";
-const char OPENED_WITH_MEMORY[]         = "MemoryView";
 
 // Debug action
 const char DEBUG[]                      = "Debugger.Debug";

@@ -64,7 +64,6 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
     Core::Id id() const;
-    bool isTemporary() const { return true; }
     DiffEditorWidget *editorWidget() const { return m_editorWidget; }
 
     QWidget *toolBar();

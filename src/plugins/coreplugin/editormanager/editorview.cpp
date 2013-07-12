@@ -737,11 +737,11 @@ QByteArray SplitterOrView::saveState() const
         IEditor* e = editor();
 
         // don't save state of temporary or ad-hoc editors
-        if (e && (e->isTemporary() || e->document()->filePath().isEmpty())) {
+        if (e && (e->document()->isTemporary() || e->document()->filePath().isEmpty())) {
             // look for another editor that is more suited
             e = 0;
             foreach (IEditor *otherEditor, editors()) {
-                if (!otherEditor->isTemporary() && !otherEditor->document()->filePath().isEmpty()) {
+                if (!otherEditor->document()->isTemporary() && !otherEditor->document()->filePath().isEmpty()) {
                     e = otherEditor;
                     break;
                 }

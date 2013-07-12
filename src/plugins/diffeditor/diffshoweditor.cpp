@@ -54,7 +54,6 @@ public:
     DiffShowEditorWidgetEditable(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
 
     Core::Id id() const { return "DiffShowViewEditor"; }
-    bool isTemporary() const { return false; }
 };
 
 class DiffShowEditorWidget : public BaseTextEditorWidget

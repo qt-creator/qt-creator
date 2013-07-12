@@ -43,7 +43,11 @@
 
 namespace Core {
 
-IDocument::IDocument(QObject *parent) : QObject(parent), m_infoBar(0), m_hasWriteWarning(false), m_restored(false)
+IDocument::IDocument(QObject *parent) : QObject(parent),
+    m_temporary(false),
+    m_infoBar(0),
+    m_hasWriteWarning(false),
+    m_restored(false)
 {
 }
 
@@ -76,6 +80,25 @@ bool IDocument::isFileReadOnly() const
     if (filePath().isEmpty())
         return false;
     return !QFileInfo(filePath()).isWritable();
+}
+
+/*!
+    Returns if the document is a temporary that should for example not be considered
+    when saving/restoring the session state, recent files, etc. Defaults to false.
+    \sa setTemporary()
+*/
+bool IDocument::isTemporary() const
+{
+    return m_temporary;
+}
+
+/*!
+    Sets if the document is \a temporary.
+    \sa isTemporary()
+*/
+void IDocument::setTemporary(bool temporary)
+{
+    m_temporary = temporary;
 }
 
 bool IDocument::autoSave(QString *errorString, const QString &fileName)

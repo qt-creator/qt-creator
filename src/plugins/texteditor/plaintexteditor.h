@@ -51,7 +51,6 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
-    bool isTemporary() const { return false; }
     Core::Id id() const;
 };
 

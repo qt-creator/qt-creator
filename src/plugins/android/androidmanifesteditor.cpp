@@ -73,11 +73,6 @@ Core::Id AndroidManifestEditor::id() const
     return Constants::ANDROID_MANIFEST_EDITOR_ID;
 }
 
-bool AndroidManifestEditor::isTemporary() const
-{
-    return false;
-}
-
 void AndroidManifestEditor::changeEditorPage(QAction *action)
 {
     AndroidManifestEditorWidget *editorWidget = static_cast<AndroidManifestEditorWidget *>(widget());

@@ -88,6 +88,8 @@ public:
     void setDisplayName(const QString &name);
 
     virtual bool isFileReadOnly() const;
+    bool isTemporary() const;
+    void setTemporary(bool temporary);
 
     virtual QString defaultPath() const = 0;
     virtual QString suggestedFileName() const = 0;
@@ -122,6 +124,7 @@ signals:
 private:
     QString m_filePath;
     QString m_displayName;
+    bool m_temporary;
     QString m_autoSaveName;
     InfoBar *m_infoBar;
     bool m_hasWriteWarning;

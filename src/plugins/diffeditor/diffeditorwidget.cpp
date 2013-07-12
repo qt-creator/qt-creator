@@ -113,7 +113,6 @@ public:
     }
 
     Core::Id id() const { return "DiffViewEditor"; }
-    bool isTemporary() const { return false; }
 
 private slots:
     void slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position);

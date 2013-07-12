@@ -1035,7 +1035,7 @@ void DocumentManager::syncWithEditor(const QList<Core::IContext *> &context)
         return;
 
     Core::IEditor *editor = Core::EditorManager::currentEditor();
-    if (!editor || editor->isTemporary())
+    if (!editor || editor->document()->isTemporary())
         return;
     foreach (IContext *c, context) {
         if (editor->widget() == c->widget()) {

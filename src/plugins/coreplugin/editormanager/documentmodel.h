@@ -77,6 +77,7 @@ public:
     int documentCount() const;
     QList<Entry *> documents() const;
     int indexOfDocument(IDocument *document) const;
+    Entry *entryForDocument(IDocument *document) const;
     QList<IDocument *> openedDocuments() const;
 
     QList<IEditor *> editorsForDocument(IDocument *document) const;

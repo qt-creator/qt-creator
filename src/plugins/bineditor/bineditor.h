@@ -119,8 +119,6 @@ public:
 
     QString addressString(quint64 address);
 
-    bool isMemoryView() const; // Is a debugger memory view without file?
-
     static const int SearchStride = 1024 * 1024;
 
     QList<Markup> markup() const { return m_markup; }

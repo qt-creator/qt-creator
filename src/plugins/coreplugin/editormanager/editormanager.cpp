@@ -1104,7 +1104,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     foreach (IEditor *editor, acceptedEditors) {
         emit editorAboutToClose(editor);
         if (!editor->document()->filePath().isEmpty()
-                && !editor->isTemporary()) {
+                && !editor->document()->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
                 d->m_editorStates.insert(editor->document()->filePath(), QVariant(state));
@@ -1421,7 +1421,7 @@ void EditorManager::addEditor(IEditor *editor)
     bool isNewDocument = false;
     d->m_documentModel->addEditor(editor, &isNewDocument);
     if (isNewDocument) {
-        const bool isTemporary = editor->isTemporary();
+        const bool isTemporary = editor->document()->isTemporary();
         const bool addWatcher = !isTemporary;
         DocumentManager::addDocument(editor->document(), addWatcher);
         if (!isTemporary)
@@ -1834,18 +1834,12 @@ bool EditorManager::saveDocumentAs(IDocument *documentParam)
 /* Adds the file name to the recent files if there is at least one non-temporary editor for it */
 void EditorManager::addDocumentToRecentFiles(IDocument *document)
 {
-    bool isTemporary = true;
-    Id editorId;
-    QList<IEditor *> editors = editorsForDocument(document);
-    foreach (IEditor *editor, editors) {
-        if (!editor->isTemporary()) {
-            editorId = editor->id();
-            isTemporary = false;
-            break;
-        }
-    }
-    if (!isTemporary)
-        DocumentManager::addToRecentFiles(document->filePath(), editorId);
+    if (document->isTemporary())
+        return;
+    DocumentModel::Entry *entry = d->m_documentModel->entryForDocument(document);
+    if (!entry)
+        return;
+    DocumentManager::addToRecentFiles(document->filePath(), entry->id());
 }
 
 void EditorManager::gotoNextDocHistory()
@@ -2164,7 +2158,7 @@ QByteArray EditorManager::saveState() const
     QList<IEditor *> editors = openedEditors();
     foreach (IEditor *editor, editors) {
         if (!editor->document()->filePath().isEmpty()
-                && !editor->isTemporary()) {
+                && !editor->document()->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
                 d->m_editorStates.insert(editor->document()->filePath(), QVariant(state));
@@ -2176,22 +2170,15 @@ QByteArray EditorManager::saveState() const
     QList<DocumentModel::Entry *> entries = d->m_documentModel->documents();
     int entriesCount = 0;
     foreach (DocumentModel::Entry *entry, entries) {
-        // TODO: isTemporary should move to IDocument
-        IEditor *editor = entry->document
-                ? d->m_documentModel->editorsForDocument(entry->document).first()
-                : 0;
         // The editor may be 0 if it was not loaded yet: In that case it is not temporary
-        if (!editor || !editor->isTemporary())
+        if (!entry->document || !entry->document->isTemporary())
             ++entriesCount;
     }
 
     stream << entriesCount;
 
     foreach (DocumentModel::Entry *entry, entries) {
-        IEditor *editor = entry->document
-                ? d->m_documentModel->editorsForDocument(entry->document).first()
-                : 0;
-        if (!editor || !editor->isTemporary())
+        if (!entry->document || !entry->document->isTemporary())
             stream << entry->fileName() << entry->displayName() << entry->id();
     }
 

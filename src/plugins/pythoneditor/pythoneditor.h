@@ -49,7 +49,6 @@ public:
     Core::IEditor *duplicate(QWidget *parent);
 
     Core::Id id() const;
-    bool isTemporary() const { return false; }
 
     /**
       Opens file for editing, actual work performed by base class

@@ -1623,11 +1623,6 @@ void BinEditorWidget::asIntegers(int offset, int count, quint64 &bigEndianValue,
     }
 }
 
-bool BinEditorWidget::isMemoryView() const
-{
-    return editor()->property("MemoryView").toBool();
-}
-
 void BinEditorWidget::setMarkup(const QList<Markup> &markup)
 {
     m_markup = markup;

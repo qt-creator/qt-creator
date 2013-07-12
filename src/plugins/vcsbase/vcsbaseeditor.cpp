@@ -151,23 +151,18 @@ public:
 
     Core::Id id() const { return m_id; }
 
-    bool isTemporary() const { return m_temporary; }
-    void setTemporary(bool t) { m_temporary = t; }
-
 signals:
     void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &source, const QString &change, int line);
 
 private:
     Core::Id m_id;
-    bool m_temporary;
 };
 
 VcsBaseEditor::VcsBaseEditor(VcsBaseEditorWidget *widget,
                              const VcsBaseEditorParameters *type)  :
     BaseTextEditor(widget),
-    m_id(type->id),
-    m_temporary(false)
+    m_id(type->id)
 {
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -725,7 +720,7 @@ void VcsBaseEditorWidget::setForceReadOnly(bool b)
     VcsBaseEditor *eda = qobject_cast<VcsBaseEditor *>(editor());
     QTC_ASSERT(eda != 0, return);
     setReadOnly(b);
-    eda->setTemporary(b);
+    eda->document()->setTemporary(b);
 }
 
 QString VcsBaseEditorWidget::source() const

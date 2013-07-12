@@ -44,6 +44,7 @@ SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :
     m_mimeType(mimeType),
     m_modified(false)
 {
+    setTemporary(true);
 }
 
 void SubmitEditorFile::setModified(bool modified)

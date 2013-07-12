@@ -51,7 +51,6 @@ public:
     explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
 
     Core::Id id() const;
-    bool isTemporary() const;
 
 private slots:
     void changeEditorPage(QAction *action);

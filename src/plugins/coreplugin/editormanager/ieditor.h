@@ -62,8 +62,6 @@ public:
     virtual int currentColumn() const { return 0; }
     virtual void gotoLine(int line, int column = 0) { Q_UNUSED(line) Q_UNUSED(column) }
 
-    virtual bool isTemporary() const = 0;
-
     virtual QWidget *toolBar() = 0;
 
     virtual bool isDesignModePreferred() const { return false; }

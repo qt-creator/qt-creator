@@ -278,6 +278,14 @@ int DocumentModel::indexOfDocument(IDocument *document) const
     return -1;
 }
 
+DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document) const
+{
+    int index = indexOfDocument(document);
+    if (index < 0)
+        return 0;
+    return d->m_documents.at(index);
+}
+
 QList<IDocument *> DocumentModel::openedDocuments() const
 {
     return d->m_editors.keys();

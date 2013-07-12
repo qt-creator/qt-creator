@@ -47,7 +47,6 @@ public:
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
-    bool isTemporary() const { return false; }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool isDesignModePreferred() const;
     void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason);
