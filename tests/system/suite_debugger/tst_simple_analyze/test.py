@@ -57,7 +57,7 @@ def main():
             test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
         for kit, config in availableConfigs:
             qtVersion = selectBuildConfig(len(checkedTargets), kit, config)[0]
-            if qtVersion == "4.7.4" and platform.system() in ('Windows', 'Microsoft'):
+            if qtVersion == "4.7.4":
                 test.xverify(False, "Skipping Qt 4.7.4 to avoid QTCREATORBUG-9185")
                 continue
             test.log("Selected kit using Qt %s" % qtVersion)
