@@ -83,7 +83,7 @@ public:
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
         Core::IWizard *wizard = wizardOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
         if (wizard)
-            return wizard->isAvailable(m_platform);
+            return m_platform.isEmpty() || wizard->isAvailable(m_platform);
 
         return true;
     }
@@ -259,39 +259,31 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
         m_dummyIcon = QIcon(QLatin1String(Core::Constants::ICON_NEWFILE));
 
     QStringList availablePlatforms = IWizard::allAvailablePlatforms();
+    m_ui->comboBox->addItem(tr("All Templates"), QString());
 
-    if (availablePlatforms.count() > 1) {
-        m_ui->comboBox->addItem(tr("All Templates"), QString());
-        foreach (const QString &platform, availablePlatforms) {
-            const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
-            m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
-        }
-    } else {
-        if (availablePlatforms.isEmpty()) {
-            m_ui->comboBox->addItem(tr("All Templates"), QString());
-        } else {
-            const QString platform = availablePlatforms.first();
-            const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
-            m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
-        }
-        m_ui->comboBox->setDisabled(true);
+    foreach (const QString &platform, availablePlatforms) {
+        const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
+        m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
     }
 
+    if (!availablePlatforms.isEmpty())
+        m_ui->comboBox->setCurrentIndex(1); //First Platform
+    else
+        m_ui->comboBox->setDisabled(true);
+
     foreach (IWizard *wizard, wizards) {
-        if (wizard->isAvailable(selectedPlatform())) {
-            QStandardItem *kindItem;
-            switch (wizard->kind()) {
-            case IWizard::ProjectWizard:
-                kindItem = projectKindItem;
-                break;
-            case IWizard::ClassWizard:
-            case IWizard::FileWizard:
-            default:
-                kindItem = filesClassesKindItem;
-                break;
-            }
-            addItem(kindItem, wizard);
+        QStandardItem *kindItem;
+        switch (wizard->kind()) {
+        case IWizard::ProjectWizard:
+            kindItem = projectKindItem;
+            break;
+        case IWizard::ClassWizard:
+        case IWizard::FileWizard:
+        default:
+            kindItem = filesClassesKindItem;
+            break;
         }
+        addItem(kindItem, wizard);
     }
     if (projectKindItem->columnCount() == 0)
         parentItem->removeRow(0);
