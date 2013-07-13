@@ -246,6 +246,7 @@ PathChooser::PathChooser(QWidget *parent) :
     connect(d->m_lineEdit, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
     connect(d->m_lineEdit, SIGNAL(validChanged(bool)), this, SIGNAL(validChanged(bool)));
     connect(d->m_lineEdit, SIGNAL(editingFinished()), this, SIGNAL(editingFinished()));
+    connect(d->m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
 
     d->m_lineEdit->setMinimumWidth(120);
     d->m_hLayout->addWidget(d->m_lineEdit);
@@ -419,6 +420,11 @@ void PathChooser::slotBrowse()
 
     emit browsingFinished();
     d->m_lineEdit->triggerChanged();
+}
+
+void PathChooser::slotTextChanged()
+{
+    emit pathChanged(path());
 }
 
 bool PathChooser::isValid() const

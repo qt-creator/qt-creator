@@ -50,8 +50,9 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 {
     Q_OBJECT
     Q_ENUMS(Kind)
-    Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
+    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged DESIGNABLE true)
     Q_PROPERTY(QString promptDialogTitle READ promptDialogTitle WRITE setPromptDialogTitle DESIGNABLE true)
+    Q_PROPERTY(QString promptDialogFilter READ promptDialogFilter WRITE setPromptDialogFilter DESIGNABLE true)
     Q_PROPERTY(Kind expectedKind READ expectedKind WRITE setExpectedKind DESIGNABLE true)
     Q_PROPERTY(QString baseDirectory READ baseDirectory WRITE setBaseDirectory DESIGNABLE true)
     Q_PROPERTY(QStringList commandVersionArguments READ commandVersionArguments WRITE setCommandVersionArguments)
@@ -139,6 +140,7 @@ signals:
     void validChanged();
     void validChanged(bool validState);
     void changed(const QString &text);
+    void pathChanged(const QString &path);
     void editingFinished();
     void beforeBrowsing();
     void browsingFinished();
@@ -150,6 +152,7 @@ public slots:
 
 private slots:
     void slotBrowse();
+    void slotTextChanged();
 
 private:
     PathChooserPrivate *d;
