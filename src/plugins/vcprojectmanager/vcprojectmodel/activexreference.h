@@ -50,6 +50,10 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone of a ActiveXReference instance.
+     * \return A shared pointer to a newly created clone.
+     */
     virtual ActiveXReference::Ptr clone() const = 0;
 
     void addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
@@ -69,6 +73,11 @@ protected:
     ActiveXReference();
     ActiveXReference(const ActiveXReference &ref);
     ActiveXReference& operator=(const ActiveXReference &ref);
+
+    /*!
+     * Called after instance of the ActiveXReference is created in order to initialize \b m_private member variable to
+     * a proper version of a ActiveXReference_Private implementation (2003, 2005 or 2008).
+     */
     virtual void init() = 0;
 
     ActiveXReference_Private::Ptr m_private;

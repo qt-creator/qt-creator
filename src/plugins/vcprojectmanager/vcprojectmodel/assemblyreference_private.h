@@ -62,7 +62,17 @@ protected:
 
     virtual void processNodeAttributes(const QDomElement &element);
     virtual void processReferenceConfig(const QDomNode &referenceConfig);
+
+    /*!
+     * Reimplement this to create a new reference configuration.
+     * \return A shared pointer to a newly created reference configuration.
+     */
     virtual ReferenceConfiguration::Ptr createReferenceConfiguration() const = 0;
+
+    /*!
+     * Implement in order to support creating a clone of a AssemblyReference_Private instance.
+     * \return A shared pointer to a newly created clone.
+     */
     virtual AssemblyReference_Private::Ptr clone() const = 0;
 
     QList<ReferenceConfiguration::Ptr > m_referenceConfigurations;

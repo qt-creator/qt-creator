@@ -80,13 +80,44 @@ public:
 
     VcContainerType vcContainerType() const;
 
+    /*!
+     * Implement this member function if you want to add a new VcFileNode to a VcContainerNode based on a full path to a file that
+     * should be added.
+     * \param filePath is a full path to a file for which node should be created.
+     */
     virtual void addFileNode(const QString &filePath) = 0;
+
+    /*!
+     * Implement this member function if you want to support appending of a VcFileNode node to a VcContainerNode.
+     * \param fileNode is a pointer to a VcFileNode that should be append as a child of this VcContainerNode.
+     * \return \b true if file node is successfully append as a child of VcContainerNode. Otherwise it returns \b false.
+     */
     virtual bool appendFileNode(VcFileNode *fileNode) = 0;
 
+    /*!
+     * Implement this member function if you want to add a new VcFilterNode to a VcContainerNode based on a name of a filter.
+     * should be added.
+     * \param name is a name of the filter.
+     */
     virtual void addFilterNode(const QString &name) = 0;
+
+    /*!
+     * Implement this member function if you want to support appending of a VcFilterNode node to a VcContainerNode.
+     * \param filterNode is a pointer to a VcFilterNode that should be append as a child of this VcContainerNode.
+     * \return \b true if file node is successfully append as a child of VcContainerNode. Otherwise it returns \b false.
+     */
     virtual bool appendFilterNode(VcFilterNode *folderNode) = 0;
 
+    /*!
+     * Implement this member function if you want to remove a filter node from VcContainerNode.
+     * \param filterNode is a pointer to a VcFilterNode that will be removed.
+     */
     virtual void removeFilterNode(VcFilterNode *filterNode) = 0;
+
+    /*!
+     * Implement this member function if you want to remove a file node from VcContainerNode.
+     * \param fileNode is a pointer to a VcFileNode that will be removed.
+     */
     virtual void removeFileNode(VcFileNode *fileNode) = 0;
 
     VcFileNode* findFileNode(const QString &filePath);

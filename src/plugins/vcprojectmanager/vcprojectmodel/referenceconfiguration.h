@@ -50,6 +50,10 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone to a ReferenceConfiguration.
+     * \return A shared pointer to newly created ReferenceConfiguration instance.
+     */
     virtual ReferenceConfiguration::Ptr clone() const = 0;
 
     void addTool(Tool::Ptr tool);
@@ -69,6 +73,11 @@ protected:
     ReferenceConfiguration(const ReferenceConfiguration &refConf);
     ReferenceConfiguration& operator=(const ReferenceConfiguration &refConf);
     virtual void processToolNode(const QDomNode &toolNode);
+
+    /*!
+     * Called after instance of the ReferenceConfiguration is created in order to initialize \b m_private member variable to
+     * a proper version of a ConfigurationType implementation (2003, 2005 or 2008).
+     */
     virtual void init() = 0;
 
     ConfigurationType::Ptr m_configType;

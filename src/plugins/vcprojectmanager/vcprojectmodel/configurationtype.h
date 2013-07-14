@@ -67,6 +67,10 @@ public:
     void clearAttribute(const QString &attributeName);
     void removeAttribute(const QString &attributeName);
 
+    /*!
+     * Implement in order to support creating a clone of a configuration type instance.
+     * \return A shared pointer to newly created configuration type instance.
+     */
     virtual ConfigurationType::Ptr clone() const = 0;
 
 protected:

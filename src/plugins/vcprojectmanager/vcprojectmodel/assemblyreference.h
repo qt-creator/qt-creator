@@ -50,6 +50,10 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone of a assembly reference instance.
+     * \return A shared pointer to newly created assembly reference instance.
+     */
     virtual AssemblyReference::Ptr clone() const = 0;
 
     QString relativePath() const;
@@ -64,6 +68,11 @@ protected:
     AssemblyReference();
     AssemblyReference(const AssemblyReference &asmRef);
     AssemblyReference& operator=(const AssemblyReference &asmRef);
+
+    /*!
+     * Called after instance of the AssemblyReference is created in order to initialize \b m_private member variable to
+     * a proper version of a AssemblyReference_Private implementation (2003, 2005 or 2008).
+     */
     virtual void init() = 0;
 
     AssemblyReference_Private::Ptr m_private;

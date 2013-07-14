@@ -52,6 +52,11 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     virtual bool isEmpty() const;
+
+    /*!
+     * Implement in order to support creating a clone of a Files instance.
+     * \return A shared pointer to newly created Files instance.
+     */
     virtual Files* clone() const = 0;
 
     void addFilter(Filter::Ptr newFilter);

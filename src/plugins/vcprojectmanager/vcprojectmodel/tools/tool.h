@@ -61,6 +61,10 @@ public:
     void removeAttribute(const QString &attributeName);
     bool containsAttribute(const QString &attributeName) const;
 
+    /*!
+     * Implement this member function to return a clone of a tool
+     * \return A shared pointer to a cloned tool object.
+     */
     virtual Tool::Ptr clone() const = 0;
 protected:
     bool readBooleanAttribute(const QString &attributeName, bool defaultBoolValue) const;

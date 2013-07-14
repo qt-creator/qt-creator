@@ -48,6 +48,10 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone of a FileConfiguration instance.
+     * \return A shared pointer to a newly created clone.
+     */
     virtual FileConfiguration::Ptr clone() const = 0;
 
     void addTool(Tool::Ptr tool);

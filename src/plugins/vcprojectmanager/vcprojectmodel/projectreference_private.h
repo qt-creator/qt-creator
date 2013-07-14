@@ -47,6 +47,10 @@ public:
     virtual void processNode(const QDomNode &node);
     virtual QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone of a ProjectReference_Private instance.
+     * \return A shared pointer to newly created ProjectReference_Private instance.
+     */
     virtual ProjectReference_Private::Ptr clone() const = 0;
 
     QString name() const;
@@ -65,6 +69,11 @@ protected:
     ProjectReference_Private& operator=(const ProjectReference_Private &projRef_p);
     virtual void processReferenceConfig(const QDomNode &referenceConfig);
     virtual void processNodeAttributes(const QDomElement &element);
+
+    /*!
+     * Reimplement this to create a new reference configuration.
+     * \return A shared pointer to a newly created reference configuration.
+     */
     virtual ReferenceConfiguration::Ptr createReferenceConfiguration() const = 0;
 
     QList<ReferenceConfiguration::Ptr > m_referenceConfigurations;

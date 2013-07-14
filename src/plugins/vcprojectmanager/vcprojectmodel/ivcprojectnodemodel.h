@@ -43,9 +43,39 @@ public:
     IVcProjectXMLNode();
     virtual ~IVcProjectXMLNode();
 
+    /*!
+     * This member function is called when project file (vcproj) is processed.
+     * Note that before processing, the project file is loaded using XML DOM.
+     * After that, DOM document is processed recursively, node by node.
+     * When DOM node is processed a new project node is created.
+     * Attributes and children of that DOM node must be processed. That's when this member function is called.
+     * \param node represents current XML DOM node we are processing
+     */
     virtual void processNode(const QDomNode &node) = 0;
+
+    /*!
+     * This member function is called whenever XML DOM node element's attributes are processed.
+     * \param element is the current XML DOM elements which attributes we are processing.
+     */
     virtual void processNodeAttributes(const QDomElement &element) = 0;
+
+    /*!
+     * This member function is used to create settings widget for a node.
+     * For example, every Configuration project node creates it's own settings widget.
+     * This widget is created by calling createSettingsWidget() of every Tool project node present
+     * in that configuration and “appending” that widget as a child of a parent configuration widget.
+     * \return A pointer to a newly created settings widhget for a node.
+     */
     virtual VcNodeWidget* createSettingsWidget() = 0;
+
+    /*!
+     * This member function is called when project is creating it's own XML DOM  representation.
+     * Parent's implementation of toXMLDomNode is calling toXMLDomNode for every child.
+     * For example, we call this one in VcProjectDocument::saveToFile(const QString &filePath) member
+     * function's implementation in order to create project's XML DOM document which is used to save a project to a file.
+     * \param domXMLDocument is the parent XML DOM document to which newly created XML DOM node will belong to.
+     * \return A XML DOM node that represents this project node.
+     */
     virtual QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const = 0;
 };
 

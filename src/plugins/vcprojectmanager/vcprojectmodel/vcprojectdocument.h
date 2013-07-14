@@ -60,7 +60,21 @@ public:
     VcDocConstants::DocumentVersion documentVersion() const;
     QString filePath() const;
     void allProjectFiles(QStringList &sl) const;
+
+    /*!
+     * Implementation should return a minimal version of MS Build tool that is required to build a project.
+     * For example VS 2008 project can be compiled with MS Build 3.0 and 3.5.
+     * So the minimal MS Build version for VS 2008 projects is 3.0
+     * \return A minimal supported Ms Build version that is required to compile a project.
+     */
     virtual MsBuildInformation::MsBuildVersion minSupportedMsBuildVersion() const = 0;
+
+    /*!
+     * Implementation should return a max version of MS Build tool that can be used to build a project.
+     * For example VS 2008 project can be compiled with MS Build 3.0 and 3.5.
+     * So the maximum MS Build version for VS 2008 projects is 3.5
+     * \return
+     */
     virtual MsBuildInformation::MsBuildVersion maxSupportedMsBuildVersion() const = 0;
 
     // helper function, used to create a relative path to a file, path is relative to a project's file path
@@ -81,6 +95,11 @@ protected:
     virtual void processVisualStudioNode(const QDomElement &vsNode);
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     virtual QDomElement toVcDocumentElement(QDomDocument &domXMLDocument) const;
+
+    /*!
+     * Called to initialize VcProjectDocument after instance is created.
+     * This is the place in which objects that represent Configurations, References, Globals etc. should be created.
+     */
     virtual void init() = 0;
 
     void parseProcessingInstruction(const QDomProcessingInstruction &processingInstruction);

@@ -52,6 +52,10 @@ public:
     virtual QString nodeWidgetName() const;
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone of a Configuration instance.
+     * \return A shared pointer to newly created Configuration instance.
+     */
     virtual Configuration::Ptr clone() const = 0;
 
     void addTool(Tool::Ptr tool);
@@ -75,6 +79,11 @@ protected:
     Configuration(const Configuration &config);
     Configuration& operator=(const Configuration &config);
     virtual void processToolNode(const QDomNode &toolNode);
+
+    /*!
+     * Called after instance of the Configuration is created in order to initialize \b m_private member variable to
+     * a proper version of a ConfigurationType implementation (2003, 2005 or 2008).
+     */
     virtual void init() = 0;
 
     ConfigurationType::Ptr m_configType;

@@ -51,6 +51,10 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone of a ProjectReference instance.
+     * \return A shared pointer to newly created ProjectReference instance.
+     */
     virtual ProjectReference::Ptr clone() const = 0;
 
     QString name() const;
@@ -67,6 +71,11 @@ protected:
     ProjectReference();
     ProjectReference(const ProjectReference &projRef);
     ProjectReference& operator=(const ProjectReference &projRef);
+
+    /*!
+     * Called after instance of the ProjectReference is created in order to initialize \b m_private member variable to
+     * a proper version of a ProjectReference_Private implementation (2003, 2005 or 2008).
+     */
     virtual void init() = 0;
 
     ProjectReference_Private::Ptr m_private;

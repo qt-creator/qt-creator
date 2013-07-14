@@ -49,6 +49,10 @@ public:
     virtual void processNodeAttributes(const QDomElement &element);
     virtual QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    /*!
+     * Implement in order to support creating a clone of a Files_Private instance.
+     * \return A shared pointer to newly created Files_Private instance.
+     */
     virtual QSharedPointer<Files_Private> clone() const = 0;
 
     void addFilter(Filter::Ptr newFilter);
