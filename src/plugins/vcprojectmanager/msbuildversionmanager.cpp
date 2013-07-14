@@ -55,9 +55,10 @@ bool MsBuildVersionManager::addMsBuildInformation(MsBuildInformation *msBuildInf
     if (!msBuildInfo)
         return false;
 
-    foreach (MsBuildInformation *info, m_msBuildInfos)
+    foreach (MsBuildInformation *info, m_msBuildInfos) {
         if (info->m_executable == msBuildInfo->m_executable)
             return false;
+    }
 
     m_msBuildInfos.append(msBuildInfo);
     emit msBuildAdded(msBuildInfo->getId());
@@ -71,22 +72,23 @@ QList<MsBuildInformation*> MsBuildVersionManager::msBuildInformations() const
 
 MsBuildInformation *MsBuildVersionManager::msBuildInformation(Core::Id msBuildID)
 {
-    foreach (MsBuildInformation *info, m_msBuildInfos)
+    foreach (MsBuildInformation *info, m_msBuildInfos) {
         if (info->getId() == msBuildID)
             return info;
+    }
     return 0;
 }
 
 MsBuildInformation *MsBuildVersionManager::msBuildInformation(MsBuildInformation::MsBuildVersion minVersion, MsBuildInformation::MsBuildVersion maxVersion)
 {
-    foreach (MsBuildInformation *info, m_msBuildInfos)
+    foreach (MsBuildInformation *info, m_msBuildInfos) {
         if (info->m_msBuildVersion >= minVersion && info->m_msBuildVersion <= maxVersion)
             return info;
-
+    }
     return 0;
 }
 
-void MsBuildVersionManager::removeMsBuildInformation(Core::Id msBuildId)
+void MsBuildVersionManager::removeMsBuildInformation(const Core::Id &msBuildId)
 {
     for (int i = 0; i < m_msBuildInfos.size(); ++i) {
         MsBuildInformation *info = m_msBuildInfos[i];

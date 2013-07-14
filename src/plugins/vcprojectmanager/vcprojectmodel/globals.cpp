@@ -86,7 +86,7 @@ QDomNode Globals::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement globalsNode = domXMLDocument.createElement(QLatin1String("Globals"));
 
-    foreach (Global::Ptr global, m_globals)
+    foreach (const Global::Ptr &global, m_globals)
         globalsNode.appendChild(global->toXMLDomNode(domXMLDocument));
 
     return globalsNode;
@@ -122,7 +122,7 @@ void Globals::removeGlobal(Global::Ptr global)
 
 void Globals::removeGlobal(const QString &globalName)
 {
-    foreach (Global::Ptr global, m_globals) {
+    foreach (const Global::Ptr &global, m_globals) {
         if (global->name() == globalName) {
             removeGlobal(global);
             return;
@@ -137,9 +137,10 @@ QList<Global::Ptr > Globals::globals() const
 
 Global::Ptr Globals::global(const QString &name)
 {
-    foreach (Global::Ptr global, m_globals)
+    foreach (const Global::Ptr &global, m_globals) {
         if (global->name() == name)
             return global;
+    }
     return Global::Ptr();
 }
 

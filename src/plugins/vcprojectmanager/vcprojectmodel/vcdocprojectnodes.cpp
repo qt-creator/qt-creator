@@ -220,13 +220,13 @@ void VcFilterNode::readChildren()
     QList<File::Ptr > files = m_vcFilterModel->files();
 
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-    foreach (Filter::Ptr filter, filters)
+    foreach (const Filter::Ptr &filter, filters)
         vcFolderNodes.append(new VcFilterNode(filter.data(), m_parentVcDocProjNode));
 
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
 
     QList<ProjectExplorer::FileNode *> vcFileNodes;
-    foreach (File::Ptr file, files)
+    foreach (const File::Ptr &file, files)
         vcFileNodes.append(new VcFileNode(file.data(), m_parentVcDocProjNode));
 
     m_parentVcDocProjNode->addFileNodes(vcFileNodes, this);
@@ -416,19 +416,19 @@ void VcFolderNode::readChildren()
     QList<File::Ptr > files = m_vcFolderModel->files();
 
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-    foreach (Filter::Ptr filter, filters)
+    foreach (const Filter::Ptr &filter, filters)
         vcFolderNodes.append(new VcFilterNode(filter.data(), m_parentVcDocProjNode));
 
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
 
     vcFolderNodes.clear();
-    foreach (Folder::Ptr folder, folders)
+    foreach (const Folder::Ptr &folder, folders)
         vcFolderNodes.append(new VcFolderNode(folder.data(), m_parentVcDocProjNode));
 
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
 
     QList<ProjectExplorer::FileNode *> vcFileNodes;
-    foreach (File::Ptr file, files)
+    foreach (const File::Ptr &file, files)
         vcFileNodes.append(new VcFileNode(file.data(), m_parentVcDocProjNode));
 
     m_parentVcDocProjNode->addFileNodes(vcFileNodes, this);
@@ -444,21 +444,21 @@ VcDocProjectNode::VcDocProjectNode(VcProjectDocument *vcProjectModel)
         QList<Filter::Ptr > filters = files2005->filters();
 
         QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-        foreach (Filter::Ptr filter, filters)
+        foreach (const Filter::Ptr &filter, filters)
             vcFolderNodes.append(new VcFilterNode(filter.data(), this));
 
         addFolderNodes(vcFolderNodes, this);
 
         QList<Folder::Ptr > folders = files2005->folders();
         vcFolderNodes.clear();
-        foreach (Folder::Ptr folder, folders)
+        foreach (const Folder::Ptr &folder, folders)
             vcFolderNodes.append(new VcFolderNode(folder.data(), this));
 
         addFolderNodes(vcFolderNodes, this);
 
         QList<File::Ptr > files = files2005->files();
         QList<ProjectExplorer::FileNode *> vcFileNodes;
-        foreach (File::Ptr file, files)
+        foreach (const File::Ptr &file, files)
             vcFileNodes.append(new VcFileNode(file.data(), this));
 
         addFileNodes(vcFileNodes, this);
@@ -468,14 +468,14 @@ VcDocProjectNode::VcDocProjectNode(VcProjectDocument *vcProjectModel)
         QList<Filter::Ptr > filters = m_vcProjectModel->files()->filters();
 
         QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-        foreach (Filter::Ptr filter, filters)
+        foreach (const Filter::Ptr &filter, filters)
             vcFolderNodes.append(new VcFilterNode(filter.data(), this));
 
         addFolderNodes(vcFolderNodes, this);
 
         QList<File::Ptr > files = m_vcProjectModel->files()->files();
         QList<ProjectExplorer::FileNode *> vcFileNodes;
-        foreach (File::Ptr file, files)
+        foreach (const File::Ptr &file, files)
             vcFileNodes.append(new VcFileNode(file.data(), this));
 
         addFileNodes(vcFileNodes, this);

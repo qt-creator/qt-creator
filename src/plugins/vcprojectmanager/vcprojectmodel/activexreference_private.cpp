@@ -64,7 +64,7 @@ QDomNode ActiveXReference_Private::toXMLDomNode(QDomDocument &domXMLDocument) co
     activeXNode.setAttribute(QLatin1String("ControlVersion"), m_controlVersion);
     activeXNode.setAttribute(QLatin1String("WrapperTool"), m_wrapperTool);
 
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations)
         activeXNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
 
     return activeXNode;
@@ -76,9 +76,10 @@ void ActiveXReference_Private::addReferenceConfiguration(ReferenceConfiguration:
         return;
 
     // Don't add configuration with the same name
-    foreach (ReferenceConfiguration::Ptr refConf, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConf, m_referenceConfigurations) {
         if (refConfig->name() == refConf->name())
             return;
+    }
 
     m_referenceConfigurations.append(refConfig);
 }
@@ -90,7 +91,7 @@ void ActiveXReference_Private::removeReferenceConfiguration(ReferenceConfigurati
 
 void ActiveXReference_Private::removeReferenceConfiguration(const QString &refConfigName)
 {
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations) {
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfigName) {
             removeReferenceConfiguration(refConfig);
             return;
@@ -105,9 +106,10 @@ QList<ReferenceConfiguration::Ptr > ActiveXReference_Private::referenceConfigura
 
 ReferenceConfiguration::Ptr ActiveXReference_Private::referenceConfiguration(const QString &refConfigName) const
 {
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfigName)
             return refConfig;
+    }
 
     return ReferenceConfiguration::Ptr();
 }
@@ -152,7 +154,7 @@ ActiveXReference_Private::ActiveXReference_Private(const ActiveXReference_Privat
     m_controlVersion = ref.m_controlVersion;
     m_wrapperTool = ref.m_wrapperTool;
 
-    foreach (ReferenceConfiguration::Ptr refConf, ref.m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConf, ref.m_referenceConfigurations)
         m_referenceConfigurations.append(refConf->clone());
 }
 
@@ -165,7 +167,7 @@ ActiveXReference_Private &ActiveXReference_Private::operator =(const ActiveXRefe
 
         m_referenceConfigurations.clear();
 
-        foreach (ReferenceConfiguration::Ptr refConf, ref.m_referenceConfigurations)
+        foreach (const ReferenceConfiguration::Ptr &refConf, ref.m_referenceConfigurations)
             m_referenceConfigurations.append(refConf->clone());
     }
 

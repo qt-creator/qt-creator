@@ -108,8 +108,7 @@ void DeploymentTool::clearAttribute(const QString &attributeName)
 
 void DeploymentTool::removeAttribute(const QString &attributeName)
 {
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.remove(attributeName);
+    m_anyAttribute.remove(attributeName);
 }
 
 } // namespace Internal

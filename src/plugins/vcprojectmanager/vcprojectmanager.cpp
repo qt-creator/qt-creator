@@ -187,7 +187,7 @@ void VcManager::readSchemaPath()
 
     QStringList schemaPaths = msSchemaPathsData.split(QLatin1Char(';'));
 
-    foreach (QString schema, schemaPaths) {
+    foreach (const QString &schema, schemaPaths) {
         QStringList schemaData = schema.split(QLatin1String("::"));
         if (schemaData.size() == 2) {
             if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER))

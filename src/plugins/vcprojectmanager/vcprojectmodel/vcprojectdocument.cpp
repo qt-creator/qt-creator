@@ -217,7 +217,7 @@ void VcProjectDocument::processNodeAttributes(const QDomElement &element)
 void VcProjectDocument::parseProcessingInstruction(const QDomProcessingInstruction &processingInstruction)
 {
     QStringList data = processingInstruction.data().split(QLatin1Char(' '));
-    foreach (QString dataElement, data) {
+    foreach (const QString &dataElement, data) {
         QStringList sl = dataElement.split(QLatin1Char('='));
 
         if (sl.size() == 2) {

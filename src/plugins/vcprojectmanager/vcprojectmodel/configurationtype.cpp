@@ -102,7 +102,7 @@ QDomNode ConfigurationType::toXMLDomNode(QDomDocument &domXMLDocument, const QSt
         configurationNode.setAttribute(it.key(), it.value());
     }
 
-    foreach (Tool::Ptr tool, m_tools)
+    foreach (const Tool::Ptr &tool, m_tools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
 
     return configurationNode;
@@ -123,9 +123,10 @@ void ConfigurationType::removeTool(Tool::Ptr tool)
 
 Tool::Ptr ConfigurationType::tool(const QString &toolName) const
 {
-    foreach (Tool::Ptr tool, m_tools)
+    foreach (const Tool::Ptr &tool, m_tools) {
         if (tool && tool->name() == toolName)
             return tool;
+    }
     return Tool::Ptr();
 }
 
@@ -185,7 +186,7 @@ ConfigurationType::ConfigurationType(const ConfigurationType &configType)
     m_name = configType.m_name;
     m_anyAttribute = configType.m_anyAttribute;
 
-    foreach (Tool::Ptr tool, configType.m_tools)
+    foreach (const Tool::Ptr &tool, configType.m_tools)
         m_tools.append(tool->clone());
 }
 
@@ -196,7 +197,7 @@ ConfigurationType &ConfigurationType::operator =(const ConfigurationType &config
         m_anyAttribute = configType.m_anyAttribute;
         m_tools.clear();
 
-        foreach (Tool::Ptr tool, configType.m_tools)
+        foreach (const Tool::Ptr &tool, configType.m_tools)
             m_tools.append(tool->clone());
     }
     return *this;
@@ -282,10 +283,10 @@ QDomNode ConfigurationType2005::toXMLDomNode(QDomDocument &domXMLDocument, const
         configurationNode.setAttribute(it.key(), it.value());
     }
 
-    foreach (Tool::Ptr tool, m_tools)
+    foreach (const Tool::Ptr &tool, m_tools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
 
-    foreach (DeploymentTool::Ptr tool, m_deploymentTools)
+    foreach (const DeploymentTool::Ptr &tool, m_deploymentTools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
 
     return configurationNode;
@@ -318,9 +319,10 @@ QList<DeploymentTool::Ptr > ConfigurationType2005::deploymentTools(const QString
 {
     QList<DeploymentTool::Ptr > deploymentTools;
 
-    foreach (DeploymentTool::Ptr tool, m_deploymentTools)
+    foreach (const DeploymentTool::Ptr &tool, m_deploymentTools) {
         if (tool->attributeValue(attributeName) == attributeValue)
             deploymentTools.append(tool);
+    }
     return deploymentTools;
 }
 
@@ -331,7 +333,7 @@ ConfigurationType2005::ConfigurationType2005()
 ConfigurationType2005::ConfigurationType2005(const ConfigurationType2005 &configType)
     : ConfigurationType2003(configType)
 {
-    foreach (DeploymentTool::Ptr tool, configType.m_deploymentTools)
+    foreach (const DeploymentTool::Ptr &tool, configType.m_deploymentTools)
         m_deploymentTools.append(DeploymentTool::Ptr(new DeploymentTool(*tool)));
 }
 
@@ -341,7 +343,7 @@ ConfigurationType2005 &ConfigurationType2005::operator=(const ConfigurationType2
         ConfigurationType2003::operator =(configType);
 
         m_deploymentTools.clear();
-        foreach (DeploymentTool::Ptr tool, configType.m_deploymentTools)
+        foreach (const DeploymentTool::Ptr &tool, configType.m_deploymentTools)
             m_deploymentTools.append(DeploymentTool::Ptr(new DeploymentTool(*tool)));
     }
     return *this;
@@ -408,13 +410,13 @@ QDomNode ConfigurationType2008::toXMLDomNode(QDomDocument &domXMLDocument, const
         configurationNode.setAttribute(it.key(), it.value());
     }
 
-    foreach (Tool::Ptr tool, m_tools)
+    foreach (const Tool::Ptr &tool, m_tools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
 
-    foreach (DeploymentTool::Ptr tool, m_deploymentTools)
+    foreach (const DeploymentTool::Ptr &tool, m_deploymentTools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
 
-    foreach (DebuggerTool::Ptr tool, m_debuggerTools)
+    foreach (const DebuggerTool::Ptr &tool, m_debuggerTools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
 
     return configurationNode;
@@ -446,9 +448,10 @@ QList<DebuggerTool::Ptr > ConfigurationType2008::debuggerTools(const QString &at
 {
     QList<DebuggerTool::Ptr > debuggerTools;
 
-    foreach (DebuggerTool::Ptr tool, m_debuggerTools)
+    foreach (const DebuggerTool::Ptr &tool, m_debuggerTools) {
         if (tool->attributeValue(attributeName) == attributeValue)
             debuggerTools.append(tool);
+    }
     return debuggerTools;
 }
 
@@ -459,7 +462,7 @@ ConfigurationType2008::ConfigurationType2008()
 ConfigurationType2008::ConfigurationType2008(const ConfigurationType2008 &configType)
     : ConfigurationType2005(configType)
 {
-    foreach (DebuggerTool::Ptr tool, configType.m_debuggerTools)
+    foreach (const DebuggerTool::Ptr &tool, configType.m_debuggerTools)
         m_debuggerTools.append(DebuggerTool::Ptr(new DebuggerTool(*tool)));
 }
 
@@ -469,7 +472,7 @@ ConfigurationType2008 &ConfigurationType2008::operator=(const ConfigurationType2
         ConfigurationType2005::operator =(configType);
         m_debuggerTools.clear();
 
-        foreach (DebuggerTool::Ptr tool, configType.m_debuggerTools)
+        foreach (const DebuggerTool::Ptr &tool, configType.m_debuggerTools)
             m_debuggerTools.append(DebuggerTool::Ptr(new DebuggerTool(*tool)));
     }
     return *this;

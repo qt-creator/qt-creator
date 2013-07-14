@@ -41,13 +41,13 @@ References::References(const References &references)
 {
     m_docVersion = references.m_docVersion;
 
-    foreach (ActiveXReference::Ptr ref, references.m_activeXReferences)
+    foreach (const ActiveXReference::Ptr &ref, references.m_activeXReferences)
         m_activeXReferences.append(ref->clone());
 
-    foreach (AssemblyReference::Ptr ref, references.m_assemblyReferences)
+    foreach (const AssemblyReference::Ptr &ref, references.m_assemblyReferences)
         m_assemblyReferences.append(ref->clone());
 
-    foreach (ProjectReference::Ptr ref, references.m_projectReferences)
+    foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
         m_projectReferences.append(ref->clone());
 }
 
@@ -59,13 +59,13 @@ References &References::operator =(const References &references)
         m_assemblyReferences.clear();
         m_projectReferences.clear();
 
-        foreach (ActiveXReference::Ptr ref, references.m_activeXReferences)
+        foreach (const ActiveXReference::Ptr &ref, references.m_activeXReferences)
             m_activeXReferences.append(ref->clone());
 
-        foreach (AssemblyReference::Ptr ref, references.m_assemblyReferences)
+        foreach (const AssemblyReference::Ptr &ref, references.m_assemblyReferences)
             m_assemblyReferences.append(ref->clone());
 
-        foreach (ProjectReference::Ptr ref, references.m_projectReferences)
+        foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
             m_projectReferences.append(ref->clone());
     }
     return *this;
@@ -101,13 +101,13 @@ QDomNode References::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement fileNode = domXMLDocument.createElement(QLatin1String("References"));
 
-    foreach (AssemblyReference::Ptr asmRef, m_assemblyReferences)
+    foreach (const AssemblyReference::Ptr &asmRef, m_assemblyReferences)
         fileNode.appendChild(asmRef->toXMLDomNode(domXMLDocument));
 
-    foreach (ActiveXReference::Ptr activeXRef, m_activeXReferences)
+    foreach (const ActiveXReference::Ptr &activeXRef, m_activeXReferences)
         fileNode.appendChild(activeXRef->toXMLDomNode(domXMLDocument));
 
-    foreach (ProjectReference::Ptr projRef, m_projectReferences)
+    foreach (const ProjectReference::Ptr &projRef, m_projectReferences)
         fileNode.appendChild(projRef->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -156,7 +156,7 @@ void References::removeProjectReference(ProjectReference::Ptr projRef)
 
 void References::removeProjectReference(const QString &projRefName)
 {
-    foreach (ProjectReference::Ptr projRef, m_projectReferences) {
+    foreach (const ProjectReference::Ptr &projRef, m_projectReferences) {
         if (projRef->name() == projRefName) {
             removeProjectReference(projRef);
             return;

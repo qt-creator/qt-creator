@@ -253,7 +253,7 @@ bool VcProject::setupTarget(ProjectExplorer::Target *t)
 {
     QList<Configuration::Ptr > configsModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurations();
 
-    foreach (Configuration::Ptr configModel, configsModel)
+    foreach (const Configuration::Ptr &configModel, configsModel)
         addBuildConfiguration(t, configModel);
     return true;
 }
@@ -263,9 +263,10 @@ bool VcProject::setupTarget(ProjectExplorer::Target *t)
  */
 void VcProject::addCxxModelFiles(const FolderNode *node, QStringList &projectFiles)
 {
-    foreach (const FileNode *file, node->fileNodes())
+    foreach (const FileNode *file, node->fileNodes()) {
         if (file->fileType() == HeaderType || file->fileType() == SourceType)
             projectFiles << file->path();
+    }
     foreach (const FolderNode *subfolder, node->subFolderNodes())
         addCxxModelFiles(subfolder, projectFiles);
 }
@@ -314,10 +315,10 @@ void VcProject::updateCodeModels()
     pPart->defines += tc->predefinedMacros(QStringList());
 
     QStringList cxxFlags;
-    foreach (const HeaderPath &path, tc->systemHeaderPaths(cxxFlags, Utils::FileName()))
+    foreach (const HeaderPath &path, tc->systemHeaderPaths(cxxFlags, Utils::FileName())) {
         if (path.kind() != HeaderPath::FrameworkHeaderPath)
             pPart->includePaths += path.path();
-
+    }
     QStringList files;
     addCxxModelFiles(m_rootNode, files);
 

@@ -51,7 +51,7 @@ ConfigurationsBaseWidget::ConfigurationsBaseWidget(Configurations *configs, VcPr
     if (m_configs) {
         QList<Configuration::Ptr> configs = m_configs->configurations();
 
-        foreach (Configuration::Ptr config, configs)
+        foreach (const Configuration::Ptr &config, configs)
             addConfiguration(config.data());
     }
 
@@ -72,7 +72,7 @@ ConfigurationsBaseWidget::~ConfigurationsBaseWidget()
 void ConfigurationsBaseWidget::saveData()
 {
     // remove deleted configurations
-    foreach (QString removeConfigName, m_removedConfigurations) {
+    foreach (const QString &removeConfigName, m_removedConfigurations) {
         Configuration::Ptr foundConfig = m_configs->configuration(removeConfigName);
         if (foundConfig)
             m_configs->removeConfiguration(foundConfig);
@@ -88,7 +88,7 @@ void ConfigurationsBaseWidget::saveData()
     }
 
     // add new configurations
-    foreach (Configuration::Ptr newConfig, m_newConfigurations)
+    foreach (const Configuration::Ptr &newConfig, m_newConfigurations)
         m_configs->appendConfiguration(newConfig);
 
     // save data for every configuration
@@ -121,7 +121,7 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
     if (platforms && !newConfigName.isEmpty()) {
         if (copyFrom.isEmpty()) {
             QList<Platform::Ptr> platformList = platforms->platforms();
-            foreach (Platform::Ptr platform, platformList) {
+            foreach (const Platform::Ptr &platform, platformList) {
                 Configuration::Ptr newConfig = createConfiguration(newConfigName + QLatin1Char('|') + platform->name());
 
                 if (newConfig) {
@@ -138,7 +138,7 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
             if (config) {
                 QList<Platform::Ptr > platformList = platforms->platforms();
 
-                foreach (Platform::Ptr platform, platformList) {
+                foreach (const Platform::Ptr &platform, platformList) {
                     Configuration::Ptr newConfig = config->clone();
 
                     if (newConfig) {
@@ -165,7 +165,7 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
         return;
 
     QList<Platform::Ptr > platformList = platforms->platforms();
-    foreach (Platform::Ptr platform, platformList) {
+    foreach (const Platform::Ptr &platform, platformList) {
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
         QString newName = newConfigName + QLatin1Char('|') + platform->name();
         Configuration::Ptr configInNew = configInNewConfigurations(targetConfigName);
@@ -216,7 +216,7 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
         return;
 
     QList<Platform::Ptr > platformList = platforms->platforms();
-    foreach (Platform::Ptr platform, platformList) {
+    foreach (const Platform::Ptr &platform, platformList) {
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
         Configuration::Ptr config = m_configs->configuration(targetConfigName);
 
@@ -226,7 +226,7 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
             m_removedConfigurations.append(config->name());
         } else {
             // else remove it from the list of newly added configurations
-            foreach (Configuration::Ptr configPtr, m_newConfigurations) {
+            foreach (const Configuration::Ptr &configPtr, m_newConfigurations) {
                 if (configPtr && configPtr->name() == targetConfigName) {
                     removeConfiguration(configPtr.data());
                     m_newConfigurations.removeAll(configPtr);
@@ -310,7 +310,7 @@ Configuration::Ptr ConfigurationsBaseWidget::createConfiguration(const QString &
 
 Configuration::Ptr ConfigurationsBaseWidget::configInNewConfigurations(const QString &configNameWithPlatform) const
 {
-    foreach (Configuration::Ptr config, m_newConfigurations) {
+    foreach (const Configuration::Ptr &config, m_newConfigurations) {
         if (config && config->name() == configNameWithPlatform)
             return config;
     }

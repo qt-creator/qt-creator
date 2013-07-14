@@ -63,7 +63,7 @@ QDomNode ProjectReference_Private::toXMLDomNode(QDomDocument &domXMLDocument) co
     projRefNode.setAttribute(QLatin1String("Name"), m_name);
     projRefNode.setAttribute(QLatin1String("ReferencedProjectIdentifier"), m_referencedProjectIdentifier);
 
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations)
         projRefNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
 
     return projRefNode;
@@ -95,10 +95,10 @@ void ProjectReference_Private::addReferenceConfiguration(ReferenceConfiguration:
         return;
 
     // Don't add configuration with the same name
-    foreach (ReferenceConfiguration::Ptr refConf, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConf, m_referenceConfigurations) {
         if (refConfig->name() == refConf->name())
             return;
-
+    }
     m_referenceConfigurations.append(refConfig);
 }
 
@@ -109,7 +109,7 @@ void ProjectReference_Private::removeReferenceConfiguration(ReferenceConfigurati
 
 void ProjectReference_Private::removeReferenceConfiguration(const QString &refConfigName)
 {
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations) {
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfigName) {
             removeReferenceConfiguration(refConfig);
             return;
@@ -124,9 +124,10 @@ QList<ReferenceConfiguration::Ptr > ProjectReference_Private::referenceConfigura
 
 ReferenceConfiguration::Ptr ProjectReference_Private::referenceConfiguration(const QString &refConfigName) const
 {
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfigName)
             return refConfig;
+    }
     return ReferenceConfiguration::Ptr();
 }
 
@@ -139,7 +140,7 @@ ProjectReference_Private::ProjectReference_Private(const ProjectReference_Privat
     m_referencedProjectIdentifier = projRef_p.m_referencedProjectIdentifier;
     m_name = projRef_p.m_name;
 
-    foreach (ReferenceConfiguration::Ptr refConfig, projRef_p.m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, projRef_p.m_referenceConfigurations)
         m_referenceConfigurations.append(refConfig->clone());
 }
 
@@ -150,7 +151,7 @@ ProjectReference_Private &ProjectReference_Private::operator =(const ProjectRefe
         m_name = projRef_p.m_name;
 
         m_referenceConfigurations.clear();
-        foreach (ReferenceConfiguration::Ptr refConfig, projRef_p.m_referenceConfigurations)
+        foreach (const ReferenceConfiguration::Ptr &refConfig, projRef_p.m_referenceConfigurations)
             m_referenceConfigurations.append(refConfig->clone());
     }
     return *this;

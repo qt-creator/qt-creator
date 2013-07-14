@@ -38,10 +38,10 @@ ToolFiles::ToolFiles()
 
 ToolFiles::ToolFiles(const ToolFiles &toolFiles)
 {
-    foreach (ToolFile::Ptr toolFile, toolFiles.m_toolFiles)
+    foreach (const ToolFile::Ptr &toolFile, toolFiles.m_toolFiles)
         m_toolFiles.append(ToolFile::Ptr(new ToolFile(*toolFile)));
 
-    foreach (DefaultToolFile::Ptr toolFile, toolFiles.m_defaultToolFiles)
+    foreach (const DefaultToolFile::Ptr &toolFile, toolFiles.m_defaultToolFiles)
         m_defaultToolFiles.append(DefaultToolFile::Ptr(new DefaultToolFile(*toolFile)));
 }
 
@@ -51,10 +51,10 @@ ToolFiles &ToolFiles::operator =(const ToolFiles &toolFiles)
         m_toolFiles.clear();
         m_defaultToolFiles.clear();
 
-        foreach (ToolFile::Ptr toolFile, toolFiles.m_toolFiles)
+        foreach (const ToolFile::Ptr &toolFile, toolFiles.m_toolFiles)
             m_toolFiles.append(ToolFile::Ptr(new ToolFile(*toolFile)));
 
-        foreach (DefaultToolFile::Ptr toolFile, toolFiles.m_defaultToolFiles)
+        foreach (const DefaultToolFile::Ptr &toolFile, toolFiles.m_defaultToolFiles)
             m_defaultToolFiles.append(DefaultToolFile::Ptr(new DefaultToolFile(*toolFile)));
     }
 
@@ -94,10 +94,10 @@ QDomNode ToolFiles::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolFilesElement = domXMLDocument.createElement(QLatin1String("ToolFiles"));
 
-    foreach (ToolFile::Ptr file, m_toolFiles)
+    foreach (const ToolFile::Ptr &file, m_toolFiles)
         toolFilesElement.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (DefaultToolFile::Ptr file, m_defaultToolFiles)
+    foreach (const DefaultToolFile::Ptr &file, m_defaultToolFiles)
         toolFilesElement.appendChild(file->toXMLDomNode(domXMLDocument));
 
     return toolFilesElement;
@@ -113,9 +113,10 @@ void ToolFiles::addToolFile(ToolFile::Ptr toolFile)
     if (m_toolFiles.contains(toolFile))
         return;
 
-    foreach (ToolFile::Ptr toolF, m_toolFiles)
+    foreach (const ToolFile::Ptr &toolF, m_toolFiles) {
         if (toolF->relativePath() == toolFile->relativePath())
             return;
+    }
     m_toolFiles.append(toolFile);
 }
 
@@ -126,7 +127,7 @@ void ToolFiles::removeToolFile(ToolFile::Ptr toolFile)
 
 void ToolFiles::removeToolFile(const QString &relativeToolFilePath)
 {
-    foreach (ToolFile::Ptr toolF, m_toolFiles) {
+    foreach (const ToolFile::Ptr &toolF, m_toolFiles) {
         if (toolF->relativePath() == relativeToolFilePath) {
             removeToolFile(toolF);
             return;
@@ -141,9 +142,10 @@ QList<ToolFile::Ptr > ToolFiles::toolFiles() const
 
 ToolFile::Ptr ToolFiles::toolFile(const QString &relativePath)
 {
-    foreach (ToolFile::Ptr toolFile, m_toolFiles)
+    foreach (const ToolFile::Ptr &toolFile, m_toolFiles) {
         if (toolFile->relativePath() == relativePath)
             return toolFile;
+    }
     return ToolFile::Ptr();
 }
 
@@ -152,10 +154,10 @@ void ToolFiles::addDefaultToolFile(DefaultToolFile::Ptr defToolFile)
     if (m_defaultToolFiles.contains(defToolFile))
         return;
 
-    foreach (DefaultToolFile::Ptr toolF, m_defaultToolFiles)
+    foreach (const DefaultToolFile::Ptr &toolF, m_defaultToolFiles) {
         if (toolF->fileName() == defToolFile->fileName())
             return;
-
+    }
     m_defaultToolFiles.append(defToolFile);
 }
 
@@ -166,7 +168,7 @@ void ToolFiles::removeDefaultToolFile(DefaultToolFile::Ptr defToolFile)
 
 void ToolFiles::removeDefaultToolFile(const QString &fileName)
 {
-    foreach (DefaultToolFile::Ptr toolF, m_defaultToolFiles) {
+    foreach (const DefaultToolFile::Ptr &toolF, m_defaultToolFiles) {
         if (toolF->fileName() == fileName) {
             removeDefaultToolFile(toolF);
             return;

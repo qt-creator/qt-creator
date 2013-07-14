@@ -75,7 +75,7 @@ void Files::removeFilter(const QString &filterName)
 {
     QList<Filter::Ptr> filters = m_private->filters();
 
-    foreach (Filter::Ptr filter, filters) {
+    foreach (const Filter::Ptr &filter, filters) {
         if (filter->name() == filterName) {
             m_private->removeFilter(filter);
             return;
@@ -117,14 +117,14 @@ bool Files::fileExists(const QString &relativeFilePath) const
 {
     QList<File::Ptr> files = m_private->files();
 
-    foreach (File::Ptr filePtr, files) {
+    foreach (const File::Ptr &filePtr, files) {
         if (filePtr->relativePath() == relativeFilePath)
             return true;
     }
 
     QList<Filter::Ptr> filters = m_private->filters();
 
-    foreach (Filter::Ptr filterPtr, filters) {
+    foreach (const Filter::Ptr &filterPtr, filters) {
         if (filterPtr->fileExists(relativeFilePath))
             return true;
     }
@@ -137,10 +137,10 @@ void Files::allProjectFiles(QStringList &sl) const
     QList<Filter::Ptr > filters = m_private->filters();
     QList<File::Ptr > files = m_private->files();
 
-    foreach (Filter::Ptr filter, filters)
+    foreach (const Filter::Ptr &filter, filters)
         filter->allFiles(sl);
 
-    foreach (File::Ptr file, files)
+    foreach (const File::Ptr &file, files)
         sl.append(file->canonicalPath());
 }
 
@@ -224,14 +224,14 @@ bool Files2005::fileExists(const QString &relativeFilePath) const
 {
     QList<File::Ptr> files = m_private->files();
 
-    foreach (File::Ptr filePtr, files) {
+    foreach (const File::Ptr &filePtr, files) {
         if (filePtr->relativePath() == relativeFilePath)
             return true;
     }
 
     QList<Filter::Ptr> filters = m_private->filters();
 
-    foreach (Filter::Ptr filterPtr, filters) {
+    foreach (const Filter::Ptr &filterPtr, filters) {
         if (filterPtr->fileExists(relativeFilePath))
             return true;
     }
@@ -239,7 +239,7 @@ bool Files2005::fileExists(const QString &relativeFilePath) const
     QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
     QList<Folder::Ptr> folders = files_p->folders();
 
-    foreach (Folder::Ptr folderPtr, folders) {
+    foreach (const Folder::Ptr &folderPtr, folders) {
         if (folderPtr->fileExists(relativeFilePath))
             return true;
     }
@@ -264,7 +264,7 @@ void Files2005::removeFolder(const QString &folderName)
     QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
     QList<Folder::Ptr> folders = files_p->folders();
 
-    foreach (Folder::Ptr folder, folders) {
+    foreach (const Folder::Ptr &folder, folders) {
         if (folder->name() == folderName) {
             files_p->removeFolder(folder);
             return;
@@ -291,13 +291,13 @@ void Files2005::allProjectFiles(QStringList &sl) const
     QList<Filter::Ptr > filters = m_private->filters();
     QList<File::Ptr > files = m_private->files();
 
-    foreach (Filter::Ptr filter, filters)
+    foreach (const Filter::Ptr &filter, filters)
         filter->allFiles(sl);
 
-    foreach (Folder::Ptr filter, folders)
+    foreach (const Folder::Ptr &filter, folders)
         filter->allFiles(sl);
 
-    foreach (File::Ptr file, files)
+    foreach (const File::Ptr &file, files)
         sl.append(file->canonicalPath());
 }
 

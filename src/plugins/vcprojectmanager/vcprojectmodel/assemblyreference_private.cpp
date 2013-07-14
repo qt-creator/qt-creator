@@ -62,7 +62,7 @@ QDomNode AssemblyReference_Private::toXMLDomNode(QDomDocument &domXMLDocument) c
 
     assemblyRefNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
 
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations)
         assemblyRefNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
 
     return assemblyRefNode;
@@ -83,9 +83,10 @@ void AssemblyReference_Private::addReferenceConfiguration(ReferenceConfiguration
     if (m_referenceConfigurations.contains(refConfig))
         return;
 
-    foreach (ReferenceConfiguration::Ptr refConf, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConf, m_referenceConfigurations) {
         if (refConfig->name() == refConf->name())
             return;
+    }
 
     m_referenceConfigurations.append(refConfig);
 }
@@ -97,7 +98,7 @@ void AssemblyReference_Private::removeReferenceConfiguration(ReferenceConfigurat
 
 void AssemblyReference_Private::removeReferenceConfiguration(const QString &refConfName)
 {
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations) {
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfName) {
             removeReferenceConfiguration(refConfig);
             return;
@@ -112,9 +113,10 @@ QList<ReferenceConfiguration::Ptr > AssemblyReference_Private::referenceConfigur
 
 ReferenceConfiguration::Ptr AssemblyReference_Private::referenceConfiguration(const QString &refConfigName) const
 {
-    foreach (ReferenceConfiguration::Ptr refConfig, m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfigName)
             return refConfig;
+    }
     return ReferenceConfiguration::Ptr();
 }
 
@@ -126,7 +128,7 @@ AssemblyReference_Private::AssemblyReference_Private(const AssemblyReference_Pri
 {
     m_relativePath = asmPrivate.m_relativePath;
 
-    foreach (ReferenceConfiguration::Ptr refConfig, asmPrivate.m_referenceConfigurations)
+    foreach (const ReferenceConfiguration::Ptr &refConfig, asmPrivate.m_referenceConfigurations)
         m_referenceConfigurations.append(refConfig->clone());
 }
 
@@ -135,7 +137,7 @@ AssemblyReference_Private &AssemblyReference_Private::operator =(const AssemblyR
     if (this != &asmPrivate) {
         m_relativePath = asmPrivate.m_relativePath;
 
-        foreach (ReferenceConfiguration::Ptr refConfig, asmPrivate.m_referenceConfigurations)
+        foreach (const ReferenceConfiguration::Ptr &refConfig, asmPrivate.m_referenceConfigurations)
             m_referenceConfigurations.append(refConfig->clone());
     }
 

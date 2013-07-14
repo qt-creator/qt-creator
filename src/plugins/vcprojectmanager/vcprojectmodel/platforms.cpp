@@ -38,7 +38,7 @@ Platforms::Platforms()
 
 Platforms::Platforms(const Platforms &platforms)
 {
-    foreach (Platform::Ptr platform, platforms.m_platforms)
+    foreach (const Platform::Ptr &platform, platforms.m_platforms)
         m_platforms.append(Platform::Ptr(new Platform(*platform)));
 }
 
@@ -47,7 +47,7 @@ Platforms &Platforms::operator =(const Platforms &platforms)
     if (this != &platforms) {
         m_platforms.clear();
 
-        foreach (Platform::Ptr platform, platforms.m_platforms)
+        foreach (const Platform::Ptr &platform, platforms.m_platforms)
             m_platforms.append(Platform::Ptr(new Platform(*platform)));
     }
     return *this;
@@ -84,7 +84,7 @@ QDomNode Platforms::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement platformsNode = domXMLDocument.createElement(QLatin1String("Platforms"));
 
-    foreach (Platform::Ptr platform, m_platforms)
+    foreach (const Platform::Ptr &platform, m_platforms)
         platformsNode.appendChild(platform->toXMLDomNode(domXMLDocument));
 
     return platformsNode;
@@ -112,10 +112,10 @@ void Platforms::addPlatform(Platform::Ptr platform)
     if (m_platforms.contains(platform))
         return;
 
-    foreach (Platform::Ptr platf, m_platforms)
+    foreach (const Platform::Ptr &platf, m_platforms) {
         if (platf->name() == platform->name())
             return;
-
+    }
     m_platforms.append(platform);
 }
 
@@ -126,7 +126,7 @@ void Platforms::removePlatform(Platform::Ptr platform)
 
 void Platforms::removePlatform(const QString &platformName)
 {
-    foreach (Platform::Ptr platform, m_platforms) {
+    foreach (const Platform::Ptr &platform, m_platforms) {
         if (platform->name() == platformName) {
             removePlatform(platform);
             return;

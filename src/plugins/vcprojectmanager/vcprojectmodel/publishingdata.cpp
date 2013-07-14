@@ -40,7 +40,7 @@ PublishingData::PublishingData(const PublishingData &data)
 {
     m_anyAttribute = data.m_anyAttribute;
 
-    foreach (PublishingItem::Ptr item, data.m_publishingItems)
+    foreach (const PublishingItem::Ptr &item, data.m_publishingItems)
         m_publishingItems.append(PublishingItem::Ptr(new PublishingItem(*item)));
 }
 
@@ -50,7 +50,7 @@ PublishingData &PublishingData::operator =(const PublishingData &data)
         m_anyAttribute = data.m_anyAttribute;
 
         m_publishingItems.clear();
-        foreach (PublishingItem::Ptr item, data.m_publishingItems)
+        foreach (const PublishingItem::Ptr &item, data.m_publishingItems)
             m_publishingItems.append(PublishingItem::Ptr(new PublishingItem(*item)));
     }
     return *this;
@@ -106,7 +106,7 @@ QDomNode PublishingData::toXMLDomNode(QDomDocument &domXMLDocument) const
         publishingDataNode.setAttribute(it.key(), it.value());
     }
 
-    foreach (PublishingItem::Ptr publish, m_publishingItems)
+    foreach (const PublishingItem::Ptr &publish, m_publishingItems)
         publishingDataNode.appendChild(publish->toXMLDomNode(domXMLDocument));
 
     return publishingDataNode;
@@ -150,9 +150,10 @@ QList<PublishingItem::Ptr > PublishingData::publishingItems(const QString &attri
 {
     QList<PublishingItem::Ptr > items;
 
-    foreach (PublishingItem::Ptr item, m_publishingItems)
+    foreach (const PublishingItem::Ptr &item, m_publishingItems) {
         if (item->attributeValue(attributeName) == attributeValue)
             items.append(item);
+    }
 
     return items;
 }

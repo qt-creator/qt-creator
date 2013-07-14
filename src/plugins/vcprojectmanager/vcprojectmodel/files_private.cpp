@@ -65,10 +65,10 @@ QDomNode Files_Private::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement fileNode = domXMLDocument.createElement(QLatin1String("Files"));
 
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (Filter::Ptr filter, m_filters)
+    foreach (const Filter::Ptr &filter, m_filters)
         fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -79,9 +79,10 @@ void Files_Private::addFilter(Filter::Ptr newFilter)
     if (m_filters.contains(newFilter))
         return;
 
-    foreach (Filter::Ptr filter, m_filters)
+    foreach (const Filter::Ptr &filter, m_filters) {
         if (filter->name() == newFilter->name())
             return;
+    }
 
     m_filters.append(newFilter);
 }
@@ -98,9 +99,10 @@ QList<Filter::Ptr > Files_Private::filters() const
 
 Filter::Ptr Files_Private::filter(const QString &filterName) const
 {
-    foreach (Filter::Ptr filter, m_filters)
+    foreach (const Filter::Ptr &filter, m_filters) {
         if (filter->name() == filterName)
             return filter;
+    }
     return Filter::Ptr();
 }
 
@@ -109,9 +111,10 @@ void Files_Private::addFile(File::Ptr newFile)
     if (m_files.contains(newFile))
         return;
 
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files) {
         if (file->relativePath() == newFile->relativePath())
             return;
+    }
 
     m_files.append(newFile);
 }
@@ -128,9 +131,10 @@ QList<File::Ptr > Files_Private::files() const
 
 File::Ptr Files_Private::file(const QString &relativePath) const
 {
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files) {
         if (file->relativePath() == relativePath)
             return file;
+    }
     return File::Ptr();
 }
 
@@ -141,10 +145,10 @@ Files_Private::Files_Private(VcProjectDocument *parentProject)
 
 Files_Private::Files_Private(const Files_Private &filesPrivate)
 {
-    foreach (File::Ptr file, filesPrivate.m_files)
+    foreach (const File::Ptr &file, filesPrivate.m_files)
         m_files.append(File::Ptr(new File(*file)));
 
-    foreach (Filter::Ptr filter, filesPrivate.m_filters)
+    foreach (const Filter::Ptr &filter, filesPrivate.m_filters)
         m_filters.append(Filter::Ptr(new Filter(*filter)));
 }
 
@@ -154,10 +158,10 @@ Files_Private &Files_Private::operator=(const Files_Private &filesPrivate)
         m_files.clear();
         m_filters.clear();
 
-        foreach (File::Ptr file, filesPrivate.m_files)
+        foreach (const File::Ptr &file, filesPrivate.m_files)
             m_files.append(File::Ptr(new File(*file)));
 
-        foreach (Filter::Ptr filter, filesPrivate.m_filters)
+        foreach (const Filter::Ptr &filter, filesPrivate.m_filters)
             m_filters.append(Filter::Ptr(new Filter(*filter)));
     }
     return *this;
@@ -231,7 +235,7 @@ Files2005_Private::Files2005_Private(VcProjectDocument *parentProjectDocument)
 Files2005_Private::Files2005_Private(const Files2005_Private &filesPrivate)
     : Files_Private(filesPrivate)
 {
-    foreach (Folder::Ptr folder, filesPrivate.m_folders)
+    foreach (const Folder::Ptr &folder, filesPrivate.m_folders)
         m_folders.append(Folder::Ptr(new Folder(*folder)));
 }
 
@@ -241,7 +245,7 @@ Files2005_Private &Files2005_Private::operator =(const Files2005_Private &filesP
         Files_Private::operator =(filesPrivate);
         m_folders.clear();
 
-        foreach (Folder::Ptr folder, filesPrivate.m_folders)
+        foreach (const Folder::Ptr &folder, filesPrivate.m_folders)
             m_folders.append(Folder::Ptr(new Folder(*folder)));
     }
     return *this;
@@ -274,13 +278,13 @@ QDomNode Files2005_Private::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement fileNode = domXMLDocument.createElement(QLatin1String("Files"));
 
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (Filter::Ptr filter, m_filters)
+    foreach (const Filter::Ptr &filter, m_filters)
         fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
 
-    foreach (Folder::Ptr folder, m_folders)
+    foreach (const Folder::Ptr &folder, m_folders)
         fileNode.appendChild(folder->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -296,9 +300,10 @@ void Files2005_Private::addFolder(Folder::Ptr newFolder)
     if (m_folders.contains(newFolder))
         return;
 
-    foreach (Folder::Ptr folder, m_folders)
+    foreach (const Folder::Ptr &folder, m_folders) {
         if (folder->name() == newFolder->name())
             return;
+    }
 
     m_folders.append(newFolder);
 }
@@ -315,9 +320,10 @@ QList<Folder::Ptr > Files2005_Private::folders() const
 
 Folder::Ptr Files2005_Private::folder(const QString &folderName) const
 {
-    foreach (Folder::Ptr folder, m_folders)
+    foreach (const Folder::Ptr &folder, m_folders) {
         if (folder->name() == folderName)
             return folder;
+    }
     return Folder::Ptr();
 }
 

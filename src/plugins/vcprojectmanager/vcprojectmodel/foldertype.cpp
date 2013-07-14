@@ -95,13 +95,13 @@ QDomNode FolderType::toXMLDomNode(QDomDocument &domXMLDocument) const
         fileNode.setAttribute(it.key(), it.value());
     }
 
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (Filter::Ptr filter, m_filters)
+    foreach (const Filter::Ptr &filter, m_filters)
         fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
 
-    foreach (Folder::Ptr folder, m_folders)
+    foreach (const Folder::Ptr &folder, m_folders)
         fileNode.appendChild(folder->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -166,7 +166,7 @@ void FolderType::addFilter(Filter::Ptr filter)
     if (m_filters.contains(filter))
         return;
 
-    foreach (Filter::Ptr filt, m_filters) {
+    foreach (const Filter::Ptr &filt, m_filters) {
         if (filt->name() == filter->name())
             return;
     }
@@ -181,7 +181,7 @@ void FolderType::removeFilter(Filter::Ptr filter)
 
 void FolderType::removeFilter(const QString &filterName)
 {
-    foreach (Filter::Ptr filter, m_filters) {
+    foreach (const Filter::Ptr &filter, m_filters) {
         if (filter->name() == filterName) {
             removeFilter(filter);
             return;
@@ -196,9 +196,10 @@ QList<Filter::Ptr > FolderType::filters() const
 
 Filter::Ptr FolderType::filter(const QString &filterName) const
 {
-    foreach (Filter::Ptr filter, m_filters)
+    foreach (const Filter::Ptr &filter, m_filters) {
         if (filter->name() == filterName)
             return filter;
+    }
     return Filter::Ptr();
 }
 
@@ -207,10 +208,10 @@ void FolderType::addFile(File::Ptr file)
     if (m_files.contains(file))
         return;
 
-    foreach (File::Ptr f, m_files)
+    foreach (const File::Ptr &f, m_files) {
         if (f->relativePath() == file->relativePath())
             return;
-
+    }
     m_files.append(file);
 }
 
@@ -221,7 +222,7 @@ void FolderType::removeFile(File::Ptr file)
 
 void FolderType::removeFile(const QString &relativeFilePath)
 {
-    foreach (File::Ptr file, m_files) {
+    foreach (const File::Ptr &file, m_files) {
         if (file->relativePath() == relativeFilePath) {
             removeFile(file);
             return;
@@ -236,9 +237,10 @@ QList<File::Ptr > FolderType::files() const
 
 File::Ptr FolderType::file(const QString &relativeFilePath) const
 {
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files) {
         if (file->relativePath() == relativeFilePath)
             return file;
+    }
     return File::Ptr();
 }
 
@@ -247,10 +249,10 @@ void FolderType::addFolder(QSharedPointer<Folder> folder)
     if (m_folders.contains(folder))
         return;
 
-    foreach (Folder::Ptr f, m_folders)
+    foreach (const Folder::Ptr &f, m_folders) {
         if (f->name() == folder->name())
             return;
-
+    }
     m_folders.append(folder);
 }
 
@@ -261,7 +263,7 @@ void FolderType::removeFolder(QSharedPointer<Folder> folder)
 
 void FolderType::removeFolder(const QString &folderName)
 {
-    foreach (Folder::Ptr f, m_folders) {
+    foreach (const Folder::Ptr &f, m_folders) {
         if (f->name() == folderName) {
             removeFolder(f);
             return;
@@ -276,9 +278,10 @@ QList<QSharedPointer<Folder> > FolderType::folders() const
 
 QSharedPointer<Folder> FolderType::folder(const QString &folderName) const
 {
-    foreach (Folder::Ptr folder, m_folders)
+    foreach (const Folder::Ptr &folder, m_folders) {
         if (folder->name() == folderName)
             return folder;
+    }
     return Folder::Ptr();
 }
 
@@ -329,13 +332,13 @@ FolderType::FolderType(const FolderType &folderType)
     m_name = folderType.m_name;
     m_anyAttribute = folderType.m_anyAttribute;
 
-    foreach (File::Ptr file, folderType.m_files)
+    foreach (const File::Ptr &file, folderType.m_files)
         m_files.append(File::Ptr(new File(*file)));
 
-    foreach (Filter::Ptr filter, folderType.m_filters)
+    foreach (const Filter::Ptr &filter, folderType.m_filters)
         m_filters.append(Filter::Ptr(new Filter(*filter)));
 
-    foreach (Folder::Ptr folder, folderType.m_folders)
+    foreach (const Folder::Ptr &folder, folderType.m_folders)
         m_folders.append(Folder::Ptr(new Folder(*folder)));
 }
 
@@ -350,13 +353,13 @@ FolderType &FolderType::operator =(const FolderType &folderType)
         m_folders.clear();
         m_filters.clear();
 
-        foreach (File::Ptr file, folderType.m_files)
+        foreach (const File::Ptr &file, folderType.m_files)
             m_files.append(File::Ptr(new File(*file)));
 
-        foreach (Filter::Ptr filter, folderType.m_filters)
+        foreach (const Filter::Ptr &filter, folderType.m_filters)
             m_filters.append(Filter::Ptr(new Filter(*filter)));
 
-        foreach (Folder::Ptr folder, folderType.m_folders)
+        foreach (const Folder::Ptr &folder, folderType.m_folders)
             m_folders.append(Folder::Ptr(new Folder(*folder)));
     }
 

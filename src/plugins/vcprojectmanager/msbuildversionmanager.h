@@ -101,7 +101,7 @@ public:
     QList<MsBuildInformation *> msBuildInformations() const;
     MsBuildInformation* msBuildInformation(Core::Id msBuildID);
     MsBuildInformation* msBuildInformation(MsBuildInformation::MsBuildVersion minVersion, MsBuildInformation::MsBuildVersion maxVersion);
-    void removeMsBuildInformation(Core::Id msBuildId);
+    void removeMsBuildInformation(const Core::Id &msBuildId);
     void replace(Core::Id targetMsBuild, MsBuildInformation *newMsBuild);
 
     void saveSettings();

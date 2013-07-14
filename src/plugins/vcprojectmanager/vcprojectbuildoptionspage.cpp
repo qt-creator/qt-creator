@@ -273,7 +273,7 @@ void VcProjectBuildOptionsWidget::saveSettings() const
     disconnect(msBVM, SIGNAL(msBuildReplaced(Core::Id,Core::Id)), this, SLOT(onMsBuildReplaced(Core::Id,Core::Id)));
 
     if (msBVM) {
-        foreach (Core::Id id, m_removedMsBuilds)
+        foreach (const Core::Id &id, m_removedMsBuilds)
             msBVM->removeMsBuildInformation(id);
 
         foreach (MsBuildInformation *info, m_newMsBuilds)

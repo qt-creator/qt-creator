@@ -48,7 +48,7 @@ Configurations::Configurations(const Configurations &configs)
 {
     m_vcProjDoc = configs.m_vcProjDoc;
 
-    foreach (Configuration::Ptr config, configs.m_configurations)
+    foreach (const Configuration::Ptr &config, configs.m_configurations)
         m_configurations.append(config->clone());
 }
 
@@ -58,7 +58,7 @@ Configurations &Configurations::operator =(const Configurations &configs)
         m_vcProjDoc = configs.m_vcProjDoc;
         m_configurations.clear();
 
-        foreach (Configuration::Ptr config, configs.m_configurations)
+        foreach (const Configuration::Ptr &config, configs.m_configurations)
             m_configurations.append(config->clone());
     }
 
@@ -96,7 +96,7 @@ QDomNode Configurations::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement configsNode = domXMLDocument.createElement(QLatin1String("Configurations"));
 
-    foreach (Configuration::Ptr config, m_configurations)
+    foreach (const Configuration::Ptr &config, m_configurations)
         configsNode.appendChild(config->toXMLDomNode(domXMLDocument));
 
     return configsNode;
@@ -175,9 +175,10 @@ bool Configurations::appendConfiguration(Configuration::Ptr config)
         return false;
 
     // if there is already a configuration with the same name
-    foreach (Configuration::Ptr conf, m_configurations)
+    foreach (const Configuration::Ptr &conf, m_configurations) {
         if (config->name() == conf->name())
             return false;
+    }
     m_configurations.append(config);
     return true;
 }
@@ -189,9 +190,10 @@ void Configurations::removeConfiguration(Configuration::Ptr config)
 
 Configuration::Ptr Configurations::configuration(const QString &configName)
 {
-    foreach (Configuration::Ptr config, m_configurations)
+    foreach (const Configuration::Ptr &config, m_configurations) {
         if (config->name() == configName)
             return config;
+    }
     return Configuration::Ptr();
 }
 
@@ -201,7 +203,7 @@ Configuration::Ptr Configurations::cloneConfiguration(const QString &newConfigNa
     if (configuration(newConfigName))
         return Configuration::Ptr();
 
-    foreach (Configuration::Ptr config, m_configurations) {
+    foreach (const Configuration::Ptr &config, m_configurations) {
         if (config->name() == configToClone) {
             Configuration::Ptr clonedConfig = config->clone();
             clonedConfig->setName(newConfigName);

@@ -71,10 +71,10 @@ QDomNode FilterType::toXMLDomNode(QDomDocument &domXMLDocument) const
         fileNode.setAttribute(it.key(), it.value());
     }
 
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (Filter::Ptr filter, m_filters)
+    foreach (const Filter::Ptr &filter, m_filters)
         fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -95,9 +95,10 @@ void FilterType::addFilter(QSharedPointer<VcProjectManager::Internal::Filter> fi
     if (m_filters.contains(filter))
         return;
 
-    foreach (Filter::Ptr filt, m_filters)
+    foreach (const Filter::Ptr &filt, m_filters) {
         if (filt->name() == filter->name())
             return;
+    }
 
     m_filters.append(filter);
 }
@@ -109,7 +110,7 @@ void FilterType::removeFilter(QSharedPointer<VcProjectManager::Internal::Filter>
 
 void FilterType::removeFilter(const QString &filterName)
 {
-    foreach (Filter::Ptr filter, m_filters) {
+    foreach (const Filter::Ptr &filter, m_filters) {
         if (filter->name() == filterName) {
             removeFilter(filter);
             return;
@@ -127,9 +128,10 @@ void FilterType::addFile(File::Ptr file)
     if (m_files.contains(file))
         return;
 
-    foreach (File::Ptr f, m_files)
+    foreach (const File::Ptr &f, m_files) {
         if (f->relativePath() == file->relativePath())
             return;
+    }
 
     m_files.append(file);
 }
@@ -141,7 +143,7 @@ void FilterType::removeFile(File::Ptr file)
 
 void FilterType::removeFile(const QString &relativeFilePath)
 {
-    foreach (File::Ptr file, m_files) {
+    foreach (const File::Ptr &file, m_files) {
         if (file->relativePath() == relativeFilePath) {
             removeFile(file);
             return;
@@ -151,9 +153,10 @@ void FilterType::removeFile(const QString &relativeFilePath)
 
 File::Ptr FilterType::file(const QString &relativePath) const
 {
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files) {
         if (file->relativePath() == relativePath)
             return file;
+    }
     return File::Ptr();
 }
 
@@ -199,10 +202,10 @@ FilterType::FilterType(const FilterType &filterType)
     m_anyAttribute = filterType.m_anyAttribute;
     m_name = filterType.m_name;
 
-    foreach (File::Ptr file, filterType.m_files)
+    foreach (const File::Ptr &file, filterType.m_files)
         m_files.append(File::Ptr(new File(*file)));
 
-    foreach (Filter::Ptr filter, filterType.m_filters)
+    foreach (const Filter::Ptr &filter, filterType.m_filters)
         m_filters.append(Filter::Ptr(new Filter(*filter)));
 }
 
@@ -215,10 +218,10 @@ FilterType &FilterType::operator =(const FilterType &filterType)
         m_files.clear();
         m_filters.clear();
 
-        foreach (File::Ptr file, filterType.m_files)
+        foreach (const File::Ptr &file, filterType.m_files)
             m_files.append(File::Ptr(new File(*file)));
 
-        foreach (Filter::Ptr file, filterType.m_filters)
+        foreach (const Filter::Ptr &file, filterType.m_filters)
             m_filters.append(Filter::Ptr(new Filter(*file)));
     }
     return *this;

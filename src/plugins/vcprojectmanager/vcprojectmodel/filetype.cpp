@@ -79,10 +79,10 @@ QDomNode FileType::toXMLDomNode(QDomDocument &domXMLDocument) const
         fileNode.setAttribute(it.key(), it.value());
     }
 
-    foreach (File::Ptr file, m_files)
+    foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (FileConfiguration::Ptr fileConfig, m_fileConfigurations)
+    foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
         fileNode.appendChild(fileConfig->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -193,10 +193,10 @@ FileType::FileType(const FileType &fileType)
     m_parentProjectDoc = fileType.m_parentProjectDoc;
     m_relativePath = fileType.m_relativePath;
 
-    foreach (File::Ptr file, fileType.m_files)
+    foreach (const File::Ptr &file, fileType.m_files)
         m_files.append(File::Ptr(new File(*file)));
 
-    foreach (FileConfiguration::Ptr fileConfig, m_fileConfigurations)
+    foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
         m_fileConfigurations.append(fileConfig->clone());
 }
 
@@ -209,10 +209,10 @@ FileType &FileType::operator=(const FileType &fileType)
         m_files.clear();
         m_fileConfigurations.clear();
 
-        foreach (File::Ptr file, fileType.m_files)
+        foreach (const File::Ptr &file, fileType.m_files)
             m_files.append(File::Ptr(new File(*file)));
 
-        foreach (FileConfiguration::Ptr fileConfig, m_fileConfigurations)
+        foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
             m_fileConfigurations.append(fileConfig->clone());
     }
     return *this;
