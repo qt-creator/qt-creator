@@ -928,6 +928,8 @@ void Internal::GccToolChainConfigWidget::makeReadOnlyImpl()
 {
     m_compilerCommand->setEnabled(false);
     m_abiWidget->setEnabled(false);
+    m_platformCodeGenFlagsLineEdit->setEnabled(false);
+    m_platformLinkerFlagsLineEdit->setEnabled(false);
     m_isReadOnly = true;
 }
 
