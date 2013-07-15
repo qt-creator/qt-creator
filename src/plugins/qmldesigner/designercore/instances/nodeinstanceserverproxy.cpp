@@ -393,8 +393,8 @@ void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitSt
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         m_captureFileForTest.remove();
-        QMessageBox::warning(0, tr("Qml Puppet crashes"), tr("Your are recording a Puppet stream and the puppet crashes. "
-                                                             "It is recommended to reopen the Qml Designer and start again."));
+        QMessageBox::warning(0, tr("QML Puppet Crashed"), tr("Your are recording a Puppet stream and the puppet crashed. "
+                                                             "It is recommended to reopen the QML Designer and start again."));
     }
 
 
