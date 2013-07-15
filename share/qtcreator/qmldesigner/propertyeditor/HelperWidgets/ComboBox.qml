@@ -77,19 +77,22 @@ QWidget {
         QComboBox {
             id: box
             property variant backendValue: comboBox.backendValue
-            onCurrentTextChanged: { backendValue.value = currentText; evaluate(); }
-			onItemsChanged: {				
-				if (comboBox.backendValue.value == curentText)
-				    return;
-				box.setCurrentTextSilent(comboBox.backendValue.value);
-            }			
-			
-			property variant backendValueValue: comboBox.backendValue.value
-			onBackendValueValueChanged: {			 
-			    if (comboBox.backendValue.value == curentText)
-				    return;					
-				box.setCurrentTextSilent(comboBox.backendValue.value);
-			}
+            onCurrentTextChanged: {
+                print("valuechanged");
+                print(comboBox.currentText)
+                backendValue.value = comboBox.currentText; evaluate(); }
+            onItemsChanged: {
+                if (comboBox.backendValue.value === comboBox.curentText)
+                    return;
+                box.setCurrentTextSilent(comboBox.backendValue.value);
+            }
+
+            property variant backendValueValue: comboBox.backendValue.value
+            onBackendValueValueChanged: {
+                if (comboBox.backendValue.value === comboBox.curentText)
+                    return;
+                box.setCurrentTextSilent(comboBox.backendValue.value);
+            }
             ExtendedFunctionButton {
                 backendValue: comboBox.backendValue;
                 y: 3
