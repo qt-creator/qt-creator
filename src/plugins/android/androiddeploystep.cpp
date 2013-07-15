@@ -107,7 +107,7 @@ bool AndroidDeployStep::init()
         writeOutput(error);
 
     if (m_deviceSerialNumber.isEmpty()) {
-        writeOutput(tr("Falling back to android virtual machine device."));
+        writeOutput(tr("Falling back to Android virtual machine device."));
         m_deviceSerialNumber = AndroidConfigurations::instance().startAVD(&m_deviceAPILevel);
     }
 
