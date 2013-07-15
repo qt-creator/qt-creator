@@ -135,7 +135,7 @@ void ToolFiles::removeToolFile(const QString &relativeToolFilePath)
     }
 }
 
-QList<ToolFile::Ptr > ToolFiles::toolFiles() const
+QList<ToolFile::Ptr> ToolFiles::toolFiles() const
 {
     return m_toolFiles;
 }
@@ -176,7 +176,7 @@ void ToolFiles::removeDefaultToolFile(const QString &fileName)
     }
 }
 
-QList<DefaultToolFile::Ptr > ToolFiles::defaultToolFiles() const
+QList<DefaultToolFile::Ptr> ToolFiles::defaultToolFiles() const
 {
     return m_defaultToolFiles;
 }

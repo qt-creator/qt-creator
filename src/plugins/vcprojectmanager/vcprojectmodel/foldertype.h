@@ -55,13 +55,13 @@ public:
     void addFilter(Filter::Ptr filter);
     void removeFilter(Filter::Ptr filter);
     void removeFilter(const QString &filterName);
-    QList<Filter::Ptr > filters() const;
+    QList<Filter::Ptr> filters() const;
     Filter::Ptr filter(const QString &filterName) const;
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
     void removeFile(const QString &relativeFilePath);
-    QList<File::Ptr > files() const;
+    QList<File::Ptr> files() const;
     File::Ptr file(const QString &relativeFilePath) const;
 
     void addFolder(QSharedPointer<Folder> folder);
@@ -86,8 +86,8 @@ private:
     FolderType& operator=(const FolderType &folderType);
 
     QList<QSharedPointer<Folder> > m_folders;
-    QList<File::Ptr > m_files;
-    QList<Filter::Ptr > m_filters;
+    QList<File::Ptr> m_files;
+    QList<Filter::Ptr> m_filters;
 
     QString m_name; // required
     QHash<QString, QString> m_anyAttribute;

@@ -57,12 +57,12 @@ public:
 
     void addFilter(Filter::Ptr newFilter);
     void removeFilter(Filter::Ptr filter);
-    QList<Filter::Ptr > filters() const;
+    QList<Filter::Ptr> filters() const;
     Filter::Ptr filter(const QString &filterName) const;
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
-    QList<File::Ptr > files() const;
+    QList<File::Ptr> files() const;
     File::Ptr file(const QString &relativePath) const;
 
 protected:
@@ -73,8 +73,8 @@ protected:
     virtual void processFile(const QDomNode &fileNode);
     virtual void processFilter(const QDomNode &filterNode);
 
-    QList<Filter::Ptr > m_filters;
-    QList<File::Ptr > m_files;
+    QList<Filter::Ptr> m_filters;
+    QList<File::Ptr> m_files;
     VcProjectDocument *m_parentProject;
 };
 
@@ -105,7 +105,7 @@ public:
 
     void addFolder(Folder::Ptr newFolder);
     void removeFolder(Folder::Ptr folder);
-    QList<Folder::Ptr > folders() const;
+    QList<Folder::Ptr> folders() const;
     Folder::Ptr folder(const QString &folderName) const;
 
 protected:
@@ -118,7 +118,7 @@ private:
     void processFilter(const QDomNode &filterNode);
     void processFolder(const QDomNode &folderNode);
 
-    QList<Folder::Ptr > m_folders;
+    QList<Folder::Ptr> m_folders;
 };
 
 class Files2008_Private : public Files_Private

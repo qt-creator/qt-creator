@@ -106,7 +106,7 @@ void AssemblyReference_Private::removeReferenceConfiguration(const QString &refC
     }
 }
 
-QList<ReferenceConfiguration::Ptr > AssemblyReference_Private::referenceConfigurations() const
+QList<ReferenceConfiguration::Ptr> AssemblyReference_Private::referenceConfigurations() const
 {
     return m_referenceConfigurations;
 }

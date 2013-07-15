@@ -141,14 +141,14 @@ void PublishingData::removePublishingItem(PublishingItem::Ptr item)
     m_publishingItems.removeAll(item);
 }
 
-QList<PublishingItem::Ptr > PublishingData::publishingItems() const
+QList<PublishingItem::Ptr> PublishingData::publishingItems() const
 {
     return m_publishingItems;
 }
 
-QList<PublishingItem::Ptr > PublishingData::publishingItems(const QString &attributeName, const QString &attributeValue) const
+QList<PublishingItem::Ptr> PublishingData::publishingItems(const QString &attributeName, const QString &attributeValue) const
 {
-    QList<PublishingItem::Ptr > items;
+    QList<PublishingItem::Ptr> items;
 
     foreach (const PublishingItem::Ptr &item, m_publishingItems) {
         if (item->attributeValue(attributeName) == attributeValue)

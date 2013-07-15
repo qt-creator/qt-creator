@@ -120,8 +120,8 @@ public:
 
     void addDeploymentTool(DeploymentTool::Ptr tool);
     void removeDeploymentTool(DeploymentTool::Ptr tool);
-    QList<DeploymentTool::Ptr > deploymentTools() const;
-    QList<DeploymentTool::Ptr > deploymentTools(const QString &attributeName, const QString &attributeValue) const;
+    QList<DeploymentTool::Ptr> deploymentTools() const;
+    QList<DeploymentTool::Ptr> deploymentTools(const QString &attributeName, const QString &attributeValue) const;
 
 protected:
     Configuration2005();
@@ -142,8 +142,8 @@ public:
 
     void addDebuggerTool(DebuggerTool::Ptr tool);
     void removeDebuggerTool(DebuggerTool::Ptr tool);
-    QList<DebuggerTool::Ptr > debuggerTools() const;
-    QList<DebuggerTool::Ptr > debuggerTools(const QString &attributeName, const QString &attributeValue) const;
+    QList<DebuggerTool::Ptr> debuggerTools() const;
+    QList<DebuggerTool::Ptr> debuggerTools(const QString &attributeName, const QString &attributeValue) const;
 
 private:
     Configuration2008();

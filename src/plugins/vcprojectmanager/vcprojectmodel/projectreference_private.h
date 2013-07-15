@@ -60,7 +60,7 @@ public:
     void addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
     void removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
     void removeReferenceConfiguration(const QString &refConfigName);
-    QList<ReferenceConfiguration::Ptr > referenceConfigurations() const;
+    QList<ReferenceConfiguration::Ptr> referenceConfigurations() const;
     ReferenceConfiguration::Ptr referenceConfiguration(const QString &refConfigName) const;
 
 protected:
@@ -76,7 +76,7 @@ protected:
      */
     virtual ReferenceConfiguration::Ptr createReferenceConfiguration() const = 0;
 
-    QList<ReferenceConfiguration::Ptr > m_referenceConfigurations;
+    QList<ReferenceConfiguration::Ptr> m_referenceConfigurations;
     QString m_referencedProjectIdentifier; // required
     QString m_name; // optional
 };

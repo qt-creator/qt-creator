@@ -136,7 +136,7 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
             Configuration::Ptr config = m_configs->configuration(copyFrom);
 
             if (config) {
-                QList<Platform::Ptr > platformList = platforms->platforms();
+                QList<Platform::Ptr> platformList = platforms->platforms();
 
                 foreach (const Platform::Ptr &platform, platformList) {
                     Configuration::Ptr newConfig = config->clone();
@@ -164,7 +164,7 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
     if (splits.isEmpty())
         return;
 
-    QList<Platform::Ptr > platformList = platforms->platforms();
+    QList<Platform::Ptr> platformList = platforms->platforms();
     foreach (const Platform::Ptr &platform, platformList) {
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
         QString newName = newConfigName + QLatin1Char('|') + platform->name();
@@ -215,7 +215,7 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
     if (splits.isEmpty())
         return;
 
-    QList<Platform::Ptr > platformList = platforms->platforms();
+    QList<Platform::Ptr> platformList = platforms->platforms();
     foreach (const Platform::Ptr &platform, platformList) {
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
         Configuration::Ptr config = m_configs->configuration(targetConfigName);

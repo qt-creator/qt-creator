@@ -63,12 +63,12 @@ public:
     Configuration::Ptr configuration(const QString &configName);
     Configuration::Ptr cloneConfiguration(const QString &newConfigName, const QString &configToClone);
     Configuration::Ptr cloneConfiguration(const QString &newConfigName, Configuration::Ptr config);
-    QList<Configuration::Ptr > configurations() const;
+    QList<Configuration::Ptr> configurations() const;
 
 private:
     void processConfiguration(const QDomNode &configurationNode);
 
-    QList<Configuration::Ptr > m_configurations;
+    QList<Configuration::Ptr> m_configurations;
     VcProjectDocument *m_vcProjDoc;
 };
 

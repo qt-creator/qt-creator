@@ -160,7 +160,7 @@ File::Ptr FilterType::file(const QString &relativePath) const
     return File::Ptr();
 }
 
-QList<File::Ptr > FilterType::files() const
+QList<File::Ptr> FilterType::files() const
 {
     return m_files;
 }

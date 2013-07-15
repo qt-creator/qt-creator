@@ -242,13 +242,13 @@ void Configuration2005::removeDeploymentTool(DeploymentTool::Ptr tool)
     conf->removeDeploymentTool(tool);
 }
 
-QList<DeploymentTool::Ptr > Configuration2005::deploymentTools() const
+QList<DeploymentTool::Ptr> Configuration2005::deploymentTools() const
 {
     QSharedPointer<ConfigurationType2005> conf = m_configType.staticCast<ConfigurationType2005>();
     return conf->deploymentTools();
 }
 
-QList<DeploymentTool::Ptr > Configuration2005::deploymentTools(const QString &attributeName, const QString &attributeValue) const
+QList<DeploymentTool::Ptr> Configuration2005::deploymentTools(const QString &attributeName, const QString &attributeValue) const
 {
     QSharedPointer<ConfigurationType2005> conf = m_configType.staticCast<ConfigurationType2005>();
     return conf->deploymentTools(attributeName, attributeValue);
@@ -293,13 +293,13 @@ void Configuration2008::removeDebuggerTool(DebuggerTool::Ptr tool)
     conf->removeDebuggerTool(tool);
 }
 
-QList<DebuggerTool::Ptr > Configuration2008::debuggerTools() const
+QList<DebuggerTool::Ptr> Configuration2008::debuggerTools() const
 {
     QSharedPointer<ConfigurationType2008> conf = m_configType.staticCast<ConfigurationType2008>();
     return conf->debuggerTools();
 }
 
-QList<DebuggerTool::Ptr > Configuration2008::debuggerTools(const QString &attributeName, const QString &attributeValue) const
+QList<DebuggerTool::Ptr> Configuration2008::debuggerTools(const QString &attributeName, const QString &attributeValue) const
 {
     QSharedPointer<ConfigurationType2008> conf = m_configType.staticCast<ConfigurationType2008>();
     return conf->debuggerTools(attributeName, attributeValue);

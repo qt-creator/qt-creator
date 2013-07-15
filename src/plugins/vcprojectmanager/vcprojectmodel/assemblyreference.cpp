@@ -84,7 +84,7 @@ void AssemblyReference::removeReferenceConfiguration(const QString &refConfName)
     m_private->removeReferenceConfiguration(refConfName);
 }
 
-QList<ReferenceConfiguration::Ptr > AssemblyReference::referenceConfigurations() const
+QList<ReferenceConfiguration::Ptr> AssemblyReference::referenceConfigurations() const
 {
     return m_private->referenceConfigurations();
 }

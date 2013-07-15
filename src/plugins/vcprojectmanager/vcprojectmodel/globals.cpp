@@ -130,7 +130,7 @@ void Globals::removeGlobal(const QString &globalName)
     }
 }
 
-QList<Global::Ptr > Globals::globals() const
+QList<Global::Ptr> Globals::globals() const
 {
     return m_globals;
 }

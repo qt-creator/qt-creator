@@ -58,13 +58,13 @@ public:
     void addFilter(Filter::Ptr filter);
     void removeFilter(Filter::Ptr filter);
     void removeFilter(const QString &filterName);
-    QList<Filter::Ptr > filters() const;
+    QList<Filter::Ptr> filters() const;
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
     void removeFile(const QString &relativeFilePath);
     File::Ptr file(const QString &relativePath) const;
-    QList<File::Ptr > files() const;
+    QList<File::Ptr> files() const;
     bool fileExists(const QString &relativeFilePath);
 
     QString attributeValue(const QString &attributeName) const;

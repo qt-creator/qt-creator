@@ -130,7 +130,7 @@ Tool::Ptr ConfigurationType::tool(const QString &toolName) const
     return Tool::Ptr();
 }
 
-QList<Tool::Ptr > ConfigurationType::tools() const
+QList<Tool::Ptr> ConfigurationType::tools() const
 {
     return m_tools;
 }
@@ -310,14 +310,14 @@ void ConfigurationType2005::removeDeploymentTool(DeploymentTool::Ptr tool)
         m_deploymentTools.removeAll(tool);
 }
 
-QList<DeploymentTool::Ptr > ConfigurationType2005::deploymentTools() const
+QList<DeploymentTool::Ptr> ConfigurationType2005::deploymentTools() const
 {
     return m_deploymentTools;
 }
 
-QList<DeploymentTool::Ptr > ConfigurationType2005::deploymentTools(const QString &attributeName, const QString &attributeValue) const
+QList<DeploymentTool::Ptr> ConfigurationType2005::deploymentTools(const QString &attributeName, const QString &attributeValue) const
 {
-    QList<DeploymentTool::Ptr > deploymentTools;
+    QList<DeploymentTool::Ptr> deploymentTools;
 
     foreach (const DeploymentTool::Ptr &tool, m_deploymentTools) {
         if (tool->attributeValue(attributeName) == attributeValue)
@@ -439,14 +439,14 @@ void ConfigurationType2008::removeDebuggerTool(DebuggerTool::Ptr tool)
     m_debuggerTools.removeAll(tool);
 }
 
-QList<DebuggerTool::Ptr > ConfigurationType2008::debuggerTools() const
+QList<DebuggerTool::Ptr> ConfigurationType2008::debuggerTools() const
 {
     return m_debuggerTools;
 }
 
-QList<DebuggerTool::Ptr > ConfigurationType2008::debuggerTools(const QString &attributeName, const QString &attributeValue) const
+QList<DebuggerTool::Ptr> ConfigurationType2008::debuggerTools(const QString &attributeName, const QString &attributeValue) const
 {
-    QList<DebuggerTool::Ptr > debuggerTools;
+    QList<DebuggerTool::Ptr> debuggerTools;
 
     foreach (const DebuggerTool::Ptr &tool, m_debuggerTools) {
         if (tool->attributeValue(attributeName) == attributeValue)

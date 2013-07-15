@@ -98,8 +98,8 @@ public:
 
     void addDeploymentTool(DeploymentTool::Ptr tool);
     void removeDeploymentTool(DeploymentTool::Ptr tool);
-    QList<DeploymentTool::Ptr > deploymentTools() const;
-    QList<DeploymentTool::Ptr > deploymentTools(const QString &attributeName, const QString &attributeValue) const;
+    QList<DeploymentTool::Ptr> deploymentTools() const;
+    QList<DeploymentTool::Ptr> deploymentTools(const QString &attributeName, const QString &attributeValue) const;
 };
 
 class FileConfiguration2008 : public FileConfiguration
@@ -114,8 +114,8 @@ public:
 
     void addDebuggerTool(DebuggerTool::Ptr tool);
     void removeDebuggerTool(DebuggerTool::Ptr tool);
-    QList<DeploymentTool::Ptr > deploymentTools() const;
-    QList<DeploymentTool::Ptr > deploymentTools(const QString &attributeName, const QString &attributeValue) const;
+    QList<DeploymentTool::Ptr> deploymentTools() const;
+    QList<DeploymentTool::Ptr> deploymentTools(const QString &attributeName, const QString &attributeValue) const;
 };
 
 } // namespace Internal

@@ -58,20 +58,20 @@ public:
     void addToolFile(ToolFile::Ptr toolFile);
     void removeToolFile(ToolFile::Ptr toolFile);
     void removeToolFile(const QString &relativeToolFilePath);
-    QList<ToolFile::Ptr > toolFiles() const;
+    QList<ToolFile::Ptr> toolFiles() const;
     ToolFile::Ptr toolFile(const QString &relativePath);
 
     void addDefaultToolFile(DefaultToolFile::Ptr defToolFile);
     void removeDefaultToolFile(DefaultToolFile::Ptr defToolFile);
     void removeDefaultToolFile(const QString &fileName);
-    QList<DefaultToolFile::Ptr > defaultToolFiles() const;
+    QList<DefaultToolFile::Ptr> defaultToolFiles() const;
     DefaultToolFile::Ptr defaultToolFile(const QString &fileName);
 
 private:
     void processToolFiles(const QDomNode &toolFile);
 
-    QList<ToolFile::Ptr > m_toolFiles;
-    QList<DefaultToolFile::Ptr > m_defaultToolFiles;
+    QList<ToolFile::Ptr> m_toolFiles;
+    QList<DefaultToolFile::Ptr> m_defaultToolFiles;
 };
 
 } // namespace Internal

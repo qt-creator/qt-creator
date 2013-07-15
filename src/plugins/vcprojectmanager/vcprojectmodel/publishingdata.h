@@ -58,8 +58,8 @@ public:
 
     void addPublishingItem(PublishingItem::Ptr item);
     void removePublishingItem(PublishingItem::Ptr item);
-    QList<PublishingItem::Ptr > publishingItems() const;
-    QList<PublishingItem::Ptr > publishingItems(const QString &attributeName, const QString &attributeValue) const;
+    QList<PublishingItem::Ptr> publishingItems() const;
+    QList<PublishingItem::Ptr> publishingItems(const QString &attributeName, const QString &attributeValue) const;
 
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
@@ -67,7 +67,7 @@ public:
     void removeAttribute(const QString &attributeName);
 
 private:
-    QList<PublishingItem::Ptr > m_publishingItems;
+    QList<PublishingItem::Ptr> m_publishingItems;
     QHash<QString, QString> m_anyAttribute;
 };
 

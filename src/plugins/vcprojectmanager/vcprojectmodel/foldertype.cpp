@@ -189,7 +189,7 @@ void FolderType::removeFilter(const QString &filterName)
     }
 }
 
-QList<Filter::Ptr > FolderType::filters() const
+QList<Filter::Ptr> FolderType::filters() const
 {
     return m_filters;
 }
@@ -230,7 +230,7 @@ void FolderType::removeFile(const QString &relativeFilePath)
     }
 }
 
-QList<File::Ptr > FolderType::files() const
+QList<File::Ptr> FolderType::files() const
 {
     return m_files;
 }

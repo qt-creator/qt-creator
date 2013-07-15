@@ -83,7 +83,7 @@ void Files::removeFilter(const QString &filterName)
     }
 }
 
-QList<Filter::Ptr > Files::filters() const
+QList<Filter::Ptr> Files::filters() const
 {
     return m_private->filters();
 }
@@ -103,7 +103,7 @@ void Files::removeFile(File::Ptr file)
     m_private->removeFile(file);
 }
 
-QList<File::Ptr > Files::files() const
+QList<File::Ptr> Files::files() const
 {
     return m_private->files();
 }
@@ -134,8 +134,8 @@ bool Files::fileExists(const QString &relativeFilePath) const
 
 void Files::allProjectFiles(QStringList &sl) const
 {
-    QList<Filter::Ptr > filters = m_private->filters();
-    QList<File::Ptr > files = m_private->files();
+    QList<Filter::Ptr> filters = m_private->filters();
+    QList<File::Ptr> files = m_private->files();
 
     foreach (const Filter::Ptr &filter, filters)
         filter->allFiles(sl);
@@ -272,7 +272,7 @@ void Files2005::removeFolder(const QString &folderName)
     }
 }
 
-QList<Folder::Ptr > Files2005::folders() const
+QList<Folder::Ptr> Files2005::folders() const
 {
     QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
     return files_p->folders();
@@ -287,9 +287,9 @@ Folder::Ptr Files2005::folder(const QString &folderName) const
 void Files2005::allProjectFiles(QStringList &sl) const
 {
     QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    QList<Folder::Ptr > folders = files_p->folders();
-    QList<Filter::Ptr > filters = m_private->filters();
-    QList<File::Ptr > files = m_private->files();
+    QList<Folder::Ptr> folders = files_p->folders();
+    QList<Filter::Ptr> filters = m_private->filters();
+    QList<File::Ptr> files = m_private->files();
 
     foreach (const Filter::Ptr &filter, filters)
         filter->allFiles(sl);

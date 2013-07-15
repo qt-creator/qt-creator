@@ -82,7 +82,7 @@ private:
 
     QString m_relativePath; // required
     QList<QSharedPointer<File> > m_files;
-    QList<FileConfiguration::Ptr > m_fileConfigurations;
+    QList<FileConfiguration::Ptr> m_fileConfigurations;
     QHash<QString, QString> m_anyAttribute;
     VcProjectDocument *m_parentProjectDoc;
 };

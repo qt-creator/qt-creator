@@ -55,20 +55,20 @@ public:
     void addFilter(Filter::Ptr filter);
     void removeFilter(Filter::Ptr filterName);
     void removeFilter(const QString &filter);
-    QList<Filter::Ptr > filters() const;
+    QList<Filter::Ptr> filters() const;
     Filter::Ptr filter(const QString &filterName) const;
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
     void removeFile(const QString &relativeFilePath);
-    QList<File::Ptr > files() const;
+    QList<File::Ptr> files() const;
     File::Ptr file(const QString &relativeFilePath) const;
     bool fileExists(const QString &relativeFilePath);
 
     void addFolder(Folder::Ptr folder);
     void removeFolder(Folder::Ptr folder);
     void removeFolder(const QString &folderName);
-    QList<Folder::Ptr > folders() const;
+    QList<Folder::Ptr> folders() const;
     Folder::Ptr folder(const QString &folderName) const;
 
     QString name() const;

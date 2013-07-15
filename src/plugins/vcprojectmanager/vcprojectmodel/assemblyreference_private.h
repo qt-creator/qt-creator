@@ -52,7 +52,7 @@ public:
     void addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
     void removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
     void removeReferenceConfiguration(const QString &refConfName);
-    QList<ReferenceConfiguration::Ptr > referenceConfigurations() const;
+    QList<ReferenceConfiguration::Ptr> referenceConfigurations() const;
     ReferenceConfiguration::Ptr referenceConfiguration(const QString &refConfigName) const;
 
 protected:
@@ -75,7 +75,7 @@ protected:
      */
     virtual AssemblyReference_Private::Ptr clone() const = 0;
 
-    QList<ReferenceConfiguration::Ptr > m_referenceConfigurations;
+    QList<ReferenceConfiguration::Ptr> m_referenceConfigurations;
     QString m_relativePath; // required
 };
 

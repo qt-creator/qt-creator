@@ -94,7 +94,7 @@ void ProjectReference::removeReferenceConfiguration(const QString &refConfigName
     m_private->removeReferenceConfiguration(refConfigName);
 }
 
-QList<ReferenceConfiguration::Ptr > ProjectReference::referenceConfigurations() const
+QList<ReferenceConfiguration::Ptr> ProjectReference::referenceConfigurations() const
 {
     return m_private->referenceConfigurations();
 }

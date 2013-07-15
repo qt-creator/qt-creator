@@ -53,7 +53,7 @@ public:
     ~ConfigurationsBaseWidget();
     void saveData();
 
-    QList<Configuration::Ptr > newConfigurations() const;
+    QList<Configuration::Ptr> newConfigurations() const;
     QList<QString> removedConfigurations() const;
     QMap<Configuration::Ptr, QString> renamedConfigurations() const;
 

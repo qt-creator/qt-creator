@@ -74,7 +74,7 @@ void ActiveXReference::removeReferenceConfiguration(const QString &refConfigName
     m_private->removeReferenceConfiguration(refConfigName);
 }
 
-QList<ReferenceConfiguration::Ptr > ActiveXReference::referenceConfigurations() const
+QList<ReferenceConfiguration::Ptr> ActiveXReference::referenceConfigurations() const
 {
     return m_private->referenceConfigurations();
 }

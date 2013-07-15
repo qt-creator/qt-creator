@@ -93,7 +93,7 @@ void Folder::removeFilter(const QString &filterName)
     m_folderType->removeFilter(filterName);
 }
 
-QList<Filter::Ptr > Folder::filters() const
+QList<Filter::Ptr> Folder::filters() const
 {
     return m_folderType->filters();
 }
@@ -118,7 +118,7 @@ void Folder::removeFile(const QString &relativeFilePath)
     m_folderType->removeFile(relativeFilePath);
 }
 
-QList<File::Ptr > Folder::files() const
+QList<File::Ptr> Folder::files() const
 {
     return m_folderType->files();
 }
@@ -169,7 +169,7 @@ void Folder::removeFolder(const QString &folderName)
     m_folderType->removeFolder(folderName);
 }
 
-QList<Folder::Ptr > Folder::folders() const
+QList<Folder::Ptr> Folder::folders() const
 {
     return m_folderType->folders();
 }
@@ -211,9 +211,9 @@ void Folder::removeAttribute(const QString &attributeName)
 
 void Folder::allFiles(QStringList &sl)
 {
-    QList<Folder::Ptr > folders = m_folderType->folders();
-    QList<Filter::Ptr > filters = m_folderType->filters();
-    QList<File::Ptr > files = m_folderType->files();
+    QList<Folder::Ptr> folders = m_folderType->folders();
+    QList<Filter::Ptr> filters = m_folderType->filters();
+    QList<File::Ptr> files = m_folderType->files();
 
     foreach (const Filter::Ptr &filter, filters)
         filter->allFiles(sl);

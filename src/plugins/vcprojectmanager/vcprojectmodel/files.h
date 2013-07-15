@@ -62,12 +62,12 @@ public:
     void addFilter(Filter::Ptr newFilter);
     void removeFilter(Filter::Ptr filter);
     void removeFilter(const QString &filterName);
-    QList<Filter::Ptr > filters() const;
+    QList<Filter::Ptr> filters() const;
     Filter::Ptr filter(const QString &filterName) const;
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
-    QList<File::Ptr > files() const;
+    QList<File::Ptr> files() const;
     File::Ptr file(const QString &relativePath) const;
     virtual bool fileExists(const QString &relativeFilePath) const;
 
@@ -111,7 +111,7 @@ public:
     void addFolder(Folder::Ptr newFolder);
     void removeFolder(Folder::Ptr folder);
     void removeFolder(const QString &folderName);
-    QList<Folder::Ptr > folders() const;
+    QList<Folder::Ptr> folders() const;
     Folder::Ptr folder(const QString &folderName) const;
 
     void allProjectFiles(QStringList &sl) const;

@@ -60,7 +60,7 @@ public:
     void removeFile(File::Ptr file);
     void removeFile(const QString &relativeFilePath);
     File::Ptr file(const QString &relativePath) const;
-    QList<File::Ptr > files() const;
+    QList<File::Ptr> files() const;
 
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
@@ -80,7 +80,7 @@ private:
     QString m_name;
     QHash<QString, QString> m_anyAttribute;
     QList<QSharedPointer<Filter> > m_filters;
-    QList<File::Ptr > m_files;
+    QList<File::Ptr> m_files;
     VcProjectDocument *m_parentProjectDoc;
 };
 

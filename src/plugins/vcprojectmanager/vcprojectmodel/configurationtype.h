@@ -56,7 +56,7 @@ public:
     void addTool(Tool::Ptr tool);
     void removeTool(Tool::Ptr tool);
     Tool::Ptr tool(const QString &toolName) const;
-    QList<Tool::Ptr > tools() const;
+    QList<Tool::Ptr> tools() const;
     QString name() const;
     void setName(const QString &name);
     QString oldName() const;
@@ -80,7 +80,7 @@ protected:
 
     QString m_name;
     QString m_oldName;
-    QList<Tool::Ptr > m_tools;
+    QList<Tool::Ptr> m_tools;
     QHash<QString, QString> m_anyAttribute;
 };
 
@@ -115,14 +115,14 @@ public:
 
     void addDeploymentTool(DeploymentTool::Ptr tool);
     void removeDeploymentTool(DeploymentTool::Ptr tool);
-    QList<DeploymentTool::Ptr > deploymentTools() const;
-    QList<DeploymentTool::Ptr > deploymentTools(const QString &attributeName, const QString &attributeValue) const;
+    QList<DeploymentTool::Ptr> deploymentTools() const;
+    QList<DeploymentTool::Ptr> deploymentTools(const QString &attributeName, const QString &attributeValue) const;
 
 protected:
     ConfigurationType2005();
     ConfigurationType2005(const ConfigurationType2005 &configType);
     ConfigurationType2005& operator=(const ConfigurationType2005 &configType);
-    QList<DeploymentTool::Ptr > m_deploymentTools;
+    QList<DeploymentTool::Ptr> m_deploymentTools;
 };
 
 class ConfigurationType2008 : public ConfigurationType2005
@@ -140,14 +140,14 @@ public:
 
     void addDebuggerTool(DebuggerTool::Ptr tool);
     void removeDebuggerTool(DebuggerTool::Ptr tool);
-    QList<DebuggerTool::Ptr > debuggerTools() const;
-    QList<DebuggerTool::Ptr > debuggerTools(const QString &attributeName, const QString &attributeValue) const;
+    QList<DebuggerTool::Ptr> debuggerTools() const;
+    QList<DebuggerTool::Ptr> debuggerTools(const QString &attributeName, const QString &attributeValue) const;
 
 protected:
     ConfigurationType2008();
     ConfigurationType2008(const ConfigurationType2008 &configType);
     ConfigurationType2008& operator=(const ConfigurationType2008 &configType);
-    QList<DebuggerTool::Ptr > m_debuggerTools;
+    QList<DebuggerTool::Ptr> m_debuggerTools;
 };
 
 } // namespace Internal

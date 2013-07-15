@@ -103,7 +103,7 @@ void Filter::removeFilter(const QString &filterName)
     m_filterType->removeFilter(filterName);
 }
 
-QList<Filter::Ptr > Filter::filters() const
+QList<Filter::Ptr> Filter::filters() const
 {
     return m_filterType->filters();
 }
@@ -128,7 +128,7 @@ File::Ptr Filter::file(const QString &relativePath) const
     return m_filterType->file(relativePath);
 }
 
-QList<File::Ptr > Filter::files() const
+QList<File::Ptr> Filter::files() const
 {
     return m_filterType->files();
 }
@@ -174,8 +174,8 @@ void Filter::removeAttribute(const QString &attributeName)
 
 void Filter::allFiles(QStringList &sl) const
 {
-    QList<Filter::Ptr > filters = m_filterType->filters();
-    QList<File::Ptr > files = m_filterType->files();
+    QList<Filter::Ptr> filters = m_filterType->filters();
+    QList<File::Ptr> files = m_filterType->files();
 
     foreach (const Filter::Ptr &filter, filters)
         filter->allFiles(sl);

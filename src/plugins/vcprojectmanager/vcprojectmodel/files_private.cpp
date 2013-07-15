@@ -92,7 +92,7 @@ void Files_Private::removeFilter(Filter::Ptr filter)
     m_filters.removeAll(filter);
 }
 
-QList<Filter::Ptr > Files_Private::filters() const
+QList<Filter::Ptr> Files_Private::filters() const
 {
     return m_filters;
 }
@@ -124,7 +124,7 @@ void Files_Private::removeFile(File::Ptr file)
     m_files.removeAll(file);
 }
 
-QList<File::Ptr > Files_Private::files() const
+QList<File::Ptr> Files_Private::files() const
 {
     return m_files;
 }
@@ -313,7 +313,7 @@ void Files2005_Private::removeFolder(Folder::Ptr folder)
     m_folders.removeAll(folder);
 }
 
-QList<Folder::Ptr > Files2005_Private::folders() const
+QList<Folder::Ptr> Files2005_Private::folders() const
 {
     return m_folders;
 }

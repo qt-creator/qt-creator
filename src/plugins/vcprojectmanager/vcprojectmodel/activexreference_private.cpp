@@ -99,7 +99,7 @@ void ActiveXReference_Private::removeReferenceConfiguration(const QString &refCo
     }
 }
 
-QList<ReferenceConfiguration::Ptr > ActiveXReference_Private::referenceConfigurations() const
+QList<ReferenceConfiguration::Ptr> ActiveXReference_Private::referenceConfigurations() const
 {
     return m_referenceConfigurations;
 }

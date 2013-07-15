@@ -63,10 +63,10 @@ public:
     void addPlatform(Platform::Ptr platform);
     void removePlatform(Platform::Ptr platform);
     void removePlatform(const QString &platformName);
-    QList<Platform::Ptr > platforms() const;
+    QList<Platform::Ptr> platforms() const;
 
 private:
-    QList<Platform::Ptr > m_platforms;
+    QList<Platform::Ptr> m_platforms;
 };
 
 } // namespace Internal

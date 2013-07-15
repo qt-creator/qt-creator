@@ -134,7 +134,7 @@ void Platforms::removePlatform(const QString &platformName)
     }
 }
 
-QList<Platform::Ptr > Platforms::platforms() const
+QList<Platform::Ptr> Platforms::platforms() const
 {
     return m_platforms;
 }

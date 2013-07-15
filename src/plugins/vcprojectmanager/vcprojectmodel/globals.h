@@ -64,11 +64,11 @@ public:
     void addGlobal(Global::Ptr global);
     void removeGlobal(Global::Ptr global);
     void removeGlobal(const QString &globalName);
-    QList<Global::Ptr > globals() const;
+    QList<Global::Ptr> globals() const;
     Global::Ptr global(const QString &name);
 
 private:
-    QList<Global::Ptr > m_globals;
+    QList<Global::Ptr> m_globals;
 };
 
 } // namespace Internal

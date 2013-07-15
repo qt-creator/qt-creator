@@ -67,9 +67,9 @@ public:
 private:
     void processReference(const QDomNode &referenceNode);
 
-    QList<AssemblyReference::Ptr > m_assemblyReferences;
-    QList<ActiveXReference::Ptr > m_activeXReferences;
-    QList<ProjectReference::Ptr > m_projectReferences;
+    QList<AssemblyReference::Ptr> m_assemblyReferences;
+    QList<ActiveXReference::Ptr> m_activeXReferences;
+    QList<ProjectReference::Ptr> m_projectReferences;
     VcDocConstants::DocumentVersion m_docVersion;
 };
 
