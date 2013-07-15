@@ -64,6 +64,7 @@ public:
     Q_INVOKABLE qint64 traceDuration() const;
     Q_INVOKABLE int getState() const;
 
+    Q_INVOKABLE virtual bool expanded(int category) const = 0;
     Q_INVOKABLE virtual void setExpanded(int category, bool expanded) = 0;
     Q_INVOKABLE virtual int categoryDepth(int categoryIndex) const = 0;
     Q_INVOKABLE virtual int categoryCount() const = 0;

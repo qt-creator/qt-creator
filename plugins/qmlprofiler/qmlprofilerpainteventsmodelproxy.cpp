@@ -61,6 +61,7 @@ public:
     QVector <PaintEventsModelProxy::QmlPaintEventData> eventList;
     int minAnimationCount;
     int maxAnimationCount;
+    bool expanded;
 
     PaintEventsModelProxy *q;
 };
@@ -113,6 +114,7 @@ void PaintEventsModelProxy::clear()
     d->eventList.clear();
     d->minAnimationCount = 1;
     d->maxAnimationCount = 1;
+    d->expanded = false;
 }
 
 void PaintEventsModelProxy::dataChanged()
@@ -126,6 +128,7 @@ void PaintEventsModelProxy::dataChanged()
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
+    emit expandedChanged();
 }
 
 bool compareStartTimes(const PaintEventsModelProxy::QmlPaintEventData &t1, const PaintEventsModelProxy::QmlPaintEventData &t2)
@@ -199,10 +202,15 @@ qint64 PaintEventsModelProxy::lastTimeMark() const
     return d->eventList.last().startTime + d->eventList.last().duration;
 }
 
+bool PaintEventsModelProxy::expanded(int category) const
+{
+    return d->expanded;
+}
+
 void PaintEventsModelProxy::setExpanded(int category, bool expanded)
 {
     Q_UNUSED(category);
-    Q_UNUSED(expanded);
+    d->expanded = expanded;
     emit expandedChanged();
 }
 

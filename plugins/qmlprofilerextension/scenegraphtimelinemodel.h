@@ -61,6 +61,7 @@ public:
 
     Q_INVOKABLE qint64 lastTimeMark() const;
 
+    Q_INVOKABLE bool expanded(int category) const;
     Q_INVOKABLE void setExpanded(int category, bool expanded);
     Q_INVOKABLE int categoryDepth(int categoryIndex) const;
     Q_INVOKABLE int categoryCount() const;

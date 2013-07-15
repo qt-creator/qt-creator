@@ -109,6 +109,11 @@ qint64 SceneGraphTimelineModel::lastTimeMark() const
     return d->eventList.last().startTime;
 }
 
+bool SceneGraphTimelineModel::expanded(int category) const
+{
+    return d->isExpanded;
+}
+
 void SceneGraphTimelineModel::setExpanded(int category, bool expanded)
 {
     Q_UNUSED(category);
@@ -462,6 +467,7 @@ void SceneGraphTimelineModel::loadData()
 void SceneGraphTimelineModel::clear()
 {
     d->eventList.clear();
+    d->isExpanded = false;
 }
 
 void SceneGraphTimelineModel::dataChanged()
@@ -475,7 +481,7 @@ void SceneGraphTimelineModel::dataChanged()
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
-    return;
+    emit expandedChanged();
 }
 
 

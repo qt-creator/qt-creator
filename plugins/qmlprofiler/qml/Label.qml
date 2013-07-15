@@ -57,6 +57,8 @@ Item {
     }
 
     function updateHeight() {
+        if (expanded != qmlProfilerModelProxy.expanded(modelIndex, categoryIndex))
+            expanded = qmlProfilerModelProxy.expanded(modelIndex, categoryIndex);
         height = root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex);
     }
 

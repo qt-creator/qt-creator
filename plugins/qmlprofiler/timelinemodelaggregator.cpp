@@ -176,6 +176,11 @@ qint64 TimelineModelAggregator::lastTimeMark() const
     return mark;
 }
 
+bool TimelineModelAggregator::expanded(int modelIndex, int category) const
+{
+    return d->modelList[modelIndex]->expanded(category);
+}
+
 void TimelineModelAggregator::setExpanded(int modelIndex, int category, bool expanded)
 {
 //    int modelIndex = modelIndexForCategory(category);

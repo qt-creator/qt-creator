@@ -135,6 +135,7 @@ void BasicTimelineModel::dataChanged()
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
+    emit expandedChanged();
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
@@ -391,6 +392,13 @@ int BasicTimelineModel::count() const
 qint64 BasicTimelineModel::lastTimeMark() const
 {
     return d->startTimeData.last().startTime + d->startTimeData.last().duration;
+}
+
+bool BasicTimelineModel::expanded(int category) const
+{
+    if (d->categorySpan.count() <= category)
+        return false;
+    return d->categorySpan[category].expanded;
 }
 
 void BasicTimelineModel::setExpanded(int category, bool expanded)

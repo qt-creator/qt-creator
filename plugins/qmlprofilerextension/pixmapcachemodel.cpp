@@ -101,6 +101,11 @@ qint64 PixmapCacheModel::lastTimeMark() const
     return d->eventList.last().startTime;
 }
 
+bool PixmapCacheModel::expanded(int category) const
+{
+    return d->isExpanded;
+}
+
 void PixmapCacheModel::setExpanded(int category, bool expanded)
 {
     Q_UNUSED(category);
@@ -467,6 +472,7 @@ void PixmapCacheModel::clear()
     d->pixmapSizes.clear();
     d->collapsedRowCount = 1;
     d->expandedRowCount = 1;
+    d->isExpanded = false;
 }
 
 void PixmapCacheModel::dataChanged()
@@ -480,7 +486,7 @@ void PixmapCacheModel::dataChanged()
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
-    return;
+    emit expandedChanged();
 }
 
 void PixmapCacheModel::PixmapCacheModelPrivate::computeCacheSizes()
