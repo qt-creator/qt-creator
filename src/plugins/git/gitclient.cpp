@@ -780,6 +780,11 @@ static inline QString msgParseFilesFailed()
     return  GitClient::tr("Cannot parse the file output.");
 }
 
+static inline QString msgCannotLaunch(const QString &binary)
+{
+    return GitClient::tr("Cannot launch \"%1\".").arg(QDir::toNativeSeparators(binary));
+}
+
 static inline QString currentDocumentPath()
 {
     if (Core::IDocument *document= Core::EditorManager::currentDocument())
@@ -2619,11 +2624,10 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         success = QProcess::startDetached(binary, arguments, workingDirectory);
     }
     if (!success) {
-        const QString error = tr("Cannot launch \"%1\".").arg(binary);
         if (silent)
-            outwin->appendSilently(error);
+            outwin->appendSilently(msgCannotLaunch(binary));
         else
-            outwin->appendError(error);
+            outwin->appendError(msgCannotLaunch(binary));
     }
     return success;
 }
@@ -2636,7 +2640,7 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
                                           workingDirectory);
 
     if (!success)
-        outputWindow()->appendError(tr("Cannot launch git gui"));
+        outputWindow()->appendError(msgCannotLaunch(QLatin1String("git gui")));
 
     return success;
 }
@@ -3100,11 +3104,11 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
 {
     QString message;
     if (!commit.isEmpty())
-        message = tr("Conflicts detected with commit %1").arg(commit);
+        message = tr("Conflicts detected with commit %1.").arg(commit);
     else if (!files.isEmpty())
-        message = tr("Conflicts detected with files:\n") + files.join(QLatin1String("\n"));
+        message = tr("Conflicts detected with files:\n%1").arg(files.join(QLatin1String("\n")));
     else
-        message = tr("Conflicts detected");
+        message = tr("Conflicts detected.");
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
                              QMessageBox::NoButton, Core::ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),

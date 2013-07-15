@@ -240,12 +240,13 @@ void BranchDialog::remove()
 
     const bool isTag = m_model->isTag(selected);
     const bool wasMerged = isTag ? true : m_model->branchIsMerged(selected);
-    QString message = tr("Would you like to delete the %1 '%2'?");
+    QString message;
     if (isTag)
-        message = message.arg(tr("tag"));
+        message = tr("Would you like to delete the tag '%1'?").arg(branchName);
+    else if (wasMerged)
+        message = tr("Would you like to delete the branch '%1'?").arg(branchName);
     else
-        message = message.arg(wasMerged ? tr("branch") : tr("<b>unmerged</b> branch"));
-    message = message.arg(branchName);
+        message = tr("Would you like to delete the <b>unmerged</b> branch '%1'?").arg(branchName);
 
     if (QMessageBox::question(this, isTag ? tr("Delete Tag") : tr("Delete Branch"),
                               message, QMessageBox::Yes | QMessageBox::No,
