@@ -42,10 +42,6 @@ QT_END_NAMESPACE
 
 namespace DiffEditor {
 
-namespace Internal {
-class DiffEditorFile;
-}
-
 class DIFFEDITOR_EXPORT DiffShowEditor : public DiffEditor
 {
     Q_OBJECT

@@ -119,12 +119,6 @@ ImageViewer::~ImageViewer()
     delete d;
 }
 
-bool ImageViewer::createNew(const QString &contents)
-{
-    Q_UNUSED(contents)
-    return false;
-}
-
 bool ImageViewer::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     if (!d->imageView->openFile(realFileName)) {

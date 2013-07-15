@@ -67,12 +67,6 @@ DiffEditor::~DiffEditor()
         delete m_widget;
 }
 
-bool DiffEditor::createNew(const QString &contents)
-{
-    Q_UNUSED(contents)
-    return true;
-}
-
 bool DiffEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     Q_UNUSED(errorString)

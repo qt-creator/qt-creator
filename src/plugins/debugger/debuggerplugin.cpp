@@ -2530,7 +2530,7 @@ void DebuggerPluginPrivate::openTextEditor(const QString &titlePattern0,
         return;
     QString titlePattern = titlePattern0;
     IEditor *editor = EditorManager::openEditorWithContents(
-        CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
+        CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8());
     QTC_ASSERT(editor, return);
     EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
 }

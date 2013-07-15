@@ -1166,7 +1166,7 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output);
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
@@ -1260,7 +1260,7 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
         return;
 
     if (existingEditor) {
-        existingEditor->createNew(result.stdOut);
+        existingEditor->document()->setContents(result.stdOut.toUtf8());
         Core::EditorManager::activateEditor(existingEditor);
         return;
     }

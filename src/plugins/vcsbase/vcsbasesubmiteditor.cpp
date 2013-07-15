@@ -349,12 +349,6 @@ void VcsBaseSubmitEditor::slotDescriptionChanged()
 {
 }
 
-bool VcsBaseSubmitEditor::createNew(const QString &contents)
-{
-    setFileContents(contents);
-    return true;
-}
-
 bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     if (fileName.isEmpty())
@@ -365,7 +359,7 @@ bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
         return false;
 
     const QString text = QString::fromLocal8Bit(reader.data());
-    if (!createNew(text))
+    if (!setFileContents(text.toUtf8()))
         return false;
 
     d->m_file->setFilePath(QFileInfo(fileName).absoluteFilePath());
@@ -518,9 +512,9 @@ QByteArray VcsBaseSubmitEditor::fileContents() const
     return d->m_widget->descriptionText().toLocal8Bit();
 }
 
-bool VcsBaseSubmitEditor::setFileContents(const QString &contents)
+bool VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
 {
-    d->m_widget->setDescriptionText(contents);
+    d->m_widget->setDescriptionText(QString::fromUtf8(contents));
     return true;
 }
 

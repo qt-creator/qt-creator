@@ -44,6 +44,7 @@ public:
     explicit SubmitEditorFile(const QString &mimeType,
                               VcsBaseSubmitEditor *parent = 0);
 
+    bool setContents(const QByteArray &contents);
     QString defaultPath() const { return QString(); }
     QString suggestedFileName() const { return QString(); }
 

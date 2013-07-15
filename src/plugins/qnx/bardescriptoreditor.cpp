@@ -82,12 +82,6 @@ BarDescriptorEditor::BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget
     generalAction->setChecked(true);
 }
 
-bool BarDescriptorEditor::createNew(const QString &contents)
-{
-    Q_UNUSED(contents);
-    return false;
-}
-
 bool BarDescriptorEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     QTC_ASSERT(fileName == realFileName, return false);

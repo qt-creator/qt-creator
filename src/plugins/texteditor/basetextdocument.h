@@ -75,19 +75,20 @@ public:
     ITextMarkable *documentMarker() const;
 
     // IDocument implementation.
-    virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
-    virtual bool shouldAutoSave() const;
-    virtual bool isFileReadOnly() const;
-    virtual bool isModified() const;
-    virtual bool isSaveAsAllowed() const;
-    virtual void checkPermissions();
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    bool setContents(const QByteArray &contents);
+    bool shouldAutoSave() const;
+    bool isFileReadOnly() const;
+    bool isModified() const;
+    bool isSaveAsAllowed() const;
+    void checkPermissions();
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    virtual QString mimeType() const;
+    QString mimeType() const;
     void setMimeType(const QString &mt);
     void setFilePath(const QString &newName);
 
-    virtual QString defaultPath() const;
-    virtual QString suggestedFileName() const;
+    QString defaultPath() const;
+    QString suggestedFileName() const;
 
     void setDefaultPath(const QString &defaultPath);
     void setSuggestedFileName(const QString &suggestedFileName);

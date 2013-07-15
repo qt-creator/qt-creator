@@ -539,18 +539,6 @@ QString BaseTextEditorWidget::msgTextTooLarge(quint64 size)
            arg(size >> 20);
 }
 
-bool BaseTextEditorWidget::createNew(const QString &contents)
-{
-    if (contents.size() > Core::EditorManager::maxTextFileSize()) {
-        setPlainText(msgTextTooLarge(contents.size()));
-        document()->setModified(false);
-        return false;
-    }
-    setPlainText(contents);
-    document()->setModified(false);
-    return true;
-}
-
 void BaseTextEditorWidget::updateCannotDecodeInfo()
 {
     setReadOnly(d->m_document->hasDecodingError());

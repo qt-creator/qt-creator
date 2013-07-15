@@ -47,7 +47,6 @@ public:
     IEditor(QObject *parent = 0) : IContext(parent) {}
     virtual ~IEditor() {}
 
-    virtual bool createNew(const QString &contents = QString()) = 0;
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName) = 0;
     virtual IDocument *document() = 0;
     virtual Core::Id id() const = 0;

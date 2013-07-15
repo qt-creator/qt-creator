@@ -71,11 +71,11 @@ QByteArray PerforceSubmitEditor::fileContents() const
     return text.toLocal8Bit();
 }
 
-bool PerforceSubmitEditor::setFileContents(const QString &contents)
+bool PerforceSubmitEditor::setFileContents(const QByteArray &contents)
 {
     if (Perforce::Constants::debug)
         qDebug() << Q_FUNC_INFO << contents;
-    if (!parseText(contents))
+    if (!parseText(QString::fromUtf8(contents)))
         return false;
     updateFields();
     return true;

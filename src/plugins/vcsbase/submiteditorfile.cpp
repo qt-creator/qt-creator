@@ -54,6 +54,11 @@ SubmitEditorFile::SubmitEditorFile(const QString &mimeType, VcsBaseSubmitEditor 
     setTemporary(true);
 }
 
+bool SubmitEditorFile::setContents(const QByteArray &contents)
+{
+    return m_editor->setFileContents(contents);
+}
+
 void SubmitEditorFile::setModified(bool modified)
 {
     if (m_modified == modified)

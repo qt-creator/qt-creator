@@ -929,7 +929,7 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
     if (files.count() == 1) {
         // Show in the same editor if diff has been executed before
         if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
-            existingEditor->createNew(result);
+            existingEditor->document()->setContents(result.toUtf8());
             Core::EditorManager::activateEditor(existingEditor);
             setDiffBaseDirectory(existingEditor, workingDir);
             return;
@@ -1189,7 +1189,7 @@ void ClearCasePlugin::history(const QString &workingDir,
     const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        editor->createNew(response.stdOut);
+        editor->document()->setContents(response.stdOut.toUtf8());
         Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc history %1").arg(id);
@@ -1301,7 +1301,7 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
     const QStringList files = QStringList(file);
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::AnnotateOutput, workingDir, files);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        editor->createNew(res);
+        editor->document()->setContents(res.toUtf8());
         VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
         Core::EditorManager::activateEditor(editor);
     } else {
@@ -1338,7 +1338,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     // the common usage pattern of continuously changing and diffing a file
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        editor->createNew(description);
+        editor->document()->setContents(description.toUtf8());
         Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc describe %1").arg(id);
@@ -1397,7 +1397,7 @@ Core::IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const Q
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output);
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,int)));
     ClearCaseEditor *e = qobject_cast<ClearCaseEditor*>(editor->widget());

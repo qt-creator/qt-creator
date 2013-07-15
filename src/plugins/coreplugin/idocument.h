@@ -82,6 +82,8 @@ public:
     virtual ~IDocument();
 
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
+    virtual bool setContents(const QByteArray &contents);
+
     QString filePath() const { return m_filePath; }
     virtual void setFilePath(const QString &filePath);
     QString displayName() const;

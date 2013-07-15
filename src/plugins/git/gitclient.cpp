@@ -867,7 +867,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
 
     // Exists already
     Core::EditorManager::activateEditor(outputEditor);
-    outputEditor->createNew(m_msgWait);
+    outputEditor->document()->setContents(m_msgWait.toUtf8());
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
 
     return rc;
@@ -880,14 +880,14 @@ DiffEditor::DiffEditor *GitClient::findExistingOrOpenNewDiffEditor(const char *r
     if (outputEditor) {
         // Exists already
         Core::EditorManager::activateEditor(outputEditor);
-        outputEditor->createNew(m_msgWait);
+        outputEditor->document()->setContents(m_msgWait.toUtf8());
     }
 
     DiffEditor::DiffEditor *editor = qobject_cast<DiffEditor::DiffEditor *>(outputEditor);
     if (!editor) {
         QString title = titlePattern;
         editor = qobject_cast<DiffEditor::DiffEditor *>(
-                    Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait));
+                    Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait.toUtf8()));
         editor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         Core::EditorManager::activateEditor(editor);
     }
@@ -913,7 +913,8 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(id, &title, m_msgWait);
+    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(id, &title,
+                                                                              m_msgWait.toUtf8());
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),

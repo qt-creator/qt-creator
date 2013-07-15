@@ -32,13 +32,16 @@
 
 #include <utils/qtcassert.h>
 
+#include <QApplication>
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
 #if QT_VERSION < 0x050000
 #    include "qt_private/qsimpleresource_p.h"
+#    include "qt_private/formwindowbase_p.h"
 #endif
 
+#include <QTextDocument>
 #include <QUndoStack>
 
 #include <QFileInfo>
@@ -100,6 +103,45 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     setFilePath(fi.absoluteFilePath());
     emit changed();
 
+    return true;
+}
+
+bool FormWindowFile::setContents(const QByteArray &contents)
+{
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << contents.size();
+
+    document()->setPlainText(QString());
+
+    QTC_ASSERT(m_formWindow, return false);
+
+    if (contents.isEmpty())
+        return false;
+
+    // If we have an override cursor, reset it over Designer loading,
+    // should it pop up messages about missing resources or such.
+    const bool hasOverrideCursor = QApplication::overrideCursor();
+    QCursor overrideCursor;
+    if (hasOverrideCursor) {
+        overrideCursor = QCursor(*QApplication::overrideCursor());
+        QApplication::restoreOverrideCursor();
+    }
+
+#if QT_VERSION >= 0x050000
+    const bool success = m_formWindow->setContents(QString::fromUtf8(contents));
+#else
+    m_formWindow->setContents(QString::fromUtf8(contents));
+    const bool success = m_formWindow->mainContainer() != 0;
+#endif
+
+    if (hasOverrideCursor)
+        QApplication::setOverrideCursor(overrideCursor);
+
+    if (!success)
+        return false;
+
+    syncXmlFromFormWindow();
+    setShouldAutoSave(false);
     return true;
 }
 
@@ -182,6 +224,25 @@ bool FormWindowFile::writeFile(const QString &fn, QString *errorString) const
 QDesignerFormWindowInterface *FormWindowFile::formWindow() const
 {
     return m_formWindow;
+}
+
+void FormWindowFile::syncXmlFromFormWindow()
+{
+    document()->setPlainText(formWindowContents());
+}
+
+QString FormWindowFile::formWindowContents() const
+{
+#if QT_VERSION >= 0x050000    // TODO: No warnings about spacers here
+    QTC_ASSERT(m_formWindow, return QString());
+    return m_formWindow->contents();
+#else
+    // No warnings about spacers here
+    const qdesigner_internal::FormWindowBase *fw =
+            qobject_cast<const qdesigner_internal::FormWindowBase *>(m_formWindow);
+    QTC_ASSERT(fw, return QString());
+    return fw->fileContents();
+#endif
 }
 
 void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)

@@ -294,6 +294,18 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
     return true;
 }
 
+bool BaseTextDocument::setContents(const QByteArray &contents)
+{
+    if (contents.size() > Core::EditorManager::maxTextFileSize()) {
+        document()->setPlainText(BaseTextEditorWidget::msgTextTooLarge(contents.size()));
+        document()->setModified(false);
+        return false;
+    }
+    document()->setPlainText(QString::fromUtf8(contents));
+    document()->setModified(false);
+    return true;
+}
+
 bool BaseTextDocument::shouldAutoSave() const
 {
     return d->m_autoSaveRevision != d->m_document->revision();

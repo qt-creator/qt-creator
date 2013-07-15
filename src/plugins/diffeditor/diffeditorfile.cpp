@@ -46,6 +46,12 @@ DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
     setTemporary(true);
 }
 
+bool DiffEditorFile::setContents(const QByteArray &contents)
+{
+    Q_UNUSED(contents);
+    return false;
+}
+
 void DiffEditorFile::setModified(bool modified)
 {
     if (m_modified == modified)

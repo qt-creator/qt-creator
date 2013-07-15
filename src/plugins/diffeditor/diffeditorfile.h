@@ -48,6 +48,7 @@ public:
     explicit DiffEditorFile(const QString &mimeType,
                               QObject *parent = 0);
 
+    bool setContents(const QByteArray &contents);
     QString defaultPath() const { return QString(); }
     QString suggestedFileName() const { return QString(); }
 

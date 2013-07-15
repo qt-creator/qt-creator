@@ -55,6 +55,7 @@ public:
 
     //IDocument
     bool save(QString *errorString, const QString &fileName, bool autoSave);
+    bool setContents(const QByteArray &contents);
     bool shouldAutoSave() const;
     bool isModified() const;
     bool isSaveAsAllowed() const;
@@ -85,7 +86,6 @@ public:
     ~ResourceEditorW();
 
     // IEditor
-    bool createNew(const QString &contents);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document() { return m_resourceDocument; }
     Core::Id id() const;

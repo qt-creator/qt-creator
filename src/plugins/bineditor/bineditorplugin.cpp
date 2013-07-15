@@ -195,6 +195,14 @@ public:
         return QLatin1String(Constants::C_BINEDITOR_MIMETYPE);
     }
 
+    bool setContents(const QByteArray &contents)
+    {
+        if (!contents.isEmpty())
+            return false;
+        m_widget->clear();
+        return true;
+    }
+
     bool save(QString *errorString, const QString &fn, bool autoSave)
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
@@ -342,11 +350,6 @@ public:
         delete m_widget;
     }
 
-    bool createNew(const QString & /* contents */ = QString()) {
-        m_widget->clear();
-        m_file->setFilePath(QString());
-        return true;
-    }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName) {
         QTC_ASSERT(fileName == realFileName, return false); // The bineditor can do no autosaving
         return m_file->open(errorString, fileName);

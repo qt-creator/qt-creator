@@ -134,21 +134,6 @@ ResourceEditorW::~ResourceEditorW()
     delete m_toolBar;
 }
 
-bool ResourceEditorW::createNew(const QString &contents)
-{
-    Utils::TempFileSaver saver;
-    saver.write(contents.toUtf8());
-    if (!saver.finalize(Core::ICore::mainWindow()))
-        return false;
-
-    const bool rc = m_resourceEditor->load(saver.fileName());
-    m_resourceDocument->setFilePath(QString());
-    m_shouldAutoSave = false;
-    if (debugResourceEditorW)
-        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.fileName() << ") returns " << rc;
-    return rc;
-}
-
 bool ResourceEditorW::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     if (debugResourceEditorW)
@@ -204,6 +189,20 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
 
     emit changed();
     return true;
+}
+
+bool ResourceEditorDocument::setContents(const QByteArray &contents)
+{
+    Utils::TempFileSaver saver;
+    saver.write(contents);
+    if (!saver.finalize(Core::ICore::mainWindow()))
+        return false;
+
+    const bool rc = m_parent->m_resourceEditor->load(saver.fileName());
+    m_parent->m_shouldAutoSave = false;
+    if (debugResourceEditorW)
+        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.fileName() << ") returns " << rc;
+    return rc;
 }
 
 void ResourceEditorDocument::setFilePath(const QString &newName)

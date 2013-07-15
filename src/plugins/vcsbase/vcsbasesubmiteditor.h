@@ -112,7 +112,6 @@ public:
     void setCheckScriptWorkingDirectory(const QString &);
 
     // Core::IEditor
-    bool createNew(const QString &contents);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
     Core::Id id() const;
@@ -156,7 +155,7 @@ protected:
      * the file. The default implementation uses the text
      * of the description editor. */
     virtual QByteArray fileContents() const;
-    virtual bool setFileContents(const QString &contents);
+    virtual bool setFileContents(const QByteArray &contents);
 
     void setDescriptionMandatory(bool v);
     bool isDescriptionMandatory() const;

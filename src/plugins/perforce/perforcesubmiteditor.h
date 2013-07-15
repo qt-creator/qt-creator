@@ -67,7 +67,7 @@ public:
 
 protected:
     QByteArray fileContents() const;
-    bool setFileContents(const QString &contents);
+    bool setFileContents(const QByteArray &contents);
 
 private:
     inline PerforceSubmitEditorWidget *submitEditorWidget();

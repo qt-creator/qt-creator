@@ -115,7 +115,7 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
         d->editor = qobject_cast<ITextEditor *>(
             EditorManager::openEditorWithContents(
                 CppEditor::Constants::CPPEDITOR_ID,
-                &titlePattern, content));
+                &titlePattern, content.toUtf8()));
         QTC_ASSERT(d->editor, return);
         d->editor->document()->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
 

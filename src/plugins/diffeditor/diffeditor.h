@@ -60,7 +60,6 @@ public:
     void clear(const QString &message);
 
     // Core::IEditor
-    bool createNew(const QString &contents);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
     Core::Id id() const;

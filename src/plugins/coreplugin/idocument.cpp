@@ -57,6 +57,18 @@ IDocument::~IDocument()
     delete m_infoBar;
 }
 
+/*!
+    Used for example by EditorManager::openEditorWithContents() to set the contents
+    of this document.
+    Returns if setting the contents was successful.
+    The base implementation does nothing and returns false.
+*/
+bool IDocument::setContents(const QByteArray &contents)
+{
+    Q_UNUSED(contents)
+    return false;
+}
+
 IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     if (type == TypePermissions)

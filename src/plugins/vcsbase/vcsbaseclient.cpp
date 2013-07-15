@@ -560,11 +560,11 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QStr
     const QString progressMsg = tr("Working...");
     if (outputEditor) {
         // Exists already
-        outputEditor->createNew(progressMsg);
+        outputEditor->document()->setContents(progressMsg.toUtf8());
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return 0);
     } else {
-        outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg);
+        outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
         connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),

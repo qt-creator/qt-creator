@@ -1627,7 +1627,7 @@ QStringList EditorManager::getOpenFileNames() const
 
 IEditor *EditorManager::openEditorWithContents(const Id &editorId,
                                         QString *titlePattern,
-                                        const QString &contents)
+                                        const QByteArray &contents)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << contents;
@@ -1669,7 +1669,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
         return 0;
     }
 
-    if (!edt->createNew(contents)) {
+    if (!edt->document()->setContents(contents)) {
         QApplication::restoreOverrideCursor();
         delete edt;
         edt = 0;

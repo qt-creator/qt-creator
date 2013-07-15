@@ -591,7 +591,7 @@ void CvsPlugin::cvsDiff(const CvsDiffParameters &p)
     // Show in the same editor if diff has been executed before
     const QString tag = VcsBaseEditorWidget::editorTag(DiffOutput, p.workingDir, p.files);
     if (IEditor *existingEditor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        existingEditor->createNew(output);
+        existingEditor->document()->setContents(output.toUtf8());
         EditorManager::activateEditor(existingEditor);
         setDiffBaseDirectory(existingEditor, p.workingDir);
         return;
@@ -859,7 +859,7 @@ void CvsPlugin::filelog(const QString &workingDir,
     // the common usage pattern of continuously changing and diffing a file
     const QString tag = VcsBaseEditorWidget::editorTag(LogOutput, workingDir, files);
     if (Core::IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        editor->createNew(response.stdOut);
+        editor->document()->setContents(response.stdOut.toUtf8());
         Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
@@ -1001,7 +1001,7 @@ void CvsPlugin::annotate(const QString &workingDir, const QString &file,
 
     const QString tag = VcsBaseEditorWidget::editorTag(AnnotateOutput, workingDir, QStringList(file), revision);
     if (IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        editor->createNew(response.stdOut);
+        editor->document()->setContents(response.stdOut.toUtf8());
         VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
         EditorManager::activateEditor(editor);
     } else {
@@ -1197,7 +1197,7 @@ bool CvsPlugin::describe(const QString &repositoryPath,
     // the common usage pattern of continuously changing and diffing a file
     const QString commitId = entries.front().revisions.front().commitId;
     if (IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(commitId)) {
-        editor->createNew(output);
+        editor->document()->setContents(output.toUtf8());
         EditorManager::activateEditor(editor);
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
@@ -1270,7 +1270,7 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
         qDebug() << "CVSPlugin::showOutputInEditor" << title << id.name()
                  <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output);
+    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,int)));
     CvsEditor *e = qobject_cast<CvsEditor*>(editor->widget());

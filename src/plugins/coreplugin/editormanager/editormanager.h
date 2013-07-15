@@ -115,7 +115,7 @@ public:
                                  const Id &editorId = Id(), OpenEditorFlags flags = 0,
                                  bool *newEditor = 0);
     static IEditor *openEditorWithContents(const Id &editorId,
-        QString *titlePattern = 0, const QString &contents = QString());
+        QString *titlePattern = 0, const QByteArray &contents = QByteArray());
 
     static bool openExternalEditor(const QString &fileName, const Id &editorId);
 

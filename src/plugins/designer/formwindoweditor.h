@@ -66,7 +66,6 @@ public:
     virtual ~FormWindowEditor();
 
     // IEditor
-    virtual bool createNew(const QString &contents = QString());
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual Core::Id id() const;
 
@@ -84,8 +83,6 @@ private slots:
     void slotOpen(QString *errorString, const QString &fileName);
 
 private:
-    void syncXmlEditor(const QString &contents);
-
     FormWindowEditorPrivate *d;
 };
 
