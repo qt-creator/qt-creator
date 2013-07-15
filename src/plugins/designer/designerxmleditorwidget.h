@@ -27,36 +27,51 @@
 **
 ****************************************************************************/
 
-#include "designerxmleditor.h"
-#include "formwindoweditor.h"
-#include "designerconstants.h"
+#ifndef DESIGNERXMLEDITORWIDGET_H
+#define DESIGNERXMLEDITORWIDGET_H
 
-#include <QDesignerFormWindowInterface>
-#include <QDebug>
+#include "formwindowfile.h"
+
+#include <texteditor/plaintexteditor.h>
+
+#include <QSharedPointer>
+
+QT_BEGIN_NAMESPACE
+class QDesignerFormWindowInterface;
+QT_END_NAMESPACE
 
 namespace Designer {
+class FormWindowEditor;
+
 namespace Internal {
 
-DesignerXmlEditor::DesignerXmlEditor(QDesignerFormWindowInterface *form,
-                                     QWidget *parent) :
-    TextEditor::PlainTextEditorWidget(parent),
-    m_designerEditor(new FormWindowEditor(this, form))
+/* A stub-like, read-only text editor which displays UI files as text. Could be used as a
+  * read/write editor too, but due to lack of XML editor, highlighting and other such
+  * functionality, editing is disabled.
+  * Provides an informational title bar containing a button triggering a
+  * switch to design mode.
+  * Internally manages a FormWindowEditor and uses the plain text
+  * editable embedded in it.  */
+
+class DesignerXmlEditorWidget : public TextEditor::PlainTextEditorWidget
 {
-    setReadOnly(true);
-}
+    Q_OBJECT
+public:
+    explicit DesignerXmlEditorWidget(QDesignerFormWindowInterface *form,
+                               QWidget *parent = 0);
 
-TextEditor::BaseTextEditor *DesignerXmlEditor::createEditor()
-{
-    if (Designer::Constants::Internal::debug)
-        qDebug() << "DesignerXmlEditor::createEditableInterface()";
-    return m_designerEditor->textEditor();
-}
+    FormWindowEditor *designerEditor() const;
+    Internal::FormWindowFile *formWindowFile() const;
 
-FormWindowEditor *DesignerXmlEditor::designerEditor() const
-{
-    return m_designerEditor;
-}
+protected:
+    virtual TextEditor::BaseTextEditor *createEditor();
 
-} // namespace Internal
-} // namespace Designer
+private:
+    QSharedPointer<Internal::FormWindowFile> m_file;
+    FormWindowEditor *m_designerEditor;
+};
 
+} // Internal
+} // Designer
+
+#endif // DESIGNERXMLEDITORWIDGET_H

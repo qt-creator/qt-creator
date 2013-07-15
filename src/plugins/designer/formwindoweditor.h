@@ -32,6 +32,7 @@
 
 #include "designer_export.h"
 #include <coreplugin/editormanager/ieditor.h>
+#include <texteditor/plaintexteditor.h>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
@@ -45,35 +46,29 @@ namespace TextEditor {
 namespace Designer {
 
 namespace Internal {
-    class DesignerXmlEditor;
+    class DesignerXmlEditorWidget;
 }
 struct FormWindowEditorPrivate;
 
-// The actual Core::IEditor belonging to Qt Designer. Uses FormWindowFile
-// as the Core::IDocument to do the isModified() handling,
-// which needs to be done by Qt Designer.
-// However, to make the read-only XML text editor work,
-// a TextEditor::PlainTextEditorEditable (IEditor) is also required.
-// It is aggregated and some functions are delegated to it.
+// IEditor that is used for the QDesignerFormWindowInterface
+// It is a read-only PlainTextEditor that shows the XML of the form.
+// DesignerXmlEditorWidget is the corresponding PlainTextEditorWidget,
+// FormWindowFile the corresponding BaseTextDocument.
+// The content from the QDesignerFormWindowInterface is synced to the
+// content of the XML editor.
 
-class DESIGNER_EXPORT FormWindowEditor : public Core::IEditor
+class DESIGNER_EXPORT FormWindowEditor : public TextEditor::PlainTextEditor
 {
     Q_PROPERTY(QString contents READ contents)
     Q_OBJECT
 public:
-    explicit FormWindowEditor(Internal::DesignerXmlEditor *editor,
-                              QDesignerFormWindowInterface *form,
-                              QObject *parent = 0);
+    explicit FormWindowEditor(Internal::DesignerXmlEditorWidget *editor);
     virtual ~FormWindowEditor();
 
     // IEditor
     virtual bool createNew(const QString &contents = QString());
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    virtual Core::IDocument *document();
     virtual Core::Id id() const;
-
-    virtual QByteArray saveState() const;
-    virtual bool restoreState(const QByteArray &state);
 
     virtual QWidget *toolBar();
 
@@ -81,9 +76,6 @@ public:
 
     // For uic code model support
     QString contents() const;
-
-    TextEditor::BaseTextDocument *textDocument();
-    TextEditor::PlainTextEditor *textEditor();
 
 public slots:
     void syncXmlEditor();

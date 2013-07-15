@@ -31,7 +31,7 @@
 #include "formwindowfile.h"
 #include "designerconstants.h"
 #include "resourcehandler.h"
-#include "designerxmleditor.h"
+#include "designerxmleditorwidget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <texteditor/basetextdocument.h>
@@ -53,27 +53,20 @@ namespace Designer {
 
 struct FormWindowEditorPrivate
 {
-    FormWindowEditorPrivate(Internal::DesignerXmlEditor *editor,
-                            QDesignerFormWindowInterface *form)
-        : m_textEditor(editor), m_file(form)
-    {}
-
-    TextEditor::PlainTextEditor m_textEditor;
-    Internal::FormWindowFile m_file;
+    Internal::DesignerXmlEditorWidget *m_widget;
 };
 
-FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
-                                   QDesignerFormWindowInterface *form,
-                                   QObject *parent) :
-    Core::IEditor(parent),
-    d(new FormWindowEditorPrivate(editor, form))
+FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditorWidget *editor) :
+    TextEditor::PlainTextEditor(editor),
+    d(new FormWindowEditorPrivate)
 {
+    d->m_widget = editor;
     setContext(Core::Context(Designer::Constants::K_DESIGNER_XML_EDITOR_ID,
                              Designer::Constants::C_DESIGNER_XML_EDITOR));
-    setWidget(d->m_textEditor.widget());
 
     // Revert to saved/load externally modified files.
-    connect(&d->m_file, SIGNAL(reload(QString*,QString)), this, SLOT(slotOpen(QString*,QString)));
+    connect(d->m_widget->formWindowFile(), SIGNAL(reloadRequested(QString*,QString)),
+            this, SLOT(slotOpen(QString*,QString)), Qt::DirectConnection);
 }
 
 FormWindowEditor::~FormWindowEditor()
@@ -88,7 +81,7 @@ bool FormWindowEditor::createNew(const QString &contents)
 
     syncXmlEditor(QString());
 
-    QDesignerFormWindowInterface *form = d->m_file.formWindow();
+    QDesignerFormWindowInterface *form = d->m_widget->formWindowFile()->formWindow();
     QTC_ASSERT(form, return false);
 
     if (contents.isEmpty())
@@ -117,8 +110,8 @@ bool FormWindowEditor::createNew(const QString &contents)
         return false;
 
     syncXmlEditor(contents);
-    d->m_file.setFilePath(QString());
-    d->m_file.setShouldAutoSave(false);
+    d->m_widget->formWindowFile()->setFilePath(QString());
+    d->m_widget->formWindowFile()->setShouldAutoSave(false);
     return true;
 }
 
@@ -132,7 +125,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowEditor::open" << fileName;
 
-    QDesignerFormWindowInterface *form = d->m_file.formWindow();
+    QDesignerFormWindowInterface *form = d->m_widget->formWindowFile()->formWindow();
     QTC_ASSERT(form, return false);
 
     if (fileName.isEmpty())
@@ -142,7 +135,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     const QString absfileName = fi.absoluteFilePath();
 
     QString contents;
-    if (d->m_file.read(absfileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
+    if (d->m_widget->formWindowFile()->read(absfileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
         return false;
 
     form->setFileName(absfileName);
@@ -161,8 +154,8 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     form->setDirty(fileName != realFileName);
     syncXmlEditor(contents);
 
-    d->m_file.setFilePath(absfileName);
-    d->m_file.setShouldAutoSave(false);
+    d->m_widget->formWindowFile()->setFilePath(absfileName);
+    d->m_widget->formWindowFile()->setShouldAutoSave(false);
 
     if (Internal::ResourceHandler *rh = form->findChild<Designer::Internal::ResourceHandler*>())
         rh->updateResources();
@@ -173,37 +166,18 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
 void FormWindowEditor::syncXmlEditor()
 {
     if (Designer::Constants::Internal::debug)
-        qDebug() << "FormWindowEditor::syncXmlEditor" << d->m_file.filePath();
+        qDebug() << "FormWindowEditor::syncXmlEditor" << d->m_widget->formWindowFile()->filePath();
     syncXmlEditor(contents());
 }
 
 void FormWindowEditor::syncXmlEditor(const QString &contents)
 {
-    d->m_textEditor.editorWidget()->setPlainText(contents);
-    d->m_textEditor.editorWidget()->setReadOnly(true);
-    d->m_textEditor.document()->setDisplayName(d->m_file.displayName());
-    static_cast<TextEditor::PlainTextEditorWidget *>
-            (d->m_textEditor.editorWidget())->configure(document()->mimeType());
-}
-
-Core::IDocument *FormWindowEditor::document()
-{
-    return &d->m_file;
+    editorWidget()->document()->setPlainText(contents);
 }
 
 Core::Id FormWindowEditor::id() const
 {
     return Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
-}
-
-QByteArray FormWindowEditor::saveState() const
-{
-    return d->m_textEditor.saveState();
-}
-
-bool FormWindowEditor::restoreState(const QByteArray &state)
-{
-    return d->m_textEditor.restoreState(state);
 }
 
 QWidget *FormWindowEditor::toolBar()
@@ -214,25 +188,16 @@ QWidget *FormWindowEditor::toolBar()
 QString FormWindowEditor::contents() const
 {
 #if QT_VERSION >= 0x050000    // TODO: No warnings about spacers here
-    const QDesignerFormWindowInterface *fw = d->m_file.formWindow();
+    const QDesignerFormWindowInterface *fw = d->m_widget->formWindowFile()->formWindow();
     QTC_ASSERT(fw, return QString());
     return fw->contents();
 #else
     // No warnings about spacers here
-    const qdesigner_internal::FormWindowBase *fw = qobject_cast<const qdesigner_internal::FormWindowBase *>(d->m_file.formWindow());
+    const qdesigner_internal::FormWindowBase *fw =
+            qobject_cast<const qdesigner_internal::FormWindowBase *>(d->m_widget->formWindowFile()->formWindow());
     QTC_ASSERT(fw, return QString());
     return fw->fileContents();
 #endif
-}
-
-TextEditor::BaseTextDocument *FormWindowEditor::textDocument()
-{
-    return qobject_cast<TextEditor::BaseTextDocument*>(d->m_textEditor.document());
-}
-
-TextEditor::PlainTextEditor *FormWindowEditor::textEditor()
-{
-    return &d->m_textEditor;
 }
 
 bool FormWindowEditor::isDesignModePreferred() const

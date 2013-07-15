@@ -49,12 +49,12 @@ namespace Designer {
 namespace Internal {
 
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
-  : Core::TextDocument(parent),
-    m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
+  : m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
     m_shouldAutoSave(false),
     m_formWindow(form),
     m_isModified(false)
 {
+    setParent(parent);
     // Designer needs UTF-8 regardless of settings.
     setCodec(QTextCodec::codecForName("UTF-8"));
     connect(m_formWindow->core()->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
@@ -141,7 +141,7 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         emit changed();
     } else {
         emit aboutToReload();
-        emit reload(errorString, filePath());
+        emit reloadRequested(errorString, filePath());
         const bool success = errorString->isEmpty();
         emit reloadFinished(success);
         return success;

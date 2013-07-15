@@ -36,12 +36,12 @@ HEADERS += formeditorplugin.h \
         formwizarddialog.h \
         codemodelhelpers.h \
         designer_export.h \
-    designerxmleditor.h \
     designercontext.h \
     formeditorstack.h \
     editordata.h \
     resourcehandler.h \
-    qtdesignerformclasscodegenerator.h
+    qtdesignerformclasscodegenerator.h \
+    designerxmleditorwidget.h
 
 SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \
@@ -56,11 +56,11 @@ SOURCES += formeditorplugin.cpp \
         formtemplatewizardpage.cpp \
         formwizarddialog.cpp \
         codemodelhelpers.cpp \
-    designerxmleditor.cpp \
     designercontext.cpp \
     formeditorstack.cpp \
     resourcehandler.cpp \
-    qtdesignerformclasscodegenerator.cpp
+    qtdesignerformclasscodegenerator.cpp \
+    designerxmleditorwidget.cpp
 
 RESOURCES += designer.qrc
 

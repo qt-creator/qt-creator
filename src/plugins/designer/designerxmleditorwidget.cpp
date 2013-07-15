@@ -27,45 +27,44 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERXMLEDITOR_H
-#define DESIGNERXMLEDITOR_H
+#include "designerxmleditorwidget.h"
+#include "formwindoweditor.h"
+#include "designerconstants.h"
 
-#include <texteditor/plaintexteditor.h>
-
-QT_BEGIN_NAMESPACE
-class QDesignerFormWindowInterface;
-QT_END_NAMESPACE
+#include <QDesignerFormWindowInterface>
+#include <QDebug>
 
 namespace Designer {
-class FormWindowEditor;
-
 namespace Internal {
 
-/* A stub-like, read-only text editor which displays UI files as text. Could be used as a
-  * read/write editor too, but due to lack of XML editor, highlighting and other such
-  * functionality, editing is disabled.
-  * Provides an informational title bar containing a button triggering a
-  * switch to design mode.
-  * Internally manages a FormWindowEditor and uses the plain text
-  * editable embedded in it.  */
-
-class DesignerXmlEditor : public TextEditor::PlainTextEditorWidget
+DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *form,
+                                                 QWidget *parent) :
+    TextEditor::PlainTextEditorWidget(parent),
+    m_file(new FormWindowFile(form, this)),
+    m_designerEditor(new FormWindowEditor(this))
 {
-    Q_OBJECT
-public:
-    explicit DesignerXmlEditor(QDesignerFormWindowInterface *form,
-                               QWidget *parent = 0);
+    setBaseTextDocument(m_file);
+    setReadOnly(true);
+    configure(m_file->mimeType());
+}
 
-    FormWindowEditor *designerEditor() const;
+TextEditor::BaseTextEditor *DesignerXmlEditorWidget::createEditor()
+{
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "DesignerXmlEditor::createEditableInterface()";
+    return m_designerEditor;
+}
 
-protected:
-    virtual TextEditor::BaseTextEditor *createEditor();
+FormWindowEditor *DesignerXmlEditorWidget::designerEditor() const
+{
+    return m_designerEditor;
+}
 
-private:
-    FormWindowEditor *m_designerEditor;
-};
+Internal::FormWindowFile *DesignerXmlEditorWidget::formWindowFile() const
+{
+    return m_file.data();
+}
 
-} // Internal
-} // Designer
+} // namespace Internal
+} // namespace Designer
 
-#endif // DESIGNERXMLEDITOR_H
