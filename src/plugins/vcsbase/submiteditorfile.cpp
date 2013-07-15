@@ -29,6 +29,12 @@
 
 #include "submiteditorfile.h"
 
+#include "vcsbasesubmiteditor.h"
+
+#include <utils/fileutils.h>
+
+#include <QFileInfo>
+
 using namespace VcsBase;
 using namespace VcsBase::Internal;
 
@@ -39,10 +45,11 @@ using namespace VcsBase::Internal;
     submit editor files.
 */
 
-SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :
+SubmitEditorFile::SubmitEditorFile(const QString &mimeType, VcsBaseSubmitEditor *parent) :
     Core::IDocument(parent),
     m_mimeType(mimeType),
-    m_modified(false)
+    m_modified(false),
+    m_editor(parent)
 {
     setTemporary(true);
 }
@@ -57,7 +64,16 @@ void SubmitEditorFile::setModified(bool modified)
 
 bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    emit saveMe(errorString, fileName, autoSave);
+    const QString fName = fileName.isEmpty() ? filePath() : fileName;
+    Utils::FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+    saver.write(m_editor->fileContents());
+    if (!saver.finalize(errorString))
+        return false;
+    if (autoSave)
+        return true;
+    const QFileInfo fi(fName);
+    setFilePath(fi.absoluteFilePath());
+    setModified(false);
     if (!errorString->isEmpty())
         return false;
     emit changed();

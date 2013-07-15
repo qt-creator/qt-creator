@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace VcsBase {
 namespace Internal {
     class CommonVcsSettings;
+    class SubmitEditorFile;
 }
 struct VcsBaseSubmitEditorPrivate;
 class SubmitEditorWidget;
@@ -143,7 +144,6 @@ signals:
 
 private slots:
     void slotDiffSelectedVcsFiles(const QList<int> &rawList);
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
     void slotDescriptionChanged();
     void slotCheckSubmitMessage();
     void slotInsertNickName();
@@ -168,6 +168,7 @@ private:
     QString promptForNickName();
 
     VcsBaseSubmitEditorPrivate *d;
+    friend class Internal::SubmitEditorFile; // for the file contents
 };
 
 } // namespace VcsBase

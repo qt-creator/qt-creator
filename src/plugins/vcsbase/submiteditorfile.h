@@ -33,6 +33,8 @@
 #include <coreplugin/idocument.h>
 
 namespace VcsBase {
+class VcsBaseSubmitEditor;
+
 namespace Internal {
 
 class SubmitEditorFile : public Core::IDocument
@@ -40,7 +42,7 @@ class SubmitEditorFile : public Core::IDocument
     Q_OBJECT
 public:
     explicit SubmitEditorFile(const QString &mimeType,
-                              QObject *parent = 0);
+                              VcsBaseSubmitEditor *parent = 0);
 
     QString defaultPath() const { return QString(); }
     QString suggestedFileName() const { return QString(); }
@@ -54,12 +56,10 @@ public:
 
     void setModified(bool modified = true);
 
-signals:
-    void saveMe(QString *errorString, const QString &fileName, bool autoSave);
-
 private:
     const QString m_mimeType;
     bool m_modified;
+    VcsBaseSubmitEditor *m_editor;
 };
 
 
