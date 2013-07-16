@@ -785,6 +785,16 @@ const NodeMetaInfo ModelNode::metaInfo() const
     return NodeMetaInfo(model()->metaInfoProxyModel(), type(), majorVersion(), minorVersion());
 }
 
+bool ModelNode::hasMetaInfo() const
+{
+    if (!isValid()) {
+        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    return model()->hasNodeMetaInfo(type(), majorVersion(), minorVersion());
+}
+
 /*! \brief has a node the selection of the model
 \return true if the node his selection
 */

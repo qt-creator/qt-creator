@@ -158,6 +158,7 @@ public:
     AbstractView *view() const;
 
     const NodeMetaInfo metaInfo() const;
+    bool hasMetaInfo() const;
 
     bool isSelected() const;
     bool isRootNode() const;
