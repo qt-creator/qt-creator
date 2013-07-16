@@ -322,8 +322,6 @@ struct CanonicalSymbol
 
 };
 
-int numberOfClosedEditors = 0;
-
 /// Check if previous line is a CppStyle Doxygen Comment
 bool isPreviousLineCppStyleComment(const QTextCursor &cursor)
 {
@@ -564,13 +562,6 @@ CPPEditorWidget::~CPPEditorWidget()
 {
     if (m_modelManager)
         m_modelManager->deleteEditorSupport(editor());
-
-    ++numberOfClosedEditors;
-    if (numberOfClosedEditors == 5) {
-        if (m_modelManager)
-            m_modelManager->GC();
-        numberOfClosedEditors = 0;
-    }
 
     delete m_completionSupport;
 }

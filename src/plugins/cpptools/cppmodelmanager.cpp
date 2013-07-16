@@ -610,6 +610,8 @@ QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) co
 /// \brief Removes the CppEditorSupport for the closed editor.
 void CppModelManager::deleteEditorSupport(TextEditor::BaseTextEditor *textEditor)
 {
+    static short numberOfClosedEditors = 0;
+
     QTC_ASSERT(textEditor, return);
 
     if (!isCppEditor(textEditor))
@@ -624,6 +626,13 @@ void CppModelManager::deleteEditorSupport(TextEditor::BaseTextEditor *textEditor
     }
 
     delete editorSupport;
+
+    ++numberOfClosedEditors;
+    if (numberOfClosedEditors == 5) {
+        numberOfClosedEditors = 0;
+        GC();
+    }
+
 }
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor) const
