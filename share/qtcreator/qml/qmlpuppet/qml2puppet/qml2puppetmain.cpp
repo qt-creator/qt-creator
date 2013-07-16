@@ -109,5 +109,8 @@ int main(int argc, char *argv[])
     SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
 #endif
 
-    return application.exec();
+    if (application.arguments().at(1) == "--readcapturedstream")
+        return 0;
+
+    return application.exec();;
 }

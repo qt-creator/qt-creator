@@ -102,7 +102,7 @@ void NodeInstanceClientProxy::initializeCapturedStream(const QString &fileName)
     bool inputStreamCanBeOpened = m_inputIoDevice->open(QIODevice::ReadOnly);
     if (!inputStreamCanBeOpened) {
         qDebug() << "Input stream file cannot be opened: " << fileName;
-        QCoreApplication::exit(-1);
+        exit(-1);
     }
 
     if (QCoreApplication::arguments().count() == 3) {
@@ -111,14 +111,14 @@ void NodeInstanceClientProxy::initializeCapturedStream(const QString &fileName)
         bool outputStreamCanBeOpened = m_outputIoDevice->open(QIODevice::WriteOnly);
         if (!outputStreamCanBeOpened) {
             qDebug() << "Output stream file cannot be opened";
-            QCoreApplication::exit(-1);
+            exit(-1);
         }
     } else if (QCoreApplication::arguments().count() == 4) {
         m_controlStream.setFileName(QCoreApplication::arguments().at(3));
         bool controlStreamCanBeOpened = m_controlStream.open(QIODevice::ReadOnly);
         if (!controlStreamCanBeOpened) {
             qDebug() << "Control stream file cannot be opened";
-            QCoreApplication::exit(-1);
+            exit(-1);
         }
     }
 
@@ -170,7 +170,7 @@ void NodeInstanceClientProxy::writeCommand(const QVariant &command)
 
         if (!compareCommands(command, controlCommand)) {
             qDebug() << "Commands differ!";
-            QCoreApplication::exit(-1);
+            exit(-1);
         }
     } else if (m_outputIoDevice) {
         QByteArray block;
