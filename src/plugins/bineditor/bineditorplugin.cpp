@@ -73,6 +73,7 @@ public:
     {
         m_widget = widget;
         m_incrementalStartPos = m_contPos = -1;
+        m_incrementalWrappedState = false;
     }
 
     bool supportsReplace() const { return false; }
@@ -87,6 +88,7 @@ public:
     void resetIncrementalSearch()
     {
         m_incrementalStartPos = m_contPos = -1;
+        m_incrementalWrappedState = false;
     }
 
     virtual void highlightAll(const QString &txt, Find::FindFlags findFlags)
@@ -99,14 +101,25 @@ public:
         m_widget->highlightSearchResults(QByteArray());
     }
 
-    int find(const QByteArray &pattern, int pos, Find::FindFlags findFlags)
+    int find(const QByteArray &pattern, int pos, Find::FindFlags findFlags, bool *wrapped)
     {
+        if (wrapped)
+            *wrapped = false;
         if (pattern.isEmpty()) {
             m_widget->setCursorPosition(pos);
             return pos;
         }
 
-        return m_widget->find(pattern, pos, Find::textDocumentFlagsForFindFlags(findFlags));
+        int res = m_widget->find(pattern, pos, Find::textDocumentFlagsForFindFlags(findFlags));
+        if (res < 0) {
+            pos = (findFlags & Find::FindBackward) ? -1 : 0;
+            res = m_widget->find(pattern, pos, Find::textDocumentFlagsForFindFlags(findFlags));
+            if (res < 0)
+                return res;
+            if (wrapped)
+                *wrapped = true;
+        }
+        return res;
     }
 
     Result findIncremental(const QString &txt, Find::FindFlags findFlags) {
@@ -118,7 +131,12 @@ public:
             m_incrementalStartPos = m_widget->selectionStart();
         if (m_contPos == -1)
             m_contPos = m_incrementalStartPos;
-        int found = find(pattern, m_contPos, findFlags);
+        bool wrapped;
+        int found = find(pattern, m_contPos, findFlags, &wrapped);
+        if (wrapped != m_incrementalWrappedState && (found >= 0)) {
+            m_incrementalWrappedState = wrapped;
+            showWrapIndicator(m_widget);
+        }
         Result result;
         if (found >= 0) {
             result = Found;
@@ -147,7 +165,10 @@ public:
             if (findFlags & Find::FindBackward)
                 m_contPos = m_widget->selectionStart()-1;
         }
-        int found = find(pattern, m_contPos, findFlags);
+        bool wrapped;
+        int found = find(pattern, m_contPos, findFlags, &wrapped);
+        if (wrapped)
+            showWrapIndicator(m_widget);
         Result result;
         if (found >= 0) {
             result = Found;
@@ -171,6 +192,7 @@ private:
     BinEditorWidget *m_widget;
     int m_incrementalStartPos;
     int m_contPos; // Only valid if last result was NotYetFound.
+    bool m_incrementalWrappedState;
     QByteArray m_lastPattern;
 };
 

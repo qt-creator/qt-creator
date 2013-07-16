@@ -582,6 +582,8 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, int from, bool c
     buffer.resize(m_blockSize + trailing);
     char *b = buffer.data();
 
+    if (from == -1)
+        from = m_size;
     int block = from / m_blockSize;
     const int lowerBound = qMax(0, from - SearchStride);
     while (from > lowerBound) {
