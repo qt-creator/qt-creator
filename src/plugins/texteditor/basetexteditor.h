@@ -211,9 +211,6 @@ public:
     void setActionHack(QObject *hack);
     QObject *actionHack() const;
 
-    void setTextCodec(QTextCodec *codec);
-    QTextCodec *textCodec() const;
-
     void setReadOnly(bool b);
 
     void setTextCursor(const QTextCursor &cursor);
@@ -639,9 +636,6 @@ public:
     ITextMarkable *markableInterface() { return m_editorWidget->markableInterface(); }
 
     QString contextHelpId() const; // from IContext
-
-    void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason) { m_editorWidget->setTextCodec(codec); }
-    QTextCodec *textCodec() const { return m_editorWidget->textCodec(); }
 
     // ITextEditor
     void remove(int length);

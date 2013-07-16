@@ -49,7 +49,6 @@ public:
     Core::Id id() const;
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool isDesignModePreferred() const;
-    void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason);
 
     const Utils::CommentDefinition *commentDefinition() const;
 private:

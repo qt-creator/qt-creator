@@ -59,7 +59,7 @@ QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextEditorsEncodings(
         if (!textEditor)
             continue;
         QString fileName = textEditor->document()->filePath();
-        workingCopy[fileName] = textEditor->textCodec();
+        workingCopy[fileName] = const_cast<QTextCodec *>(textEditor->textDocument()->codec());
     }
     return workingCopy;
 }

@@ -237,7 +237,7 @@ void EditorConfiguration::configureEditor(ITextEditor *textEditor) const
     if (baseTextEditor)
         baseTextEditor->setCodeStyle(codeStyle(baseTextEditor->languageSettingsId()));
     if (!d->m_useGlobal) {
-        textEditor->setTextCodec(d->m_textCodec, ITextEditor::TextCodecFromProjectSetting);
+        textEditor->textDocument()->setCodec(d->m_textCodec);
         if (baseTextEditor)
             switchSettings(baseTextEditor);
     }

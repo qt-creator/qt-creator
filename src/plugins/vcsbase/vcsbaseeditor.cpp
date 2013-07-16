@@ -1164,7 +1164,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
             unicode += QLatin1Char('\n');
         }
     }
-    const QTextCodec *cd = textCodec();
+    const QTextCodec *cd = baseTextDocument()->codec();
     rc.chunk = cd ? cd->fromUnicode(unicode) : unicode.toLocal8Bit();
     return rc;
 }
@@ -1232,8 +1232,8 @@ static QTextCodec *findFileCodec(const QString &source)
     if (!editors.empty()) {
         const EditorList::const_iterator ecend =  editors.constEnd();
         for (EditorList::const_iterator it = editors.constBegin(); it != ecend; ++it)
-            if (const TextEditor::BaseTextEditor *be = qobject_cast<const TextEditor::BaseTextEditor *>(*it)) {
-                QTextCodec *codec = be->editorWidget()->textCodec();
+            if (TextEditor::BaseTextEditor *be = qobject_cast<TextEditor::BaseTextEditor *>(*it)) {
+                QTextCodec *codec = const_cast<QTextCodec *>(be->textDocument()->codec());
                 return codec;
             }
     }

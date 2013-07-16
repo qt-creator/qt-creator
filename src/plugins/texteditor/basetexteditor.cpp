@@ -5837,17 +5837,6 @@ void BaseTextEditorWidget::unfoldAll()
     centerCursor();
 }
 
-void BaseTextEditorWidget::setTextCodec(QTextCodec *codec)
-{
-    baseTextDocument()->setCodec(codec);
-}
-
-QTextCodec *BaseTextEditorWidget::textCodec() const
-{
-    // TODO: Fix all QTextCodec usages to be const *.
-    return const_cast<QTextCodec *>(baseTextDocument()->codec());
-}
-
 void BaseTextEditorWidget::setReadOnly(bool b)
 {
     QPlainTextEdit::setReadOnly(b);

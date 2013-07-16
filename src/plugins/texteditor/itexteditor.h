@@ -109,15 +109,6 @@ public:
 
     virtual ITextMarkable *markableInterface() = 0;
 
-    enum TextCodecReason {
-        TextCodecOtherReason,
-        TextCodecFromSystemSetting,
-        TextCodecFromProjectSetting
-    };
-
-    virtual void setTextCodec(QTextCodec *, TextCodecReason reason = TextCodecOtherReason) = 0;
-    virtual QTextCodec *textCodec() const = 0;
-
     virtual const Utils::CommentDefinition* commentDefinition() const = 0;
 
     static QMap<QString, QString> openedTextEditorsContents();

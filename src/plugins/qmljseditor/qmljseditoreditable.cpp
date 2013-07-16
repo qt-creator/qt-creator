@@ -60,13 +60,6 @@ bool QmlJSEditor::isDesignModePreferred() const
     return false;
 }
 
-void QmlJSEditor::setTextCodec(QTextCodec *codec, TextCodecReason reason)
-{
-    if (reason != TextCodecOtherReason) // qml is defined to be utf8
-        return;
-    editorWidget()->setTextCodec(codec);
-}
-
 const Utils::CommentDefinition *QmlJSEditor::commentDefinition() const
 {
     return &m_commentDefinition;
