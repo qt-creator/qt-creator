@@ -37,7 +37,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QDebug>
 #include <QRegExp>
 #include <QVariant>
 
