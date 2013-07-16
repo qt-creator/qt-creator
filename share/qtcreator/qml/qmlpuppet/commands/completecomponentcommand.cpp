@@ -30,6 +30,7 @@
 #include "completecomponentcommand.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -59,6 +60,11 @@ QDataStream &operator>>(QDataStream &in, CompleteComponentCommand &command)
     in >> command.m_instanceVector;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const CompleteComponentCommand &command)
+{
+    return debug.nospace() << "CompleteComponentCommand(instances: " << command.m_instanceVector << ")";
 }
 
 } // namespace QmlDesigner

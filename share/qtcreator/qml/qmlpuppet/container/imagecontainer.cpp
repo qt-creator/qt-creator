@@ -31,6 +31,7 @@
 
 #include <QSharedMemory>
 #include <QCache>
+#include <QDebug>
 
 #include <cstring>
 
@@ -241,5 +242,13 @@ bool operator <(const ImageContainer &first, const ImageContainer &second)
 {
     return first.m_instanceId < second.m_instanceId;
 }
+
+QDebug operator <<(QDebug debug, const ImageContainer &container)
+{
+    return debug.nospace() << "ImageContainer("
+                           << "instanceId: " << container.instanceId() << ", "
+                           << "size: " << container.image().size() << ")";
+}
+
 
 } // namespace QmlDesigner

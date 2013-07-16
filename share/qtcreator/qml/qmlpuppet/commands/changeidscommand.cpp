@@ -29,6 +29,8 @@
 
 #include "changeidscommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ChangeIdsCommand::ChangeIdsCommand()
@@ -57,6 +59,11 @@ QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command)
     in >> command.m_idVector;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const ChangeIdsCommand &command)
+{
+    return debug.nospace() << "ChangeIdsCommand(ids: " << command.m_idVector << ")";
 }
 
 } // namespace QmlDesigner

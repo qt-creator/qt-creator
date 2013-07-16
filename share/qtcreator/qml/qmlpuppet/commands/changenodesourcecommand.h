@@ -39,6 +39,8 @@ namespace QmlDesigner {
 class ChangeNodeSourceCommand
 {
     friend QDataStream &operator>>(QDataStream &in, ChangeNodeSourceCommand &command);
+    friend QDebug operator <<(QDebug debug, const ChangeNodeSourceCommand &command);
+
 public:
     ChangeNodeSourceCommand();
     explicit ChangeNodeSourceCommand(qint32 instanceId, const QString &nodeSource);
@@ -52,6 +54,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const ChangeNodeSourceCommand &command);
 QDataStream &operator>>(QDataStream &in, ChangeNodeSourceCommand &command);
+
+QDebug operator <<(QDebug debug, const ChangeNodeSourceCommand &command);
 
 } // namespace QmlDesigner
 

@@ -32,7 +32,6 @@
 
 #include <QMetaType>
 #include <QVector>
-#include <QDebug>
 
 #include "informationcontainer.h"
 
@@ -59,6 +58,7 @@ QDataStream &operator<<(QDataStream &out, const InformationChangedCommand &comma
 QDataStream &operator>>(QDataStream &in, InformationChangedCommand &command);
 
 bool operator ==(const InformationChangedCommand &first, const InformationChangedCommand &second);
+QDebug operator <<(QDebug debug, const InformationChangedCommand &command);
 
 } // namespace QmlDesigner
 

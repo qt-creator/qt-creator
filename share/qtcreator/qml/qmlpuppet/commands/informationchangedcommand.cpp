@@ -30,6 +30,7 @@
 #include "informationchangedcommand.h"
 
 #include <QMetaType>
+#include <QtDebug>
 
 #include "propertyvaluecontainer.h"
 
@@ -72,5 +73,11 @@ bool operator ==(const InformationChangedCommand &first, const InformationChange
 {
     return first.m_informationVector == second.m_informationVector;
 }
+
+QDebug operator <<(QDebug debug, const InformationChangedCommand &command)
+{
+    return debug.nospace() << "InformationChangedCommand(" << command.informations() << ")";
+}
+
 
 } // namespace QmlDesigner

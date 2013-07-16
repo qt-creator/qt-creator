@@ -63,7 +63,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command);
 QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command);
 
 bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second);
-
+QDebug operator <<(QDebug debug, const ValuesChangedCommand &instance);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ValuesChangedCommand)

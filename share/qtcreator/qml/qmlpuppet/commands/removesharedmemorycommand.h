@@ -40,6 +40,7 @@ namespace QmlDesigner {
 class RemoveSharedMemoryCommand
 {
     friend QDataStream &operator>>(QDataStream &in, RemoveSharedMemoryCommand &command);
+    friend QDebug operator <<(QDebug debug, const RemoveSharedMemoryCommand &command);
 
 public:
     RemoveSharedMemoryCommand();
@@ -55,6 +56,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const RemoveSharedMemoryCommand &command);
 QDataStream &operator>>(QDataStream &in, RemoveSharedMemoryCommand &command);
+
+QDebug operator <<(QDebug debug, const RemoveSharedMemoryCommand &command);
 
 } // namespace QmlDesigner
 

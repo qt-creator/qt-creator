@@ -82,6 +82,8 @@ private:
     qint32 m_metaType;
 };
 
+QDebug operator <<(QDebug debug, const InstanceContainer &command);
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::InstanceContainer)

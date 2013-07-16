@@ -57,6 +57,7 @@ QDataStream &operator<<(QDataStream &out, const StatePreviewImageChangedCommand 
 QDataStream &operator>>(QDataStream &in, StatePreviewImageChangedCommand &command);
 
 bool operator ==(const StatePreviewImageChangedCommand &first, const StatePreviewImageChangedCommand &second);
+QDebug operator <<(QDebug debug, const StatePreviewImageChangedCommand &command);
 
 } // namespace QmlDesigner
 

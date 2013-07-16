@@ -56,6 +56,7 @@ QDataStream &operator<<(QDataStream &out, const ComponentCompletedCommand &comma
 QDataStream &operator>>(QDataStream &in, ComponentCompletedCommand &command);
 
 bool operator ==(const ComponentCompletedCommand &first, const ComponentCompletedCommand &second);
+QDebug operator <<(QDebug debug, const ComponentCompletedCommand &command);
 
 } // namespace QmlDesigner
 

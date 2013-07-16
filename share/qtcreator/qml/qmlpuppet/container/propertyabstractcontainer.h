@@ -48,6 +48,7 @@ class PropertyAbstractContainer
 
     friend QDataStream &operator<<(QDataStream &out, const PropertyAbstractContainer &container);
     friend QDataStream &operator>>(QDataStream &in, PropertyAbstractContainer &container);
+    friend QDebug operator <<(QDebug debug, const PropertyAbstractContainer &container);
 public:
     PropertyAbstractContainer();
     PropertyAbstractContainer(qint32 instanceId, const PropertyName &name, const QString &dynamicTypeName);
@@ -63,6 +64,7 @@ private:
     QString m_dynamicTypeName;
 };
 
+QDebug operator <<(QDebug debug, const PropertyAbstractContainer &container);
 
 } // namespace QmlDesigner
 

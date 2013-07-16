@@ -64,6 +64,7 @@ QDataStream &operator>>(QDataStream &in, ImageContainer &container);
 
 bool operator ==(const ImageContainer &first, const ImageContainer &second);
 bool operator <(const ImageContainer &first, const ImageContainer &second);
+QDebug operator <<(QDebug debug, const ImageContainer &container);
 
 } // namespace QmlDesigner
 

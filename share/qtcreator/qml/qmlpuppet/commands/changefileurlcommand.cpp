@@ -28,7 +28,9 @@
 ****************************************************************************/
 
 #include "changefileurlcommand.h"
+
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -58,6 +60,12 @@ QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command)
     in >> command.m_fileUrl;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const ChangeFileUrlCommand &command)
+{
+    return debug.nospace() << "ChangeFileUrlCommand("
+                           << "fileUrl: " << command.fileUrl() << ")";
 }
 
 } // namespace QmlDesigner

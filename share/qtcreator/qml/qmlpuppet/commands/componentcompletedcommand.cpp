@@ -30,6 +30,7 @@
 #include "componentcompletedcommand.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -69,6 +70,12 @@ QDataStream &operator>>(QDataStream &in, ComponentCompletedCommand &command)
 bool operator ==(const ComponentCompletedCommand &first, const ComponentCompletedCommand &second)
 {
     return first.m_instanceVector == second.m_instanceVector;
+}
+
+QDebug operator <<(QDebug debug, const ComponentCompletedCommand &command)
+{
+    return debug.nospace() << "ComponentCompletedCommand(" << command.instances() << ")";
+
 }
 
 } // namespace QmlDesigner

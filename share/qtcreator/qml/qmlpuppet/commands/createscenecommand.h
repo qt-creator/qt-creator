@@ -81,6 +81,7 @@ private:
 QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command);
 QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command);
 
+QDebug operator <<(QDebug debug, const CreateSceneCommand &command);
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::CreateSceneCommand)

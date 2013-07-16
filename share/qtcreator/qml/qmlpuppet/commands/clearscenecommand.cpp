@@ -29,6 +29,8 @@
 
 #include "clearscenecommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ClearSceneCommand::ClearSceneCommand()
@@ -43,6 +45,11 @@ QDataStream &operator<<(QDataStream &out, const ClearSceneCommand &/*command*/)
 QDataStream &operator>>(QDataStream &in, ClearSceneCommand &/*command*/)
 {
     return in;
+}
+
+QDebug operator <<(QDebug debug, const ClearSceneCommand &/*command*/)
+{
+     return debug.nospace() << "ClearSceneCommand()";
 }
 
 } // namespace QmlDesigner

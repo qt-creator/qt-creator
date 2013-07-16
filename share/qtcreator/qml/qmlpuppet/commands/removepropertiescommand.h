@@ -40,6 +40,8 @@ namespace QmlDesigner {
 class RemovePropertiesCommand
 {
     friend QDataStream &operator>>(QDataStream &in, RemovePropertiesCommand &command);
+    friend QDebug operator <<(QDebug debug, const RemovePropertiesCommand &command);
+
 public:
     RemovePropertiesCommand();
     explicit RemovePropertiesCommand(const QVector<PropertyAbstractContainer> &properties);
@@ -52,6 +54,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const RemovePropertiesCommand &command);
 QDataStream &operator>>(QDataStream &in, RemovePropertiesCommand &command);
+
+QDebug operator <<(QDebug debug, const RemovePropertiesCommand &command);
 
 }
 

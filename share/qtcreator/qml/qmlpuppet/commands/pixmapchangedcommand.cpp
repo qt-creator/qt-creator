@@ -73,4 +73,9 @@ bool operator ==(const PixmapChangedCommand &first, const PixmapChangedCommand &
     return first.m_imageVector == second.m_imageVector;
 }
 
+QDebug operator <<(QDebug debug, const PixmapChangedCommand &command)
+{
+    return debug.nospace() << "PixmapChangedCommand(" << command.images() << ")";
+}
+
 } // namespace QmlDesigner

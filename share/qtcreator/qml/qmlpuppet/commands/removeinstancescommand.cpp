@@ -30,6 +30,7 @@
 #include "removeinstancescommand.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -59,6 +60,11 @@ QDataStream &operator>>(QDataStream &in, RemoveInstancesCommand &command)
     in >> command.m_instanceIdVector;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const RemoveInstancesCommand &command)
+{
+    return debug.nospace() << "RemoveInstancesCommand(instanceIdVector: " << command.m_instanceIdVector << ")";
 }
 
 } // namespace QmlDesigner

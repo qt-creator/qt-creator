@@ -41,6 +41,8 @@ namespace QmlDesigner {
 class ChangeIdsCommand
 {
     friend QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command);
+    friend QDebug operator <<(QDebug debug, const ChangeIdsCommand &command);
+
 public:
     ChangeIdsCommand();
     explicit ChangeIdsCommand(const QVector<IdContainer> &idVector);
@@ -53,6 +55,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const ChangeIdsCommand &command);
 QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command);
+
+QDebug operator <<(QDebug debug, const ChangeIdsCommand &command);
 
 } // namespace QmlDesigner
 

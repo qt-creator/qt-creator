@@ -31,6 +31,7 @@
 
 #include <QSharedMemory>
 #include <QCache>
+#include <QDebug>
 
 #include <cstring>
 
@@ -150,6 +151,13 @@ QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command)
 bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second)
 {
     return first.m_valueChangeVector == second.m_valueChangeVector;
+}
+
+QDebug operator <<(QDebug debug, const ValuesChangedCommand &command)
+{
+    return debug.nospace() << "ValuesChangedCommand("
+                    << "keyNumber: " << command.keyNumber() << ", "
+                    << command.valueChanges() << ")";
 }
 
 } // namespace QmlDesigner

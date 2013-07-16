@@ -42,6 +42,7 @@
 #include <QAbstractAnimation>
 #include <private/qabstractanimation_p.h>
 #include <QMutableVectorIterator>
+#include <QtDebug>
 
 #include "servernodeinstance.h"
 #include "objectnodeinstance.h"

@@ -29,6 +29,8 @@
 
 #include "informationcontainer.h"
 
+#include <QtDebug>
+
 namespace QmlDesigner {
 
 InformationContainer::InformationContainer()
@@ -122,6 +124,22 @@ bool operator <(const InformationContainer &first, const InformationContainer &s
     return (first.m_instanceId < second.m_instanceId)
         || (first.m_instanceId == second.m_instanceId && first.m_name < second.m_name)
         || (first.m_instanceId == second.m_instanceId && first.m_name == second.m_name && first.m_information < second.m_information);
+}
+
+QDebug operator <<(QDebug debug, const InformationContainer &container)
+{
+    debug.nospace() << "InformationContainer("
+                    << "instanceId: " << container.instanceId() << ", "
+                    << "name: " << container.name() << ", "
+                    << "information: " << container.information();
+
+    if (container.secondInformation().isValid())
+        debug.nospace() << ", " << "secondInformation: " << container.secondInformation();
+
+    if (container.thirdInformation().isValid())
+        debug.nospace() << ", " << "thirdInformation: " << container.thirdInformation();
+
+    return debug.nospace() << ")";
 }
 
 } // namespace QmlDesigner

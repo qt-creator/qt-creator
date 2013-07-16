@@ -43,6 +43,8 @@ public:
 QDataStream &operator<<(QDataStream &out, const ClearSceneCommand &command);
 QDataStream &operator>>(QDataStream &in, ClearSceneCommand &command);
 
+QDebug operator <<(QDebug debug, const ClearSceneCommand &command);
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ClearSceneCommand)

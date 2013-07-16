@@ -29,6 +29,8 @@
 
 #include "childrenchangedcommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ChildrenChangedCommand::ChildrenChangedCommand()
@@ -86,6 +88,14 @@ bool operator ==(const ChildrenChangedCommand &first, const ChildrenChangedComma
     return first.m_parentInstanceId == second.m_parentInstanceId
             && first.m_childrenVector == second.m_childrenVector
             && first.m_informationVector == second.m_informationVector;
+}
+
+QDebug operator <<(QDebug debug, const ChildrenChangedCommand &command)
+{
+    return debug.nospace() << "ChildrenChangedCommand("
+                           << "parentInstanceId: " << command.parentInstanceId() << ", "
+                           << "children: " << command.childrenInstances() << ", "
+                           << "informations: " << command.informations() << ")";
 }
 
 } // namespace QmlDesigner

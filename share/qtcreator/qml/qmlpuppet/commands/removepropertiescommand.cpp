@@ -29,6 +29,8 @@
 
 #include "removepropertiescommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 RemovePropertiesCommand::RemovePropertiesCommand()
@@ -57,6 +59,11 @@ QDataStream &operator>>(QDataStream &in, RemovePropertiesCommand &command)
     in >> command.m_properties;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const RemovePropertiesCommand &command)
+{
+    return debug.nospace() << "RemovePropertiesCommand(properties: " << command.m_properties << ")";
 }
 
 }

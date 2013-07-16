@@ -61,6 +61,8 @@ private:
 QDataStream &operator<<(QDataStream &out, const AddImportContainer &command);
 QDataStream &operator>>(QDataStream &in, AddImportContainer &command);
 
+QDebug operator <<(QDebug debug, const AddImportContainer &container);
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::AddImportContainer)

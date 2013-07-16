@@ -29,6 +29,7 @@
 
 #include "propertybindingcontainer.h"
 
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -88,6 +89,19 @@ QDataStream &operator>>(QDataStream &in, PropertyBindingContainer &container)
     in >> container.m_dynamicTypeName;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const PropertyBindingContainer &container)
+{
+    debug.nospace() << "PropertyBindingContainer("
+                    << "instanceId: " << container.instanceId() << ", "
+                    << "name: " << container.name() << ", "
+                    << "expression: " << container.expression();
+
+    if (!container.dynamicTypeName().isEmpty())
+        debug.nospace() << ", " << "dynamicTypeName: " << container.dynamicTypeName();
+
+    return debug.nospace() << ")";
 }
 
 } // namespace QmlDesigner

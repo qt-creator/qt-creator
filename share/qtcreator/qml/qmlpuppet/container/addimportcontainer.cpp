@@ -29,6 +29,8 @@
 
 #include "addimportcontainer.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 AddImportContainer::AddImportContainer()
@@ -89,6 +91,33 @@ QDataStream &operator>>(QDataStream &in, AddImportContainer &command)
     in >> command.m_importPathList;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const AddImportContainer &container)
+{
+    debug.nospace() << "AddImportContainer(";
+
+    if (!container.url().isEmpty())
+        debug.nospace() << "url: " << container.url() << ", ";
+
+    if (!container.fileName().isEmpty())
+        debug.nospace() << "fileName: " << container.fileName() << ", ";
+
+    if (!container.version().isEmpty())
+        debug.nospace()  << "version: " << container.version() << ", ";
+
+    if (!container.alias().isEmpty())
+        debug.nospace()  << "alias: " << container.alias() << ", ";
+
+    if (!container.alias().isEmpty())
+        debug.nospace()  << "alias: " << container.alias() << ", ";
+
+    if (!container.alias().isEmpty())
+        debug.nospace()  << "alias: " << container.alias() << ", ";
+
+    debug.nospace() << "importPaths: " << container.importPaths();
+
+    return debug.nospace() << ")";
 }
 
 } // namespace QmlDesigner

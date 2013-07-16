@@ -66,6 +66,8 @@ private:
 QDataStream &operator<<(QDataStream &out, const ReparentContainer &container);
 QDataStream &operator>>(QDataStream &in, ReparentContainer &container);
 
+QDebug operator <<(QDebug debug, const ReparentContainer &container);
+
 } // namespace QmlDesigner
 
 #endif // REPARENTCONTAINER_H

@@ -29,6 +29,8 @@
 
 #include "propertyabstractcontainer.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 PropertyAbstractContainer::PropertyAbstractContainer()
@@ -80,5 +82,20 @@ QDataStream &operator>>(QDataStream &in, PropertyAbstractContainer &container)
 
     return in;
 }
+
+QDebug operator <<(QDebug debug, const PropertyAbstractContainer &container)
+{
+    debug.nospace() << "PropertyAbstractContainer("
+                    << "instanceId: " << container.instanceId() << ", "
+                    << "name: " << container.name();
+
+    if (!container.dynamicTypeName().isEmpty())
+        debug.nospace() << ", " << "dynamicTypeName: " << container.dynamicTypeName();
+
+    debug.nospace() << ")";
+
+    return debug;
+}
+
 
 } // namespace QmlDesigner

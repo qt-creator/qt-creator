@@ -29,6 +29,8 @@
 
 #include "endpuppetcommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 EndPuppetCommand::EndPuppetCommand()
@@ -43,6 +45,11 @@ QDataStream &operator<<(QDataStream &out, const EndPuppetCommand &/*command*/)
 QDataStream &operator>>(QDataStream &in, EndPuppetCommand &/*command*/)
 {
     return in;
+}
+
+QDebug operator <<(QDebug debug, const EndPuppetCommand &/*command*/)
+{
+    return debug.nospace() << "EndPuppetCommand()";
 }
 
 } // namespace QmlDesigner

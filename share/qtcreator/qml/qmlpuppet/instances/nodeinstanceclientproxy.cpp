@@ -141,7 +141,7 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
             return command.value<InformationChangedCommand>() == controlCommand.value<InformationChangedCommand>();
         else if (command.userType() == valuesChangedCommandType)
             return command.value<ValuesChangedCommand>() == controlCommand.value<ValuesChangedCommand>();
-        else if (command.userType() == pixmapChangedCommandType)
+         else if (command.userType() == pixmapChangedCommandType)
             return command.value<PixmapChangedCommand>() == controlCommand.value<PixmapChangedCommand>();
         else if (command.userType() == childrenChangedCommandType)
             return command.value<ChildrenChangedCommand>() == controlCommand.value<ChildrenChangedCommand>();
@@ -427,9 +427,9 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int endPuppetCommandType = QMetaType::type("EndPuppetCommand");
 
-    if (command.userType() ==  createInstancesCommandType) {
+    if (command.userType() ==  createInstancesCommandType)
         createInstances(command.value<CreateInstancesCommand>());
-    } else if (command.userType() ==  changeFileUrlCommandType)
+    else if (command.userType() ==  changeFileUrlCommandType)
         changeFileUrl(command.value<ChangeFileUrlCommand>());
     else if (command.userType() ==  createSceneCommandType)
         createScene(command.value<CreateSceneCommand>());

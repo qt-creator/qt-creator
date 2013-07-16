@@ -29,6 +29,8 @@
 
 #include "changeauxiliarycommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ChangeAuxiliaryCommand::ChangeAuxiliaryCommand()
@@ -57,6 +59,11 @@ QDataStream &operator>>(QDataStream &in, ChangeAuxiliaryCommand &command)
     in >> command.m_auxiliaryChangeVector;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const ChangeAuxiliaryCommand &command)
+{
+    return debug.nospace() << "ChangeAuxiliaryCommand(auxiliaryChanges: " << command.m_auxiliaryChangeVector << ")";
 }
 
 } // namespace QmlDesigner

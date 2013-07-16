@@ -56,6 +56,7 @@ QDataStream &operator<<(QDataStream &out, const PixmapChangedCommand &command);
 QDataStream &operator>>(QDataStream &in, PixmapChangedCommand &command);
 
 bool operator ==(const PixmapChangedCommand &first, const PixmapChangedCommand &second);
+QDebug operator <<(QDebug debug, const PixmapChangedCommand &command);
 
 } // namespace QmlDesigner
 

@@ -29,6 +29,8 @@
 
 #include "synchronizecommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 SynchronizeCommand::SynchronizeCommand()
@@ -64,6 +66,11 @@ QDataStream &operator>>(QDataStream &in, SynchronizeCommand &command)
 bool operator ==(const SynchronizeCommand &first, const SynchronizeCommand &second)
 {
     return first.m_synchronizeId == second.m_synchronizeId;
+}
+
+QDebug operator <<(QDebug debug, const SynchronizeCommand &command)
+{
+    return debug.nospace() << "SynchronizeCommand(synchronizeId: " << command.synchronizeId() << ")";
 }
 
 } // namespace QmlDesigner

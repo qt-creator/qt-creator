@@ -29,6 +29,8 @@
 
 #include "statepreviewimagechangedcommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 StatePreviewImageChangedCommand::StatePreviewImageChangedCommand()
@@ -67,6 +69,12 @@ QDataStream &operator>>(QDataStream &in, StatePreviewImageChangedCommand &comman
 bool operator ==(const StatePreviewImageChangedCommand &first, const StatePreviewImageChangedCommand &second)
 {
     return first.m_previewVector == second.m_previewVector;
+}
+
+QDebug operator <<(QDebug debug, const StatePreviewImageChangedCommand &command)
+{
+    return debug.nospace() << "StatePreviewImageChangedCommand(" << command.previews() << ")";
+
 }
 
 } // namespace QmlDesigner

@@ -61,6 +61,7 @@ QDataStream &operator<<(QDataStream &out, const ChildrenChangedCommand &command)
 QDataStream &operator>>(QDataStream &in, ChildrenChangedCommand &command);
 
 bool operator ==(const ChildrenChangedCommand &first, const ChildrenChangedCommand &second);
+QDebug operator <<(QDebug debug, const ChildrenChangedCommand &command);
 
 } // namespace QmlDesigner
 

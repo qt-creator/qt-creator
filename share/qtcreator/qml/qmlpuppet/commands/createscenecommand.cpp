@@ -29,6 +29,8 @@
 
 #include "createscenecommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 CreateSceneCommand::CreateSceneCommand()
@@ -120,6 +122,19 @@ QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command)
     in >> command.m_fileUrl;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const CreateSceneCommand &command)
+{
+    return debug.nospace() << "CreateSceneCommand("
+                    << "instances: " << command.instances() << ", "
+                    << "reparentInstances: " << command.reparentInstances() << ", "
+                    << "ids: " << command.ids() << ", "
+                    << "valueChanges: " << command.valueChanges() << ", "
+                    << "bindingChanges: " << command.bindingChanges() << ", "
+                    << "auxiliaryChanges: " << command.auxiliaryChanges() << ", "
+                    << "imports: " << command.imports() << ", "
+                    << "fileUrl: " << command.fileUrl() << ")";
 }
 
 }

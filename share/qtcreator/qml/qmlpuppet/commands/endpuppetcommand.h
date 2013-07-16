@@ -42,6 +42,8 @@ public:
 QDataStream &operator<<(QDataStream &out, const EndPuppetCommand &command);
 QDataStream &operator>>(QDataStream &in, EndPuppetCommand &command);
 
+QDebug operator <<(QDebug debug, const EndPuppetCommand &command);
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::EndPuppetCommand)

@@ -40,6 +40,7 @@ namespace QmlDesigner {
 class ChangeValuesCommand
 {
     friend QDataStream &operator>>(QDataStream &in, ChangeValuesCommand &command);
+    friend QDebug operator <<(QDebug debug, const ChangeValuesCommand &command);
 
 public:
     ChangeValuesCommand();
@@ -53,6 +54,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const ChangeValuesCommand &command);
 QDataStream &operator>>(QDataStream &in, ChangeValuesCommand &command);
+
+QDebug operator <<(QDebug debug, const ChangeValuesCommand &command);
 
 } // namespace QmlDesigner
 

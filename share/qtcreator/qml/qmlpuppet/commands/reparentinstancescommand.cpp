@@ -30,6 +30,7 @@
 #include "reparentinstancescommand.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -60,6 +61,11 @@ QDataStream &operator>>(QDataStream &in, ReparentInstancesCommand &command)
     in >> command.m_reparentInstanceVector;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const ReparentInstancesCommand &command)
+{
+    return debug.nospace() << "ReparentInstancesCommand(reparentInstances: " << command.m_reparentInstanceVector << ")";
 }
 
 } // namespace QmlDesigner

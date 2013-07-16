@@ -30,6 +30,7 @@
 #include "reparentcontainer.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -98,6 +99,26 @@ QDataStream &operator>>(QDataStream &in, ReparentContainer &container)
     in >> container.m_newParentProperty;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const ReparentContainer &container)
+{
+    debug.nospace() << "ReparentContainer("
+                    << "instanceId: " << container.instanceId();
+
+    if (container.oldParentInstanceId() >= 0)
+        debug.nospace() << ", " << "oldParentInstanceId: " << container.oldParentInstanceId();
+
+    if (container.oldParentProperty().isEmpty())
+        debug.nospace() << ", " << "oldParentProperty: " << container.oldParentProperty();
+
+    if (container.newParentInstanceId() >= 0)
+        debug.nospace() << ", " << "newParentInstanceId: " << container.newParentInstanceId();
+
+    if (container.newParentProperty().isEmpty())
+        debug.nospace() << ", " << "newParentProperty: " << container.newParentProperty();
+
+    return debug.nospace() << ")";
 }
 
 } // namespace QmlDesigner

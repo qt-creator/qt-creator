@@ -105,5 +105,19 @@ bool operator <(const PropertyValueContainer &first, const PropertyValueContaine
         || (first.m_instanceId == second.m_instanceId && first.m_name < second.m_name);
 }
 
+QDebug operator <<(QDebug debug, const PropertyValueContainer &container)
+{
+    debug.nospace() << "PropertyValueContainer("
+                    << "instanceId: " << container.instanceId() << ", "
+                    << "name: " << container.name() << ", "
+                    << "value: " << container.value();
+
+    if (!container.dynamicTypeName().isEmpty())
+        debug.nospace() << ", " << "dynamicTypeName: " << container.dynamicTypeName();
+
+    debug.nospace() << ")";
+
+    return debug;
+}
 
 } // namespace QmlDesigner

@@ -54,6 +54,8 @@ private:
 QDataStream &operator<<(QDataStream &out, const CreateInstancesCommand &command);
 QDataStream &operator>>(QDataStream &in, CreateInstancesCommand &command);
 
+QDebug operator <<(QDebug debug, const CreateInstancesCommand &command);
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::CreateInstancesCommand)

@@ -40,6 +40,7 @@ namespace QmlDesigner {
 class ReparentInstancesCommand
 {
     friend QDataStream &operator>>(QDataStream &in, ReparentInstancesCommand &command);
+    friend QDebug operator <<(QDebug debug, const ReparentInstancesCommand &command);
 
 public:
     ReparentInstancesCommand();
@@ -53,6 +54,8 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const ReparentInstancesCommand &command);
 QDataStream &operator>>(QDataStream &in, ReparentInstancesCommand &command);
+
+QDebug operator <<(QDebug debug, const ReparentInstancesCommand &command);
 
 } //
 

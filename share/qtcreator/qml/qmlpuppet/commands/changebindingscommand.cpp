@@ -29,6 +29,8 @@
 
 #include "changebindingscommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ChangeBindingsCommand::ChangeBindingsCommand()
@@ -58,4 +60,10 @@ QDataStream &operator>>(QDataStream &in, ChangeBindingsCommand &command)
 
     return in;
 }
+
+QDebug operator <<(QDebug debug, const ChangeBindingsCommand &command)
+{
+    return debug.nospace() << "PropertyValueContainer(bindingChanges: " << command.m_bindingChangeVector << ")";
+}
+
 } // namespace QmlDesigner

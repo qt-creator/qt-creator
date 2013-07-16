@@ -30,6 +30,7 @@
 #include "createinstancescommand.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -59,6 +60,11 @@ QDataStream &operator>>(QDataStream &in, CreateInstancesCommand &command)
     in >> command.m_instanceVector;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const CreateInstancesCommand &command)
+{
+    return debug.nospace() << "CreateInstancesCommand(" << command.instances() << ")";
 }
 
 } // namespace QmlDesigner

@@ -62,6 +62,8 @@ private:
 QDataStream &operator<<(QDataStream &out, const PropertyBindingContainer &container);
 QDataStream &operator>>(QDataStream &in, PropertyBindingContainer &container);
 
+QDebug operator <<(QDebug debug, const PropertyBindingContainer &container);
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::PropertyBindingContainer)

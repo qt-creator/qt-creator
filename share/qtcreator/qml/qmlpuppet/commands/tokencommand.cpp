@@ -30,6 +30,7 @@
 #include "tokencommand.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -87,6 +88,14 @@ bool operator ==(const TokenCommand &first, const TokenCommand &second)
     return first.m_tokenNumber == second.m_tokenNumber
             && first.m_tokenNumber == second.m_tokenNumber
             && first.m_instanceIdVector == second.m_instanceIdVector;
+}
+
+QDebug operator <<(QDebug debug, const TokenCommand &command)
+{
+    return debug.nospace() << "TokenCommand("
+                           << "tokenName: " << command.tokenName() << ", "
+                           << "tokenNumber: " << command.tokenNumber() << ", "
+                           << "instances: " << command.instances() << ")";
 }
 
 } // namespace QmlDesigner

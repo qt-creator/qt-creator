@@ -30,6 +30,8 @@
 
 #include "debugoutputcommand.h"
 
+#include <QtDebug>
+
 namespace QmlDesigner {
 
 DebugOutputCommand::DebugOutputCommand()
@@ -72,6 +74,13 @@ bool operator ==(const DebugOutputCommand &first, const DebugOutputCommand &seco
 {
     return first.m_type == second.m_type
             && second.m_text == second.m_text;
+}
+
+QDebug operator <<(QDebug debug, const DebugOutputCommand &command)
+{
+        return debug.nospace() << "DebugOutputCommand("
+                               << "type: " << command.type() << ", "
+                               << "text: " << command.text() << ")";
 }
 
 } // namespace QmlDesigner

@@ -29,6 +29,8 @@
 
 #include "idcontainer.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 IdContainer::IdContainer()
@@ -67,4 +69,12 @@ QDataStream &operator>>(QDataStream &in, IdContainer &container)
 
     return in;
 }
+
+QDebug operator <<(QDebug debug, const IdContainer &container)
+{
+    return debug.nospace() << "IdContainer("
+                    << "instanceId: " << container.instanceId() << ", "
+                    << "id: " << container.id() << ")";
+}
+
 } // namespace QmlDesigner

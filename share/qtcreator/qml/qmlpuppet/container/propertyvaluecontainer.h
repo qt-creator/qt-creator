@@ -67,6 +67,7 @@ QDataStream &operator>>(QDataStream &in, PropertyValueContainer &container);
 
 bool operator ==(const PropertyValueContainer &first, const PropertyValueContainer &second);
 bool operator <(const PropertyValueContainer &first, const PropertyValueContainer &second);
+QDebug operator <<(QDebug debug, const PropertyValueContainer &container);
 
 } // namespace QmlDesigner
 

@@ -56,6 +56,7 @@ QDataStream &operator<<(QDataStream &out, const SynchronizeCommand &command);
 QDataStream &operator>>(QDataStream &in, SynchronizeCommand &command);
 
 bool operator ==(const SynchronizeCommand &first, const SynchronizeCommand &second);
+QDebug operator <<(QDebug debug, const SynchronizeCommand &command);
 
 } // namespace QmlDesigner
 

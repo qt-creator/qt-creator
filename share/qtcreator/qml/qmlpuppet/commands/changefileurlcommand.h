@@ -52,6 +52,8 @@ private:
 QDataStream &operator<<(QDataStream &out, const ChangeFileUrlCommand &command);
 QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command);
 
+QDebug operator <<(QDebug debug, const ChangeFileUrlCommand &command);
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChangeFileUrlCommand)

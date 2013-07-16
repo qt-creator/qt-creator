@@ -29,6 +29,8 @@
 
 #include "changestatecommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ChangeStateCommand::ChangeStateCommand()
@@ -58,6 +60,11 @@ QDataStream &operator>>(QDataStream &in, ChangeStateCommand &command)
     in >> command.m_stateInstanceId;
 
     return in;
+}
+
+QDebug operator <<(QDebug debug, const ChangeStateCommand &command)
+{
+    return debug.nospace() << "ChangeStateCommand(stateInstanceId: " << command.m_stateInstanceId << ")";
 }
 
 } // namespace QmlDesigner
