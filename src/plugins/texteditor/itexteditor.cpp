@@ -38,28 +38,28 @@ ITextEditorDocument::ITextEditorDocument(QObject *parent)
 {
 }
 
-QMap<QString, QString> ITextEditor::openedTextEditorsContents()
+QMap<QString, QString> ITextEditor::openedTextDocumentContents()
 {
     QMap<QString, QString> workingCopy;
-    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors()) {
-        ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
-        if (!textEditor)
+    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+        ITextEditorDocument *textEditorDocument = qobject_cast<ITextEditorDocument *>(document);
+        if (!textEditorDocument)
             continue;
-        QString fileName = textEditor->document()->filePath();
-        workingCopy[fileName] = textEditor->textDocument()->contents();
+        QString fileName = textEditorDocument->filePath();
+        workingCopy[fileName] = textEditorDocument->contents();
     }
     return workingCopy;
 }
 
-QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextEditorsEncodings()
+QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextDocumentEncodings()
 {
     QMap<QString, QTextCodec *> workingCopy;
-    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors()) {
-        ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
-        if (!textEditor)
+    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+        ITextEditorDocument *textEditorDocument = qobject_cast<ITextEditorDocument *>(document);
+        if (!textEditorDocument)
             continue;
-        QString fileName = textEditor->document()->filePath();
-        workingCopy[fileName] = const_cast<QTextCodec *>(textEditor->textDocument()->codec());
+        QString fileName = textEditorDocument->filePath();
+        workingCopy[fileName] = const_cast<QTextCodec *>(textEditorDocument->codec());
     }
     return workingCopy;
 }

@@ -85,7 +85,7 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
     foreach (const QString &filter, nameFilters) {
         filterRegs << QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
     }
-    QMap<QString, QTextCodec *> openEditorEncodings = TextEditor::ITextEditor::openedTextEditorsEncodings();
+    QMap<QString, QTextCodec *> openEditorEncodings = TextEditor::ITextEditor::openedTextDocumentEncodings();
     QMap<QString, QTextCodec *> encodings;
     foreach (const Project *project, projects) {
         QStringList projectFiles = project->files(Project::AllFiles);

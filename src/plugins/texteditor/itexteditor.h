@@ -111,8 +111,8 @@ public:
 
     virtual const Utils::CommentDefinition* commentDefinition() const = 0;
 
-    static QMap<QString, QString> openedTextEditorsContents();
-    static QMap<QString, QTextCodec *> openedTextEditorsEncodings();
+    static QMap<QString, QString> openedTextDocumentContents();
+    static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
 
     enum MarkRequestKind {
         BreakpointRequest,

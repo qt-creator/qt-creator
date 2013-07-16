@@ -173,12 +173,12 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
         watcher->setFuture(Utils::findInFilesRegExp(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            ITextEditor::openedTextEditorsContents()));
+            ITextEditor::openedTextDocumentContents()));
     } else {
         watcher->setFuture(Utils::findInFiles(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            ITextEditor::openedTextEditorsContents()));
+            ITextEditor::openedTextDocumentContents()));
     }
     Core::FutureProgress *progress =
         Core::ICore::progressManager()->addTask(watcher->future(),
