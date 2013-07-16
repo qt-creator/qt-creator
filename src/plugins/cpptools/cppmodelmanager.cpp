@@ -618,21 +618,22 @@ void CppModelManager::deleteEditorSupport(TextEditor::BaseTextEditor *textEditor
         return;
 
     CppEditorSupport *editorSupport;
+    int numberOfOpenEditors = 0;
 
     { // only lock the operations on m_editorSupport
         QMutexLocker locker(&m_editorSupportMutex);
         editorSupport = m_editorSupport.value(textEditor, 0);
         m_editorSupport.remove(textEditor);
+        numberOfOpenEditors = m_editorSupport.size();
     }
 
     delete editorSupport;
 
     ++numberOfClosedEditors;
-    if (numberOfClosedEditors == 5) {
+    if (numberOfOpenEditors == 0 || numberOfClosedEditors == 5) {
         numberOfClosedEditors = 0;
         GC();
     }
-
 }
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor) const
