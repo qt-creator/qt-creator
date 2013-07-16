@@ -77,6 +77,7 @@ public:
     int documentCount() const;
     QList<Entry *> documents() const;
     int indexOfDocument(IDocument *document) const;
+    int indexOfFilePath(const QString &filePath) const;
     Entry *entryForDocument(IDocument *document) const;
     QList<IDocument *> openedDocuments() const;
 
@@ -98,7 +99,6 @@ private slots:
 
 private:
     void addEntry(Entry *entry);
-    int indexofFileName(const QString &filename) const;
     void removeDocument(int idx);
 
     DocumentModelPrivate *d;

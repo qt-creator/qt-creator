@@ -1993,50 +1993,52 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
                                                  const QString &filePath,
                                                  const QString &errorMessage)
 {
-    EditorManager *editorManager = EditorManager::instance();
-    QList<IEditor *> openedEditors = editorManager->openedEditors();
+    DocumentModel *documentModel = EditorManager::documentModel();
+    int index = documentModel->indexOfFilePath(filePath);
+    if (index < 0 || !documentModel->documents().at(index)->document)
+            return;
+    QList<IEditor *> editors = documentModel->editorsForDocument(
+                documentModel->documents().at(index)->document);
 
     // set up the format for the errors
     QTextCharFormat errorFormat;
     errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
     errorFormat.setUnderlineColor(Qt::red);
 
-    foreach (IEditor *editor, openedEditors) {
-        if (editor->document()->filePath() == filePath) {
-            TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
-            if (!ed)
-                continue;
+    foreach (IEditor *editor, editors) {
+        TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+        if (!ed)
+            continue;
 
-            QList<QTextEdit::ExtraSelection> selections;
-            QTextEdit::ExtraSelection sel;
-            sel.format = errorFormat;
-            QTextCursor c(ed->document()->findBlockByNumber(lineNumber - 1));
-            const QString text = c.block().text();
-            for (int i = 0; i < text.size(); ++i) {
-                if (! text.at(i).isSpace()) {
-                    c.setPosition(c.position() + i);
-                    break;
-                }
+        QList<QTextEdit::ExtraSelection> selections;
+        QTextEdit::ExtraSelection sel;
+        sel.format = errorFormat;
+        QTextCursor c(ed->document()->findBlockByNumber(lineNumber - 1));
+        const QString text = c.block().text();
+        for (int i = 0; i < text.size(); ++i) {
+            if (! text.at(i).isSpace()) {
+                c.setPosition(c.position() + i);
+                break;
             }
-            c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-            sel.cursor = c;
-
-            sel.format.setToolTip(errorMessage);
-
-            selections.append(sel);
-            ed->setExtraSelections(TextEditor::BaseTextEditorWidget::DebuggerExceptionSelection, selections);
-
-            QString message = QString(_("%1: %2: %3")).arg(filePath).arg(lineNumber)
-                    .arg(errorMessage);
-            d->engine->showMessage(message, ConsoleOutput);
         }
+        c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        sel.cursor = c;
+
+        sel.format.setToolTip(errorMessage);
+
+        selections.append(sel);
+        ed->setExtraSelections(TextEditor::BaseTextEditorWidget::DebuggerExceptionSelection, selections);
+
+        QString message = QString(_("%1: %2: %3")).arg(filePath).arg(lineNumber)
+                .arg(errorMessage);
+        d->engine->showMessage(message, ConsoleOutput);
     }
 }
 
 void QmlV8DebuggerClient::clearExceptionSelection()
 {
-    EditorManager *editorManager = EditorManager::instance();
-    QList<IEditor *> openedEditors = editorManager->openedEditors();
+    DocumentModel *documentModel = EditorManager::documentModel();
+    QList<IEditor *> openedEditors = documentModel->editorsForDocuments(documentModel->openedDocuments());
     QList<QTextEdit::ExtraSelection> selections;
 
     foreach (IEditor *editor, openedEditors) {

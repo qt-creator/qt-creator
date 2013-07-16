@@ -163,7 +163,7 @@ void DocumentModel::addEntry(Entry *entry)
     QString fileName = entry->fileName();
 
     // replace a non-loaded entry (aka 'restored') if possible
-    int previousIndex = indexofFileName(fileName);
+    int previousIndex = indexOfFilePath(fileName);
     if (previousIndex >= 0) {
         if (entry->document && d->m_documents.at(previousIndex)->document == 0) {
             Entry *previousEntry = d->m_documents.at(previousIndex);
@@ -190,12 +190,12 @@ void DocumentModel::addEntry(Entry *entry)
     endInsertRows();
 }
 
-int DocumentModel::indexofFileName(const QString &filename) const
+int DocumentModel::indexOfFilePath(const QString &filePath) const
 {
-    if (filename.isEmpty())
+    if (filePath.isEmpty())
         return -1;
     for (int i = 0; i < d->m_documents.count(); ++i) {
-        if (d->m_documents.at(i)->fileName() == filename)
+        if (d->m_documents.at(i)->fileName() == filePath)
             return i;
     }
     return -1;
@@ -226,7 +226,7 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
 
 void DocumentModel::removeDocument(const QString &fileName)
 {
-    int index = indexofFileName(fileName);
+    int index = indexOfFilePath(fileName);
     QTC_ASSERT(!d->m_documents.at(index)->document, return); // we wouldn't know what to do with the associated editors
     removeDocument(index);
 }
