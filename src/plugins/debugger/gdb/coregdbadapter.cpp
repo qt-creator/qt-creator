@@ -150,9 +150,9 @@ void GdbCoreEngine::continueSetupEngine()
             }
         }
     }
-    if (isCore)
+    if (isCore) {
         startGdb();
-    else {
+    } else {
         showMessageBox(QMessageBox::Warning,
             tr("Error Loading Core File"),
             tr("The specified file does not appear to be a core file."));

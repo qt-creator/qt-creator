@@ -860,9 +860,8 @@ QRect QStyleItem::subControlRect(const QString &subcontrolString)
                 subcontrol = QStyle::SC_SpinBoxDown;
             else if (subcontrolString == QLatin1String("up"))
                 subcontrol = QStyle::SC_SpinBoxUp;
-            else if (subcontrolString == QLatin1String("edit")){
+            else if (subcontrolString == QLatin1String("edit"))
                 subcontrol = QStyle::SC_SpinBoxEditField;
-            }
             return qApp->style()->subControlRect(control,
                                                  qstyleoption_cast<QStyleOptionComplex*>(m_styleoption),
                                                  subcontrol, widget());

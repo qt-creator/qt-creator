@@ -303,7 +303,7 @@ struct CanonicalSymbol
                 if (classId && classId->isEqualTo(declId))
                     continue; // skip it, it's a ctor or a dtor.
 
-                else if (Function *funTy = r.declaration()->type()->asFunctionType()) {
+                if (Function *funTy = r.declaration()->type()->asFunctionType()) {
                     if (funTy->isVirtual())
                         return r.declaration();
                 }
@@ -1481,10 +1481,9 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
                     int depth = 0;
 
                     for (; j < tokens.size(); ++j) {
-                        if (tokens.at(j).is(T_LPAREN))
+                        if (tokens.at(j).is(T_LPAREN)) {
                             ++depth;
-
-                        else if (tokens.at(j).is(T_RPAREN)) {
+                        } else if (tokens.at(j).is(T_RPAREN)) {
                             if (! --depth)
                                 break;
                         }
@@ -1576,15 +1575,13 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
         const QChar ch = document()->characterAt(pos);
         if (ch.isSpace())
             continue;
-        else {
-            if (ch == QLatin1Char('(') && ! expression.isEmpty()) {
-                tc.setPosition(pos);
-                if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true))
-                    expression.append(tc.selectedText());
-            }
-
-            break;
+        if (ch == QLatin1Char('(') && ! expression.isEmpty()) {
+            tc.setPosition(pos);
+            if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true))
+                expression.append(tc.selectedText());
         }
+
+        break;
     }
 
     TypeOfExpression typeOfExpression;
@@ -2070,9 +2067,8 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     if (! m_renameSelections.isEmpty())
         setExtraSelections(CodeSemanticsSelection, m_renameSelections); // ###
-    else {
+    else
         markSymbols(textCursor(), semanticInfo);
-    }
 
     m_lastSemanticInfo.forced = false; // clear the forced flag
 

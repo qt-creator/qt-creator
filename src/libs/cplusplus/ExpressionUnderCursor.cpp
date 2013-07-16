@@ -263,19 +263,20 @@ int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor) const
     forever {
         const Token &tk = scanner[index - 1];
 
-        if (tk.is(T_EOF_SYMBOL))
+        if (tk.is(T_EOF_SYMBOL)) {
             break;
-        else if (tk.is(T_LPAREN))
+        } else if (tk.is(T_LPAREN)) {
             return scanner.startPosition() + tk.begin();
-        else if (tk.is(T_RPAREN)) {
+        } else if (tk.is(T_RPAREN)) {
             int matchingBrace = scanner.startOfMatchingBrace(index);
 
             if (matchingBrace == index) // If no matching brace found
                 return -1;
 
             index = matchingBrace;
-        } else
+        } else {
             --index;
+        }
     }
 
     return -1;

@@ -464,7 +464,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
-    } else
+    } else {
         Q_ASSERT(false);
+    }
 }
 } // namespace QmlDesigner

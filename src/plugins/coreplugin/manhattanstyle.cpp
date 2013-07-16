@@ -274,18 +274,16 @@ void ManhattanStyle::polish(QWidget *widget)
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
             widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
-        }
-        else if (qobject_cast<QLineEdit*>(widget)) {
+        } else if (qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
             widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
-        }
-        else if (qobject_cast<QLabel*>(widget))
+        } else if (qobject_cast<QLabel*>(widget)) {
             widget->setPalette(panelPalette(widget->palette()));
-        else if (widget->property("panelwidget_singlerow").toBool())
+        } else if (widget->property("panelwidget_singlerow").toBool()) {
             widget->setFixedHeight(Utils::StyleHelper::navigationWidgetHeight());
-        else if (qobject_cast<QStatusBar*>(widget))
+        } else if (qobject_cast<QStatusBar*>(widget)) {
             widget->setFixedHeight(Utils::StyleHelper::navigationWidgetHeight() + 2);
-        else if (qobject_cast<QComboBox*>(widget)) {
+        } else if (qobject_cast<QComboBox*>(widget)) {
             widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
             widget->setAttribute(Qt::WA_Hover);
         }

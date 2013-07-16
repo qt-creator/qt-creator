@@ -699,9 +699,9 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorShutdownOk: {
-            if (state() == InferiorShutdownRequested)
+            if (state() == InferiorShutdownRequested) {
                 notifyInferiorShutdownOk();
-            else {
+            } else {
                 // we got InferiorExitOk before, but ignored it ...
                 notifyInferiorExited();
             }

@@ -98,8 +98,7 @@ void OutputGenerator::produceRuntimeError()
         int i = 1 / zero;
         Q_UNUSED(i);
         Q_ASSERT(false);
-    }
-    else if (m_garbage) {
+    } else if (m_garbage) {
         std::cerr << "Writing garbage" << std::endl;
         blockingWrite(m_output, "<</GARBAGE = '\"''asdfaqre");
         m_output->flush();

@@ -84,9 +84,9 @@ void ManageDefinitionsDialog::populateDefinitionsWidget()
 
         for (int j = 0; j < 3; ++j) {
             QTableWidgetItem *item = new QTableWidgetItem;
-            if (j == 0)
+            if (j == 0) {
                 item->setText(downloadData.name);
-            else if (j == 1) {
+            } else if (j == 1) {
                 item->setText(dirVersion);
                 item->setTextAlignment(Qt::AlignCenter);
             } else if (j == 2) {

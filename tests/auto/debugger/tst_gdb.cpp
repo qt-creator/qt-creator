@@ -210,9 +210,9 @@ QString niceType(QString type)
             QRegExp re5(QString("map<%1, %2, std::less<%3>, %4\\s*>")
                 .arg(key, value, key, alloc));
             re5.setMinimal(true);
-            if (re5.indexIn(type) != -1)
+            if (re5.indexIn(type) != -1) {
                 type.replace(re5.cap(0), QString("map<%1, %2>").arg(key, value));
-            else {
+            } else {
                 QRegExp re7(QString("map<const %1, %2, std::less<const %3>, %4\\s*>")
                     .arg(key, value, key, alloc));
                 re7.setMinimal(true);

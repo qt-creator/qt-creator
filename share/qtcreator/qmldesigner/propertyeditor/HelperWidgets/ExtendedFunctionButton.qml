@@ -38,9 +38,9 @@ AnimatedToolButton {
     hoverIconFromFile: "images/submenu.png";
 
     function setIcon() {
-        if (backendValue == null)
+        if (backendValue == null) {
             extendedFunctionButton.iconFromFile = "images/placeholder.png"
-        else if (backendValue.isBound ) {
+        } else if (backendValue.isBound ) {
             if (backendValue.isTranslated) { //translations are a special case
                 extendedFunctionButton.iconFromFile = "images/placeholder.png"
             } else {

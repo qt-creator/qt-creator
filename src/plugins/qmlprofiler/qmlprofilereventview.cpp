@@ -970,8 +970,7 @@ void QmlProfilerEventsParentsAndChildrenView::displayEvent(int eventId)
             if (isChildren) {
                 QList <QV8EventSub *> childrenList = v8event->childrenHash.values();
                 rebuildTree((QObject *)&childrenList);
-            }
-            else {
+            } else {
                 QList <QV8EventSub *> parentList = v8event->parentHash.values();
                 rebuildTree((QObject *)&parentList);
             }
@@ -982,8 +981,7 @@ void QmlProfilerEventsParentsAndChildrenView::displayEvent(int eventId)
             if (isChildren) {
                 QList <QmlRangeEventRelative *> childrenList = qmlEvent->childrenHash.values();
                 rebuildTree((QObject *)&childrenList);
-            }
-            else {
+            } else {
                 QList <QmlRangeEventRelative *> parentList = qmlEvent->parentHash.values();
                 rebuildTree((QObject *)&parentList);
             }

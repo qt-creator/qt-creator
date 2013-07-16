@@ -676,9 +676,9 @@ void Target::updateDefaultRunConfigurations()
 
     // Make sure a configured RC is active:
     if (activeRunConfiguration() && !activeRunConfiguration()->isConfigured()) {
-        if (!existingConfigured.isEmpty())
+        if (!existingConfigured.isEmpty()) {
             setActiveRunConfiguration(existingConfigured.at(0));
-        else if (!newConfigured.isEmpty()) {
+        } else if (!newConfigured.isEmpty()) {
             RunConfiguration *selected = newConfigured.at(0);
             // Try to find a runconfiguration that matches the project name. That is a good
             // candidate for something to run initially.

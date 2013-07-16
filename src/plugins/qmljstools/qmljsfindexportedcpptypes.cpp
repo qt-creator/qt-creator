@@ -309,9 +309,8 @@ protected:
             if (QString::fromUtf8(id->chars(), id->size()) != QLatin1String("QVariant"))
                 return ast;
             return call->expression_list->value;
-        }
         // QVariant::fromValue(foo) -> foo
-        else if (QualifiedNameAST *q = idExp->name->asQualifiedName()) {
+        } else if (QualifiedNameAST *q = idExp->name->asQualifiedName()) {
             SimpleNameAST *simpleRhsName = q->unqualified_name->asSimpleName();
             if (!simpleRhsName
                     || !q->nested_name_specifier_list

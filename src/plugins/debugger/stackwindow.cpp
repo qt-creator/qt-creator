@@ -182,9 +182,9 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (!act)
         return;
 
-    if (act == actCopyContents)
+    if (act == actCopyContents) {
         copyContentsToClipboard();
-    else if (act == actShowMemory) {
+    } else if (act == actShowMemory) {
         const QString title = tr("Memory at Frame #%1 (%2) 0x%3").
         arg(row).arg(frame.function).arg(address, 0, 16);
         QList<MemoryMarkup> ml;

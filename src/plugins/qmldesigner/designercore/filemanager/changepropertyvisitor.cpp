@@ -115,9 +115,8 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
             }
 
             break;
-        }
         // for grouped properties:
-        else if (!prefix.isEmpty()) {
+        } else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
                 if (toString(def->qualifiedTypeNameId) == prefix)
                     replaceInMembers(def->initializer, suffix);

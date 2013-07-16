@@ -44,11 +44,11 @@ QString CGI::encodeURL(const QString &rawText)
         const char ch = *it;
         if (('A' <= ch && ch <= 'Z')
             || ('a' <= ch && ch <= 'z')
-            || ('0' <= ch && ch <= '9'))
+            || ('0' <= ch && ch <= '9')) {
             enc.append(QLatin1Char(ch));
-        else if (ch == ' ')
+        } else if (ch == ' ') {
             enc.append(QLatin1Char('+'));
-        else {
+        } else {
             switch (ch) {
             case '-': case '_':
             case '(': case ')':

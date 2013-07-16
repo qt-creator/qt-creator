@@ -176,7 +176,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
             foreach (Function *fun, viableFunctions) {
                 if (! (fun->unqualifiedName() && fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName())))
                     continue;
-                else if (fun->argumentCount() == declarationTy->argumentCount()) {
+                if (fun->argumentCount() == declarationTy->argumentCount()) {
                     if (! strict && ! best)
                         best = fun;
 
@@ -287,13 +287,9 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
             continue;
 
         for (Symbol *s = scope->find(funcId); s; s = s->next()) {
-            if (! s->name())
+            if (! s->name() || ! funcId->isEqualTo(s->identifier()) || ! s->type()->isFunctionType())
                 continue;
-            else if (! funcId->isEqualTo(s->identifier()))
-                continue;
-            else if (! s->type()->isFunctionType())
-                continue;
-            else if (Declaration *decl = s->asDeclaration()) {
+            if (Declaration *decl = s->asDeclaration()) {
                 if (Function *declFunTy = decl->type()->asFunctionType()) {
                     if (functionType->isEqualTo(declFunTy))
                         typeMatch->prepend(decl);

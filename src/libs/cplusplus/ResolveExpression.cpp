@@ -576,16 +576,14 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                 if (n == 0) {
                     item.setType(newType);
                     item.setScope(typeItems[n].scope());
-                }
-                else {
+                } else {
                     LookupItem newItem(item);
                     newItem.setType(newType);
                     newItem.setScope(typeItems[n].scope());
                     newCandidates.push_back(newItem);
                 }
             }
-        }
-        else {
+        } else {
             item.setType(item.declaration()->type());
             item.setScope(item.declaration()->enclosingScope());
         }

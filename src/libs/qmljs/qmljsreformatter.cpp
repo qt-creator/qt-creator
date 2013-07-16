@@ -255,14 +255,13 @@ protected:
             qreal result = badnessFromSplits;
             foreach (const QString &line, lines) {
                 // really long lines should be avoided at all cost
-                if (line.size() > strongMaxLineLength)
+                if (line.size() > strongMaxLineLength) {
                     result += 50 + (line.size() - strongMaxLineLength);
                 // having long lines is bad
-                else if (line.size() > maxLineLength) {
+                } else if (line.size() > maxLineLength) {
                     result += 3 + (line.size() - maxLineLength);
-                }
                 // and even ok-sized lines should have a cost
-                else {
+                } else {
                     result += 1;
                 }
 

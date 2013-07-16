@@ -145,8 +145,7 @@ public:
             if (option->rect.height() == 0) {
                 if (option->rect.top()>0)
                     painter->drawLine(rect.topLeft(), rect.topRight());
-            }
-            else {
+            } else {
                 highlight.setAlphaF(0.2);
                 painter->setBrush(highlight);
                 painter->drawRect(rect.adjusted(0, 0, -1, -1));
@@ -280,8 +279,7 @@ void NameItemDelegate::paint(QPainter *painter,
         displayString = fm.elidedText(displayString,Qt::ElideMiddle,option.rect.width()-extraSpace);
         displayStringOffset = QPoint(5+pixmapSide,-5);
         width = fm.width(displayString);
-    }
-    else {
+    } else {
         displayString = index.data(Qt::DisplayRole).toString();
         displayStringOffset = QPoint(0, -2);
     }

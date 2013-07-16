@@ -111,18 +111,16 @@ void Preprocessor::scanActualArgument(Token *tk, std::vector<Token> *tokens)
     int count = 0;
 
     while (tk->isNot(T_EOF_SYMBOL)) {
-        if (tk->is(T_LPAREN))
+        if (tk->is(T_LPAREN)) {
             ++count;
-
-        else if (tk->is(T_RPAREN)) {
+        } else if (tk->is(T_RPAREN)) {
             if (! count)
                 break;
 
             --count;
-        }
-
-        else if (! count && tk->is(T_COMMA))
+        } else if (! count && tk->is(T_COMMA)) {
             break;
+        }
 
         tokens->push_back(*tk);
         lex(tk);
@@ -165,9 +163,9 @@ _Lclassify:
                     for (size_t i = 0; i < body.size(); ++i) {
                         const Token &token = body[i];
 
-                        if (token.isNot(T_IDENTIFIER))
+                        if (token.isNot(T_IDENTIFIER)) {
                             expanded.push_back(token);
-                        else {
+                        } else {
                             const StringRef id = asStringRef(token);
                             size_t j = 0;
                             for (; j < macro->formals.size(); ++j) {
@@ -309,10 +307,9 @@ void Preprocessor::run(const char *source, unsigned size)
         lex(&tk);
 
         if (lineno != tk.lineno) {
-            if (lineno > tk.lineno || tk.lineno - lineno > 3)
+            if (lineno > tk.lineno || tk.lineno - lineno > 3) {
                 out << std::endl << "#line " << tk.lineno << " \"" << _currentFileName << "\"" << std::endl;
-
-            else {
+            } else {
                 for (unsigned i = lineno; i < tk.lineno; ++i)
                     out << std::endl;
             }

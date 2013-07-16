@@ -1424,55 +1424,44 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
     QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
 
-    if (e == QKeySequence::MoveToNextChar)
+    if (e == QKeySequence::MoveToNextChar) {
             op = QTextCursor::Right;
-    else if (e == QKeySequence::MoveToPreviousChar)
+    } else if (e == QKeySequence::MoveToPreviousChar) {
             op = QTextCursor::Left;
-    else if (e == QKeySequence::SelectNextChar) {
+    } else if (e == QKeySequence::SelectNextChar) {
            op = QTextCursor::Right;
            mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectPreviousChar) {
+    } else if (e == QKeySequence::SelectPreviousChar) {
             op = QTextCursor::Left;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectNextWord) {
+    } else if (e == QKeySequence::SelectNextWord) {
             op = QTextCursor::WordRight;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectPreviousWord) {
+    } else if (e == QKeySequence::SelectPreviousWord) {
             op = QTextCursor::WordLeft;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectStartOfLine) {
+    } else if (e == QKeySequence::SelectStartOfLine) {
             op = QTextCursor::StartOfLine;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectEndOfLine) {
+    } else if (e == QKeySequence::SelectEndOfLine) {
             op = QTextCursor::EndOfLine;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectStartOfBlock) {
+    } else if (e == QKeySequence::SelectStartOfBlock) {
             op = QTextCursor::StartOfBlock;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectEndOfBlock) {
+    } else if (e == QKeySequence::SelectEndOfBlock) {
             op = QTextCursor::EndOfBlock;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectStartOfDocument) {
+    } else if (e == QKeySequence::SelectStartOfDocument) {
             op = QTextCursor::Start;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectEndOfDocument) {
+    } else if (e == QKeySequence::SelectEndOfDocument) {
             op = QTextCursor::End;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectPreviousLine) {
+    } else if (e == QKeySequence::SelectPreviousLine) {
             op = QTextCursor::Up;
             mode = QTextCursor::KeepAnchor;
-    }
-    else if (e == QKeySequence::SelectNextLine) {
+    } else if (e == QKeySequence::SelectNextLine) {
             op = QTextCursor::Down;
             mode = QTextCursor::KeepAnchor;
             {
@@ -1483,41 +1472,29 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
                     && line.lineNumber() == block.layout()->lineCount() - 1)
                     op = QTextCursor::End;
             }
-    }
-    else if (e == QKeySequence::MoveToNextWord) {
+    } else if (e == QKeySequence::MoveToNextWord) {
             op = QTextCursor::WordRight;
-    }
-    else if (e == QKeySequence::MoveToPreviousWord) {
+    } else if (e == QKeySequence::MoveToPreviousWord) {
             op = QTextCursor::WordLeft;
-    }
-    else if (e == QKeySequence::MoveToEndOfBlock) {
+    } else if (e == QKeySequence::MoveToEndOfBlock) {
             op = QTextCursor::EndOfBlock;
-    }
-    else if (e == QKeySequence::MoveToStartOfBlock) {
+    } else if (e == QKeySequence::MoveToStartOfBlock) {
             op = QTextCursor::StartOfBlock;
-    }
-    else if (e == QKeySequence::MoveToNextLine) {
+    } else if (e == QKeySequence::MoveToNextLine) {
             op = QTextCursor::Down;
-    }
-    else if (e == QKeySequence::MoveToPreviousLine) {
+    } else if (e == QKeySequence::MoveToPreviousLine) {
             op = QTextCursor::Up;
-    }
-    else if (e == QKeySequence::MoveToPreviousLine) {
+    } else if (e == QKeySequence::MoveToPreviousLine) {
             op = QTextCursor::Up;
-    }
-    else if (e == QKeySequence::MoveToStartOfLine) {
+    } else if (e == QKeySequence::MoveToStartOfLine) {
             op = QTextCursor::StartOfLine;
-    }
-    else if (e == QKeySequence::MoveToEndOfLine) {
+    } else if (e == QKeySequence::MoveToEndOfLine) {
             op = QTextCursor::EndOfLine;
-    }
-    else if (e == QKeySequence::MoveToStartOfDocument) {
+    } else if (e == QKeySequence::MoveToStartOfDocument) {
             op = QTextCursor::Start;
-    }
-    else if (e == QKeySequence::MoveToEndOfDocument) {
+    } else if (e == QKeySequence::MoveToEndOfDocument) {
             op = QTextCursor::End;
-    }
-    else {
+    } else {
         return false;
     }
 
@@ -1865,9 +1842,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     }
 
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
-        if (cursorMoveKeyEvent(e))
-            ;
-        else {
+        if (!cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
             bool cursorWithinSnippet = false;
             if (d->m_snippetOverlay->isVisible()
@@ -4001,9 +3976,9 @@ void BaseTextEditorWidget::slotModificationChanged(bool m)
 
 void BaseTextEditorWidget::slotUpdateRequest(const QRect &r, int dy)
 {
-    if (dy)
+    if (dy) {
         d->m_extraArea->scroll(0, dy);
-    else if (r.width() > 4) { // wider than cursor width, not just cursor blinking
+    } else if (r.width() > 4) { // wider than cursor width, not just cursor blinking
         d->m_extraArea->update(0, r.y(), d->m_extraArea->width(), r.height());
         if (!d->m_searchExpr.isEmpty()) {
             const int m = d->m_searchResultOverlay->dropShadowWidth();

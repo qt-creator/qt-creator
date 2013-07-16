@@ -102,8 +102,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     if (m_process->waitForStarted()) {
         connect(m_process, SIGNAL(finished(int)), this, SLOT(done()));
         connect(m_process, SIGNAL(readyRead()), this, SLOT(readData()));
-    }
-    else {
+    } else {
         delete m_process;
         m_process = 0;
         return false;

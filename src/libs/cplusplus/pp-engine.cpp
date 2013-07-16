@@ -1862,12 +1862,11 @@ void Preprocessor::handleElseDirective(PPToken *tk, const PPToken &poundToken)
             else if (m_client && !wasSkipping && startSkipping)
                 startSkippingBlocks(poundToken);
         }
-    }
 #ifndef NO_DEBUG
-    else {
+    } else {
         std::cerr << "*** WARNING #else without #if" << std::endl;
-    }
 #endif // NO_DEBUG
+    }
 }
 
 void Preprocessor::handleEndIfDirective(PPToken *tk, const PPToken &poundToken)
@@ -1930,12 +1929,11 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
             startSkippingBlocks(*tk);
 
         lex(tk); // consume the identifier
-    }
 #ifndef NO_DEBUG
-    else {
+    } else {
         std::cerr << "*** WARNING #ifdef without identifier" << std::endl;
-    }
 #endif // NO_DEBUG
+    }
 }
 
 void Preprocessor::handleUndefDirective(PPToken *tk)
@@ -1948,12 +1946,11 @@ void Preprocessor::handleUndefDirective(PPToken *tk)
         if (m_client && macro)
             m_client->macroAdded(*macro);
         lex(tk); // consume macro name
-    }
 #ifndef NO_DEBUG
-    else {
+    } else {
         std::cerr << "*** WARNING #undef without identifier" << std::endl;
-    }
 #endif // NO_DEBUG
+    }
 }
 
 PPToken Preprocessor::generateToken(enum Kind kind,

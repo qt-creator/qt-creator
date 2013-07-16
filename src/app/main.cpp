@@ -400,12 +400,11 @@ int main(int argc, char **argv)
         QNetworkProxy proxy(QNetworkProxy::HttpProxy, proxyUrl.host(),
                             proxyUrl.port(), proxyUrl.userName(), proxyUrl.password());
         QNetworkProxy::setApplicationProxy(proxy);
-    }
 # if defined(Q_OS_MAC) // unix and mac
-    else {
+    } else {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
-    }
 # endif
+    }
 #else // windows
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 #endif

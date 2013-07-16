@@ -224,15 +224,13 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
 {
     DebuggerLanguages newLanguages = AnyLanguage;
 
-    if (m_engineDebugLanguages != AnyLanguage)
+    if (m_engineDebugLanguages != AnyLanguage) {
         newLanguages = m_engineDebugLanguages;
-    else {
-        if (m_previousRunConfiguration) {
-            if (m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
-                newLanguages |= CppLanguage;
-            if (m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger())
-                newLanguages |= QmlLanguage;
-        }
+    } else if (m_previousRunConfiguration) {
+        if (m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
+            newLanguages |= CppLanguage;
+        if (m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger())
+            newLanguages |= QmlLanguage;
     }
 
     if (newLanguages != m_activeDebugLanguages) {

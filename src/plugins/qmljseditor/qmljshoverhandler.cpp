@@ -379,17 +379,10 @@ void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint 
 {
     if (toolTip().isEmpty())
         Utils::ToolTip::instance()->hide();
-    else {
-        if (m_colorTip.isValid()) {
-            Utils::ToolTip::instance()->show(point,
-                                                  Utils::ColorContent(m_colorTip),
-                                                  editor->widget());
-        } else {
-            Utils::ToolTip::instance()->show(point,
-                                                  Utils::TextContent(toolTip()),
-                                                  editor->widget());
-        }
-    }
+    else if (m_colorTip.isValid())
+        Utils::ToolTip::instance()->show(point, Utils::ColorContent(m_colorTip), editor->widget());
+    else
+        Utils::ToolTip::instance()->show(point, Utils::TextContent(toolTip()), editor->widget());
 }
 
 void HoverHandler::prettyPrintTooltip(const QmlJS::Value *value,

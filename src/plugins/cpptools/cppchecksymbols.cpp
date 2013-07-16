@@ -96,7 +96,7 @@ protected:
     {
         if (! doc)
             return;
-        else if (! processed->contains(doc->globalNamespace())) {
+        if (! processed->contains(doc->globalNamespace())) {
             processed->insert(doc->globalNamespace());
 
             foreach (const Document::Include &i, doc->includes())
@@ -738,7 +738,7 @@ bool CheckSymbols::hasVirtualDestructor(Class *klass) const
     for (Symbol *s = klass->find(id); s; s = s->next()) {
         if (! s->name())
             continue;
-        else if (s->name()->isDestructorNameId()) {
+        if (s->name()->isDestructorNameId()) {
             if (Function *funTy = s->type()->asFunctionType()) {
                 if (funTy->isVirtual() && id->isEqualTo(s->identifier()))
                     return true;
@@ -1335,9 +1335,8 @@ NameAST *CheckSymbols::declaratorId(DeclaratorAST *ast) const
     if (ast && ast->core_declarator) {
         if (NestedDeclaratorAST *nested = ast->core_declarator->asNestedDeclarator())
             return declaratorId(nested->declarator);
-        else if (DeclaratorIdAST *declId = ast->core_declarator->asDeclaratorId()) {
+        if (DeclaratorIdAST *declId = ast->core_declarator->asDeclaratorId())
             return declId->name;
-        }
     }
 
     return 0;

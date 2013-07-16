@@ -264,7 +264,7 @@ private:
             if (! name)
                 return name;
 
-            else if (const Identifier *nameId = name->asNameId()) {
+            if (const Identifier *nameId = name->asNameId()) {
                 const Identifier *id = control()->identifier(nameId->chars(), nameId->size());
                 return id;
 

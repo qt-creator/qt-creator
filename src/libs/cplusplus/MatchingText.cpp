@@ -244,7 +244,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
             if (current.is(T_EOF_SYMBOL))
                 break;
 
-            else if (current.is(T_CLASS) || current.is(T_STRUCT) || current.is(T_UNION) || current.is(T_ENUM)) {
+            if (current.is(T_CLASS) || current.is(T_STRUCT) || current.is(T_UNION) || current.is(T_ENUM)) {
                 // found a class key.
                 QString str = QLatin1String("};");
 

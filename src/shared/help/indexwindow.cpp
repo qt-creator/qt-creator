@@ -149,9 +149,8 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
             QAction *action = menu.exec();
             if (curTab == action)
                 m_indexWidget->activateCurrentItem();
-            else if (newTab == action) {
+            else if (newTab == action)
                 open(m_indexWidget, idx);
-            }
         }
     } else if (m_indexWidget && obj == m_indexWidget->viewport()
         && e->type() == QEvent::MouseButtonRelease) {

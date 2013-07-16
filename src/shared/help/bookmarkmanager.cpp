@@ -236,8 +236,7 @@ void BookmarkDialog::customContextMenuRequested(const QPoint &point)
         if (index.isValid())
             name = index.data().toString();
         ui.bookmarkFolders->setCurrentIndex(ui.bookmarkFolders->findText(name));
-    }
-    else if (picked == renameItem) {
+    } else if (picked == renameItem) {
         BookmarkModel *model = bookmarkManager->treeBookmarkModel();
         if (QStandardItem *item = model->itemFromIndex(proxyIndex)) {
             item->setEditable(true);
@@ -397,15 +396,14 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
     if (!pickedAction)
         return;
 
-    if (pickedAction == showItem)
+    if (pickedAction == showItem) {
         emit linkActivated(data);
-    else if (pickedAction == showItemNewTab)
+    } else if (pickedAction == showItemNewTab) {
         emit createPage(QUrl(data), false);
-    else if (pickedAction == removeItem) {
+    } else if (pickedAction == removeItem) {
         bookmarkManager->removeBookmarkItem(treeView,
             filterBookmarkModel->mapToSource(index));
-    }
-    else if (pickedAction == renameItem) {
+    } else if (pickedAction == renameItem) {
         const QModelIndex &source = filterBookmarkModel->mapToSource(index);
         QStandardItem *item =
             bookmarkManager->treeBookmarkModel()->itemFromIndex(source);

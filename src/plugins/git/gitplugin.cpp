@@ -920,9 +920,9 @@ void GitPlugin::gitkForCurrentFolder()
      *
      */
     QDir dir(state.currentFileDirectory());
-    if (QFileInfo(dir,QLatin1String(".git")).exists() || dir.cd(QLatin1String(".git")))
+    if (QFileInfo(dir,QLatin1String(".git")).exists() || dir.cd(QLatin1String(".git"))) {
         m_gitClient->launchGitK(state.currentFileDirectory());
-    else {
+    } else {
         QString folderName = dir.absolutePath();
         dir.cdUp();
         folderName = folderName.remove(0, dir.absolutePath().length() + 1);

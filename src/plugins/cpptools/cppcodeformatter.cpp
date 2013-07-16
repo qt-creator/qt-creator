@@ -519,9 +519,9 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             int previousPreviousMarker = -1;
             for (int i = size - 1; i >= 0; --i) {
                 if (m_currentState.at(i).type == cpp_macro_conditional) {
-                    if (previousMarker == -1)
+                    if (previousMarker == -1) {
                         previousMarker = i;
-                    else {
+                    } else {
                         previousPreviousMarker = i;
                         break;
                     }

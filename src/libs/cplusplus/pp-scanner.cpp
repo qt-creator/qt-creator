@@ -259,13 +259,13 @@ const char *pp_skip_argument::operator () (const char *__first, const char *__la
     lines = 0;
 
     while (__first != __last) {
-        if (!depth && (*__first == ')' || *__first == ','))
+        if (!depth && (*__first == ')' || *__first == ',')) {
             break;
-        else if (*__first == '(')
+        } else if (*__first == '(') {
             ++depth, ++__first;
-        else if (*__first == ')')
+        } else if (*__first == ')') {
             --depth, ++__first;
-        else if (*__first == '\"') {
+        } else if (*__first == '\"') {
             __first = skip_string_literal (__first, __last);
             lines += skip_string_literal.lines;
         } else if (*__first == '\'') {
@@ -283,8 +283,9 @@ const char *pp_skip_argument::operator () (const char *__first, const char *__la
         } else if (*__first == '\n') {
             ++__first;
             ++lines;
-        } else
+        } else {
             ++__first;
+        }
     }
 
     return __first;

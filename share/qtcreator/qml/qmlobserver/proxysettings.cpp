@@ -84,8 +84,7 @@ QNetworkProxy ProxySettings::httpProxy ()
         proxy.setUser (settings.value ("http_proxy/username", "").toString ());
         proxy.setPassword (settings.value ("http_proxy/password", "").toString ());
         //QNetworkProxy::setApplicationProxy (proxy);
-    }
-    else {
+    } else {
         proxy.setType (QNetworkProxy::NoProxy);
     }
     return proxy;

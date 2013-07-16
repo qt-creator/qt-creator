@@ -154,9 +154,9 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
 
     parentObjectValue = switchObjectValue(objectValue);
 
-    if (parentObjectValue)
+    if (parentObjectValue) {
         objectValue->setMember(QLatin1String("parent"), parentObjectValue);
-    else if (!_rootObjectValue) {
+    } else if (!_rootObjectValue) {
         _rootObjectValue = objectValue;
         _rootObjectValue->setClassName(_doc->componentName());
     }

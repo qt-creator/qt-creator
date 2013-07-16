@@ -624,10 +624,9 @@ void SplitSimpleDeclaration::match(const CppQuickFixInterface &interface,
     for (int index = path.size() - 1; index != -1; --index) {
         AST *node = path.at(index);
 
-        if (CoreDeclaratorAST *coreDecl = node->asCoreDeclarator())
+        if (CoreDeclaratorAST *coreDecl = node->asCoreDeclarator()) {
             core_declarator = coreDecl;
-
-        else if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
+        } else if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
             if (checkDeclaration(simpleDecl)) {
                 SimpleDeclarationAST *declaration = simpleDecl;
 
@@ -1702,7 +1701,7 @@ void AddLocalDeclaration::match(const CppQuickFixInterface &interface, QuickFixO
                     foreach (const LookupItem &r, results) {
                         if (! r.declaration())
                             continue;
-                        else if (Declaration *d = r.declaration()->asDeclaration()) {
+                        if (Declaration *d = r.declaration()->asDeclaration()) {
                             if (! d->type()->isFunctionType()) {
                                 decl = d;
                                 break;
@@ -4078,8 +4077,7 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
             if (!declText.isEmpty())
                 break;
         }
-    }
-    else if (Namespace *matchingNamespace = isNamespaceFunction(interface->context(), func)) {
+    } else if (Namespace *matchingNamespace = isNamespaceFunction(interface->context(), func)) {
         // Dealing with free functions
         bool isHeaderFile = false;
         declFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);

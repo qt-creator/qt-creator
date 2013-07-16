@@ -3770,9 +3770,7 @@ void *qDumpObjectData440(
         d.put(",namespace=\"" NS "\",");
         d.put("dumperversion=\"1.3\",");
         d.disarm();
-    }
-
-    else if (protocolVersion == 2 || protocolVersion == 3) {
+    } else if (protocolVersion == 2 || protocolVersion == 3) {
         QDumper d;
 
         d.protocolVersion = protocolVersion;
@@ -3796,9 +3794,7 @@ void *qDumpObjectData440(
                 << d.outerType << d.iname << d.exp << d.iname;
 #endif
         handleProtocolVersion2and3(d);
-    }
-
-    else {
+    } else {
 #if USE_QT_CORE
 #        ifndef QT_BOOTSTRAPPED
         qDebug() << "Unsupported protocol version" << protocolVersion;

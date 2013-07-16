@@ -74,11 +74,10 @@ protected:
         if (_functionDefinition)
             return false;
 
-        else if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
+        if (FunctionDefinitionAST *def = ast->asFunctionDefinition())
             return checkDeclaration(def);
-        }
 
-        else if (ObjCMethodDeclarationAST *method = ast->asObjCMethodDeclaration()) {
+        if (ObjCMethodDeclarationAST *method = ast->asObjCMethodDeclaration()) {
             if (method->function_body)
                 return checkDeclaration(method);
         }

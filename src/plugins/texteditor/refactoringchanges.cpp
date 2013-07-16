@@ -214,7 +214,7 @@ QTextDocument *RefactoringFile::mutableDocument() const
 {
     if (m_editor)
         return m_editor->document();
-    else if (!m_document) {
+    if (!m_document) {
         QString fileContents;
         if (!m_fileName.isEmpty()) {
             QString error;
@@ -238,7 +238,7 @@ const QTextCursor RefactoringFile::cursor() const
 {
     if (m_editor)
         return m_editor->textCursor();
-    else if (!m_fileName.isEmpty()) {
+    if (!m_fileName.isEmpty()) {
         if (QTextDocument *doc = mutableDocument())
             return QTextCursor(doc);
     }

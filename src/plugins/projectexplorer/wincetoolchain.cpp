@@ -93,8 +93,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
         if (replacement.isEmpty()) {
             qWarning() << "No replacement for var: " << var;
             pos = nextPos;
-        }
-        else {
+        } else {
             // Not sure about this, but we need to account for the case where
             // the end of the replacement doesn't have the directory seperator and
             // neither does the start of the insert. This solution assumes:

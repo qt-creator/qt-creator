@@ -310,9 +310,9 @@ void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 star
     setState(AcquiringData);
 
     // generate details string
-    if (data.isEmpty())
+    if (data.isEmpty()) {
         details = tr("Source code not available.");
-    else {
+    } else {
         details = data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
         bool match = rewrite.exactMatch(details);
@@ -613,18 +613,14 @@ qint64 QmlProfilerDataModel::firstTimeMark() const
 {
     if (d->startInstanceList.isEmpty())
         return 0;
-    else {
-        return d->startInstanceList[0].startTime;
-    }
+    return d->startInstanceList[0].startTime;
 }
 
 qint64 QmlProfilerDataModel::lastTimeMark() const
 {
     if (d->endInstanceList.isEmpty())
         return 0;
-    else {
-        return d->endInstanceList.last().endTime;
-    }
+    return d->endInstanceList.last().endTime;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1046,9 +1042,9 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::computeNestingDepth()
     for (int i = 0; i < endInstanceList.count(); i++) {
         int type = endInstanceList[i].description->eventType;
         int nestingInType = startInstanceList[endInstanceList[i].startTimeIndex].nestingLevel;
-        if (!nestingDepth.contains(type))
+        if (!nestingDepth.contains(type)) {
             nestingDepth[type] = nestingInType;
-        else {
+        } else {
             int nd = nestingDepth[type];
             nestingDepth[type] = nd > nestingInType ? nd : nestingInType;
         }

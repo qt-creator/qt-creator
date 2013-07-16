@@ -277,13 +277,11 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByNewLines(QList<Document::
         if (isFirst) {
             isFirst = false;
             currentIncludes << include;
-        }
         // Include belongs to current group
-        else if (lastLine + 1 == include.line()) {
+        } else if (lastLine + 1 == include.line()) {
             currentIncludes << include;
-        }
         // Include is member of new group
-        else {
+        } else {
             result << IncludeGroup(currentIncludes);
             currentIncludes.clear();
             currentIncludes << include;
@@ -312,13 +310,11 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeDir(const QList<In
         if (isFirst) {
             isFirst = false;
             currentIncludes << include;
-        }
         // Include belongs to current group
-        else if (lastDir == currentDirPrefix) {
+        } else if (lastDir == currentDirPrefix) {
             currentIncludes << include;
-        }
         // Include is member of new group
-        else {
+        } else {
             result << IncludeGroup(currentIncludes);
             currentIncludes.clear();
             currentIncludes << include;
@@ -347,13 +343,11 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeType(const QList<I
         if (isFirst) {
             isFirst = false;
             currentIncludes << include;
-        }
         // Include belongs to current group
-        else if (lastIncludeType == currentIncludeType) {
+        } else if (lastIncludeType == currentIncludeType) {
             currentIncludes << include;
-        }
         // Include is member of new group
-        else {
+        } else {
             result << IncludeGroup(currentIncludes);
             currentIncludes.clear();
             currentIncludes << include;

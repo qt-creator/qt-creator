@@ -162,9 +162,9 @@ bool ToolTip::tipChanged(const QPoint &pos, const TipContent &content, QWidget *
 
 void ToolTip::setTipRect(QWidget *w, const QRect &rect)
 {
-    if (!m_rect.isNull() && !w)
+    if (!m_rect.isNull() && !w) {
         qWarning("ToolTip::show: Cannot pass null widget if rect is set");
-    else{
+    } else {
         m_widget = w;
         m_rect = rect;
     }

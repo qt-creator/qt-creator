@@ -511,17 +511,17 @@ QString Context2D::textBaseline()
 
 void Context2D::setTextBaseline(const QString &baseline)
 {
-    if (baseline==QLatin1String("alphabetic"))
+    if (baseline==QLatin1String("alphabetic")) {
         m_state.textBaseline = Context2D::Alphabetic;
-    else if (baseline == QLatin1String("hanging"))
+    } else if (baseline == QLatin1String("hanging")) {
         m_state.textBaseline = Context2D::Hanging;
-    else if (baseline == QLatin1String("top"))
+    } else if (baseline == QLatin1String("top")) {
         m_state.textBaseline = Context2D::Top;
-    else if (baseline == QLatin1String("bottom"))
+    } else if (baseline == QLatin1String("bottom")) {
         m_state.textBaseline = Context2D::Bottom;
-    else if (baseline == QLatin1String("middle"))
+    } else if (baseline == QLatin1String("middle")) {
         m_state.textBaseline = Context2D::Middle;
-    else {
+    } else {
         m_state.textBaseline = Context2D::Alphabetic;
         qWarning() << (QLatin1String("Context2D: invalid baseline:") + baseline);
     }
@@ -550,17 +550,17 @@ QString Context2D::textAlign()
 
 void Context2D::setTextAlign(const QString &baseline)
 {
-    if (baseline==QLatin1String("start"))
+    if (baseline==QLatin1String("start")) {
         m_state.textAlign = Context2D::Start;
-    else if (baseline == QLatin1String("end"))
+    } else if (baseline == QLatin1String("end")) {
         m_state.textAlign = Context2D::End;
-    else if (baseline == QLatin1String("left"))
+    } else if (baseline == QLatin1String("left")) {
         m_state.textAlign = Context2D::Left;
-    else if (baseline == QLatin1String("right"))
+    } else if (baseline == QLatin1String("right")) {
         m_state.textAlign = Context2D::Right;
-    else if (baseline == QLatin1String("center"))
+    } else if (baseline == QLatin1String("center")) {
         m_state.textAlign = Context2D::Center;
-    else {
+    } else {
         m_state.textAlign= Context2D::Start;
         qWarning("Context2D: invalid text align");
     }
@@ -574,11 +574,11 @@ void Context2D::setFont(const QString &fontString)
     // ### this is simplified and incomplete
     QStringList tokens = fontString.split(QLatin1Char(QLatin1Char(' ')));
     foreach (const QString &token, tokens) {
-        if (token == QLatin1String("italic"))
+        if (token == QLatin1String("italic")) {
             font.setItalic(true);
-        else if (token == QLatin1String("bold"))
+        } else if (token == QLatin1String("bold")) {
             font.setBold(true);
-        else if (token.endsWith(QLatin1String("px"))) {
+        } else if (token.endsWith(QLatin1String("px"))) {
             QString number = token;
             number.remove(QLatin1String("px"));
 #ifdef Q_OS_MACX
@@ -589,8 +589,9 @@ void Context2D::setFont(const QString &fontString)
 #else
             font.setPointSizeF(number.trimmed().toFloat());
 #endif
-        } else
+        } else {
             font.setFamily(token);
+        }
     }
     m_state.font = font;
     m_state.flags |= DirtyFont;

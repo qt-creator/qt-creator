@@ -246,8 +246,7 @@ void CurrentDocumentFind::aggregationChanged()
                 m_candidateWidget = m_currentWidget;
                 m_candidateFind = currentFind;
                 acceptCandidate();
-            }
-            else {
+            } else {
                 clearFindSupport();
             }
         }

@@ -376,9 +376,8 @@ void CppEditorPlugin::currentEditorChanged(Core::IEditor *editor)
     if (! editor)
         return;
 
-    else if (CPPEditorWidget *textEditor = qobject_cast<CPPEditorWidget *>(editor->widget())) {
+    if (CPPEditorWidget *textEditor = qobject_cast<CPPEditorWidget *>(editor->widget()))
         textEditor->semanticRehighlight(/*force = */ true);
-    }
 }
 
 void CppEditorPlugin::openTypeHierarchy()

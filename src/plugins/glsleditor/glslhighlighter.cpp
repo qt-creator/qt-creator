@@ -160,13 +160,13 @@ void Highlighter::highlightBlock(const QString &text)
             highlightLine(text, tk.begin(), tk.length, m_formats[GLSLPreprocessorFormat]);
             highlightAsPreprocessor = true;
 
-        } else if (highlightCurrentWordAsPreprocessor && isPPKeyword(text.midRef(tk.begin(), tk.length)))
+        } else if (highlightCurrentWordAsPreprocessor && isPPKeyword(text.midRef(tk.begin(), tk.length))) {
             setFormat(tk.begin(), tk.length, m_formats[GLSLPreprocessorFormat]);
 
-        else if (tk.is(GLSL::Parser::T_NUMBER))
+        } else if (tk.is(GLSL::Parser::T_NUMBER)) {
             setFormat(tk.begin(), tk.length, m_formats[GLSLNumberFormat]);
 
-        else if (tk.is(GLSL::Parser::T_COMMENT)) {
+        } else if (tk.is(GLSL::Parser::T_COMMENT)) {
             highlightLine(text, tk.begin(), tk.length, m_formats[GLSLCommentFormat]);
 
             // we need to insert a close comment parenthesis, if
@@ -362,11 +362,11 @@ void Highlighter::highlightBlock(const QString &text)
     for (int i = 0; i < tokens.size(); ++i) {
         const GLSL::Token &tk = tokens.at(i);
 
-        if (tk.is(GLSL::Parser::T_NUMBER))
+        if (tk.is(GLSL::Parser::T_NUMBER)) {
             setFormat(tk.position, tk.length, m_formats[GLSLNumberFormat]);
-        else if (tk.is(GLSL::Parser::T_COMMENT))
+        } else if (tk.is(GLSL::Parser::T_COMMENT)) {
             setFormat(tk.position, tk.length, Qt::darkGreen); // ### FIXME: m_formats[GLSLCommentFormat]);
-        else if (tk.is(GLSL::Parser::T_IDENTIFIER)) {
+        } else if (tk.is(GLSL::Parser::T_IDENTIFIER)) {
             int kind = lex.findKeyword(data.constData() + tk.position, tk.length);
             if (kind == GLSL::Parser::T_RESERVED)
                 setFormat(tk.position, tk.length, m_formats[GLSLReservedKeyword]);

@@ -600,13 +600,11 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
         if (editor) { // assume that the commands output is the important thing
             connect(cmd, SIGNAL(outputData(QByteArray)),
                     ::vcsOutputWindow(), SLOT(appendDataSilently(QByteArray)));
-        }
-        else {
+        } else {
             connect(cmd, SIGNAL(outputData(QByteArray)),
                     ::vcsOutputWindow(), SLOT(appendData(QByteArray)));
         }
-    }
-    else if (editor) {
+    } else if (editor) {
         connect(cmd, SIGNAL(outputData(QByteArray)),
                 editor, SLOT(setPlainTextData(QByteArray)));
     }

@@ -57,7 +57,7 @@ static void addNames(const Name *name, QList<const Name *> *names, bool addAllNa
 {
     if (! name)
         return;
-    else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+    if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         addNames(q->base(), names);
         addNames(q->name(), names, addAllNames);
     } else if (addAllNames || name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
@@ -98,7 +98,7 @@ static inline bool compareName(const Name *name, const Name *other)
     if (name == other)
         return true;
 
-    else if (name && other) {
+    if (name && other) {
         const Identifier *id = name->identifier();
         const Identifier *otherId = other->identifier();
 
@@ -599,10 +599,9 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
     if (name) {
 
         if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-            if (! q->base()) // e.g. ::std::string
+            if (! q->base()) { // e.g. ::std::string
                 result = globalNamespace()->find(q->name());
-
-            else if (ClassOrNamespace *binding = lookupType(q->base())) {
+            } else if (ClassOrNamespace *binding = lookupType(q->base())) {
                 result = binding->find(q->name());
 
                 QList<const Name *> fullName;
@@ -864,7 +863,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
             if (ClassOrNamespace *e = nestedType(name, origin))
                 return e;
 
-            else if (_templateId) {
+            if (_templateId) {
                 if (_usings.size() == 1) {
                     ClassOrNamespace *delegate = _usings.first();
 
@@ -1265,8 +1264,7 @@ bool ClassOrNamespace::NestedClassInstantiator::isInstantiateNestedClassNeeded(c
                 if (Declaration *declaration = memberAsSymbol->asDeclaration()) {
                     if (containsTemplateType(declaration))
                         return true;
-                }
-                else if (Function *function = memberAsSymbol->asFunction()) {
+                } else if (Function *function = memberAsSymbol->asFunction()) {
                     if (containsTemplateType(function))
                         return true;
                 }
@@ -1447,7 +1445,7 @@ void CreateBindings::process(Document::Ptr doc)
     if (! doc)
         return;
 
-    else if (Namespace *globalNamespace = doc->globalNamespace()) {
+    if (Namespace *globalNamespace = doc->globalNamespace()) {
         if (! _processed.contains(globalNamespace)) {
             _processed.insert(globalNamespace);
 

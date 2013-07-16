@@ -257,9 +257,7 @@ void LiveSelectionTool::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_singleSelectionManipulator.isActive()) {
         m_singleSelectionManipulator.end(event->pos());
-    }
-    else if (m_rubberbandSelectionManipulator.isActive()) {
-
+    } else if (m_rubberbandSelectionManipulator.isActive()) {
         QPointF mouseMovementVector = m_rubberbandSelectionManipulator.beginPoint() - event->pos();
         if (mouseMovementVector.toPoint().manhattanLength() < Constants::DragStartDistance) {
             m_singleSelectionManipulator.begin(event->pos());

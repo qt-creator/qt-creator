@@ -170,8 +170,7 @@ bool Environment::isBuiltinMacro(const ByteArrayRef &s)
                         }
                     }
                 }
-            }
-            else if (s[2] == 'F') {
+            } else if (s[2] == 'F') {
                 if (s[3] == 'I') {
                     if (s[4] == 'L') {
                         if (s[5] == 'E') {
@@ -183,8 +182,7 @@ bool Environment::isBuiltinMacro(const ByteArrayRef &s)
                         }
                     }
                 }
-            }
-            else if (s[2] == 'L') {
+            } else if (s[2] == 'L') {
                 if (s[3] == 'I') {
                     if (s[4] == 'N') {
                         if (s[5] == 'E') {
@@ -196,8 +194,7 @@ bool Environment::isBuiltinMacro(const ByteArrayRef &s)
                         }
                     }
                 }
-            }
-            else if (s[2] == 'T') {
+            } else if (s[2] == 'T') {
                 if (s[3] == 'I') {
                     if (s[4] == 'M') {
                         if (s[5] == 'E') {

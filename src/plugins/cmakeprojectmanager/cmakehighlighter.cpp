@@ -94,8 +94,7 @@ void CMakeHighlighter::highlightBlock(const QString &text)
                     setFormat(i, 1, m_formats[CMakeStringFormat]);
                 }
                 inStringMode = !inStringMode;
-            }
-            else if (c == '\\') {
+            } else if (c == '\\') {
                 setFormat(i, 1, emptyFormat);
                 buf += c;
                 i++;

@@ -440,29 +440,27 @@ void Parser::Private::parseError()
         if (reader.isStartElement())
             lastAuxWhat++;
         const QStringRef name = reader.name();
-        if (name == QLatin1String("unique"))
+        if (name == QLatin1String("unique")) {
             e.setUnique(parseHex(blockingReadElementText(), QLatin1String("unique")));
-        else if (name == QLatin1String("tid"))
+        } else if (name == QLatin1String("tid")) {
             e.setTid(parseInt64(blockingReadElementText(), QLatin1String("error/tid")));
-        else if (name == QLatin1String("kind")) //TODO this is memcheck-specific:
+        } else if (name == QLatin1String("kind")) { //TODO this is memcheck-specific:
             e.setKind(parseErrorKind(blockingReadElementText()));
-        else if (name == QLatin1String("suppression"))
+        } else if (name == QLatin1String("suppression")) {
             e.setSuppression(parseSuppression());
-        else if (name == QLatin1String("xwhat")) {
+        } else if (name == QLatin1String("xwhat")) {
             const XWhat xw = parseXWhat();
             e.setWhat(xw.text);
             e.setLeakedBlocks(xw.leakedblocks);
             e.setLeakedBytes(xw.leakedbytes);
             e.setHelgrindThreadId(xw.hthreadid);
-        }
-        else if (name == QLatin1String("what"))
+        } else if (name == QLatin1String("what")) {
             e.setWhat(blockingReadElementText());
-        else if (name == QLatin1String("xauxwhat")) {
+        } else if (name == QLatin1String("xauxwhat")) {
             if (!currentAux.text.isEmpty())
                 auxs.push_back(currentAux);
             currentAux = parseXauxWhat();
-        }
-        else if (name == QLatin1String("auxwhat")) {
+        } else if (name == QLatin1String("auxwhat")) {
             const QString aux = blockingReadElementText();
             //concatenate multiple consecutive <auxwhat> tags
             if (lastAuxWhat > 1) {
@@ -476,12 +474,11 @@ void Parser::Private::parseError()
                 currentAux.text.append(aux);
             }
             lastAuxWhat = 0;
-        }
-        else if (name == QLatin1String("stack")) {
+        } else if (name == QLatin1String("stack")) {
             frames.push_back(parseStack());
-        }
-        else if (reader.isStartElement())
+        } else if (reader.isStartElement()) {
             reader.skipCurrentElement();
+        }
     }
 
     if (!currentAux.text.isEmpty())

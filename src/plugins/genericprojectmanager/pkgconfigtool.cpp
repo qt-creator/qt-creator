@@ -90,9 +90,7 @@ void PkgConfigTool::packages_helper() const
             if (ch.isSpace()) {
                 do { ++index; }
                 while (index < cflags.size() && cflags.at(index).isSpace());
-            }
-
-            else if (ch == QLatin1Char('-') && index + 1 < cflags.size()) {
+            } else if (ch == QLatin1Char('-') && index + 1 < cflags.size()) {
                 ++index;
 
                 const QChar opt = cflags.at(index);
@@ -109,9 +107,7 @@ void PkgConfigTool::packages_helper() const
                     qDebug() << "*** add include path:" << cflags.mid(start, index - start);
                     package.includePaths.append(cflags.mid(start, index - start));
                 }
-            }
-
-            else {
+            } else {
                 for (; index < cflags.size(); ++index) {
                     if (cflags.at(index).isSpace())
                         break;

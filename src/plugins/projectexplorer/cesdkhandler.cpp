@@ -79,9 +79,9 @@ bool CeSdkHandler::parse(const QString &vsdir)
         xml.readNext();
         if (xml.isStartElement()) {
             currentElement = xml.name().toString();
-            if (currentElement == QLatin1String("Platform"))
+            if (currentElement == QLatin1String("Platform")) {
                 currentItem = CeSdkInfo();
-            else if (currentElement == QLatin1String("Directories")) {
+            } else if (currentElement == QLatin1String("Directories")) {
                 QXmlStreamAttributes attr = xml.attributes();
                 currentItem.m_include = fixPaths(attr.value(QLatin1String("Include")).toString());
                 currentItem.m_lib = fixPaths(attr.value(QLatin1String("Library")).toString());

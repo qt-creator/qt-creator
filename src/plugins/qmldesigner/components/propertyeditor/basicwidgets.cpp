@@ -1242,8 +1242,7 @@ void QGroupBoxDeclarativeUI::finish()
         gb->setUpdatesEnabled(true);
         //gb->resize(gb->sizeHint());
         gb->finishFirstExpand();
-    }
-    else {
+    } else {
         gb->setMinimumHeight(30);
         gb->setMaximumHeight(30);
         gb->resize(gb->sizeHint().width(), 30);
@@ -1315,8 +1314,7 @@ void QGroupBoxDeclarativeUI::animate(int frame)
     if (m_expanded) {
         height = ((qreal(frame) / 5.0) * qreal(m_oldHeight)) + (30.0 * (1.0 - qreal(frame) / 5.0));
         gb->setPixmap(m_contens, qreal(frame) / 5.0);
-    }
-    else {
+    } else {
         height = ((qreal(frame) / 5.0) * 30.0) + (qreal(m_oldHeight) * (1.0 - qreal(frame) / 5.0));
         qreal alpha = 0.8 - qreal(frame) / 4.0;
         if (alpha < 0)

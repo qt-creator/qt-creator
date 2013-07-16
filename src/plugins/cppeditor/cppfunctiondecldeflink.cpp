@@ -778,9 +778,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                 FullySpecifiedType type = rewriteType(newParam->type(), &env, control);
                 newTargetParam = overview.prettyType(type, newParam->name());
                 hadChanges = true;
-            }
             // otherwise preserve as much as possible from the existing parameter
-            else {
+            } else {
                 Symbol *targetParam = targetFunction->argumentAt(existingParamIndex);
                 Symbol *sourceParam = sourceFunction->argumentAt(existingParamIndex);
                 ParameterDeclarationAST *targetParamAst = targetParameterDecls.at(existingParamIndex);
@@ -833,9 +832,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                     newTargetParam += overview.prettyType(replacementType, replacementName);
                     newTargetParam += targetFile->textOf(parameterTypeEnd, parameterEnd);
                     hadChanges = true;
-                }
                 // change the name only?
-                else if (!namesEqual(targetParam->name(), replacementName)) {
+                } else if (!namesEqual(targetParam->name(), replacementName)) {
                     DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
                     const QString &replacementNameStr = overview.prettyName(replacementName);
                     if (id) {
@@ -878,9 +876,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                         newTargetParam += rest;
                     }
                     hadChanges = true;
-                }
                 // change nothing - though the parameter might still have moved
-                else {
+                } else {
                     if (existingParamIndex != newParamIndex)
                         hadChanges = true;
                     newTargetParam = targetFile->textOf(parameterStart, parameterEnd);
@@ -934,9 +931,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         if (!targetFunction->isConst() && !targetFunction->isVolatile()) {
             cvString.prepend(QLatin1Char(' '));
             changes.insert(targetFile->endOf(targetFunctionDeclarator->rparen_token), cvString);
-        }
         // modify/remove existing specifiers
-        else {
+        } else {
             SimpleSpecifierAST *constSpecifier = 0;
             SimpleSpecifierAST *volatileSpecifier = 0;
             for (SpecifierListAST *it = targetFunctionDeclarator->cv_qualifier_list; it; it = it->next) {
@@ -954,9 +950,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                     changes.remove(targetFile->endOf(constSpecifier->specifier_token - 1), targetFile->endOf(constSpecifier));
                 if (!newFunction->isVolatile())
                     changes.remove(targetFile->endOf(volatileSpecifier->specifier_token - 1), targetFile->endOf(volatileSpecifier));
-            }
             // otherwise adjust, remove or extend the one existing specifier
-            else {
+            } else {
                 SimpleSpecifierAST *specifier = constSpecifier ? constSpecifier : volatileSpecifier;
                 QTC_ASSERT(specifier, return changes);
 

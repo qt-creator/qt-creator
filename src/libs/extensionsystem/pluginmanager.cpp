@@ -1183,9 +1183,9 @@ void PluginManagerPrivate::readPluginPaths()
 
         PluginCollection *collection = 0;
         // find correct plugin collection or create a new one
-        if (pluginCategories.contains(spec->category()))
+        if (pluginCategories.contains(spec->category())) {
             collection = pluginCategories.value(spec->category());
-        else {
+        } else {
             collection = new PluginCollection(spec->category());
             pluginCategories.insert(spec->category(), collection);
         }

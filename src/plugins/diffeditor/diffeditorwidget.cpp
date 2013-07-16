@@ -952,12 +952,10 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
             if (diff.command == Diff::Delete) {
                 leftLines.last() += line;
                 currentLeftPos += line.count();
-            }
-            else if (diff.command == Diff::Insert) {
+            } else if (diff.command == Diff::Insert) {
                 rightLines.last() += line;
                 currentRightPos += line.count();
-            }
-            else if (diff.command == Diff::Equal) {
+            } else if (diff.command == Diff::Equal) {
                 if ((line.count() || (j && j < lines.count() - 1)) && // don't treat empty ending line as a line to be aligned unless a line is a one char '/n' only.
                         currentLeftLine != lastAlignedLeftLine &&
                         currentRightLine != lastAlignedRightLine) {

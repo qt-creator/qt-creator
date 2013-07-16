@@ -101,9 +101,8 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
         // explicitly set 32 or 64 bit in case Qt is compiled with both
         if (toolChain->targetAbi().wordWidth() == 32)
             m_qmakeArguments << QLatin1String("CONFIG+=x86");
-        else if (toolChain->targetAbi().wordWidth() == 64) {
+        else if (toolChain->targetAbi().wordWidth() == 64)
             m_qmakeArguments << QLatin1String("CONFIG+=x86_64");
-        }
     }
     m_makeCommand = toolChain->makeCommand(m_environment);
     m_mkspec = version->mkspec();

@@ -188,8 +188,7 @@ void FunctionGraphicsItem::paint(QPainter *painter,
         gradient.setColorAt(0.5, color.lighter(200));
         gradient.setColorAt(1, color.darker(100));
         painter->setBrush(gradient);
-    }
-    else {
+    } else {
         painter->setBrush(color);
     }
 
@@ -256,9 +255,9 @@ void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
     if (itemAtPos) {
         const Function *func = q->functionForItem(itemAtPos);
 
-        if (doubleClicked)
+        if (doubleClicked) {
             q->functionActivated(func);
-        else {
+        } else {
             q->scene()->clearSelection();
             itemAtPos->setSelected(true);
             q->functionSelected(func);

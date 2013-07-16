@@ -294,23 +294,23 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
 
-    if (command.userType() ==  informationChangedCommandType)
+    if (command.userType() ==  informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
-    else if (command.userType() ==  valuesChangedCommandType)
+    } else if (command.userType() ==  valuesChangedCommandType) {
         nodeInstanceClient()->valuesChanged(command.value<ValuesChangedCommand>());
-    else if (command.userType() ==  pixmapChangedCommandType)
+    } else if (command.userType() ==  pixmapChangedCommandType) {
         nodeInstanceClient()->pixmapChanged(command.value<PixmapChangedCommand>());
-    else if (command.userType() == childrenChangedCommandType)
+    } else if (command.userType() == childrenChangedCommandType) {
         nodeInstanceClient()->childrenChanged(command.value<ChildrenChangedCommand>());
-    else if (command.userType() == statePreviewImageChangedCommandType)
+    } else if (command.userType() == statePreviewImageChangedCommandType) {
         nodeInstanceClient()->statePreviewImagesChanged(command.value<StatePreviewImageChangedCommand>());
-    else if (command.userType() == componentCompletedCommandType)
+    } else if (command.userType() == componentCompletedCommandType) {
         nodeInstanceClient()->componentCompleted(command.value<ComponentCompletedCommand>());
-    else if (command.userType() == tokenCommandType)
+    } else if (command.userType() == tokenCommandType) {
         nodeInstanceClient()->token(command.value<TokenCommand>());
-    else if (command.userType() == debugOutputCommandType)
+    } else if (command.userType() == debugOutputCommandType) {
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
-    else if (command.userType() == synchronizeCommandType) {
+    } else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
     }  else

@@ -260,15 +260,15 @@ QColor FormatDescription::foreground() const
 
 QColor FormatDescription::background() const
 {
-    if (m_id == C_TEXT)
+    if (m_id == C_TEXT) {
         return Qt::white;
-    else if (m_id == C_LINE_NUMBER)
+    } else if (m_id == C_LINE_NUMBER) {
         return QApplication::palette().background().color();
-    else if (m_id == C_SEARCH_RESULT)
+    } else if (m_id == C_SEARCH_RESULT) {
         return QColor(0xffef0b);
-    else if (m_id == C_PARENTHESES)
+    } else if (m_id == C_PARENTHESES) {
         return QColor(0xb4, 0xee, 0xb4);
-    else if (m_id == C_CURRENT_LINE || m_id == C_SEARCH_SCOPE) {
+    } else if (m_id == C_CURRENT_LINE || m_id == C_SEARCH_SCOPE) {
         const QPalette palette = QApplication::palette();
         const QColor &fg = palette.color(QPalette::Highlight);
         const QColor &bg = palette.color(QPalette::Base);

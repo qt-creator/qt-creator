@@ -193,9 +193,9 @@ reasons and then passed to the section views */
                                 /* Limit the content position. Without this, resizing would get the
 content position out of scope regarding the scrollbar. */
                                 function limitContentPos() {
-                                    if (contentY < 0)
+                                    if (contentY < 0) {
                                         contentY = 0;
-                                    else {
+                                    } else {
                                         var maxContentY = Math.max(0, contentHeight - height)
                                         if (contentY > maxContentY)
                                             contentY = maxContentY;

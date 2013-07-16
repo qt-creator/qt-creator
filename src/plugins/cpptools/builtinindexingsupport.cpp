@@ -57,10 +57,9 @@ static void parse(QFutureInterface<void> &future,
         const QString fileName = files.at(i);
 
         const bool isSourceFile = i < sourceCount;
-        if (isSourceFile)
+        if (isSourceFile) {
             (void) preproc->run(conf);
-
-        else if (! processingHeaders) {
+        } else if (! processingHeaders) {
             (void) preproc->run(conf);
 
             processingHeaders = true;

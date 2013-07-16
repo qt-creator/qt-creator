@@ -75,15 +75,15 @@ QString UnixUtils::substituteFileBrowserParameters(const QString &pre, const QSt
         if (c == QLatin1Char('%') && i < pre.size()-1) {
             c = pre.at(++i);
             QString s;
-            if (c == QLatin1Char('d'))
+            if (c == QLatin1Char('d')) {
                 s = QLatin1Char('"') + QFileInfo(file).path() + QLatin1Char('"');
-            else if (c == QLatin1Char('f'))
+            } else if (c == QLatin1Char('f')) {
                 s = QLatin1Char('"') + file + QLatin1Char('"');
-            else if (c == QLatin1Char('n'))
+            } else if (c == QLatin1Char('n')) {
                 s = QLatin1Char('"') + QFileInfo(file).fileName() + QLatin1Char('"');
-            else if (c == QLatin1Char('%'))
+            } else if (c == QLatin1Char('%')) {
                 s = c;
-            else {
+            } else {
                 s = QLatin1Char('%');
                 s += c;
             }

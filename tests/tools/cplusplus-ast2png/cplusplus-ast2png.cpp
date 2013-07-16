@@ -555,17 +555,17 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
         const QString parseAs = args.first();
-        if (parseAs == QLatin1String("declarator") || parseAs == QLatin1String("dr"))
+        if (parseAs == QLatin1String("declarator") || parseAs == QLatin1String("dr")) {
             optionParseMode = Document::ParseDeclarator;
-        else if (parseAs == QLatin1String("expression") || parseAs == QLatin1String("ex"))
+        } else if (parseAs == QLatin1String("expression") || parseAs == QLatin1String("ex")) {
             optionParseMode = Document::ParseExpression;
-        else if (parseAs == QLatin1String("declaration") || parseAs == QLatin1String("dn"))
+        } else if (parseAs == QLatin1String("declaration") || parseAs == QLatin1String("dn")) {
             optionParseMode = Document::ParseDeclaration;
-        else if (parseAs == QLatin1String("statement") || parseAs == QLatin1String("st"))
+        } else if (parseAs == QLatin1String("statement") || parseAs == QLatin1String("st")) {
             optionParseMode = Document::ParseStatement;
-        else if (parseAs == QLatin1String("translationunit") || parseAs == QLatin1String("tr"))
+        } else if (parseAs == QLatin1String("translationunit") || parseAs == QLatin1String("tr")) {
             optionParseMode = Document::ParseTranlationUnit;
-        else {
+        } else {
             std::cerr << "Error: Invalid ast for option \"-p\"." << std::endl;
             printUsage();
             exit(EXIT_FAILURE);

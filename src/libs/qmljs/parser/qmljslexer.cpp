@@ -905,7 +905,7 @@ bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
             while (! _char.isNull() && ! isLineTerminator()) {
                 if (_char == QLatin1Char(']'))
                     break;
-                else if (_char == QLatin1Char('\\')) {
+                if (_char == QLatin1Char('\\')) {
                     // regular expression backslash sequence
                     _tokenText += _char;
                     scanChar();

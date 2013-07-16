@@ -117,8 +117,7 @@ QMultiMap<QString, QString> QnxUtils::parseEnvironmentFile(const QString &fileNa
                 else
                     value = systemVarRegExp.cap(3);
             }
-        }
-        else if (Utils::HostOsInfo::isAnyUnixHost()) {
+        } else if (Utils::HostOsInfo::isAnyUnixHost()) {
             QRegExp systemVarRegExp(QLatin1String("\\$\\{([\\w\\d]+):=([\\w\\d]+)\\}")); // to match e.g. "${QNX_HOST_VERSION:=10_0_9_52}"
             if (value.contains(systemVarRegExp)) {
                 Utils::Environment sysEnv = Utils::Environment::systemEnvironment();

@@ -286,9 +286,8 @@ private:
     {
         if (! value)
             return;
-        else if (const ObjectValue *object = value->asObjectValue()) {
+        if (const ObjectValue *object = value->asObjectValue())
             processProperties(object);
-        }
     }
 
     void processProperties(const ObjectValue *object)

@@ -298,9 +298,9 @@ bool MatrixType::isLessThan(const Type *other) const
     Q_ASSERT(other != 0);
     const MatrixType *mat = other->asMatrixType();
     Q_ASSERT(mat != 0);
-    if (_columns < mat->columns())
+    if (_columns < mat->columns()) {
         return true;
-    else if (_columns == mat->columns()) {
+    } else if (_columns == mat->columns()) {
         if (_rows < mat->rows())
             return true;
         else if (_rows == mat->rows() && _elementType < mat->elementType())

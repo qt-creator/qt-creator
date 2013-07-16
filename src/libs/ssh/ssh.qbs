@@ -66,9 +66,9 @@ QtcLibrary {
     }
     property var botanDefines: {
         var result = [];
-        if (useSystemBotan)
+        if (useSystemBotan) {
             result.push("USE_SYSTEM_BOTAN")
-        else {
+        } else {
             result.push("BOTAN_DLL=")
             if (qbs.toolchain === "msvc")
                 result.push("BOTAN_BUILD_COMPILER_IS_MSVC", "BOTAN_TARGET_OS_HAS_GMTIME_S")

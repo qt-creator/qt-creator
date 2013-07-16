@@ -105,8 +105,7 @@ void Transition::paint(QPainter *painter, const QStyleOption *option)
             m_running = false;
             alpha = 1.0;
         }
-    }
-    else {
+    } else {
         m_running = false;
     }
     drawBlendedImage(painter, option->rect, alpha);

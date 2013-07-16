@@ -572,7 +572,7 @@ Class *asClassOrTemplateClassType(FullySpecifiedType ty)
 {
     if (Class *classTy = ty->asClassType())
         return classTy;
-    else if (Template *templ = ty->asTemplateType()) {
+    if (Template *templ = ty->asTemplateType()) {
         if (Symbol *decl = templ->declaration())
             return decl->asClass();
     }
@@ -595,7 +595,7 @@ Function *asFunctionOrTemplateFunctionType(FullySpecifiedType ty)
 {
     if (Function *funTy = ty->asFunctionType())
         return funTy;
-    else if (Template *templ = ty->asTemplateType()) {
+    if (Template *templ = ty->asTemplateType()) {
         if (Symbol *decl = templ->declaration())
             return decl->asFunction();
     }
@@ -799,13 +799,11 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
                                      && *kind != T_DOT))) {
             *kind = T_EOF_SYMBOL;
             start = pos;
-        }
         // Include completion: can be triggered by slash, but only in a string
-        else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
+        } else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
             *kind = T_EOF_SYMBOL;
             start = pos;
-        }
-        else if (*kind == T_LPAREN) {
+        } else if (*kind == T_LPAREN) {
             if (tokenIdx > 0) {
                 const Token &previousToken = tokens.at(tokenIdx - 1); // look at the token at the left of T_LPAREN
                 switch (previousToken.kind()) {
@@ -943,13 +941,11 @@ int CppCompletionAssistProcessor::startCompletionHelper()
         startOfExpression = endOfExpression - expression.length();
 
         if (m_model->m_completionOperator == T_LPAREN) {
-            if (expression.endsWith(QLatin1String("SIGNAL")))
+            if (expression.endsWith(QLatin1String("SIGNAL"))) {
                 m_model->m_completionOperator = T_SIGNAL;
-
-            else if (expression.endsWith(QLatin1String("SLOT")))
+            } else if (expression.endsWith(QLatin1String("SLOT"))) {
                 m_model->m_completionOperator = T_SLOT;
-
-            else if (m_interface->position() != endOfOperator) {
+            } else if (m_interface->position() != endOfOperator) {
                 // We don't want a function completion when the cursor isn't at the opening brace
                 expression.clear();
                 m_model->m_completionOperator = T_EOF_SYMBOL;
@@ -1225,7 +1221,7 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
             return m_startPosition;
         }
 
-        else if (m_model->m_completionOperator == T_SIGNAL || m_model->m_completionOperator == T_SLOT) {
+        if (m_model->m_completionOperator == T_SIGNAL || m_model->m_completionOperator == T_SLOT) {
             // Apply signal/slot completion on 'this'
             expression = QLatin1String("this");
         }
@@ -1335,7 +1331,7 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
                     Symbol *member = scope->memberAt(i);
                     if (! member->name())
                         continue;
-                    else if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
+                    if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
                         if (ClassOrNamespace *b = binding->lookupType(u->name()))
                             usingBindings.append(b);
                     }

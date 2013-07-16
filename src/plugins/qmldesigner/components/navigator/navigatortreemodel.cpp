@@ -149,8 +149,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
             return false;
         targetIndex -= visibleProperties(parentNode).count();
         parentPropertyName = parentNode.metaInfo().defaultPropertyName();
-    }
-    else {
+    } else {
         parentItemIndex = parentIndex.parent();
         parentPropertyName = parentIndex.data(Qt::DisplayRole).toByteArray();
     }
@@ -295,8 +294,7 @@ void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty
             parentIdItem = parentRow.idItem;
             newRow += visibleProperties(listProperty.parentModelNode()).count();
         }
-    }
-    else {
+    } else {
         parentIdItem = itemRow.idItem->parent();
     }
     Q_ASSERT(parentIdItem);

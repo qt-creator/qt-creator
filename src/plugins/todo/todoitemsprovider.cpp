@@ -79,10 +79,8 @@ void TodoItemsProvider::updateList()
     if (m_settings.scanningScope == ScanningScopeCurrentFile) {
         if (m_currentEditor)
             m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath());
-    }
-
     // Show only items of the startup project if any
-    else {
+    } else {
         if (m_startupProject)
             setItemsListWithinStartupProject();
     }

@@ -1463,9 +1463,9 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     // '[Re]Initialized...'
     outputWindow()->append(commandOutputFromLocal8Bit(outputText));
-    if (!rc)
+    if (!rc) {
         outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
-    else {
+    } else {
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
         Core::ICore::vcsManager()->resetVersionControlForDirectory(workingDirectory);
     }
