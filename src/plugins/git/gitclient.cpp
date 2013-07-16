@@ -1114,6 +1114,7 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
                                                            enableAnnotationContextMenu,
                                                            args, fileNames));
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
+    editor->setDiffBaseDirectory(workingDirectory);
 
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
