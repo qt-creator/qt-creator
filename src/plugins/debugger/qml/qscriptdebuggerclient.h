@@ -47,6 +47,7 @@ public:
 
     void startSession();
     void endSession();
+    void resetSession();
 
     void executeStep();
     void executeStepOut();

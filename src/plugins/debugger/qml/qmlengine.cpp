@@ -659,6 +659,9 @@ void QmlEngine::shutdownInferior()
 
 void QmlEngine::shutdownEngine()
 {
+    if (m_adapter.activeDebuggerClient())
+        m_adapter.activeDebuggerClient()->resetSession();
+
     if (qmlConsoleManager())
         qmlConsoleManager()->setScriptEvaluator(0);
     m_noDebugOutputTimer.stop();

@@ -949,6 +949,11 @@ void QmlV8DebuggerClient::endSession()
     d->disconnect();
 }
 
+void QmlV8DebuggerClient::resetSession()
+{
+    clearExceptionSelection();
+}
+
 void QmlV8DebuggerClient::executeStep()
 {
     clearExceptionSelection();
