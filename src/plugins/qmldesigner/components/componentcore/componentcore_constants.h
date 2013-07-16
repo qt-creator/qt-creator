@@ -82,10 +82,18 @@ const char resetZDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Re
 const char anchorsFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill");
 const char anchorsResetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset");
 
-const char layoutColumnDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Column");
-const char layoutRowDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Row");
-const char layoutGridDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Grid");
-const char layoutFlowDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Flow");
+const char layoutColumnPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Column (Positioner)");
+const char layoutRowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Row (Positioner)");
+const char layoutGridPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Grid (Positioner)");
+const char layoutFlowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Flow (Positioner)");
+
+const char layoutColumnLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in ColumnLayout");
+const char layoutRowLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in RowLayout");
+const char layoutGridLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in GridLayout");
+
+const char layoutFillWidthDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill Width");
+const char layoutFillHeightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill Height");
+
 
 const int priorityFirst = 220;
 const int prioritySelectionCategory = 200;
