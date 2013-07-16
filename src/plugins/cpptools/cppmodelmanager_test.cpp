@@ -281,7 +281,6 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     pi.appendProjectPart(part);
 
     mm->updateProjectInfo(pi);
-    mm->updateSourceFiles(QStringList() << testCpp);
 
     QStringList refreshedFiles = helper.waitForRefreshedSourceFiles();
 
@@ -291,13 +290,16 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     QVERIFY(snapshot.contains(testHeader));
     QVERIFY(snapshot.contains(testCpp));
 
-    part->defines = QByteArray();
-    mm->updateProjectInfo(pi);
-    snapshot = mm->snapshot();
-    QVERIFY(!snapshot.contains(testHeader));
-    QVERIFY(!snapshot.contains(testCpp));
+    Document::Ptr headerDocumentBefore = snapshot.document(testHeader);
+    const QList<CPlusPlus::Macro> macrosInHeaderBefore = headerDocumentBefore->definedMacros();
+    QCOMPARE(macrosInHeaderBefore.size(), 1);
+    QVERIFY(macrosInHeaderBefore.first().name() == "test_modelmanager_refresh_h");
 
-    mm->updateSourceFiles(QStringList() << testCpp);
+    // Introduce a define that will enable another define once the document is reparsed.
+    part->defines = QByteArray("#define TEST_DEFINE 1\n");
+    pi.clearProjectParts();
+    pi.appendProjectPart(part);
+    mm->updateProjectInfo(pi);
     refreshedFiles = helper.waitForRefreshedSourceFiles();
 
     QCOMPARE(refreshedFiles.size(), 1);
@@ -305,6 +307,12 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     snapshot = mm->snapshot();
     QVERIFY(snapshot.contains(testHeader));
     QVERIFY(snapshot.contains(testCpp));
+
+    Document::Ptr headerDocumentAfter = snapshot.document(testHeader);
+    const QList<CPlusPlus::Macro> macrosInHeaderAfter = headerDocumentAfter->definedMacros();
+    QCOMPARE(macrosInHeaderAfter.size(), 2);
+    QVERIFY(macrosInHeaderAfter.at(0).name() == "test_modelmanager_refresh_h");
+    QVERIFY(macrosInHeaderAfter.at(1).name() == "TEST_DEFINE_DEFINED");
 }
 
 /// QTCREATORBUG-9205
@@ -340,8 +348,21 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     QStringList refreshedFiles;
     CPlusPlus::Document::Ptr document;
 
+    QByteArray defines = "#define FIRST_DEFINE";
     for (int i = 0; i < 2; ++i) {
-        mm->updateSourceFiles(QStringList() << testHeader1 << testHeader2 << testCpp);
+        pi.clearProjectParts();
+        ProjectPart::Ptr part(new ProjectPart);
+        // Simulate project configuration change by having different defines each time.
+        defines += "\n#define ANOTHER_DEFINE";
+        part->defines = defines;
+        part->cxxVersion = ProjectPart::CXX98;
+        part->qtVersion = ProjectPart::Qt5;
+        part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
+        part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
+        part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+        pi.appendProjectPart(part);
+
+        mm->updateProjectInfo(pi);
         refreshedFiles = helper.waitForRefreshedSourceFiles();
 
         QCOMPARE(refreshedFiles.size(), 3);
@@ -366,6 +387,38 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     }
 }
 
+/// QTCREATORBUG-9581
+/// Check: If nothing has changes, nothing should be reindexed.
+void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
+{
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    const TestDataDirectory testDataDir(QLatin1String("testdata_refresh"));
+    const QString testCpp(testDataDir.file(QLatin1String("source.cpp")));
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh_2"));
+    ProjectInfo pi = mm->projectInfo(project);
+    QCOMPARE(pi.project().data(), project);
+
+    ProjectPart::Ptr part(new ProjectPart);
+    part->cxxVersion = ProjectPart::CXX98;
+    part->qtVersion = ProjectPart::Qt5;
+    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+    pi.appendProjectPart(part);
+
+    // Reindexing triggers a reparsing thread
+    QFuture<void> firstFuture = mm->updateProjectInfo(pi);
+    QVERIFY(firstFuture.isStarted() || firstFuture.isRunning());
+    const QStringList refreshedFiles = helper.waitForRefreshedSourceFiles();
+    QCOMPARE(refreshedFiles.size(), 1);
+    QVERIFY(refreshedFiles.contains(testCpp));
+
+    // No reindexing since nothing has changed
+    QFuture<void> subsequentFuture = mm->updateProjectInfo(pi);
+    QVERIFY(subsequentFuture.isCanceled() && subsequentFuture.isFinished());
+}
+
 /// Check: If a second project is opened, the code model is still aware of
 ///        files of the first project.
 void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
@@ -384,7 +437,6 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
                                   << QLatin1String("main.cpp"));
 
     mm->updateProjectInfo(project1.projectInfo);
-    mm->updateSourceFiles(project1.projectFiles);
     refreshedFiles = helper.waitForRefreshedSourceFiles();
     QCOMPARE(refreshedFiles.toSet(), project1.projectFiles.toSet());
     const int snapshotSizeAfterProject1 = mm->snapshot().size();
@@ -400,7 +452,6 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
                                   << QLatin1String("main.cpp"));
 
     mm->updateProjectInfo(project2.projectInfo);
-    mm->updateSourceFiles(project2.projectFiles);
     refreshedFiles = helper.waitForRefreshedSourceFiles();
     QCOMPARE(refreshedFiles.toSet(), project2.projectFiles.toSet());
 

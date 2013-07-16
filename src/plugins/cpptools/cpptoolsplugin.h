@@ -163,6 +163,7 @@ private slots:
     void test_modelmanager_framework_headers();
     void test_modelmanager_refresh_also_includes_of_project_files();
     void test_modelmanager_refresh_several_times();
+    void test_modelmanager_refresh_test_for_changes();
     void test_modelmanager_snapshot_after_two_projects();
     void test_modelmanager_extraeditorsupport_uiFiles();
 

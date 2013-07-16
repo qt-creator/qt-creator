@@ -73,7 +73,7 @@ public:
 
     virtual QList<ProjectInfo> projectInfos() const;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    virtual void updateProjectInfo(const ProjectInfo &pinfo);
+    virtual QFuture<void> updateProjectInfo(const ProjectInfo &pinfo);
     virtual QList<CppTools::ProjectPart::Ptr> projectPart(const QString &fileName) const;
 
     virtual CPlusPlus::Snapshot snapshot() const;

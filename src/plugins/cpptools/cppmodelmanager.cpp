@@ -547,17 +547,24 @@ CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Proje
     return m_projects.value(project, ProjectInfo(project));
 }
 
-void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
+QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 {
     { // only hold the mutex for a limited scope, so the dumping afterwards can aquire it without deadlocking.
         QMutexLocker locker(&m_projectMutex);
 
         if (! pinfo.isValid())
-            return;
+            return QFuture<void>();
 
         ProjectExplorer::Project *project = pinfo.project().data();
         ProjectInfo oldProjectInfo = m_projects.value(project);
         if (oldProjectInfo.isValid()) {
+            if (pinfo.defines() == oldProjectInfo.defines()
+                    && pinfo.includePaths() == oldProjectInfo.includePaths()
+                    && pinfo.frameworkPaths() == oldProjectInfo.frameworkPaths()
+                    && pinfo.sourceFiles() == oldProjectInfo.sourceFiles()) {
+                return QFuture<void>();
+            }
+
             foreach (const ProjectPart::Ptr &projectPart, oldProjectInfo.projectParts()) {
                 foreach (const ProjectFile &cxxFile, projectPart->files) {
                     foreach (const QString &fileName,
@@ -587,6 +594,8 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
         dumpModelManagerConfiguration();
 
     emit projectPartsUpdated(pinfo.project().data());
+
+    return updateSourceFiles(pinfo.sourceFiles(), ForcedProgressNotification);
 }
 
 QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const

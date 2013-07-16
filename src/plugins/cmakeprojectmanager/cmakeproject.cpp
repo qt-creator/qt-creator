@@ -389,10 +389,8 @@ bool CMakeProject::parseCMakeLists()
             adder.maybeAdd(file);
 
         pinfo.appendProjectPart(part);
-        modelmanager->updateProjectInfo(pinfo);
         m_codeModelFuture.cancel();
-        m_codeModelFuture = modelmanager->updateSourceFiles(m_files,
-            CppTools::CppModelManagerInterface::ForcedProgressNotification);
+        m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 
         setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
     }
