@@ -46,7 +46,8 @@ SUBDIRS   = \
     madde \
     valgrind \
     todo \
-    qnx
+    qnx \
+    clearcase
 
 exists(../shared/qbs/qbs.pro): \
     SUBDIRS += \
@@ -60,10 +61,6 @@ isEmpty(IDE_PACKAGE_MODE) {
     SUBDIRS += \
         updateinfo
 }
-
-!macx: \
-    SUBDIRS += \
-        clearcase
 
 contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
     SUBDIRS += \

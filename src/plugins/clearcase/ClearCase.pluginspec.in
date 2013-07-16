@@ -1,4 +1,4 @@
-<plugin name=\"ClearCase\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\">
+<plugin name=\"ClearCase\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\" disabledByDefault=\"$$CLEARCASE_DISABLED_STR\">
     <vendor>AudioCodes</vendor>
     <copyright>(C) 2013 AudioCodes Ltd.</copyright>
     <license>
