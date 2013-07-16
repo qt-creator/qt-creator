@@ -715,7 +715,7 @@ EditorData FormEditorW::createEditor(QWidget *parent)
     data.formWindowEditor = xmlEditor->designerEditor();
     connect(data.widgetHost, SIGNAL(formWindowSizeChanged(int,int)),
             xmlEditor, SIGNAL(changed()));
-    connect(data.formWindowEditor->document(), SIGNAL(changed()),
+    connect(data.formWindowEditor->document(), SIGNAL(filePathChanged(QString,QString)),
             resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
 

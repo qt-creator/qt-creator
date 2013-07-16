@@ -38,7 +38,7 @@ We need to update resources of the opened form in following cases:
   slot)
 - the opened form is being saved as... with new name, what causes the editor
   for the form points to a new file which is not in the project (we connect
-  changed() to updateResources() slot)
+  filePathChanged(QString,QString) to updateResources() slot)
 
 Changes to qrc file contents are not needed to be handled here, since
 designer's internal file watcher updates the changes to qrc files silently.
