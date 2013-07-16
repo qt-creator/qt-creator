@@ -842,7 +842,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                                      m_lineHeight, color);
                 }
 
-                if (selStart < selEnd && !isFullySelected && pos >= selStart && pos <= selEnd) {
+                if (selStart < selEnd && !isFullySelected && pos >= selStart && pos < selEnd) {
                     selectionRect |= QRect(item_x, y-m_ascent, m_columnWidth, m_lineHeight);
                     int printable_item_x = -xoffset + m_margin + m_labelWidth + m_bytesPerLine * m_columnWidth + m_charWidth
                                            + fm.width(printable.left(c));
@@ -1088,17 +1088,17 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
     // Selection if mouse is in, else 1 byte at cursor
     int selStart = selectionStart();
     int selEnd = selectionEnd();
-    int byteCount = selEnd - selStart + 1;
-    if (byteCount <= 1) {
+    int byteCount = selEnd - selStart;
+    if (byteCount < 1) {
         selStart = posAt(helpEvent->pos());
-        selEnd = selStart;
+        selEnd = selStart + 1;
         byteCount = 1;
     }
     if (m_hexCursor == 0 || byteCount > 8)
         return QString();
 
     const QPoint &startPoint = offsetToPos(selStart);
-    const QPoint &endPoint = offsetToPos(selEnd + 1);
+    const QPoint &endPoint = offsetToPos(selEnd);
     QRect selRect(startPoint, endPoint);
     selRect.setHeight(m_lineHeight);
     if (!selRect.contains(helpEvent->pos()))
@@ -1383,10 +1383,10 @@ void BinEditorWidget::copy(bool raw)
 {
     int selStart = selectionStart();
     int selEnd = selectionEnd();
-    if (selStart >= selEnd)
+    if (selStart > selEnd)
         qSwap(selStart, selEnd);
 
-    const int selectionLength = selEnd - selStart + 1;
+    const int selectionLength = selEnd - selStart;
     if (selectionLength >> 22) {
         QMessageBox::warning(this, tr("Copying Failed"),
                              tr("You cannot copy more than 4 MB of binary data."));
@@ -1494,7 +1494,7 @@ void BinEditorWidget::redo()
 void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     const int selStart = selectionStart();
-    const int byteCount = selectionEnd() - selStart + 1;
+    const int byteCount = selectionEnd() - selStart;
 
     QPointer<QMenu> contextMenu(new QMenu(this));
 
