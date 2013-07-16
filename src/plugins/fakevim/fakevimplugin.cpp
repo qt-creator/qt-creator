@@ -1026,7 +1026,6 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
     q->removeObject(m_fakeVimOptionsPage);
     delete m_fakeVimOptionsPage;
     m_fakeVimOptionsPage = 0;
-    delete theFakeVimSettings();
 
     q->removeObject(m_fakeVimExCommandsPage);
     delete m_fakeVimExCommandsPage;
@@ -1035,6 +1034,8 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
     q->removeObject(m_fakeVimUserCommandsPage);
     delete m_fakeVimUserCommandsPage;
     m_fakeVimUserCommandsPage = 0;
+
+    theFakeVimSettings()->deleteLater();
 }
 
 void FakeVimPluginPrivate::onCoreAboutToClose()
