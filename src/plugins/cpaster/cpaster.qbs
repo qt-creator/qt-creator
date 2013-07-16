@@ -12,10 +12,6 @@ QtcPlugin {
     cpp.includePaths: base.concat("../../shared/cpaster")
 
     files: [
-        "codepasterprotocol.cpp",
-        "codepasterprotocol.h",
-        "codepastersettings.cpp",
-        "codepastersettings.h",
         "columnindicatortextedit.cpp",
         "columnindicatortextedit.h",
         "cpasterconstants.h",

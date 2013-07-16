@@ -3,10 +3,8 @@ include(../../qtcreatorplugin.pri)
 HEADERS += cpasterplugin.h \
     settingspage.h \
     protocol.h \
-    codepasterprotocol.h \
     pasteview.h \
     cpasterconstants.h \
-    codepastersettings.h \
     pastebindotcomprotocol.h \
     pastebindotcaprotocol.h \
     settings.h \
@@ -20,9 +18,7 @@ HEADERS += cpasterplugin.h \
 SOURCES += cpasterplugin.cpp \
     settingspage.cpp \
     protocol.cpp \
-    codepasterprotocol.cpp \
     pasteview.cpp \
-    codepastersettings.cpp \
     pastebindotcomprotocol.cpp \
     pastebindotcaprotocol.cpp \
     settings.cpp \

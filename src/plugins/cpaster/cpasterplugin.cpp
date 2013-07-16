@@ -30,7 +30,6 @@
 #include "cpasterplugin.h"
 
 #include "pasteview.h"
-#include "codepasterprotocol.h"
 #include "kdepasteprotocol.h"
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcaprotocol.h"
@@ -133,7 +132,6 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     Protocol *protos[] =  { new PasteBinDotComProtocol,
                             new PasteBinDotCaProtocol,
                             new KdePasteProtocol,
-                            new CodePasterProtocol,
                             new FileShareProtocol
                            };
     const int count = sizeof(protos) / sizeof(Protocol *);
