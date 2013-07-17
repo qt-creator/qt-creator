@@ -47,18 +47,6 @@
 
 Q_DECLARE_METATYPE(QVariant)
 
-static QString msgTermination(int exitCode, const QString &binaryPath, const QStringList &args)
-{
-    QString cmd = QFileInfo(binaryPath).baseName();
-    if (!args.empty()) {
-        cmd += QLatin1Char(' ');
-        cmd += args.front();
-    }
-    return exitCode ?
-                QCoreApplication::translate("VcsCommand", "\n'%1' failed (exit code %2).\n").arg(cmd).arg(exitCode) :
-                QCoreApplication::translate("VcsCommand", "\n'%1' completed (exit code %2).\n").arg(cmd).arg(exitCode);
-}
-
 namespace VcsBase {
 namespace Internal {
 
@@ -86,7 +74,6 @@ public:
     QTextCodec *m_codec;
 
     QList<Job> m_jobs;
-    Command::TerminationReportMode m_reportTerminationMode;
 
     bool m_lastExecSuccess;
     int m_lastExecExitCode;
@@ -102,7 +89,6 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_defaultTimeout(10),
     m_expectChanges(false),
     m_codec(0),
-    m_reportTerminationMode(Command::NoReport),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
 {
@@ -144,16 +130,6 @@ const QString &Command::workingDirectory() const
 const QProcessEnvironment &Command::processEnvironment() const
 {
     return d->m_environment;
-}
-
-Command::TerminationReportMode Command::reportTerminationMode() const
-{
-    return d->m_reportTerminationMode;
-}
-
-void Command::setTerminationReportMode(TerminationReportMode m)
-{
-    d->m_reportTerminationMode = m;
 }
 
 int Command::defaultTimeout() const
@@ -275,16 +251,6 @@ void Command::run()
 
         error += QString::fromLocal8Bit(stdErr);
         exitCode = process->exitCode();
-        switch (reportTerminationMode()) {
-        case NoReport:
-            break;
-        case ReportStdout:
-            stdOut += msgTermination(exitCode, binaryPath(), d->m_jobs.at(j).arguments).toUtf8();
-            break;
-        case ReportStderr:
-            error += msgTermination(exitCode, binaryPath(), d->m_jobs.at(j).arguments);
-            break;
-        }
     }
 
     QString stdOutS = d->m_codec ? d->m_codec->toUnicode(stdOut)

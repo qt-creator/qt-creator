@@ -2239,7 +2239,6 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
     VcsBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
-    command->setTerminationReportMode(VcsBase::Command::NoReport);
     command->setUnixTerminalDisabled(false);
     command->setExpectChanges(expectChanges);
     command->execute();

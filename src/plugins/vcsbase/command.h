@@ -47,14 +47,6 @@ class VCSBASE_EXPORT Command : public QObject
     Q_OBJECT
 
 public:
-    // Where to report command termination with exit code if desired
-    enum TerminationReportMode
-    {
-        NoReport,
-        ReportStdout,  // This assumes UTF8
-        ReportStderr
-    };
-
     Command(const QString &binary,
             const QString &workingDirectory,
             const QProcessEnvironment &environment);
@@ -69,10 +61,6 @@ public:
     const QString &binaryPath() const;
     const QString &workingDirectory() const;
     const QProcessEnvironment &processEnvironment() const;
-
-    // Report command termination with exit code
-    TerminationReportMode reportTerminationMode() const;
-    void setTerminationReportMode(TerminationReportMode m);
 
     int defaultTimeout() const;
     void setDefaultTimeout(int timeout);
