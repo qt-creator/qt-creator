@@ -40,14 +40,6 @@ namespace CPlusPlus {
 class Overview;
 class FullySpecifiedType;
 
-/*!
-   \class TypePrettyPrinter
-
-   \brief Helper class for Overview. Does the main type conversation work.
-
-   Don't use this class directly, use Overview instead.
- */
-
 class CPLUSPLUS_EXPORT TypePrettyPrinter: protected TypeVisitor
 {
 public:

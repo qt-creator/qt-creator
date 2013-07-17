@@ -38,6 +38,49 @@
 
 using namespace CPlusPlus;
 
+/*!
+    \class Overview
+
+    \brief The Overview class converts a FullySpecifiedType and/or any qualified
+    name to its string representation.
+
+    The public data members (except the ones starting with \e marked)
+    determine what exactly and how to print.
+
+    You can get the start and end position of a function argument
+    in the resulting string. Set \c markedArgument to the desired
+    argument. After processing, \c markedArgumentBegin and
+    \c markedArgumentEnd will contain the positions.
+*/
+
+/*!
+    \enum Overview::StarBindFlag
+
+    The StarBindFlag enum describes how the '*' and '&' in pointers/references
+    should be bound in the string representation.
+
+    This also applies to rvalue references ('&&'), but not to pointers to
+    functions or arrays, because it seems to be quite uncommon to use spaces in
+    them. For example:
+    \code
+      void (*p)()
+      void (*p)[]
+    \endcode
+
+    See the examples below. These assume that exactly one
+    flag is set. That is, it may look different with
+    flag combinations.
+
+      \value BindToIdentifier
+             e.g. "char *foo", but not "char * foo"
+      \value BindToTypeName
+             e.g. "char*", but not "char *"
+      \value BindToLeftSpecifier
+             e.g. "char * const* const", but not "char * const * const"
+      \value BindToRightSpecifier
+             e.g. "char *const", but not "char * const"
+*/
+
 Overview::Overview()
     : starBindFlags(BindToIdentifier), // default to "Qt Style"
       showArgumentNames(false),
