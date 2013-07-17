@@ -457,8 +457,15 @@ void QmlInspectorAdapter::initializePreviews()
         }
 
         // initial update
-        foreach (Core::IEditor *editor, em->openedEditors())
-            createPreviewForEditor(editor);
+        Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
+        foreach (Core::IDocument *document, documentModel->openedDocuments()) {
+            QList<Core::IEditor *> editors = documentModel->editorsForDocument(document);
+            createPreviewForEditor(editors.takeFirst());
+            QmlLiveTextPreview *preview
+                    = m_textPreviews.value(document->filePath());
+            foreach (Core::IEditor *editor, editors)
+                preview->associateEditor(editor);
+        }
     }
 }
 
