@@ -43,6 +43,7 @@
 #include <QCoreApplication>
 #include <QVariant>
 #include <QStringList>
+#include <QTextCodec>
 
 Q_DECLARE_METATYPE(QVariant)
 
@@ -82,6 +83,7 @@ public:
     bool m_unixTerminalDisabled;
     int m_defaultTimeout;
     bool m_expectChanges;
+    QTextCodec *m_codec;
 
     QList<Job> m_jobs;
     Command::TerminationReportMode m_reportTerminationMode;
@@ -99,6 +101,7 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_unixTerminalDisabled(false),
     m_defaultTimeout(10),
     m_expectChanges(false),
+    m_codec(0),
     m_reportTerminationMode(Command::NoReport),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
@@ -284,11 +287,15 @@ void Command::run()
         }
     }
 
+    QString stdOutS = d->m_codec ? d->m_codec->toUnicode(stdOut)
+                                 : QString::fromLocal8Bit(stdOut.constData(), stdOut.size());
+    stdOutS.remove(QLatin1Char('\r'));
+
     d->m_lastExecSuccess = ok;
     d->m_lastExecExitCode = exitCode;
 
     if (ok)
-        emit outputData(stdOut);
+        emit outputData(stdOutS);
 
     if (!error.isEmpty())
         emit errorText(error);
@@ -312,6 +319,16 @@ const QVariant &Command::cookie() const
 void Command::setCookie(const QVariant &cookie)
 {
     d->m_cookie = cookie;
+}
+
+QTextCodec *Command::codec() const
+{
+    return d->m_codec;
+}
+
+void Command::setCodec(QTextCodec *codec)
+{
+    d->m_codec = codec;
 }
 
 } // namespace VcsBase

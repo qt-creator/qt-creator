@@ -234,7 +234,7 @@ public:
     QString synchronousTopic(const QString &workingDirectory);
     QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
     void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
-                                  QByteArray &precedes, QByteArray &follows);
+                                  QString &precedes, QString &follows);
     bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
@@ -327,8 +327,8 @@ public slots:
 
 private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
-    void appendOutputData(const QByteArray &data) const;
-    void appendOutputDataSilently(const QByteArray &data) const;
+    void appendOutputData(const QString &data) const;
+    void appendOutputDataSilently(const QString &data) const;
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
 

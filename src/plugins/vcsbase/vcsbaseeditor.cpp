@@ -1169,12 +1169,12 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     return rc;
 }
 
-void VcsBaseEditorWidget::setPlainTextData(const QByteArray &data)
+void VcsBaseEditorWidget::setPlainText(const QString &text)
 {
-    if (data.size() > Core::EditorManager::maxTextFileSize())
-        setPlainText(msgTextTooLarge(data.size()));
+    if (text.size() > Core::EditorManager::maxTextFileSize())
+        TextEditor::BaseTextEditorWidget::setPlainText(msgTextTooLarge(text.size()));
     else
-        setPlainText(codec()->toUnicode(data));
+        TextEditor::BaseTextEditorWidget::setPlainText(text);
 }
 
 void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVariant &data)

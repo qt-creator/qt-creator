@@ -50,7 +50,7 @@ public:
                        QWidget *parent);
 
 public slots:
-    void setPlainTextDataFiltered(const QByteArray &a);
+    void setPlainTextDataFiltered(const QString &a);
     // Matches  the signature of the finished signal of GitCommand
     void commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v);
 

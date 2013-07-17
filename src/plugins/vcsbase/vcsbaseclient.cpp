@@ -89,7 +89,7 @@ class VcsBaseClientPrivate
 public:
     VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientSettings *settings);
 
-    void statusParser(QByteArray data);
+    void statusParser(const QString &text);
     void annotateRevision(QString source, QString change, int lineNumber);
     void saveSettings();
 
@@ -110,11 +110,11 @@ VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientS
 {
 }
 
-void VcsBaseClientPrivate::statusParser(QByteArray data)
+void VcsBaseClientPrivate::statusParser(const QString &text)
 {
     QList<VcsBaseClient::StatusItem> lineInfoList;
 
-    QStringList rawStatusList = QTextCodec::codecForLocale()->toUnicode(data).split(QLatin1Char('\n'));
+    QStringList rawStatusList = text.split(QLatin1Char('\n'));
 
     foreach (const QString &string, rawStatusList) {
         const VcsBaseClient::StatusItem lineInfo = m_client->parseStatusLine(string);
@@ -436,7 +436,7 @@ void VcsBaseClient::emitParsedStatus(const QString &repository, const QStringLis
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
     Command *cmd = createCommand(repository);
-    connect(cmd, SIGNAL(outputData(QByteArray)), this, SLOT(statusParser(QByteArray)));
+    connect(cmd, SIGNAL(outputData(QString)), this, SLOT(statusParser(QString)));
     enqueueJob(cmd, args);
 }
 
@@ -598,15 +598,15 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
         d->bindCommandToEditor(cmd, editor);
     if (mode == VcsWindowOutputBind) {
         if (editor) { // assume that the commands output is the important thing
-            connect(cmd, SIGNAL(outputData(QByteArray)),
-                    ::vcsOutputWindow(), SLOT(appendDataSilently(QByteArray)));
+            connect(cmd, SIGNAL(outputData(QString)),
+                    ::vcsOutputWindow(), SLOT(appendSilently(QString)));
         } else {
-            connect(cmd, SIGNAL(outputData(QByteArray)),
-                    ::vcsOutputWindow(), SLOT(appendData(QByteArray)));
+            connect(cmd, SIGNAL(outputData(QString)),
+                    ::vcsOutputWindow(), SLOT(append(QString)));
         }
     } else if (editor) {
-        connect(cmd, SIGNAL(outputData(QByteArray)),
-                editor, SLOT(setPlainTextData(QByteArray)));
+        connect(cmd, SIGNAL(outputData(QString)),
+                editor, SLOT(setPlainTextData(QString)));
     }
 
     if (::vcsOutputWindow())

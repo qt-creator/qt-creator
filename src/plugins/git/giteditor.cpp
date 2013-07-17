@@ -118,25 +118,26 @@ VcsBase::BaseAnnotationHighlighter *GitEditor::createAnnotationHighlighter(const
 8ca887aa (author               YYYY-MM-DD HH:MM:SS <offset>  <line>)<content>
 \endcode */
 
-static QByteArray removeAnnotationDate(const QByteArray &b)
+static QString removeAnnotationDate(const QString &b)
 {
     if (b.isEmpty())
-        return QByteArray();
+        return b;
 
-    const int parenPos = b.indexOf(')');
+    const QChar space(QLatin1Char(' '));
+    const int parenPos = b.indexOf(QLatin1Char(')'));
     if (parenPos == -1)
-        return QByteArray(b);
+        return b;
     int datePos = parenPos;
 
     int i = parenPos;
-    while (i >= 0 && b.at(i) != ' ')
+    while (i >= 0 && b.at(i) != space)
         --i;
-    while (i >= 0 && b.at(i) == ' ')
+    while (i >= 0 && b.at(i) == space)
         --i;
     int spaceCount = 0;
     // i is now on timezone. Go back 3 spaces: That is where the date starts.
     while (i >= 0) {
-        if (b.at(i) == ' ')
+        if (b.at(i) == space)
             ++spaceCount;
         if (spaceCount == 3) {
             datePos = i;
@@ -145,33 +146,33 @@ static QByteArray removeAnnotationDate(const QByteArray &b)
         --i;
     }
     if (datePos == 0)
-        return QByteArray(b);
+        return b;
 
     // Copy over the parts that have not changed into a new byte array
-    QByteArray result;
+    QString result;
     QTC_ASSERT(b.size() >= parenPos, return result);
     int prevPos = 0;
-    int pos = b.indexOf('\n', 0) + 1;
+    int pos = b.indexOf(QLatin1Char('\n'), 0) + 1;
     forever {
         QTC_CHECK(prevPos < pos);
         int afterParen = prevPos + parenPos;
-        result.append(b.constData() + prevPos, datePos);
-        result.append(b.constData() + afterParen, pos - afterParen);
+        result.append(b.mid(prevPos, datePos));
+        result.append(b.mid(afterParen, pos - afterParen));
         prevPos = pos;
         QTC_CHECK(prevPos != 0);
         if (pos == b.size())
             break;
 
-        pos = b.indexOf('\n', pos) + 1;
+        pos = b.indexOf(QLatin1Char('\n'), pos) + 1;
         if (pos == 0) // indexOf returned -1
             pos = b.size();
     }
     return result;
 }
 
-void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
+void GitEditor::setPlainTextDataFiltered(const QString &a)
 {
-    QByteArray array = a;
+    QString array = a;
     GitPlugin *plugin = GitPlugin::instance();
     // If desired, filter out the date from annotation
     switch (contentType())
@@ -184,17 +185,17 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
     }
     case VcsBase::DiffOutput: {
         if (array.isEmpty())
-            array = QByteArray("No difference to HEAD");
+            array = QLatin1String("No difference to HEAD");
         const QFileInfo fi(source());
         const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-        QByteArray precedes, follows;
-        if (array.startsWith("commit ")) { // show
-            int lastHeaderLine = array.indexOf("\n\n") + 1;
-            plugin->gitClient()->synchronousTagsForCommit(workingDirectory, QLatin1String(array.mid(7, 8)), precedes, follows);
+        QString precedes, follows;
+        if (array.startsWith(QLatin1String("commit "))) { // show
+            int lastHeaderLine = array.indexOf(QLatin1String("\n\n")) + 1;
+            plugin->gitClient()->synchronousTagsForCommit(workingDirectory, array.mid(7, 8), precedes, follows);
             if (!precedes.isEmpty())
-                array.insert(lastHeaderLine, "Precedes: " + precedes + '\n');
+                array.insert(lastHeaderLine, QLatin1String("Precedes: ") + precedes + QLatin1Char('\n'));
             if (!follows.isEmpty())
-                array.insert(lastHeaderLine, "Follows: " + follows + '\n');
+                array.insert(lastHeaderLine, QLatin1String("Follows: ") + follows + QLatin1Char('\n'));
         }
         break;
     }
@@ -202,7 +203,7 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
         break;
     }
 
-    setPlainTextData(array);
+    setPlainText(array);
 }
 
 void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)

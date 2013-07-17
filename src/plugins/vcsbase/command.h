@@ -89,11 +89,14 @@ public:
     const QVariant &cookie() const;
     void setCookie(const QVariant &cookie);
 
+    QTextCodec *codec() const;
+    void setCodec(QTextCodec *codec);
+
 private:
     void run();
 
 signals:
-    void outputData(const QByteArray &);
+    void outputData(const QString &);
     void errorText(const QString &);
     void finished(bool ok, int exitCode, const QVariant &cookie);
     void success(const QVariant &cookie);
