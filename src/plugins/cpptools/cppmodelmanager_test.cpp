@@ -551,3 +551,38 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     QVERIFY(!mm->workingCopy().contains(file));
     QVERIFY(!mm->snapshot().contains(file));
 }
+
+/// Check: Files that are open in the editor are not garbage collected.
+void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
+{
+    ModelManagerTestHelper helper;
+
+    TestDataDirectory testDataDirectory(QLatin1String("testdata_guiproject1"));
+    const QString file = testDataDirectory.file(QLatin1String("main.cpp"));
+
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CppModelManager *mm = CppModelManager::instance();
+
+    // Open a file in the editor
+    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+    Core::IEditor *editor = em->openEditor(file);
+    QVERIFY(editor);
+    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+    QVERIFY(mm->isCppEditor(editor));
+
+    // Check: File is in the working copy and snapshot
+    QVERIFY(mm->workingCopy().contains(file));
+    QVERIFY(mm->snapshot().contains(file));
+
+    // Run the garbage collector
+    mm->GC();
+
+    // Check: File is still there
+    QVERIFY(mm->workingCopy().contains(file));
+    QVERIFY(mm->snapshot().contains(file));
+
+    // Close editor
+    em->closeEditors(QList<Core::IEditor*>() << editor);
+    helper.waitForFinishedGc();
+    QVERIFY(mm->snapshot().isEmpty());
+}

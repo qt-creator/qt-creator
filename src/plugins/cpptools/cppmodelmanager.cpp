@@ -714,9 +714,28 @@ void CppModelManager::GC()
     if (!m_enableGC)
         return;
 
-    const Snapshot currentSnapshot = snapshot();
+    // Collect files of CppEditorSupport and AbstractEditorSupport.
+    QStringList filesInEditorSupports;
+    QList<CppEditorSupport *> cppEditorSupports;
+    {
+        QMutexLocker locker(&m_cppEditorSupportsMutex);
+        cppEditorSupports = m_cppEditorSupports.values();
+    }
+    foreach (const CppEditorSupport *cppEditorSupport, cppEditorSupports)
+        filesInEditorSupports << cppEditorSupport->fileName();
+
+    QSetIterator<AbstractEditorSupport *> jt(m_extraEditorSupports);
+    while (jt.hasNext()) {
+        AbstractEditorSupport *abstractEditorSupport = jt.next();
+        filesInEditorSupports << abstractEditorSupport->fileName();
+    }
+
+    Snapshot currentSnapshot = snapshot();
     QSet<QString> reachableFiles;
-    QStringList todo = projectFiles();
+    // The configuration file is part of the project files, which is just fine.
+    // If single files are open, without any project, then there is no need to
+    // keep the configuration file around.
+    QStringList todo = filesInEditorSupports + projectFiles();
 
     // Collect all files that are reachable from the project files
     while (!todo.isEmpty()) {

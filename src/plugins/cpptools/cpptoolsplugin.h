@@ -195,6 +195,7 @@ private slots:
     void test_modelmanager_snapshot_after_two_projects();
     void test_modelmanager_extraeditorsupport_uiFiles();
     void test_modelmanager_gc_if_last_cppeditor_closed();
+    void test_modelmanager_dont_gc_opened_files();
 
 private:
     void test_completion();

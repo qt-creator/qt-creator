@@ -151,11 +151,11 @@ public slots:
 
 private slots:
     // This should be executed in the GUI thread.
-    void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onAboutToLoadSession();
     void onAboutToUnloadSession();
-    void onCoreAboutToClose();
     void onProjectAdded(ProjectExplorer::Project *project);
+    void onAboutToRemoveProject(ProjectExplorer::Project *project);
+    void onCoreAboutToClose();
 
 private:
     void delayedGC();
