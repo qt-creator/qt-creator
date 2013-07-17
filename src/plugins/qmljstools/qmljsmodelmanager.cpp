@@ -39,7 +39,7 @@
 #include <coreplugin/messagemanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <qmljs/qmljsbind.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextdocument.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -55,6 +55,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <utils/runextensions.h>
+#include <QTextDocument>
 #include <QTextStream>
 #include <QTimer>
 #include <QRegExp>
@@ -326,17 +327,13 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
 ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
 {
     WorkingCopy workingCopy;
-    if (!Core::ICore::instance())
-        return workingCopy;
-
-    foreach (Core::IEditor *editor, Core::ICore::editorManager()->openedEditors()) {
-        const QString key = editor->document()->filePath();
-
-        if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
-            if (textEditor->context().contains(ProjectExplorer::Constants::LANG_QMLJS)) {
-                if (TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(textEditor->widget()))
-                    workingCopy.insert(key, ed->toPlainText(), ed->document()->revision());
-            }
+    Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
+    foreach (Core::IDocument *document, documentModel->openedDocuments()) {
+        const QString key = document->filePath();
+        if (TextEditor::BaseTextDocument *textDocument = qobject_cast<TextEditor::BaseTextDocument *>(document)) {
+            // TODO the language should be a property on the document, not the editor
+            if (documentModel->editorsForDocument(document).first()->context().contains(ProjectExplorer::Constants::LANG_QMLJS))
+                workingCopy.insert(key, textDocument->contents(), textDocument->document()->revision());
         }
     }
 
