@@ -664,11 +664,13 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     result.clear();
     result.reserve(lines.size());
 
+    Utils::JsonMemoryPool pool;
+
     foreach (const QByteArray &line, lines) {
         if (line.isEmpty())
             continue;
-        QScopedPointer<Utils::JsonValue> objectValue(Utils::JsonValue::create(QString::fromUtf8(line)));
-        if (objectValue.isNull()) {
+        Utils::JsonValue *objectValue = Utils::JsonValue::create(QString::fromUtf8(line), &pool);
+        if (!objectValue) {
             QString errorMessage = GerritModel::tr("Parse error: '%1'")
                     .arg(QString::fromLocal8Bit(line));
             qWarning() << errorMessage;
