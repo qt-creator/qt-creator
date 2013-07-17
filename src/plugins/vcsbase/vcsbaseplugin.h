@@ -166,7 +166,8 @@ public:
         ForceCLocale = 0x80,            // Force C-locale for commands whose output is parsed.
         FullySynchronously = 0x100,     // Suppress local event loop (in case UI actions are
                                         // triggered by file watchers).
-        ExpectRepoChanges = 0x200       // Expect changes in repository by the command
+        ExpectRepoChanges = 0x200,      // Expect changes in repository by the command
+        SilentOutput = 0x400            // With ShowStdOutInLogWindow - append output silently
     };
 
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,

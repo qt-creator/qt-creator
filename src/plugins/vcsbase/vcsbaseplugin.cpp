@@ -871,8 +871,12 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
     if (!stdOut.isEmpty()) {
         response.stdOut = (outputCodec ? outputCodec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut))
                           .remove(QLatin1Char('\r'));
-        if (flags & VcsBasePlugin::ShowStdOutInLogWindow)
-            outputWindow->append(response.stdOut);
+        if (flags & VcsBasePlugin::ShowStdOutInLogWindow) {
+            if (flags & VcsBasePlugin::SilentOutput)
+                outputWindow->appendSilently(response.stdOut);
+            else
+                outputWindow->append(response.stdOut);
+        }
     }
 
     // Result
