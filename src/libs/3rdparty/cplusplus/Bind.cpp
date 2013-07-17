@@ -476,7 +476,7 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
         e->setType(control()->integerType(IntegerType::Int)); // ### introduce IntegerType::Enumerator
 
         if (ExpressionAST *expr = ast->expression)
-            e->setConstantValue(asStringLiteral(expr->firstToken(), expr->lastToken(), false));
+            e->setConstantValue(asStringLiteral(expr->firstToken(), expr->lastToken()));
 
         symbol->addMember(e);
     }
@@ -1137,13 +1137,12 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     return type;
 }
 
-const StringLiteral *Bind::asStringLiteral(unsigned firstToken, unsigned lastToken,
-                                           bool addWhitespace)
+const StringLiteral *Bind::asStringLiteral(unsigned firstToken, unsigned lastToken)
 {
     std::string buffer;
     for (unsigned index = firstToken; index != lastToken; ++index) {
         const Token &tk = tokenAt(index);
-        if (addWhitespace && (tk.whitespace() || tk.newline()))
+        if (index != firstToken && (tk.whitespace() || tk.newline()))
             buffer += ' ';
         buffer += tk.spell();
     }
