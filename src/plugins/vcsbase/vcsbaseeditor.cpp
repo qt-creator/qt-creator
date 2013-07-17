@@ -1560,20 +1560,17 @@ static const char tagPropertyC[] = "_q_VcsBaseEditorTag";
 
 void VcsBaseEditorWidget::tagEditor(Core::IEditor *e, const QString &tag)
 {
-    e->setProperty(tagPropertyC, QVariant(tag));
+    e->document()->setProperty(tagPropertyC, QVariant(tag));
 }
 
 Core::IEditor* VcsBaseEditorWidget::locateEditorByTag(const QString &tag)
 {
-    Core::IEditor *rc = 0;
-    foreach (Core::IEditor *ed, Core::EditorManager::instance()->openedEditors()) {
-        const QVariant tagPropertyValue = ed->property(tagPropertyC);
-        if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag) {
-            rc = ed;
-            break;
-        }
+    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+        const QVariant tagPropertyValue = document->property(tagPropertyC);
+        if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
+            return Core::EditorManager::documentModel()->editorsForDocument(document).first();
     }
-    return rc;
+    return 0;
 }
 
 } // namespace VcsBase

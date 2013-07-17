@@ -739,9 +739,9 @@ private:
 
 Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IEditor *ed, Core::ICore::editorManager()->openedEditors())
-        if (ed->document()->property(property).toString() == entry)
-            return ed;
+    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments())
+        if (document->property(property).toString() == entry)
+            return Core::EditorManager::documentModel()->editorsForDocument(document).first();
     return 0;
 }
 
