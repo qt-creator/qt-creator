@@ -234,10 +234,19 @@ void StateListener::slotStateChanged()
     // folder?
     State state;
     Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
-    if (!currentDocument)
+    if (!currentDocument) {
         state.currentFile.clear();
-    else
+    } else {
         state.currentFile = currentDocument->filePath();
+        if (state.currentFile.isEmpty()) {
+            const QList<Core::IEditor *> editors =
+                    Core::EditorManager::documentModel()->editorsForDocument(currentDocument);
+            if (!editors.isEmpty()) {
+                if (QWidget *editorWidget = editors.first()->widget())
+                    state.currentFile = editorWidget->property("source").toString();
+            }
+        }
+    }
     QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
     if (!state.currentFile.isEmpty()) {
         const bool isTempFile = state.currentFile.startsWith(QDir::tempPath());
@@ -266,7 +275,9 @@ void StateListener::slotStateChanged()
     if (!state.currentFile.isEmpty()) {
         if (currentFileInfo.isNull())
             currentFileInfo.reset(new QFileInfo(state.currentFile));
-        state.currentFileDirectory = currentFileInfo->absolutePath();
+        state.currentFileDirectory =
+                currentFileInfo->isDir() ? currentFileInfo->absoluteFilePath() :
+                                           currentFileInfo->absolutePath();
         state.currentFileName = currentFileInfo->fileName();
         fileControl = vcsManager->findVersionControlForDirectory(state.currentFileDirectory,
                                                                  &state.currentFileTopLevel);
