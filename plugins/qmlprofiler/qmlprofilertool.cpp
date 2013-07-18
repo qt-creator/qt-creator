@@ -228,7 +228,7 @@ IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
-    QmlProfilerEngine *engine = new QmlProfilerEngine(this, sp, runConfiguration);
+    QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
 
     engine->registerProfilerStateManager(d->m_profilerState);
 

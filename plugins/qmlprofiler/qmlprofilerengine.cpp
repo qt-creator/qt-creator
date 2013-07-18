@@ -64,7 +64,7 @@ namespace Internal {
 class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
-    QmlProfilerEnginePrivate(QmlProfilerEngine *qq, const AnalyzerStartParameters &sp) : q(qq), m_runner(0), sp(sp) {}
+    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
     ~QmlProfilerEnginePrivate() { delete m_runner; }
 
     bool attach(const QString &address, uint port);
@@ -78,7 +78,6 @@ public:
     AbstractQmlProfilerRunner *m_runner;
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
-    const AnalyzerStartParameters sp;
 };
 
 AbstractQmlProfilerRunner *
@@ -117,7 +116,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     const ProjectExplorer::IDevice::ConstPtr device =
             ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-    conf.port = sp.analyzerPort;
+    conf.port = q->m_sp.analyzerPort;
     runner = new LocalQmlProfilerRunner(conf, parent);
     return runner;
 }
@@ -126,12 +125,13 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
 // QmlProfilerEngine
 //
 
-QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
-                                     const Analyzer::AnalyzerStartParameters &sp,
+QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
                                      ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(tool, sp, runConfiguration)
-    , d(new QmlProfilerEnginePrivate(this, sp))
+    : d(new QmlProfilerEnginePrivate(this))
 {
+    m_sp = sp;
+    m_runConfig = runConfiguration;
+
     d->m_profilerState = 0;
 
     // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect
@@ -189,12 +189,12 @@ bool QmlProfilerEngine::start()
     }
 
     if (d->m_runner) {
-        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(processEnded()));
+        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(notifyRemoteFinished()));
         connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
                 this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
         d->m_runner->start();
         d->m_noDebugOutputTimer.start();
-    } else if (d->sp.startMode == StartQmlRemote) {
+    } else if (m_sp.startMode == StartQmlRemote) {
         d->m_noDebugOutputTimer.start();
     } else {
         emit processRunning(startParameters().analyzerPort);
@@ -230,13 +230,16 @@ void QmlProfilerEngine::stop()
     }
 }
 
-void QmlProfilerEngine::processEnded()
+void QmlProfilerEngine::notifyRemoteFinished(bool success)
 {
     QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning : {
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+        if (success)
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+        else
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
         AnalyzerManager::stopTool();
 
         emit finished();

@@ -42,8 +42,7 @@ class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
     Q_OBJECT
 
 public:
-    QmlProfilerEngine(Analyzer::IAnalyzerTool *tool,
-                      const Analyzer::AnalyzerStartParameters &sp,
+    QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
                       ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 
@@ -62,7 +61,7 @@ public slots:
     void stop();
 
 private slots:
-    void processEnded();
+    void notifyRemoteFinished(bool success = true);
 
     void cancelProcess();
     void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
