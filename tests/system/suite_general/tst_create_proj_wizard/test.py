@@ -64,17 +64,14 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
     catModel = categoriesView.model()
     projects = catModel.index(0, 0)
     test.compare("Projects", str(projects.data()))
-    comboBox = findObject("{name='comboBox' type='QComboBox' visible='1' "
-                          "window=':New_Core::Internal::NewDialog'}")
+    comboBox = findObject(":New.comboBox_QComboBox")
     targets = zip(*kits.values())[0]
     maddeTargets = Targets.getTargetsAsStrings([Targets.MAEMO5, Targets.HARMATTAN])
     maddeInTargets = len(set(targets) & set(maddeTargets)) > 0
-    test.compare(comboBox.enabled, maddeInTargets, "Verifying whether combox is enabled.")
+    test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
     test.compare(maddeInTargets, not isMaddeDisabled, "Verifying if kits are configured.")
-    if maddeInTargets:
-        test.compare(comboBox.currentText, "All Templates")
-    else:
-        test.compare(comboBox.currentText, "Desktop Templates")
+    test.compare(comboBox.currentText, "Desktop Templates")
+    selectFromCombo(comboBox, "All Templates")
     for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
         # skip non-configurable
         if "Import" in category:
@@ -85,14 +82,15 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if template in ("Qt Quick 1 UI", "Qt Quick 2 UI") or "(CMake Build)" in template:
-                continue
-            availableProjectTypes.append({category:template})
+            if not (template in ("Qt Quick 1 UI", "Qt Quick 2 UI", "Qt Quick 2 UI with Controls")
+                    or "(CMake Build)" in template):
+                availableProjectTypes.append({category:template})
     clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))
     for current in availableProjectTypes:
         category = current.keys()[0]
         template = current.values()[0]
         invokeMenuItem("File", "New File or Project...")
+        selectFromCombo(waitForObject(":New.comboBox_QComboBox"), "All Templates")
         categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
         templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
@@ -101,7 +99,7 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
         clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
         waitFor("textChanged", 2000)
         text = waitForObject(":frame.templateDescription_QTextBrowser").plainText
-        displayedPlatforms, requiredVersion = __getSupportedPlatforms__(str(text), True)
+        displayedPlatforms, requiredVersion = __getSupportedPlatforms__(str(text), template, True)
         clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
         # don't check because project could exist
         __createProjectSetNameAndPath__(os.path.expanduser("~"), 'untitled', False)

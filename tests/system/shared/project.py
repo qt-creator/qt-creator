@@ -116,7 +116,7 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
     text = waitForObject("{type='QTextBrowser' name='templateDescription' visible='1'}").plainText
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
-    return __getSupportedPlatforms__(str(text))[0]
+    return __getSupportedPlatforms__(str(text), template)[0]
 
 def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}")
@@ -469,7 +469,7 @@ def resetApplicationContextToCreator():
 # configured Qt versions and Toolchains and cannot be looked up the same way
 # if you set getAsStrings to True this function returns a list of strings instead
 # of the constants defined in Targets
-def __getSupportedPlatforms__(text, getAsStrings=False):
+def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
     reqPattern = re.compile("requires qt (?P<version>\d+\.\d+(\.\d+)?)", re.IGNORECASE)
     res = reqPattern.search(text)
     if res:
@@ -491,7 +491,7 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
             result.append(Targets.HARMATTAN)
         if 'Maemo/Fremantle' in supports:
             result.append(Targets.MAEMO5)
-        if not re.search("custom Qt Creator plugin", text):
+        if not ("BlackBerry" in templateName or re.search("custom Qt Creator plugin", text)):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
