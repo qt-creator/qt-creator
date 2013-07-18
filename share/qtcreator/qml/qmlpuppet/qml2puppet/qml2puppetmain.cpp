@@ -31,6 +31,7 @@
 
 #include <QApplication>
 #include <QStringList>
+#include <QFileInfo>
 
 #include <qt5nodeinstanceclientproxy.h>
 
@@ -61,11 +62,32 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Qml2Puppet");
     QCoreApplication::setApplicationVersion("1.0.0");
 
-    if (application.arguments().count() < 2) {
+    if (application.arguments().count() < 2
+            || (application.arguments().at(1) == "--readcapturedstream" && application.arguments().count() < 3)) {
         qDebug() << "Usage:\n";
         qDebug() << "--test";
         qDebug() << "--version";
+        qDebug() << "--readcapturedstream <stream file> [control stream file]";
+
         return -1;
+    }
+
+    if (application.arguments().at(1) == "--readcapturedstream" && application.arguments().count() > 2) {
+        QFileInfo inputStreamFileInfo(application.arguments().at(2));
+        if (!inputStreamFileInfo.exists()) {
+            qDebug() << "Input stream does not exist:" << inputStreamFileInfo.absoluteFilePath();
+
+            return -1;
+        }
+
+        if (application.arguments().count() > 3) {
+            QFileInfo controlStreamFileInfo(application.arguments().at(3));
+            if (!controlStreamFileInfo.exists()) {
+                qDebug() << "Output stream does not exist:" << controlStreamFileInfo.absoluteFilePath();
+
+                return -1;
+            }
+        }
     }
 
     if (application.arguments().count() == 2 && application.arguments().at(1) == "--test") {
