@@ -93,7 +93,7 @@ def main():
 #    Creator should show the declaration of the function again.
     selectFromLocator("dummy.cpp")
     mainWin = findObject(":Qt Creator_Core::Internal::MainWindow")
-    waitFor("mainWin.windowTitle == 'dummy.cpp - cplusplus-tools - Qt Creator'")
+    waitFor("'dummy.cpp - cplusplus-tools - ' in str(mainWin.windowTitle)")
     # Reset cursor to the start of the document
     cursor = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget").textCursor()
     cursor.movePosition(QTextCursor.Start)
