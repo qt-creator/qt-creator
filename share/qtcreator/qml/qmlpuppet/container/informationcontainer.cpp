@@ -109,6 +109,7 @@ bool operator ==(const InformationContainer &first, const InformationContainer &
             && first.m_thirdInformation == second.m_thirdInformation;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 static bool operator <(const QVariant &first, const QVariant &second)
 {
     if (first.userType() == second.userType()) {
@@ -118,6 +119,7 @@ static bool operator <(const QVariant &first, const QVariant &second)
 
     return true;
 }
+#endif
 
 bool operator <(const InformationContainer &first, const InformationContainer &second)
 {
