@@ -38,12 +38,9 @@ source code.
 */
 namespace QmlDesigner {
 /*!
-\brief Constructor
-
-\param line use the __LINE__ macro
-\param function use the __FUNCTION__ or the Q_FUNC_INFO macro
-\param file use the __FILE__ macro
-\param qmlSource qml source string
+    Constructs an exception for \qmlSource. \a line uses the __LINE__ macro,
+    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
+    the __FILE__ macro.
 */
 InvalidQmlSourceException::InvalidQmlSourceException(int line,
                               const QString &function,

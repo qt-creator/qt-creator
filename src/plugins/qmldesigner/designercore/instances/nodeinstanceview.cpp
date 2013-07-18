@@ -91,12 +91,12 @@ For this purpose this view can be rendered offscreen.
 
 namespace QmlDesigner {
 
-/*! \brief Constructor
+/*!
+  Constructs a node instance view object as a child of \a parent. If \a parent
+  is destructed, this instance is destructed, too.
 
   The class will be rendered offscreen if not set otherwise.
 
-\param Parent of this object. If this parent is d this instance is
-d too.
 
 \see ~NodeInstanceView setRenderOffScreen
 */
