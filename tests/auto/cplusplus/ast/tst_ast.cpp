@@ -159,6 +159,9 @@ private slots:
     void objc_method_attributes_1();
     void objc_selector_error_recovery_1();
     void objc_selector_error_recovery_2();
+    void objc_try_statement_1();
+    void objc_try_statement_2();
+    void objc_try_statement_3();
 
     // expressions with (square) brackets
     void normal_array_access();
@@ -1378,6 +1381,60 @@ void tst_AST::objc_selector_error_recovery_2()
                                                           ));
     AST *ast = unit->ast();
     QVERIFY(ast);
+}
+
+void tst_AST::objc_try_statement_1()
+{
+    QSharedPointer<TranslationUnit> unit(
+                parseDeclaration(
+                    "\n"
+                    "void tst() {\n"
+                    "    @try {\n"
+                    "        something();\n"
+                    "    }\n"
+                    "}\n"
+                    ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::objc_try_statement_2()
+{
+    QSharedPointer<TranslationUnit> unit(
+                parseDeclaration(
+                    "void tst() {\n"
+                    "    @try {\n"
+                    "        something();\n"
+                    "    } @catch (NSException *e) {\n"
+                    "        another_thing();\n"
+                    "    } @catch (UIException *e) { \n"
+                    "        one_more_thing();\n"
+                    "    } @finally {\n"
+                    "        nothing();\n"
+                    "    }\n"
+                    "}\n"
+                    ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::objc_try_statement_3()
+{
+    QSharedPointer<TranslationUnit> unit(
+                parseDeclaration(
+                    "void tst() {\n"
+                    "    @try {\n"
+                    "        get_banana();\n"
+                    "    } @catch (...) {\n"
+                    "        printf(\"Oek?\");\n"
+                    "    }\n"
+                    "}\n"
+                    ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    QCOMPARE(diag.errorCount, 0);
 }
 
 void tst_AST::normal_array_access()

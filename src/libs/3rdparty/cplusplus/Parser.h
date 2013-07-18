@@ -222,6 +222,7 @@ public:
     bool parseObjCProtocol(DeclarationAST *&node,
                            SpecifierListAST *attributes = 0);
 
+    bool parseObjCTryStatement(StatementAST *&node);
     bool parseObjCSynchronizedStatement(StatementAST *&node);
     bool parseObjCEncodeExpression(ExpressionAST *&node);
     bool parseObjCProtocolExpression(ExpressionAST *&node);

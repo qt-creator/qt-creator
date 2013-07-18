@@ -333,6 +333,7 @@ bool Parser::skipUntilStatement()
             case T_USING:
                 return true;
 
+            case T_AT_TRY:
             case T_AT_SYNCHRONIZED:
                 if (objCEnabled())
                     return true;
@@ -3106,6 +3107,9 @@ bool Parser::parseStatement(StatementAST *&node)
         return true;
     }
 
+    case T_AT_TRY:
+        return objCEnabled() && parseObjCTryStatement(node);
+
     case T_AT_SYNCHRONIZED:
         return objCEnabled() && parseObjCSynchronizedStatement(node);
 
@@ -4401,6 +4405,50 @@ bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
         (*ast)->literal_token = consumeToken();
         ast = &(*ast)->next;
     }
+    return true;
+}
+
+///  objc-try-catch-statement:
+///    @try compound-statement objc-catch-list[opt]
+///    @try compound-statement objc-catch-list[opt] @finally compound-statement
+///
+///  objc-catch-list:
+///    @catch ( parameter-declaration ) compound-statement
+///    objc-catch-list @catch ( catch-parameter-declaration ) compound-statement
+///  catch-parameter-declaration:
+///     parameter-declaration
+///     '...' [OBJC2]
+///
+bool Parser::parseObjCTryStatement(StatementAST *& /*node*/)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_AT_TRY)
+        return false;
+
+    /*try_token =*/ consumeToken();
+    StatementAST *body_statment;
+    parseCompoundStatement(body_statment);
+    while (LA() == T_AT_CATCH) {
+        /*catch_token =*/ consumeToken();
+        unsigned lparen_token;
+        match(T_LPAREN, &lparen_token);
+        if (LA() == T_DOT_DOT_DOT) {
+            /*unsigned ellipsis_token =*/ consumeToken();
+        } else {
+            ParameterDeclarationAST *exception_decl;
+            parseParameterDeclaration(exception_decl);
+        }
+        unsigned rparen_token;
+        match(T_RPAREN, &rparen_token);
+        StatementAST *catch_statement;
+        parseCompoundStatement(catch_statement);
+    }
+
+    if (LA() == T_AT_FINALLY) {
+        StatementAST *finally_statement;
+        parseCompoundStatement(finally_statement);
+    }
+
     return true;
 }
 
