@@ -40,8 +40,9 @@ class QmlModelView;
 class QMLDESIGNERCORE_EXPORT QmlModelNodeFacade
 {
 public:
-    operator ModelNode() const { return m_modelNode; }
-    ModelNode modelNode() const { return  m_modelNode; }
+    operator ModelNode() const;
+    ModelNode modelNode();
+    const ModelNode modelNode() const;
     virtual bool isValid() const;
     virtual ~QmlModelNodeFacade();
     QmlModelNodeFacade();

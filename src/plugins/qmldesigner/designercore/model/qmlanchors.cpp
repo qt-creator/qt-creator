@@ -136,7 +136,8 @@ void QmlAnchors::setAnchor(AnchorLine::Type sourceAnchorLine,
         }
 
         const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
-        QString targetExpression = targetQmlItemNode.modelNode().validId();
+        ModelNode targetModelNode = targetQmlItemNode.modelNode();
+        QString targetExpression = targetModelNode.validId();
         if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
             targetExpression = "parent";
         if (sourceAnchorLine != AnchorLine::Center && sourceAnchorLine != AnchorLine::Fill)

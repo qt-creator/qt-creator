@@ -42,6 +42,21 @@ QmlModelNodeFacade::QmlModelNodeFacade(const ModelNode &modelNode) : m_modelNode
 QmlModelNodeFacade::~QmlModelNodeFacade()
 {}
 
+QmlModelNodeFacade::operator ModelNode() const
+{
+    return m_modelNode;
+}
+
+ModelNode QmlModelNodeFacade::modelNode()
+{
+    return m_modelNode;
+}
+
+const ModelNode QmlModelNodeFacade::modelNode() const
+{
+    return m_modelNode;
+}
+
 bool QmlModelNodeFacade::isValid() const
 {
     return modelNode().isValid() && qmlModelView() && qmlModelView()->nodeInstanceView() && qmlModelView()->hasInstanceForModelNode(modelNode()) && qmlModelView()->instanceForModelNode(modelNode()).isValid();

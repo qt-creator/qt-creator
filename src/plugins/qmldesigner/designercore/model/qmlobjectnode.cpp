@@ -254,7 +254,7 @@ QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
 static void removeStateOperationsForChildren(const QmlObjectNode &node)
 {
     if (node.isValid()) {
-        foreach (const QmlModelStateOperation &stateOperation, node.allAffectingStatesOperations()) {
+        foreach (QmlModelStateOperation stateOperation, node.allAffectingStatesOperations()) {
             stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
         }
 
@@ -275,7 +275,7 @@ void QmlObjectNode::destroy()
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    foreach (const QmlModelStateOperation &stateOperation, allAffectingStatesOperations()) {
+    foreach (QmlModelStateOperation stateOperation, allAffectingStatesOperations()) {
         stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
     }
     removeStateOperationsForChildren(modelNode());
