@@ -121,25 +121,26 @@ void RemoteLinuxAnalyzeSupport::startExecution()
 {
     QTC_ASSERT(state() == GatheringPorts, return);
 
-    if (d->qmlProfiling && !setPort(d->qmlPort))
-            return;
+    // Currently we support only QML profiling
+    QTC_ASSERT(d->qmlProfiling, return);
+
+    if (!setPort(d->qmlPort))
+        return;
 
     setState(StartingRunner);
 
     DeviceApplicationRunner *runner = appRunner();
     connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteErrorOutput(QByteArray)));
     connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
-    if (d->qmlProfiling)
-        connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
-    QString args = arguments();
-    if (d->qmlProfiling)
-        args += QString::fromLocal8Bit(" -qmljsdebugger=port:%1,block").arg(d->qmlPort);
-    const QString remoteCommandLine = d->qmlProfiling
-        ? QString::fromLatin1("%1 %2 %3").arg(commandPrefix()).arg(remoteFilePath()).arg(args)
-        : QString();
+    connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
     connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
     connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
     connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
+
+    const QString args = arguments()
+            + QString::fromLocal8Bit(" -qmljsdebugger=port:%1,block").arg(d->qmlPort);
+    const QString remoteCommandLine =
+            QString::fromLatin1("%1 %2 %3").arg(commandPrefix()).arg(remoteFilePath()).arg(args);
     runner->start(device(), remoteCommandLine.toUtf8());
 }
 
