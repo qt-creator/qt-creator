@@ -1555,9 +1555,10 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     const QList<IEditor *> editors = d->m_documentModel->editorsForFilePath(fn);
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
-        if (flags & EditorManager::CanContainLineNumber)
+        editor = activateEditor(view, editor, flags);
+        if (editor && flags & EditorManager::CanContainLineNumber)
             editor->gotoLine(lineNumber, -1);
-        return activateEditor(view, editor, flags);
+        return editor;
     }
 
     QString realFn = autoSaveName(fn);
