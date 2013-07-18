@@ -37,18 +37,13 @@ Product {
                 "qmlviewer.xml",
                 "sort.xml",
             ]
-            switch (qbs.targetOS) {
-            case "windows":
+            if (qbs.targetOS.contains("windows"))
                 list.push("notepad_win.xml");
-                break;
-            case "mac":
+            else if (qbs.targetOS.contains("osx"))
                 list.push("vi_mac.xml");
-                break;
-            default:
+            else
                 list.push("vi.xml");
-            }
             return list;
         }
     }
 }
-

@@ -224,6 +224,10 @@ void QScriptDebuggerClient::startSession()
 
 void QScriptDebuggerClient::endSession()
 {
+}
+
+void QScriptDebuggerClient::resetSession()
+{
     d->sessionStarted = false;
 }
 

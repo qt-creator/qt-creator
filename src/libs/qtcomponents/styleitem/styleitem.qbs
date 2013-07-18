@@ -32,6 +32,7 @@ DynamicLibrary {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: project.ide_library_path + "/qtcomponents/plugin"
+        qbs.installDir: (qbs.targetOS.contains("windows") ? "lib/qtcreator" : project.ide_library_path)
+                        + "/qtcomponents/plugin"
     }
 }

@@ -198,15 +198,17 @@ void BranchDialog::checkout()
         m_model->checkoutBranch(idx);
     } else if (branchCheckoutDialog.exec() == QDialog::Accepted && m_model) {
 
-        QString stashMessage;
-        if (branchCheckoutDialog.makeStashOfCurrentBranch()
-                || branchCheckoutDialog.moveLocalChangesToNextBranch()) {
-
-            if (!gitClient->beginStashScope(m_repository, currentBranch + QLatin1String("-AutoStash"), NoPrompt))
+        if (branchCheckoutDialog.makeStashOfCurrentBranch()) {
+            if (!gitClient->executeSynchronousStash(m_repository,
+                            currentBranch + QLatin1String("-AutoStash"))) {
                 return;
-            stashMessage = gitClient->stashInfo(m_repository).stashMessage();
+            }
+        } else if (branchCheckoutDialog.moveLocalChangesToNextBranch()) {
+            if (!gitClient->beginStashScope(m_repository, QLatin1String("Checkout"), NoPrompt))
+                return;
         } else if (branchCheckoutDialog.discardLocalChanges()) {
-            gitClient->synchronousReset(m_repository);
+            if (!gitClient->synchronousReset(m_repository))
+                return;
         }
 
         m_model->checkoutBranch(idx);
@@ -220,7 +222,7 @@ void BranchDialog::checkout()
             }
         }
 
-        if (!stashMessage.isEmpty() && branchCheckoutDialog.moveLocalChangesToNextBranch())
+        if (branchCheckoutDialog.moveLocalChangesToNextBranch())
             gitClient->endStashScope(m_repository);
         else if (branchCheckoutDialog.popStashOfNextBranch())
             gitClient->synchronousStashRestore(m_repository, stashName, true);

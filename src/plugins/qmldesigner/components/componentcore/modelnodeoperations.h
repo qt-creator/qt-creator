@@ -52,6 +52,8 @@ void paste(const SelectionContext &selectionState);
 void undo(const SelectionContext &selectionState);
 void redo(const SelectionContext &selectionState);
 void setVisible(const SelectionContext &selectionState);
+void setFillWidth(const SelectionContext &selectionState);
+void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);
 void resetPosition(const SelectionContext &selectionState);
 void goIntoComponent(const SelectionContext &selectionState);
@@ -59,10 +61,14 @@ void setId(const SelectionContext &selectionState);
 void resetZ(const SelectionContext &selectionState);
 void anchorsFill(const SelectionContext &selectionState);
 void anchorsReset(const SelectionContext &selectionState);
-void layoutRow(const SelectionContext &selectionState);
-void layoutColumn(const SelectionContext &selectionState);
-void layoutGrid(const SelectionContext &selectionState);
-void layoutFlow(const SelectionContext &selectionState);
+void layoutRowPositioner(const SelectionContext &selectionState);
+void layoutColumnPositioner(const SelectionContext &selectionState);
+void layoutGridPositioner(const SelectionContext &selectionState);
+void layoutFlowPositioner(const SelectionContext &selectionState);
+void layoutRowLayout(const SelectionContext &selectionState);
+void layoutColumnLayout(const SelectionContext &selectionState);
+void layoutGridLayout(const SelectionContext &selectionState);
+
 
 } // namespace ModelNodeOperationso
 } //QmlDesigner

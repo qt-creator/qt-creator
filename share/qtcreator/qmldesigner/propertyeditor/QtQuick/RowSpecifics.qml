@@ -42,24 +42,23 @@ QWidget {
             finished: finishedNotify;
             caption: qsTr("Row")
             layout: VerticalLayout {
-//                Qt namespace enums not supported by the rewriter
-//                QWidget {
-//                    layout: HorizontalLayout {
-//                        Label {
-//                            text: qsTr("Layout direction")
-//                        }
+                QWidget {
+                    layout: HorizontalLayout {
+                        Label {
+                            text: qsTr("Layout direction")
+                        }
 
-//                        ComboBox {
-//                            baseStateFlag: isBaseState
-//                            items : { ["LeftToRight", "RightToLeft"] }
-//                            currentText: backendValues.layoutDirection.value;
-//                            onItemsChanged: {
-//                                currentText =  backendValues.layoutDirection.value;
-//                            }
-//                            backendValue: backendValues.layoutDirection
-//                        }
-//                    }
-//                } //QWidget
+                        ComboBox {
+                            baseStateFlag: isBaseState
+                            items : { ["LeftToRight", "RightToLeft"] }
+                            currentText: backendValues.layoutDirection.value;
+                            onItemsChanged: {
+                                currentText =  backendValues.layoutDirection.value;
+                            }
+                            backendValue: backendValues.layoutDirection
+                        }
+                    }
+                } //QWidget
                 IntEditor {
                     backendValue: backendValues.spacing
                     caption: qsTr("Spacing")

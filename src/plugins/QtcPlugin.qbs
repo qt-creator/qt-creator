@@ -10,12 +10,10 @@ Product {
     targetName: {
         // see PluginSpecPrivate::loadLibrary()
         if (qbs.debugInformation) {
-            switch (qbs.targetOS) {
-            case "windows":
+            if (qbs.targetOS.contains("windows"))
                 return name + "d";
-            case "mac":
+            if (qbs.targetOS.contains("osx"))
                 return name + "_debug";
-            }
         }
         return name;
     }
@@ -33,7 +31,7 @@ Product {
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/../..", "@executable_path/.."]
                                       : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
     cpp.linkerFlags: {
-        if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
+        if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
             return ["-Wl,-s"]
     }
     cpp.includePaths: [ ".", ".." ]

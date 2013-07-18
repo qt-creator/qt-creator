@@ -41,10 +41,12 @@ def main():
         type(editor, '<Up>')
         type(editor, '<Return>')
         typeLines(editor, ['Timer {',
+                           'property int runCount: 0',
                            'interval: 2000',
                            'repeat: true',
-                           'running: true',
+                           'running: runCount < 2',
                            'onTriggered: {',
+                           'runCount += 1;',
                            'var i;',
                            'for (i = 1; i < 2500; ++i) {',
                            'var j = i * i;',
@@ -55,6 +57,9 @@ def main():
             test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
         for kit, config in availableConfigs:
             qtVersion = selectBuildConfig(len(checkedTargets), kit, config)[0]
+            if qtVersion == "4.7.4":
+                test.xverify(False, "Skipping Qt 4.7.4 to avoid QTCREATORBUG-9185")
+                continue
             test.log("Selected kit using Qt %s" % qtVersion)
             progressBarWait() # progress bars move buttons
             verifyBuildConfig(len(checkedTargets), kit, True, enableQmlDebug=True)
@@ -90,6 +95,7 @@ def main():
                                       "Internal::QmlProfilerEventsMainView").model()
                 if qtVersion.startswith("5."):
                     compareEventsTab(model, "events_qt50.tsv")
+                    numberOfMsRows = 4
                 else:
                     if qtVersion.startswith("4.8"):
                         compareEventsTab(model, "events_qt48.tsv")
@@ -97,9 +103,10 @@ def main():
                         compareEventsTab(model, "events_qt47.tsv")
                     test.verify(str(model.index(0, 8).data()).endswith(' ms'))
                     test.xverify(str(model.index(1, 8).data()).endswith(' ms')) # QTCREATORBUG-8996
+                    numberOfMsRows = 2
                 test.compare(dumpItems(model, column=2)[0], '100.00 %')
                 for i in [3, 5, 6, 7]:
-                    for item in dumpItems(model, column=i)[:4]:
+                    for item in dumpItems(model, column=i)[:numberOfMsRows]:
                         test.verify(item.endswith(' ms'))
             deleteAppFromWinFW(workingDir, projectName, False)
     invokeMenuItem("File", "Exit")

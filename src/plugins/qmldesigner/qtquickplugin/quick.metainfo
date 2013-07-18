@@ -401,7 +401,7 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQuick.Column"
+        name: "QtQuick.Row"
         icon: ":/qtquickplugin/images/item-icon16.png"
 
         ItemLibraryEntry {

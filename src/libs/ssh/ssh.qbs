@@ -70,9 +70,9 @@ QtcLibrary {
             result.push("USE_SYSTEM_BOTAN")
         } else {
             result.push("BOTAN_DLL=")
-            if (qbs.toolchain === "msvc")
+            if (qbs.toolchain.contains("msvc"))
                 result.push("BOTAN_BUILD_COMPILER_IS_MSVC", "BOTAN_TARGET_OS_HAS_GMTIME_S")
-            if (qbs.toolchain === "gcc" || qbs.toolchain === "mingw")
+            if (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw"))
                 result.push("BOTAN_BUILD_COMPILER_IS_GCC")
             if (qbs.targetOS.contains("linux"))
                 result.push("BOTAN_TARGET_OS_IS_LINUX", "BOTAN_TARGET_OS_HAS_CLOCK_GETTIME",
@@ -105,7 +105,7 @@ QtcLibrary {
 
     // For Botan.
     Properties {
-        condition: qbs.toolchain === "mingw"
+        condition: qbs.toolchain.contains("mingw")
         cpp.cxxFlags: [
             "-fpermissive",
             "-finline-functions",

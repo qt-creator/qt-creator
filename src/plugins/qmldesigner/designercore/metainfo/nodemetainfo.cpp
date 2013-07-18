@@ -721,6 +721,9 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const PropertyName &propertyName) const
     if (!isValid())
         return false;
 
+    if (propertyType(propertyName).contains("Qt::"))
+        return true;
+
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
         const PropertyName objectName = parts.first();
@@ -747,6 +750,9 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
 {
     if (!isValid())
         return QString();
+
+    if (propertyType(propertyName).contains("Qt::"))
+        return QLatin1String("Qt");
 
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
@@ -1165,7 +1171,8 @@ QStringList NodeMetaInfo::propertyKeysForEnum(const PropertyName &propertyName) 
 QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const
 {
 
-    QVariant variant = value;
+    const QVariant variant = value;
+    QVariant copyVariant = variant;
     if (propertyIsEnumType(propertyName))
         return variant;
 
@@ -1189,8 +1196,8 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
     } else if (typeName == "alias") {
         // TODO: The QML compiler resolves the alias type. We probably should do the same.
         return variant;
-    } else if (variant.convert(typeId)) {
-        return variant;
+    } else if (copyVariant.convert(typeId)) {
+        return copyVariant;
     }
 
     return Internal::PropertyParser::variantFromString(variant.toString());
@@ -1294,8 +1301,9 @@ void NodeMetaInfo::clearCache()
 
 bool NodeMetaInfo::isLayoutable() const
 {
-    if (majorVersion() < 2)
-        return isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1);
+    if (isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
+        return true; //QtQuick 1
+
     return isSubclassOf("QtQuick.Positioner", -1, -1) || isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
 }
 

@@ -1277,6 +1277,8 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
                 ICore::raiseWindow(editor->widget());
             }
         }
+    } else if (!(flags & DoNotMakeVisible)) {
+        view->setCurrentEditor(editor);
     }
     return editor;
 }

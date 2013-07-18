@@ -65,6 +65,13 @@ static inline QStringList supportedVersionsList()
     return list;
 }
 
+static inline QStringList globalQtEnums()
+{
+    static QStringList list = QStringList() << QLatin1String("Horizontal") << QLatin1String("Vertical") << QLatin1String("AlignVCenter")
+         << QLatin1String("AlignLeft") << QLatin1String("LeftToRight") << QLatin1String("RightToLeft");
+    return list;
+}
+
 static inline bool supportedQtQuickVersion(const QString &version)
 {
     static QStringList supportedVersions = supportedVersionsList();
@@ -553,8 +560,15 @@ public:
         return value;
     }
 
-    QVariant convertToEnum(Statement *rhs, const QString &propertyPrefix, UiQualifiedId *propertyId)
+    QVariant convertToEnum(Statement *rhs, const QString &propertyPrefix, UiQualifiedId *propertyId, const QString &astValue)
     {
+        QStringList astValueList = astValue.split(QLatin1String("."));
+
+        if (astValueList.count() == 2 //Check for global Qt enums
+                && astValueList.first() == QLatin1String("Qt")
+                && globalQtEnums().contains(astValueList.last()))
+            return QVariant(astValueList.last());
+
         ExpressionStatement *eStmt = cast<ExpressionStatement *>(rhs);
         if (!eStmt || !eStmt->expression)
             return QVariant();
@@ -1084,7 +1098,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         }
     }
 
-    const QVariant enumValue = context->convertToEnum(script->statement, prefix, script->qualifiedId);
+    const QVariant enumValue = context->convertToEnum(script->statement, prefix, script->qualifiedId, astValue);
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
         syncVariantProperty(modelProperty, enumValue, TypeName(), differenceHandler); // TODO: parse type

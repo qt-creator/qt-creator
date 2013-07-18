@@ -9,7 +9,7 @@ Application {
                                              : ["$ORIGIN/../lib/qtcreator"]
     cpp.defines: Defaults.defines(qbs)
     cpp.linkerFlags: {
-        if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
+        if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
             return ["-Wl,-s"]
     }
     cpp.includePaths: [

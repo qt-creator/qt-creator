@@ -1,0 +1,4 @@
+"widget"	"signal"	"slot"
+":FormEditorStack.PushButton_QPushButton"	"clicked()"	"void MainWindow::on_pushButton_clicked()"
+":FormEditorStack.CheckBox_QCheckBox"	"toggled(bool)"	"void MainWindow::on_checkBox_toggled(bool checked)"
+":FormEditorStack.centralWidget_QDesignerWidget"	"destroyed()"	"void MainWindow::on_MainWindow_destroyed()"

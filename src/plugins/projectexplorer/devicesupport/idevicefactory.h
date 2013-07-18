@@ -42,49 +42,23 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class IDeviceWidget;
 
-/*!
-  \class ProjectExplorer::IDeviceFactory
 
-  \brief Provides an interface for classes providing services related to certain type of device.
-
-  The factory objects have to be added to the global object pool via
-  \c ExtensionSystem::PluginManager::addObject().
-  \sa ExtensionSystem::PluginManager::addObject()
-*/
 class PROJECTEXPLORER_EXPORT IDeviceFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    /*!
-      A short, one-line description of what the device type.
-    */
+
     virtual QString displayNameForId(Core::Id type) const = 0;
-    /*!
-      A list of device types this factory can create.
-    */
+
     virtual QList<Core::Id> availableCreationIds() const = 0;
 
-    /*!
-      Check whether this factory can create new devices. This is used to hide
-      auto-detect-only factories from the listing of possible devices to create.
-     */
     virtual bool canCreate() const;
 
-    /*!
-      Create a new device. This may or may not open a wizard.
-     */
     virtual IDevice::Ptr create(Core::Id id) const = 0;
 
-    /*!
-      Check whether this factory can restore a device from the given serialized state.
-     */
     virtual bool canRestore(const QVariantMap &map) const = 0;
 
-    /*!
-      Loads a device from a serialized state. Will only ever be called if canRestore()
-      returns true for the given map.
-    */
     virtual IDevice::Ptr restore(const QVariantMap &map) const = 0;
 
     static IDeviceFactory *find(Core::Id type);

@@ -42,6 +42,14 @@
 
 using namespace CPlusPlus;
 
+/*!
+   \class TypePrettyPrinter
+
+   \brief The TypePrettyPrinter class is a helper class for the Overview class.
+    This class does the main type conversion work.
+
+    Do not use this class directly, use Overview instead.
+ */
 
 TypePrettyPrinter::TypePrettyPrinter(const Overview *overview)
     : _overview(overview)

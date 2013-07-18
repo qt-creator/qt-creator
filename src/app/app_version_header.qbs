@@ -24,7 +24,7 @@ Product {
             cmd.ide_version_major = product.ide_version_major;
             cmd.ide_version_minor = product.ide_version_minor;
             cmd.ide_version_release = product.ide_version_release;
-            cmd.onWindows = (product.moduleProperty("qbs", "targetOS") === "windows");
+            cmd.onWindows = (product.moduleProperty("qbs", "targetOS").contains("windows"));
             cmd.sourceCode = function() {
                 var file = new TextFile(input.fileName);
                 var content = file.readAll();

@@ -156,7 +156,7 @@
     using Qt Quick 2.1. The Qt Quick Components and Controls are based on
     standard QML types. To view the components and controls in the
     \gui {Library} pane, add import
-    statements to the .pro file of your project. For example:
+    statements to the QML file in the \gui Edit mode. For example:
 
     \list
 
