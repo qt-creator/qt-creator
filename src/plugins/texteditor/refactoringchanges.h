@@ -66,6 +66,7 @@ public:
     // mustn't use the cursor to change the document
     const QTextCursor cursor() const;
     QString fileName() const;
+    BaseTextEditorWidget *editor() const;
 
     // converts 1-based line and column into 0-based source offset
     int position(unsigned line, unsigned column) const;
@@ -133,8 +134,6 @@ public:
     RefactoringFilePtr file(const QString &fileName) const;
     bool createFile(const QString &fileName, const QString &contents, bool reindent = true, bool openEditor = true) const;
     bool removeFile(const QString &fileName) const;
-
-    static BaseTextEditorWidget *editorForFile(const QString &fileName);
 
 protected:
     explicit RefactoringChanges(RefactoringChangesData *data);

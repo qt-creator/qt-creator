@@ -56,19 +56,6 @@ RefactoringChanges::RefactoringChanges(RefactoringChangesData *data)
 RefactoringChanges::~RefactoringChanges()
 {}
 
-BaseTextEditorWidget *RefactoringChanges::editorForFile(const QString &fileName)
-{
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-
-    const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
-    foreach (Core::IEditor *editor, editors) {
-        BaseTextEditorWidget *textEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget());
-        if (textEditor != 0)
-            return textEditor;
-    }
-    return 0;
-}
-
 QList<QPair<QTextCursor, QTextCursor > > RefactoringChanges::rangesToSelections(QTextDocument *document,
                                                                                 const QList<Range> &ranges)
 {
@@ -190,7 +177,9 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
     , m_editorCursorPosition(-1)
     , m_appliedOnce(false)
 {
-    m_editor = RefactoringChanges::editorForFile(fileName);
+    QList<Core::IEditor *> editors = Core::EditorManager::documentModel()->editorsForFilePath(fileName);
+    if (!editors.isEmpty())
+        m_editor = qobject_cast<TextEditor::BaseTextEditorWidget *>(editors.first()->widget());
 }
 
 RefactoringFile::~RefactoringFile()
@@ -249,6 +238,11 @@ const QTextCursor RefactoringFile::cursor() const
 QString RefactoringFile::fileName() const
 {
     return m_fileName;
+}
+
+BaseTextEditorWidget *RefactoringFile::editor() const
+{
+    return m_editor;
 }
 
 int RefactoringFile::position(unsigned line, unsigned column) const

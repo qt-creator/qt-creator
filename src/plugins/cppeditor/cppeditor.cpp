@@ -2188,14 +2188,14 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
 {
     abortDeclDefLink();
     m_declDefLink = link;
-
-    // disable the link if content of the target editor changes
-    TextEditor::BaseTextEditorWidget *targetEditor =
-            TextEditor::RefactoringChanges::editorForFile(link->targetFile->fileName());
-    if (targetEditor && targetEditor != this) {
-        connect(targetEditor, SIGNAL(textChanged()),
-                this, SLOT(abortDeclDefLink()));
+    Core::IDocument *targetDocument = Core::EditorManager::documentModel()->documentForFilePath(
+                m_declDefLink->targetFile->fileName());
+    if (editorDocument() != targetDocument) {
+        if (TextEditor::BaseTextDocument *baseTextDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
+            connect(baseTextDocument->document(), SIGNAL(contentsChanged()),
+                    this, SLOT(abortDeclDefLink()));
     }
+
 }
 
 void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
@@ -2218,12 +2218,12 @@ void CPPEditorWidget::abortDeclDefLink()
     if (!m_declDefLink)
         return;
 
-    // undo connect from onFunctionDeclDefLinkFound
-    TextEditor::BaseTextEditorWidget *targetEditor =
-            TextEditor::RefactoringChanges::editorForFile(m_declDefLink->targetFile->fileName());
-    if (targetEditor && targetEditor != this) {
-        disconnect(targetEditor, SIGNAL(textChanged()),
-                   this, SLOT(abortDeclDefLink()));
+    Core::IDocument *targetDocument = Core::EditorManager::documentModel()->documentForFilePath(
+                m_declDefLink->targetFile->fileName());
+    if (editorDocument() != targetDocument) {
+        if (TextEditor::BaseTextDocument *baseTextDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
+            disconnect(baseTextDocument->document(), SIGNAL(contentsChanged()),
+                    this, SLOT(abortDeclDefLink()));
     }
 
     m_declDefLink->hideMarker(this);

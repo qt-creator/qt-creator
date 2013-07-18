@@ -2592,8 +2592,8 @@ public:
                            m_loc.prefix().count(QLatin1String("\n")) + 2);
             c.movePosition(QTextCursor::EndOfLine);
             if (m_defpos == DefPosImplementationFile) {
-                if (BaseTextEditorWidget *editor = refactoring.editorForFile(m_loc.fileName()))
-                    editor->setTextCursor(c);
+                if (targetFile->editor())
+                    targetFile->editor()->setTextCursor(c);
             } else {
                 assistInterface()->editor()->setTextCursor(c);
             }
