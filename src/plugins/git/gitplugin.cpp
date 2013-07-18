@@ -1250,16 +1250,11 @@ void GitPlugin::updateSubmodules()
 // If the file is modified in an editor, make sure it is saved.
 static bool ensureFileSaved(const QString &fileName)
 {
-    const QList<Core::IEditor*> editors = Core::EditorManager::instance()->editorsForFileName(fileName);
-    if (editors.isEmpty())
-        return true;
-    Core::IDocument *document = editors.front()->document();
+    Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(fileName);
     if (!document || !document->isModified())
         return true;
     bool canceled;
-    QList<Core::IDocument *> documents;
-    documents << document;
-    Core::DocumentManager::saveModifiedDocuments(documents, &canceled);
+    Core::DocumentManager::saveModifiedDocuments(QList<Core::IDocument *>() << document, &canceled);
     return !canceled;
 }
 

@@ -219,9 +219,9 @@ StateListener::StateListener(QObject *parent) :
 
 static inline QString displayNameOfEditor(const QString &fileName)
 {
-    const QList<Core::IEditor*> editors = Core::EditorManager::instance()->editorsForFileName(fileName);
-    if (!editors.isEmpty())
-        return editors.front()->document()->displayName();
+    Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(fileName);
+    if (document)
+        return document->displayName();
     return QString();
 }
 

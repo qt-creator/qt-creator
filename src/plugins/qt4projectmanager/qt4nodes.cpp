@@ -1052,25 +1052,19 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
 
 bool Qt4PriFileNode::saveModifiedEditors()
 {
-    QList<Core::IDocument*> modifiedDocuments;
+    Core::IDocument *document
+            = Core::EditorManager::documentModel()->documentForFilePath(m_projectFilePath);
+    if (!document || !document->isModified())
+        return true;
 
-    foreach (Core::IEditor *editor, Core::ICore::editorManager()->editorsForFileName(m_projectFilePath)) {
-        if (Core::IDocument *editorDocument = editor->document()) {
-            if (editorDocument->isModified())
-                modifiedDocuments << editorDocument;
-        }
-    }
-
-    if (!modifiedDocuments.isEmpty()) {
-        bool cancelled;
-        Core::DocumentManager::saveModifiedDocuments(modifiedDocuments, &cancelled,
-                                         tr("There are unsaved changes for project file %1.").arg(m_projectFilePath));
-        if (cancelled)
-            return false;
-        // force instant reload of ourselves
-        QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
-        m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
-    }
+    bool cancelled;
+    Core::DocumentManager::saveModifiedDocuments(QList<Core::IDocument *>() << document, &cancelled,
+                                                 tr("There are unsaved changes for project file %1.").arg(m_projectFilePath));
+    if (cancelled)
+        return false;
+    // force instant reload of ourselves
+    QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
+    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
     return true;
 }
 
@@ -1182,12 +1176,11 @@ void Qt4PriFileNode::changeFiles(const QString &mimeType,
     // We manually tell each editor to reload it's file.
     // (The .pro files are notified by the file system watcher.)
     QStringList errorStrings;
-    foreach (Core::IEditor *editor, Core::ICore::editorManager()->editorsForFileName(m_projectFilePath)) {
-        if (Core::IDocument *editorDocument= editor->document()) {
-            QString errorString;
-            if (!editorDocument->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
-                errorStrings << errorString;
-        }
+    Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(m_projectFilePath);
+    if (document) {
+        QString errorString;
+        if (!document->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
+            errorStrings << errorString;
     }
     if (!errorStrings.isEmpty())
         QMessageBox::warning(Core::ICore::mainWindow(), tr("File Error"),

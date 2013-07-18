@@ -1333,14 +1333,14 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
     OpenWithEntry entry = qvariant_cast<OpenWithEntry>(data);
     if (entry.editorFactory) {
         // close any open editors that have this file open, but have a different type.
-        EditorManager *em = EditorManager::instance();
-        QList<IEditor *> editorsOpenForFile = em->editorsForFileName(entry.fileName);
+        QList<IEditor *> editorsOpenForFile
+                = EditorManager::documentModel()->editorsForFilePath(entry.fileName);
         if (!editorsOpenForFile.isEmpty()) {
             foreach (IEditor *openEditor, editorsOpenForFile) {
                 if (entry.editorFactory->id() == openEditor->id())
                     editorsOpenForFile.removeAll(openEditor);
             }
-            if (!em->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
+            if (!EditorManager::instance()->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
                 return;
         }
 

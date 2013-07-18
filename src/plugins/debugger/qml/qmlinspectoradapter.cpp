@@ -353,9 +353,8 @@ void QmlInspectorAdapter::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc
     if (idx == -1)
         return;
 
-    Core::EditorManager *em = Core::EditorManager::instance();
     QList<Core::IEditor *> editors
-            = em->editorsForFileName(doc->fileName());
+            = Core::EditorManager::documentModel()->editorsForFilePath(doc->fileName());
 
     if (editors.isEmpty())
         return;

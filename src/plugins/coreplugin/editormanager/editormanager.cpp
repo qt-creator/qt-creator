@@ -627,17 +627,6 @@ SplitterOrView *EditorManager::findRoot(const EditorView *view, int *rootIndex)
     return 0;
 }
 
-QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
-{
-    QList<IEditor *> found;
-    QString fixedname = DocumentManager::fixFileName(filename, DocumentManager::KeepLinks);
-    foreach (IEditor *editor, openedEditors()) {
-        if (fixedname == DocumentManager::fixFileName(editor->document()->filePath(), DocumentManager::KeepLinks))
-            found << editor;
-    }
-    return found;
-}
-
 IDocument *EditorManager::currentDocument()
 {
     return d->m_currentEditor ? d->m_currentEditor->document() : 0;
@@ -1558,7 +1547,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     if (newEditor)
         *newEditor = false;
 
-    const QList<IEditor *> editors = editorsForFileName(fn);
+    const QList<IEditor *> editors = d->m_documentModel->editorsForFilePath(fn);
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
         if (flags & EditorManager::CanContainLineNumber)
@@ -1797,9 +1786,9 @@ bool EditorManager::saveDocumentAs(IDocument *documentParam)
 
     if (absoluteFilePath != document->filePath()) {
         // close existing editors for the new file name
-        const QList<IEditor *> existList = editorsForFileName(absoluteFilePath);
-        if (!existList.isEmpty())
-            closeEditors(existList, false);
+        IDocument *otherDocument = d->m_documentModel->documentForFilePath(absoluteFilePath);
+        if (otherDocument)
+            closeDocuments(QList<IDocument *>() << otherDocument, false);
     }
 
     const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
@@ -2069,9 +2058,9 @@ DocumentModel *EditorManager::documentModel()
     return d->m_documentModel;
 }
 
-void EditorManager::closeDocuments(const QList<IDocument *> &document, bool askAboutModifiedEditors)
+bool EditorManager::closeDocuments(const QList<IDocument *> &document, bool askAboutModifiedEditors)
 {
-    m_instance->closeEditors(d->m_documentModel->editorsForDocuments(document), askAboutModifiedEditors);
+    return m_instance->closeEditors(d->m_documentModel->editorsForDocuments(document), askAboutModifiedEditors);
 }
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)

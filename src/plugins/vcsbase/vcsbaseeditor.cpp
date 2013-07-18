@@ -1226,17 +1226,9 @@ const VcsBaseEditorParameters *VcsBaseEditorWidget::findType(const VcsBaseEditor
 // Find the codec used for a file querying the editor.
 static QTextCodec *findFileCodec(const QString &source)
 {
-    typedef QList<Core::IEditor *> EditorList;
-
-    const EditorList editors = Core::EditorManager::instance()->editorsForFileName(source);
-    if (!editors.empty()) {
-        const EditorList::const_iterator ecend =  editors.constEnd();
-        for (EditorList::const_iterator it = editors.constBegin(); it != ecend; ++it)
-            if (TextEditor::BaseTextEditor *be = qobject_cast<TextEditor::BaseTextEditor *>(*it)) {
-                QTextCodec *codec = const_cast<QTextCodec *>(be->textDocument()->codec());
-                return codec;
-            }
-    }
+    Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(source);
+    if (Core::TextDocument *textDocument = qobject_cast<Core::TextDocument *>(document))
+        return const_cast<QTextCodec *>(textDocument->codec());
     return 0;
 }
 

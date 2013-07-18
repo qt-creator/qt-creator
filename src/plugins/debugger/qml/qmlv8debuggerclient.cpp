@@ -1998,12 +1998,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
                                                  const QString &filePath,
                                                  const QString &errorMessage)
 {
-    DocumentModel *documentModel = EditorManager::documentModel();
-    int index = documentModel->indexOfFilePath(filePath);
-    if (index < 0 || !documentModel->documents().at(index)->document)
-            return;
-    QList<IEditor *> editors = documentModel->editorsForDocument(
-                documentModel->documents().at(index)->document);
+    QList<IEditor *> editors = EditorManager::documentModel()->editorsForFilePath(filePath);
 
     // set up the format for the errors
     QTextCharFormat errorFormat;

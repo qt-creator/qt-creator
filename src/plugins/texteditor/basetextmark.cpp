@@ -58,13 +58,14 @@ BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
 void BaseTextMarkRegistry::add(BaseTextMark *mark)
 {
     m_marks[Utils::FileName::fromString(mark->fileName())].insert(mark);
-    Core::EditorManager *em = Core::EditorManager::instance();
-    foreach (Core::IEditor *editor, em->editorsForFileName(mark->fileName())) {
-        if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
-            ITextMarkable *markableInterface = textEditor->markableInterface();
-            if (markableInterface->addMark(mark))
-                break;
-        }
+    Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
+    Core::IDocument *document = documentModel->documentForFilePath(mark->fileName());
+    if (!document)
+        return;
+    // TODO: markableInterface should be moved to ITextEditorDocument
+    if (ITextEditor *textEditor
+            = qobject_cast<ITextEditor *>(documentModel->editorsForDocument(document).first())) {
+        textEditor->markableInterface()->addMark(mark);
     }
 }
 

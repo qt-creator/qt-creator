@@ -122,8 +122,6 @@ public:
     QStringList getOpenFileNames() const;
     Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0) const;
 
-    QList<IEditor *> editorsForFileName(const QString &filename) const;
-
     static IDocument *currentDocument();
     static IEditor *currentEditor();
     QList<IEditor *> visibleEditors() const;
@@ -135,7 +133,7 @@ public:
     IEditor *activateEditorForDocument(Internal::EditorView *view, IDocument *document, OpenEditorFlags flags = 0);
 
     static DocumentModel *documentModel();
-    static void closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
+    static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     void closeEditor(DocumentModel::Entry *entry);
     void closeOtherEditors(IDocument *document);
 

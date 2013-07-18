@@ -998,9 +998,9 @@ void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Fin
     // files that are opened in an editor are changed, but not saved
     QStringList changedOnDisk;
     QStringList changedUnsavedEditors;
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
     foreach (const QString &fileName, fileNames) {
-        if (editorManager->editorsForFileName(fileName).isEmpty())
+        if (documentModel->documentForFilePath(fileName))
             changedOnDisk += fileName;
         else
             changedUnsavedEditors += fileName;
