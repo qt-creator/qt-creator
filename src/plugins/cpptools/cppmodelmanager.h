@@ -39,6 +39,7 @@
 
 #include <QHash>
 #include <QMutex>
+#include <QTimer>
 
 namespace Core { class IEditor; }
 namespace TextEditor { class BaseTextEditorWidget; }
@@ -77,7 +78,6 @@ public:
     virtual CPlusPlus::Snapshot snapshot() const;
     virtual Document::Ptr document(const QString &fileName) const;
     bool replaceDocument(Document::Ptr newDoc);
-    virtual void GC();
 
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
@@ -143,18 +143,22 @@ public:
 
 signals:
     void aboutToRemoveFiles(const QStringList &files);
+    void gcFinished(); // Needed for tests.
 
 public slots:
     virtual void updateModifiedSourceFiles();
+    virtual void GC();
 
 private slots:
     // This should be executed in the GUI thread.
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
+    void onAboutToLoadSession();
     void onAboutToUnloadSession();
     void onCoreAboutToClose();
     void onProjectAdded(ProjectExplorer::Project *project);
 
 private:
+    void delayedGC();
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     WorkingCopy buildWorkingCopyList();
 
@@ -207,6 +211,7 @@ private:
     CppFindReferences *m_findReferences;
 
     bool m_enableGC;
+    QTimer *m_delayedGcTimer;
 };
 
 } // namespace Internal

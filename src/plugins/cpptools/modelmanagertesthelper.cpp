@@ -55,6 +55,7 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
     connect(this, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)), mm, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
     connect(this, SIGNAL(projectAdded(ProjectExplorer::Project*)), mm, SLOT(onProjectAdded(ProjectExplorer::Project*)));
     connect(mm, SIGNAL(sourceFilesRefreshed(QStringList)), this, SLOT(sourceFilesRefreshed(QStringList)));
+    connect(mm, SIGNAL(gcFinished()), this, SLOT(gcFinished()));
 
     cleanup();
     verifyClean();
@@ -74,6 +75,9 @@ void ModelManagerTestHelper::cleanup()
     QList<ProjectInfo> pies = mm->projectInfos();
     foreach (const ProjectInfo &pie, pies)
         emit aboutToRemoveProject(pie.project().data());
+
+    if (!pies.isEmpty())
+        waitForFinishedGc();
 }
 
 void ModelManagerTestHelper::verifyClean()
@@ -108,9 +112,21 @@ QStringList ModelManagerTestHelper::waitForRefreshedSourceFiles()
     return m_lastRefreshedSourceFiles;
 }
 
+void ModelManagerTestHelper::waitForFinishedGc()
+{
+    m_gcFinished = false;
+
+    while (!m_gcFinished)
+        QCoreApplication::processEvents();
+}
 
 void ModelManagerTestHelper::sourceFilesRefreshed(const QStringList &files)
 {
     m_lastRefreshedSourceFiles = files;
     m_refreshHappened = true;
+}
+
+void ModelManagerTestHelper::gcFinished()
+{
+    m_gcFinished = true;
 }

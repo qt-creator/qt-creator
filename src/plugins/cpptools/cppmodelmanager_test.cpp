@@ -472,6 +472,8 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
 ///            though it might not be actually generated in the build dir.
 void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 {
+    ModelManagerTestHelper helper;
+
     TestDataDirectory testDataDirectory(QLatin1String("testdata_guiproject1"));
     const QString projectFile = testDataDirectory.file(QLatin1String("testdata_guiproject1.pro"));
 
@@ -515,13 +517,15 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     // Close Project
     ProjectExplorer::SessionManager *sm = pe->session();
     sm->removeProject(project);
-    ModelManagerTestHelper::verifyClean();
+    helper.waitForFinishedGc();
 }
 
 /// QTCREATORBUG-9828: Locator shows symbols of closed files
 /// Check: The garbage collector should be run if the last CppEditor is closed.
 void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
 {
+    ModelManagerTestHelper helper;
+
     TestDataDirectory testDataDirectory(QLatin1String("testdata_guiproject1"));
     const QString file = testDataDirectory.file(QLatin1String("main.cpp"));
 
@@ -541,6 +545,7 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
 
     // Close file/editor
     em->closeEditor(editor, /*askAboutModifiedEditors=*/ false);
+    helper.waitForFinishedGc();
 
     // Check: File is removed from the snapshpt
     QVERIFY(!mm->workingCopy().contains(file));

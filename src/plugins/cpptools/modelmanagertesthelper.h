@@ -84,6 +84,7 @@ public:
     Project *createProject(const QString &name);
 
     QStringList waitForRefreshedSourceFiles();
+    void waitForFinishedGc();
 
 signals:
     void aboutToRemoveProject(ProjectExplorer::Project *project);
@@ -91,8 +92,10 @@ signals:
 
 public slots:
     void sourceFilesRefreshed(const QStringList &files);
+    void gcFinished();
 
 private:
+    bool m_gcFinished;
     bool m_refreshHappened;
     QStringList m_lastRefreshedSourceFiles;
 };
