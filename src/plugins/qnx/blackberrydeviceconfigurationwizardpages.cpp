@@ -219,7 +219,7 @@ void BlackBerryDeviceConfigurationWizardSshKeyPage::findMatchingPublicKey(const 
 {
     const QString candidate = privateKeyPath + QLatin1String(".pub");
     if (QFileInfo(candidate).exists())
-        m_ui->publicKey->setText(candidate);
+        m_ui->publicKey->setText(QDir::toNativeSeparators(candidate));
     else
         m_ui->publicKey->clear();
 }
@@ -239,7 +239,7 @@ void BlackBerryDeviceConfigurationWizardSshKeyPage::processSshKeys(bool success)
         return;
 
     m_ui->privateKey->setFileName(Utils::FileName::fromString(m_generatedPrivateKeyPath));
-    m_ui->publicKey->setText(publicKeyPath);
+    m_ui->publicKey->setText(QDir::toNativeSeparators(publicKeyPath));
 
     emit completeChanged();
 }
