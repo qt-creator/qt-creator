@@ -125,7 +125,6 @@ public:
     static IDocument *currentDocument();
     static IEditor *currentEditor();
     QList<IEditor *> visibleEditors() const;
-    QList<IEditor*> openedEditors() const;
 
     static void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
     void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = 0);

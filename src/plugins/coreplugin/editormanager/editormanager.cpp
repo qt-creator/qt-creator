@@ -726,8 +726,7 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
     d->m_documentModel->removeAllRestoredDocuments();
-    if (closeEditors(openedEditors(), askAboutModifiedEditors)) {
-//        d->clearNavigationHistory();
+    if (closeDocuments(d->m_documentModel->openedDocuments(), askAboutModifiedEditors)) {
         return true;
     }
     return false;
@@ -736,11 +735,9 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 void EditorManager::closeOtherEditors(IDocument *document)
 {
     d->m_documentModel->removeAllRestoredDocuments();
-    QList<IEditor *> editorsToClose;
-    foreach (IEditor *editor, openedEditors())
-        if (editor->document() != document)
-            editorsToClose << editor;
-    closeEditors(editorsToClose, true);
+    QList<IDocument *> documentsToClose = d->m_documentModel->openedDocuments();
+    documentsToClose.removeAll(document);
+    closeDocuments(documentsToClose, true);
 }
 
 void EditorManager::closeOtherEditors()
@@ -799,7 +796,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
                                                    : tr("Close Other Editors"));
     d->m_closeCurrentEditorContextAction->setEnabled(entry != 0);
     d->m_closeOtherEditorsContextAction->setEnabled(entry != 0);
-    d->m_closeAllEditorsContextAction->setEnabled(!openedEditors().isEmpty());
+    d->m_closeAllEditorsContextAction->setEnabled(!d->m_documentModel->documents().isEmpty());
     contextMenu->addAction(d->m_closeCurrentEditorContextAction);
     contextMenu->addAction(d->m_closeAllEditorsContextAction);
     contextMenu->addAction(d->m_closeOtherEditorsContextAction);
@@ -1154,7 +1151,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
 
 Core::IEditor *EditorManager::pickUnusedEditor(EditorView **foundView) const
 {
-    foreach (IEditor *editor, openedEditors()) {
+    foreach (IEditor *editor,
+             d->m_documentModel->editorsForDocuments(d->m_documentModel->openedDocuments())) {
         EditorView *view = viewForEditor(editor);
         if (!view || view->currentEditor() != editor) {
             if (foundView)
@@ -1642,10 +1640,10 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
         if (base.contains(dollar)) {
             int i = 1;
             QSet<QString> docnames;
-            foreach (IEditor *editor, m_instance->openedEditors()) {
-                QString name = editor->document()->filePath();
+            foreach (DocumentModel::Entry *entry, d->m_documentModel->documents()) {
+                QString name = entry->fileName();
                 if (name.isEmpty())
-                    name = editor->document()->displayName();
+                    name = entry->displayName();
                 else
                     name = QFileInfo(name).completeBaseName();
                 docnames << name;
@@ -1739,8 +1737,7 @@ void EditorManager::autoSave()
 {
     QStringList errors;
     // FIXME: the saving should be staggered
-    foreach (IEditor *editor, openedEditors()) {
-        IDocument *document = editor->document();
+    foreach (IDocument *document, d->m_documentModel->openedDocuments()) {
         if (!document->isModified() || !document->shouldAutoSave())
             continue;
         if (document->filePath().isEmpty()) // FIXME: save them to a dedicated directory
@@ -2054,12 +2051,6 @@ QList<IEditor*> EditorManager::visibleEditors() const
     return editors;
 }
 
-// TODO code using this should probably better use DocumentModel
-QList<IEditor*> EditorManager::openedEditors() const
-{
-    return d->m_documentModel->oneEditorForEachOpenedDocument();
-}
-
 DocumentModel *EditorManager::documentModel()
 {
     return d->m_documentModel;
@@ -2138,13 +2129,14 @@ QByteArray EditorManager::saveState() const
 
     stream << QByteArray("EditorManagerV4");
 
-    QList<IEditor *> editors = openedEditors();
-    foreach (IEditor *editor, editors) {
-        if (!editor->document()->filePath().isEmpty()
-                && !editor->document()->isTemporary()) {
+    // TODO: In case of split views it's not possible to restore these for all correctly with this
+    QList<IDocument *> documents = d->m_documentModel->openedDocuments();
+    foreach (IDocument *document, documents) {
+        if (!document->filePath().isEmpty() && !document->isTemporary()) {
+            IEditor *editor = d->m_documentModel->editorsForDocument(document).first();
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
-                d->m_editorStates.insert(editor->document()->filePath(), QVariant(state));
+                d->m_editorStates.insert(document->filePath(), QVariant(state));
         }
     }
 
