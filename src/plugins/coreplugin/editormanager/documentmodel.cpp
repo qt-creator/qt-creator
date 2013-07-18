@@ -291,6 +291,22 @@ QList<IDocument *> DocumentModel::openedDocuments() const
     return d->m_editors.keys();
 }
 
+IDocument *DocumentModel::documentForFilePath(const QString &filePath) const
+{
+    int index = indexOfFilePath(filePath);
+    if (index < 0)
+        return 0;
+    return d->m_documents.at(index)->document;
+}
+
+QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath) const
+{
+    IDocument *document = documentForFilePath(filePath);
+    if (document)
+        return editorsForDocument(document);
+    return QList<IEditor *>();
+}
+
 QModelIndex DocumentModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)

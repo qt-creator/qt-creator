@@ -81,6 +81,8 @@ public:
     Entry *entryForDocument(IDocument *document) const;
     QList<IDocument *> openedDocuments() const;
 
+    IDocument *documentForFilePath(const QString &filePath) const;
+    QList<IEditor *> editorsForFilePath(const QString &filePath) const;
     QList<IEditor *> editorsForDocument(IDocument *document) const;
     QList<IEditor *> editorsForDocuments(const QList<IDocument *> &documents) const;
     QList<IEditor *> oneEditorForEachOpenedDocument() const;
