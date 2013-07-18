@@ -109,15 +109,15 @@ public:
         enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                            Stashed, NotStashed /* User did not want it */ };
 
-        bool init(const QString &workingDirectory, const QString &keyword, StashFlag flag = Default);
+        bool init(const QString &workingDirectory, const QString &command, StashFlag flag = Default);
         bool stashingFailed() const;
         void end();
         StashResult result() const { return m_stashResult; }
         QString stashMessage() const { return m_message; }
 
     private:
-        void stashPrompt(const QString &keyword, const QString &statusOutput, QString *errorMessage);
-        void executeStash(const QString &keyword, QString *errorMessage);
+        void stashPrompt(const QString &command, const QString &statusOutput, QString *errorMessage);
+        void executeStash(const QString &command, QString *errorMessage);
 
         StashResult m_stashResult;
         QString m_message;
@@ -311,7 +311,7 @@ public:
 
     QProcessEnvironment processEnvironment() const;
 
-    bool beginStashScope(const QString &workingDirectory, const QString &keyword, StashFlag flag = Default);
+    bool beginStashScope(const QString &workingDirectory, const QString &command, StashFlag flag = Default);
     StashInfo &stashInfo(const QString &workingDirectory);
     void endStashScope(const QString &workingDirectory);
     bool isValidRevision(const QString &revision) const;
