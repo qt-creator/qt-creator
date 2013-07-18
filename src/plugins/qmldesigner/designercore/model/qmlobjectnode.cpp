@@ -449,6 +449,15 @@ QmlItemNode QmlObjectNode::itemForInstance(const NodeInstance &instance) const
     return QmlItemNode(ModelNode(instance.modelNode(), qmlModelView()));
 }
 
+QmlObjectNode::QmlObjectNode()
+    : QmlModelNodeFacade()
+{
+}
+
+QmlObjectNode::QmlObjectNode(const ModelNode &modelNode)
+    : QmlModelNodeFacade(modelNode)
+{
+}
 bool QmlObjectNode::hasNodeParent() const
 {
     return modelNode().hasParentProperty();

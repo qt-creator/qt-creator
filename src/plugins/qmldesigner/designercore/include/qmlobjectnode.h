@@ -45,8 +45,8 @@ class QmlPropertyChanges;
 class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
 {
 public:
-    QmlObjectNode() : QmlModelNodeFacade() {}
-    QmlObjectNode(const ModelNode &modelNode)  : QmlModelNodeFacade(modelNode) {}
+    QmlObjectNode();
+    QmlObjectNode(const ModelNode &modelNode);
 
     bool hasNodeParent() const;
     bool hasInstanceParent() const;
