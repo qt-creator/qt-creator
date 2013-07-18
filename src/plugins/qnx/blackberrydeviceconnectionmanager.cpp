@@ -198,6 +198,8 @@ void BlackBerryDeviceConnectionManager::handleDeviceConnected()
                                                     ProjectExplorer::IDevice::DeviceReadyToUse);
         }
     }
+
+    emit deviceConnected();
 }
 
 void BlackBerryDeviceConnectionManager::handleDeviceDisconnected()

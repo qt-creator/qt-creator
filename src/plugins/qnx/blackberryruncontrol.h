@@ -32,6 +32,8 @@
 #ifndef QNX_INTERNAL_BLACKBERRYRUNCONTROL_H
 #define QNX_INTERNAL_BLACKBERRYRUNCONTROL_H
 
+#include "blackberrydeviceconfiguration.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 namespace Qt4ProjectManager {
@@ -58,9 +60,13 @@ public:
 
 private slots:
     void handleStartFailed(const QString &message);
+    void handleDeviceConnected();
+    void displayConnectionOutput(Core::Id deviceId, const QString &output);
+    void checkDeviceConnection();
 
 private:
     BlackBerryApplicationRunner *m_runner;
+    BlackBerryDeviceConfiguration::ConstPtr m_device;
 };
 
 } // namespace Internal

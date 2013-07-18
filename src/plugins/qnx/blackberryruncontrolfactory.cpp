@@ -101,14 +101,6 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         return 0;
     }
 
-    BlackBerryDeviceConfiguration::ConstPtr device =
-            BlackBerryDeviceConfiguration::device(rc->target()->kit());
-    if (!BlackBerryDeviceConnectionManager::instance()->isConnected(device->id())) {
-        if (errorMessage)
-            *errorMessage = tr("Device not connected");
-        return 0;
-    }
-
     if (mode == ProjectExplorer::NormalRunMode) {
         BlackBerryRunControl *runControl = new BlackBerryRunControl(rc);
         m_activeRunControls[rc->key()] = runControl;

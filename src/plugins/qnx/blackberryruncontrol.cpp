@@ -32,6 +32,9 @@
 #include "blackberryruncontrol.h"
 #include "blackberryapplicationrunner.h"
 #include "blackberryrunconfiguration.h"
+#include "blackberrydeviceconnectionmanager.h"
+
+#include <projectexplorer/target.h>
 
 #include <QIcon>
 #include <QTimer>
@@ -42,6 +45,7 @@ using namespace Qnx::Internal;
 BlackBerryRunControl::BlackBerryRunControl(BlackBerryRunConfiguration *runConfiguration)
     : ProjectExplorer::RunControl(runConfiguration, ProjectExplorer::NormalRunMode)
 {
+    m_device = BlackBerryDeviceConfiguration::device(runConfiguration->target()->kit());
     m_runner = new BlackBerryApplicationRunner(false, runConfiguration, this);
 
     connect(m_runner, SIGNAL(started()), this, SIGNAL(started()));
@@ -53,7 +57,7 @@ BlackBerryRunControl::BlackBerryRunControl(BlackBerryRunConfiguration *runConfig
 
 void BlackBerryRunControl::start()
 {
-    m_runner->start();
+    checkDeviceConnection();
 }
 
 ProjectExplorer::RunControl::StopResult BlackBerryRunControl::stop()
@@ -74,4 +78,33 @@ QIcon BlackBerryRunControl::icon() const
 void BlackBerryRunControl::handleStartFailed(const QString &message)
 {
     appendMessage(message, Utils::StdErrFormat);
+}
+
+void BlackBerryRunControl::handleDeviceConnected()
+{
+     m_runner->start();
+}
+
+void BlackBerryRunControl::displayConnectionOutput(Core::Id deviceId, const QString &output)
+{
+    if (deviceId != m_device->id())
+        return;
+
+    if (output.contains(QLatin1String("Info:")))
+        appendMessage(output, Utils::StdOutFormat);
+    else if (output.contains(QLatin1String("Error:")))
+        appendMessage(output, Utils::StdErrFormat);
+}
+
+void BlackBerryRunControl::checkDeviceConnection()
+{
+    if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id())) {
+        connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceConnected()),
+                this, SLOT(handleDeviceConnected()));
+        connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
+                this, SLOT(displayConnectionOutput(Core::Id,QString)));
+        BlackBerryDeviceConnectionManager::instance()->connectDevice(m_device->id());
+    } else {
+        m_runner->start();
+    }
 }
