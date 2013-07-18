@@ -224,6 +224,7 @@ public:
 
     bool parseObjCTryStatement(StatementAST *&node);
     bool parseObjCSynchronizedStatement(StatementAST *&node);
+    bool parseObjCThrowStatement(StatementAST *&node);
     bool parseObjCEncodeExpression(ExpressionAST *&node);
     bool parseObjCProtocolExpression(ExpressionAST *&node);
     bool parseObjCSelectorExpression(ExpressionAST *&node);

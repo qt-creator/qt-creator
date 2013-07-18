@@ -162,6 +162,7 @@ private slots:
     void objc_try_statement_1();
     void objc_try_statement_2();
     void objc_try_statement_3();
+    void objc_throw_statement();
 
     // expressions with (square) brackets
     void normal_array_access();
@@ -1430,6 +1431,22 @@ void tst_AST::objc_try_statement_3()
                     "    } @catch (...) {\n"
                     "        printf(\"Oek?\");\n"
                     "    }\n"
+                    "}\n"
+                    ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::objc_throw_statement()
+{
+    QSharedPointer<TranslationUnit> unit(
+                parseDeclaration(
+                    "void tst() {\n"
+                    "    NSException *up = [NSException exceptionWithName:@\"NoException\"\n"
+                    "                                              reason:@\"No Reason :-)\"\n"
+                    "                                            userInfo:nil];\n"
+                    "    @throw up;\n"
                     "}\n"
                     ));
     AST *ast = unit->ast();

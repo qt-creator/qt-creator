@@ -335,6 +335,7 @@ bool Parser::skipUntilStatement()
 
             case T_AT_TRY:
             case T_AT_SYNCHRONIZED:
+            case T_AT_THROW:
                 if (objCEnabled())
                     return true;
 
@@ -3113,6 +3114,9 @@ bool Parser::parseStatement(StatementAST *&node)
     case T_AT_SYNCHRONIZED:
         return objCEnabled() && parseObjCSynchronizedStatement(node);
 
+    case T_AT_THROW:
+        return objCEnabled() && parseObjCThrowStatement(node);
+
     case T_Q_D:
     case T_Q_Q: {
         QtMemberDeclarationAST *ast = new (_pool) QtMemberDeclarationAST;
@@ -4452,6 +4456,8 @@ bool Parser::parseObjCTryStatement(StatementAST *& /*node*/)
     return true;
 }
 
+/// objc-synchronized-statement:
+///   @synchronized expression ;
 bool Parser::parseObjCSynchronizedStatement(StatementAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -4467,6 +4473,23 @@ bool Parser::parseObjCSynchronizedStatement(StatementAST *&node)
     parseStatement(ast->statement);
 
     node = ast;
+    return true;
+}
+
+/// objc-throw-statement:
+///   @ throw expression ;
+bool Parser::parseObjCThrowStatement(StatementAST *&/*node*/)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_AT_THROW)
+        return false;
+
+    /*throw_token =*/ consumeToken();
+    ExpressionAST *thrown_expression;
+    parseExpression(thrown_expression);
+    unsigned semicolon_token;
+    match(T_SEMICOLON, &semicolon_token);
+
     return true;
 }
 
