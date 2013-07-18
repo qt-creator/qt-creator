@@ -43,12 +43,14 @@ public:
     operator ModelNode() const;
     ModelNode modelNode();
     const ModelNode modelNode() const;
+    static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
     virtual bool isValid() const;
     virtual ~QmlModelNodeFacade();
     QmlModelNodeFacade();
 
     bool isRootNode() const;
     QmlModelView* qmlModelView() const;
+
 
 protected:
     QmlModelNodeFacade(const ModelNode &modelNode);

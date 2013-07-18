@@ -48,6 +48,9 @@ public:
     QmlObjectNode();
     QmlObjectNode(const ModelNode &modelNode);
 
+    static bool isValidQmlObjectNode(const ModelNode &modelNode);
+    bool isValid() const;
+
     bool hasNodeParent() const;
     bool hasInstanceParent() const;
     bool hasInstanceParentItem() const;

@@ -59,12 +59,19 @@ const ModelNode QmlModelNodeFacade::modelNode() const
 
 bool QmlModelNodeFacade::isValid() const
 {
-    return modelNode().isValid() && qmlModelView() && qmlModelView()->nodeInstanceView() && qmlModelView()->hasInstanceForModelNode(modelNode()) && qmlModelView()->instanceForModelNode(modelNode()).isValid();
+    return isValidQmlModelNodeFacade(m_modelNode);
 }
 
 QmlModelView* QmlModelNodeFacade::qmlModelView() const
 {
     return modelNode().view()->toQmlModelView();
+}
+
+bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
+{
+    QmlModelView * qmlModelView = modelNode.view()->toQmlModelView();
+
+    return modelNode.isValid() && qmlModelView && qmlModelView->nodeInstanceView() && qmlModelView->hasInstanceForModelNode(modelNode) && qmlModelView->instanceForModelNode(modelNode).isValid();
 }
 
 bool QmlModelNodeFacade::isRootNode() const

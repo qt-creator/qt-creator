@@ -50,7 +50,12 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
 
 bool QmlItemNode::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && isItemOrWindow(modelNode());
+    return isValidQmlItemNode(modelNode());
+}
+
+bool QmlItemNode::isValidQmlItemNode(const ModelNode &modelNode)
+{
+    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid() && isItemOrWindow(modelNode);
 }
 
 bool QmlItemNode::isRootNode() const

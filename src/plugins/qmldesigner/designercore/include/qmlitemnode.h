@@ -51,6 +51,7 @@ public:
     QmlItemNode() : QmlObjectNode() {}
     QmlItemNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}
     bool isValid() const;
+    static bool isValidQmlItemNode(const ModelNode &modelNode);
     bool isRootNode() const;
 
     static bool isItemOrWindow(const ModelNode &modelNode);

@@ -458,6 +458,17 @@ QmlObjectNode::QmlObjectNode(const ModelNode &modelNode)
     : QmlModelNodeFacade(modelNode)
 {
 }
+
+bool QmlObjectNode::isValidQmlObjectNode(const ModelNode &modelNode)
+{
+    return isValidQmlModelNodeFacade(modelNode);
+}
+
+bool QmlObjectNode::isValid() const
+{
+    return isValidQmlObjectNode(modelNode());
+}
+
 bool QmlObjectNode::hasNodeParent() const
 {
     return modelNode().hasParentProperty();
