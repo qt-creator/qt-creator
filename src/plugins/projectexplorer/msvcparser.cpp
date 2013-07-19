@@ -30,6 +30,7 @@
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 
+#include <utils/qtcassert.h>
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>
 #endif
@@ -74,8 +75,10 @@ MsvcParser::MsvcParser()
                                + QLatin1String("(Command line |fatal )?(warning|error) (")
                                + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
     m_compileRegExp.setMinimal(true);
+    QTC_CHECK(m_compileRegExp.isValid());
     m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        (.*)\\((\\d+)\\) : (.*)$"));
     m_additionalInfoRegExp.setMinimal(true);
+    QTC_CHECK(m_additionalInfoRegExp.isValid());
 }
 
 void MsvcParser::stdOutput(const QString &line)

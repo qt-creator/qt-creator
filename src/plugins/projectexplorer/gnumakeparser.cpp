@@ -32,6 +32,8 @@
 #include "projectexplorerconstants.h"
 #include "task.h"
 
+#include <utils/qtcassert.h>
+
 #include <QDir>
 #include <QFile>
 
@@ -50,10 +52,13 @@ GnuMakeParser::GnuMakeParser() :
     m_makeDir.setPattern(QLatin1String(MAKE_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
     m_makeDir.setMinimal(true);
+    QTC_CHECK(m_makeDir.isValid());
     m_makeLine.setPattern(QLatin1String(MAKE_PATTERN) + QLatin1String("(\\*\\*\\*\\s)?(.*)$"));
     m_makeLine.setMinimal(true);
+    QTC_CHECK(m_makeLine.isValid());
     m_makefileError.setPattern(QLatin1String("^(.*):(\\d+):\\s\\*\\*\\*\\s(.*)$"));
     m_makefileError.setMinimal(true);
+    QTC_CHECK(m_makefileError.isValid());
 }
 
 void GnuMakeParser::setWorkingDirectory(const QString &workingDirectory)

@@ -29,6 +29,8 @@
 
 #include "cmakeparser.h"
 
+#include <utils/qtcassert.h>
+
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -46,9 +48,11 @@ CMakeParser::CMakeParser() :
 {
     m_commonError.setPattern(QLatin1String(COMMON_ERROR_PATTERN));
     m_commonError.setMinimal(true);
+    QTC_CHECK(m_commonError.isValid());
 
     m_nextSubError.setPattern(QLatin1String(NEXT_SUBERROR_PATTERN));
     m_nextSubError.setMinimal(true);
+    QTC_CHECK(m_nextSubError.isValid());
     appendOutputParser(new GnuMakeParser());
 }
 

@@ -32,6 +32,8 @@
 #include "task.h"
 #include "projectexplorerconstants.h"
 
+#include <utils/qtcassert.h>
+
 using namespace ProjectExplorer;
 
 // opt. drive letter + filename: (2 brackets)
@@ -44,10 +46,12 @@ GccParser::GccParser()
     m_regExp.setPattern(QLatin1Char('^') + QLatin1String(FILE_PATTERN)
                         + QLatin1String("(\\d+):(\\d+:)?\\s+((fatal |#)?(warning|error|note):?\\s)?([^\\s].+)$"));
     m_regExp.setMinimal(true);
+    QTC_CHECK(m_regExp.isValid());
 
     m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + QLatin1String(FILE_PATTERN)
                                 + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));
     m_regExpIncluded.setMinimal(true);
+    QTC_CHECK(m_regExpIncluded.isValid());
 
     // optional path with trailing slash
     // optional arm-linux-none-thingy
@@ -56,6 +60,7 @@ GccParser::GccParser()
     // optional .exe postfix
     m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
     m_regExpGccNames.setMinimal(true);
+    QTC_CHECK(m_regExpGccNames.isValid());
 
     appendOutputParser(new LdParser);
 }

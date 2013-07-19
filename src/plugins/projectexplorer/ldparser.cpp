@@ -31,6 +31,8 @@
 #include "projectexplorerconstants.h"
 #include "task.h"
 
+#include <utils/qtcassert.h>
+
 using namespace ProjectExplorer;
 
 namespace {
@@ -50,9 +52,11 @@ LdParser::LdParser()
                               QString::fromLatin1(FILE_PATTERN) + QLatin1String(")?(") +
                               QLatin1String(POSITION_PATTERN) + QLatin1String(")?\\s(.+)$"));
     m_regExpLinker.setMinimal(true);
+    QTC_CHECK(m_regExpLinker.isValid());
 
     m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
     m_regExpGccNames.setMinimal(true);
+    QTC_CHECK(m_regExpGccNames.isValid());
 }
 
 void LdParser::stdError(const QString &line)

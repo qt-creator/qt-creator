@@ -31,6 +31,8 @@
 #include "ldparser.h"
 #include "projectexplorerconstants.h"
 
+#include <utils/qtcassert.h>
+
 using namespace ProjectExplorer;
 
 LinuxIccParser::LinuxIccParser()
@@ -44,16 +46,19 @@ LinuxIccParser::LinuxIccParser()
                            " ((error|warning)( #\\d+)?: )?" // optional type (cap 4) and optional error number // TODO really optional ?
                            "(.*)$"));                       // description (cap 6)
     //m_firstLine.setMinimal(true);
+    QTC_CHECK(m_firstLine.isValid());
 
                                             // Note pattern also matches caret lines
     m_continuationLines.setPattern(QLatin1String("^\\s+"  // At least one whitespace
                                                  "(.*)$"));// description
     m_continuationLines.setMinimal(true);
+    QTC_CHECK(m_continuationLines.isValid());
 
     m_caretLine.setPattern(QLatin1String("^\\s*"          // Whitespaces
                                          "\\^"            // a caret
                                          "\\s*$"));       // and again whitespaces
     m_caretLine.setMinimal(true);
+    QTC_CHECK(m_caretLine.isValid());
 
     appendOutputParser(new LdParser);
 }
