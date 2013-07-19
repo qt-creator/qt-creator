@@ -29,7 +29,8 @@ HEADERS += \
     memcheckengine.h \
     memcheckerrorview.h \
     suppressiondialog.h \
-    valgrindtool.h
+    valgrindtool.h \
+    valgrindruncontrolfactory.h
 
 SOURCES += \
     valgrindplugin.cpp \
@@ -52,7 +53,8 @@ SOURCES += \
     memcheckengine.cpp \
     memcheckerrorview.cpp \
     suppressiondialog.cpp \
-    valgrindtool.cpp
+    valgrindtool.cpp \
+    valgrindruncontrolfactory.cpp
 
 FORMS += \
     valgrindconfigwidget.ui

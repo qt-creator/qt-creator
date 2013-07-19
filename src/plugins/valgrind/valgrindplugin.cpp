@@ -32,6 +32,7 @@
 
 #include "callgrindtool.h"
 #include "memchecktool.h"
+#include "valgrindruncontrolfactory.h"
 
 #include <analyzerbase/analyzerconstants.h>
 #include <analyzerbase/analyzermanager.h>
@@ -98,6 +99,8 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 
     AnalyzerManager::addTool(new MemcheckTool(this), modes);
     AnalyzerManager::addTool(new CallgrindTool(this), modes);
+
+    addAutoReleasedObject(new ValgrindRunControlFactory());
 
     return true;
 }

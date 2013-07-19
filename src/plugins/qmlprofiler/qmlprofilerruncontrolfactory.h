@@ -27,49 +27,32 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilerplugin.h"
-#include "qmlprofilerruncontrolfactory.h"
+#ifndef QMLPROFILERRUNCONTROLFACTORY_H
+#define QMLPROFILERRUNCONTROLFACTORY_H
 
-#include "qmlprofilertool.h"
+#include <projectexplorer/runconfiguration.h>
 
-#include <analyzerbase/analyzermanager.h>
+namespace QmlProfiler {
+namespace Internal {
 
-#include <QtPlugin>
-
-using namespace Analyzer;
-using namespace QmlProfiler::Internal;
-
-bool QmlProfilerPlugin::debugOutput = false;
-
-bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
+class QmlProfilerRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_OBJECT
+public:
+    typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
-    StartModes modes;
-    modes.append(StartMode(StartLocal));
-    modes.append(StartMode(StartRemote));
-    AnalyzerManager::addTool(new QmlProfilerTool(this), modes);
+    explicit QmlProfilerRunControlFactory(QObject *parent = 0);
 
-    addAutoReleasedObject(new QmlProfilerRunControlFactory());
+    // IRunControlFactory implementation
+    bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
 
-    return true;
-}
+    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
+                                        ProjectExplorer::RunMode mode,
+                                        QString *errorMessage);
+    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc);
+};
 
-void QmlProfilerPlugin::extensionsInitialized()
-{
-    // Retrieve objects from the plugin manager's object pool.
-    // "In the extensionsInitialized method, a plugin can be sure that all
-    //  plugins that depend on it are completely initialized."
-}
+} // namespace Internal
+} // namespace QmlProfiler
 
-ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
-{
-    // Save settings.
-    // Disconnect from signals that are not needed during shutdown
-    // Hide UI (if you add UI that is not in the main window directly)
-    return SynchronousShutdown;
-}
-
-Q_EXPORT_PLUGIN(QmlProfilerPlugin)
-
+#endif // QMLPROFILERRUNCONTROLFACTORY_H

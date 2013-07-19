@@ -1,7 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2013 Kläralvdalens Datakonsult AB, a KDAB Group company.
-** Contact: Kläralvdalens Datakonsult AB (info@kdab.com)
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -27,36 +27,43 @@
 **
 ****************************************************************************/
 
-#include "analyzerruncontrolfactory.h"
-#include "analyzersettings.h"
-#include "analyzerruncontrol.h"
-#include "analyzermanager.h"
-#include "ianalyzertool.h"
-#include "analyzerstartparameters.h"
+#include "qmlprofilerruncontrolfactory.h"
+#include "localqmlprofilerrunner.h"
+#include "qmlprofilerengine.h"
+
+#include <analyzerbase/ianalyzertool.h>
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerstartparameters.h>
+#include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzersettings.h>
+
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
 
-#include <QAction>
-
+using namespace Analyzer;
 using namespace ProjectExplorer;
 
-namespace Analyzer {
+namespace QmlProfiler {
 namespace Internal {
 
-AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent) :
+QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent) :
     IRunControlFactory(parent)
 {
 }
 
-bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
+    if (mode != QmlProfilerRunMode)
+        return false;
     IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
     if (tool)
         return tool->canRun(runConfiguration, mode);
     return false;
 }
 
-RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
     IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
     if (!tool) {
@@ -74,11 +81,11 @@ RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration
     return rc;
 }
 
-IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
+IRunConfigurationAspect *QmlProfilerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
 {
     Q_UNUSED(rc);
     return new AnalyzerRunConfigurationAspect;
 }
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace QmlProfiler

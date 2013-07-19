@@ -48,6 +48,8 @@ QtcPlugin {
         "valgrindplugin.h",
         "valgrindprocess.cpp",
         "valgrindprocess.h",
+        "valgrindruncontrolfactory.cpp",
+        "valgrindruncontrolfactory.h",
         "valgrindrunner.cpp",
         "valgrindrunner.h",
         "valgrindsettings.cpp",

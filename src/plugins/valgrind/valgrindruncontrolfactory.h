@@ -1,7 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2013 Kläralvdalens Datakonsult AB, a KDAB Group company.
-** Contact: Kläralvdalens Datakonsult AB (info@kdab.com)
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -27,24 +27,25 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERRUNCONTROLFACTORY_H
-#define ANALYZERRUNCONTROLFACTORY_H
+#ifndef VALGRINDRUNCONTROLFACTORY_H
+#define VALGRINDRUNCONTROLFACTORY_H
 
-#include <analyzerbase/analyzerruncontrol.h>
+#include <projectexplorer/runconfiguration.h>
 
-namespace Analyzer {
+namespace Valgrind {
 namespace Internal {
 
-class AnalyzerRunControlFactory : public ProjectExplorer::IRunControlFactory
+class ValgrindRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
-    explicit AnalyzerRunControlFactory(QObject *parent = 0);
+    explicit ValgrindRunControlFactory(QObject *parent = 0);
 
     // IRunControlFactory implementation
     bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
                                         ProjectExplorer::RunMode mode,
                                         QString *errorMessage);
@@ -52,6 +53,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace Valgrind
 
-#endif // ANALYZERRUNCONTROLFACTORY_H
+#endif // VALGRINDRUNCONTROLFACTORY_H
