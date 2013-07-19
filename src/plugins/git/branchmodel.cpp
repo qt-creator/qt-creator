@@ -361,7 +361,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         parseOutputLine(l);
 
     if (m_currentBranch) {
-        if (m_currentBranch->parent == m_rootNode->children[0])
+        if (m_currentBranch->parent == m_rootNode->children.at(LocalBranches))
             m_currentBranch = 0;
         setCurrentBranch();
     }
@@ -377,7 +377,7 @@ void BranchModel::setCurrentBranch()
     if (currentBranch.isEmpty())
         return;
 
-    BranchNode *local = m_rootNode->children.at(0);
+    BranchNode *local = m_rootNode->children.at(LocalBranches);
     int pos = 0;
     for (pos = 0; pos < local->count(); ++pos) {
         if (local->children.at(pos)->name == currentBranch) {
@@ -446,7 +446,7 @@ QStringList BranchModel::localBranchNames() const
     if (!m_rootNode || !m_rootNode->count())
         return QStringList();
 
-    return m_rootNode->children.at(0)->childrenNames();
+    return m_rootNode->children.at(LocalBranches)->childrenNames();
 }
 
 QString BranchModel::sha(const QModelIndex &idx) const
@@ -583,7 +583,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         return QModelIndex();
     }
 
-    BranchNode *local = m_rootNode->children.at(0);
+    BranchNode *local = m_rootNode->children.at(LocalBranches);
     const int slash = name.indexOf(QLatin1Char('/'));
     const QString leafName = slash == -1 ? name : name.mid(slash + 1);
     bool added = false;
@@ -641,11 +641,11 @@ void BranchModel::parseOutputLine(const QString &line)
 
     BranchNode *root = 0;
     if (nameParts.first() == QLatin1String("heads"))
-        root = m_rootNode->children.at(0); // Insert the local designator
+        root = m_rootNode->children.at(LocalBranches);
     else if (nameParts.first() == QLatin1String("remotes"))
-        root = m_rootNode->children.at(1);
+        root = m_rootNode->children.at(RemoteBranches);
     else if (showTags && nameParts.first() == QLatin1String("tags"))
-        root = m_rootNode->children.at(2);
+        root = m_rootNode->children.at(Tags);
     else
         return;
 
