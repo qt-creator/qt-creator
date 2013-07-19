@@ -207,7 +207,7 @@ EditorToolBar::~EditorToolBar()
 void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    disconnect(editor->document(), SIGNAL(changed()), this, SLOT(checkEditorStatus()));
+    disconnect(editor->document(), SIGNAL(changed()), this, SLOT(checkDocumentStatus()));
 
     QWidget *toolBar = editor->toolBar();
     if (toolBar != 0) {
@@ -245,13 +245,13 @@ void EditorToolBar::closeEditor()
 void EditorToolBar::addEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    connect(editor->document(), SIGNAL(changed()), this, SLOT(checkEditorStatus()));
+    connect(editor->document(), SIGNAL(changed()), this, SLOT(checkDocumentStatus()));
     QWidget *toolBar = editor->toolBar();
 
     if (toolBar && !d->m_isStandalone)
         addCenterToolBar(toolBar);
 
-    updateEditorStatus(editor);
+    updateDocumentStatus(editor->document());
 }
 
 void EditorToolBar::addCenterToolBar(QWidget *toolBar)
@@ -298,7 +298,7 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
     if (!d->m_isStandalone)
         updateToolBar(editor ? editor->toolBar() : 0);
 
-    updateEditorStatus(editor);
+    updateDocumentStatus(document);
 }
 
 void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
@@ -354,20 +354,22 @@ void EditorToolBar::updateActionShortcuts()
     d->m_closeSplitButton->setToolTip(ActionManager::command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(tr("Remove Split")));
 }
 
-void EditorToolBar::checkEditorStatus()
+void EditorToolBar::checkDocumentStatus()
 {
-    IEditor *editor = qobject_cast<IEditor *>(sender());
-    IEditor *current = EditorManager::currentEditor();
+    IDocument *document = qobject_cast<IDocument *>(sender());
+    QTC_ASSERT(document, return);
+    DocumentModel::Entry *entry = EditorManager::documentModel()->documentAtRow(
+                d->m_editorList->currentIndex());
 
-    if (current == editor)
-        updateEditorStatus(editor);
+    if (entry && entry->document && entry->document == document)
+        updateDocumentStatus(document);
 }
 
-void EditorToolBar::updateEditorStatus(IEditor *editor)
+void EditorToolBar::updateDocumentStatus(IDocument *document)
 {
-    d->m_closeEditorButton->setEnabled(editor != 0);
+    d->m_closeEditorButton->setEnabled(document != 0);
 
-    if (!editor || !editor->document()) {
+    if (!document) {
         d->m_lockButton->setIcon(QIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
@@ -375,13 +377,13 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
         return;
     }
 
-    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(editor->document()));
+    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(document));
 
-    if (editor->document()->filePath().isEmpty()) {
+    if (document->filePath().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
-    } else if (editor->document()->isFileReadOnly()) {
+    } else if (document->isFileReadOnly()) {
         d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->lockedIcon()));
         d->m_lockButton->setEnabled(true);
         d->m_lockButton->setToolTip(tr("Make Writable"));
@@ -390,13 +392,10 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(tr("File is writable"));
     }
-    IEditor *current = EditorManager::currentEditor();
-    if (editor == current)
-        d->m_editorList->setToolTip(
-                current->document()->filePath().isEmpty()
-                ? current->document()->displayName()
-                    : QDir::toNativeSeparators(editor->document()->filePath())
-                    );
+    d->m_editorList->setToolTip(
+            document->filePath().isEmpty()
+            ? document->displayName()
+            : QDir::toNativeSeparators(document->filePath()));
 }
 
 void EditorToolBar::setNavigationVisible(bool isVisible)
