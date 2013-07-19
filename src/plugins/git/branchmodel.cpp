@@ -95,6 +95,8 @@ public:
         BranchNode *rn = rootNode();
         if (rn->isLeaf())
             return false;
+        if (root >= rn->children.count())
+            return false;
         return childOf(rn->children.at(root));
     }
 
