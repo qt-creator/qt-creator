@@ -1225,12 +1225,15 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
     }
 }
 
-Core::IEditor *EditorManager::pickUnusedEditor() const
+Core::IEditor *EditorManager::pickUnusedEditor(EditorView **foundView) const
 {
     foreach (IEditor *editor, openedEditors()) {
         EditorView *view = viewForEditor(editor);
-        if (!view || view->currentEditor() != editor)
+        if (!view || view->currentEditor() != editor) {
+            if (foundView)
+                *foundView = view;
             return editor;
+        }
     }
     return 0;
 }
@@ -1282,8 +1285,12 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
                 view->addEditor(editor);
                 view->setCurrentEditor(editor);
                 if (!sourceView->currentEditor()) {
-                    if (IEditor *replacement = pickUnusedEditor())
+                    EditorView *replacementView = 0;
+                    if (IEditor *replacement = pickUnusedEditor(&replacementView)) {
+                        if (replacementView)
+                            replacementView->removeEditor(replacement);
                         sourceView->addEditor(replacement);
+                    }
                 }
                 return editor;
             } else if (duplicateSupported) {

@@ -277,7 +277,7 @@ private:
     void closeView(Internal::EditorView *view);
     void emptyView(Internal::EditorView *view);
     static void splitNewWindow(Internal::EditorView *view);
-    IEditor *pickUnusedEditor() const;
+    IEditor *pickUnusedEditor(Internal::EditorView **foundView = 0) const;
     void addDocumentToRecentFiles(IDocument *document);
     void updateAutoSave();
     void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
