@@ -202,8 +202,6 @@ BranchModel::BranchModel(GitClient *client, QObject *parent) :
     // Abuse the sha field for ref prefix
     m_rootNode->append(new BranchNode(tr("Local Branches"), QLatin1String("refs/heads")));
     m_rootNode->append(new BranchNode(tr("Remote Branches"), QLatin1String("refs/remotes")));
-    if (m_client->settings()->boolValue(GitSettings::showTagsKey))
-        m_rootNode->append(new BranchNode(tr("Tags"), QLatin1String("refs/tags")));
 }
 
 BranchModel::~BranchModel()
@@ -335,6 +333,8 @@ void BranchModel::clear()
     foreach (BranchNode *root, m_rootNode->children)
         while (root->count())
             delete root->children.takeLast();
+    if (hasTags())
+        m_rootNode->children.takeLast();
 
     m_currentBranch = 0;
 }
@@ -457,6 +457,11 @@ QString BranchModel::sha(const QModelIndex &idx) const
     return node->sha;
 }
 
+bool BranchModel::hasTags() const
+{
+    return m_rootNode->children.count() > Tags;
+}
+
 bool BranchModel::isLocal(const QModelIndex &idx) const
 {
     if (!idx.isValid())
@@ -475,7 +480,7 @@ bool BranchModel::isLeaf(const QModelIndex &idx) const
 
 bool BranchModel::isTag(const QModelIndex &idx) const
 {
-    if (!idx.isValid())
+    if (!idx.isValid() || !hasTags())
         return false;
     return indexToNode(idx)->isTag();
 }
@@ -640,14 +645,17 @@ void BranchModel::parseOutputLine(const QString &line)
     nameParts.removeFirst(); // remove refs...
 
     BranchNode *root = 0;
-    if (nameParts.first() == QLatin1String("heads"))
+    if (nameParts.first() == QLatin1String("heads")) {
         root = m_rootNode->children.at(LocalBranches);
-    else if (nameParts.first() == QLatin1String("remotes"))
+    } else if (nameParts.first() == QLatin1String("remotes")) {
         root = m_rootNode->children.at(RemoteBranches);
-    else if (showTags && nameParts.first() == QLatin1String("tags"))
+    } else if (showTags && nameParts.first() == QLatin1String("tags")) {
+        if (!hasTags()) // Tags is missing, add it
+            m_rootNode->append(new BranchNode(tr("Tags"), QLatin1String("refs/tags")));
         root = m_rootNode->children.at(Tags);
-    else
+    } else {
         return;
+    }
 
     nameParts.removeFirst();
 
