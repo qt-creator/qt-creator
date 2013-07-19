@@ -110,7 +110,8 @@ void GccParser::stdError(const QString &line)
         if (m_regExp.cap(7) == QLatin1String("warning"))
             task.type = Task::Warning;
         else if (m_regExp.cap(7) == QLatin1String("error") ||
-                 task.description.startsWith(QLatin1String("undefined reference to")))
+                 task.description.startsWith(QLatin1String("undefined reference to")) ||
+                 task.description.startsWith(QLatin1String("multiple definition of")))
             task.type = Task::Error;
 
         // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
@@ -809,6 +810,33 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          QLatin1String("within this context"),
                          Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 7,
                          categoryCompile))
+            << QString();
+
+    QTest::newRow("ld: Multiple definition error")
+            << QString::fromLatin1("foo.o: In function `foo()':\n"
+                                   "/home/user/test/foo.cpp:2: multiple definition of `foo()'\n"
+                                   "bar.o:/home/user/test/bar.cpp:4: first defined here\n"
+                                   "collect2: error: ld returned 1 exit status")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In function `foo()':"),
+                        Utils::FileName::fromUserInput(QLatin1String("foo.o")), -1,
+                        categoryCompile)
+                << Task(Task::Error,
+                        QLatin1String("multiple definition of `foo()'"),
+                        Utils::FileName::fromUserInput(QLatin1String("/home/user/test/foo.cpp")), 2,
+                        categoryCompile)
+                << Task(Task::Unknown,
+                        QLatin1String("first defined here"),
+                        Utils::FileName::fromUserInput(QLatin1String("/home/user/test/bar.cpp")), 4,
+                        categoryCompile)
+                << Task(Task::Error,
+                        QLatin1String("collect2: error: ld returned 1 exit status"),
+                        Utils::FileName(), -1,
+                        categoryCompile)
+                )
             << QString();
 
 }
