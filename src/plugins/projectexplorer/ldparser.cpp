@@ -106,8 +106,10 @@ void LdParser::stdError(const QString &line)
         if (description.startsWith(QLatin1String("At global scope")) ||
             description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||
-            description.startsWith(QLatin1String("In ")))
+            description.startsWith(QLatin1String("In ")) ||
+            description.startsWith(QLatin1String("first defined here"))) {
             task.type = Task::Unknown;
+        }
         if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
             task.type = Task::Warning;
             task.description = description.mid(9);
