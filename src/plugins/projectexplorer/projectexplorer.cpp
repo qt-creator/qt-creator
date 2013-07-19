@@ -334,7 +334,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new Internal::DesktopDeviceFactory);
 
     d->m_kitManager = new KitManager; // register before ToolChainManager
-    new DeviceManager; // Create DeviceManager singleton
     d->m_toolChainManager = new ToolChainManager;
 
     // Register KitInformation:
