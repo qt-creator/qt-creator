@@ -50,6 +50,8 @@ QtcPlugin {
     cpp.dynamicLibraries: base.concat(externalQbsDynamicLibraries)
 
     files: [
+        "defaultpropertyprovider.cpp",
+        "defaultpropertyprovider.h",
         "propertyprovider.h",
         "qbsbuildconfiguration.cpp",
         "qbsbuildconfiguration.h",
