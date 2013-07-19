@@ -49,7 +49,7 @@ DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
 bool DiffEditorFile::setContents(const QByteArray &contents)
 {
     Q_UNUSED(contents);
-    return false;
+    return true;
 }
 
 void DiffEditorFile::setModified(bool modified)
