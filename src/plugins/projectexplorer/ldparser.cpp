@@ -97,9 +97,12 @@ void LdParser::stdError(const QString &line)
         if (!ok)
             lineno = -1;
         Utils::FileName filename = Utils::FileName::fromUserInput(m_regExpLinker.cap(1));
-        if (!m_regExpLinker.cap(4).isEmpty()
-            && !m_regExpLinker.cap(4).startsWith(QLatin1String("(.text")))
-            filename = Utils::FileName::fromUserInput(m_regExpLinker.cap(4));
+        const QString sourceFileName = m_regExpLinker.cap(4);
+        if (!sourceFileName.isEmpty()
+            && !sourceFileName.startsWith(QLatin1String("(.text"))
+            && !sourceFileName.startsWith(QLatin1String("(.data"))) {
+            filename = Utils::FileName::fromUserInput(sourceFileName);
+        }
         QString description = m_regExpLinker.cap(8).trimmed();
         Task task(Task::Error, description, filename, lineno,
                   Core::Id(Constants::TASK_CATEGORY_COMPILE));

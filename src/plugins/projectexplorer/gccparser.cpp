@@ -839,6 +839,27 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 )
             << QString();
 
+    QTest::newRow("ld: .data section")
+            << QString::fromLatin1("foo.o:(.data+0x0): multiple definition of `foo'\n"
+                                   "bar.o:(.data+0x0): first defined here\n"
+                                   "collect2: error: ld returned 1 exit status")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("multiple definition of `foo'"),
+                        Utils::FileName::fromUserInput(QLatin1String("foo.o")), -1,
+                        categoryCompile)
+                << Task(Task::Unknown,
+                        QLatin1String("first defined here"),
+                        Utils::FileName::fromUserInput(QLatin1String("bar.o")), -1,
+                        categoryCompile)
+                << Task(Task::Error,
+                        QLatin1String("collect2: error: ld returned 1 exit status"),
+                        Utils::FileName(), -1,
+                        categoryCompile)
+                )
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
