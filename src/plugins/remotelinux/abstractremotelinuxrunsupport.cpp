@@ -123,29 +123,10 @@ void AbstractRemoteLinuxRunSupport::handlePortListReady()
     startExecution();
 }
 
-void AbstractRemoteLinuxRunSupport::handleAppRunnerError(const QString &)
-{
-}
-
-void AbstractRemoteLinuxRunSupport::handleRemoteOutput(const QByteArray &)
-{
-}
-
-void AbstractRemoteLinuxRunSupport::handleRemoteErrorOutput(const QByteArray &)
-{
-}
-
-void AbstractRemoteLinuxRunSupport::handleAppRunnerFinished(bool)
-{
-}
-
-void AbstractRemoteLinuxRunSupport::handleProgressReport(const QString &)
-{
-}
-
 void AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(const QString &)
 {
     setFinished();
+    reset();
 }
 
 void AbstractRemoteLinuxRunSupport::handleAdapterSetupDone()
@@ -157,8 +138,6 @@ void AbstractRemoteLinuxRunSupport::setFinished()
 {
     if (d->state == Inactive)
         return;
-    d->portsGatherer.disconnect(this);
-    d->appRunner.disconnect(this);
     if (d->state == Running) {
         const QString stopCommand
                 = d->device->processSupport()->killProcessByNameCommandLine(d->remoteFilePath);
@@ -195,6 +174,13 @@ QString AbstractRemoteLinuxRunSupport::remoteFilePath() const
 const IDevice::ConstPtr AbstractRemoteLinuxRunSupport::device() const
 {
     return d->device;
+}
+
+void AbstractRemoteLinuxRunSupport::reset()
+{
+    d->portsGatherer.disconnect(this);
+    d->appRunner.disconnect(this);
+    d->state = Inactive;
 }
 
 DeviceApplicationRunner *AbstractRemoteLinuxRunSupport::appRunner() const

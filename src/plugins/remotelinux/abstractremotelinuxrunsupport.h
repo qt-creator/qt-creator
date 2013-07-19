@@ -84,13 +84,15 @@ protected:
     QString remoteFilePath() const;
     const ProjectExplorer::IDevice::ConstPtr device() const;
 
+    void reset();
+
 protected slots:
     virtual void handleRemoteSetupRequested();
-    virtual void handleAppRunnerError(const QString &error);
-    virtual void handleRemoteOutput(const QByteArray &output);
-    virtual void handleRemoteErrorOutput(const QByteArray &output);
-    virtual void handleAppRunnerFinished(bool success);
-    virtual void handleProgressReport(const QString &progressOutput);
+    virtual void handleAppRunnerError(const QString &error) = 0;
+    virtual void handleRemoteOutput(const QByteArray &output) = 0;
+    virtual void handleRemoteErrorOutput(const QByteArray &output) = 0;
+    virtual void handleAppRunnerFinished(bool success) = 0;
+    virtual void handleProgressReport(const QString &progressOutput) = 0;
 
 private slots:
     void handlePortsGathererError(const QString &message);

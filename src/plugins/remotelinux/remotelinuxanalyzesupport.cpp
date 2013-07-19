@@ -95,7 +95,6 @@ RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration
 {
     connect(d->engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
             SLOT(handleRemoteSetupRequested()));
-    connect(d->engine, SIGNAL(finished()), SLOT(handleProfilingFinished()));
 }
 
 RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()
@@ -111,6 +110,9 @@ void RemoteLinuxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFor
 
 void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
 {
+    if (d->engine->mode() != Analyzer::StartQmlRemote)
+        return;
+
     QTC_ASSERT(state() == Inactive, return);
 
     showMessage(tr("Checking available ports...\n"), Utils::NormalMessageFormat);
@@ -154,12 +156,17 @@ void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerFinished(bool success)
 {
+    // reset needs to be called first to ensure that the correct state is set.
+    reset();
     if (!success)
         showMessage(tr("Failure running remote process."), Utils::NormalMessageFormat);
+    d->engine->notifyRemoteFinished(success);
 }
 
 void RemoteLinuxAnalyzeSupport::handleProfilingFinished()
 {
+    if (d->engine->mode() != Analyzer::StartQmlRemote)
+        return;
     setFinished();
 }
 
