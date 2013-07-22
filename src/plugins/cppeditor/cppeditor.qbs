@@ -59,6 +59,8 @@ QtcPlugin {
         files: [
             "cppdoxygen_test.cpp",
             "cppquickfix_test.cpp",
+            "cppquickfix_test_utils.cpp",
+            "cppquickfix_test_utils.h",
             "fileandtokenactions_test.cpp",
             "followsymbol_switchmethoddecldef_test.cpp"
         ]

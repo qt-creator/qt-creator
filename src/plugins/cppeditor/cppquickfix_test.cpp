@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "cppquickfix_test_utils.h"
+
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
 #include "cppquickfixassistant.h"
@@ -3120,33 +3122,6 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noSignatureMatch()
     TestCase data(original, expected);
     data.run(&factory);
 }
-
-/// Test dialog for insert virtual functions
-class InsertVirtualMethodsDialogTest : public InsertVirtualMethodsDialog
-{
-public:
-    InsertVirtualMethodsDialogTest(ImplementationMode mode, bool virt, QWidget *parent = 0)
-        : InsertVirtualMethodsDialog(parent)
-    {
-        setImplementationsMode(mode);
-        setInsertKeywordVirtual(virt);
-    }
-
-    bool gather()
-    {
-        return true;
-    }
-
-    ImplementationMode implementationMode() const
-    {
-        return m_implementationMode;
-    }
-
-    bool insertKeywordVirtual() const
-    {
-        return m_insertKeywordVirtual;
-    }
-};
 
 /// Check: Insert only declarations
 void CppEditorPlugin::test_quickfix_InsertVirtualMethods_onlyDecl()
