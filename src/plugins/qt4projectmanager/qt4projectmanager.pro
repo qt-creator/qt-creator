@@ -5,6 +5,7 @@ DEFINES += \
     QT4PROJECTMANAGER_LIBRARY
 
 HEADERS += \
+    qmakebuildinfo.h \
     qmakekitinformation.h \
     qmakekitconfigwidget.h \
     qmakerunconfigurationfactory.h \

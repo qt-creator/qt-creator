@@ -29,17 +29,20 @@
 
 #include "qt4buildconfiguration.h"
 
+#include "buildconfigurationinfo.h"
+#include "qmakebuildinfo.h"
 #include "qt4project.h"
 #include "qt4projectconfigwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4nodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
-#include "buildconfigurationinfo.h"
 
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <limits>
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -48,6 +51,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qt4projectmanager/qmakekitinformation.h>
+#include <utils/qtcassert.h>
 #include <QDebug>
 
 #include <QInputDialog>
@@ -532,69 +536,71 @@ bool Qt4BuildConfigurationFactory::canHandle(const Target *t) const
     return qobject_cast<Qt4Project *>(t->project());
 }
 
-QList<Core::Id> Qt4BuildConfigurationFactory::availableCreationIds(const Target *parent) const
+QmakeBuildInfo *Qt4BuildConfigurationFactory::createBuildInfo(const Kit *k,
+                                                              const QString &projectPath,
+                                                              BuildConfiguration::BuildType type) const
 {
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(QT4_BC_ID);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    QmakeBuildInfo *info = new QmakeBuildInfo(this);
+    if (type == BuildConfiguration::Release)
+        //: The name of the release build configuration created by default for a qmake project.
+        info->displayName = tr("Release");
+    else
+        //: The name of the debug build configuration created by default for a qmake project.
+        info->displayName = tr("Debug");
+    info->typeName = tr("Build");
+    // Leave info->buildDirectory unset;
+    info->kitId = k->id();
+    info->supportsShadowBuild = (version && version->supportsShadowBuilds());
+    if (info->supportsShadowBuild)
+        info->buildDirectory = Utils::FileName::fromString(Qt4Project::shadowBuildDirectory(projectPath, k, info->displayName));
+    else
+        info->buildDirectory = Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath));
+    info->type = type;
+    return info;
 }
 
-QString Qt4BuildConfigurationFactory::displayNameForId(const Core::Id id) const
+bool Qt4BuildConfigurationFactory::canCreate(const Target *parent) const
 {
-    if (id == QT4_BC_ID)
-        return tr("Qmake based build");
-    return QString();
+    return canHandle(parent);
 }
 
-bool Qt4BuildConfigurationFactory::canCreate(const Target *parent, const Core::Id id) const
+QList<BuildInfo *> Qt4BuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    if (!canHandle(parent))
-        return false;
-    return id == QT4_BC_ID;
+    QList<ProjectExplorer::BuildInfo *> result;
+    QTC_ASSERT(canCreate(parent), return result);
+
+    QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath(),
+                                           BuildConfiguration::Debug);
+    info->displayName.clear(); // ask for a name
+    result << info;
+
+    return result;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const Core::Id id, const QString &name)
+BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
-    if (!canCreate(parent, id))
-        return 0;
+    QTC_ASSERT(canCreate(parent), return 0);
+    QTC_ASSERT(info->factory() == this, return 0);
+    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
+    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
-    BaseQtVersion *version = QtKitInformation::qtVersion(parent->kit());
-    Q_ASSERT(version);
+    const QmakeBuildInfo *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
 
-    bool ok = true;
-    QString buildConfigurationName = name;
-    if (buildConfigurationName.isNull())
-        buildConfigurationName = QInputDialog::getText(0,
-                                                       tr("New Configuration"),
-                                                       tr("New configuration name:"),
-                                                       QLineEdit::Normal,
-                                                       version->displayName(), &ok);
-    buildConfigurationName = buildConfigurationName.trimmed();
-    if (!ok || buildConfigurationName.isEmpty())
-        return 0;
+    BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(parent->kit());
+    QTC_ASSERT(version, return 0);
 
-    //: Debug build configuration. We recommend not translating it.
-    QString defaultFirstName = tr("%1 Debug").arg(version->displayName()).trimmed();
-    QString customFirstName;
-    if (buildConfigurationName != version->displayName())
-        customFirstName = tr("%1 Debug").arg(buildConfigurationName).trimmed();
+    BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+    if (qmakeInfo->type == BuildConfiguration::Release)
+        config &= ~QtSupport::BaseQtVersion::DebugBuild;
+    else
+        config |= QtSupport::BaseQtVersion::DebugBuild;
 
-    //: Release build configuration. We recommend not translating it.
-    QString defaultSecondName = tr("%1 Release").arg(version->displayName()).trimmed();
-    QString customSecondName;
-    if (buildConfigurationName != version->displayName())
-        customSecondName = tr("%1 Release").arg(buildConfigurationName).trimmed();
-
-    BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild;
     BuildConfiguration *bc
-            = Qt4BuildConfiguration::setup(parent, defaultFirstName, customFirstName,
-                                           config, QString(), QString(), false);
+            = Qt4BuildConfiguration::setup(parent, info->displayName, info->displayName,
+                                           config, qmakeInfo->additionalArguments,
+                                           info->buildDirectory.toString(), false);
 
-    config = config ^ BaseQtVersion::DebugBuild;
-    parent->addBuildConfiguration(
-                Qt4BuildConfiguration::setup(parent, defaultSecondName, customSecondName,
-                                             config,
-                                             QString(), QString(), false));
     return bc;
 }
 
@@ -672,6 +678,8 @@ Qt4BuildConfiguration *Qt4BuildConfiguration::setup(Target *t, QString defaultDi
                                                     QString additionalArguments, QString directory,
                                                     bool importing)
 {
+    Q_UNUSED(importing);
+
     // Add the build configuration.
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(t);
     bc->setDefaultDisplayName(defaultDisplayName);
@@ -695,10 +703,10 @@ Qt4BuildConfiguration *Qt4BuildConfiguration::setup(Target *t, QString defaultDi
 
     bool enableQmlDebugger
             = Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
+
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
-    if (importing)
-        qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
+    qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
 
     bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
 

@@ -235,7 +235,12 @@ bool QbsProject::hasParseResult() const
 
 FileName QbsProject::defaultBuildDirectory() const
 {
-    QFileInfo fi(m_fileName);
+    return defaultBuildDirectory(m_fileName);
+}
+
+Utils::FileName QbsProject::defaultBuildDirectory(const QString &path)
+{
+    QFileInfo fi(path);
     const QString buildDir = QDir(fi.canonicalPath()).absoluteFilePath(QString::fromLatin1("../%1-build").arg(fi.baseName()));
     return FileName::fromString(buildDir);
 }

@@ -141,8 +141,8 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     }
 
     if (mode != CMakeOpenProjectWizard::Nothing) {
-        CMakeOpenProjectWizard copw(m_manager, mode,
-                                    CMakeOpenProjectWizard::BuildInfo(cmakebc));
+        CMakeBuildInfo info(cmakebc);
+        CMakeOpenProjectWizard copw(m_manager, mode, &info);
         if (copw.exec() == QDialog::Accepted)
             cmakebc->setUseNinja(copw.useNinja()); // NeedToCreate can change the Ninja setting
     }
@@ -585,8 +585,8 @@ bool CMakeProject::fromMap(const QVariantMap &map)
             mode = CMakeOpenProjectWizard::NeedToUpdate;
 
         if (mode != CMakeOpenProjectWizard::Nothing) {
-            CMakeOpenProjectWizard copw(m_manager, mode,
-                                        CMakeOpenProjectWizard::BuildInfo(activeBC));
+            CMakeBuildInfo info(activeBC);
+            CMakeOpenProjectWizard copw(m_manager, mode, &info);
             if (copw.exec() != QDialog::Accepted)
                 return false;
             else
@@ -867,8 +867,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
+    CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(project->projectManager(), CMakeOpenProjectWizard::ChangeDirectory,
-                                CMakeOpenProjectWizard::BuildInfo(m_buildConfiguration));
+                                &info);
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_buildConfiguration->setUseNinja(copw.useNinja());
@@ -881,9 +882,9 @@ void CMakeBuildSettingsWidget::runCMake()
     if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
         return;
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
+    CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(project->projectManager(),
-                                CMakeOpenProjectWizard::WantToUpdate,
-                                CMakeOpenProjectWizard::BuildInfo(m_buildConfiguration));
+                                CMakeOpenProjectWizard::WantToUpdate, &info);
     if (copw.exec() == QDialog::Accepted)
         project->parseCMakeLists();
 }

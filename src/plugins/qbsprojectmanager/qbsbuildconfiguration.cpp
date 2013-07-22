@@ -30,11 +30,14 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildconfigurationwidget.h"
+#include "qbsbuildinfo.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
@@ -238,66 +241,57 @@ bool QbsBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t) c
     return qobject_cast<Internal::QbsProject *>(t->project());
 }
 
-QList<Core::Id> QbsBuildConfigurationFactory::availableCreationIds(const ProjectExplorer::Target *parent) const
+ProjectExplorer::BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
+                                                                          const Utils::FileName &buildDirectory,
+                                                                          ProjectExplorer::BuildConfiguration::BuildType type) const
 {
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(QBS_BC_ID);
+    QbsBuildInfo *info = new QbsBuildInfo(this);
+    info->typeName = tr("Build");
+    info->buildDirectory = buildDirectory;
+    info->kitId = k->id();
+    info->type = type;
+    return info;
 }
 
-QString QbsBuildConfigurationFactory::displayNameForId(const Core::Id id) const
+bool QbsBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *parent) const
 {
-    if (id == QBS_BC_ID)
-        return tr("Qbs based build");
-    return QString();
+    return canHandle(parent);
 }
 
-bool QbsBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const
+QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableBuilds(const ProjectExplorer::Target *parent) const
 {
-    if (!canHandle(parent))
-        return false;
-    return id == QBS_BC_ID;
+    QList<ProjectExplorer::BuildInfo *> result;
+    QTC_ASSERT(canCreate(parent), return result);
+
+    const Utils::FileName buildDirectory = QbsProject::defaultBuildDirectory(parent->project()->projectFilePath());
+
+    ProjectExplorer::BuildInfo *info = createBuildInfo(parent->kit(), buildDirectory,
+                                                       ProjectExplorer::BuildConfiguration::Debug);
+    result << info;
+
+    return result;
 }
 
 ProjectExplorer::BuildConfiguration *QbsBuildConfigurationFactory::create(ProjectExplorer::Target *parent,
-                                                                          const Core::Id id,
-                                                                          const QString &name)
+                                                                          const ProjectExplorer::BuildInfo *info) const
 {
-    if (!canCreate(parent, id))
-        return 0;
+    QTC_ASSERT(canCreate(parent), return 0);
+    QTC_ASSERT(info->factory() == this, return 0);
+    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
+    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
-    Internal::QbsProject *project = static_cast<Internal::QbsProject *>(parent->project());
-
-    bool ok = true;
-    QString buildConfigurationName = name;
-    if (buildConfigurationName.isNull())
-        buildConfigurationName = QInputDialog::getText(0,
-                                                       tr("New Configuration"),
-                                                       tr("New configuration name:"),
-                                                       QLineEdit::Normal,
-                                                       QString(), &ok);
-    buildConfigurationName = buildConfigurationName.trimmed();
-    if (!ok || buildConfigurationName.isEmpty())
-        return 0;
-
-    //: Debug build configuration. We recommend not translating it.
-    QString firstName = tr("%1 Debug").arg(buildConfigurationName).trimmed();
-
-    //: Release build configuration. We recommend not translating it.
-    QString secondName = tr("%1 Release").arg(buildConfigurationName).trimmed();
+    const QbsBuildInfo *qbsInfo = static_cast<const QbsBuildInfo *>(info);
 
     QVariantMap configData;
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      QLatin1String(Constants::QBS_VARIANT_DEBUG));
+                      (qbsInfo->type == ProjectExplorer::BuildConfiguration::Release)
+                      ? QLatin1String(Constants::QBS_VARIANT_RELEASE)
+                      : QLatin1String(Constants::QBS_VARIANT_DEBUG));
 
     ProjectExplorer::BuildConfiguration *bc
-            = QbsBuildConfiguration::setup(parent, firstName, firstName,
-                                           configData, project->defaultBuildDirectory());
-    configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      QLatin1String(Constants::QBS_VARIANT_RELEASE));
-    parent->addBuildConfiguration(
-                QbsBuildConfiguration::setup(parent, secondName, secondName,
-                                             configData, project->defaultBuildDirectory()));
+            = QbsBuildConfiguration::setup(parent, info->displayName, info->displayName,
+                                           configData, info->buildDirectory);
+
     return bc;
 }
 

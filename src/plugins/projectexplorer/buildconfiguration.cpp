@@ -347,7 +347,7 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
     QList<IBuildConfigurationFactory *> factories
             = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
     foreach (IBuildConfigurationFactory *factory, factories) {
-        if (!factory->availableCreationIds(parent).isEmpty())
+        if (factory->canCreate(parent))
             return factory;
     }
     return 0;

@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class BuildConfiguration;
+class BuildInfo;
 class IBuildStepFactory;
 class NamedWidget;
 
@@ -104,6 +105,7 @@ private:
 
     QList<NamedWidget *> m_subWidgets;
     QList<QLabel *> m_labels;
+    QList<BuildInfo *> m_buildInfoList;
 };
 
 } // namespace Internal

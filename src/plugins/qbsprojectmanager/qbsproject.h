@@ -93,6 +93,7 @@ public:
     bool hasParseResult() const;
 
     Utils::FileName defaultBuildDirectory() const;
+    static Utils::FileName defaultBuildDirectory(const QString &path);
 
     qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const;

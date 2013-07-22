@@ -38,6 +38,8 @@ class ToolChain;
 }
 
 namespace CMakeProjectManager {
+class CMakeBuildInfo;
+
 namespace Internal {
 class CMakeProject;
 
@@ -83,11 +85,11 @@ public:
     CMakeBuildConfigurationFactory(QObject *parent = 0);
     ~CMakeBuildConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    bool canCreate(const ProjectExplorer::Target *parent) const;
+    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
+                                                const ProjectExplorer::BuildInfo *info) const;
 
-    bool canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const;
-    CMakeBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name = QString());
     bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     CMakeBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
     bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
@@ -95,6 +97,7 @@ public:
 
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
+    CMakeBuildInfo *createBuildInfo(const ProjectExplorer::Kit *k, const QString &sourceDir) const;
 };
 
 } // namespace Internal

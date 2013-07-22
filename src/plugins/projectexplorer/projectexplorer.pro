@@ -6,6 +6,7 @@ HEADERS += projectexplorer.h \
     abi.h \
     abiwidget.h \
     ansifilterparser.h \
+    buildinfo.h \
     clangparser.h \
     environmentaspect.h \
     environmentaspectwidget.h \

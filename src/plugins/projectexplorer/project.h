@@ -44,6 +44,7 @@ class Context;
 
 namespace ProjectExplorer {
 
+class BuildInfo;
 class IProjectManager;
 class EditorConfiguration;
 class ProjectNode;
@@ -126,6 +127,8 @@ public:
     virtual bool supportsNoTargetPanel() const;
 
     virtual bool needsSpecialDeployment() const;
+
+    void setup(QList<const BuildInfo *> infoList);
 
 signals:
     void displayNameChanged();

@@ -1,6 +1,7 @@
 include(../../qtcreatorplugin.pri)
 
-HEADERS = cmakeproject.h \
+HEADERS = cmakebuildinfo.h \
+    cmakeproject.h \
     cmakeprojectplugin.h \
     cmakeprojectmanager.h \
     cmakeprojectconstants.h \

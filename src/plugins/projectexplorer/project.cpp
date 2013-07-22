@@ -29,6 +29,7 @@
 
 #include "project.h"
 
+#include "buildinfo.h"
 #include "buildconfiguration.h"
 #include "editorconfiguration.h"
 #include "projectexplorer.h"
@@ -474,6 +475,36 @@ bool Project::supportsNoTargetPanel() const
 bool Project::needsSpecialDeployment() const
 {
     return false;
+}
+
+void Project::setup(QList<const BuildInfo *> infoList)
+{
+    QList<Target *> toRegister;
+    foreach (const BuildInfo *info, infoList) {
+        Kit *k = KitManager::find(info->kitId);
+        if (!k)
+            continue;
+        Target *t = target(k);
+        if (!t) {
+            foreach (Target *i, toRegister) {
+                if (i->kit() == k) {
+                    t = i;
+                    break;
+                }
+            }
+        }
+        if (!t) {
+            t = new Target(this, k);
+            toRegister << t;
+        }
+
+        BuildConfiguration *bc = info->factory()->create(t, info);
+        if (!bc)
+            continue;
+        t->addBuildConfiguration(bc);
+    }
+    foreach (Target *t, toRegister)
+        addTarget(t);
 }
 
 void Project::onBuildDirectoryChanged()

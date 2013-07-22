@@ -22,6 +22,7 @@ QtcPlugin {
         "CMakeProjectManager.mimetypes.xml",
         "cmakebuildconfiguration.cpp",
         "cmakebuildconfiguration.h",
+        "cmakebuildinfo.h",
         "cmakeeditor.cpp",
         "cmakeeditor.h",
         "cmakeeditorfactory.cpp",

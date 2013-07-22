@@ -20,6 +20,7 @@ HEADERS = \
     propertyprovider.h \
     qbsbuildconfiguration.h \
     qbsbuildconfigurationwidget.h \
+    qbsbuildinfo.h \
     qbsbuildstep.h \
     qbscleanstep.h \
     qbsdeployconfigurationfactory.h \

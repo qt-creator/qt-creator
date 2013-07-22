@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "buildsettingspropertiespage.h"
+#include "buildinfo.h"
 #include "buildstepspage.h"
 #include "project.h"
 #include "target.h"
@@ -35,6 +36,7 @@
 #include "buildconfigurationmodel.h"
 
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 
@@ -97,6 +99,7 @@ PropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
 BuildSettingsWidget::~BuildSettingsWidget()
 {
     clear();
+    qDeleteAll(m_buildInfoList);
 }
 
 BuildSettingsWidget::BuildSettingsWidget(Target *target) :
@@ -208,17 +211,21 @@ QList<NamedWidget *> BuildSettingsWidget::subWidgets() const
 void BuildSettingsWidget::updateAddButtonMenu()
 {
     m_addButtonMenu->clear();
+    qDeleteAll(m_buildInfoList);
+    m_buildInfoList.clear();
+
     if (m_target) {
         if (m_target->activeBuildConfiguration()) {
             m_addButtonMenu->addAction(tr("&Clone Selected"),
                                        this, SLOT(cloneConfiguration()));
         }
-        IBuildConfigurationFactory * factory = IBuildConfigurationFactory::find(m_target);
+        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(m_target);
         if (!factory)
             return;
-        foreach (Core::Id id, factory->availableCreationIds(m_target)) {
-            QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
-            action->setData(QVariant::fromValue(id));
+        m_buildInfoList = factory->availableBuilds(m_target);
+        foreach (BuildInfo *info, m_buildInfoList) {
+            QAction *action = m_addButtonMenu->addAction(info->typeName, this, SLOT(createConfiguration()));
+            action->setData(QVariant::fromValue(static_cast<void *>(info)));
         }
     }
 }
@@ -269,19 +276,24 @@ void BuildSettingsWidget::updateActiveConfiguration()
 void BuildSettingsWidget::createConfiguration()
 {
     QAction *action = qobject_cast<QAction *>(sender());
-    Core::Id id = action->data().value<Core::Id>();
+    BuildInfo *info = static_cast<BuildInfo *>(action->data().value<void*>());
 
-    IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(m_target);
-    if (!factory)
-        return;
+    if (info->displayName.isEmpty()) {
+        bool ok = false;
+        info->displayName = QInputDialog::getText(Core::ICore::mainWindow(),
+                                                  tr("New Configuration"),
+                                                  tr("New configuration name:"),
+                                                  QLineEdit::Normal,
+                                                  QString(), &ok).trimmed();
+        if (!ok || info->displayName.isEmpty())
+            return;
+    }
 
-    BuildConfiguration *bc = factory->create(m_target, id);
+    BuildConfiguration *bc = info->factory()->create(m_target, info);
     if (!bc)
         return;
 
     m_target->addBuildConfiguration(bc);
-
-    QTC_CHECK(bc->id() == id);
     m_target->setActiveBuildConfiguration(bc);
 }
 

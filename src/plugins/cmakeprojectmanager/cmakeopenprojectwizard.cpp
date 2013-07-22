@@ -30,6 +30,7 @@
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildinfo.h"
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
@@ -240,13 +241,15 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 }
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMakeOpenProjectWizard::Mode mode,
-                                               const BuildInfo &info)
+                                               const CMakeBuildInfo *info)
     : m_cmakeManager(cmakeManager),
-      m_sourceDirectory(info.sourceDirectory),
-      m_environment(info.environment),
-      m_useNinja(info.useNinja),
-      m_kit(info.kit)
+      m_sourceDirectory(info->sourceDirectory),
+      m_environment(info->environment),
+      m_useNinja(info->useNinja),
+      m_kit(0)
 {
+    m_kit = ProjectExplorer::KitManager::find(info->kitId);
+
     CMakeRunPage::Mode rmode;
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
         rmode = CMakeRunPage::Recreate;
@@ -258,13 +261,13 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMake
         rmode = CMakeRunPage::ChangeDirectory;
 
     if (mode == CMakeOpenProjectWizard::ChangeDirectory) {
-        m_buildDirectory = info.buildDirectory;
+        m_buildDirectory = info->buildDirectory.toString();
         addPage(new ShadowBuildPage(this, true));
     }
     if (!m_cmakeManager->isCMakeExecutableValid())
         addPage(new ChooseCMakePage(this));
 
-    addPage(new CMakeRunPage(this, rmode, info.buildDirectory));
+    addPage(new CMakeRunPage(this, rmode, info->buildDirectory.toString()));
     init();
 }
 

@@ -34,6 +34,8 @@
 
 #include <projectexplorer/project.h>
 
+#include <utils/fileutils.h>
+
 QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace Utils {

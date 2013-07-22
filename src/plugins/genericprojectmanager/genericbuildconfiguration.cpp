@@ -31,7 +31,11 @@
 
 #include "genericmakestep.h"
 #include "genericproject.h"
+#include "genericprojectconstants.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -83,53 +87,35 @@ GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
 {
 }
 
-QList<Core::Id> GenericBuildConfigurationFactory::availableCreationIds(const Target *parent) const
+bool GenericBuildConfigurationFactory::canCreate(const Target *parent) const
 {
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(GENERIC_BC_ID);
+    return canHandle(parent);
 }
 
-QString GenericBuildConfigurationFactory::displayNameForId(const Core::Id id) const
+QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    if (id == GENERIC_BC_ID)
-        return tr("Build");
-    return QString();
+    QList<ProjectExplorer::BuildInfo *> result;
+    QTC_ASSERT(canCreate(parent), return result);
+
+    BuildInfo *info = createBuildInfo(parent->kit(), Utils::FileName::fromString(parent->project()->projectDirectory()));
+    result << info;
+    return result;
 }
 
-bool GenericBuildConfigurationFactory::canCreate(const Target *parent, const Core::Id id) const
+BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
-    if (!canHandle(parent))
-        return false;
-    if (id == GENERIC_BC_ID)
-        return true;
-    return false;
-}
-
-BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, const Core::Id id, const QString &name)
-{
-    if (!canCreate(parent, id))
-        return 0;
-
-    //TODO asking for name is duplicated everywhere, but maybe more
-    // wizards will show up, that incorporate choosing the nam
-    bool ok = true;
-    QString buildConfigurationName = name;
-    if (buildConfigurationName.isNull())
-        buildConfigurationName = QInputDialog::getText(0,
-                                                       tr("New Configuration"),
-                                                       tr("New configuration name:"),
-                                                       QLineEdit::Normal,
-                                                       QString(), &ok);
-    buildConfigurationName = buildConfigurationName.trimmed();
-    if (!ok || buildConfigurationName.isEmpty())
-        return 0;
+    QTC_ASSERT(canCreate(parent), return 0);
+    QTC_ASSERT(info->factory() == this, return 0);
+    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
+    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
     GenericBuildConfiguration *bc = new GenericBuildConfiguration(parent);
-    bc->setDisplayName(buildConfigurationName);
+    bc->setDisplayName(info->displayName);
+    bc->setDefaultDisplayName(info->displayName);
+    bc->setBuildDirectory(info->buildDirectory);
 
-    BuildStepList *buildSteps = bc->stepList(Constants::BUILDSTEPS_BUILD);
-    BuildStepList *cleanSteps = bc->stepList(Constants::BUILDSTEPS_CLEAN);
+    BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 
     Q_ASSERT(buildSteps);
     GenericMakeStep *makeStep = new GenericMakeStep(buildSteps);
@@ -147,7 +133,9 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, con
 
 bool GenericBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *source) const
 {
-    return canCreate(parent, source->id());
+    if (!canHandle(parent))
+        return false;
+    return source->id() == GENERIC_BC_ID;
 }
 
 BuildConfiguration *GenericBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
@@ -159,7 +147,9 @@ BuildConfiguration *GenericBuildConfigurationFactory::clone(Target *parent, Buil
 
 bool GenericBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    if (!canHandle(parent))
+        return false;
+    return ProjectExplorer::idFromMap(map) == GENERIC_BC_ID;
 }
 
 BuildConfiguration *GenericBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
@@ -178,6 +168,16 @@ bool GenericBuildConfigurationFactory::canHandle(const Target *t) const
     if (!t->project()->supportsKit(t->kit()))
         return false;
     return qobject_cast<GenericProject *>(t->project());
+}
+
+BuildInfo *GenericBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
+                                                             const Utils::FileName &buildDir) const
+{
+    BuildInfo *info = new BuildInfo(this);
+    info->typeName = tr("Build");
+    info->buildDirectory = buildDir;
+    info->kitId = k->id();
+    return info;
 }
 
 BuildConfiguration::BuildType GenericBuildConfiguration::buildType() const

@@ -34,6 +34,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
+namespace Utils { class FileName; }
+
 namespace AutotoolsProjectManager {
 namespace Internal {
 
@@ -67,20 +69,19 @@ class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigu
 public:
     explicit AutotoolsBuildConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    bool canCreate(const ProjectExplorer::Target *parent) const;
+    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
+                                                const ProjectExplorer::BuildInfo *info) const;
 
-    bool canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const;
-    AutotoolsBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name = QString());
     bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     AutotoolsBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
     bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
     AutotoolsBuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
 
-    static AutotoolsBuildConfiguration *createDefaultConfiguration(ProjectExplorer::Target *target);
-
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
+    ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k, const Utils::FileName &buildDir) const;
 };
 
 } // namespace Internal
