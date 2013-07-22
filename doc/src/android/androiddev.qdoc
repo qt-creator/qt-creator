@@ -128,7 +128,7 @@
     you must install Qt for Android from the Qt 5.1 packages.
 
     For more information, see
-    \l{http://qt-project.org/doc/qt-5.0/qtdoc/android-support.html}{Android}.
+    \l{http://qt-project.org/doc/qt-5.1/qtdoc/android-support.html}{Android}.
 
     To configure connections between \QC and Android devices:
 
