@@ -79,14 +79,11 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RemoteL
     AnalyzerStartParameters params;
     if (runMode == QmlProfilerRunMode)
         params.startMode = StartQmlRemote;
-    params.debuggee = runConfig->remoteExecutableFilePath();
-    params.debuggeeArgs = runConfig->arguments();
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
     params.analyzerCmdPrefix = runConfig->commandPrefix();
     params.displayName = runConfig->displayName();
     params.sysroot = SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     params.analyzerHost = params.connParams.host;
-    params.analyzerPort = params.connParams.port;
 
     return params;
 }
