@@ -32,11 +32,11 @@
 #include "androidrunner.h"
 #include "androidmanager.h"
 
-#include "analyzerbase/ianalyzertool.h"
-#include "analyzerbase/ianalyzerengine.h"
-#include "analyzerbase/analyzermanager.h"
-#include "analyzerbase/analyzerruncontrol.h"
-#include "analyzerbase/analyzerstartparameters.h"
+#include <analyzerbase/ianalyzertool.h>
+#include <analyzerbase/ianalyzerengine.h>
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzerstartparameters.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
