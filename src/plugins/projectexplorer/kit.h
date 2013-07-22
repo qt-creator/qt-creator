@@ -100,11 +100,11 @@ public:
     void copyFrom(const Kit *k);
 
     void setAutoDetected(bool detected);
+    void makeSticky();
+    void makeSticky(Core::Id id);
 
 private:
     void setSdkProvided(bool sdkProvided);
-    void makeSticky();
-    void makeSticky(Core::Id id);
 
     ~Kit();
 
