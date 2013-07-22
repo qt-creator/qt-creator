@@ -21,3 +21,4 @@
 "<QVector>"	"QVector<QCoreApplication *> *vec;"	"vec"	"."	"vec->"
 "<QVector>"	"QVector<QCoreApplication> vec;"	"vec[0]"	"."	"vec[0]."
 "<QVector>"	"QVector<QCoreApplication *> vec;"	"vec[0]"	"."	"vec[0]->"
+""	"struct Foo { int foo; }; Foo *baz;"	"baz"	"."	"baz->"
