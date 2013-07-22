@@ -50,7 +50,12 @@ void QmlModelStateOperation::setTarget(const ModelNode &target)
 
 bool QmlPropertyChanges::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isSubclassOf("QtQuick.PropertyChanges", -1, -1);
+    return isValidQmlPropertyChanges(modelNode());
+}
+
+bool QmlPropertyChanges::isValidQmlPropertyChanges(const ModelNode &modelNode)
+{
+    return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isSubclassOf("QtQuick.PropertyChanges", -1, -1);
 }
 
 bool QmlModelStateOperation::isValid() const
