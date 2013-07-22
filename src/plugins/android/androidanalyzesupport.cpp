@@ -84,7 +84,8 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
 AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
     AnalyzerRunControl *runControl)
     : AndroidRunSupport(runConfig, runControl),
-      m_engine(0)
+      m_engine(0),
+      m_qmlPort(0)
 {
     if (runControl) {
         m_engine = runControl->engine();
@@ -93,6 +94,8 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
                     m_runner, SLOT(start()));
         }
     }
+    connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
+            SLOT(remoteIsRunning()));
     connect(m_runner, SIGNAL(remoteProcessStarted(int)),
             SLOT(handleRemoteProcessStarted(int)));
     connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
@@ -106,16 +109,17 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
 
 void AndroidAnalyzeSupport::handleRemoteProcessStarted(int qmlPort)
 {
-    if (m_engine)
-        m_engine->notifyRemoteSetupDone(qmlPort);
+    m_qmlPort = qmlPort;
 }
 
 void AndroidAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
 {
+    const QString msg = QString::fromUtf8(output);
     if (m_engine)
-        m_engine->logApplicationMessage(QString::fromUtf8(output), Utils::StdOutFormatSameLine);
+        m_engine->logApplicationMessage(msg, Utils::StdOutFormatSameLine);
     else
         AndroidRunSupport::handleRemoteOutput(output);
+    m_outputParser.processOutput(msg);
 }
 
 void AndroidAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
@@ -124,6 +128,12 @@ void AndroidAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
         m_engine->logApplicationMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
     else
         AndroidRunSupport::handleRemoteErrorOutput(output);
+}
+
+void AndroidAnalyzeSupport::remoteIsRunning()
+{
+    if (m_engine)
+        m_engine->notifyRemoteSetupDone(m_qmlPort);
 }
 
 } // namespace Internal

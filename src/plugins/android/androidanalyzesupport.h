@@ -31,6 +31,7 @@
 #define ANDROIDANALYZESUPPORT_H
 
 #include "androidrunsupport.h"
+#include <qmldebug/qmloutputparser.h>
 
 namespace Analyzer {
 class IAnalyzerEngine;
@@ -62,8 +63,12 @@ private slots:
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
 
+    void remoteIsRunning();
+
 private:
     Analyzer::IAnalyzerEngine *m_engine;
+    QmlDebug::QmlOutputParser m_outputParser;
+    int m_qmlPort;
 };
 
 } // namespace Internal
