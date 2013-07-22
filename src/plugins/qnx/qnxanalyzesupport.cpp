@@ -56,6 +56,8 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
 
     connect(m_engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
             SLOT(handleAdapterSetupRequested()));
+    connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
+            SLOT(remoteIsRunning()));
 }
 
 void QnxAnalyzeSupport::handleAdapterSetupRequested()
@@ -80,13 +82,6 @@ void QnxAnalyzeSupport::startExecution()
             QString::fromLatin1(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
     const QString command = QString::fromLatin1("%1 %2 %3").arg(commandPrefix(), executable(), args);
     appRunner()->start(device(), command.toUtf8());
-}
-
-void QnxAnalyzeSupport::handleRemoteProcessStarted()
-{
-    QnxAbstractRunSupport::handleRemoteProcessStarted();
-    if (m_engine)
-        m_engine->notifyRemoteSetupDone(m_qmlPort);
 }
 
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
@@ -127,8 +122,15 @@ void QnxAnalyzeSupport::handleError(const QString &error)
     }
 }
 
+void QnxAnalyzeSupport::remoteIsRunning()
+{
+    if (m_engine)
+        m_engine->notifyRemoteSetupDone(m_qmlPort);
+}
+
 void QnxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFormat format)
 {
     if (state() != Inactive && m_engine)
         m_engine->logApplicationMessage(msg, format);
+    m_outputParser.processOutput(msg);
 }

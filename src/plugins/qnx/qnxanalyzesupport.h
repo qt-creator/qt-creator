@@ -34,6 +34,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/outputformat.h>
+#include <qmldebug/qmloutputparser.h>
 
 namespace Analyzer { class IAnalyzerEngine; }
 
@@ -54,17 +55,19 @@ public slots:
 private slots:
     void handleAdapterSetupRequested();
 
-    void handleRemoteProcessStarted();
     void handleRemoteProcessFinished(bool success);
     void handleProgressReport(const QString &progressOutput);
     void handleRemoteOutput(const QByteArray &output);
     void handleError(const QString &error);
+
+    void remoteIsRunning();
 
 private:
     void startExecution();
     void showMessage(const QString &, Utils::OutputFormat);
 
     Analyzer::IAnalyzerEngine *m_engine;
+    QmlDebug::QmlOutputParser m_outputParser;
     int m_qmlPort;
 };
 
