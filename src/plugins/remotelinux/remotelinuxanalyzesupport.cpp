@@ -41,6 +41,7 @@
 #include <projectexplorer/kitinformation.h>
 
 #include <utils/qtcassert.h>
+#include <qmldebug/qmloutputparser.h>
 
 #include <QPointer>
 
@@ -64,6 +65,8 @@ public:
     const QPointer<IAnalyzerEngine> engine;
     bool qmlProfiling;
     int qmlPort;
+
+    QmlDebug::QmlOutputParser outputParser;
 };
 
 } // namespace Internal
@@ -95,6 +98,8 @@ RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration
 {
     connect(d->engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
             SLOT(handleRemoteSetupRequested()));
+    connect(&d->outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
+            SLOT(remoteIsRunning()));
 }
 
 RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()
@@ -106,6 +111,7 @@ void RemoteLinuxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFor
 {
     if (state() != Inactive && d->engine)
         d->engine->logApplicationMessage(msg, format);
+    d->outputParser.processOutput(msg);
 }
 
 void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
@@ -170,6 +176,11 @@ void RemoteLinuxAnalyzeSupport::handleProfilingFinished()
     setFinished();
 }
 
+void RemoteLinuxAnalyzeSupport::remoteIsRunning()
+{
+    d->engine->notifyRemoteSetupDone(d->qmlPort);
+}
+
 void RemoteLinuxAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
 {
     QTC_ASSERT(state() == Inactive || state() == Running, return);
@@ -196,12 +207,6 @@ void RemoteLinuxAnalyzeSupport::handleAdapterSetupFailed(const QString &error)
 {
     AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
     showMessage(tr("Initial setup failed: %1").arg(error), Utils::NormalMessageFormat);
-}
-
-void RemoteLinuxAnalyzeSupport::handleAdapterSetupDone()
-{
-    AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
-    d->engine->notifyRemoteSetupDone(d->qmlPort);
 }
 
 void RemoteLinuxAnalyzeSupport::handleRemoteProcessStarted()
