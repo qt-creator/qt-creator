@@ -275,7 +275,7 @@ void QmlProfilerEngine::processIsRunning(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    if (port > 0)
+    if (port > 0 && mode() != StartQmlRemote)
         emit processRunning(port);
 }
 
