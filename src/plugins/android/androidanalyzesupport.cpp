@@ -63,7 +63,6 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
 
     AnalyzerStartParameters params;
     params.toolId = tool->id();
-    params.startMode = StartQmlRemote;
     Target *target = runConfig->target();
     params.displayName = AndroidManager::packageName(target);
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
@@ -74,6 +73,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return 0);
         params.analyzerHost = server.serverAddress().toString();
+        params.startMode = StartQmlRemote;
     }
 
     AnalyzerRunControl * const analyzerRunControl = new AnalyzerRunControl(tool, params, runConfig);
