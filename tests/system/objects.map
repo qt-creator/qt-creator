@@ -67,6 +67,7 @@
 :FormEditorStack.PushButton_QPushButton	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='pushButton' text='PushButton' type='QPushButton' visible='1'}
 :FormEditorStack.centralWidget_QDesignerWidget	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='centralWidget' type='QDesignerWidget' visible='1'}
 :FormEditorStack_qdesigner_internal::FormWindow	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::FormWindow' unnamed='1' visible='1'}
+:FormEditorStack_qdesigner_internal::PropertyLineEdit	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::PropertyLineEdit' unnamed='1' visible='1'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :Go to slot.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Go to slot_QDialog'}
 :Go to slot.Select signal_QGroupBox	{name='groupBox' title='Select signal' type='QGroupBox' visible='1' window=':Go to slot_QDialog'}
