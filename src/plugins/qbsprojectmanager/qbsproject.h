@@ -32,9 +32,6 @@
 
 #include "qbsprojectmanager.h"
 
-#include <language/language.h>
-#include <tools/buildoptions.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/task.h>
@@ -51,6 +48,12 @@ class CleanJob;
 class Error;
 class ProjectData;
 class SetupProjectJob;
+class CleanOptions;
+class InstallJob;
+class InstallOptions;
+class Project;
+class ErrorInfo;
+class BuildOptions;
 } // namespace qbs
 
 namespace Core { class IDocument; }

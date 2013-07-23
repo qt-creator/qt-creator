@@ -34,7 +34,10 @@
 
 #include <projectexplorer/iprojectmanager.h>
 
-#include <qbs.h>
+namespace qbs {
+class Settings;
+class Preferences;
+} // namespace qbs
 
 #include <QString>
 
