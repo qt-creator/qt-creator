@@ -299,12 +299,27 @@ void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeLis
     model()->d->setSelectedNodes(toInternalNodeList(selectedNodeList));
 }
 
+void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
+{
+    setSelectedModelNodes(QList<ModelNode>() << modelNode);
+}
+
 /*!
 \brief clears the selection
 */
 void AbstractView::clearSelectedModelNodes()
 {
     model()->d->clearSelectedNodes();
+}
+
+bool AbstractView::hasSelectedModelNodes() const
+{
+    return !model()->d->selectedNodes().isEmpty();
+}
+
+bool AbstractView::hasSingleSelectedModelNode() const
+{
+    return model()->d->selectedNodes().count() == 1;
 }
 
 /*!
@@ -314,6 +329,22 @@ void AbstractView::clearSelectedModelNodes()
 QList<ModelNode> AbstractView::selectedModelNodes() const
 {
     return toModelNodeList(model()->d->selectedNodes());
+}
+
+ModelNode AbstractView::firstSelectedModelNode() const
+{
+    if (hasSelectedModelNodes())
+        return ModelNode(model()->d->selectedNodes().first(), model(), this);
+
+    return ModelNode();
+}
+
+ModelNode AbstractView::singleSelectedModelNode() const
+{
+    if (hasSingleSelectedModelNode())
+        return ModelNode(model()->d->selectedNodes().first(), model(), this);
+
+    return ModelNode();
 }
 
 /*!

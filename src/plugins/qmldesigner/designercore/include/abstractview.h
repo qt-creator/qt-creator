@@ -146,11 +146,16 @@ public:
     ModelNode rootModelNode();
 
     void setSelectedModelNodes(const QList<ModelNode> &selectedNodeList);
+    void setSelectedModelNode(const ModelNode &modelNode);
     void selectModelNode(const ModelNode &node);
     void deselectModelNode(const ModelNode &node);
     void clearSelectedModelNodes();
+    bool hasSelectedModelNodes() const;
+    bool hasSingleSelectedModelNode() const;
 
     QList<ModelNode> selectedModelNodes() const;
+    ModelNode firstSelectedModelNode() const;
+    ModelNode singleSelectedModelNode() const;
 
     ModelNode modelNodeForId(const QString &id);
     bool hasId(const QString &id) const;
