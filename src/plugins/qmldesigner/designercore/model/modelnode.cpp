@@ -77,10 +77,10 @@ All the manipulation functions are generating undo commands internally.
 /*! \brief internal constructor
 
 */
-ModelNode::ModelNode(const InternalNodePointer &internalNode, Model *model, AbstractView *view):
+ModelNode::ModelNode(const InternalNodePointer &internalNode, Model *model, const AbstractView *view):
         m_internalNode(internalNode),
         m_model(model),
-        m_view(view)
+        m_view(const_cast<AbstractView*>(view))
 {
     Q_ASSERT(!m_model || m_view);
 }
