@@ -1340,6 +1340,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                     return ReturnFalse;
             }
 #ifdef PROEVALUATOR_THREAD_SAFE
+            else if (!baseEnv->isOk)
+                return ReturnFalse;
         }
 #endif
 
