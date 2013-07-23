@@ -66,8 +66,6 @@ public:
 private:
     QWeakPointer<QmlModelView> m_qmlModelView;
     ModelNode m_targetNode;
-    bool m_isInBaseState;
-    QList<ModelNode> m_selectedModelNodes;
     bool m_showSelectionTools;
     QPoint m_scenePosition;
     bool m_toggled;

@@ -33,7 +33,6 @@ namespace QmlDesigner {
 
 
 SelectionContext::SelectionContext() :
-    m_isInBaseState(false),
     m_toggled(false)
 {
 
@@ -41,11 +40,8 @@ SelectionContext::SelectionContext() :
 
 SelectionContext::SelectionContext(QmlModelView *qmlModelView) :
     m_qmlModelView(qmlModelView),
-    m_isInBaseState(qmlModelView->currentState().isBaseState()),
     m_toggled(false)
 {
-    if (qmlModelView && qmlModelView->model())
-        m_selectedModelNodes = qmlModelView->selectedModelNodes();
 }
 
 void SelectionContext::setTargetNode(const ModelNode &modelNode)
@@ -60,25 +56,22 @@ ModelNode SelectionContext::targetNode() const
 
 bool SelectionContext::singleNodeIsSelected() const
 {
-    return m_selectedModelNodes.count() == 1;
+    return qmlModelView()->hasSingleSelectedModelNode();
 }
 
 bool SelectionContext::isInBaseState() const
 {
-    return m_isInBaseState;
+    return qmlModelView()->currentState().isBaseState();
 }
 
 ModelNode SelectionContext::currentSingleSelectedNode() const
 {
-    if (m_selectedModelNodes.count() != 1)
-        return ModelNode();
-
-    return m_selectedModelNodes.first();
+    return qmlModelView()->singleSelectedModelNode();
 }
 
 QList<ModelNode> SelectionContext::selectedModelNodes() const
 {
-    return m_selectedModelNodes;
+    return qmlModelView()->selectedModelNodes();
 }
 
 QmlModelView *SelectionContext::qmlModelView() const
