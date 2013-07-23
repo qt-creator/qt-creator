@@ -100,7 +100,7 @@ public:
     void changeToSelectionTool(QGraphicsSceneMouseEvent *event);
     void changeToResizeTool();
     void changeToTransformTools();
-    void changeToCustomTool(const ModelNode &modelNode);
+    void changeToCustomTool();
     void changeToCustomTool(AbstractCustomTool *customTool);
 
     void registerTool(AbstractCustomTool *tool);

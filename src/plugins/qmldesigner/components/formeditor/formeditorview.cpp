@@ -413,25 +413,29 @@ void FormEditorView::changeToTransformTools()
     changeToSelectionTool();
 }
 
-void FormEditorView::changeToCustomTool(const ModelNode &modelNode)
+void FormEditorView::changeToCustomTool()
 {
-    int handlingRank = 0;
-    AbstractCustomTool *selectedCustomTool;
+    if (hasSelectedModelNodes()) {
+        int handlingRank = 0;
+        AbstractCustomTool *selectedCustomTool;
 
-    foreach (AbstractCustomTool *customTool, m_customToolList) {
-        if (customTool->wantHandleItem(modelNode) > handlingRank) {
-            handlingRank = customTool->wantHandleItem(modelNode);
-            selectedCustomTool = customTool;
+        ModelNode selectedModelNode = selectedModelNodes().first();
+
+        foreach (AbstractCustomTool *customTool, m_customToolList) {
+            if (customTool->wantHandleItem(selectedModelNode) > handlingRank) {
+                handlingRank = customTool->wantHandleItem(selectedModelNode);
+                selectedCustomTool = customTool;
+            }
+
         }
 
-    }
-
-    if (handlingRank > 0) {
-        m_scene->updateAllFormEditorItems();
-        m_currentTool->clear();
-        m_currentTool = selectedCustomTool;
-        m_currentTool->clear();
-        m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+        if (handlingRank > 0) {
+            m_scene->updateAllFormEditorItems();
+            m_currentTool->clear();
+            m_currentTool = selectedCustomTool;
+            m_currentTool->clear();
+            m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+        }
     }
 }
 

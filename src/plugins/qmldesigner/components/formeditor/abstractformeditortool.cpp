@@ -213,8 +213,10 @@ void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &
 {
     if (event->button() == Qt::LeftButton) {
         FormEditorItem *formEditorItem = topFormEditorItem(itemList);
-        if (formEditorItem)
-            view()->changeToCustomTool(formEditorItem->qmlItemNode().modelNode());
+        if (formEditorItem) {
+            view()->setSelectedModelNode(formEditorItem->qmlItemNode().modelNode());
+            view()->changeToCustomTool();
+        }
     }
 }
 
