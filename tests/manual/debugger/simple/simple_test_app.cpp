@@ -388,7 +388,6 @@ namespace peekandpoke {
 
     void testAnonymousStructs()
     {
-        #ifndef Q_CC_RVCT
         union {
             struct { int i; int b; };
             struct { float f; };
@@ -424,7 +423,6 @@ namespace peekandpoke {
         // Continue.
 
         dummyStatement(&a);
-        #endif
     }
 
     void testComplexWatchers()
@@ -529,7 +527,6 @@ namespace anon {
 
     void testAnonymous()
     {
-    #ifndef Q_CC_RVCT
         TestAnonymous a;
         BREAK_HERE;
         // Expand a a.#1 a.#2.
@@ -565,7 +562,6 @@ namespace anon {
         // Continue.
 
         dummyStatement(&a, &s, &m);
-    #endif
     }
 
 } // namespace anon
