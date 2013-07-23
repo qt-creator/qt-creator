@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "defaultpropertyprovider.h"
+#include "qbsconstants.h"
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
@@ -38,29 +39,8 @@
 
 #include <QFileInfo>
 
-// Qt related settings:
-const char QTCORE_BINPATH[] = "Qt.core.binPath";
-const char QTCORE_BUILDVARIANT[] = "Qt.core.buildVariant";
-const char QTCORE_DOCPATH[] = "Qt.core.docPath";
-const char QTCORE_INCPATH[] = "Qt.core.incPath";
-const char QTCORE_LIBPATH[] = "Qt.core.libPath";
-const char QTCORE_VERSION[] = "Qt.core.version";
-const char QTCORE_NAMESPACE[] = "Qt.core.namespace";
-const char QTCORE_LIBINFIX[] = "Qt.core.libInfix";
-const char QTCORE_MKSPEC[] = "Qt.core.mkspecPath";
-const char QTCORE_FRAMEWORKBUILD[] = "Qt.core.frameworkBuild";
-
-
-// Toolchain related settings:
-const char QBS_TARGETOS[] = "qbs.targetOS";
-const char QBS_SYSROOT[] = "qbs.sysroot";
-const char QBS_ARCHITECTURE[] = "qbs.architecture";
-const char QBS_ENDIANNESS[] = "qbs.endianness";
-const char QBS_TOOLCHAIN[] = "qbs.toolchain";
-const char CPP_TOOLCHAINPATH[] = "cpp.toolchainInstallPath";
-const char CPP_COMPILERNAME[] = "cpp.compilerName";
-
 namespace QbsProjectManager {
+using namespace Constants;
 
 QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, const QVariantMap &defaultData) const
 {

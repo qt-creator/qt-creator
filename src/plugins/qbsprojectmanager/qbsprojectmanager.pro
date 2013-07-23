@@ -33,7 +33,8 @@ HEADERS = \
     qbsprojectmanagerplugin.h \
     qbspropertylineedit.h \
     qbsrunconfiguration.h \
-    qbsstep.h
+    qbsstep.h \
+    qbsconstants.h
 
 SOURCES = \
     defaultpropertyprovider.cpp \
