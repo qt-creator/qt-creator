@@ -33,7 +33,6 @@
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -237,7 +236,7 @@ QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
 
 QString ProjectListWidget::fullName(ProjectExplorer::Project *project)
 {
-    return tr("%1 (%2)").arg(project->displayName(), project->document()->filePath());
+    return tr("%1 (%2)").arg(project->displayName(), project->projectFilePath());
 }
 
 void ProjectListWidget::addProject(Project *project)
@@ -1395,7 +1394,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
         projectName = project->displayName();
         foreach (Project *p, ProjectExplorerPlugin::instance()->session()->projects()) {
             if (p != project && p->displayName() == projectName) {
-                fileName = project->document()->filePath();
+                fileName = project->projectFilePath();
                 break;
             }
         }

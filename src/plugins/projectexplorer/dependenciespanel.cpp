@@ -32,7 +32,6 @@
 #include "session.h"
 
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/idocument.h>
 #include <utils/detailswidget.h>
 
 #include <QDebug>
@@ -104,7 +103,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     case Qt::CheckStateRole:
         return m_session->hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
-        return Core::FileIconProvider::instance()->icon(QFileInfo(p->document()->filePath()));
+        return Core::FileIconProvider::instance()->icon(QFileInfo(p->projectFilePath()));
     default:
         return QVariant();
     }

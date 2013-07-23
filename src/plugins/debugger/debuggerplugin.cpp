@@ -3502,7 +3502,7 @@ void DebuggerPluginPrivate::testProjectLoaded(Project *project)
 
 void DebuggerPluginPrivate::testProjectEvaluated()
 {
-    QString fileName = m_testProject->document()->filePath();
+    QString fileName = m_testProject->projectFilePath();
     QVERIFY(!fileName.isEmpty());
     qWarning("Project %s loaded", qPrintable(fileName));
     connect(ProjectExplorerPlugin::instance()->buildManager(),

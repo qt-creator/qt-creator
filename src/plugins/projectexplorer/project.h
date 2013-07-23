@@ -74,6 +74,8 @@ public:
     virtual Core::IDocument *document() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 
+    QString projectFilePath() const;
+
     bool hasActiveBuildSettings() const;
 
     // EditorConfiguration:

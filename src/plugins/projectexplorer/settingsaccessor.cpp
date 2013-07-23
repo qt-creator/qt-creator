@@ -42,7 +42,6 @@
 #include "kitmanager.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/persistentsettings.h>
 #include <utils/hostosinfo.h>
@@ -716,7 +715,7 @@ QByteArray SettingsAccessor::creatorId()
 
 QString SettingsAccessor::defaultFileName(const QString &suffix) const
 {
-    return project()->document()->filePath() + suffix;
+    return project()->projectFilePath() + suffix;
 }
 
 int SettingsAccessor::currentVersion() const
@@ -819,7 +818,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
 SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
 {
     SettingsData sharedSettings;
-    QString fn = project()->document()->filePath() + m_sharedFileAcessor.suffix();
+    QString fn = project()->projectFilePath() + m_sharedFileAcessor.suffix();
     sharedSettings.m_fileName = Utils::FileName::fromString(fn);
 
     if (!m_sharedFileAcessor.readFile(&sharedSettings))

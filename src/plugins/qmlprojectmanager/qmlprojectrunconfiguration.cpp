@@ -153,7 +153,7 @@ QString QmlProjectRunConfiguration::viewerArguments() const
 
 QString QmlProjectRunConfiguration::workingDirectory() const
 {
-    QFileInfo projectFile(target()->project()->document()->filePath());
+    QFileInfo projectFile(target()->project()->projectFilePath());
     return canonicalCapsPath(projectFile.absolutePath());
 }
 

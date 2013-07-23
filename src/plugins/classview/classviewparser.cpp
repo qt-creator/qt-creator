@@ -45,7 +45,6 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <coreplugin/idocument.h>
 #include <utils/qtcassert.h>
 
 #include <QStandardItem>
@@ -287,7 +286,7 @@ ParserTreeItem::ConstPtr Parser::parse()
         QString prjName(prj->displayName());
         QString prjType(prjName);
         if (prj->document())
-            prjType = prj->document()->filePath();
+            prjType = prj->projectFilePath();
         SymbolInformation inf(prjName, prjType);
 
         QStringList projectList = addProjectNode(item, prj->rootProjectNode());

@@ -33,7 +33,6 @@
 #include "project.h"
 #include "session.h"
 
-#include <coreplugin/idocument.h>
 #include <utils/qtcassert.h>
 #include <utils/filesearch.h>
 
@@ -76,7 +75,7 @@ QVariant CurrentProjectFind::additionalParameters() const
 {
     Project *project = ProjectExplorerPlugin::currentProject();
     if (project && project->document())
-        return qVariantFromValue(project->document()->filePath());
+        return qVariantFromValue(project->projectFilePath());
     return QVariant();
 }
 
@@ -87,7 +86,7 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
     QList<Project *> allProjects = m_plugin->session()->projects();
     QString projectFile = additionalParameters.toString();
     foreach (Project *project, allProjects) {
-        if (project->document() && projectFile == project->document()->filePath())
+        if (project->document() && projectFile == project->projectFilePath())
             return filesForProjects(nameFilters, QList<Project *>() << project);
     }
     return new Utils::FileIterator();
@@ -112,7 +111,7 @@ void CurrentProjectFind::recheckEnabled()
     QString projectFile = getAdditionalParameters(search).toString();
     QList<Project *> allProjects = m_plugin->session()->projects();
     foreach (Project *project, allProjects) {
-        if (project->document() && projectFile == project->document()->filePath()) {
+        if (projectFile == project->projectFilePath()) {
             search->setSearchAgainEnabled(true);
             return;
         }

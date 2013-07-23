@@ -109,6 +109,11 @@ Project::~Project()
     delete d;
 }
 
+QString Project::projectFilePath() const
+{
+    return document()->filePath();
+}
+
 bool Project::hasActiveBuildSettings() const
 {
     return activeTarget() && IBuildConfigurationFactory::find(activeTarget());

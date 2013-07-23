@@ -566,7 +566,7 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 // --------------------------------------------------------------------
 
 QbsProjectNode::QbsProjectNode(QbsProject *project) :
-    QbsBaseProjectNode(project->document()->filePath()),
+    QbsBaseProjectNode(project->projectFilePath()),
     m_project(project), m_qbsProject(0)
 {
     ctor();

@@ -76,9 +76,9 @@ QList<Locator::FilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<Loca
         if (cmakeProject) {
             foreach (const CMakeBuildTarget &ct, cmakeProject->buildTargets()) {
                 if (ct.title.contains(entry)) {
-                    Locator::FilterEntry entry(this, ct.title, cmakeProject->document()->filePath());
+                    Locator::FilterEntry entry(this, ct.title, cmakeProject->projectFilePath());
                     entry.extraInfo = FileUtils::shortNativePath(
-                        FileName::fromString(cmakeProject->document()->filePath()));
+                        FileName::fromString(cmakeProject->projectFilePath()));
                     result.append(entry);
                 }
             }
@@ -97,7 +97,7 @@ void CMakeLocatorFilter::accept(Locator::FilterEntry selection) const
             ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects();
     foreach (ProjectExplorer::Project *p, projects) {
         cmakeProject = qobject_cast<CMakeProject *>(p);
-        if (cmakeProject && cmakeProject->document()->filePath() == selection.internalData.toString())
+        if (cmakeProject && cmakeProject->projectFilePath() == selection.internalData.toString())
             break;
         cmakeProject = 0;
     }

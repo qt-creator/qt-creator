@@ -1353,7 +1353,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
         QString canonicalFilePath = fi.canonicalFilePath();
         bool found = false;
         foreach (ProjectExplorer::Project *pi, session()->projects()) {
-            if (canonicalFilePath == pi->document()->filePath()) {
+            if (canonicalFilePath == pi->projectFilePath()) {
                 found = true;
                 break;
             }
@@ -1947,7 +1947,7 @@ void ProjectExplorerPlugin::updateActions()
 QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
 {
     if (debug)
-        qDebug() << "ProjectExplorerPlugin::allFilesWithDependencies(" << pro->document()->filePath() << ")";
+        qDebug() << "ProjectExplorerPlugin::allFilesWithDependencies(" << pro->projectFilePath() << ")";
 
     QStringList filesToSave;
     foreach (Project *p, d->m_session->projectOrder(pro)) {
@@ -2355,7 +2355,7 @@ void ProjectExplorerPlugin::projectRemoved(ProjectExplorer::Project * pro)
 
 void ProjectExplorerPlugin::projectDisplayNameChanged(Project *pro)
 {
-    addToRecentProjects(pro->document()->filePath(), pro->displayName());
+    addToRecentProjects(pro->projectFilePath(), pro->displayName());
     updateActions();
 }
 
