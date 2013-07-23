@@ -161,6 +161,7 @@ protected slots:
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     void removeBookmark(const QModelIndex &index);
+    void keyPressEvent(QKeyEvent *event);
 private:
     BookmarkContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;

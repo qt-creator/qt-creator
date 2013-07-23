@@ -219,6 +219,8 @@ BookmarkView::BookmarkView(QWidget *parent)  :
 
     connect(this, SIGNAL(clicked(QModelIndex)),
             this, SLOT(gotoBookmark(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)),
+            this, SLOT(gotoBookmark(QModelIndex)));
 
     ICore::addContextObject(m_bookmarkContext);
 
@@ -278,6 +280,16 @@ void BookmarkView::removeBookmark(const QModelIndex& index)
 {
     Bookmark *bm = m_manager->bookmarkForIndex(index);
     m_manager->removeBookmark(bm);
+}
+
+void BookmarkView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Delete) {
+        removeBookmark(currentIndex());
+        event->accept();
+        return;
+    }
+    QListView::keyPressEvent(event);
 }
 
 void BookmarkView::removeAll()
