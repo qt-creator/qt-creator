@@ -196,6 +196,11 @@ QStringList QtKitInformation::dumperLibraryLocations(const ProjectExplorer::Kit 
     return QStringList();
 }
 
+void QtKitInformation::makeSticky(ProjectExplorer::Kit *k)
+{
+    k->makeSticky(Internal::QT_INFORMATION);
+}
+
 void QtKitInformation::qtVersionsChanged(const QList<int> &addedIds,
                                          const QList<int> &removedIds,
                                          const QList<int> &changedIds)

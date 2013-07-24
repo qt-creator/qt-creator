@@ -90,6 +90,8 @@ public:
 
     static QString debuggerEngineName(DebuggerEngineType t);
 
+    static void makeSticky(ProjectExplorer::Kit *k);
+
 private:
     static DebuggerItem variantToItem(const QVariant &v);
     static QVariant itemToVariant(const DebuggerItem &i);

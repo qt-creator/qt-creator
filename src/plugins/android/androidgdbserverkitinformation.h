@@ -85,6 +85,7 @@ public:
     static Utils::FileName gdbServer(const ProjectExplorer::Kit *kit);
     static void setGdbSever(ProjectExplorer::Kit *kit, const Utils::FileName &gdbServerCommand);
     static Utils::FileName autoDetect(ProjectExplorer::Kit *kit);
+    static void makeSticky(ProjectExplorer::Kit *k);
 };
 
 } // namespace Internal

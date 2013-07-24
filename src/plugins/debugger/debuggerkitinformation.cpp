@@ -375,4 +375,9 @@ QString DebuggerKitInformation::debuggerEngineName(DebuggerEngineType t)
     return QString();
 }
 
+void DebuggerKitInformation::makeSticky(Kit *k)
+{
+    k->makeSticky(DEBUGGER_INFORMATION);
+}
+
 } // namespace Debugger

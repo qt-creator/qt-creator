@@ -154,4 +154,9 @@ Utils::FileName QmakeKitInformation::defaultMkspec(const ProjectExplorer::Kit *k
     return version->mkspecFor(ProjectExplorer::ToolChainKitInformation::toolChain(k));
 }
 
+void QmakeKitInformation::makeSticky(ProjectExplorer::Kit *k)
+{
+    k->makeSticky(Internal::MKSPEC_INFORMATION);
+}
+
 } // namespace Qt4ProjectManager

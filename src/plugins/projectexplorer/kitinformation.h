@@ -67,6 +67,8 @@ public:
     static bool hasSysRoot(const Kit *k);
     static Utils::FileName sysRoot(const Kit *k);
     static void setSysRoot(Kit *k, const Utils::FileName &v);
+
+    static void makeSticky(Kit *k);
 };
 
 class PROJECTEXPLORER_EXPORT SysRootMatcher : public KitMatcher
@@ -117,6 +119,9 @@ public:
     static void setToolChain(Kit *k, ToolChain *tc);
 
     static QString msgNoToolChainInTarget();
+
+    static void makeSticky(Kit *k);
+
 private slots:
     void kitsWereLoaded();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
@@ -162,6 +167,7 @@ public:
 
     static const Core::Id deviceTypeId(const Kit *k);
     static void setDeviceTypeId(Kit *k, Core::Id type);
+    static void makeSticky(Kit *k);
 };
 
 class PROJECTEXPLORER_EXPORT DeviceTypeMatcher : public KitMatcher
@@ -212,6 +218,8 @@ public:
     static Core::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDevice::ConstPtr dev);
     static void setDeviceId(Kit *k, const Core::Id id);
+
+    static void makeSticky(Kit *k);
 
 private slots:
     void kitsWereLoaded();

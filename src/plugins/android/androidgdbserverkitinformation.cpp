@@ -104,6 +104,11 @@ Utils::FileName AndroidGdbServerKitInformation::autoDetect(ProjectExplorer::Kit 
     return atc->suggestedGdbServer();
 }
 
+void AndroidGdbServerKitInformation::makeSticky(ProjectExplorer::Kit *k)
+{
+    k->makeSticky(ANDROIDGDBSERVER_INFORMATION);
+}
+
 ///////////////
 // AndroidGdbServerKitInformationWidget
 ///////////////
