@@ -274,12 +274,12 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
 
 void BlackBerryConfiguration::setSticky(ProjectExplorer::Kit *kit)
 {
-    kit->makeSticky(Core::Id("QtSupport.QtInformation"));
-    kit->makeSticky(Core::Id("PE.Profile.ToolChain"));
-    kit->makeSticky(Core::Id("PE.Profile.SysRoot"));
-    kit->makeSticky(Core::Id("PE.Profile.DeviceType"));
-    kit->makeSticky(Core::Id("Debugger.Information"));
-    kit->makeSticky(Core::Id("QtPM4.mkSpecInformation"));
+    QtSupport::QtKitInformation::makeSticky(kit);
+    ProjectExplorer::ToolChainKitInformation::makeSticky(kit);
+    ProjectExplorer::DeviceTypeKitInformation::makeSticky(kit);
+    ProjectExplorer::SysRootKitInformation::makeSticky(kit);
+    Debugger::DebuggerKitInformation::makeSticky(kit);
+    Qt4ProjectManager::QmakeKitInformation::makeSticky(kit);
 }
 
 bool BlackBerryConfiguration::activate()
