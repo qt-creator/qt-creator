@@ -40,6 +40,7 @@ class Preferences;
 } // namespace qbs
 
 #include <QString>
+#include <QVariantMap>
 
 namespace ProjectExplorer {
 class Kit;
