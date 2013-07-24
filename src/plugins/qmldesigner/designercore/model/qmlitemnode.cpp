@@ -174,7 +174,7 @@ bool QmlItemNode::instanceHasAnchors() const
     return anchors().instanceHasAnchors();
 }
 
-bool QmlItemNode::hasShowContent() const
+bool QmlItemNode::instanceHasShowContent() const
 {
     return nodeInstance().hasContent();
 }

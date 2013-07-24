@@ -66,7 +66,7 @@ public:
     bool hasChildren() const;
     bool hasResources() const;
     bool instanceHasAnchors() const;
-    bool hasShowContent() const;
+    bool instanceHasShowContent() const;
 
     bool canReparent() const;
     bool instanceIsAnchoredBySibling() const;

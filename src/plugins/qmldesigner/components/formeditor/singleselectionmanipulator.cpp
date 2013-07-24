@@ -79,7 +79,7 @@ void SingleSelectionManipulator::select(SelectionType selectionType, bool select
 
         if (formEditorItem
            && formEditorItem->qmlItemNode().isValid()
-           && (formEditorItem->qmlItemNode().hasShowContent() || !selectOnlyContentItems))
+           && (formEditorItem->qmlItemNode().instanceHasShowContent() || !selectOnlyContentItems))
         {
             selectedNode = formEditorItem->qmlItemNode();
             break;
