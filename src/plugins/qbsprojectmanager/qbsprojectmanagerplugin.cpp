@@ -301,7 +301,7 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
     QTC_ASSERT(m_currentNode, return);
     QTC_ASSERT(m_currentProject, return);
 
-    buildFiles(m_currentProject, QStringList(m_currentNode->path()));
+    buildSingleFile(m_currentProject, m_currentNode->path());
 }
 
 void QbsProjectManagerPlugin::buildFile()
@@ -316,7 +316,7 @@ void QbsProjectManagerPlugin::buildFile()
     if (!project || file.isEmpty())
         return;
 
-    buildFiles(project, QStringList(file));
+    buildSingleFile(project, file);
 }
 
 void QbsProjectManagerPlugin::buildProductContextMenu()
@@ -345,7 +345,8 @@ void QbsProjectManagerPlugin::buildProduct()
     buildProducts(project, QStringList(product->displayName()));
 }
 
-void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList &files)
+void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList &files,
+                                         const QStringList &activeFileTags)
 {
     QTC_ASSERT(project, return);
     QTC_ASSERT(!files.isEmpty(), return);
@@ -362,6 +363,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
         return;
 
     bc->setChangedFiles(files);
+    bc->setActiveFileTags(activeFileTags);
     bc->setProducts(QStringList());
 
     const Core::Id buildStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
@@ -370,6 +372,12 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
     pe->buildManager()->buildList(bc->stepList(buildStep), name);
 
     bc->setChangedFiles(QStringList());
+}
+
+void QbsProjectManagerPlugin::buildSingleFile(QbsProject *project, const QString &file)
+{
+    buildFiles(project, QStringList(file), QStringList()
+               << QLatin1String("obj") << QLatin1String("hpp"));
 }
 
 void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringList &products)

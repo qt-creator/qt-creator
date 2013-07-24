@@ -193,6 +193,16 @@ QStringList QbsBuildConfiguration::changedFiles() const
     return m_changedFiles;
 }
 
+void QbsBuildConfiguration::setActiveFileTags(const QStringList &fileTags)
+{
+    m_activeFileTags = fileTags;
+}
+
+QStringList QbsBuildConfiguration::activeFileTags() const
+{
+    return m_activeFileTags;
+}
+
 void QbsBuildConfiguration::setProducts(const QStringList &products)
 {
     m_products = products;

@@ -100,6 +100,7 @@ private:
 
     // Temporary data:
     QStringList m_changedFiles;
+    QStringList m_activeFileTags;
     QStringList m_products;
 
     QFutureInterface<bool> *m_fi;

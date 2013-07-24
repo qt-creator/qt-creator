@@ -107,6 +107,7 @@ bool QbsBuildStep::init()
         m_parser->appendOutputParser(parser);
 
     m_changedFiles = bc->changedFiles();
+    m_activeFileTags = bc->activeFileTags();
     m_products = bc->products();
 
     connect(m_parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
@@ -124,6 +125,7 @@ void QbsBuildStep::run(QFutureInterface<bool> &fi)
     QbsProject *pro = static_cast<QbsProject *>(project());
     qbs::BuildOptions options(m_qbsBuildOptions);
     options.setChangedFiles(m_changedFiles);
+    options.setActiveFileTags(m_activeFileTags);
 
     m_job = pro->build(options, m_products);
 

@@ -80,7 +80,9 @@ private slots:
     void reparseCurrentProject();
 
 private:
-    void buildFiles(QbsProject *project, const QStringList &files);
+    void buildFiles(QbsProject *project, const QStringList &files,
+                    const QStringList &activeFileTags);
+    void buildSingleFile(QbsProject *project, const QString &file);
     void buildProducts(QbsProject *project, const QStringList &products);
 
     QbsManager *m_manager;

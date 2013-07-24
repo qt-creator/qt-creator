@@ -73,6 +73,9 @@ public:
     void setChangedFiles(const QStringList &files);
     QStringList changedFiles() const;
 
+    void setActiveFileTags(const QStringList &fileTags);
+    QStringList activeFileTags() const;
+
     void setProducts(const QStringList &products);
     QStringList products() const;
 
@@ -99,6 +102,7 @@ private:
     bool m_parsingError;
     Utils::FileName m_buildDirectory;
     QStringList m_changedFiles;
+    QStringList m_activeFileTags;
     QStringList m_products;
 
     friend class QbsBuildConfigurationFactory;
