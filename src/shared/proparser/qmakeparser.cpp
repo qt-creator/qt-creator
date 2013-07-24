@@ -172,7 +172,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
             locker.unlock();
 #endif
             pro = new ProFile(fileName);
-            if (!read(pro)) {
+            if (!read(pro, flags)) {
                 delete pro;
                 pro = 0;
             } else {
@@ -193,7 +193,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
         }
     } else {
         pro = new ProFile(fileName);
-        if (!read(pro)) {
+        if (!read(pro, flags)) {
             delete pro;
             pro = 0;
         }
@@ -218,12 +218,12 @@ void QMakeParser::discardFileFromCache(const QString &fileName)
         m_cache->discardFile(fileName);
 }
 
-bool QMakeParser::read(ProFile *pro)
+bool QMakeParser::read(ProFile *pro, ParseFlags flags)
 {
     QString content;
     QString errStr;
     if (!m_vfs->readFile(pro->fileName(), &content, &errStr)) {
-        if (m_handler && m_vfs->exists(pro->fileName()))
+        if (m_handler && ((flags & ParseReportMissing) || m_vfs->exists(pro->fileName())))
             m_handler->message(QMakeParserHandler::ParserIoError,
                                fL1S("Cannot read %1: %2").arg(pro->fileName(), errStr));
         return false;

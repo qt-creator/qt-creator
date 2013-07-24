@@ -77,7 +77,8 @@ public:
 
     enum ParseFlag {
         ParseDefault = 0,
-        ParseUseCache = 1
+        ParseUseCache = 1,
+        ParseReportMissing = 2
     };
     Q_DECLARE_FLAGS(ParseFlags, ParseFlag)
 
@@ -124,7 +125,7 @@ private:
         ushort terminator; // '}' if replace function call is braced, ':' if test function
     };
 
-    bool read(ProFile *pro);
+    bool read(ProFile *pro, ParseFlags flags);
     bool read(ProFile *pro, const QString &content, int line, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
