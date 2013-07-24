@@ -131,7 +131,7 @@ QList<QmlObjectNode> QmlItemNode::resources() const
     return toQmlObjectNodeList(resourcesList);
 }
 
-QList<QmlObjectNode> QmlItemNode::defaultPropertyChildren() const
+QList<QmlItemNode> QmlItemNode::defaultPropertyChildren() const
 {
     QList<ModelNode> defaultPropertyChildrenList;
 
@@ -140,7 +140,7 @@ QList<QmlObjectNode> QmlItemNode::defaultPropertyChildren() const
             defaultPropertyChildrenList.append(modelNode().nodeListProperty(defaultPropertyName()).toModelNodeList());
     }
 
-    return toQmlObjectNodeList(defaultPropertyChildrenList);
+    return toQmlItemNodeList(defaultPropertyChildrenList);
 }
 
 QList<QmlObjectNode> QmlItemNode::allDirectSubNodes() const
