@@ -338,7 +338,7 @@ public:
 
                 m_menu->addAction(selectionAction);
             }
-            foreach (const ModelNode &node, m_selectionContext.qmlModelView()->allModelNodes()) {
+            foreach (const ModelNode &node, m_selectionContext.view()->allModelNodes()) {
                 if (node != m_selectionContext.currentSingleSelectedNode()
                         && node != parentNode
                         && contains(node, m_selectionContext.scenePos())
@@ -413,9 +413,9 @@ bool selectionCanBeLayouted(const SelectionContext &context)
 
 bool hasQtQuickLayoutImport(const SelectionContext &context)
 {
-    if (context.qmlModelView() && context.qmlModelView()->model()) {
+    if (context.view() && context.view()->model()) {
         Import import = Import::createLibraryImport(QLatin1String("QtQuick.Layouts"), QLatin1String("1.0"));
-        return context.qmlModelView()->model()->hasImport(import, true, true);
+        return context.view()->model()->hasImport(import, true, true);
     }
 
     return false;

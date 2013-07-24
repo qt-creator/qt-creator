@@ -39,7 +39,7 @@ class QMLDESIGNERCORE_EXPORT SelectionContext {
 
 public:
     SelectionContext();
-    SelectionContext(QmlModelView *qmlModelView);
+    SelectionContext(AbstractView *view);
 
     void setTargetNode(const ModelNode &modelNode);
     ModelNode targetNode() const;
@@ -50,7 +50,7 @@ public:
     ModelNode currentSingleSelectedNode() const;
     QList<ModelNode> selectedModelNodes() const;
 
-    QmlModelView *qmlModelView() const;
+    AbstractView *view() const;
 
     void setShowSelectionTools(bool show);
     bool showSelectionTools() const;
@@ -64,7 +64,7 @@ public:
     bool isValid() const;
 
 private:
-    QWeakPointer<QmlModelView> m_qmlModelView;
+    QWeakPointer<AbstractView> m_view;
     ModelNode m_targetNode;
     bool m_showSelectionTools;
     QPoint m_scenePosition;

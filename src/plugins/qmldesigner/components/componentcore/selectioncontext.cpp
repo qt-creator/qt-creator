@@ -38,8 +38,8 @@ SelectionContext::SelectionContext() :
 
 }
 
-SelectionContext::SelectionContext(QmlModelView *qmlModelView) :
-    m_qmlModelView(qmlModelView),
+SelectionContext::SelectionContext(AbstractView *view) :
+    m_view(view),
     m_toggled(false)
 {
 }
@@ -56,27 +56,27 @@ ModelNode SelectionContext::targetNode() const
 
 bool SelectionContext::singleNodeIsSelected() const
 {
-    return qmlModelView()->hasSingleSelectedModelNode();
+    return view()->hasSingleSelectedModelNode();
 }
 
 bool SelectionContext::isInBaseState() const
 {
-    return qmlModelView()->currentState().isBaseState();
+    return QmlModelState(view()->actualStateNode()).isBaseState();
 }
 
 ModelNode SelectionContext::currentSingleSelectedNode() const
 {
-    return qmlModelView()->singleSelectedModelNode();
+    return view()->singleSelectedModelNode();
 }
 
 QList<ModelNode> SelectionContext::selectedModelNodes() const
 {
-    return qmlModelView()->selectedModelNodes();
+    return view()->selectedModelNodes();
 }
 
-QmlModelView *SelectionContext::qmlModelView() const
+AbstractView *SelectionContext::view() const
 {
-    return m_qmlModelView.data();
+    return m_view.data();
 }
 
 void SelectionContext::setShowSelectionTools(bool show)
@@ -111,7 +111,7 @@ bool SelectionContext::toggled() const
 
 bool SelectionContext::isValid() const
 {
-    return qmlModelView() && qmlModelView()->model() && qmlModelView()->nodeInstanceView();
+    return view() && view()->model();
 }
 
 } //QmlDesigner
