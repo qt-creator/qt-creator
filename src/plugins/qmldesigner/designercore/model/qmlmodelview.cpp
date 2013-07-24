@@ -80,30 +80,14 @@ QmlModelStateGroup QmlModelView::rootStateGroup() const
     return QmlModelStateGroup(rootModelNode());
 }
 
-QmlObjectNode QmlModelView::createQmlObjectNode(const TypeName &typeString,
-                     int majorVersion,
-                     int minorVersion,
-                     const PropertyListType &propertyList)
+QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode)
 {
-    return QmlObjectNode(createModelNode(typeString, majorVersion, minorVersion, propertyList));
-}
-
-QmlItemNode QmlModelView::createQmlItemNode(const TypeName &typeString,
-                                int majorVersion,
-                                int minorVersion,
-                                const PropertyListType &propertyList)
-{
-    return createQmlObjectNode(typeString, majorVersion, minorVersion, propertyList).toQmlItemNode();
-}
-
-QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, const QPointF &position, QmlItemNode parentNode)
-{
-    if (!parentNode.isValid() && rootQmlItemNode().isValid())
-        parentNode = rootQmlItemNode();
+    if (!parentQmlItemNode.isValid() && rootQmlItemNode().isValid())
+        parentQmlItemNode = rootQmlItemNode();
     else
         return QmlItemNode();
 
-    QmlItemNode newNode;
+    QmlItemNode newQmlItemNode;
     RewriterTransaction transaction = beginRewriterTransaction();
     {
         const QString newImportUrl = QLatin1String("QtQuick");
@@ -139,11 +123,11 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         if (metaInfo.isValid()) {
             int minorVersion = metaInfo.minorVersion();
             int majorVersion = metaInfo.majorVersion();
-            newNode = createQmlItemNode("QtQuick.Image", majorVersion, minorVersion, propertyPairList);
-            parentNode.nodeAbstractProperty("data").reparentHere(newNode);
+            newQmlItemNode = QmlItemNode(createModelNode("QtQuick.Image", majorVersion, minorVersion, propertyPairList));
+            parentQmlItemNode.nodeAbstractProperty("data").reparentHere(newQmlItemNode);
         }
 
-        Q_ASSERT(newNode.isValid());
+        Q_ASSERT(newQmlItemNode.isValid());
 
         QString id;
         int i = 1;
@@ -154,28 +138,28 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
             i++;
         } while (hasId(id)); //If the name already exists count upwards
 
-        newNode.setId(id);
+        newQmlItemNode.setId(id);
         if (!currentState().isBaseState()) {
-            newNode.modelNode().variantProperty("opacity") = 0;
-            newNode.setVariantProperty("opacity", 1);
+            newQmlItemNode.modelNode().variantProperty("opacity") = 0;
+            newQmlItemNode.setVariantProperty("opacity", 1);
         }
 
-        Q_ASSERT(newNode.isValid());
+        Q_ASSERT(newQmlItemNode.isValid());
     }
 
-    Q_ASSERT(newNode.isValid());
+    Q_ASSERT(newQmlItemNode.isValid());
 
-    return newNode;
+    return newQmlItemNode;
 }
 
-QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentNode)
+QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentQmlItemNode)
 {
-    if (!parentNode.isValid())
-        parentNode = rootQmlItemNode();
+    if (!parentQmlItemNode.isValid())
+        parentQmlItemNode = rootQmlItemNode();
 
-    Q_ASSERT(parentNode.isValid());
+    Q_ASSERT(parentQmlItemNode.isValid());
 
-    QmlItemNode newNode;
+    QmlItemNode newQmlItemNode;
 
     try {
         RewriterTransaction transaction = beginRewriterTransaction();
@@ -221,7 +205,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             foreach (const PropertyContainer &property, itemLibraryEntry.properties())
                 propertyPairList.append(qMakePair(property.name(), property.value()));
 
-            newNode = createQmlItemNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList);
+            newQmlItemNode = QmlItemNode(createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
         } else {
             QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
             inputModel->setFileUrl(model()->fileUrl());
@@ -244,15 +228,15 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
                 rootModelNode.variantProperty("y") = propertyPairList.at(1).second;
 
                 ModelMerger merger(this);
-                newNode = merger.insertModel(rootModelNode);
+                newQmlItemNode = merger.insertModel(rootModelNode);
             }
         }
 
-        if (parentNode.hasDefaultProperty())
-            parentNode.nodeAbstractProperty(parentNode.defaultProperty()).reparentHere(newNode);
+        if (parentQmlItemNode.hasDefaultProperty())
+            parentQmlItemNode.nodeAbstractProperty(parentQmlItemNode.defaultProperty()).reparentHere(newQmlItemNode);
 
-        if (!newNode.isValid())
-            return newNode;
+        if (!newQmlItemNode.isValid())
+            return newQmlItemNode;
 
         QString id;
         int i = 1;
@@ -264,14 +248,14 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             i++;
         } while (hasId(id)); //If the name already exists count upwards
 
-        newNode.setId(id);
+        newQmlItemNode.setId(id);
 
         if (!currentState().isBaseState()) {
-            newNode.modelNode().variantProperty("opacity") = 0;
-            newNode.setVariantProperty("opacity", 1);
+            newQmlItemNode.modelNode().variantProperty("opacity") = 0;
+            newQmlItemNode.setVariantProperty("opacity", 1);
         }
 
-        Q_ASSERT(newNode.isValid());
+        Q_ASSERT(newQmlItemNode.isValid());
     }
     catch (RewritingException &e) {
         QMessageBox::warning(0, "Error", e.description());
@@ -281,9 +265,9 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         QMessageBox::warning(0, tr("Invalid Id"), e.description());
     }
 
-    Q_ASSERT(newNode.isValid());
+    Q_ASSERT(newQmlItemNode.isValid());
 
-    return newNode;
+    return newQmlItemNode;
 }
 
 QmlObjectNode QmlModelView::rootQmlObjectNode() const

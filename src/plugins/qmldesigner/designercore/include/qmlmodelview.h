@@ -56,16 +56,6 @@ public:
     QmlModelState baseState() const;
     QmlModelStateGroup rootStateGroup() const;
 
-    QmlObjectNode createQmlObjectNode(const TypeName &typeString,
-                                      int majorVersion,
-                                      int minorVersion,
-                                      const PropertyListType &propertyList = PropertyListType());
-
-    QmlItemNode createQmlItemNode(const TypeName &typeString,
-                                    int majorVersion,
-                                    int minorVersion,
-                                    const PropertyListType &propertyList = PropertyListType());
-
     ModelNode createQmlState(const PropertyListType &propertyList = PropertyListType());
 
     QmlItemNode createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentNode);
