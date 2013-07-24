@@ -50,12 +50,12 @@ bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
 {
     QChar ch;
 
-    if (! textToInsert.isEmpty())
+    if (!textToInsert.isEmpty())
         ch = textToInsert.at(0);
 
-    if (! (MatchingText::shouldInsertMatchingText(cursor)
-           || ch == QLatin1Char('\'')
-           || ch == QLatin1Char('"')))
+    if (!(MatchingText::shouldInsertMatchingText(cursor)
+          || ch == QLatin1Char('\'')
+          || ch == QLatin1Char('"')))
         return false;
     else if (isInCommentHelper(cursor))
         return false;

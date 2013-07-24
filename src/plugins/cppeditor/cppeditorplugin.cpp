@@ -373,7 +373,7 @@ void CppEditorPlugin::onAllTasksFinished(const QString &type)
 
 void CppEditorPlugin::currentEditorChanged(Core::IEditor *editor)
 {
-    if (! editor)
+    if (!editor)
         return;
 
     if (CPPEditorWidget *textEditor = qobject_cast<CPPEditorWidget *>(editor->widget()))
