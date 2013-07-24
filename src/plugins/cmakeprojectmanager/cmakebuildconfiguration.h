@@ -85,9 +85,9 @@ public:
     CMakeBuildConfigurationFactory(QObject *parent = 0);
     ~CMakeBuildConfigurationFactory();
 
-    bool canCreate(const ProjectExplorer::Target *parent) const;
+    int priority(const ProjectExplorer::Target *parent) const;
     QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
-    bool canSetup(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
     QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
                                                         const QString &projectPath) const;
     ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,

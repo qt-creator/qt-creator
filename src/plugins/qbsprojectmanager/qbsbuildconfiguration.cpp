@@ -254,15 +254,14 @@ ProjectExplorer::BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const 
     return info;
 }
 
-bool QbsBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *parent) const
+int QbsBuildConfigurationFactory::priority(const ProjectExplorer::Target *parent) const
 {
-    return canHandle(parent);
+    return canHandle(parent) ? 0 : -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableBuilds(const ProjectExplorer::Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QTC_ASSERT(canCreate(parent), return result);
 
     const Utils::FileName buildDirectory = QbsProject::defaultBuildDirectory(parent->project()->projectFilePath());
 
@@ -273,16 +272,15 @@ QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableBuild
     return result;
 }
 
-bool QbsBuildConfigurationFactory::canSetup(const ProjectExplorer::Kit *k, const QString &projectPath) const
+int QbsBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
-    return k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::MIME_TYPE));
+    return (k && Core::ICore::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::MIME_TYPE))) ? 0 : -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QTC_ASSERT(canSetup(k, projectPath), return result);
 
     const Utils::FileName buildDirectory = QbsProject::defaultBuildDirectory(projectPath);
 
@@ -302,7 +300,6 @@ QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableSetup
 ProjectExplorer::BuildConfiguration *QbsBuildConfigurationFactory::create(ProjectExplorer::Target *parent,
                                                                           const ProjectExplorer::BuildInfo *info) const
 {
-    QTC_ASSERT(canCreate(parent), return 0);
     QTC_ASSERT(info->factory() == this, return 0);
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);

@@ -569,16 +569,14 @@ QmakeBuildInfo *Qt4BuildConfigurationFactory::createBuildInfo(const Kit *k,
     return info;
 }
 
-bool Qt4BuildConfigurationFactory::canCreate(const Target *parent) const
+int Qt4BuildConfigurationFactory::priority(const Target *parent) const
 {
-    return canHandle(parent);
+    return canHandle(parent) ? 0 : -1;
 }
 
 QList<BuildInfo *> Qt4BuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QTC_ASSERT(canCreate(parent), return result);
-
     QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath(),
                                            BuildConfiguration::Debug);
     info->displayName.clear(); // ask for a name
@@ -588,18 +586,15 @@ QList<BuildInfo *> Qt4BuildConfigurationFactory::availableBuilds(const Target *p
     return result;
 }
 
-bool Qt4BuildConfigurationFactory::canSetup(const Kit *k, const QString &projectPath) const
+int Qt4BuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return k && QtSupport::QtKitInformation::qtVersion(k)
-            && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::PROFILE_MIMETYPE));
+    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::PROFILE_MIMETYPE))) ? 0 : -1;
 }
 
 QList<BuildInfo *> Qt4BuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QTC_ASSERT(canSetup(k, projectPath), return result);
-
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Release);
 
@@ -608,7 +603,6 @@ QList<BuildInfo *> Qt4BuildConfigurationFactory::availableSetups(const Kit *k, c
 
 BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
-    QTC_ASSERT(canCreate(parent), return 0);
     QTC_ASSERT(info->factory() == this, return 0);
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);

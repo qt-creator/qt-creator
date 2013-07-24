@@ -87,31 +87,28 @@ GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
 {
 }
 
-bool GenericBuildConfigurationFactory::canCreate(const Target *parent) const
+int GenericBuildConfigurationFactory::priority(const Target *parent) const
 {
-    return canHandle(parent);
+    return canHandle(parent) ? 0 : -1;
 }
 
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QTC_ASSERT(canCreate(parent), return result);
-
     BuildInfo *info = createBuildInfo(parent->kit(), Utils::FileName::fromString(parent->project()->projectDirectory()));
     result << info;
     return result;
 }
 
-bool GenericBuildConfigurationFactory::canSetup(const Kit *k, const QString &projectPath) const
+int GenericBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::GENERICMIMETYPE));
+    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::GENERICMIMETYPE))) ? 0 : -1;
 }
 
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<BuildInfo *> result;
-    QTC_ASSERT(canSetup(k, projectPath), return result);
     BuildInfo *info = createBuildInfo(k, Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath)));
     //: The name of the build configuration created by default for a generic project.
     info->displayName = tr("Default");
@@ -121,7 +118,6 @@ QList<BuildInfo *> GenericBuildConfigurationFactory::availableSetups(const Kit *
 
 BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
-    QTC_ASSERT(canCreate(parent), return 0);
     QTC_ASSERT(info->factory() == this, return 0);
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);

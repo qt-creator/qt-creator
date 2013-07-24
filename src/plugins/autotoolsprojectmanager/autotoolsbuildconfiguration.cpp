@@ -89,31 +89,28 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory(QObject *
 {
 }
 
-bool AutotoolsBuildConfigurationFactory::canCreate(const Target *parent) const
+int AutotoolsBuildConfigurationFactory::priority(const Target *parent) const
 {
-    return canHandle(parent);
+    return canHandle(parent) ? 0 : -1;
 }
 
 QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<BuildInfo *> result;
-    QTC_ASSERT(canCreate(parent), return result);
-
     result << createBuildInfo(parent->kit(),
                               Utils::FileName::fromString(parent->project()->projectDirectory()));
     return result;
 }
 
-bool AutotoolsBuildConfigurationFactory::canSetup(const Kit *k, const QString &projectPath) const
+int AutotoolsBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::MAKEFILE_MIMETYPE));
+    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::MAKEFILE_MIMETYPE))) ? 0 : -1;
 }
 
 QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<BuildInfo *> result;
-    QTC_ASSERT(canSetup(k, projectPath), return result);
     BuildInfo *info = createBuildInfo(k,
                                       Utils::FileName::fromString(AutotoolsProject::defaultBuildDirectory(projectPath)));
     //: The name of the build configuration created by default for a autotools project.

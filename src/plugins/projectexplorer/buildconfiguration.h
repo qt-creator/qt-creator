@@ -128,15 +128,15 @@ public:
     explicit IBuildConfigurationFactory(QObject *parent = 0);
     virtual ~IBuildConfigurationFactory();
 
-    // Used to see whether any BuildInfo is available on this factory for a given target.
-    virtual bool canCreate(const Target *parent) const = 0;
+    // The priority is negative if this factory can not create anything for the target.
+    // It is 0 for the "default" factory that wants to handle the target.
+    // Add 100 for each specialization.
+    virtual int priority(const Target *parent) const = 0;
     // List of build information that can be used to create a new build configuration via
     // "Add Build Configuration" button.
     virtual QList<BuildInfo *> availableBuilds(const Target *parent) const = 0;
 
-    // Used to see whether this factory can produce any BuildConfigurations for a kit when
-    // setting up the given project.
-    virtual bool canSetup(const Kit *k, const QString &projectPath) const = 0;
+    virtual int priority(const Kit *k, const QString &projectPath) const = 0;
     // List of build information that can be used to initially set up a new build configuration.
     virtual QList<BuildInfo *> availableSetups(const Kit *k, const QString &projectPath) const = 0;
 
