@@ -155,11 +155,17 @@ QmlAnchors QmlItemNode::anchors() const
 
 bool QmlItemNode::hasChildren() const
 {
+    if (modelNode().hasNodeListProperty("children"))
+        return true;
+
     return !children().isEmpty();
 }
 
 bool QmlItemNode::hasResources() const
 {
+    if (modelNode().hasNodeListProperty("resources"))
+        return true;
+
     return !resources().isEmpty();
 }
 
