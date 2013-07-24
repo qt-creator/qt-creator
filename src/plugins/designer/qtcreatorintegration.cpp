@@ -34,6 +34,7 @@
 #include "editordata.h"
 #include <widgethost.h>
 
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
@@ -131,15 +132,16 @@ static QList<Document::Ptr> findDocumentsIncluding(const Snapshot &docTable,
 {
     QList<Document::Ptr> docList;
     foreach (const Document::Ptr &doc, docTable) { // we go through all documents
-        const QStringList includes = doc->includedFiles();
-        foreach (const QString &include, includes) {
+        const QList<Document::Include> includes = doc->resolvedIncludes()
+            + doc->unresolvedIncludes();
+        foreach (const Document::Include &include, includes) {
             if (checkFileNameOnly) {
-                const QFileInfo fi(include);
+                const QFileInfo fi(include.unresolvedFileName());
                 if (fi.fileName() == fileName) { // we are only interested in docs which includes fileName only
                     docList.append(doc);
                 }
             } else {
-                if (include == fileName)
+                if (include.resolvedFileName() == fileName)
                     docList.append(doc);
             }
         }
@@ -530,21 +532,29 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QString uiFolder = fi.absolutePath();
     const QString uicedName = QLatin1String("ui_") + fi.completeBaseName() + QLatin1String(".h");
 
-    // Retrieve code model snapshot restricted to project of ui file.
-    const ProjectExplorer::Project *uiProject = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(currentUiFile);
-    if (!uiProject) {
-        *errorMessage = tr("Internal error: No project could be found for %1.").arg(currentUiFile);
-        return false;
-    }
+    // Retrieve code model snapshot restricted to project of ui file or the working copy.
     Snapshot docTable = CppTools::CppModelManagerInterface::instance()->snapshot();
     Snapshot newDocTable;
-
-    for (Snapshot::iterator it = docTable.begin(); it != docTable.end(); ++it) {
-        const ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(it.key());
-        if (project == uiProject)
-            newDocTable.insert(it.value());
+    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+    const ProjectExplorer::Project *uiProject = pe->session()->projectForFile(currentUiFile);
+    if (uiProject) {
+        Snapshot::const_iterator end = docTable.end();
+        for (Snapshot::iterator it = docTable.begin(); it != end; ++it) {
+            const ProjectExplorer::Project *project = pe->session()->projectForFile(it.key());
+            if (project == uiProject)
+                newDocTable.insert(it.value());
+        }
+    } else {
+        const CppTools::CppModelManagerInterface::WorkingCopy workingCopy =
+                CppTools::CppModelManagerInterface::instance()->workingCopy();
+        QHashIterator<QString, QPair<QString, unsigned> > it = workingCopy.iterator();
+        while (it.hasNext()) {
+            it.next();
+            const QString fileName = it.key();
+            if (fileName != CppTools::CppModelManagerInterface::configurationFileName())
+                newDocTable.insert(docTable.document(fileName));
+        }
     }
-
     docTable = newDocTable;
 
     // take all docs, find the ones that include the ui_xx.h.

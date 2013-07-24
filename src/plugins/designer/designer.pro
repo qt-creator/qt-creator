@@ -62,6 +62,11 @@ SOURCES += formeditorplugin.cpp \
     qtdesignerformclasscodegenerator.cpp \
     designerxmleditorwidget.cpp
 
+equals(TEST, 1) {
+    SOURCES += gotoslot_test.cpp
+    DEFINES += SRCDIR=\\\"$$PWD\\\"
+}
+
 RESOURCES += designer.qrc
 
 OTHER_FILES += README.txt

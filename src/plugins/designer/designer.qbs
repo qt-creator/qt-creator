@@ -1,6 +1,8 @@
 import qbs.base 1.0
+import qbs.FileInfo
 
 import "../QtcPlugin.qbs" as QtcPlugin
+import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "Designer"
@@ -72,4 +74,13 @@ QtcPlugin {
             "formclasswizardparameters.cpp", "formclasswizardparameters.h",
         ]
     }
+
+    Group {
+        name: "Tests"
+        condition: Defaults.testsEnabled(qbs)
+        files: [ "gotoslot_test.cpp" ]
+
+        cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
+    }
+
 }

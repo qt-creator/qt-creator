@@ -50,6 +50,11 @@ public:
 
 private:
     void initializeTemplates();
+
+private slots:
+#ifdef WITH_TESTS
+    void test_gotoslot_withoutProject();
+#endif
 };
 
 } // namespace Internal
