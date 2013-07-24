@@ -90,12 +90,7 @@ public:
     int instancePenWidth() const;
     bool instanceIsRenderPixmapNull() const;
 
-
     void paintInstance(QPainter *painter);
-
-    void selectNode();
-    void deselectNode();
-    bool isSelected() const;
 
     TypeName simplifiedTypeName() const;
 

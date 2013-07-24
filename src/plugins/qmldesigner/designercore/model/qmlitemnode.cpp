@@ -290,21 +290,6 @@ void QmlItemNode::paintInstance(QPainter *painter)
         nodeInstance().paint(painter);
 }
 
-void QmlItemNode::selectNode()
-{
-    modelNode().selectNode();
-}
-
-void QmlItemNode::deselectNode()
-{
-    modelNode().deselectNode();
-}
-
-bool QmlItemNode::isSelected() const
-{
-    return modelNode().isSelected();
-}
-
 QList<QmlModelState> QmlModelStateGroup::allStates() const
 {
     QList<QmlModelState> returnList;
