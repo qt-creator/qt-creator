@@ -106,13 +106,13 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
 
     Document::Ptr thisDocument = snapshot.document(declFile);
-    if (! thisDocument) {
+    if (!thisDocument) {
         qWarning() << "undefined document:" << declaration->fileName();
         return 0;
     }
 
     Function *declarationTy = declaration->type()->asFunctionType();
-    if (! declarationTy) {
+    if (!declarationTy) {
         qWarning() << "not a function:" << declaration->fileName()
                    << declaration->line() << declaration->column();
         return 0;
@@ -126,7 +126,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
         }
 
         const Identifier *id = declaration->identifier();
-        if (id && ! doc->control()->findIdentifier(id->chars(), id->size()))
+        if (id && !doc->control()->findIdentifier(id->chars(), id->size()))
             continue;
 
         if (!id) {
@@ -143,13 +143,13 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
         candidates.accept(doc->globalNamespace());
 
         const QList<Function *> result = candidates.result();
-        if (! result.isEmpty()) {
+        if (!result.isEmpty()) {
             LookupContext context(doc, snapshot);
 
             QList<Function *> viableFunctions;
 
             ClassOrNamespace *enclosingType = context.lookupType(declaration);
-            if (! enclosingType)
+            if (!enclosingType)
                 continue; // nothing to do
 
             foreach (Function *fun, result) {
@@ -168,16 +168,18 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
             if (viableFunctions.isEmpty())
                 continue;
 
-            else if (! strict && viableFunctions.length() == 1)
+            else if (!strict && viableFunctions.length() == 1)
                 return viableFunctions.first();
 
             Function *best = 0;
 
             foreach (Function *fun, viableFunctions) {
-                if (! (fun->unqualifiedName() && fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName())))
+                if (!(fun->unqualifiedName()
+                      && fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName()))) {
                     continue;
+                }
                 if (fun->argumentCount() == declarationTy->argumentCount()) {
-                    if (! strict && ! best)
+                    if (!strict && !best)
                         best = fun;
 
                     const unsigned argc = declarationTy->argumentCount();
@@ -185,7 +187,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                     for (; argIt < argc; ++argIt) {
                         Symbol *arg = fun->argumentAt(argIt);
                         Symbol *otherArg = declarationTy->argumentAt(argIt);
-                        if (! arg->type().isEqualTo(otherArg->type()))
+                        if (!arg->type().isEqualTo(otherArg->type()))
                             break;
                     }
 
@@ -197,10 +199,10 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                 }
             }
 
-            if (strict && ! best)
+            if (strict && !best)
                 continue;
 
-            if (! best)
+            if (!best)
                 best = viableFunctions.first();
             return best;
         }
@@ -211,7 +213,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
 
 Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Snapshot &snapshot)
 {
-    if (! declaration->identifier())
+    if (!declaration->identifier())
         return 0;
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
@@ -223,8 +225,8 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
             continue;
         }
 
-        if (! doc->control()->findIdentifier(declaration->identifier()->chars(),
-                                             declaration->identifier()->size()))
+        if (!doc->control()->findIdentifier(declaration->identifier()->chars(),
+                                            declaration->identifier()->size()))
             continue;
 
         LookupContext context(doc, snapshot);
@@ -252,12 +254,12 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
         return;
 
     Scope *enclosingScope = functionType->enclosingScope();
-    while (! (enclosingScope->isNamespace() || enclosingScope->isClass()))
+    while (!(enclosingScope->isNamespace() || enclosingScope->isClass()))
         enclosingScope = enclosingScope->enclosingScope();
     QTC_ASSERT(enclosingScope != 0, return);
 
     const Name *functionName = functionType->name();
-    if (! functionName)
+    if (!functionName)
         return; // anonymous function names are not valid c++
 
     ClassOrNamespace *binding = 0;
@@ -287,7 +289,7 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
             continue;
 
         for (Symbol *s = scope->find(funcId); s; s = s->next()) {
-            if (! s->name() || ! funcId->isEqualTo(s->identifier()) || ! s->type()->isFunctionType())
+            if (!s->name() || !funcId->isEqualTo(s->identifier()) || !s->type()->isFunctionType())
                 continue;
             if (Declaration *decl = s->asDeclaration()) {
                 if (Function *declFunTy = decl->type()->asFunctionType()) {

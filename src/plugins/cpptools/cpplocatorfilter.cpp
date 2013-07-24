@@ -150,7 +150,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
 
                 QVariant id = qVariantFromValue(info);
                 Locator::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
-                if (! info.symbolType.isEmpty()) {
+                if (!info.symbolType.isEmpty()) {
                     filterEntry.extraInfo = info.symbolType;
                 } else {
                     filterEntry.extraInfo = FileUtils::shortNativePath(

@@ -59,7 +59,7 @@ static void parse(QFutureInterface<void> &future,
         const bool isSourceFile = i < sourceCount;
         if (isSourceFile) {
             (void) preproc->run(conf);
-        } else if (! processingHeaders) {
+        } else if (!processingHeaders) {
             (void) preproc->run(conf);
 
             processingHeaders = true;
@@ -182,7 +182,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
         m_synchronizer.clearFutures();
 
         foreach (const QFuture<void> &future, futures) {
-            if (! (future.isFinished() || future.isCanceled()))
+            if (!(future.isFinished() || future.isCanceled()))
                 m_synchronizer.addFuture(future);
         }
     }

@@ -94,9 +94,9 @@ public:
 protected:
     void process(Document::Ptr doc, QSet<Namespace *> *processed)
     {
-        if (! doc)
+        if (!doc)
             return;
-        if (! processed->contains(doc->globalNamespace())) {
+        if (!processed->contains(doc->globalNamespace())) {
             processed->insert(doc->globalNamespace());
 
             foreach (const Document::Include &i, doc->includes())
@@ -115,7 +115,7 @@ protected:
 
     void addType(const Name *name)
     {
-        if (! name) {
+        if (!name) {
             return;
 
         } else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
@@ -130,7 +130,7 @@ protected:
 
     void addField(const Name *name)
     {
-        if (! name) {
+        if (!name) {
             return;
 
         } else if (name->isNameId()) {
@@ -142,7 +142,7 @@ protected:
 
     void addFunction(const Name *name)
     {
-        if (! name) {
+        if (!name) {
             return;
 
         } else if (name->isNameId()) {
@@ -153,7 +153,7 @@ protected:
 
     void addStatic(const Name *name)
     {
-        if (! name) {
+        if (!name) {
             return;
 
         } else if (name->isNameId() || name->isTemplateNameId()) {
@@ -196,7 +196,7 @@ protected:
 
         if (symbol->isTypedef())
             addType(symbol->name());
-        else if (! symbol->type()->isFunctionType() && symbol->enclosingScope()->isClass())
+        else if (!symbol->type()->isFunctionType() && symbol->enclosingScope()->isClass())
             addField(symbol->name());
 
         return true;
@@ -333,7 +333,7 @@ void CheckSymbols::run()
     qSort(_macroUses.begin(), _macroUses.end(), sortByLinePredicate);
     _doc->clearDiagnosticMessages();
 
-    if (! isCanceled()) {
+    if (!isCanceled()) {
         if (_doc->translationUnit()) {
             accept(_doc->translationUnit()->ast());
             _usages << QVector<Result>::fromList(_macroUses);
@@ -473,7 +473,7 @@ bool CheckSymbols::visit(NamespaceAST *ast)
 {
     if (ast->identifier_token) {
         const Token &tok = tokenAt(ast->identifier_token);
-        if (! tok.generated()) {
+        if (!tok.generated()) {
             unsigned line, column;
             getTokenStartPosition(ast->identifier_token, &line, &column);
             Result use(line, column, tok.length(), CppHighlightingSupport::TypeUse);
@@ -499,7 +499,7 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
 {
     NameAST *declrIdNameAST = 0;
     if (ast->declarator_list && !ast->declarator_list->next) {
-        if (ast->symbols && ! ast->symbols->next && !ast->symbols->value->isGenerated()) {
+        if (ast->symbols && !ast->symbols->next && !ast->symbols->value->isGenerated()) {
             Symbol *decl = ast->symbols->value;
             if (NameAST *nameAST = declaratorId(ast->declarator_list->value)) {
                 if (Function *funTy = decl->type()->asFunctionType()) {
@@ -559,7 +559,7 @@ bool CheckSymbols::visit(ElaboratedTypeSpecifierAST *ast)
 bool CheckSymbols::visit(MemberAccessAST *ast)
 {
     accept(ast->base_expression);
-    if (! ast->member_name)
+    if (!ast->member_name)
         return false;
 
     if (const Name *name = ast->member_name->name) {
@@ -711,7 +711,7 @@ QByteArray CheckSymbols::textOf(AST *ast) const
 
 void CheckSymbols::checkNamespace(NameAST *name)
 {
-    if (! name)
+    if (!name)
         return;
 
     unsigned line, column;
@@ -730,13 +730,13 @@ void CheckSymbols::checkNamespace(NameAST *name)
 
 bool CheckSymbols::hasVirtualDestructor(Class *klass) const
 {
-    if (! klass)
+    if (!klass)
         return false;
     const Identifier *id = klass->identifier();
-    if (! id)
+    if (!id)
         return false;
     for (Symbol *s = klass->find(id); s; s = s->next()) {
-        if (! s->name())
+        if (!s->name())
             continue;
         if (s->name()->isDestructorNameId()) {
             if (Function *funTy = s->type()->asFunctionType()) {
@@ -754,9 +754,9 @@ bool CheckSymbols::hasVirtualDestructor(ClassOrNamespace *binding) const
     QList<ClassOrNamespace *> todo;
     todo.append(binding);
 
-    while (! todo.isEmpty()) {
+    while (!todo.isEmpty()) {
         ClassOrNamespace *b = todo.takeFirst();
-        if (b && ! processed.contains(b)) {
+        if (b && !processed.contains(b)) {
             processed.insert(b);
             foreach (Symbol *s, b->symbols()) {
                 if (Class *k = s->asClass()) {
@@ -775,7 +775,7 @@ bool CheckSymbols::hasVirtualDestructor(ClassOrNamespace *binding) const
 void CheckSymbols::checkName(NameAST *ast, Scope *scope)
 {
     if (ast && ast->name) {
-        if (! scope)
+        if (!scope)
             scope = enclosingScope();
 
         if (ast->asDestructorName() != 0) {
@@ -796,7 +796,7 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
                 }
             }
         } else if (maybeType(ast->name) || maybeStatic(ast->name)) {
-            if (! maybeAddTypeOrStatic(_context.lookup(ast->name, scope), ast)) {
+            if (!maybeAddTypeOrStatic(_context.lookup(ast->name, scope), ast)) {
                 // it can be a local variable
                 if (maybeField(ast->name))
                     maybeAddField(_context.lookup(ast->name, scope), ast);
@@ -895,7 +895,7 @@ ClassOrNamespace *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
                             }
 
                             accept(template_id->template_argument_list);
-                            if (! binding)
+                            if (!binding)
                                 continue;
                         }
 
@@ -1026,7 +1026,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     _astStack.append(thisFunction);
 
     bool processEntireDeclr = true;
-    if (ast->declarator && ast->symbol && ! ast->symbol->isGenerated()) {
+    if (ast->declarator && ast->symbol && !ast->symbol->isGenerated()) {
         Function *fun = ast->symbol;
         if (NameAST *declId = declaratorId(ast->declarator)) {
             processEntireDeclr = false;
@@ -1077,7 +1077,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
 
 void CheckSymbols::addUse(NameAST *ast, Kind kind)
 {
-    if (! ast)
+    if (!ast)
         return;
 
     if (QualifiedNameAST *q = ast->asQualifiedName())
@@ -1085,7 +1085,7 @@ void CheckSymbols::addUse(NameAST *ast, Kind kind)
     if (DestructorNameAST *dtor = ast->asDestructorName())
         ast = dtor->unqualified_name;
 
-    if (! ast)
+    if (!ast)
         return; // nothing to do
     else if (ast->asOperatorFunctionId() != 0 || ast->asConversionFunctionId() != 0)
         return; // nothing to do
@@ -1100,7 +1100,7 @@ void CheckSymbols::addUse(NameAST *ast, Kind kind)
 
 void CheckSymbols::addUse(unsigned tokenIndex, Kind kind)
 {
-    if (! tokenIndex)
+    if (!tokenIndex)
         return;
 
     const Token &tok = tokenAt(tokenIndex);
@@ -1120,7 +1120,7 @@ void CheckSymbols::addUse(const Result &use)
     if (use.isInvalid())
         return;
 
-    if (! enclosingFunctionDefinition()) {
+    if (!enclosingFunctionDefinition()) {
         if (_usages.size() >= _chunkSize) {
             if (use.line > _lineOfLastUsage)
                 flush();
@@ -1137,7 +1137,7 @@ void CheckSymbols::addUse(const Result &use)
 void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
 {
     unsigned startToken;
-    if (! b || !acceptName(ast, &startToken))
+    if (!b || !acceptName(ast, &startToken))
         return;
 
     const Token &tok = tokenAt(startToken);
@@ -1218,11 +1218,11 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
 
     foreach (const LookupItem &r, candidates) {
         Symbol *c = r.declaration();
-        if (! c)
+        if (!c)
             continue;
-        else if (! c->isDeclaration())
+        else if (!c->isDeclaration())
             return false;
-        else if (! (c->enclosingScope() && c->enclosingScope()->isClass()))
+        else if (!(c->enclosingScope() && c->enclosingScope()->isClass()))
             return false; // shadowed
         else if (c->isTypedef() || (c->type() && c->type()->isFunctionType()))
             return false; // shadowed
@@ -1261,7 +1261,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         Symbol *c = r.declaration();
 
         // Skip current if there's no declaration or name.
-        if (! c || !c->name())
+        if (!c || !c->name())
             continue;
 
         // In addition check for destructors, since the leading ~ is not taken into consideration.
@@ -1272,13 +1272,13 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         isConstructor = isConstructorDeclaration(c);
 
         Function *funTy = c->type()->asFunctionType();
-        if (! funTy) {
+        if (!funTy) {
             //Try to find a template function
             if (Template * t = r.type()->asTemplateType())
                 if ((c = t->declaration()))
                     funTy = c->type()->asFunctionType();
         }
-        if (! funTy)
+        if (!funTy)
             continue; // TODO: add diagnostic messages and color call-operators calls too?
 
         if (argumentCount < funTy->minimumArgumentCount()) {
@@ -1286,7 +1286,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
                 kind = funTy->isVirtual() ? CppHighlightingSupport::VirtualMethodUse : CppHighlightingSupport::FunctionUse;
                 matchType = Match_TooFewArgs;
             }
-        } else if (argumentCount > funTy->argumentCount() && ! funTy->isVariadic()) {
+        } else if (argumentCount > funTy->argumentCount() && !funTy->isVariadic()) {
             if (matchType != Match_Ok) {
                 matchType = Match_TooManyArgs;
                 kind = funTy->isVirtual() ? CppHighlightingSupport::VirtualMethodUse : CppHighlightingSupport::FunctionUse;

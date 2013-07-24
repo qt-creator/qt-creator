@@ -181,7 +181,7 @@ void CppModelManager::updateModifiedSourceFiles()
     foreach (const Document::Ptr doc, snapshot) {
         const QDateTime lastModified = doc->lastModified();
 
-        if (! lastModified.isNull()) {
+        if (!lastModified.isNull()) {
             QFileInfo fileInfo(doc->fileName());
 
             if (fileInfo.exists() && fileInfo.lastModified() != lastModified)
@@ -293,7 +293,7 @@ bool CppModelManager::replaceDocument(Document::Ptr newDoc)
 void CppModelManager::ensureUpdated()
 {
     QMutexLocker locker(&m_projectMutex);
-    if (! m_dirty)
+    if (!m_dirty)
         return;
 
     m_projectFiles = internalProjectFiles();
@@ -552,7 +552,7 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
     { // only hold the mutex for a limited scope, so the dumping afterwards can aquire it without deadlocking.
         QMutexLocker locker(&m_projectMutex);
 
-        if (! pinfo.isValid())
+        if (!pinfo.isValid())
             return;
 
         ProjectExplorer::Project *project = pinfo.project().data();
@@ -691,7 +691,7 @@ void CppModelManager::GC()
     QSet<QString> processed;
     QStringList todo = projectFiles();
 
-    while (! todo.isEmpty()) {
+    while (!todo.isEmpty()) {
         QString fn = todo.last();
         todo.removeLast();
 

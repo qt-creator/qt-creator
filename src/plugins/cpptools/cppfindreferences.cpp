@@ -105,7 +105,7 @@ public:
 
         if (Document::Ptr previousDoc = snapshot.document(fileName)) {
             Control *control = previousDoc->control();
-            if (! control->findIdentifier(symbolId->chars(), symbolId->size()))
+            if (!control->findIdentifier(symbolId->chars(), symbolId->size()))
                 return usages; // skip this document, it's not using symbolId.
         }
         Document::Ptr doc;
@@ -188,8 +188,11 @@ static void find_helper(QFutureInterface<Usage> &future,
     const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
     QStringList files(sourceFile);
 
-    if (symbol->isClass() || symbol->isForwardClassDeclaration() || (symbol->enclosingScope() && ! symbol->isStatic() &&
-                                                                     symbol->enclosingScope()->isNamespace())) {
+    if (symbol->isClass()
+        || symbol->isForwardClassDeclaration()
+        || (symbol->enclosingScope()
+            && !symbol->isStatic()
+            && symbol->enclosingScope()->isNamespace())) {
         foreach (const Document::Ptr &doc, context.snapshot()) {
             if (doc->fileName() == sourceFile)
                 continue;

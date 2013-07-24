@@ -276,7 +276,7 @@ void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
     }
 
     // update semantic info in a future
-    if (! m_initialized ||
+    if (!m_initialized ||
             (m_textEditor->widget()->isVisible()
              && (m_lastSemanticInfo.doc.isNull()
                  || m_lastSemanticInfo.doc->translationUnit()->ast() == 0
@@ -373,7 +373,7 @@ void CppEditorSupport::onDiagnosticsChanged()
             c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
         } else {
             for (int i = 0; i < text.size(); ++i) {
-                if (! text.at(i).isSpace()) {
+                if (!text.at(i).isSpace()) {
                     c.setPosition(c.position() + i);
                     break;
                 }

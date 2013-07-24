@@ -255,7 +255,7 @@ QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType
 
 void CppPreprocessor::macroAdded(const Macro &macro)
 {
-    if (! m_currentDoc)
+    if (!m_currentDoc)
         return;
 
     m_currentDoc->appendMacro(macro);
@@ -271,7 +271,7 @@ static inline const Macro revision(const CppModelManagerInterface::WorkingCopy &
 
 void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro)
 {
-    if (! m_currentDoc)
+    if (!m_currentDoc)
         return;
 
     m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
@@ -280,7 +280,7 @@ void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, unsigned line,
 
 void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name)
 {
-    if (! m_currentDoc)
+    if (!m_currentDoc)
         return;
 
     m_currentDoc->addUndefinedMacroUse(QByteArray(name.start(), name.size()), offset);
@@ -288,7 +288,7 @@ void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const ByteArra
 
 void CppPreprocessor::notifyMacroReference(unsigned offset, unsigned line, const Macro &macro)
 {
-    if (! m_currentDoc)
+    if (!m_currentDoc)
         return;
 
     m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
@@ -299,7 +299,7 @@ void CppPreprocessor::startExpandingMacro(unsigned offset, unsigned line,
                                           const Macro &macro,
                                           const QVector<MacroArgumentReference> &actuals)
 {
-    if (! m_currentDoc)
+    if (!m_currentDoc)
         return;
 
     m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
@@ -308,7 +308,7 @@ void CppPreprocessor::startExpandingMacro(unsigned offset, unsigned line,
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
 {
-    if (! m_currentDoc)
+    if (!m_currentDoc)
         return;
 }
 
@@ -322,7 +322,7 @@ void CppPreprocessor::markAsIncludeGuard(const QByteArray &macroName)
 
 void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
 {
-    if (! doc)
+    if (!doc)
         return;
 
     const QString fn = doc->fileName();
@@ -374,7 +374,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
     QString contents;
     getFileContents(absoluteFileName, &contents, &editorRevision);
     if (m_currentDoc) {
-        if (contents.isEmpty() && ! QFileInfo(absoluteFileName).isAbsolute()) {
+        if (contents.isEmpty() && !QFileInfo(absoluteFileName).isAbsolute()) {
             QString msg = QCoreApplication::translate(
                     "CppPreprocessor", "%1: No such file or directory").arg(fileName);
 

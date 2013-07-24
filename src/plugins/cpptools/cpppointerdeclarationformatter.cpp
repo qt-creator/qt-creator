@@ -76,7 +76,7 @@ static unsigned firstTypeSpecifierWithoutFollowingAttribute(
     SpecifierListAST *list, TranslationUnit *translationUnit, unsigned endToken, bool *found)
 {
     *found = false;
-    if (! list || ! translationUnit || ! endToken)
+    if (!list || !translationUnit || !endToken)
         return 0;
 
     for (SpecifierListAST *it = list; it; it = it->next) {
@@ -156,7 +156,7 @@ bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
         // characters from the beginning since our rewritten declaration
         // will contain all type specifiers.
         int charactersToRemove = 0;
-        if (! isFirstDeclarator) {
+        if (!isFirstDeclarator) {
             const int startAST = m_cppRefactoringFile->startOf(ast);
             const int startFirstDeclarator = m_cppRefactoringFile->startOf(firstDeclarator);
             CHECK_RV(startAST < startFirstDeclarator, "No specifier", true);
@@ -188,8 +188,8 @@ bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
                         m_cppRefactoringFile->cppDocument()->translationUnit(),
                         lastActivationToken,
                         &foundBegin);
-            if (! foundBegin) {
-                CHECK_RV(! isFirstDeclarator, "Declaration without attributes not supported", true);
+            if (!foundBegin) {
+                CHECK_RV(!isFirstDeclarator, "Declaration without attributes not supported", true);
                 firstActivationToken = declarator->firstToken();
             }
 
@@ -380,7 +380,7 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
 
     // Check for expanded tokens
     for (unsigned token = tokenRange.start; token <= tokenRange.end; ++token)
-        CHECK_R(! tokenAt(token).expanded(), "Token is expanded");
+        CHECK_R(!tokenAt(token).expanded(), "Token is expanded");
 
     Range range(m_cppRefactoringFile->startOf(tokenRange.start),
                 m_cppRefactoringFile->endOf(tokenRange.end));

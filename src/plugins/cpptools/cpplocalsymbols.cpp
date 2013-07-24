@@ -84,7 +84,7 @@ protected:
             if (Symbol *member = scope->memberAt(i)) {
                 if (member->isTypedef())
                     continue;
-                if (! member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
+                if (!member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
                     if (member->name() && member->name()->isNameId()) {
                         const Identifier *id = member->identifier();
                         unsigned line, column;

@@ -134,10 +134,10 @@ public:
         { }
 
         operator bool() const
-        { return ! m_project.isNull(); }
+        { return !m_project.isNull(); }
 
         bool isValid() const
-        { return ! m_project.isNull(); }
+        { return !m_project.isNull(); }
 
         bool isNull() const
         { return m_project.isNull(); }

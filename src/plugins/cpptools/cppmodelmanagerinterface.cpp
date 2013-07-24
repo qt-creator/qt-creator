@@ -141,7 +141,7 @@ const QString CppModelManagerInterface::configurationFileName()
 CppModelManagerInterface::CppModelManagerInterface(QObject *parent)
     : QObject(parent)
 {
-    Q_ASSERT(! g_instance);
+    Q_ASSERT(!g_instance);
     g_instance = this;
 }
 

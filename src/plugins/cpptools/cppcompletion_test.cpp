@@ -1498,7 +1498,7 @@ void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
@@ -1524,7 +1524,7 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_r
     QStringList completions = getCompletions(data, &replaceAccessOperator);
 
     QCOMPARE(completions.size(), 0);
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator()
@@ -1636,7 +1636,7 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_re
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
@@ -1662,7 +1662,7 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_poin
     QStringList completions = getCompletions(data, &replaceAccessOperator);
 
     QCOMPARE(completions.size(), 0);
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator()

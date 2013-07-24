@@ -210,7 +210,7 @@ static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview
 CPlusPlus::Overview CppCodeStyleSettings::currentProjectCodeStyleOverview()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    if (! project)
+    if (!project)
         return currentGlobalCodeStyleOverview();
 
     ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
