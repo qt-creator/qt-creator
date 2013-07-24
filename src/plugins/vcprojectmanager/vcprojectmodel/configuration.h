@@ -89,7 +89,6 @@ class Configuration2003 : public Configuration
 
 public:
     Configuration2003(const Configuration2003 &config);
-    Configuration2003& operator=(const Configuration2003 &config);
     ~Configuration2003();
 
     VcNodeWidget *createSettingsWidget();
@@ -105,7 +104,6 @@ class Configuration2005 : public Configuration2003
 
 public:
     Configuration2005(const Configuration2005 &config);
-    Configuration2005& operator=(const Configuration2005 &config);
     ~Configuration2005();
 
     VcNodeWidget* createSettingsWidget();
@@ -126,7 +124,6 @@ class Configuration2008 : public Configuration2005
 
 public:
     Configuration2008(const Configuration2008 &config);
-    Configuration2008& operator=(const Configuration2008 &config);
     ~Configuration2008();
 
     VcNodeWidget* createSettingsWidget();

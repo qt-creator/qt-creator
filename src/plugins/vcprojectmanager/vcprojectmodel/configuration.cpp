@@ -163,13 +163,6 @@ Configuration2003::Configuration2003(const Configuration2003 &config)
 {
 }
 
-Configuration2003 &Configuration2003::operator =(const Configuration2003 &config)
-{
-    if (this != &config)
-        Configuration::operator =(config);
-    return *this;
-}
-
 Configuration2003::~Configuration2003()
 {
 }
@@ -198,13 +191,6 @@ Configuration2005::Configuration2005()
 Configuration2005::Configuration2005(const Configuration2005 &config)
     : Configuration2003(config)
 {
-}
-
-Configuration2005 &Configuration2005::operator=(const Configuration2005 &config)
-{
-    if (this != &config)
-        Configuration2003::operator =(config);
-    return *this;
 }
 
 Configuration2005::~Configuration2005()
@@ -249,13 +235,6 @@ QList<DeploymentTool::Ptr> Configuration2005::deploymentTools(const QString &att
 Configuration2008::Configuration2008(const Configuration2008 &config)
     : Configuration2005(config)
 {
-}
-
-Configuration2008 &Configuration2008::operator=(const Configuration2008 &config)
-{
-    if (this != &config)
-        Configuration2005::operator =(config);
-    return *this;
 }
 
 Configuration2008::~Configuration2008()
