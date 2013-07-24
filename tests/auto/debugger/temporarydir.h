@@ -97,15 +97,14 @@ static char *mkdtemp(char *templateName)
         v /= 62;
         XXXXXX[5] = letters[v % 62];
         QString templateNameStr = QFile::decodeName(templateName);
-        QFileSystemEntry fileSystemEntry(templateNameStr);
-        if (QFileSystemEngine::createDirectory(fileSystemEntry, false)) {
-            QSystemError error;
-            QFileSystemEngine::setPermissions(fileSystemEntry,
-                                              QFile::ReadOwner |
-                                              QFile::WriteOwner |
-                                              QFile::ExeOwner, error);
-            if (error.error() != 0)
+
+        QFileInfo fileInfo(templateNameStr);
+        if (fileInfo.absoluteDir().mkdir(fileInfo.fileName())) {
+            if (!QFile::setPermissions(fileInfo.absoluteFilePath(), QFile::ReadOwner |
+                                                                    QFile::WriteOwner |
+                                                                    QFile::ExeOwner)) {
                 continue;
+            }
             return templateName;
         }
     }
@@ -134,7 +133,7 @@ static bool removeRecursively(QDir directory)
                                                          | QDir::System | QDir::NoDotAndDotDot);
     foreach (QFileInfo fdInfo, filesAndDirs) {
         if (fdInfo.isDir())
-            success &= removeRecursively(fdInfo.dir());
+            success &= removeRecursively(QDir(fdInfo.absoluteFilePath()));
         else
             success &= directory.remove(fdInfo.fileName());
     }
