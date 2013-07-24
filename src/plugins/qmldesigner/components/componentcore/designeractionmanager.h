@@ -46,7 +46,7 @@ public:
     static QList<AbstractDesignerAction* > designerActions();
 
     static void createDefaultDesignerActions();
-    static QmlModelView *view();
+    static AbstractView *view();
 
 protected:
     static DesignerActionManager *instance();

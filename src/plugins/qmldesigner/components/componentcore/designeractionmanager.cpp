@@ -49,21 +49,21 @@ static inline bool contains(const QmlItemNode &node, const QPoint &position)
 
 namespace Internal {
 
-class DesignerActionManagerView : public QmlModelView
+class DesignerActionManagerView : public AbstractView
 {
 public:
-    DesignerActionManagerView() : QmlModelView(0), m_isInRewriterTransaction(false), m_setupContextDirty(false)
+    DesignerActionManagerView() : AbstractView(0), m_isInRewriterTransaction(false), m_setupContextDirty(false)
     {}
 
     void modelAttached(Model *model) QTC_OVERRIDE
     {
-        QmlModelView::modelAttached(model);
+        AbstractView::modelAttached(model);
         setupContext();
     }
 
     void modelAboutToBeDetached(Model *model) QTC_OVERRIDE
     {
-        QmlModelView::modelAboutToBeDetached(model);
+        AbstractView::modelAboutToBeDetached(model);
         setupContext();
     }
 
@@ -183,6 +183,11 @@ public:
         m_designerActionList = designerActionList;
     }
 
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
+    {
+        setupContext();
+    }
+
 protected:
     void setupContext()
     {
@@ -216,7 +221,7 @@ QList<AbstractDesignerAction* > DesignerActionManager::designerActions()
     return instance()->factoriesInternal();
 }
 
-QmlModelView *DesignerActionManager::view()
+AbstractView *DesignerActionManager::view()
 {
     return instance()->m_view;
 }
