@@ -278,6 +278,11 @@ void NavigatorView::actualStateChanged(const ModelNode &/*node*/)
 {
 }
 
+void NavigatorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+
+}
+
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
     if (m_treeModel->isInTree(node))

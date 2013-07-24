@@ -371,6 +371,31 @@ void DebugView::nodeSourceChanged(const ModelNode &modelNode, const QString &new
     }
 }
 
+void DebugView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+
+}
+
+void DebugView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+
+}
+
+void DebugView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+
+}
+
+void DebugView::actualStateChanged(const ModelNode &/*node*/)
+{
+
+}
+
+void DebugView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
+{
+
+}
+
 void DebugView::log(const QString &title, const QString &message, bool highlight)
 {
     m_debugViewWidget->addLogMessage(title, message, highlight);

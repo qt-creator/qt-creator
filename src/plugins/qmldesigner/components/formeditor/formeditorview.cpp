@@ -156,7 +156,6 @@ void FormEditorView::hideNodeFromScene(const QmlItemNode &qmlItemNode)
 
 void FormEditorView::nodeCreated(const ModelNode &createdNode)
 {
-    QmlModelView::nodeCreated(createdNode);
     ModelNode node(createdNode);
     //If the node has source for components/custom parsers we ignore it.
     if (QmlItemNode::isValidQmlItemNode(node) && node.nodeSourceType() == ModelNode::NodeWithoutSource) //only setup QmlItems
@@ -191,11 +190,9 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     QmlItemNode qmlItemNode(removedNode);
 
     removeNodeFromScene(qmlItemNode);
-
-    QmlModelView::nodeAboutToBeRemoved(removedNode);
 }
 
- void FormEditorView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
+ void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
  {
      foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
          item->setParentItem(0);
@@ -206,8 +203,6 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
          m_scene->removeItemFromHash(item);
          delete item;
      }
-
-     QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);
 
      QmlItemNode newItemNode(rootModelNode());
      if (newItemNode.isValid()) //only setup QmlItems
@@ -237,8 +232,6 @@ void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
             m_currentTool->itemsAboutToRemoved(removedItemList);
         }
     }
-
-    QmlModelView::propertiesAboutToBeRemoved(propertyList);
 }
 
 static inline bool hasNodeSourceParent(const ModelNode &node)
@@ -252,22 +245,18 @@ static inline bool hasNodeSourceParent(const ModelNode &node)
     return false;
 }
 
-void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
+void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     if (hasNodeSourceParent(node))
         hideNodeFromScene(node);
-
-    QmlModelView::nodeReparented(node, newPropertyParent, oldPropertyParent, propertyChange);
 }
 
-void FormEditorView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
+void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
 {
-    QmlModelView::variantPropertiesChanged(propertyList, propertyChange);
 }
 
-void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange)
+void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
 {
-    QmlModelView::bindingPropertiesChanged(propertyList, propertyChange);
 }
 
 void FormEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -284,9 +273,8 @@ FormEditorWidget *FormEditorView::formEditorWidget()
     return m_formEditorWidget.data();
 }
 
-void FormEditorView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
+void FormEditorView::nodeIdChanged(const ModelNode& node, const QString &/*newId*/, const QString &/*oldId*/)
 {
-    QmlModelView::nodeIdChanged(node, newId, oldId);
     QmlItemNode itemNode(node);
 
     if (itemNode.isValid() && node.nodeSourceType() == ModelNode::NodeWithoutSource) {
@@ -296,18 +284,15 @@ void FormEditorView::nodeIdChanged(const ModelNode& node, const QString& newId, 
 }
 
 void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                          const QList<ModelNode> &lastSelectedNodeList)
+                                          const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
-    QmlModelView::selectedNodesChanged(selectedNodeList, lastSelectedNodeList);
-
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedNodeList)));
 
     m_scene->update();
 }
 
-void FormEditorView::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
+void FormEditorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
 {
-    QmlModelView::scriptFunctionsChanged(node, scriptFunctionList);
 }
 
 void FormEditorView::propertiesRemoved(const QList<AbstractProperty> &/*propertyList*/)
@@ -610,8 +595,6 @@ void FormEditorView::instancePropertyChange(const QList<QPair<ModelNode, Propert
             }
         }
     }
-
-    QmlModelView::instancePropertyChange(propertyList);
 }
 
 void FormEditorView::updateGraphicsIndicators()
@@ -636,11 +619,28 @@ bool FormEditorView::isMoveToolAvailable() const
     return true;
 }
 
-void FormEditorView::actualStateChanged(const ModelNode &node)
+void FormEditorView::actualStateChanged(const ModelNode &/*node*/)
 {
-    QmlModelView::actualStateChanged(node);
+}
 
-    QmlModelState newQmlModelState(node);
+void FormEditorView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+
+}
+
+void FormEditorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+
+}
+
+void FormEditorView::nodeSourceChanged(const ModelNode &/*modelNode*/, const QString &/*newNodeSource*/)
+{
+
+}
+
+void FormEditorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
+{
+
 }
 
 void FormEditorView::reset()

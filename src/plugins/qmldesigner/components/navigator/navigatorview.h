@@ -98,6 +98,8 @@ public:
 
     void actualStateChanged(const ModelNode &node) QTC_OVERRIDE;
 
+    void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) QTC_OVERRIDE;
+
 private slots:
 //    void handleChangedItem(QStandardItem * item);
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
