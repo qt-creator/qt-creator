@@ -61,18 +61,7 @@ public:
     QmlItemNode createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentNode);
     QmlItemNode createQmlItemNodeFromImage(const QString &imageName, const QPointF &position, QmlItemNode parentNode);
 
-    QmlObjectNode rootQmlObjectNode() const;
     QmlItemNode rootQmlItemNode() const;
-
-    void setSelectedQmlObjectNodes(const QList<QmlObjectNode> &selectedNodeList);
-    void setSelectedQmlItemNodes(const QList<QmlItemNode> &selectedNodeList);
-    void selectQmlObjectNode(const QmlObjectNode &node);
-    void deselectQmlObjectNode(const QmlObjectNode &node);
-
-    QList<QmlObjectNode> selectedQmlObjectNodes() const;
-    QList<QmlItemNode> selectedQmlItemNodes() const;
-
-    QmlObjectNode fxObjectNodeForId(const QString &id);
 
     void modelAttached(Model *model) QTC_OVERRIDE;
     void modelAboutToBeDetached(Model *model) QTC_OVERRIDE;

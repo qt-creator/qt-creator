@@ -285,7 +285,7 @@ void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
         if (m_dragNode.isValid()) {
             QList<QmlItemNode> nodeList;
             nodeList.append(m_dragNode);
-            view()->setSelectedQmlItemNodes(nodeList);
+            view()->setSelectedModelNodes(toModelNodeList(nodeList));
         }
         m_dragNode = ModelNode();
         view()->changeToSelectionTool();
@@ -345,7 +345,7 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
 
         QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::show();
         QList<QmlItemNode> nodeList;
-        view()->setSelectedQmlItemNodes(nodeList);
+        view()->setSelectedModelNodes(toModelNodeList(nodeList));
         view()->changeToSelectionTool();
     }
 }

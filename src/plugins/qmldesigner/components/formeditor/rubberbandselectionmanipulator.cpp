@@ -72,7 +72,7 @@ void RubberBandSelectionManipulator::begin(const QPointF& beginPoint)
     m_selectionRectangleElement.show();
     m_isActive = true;
     m_beginFormEditorItem = topFormEditorItem(m_editorView->scene()->items(beginPoint));
-    m_oldSelectionList = m_editorView->selectedQmlItemNodes();
+    m_oldSelectionList = toQmlItemNodeList(m_editorView->selectedModelNodes());
 }
 
 void RubberBandSelectionManipulator::update(const QPointF& updatePoint)
@@ -134,7 +134,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
         }
     }
 
-    m_editorView->setSelectedQmlItemNodes(nodeList);
+    m_editorView->setSelectedModelNodes(toModelNodeList(nodeList));
 }
 
 

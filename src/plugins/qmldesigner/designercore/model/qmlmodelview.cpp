@@ -270,49 +270,9 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
     return newQmlItemNode;
 }
 
-QmlObjectNode QmlModelView::rootQmlObjectNode() const
-{
-    return QmlObjectNode(rootModelNode());
-}
-
 QmlItemNode QmlModelView::rootQmlItemNode() const
 {
-    return rootQmlObjectNode().toQmlItemNode();
-}
-
-void QmlModelView::setSelectedQmlObjectNodes(const QList<QmlObjectNode> &selectedNodeList)
-{
-    setSelectedModelNodes(QmlDesigner::toModelNodeList(selectedNodeList));
-}
-
-void QmlModelView::selectQmlObjectNode(const QmlObjectNode &node)
-{
-     selectModelNode(node.modelNode());
-}
-
-void QmlModelView::deselectQmlObjectNode(const QmlObjectNode &node)
-{
-    deselectModelNode(node.modelNode());
-}
-
-QList<QmlObjectNode> QmlModelView::selectedQmlObjectNodes() const
-{
-    return toQmlObjectNodeList(selectedModelNodes());
-}
-
-QList<QmlItemNode> QmlModelView::selectedQmlItemNodes() const
-{
-    return toQmlItemNodeList(selectedModelNodes());
-}
-
-void QmlModelView::setSelectedQmlItemNodes(const QList<QmlItemNode> &selectedNodeList)
-{
-    return setSelectedModelNodes(QmlDesigner::toModelNodeList(selectedNodeList));
-}
-
-QmlObjectNode QmlModelView::fxObjectNodeForId(const QString &id)
-{
-    return QmlObjectNode(modelNodeForId(id));
+    return QmlItemNode(rootModelNode());
 }
 
 NodeInstance QmlModelView::instanceForModelNode(const ModelNode &modelNode)

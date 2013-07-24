@@ -400,9 +400,8 @@ QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList)
     QList<QmlItemNode> qmlItemNodeList;
 
     foreach (const ModelNode &modelNode, modelNodeList) {
-        QmlItemNode itemNode(modelNode);
-        if (itemNode.isValid())
-            qmlItemNodeList.append(itemNode);
+        if (QmlItemNode::isValidQmlItemNode(modelNode))
+            qmlItemNodeList.append(modelNode);
     }
 
     return qmlItemNodeList;

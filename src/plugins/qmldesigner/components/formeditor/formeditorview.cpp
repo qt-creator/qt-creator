@@ -213,7 +213,7 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
      if (newItemNode.isValid()) //only setup QmlItems
          setupFormEditorItemTree(newItemNode);
 
-     m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
  }
 
 void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
@@ -331,7 +331,7 @@ bool FormEditorView::changeToMoveTool()
     m_currentTool->clear();
     m_currentTool = m_moveTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
     return true;
 }
 
@@ -344,7 +344,7 @@ void FormEditorView::changeToDragTool()
     m_currentTool->clear();
     m_currentTool = m_dragTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
 }
 
 
@@ -360,7 +360,7 @@ bool FormEditorView::changeToMoveTool(const QPointF &beginPoint)
     m_currentTool->clear();
     m_currentTool = m_moveTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
     m_moveTool->beginWithPoint(beginPoint);
     return true;
 }
@@ -374,7 +374,7 @@ void FormEditorView::changeToSelectionTool()
     m_currentTool->clear();
     m_currentTool = m_selectionTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
 }
 
 void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
@@ -386,7 +386,7 @@ void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
     m_currentTool->clear();
     m_currentTool = m_selectionTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
 
     m_selectionTool->selectUnderPoint(event);
 }
@@ -400,7 +400,7 @@ void FormEditorView::changeToResizeTool()
     m_currentTool->clear();
     m_currentTool = m_resizeTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
 }
 
 void FormEditorView::changeToTransformTools()
@@ -434,7 +434,7 @@ void FormEditorView::changeToCustomTool()
             m_currentTool->clear();
             m_currentTool = selectedCustomTool;
             m_currentTool->clear();
-            m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+            m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
         }
     }
 }
@@ -445,7 +445,7 @@ void FormEditorView::changeToCustomTool(AbstractCustomTool *customTool)
     m_currentTool->clear();
     m_currentTool = customTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
 }
 
 void FormEditorView::registerTool(AbstractCustomTool *tool)
@@ -627,9 +627,12 @@ void FormEditorView::setSelectOnlyContentItemsAction(bool selectOnlyContentItems
 
 bool FormEditorView::isMoveToolAvailable() const
 {
-    if (selectedQmlItemNodes().count() == 1)
-        return selectedQmlItemNodes().first().instanceIsMovable() &&
-               !selectedQmlItemNodes().first().instanceIsInLayoutable();
+    if (hasSingleSelectedModelNode() && QmlItemNode::isValidQmlItemNode(singleSelectedModelNode())) {
+        QmlItemNode selectedQmlItemNode(singleSelectedModelNode());
+        return selectedQmlItemNode.instanceIsMovable() &&
+               !selectedQmlItemNode.instanceIsInLayoutable();
+    }
+
     return true;
 }
 
