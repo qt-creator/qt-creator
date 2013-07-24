@@ -233,7 +233,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         }
 
         if (parentQmlItemNode.hasDefaultProperty())
-            parentQmlItemNode.nodeAbstractProperty(parentQmlItemNode.defaultProperty()).reparentHere(newQmlItemNode);
+            parentQmlItemNode.nodeAbstractProperty(parentQmlItemNode.defaultPropertyName()).reparentHere(newQmlItemNode);
 
         if (!newQmlItemNode.isValid())
             return newQmlItemNode;

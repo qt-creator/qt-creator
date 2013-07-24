@@ -525,7 +525,7 @@ bool QmlObjectNode::hasDefaultProperty() const
     return modelNode().metaInfo().hasDefaultProperty();
 }
 
-PropertyName QmlObjectNode::defaultProperty() const
+PropertyName QmlObjectNode::defaultPropertyName() const
 {
     return modelNode().metaInfo().defaultPropertyName();
 }
@@ -533,7 +533,7 @@ PropertyName QmlObjectNode::defaultProperty() const
 void QmlObjectNode::setParent(QmlObjectNode newParent)
 {
     if (newParent.hasDefaultProperty())
-        newParent.modelNode().nodeAbstractProperty(newParent.defaultProperty()).reparentHere(modelNode());
+        newParent.modelNode().nodeAbstractProperty(newParent.defaultPropertyName()).reparentHere(modelNode());
 }
 
 QmlItemNode QmlObjectNode::toQmlItemNode() const

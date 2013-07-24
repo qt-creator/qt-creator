@@ -136,8 +136,8 @@ QList<QmlObjectNode> QmlItemNode::defaultPropertyChildren() const
     QList<ModelNode> defaultPropertyChildrenList;
 
     if (isValid()) {
-        if (modelNode().hasNodeListProperty(defaultProperty()))
-            defaultPropertyChildrenList.append(modelNode().nodeListProperty(defaultProperty()).toModelNodeList());
+        if (modelNode().hasNodeListProperty(defaultPropertyName()))
+            defaultPropertyChildrenList.append(modelNode().nodeListProperty(defaultPropertyName()).toModelNodeList());
     }
 
     return toQmlObjectNodeList(defaultPropertyChildrenList);

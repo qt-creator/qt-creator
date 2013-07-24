@@ -389,7 +389,7 @@ static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
         NodeAbstractProperty parentProperty;
 
         if (parent.hasDefaultProperty())
-            parentProperty = parent.nodeAbstractProperty(parent.defaultProperty());
+            parentProperty = parent.nodeAbstractProperty(parent.defaultPropertyName());
         else
             parentProperty = parent.nodeAbstractProperty("data");
 
