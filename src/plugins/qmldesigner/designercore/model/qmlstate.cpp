@@ -58,7 +58,9 @@ QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node)
     addChangeSetIfNotExists(node);
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
         //### exception if not valid QmlModelStateOperation
-        if (QmlPropertyChanges(childNode).target().isValid() && QmlPropertyChanges(childNode).target() == node && QmlPropertyChanges(childNode).isValid())
+        if (QmlPropertyChanges::isValidQmlPropertyChanges(childNode)
+                && QmlPropertyChanges(childNode).target().isValid()
+                && QmlPropertyChanges(childNode).target() == node)
             return QmlPropertyChanges(childNode); //### exception if not valid(childNode);
     }
     return QmlPropertyChanges(); //not found
@@ -78,14 +80,14 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &no
     Q_ASSERT(modelNode().property("changes").isNodeListProperty());
 
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        QmlModelStateOperation stateOperation(childNode);
-        if (stateOperation.isValid()) {
+        if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode)) {
+            QmlModelStateOperation stateOperation(childNode);
             ModelNode targetNode = stateOperation.target();
-            if (targetNode.isValid()
-                && targetNode == node)
-            returnList.append(stateOperation); //### exception if not valid(childNode);
+            if (targetNode.isValid() && targetNode == node)
+                returnList.append(stateOperation); //### exception if not valid(childNode);
         }
     }
+
     return returnList; //not found
 }
 
@@ -246,9 +248,14 @@ void QmlModelState::setName(const QString &name)
 
 bool QmlModelState::isValid() const
 {
-    return QmlModelNodeFacade::isValid() &&
-            modelNode().metaInfo().isValid() &&
-            (modelNode().metaInfo().isSubclassOf("QtQuick.State", -1, -1) || isBaseState());
+    return isValidQmlModelState(modelNode());
+}
+
+bool QmlModelState::isValidQmlModelState(const ModelNode &modelNode)
+{
+    return isValidQmlModelNodeFacade(modelNode)
+            && modelNode.metaInfo().isValid()
+            && (modelNode.metaInfo().isSubclassOf("QtQuick.State", -1, -1) || isBaseState(modelNode));
 }
 
 /**
@@ -267,7 +274,12 @@ void QmlModelState::destroy()
 
 bool QmlModelState::isBaseState() const
 {
-    return !modelNode().isValid() || modelNode().isRootNode();
+    return isBaseState(modelNode());
+}
+
+bool QmlModelState::isBaseState(const ModelNode &modelNode)
+{
+    return !modelNode.isValid() || modelNode.isRootNode();
 }
 
 QmlModelState QmlModelState::duplicate(const QString &name) const

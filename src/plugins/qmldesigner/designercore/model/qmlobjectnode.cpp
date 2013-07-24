@@ -320,19 +320,19 @@ QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() cons
     return returnList;
 }
 
-static QList<QmlItemNode> allFxItemsRecursive(const QmlItemNode &fxNode)
+static QList<QmlItemNode> allQmlItemsRecursive(const QmlItemNode &qmlItemNode)
 {
     QList<QmlItemNode> returnList;
 
-    if (fxNode.isValid()) {
-        returnList.append(fxNode);
+    if (qmlItemNode.isValid()) {
+        returnList.append(qmlItemNode);
         QList<QmlItemNode> allChildNodes;
-        foreach (const ModelNode &node, fxNode.modelNode().allDirectSubModelNodes()) {
-            if (QmlItemNode(node).isValid())
+        foreach (const ModelNode &node, qmlItemNode.modelNode().allDirectSubModelNodes()) {
+            if (QmlItemNode::isValidQmlItemNode(node))
                 allChildNodes.append(node);
         }
         foreach (const QmlItemNode &node, allChildNodes) {
-            returnList.append(allFxItemsRecursive(node));
+            returnList.append(allQmlItemsRecursive(node));
         }
     }
     return returnList;
@@ -345,14 +345,12 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
 
     QList<QmlModelState> returnList;
 
-    QList<QmlItemNode> allFxItems;
+    QList<QmlItemNode> allQmlItems;
 
-    QmlItemNode rootNode(qmlModelView()->rootModelNode());
+    if (QmlItemNode::isValidQmlItemNode(qmlModelView()->rootModelNode()))
+        allQmlItems.append(allQmlItemsRecursive(qmlModelView()->rootModelNode()));
 
-    if (rootNode.isValid())
-        allFxItems.append(allFxItemsRecursive(rootNode));
-
-    foreach (const QmlItemNode &item, allFxItems) {
+    foreach (const QmlItemNode &item, allQmlItems) {
         returnList.append(item.states().allStates());
     }
 
@@ -378,12 +376,12 @@ void  QmlObjectNode::removeProperty(const PropertyName &name)
     }
 }
 
-QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &fxObjectNodeList)
+QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &qmlObjectNodeList)
 {
     QList<ModelNode> modelNodeList;
 
-    foreach (const QmlObjectNode &fxObjectNode, fxObjectNodeList)
-        modelNodeList.append(fxObjectNode.modelNode());
+    foreach (const QmlObjectNode &qmlObjectNode, qmlObjectNodeList)
+        modelNodeList.append(qmlObjectNode.modelNode());
 
     return modelNodeList;
 }
@@ -393,9 +391,8 @@ QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList)
     QList<QmlObjectNode> qmlObjectNodeList;
 
     foreach (const ModelNode &modelNode, modelNodeList) {
-        QmlObjectNode objectNode(modelNode);
-        if (objectNode.isValid())
-            qmlObjectNodeList.append(objectNode);
+        if (QmlObjectNode::isValidQmlObjectNode(modelNode))
+             qmlObjectNodeList.append(modelNode);
     }
 
     return qmlObjectNodeList;

@@ -64,9 +64,11 @@ public:
     QString name() const;
     void setName(const QString &name);
     bool isValid() const;
+    static bool isValidQmlModelState(const ModelNode &modelNode);
     void destroy();
 
     bool isBaseState() const;
+    static bool isBaseState(const ModelNode &modelNode);
     QmlModelState duplicate(const QString &name) const;
     QmlModelStateGroup stateGroup() const;
 

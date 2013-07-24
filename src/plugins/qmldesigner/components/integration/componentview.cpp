@@ -139,8 +139,9 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                 m_standardItemModel->appendRow(item);
             } else {
                 QString description;
-                ModelNode parentNode = node.parentProperty().parentModelNode();
-                if (parentNode.isValid()) {
+                if (node.hasParentProperty()) {
+                    ModelNode parentNode = node.parentProperty().parentModelNode();
+
                     if (parentNode.id().isEmpty())
                         description = parentNode.simplifiedTypeName() + QLatin1Char(' ');
                     else

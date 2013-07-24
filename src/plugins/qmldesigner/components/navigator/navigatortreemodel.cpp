@@ -47,8 +47,8 @@
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
 {
-    QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
-    if (parentNode.isValid()) {
+    if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
+        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
         QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
         modelNode.variantProperty("x") = localPos.toPoint().x();
         modelNode.variantProperty("y") = localPos.toPoint().y();

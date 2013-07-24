@@ -356,14 +356,14 @@ void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
     if (name.isNull())
         return;
     if (m_modelNode.isValid()) {
-        QmlDesigner::QmlObjectNode fxObjectNode(m_modelNode);
+        QmlDesigner::QmlObjectNode qmlObjectNode(m_modelNode);
 
         PropertyEditorValue *valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(name));
 
         if (valueObject->value().isValid())
-            fxObjectNode.setVariantProperty(name, valueObject->value());
+            qmlObjectNode.setVariantProperty(name, valueObject->value());
         else
-            fxObjectNode.removeProperty(name);
+            qmlObjectNode.removeProperty(name);
     }
 }
 
@@ -372,17 +372,17 @@ void PropertyEditorNodeWrapper::setup()
     Q_ASSERT(m_editorValue);
     Q_ASSERT(m_editorValue->modelNode().isValid());
     if ((m_editorValue->modelNode().isValid() && m_modelNode.isValid())) {
-        QmlDesigner::QmlObjectNode fxObjectNode(m_modelNode);
+        QmlDesigner::QmlObjectNode qmlObjectNode(m_modelNode);
         foreach ( const QString &propertyName, m_valuesPropertyMap.keys())
             m_valuesPropertyMap.clear(propertyName);
         foreach (QObject *object, m_valuesPropertyMap.children())
             delete object;
 
         foreach (const QmlDesigner::PropertyName &propertyName, m_modelNode.metaInfo().propertyNames()) {
-            if (fxObjectNode.isValid()) {
+            if (qmlObjectNode.isValid()) {
                 PropertyEditorValue *valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
                 valueObject->setName(propertyName);
-                valueObject->setValue(fxObjectNode.instanceValue(propertyName));
+                valueObject->setValue(qmlObjectNode.instanceValue(propertyName));
                 connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)));
                 m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
             }

@@ -42,8 +42,8 @@
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
 {
-    QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
-    if (parentNode.isValid()) {
+    if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
+        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
         QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
         modelNode.variantProperty("x") = localPos.toPoint().x();
         modelNode.variantProperty("y") = localPos.toPoint().y();
@@ -303,7 +303,7 @@ void NavigatorView::leftButtonClicked()
 
     foreach (const ModelNode &node, selectedModelNodes()) {
         if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
-            if (QmlItemNode(node).isValid()) {
+            if (QmlItemNode::isValidQmlItemNode(node)) {
                 QPointF scenePos = QmlItemNode(node).instanceScenePosition();
                 node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
                 if (!scenePos.isNull())
@@ -330,7 +330,7 @@ void NavigatorView::rightButtonClicked()
             if (index >= 0) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
                 ModelNode newParent = node.parentProperty().toNodeListProperty().at(index);
 
-                if (QmlItemNode(node).isValid()) {
+                if (QmlItemNode::isValidQmlItemNode(node)) {
                     QPointF scenePos = QmlItemNode(node).instanceScenePosition();
                     newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
                     if (!scenePos.isNull())

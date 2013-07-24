@@ -104,8 +104,8 @@ void FormEditorView::modelAttached(Model *model)
 
     Q_ASSERT(m_scene->formLayerItem());
 
-    if (rootQmlObjectNode().toQmlItemNode().isValid())
-        setupFormEditorItemTree(rootQmlObjectNode().toQmlItemNode());
+    if (QmlItemNode::isValidQmlItemNode(rootModelNode()))
+        setupFormEditorItemTree(rootModelNode());
 
     m_formEditorWidget->updateActions();
 }
@@ -159,7 +159,7 @@ void FormEditorView::nodeCreated(const ModelNode &createdNode)
     QmlModelView::nodeCreated(createdNode);
     ModelNode node(createdNode);
     //If the node has source for components/custom parsers we ignore it.
-    if (QmlItemNode(node).isValid() && node.nodeSourceType() == ModelNode::NodeWithoutSource) //only setup QmlItems
+    if (QmlItemNode::isValidQmlItemNode(node) && node.nodeSourceType() == ModelNode::NodeWithoutSource) //only setup QmlItems
         setupFormEditorItemTree(QmlItemNode(node));
 }
 
@@ -648,8 +648,8 @@ void FormEditorView::delayedReset()
     m_resizeTool->clear();
     m_dragTool->clear();
     m_scene->clearFormEditorItems();
-    if (rootQmlObjectNode().toQmlItemNode().isValid())
-        setupFormEditorItemTree(rootQmlObjectNode().toQmlItemNode());
+    if (QmlItemNode::isValidQmlItemNode(rootModelNode()))
+        setupFormEditorItemTree(rootModelNode());
 }
 
 

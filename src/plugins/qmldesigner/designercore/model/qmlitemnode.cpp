@@ -72,7 +72,7 @@ QStringList QmlModelStateGroup::names() const
 
     if (modelNode().property("states").isNodeListProperty()) {
         foreach (const ModelNode &node, modelNode().nodeListProperty("states").toModelNodeList()) {
-            if (QmlModelState(node).isValid())
+            if (QmlModelState::isValidQmlModelState(node))
                 returnList.append(QmlModelState(node).name());
         }
     }
@@ -110,7 +110,7 @@ QList<QmlItemNode> QmlItemNode::children() const
         }
 
         foreach (const ModelNode &modelNode, modelNodeList) {
-            if (QmlItemNode(modelNode).isValid())  //if ModelNode is FxItem
+            if (QmlItemNode::isValidQmlItemNode(modelNode))  //if ModelNode is FxItem
                 returnList.append(modelNode);
         }
     }
@@ -134,7 +134,7 @@ QList<QmlObjectNode> QmlItemNode::resources() const
         }
 
         foreach (const ModelNode &node, modelNodeList) {
-            if (!QmlObjectNode(node).isValid()) //if ModelNode is no FxItem
+            if (!QmlObjectNode::isValidQmlObjectNode(node)) //if ModelNode is no FxItem
                 returnList.append(node);
         }
     }
@@ -150,7 +150,7 @@ QList<QmlObjectNode> QmlItemNode::defaultPropertyChildren() const
             modelNodeList.append(modelNode().nodeListProperty(defaultProperty()).toModelNodeList());
 
         foreach (const ModelNode &node, modelNodeList) {
-            if (!QmlObjectNode(node).isValid()) //if ModelNode is no FxItem
+            if (!QmlObjectNode::isValidQmlObjectNode(node)) //if ModelNode is no FxItem
                 returnList.append(node);
         }
     }
@@ -272,11 +272,10 @@ QTransform QmlItemNode::instanceSceneContentItemTransform() const
 
 QPointF QmlItemNode::instanceScenePosition() const
 {
-    QmlItemNode parentNode = instanceParent().toQmlItemNode();
-    if (!parentNode.isValid())
-        parentNode = modelNode().parentProperty().parentQmlObjectNode().toQmlItemNode();
-    if (parentNode.isValid())
-        return parentNode.instanceSceneTransform().map(nodeInstance().position());
+    if (hasInstanceParentItem())
+        return instanceParentItem().instanceSceneTransform().map(nodeInstance().position());
+     else if (modelNode().hasParentProperty() && QmlItemNode::isValidQmlItemNode(modelNode().parentProperty().parentModelNode()))
+        return QmlItemNode(modelNode().parentProperty().parentModelNode()).instanceSceneTransform().map(nodeInstance().position());
 
     return QPointF();
 }
@@ -331,8 +330,8 @@ QList<QmlModelState> QmlModelStateGroup::allStates() const
 
     if (modelNode().property("states").isNodeListProperty()) {
         foreach (const ModelNode &node, modelNode().nodeListProperty("states").toModelNodeList()) {
-            if (QmlModelState(node).isValid())
-                returnList.append(QmlModelState(node));
+            if (QmlModelState::isValidQmlModelState(node))
+                returnList.append(node);
         }
     }
     return returnList;

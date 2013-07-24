@@ -347,12 +347,12 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     QVector<ModelNode> nodeReparentVector;
     NodeAbstractProperty parentProperty;
 
-    QmlItemNode parent(newParent->qmlItemNode());
-    if (parent.isValid()) {
-        if (parent.hasDefaultProperty())
-            parentProperty = parent.nodeAbstractProperty(parent.defaultProperty());
+    QmlItemNode parentItemNode(newParent->qmlItemNode());
+    if (parentItemNode.isValid()) {
+        if (parentItemNode.hasDefaultProperty())
+            parentProperty = parentItemNode.nodeAbstractProperty(parentItemNode.defaultProperty());
         else
-            parentProperty = parent.nodeAbstractProperty("data");
+            parentProperty = parentItemNode.nodeAbstractProperty("data");
 
         foreach (FormEditorItem* item, m_itemList) {
             if (!item || !item->qmlItemNode().isValid())

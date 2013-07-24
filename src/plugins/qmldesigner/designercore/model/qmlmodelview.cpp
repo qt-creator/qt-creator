@@ -58,10 +58,7 @@ QmlModelView::QmlModelView(QObject *parent)
 
 void QmlModelView::setCurrentState(const QmlModelState &state)
 {
-    if (!state.isValid())
-        return;
-
-    if (!model())
+    if (!model() && !state.isValid())
         return;
 
     if (actualStateNode() != state.modelNode())
@@ -101,10 +98,9 @@ QmlItemNode QmlModelView::createQmlItemNode(const TypeName &typeString,
 
 QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, const QPointF &position, QmlItemNode parentNode)
 {
-    if (!parentNode.isValid())
+    if (!parentNode.isValid() && rootQmlItemNode().isValid())
         parentNode = rootQmlItemNode();
-
-    if (!parentNode.isValid())
+    else
         return QmlItemNode();
 
     QmlItemNode newNode;

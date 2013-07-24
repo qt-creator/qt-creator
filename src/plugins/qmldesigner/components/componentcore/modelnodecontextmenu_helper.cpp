@@ -53,7 +53,7 @@ static inline bool checkIfNodeIsAView(const ModelNode &node)
 
 static inline void getProperties(const ModelNode node, QHash<PropertyName, QVariant> &propertyHash)
 {
-    if (QmlObjectNode(node).isValid()) {
+    if (QmlObjectNode::isValidQmlObjectNode(node)) {
         foreach (const PropertyName &propertyName, node.propertyNames()) {
             if (node.property(propertyName).isVariantProperty() ||
                     (node.property(propertyName).isBindingProperty() &&
@@ -61,15 +61,17 @@ static inline void getProperties(const ModelNode node, QHash<PropertyName, QVari
                 propertyHash.insert(propertyName, QmlObjectNode(node).instanceValue(propertyName));
             }
         }
-    }
-    QmlItemNode itemNode(node);
-    if (itemNode.isValid()) {
-        propertyHash.insert("width", itemNode.instanceValue("width"));
-        propertyHash.insert("height", itemNode.instanceValue("height"));
-        propertyHash.remove("x");
-        propertyHash.remove("y");
-        propertyHash.remove("rotation");
-        propertyHash.remove("opacity");
+
+        if (QmlItemNode::isValidQmlItemNode(node)) {
+            QmlItemNode itemNode(node);
+
+            propertyHash.insert("width", itemNode.instanceValue("width"));
+            propertyHash.insert("height", itemNode.instanceValue("height"));
+            propertyHash.remove("x");
+            propertyHash.remove("y");
+            propertyHash.remove("rotation");
+            propertyHash.remove("opacity");
+        }
     }
 }
 

@@ -92,7 +92,7 @@ public:
 
     bool horizontalCentered();
     bool verticalCentered();
-    QVariant itemNode() const { return QVariant::fromValue(m_fxItemNode.modelNode()); }
+    QVariant itemNode() const { return QVariant::fromValue(m_qmlItemNode.modelNode()); }
 
     QVariant topTarget() const { return QVariant::fromValue(m_topTarget.modelNode()); }
     QVariant bottomTarget() const { return QVariant::fromValue(m_bottomTarget.modelNode()); }
@@ -151,7 +151,7 @@ private:
 
     ModelNode modelNode() const;
 
-    QmlItemNode m_fxItemNode;
+    QmlItemNode m_qmlItemNode;
 
     QRectF parentBoundingBox();
 

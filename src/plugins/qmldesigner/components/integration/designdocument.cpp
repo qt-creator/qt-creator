@@ -379,7 +379,7 @@ void DesignDocument::deleteSelected()
         RewriterTransaction transaction(rewriterView());
         QList<ModelNode> toDelete = qmlModelView()->selectedModelNodes();
         foreach (ModelNode node, toDelete) {
-            if (node.isValid() && !node.isRootNode() && QmlObjectNode(node).isValid())
+            if (node.isValid() && !node.isRootNode() && QmlObjectNode::isValidQmlObjectNode(node))
                 QmlObjectNode(node).destroy();
         }
 
@@ -562,7 +562,7 @@ void DesignDocument::paste()
             if (!targetNode.isValid())
                 targetNode = view.rootModelNode();
 
-            if (targetNode.parentProperty().isValid() &&
+            if (targetNode.hasParentProperty() &&
                 (pastedNode.simplifiedTypeName() == targetNode.simplifiedTypeName()) &&
                 (pastedNode.variantProperty("width").value() == targetNode.variantProperty("width").value()) &&
                 (pastedNode.variantProperty("height").value() == targetNode.variantProperty("height").value()))
@@ -572,7 +572,7 @@ void DesignDocument::paste()
             PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
 
             scatterItem(pastedNode, targetNode);
-            if (targetNode.nodeListProperty(defaultProperty).isValid())
+            if (targetNode.hasNodeListProperty(defaultProperty))
                 targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
 
             transaction.commit();
