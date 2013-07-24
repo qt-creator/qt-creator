@@ -52,11 +52,7 @@ public:
     bool saveToFile(const QString &filePath) const;
 
 private:
-    void readRoot();
-
     VcProjectDocument *m_vcProjectDocument;
-    QDomDocument *m_document;
-    QFile *m_file;
 };
 
 } // namespace Internal

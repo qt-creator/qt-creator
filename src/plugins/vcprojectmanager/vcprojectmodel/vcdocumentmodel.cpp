@@ -42,25 +42,22 @@ namespace Internal {
 VcDocumentModel::VcDocumentModel(const QString &filePath, VcDocConstants::DocumentVersion version)
     : m_vcProjectDocument(0)
 {
-    m_file = new QFile(filePath);
-    if (!m_file->open(QIODevice::ReadOnly))
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly))
         return;
 
-    m_document = new QDomDocument(filePath);
-    if (!m_document->setContent(m_file)) {
-        m_file->close();
+    QDomDocument document(filePath);
+    if (!document.setContent(&file))
         return;
-    }
 
     m_vcProjectDocument = VcProjectDocumentFactory::create(filePath, version);
-    readRoot();
+    if (m_vcProjectDocument)
+        m_vcProjectDocument->readFromXMLDomDocument(document);
 }
 
 VcDocumentModel::~VcDocumentModel()
 {
     delete m_vcProjectDocument;
-    delete m_document;
-    delete m_file;
 }
 
 VcProjectDocument* VcDocumentModel::vcProjectDocument() const
@@ -74,16 +71,6 @@ bool VcDocumentModel::saveToFile(const QString &filePath) const
         return m_vcProjectDocument->saveToFile(filePath);
 
     return false;
-}
-
-void VcDocumentModel::readRoot()
-{
-    if (m_file->isOpen() && m_vcProjectDocument) {
-        m_vcProjectDocument->readFromXMLDomDocument(*m_document);
-        m_file->close();
-        delete m_document;
-        m_document = 0;
-    }
 }
 
 } // namespace Internal
