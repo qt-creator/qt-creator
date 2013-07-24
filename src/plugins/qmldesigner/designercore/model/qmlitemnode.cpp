@@ -133,31 +133,19 @@ QList<QmlObjectNode> QmlItemNode::resources() const
 
 QList<QmlObjectNode> QmlItemNode::defaultPropertyChildren() const
 {
-    QList<QmlObjectNode> returnList;
-    if (isValid()) {
-        QList<ModelNode> modelNodeList;
-        if (modelNode().property(defaultProperty()).isNodeListProperty())
-            modelNodeList.append(modelNode().nodeListProperty(defaultProperty()).toModelNodeList());
+    QList<ModelNode> defaultPropertyChildrenList;
 
-        foreach (const ModelNode &node, modelNodeList) {
-            if (!QmlObjectNode::isValidQmlObjectNode(node)) //if ModelNode is no FxItem
-                returnList.append(node);
-        }
+    if (isValid()) {
+        if (modelNode().hasNodeListProperty(defaultProperty()))
+            defaultPropertyChildrenList.append(modelNode().nodeListProperty(defaultProperty()).toModelNodeList());
     }
-    return returnList;
+
+    return toQmlObjectNodeList(defaultPropertyChildrenList);
 }
 
 QList<QmlObjectNode> QmlItemNode::allDirectSubNodes() const
 {
-    QList<QmlObjectNode> returnList;
-    if (isValid()) {
-        QList<ModelNode> modelNodeList = modelNode().allDirectSubModelNodes();
-
-        foreach (const ModelNode &node, modelNodeList) {
-                returnList.append(node);
-        }
-    }
-    return returnList;
+    return toQmlObjectNodeList(modelNode().allDirectSubModelNodes());
 }
 
 QmlAnchors QmlItemNode::anchors() const
