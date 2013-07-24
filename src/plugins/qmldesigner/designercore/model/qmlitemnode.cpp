@@ -179,9 +179,9 @@ bool QmlItemNode::instanceHasShowContent() const
     return nodeInstance().hasContent();
 }
 
-bool QmlItemNode::canReparent() const
+bool QmlItemNode::instanceCanReparent() const
 {
-    return QmlObjectNode::canReparent() && !anchors().instanceHasAnchors() && !instanceIsAnchoredBySibling();
+    return QmlObjectNode::instanceCanReparent() && !anchors().instanceHasAnchors() && !instanceIsAnchoredBySibling();
 }
 
 bool QmlItemNode::instanceIsAnchoredBySibling() const

@@ -232,7 +232,7 @@ bool QmlObjectNode::isInBaseState() const
     return currentState().isBaseState();
 }
 
-bool QmlObjectNode::canReparent() const
+bool QmlObjectNode::instanceCanReparent() const
 {
     return isInBaseState();
 }

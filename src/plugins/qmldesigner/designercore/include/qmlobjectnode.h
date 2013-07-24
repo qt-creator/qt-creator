@@ -83,7 +83,7 @@ public:
     bool isInBaseState() const;
     QmlPropertyChanges propertyChangeForCurrentState() const;
 
-    virtual bool canReparent() const;
+    virtual bool instanceCanReparent() const;
 
     bool isRootModelNode() const;
 

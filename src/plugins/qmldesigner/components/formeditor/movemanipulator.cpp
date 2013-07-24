@@ -115,7 +115,7 @@ bool MoveManipulator::itemsCanReparented() const
     foreach (FormEditorItem* item, m_itemList) {
         if (item
             && item->qmlItemNode().isValid()
-            && !item->qmlItemNode().canReparent())
+            && !item->qmlItemNode().instanceCanReparent())
             return false;
     }
 
