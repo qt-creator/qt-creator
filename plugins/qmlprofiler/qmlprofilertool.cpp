@@ -733,8 +733,13 @@ void QmlProfilerTool::serverRecordingChanged()
         setRecording(d->m_profilerState->serverRecording());
         // clear the old data each time we start a new profiling session
         if (d->m_profilerState->serverRecording()) {
+            d->m_clearButton->setEnabled(false);
             clearData();
             d->m_profilerModelManager->prepareForWriting();
+        } else {
+            d->m_clearButton->setEnabled(true);
         }
+    } else {
+        d->m_clearButton->setEnabled(true);
     }
 }
