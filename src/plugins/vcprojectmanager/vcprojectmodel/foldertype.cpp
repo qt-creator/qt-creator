@@ -29,7 +29,6 @@
 ****************************************************************************/
 #include "foldertype.h"
 
-#include "filefactory.h"
 #include "folder.h"
 
 namespace VcProjectManager {
@@ -109,7 +108,7 @@ QDomNode FolderType::toXMLDomNode(QDomDocument &domXMLDocument) const
 
 void FolderType::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file = FileFactory::createFile(m_parentProjectDoc);
+    File::Ptr file(new File(m_parentProjectDoc));
     file->processNode(fileNode);
     m_files.append(file);
 

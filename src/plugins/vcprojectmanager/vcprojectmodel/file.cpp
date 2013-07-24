@@ -32,7 +32,6 @@
 #include "fileconfiguration.h"
 #include "filetype.h"
 #include "fileconfigurationfactory.h"
-#include "filefactory.h"
 
 namespace VcProjectManager {
 namespace Internal {

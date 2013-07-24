@@ -34,7 +34,6 @@
 #include "filter.h"
 #include "file.h"
 #include "files.h"
-#include "filefactory.h"
 
 #include <QFileInfo>
 #include <projectexplorer/projectexplorer.h>

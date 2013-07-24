@@ -30,7 +30,6 @@
 #include "filtertype.h"
 
 #include "filter.h"
-#include "filefactory.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -248,7 +247,7 @@ void FilterType::processNodeAttributes(const QDomElement &element)
 
 void FilterType::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file = FileFactory::createFile(m_parentProjectDoc);
+    File::Ptr file(new File(m_parentProjectDoc));
     file->processNode(fileNode);
     addFile(file);
 

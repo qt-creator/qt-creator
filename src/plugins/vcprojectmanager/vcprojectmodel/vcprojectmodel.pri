@@ -21,7 +21,6 @@ HEADERS += \
     vcprojectmodel/filetype.h \
     vcprojectmodel/files_private.h \
     vcprojectmodel/files.h \
-    vcprojectmodel/filefactory.h \
     vcprojectmodel/fileconfigurationfactory.h \
     vcprojectmodel/fileconfiguration.h \
     vcprojectmodel/file.h \
@@ -77,7 +76,6 @@ SOURCES += \
     vcprojectmodel/filetype.cpp \
     vcprojectmodel/files_private.cpp \
     vcprojectmodel/files.cpp \
-    vcprojectmodel/filefactory.cpp \
     vcprojectmodel/fileconfigurationfactory.cpp \
     vcprojectmodel/fileconfiguration.cpp \
     vcprojectmodel/file.cpp \

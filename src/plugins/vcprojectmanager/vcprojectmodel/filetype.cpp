@@ -30,7 +30,6 @@
 #include "filetype.h"
 
 #include "file.h"
-#include "filefactory.h"
 #include "fileconfigurationfactory.h"
 #include "vcprojectdocument.h"
 
@@ -255,7 +254,7 @@ void FileType::processFileConfiguration(const QDomNode &fileConfigNode)
 
 void FileType::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file = FileFactory::createFile(m_parentProjectDoc);
+    File::Ptr file(new File(m_parentProjectDoc));
     file->processNode(fileNode);
     m_files.append(file);
 

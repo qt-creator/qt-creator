@@ -31,7 +31,6 @@
 
 #include <QFileInfo>
 
-#include "filefactory.h"
 #include "vcprojectdocument.h"
 
 namespace VcProjectManager {

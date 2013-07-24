@@ -29,7 +29,6 @@
 ****************************************************************************/
 #include "files_private.h"
 
-#include "filefactory.h"
 #include "vcprojectdocument.h"
 
 namespace VcProjectManager {
@@ -169,7 +168,7 @@ Files_Private &Files_Private::operator=(const Files_Private &filesPrivate)
 
 void Files_Private::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file = FileFactory::createFile(m_parentProject);
+    File::Ptr file(new File(m_parentProject));
     file->processNode(fileNode);
     m_files.append(file);
 
@@ -329,7 +328,7 @@ Folder::Ptr Files2005_Private::folder(const QString &folderName) const
 
 void Files2005_Private::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file = FileFactory::createFile(m_parentProject);
+    File::Ptr file(new File(m_parentProject));
     file->processNode(fileNode);
     m_files.append(file);
 
