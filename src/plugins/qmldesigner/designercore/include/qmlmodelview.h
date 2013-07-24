@@ -64,7 +64,6 @@ public:
     QmlObjectNode rootQmlObjectNode() const;
     QmlItemNode rootQmlItemNode() const;
 
-
     void setSelectedQmlObjectNodes(const QList<QmlObjectNode> &selectedNodeList);
     void setSelectedQmlItemNodes(const QList<QmlItemNode> &selectedNodeList);
     void selectQmlObjectNode(const QmlObjectNode &node);
