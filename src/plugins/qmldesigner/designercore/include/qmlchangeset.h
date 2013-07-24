@@ -44,6 +44,7 @@ public:
     ModelNode target() const;
     void setTarget(const ModelNode &target);
     bool isValid() const;
+    static bool isValidQmlModelStateOperation(const ModelNode &modelNode);
 };
 
 

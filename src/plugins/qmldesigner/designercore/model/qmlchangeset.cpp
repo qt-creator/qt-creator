@@ -60,9 +60,14 @@ bool QmlPropertyChanges::isValidQmlPropertyChanges(const ModelNode &modelNode)
 
 bool QmlModelStateOperation::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && (
-                modelNode().metaInfo().isSubclassOf("<cpp>.QDeclarative1StateOperation", -1, -1)
-                || modelNode().metaInfo().isSubclassOf("<cpp>.QQuickStateOperation", -1, -1));
+    return isValidQmlModelStateOperation(modelNode());
+}
+
+bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &modelNode)
+{
+    return isValidQmlModelNodeFacade(modelNode)
+            && (modelNode.metaInfo().isSubclassOf("<cpp>.QDeclarative1StateOperation", -1, -1)
+                || modelNode.metaInfo().isSubclassOf("<cpp>.QQuickStateOperation", -1, -1));
 }
 
 void QmlPropertyChanges::removeProperty(const PropertyName &name)
