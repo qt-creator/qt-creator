@@ -186,20 +186,11 @@ Configuration::Ptr Configuration2003::clone() const
 
 Configuration2003::Configuration2003()
 {
-
-}
-
-void Configuration2003::init()
-{
     m_configType = QSharedPointer<ConfigurationType2003>(new ConfigurationType2003);
 }
 
 
 Configuration2005::Configuration2005()
-{
-}
-
-void Configuration2005::init()
 {
     m_configType = QSharedPointer<ConfigurationType2005>(new ConfigurationType2005);
 }
@@ -306,10 +297,6 @@ QList<DebuggerTool::Ptr> Configuration2008::debuggerTools(const QString &attribu
 }
 
 Configuration2008::Configuration2008()
-{
-}
-
-void Configuration2008::init()
 {
     m_configType = QSharedPointer<ConfigurationType2008>(new ConfigurationType2008);
 }

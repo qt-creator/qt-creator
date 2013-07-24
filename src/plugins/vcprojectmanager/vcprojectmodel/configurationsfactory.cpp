@@ -58,8 +58,6 @@ Configuration::Ptr ConfigurationsFactory::createConfiguration(VcDocConstants::Do
         break;
     }
 
-    if (config)
-        config->init();
     return config;
 }
 

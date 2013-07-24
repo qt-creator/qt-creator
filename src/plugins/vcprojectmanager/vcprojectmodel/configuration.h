@@ -80,12 +80,6 @@ protected:
     Configuration& operator=(const Configuration &config);
     virtual void processToolNode(const QDomNode &toolNode);
 
-    /*!
-     * Called after instance of the Configuration is created in order to initialize \b m_private member variable to
-     * a proper version of a ConfigurationType implementation (2003, 2005 or 2008).
-     */
-    virtual void init() = 0;
-
     ConfigurationType::Ptr m_configType;
 };
 
@@ -103,7 +97,6 @@ public:
 
 protected:
     Configuration2003();
-    void init();
 };
 
 class Configuration2005 : public Configuration2003
@@ -125,7 +118,6 @@ public:
 
 protected:
     Configuration2005();
-    void init();
 };
 
 class Configuration2008 : public Configuration2005
@@ -147,7 +139,6 @@ public:
 
 private:
     Configuration2008();
-    void init();
 };
 
 } // namespace Internal
