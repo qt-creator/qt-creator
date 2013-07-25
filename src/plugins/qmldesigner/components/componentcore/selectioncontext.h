@@ -48,7 +48,9 @@ public:
     bool isInBaseState() const;
 
     ModelNode currentSingleSelectedNode() const;
+    ModelNode firstSelectedModelNode() const;
     QList<ModelNode> selectedModelNodes() const;
+    bool hasSingleSelectedModelNode() const;
 
     AbstractView *view() const;
 

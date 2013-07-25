@@ -151,7 +151,7 @@ void toFront(const SelectionContext &selectionState)
         return;
 
     try {
-        QmlItemNode node = selectionState.selectedModelNodes().first();
+        QmlItemNode node = selectionState.firstSelectedModelNode();
         if (node.isValid()) {
             signed int maximumZ = getMaxZValue(siblingsForNode(node));
             maximumZ++;
@@ -168,7 +168,7 @@ void toBack(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
     try {
-        QmlItemNode node = selectionState.selectedModelNodes().first();
+        QmlItemNode node = selectionState.firstSelectedModelNode();
         if (node.isValid()) {
             signed int minimumZ = getMinZValue(siblingsForNode(node));
             minimumZ--;
@@ -248,11 +248,11 @@ void setVisible(const SelectionContext &selectionState)
 void setFillWidth(const SelectionContext &selectionState)
 {
     if (!selectionState.view()
-            || selectionState.selectedModelNodes().isEmpty())
+            || !selectionState.hasSingleSelectedModelNode())
         return;
 
     try {
-        selectionState.selectedModelNodes().first().variantProperty("Layout.fillWidth").setValue(selectionState.toggled());
+        selectionState.firstSelectedModelNode().variantProperty("Layout.fillWidth").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
         QMessageBox::warning(0, "Error", e.description());
     }
@@ -261,11 +261,11 @@ void setFillWidth(const SelectionContext &selectionState)
 void setFillHeight(const SelectionContext &selectionState)
 {
     if (!selectionState.view()
-            || selectionState.selectedModelNodes().isEmpty())
+            || !selectionState.hasSingleSelectedModelNode())
         return;
 
     try {
-        selectionState.selectedModelNodes().first().variantProperty("Layout.fillHeight").setValue(selectionState.toggled());
+        selectionState.firstSelectedModelNode().variantProperty("Layout.fillHeight").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
         QMessageBox::warning(0, "Error", e.description());
     }
@@ -623,7 +623,7 @@ void layoutFlowPositioner(const SelectionContext &selectionState)
 void layoutRowLayout(const SelectionContext &selectionState)
 {
     if (!selectionState.view()
-            || selectionState.selectedModelNodes().isEmpty())
+            || !selectionState.hasSingleSelectedModelNode())
         return;
 
     static TypeName rowLayoutType = "QtQuick.Layouts.RowLayout";
@@ -671,7 +671,7 @@ void layoutRowLayout(const SelectionContext &selectionState)
 void layoutColumnLayout(const SelectionContext &selectionState)
 {
     if (!selectionState.view()
-            || selectionState.selectedModelNodes().isEmpty())
+            || !selectionState.hasSingleSelectedModelNode())
         return;
 
     static TypeName columnLayoutType = "QtQuick.Layouts.ColumnLayout";
@@ -719,7 +719,7 @@ void layoutColumnLayout(const SelectionContext &selectionState)
 void layoutGridLayout(const SelectionContext &selectionState)
 {
     if (!selectionState.view()
-            || selectionState.selectedModelNodes().isEmpty())
+            || !selectionState.hasSingleSelectedModelNode())
         return;
 
     static TypeName gridLayoutType = "QtQuick.Layouts.GridLayout";

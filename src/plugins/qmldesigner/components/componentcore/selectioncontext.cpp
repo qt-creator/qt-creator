@@ -69,9 +69,19 @@ ModelNode SelectionContext::currentSingleSelectedNode() const
     return view()->singleSelectedModelNode();
 }
 
+ModelNode SelectionContext::firstSelectedModelNode() const
+{
+    return view()->firstSelectedModelNode();
+}
+
 QList<ModelNode> SelectionContext::selectedModelNodes() const
 {
     return view()->selectedModelNodes();
+}
+
+bool SelectionContext::hasSingleSelectedModelNode() const
+{
+    return view()->hasSelectedModelNodes();
 }
 
 AbstractView *SelectionContext::view() const
