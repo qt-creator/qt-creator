@@ -70,7 +70,6 @@ private:
     explicit VcMakeStep(ProjectExplorer::BuildStepList *parent, VcMakeStep *vcMakeStep);
 
     QList<ProjectExplorer::Task> m_tasks;
-    QFutureInterface<bool> *m_futureInterface;
     ProjectExplorer::ProcessParameters *m_processParams;
     QStringList m_buildArguments;
 };
