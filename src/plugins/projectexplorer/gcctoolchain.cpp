@@ -39,6 +39,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QBuffer>
@@ -140,6 +141,8 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
     arguments << QLatin1String("-");
 
     QByteArray predefinedMacros = runGcc(gcc, arguments, env);
+    // Sanity check in case we get an error message instead of real output:
+    QTC_CHECK(predefinedMacros.startsWith("#define "));
     if (Utils::HostOsInfo::isMacHost()) {
         // Turn off flag indicating Apple's blocks support
         const QByteArray blocksDefine("#define __BLOCKS__ 1");
