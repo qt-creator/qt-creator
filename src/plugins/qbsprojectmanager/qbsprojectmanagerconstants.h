@@ -39,7 +39,7 @@ namespace Constants {
 const char PROJECT_ID[] = "Qbs.QbsProject";
 
 // MIME types:
-const char MIME_TYPE[] = "application/vnd.qtproject.qbsproject";
+const char MIME_TYPE[] = "application/x-qt.qbs+qml";
 
 // Progress reports:
 const char QBS_EVALUATE[] = "Qbs.QbsEvaluate";
