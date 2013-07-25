@@ -99,7 +99,7 @@ protected:
         if (!processed->contains(doc->globalNamespace())) {
             processed->insert(doc->globalNamespace());
 
-            foreach (const Document::Include &i, doc->includes())
+            foreach (const Document::Include &i, doc->resolvedIncludes())
                 process(_snapshot.document(i.resolvedFileName()), processed);
 
             _mainDocument = (doc == _doc); // ### improve

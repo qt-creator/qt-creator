@@ -341,7 +341,7 @@ QString Document::fileName() const
 QStringList Document::includedFiles() const
 {
     QStringList files;
-    foreach (const Include &i, _includes)
+    foreach (const Include &i, _resolvedIncludes)
         files.append(i.resolvedFileName());
     files.removeDuplicates();
     return files;
@@ -350,7 +350,10 @@ QStringList Document::includedFiles() const
 // This assumes to be called with a QDir::cleanPath cleaned fileName.
 void Document::addIncludeFile(const Document::Include &include)
 {
-    _includes.append(include);
+    if (include.resolvedFileName().isEmpty())
+        _unresolvedIncludes.append(include);
+    else
+        _resolvedIncludes.append(include);
 }
 
 void Document::appendMacro(const Macro &macro)
@@ -740,7 +743,8 @@ Document::Ptr Snapshot::preprocessedDocument(const QString &source, const QStrin
         newDoc->_revision = thisDocument->_revision;
         newDoc->_editorRevision = thisDocument->_editorRevision;
         newDoc->_lastModified = thisDocument->_lastModified;
-        newDoc->_includes = thisDocument->_includes;
+        newDoc->_resolvedIncludes = thisDocument->_resolvedIncludes;
+        newDoc->_unresolvedIncludes = thisDocument->_unresolvedIncludes;
     }
 
     FastPreprocessor pp(*this);
@@ -758,7 +762,8 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
         newDoc->_revision = thisDocument->_revision;
         newDoc->_editorRevision = thisDocument->_editorRevision;
         newDoc->_lastModified = thisDocument->_lastModified;
-        newDoc->_includes = thisDocument->_includes;
+        newDoc->_resolvedIncludes = thisDocument->_resolvedIncludes;
+        newDoc->_unresolvedIncludes = thisDocument->_unresolvedIncludes;
         newDoc->_definedMacros = thisDocument->_definedMacros;
         newDoc->_macroUses = thisDocument->_macroUses;
     }

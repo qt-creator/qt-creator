@@ -97,14 +97,15 @@ FORMS += completionsettingspage.ui \
 
 equals(TEST, 1) {
     SOURCES += \
-        cpppreprocessertesthelper.cpp \
         cppcodegen_test.cpp \
         cppcompletion_test.cpp \
         cppmodelmanager_test.cpp \
         modelmanagertesthelper.cpp \
         cpppointerdeclarationformatter_test.cpp \
         cpplocatorfilter_test.cpp \
-        symbolsearcher_test.cpp
+        symbolsearcher_test.cpp \
+        cpppreprocessor_test.cpp \
+        cpppreprocessertesthelper.cpp
 
     HEADERS += \
         cpppreprocessertesthelper.h \

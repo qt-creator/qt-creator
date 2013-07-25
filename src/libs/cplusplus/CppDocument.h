@@ -312,8 +312,11 @@ public:
     QStringList includedFiles() const;
     void addIncludeFile(const Include &include);
 
-    QList<Include> includes() const
-    { return _includes; }
+    QList<Include> resolvedIncludes() const
+    { return _resolvedIncludes; }
+
+    QList<Include> unresolvedIncludes() const
+    { return _unresolvedIncludes; }
 
     QList<Block> skippedBlocks() const
     { return _skippedBlocks; }
@@ -348,7 +351,8 @@ private:
     /// All messages generated during lexical/syntactic/semantic analysis.
     QList<DiagnosticMessage> _diagnosticMessages;
 
-    QList<Include> _includes;
+    QList<Include> _resolvedIncludes;
+    QList<Include> _unresolvedIncludes;
     QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;

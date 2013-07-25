@@ -130,7 +130,7 @@ void CppElementEvaluator::checkDiagnosticMessage(int pos)
 
 bool CppElementEvaluator::matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line)
 {
-    foreach (const Document::Include &includeFile, document->includes()) {
+    foreach (const Document::Include &includeFile, document->resolvedIncludes()) {
         if (includeFile.line() == line) {
             m_element = QSharedPointer<CppElement>(new CppInclude(includeFile));
             return true;

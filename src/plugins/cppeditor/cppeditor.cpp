@@ -1387,7 +1387,7 @@ CPPEditorWidget::Link CPPEditorWidget::findMacroLink(const QByteArray &name,
             }
         }
 
-        const QList<Document::Include> includes = doc->includes();
+        const QList<Document::Include> includes = doc->resolvedIncludes();
         for (int index = includes.size() - 1; index != -1; --index) {
             const Document::Include &i = includes.at(index);
             Link link = findMacroLink(name, snapshot.document(i.resolvedFileName()), snapshot,
@@ -1519,7 +1519,7 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
         // Handle include directives
         if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
             const unsigned lineno = cursor.blockNumber() + 1;
-            foreach (const Document::Include &incl, doc->includes()) {
+            foreach (const Document::Include &incl, doc->resolvedIncludes()) {
                 if (incl.line() == lineno) {
                     link.targetFileName = incl.resolvedFileName();
                     link.linkTextStart = beginOfToken + 1;

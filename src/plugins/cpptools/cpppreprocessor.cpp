@@ -332,7 +332,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
 
     m_processed.insert(fn);
 
-    foreach (const Document::Include &incl, doc->includes()) {
+    foreach (const Document::Include &incl, doc->resolvedIncludes()) {
         const QString includedFile = incl.resolvedFileName();
 
         if (Document::Ptr includedDoc = m_snapshot.document(includedFile))
@@ -363,7 +363,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
 
     QString absoluteFileName = resolveFile(fileName, type);
     absoluteFileName = QDir::cleanPath(absoluteFileName);
-    if (m_currentDoc && !absoluteFileName.isEmpty())
+    if (m_currentDoc)
         m_currentDoc->addIncludeFile(Document::Include(fileName, absoluteFileName, line, type));
     if (m_included.contains(absoluteFileName))
         return; // we've already seen this file.

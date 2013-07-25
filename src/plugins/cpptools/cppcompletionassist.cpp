@@ -1732,7 +1732,7 @@ void CppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &s
 
     processed->insert(doc->fileName());
 
-    foreach (const Document::Include &i, doc->includes()) {
+    foreach (const Document::Include &i, doc->resolvedIncludes()) {
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
     }
 

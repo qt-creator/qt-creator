@@ -189,6 +189,8 @@ private slots:
     void test_format_pointerdeclaration_macros();
     void test_format_pointerdeclaration_macros_data();
 
+    void test_cpppreprocessor_includes();
+
     void test_modelmanager_paths_are_clean();
     void test_modelmanager_framework_headers();
     void test_modelmanager_refresh_also_includes_of_project_files();

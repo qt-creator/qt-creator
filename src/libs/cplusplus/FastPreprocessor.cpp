@@ -52,7 +52,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
         _merged.insert(fileName);
 
         mergeEnvironment(Preprocessor::configurationFileName);
-        foreach (const Document::Include &i, doc->includes())
+        foreach (const Document::Include &i, doc->resolvedIncludes())
             mergeEnvironment(i.resolvedFileName());
     }
 
@@ -78,7 +78,7 @@ void FastPreprocessor::mergeEnvironment(const QString &fileName)
         _merged.insert(fileName);
 
         if (Document::Ptr doc = _snapshot.document(fileName)) {
-            foreach (const Document::Include &i, doc->includes())
+            foreach (const Document::Include &i, doc->resolvedIncludes())
                 mergeEnvironment(i.resolvedFileName());
 
             _env.addMacros(doc->definedMacros());

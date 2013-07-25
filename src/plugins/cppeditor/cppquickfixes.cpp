@@ -232,7 +232,7 @@ void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr fil
 {
     // Find optimal position
     using namespace IncludeUtils;
-    LineForNewIncludeDirective finder(file->document(), file->cppDocument()->includes(),
+    LineForNewIncludeDirective finder(file->document(), file->cppDocument()->resolvedIncludes(),
                                       LineForNewIncludeDirective::IgnoreMocIncludes,
                                       LineForNewIncludeDirective::AutoDetect);
     unsigned newLinesToPrepend = 0;
@@ -1530,7 +1530,7 @@ public:
             fwdHeaders.insert(snapshot().document(headerFile));
             foreach (Document::Ptr doc, snapshot()) {
                 QFileInfo headerFileInfo(doc->fileName());
-                if (doc->globalSymbolCount() == 0 && doc->includes().size() == 1)
+                if (doc->globalSymbolCount() == 0 && doc->resolvedIncludes().size() == 1)
                     fwdHeaders.insert(doc);
                 else if (headerFileInfo.suffix().isEmpty())
                     fwdHeaders.insert(doc);

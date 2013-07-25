@@ -1335,7 +1335,7 @@ QList<Include> includesForSource(const QByteArray &source)
     pp.run(fileName);
 
     Document::Ptr document = cmm->snapshot().document(fileName);
-    return document->includes();
+    return document->resolvedIncludes();
 }
 
 /// Check: Detection of include groups separated by new lines
