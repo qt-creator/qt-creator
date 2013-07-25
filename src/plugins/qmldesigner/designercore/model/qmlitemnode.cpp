@@ -93,28 +93,22 @@ QmlModelStateGroup QmlItemNode::states() const
 
 QList<QmlItemNode> QmlItemNode::children() const
 {
-    QList<QmlItemNode> returnList;
+    QList<ModelNode> childrenList;
 
     if (isValid()) {
 
-        QList<ModelNode> modelNodeList;
+        if (modelNode().hasNodeListProperty("children"))
+                childrenList.append(modelNode().nodeListProperty("children").toModelNodeList());
 
-        if (modelNode().hasProperty("children")) {
-            if (modelNode().property("children").isNodeListProperty())
-                modelNodeList.append(modelNode().nodeListProperty("children").toModelNodeList());
-        }
-
-        if (modelNode().hasProperty("data")) {
-            if (modelNode().property("data").isNodeListProperty())
-                modelNodeList.append(modelNode().nodeListProperty("data").toModelNodeList());
-        }
-
-        foreach (const ModelNode &modelNode, modelNodeList) {
-            if (QmlItemNode::isValidQmlItemNode(modelNode))  //if ModelNode is FxItem
-                returnList.append(modelNode);
+        if (modelNode().hasNodeListProperty("data")) {
+            foreach (const ModelNode &node, modelNode().nodeListProperty("data").toModelNodeList()) {
+                if (QmlItemNode::isValidQmlItemNode(node))
+                    childrenList.append(node);
+            }
         }
     }
-    return returnList;
+
+    return toQmlItemNodeList(childrenList);
 }
 
 QList<QmlObjectNode> QmlItemNode::resources() const
