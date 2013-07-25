@@ -84,7 +84,7 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
         return QByteArray();
     }
     cpp.closeWriteChannel();
-    if (!cpp.waitForFinished()) {
+    if (!cpp.waitForFinished(10000)) {
         SynchronousProcess::stopProcess(cpp);
         qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(gcc.toUserOutput()));
         return QByteArray();
@@ -307,6 +307,8 @@ static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
     QStringList arguments = extraArgs;
     arguments << QLatin1String("-dumpmachine");
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+    if (machine.isEmpty())
+        return QList<Abi>(); // no need to continue if running failed once...
     QByteArray macros = gccPredefinedMacros(path, QStringList(), env);
     return guessGccAbi(machine, macros);
 }
