@@ -30,7 +30,6 @@
 
 #include "analyzerplugin.h"
 #include "analyzermanager.h"
-#include "analyzerruncontrolfactory.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
@@ -64,8 +63,6 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(errorString)
 
     (void) new AnalyzerManager(this);
-
-    addAutoReleasedObject(new AnalyzerRunControlFactory());
 
     // Task integration.
     //: Category under which Analyzer tasks are listed in Issues view

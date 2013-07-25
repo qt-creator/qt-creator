@@ -59,7 +59,6 @@ public:
 protected:
     void startExecution();
     void handleAdapterSetupFailed(const QString &error);
-    void handleAdapterSetupDone();
 
 private slots:
     void handleRemoteSetupRequested();
@@ -71,6 +70,8 @@ private slots:
 
     void handleRemoteProcessStarted();
     void handleProfilingFinished();
+
+    void remoteIsRunning();
 
 private:
     void showMessage(const QString &, Utils::OutputFormat);

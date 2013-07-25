@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmlprofilerplugin.h"
+#include "qmlprofilerruncontrolfactory.h"
 
 #include "qmlprofilertool.h"
 
@@ -49,6 +50,8 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     modes.append(StartMode(StartLocal));
     modes.append(StartMode(StartRemote));
     AnalyzerManager::addTool(new QmlProfilerTool(this), modes);
+
+    addAutoReleasedObject(new QmlProfilerRunControlFactory());
 
     return true;
 }

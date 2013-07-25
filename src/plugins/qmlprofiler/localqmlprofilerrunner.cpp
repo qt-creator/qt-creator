@@ -29,13 +29,62 @@
 
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilerplugin.h"
+#include "qmlprofilerengine.h"
+
+#include <analyzerbase/analyzerstartparameters.h>
+#include <projectexplorer/runconfiguration.h>
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/environmentaspect.h>
 
 using namespace QmlProfiler;
 using namespace QmlProfiler::Internal;
+using namespace ProjectExplorer;
 
-LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration, QObject *parent) :
-    AbstractQmlProfilerRunner(parent),
-    m_configuration(configuration)
+LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
+        RunConfiguration *runConfiguration,
+        const Analyzer::AnalyzerStartParameters &sp,
+        QString *errorMessage,
+        QmlProfilerEngine *engine)
+{
+    QmlProjectManager::QmlProjectRunConfiguration *rc1 =
+                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
+    LocalApplicationRunConfiguration *rc2 =
+                   qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(rc1 || rc2, return 0);
+    ProjectExplorer::EnvironmentAspect *environment
+            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(environment, return 0);
+    Configuration conf;
+    if (rc1) {
+        // This is a "plain" .qmlproject.
+        conf.executable = rc1->observerPath();
+        conf.executableArguments = rc1->viewerArguments();
+        conf.workingDirectory = rc1->workingDirectory();
+        conf.environment = environment->environment();
+    } else {
+        // FIXME: Check.
+        conf.executable = rc2->executable();
+        conf.executableArguments = rc2->commandLineArguments();
+        conf.workingDirectory = rc2->workingDirectory();
+        conf.environment = environment->environment();
+    }
+
+    conf.port = sp.analyzerPort;
+
+    if (conf.executable.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = tr("No executable file to launch.");
+        return 0;
+    }
+    return new LocalQmlProfilerRunner(conf, engine);
+}
+
+LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
+                                               QmlProfilerEngine *engine) :
+    AbstractQmlProfilerRunner(engine),
+    m_configuration(configuration),
+    m_engine(engine)
 {
     connect(&m_launcher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             this, SIGNAL(appendMessage(QString,Utils::OutputFormat)));
@@ -48,6 +97,9 @@ LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
 
 void LocalQmlProfilerRunner::start()
 {
+    if (m_engine->mode() != Analyzer::StartQml)
+        return;
+
     QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);
 
     if (!m_configuration.executableArguments.isEmpty())
@@ -78,6 +130,9 @@ void LocalQmlProfilerRunner::spontaneousStop(int exitCode)
 
 void LocalQmlProfilerRunner::stop()
 {
+    if (m_engine->mode() != Analyzer::StartQml)
+        return;
+
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Stopping application ...");
 

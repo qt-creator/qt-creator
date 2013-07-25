@@ -38,8 +38,11 @@ SOURCES += cppeditorplugin.cpp \
 RESOURCES += cppeditor.qrc
 
 equals(TEST, 1) {
+    HEADERS += cppquickfix_test_utils.h
+
     SOURCES += \
         cppquickfix_test.cpp \
+        cppquickfix_test_utils.cpp \
         cppdoxygen_test.cpp \
         fileandtokenactions_test.cpp \
         followsymbol_switchmethoddecldef_test.cpp

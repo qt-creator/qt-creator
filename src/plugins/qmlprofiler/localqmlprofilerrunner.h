@@ -35,9 +35,13 @@
 #include <utils/environment.h>
 #include <projectexplorer/applicationlauncher.h>
 
+namespace ProjectExplorer { class RunConfiguration; }
+namespace Analyzer { class AnalyzerStartParameters; }
+
 namespace QmlProfiler {
 namespace Internal {
 
+class QmlProfilerEngine;
 class LocalQmlProfilerRunner : public AbstractQmlProfilerRunner
 {
     Q_OBJECT
@@ -51,7 +55,11 @@ public:
         Utils::Environment environment;
     };
 
-    explicit LocalQmlProfilerRunner(const Configuration &configuration, QObject *parent = 0);
+    static LocalQmlProfilerRunner *createLocalRunner(ProjectExplorer::RunConfiguration *runConfiguration,
+                                                     const Analyzer::AnalyzerStartParameters &sp,
+                                                     QString *errorMessage,
+                                                     QmlProfilerEngine *engine);
+
     ~LocalQmlProfilerRunner();
 
     // AbstractQmlProfilerRunner
@@ -59,14 +67,16 @@ public:
     virtual void stop();
     virtual quint16 debugPort() const;
 
-    bool hasExecutable() const { return !m_configuration.executable.isEmpty(); }
-
 private slots:
     void spontaneousStop(int exitCode);
 
 private:
+    LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerEngine *engine);
+
+private:
     Configuration m_configuration;
     ProjectExplorer::ApplicationLauncher m_launcher;
+    QmlProfilerEngine *m_engine;
 };
 
 } // namespace Internal

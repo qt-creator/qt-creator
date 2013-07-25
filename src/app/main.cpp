@@ -517,12 +517,6 @@ int main(int argc, char **argv)
     // shutdown plugin manager on the exit
     QObject::connect(&app, SIGNAL(aboutToQuit()), &pluginManager, SLOT(shutdown()));
 
-#ifdef WITH_TESTS
-    // Do this after the event loop has started
-    if (PluginManager::testRunRequested())
-        QTimer::singleShot(100, &pluginManager, SLOT(startTests()));
-#endif
-
     const int r = app.exec();
     cleanupCrashHandler();
     return r;

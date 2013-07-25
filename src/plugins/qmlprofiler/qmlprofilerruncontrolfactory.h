@@ -27,51 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDANALYZESUPPORT_H
-#define ANDROIDANALYZESUPPORT_H
+#ifndef QMLPROFILERRUNCONTROLFACTORY_H
+#define QMLPROFILERRUNCONTROLFACTORY_H
 
-#include "androidrunsupport.h"
-#include <qmldebug/qmloutputparser.h>
+#include <projectexplorer/runconfiguration.h>
 
-namespace Analyzer {
-class IAnalyzerEngine;
-class AnalyzerRunControl;
-}
-namespace ProjectExplorer { class RunControl; }
-
-namespace Android {
+namespace QmlProfiler {
 namespace Internal {
 
-class AndroidRunConfiguration;
-class AndroidRunner;
-
-class AndroidAnalyzeSupport : public AndroidRunSupport
+class QmlProfilerRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
-
 public:
-    static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                                ProjectExplorer::RunMode runMode,
-                                                                QString *errorMessage);
+    typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
-    AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
-        Analyzer::AnalyzerRunControl *runControl);
+    explicit QmlProfilerRunControlFactory(QObject *parent = 0);
 
-private slots:
-    void handleRemoteProcessStarted(int qmlPort);
+    // IRunControlFactory implementation
+    bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
 
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-
-    void remoteIsRunning();
-
-private:
-    Analyzer::IAnalyzerEngine *m_engine;
-    QmlDebug::QmlOutputParser m_outputParser;
-    int m_qmlPort;
+    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
+                                        ProjectExplorer::RunMode mode,
+                                        QString *errorMessage);
+    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc);
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmlProfiler
 
-#endif // ANDROIDANALYZESUPPORT_H
+#endif // QMLPROFILERRUNCONTROLFACTORY_H

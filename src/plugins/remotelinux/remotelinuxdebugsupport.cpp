@@ -198,14 +198,16 @@ void LinuxDeviceDebugSupport::handleAppRunnerFinished(bool success)
         else if (!success)
             d->engine->notifyInferiorIll();
 
-    } else {
+    } else if (state() == StartingRunner){
         d->engine->notifyEngineRemoteSetupFailed(tr("Debugging failed."));
     }
+    reset();
 }
 
 void LinuxDeviceDebugSupport::handleDebuggingFinished()
 {
     setFinished();
+    reset();
 }
 
 void LinuxDeviceDebugSupport::handleRemoteOutput(const QByteArray &output)

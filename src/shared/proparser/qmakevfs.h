@@ -32,10 +32,10 @@
 
 #include "qmake_global.h"
 
-# include <QIODevice>
+# include <qiodevice.h>
 #ifndef PROEVALUATOR_FULL
-# include <QHash>
-# include <QString>
+# include <qhash.h>
+# include <qstring.h>
 # ifdef PROEVALUATOR_THREAD_SAFE
 #  include <qmutex.h>
 # endif

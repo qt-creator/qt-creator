@@ -27,51 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDANALYZESUPPORT_H
-#define ANDROIDANALYZESUPPORT_H
+#include "cppquickfix_test_utils.h"
 
-#include "androidrunsupport.h"
-#include <qmldebug/qmloutputparser.h>
+#include "cppquickfixes.h"
 
-namespace Analyzer {
-class IAnalyzerEngine;
-class AnalyzerRunControl;
-}
-namespace ProjectExplorer { class RunControl; }
+using namespace CppEditor::Internal;
 
-namespace Android {
-namespace Internal {
-
-class AndroidRunConfiguration;
-class AndroidRunner;
-
-class AndroidAnalyzeSupport : public AndroidRunSupport
+InsertVirtualMethodsDialogTest::InsertVirtualMethodsDialogTest(ImplementationMode mode,
+                                                               bool insertVirtualKeyword,
+                                                               QWidget *parent)
+    : InsertVirtualMethodsDialog(parent)
 {
-    Q_OBJECT
+    setImplementationsMode(mode);
+    setInsertKeywordVirtual(insertVirtualKeyword);
+}
 
-public:
-    static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                                ProjectExplorer::RunMode runMode,
-                                                                QString *errorMessage);
+InsertVirtualMethodsDialog::ImplementationMode InsertVirtualMethodsDialogTest::implementationMode() const
+{
+    return m_implementationMode;
+}
 
-    AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
-        Analyzer::AnalyzerRunControl *runControl);
+bool InsertVirtualMethodsDialogTest::insertKeywordVirtual() const
+{
+    return m_insertKeywordVirtual;
+}
 
-private slots:
-    void handleRemoteProcessStarted(int qmlPort);
-
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-
-    void remoteIsRunning();
-
-private:
-    Analyzer::IAnalyzerEngine *m_engine;
-    QmlDebug::QmlOutputParser m_outputParser;
-    int m_qmlPort;
-};
-
-} // namespace Internal
-} // namespace Android
-
-#endif // ANDROIDANALYZESUPPORT_H
+bool InsertVirtualMethodsDialogTest::gather()
+{
+    return true;
+}

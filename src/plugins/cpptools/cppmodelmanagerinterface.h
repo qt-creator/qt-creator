@@ -215,7 +215,7 @@ public:
 
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
-    virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
+    virtual QFuture<void> updateProjectInfo(const ProjectInfo &pinfo) = 0;
     virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const = 0;
 
     virtual QStringList includePaths() = 0;

@@ -818,6 +818,10 @@ void PluginManagerPrivate::nextDelayedInitialize()
         delayedInitializeTimer = 0;
         profilingSummary();
         emit q->initializationDone();
+#ifdef WITH_TESTS
+        if (q->testRunRequested())
+            q->startTests();
+#endif
     } else {
         delayedInitializeTimer->start();
     }

@@ -69,7 +69,6 @@ public:
         return -1;
     }
 
-    static DeviceManager *instance;
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
     QHash<Core::Id, Core::Id> defaultDevices;
@@ -77,7 +76,6 @@ public:
     Utils::PersistentSettingsWriter *writer;
 };
 DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
-DeviceManager *DeviceManagerPrivate::instance = 0;
 
 } // namespace Internal
 
@@ -86,7 +84,8 @@ using namespace Internal;
 
 DeviceManager *DeviceManager::instance()
 {
-    return DeviceManagerPrivate::instance;
+    static DeviceManager instance;
+    return &instance;
 }
 
 int DeviceManager::deviceCount() const
@@ -242,7 +241,7 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
 
     if (!defaultDevice(device->type()))
         d->defaultDevices.insert(device->type(), device->id());
-    if (this == DeviceManagerPrivate::instance && d->clonedInstance)
+    if (this == DeviceManager::instance() && d->clonedInstance)
         d->clonedInstance->addDevice(device->clone());
 
     if (pos >= 0) {
@@ -338,11 +337,8 @@ const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 
 DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
 {
-    if (isInstance) {
+    if (isInstance)
         connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(save()));
-        QTC_CHECK(!DeviceManagerPrivate::instance);
-        DeviceManagerPrivate::instance = this;
-    }
 }
 
 DeviceManager::~DeviceManager()

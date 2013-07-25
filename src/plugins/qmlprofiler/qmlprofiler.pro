@@ -20,7 +20,8 @@ SOURCES += \
     qmlprofilerdatamodel.cpp \
     qmlprofilerclientmanager.cpp \
     qmlprofilerviewmanager.cpp \
-    qmlprofilerstatewidget.cpp
+    qmlprofilerstatewidget.cpp \
+    qmlprofilerruncontrolfactory.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -40,7 +41,8 @@ HEADERS += \
     qmlprofilerdatamodel.h \
     qmlprofilerclientmanager.h \
     qmlprofilerviewmanager.h \
-    qmlprofilerstatewidget.h
+    qmlprofilerstatewidget.h \
+    qmlprofilerruncontrolfactory.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

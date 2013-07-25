@@ -42,6 +42,8 @@ QtcPlugin {
         "qmlprofilereventview.h",
         "qmlprofilerplugin.cpp",
         "qmlprofilerplugin.h",
+        "qmlprofilerruncontrolfactory.cpp",
+        "qmlprofilerruncontrolfactory.h",
         "qmlprofilerstatemanager.cpp",
         "qmlprofilerstatemanager.h",
         "qmlprofilerstatewidget.cpp",

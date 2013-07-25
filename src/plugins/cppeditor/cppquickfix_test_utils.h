@@ -27,51 +27,22 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDANALYZESUPPORT_H
-#define ANDROIDANALYZESUPPORT_H
 
-#include "androidrunsupport.h"
-#include <qmldebug/qmloutputparser.h>
+#ifndef CPPQUICKFIX_TEST_UTILS_H
+#define CPPQUICKFIX_TEST_UTILS_H
 
-namespace Analyzer {
-class IAnalyzerEngine;
-class AnalyzerRunControl;
-}
-namespace ProjectExplorer { class RunControl; }
+#include "cppquickfixes.h"
 
-namespace Android {
-namespace Internal {
-
-class AndroidRunConfiguration;
-class AndroidRunner;
-
-class AndroidAnalyzeSupport : public AndroidRunSupport
+/// Fake dialog of InsertVirtualMethodsDialog that does not pop up anything.
+class InsertVirtualMethodsDialogTest : public CppEditor::Internal::InsertVirtualMethodsDialog
 {
-    Q_OBJECT
-
 public:
-    static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                                ProjectExplorer::RunMode runMode,
-                                                                QString *errorMessage);
+    InsertVirtualMethodsDialogTest(ImplementationMode mode, bool insertVirtualKeyword,
+                                   QWidget *parent = 0);
 
-    AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
-        Analyzer::AnalyzerRunControl *runControl);
-
-private slots:
-    void handleRemoteProcessStarted(int qmlPort);
-
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-
-    void remoteIsRunning();
-
-private:
-    Analyzer::IAnalyzerEngine *m_engine;
-    QmlDebug::QmlOutputParser m_outputParser;
-    int m_qmlPort;
+    bool gather();
+    ImplementationMode implementationMode() const;
+    bool insertKeywordVirtual() const;
 };
 
-} // namespace Internal
-} // namespace Android
-
-#endif // ANDROIDANALYZESUPPORT_H
+#endif // CPPQUICKFIX_TEST_UTILS_H

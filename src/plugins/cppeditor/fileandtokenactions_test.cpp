@@ -34,9 +34,11 @@
 #include <cppeditor/cppeditor.h>
 #include <cppeditor/cppeditorplugin.h>
 #include <cppeditor/cppquickfixassistant.h>
+#include <cppeditor/cppquickfixes.h>
 #include <cppeditor/cppquickfix.h>
-#include <cpptools/cpptoolsplugin.h>
+#include <cppeditor/cppquickfix_test_utils.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cpptoolsplugin.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -468,7 +470,19 @@ void RunAllQuickFixesTokenAction::run(CPPEditorWidget *editorWidget)
 
     foreach (CppQuickFixFactory *quickFixFactory, quickFixFactories) {
         TextEditor::QuickFixOperations operations;
-        quickFixFactory->match(qfi, operations);
+        // Some Quick Fixes pop up a dialog and are therefore inappropriate for this test.
+        // Where possible, use a guiless version of the factory.
+        if (qobject_cast<InsertVirtualMethods *>(quickFixFactory)) {
+            QScopedPointer<CppQuickFixFactory> factoryProducingGuiLessOperations;
+            factoryProducingGuiLessOperations.reset(
+                new InsertVirtualMethods(
+                    new InsertVirtualMethodsDialogTest(
+                        InsertVirtualMethodsDialog::ModeOutsideClass, true)));
+            factoryProducingGuiLessOperations->match(qfi, operations);
+        } else {
+            quickFixFactory->match(qfi, operations);
+        }
+
         foreach (QuickFixOperation::Ptr operation, operations) {
             qDebug() << "    -- Performing Quick Fix" << operation->description();
             operation->perform();

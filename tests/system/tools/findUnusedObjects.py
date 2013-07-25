@@ -40,17 +40,11 @@ lastToken = [None, None]
 stopTokens = ('OP', 'NAME', 'NUMBER', 'ENDMARKER')
 
 def parseCommandLine():
-    global directory, onlyRemovable, fileType
-    scriptChoice = ('Python', 'JavaScript', 'Perl', 'Tcl', 'Ruby')
+    global directory, onlyRemovable
     parser = OptionParser("\n%prog [OPTIONS] [DIRECTORY]")
     parser.add_option("-o", "--only-removable", dest="onlyRemovable",
                       action="store_true", default=False,
                       help="list removable objects only")
-    parser.add_option("-t", "--type", dest='fileType', type="choice",
-                      choices=scriptChoice,
-                      default='Python', nargs=1, metavar='LANG',
-                      help="script language of the Squish tests (" +
-                      ", ".join(scriptChoice) + "; default: %default)")
     (options, args) = parser.parse_args()
     if len(args) == 0:
         directory = os.path.abspath(".")
@@ -61,18 +55,11 @@ def parseCommandLine():
         parser.print_help()
         sys.exit(1)
     onlyRemovable = options.onlyRemovable
-    fileType = options.fileType
 
 def collectObjects():
     global objMap
     data = getFileContent(objMap)
     return map(lambda x: x.strip().split("\t", 1)[0], data.strip().splitlines())
-
-def getFileSuffix():
-    global fileType
-    fileSuffixes = {'Python':'.py', 'JavaScript':'.js', 'Perl':'.pl',
-                    'Tcl':'.tcl', 'Ruby':'.rb'}
-    return fileSuffixes.get(fileType, None)
 
 def handleStringsWithTrailingBackSlash(origStr):
     try:
@@ -101,13 +88,29 @@ def handle_token(tokenType, token, (startRow, startCol), (endRow, endCol), line)
         # store the stop token as lastToken
         lastToken = [tokenize.tok_name[tokenType], str(token)]
 
+def handleDataFiles(openFile, separator):
+    global useCounts
+    # ignore header line
+    openFile.readline()
+    for line in openFile:
+        currentTokens = line.split(separator)
+        for token in currentTokens:
+            stripped = token.strip().strip('"')
+            if stripped in useCounts:
+                useCounts[stripped] = useCounts[stripped] + 1
+
 def findUsages():
     global directory, objMap
-    suffix = getFileSuffix()
+    suffixes = (".py", ".csv", ".tsv")
     for root, dirnames, filenames in os.walk(directory):
-        for filename in filter(lambda x: x.endswith(suffix), filenames):
+        for filename in filter(lambda x: x.endswith(suffixes), filenames):
             currentFile = open(os.path.join(root, filename))
-            tokenize.tokenize(currentFile.readline, handle_token)
+            if filename.endswith(".py"):
+                tokenize.tokenize(currentFile.readline, handle_token)
+            elif filename.endswith(".csv"):
+                handleDataFiles(currentFile, ",")
+            elif filename.endswith(".tsv"):
+                handleDataFiles(currentFile, "\t")
             currentFile.close()
     currentFile = open(objMap)
     tokenize.tokenize(currentFile.readline, handle_token)

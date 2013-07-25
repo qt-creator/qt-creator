@@ -32,11 +32,11 @@
 #include "androidrunner.h"
 #include "androidmanager.h"
 
-#include "analyzerbase/ianalyzertool.h"
-#include "analyzerbase/ianalyzerengine.h"
-#include "analyzerbase/analyzermanager.h"
-#include "analyzerbase/analyzerruncontrol.h"
-#include "analyzerbase/analyzerstartparameters.h"
+#include <analyzerbase/ianalyzertool.h>
+#include <analyzerbase/ianalyzerengine.h>
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzerstartparameters.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
@@ -63,7 +63,6 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
 
     AnalyzerStartParameters params;
     params.toolId = tool->id();
-    params.startMode = StartQmlRemote;
     Target *target = runConfig->target();
     params.displayName = AndroidManager::packageName(target);
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
@@ -74,6 +73,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return 0);
         params.analyzerHost = server.serverAddress().toString();
+        params.startMode = StartQmlRemote;
     }
 
     AnalyzerRunControl * const analyzerRunControl = new AnalyzerRunControl(tool, params, runConfig);
@@ -84,7 +84,8 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
 AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
     AnalyzerRunControl *runControl)
     : AndroidRunSupport(runConfig, runControl),
-      m_engine(0)
+      m_engine(0),
+      m_qmlPort(0)
 {
     if (runControl) {
         m_engine = runControl->engine();
@@ -93,6 +94,8 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
                     m_runner, SLOT(start()));
         }
     }
+    connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
+            SLOT(remoteIsRunning()));
     connect(m_runner, SIGNAL(remoteProcessStarted(int)),
             SLOT(handleRemoteProcessStarted(int)));
     connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
@@ -106,16 +109,17 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
 
 void AndroidAnalyzeSupport::handleRemoteProcessStarted(int qmlPort)
 {
-    if (m_engine)
-        m_engine->notifyRemoteSetupDone(qmlPort);
+    m_qmlPort = qmlPort;
 }
 
 void AndroidAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
 {
+    const QString msg = QString::fromUtf8(output);
     if (m_engine)
-        m_engine->logApplicationMessage(QString::fromUtf8(output), Utils::StdOutFormatSameLine);
+        m_engine->logApplicationMessage(msg, Utils::StdOutFormatSameLine);
     else
         AndroidRunSupport::handleRemoteOutput(output);
+    m_outputParser.processOutput(msg);
 }
 
 void AndroidAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
@@ -124,6 +128,12 @@ void AndroidAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
         m_engine->logApplicationMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
     else
         AndroidRunSupport::handleRemoteErrorOutput(output);
+}
+
+void AndroidAnalyzeSupport::remoteIsRunning()
+{
+    if (m_engine)
+        m_engine->notifyRemoteSetupDone(m_qmlPort);
 }
 
 } // namespace Internal
