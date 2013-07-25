@@ -60,7 +60,7 @@ static QString fixExpression(const QString &expression, const QHash<QString, QSt
 static void syncVariantProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
     foreach (const VariantProperty &variantProperty, inputNode.variantProperties()) {
-        outputNode.variantProperty(variantProperty.name()) = variantProperty.value();
+        outputNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
     }
 }
 

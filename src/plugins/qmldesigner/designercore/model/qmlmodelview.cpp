@@ -140,7 +140,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
 
         newQmlItemNode.setId(id);
         if (!currentState().isBaseState()) {
-            newQmlItemNode.modelNode().variantProperty("opacity") = 0;
+            newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
             newQmlItemNode.setVariantProperty("opacity", 1);
         }
 
@@ -224,8 +224,8 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
                 ModelNode rootModelNode = rewriterView->rootModelNode();
                 inputModel->detachView(rewriterView.data());
 
-                rootModelNode.variantProperty("x") = propertyPairList.first().second;
-                rootModelNode.variantProperty("y") = propertyPairList.at(1).second;
+                rootModelNode.variantProperty("x").setValue(propertyPairList.first().second);
+                rootModelNode.variantProperty("y").setValue(propertyPairList.at(1).second);
 
                 ModelMerger merger(this);
                 newQmlItemNode = merger.insertModel(rootModelNode);
@@ -251,7 +251,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         newQmlItemNode.setId(id);
 
         if (!currentState().isBaseState()) {
-            newQmlItemNode.modelNode().variantProperty("opacity") = 0;
+            newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
             newQmlItemNode.setVariantProperty("opacity", 1);
         }
 

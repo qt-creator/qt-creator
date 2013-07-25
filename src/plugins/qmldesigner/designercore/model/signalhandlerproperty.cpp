@@ -89,11 +89,4 @@ QString SignalHandlerProperty::source() const
     return QString();
 }
 
-SignalHandlerProperty& SignalHandlerProperty::operator= (const QString &source)
-{
-    setSource(source);
-
-    return *this;
-}
-
 } // namespace QmlDesigner

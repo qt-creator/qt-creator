@@ -301,7 +301,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
         foreach (const BindingProperty &bindingProperty, childNode.bindingProperties())
             newModelNode.bindingProperty(bindingProperty.name()).setExpression(bindingProperty.expression());
         foreach (const VariantProperty &variantProperty, childNode.variantProperties())
-            newModelNode.variantProperty(variantProperty.name()) = variantProperty.value();
+            newModelNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
         newState.modelNode().nodeListProperty("changes").reparentHere(newModelNode);
     }
 

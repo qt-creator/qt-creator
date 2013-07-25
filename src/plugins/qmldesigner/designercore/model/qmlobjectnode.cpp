@@ -53,7 +53,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
 
         QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
         Q_ASSERT(changeSet.isValid());
-        changeSet.modelNode().variantProperty(name) = value;
+        changeSet.modelNode().variantProperty(name).setValue(value);
     }
 }
 
@@ -63,13 +63,13 @@ void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     if (isInBaseState()) {
-        modelNode().bindingProperty(name) = expression; //basestate
+        modelNode().bindingProperty(name).setExpression(expression); //basestate
     } else {
         modelNode().validId();
 
         QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
         Q_ASSERT(changeSet.isValid());
-        changeSet.modelNode().bindingProperty(name) = expression;
+        changeSet.modelNode().bindingProperty(name).setExpression(expression);
     }
 }
 

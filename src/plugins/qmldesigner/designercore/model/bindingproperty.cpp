@@ -93,13 +93,6 @@ QString BindingProperty::expression() const
     return QString();
 }
 
-BindingProperty& BindingProperty::operator= (const QString &expression)
-{
-    setExpression(expression);
-
-    return *this;
-}
-
 static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, AbstractView* view)
 {
     int i = 0;

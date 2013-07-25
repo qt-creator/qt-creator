@@ -51,8 +51,6 @@ class QMLDESIGNERCORE_EXPORT NodeListProperty : public NodeAbstractProperty
     friend class QmlDesigner::AbstractProperty;
     friend class QmlDesigner::Internal::ModelPrivate;
 public:
-    NodeListProperty& operator= (const QVariant &value);
-
     NodeListProperty();
     NodeListProperty(const NodeListProperty &nodeListProperty, AbstractView *view);
     const QList<ModelNode> toModelNodeList() const;

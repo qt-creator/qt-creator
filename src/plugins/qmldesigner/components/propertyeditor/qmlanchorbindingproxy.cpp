@@ -58,7 +58,7 @@ static inline void backupPropertyAndRemove(ModelNode node, const PropertyName &p
 static inline void restoreProperty(ModelNode node, const PropertyName &propertyName)
 {
     if (node.hasAuxiliaryData(auxDataString + propertyName))
-        node.variantProperty(propertyName) = node.auxiliaryData(auxDataString + propertyName);
+        node.variantProperty(propertyName).setValue(node.auxiliaryData(auxDataString + propertyName));
 }
 
 namespace Internal {

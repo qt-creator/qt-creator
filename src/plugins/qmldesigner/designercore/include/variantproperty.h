@@ -54,7 +54,6 @@ class QMLDESIGNERCORE_EXPORT VariantProperty : public AbstractProperty
 public:
     void setValue(const QVariant &value);
     QVariant value() const;
-    VariantProperty& operator= (const QVariant &value);
 
     void setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value);
 

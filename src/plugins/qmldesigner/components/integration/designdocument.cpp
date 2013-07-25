@@ -471,15 +471,15 @@ static void scatterItem(ModelNode pastedNode, const ModelNode targetNode, int of
         double targetHeight = 20;
         x = x + double(qrand()) / RAND_MAX * targetWidth - targetWidth / 2;
         y = y + double(qrand()) / RAND_MAX * targetHeight - targetHeight / 2;
-        pastedNode.variantProperty("x") = int(x);
-        pastedNode.variantProperty("y") = int(y);
+        pastedNode.variantProperty("x").setValue(int(x));
+        pastedNode.variantProperty("y").setValue(int(y));
     } else {
         double x = pastedNode.variantProperty("x").value().toDouble();
         double y = pastedNode.variantProperty("y").value().toDouble();
         x = x + offset;
         y = y + offset;
-        pastedNode.variantProperty("x") = int(x);
-        pastedNode.variantProperty("y") = int(y);
+        pastedNode.variantProperty("x").setValue(int(x));
+        pastedNode.variantProperty("y").setValue(int(y));
     }
 }
 

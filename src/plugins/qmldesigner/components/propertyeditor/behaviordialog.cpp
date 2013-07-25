@@ -143,17 +143,17 @@ void BehaviorDialog::accept()
         ModelNode Behavior = m_modelNode.view()->createModelNode("Qt/Behavior", 4, 7);
         m_modelNode.nodeProperty(m_propertyName).reparentHere(Behavior);
         ModelNode animation = m_modelNode.view()->createModelNode("Qt/NumberAnimation", 4, 7);
-        animation.variantProperty("duration") = m_ui->duration->value();
-        animation.variantProperty("easing") = m_ui->curve->currentText();
+        animation.variantProperty("duration").setValue(m_ui->duration->value());
+        animation.variantProperty("easing").setValue(m_ui->curve->currentText());
         Behavior.nodeProperty("animation").reparentHere(animation);
     } else {
         RewriterTransaction transaction(m_modelNode.view()->beginRewriterTransaction());
         ModelNode springFollow = m_modelNode.view()->createModelNode("Qt/SpringFollow", 4, 7);
         m_modelNode.nodeProperty(m_propertyName).reparentHere(springFollow);
-        springFollow.variantProperty("velocity") = m_ui->velocity->value();
-        springFollow.variantProperty("spring") = m_ui->spring->value();
-        springFollow.variantProperty("damping") = m_ui->damping->value();
-        springFollow.bindingProperty("source") = m_ui->source->text();
+        springFollow.variantProperty("velocity").setValue(m_ui->velocity->value());
+        springFollow.variantProperty("spring").setValue(m_ui->spring->value());
+        springFollow.variantProperty("damping").setValue(m_ui->damping->value());
+        springFollow.bindingProperty("source").setExpression(m_ui->source->text());
     }
 }
 

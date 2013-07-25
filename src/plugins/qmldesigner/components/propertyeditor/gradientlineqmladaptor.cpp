@@ -138,8 +138,8 @@ void GradientLineQmlAdaptor::writeGradient()
 
             for (int i = 0;i < stops.size(); i++) {
                 ModelNode gradientStopNode = modelNode.view()->createModelNode("QtQuick.GradientStop", modelNode.majorQtQuickVersion(), 0);
-                gradientStopNode.variantProperty("position") = roundReal(stops.at(i).first);
-                gradientStopNode.variantProperty("color") = normalizeColor(stops.at(i).second);
+                gradientStopNode.variantProperty("position").setValue(roundReal(stops.at(i).first));
+                gradientStopNode.variantProperty("color").setValue(normalizeColor(stops.at(i).second));
                 gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
             }
         } else { //state

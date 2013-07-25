@@ -89,13 +89,6 @@ QVariant VariantProperty::value() const
     return QVariant();
 }
 
-VariantProperty& VariantProperty::operator= (const QVariant &value)
-{
-    setValue(value);
-
-    return *this;
-}
-
 void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value)
 {
     Internal::WriteLocker locker(model());

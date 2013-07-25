@@ -239,7 +239,7 @@ void setVisible(const SelectionContext &selectionState)
         return;
 
     try {
-        selectionState.selectedModelNodes().first().variantProperty("visible") = selectionState.toggled();
+        selectionState.selectedModelNodes().first().variantProperty("visible").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
         QMessageBox::warning(0, "Error", e.description());
     }
@@ -252,7 +252,7 @@ void setFillWidth(const SelectionContext &selectionState)
         return;
 
     try {
-        selectionState.selectedModelNodes().first().variantProperty("Layout.fillWidth") = selectionState.toggled();
+        selectionState.selectedModelNodes().first().variantProperty("Layout.fillWidth").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
         QMessageBox::warning(0, "Error", e.description());
     }
@@ -265,7 +265,7 @@ void setFillHeight(const SelectionContext &selectionState)
         return;
 
     try {
-        selectionState.selectedModelNodes().first().variantProperty("Layout.fillHeight") = selectionState.toggled();
+        selectionState.selectedModelNodes().first().variantProperty("Layout.fillHeight").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
         QMessageBox::warning(0, "Error", e.description());
     }
@@ -340,7 +340,7 @@ static inline void backupPropertyAndRemove(ModelNode node, const PropertyName &p
 static inline void restoreProperty(ModelNode node, const PropertyName &propertyName)
 {
     if (node.hasAuxiliaryData(auxDataString + propertyName))
-        node.variantProperty(propertyName) = node.auxiliaryData(auxDataString + propertyName);
+        node.variantProperty(propertyName).setValue(node.auxiliaryData(auxDataString + propertyName));
 }
 
 void anchorsFill(const SelectionContext &selectionState)
@@ -476,8 +476,8 @@ void layoutRowPositioner(const SelectionContext &selectionState)
         RewriterTransaction transaction(selectionState.view());
 
         QPoint pos = getUpperLeftPosition(modelNodeList);
-        row.variantProperty("x") = pos.x();
-        row.variantProperty("y") = pos.y();
+        row.variantProperty("x").setValue(pos.x());
+        row.variantProperty("y").setValue(pos.y());
 
         QList<ModelNode> sortedList = modelNodeList;
         qSort(sortedList.begin(), sortedList.end(), compareByX);
@@ -519,8 +519,8 @@ void layoutColumnPositioner(const SelectionContext &selectionState)
         RewriterTransaction transaction(selectionState.view());
 
         QPoint pos = getUpperLeftPosition(modelNodeList);
-        column.variantProperty("x") = pos.x();
-        column.variantProperty("y") = pos.y();
+        column.variantProperty("x").setValue(pos.x());
+        column.variantProperty("y").setValue(pos.y());
 
         QList<ModelNode> sortedList = modelNodeList;
         qSort(sortedList.begin(), sortedList.end(), compareByY);
@@ -554,7 +554,7 @@ void layoutGridPositioner(const SelectionContext &selectionState)
             return;
 
         grid = selectionState.view()->createModelNode("QtQuick.Grid", gridMetaInfo.majorVersion(), gridMetaInfo.minorVersion());
-        grid.variantProperty("columns") = int(sqrt(double(modelNodeList.count())));
+        grid.variantProperty("columns").setValue(int(sqrt(double(modelNodeList.count()))));
 
         reparentTo(grid, parent);
     }
@@ -563,8 +563,8 @@ void layoutGridPositioner(const SelectionContext &selectionState)
         RewriterTransaction transaction(selectionState.view());
 
         QPoint pos = getUpperLeftPosition(modelNodeList);
-        grid.variantProperty("x") = pos.x();
-        grid.variantProperty("y") = pos.y();
+        grid.variantProperty("x").setValue(pos.x());
+        grid.variantProperty("y").setValue(pos.y());
 
         QList<ModelNode> sortedList = modelNodeList;
         qSort(sortedList.begin(), sortedList.end(), compareByGrid);
@@ -606,8 +606,8 @@ void layoutFlowPositioner(const SelectionContext &selectionState)
         RewriterTransaction transaction(selectionState.view());
 
         QPoint pos = getUpperLeftPosition(modelNodeList);
-        flow.variantProperty("x") = pos.x();
-        flow.variantProperty("y") = pos.y();
+        flow.variantProperty("x").setValue(pos.x());
+        flow.variantProperty("y").setValue(pos.y());
 
         QList<ModelNode> sortedList = modelNodeList;
         qSort(sortedList.begin(), sortedList.end(), compareByGrid);
@@ -653,8 +653,8 @@ void layoutRowLayout(const SelectionContext &selectionState)
             RewriterTransaction transaction(selectionState.view());
 
             QPoint upperLeftPosition = getUpperLeftPosition(selectedNodeList);
-            rowNode.variantProperty("x") = upperLeftPosition.x();
-            rowNode.variantProperty("y") = upperLeftPosition.y();
+            rowNode.variantProperty("x").setValue(upperLeftPosition.x());
+            rowNode.variantProperty("y").setValue(upperLeftPosition.y());
 
             QList<ModelNode> sortedSelectedNodes =  selectedNodeList;
             qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), compareByX);
@@ -701,8 +701,8 @@ void layoutColumnLayout(const SelectionContext &selectionState)
             RewriterTransaction transaction(selectionState.view());
 
             QPoint upperLeftPosition = getUpperLeftPosition(selectedNodeList);
-            columnNode.variantProperty("x") = upperLeftPosition.x();
-            columnNode.variantProperty("y") = upperLeftPosition.y();
+            columnNode.variantProperty("x").setValue(upperLeftPosition.x());
+            columnNode.variantProperty("y").setValue(upperLeftPosition.y());
 
             QList<ModelNode> sortedSelectedNodes = selectedNodeList;
             qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), compareByY);
@@ -741,7 +741,7 @@ void layoutGridLayout(const SelectionContext &selectionState)
             QmlItemNode parentNode = qmlItemNode.instanceParentItem();
 
             gridNode = selectionState.view()->createModelNode(gridLayoutType, gridMetaInfo.majorVersion(), gridMetaInfo.minorVersion());
-            gridNode.variantProperty("columns") = int(sqrt(double(selectedNodeList.count())));
+            gridNode.variantProperty("columns").setValue(int(sqrt(double(selectedNodeList.count()))));
 
             reparentTo(gridNode, parentNode);
         }
@@ -750,8 +750,8 @@ void layoutGridLayout(const SelectionContext &selectionState)
             RewriterTransaction transaction(selectionState.view());
 
             QPoint upperLeftPosition = getUpperLeftPosition(selectedNodeList);
-            gridNode.variantProperty("x") = upperLeftPosition.x();
-            gridNode.variantProperty("y") = upperLeftPosition.y();
+            gridNode.variantProperty("x").setValue(upperLeftPosition.x());
+            gridNode.variantProperty("y") .setValue(upperLeftPosition.y());
 
             QList<ModelNode> sortedSelectedNodes = selectedNodeList;
             qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), compareByGrid);

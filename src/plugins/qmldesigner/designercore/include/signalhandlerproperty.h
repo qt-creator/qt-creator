@@ -44,7 +44,6 @@ class QMLDESIGNERCORE_EXPORT SignalHandlerProperty : public QmlDesigner::Abstrac
 public:
     void setSource(const QString &source);
     QString source() const;
-    SignalHandlerProperty& operator= (const QString &source);
 
     SignalHandlerProperty();
     SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
