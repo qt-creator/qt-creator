@@ -34,6 +34,8 @@
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 
+#include <cpptools/cpppreprocessertesthelper.h>
+
 #include <cpptools/cppcodestylepreferences.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpppreprocessor.h>
@@ -345,27 +347,6 @@ public:
 private:
     const QString m_include;
 };
-
-QString includeBaseDirectory()
-{
-    return QLatin1String(SRCDIR)
-        + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data");
-}
-
-QString globalQtCoreIncludePath()
-{
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/QtCore"));
-}
-
-QString globalIncludePath()
-{
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/global"));
-}
-
-QString directoryOfTestFile()
-{
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/local"));
-}
 
 } // anonymous namespace
 
@@ -1283,7 +1264,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
 
 QList<Include> includesForSource(const QByteArray &source)
 {
-    const QString fileName = directoryOfTestFile() + QLatin1String("/file.cpp");
+    const QString fileName = TestIncludePaths::TestIncludePaths::directoryOfTestFile() + QLatin1String("/file.cpp");
     Utils::FileSaver srcSaver(fileName);
     srcSaver.write(source);
     srcSaver.finalize();
@@ -1293,7 +1274,7 @@ QList<Include> includesForSource(const QByteArray &source)
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
     CppPreprocessor pp((QPointer<CppModelManager>(cmm)));
-    pp.setIncludePaths(QStringList(globalIncludePath()));
+    pp.setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
     pp.run(fileName);
 
     Document::Ptr document = cmm->snapshot().document(fileName);
@@ -1450,7 +1431,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
     // Header File
     original = "class Foo {};\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("afile.h"));
 
     // Source File
@@ -1472,12 +1453,12 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
         "}\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("afile.cpp"));
 
     // Do not use the test factory, at least once we want to go through the "full stack".
     AddIncludeForUndefinedIdentifier factory;
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1500,11 +1481,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc()
         "#include \"file.moc\";\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1527,11 +1508,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop(
         "#include \"z.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1554,11 +1535,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingMidd
         "#include \"z.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1581,11 +1562,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingBott
         "#include \"file.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1608,11 +1589,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_appendToUns
         "#include \"file.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1636,11 +1617,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalI
         "#include <b.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1667,11 +1648,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobal
         "void f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<file.h>"));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1698,11 +1679,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_preferGroup
         "#include \"foo.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"prefixc.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1726,11 +1707,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfO
         "#include \"file.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1755,11 +1736,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSo
         "#include <utils/file.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<firstlib/file.h>"));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1784,11 +1765,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUn
         "#include <lastlib/file.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lastlib/file.h>"));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1811,11 +1792,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <global.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"z.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1838,11 +1819,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <global.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"a.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1865,11 +1846,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <global.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"lib/file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1892,11 +1873,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <lib/file.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lib/file.h>"));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1917,11 +1898,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
         "void f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1948,11 +1929,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
         "void @f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -1983,11 +1964,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
         "void @f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    TestCase data(testFiles, QStringList(globalIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
     data.run(&factory);
 }
 
@@ -2009,11 +1990,11 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomet
         "QDir dir;\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, directoryOfTestFile() + QLatin1Char('/')
+    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
                                       + QLatin1String("file.cpp"));
 
     AddIncludeForUndefinedIdentifier factory;
-    TestCase data(testFiles, QStringList(globalQtCoreIncludePath()));
+    TestCase data(testFiles, QStringList(TestIncludePaths::globalQtCoreIncludePath()));
     data.run(&factory);
 }
 
