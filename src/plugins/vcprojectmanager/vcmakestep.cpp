@@ -188,7 +188,7 @@ VcMakeStepConfigWidget::VcMakeStepConfigWidget(VcMakeStep *makeStep) :
     mainLayout->setMargin(0);
     mainLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    m_msBuildPath = new QLabel();
+    m_msBuildPath = new QLabel(this);
     mainLayout->addRow(tr("Command:"), m_msBuildPath);
     setLayout(mainLayout);
 
