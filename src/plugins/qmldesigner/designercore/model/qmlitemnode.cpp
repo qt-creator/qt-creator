@@ -113,26 +113,22 @@ QList<QmlItemNode> QmlItemNode::children() const
 
 QList<QmlObjectNode> QmlItemNode::resources() const
 {
-    QList<QmlObjectNode> returnList;
+    QList<ModelNode> resourcesList;
 
     if (isValid()) {
-        QList<ModelNode> modelNodeList;
-        if (modelNode().hasProperty("resources")) {
-            if (modelNode().property("resources").isNodeListProperty())
-                modelNodeList.append(modelNode().nodeListProperty("resources").toModelNodeList());
-        }
 
-        if (modelNode().hasProperty("data")) {
-            if (modelNode().property("data").isNodeListProperty())
-                modelNodeList.append(modelNode().nodeListProperty("data").toModelNodeList());
-        }
+        if (modelNode().hasNodeListProperty("resources"))
+                resourcesList.append(modelNode().nodeListProperty("resources").toModelNodeList());
 
-        foreach (const ModelNode &node, modelNodeList) {
-            if (!QmlObjectNode::isValidQmlObjectNode(node)) //if ModelNode is no FxItem
-                returnList.append(node);
+        if (modelNode().hasNodeListProperty("data")) {
+            foreach (const ModelNode &node, modelNode().nodeListProperty("data").toModelNodeList()) {
+                if (!QmlItemNode::isValidQmlItemNode(node))
+                    resourcesList.append(node);
+            }
         }
     }
-    return returnList;
+
+    return toQmlObjectNodeList(resourcesList);
 }
 
 QList<QmlObjectNode> QmlItemNode::defaultPropertyChildren() const
