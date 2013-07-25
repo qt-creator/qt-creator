@@ -34,8 +34,10 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 class QTreeWidgetItem;
+QT_END_NAMESPACE
 
 namespace Qnx {
 namespace Internal {
