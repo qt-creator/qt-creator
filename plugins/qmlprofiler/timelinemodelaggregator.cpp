@@ -69,6 +69,7 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
     d->modelManager = modelManager;
     connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
     connect(modelManager,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
+    connect(modelManager,SIGNAL(dataAvailable()),this,SIGNAL(dataAvailable()));
 
     // external models pushed on top
     foreach (AbstractTimelineModel *timelineModel, QmlProfilerPlugin::instance->getModels()) {
@@ -92,7 +93,6 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
 {
     d->modelList << m;
     connect(m,SIGNAL(countChanged()),this,SIGNAL(countChanged()));
-    connect(m,SIGNAL(dataAvailable()),this,SIGNAL(dataAvailable()));
     connect(m,SIGNAL(emptyChanged()),this,SIGNAL(emptyChanged()));
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
     connect(m,SIGNAL(stateChanged()),this,SIGNAL(stateChanged()));

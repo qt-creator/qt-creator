@@ -107,6 +107,7 @@ signals:
 
 protected:
     QmlProfiler::Internal::QmlProfilerModelManager *m_modelManager;
+    int m_modelId;
 
 };
 

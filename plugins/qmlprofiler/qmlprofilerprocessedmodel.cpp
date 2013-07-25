@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "qmlprofilerprocessedmodel.h"
-
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>

@@ -109,7 +109,7 @@ qint64 SceneGraphTimelineModel::lastTimeMark() const
     return d->eventList.last().startTime;
 }
 
-bool SceneGraphTimelineModel::expanded(int category) const
+bool SceneGraphTimelineModel::expanded(int ) const
 {
     return d->isExpanded;
 }
@@ -459,15 +459,19 @@ void SceneGraphTimelineModel::loadData()
             default: break;
             }
         }
+
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), simpleModel->getEvents().count());
     }
 
     qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 }
 
 void SceneGraphTimelineModel::clear()
 {
     d->eventList.clear();
     d->isExpanded = false;
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
 void SceneGraphTimelineModel::dataChanged()

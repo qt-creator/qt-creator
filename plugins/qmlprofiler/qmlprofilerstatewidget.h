@@ -52,6 +52,9 @@ private slots:
     void profilerStateChanged();
     void reposition();
 
+signals:
+    void newTimeEstimation(qint64);
+
 protected:
     void paintEvent(QPaintEvent *event);
 

@@ -126,11 +126,17 @@ void BasicTimelineModel::clear()
     d->startTimeData.clear();
     d->endTimeData.clear();
     d->categorySpan.clear();
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
 void BasicTimelineModel::dataChanged()
 {
-    loadData();
+    if (m_modelManager->state() == QmlProfilerDataState::Done)
+        loadData();
+
+    if (m_modelManager->state() == QmlProfilerDataState::Empty)
+        clear();
 
     emit stateChanged();
     emit dataAvailable();
@@ -209,22 +215,36 @@ void BasicTimelineModel::loadData()
             -1  // bindingLoopHead
         };
         d->startTimeData.append(eventStartInstance);
+
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->startTimeData.count(), eventList.count() * 7);
     }
 
     qSort(d->startTimeData.begin(), d->startTimeData.end(), compareStartTimes);
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 2, 7);
+
     // compute nestingLevel - nonexpanded
     d->computeNestingContracted();
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 3, 7);
 
     // compute nestingLevel - expanded
     d->computeExpandedLevels();
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 4, 7);
+
     // populate endtimelist
     d->buildEndTimeList();
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 5, 7);
+
     d->findBindingLoops();
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 6, 7);
+
     d->computeRowStarts();
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 
     emit countChanged();
 }

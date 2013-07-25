@@ -41,6 +41,7 @@ void AbstractTimelineModel::setModelManager(QmlProfiler::Internal::QmlProfilerMo
 {
     m_modelManager = modelManager;
     connect(modelManager->simpleModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
+    m_modelId = modelManager->registerModelProxy();
 }
 
 qint64 AbstractTimelineModel::traceStartTime() const
