@@ -65,6 +65,8 @@ QtcPlugin {
         "blackberrycheckdevmodestepconfigwidget.h",
         "blackberrycheckdevmodestepfactory.cpp",
         "blackberrycheckdevmodestepfactory.h",
+        "blackberryconfigurationmanager.cpp",
+        "blackberryconfigurationmanager.h",
         "blackberrycreatepackagestep.cpp",
         "blackberrycreatepackagestep.h",
         "blackberrycreatepackagestepconfigwidget.cpp",
