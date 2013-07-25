@@ -256,7 +256,7 @@ BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromNdkPat
 void BlackBerryConfigurationManager::syncCertificates(QList<BlackBerryCertificate*> certificates,
                                                       BlackBerryCertificate *activeCertificate)
 {
-    activeCertificate = activeCertificate;
+    m_activeCertificate = activeCertificate;
 
     foreach (BlackBerryCertificate *cert, certificates) {
         if (!certificates.contains(cert))
