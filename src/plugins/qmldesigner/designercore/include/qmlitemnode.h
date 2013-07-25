@@ -97,6 +97,11 @@ public:
     const QList<QmlItemNode> allDirectSubModelNodes() const;
     const QList<QmlItemNode> allSubModelNodes() const;
     bool hasAnySubModelNodes() const;
+
+    void setPosition(const QPointF &position);
+    void setPostionInBaseState(const QPointF &position);
+
+    void setSize(const QSizeF &size);
 };
 
 QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);

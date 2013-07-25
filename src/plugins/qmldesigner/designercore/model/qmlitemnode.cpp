@@ -31,6 +31,7 @@
 #include <metainfo.h>
 #include "qmlchangeset.h"
 #include "nodelistproperty.h"
+#include "variantproperty.h"
 #include "qmlanchors.h"
 #include "invalidmodelnodeexception.h"
 #include "qmlmodelview.h"
@@ -389,6 +390,30 @@ const QList<QmlItemNode> QmlItemNode::allSubModelNodes() const
 bool QmlItemNode::hasAnySubModelNodes() const
 {
     return modelNode().hasAnySubModelNodes();
+}
+
+void QmlItemNode::setPosition(const QPointF &position)
+{
+    if (!hasBindingProperty("x"))
+        setVariantProperty("x", qRound(position.x()));
+
+    if (!hasBindingProperty("y"))
+        setVariantProperty("y", qRound(position.y()));
+}
+
+void QmlItemNode::setPostionInBaseState(const QPointF &position)
+{
+    modelNode().variantProperty("x").setValue(qRound(position.x()));
+    modelNode().variantProperty("y").setValue(qRound(position.y()));
+}
+
+void QmlItemNode::setSize(const QSizeF &size)
+{
+    if (!hasBindingProperty("width"))
+        setVariantProperty("width", qRound(size.width()));
+
+    if (!hasBindingProperty("height"))
+        setVariantProperty("height", qRound(size.height()));
 }
 
 } //QmlDesigner

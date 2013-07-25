@@ -64,8 +64,6 @@ protected:
     bool isInvalidSize(const QSizeF & size);
     void deleteSnapLines();
     ResizeHandleItem *resizeHandle();
-    void setSize(QmlItemNode itemNode, const QSizeF &size);
-    void setPosition(QmlItemNode itemNode, const QPointF &position);
 
 private:
     Snapper m_snapper;

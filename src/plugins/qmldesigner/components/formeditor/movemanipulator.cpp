@@ -298,10 +298,9 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSn
                 if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                     anchors.setMargin(AnchorLine::VerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
 
-                setPosition(item->qmlItemNode(), positionInContainerSpace);
+                item->qmlItemNode().setPosition(positionInContainerSpace);
             } else {
-                item->qmlItemNode().modelNode().variantProperty("x").setValue(qRound(positionInContainerSpace.x()));
-                item->qmlItemNode().modelNode().variantProperty("y").setValue(qRound(positionInContainerSpace.y()));
+                item->qmlItemNode().setPostionInBaseState(positionInContainerSpace);
             }
         }
     }
@@ -415,7 +414,7 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
         if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
             anchors.setMargin(AnchorLine::VerticalCenter, anchors.instanceMargin(AnchorLine::VerticalCenter) + deltaY);
 
-        setPosition(item->qmlItemNode(), QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
+        item->qmlItemNode().setPosition(QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
                                                   item->qmlItemNode().instanceValue("y").toDouble() + deltaY));
     }
 }
@@ -451,15 +450,6 @@ void MoveManipulator::deleteSnapLines()
 bool MoveManipulator::isActive() const
 {
     return m_isActive;
-}
-
-void MoveManipulator::setPosition(QmlItemNode itemNode, const QPointF &position)
-{
-    if (!itemNode.hasBindingProperty("x"))
-        itemNode.setVariantProperty("x", qRound(position.x()));
-
-    if (!itemNode.hasBindingProperty("y"))
-        itemNode.setVariantProperty("y", qRound(position.y()));
 }
 
 }

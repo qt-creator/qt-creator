@@ -95,8 +95,6 @@ protected:
 
     bool itemsCanReparented() const;
 
-    void setPosition(QmlItemNode itemNode, const QPointF &position);
-
     void adjustAnchoringOfItem(FormEditorItem *item);
 
 private:
