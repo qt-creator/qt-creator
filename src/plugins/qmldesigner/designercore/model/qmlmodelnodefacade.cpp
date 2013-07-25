@@ -29,6 +29,7 @@
 
 #include "qmlmodelnodefacade.h"
 #include "qmlmodelview.h"
+#include <qmldesignerplugin.h>
 #include <QDebug>
 namespace QmlDesigner {
 
@@ -62,16 +63,14 @@ bool QmlModelNodeFacade::isValid() const
     return isValidQmlModelNodeFacade(m_modelNode);
 }
 
-QmlModelView* QmlModelNodeFacade::qmlModelView() const
+QmlModelView* QmlModelNodeFacade::qmlModelView()
 {
-    return modelNode().view()->toQmlModelView();
+    return QmlDesignerPlugin::instance()->viewManager().qmlModelView();
 }
 
 bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
 {
-    QmlModelView * qmlModelView = modelNode.view()->toQmlModelView();
-
-    return modelNode.isValid() && qmlModelView && qmlModelView->nodeInstanceView() && qmlModelView->hasInstanceForModelNode(modelNode) && qmlModelView->instanceForModelNode(modelNode).isValid();
+    return modelNode.isValid() && qmlModelView() && qmlModelView()->nodeInstanceView() && qmlModelView()->hasInstanceForModelNode(modelNode) && qmlModelView()->instanceForModelNode(modelNode).isValid();
 }
 
 bool QmlModelNodeFacade::isRootNode() const

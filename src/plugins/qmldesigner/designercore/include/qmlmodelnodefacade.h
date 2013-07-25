@@ -49,7 +49,7 @@ public:
     QmlModelNodeFacade();
 
     bool isRootNode() const;
-    QmlModelView* qmlModelView() const;
+    static QmlModelView* qmlModelView();
 
 
 protected:
