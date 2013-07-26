@@ -450,7 +450,8 @@ QList<CustomWizard*> CustomWizard::createWizards()
     const QString configFile = QLatin1String(configFileC);
     // Check and parse config file in each directory.
 
-    foreach (const QFileInfo &dirFi, dirs) {
+    while (!dirs.isEmpty()) {
+        const QFileInfo dirFi = dirs.takeFirst();
         const QDir dir(dirFi.absoluteFilePath());
         if (CustomWizardPrivate::verbose)
             verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
@@ -481,9 +482,14 @@ QList<CustomWizard*> CustomWizard::createWizards()
                 break;
             }
         } else {
-            if (CustomWizardPrivate::verbose)
-                if (CustomWizardPrivate::verbose)
-                    verboseLog += QString::fromLatin1("CustomWizard: '%1' not found\n").arg(configFile);
+            QList<QFileInfo> subDirs = dir.entryInfoList(filters, sortflags);
+            if (!subDirs.isEmpty()) {
+                // There is no QList::prepend(QList)...
+                dirs.swap(subDirs);
+                dirs.append(subDirs);
+            } else if (CustomWizardPrivate::verbose) {
+                verboseLog += QString::fromLatin1("CustomWizard: '%1' not found\n").arg(configFile);
+            }
         }
     }
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.

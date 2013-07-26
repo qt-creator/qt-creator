@@ -28,15 +28,22 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
+Custom project wizard configuration example file. Note that by convention,
+the project file goes last.
+The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and
+leave room for the Qt 4 target page.
 -->
-<wizard version="1" kind="project" firstpage="10" id="S.Plain C++ (CMake)" category="I.Projects"
-        platformIndependent="true" featuresRequired="CMake.CMakeSupport">
-    <icon>console.png</icon>
-    <description>Creates a plain C++ project using CMake, not using the Qt library.</description>
-    <displayname>Plain C++ Project (CMake Build)</displayname>;
+<wizard version="1" kind="project"
+        class="qt4project" firstpage="10"
+        id="R.Plain C" category="I.Projects"
+        featuresRequired="QtSupport.Wizards.FeatureQt">
+    <icon>../common/console.png</icon>
+    <description>Creates a plain C project using qmake, not using the Qt library.</description>
+    <displayname>Plain C Project</displayname>;
     <displaycategory>Non-Qt Project</displaycategory>
     <files>
-        <file source="main.cpp" openeditor="true"/>
-        <file source="CMakeLists.txt" openproject="true"/>
+        <file source="../common/main.c" target="main.c" openeditor="true"/>
+        <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>
     </files>
 </wizard>

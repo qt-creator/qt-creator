@@ -31,12 +31,12 @@
 -->
 <wizard version="1" kind="project" firstpage="10" id="S.Plain C (CMake)" category="I.Projects"
         platformIndependent="true" featuresRequired="CMake.CMakeSupport">
-    <icon>console.png</icon>
+    <icon>../common/console.png</icon>
     <description>Creates a plain C project using CMake, not using the Qt library.</description>
     <displayname>Plain C Project (CMake Build)</displayname>;
     <displaycategory>Non-Qt Project</displaycategory>
     <files>
-        <file source="main.c" openeditor="true"/>
+        <file source="../common/main.c" target="main.c" openeditor="true"/>
         <file source="CMakeLists.txt" openproject="true"/>
     </files>
 </wizard>
