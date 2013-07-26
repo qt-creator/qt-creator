@@ -34,6 +34,7 @@ Product {
             var list = [
                 "lrelease.xml",
                 "lupdate.xml",
+                "qmlscene.xml",
                 "qmlviewer.xml",
                 "sort.xml",
             ]
