@@ -92,8 +92,6 @@ private:
 
     RemoteModel *m_remoteModel;
     RemoteAdditionDialog *m_addDialog;
-
-    QString m_repository;
 };
 
 } // namespace Internal

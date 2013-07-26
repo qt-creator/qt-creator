@@ -177,6 +177,8 @@ void RemoteModel::clear()
 
 bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage)
 {
+    m_workingDirectory = workingDirectory;
+
     // get list of remotes.
     QMap<QString,QString> remotesList =
             m_client->synchronousRemotesList(workingDirectory, errorMessage);
@@ -184,7 +186,6 @@ bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage
     if (remotesList.isEmpty())
         return false;
 
-    m_workingDirectory = workingDirectory;
     beginResetModel();
     m_remotes.clear();
     foreach (const QString &remoteName, remotesList.keys()) {

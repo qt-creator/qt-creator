@@ -118,16 +118,15 @@ RemoteDialog::~RemoteDialog()
 
 void RemoteDialog::refresh(const QString &repository, bool force)
 {
-    if (m_repository == repository && !force)
+    if (m_remoteModel->workingDirectory() == repository && !force)
         return;
     // Refresh
-    m_repository = repository;
-    m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(m_repository));
-    if (m_repository.isEmpty()) {
+    m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(repository));
+    if (repository.isEmpty()) {
         m_remoteModel->clear();
     } else {
         QString errorMessage;
-        if (!m_remoteModel->refresh(m_repository, &errorMessage))
+        if (!m_remoteModel->refresh(repository, &errorMessage))
             VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
     }
 }
