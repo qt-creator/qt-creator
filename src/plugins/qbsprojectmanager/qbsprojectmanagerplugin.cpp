@@ -45,6 +45,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/featureprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/buildmanager.h>
@@ -61,6 +62,17 @@
 
 namespace QbsProjectManager {
 namespace Internal {
+
+class QbsFeatureProvider : public Core::IFeatureProvider
+{
+    Core::FeatureSet availableFeatures(const QString & /* platform */) const {
+        return Core::FeatureSet(Core::Id("Qbs.QbsSupport"));
+    }
+
+    QStringList availablePlatforms() const { return QStringList(); }
+    QString displayNameForPlatform(const QString & /* platform */) const { return QString(); }
+};
+
 
 QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
     m_manager(0),
@@ -92,6 +104,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QbsInstallStepFactory);
     addAutoReleasedObject(new QbsDeployConfigurationFactory);
     addAutoReleasedObject(new QbsRunConfigurationFactory);
+    addAutoReleasedObject(new QbsFeatureProvider);
 
     //menus
     // Build Menu:
