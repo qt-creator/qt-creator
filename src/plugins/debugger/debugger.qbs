@@ -24,14 +24,6 @@ QtcPlugin {
     ]
 
     Group {
-        name: "Tests"
-        condition: project.testsEnabled
-        qbs.install: true
-        qbs.installDir: "tests/manual/debugger/simple/"
-        files: ["../../../tests/manual/debugger/simple/simple.pro"]
-    }
-
-    Group {
         name: "General"
         files: [
             "basewindow.cpp", "basewindow.h",
