@@ -2038,12 +2038,11 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
         if (!remote.endsWith(QLatin1String(" (push)")))
             continue;
 
-        QStringList tokens = remote.split(QRegExp(QLatin1String("\\s")),
-                                          QString::SkipEmptyParts);
-        if (tokens.count() != 3)
+        int tabIndex = remote.indexOf(QLatin1Char('\t'));
+        if (tabIndex == -1)
             continue;
-
-        result.insert(tokens.at(0), tokens.at(1));
+        QString url = remote.mid(tabIndex + 1, remote.length() - tabIndex - 8);
+        result.insert(remote.left(tabIndex), url);
     }
     return result;
 }
