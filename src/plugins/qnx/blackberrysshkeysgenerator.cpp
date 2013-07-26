@@ -34,10 +34,12 @@
 
 using namespace Qnx::Internal;
 
-BlackBerrySshKeysGenerator::BlackBerrySshKeysGenerator(QObject *parent)
-    : QThread(parent)
+BlackBerrySshKeysGenerator::BlackBerrySshKeysGenerator(const QString &privateKeyPath)
+    : QThread(0)
     , m_keyGen(new QSsh::SshKeyGenerator)
+    , m_privateKeyPath(privateKeyPath)
 {
+    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
 BlackBerrySshKeysGenerator::~BlackBerrySshKeysGenerator()
@@ -51,15 +53,8 @@ void BlackBerrySshKeysGenerator::run()
     const bool success = m_keyGen->generateKeys(QSsh::SshKeyGenerator::Rsa,
                                                 QSsh::SshKeyGenerator::Mixed, 4096,
                                                 QSsh::SshKeyGenerator::DoNotOfferEncryption);
-    emit sshKeysGenerationFinished(success);
-}
-
-QSsh::SshKeyGenerator *BlackBerrySshKeysGenerator::keyGenerator() const
-{
-    return m_keyGen;
-}
-
-QString BlackBerrySshKeysGenerator::error() const
-{
-    return m_keyGen->error();
+    if (success)
+        emit sshKeysGenerationFinished(m_privateKeyPath, m_keyGen->privateKey(), m_keyGen->publicKey());
+    else
+        emit sshKeysGenerationFailed(m_keyGen->error());
 }

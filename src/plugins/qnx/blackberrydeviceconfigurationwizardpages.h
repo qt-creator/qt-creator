@@ -87,17 +87,16 @@ public:
 
 private slots:
     void findMatchingPublicKey(const QString &privateKeyPath);
-    void processSshKeys(bool success);
+
+    void sshKeysGenerationFailed(const QString &error);
+    void processSshKeys(const QString &privateKeyPath, const QByteArray &privateKey, const QByteArray &publicKey);
     void generateSshKeys();
 
 private:
-    bool saveKeys(const QString &privateKeyFile, const QString &publicKeyFile);
+    bool saveKeys(const QByteArray &privateKey, const QByteArray &publicKey, const QString &privateKeyPath, const QString &publicKeyPath);
     void setBusy(bool busy);
 
     Ui::BlackBerryDeviceConfigurationWizardSshKeyPage *m_ui;
-
-    BlackBerrySshKeysGenerator *m_sshKeysGenerator;
-    QString m_generatedPrivateKeyPath;
 };
 
 class BlackBerryDeviceConfigurationWizardFinalPage : public QWizardPage

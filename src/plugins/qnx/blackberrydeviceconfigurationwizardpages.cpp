@@ -162,7 +162,6 @@ void BlackBerryDeviceConfigurationWizardSetupPage::requestDebugToken()
 BlackBerryDeviceConfigurationWizardSshKeyPage::BlackBerryDeviceConfigurationWizardSshKeyPage(QWidget *parent)
     : QWizardPage(parent)
     , m_ui(new Ui::BlackBerryDeviceConfigurationWizardSshKeyPage)
-    , m_sshKeysGenerator(new BlackBerrySshKeysGenerator(this))
 {
     m_ui->setupUi(this);
 
@@ -180,15 +179,10 @@ BlackBerryDeviceConfigurationWizardSshKeyPage::BlackBerryDeviceConfigurationWiza
     connect(m_ui->privateKey, SIGNAL(changed(QString)), this, SLOT(findMatchingPublicKey(QString)));
     connect(m_ui->privateKey, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->generate, SIGNAL(clicked()), this, SLOT(generateSshKeys()));
-    connect(m_sshKeysGenerator, SIGNAL(sshKeysGenerationFinished(bool)), this, SLOT(processSshKeys(bool)));
 }
 
 BlackBerryDeviceConfigurationWizardSshKeyPage::~BlackBerryDeviceConfigurationWizardSshKeyPage()
 {
-    // Make sure the m_sshKeysGenerator thread is terminated before it's destroyed
-    m_sshKeysGenerator->terminate();
-    m_sshKeysGenerator->wait();
-
     delete m_ui;
     m_ui = 0;
 }
@@ -224,42 +218,43 @@ void BlackBerryDeviceConfigurationWizardSshKeyPage::findMatchingPublicKey(const 
         m_ui->publicKey->clear();
 }
 
-void BlackBerryDeviceConfigurationWizardSshKeyPage::processSshKeys(bool success)
+void BlackBerryDeviceConfigurationWizardSshKeyPage::sshKeysGenerationFailed(const QString &error)
+{
+    setBusy(false);
+    QMessageBox::critical(this, tr("Key Generation Failed"), error);
+}
+
+void BlackBerryDeviceConfigurationWizardSshKeyPage::processSshKeys(const QString &privateKeyPath, const QByteArray &privateKey, const QByteArray &publicKey)
 {
     setBusy(false);
 
-    if (!success) {
-        QMessageBox::critical(this, tr("Key Generation Failed"), m_sshKeysGenerator->error());
-        return;
-    }
+    const QString publicKeyPath = privateKeyPath + QLatin1String(".pub");
 
-    const QString publicKeyPath = m_generatedPrivateKeyPath + QLatin1String(".pub");
-
-    if (!saveKeys(m_generatedPrivateKeyPath, publicKeyPath)) // saveKeys(..) will show an error message if necessary
+    if (!saveKeys(privateKey, publicKey, privateKeyPath, publicKeyPath)) // saveKeys(..) will show an error message if necessary
         return;
 
-    m_ui->privateKey->setFileName(Utils::FileName::fromString(m_generatedPrivateKeyPath));
+    m_ui->privateKey->setFileName(Utils::FileName::fromString(privateKeyPath));
     m_ui->publicKey->setText(QDir::toNativeSeparators(publicKeyPath));
 
     emit completeChanged();
 }
 
-bool BlackBerryDeviceConfigurationWizardSshKeyPage::saveKeys(const QString &privateKeyFile, const QString &publicKeyFile)
+bool BlackBerryDeviceConfigurationWizardSshKeyPage::saveKeys(const QByteArray &privateKey, const QByteArray &publicKey, const QString &privateKeyPath, const QString &publicKeyPath)
 {
-    Utils::FileSaver privSaver(privateKeyFile);
-    privSaver.write(m_sshKeysGenerator->keyGenerator()->privateKey());
+    Utils::FileSaver privSaver(privateKeyPath);
+    privSaver.write(privateKey);
     if (!privSaver.finalize(this))
         return false; // finalize shows an error message if necessary
-    QFile::setPermissions(privateKeyFile, QFile::ReadOwner | QFile::WriteOwner);
+    QFile::setPermissions(privateKeyPath, QFile::ReadOwner | QFile::WriteOwner);
 
-    Utils::FileSaver pubSaver(publicKeyFile);
+    Utils::FileSaver pubSaver(publicKeyPath);
 
     // blackberry-connect requires an @ character to be included in the RSA comment
     const QString atHost = QLatin1Char('@') + QHostInfo::localHostName();
-    QByteArray pubKeyContent = m_sshKeysGenerator->keyGenerator()->publicKey();
+    QByteArray pubKeyContent = publicKey;
     pubKeyContent.append(atHost.toLocal8Bit());
 
-    pubSaver.write(pubKeyContent);
+    pubSaver.write(publicKey);
     if (!pubSaver.finalize(this))
         return false;
 
@@ -276,10 +271,11 @@ void BlackBerryDeviceConfigurationWizardSshKeyPage::generateSshKeys()
     if (privateKeyPath.isEmpty())
         return;
 
-    m_generatedPrivateKeyPath = privateKeyPath;
-
     setBusy(true);
-    m_sshKeysGenerator->start();
+    BlackBerrySshKeysGenerator *sshKeysGenerator = new BlackBerrySshKeysGenerator(privateKeyPath);
+    connect(sshKeysGenerator, SIGNAL(sshKeysGenerationFailed(QString)), this, SLOT(sshKeysGenerationFailed(QString)), Qt::QueuedConnection);
+    connect(sshKeysGenerator, SIGNAL(sshKeysGenerationFinished(QString,QByteArray,QByteArray)), this, SLOT(processSshKeys(QString,QByteArray,QByteArray)), Qt::QueuedConnection);
+    sshKeysGenerator->start();
 }
 
 void BlackBerryDeviceConfigurationWizardSshKeyPage::setBusy(bool busy)
