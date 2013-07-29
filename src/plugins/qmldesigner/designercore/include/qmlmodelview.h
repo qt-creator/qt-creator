@@ -73,8 +73,6 @@ protected:
 
     void activateState(const QmlModelState &state);
 
-private:
-    QmlModelState m_state;
 };
 
 } //QmlDesigner
