@@ -58,9 +58,6 @@ public:
 
     QmlItemNode rootQmlItemNode() const;
 
-protected:
-    NodeInstance instanceForModelNode(const ModelNode &modelNode);
-    bool hasInstanceForModelNode(const ModelNode &modelNode);
 
     void activateState(const QmlModelState &state);
 

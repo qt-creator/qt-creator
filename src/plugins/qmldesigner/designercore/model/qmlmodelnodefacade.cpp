@@ -70,7 +70,11 @@ QmlModelView* QmlModelNodeFacade::qmlModelView()
 
 bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
 {
-    return modelNode.isValid() && qmlModelView() && qmlModelView()->nodeInstanceView() && qmlModelView()->hasInstanceForModelNode(modelNode) && qmlModelView()->instanceForModelNode(modelNode).isValid();
+    return modelNode.isValid()
+            && qmlModelView()
+            && qmlModelView()->nodeInstanceView()
+            && qmlModelView()->nodeInstanceView()->hasInstanceForNode(modelNode)
+            && qmlModelView()->nodeInstanceView()->instanceForNode(modelNode).isValid();
 }
 
 bool QmlModelNodeFacade::isRootNode() const

@@ -403,11 +403,8 @@ bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode) const
 
 QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const PropertyName &name)
 {
-    QmlModelView *modelView = qobject_cast<QmlModelView*>(modelNode.view());
-    if (!modelView)
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    Q_ASSERT(modelView->hasInstanceForModelNode(modelNode));
-    return modelView->instanceForModelNode(modelNode).property(name);
+    Q_ASSERT(modelNode.view()->nodeInstanceView()->hasInstanceForNode(modelNode));
+    return modelNode.view()->nodeInstanceView()->instanceForNode(modelNode).property(name);
 }
 
 QString QmlObjectNode::generateTranslatableText(const QString &text)

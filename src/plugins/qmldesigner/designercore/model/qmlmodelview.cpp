@@ -85,14 +85,4 @@ QmlItemNode QmlModelView::rootQmlItemNode() const
     return QmlItemNode(rootModelNode());
 }
 
-NodeInstance QmlModelView::instanceForModelNode(const ModelNode &modelNode)
-{
-    return nodeInstanceView()->instanceForNode(modelNode);
-}
-
-bool QmlModelView::hasInstanceForModelNode(const ModelNode &modelNode)
-{
-    return nodeInstanceView() && nodeInstanceView()->hasInstanceForNode(modelNode);
-}
-
 } //QmlDesigner
