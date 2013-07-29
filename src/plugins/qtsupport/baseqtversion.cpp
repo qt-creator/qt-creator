@@ -613,25 +613,7 @@ void BaseQtVersion::updateSourcePath() const
     if (!m_sourcePath.isEmpty())
         return;
     updateVersionInfo();
-    const QString installData = qmakeProperty("QT_INSTALL_PREFIX");
-    QString sourcePath = installData;
-    QFile qmakeCache(installData + QLatin1String("/.qmake.cache"));
-    if (qmakeCache.exists()) {
-        qmakeCache.open(QIODevice::ReadOnly | QIODevice::Text);
-        QTextStream stream(&qmakeCache);
-        while (!stream.atEnd()) {
-            QString line = stream.readLine().trimmed();
-            if (line.startsWith(QLatin1String("QT_SOURCE_TREE"))) {
-                sourcePath = line.split(QLatin1Char('=')).at(1).trimmed();
-                if (sourcePath.startsWith(QLatin1String("$$quote("))) {
-                    sourcePath.remove(0, 8);
-                    sourcePath.chop(1);
-                }
-                break;
-            }
-        }
-    }
-    m_sourcePath = FileName::fromUserInput(sourcePath);
+    m_sourcePath = sourcePath(m_versionInfo);
 }
 
 FileName BaseQtVersion::sourcePath() const
@@ -1439,6 +1421,29 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
         }
     }
     return mkspecFullPath;
+}
+
+FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
+{
+    const QString installData = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX");
+    QString sourcePath = installData;
+    QFile qmakeCache(installData + QLatin1String("/.qmake.cache"));
+    if (qmakeCache.exists()) {
+        qmakeCache.open(QIODevice::ReadOnly | QIODevice::Text);
+        QTextStream stream(&qmakeCache);
+        while (!stream.atEnd()) {
+            QString line = stream.readLine().trimmed();
+            if (line.startsWith(QLatin1String("QT_SOURCE_TREE"))) {
+                sourcePath = line.split(QLatin1Char('=')).at(1).trimmed();
+                if (sourcePath.startsWith(QLatin1String("$$quote("))) {
+                    sourcePath.remove(0, 8);
+                    sourcePath.chop(1);
+                }
+                break;
+            }
+        }
+    }
+    return FileName::fromUserInput(sourcePath);
 }
 
 bool BaseQtVersion::isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason)

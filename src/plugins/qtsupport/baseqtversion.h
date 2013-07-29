@@ -185,6 +185,7 @@ public:
                                     QHash<QString, QString> *versionInfo, QString *error = 0);
     static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo);
     static Utils::FileName mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
+    static Utils::FileName sourcePath(const QHash<QString, QString> &versionInfo);
 
     static bool isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason = 0);
     bool isQmlDebuggingSupported(QString *reason = 0) const;
