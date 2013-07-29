@@ -58,9 +58,6 @@ public:
 
     ModelNode createQmlState(const PropertyListType &propertyList = PropertyListType());
 
-    QmlItemNode createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentNode);
-    QmlItemNode createQmlItemNodeFromImage(const QString &imageName, const QPointF &position, QmlItemNode parentNode);
-
     QmlItemNode rootQmlItemNode() const;
 
 protected:
