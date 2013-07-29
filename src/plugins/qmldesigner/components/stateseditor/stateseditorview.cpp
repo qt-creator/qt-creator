@@ -180,7 +180,7 @@ void StatesEditorView::createNewState()
 void StatesEditorView::addState()
 {
     // can happen when root node is e.g. a ListModel
-    if (!rootQmlItemNode().isValid())
+    if (!QmlItemNode::isValidQmlItemNode(rootModelNode()))
         return;
 
     QStringList modelStateNames = rootStateGroup().names();

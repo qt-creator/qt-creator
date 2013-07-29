@@ -51,11 +51,6 @@ public:
     QmlModelView(QObject *parent) ;
 
 
-
-
-    QmlItemNode rootQmlItemNode() const;
-
-
 };
 
 } //QmlDesigner

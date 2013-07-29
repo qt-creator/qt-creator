@@ -55,10 +55,4 @@ QmlModelView::QmlModelView(QObject *parent)
     : AbstractView(parent)
 {
 }
-
-QmlItemNode QmlModelView::rootQmlItemNode() const
-{
-    return QmlItemNode(rootModelNode());
-}
-
 } //QmlDesigner
