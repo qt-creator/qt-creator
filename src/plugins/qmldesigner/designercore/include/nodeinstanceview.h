@@ -122,7 +122,7 @@ public:
     void actualStateChanged(const ModelNode &node);
 
     QList<NodeInstance> instances() const;
-    NodeInstance instanceForNode(const ModelNode &node) const ;
+    NodeInstance instanceForModelNode(const ModelNode &node) const ;
     bool hasInstanceForNode(const ModelNode &node) const;
 
     NodeInstance instanceForId(qint32 id);

@@ -74,7 +74,7 @@ bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
             && qmlModelView()
             && qmlModelView()->nodeInstanceView()
             && qmlModelView()->nodeInstanceView()->hasInstanceForNode(modelNode)
-            && qmlModelView()->nodeInstanceView()->instanceForNode(modelNode).isValid();
+            && qmlModelView()->nodeInstanceView()->instanceForModelNode(modelNode).isValid();
 }
 
 bool QmlModelNodeFacade::isRootNode() const

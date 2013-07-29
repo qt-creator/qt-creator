@@ -404,7 +404,7 @@ bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode) const
 QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const PropertyName &name)
 {
     Q_ASSERT(modelNode.view()->nodeInstanceView()->hasInstanceForNode(modelNode));
-    return modelNode.view()->nodeInstanceView()->instanceForNode(modelNode).property(name);
+    return modelNode.view()->nodeInstanceView()->instanceForModelNode(modelNode).property(name);
 }
 
 QString QmlObjectNode::generateTranslatableText(const QString &text)
@@ -428,7 +428,7 @@ bool QmlObjectNode::instanceHasBinding(const PropertyName &name) const
 
 NodeInstance QmlObjectNode::nodeInstance() const
 {
-    return qmlModelView()->nodeInstanceView()->instanceForNode(modelNode());
+    return qmlModelView()->nodeInstanceView()->instanceForModelNode(modelNode());
 }
 
 QmlObjectNode QmlObjectNode::nodeForInstance(const NodeInstance &instance) const
