@@ -63,10 +63,6 @@ public:
 
     QmlItemNode rootQmlItemNode() const;
 
-    void modelAttached(Model *model) QTC_OVERRIDE;
-    void modelAboutToBeDetached(Model *model) QTC_OVERRIDE;
-
-
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);
     bool hasInstanceForModelNode(const ModelNode &modelNode);

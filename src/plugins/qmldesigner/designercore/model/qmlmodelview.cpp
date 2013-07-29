@@ -285,16 +285,6 @@ bool QmlModelView::hasInstanceForModelNode(const ModelNode &modelNode)
     return nodeInstanceView() && nodeInstanceView()->hasInstanceForNode(modelNode);
 }
 
-void QmlModelView::modelAttached(Model *model)
-{
-    AbstractView::modelAttached(model);
-}
-
-void QmlModelView::modelAboutToBeDetached(Model *model)
-{
-    AbstractView::modelAboutToBeDetached(model);
-}
-
 ModelNode QmlModelView::createQmlState(const QmlDesigner::PropertyListType &propertyList)
 {
 
