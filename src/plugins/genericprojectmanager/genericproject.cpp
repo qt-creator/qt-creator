@@ -265,22 +265,7 @@ void GenericProject::refresh(RefreshOptions options)
         foreach (const QString &file, files())
             adder.maybeAdd(file);
 
-        QStringList filesToUpdate;
-
-        if (options & Configuration) {
-            foreach (const CppTools::ProjectFile &file, part->files)
-                filesToUpdate << file.path;
-            filesToUpdate.append(CppTools::CppModelManagerInterface::configurationFileName());
-            // Full update, if there's a code model update, cancel it
-            m_codeModelFuture.cancel();
-        } else if (options & Files) {
-            // Only update files that got added to the list
-            QSet<QString> newFileList;
-            foreach (const CppTools::ProjectFile &file, part->files)
-                newFileList.insert(file.path);
-            newFileList.subtract(oldFileList);
-            filesToUpdate.append(newFileList.toList());
-        }
+        m_codeModelFuture.cancel();
 
         pinfo.appendProjectPart(part);
         setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
