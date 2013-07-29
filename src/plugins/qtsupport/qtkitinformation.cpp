@@ -34,7 +34,7 @@
 #include "qtversionmanager.h"
 #include "qtparser.h"
 
-#include <utils/environment.h>
+#include <utils/buildablehelperlibrary.h>
 #include <utils/qtcassert.h>
 
 namespace QtSupport {
@@ -66,8 +66,7 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
     QtVersionManager *mgr = QtVersionManager::instance();
 
     // find "Qt in PATH":
-    Utils::FileName qmake = Utils::FileName::fromString(Utils::Environment::systemEnvironment()
-                                                        .searchInPath(QLatin1String("qmake")));
+    Utils::FileName qmake = Utils::BuildableHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
 
     if (qmake.isEmpty())
         return -1;
