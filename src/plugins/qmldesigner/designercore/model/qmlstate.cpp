@@ -179,7 +179,7 @@ void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
         return; //changeSet already there
 
     ModelNode newChangeSet;
-    if (qmlModelView()->rootModelNode().majorQtQuickVersion() > 1)
+    if (qmlModelView()->majorQtQuickVersion() > 1)
         newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 2, 0);
     else
         newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 1, 0);

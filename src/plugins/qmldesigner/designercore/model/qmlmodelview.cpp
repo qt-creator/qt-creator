@@ -288,9 +288,9 @@ bool QmlModelView::hasInstanceForModelNode(const ModelNode &modelNode)
 ModelNode QmlModelView::createQmlState(const QmlDesigner::PropertyListType &propertyList)
 {
 
-    QTC_CHECK(rootModelNode().majorQtQuickVersion() < 3);
+    QTC_CHECK(majorQtQuickVersion() < 3);
 
-    if (rootModelNode().majorQtQuickVersion() > 1)
+    if (majorQtQuickVersion() > 1)
         return createModelNode("QtQuick.State", 2, 0, propertyList);
     else
         return createModelNode("QtQuick.State", 1, 0, propertyList);

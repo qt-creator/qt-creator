@@ -128,7 +128,7 @@ void GradientLineQmlAdaptor::writeGradient()
                 modelNode.removeProperty(gradientName().toUtf8());
             }
 
-            ModelNode gradientNode= modelNode.view()->createModelNode("QtQuick.Gradient", modelNode.majorQtQuickVersion(), 0);
+            ModelNode gradientNode= modelNode.view()->createModelNode("QtQuick.Gradient", modelNode.view()->majorQtQuickVersion(), 0);
             modelNode.nodeProperty(gradientName().toUtf8()).reparentHere(gradientNode);
 
             RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
@@ -137,7 +137,7 @@ void GradientLineQmlAdaptor::writeGradient()
                 gradientNode.setId(oldId);
 
             for (int i = 0;i < stops.size(); i++) {
-                ModelNode gradientStopNode = modelNode.view()->createModelNode("QtQuick.GradientStop", modelNode.majorQtQuickVersion(), 0);
+                ModelNode gradientStopNode = modelNode.view()->createModelNode("QtQuick.GradientStop", modelNode.view()->majorQtQuickVersion(), 0);
                 gradientStopNode.variantProperty("position").setValue(roundReal(stops.at(i).first));
                 gradientStopNode.variantProperty("color").setValue(normalizeColor(stops.at(i).second));
                 gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);

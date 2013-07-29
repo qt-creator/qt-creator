@@ -232,54 +232,6 @@ int ModelNode::majorVersion() const
     return m_internalNode->majorVersion();
 }
 
-int getMajorVersionFromImport(Model *model)
-{
-    foreach (const Import &import, model->imports()) {
-        if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick")) {
-            const QString versionString = import.version();
-            if (versionString.contains(QLatin1String("."))) {
-                const QString majorVersionString = versionString.split(QLatin1String(".")).first();
-                return majorVersionString.toInt();
-            }
-        }
-    }
-
-    return -1;
-}
-
-int getMajorVersionFromNode(const ModelNode &modelNode)
-{
-    if (modelNode.metaInfo().isValid()) {
-        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-            return modelNode.majorVersion();
-
-        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
-            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-                return superClass.majorVersion();
-        }
-    }
-
-    return 1; //default
-}
-
-/*! \brief major number of the QtQuick version used
-\return major number of QtQuickVersion
-*/
-int ModelNode::majorQtQuickVersion() const
-{
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-
-    int majorVersionFromImport = getMajorVersionFromImport(model());
-    if (majorVersionFromImport >= 0)
-        return majorVersionFromImport;
-
-    return getMajorVersionFromNode(*this);
-}
-
-
 /*! \return the short-hand type name of the node. */
 TypeName ModelNode::simplifiedTypeName() const
 {

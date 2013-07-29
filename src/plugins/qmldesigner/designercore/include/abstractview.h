@@ -237,6 +237,8 @@ public:
     void setAcutalStateNode(const ModelNode &node);
     ModelNode actualStateNode() const;
 
+    int majorQtQuickVersion() const;
+
     void resetView();
 
     virtual bool hasWidget() const;

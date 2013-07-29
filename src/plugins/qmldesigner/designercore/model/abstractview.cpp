@@ -528,4 +528,43 @@ ModelNode AbstractView::actualStateNode() const
     return ModelNode();
 }
 
+static int getMajorVersionFromImport(const Model *model)
+{
+    foreach (const Import &import, model->imports()) {
+        if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick")) {
+            const QString versionString = import.version();
+            if (versionString.contains(QLatin1String("."))) {
+                const QString majorVersionString = versionString.split(QLatin1String(".")).first();
+                return majorVersionString.toInt();
+            }
+        }
+    }
+
+    return -1;
+}
+
+static int getMajorVersionFromNode(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isValid()) {
+        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
+            return modelNode.majorVersion();
+
+        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
+            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
+                return superClass.majorVersion();
+        }
+    }
+
+    return 1; //default
+}
+
+int AbstractView::majorQtQuickVersion() const
+{
+    int majorVersionFromImport = getMajorVersionFromImport(model());
+    if (majorVersionFromImport >= 0)
+        return majorVersionFromImport;
+
+    return getMajorVersionFromNode(rootModelNode());
+}
+
 } // namespace QmlDesigner
