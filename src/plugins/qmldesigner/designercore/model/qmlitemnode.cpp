@@ -147,17 +147,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         if (!newQmlItemNode.isValid())
             return newQmlItemNode;
 
-        QString id;
-        int i = 1;
-        QString name(itemLibraryEntry.name().toLower());
-        //remove forbidden characters
-        name.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_]")), QLatin1String("_"));
-        do {
-            id = name + QString::number(i);
-            i++;
-        } while (view->hasId(id)); //If the name already exists count upwards
-
-        newQmlItemNode.setId(id);
+        newQmlItemNode.setId(view->generateNewId("image"));
 
         if (!QmlModelState(view->actualStateNode()).isBaseState()) {
             newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
@@ -224,16 +214,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
 
         Q_ASSERT(newQmlItemNode.isValid());
 
-        QString id;
-        int i = 1;
-        QString name("image");
-        name.remove(QLatin1Char(' '));
-        do {
-            id = name + QString::number(i);
-            i++;
-        } while (view->hasId(id)); //If the name already exists count upwards
+        newQmlItemNode.setId(view->generateNewId("image"));
 
-        newQmlItemNode.setId(id);
         if (!QmlModelState(view->actualStateNode()).isBaseState()) {
             newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
             newQmlItemNode.setVariantProperty("opacity", 1);

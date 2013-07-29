@@ -375,6 +375,20 @@ bool AbstractView::hasId(const QString &id) const
     return model()->d->hasId(id);
 }
 
+QString AbstractView::generateNewId(const QString prefixName) const
+{
+    int counter = 1;
+
+    QString newId = QString("%1%2").arg(prefixName.toLower()).arg(counter);
+
+    while (hasId(newId)) {
+        counter += 1;
+        newId = QString("%1%2").arg(prefixName.toLower()).arg(counter);
+    }
+
+    return newId;
+}
+
 ModelNode AbstractView::modelNodeForInternalId(qint32 internalId)
 {
      return ModelNode(model()->d->nodeForInternalId(internalId), model(), this);

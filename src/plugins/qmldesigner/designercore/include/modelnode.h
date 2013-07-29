@@ -185,7 +185,7 @@ public:
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;
-    QString generateNewId() const;
+
 
 private: // variables
     Internal::InternalNodePointer m_internalNode;

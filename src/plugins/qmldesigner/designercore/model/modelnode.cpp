@@ -125,19 +125,6 @@ ModelNode::~ModelNode()
 {
 }
 
-QString ModelNode::generateNewId() const
-{
-    int counter = 1;
-    QString newId = QString("%1%2").arg(QString::fromUtf8(simplifiedTypeName()).toLower()).arg(counter);
-
-    while (view()->hasId(newId)) {
-        counter += 1;
-        newId = QString("%1%2").arg(QString::fromUtf8(simplifiedTypeName()).toLower()).arg(counter);
-    }
-
-    return newId;
-}
-
 /*! \brief returns the name of node which is a short cut to a property like objectName
 \return name of the node
 */
@@ -152,7 +139,7 @@ QString ModelNode::id() const
 QString ModelNode::validId()
 {
     if (id().isEmpty())
-        setId(generateNewId());
+        setId(view()->generateNewId(QString::fromUtf8(simplifiedTypeName())));
 
     return id();
 }
