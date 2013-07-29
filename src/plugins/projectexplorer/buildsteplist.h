@@ -58,6 +58,7 @@ public:
     bool contains(const Core::Id id) const;
 
     void insertStep(int position, BuildStep *step);
+    void appendStep(BuildStep *step) { insertStep(count(), step); }
     bool removeStep(int position);
     void moveStepUp(int position);
     BuildStep *at(int position);
