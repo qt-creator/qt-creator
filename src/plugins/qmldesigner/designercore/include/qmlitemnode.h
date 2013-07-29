@@ -119,7 +119,7 @@ QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
 class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
 {
     friend class QmlItemNode;
-    friend class QmlModelView;
+    friend class StatesEditorView;
 
 public:
 

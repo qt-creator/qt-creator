@@ -50,16 +50,11 @@ class QMLDESIGNERCORE_EXPORT QmlModelView : public AbstractView
 public:
     QmlModelView(QObject *parent) ;
 
-    void setCurrentState(const QmlModelState &state);
-    QmlModelState currentState() const;
 
-    QmlModelState baseState() const;
-    QmlModelStateGroup rootStateGroup() const;
+
 
     QmlItemNode rootQmlItemNode() const;
 
-
-    void activateState(const QmlModelState &state);
 
 };
 

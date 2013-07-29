@@ -243,6 +243,30 @@ void StatesEditorView::duplicateCurrentState()
     setCurrentState(newState);
 }
 
+QmlModelState StatesEditorView::currentState() const
+{
+    return QmlModelState(actualStateNode());
+}
+
+void StatesEditorView::setCurrentState(const QmlModelState &state)
+{
+    if (!model() && !state.isValid())
+        return;
+
+    if (actualStateNode() != state.modelNode())
+        setAcutalStateNode(state.modelNode());
+}
+
+QmlModelState StatesEditorView::baseState() const
+{
+    return QmlModelState::createBaseState(this);
+}
+
+QmlModelStateGroup StatesEditorView::rootStateGroup() const
+{
+    return QmlModelStateGroup(rootModelNode());
+}
+
 bool StatesEditorView::validStateName(const QString &name) const
 {
     if (name == tr("base state"))

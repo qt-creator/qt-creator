@@ -76,7 +76,7 @@ void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &
 QmlModelState QmlObjectNode::currentState() const
 {
     if (isValid())
-        return qmlModelView()->currentState();
+        return QmlModelState(qmlModelView()->actualStateNode());
     else
         return QmlModelState();
 }

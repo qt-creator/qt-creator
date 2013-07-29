@@ -738,6 +738,8 @@ void PropertyEditor::resetView()
 
     NodeType *type = m_typeHash.value(qmlFile.toString());
 
+    QString currentStateName = QmlModelState::isValidQmlModelState(actualStateNode()) ? QmlModelState(actualStateNode()).name() : QLatin1String("invalid state");
+
     if (!type) {
         type = new NodeType(this);
 
@@ -750,7 +752,7 @@ void PropertyEditor::resetView()
             Q_ASSERT(qmlObjectNode.isValid());
         }
         QDeclarativeContext *ctxt = type->m_view->rootContext();
-        type->setup(qmlObjectNode, currentState().name(), qmlSpecificsFile, this);
+        type->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
             type->m_contextObject->setSpecificQmlData(specificQmlData);
@@ -768,7 +770,6 @@ void PropertyEditor::resetView()
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
             type->m_contextObject->setSpecificQmlData(specificQmlData);
-        QString currentStateName = currentState().isValid() ? currentState().name() : QLatin1String("invalid state");
         type->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
         type->m_contextObject->setGlobalBaseUrl(qmlFile);
         type->m_contextObject->setSpecificQmlData(specificQmlData);

@@ -178,7 +178,7 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
 
 void FormEditorWidget::resetNodeInstanceView()
 {
-    m_formEditorView->setCurrentState(m_formEditorView->baseState());
+    m_formEditorView->setAcutalStateNode(m_formEditorView->rootModelNode());
     m_formEditorView->emitCustomNotification(QLatin1String("reset QmlPuppet"));
 }
 

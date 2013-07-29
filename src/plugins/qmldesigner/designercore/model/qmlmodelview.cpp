@@ -56,30 +56,6 @@ QmlModelView::QmlModelView(QObject *parent)
 {
 }
 
-void QmlModelView::setCurrentState(const QmlModelState &state)
-{
-    if (!model() && !state.isValid())
-        return;
-
-    if (actualStateNode() != state.modelNode())
-        setAcutalStateNode(state.modelNode());
-}
-
-QmlModelState QmlModelView::currentState() const
-{
-    return QmlModelState(actualStateNode());
-}
-
-QmlModelState QmlModelView::baseState() const
-{
-    return QmlModelState::createBaseState(this);
-}
-
-QmlModelStateGroup QmlModelView::rootStateGroup() const
-{
-    return QmlModelStateGroup(rootModelNode());
-}
-
 QmlItemNode QmlModelView::rootQmlItemNode() const
 {
     return QmlItemNode(rootModelNode());

@@ -96,7 +96,7 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
 
         FormEditorItem *containerItem = containerFormEditorItem(itemList, m_movingItems);
         if (containerItem
-                && view()->currentState().isBaseState()) {
+                && QmlModelState::isBaseState(view()->actualStateNode())) {
             if (containerItem != m_movingItems.first()->parentItem()
                     && event->modifiers().testFlag(Qt::ShiftModifier)) {
                 m_moveManipulator.reparentTo(containerItem);
