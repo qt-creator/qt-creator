@@ -100,10 +100,12 @@ QMultiMap<QString, QString> QnxUtils::parseEnvironmentFile(const QString &fileNa
 
         QString value = line.mid(equalIndex + 1);
 
-        // BASE_DIR variable is evaluated when souring the bbnk-env script
+        // BASE_DIR (and BASE_DIR_REPLACED in some recent internal versions) variable is
+        // evaluated when souring the bbnk-env script
         // BASE_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd )"
         // We already know the NDK path so we can set the variable value
-        if (var == QLatin1String("BASE_DIR"))
+        // TODO: Do not parse bbnk-env!
+        if (var == QLatin1String("BASE_DIR") ||  var == QLatin1String("BASE_DIR_REPLACED"))
             value = QFileInfo(fileName).dir().absolutePath();
 
         if (Utils::HostOsInfo::isWindowsHost()) {
