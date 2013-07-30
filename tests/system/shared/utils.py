@@ -225,7 +225,7 @@ def cleanUpUserFiles(pathsToProFiles=None):
             doneWithoutErrors = False
     return doneWithoutErrors
 
-def invokeMenuItem(menu, item, subItem = None):
+def invokeMenuItem(menu, item, *subItems):
     if platform.system() == "Darwin":
         try:
             waitForObject(":Qt Creator.QtCreator.MenuBar_QMenuBar", 2000)
@@ -237,10 +237,11 @@ def invokeMenuItem(menu, item, subItem = None):
     itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
     waitFor("itemObject.enabled", 2000)
     activateItem(itemObject)
-    if subItem != None:
+    for subItem in subItems:
         sub = itemObject.menu()
         waitFor("sub.visible", 1000)
-        activateItem(waitForObjectItem(sub, subItem))
+        itemObject = waitForObjectItem(sub, subItem)
+        activateItem(itemObject)
 
 def logApplicationOutput():
     # make sure application output is shown
