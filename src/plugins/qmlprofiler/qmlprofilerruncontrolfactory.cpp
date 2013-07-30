@@ -100,11 +100,5 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     return rc;
 }
 
-IRunConfigurationAspect *QmlProfilerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
-{
-    Q_UNUSED(rc);
-    return new AnalyzerRunConfigurationAspect;
-}
-
 } // namespace Internal
 } // namespace QmlProfiler
