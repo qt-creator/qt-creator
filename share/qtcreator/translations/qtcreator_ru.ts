@@ -138,13 +138,6 @@
     </message>
 </context>
 <context>
-    <name>Analyzer::Internal::AnalyzerRunControlFactory</name>
-    <message>
-        <source>No analyzer tool selected</source>
-        <translation>Инструмент анализа не выбран</translation>
-    </message>
-</context>
-<context>
     <name>Analyzer::Internal::AnalyzerToolDetailWidget</name>
     <message>
         <source>&lt;strong&gt;%1&lt;/strong&gt; settings</source>
@@ -811,10 +804,6 @@ Please make sure your application is built successfully and is selected in Appli
 </context>
 <context>
     <name>Android::Internal::AndroidSettingsWidget</name>
-    <message>
-        <source>Android SDK Folder</source>
-        <translation>Каталог Android SDK</translation>
-    </message>
     <message>
         <source>&quot;%1&quot; does not seem to be an Android SDK top folder.</source>
         <translation>Не похоже, чтобы «%1» был корневым каталогом Android SDK.</translation>
@@ -9875,7 +9864,7 @@ receives a signal like SIGSEGV during debugging.</source>
     <name>Debugger::Internal::GdbOptionsPage2</name>
     <message>
         <source>GDB Extended</source>
-        <translation type="unfinished">GDB, расширенные</translation>
+        <translation>GDB, расширенные</translation>
     </message>
 </context>
 <context>
@@ -13152,6 +13141,10 @@ Reason: %3</source>
         <translation>Перетекание</translation>
     </message>
     <message>
+        <source>Layout direction</source>
+        <translation>Направление компоновки</translation>
+    </message>
+    <message>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
@@ -15626,6 +15619,10 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Flow</source>
         <translation>Перетекание</translation>
+    </message>
+    <message>
+        <source>Layout direction</source>
+        <translation>Направление компоновки</translation>
     </message>
     <message>
         <source>Spacing</source>
@@ -24481,6 +24478,42 @@ Remote stderr was: %1</source>
         <translation>Сбросить свойство z</translation>
     </message>
     <message>
+        <source>Layout in Column (Positioner)</source>
+        <translation>Компоновать в колонку (позиционер)</translation>
+    </message>
+    <message>
+        <source>Layout in Row (Positioner)</source>
+        <translation>Компоновать в строку (позиционер)</translation>
+    </message>
+    <message>
+        <source>Layout in Grid (Positioner)</source>
+        <translation>Компоновать по сетке (позиционер)</translation>
+    </message>
+    <message>
+        <source>Layout in Flow (Positioner)</source>
+        <translation>Перетекающая компоновка (позиционер)</translation>
+    </message>
+    <message>
+        <source>Layout in ColumnLayout</source>
+        <translation>Компоновать в ColumnLayout</translation>
+    </message>
+    <message>
+        <source>Layout in RowLayout</source>
+        <translation>Компоновать в RowLayout</translation>
+    </message>
+    <message>
+        <source>Layout in GridLayout</source>
+        <translation>Компоновать в GridLayout</translation>
+    </message>
+    <message>
+        <source>Fill Width</source>
+        <translation>Растянуть по ширине</translation>
+    </message>
+    <message>
+        <source>Fill Height</source>
+        <translation>Растянуть по высоте</translation>
+    </message>
+    <message>
         <source>Go into Component</source>
         <translation>Перейти к элементу</translation>
     </message>
@@ -24495,22 +24528,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Reset</source>
         <translation>Сбросить</translation>
-    </message>
-    <message>
-        <source>Layout in Column</source>
-        <translation>Компоновать в колонку</translation>
-    </message>
-    <message>
-        <source>Layout in Row</source>
-        <translation>Компоновать в строку</translation>
-    </message>
-    <message>
-        <source>Layout in Grid</source>
-        <translation>Компоновать по сетке</translation>
-    </message>
-    <message>
-        <source>Layout in Flow</source>
-        <translation>Перетекающая компоновка</translation>
     </message>
 </context>
 <context>
@@ -25603,6 +25620,13 @@ Error: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlProfiler::Internal::LocalQmlProfilerRunner</name>
+    <message>
+        <source>No executable file to launch.</source>
+        <translation>Нет программы для запуска.</translation>
+    </message>
+</context>
+<context>
     <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
     <message>
         <source>QML Profiler</source>
@@ -25721,10 +25745,6 @@ Do you want to retry?</source>
         <extracomment>%1 is detailed error message</extracomment>
         <translation>Не удалось подключиться к внутрипроцессному отладчику QML.
 %1</translation>
-    </message>
-    <message>
-        <source>No executable file to launch.</source>
-        <translation>Нет программы для запуска.</translation>
     </message>
 </context>
 <context>
@@ -25888,6 +25908,13 @@ references to elements in other files, loops, etc.)</source>
     <message>
         <source>Reset Events Pane</source>
         <translation>Сбровить панель событий</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
+    <message>
+        <source>No analyzer tool selected</source>
+        <translation>Инструмент анализа не выбран</translation>
     </message>
 </context>
 <context>
@@ -31547,6 +31574,10 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>Строка</translation>
     </message>
     <message>
+        <source>Layout direction</source>
+        <translation>Направление компоновки</translation>
+    </message>
+    <message>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
@@ -35982,6 +36013,13 @@ With cache simulation, further event counters are enabled:
 </source>
         <translation>** Процесс завершился **
 </translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::ValgrindRunControlFactory</name>
+    <message>
+        <source>No analyzer tool selected</source>
+        <translation>Инструмент анализа не выбран</translation>
     </message>
 </context>
 <context>
