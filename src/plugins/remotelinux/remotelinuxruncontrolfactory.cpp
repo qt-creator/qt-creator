@@ -40,6 +40,7 @@
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/ianalyzertool.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <utils/portlist.h>
@@ -113,9 +114,13 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
             return 0;
         }
         AnalyzerStartParameters params = RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
-        AnalyzerRunControl * const runControl = new AnalyzerRunControl(tool, params, runConfig);
+        //AnalyzerRunControl * const runControl = new AnalyzerRunControl(tool, params, runConfig);
+
+        AnalyzerRunControl *runControl = tool->createRunControl(params, runConfig);
+        //m_engine->setRunControl(this);
+
         RemoteLinuxAnalyzeSupport * const analyzeSupport =
-                new RemoteLinuxAnalyzeSupport(rc, runControl->engine(), mode);
+                new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;
     }

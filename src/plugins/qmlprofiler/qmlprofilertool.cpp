@@ -218,10 +218,10 @@ IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
     return AnyMode;
 }
 
-IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
+AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
-    QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
+    QmlProfilerRunControl *engine = new QmlProfilerRunControl(sp, runConfiguration);
 
     engine->registerProfilerStateManager(d->m_profilerState);
 
@@ -489,7 +489,8 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     sp.sysroot = SysRootKitInformation::sysRoot(kit).toString();
     sp.analyzerPort = port;
 
-    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
+    //AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
+    AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
     ProjectExplorerPlugin::instance()->startRunControl(rc, tool->runMode());

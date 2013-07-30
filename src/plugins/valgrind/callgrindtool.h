@@ -54,7 +54,7 @@ public:
 
     void extensionsInitialized();
 
-    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
+    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();
 

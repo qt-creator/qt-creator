@@ -450,16 +450,16 @@ QWidget *MemcheckTool::createWidgets()
     return widget;
 }
 
-IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
+AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
                                             RunConfiguration *runConfiguration)
 {
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
         ->project()->files(Project::AllFiles) : QStringList());
 
-    MemcheckEngine *engine = new MemcheckEngine(sp, runConfiguration);
+    MemcheckRunControl *engine = new MemcheckRunControl(sp, runConfiguration);
 
-    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
-            this, SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
+    connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
+            this, SLOT(engineStarting(const Analyzer::AnalyzerRunControl*)));
     connect(engine, SIGNAL(parserError(Valgrind::XmlProtocol::Error)),
             this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
     connect(engine, SIGNAL(internalParserError(QString)),
@@ -474,7 +474,7 @@ void MemcheckTool::startTool(StartMode mode)
     ValgrindPlugin::startValgrindTool(this, mode);
 }
 
-void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
+void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
 {
     setBusyCursor(true);
     clearErrorView();
@@ -483,7 +483,7 @@ void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
     if (RunConfiguration *rc = engine->runConfiguration())
         dir = rc->target()->project()->projectDirectory() + QDir::separator();
 
-    const MemcheckEngine *mEngine = dynamic_cast<const MemcheckEngine *>(engine);
+    const MemcheckRunControl *mEngine = dynamic_cast<const MemcheckRunControl *>(engine);
     QTC_ASSERT(mEngine, return);
     const QString name = QFileInfo(mEngine->executable()).fileName();
 

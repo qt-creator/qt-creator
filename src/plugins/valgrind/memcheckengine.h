@@ -39,16 +39,16 @@
 namespace Valgrind {
 namespace Internal {
 
-class MemcheckEngine : public ValgrindEngine
+class MemcheckRunControl : public ValgrindRunControl
 {
     Q_OBJECT
 
 public:
-    MemcheckEngine(const Analyzer::AnalyzerStartParameters &sp,
+    MemcheckRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
-    bool start();
-    void stop();
+    bool startEngine();
+    void stopEngine();
 
     QStringList suppressionFiles() const;
 

@@ -38,15 +38,15 @@
 namespace Valgrind {
 namespace Internal {
 
-class CallgrindEngine : public Valgrind::Internal::ValgrindEngine
+class CallgrindRunControl : public ValgrindRunControl
 {
     Q_OBJECT
 
 public:
-    CallgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
+    CallgrindRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
-    bool start();
+    bool startEngine();
 
     Valgrind::Callgrind::ParseData *takeParserData();
 
@@ -71,7 +71,7 @@ protected:
     virtual Valgrind::ValgrindRunner *runner();
 
 signals:
-    void parserDataReady(CallgrindEngine *engine);
+    void parserDataReady(CallgrindRunControl *engine);
 
 private slots:
     void slotFinished();

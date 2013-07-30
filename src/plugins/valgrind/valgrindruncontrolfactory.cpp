@@ -122,8 +122,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     AnalyzerStartParameters sp = createValgrindStartParameters(runConfiguration);
     sp.toolId = tool->id();
 
-    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
-    return rc;
+    return tool->createRunControl(sp, runConfiguration);
 }
 
 IRunConfigurationAspect *ValgrindRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)

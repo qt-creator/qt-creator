@@ -48,6 +48,7 @@
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/ianalyzertool.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -195,8 +196,9 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
             return 0;
         }
         const AnalyzerStartParameters params = createAnalyzerStartParameters(rc, mode);
-        AnalyzerRunControl * const runControl = new AnalyzerRunControl(tool, params, runConfig);
-        QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl->engine());
+        AnalyzerRunControl *runControl = tool->createRunControl(params, runConfig);
+        //AnalyzerRunControl * const runControl = new AnalyzerRunControl(tool, params, runConfig);
+        QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;
     }

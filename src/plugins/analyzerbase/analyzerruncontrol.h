@@ -36,20 +36,55 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/task.h>
 
+#include "analyzerbase_global.h"
+#include "analyzerstartparameters.h"
+
+#include <projectexplorer/task.h>
+#include <projectexplorer/runconfiguration.h>
+#include <utils/outputformat.h>
+
+#include <QObject>
+#include <QString>
+
+namespace ProjectExplorer { class RunConfiguration; }
+
 namespace Analyzer {
 
-class AnalyzerStartParameters;
-class IAnalyzerTool;
-class IAnalyzerEngine;
-
+/**
+ * An AnalyzerRunControl instance handles the launch of an analyzation tool.
+ *
+ * It gets created for each launch and deleted when the launch is stopped or ended.
+ */
 class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
 public:
-    AnalyzerRunControl(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+    AnalyzerRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
-    ~AnalyzerRunControl();
+
+    /// Start analyzation process.
+    virtual bool startEngine() = 0;
+    /// Trigger async stop of the analyzation process.
+    virtual void stopEngine() = 0;
+
+    /// Controller actions.
+    virtual bool canPause() const { return false; }
+    virtual void pause() {}
+    virtual void unpause() {}
+
+    /// The active run configuration for this engine, might be zero.
+    ProjectExplorer::RunConfiguration *runConfiguration() const { return m_runConfig; }
+
+    /// The start parameters for this engine.
+    const AnalyzerStartParameters &startParameters() const { return m_sp; }
+
+    StartMode mode() const { return m_sp.startMode; }
+
+    virtual void notifyRemoteSetupDone(quint16) {}
+    virtual void notifyRemoteFinished(bool) {}
+
+    bool m_isRunning;
 
     // ProjectExplorer::RunControl
     void start();
@@ -58,22 +93,21 @@ public:
     QString displayName() const;
     QIcon icon() const;
 
-    IAnalyzerEngine *engine() const;
+public slots:
+    virtual void logApplicationMessage(const QString &, Utils::OutputFormat) {}
 
 private slots:
     void stopIt();
-    void receiveOutput(const QString &, Utils::OutputFormat format);
+    void runControlFinished();
 
-    void addTask(ProjectExplorer::Task::TaskType type, const QString &description,
-                 const QString &file, int line);
-
-    void engineFinished();
+signals:
+    /// Must be emitted when the engine is starting.
+    void starting(const Analyzer::AnalyzerRunControl *);
 
 private:
-    class Private;
-    Private *d;
+    ProjectExplorer::RunConfiguration *m_runConfig;
+    AnalyzerStartParameters m_sp;
 };
-
 } // namespace Analyzer
 
 #endif // ANALYZERRUNCONTROL_H

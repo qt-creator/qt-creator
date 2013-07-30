@@ -31,7 +31,7 @@
 #ifndef VALGRINDENGINE_H
 #define VALGRINDENGINE_H
 
-#include <analyzerbase/ianalyzerengine.h>
+#include <analyzerbase/analyzerruncontrol.h>
 #include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
 
@@ -43,17 +43,17 @@ namespace Analyzer { class AnalyzerSettings; }
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindEngine : public Analyzer::IAnalyzerEngine
+class ValgrindRunControl : public Analyzer::AnalyzerRunControl
 {
     Q_OBJECT
 
 public:
-    ValgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
+    ValgrindRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
-    ~ValgrindEngine();
+    ~ValgrindRunControl();
 
-    bool start();
-    void stop();
+    bool startEngine();
+    void stopEngine();
 
     QString executable() const;
 

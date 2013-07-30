@@ -34,20 +34,24 @@
 
 #include <analyzerbase/analyzersettings.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/taskhub.h>
+
 #include <valgrind/xmlprotocol/error.h>
 #include <valgrind/xmlprotocol/status.h>
 
 #include <utils/qtcassert.h>
 
 using namespace Analyzer;
+using namespace ProjectExplorer;
 using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 namespace Internal {
 
-MemcheckEngine::MemcheckEngine(const AnalyzerStartParameters &sp,
+MemcheckRunControl::MemcheckRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
-    : ValgrindEngine(sp, runConfiguration)
+    : ValgrindRunControl(sp, runConfiguration)
 {
     connect(&m_parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
             SIGNAL(parserError(Valgrind::XmlProtocol::Error)));
@@ -61,33 +65,36 @@ MemcheckEngine::MemcheckEngine(const AnalyzerStartParameters &sp,
     m_progress->setProgressRange(0, XmlProtocol::Status::Finished + 1);
 }
 
-QString MemcheckEngine::progressTitle() const
+QString MemcheckRunControl::progressTitle() const
 {
     return tr("Analyzing Memory");
 }
 
-Valgrind::ValgrindRunner *MemcheckEngine::runner()
+Valgrind::ValgrindRunner *MemcheckRunControl::runner()
 {
     return &m_runner;
 }
 
-bool MemcheckEngine::start()
+bool MemcheckRunControl::startEngine()
 {
     m_runner.setParser(&m_parser);
 
-    emit outputReceived(tr("Analyzing memory of %1\n").arg(executable()),
+    // Clear about-to-be-outdated tasks.
+    ProjectExplorerPlugin::instance()->taskHub()->clearTasks(Analyzer::Constants::ANALYZERTASK_ID);
+
+    appendMessage(tr("Analyzing memory of %1\n").arg(executable()),
                         Utils::NormalMessageFormat);
-    return ValgrindEngine::start();
+    return ValgrindRunControl::startEngine();
 }
 
-void MemcheckEngine::stop()
+void MemcheckRunControl::stopEngine()
 {
     disconnect(&m_parser, SIGNAL(internalError(QString)),
                this, SIGNAL(internalParserError(QString)));
-    ValgrindEngine::stop();
+    ValgrindRunControl::stopEngine();
 }
 
-QStringList MemcheckEngine::toolArguments() const
+QStringList MemcheckRunControl::toolArguments() const
 {
     QStringList arguments;
     arguments << QLatin1String("--gen-suppressions=all");
@@ -105,17 +112,17 @@ QStringList MemcheckEngine::toolArguments() const
     return arguments;
 }
 
-QStringList MemcheckEngine::suppressionFiles() const
+QStringList MemcheckRunControl::suppressionFiles() const
 {
     return m_settings->subConfig<ValgrindBaseSettings>()->suppressionFiles();
 }
 
-void MemcheckEngine::status(const Status &status)
+void MemcheckRunControl::status(const Status &status)
 {
     m_progress->setProgressValue(status.state() + 1);
 }
 
-void MemcheckEngine::receiveLogMessage(const QByteArray &b)
+void MemcheckRunControl::receiveLogMessage(const QByteArray &b)
 {
     QString error = QString::fromLocal8Bit(b);
     // workaround https://bugs.kde.org/show_bug.cgi?id=255888
@@ -126,7 +133,7 @@ void MemcheckEngine::receiveLogMessage(const QByteArray &b)
     if (error.isEmpty())
         return;
 
-    stop();
+    stopEngine();
 
     QString file;
     int line = -1;
@@ -138,7 +145,10 @@ void MemcheckEngine::receiveLogMessage(const QByteArray &b)
         line = suppressionError.cap(2).toInt();
     }
 
-    emit taskToBeAdded(ProjectExplorer::Task::Error, error, file, line);
+    TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
+    hub->addTask(Task(Task::Error, error, Utils::FileName::fromUserInput(file), line,
+                      Analyzer::Constants::ANALYZERTASK_ID));
+    hub->requestPopup();
 }
 
 } // namespace Internal

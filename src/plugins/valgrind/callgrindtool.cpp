@@ -118,7 +118,7 @@ public:
     void doClear(bool clearParseData);
     void updateEventCombo();
 
-    IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
+    AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
 signals:
@@ -163,8 +163,8 @@ public slots:
     void visualisationFunctionSelected(const Valgrind::Callgrind::Function *function);
     void showParserResults(const Valgrind::Callgrind::ParseData *data);
 
-    void takeParserData(CallgrindEngine *engine);
-    void engineStarting(const Analyzer::IAnalyzerEngine *);
+    void takeParserData(CallgrindRunControl *rc);
+    void engineStarting(const Analyzer::AnalyzerRunControl *);
     void engineFinished();
 
     void editorOpened(Core::IEditor *);
@@ -569,38 +569,38 @@ void CallgrindTool::extensionsInitialized()
     }
 }
 
-IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
+AnalyzerRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
-    return d->createEngine(sp, runConfiguration);
+    return d->createRunControl(sp, runConfiguration);
 }
 
-IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameters &sp,
+AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
-    CallgrindEngine *engine = new CallgrindEngine(sp, runConfiguration);
+    CallgrindRunControl *rc = new CallgrindRunControl(sp, runConfiguration);
 
-    connect(engine, SIGNAL(parserDataReady(CallgrindEngine*)),
-            SLOT(takeParserData(CallgrindEngine*)));
-    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
-            SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
-    connect(engine, SIGNAL(finished()),
+    connect(rc, SIGNAL(parserDataReady(CallgrindRunControl*)),
+            SLOT(takeParserData(CallgrindRunControl*)));
+    connect(rc, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
+            SLOT(engineStarting(const Analyzer::AnalyzerRunControl*)));
+    connect(rc, SIGNAL(finished()),
             SLOT(engineFinished()));
 
-    connect(this, SIGNAL(dumpRequested()), engine, SLOT(dump()));
-    connect(this, SIGNAL(resetRequested()), engine, SLOT(reset()));
-    connect(this, SIGNAL(pauseToggled(bool)), engine, SLOT(setPaused(bool)));
+    connect(this, SIGNAL(dumpRequested()), rc, SLOT(dump()));
+    connect(this, SIGNAL(resetRequested()), rc, SLOT(reset()));
+    connect(this, SIGNAL(pauseToggled(bool)), rc, SLOT(setPaused(bool)));
 
-    // initialize engine
-    engine->setPaused(m_pauseAction->isChecked());
+    // initialize run control
+    rc->setPaused(m_pauseAction->isChecked());
 
     // we may want to toggle collect for one function only in this run
-    engine->setToggleCollectFunction(m_toggleCollectFunction);
+    rc->setToggleCollectFunction(m_toggleCollectFunction);
     m_toggleCollectFunction.clear();
 
     AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
 
-    QTC_ASSERT(m_visualisation, return engine);
+    QTC_ASSERT(m_visualisation, return rc);
 
     // apply project settings
     if (runConfiguration) {
@@ -612,7 +612,7 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
             }
         }
     }
-    return engine;
+    return rc;
 }
 
 void CallgrindTool::startTool(StartMode mode)
@@ -856,7 +856,7 @@ void CallgrindToolPrivate::clearTextMarks()
     m_textMarks.clear();
 }
 
-void CallgrindToolPrivate::engineStarting(const Analyzer::IAnalyzerEngine *)
+void CallgrindToolPrivate::engineStarting(const Analyzer::AnalyzerRunControl *)
 {
     // enable/disable actions
     m_resetAction->setEnabled(true);
@@ -964,9 +964,9 @@ void CallgrindToolPrivate::slotRequestDump()
     dumpRequested();
 }
 
-void CallgrindToolPrivate::takeParserData(CallgrindEngine *engine)
+void CallgrindToolPrivate::takeParserData(CallgrindRunControl *rc)
 {
-    ParseData *data = engine->takeParserData();
+    ParseData *data = rc->takeParserData();
     showParserResults(data);
 
     if (!data)

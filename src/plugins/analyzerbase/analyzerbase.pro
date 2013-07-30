@@ -7,7 +7,6 @@ QT += network
 # AnalyzerBase files
 
 SOURCES += \
-    ianalyzerengine.cpp \
     ianalyzertool.cpp \
     analyzerplugin.cpp \
     analyzerruncontrol.cpp \
@@ -19,7 +18,6 @@ SOURCES += \
     startremotedialog.cpp
 
 HEADERS += \
-    ianalyzerengine.h \
     ianalyzertool.h \
     analyzerbase_global.h \
     analyzerconstants.h \

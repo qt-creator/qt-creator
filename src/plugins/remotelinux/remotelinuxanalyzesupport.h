@@ -37,7 +37,7 @@
 
 namespace Analyzer {
 class AnalyzerStartParameters;
-class IAnalyzerEngine;
+class AnalyzerRunControl;
 }
 
 namespace RemoteLinux {
@@ -53,7 +53,7 @@ public:
                                                              ProjectExplorer::RunMode runMode);
 
     RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration *runConfig,
-            Analyzer::IAnalyzerEngine *engine, ProjectExplorer::RunMode runMode);
+            Analyzer::AnalyzerRunControl *engine, ProjectExplorer::RunMode runMode);
     ~RemoteLinuxAnalyzeSupport();
 
 protected:

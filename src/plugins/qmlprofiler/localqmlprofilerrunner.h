@@ -41,7 +41,7 @@ namespace Analyzer { class AnalyzerStartParameters; }
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerEngine;
+class QmlProfilerRunControl;
 class LocalQmlProfilerRunner : public AbstractQmlProfilerRunner
 {
     Q_OBJECT
@@ -58,7 +58,7 @@ public:
     static LocalQmlProfilerRunner *createLocalRunner(ProjectExplorer::RunConfiguration *runConfiguration,
                                                      const Analyzer::AnalyzerStartParameters &sp,
                                                      QString *errorMessage,
-                                                     QmlProfilerEngine *engine);
+                                                     QmlProfilerRunControl *engine);
 
     ~LocalQmlProfilerRunner();
 
@@ -71,12 +71,12 @@ private slots:
     void spontaneousStop(int exitCode);
 
 private:
-    LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerEngine *engine);
+    LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);
 
 private:
     Configuration m_configuration;
     ProjectExplorer::ApplicationLauncher m_launcher;
-    QmlProfilerEngine *m_engine;
+    QmlProfilerRunControl *m_engine;
 };
 
 } // namespace Internal

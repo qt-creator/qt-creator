@@ -45,7 +45,7 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
         RunConfiguration *runConfiguration,
         const Analyzer::AnalyzerStartParameters &sp,
         QString *errorMessage,
-        QmlProfilerEngine *engine)
+        QmlProfilerRunControl *engine)
 {
     QmlProjectManager::QmlProjectRunConfiguration *rc1 =
                 qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
@@ -81,7 +81,7 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
-                                               QmlProfilerEngine *engine) :
+                                               QmlProfilerRunControl *engine) :
     AbstractQmlProfilerRunner(engine),
     m_configuration(configuration),
     m_engine(engine)

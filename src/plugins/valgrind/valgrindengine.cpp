@@ -53,9 +53,9 @@ namespace Internal {
 
 const int progressMaximum  = 1000000;
 
-ValgrindEngine::ValgrindEngine(const AnalyzerStartParameters &sp,
+ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(sp, runConfiguration),
+    : AnalyzerRunControl(sp, runConfiguration),
       m_settings(0),
       m_progress(new QFutureInterface<void>()),
       m_progressWatcher(new QFutureWatcher<void>()),
@@ -73,12 +73,12 @@ ValgrindEngine::ValgrindEngine(const AnalyzerStartParameters &sp,
             this, SLOT(handleProgressFinished()));
 }
 
-ValgrindEngine::~ValgrindEngine()
+ValgrindRunControl::~ValgrindRunControl()
 {
     delete m_progress;
 }
 
-bool ValgrindEngine::start()
+bool ValgrindRunControl::startEngine()
 {
     emit starting(this);
 
@@ -123,32 +123,32 @@ bool ValgrindEngine::start()
     return true;
 }
 
-void ValgrindEngine::stop()
+void ValgrindRunControl::stopEngine()
 {
     m_isStopping = true;
     runner()->stop();
 }
 
-QString ValgrindEngine::executable() const
+QString ValgrindRunControl::executable() const
 {
     return startParameters().debuggee;
 }
 
-void ValgrindEngine::handleProgressCanceled()
+void ValgrindRunControl::handleProgressCanceled()
 {
     AnalyzerManager::stopTool();
     m_progress->reportCanceled();
     m_progress->reportFinished();
 }
 
-void ValgrindEngine::handleProgressFinished()
+void ValgrindRunControl::handleProgressFinished()
 {
     QApplication::alert(ICore::mainWindow(), 3000);
 }
 
-void ValgrindEngine::runnerFinished()
+void ValgrindRunControl::runnerFinished()
 {
-    emit outputReceived(tr("** Analyzing finished **\n"), NormalMessageFormat);
+    appendMessage(tr("** Analyzing finished **\n"), NormalMessageFormat);
     emit finished();
 
     m_progress->reportFinished();
@@ -159,7 +159,7 @@ void ValgrindEngine::runnerFinished()
                this, SLOT(runnerFinished()));
 }
 
-void ValgrindEngine::receiveProcessOutput(const QByteArray &output, OutputFormat format)
+void ValgrindRunControl::receiveProcessOutput(const QByteArray &output, OutputFormat format)
 {
     int progress = m_progress->progressValue();
     if (progress < 5 * progressMaximum / 10)
@@ -167,21 +167,21 @@ void ValgrindEngine::receiveProcessOutput(const QByteArray &output, OutputFormat
     else if (progress < 9 * progressMaximum / 10)
         progress += progress / 1000;
     m_progress->setProgressValue(progress);
-    emit outputReceived(QString::fromLocal8Bit(output), format);
+    appendMessage(QString::fromLocal8Bit(output), format);
 }
 
-void ValgrindEngine::receiveProcessError(const QString &message, QProcess::ProcessError error)
+void ValgrindRunControl::receiveProcessError(const QString &message, QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
         const QString &valgrind = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
         if (!valgrind.isEmpty())
-            emit outputReceived(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(message), ErrorMessageFormat);
+            appendMessage(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(message), ErrorMessageFormat);
         else
-            emit outputReceived(tr("** Error: no valgrind executable set **\n"), ErrorMessageFormat);
+            appendMessage(tr("** Error: no valgrind executable set **\n"), ErrorMessageFormat);
     } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
-        emit outputReceived(tr("** Process Terminated **\n"), ErrorMessageFormat);
+        appendMessage(tr("** Process Terminated **\n"), ErrorMessageFormat);
     } else {
-        emit outputReceived(QString::fromLatin1("** %1 **\n").arg(message), ErrorMessageFormat);
+        appendMessage(QString::fromLatin1("** %1 **\n").arg(message), ErrorMessageFormat);
     }
 
     if (m_isStopping)

@@ -45,7 +45,7 @@ class RunConfiguration;
 namespace Analyzer {
 
 class IAnalyzerOutputPaneAdapter;
-class IAnalyzerEngine;
+class AnalyzerRunControl;
 class AbstractAnalyzerSubConfig;
 
 
@@ -116,7 +116,7 @@ public:
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.
-    virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
+    virtual AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
     /// Returns true if the tool can be run

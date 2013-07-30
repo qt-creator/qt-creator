@@ -75,7 +75,8 @@ static void startRemoteTool(IAnalyzerTool *tool)
     sp.displayName = dlg.executable();
     sp.workingDirectory = dlg.workingDirectory();
 
-    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
+    //AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
+    AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
     //m_currentRunControl = rc;
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 

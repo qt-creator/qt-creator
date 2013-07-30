@@ -131,13 +131,14 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
     AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
+    sp.runMode = mode;
 
     // only desktop device is supported
     const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
-    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
-    QmlProfilerEngine *engine = qobject_cast<QmlProfilerEngine *>(rc->engine());
+    AnalyzerRunControl *rc = tool->createRunControl(sp, runConfiguration);
+    QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
     if (!engine) {
         delete rc;
         return 0;
@@ -148,7 +149,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     connect(runner, SIGNAL(stopped()), engine, SLOT(notifyRemoteFinished()));
     connect(runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             engine, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
-    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)), runner,
+    connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)), runner,
             SLOT(start()));
     connect(rc, SIGNAL(finished()), runner, SLOT(stop()));
     return rc;

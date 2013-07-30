@@ -29,13 +29,9 @@
 ****************************************************************************/
 
 #include "analyzerruncontrol.h"
-#include "ianalyzerengine.h"
 #include "ianalyzertool.h"
 #include "analyzermanager.h"
 #include "analyzerstartparameters.h"
-
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/taskhub.h>
 
 #include <QDebug>
 #include <QAction>
@@ -44,89 +40,21 @@ using namespace ProjectExplorer;
 
 //////////////////////////////////////////////////////////////////////////
 //
-// AnalyzerRunControl::Private
+// AnalyzerRunControl
 //
 //////////////////////////////////////////////////////////////////////////
 
 namespace Analyzer {
 
-class AnalyzerRunControl::Private
+AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration)
+    : RunControl(runConfiguration, sp.runMode)
 {
-public:
-    Private();
+    m_runConfig = runConfiguration;
+    m_sp = sp;
 
-    bool m_isRunning;
-    IAnalyzerEngine *m_engine;
-};
-
-AnalyzerRunControl::Private::Private()
-   : m_isRunning(false), m_engine(0)
-{}
-
-
-//////////////////////////////////////////////////////////////////////////
-//
-// AnalyzerRunControl
-//
-//////////////////////////////////////////////////////////////////////////
-
-AnalyzerRunControl::AnalyzerRunControl(IAnalyzerTool *tool,
-        const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
-    : RunControl(runConfiguration, tool->runMode()),
-      d(new Private)
-{
-    d->m_engine = tool->createEngine(sp, runConfiguration);
-
-    if (!d->m_engine)
-        return;
-
-    connect(d->m_engine, SIGNAL(outputReceived(QString,Utils::OutputFormat)),
-            SLOT(receiveOutput(QString,Utils::OutputFormat)));
-    connect(d->m_engine, SIGNAL(taskToBeAdded(ProjectExplorer::Task::TaskType,QString,QString,int)),
-            SLOT(addTask(ProjectExplorer::Task::TaskType,QString,QString,int)));
-    connect(d->m_engine, SIGNAL(finished()),
-            SLOT(engineFinished()));
-
+    connect(this, SIGNAL(finished()), SLOT(runControlFinished()));
     connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), SLOT(stopIt()));
-}
-
-AnalyzerRunControl::~AnalyzerRunControl()
-{
-    if (d->m_isRunning)
-        stop();
-
-    delete d->m_engine;
-    d->m_engine = 0;
-    delete d;
-}
-
-void AnalyzerRunControl::start()
-{
-    if (!d->m_engine) {
-        emit finished();
-        return;
-    }
-
-    AnalyzerManager::handleToolStarted();
-
-    // Clear about-to-be-outdated tasks.
-    ProjectExplorerPlugin::instance()->taskHub()
-        ->clearTasks(Core::Id(Constants::ANALYZERTASK_ID));
-
-    if (d->m_engine->start()) {
-        d->m_isRunning = true;
-        emit started();
-    }
-}
-
-RunControl::StopResult AnalyzerRunControl::stop()
-{
-    if (!d->m_engine || !d->m_isRunning)
-        return StoppedSynchronously;
-
-    d->m_engine->stop();
-    d->m_isRunning = false;
-    return AsynchronousStop;
 }
 
 void AnalyzerRunControl::stopIt()
@@ -135,50 +63,46 @@ void AnalyzerRunControl::stopIt()
         AnalyzerManager::handleToolFinished();
 }
 
-void AnalyzerRunControl::engineFinished()
+void AnalyzerRunControl::runControlFinished()
 {
-    d->m_isRunning = false;
+    m_isRunning = false;
     AnalyzerManager::handleToolFinished();
     emit finished();
 }
 
+void AnalyzerRunControl::start()
+{
+    AnalyzerManager::handleToolStarted();
+
+    if (startEngine()) {
+        m_isRunning = true;
+        emit started();
+    }
+}
+
+RunControl::StopResult AnalyzerRunControl::stop()
+{
+    if (!m_isRunning)
+        return StoppedSynchronously;
+
+    stopEngine();
+    m_isRunning = false;
+    return AsynchronousStop;
+}
+
 bool AnalyzerRunControl::isRunning() const
 {
-    return d->m_isRunning;
+    return m_isRunning;
 }
 
 QString AnalyzerRunControl::displayName() const
 {
-    if (!d->m_engine)
-        return QString();
-    if (d->m_engine->runConfiguration())
-        return d->m_engine->runConfiguration()->displayName();
-    else
-        return d->m_engine->startParameters().displayName;
+    return m_runConfig ? m_runConfig->displayName() : m_sp.displayName;
 }
 
 QIcon AnalyzerRunControl::icon() const
 {
     return QIcon(QLatin1String(":/images/analyzer_start_small.png"));
-}
-
-IAnalyzerEngine *AnalyzerRunControl::engine() const
-{
-    return d->m_engine;
-}
-
-void AnalyzerRunControl::receiveOutput(const QString &text, Utils::OutputFormat format)
-{
-    appendMessage(text, format);
-}
-
-void AnalyzerRunControl::addTask(Task::TaskType type, const QString &description,
-                                 const QString &file, int line)
-{
-    TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
-    hub->addTask(Task(type, description, Utils::FileName::fromUserInput(file), line,
-                      Core::Id(Constants::ANALYZERTASK_ID)));
-    hub->requestPopup();
 }
 
 } // namespace Analyzer

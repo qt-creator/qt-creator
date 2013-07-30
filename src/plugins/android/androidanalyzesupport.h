@@ -33,10 +33,7 @@
 #include "androidrunsupport.h"
 #include <qmldebug/qmloutputparser.h>
 
-namespace Analyzer {
-class IAnalyzerEngine;
-class AnalyzerRunControl;
-}
+namespace Analyzer { class AnalyzerRunControl; }
 namespace ProjectExplorer { class RunControl; }
 
 namespace Android {
@@ -66,7 +63,7 @@ private slots:
     void remoteIsRunning();
 
 private:
-    Analyzer::IAnalyzerEngine *m_engine;
+    Analyzer::AnalyzerRunControl *m_runControl;
     QmlDebug::QmlOutputParser m_outputParser;
     int m_qmlPort;
 };

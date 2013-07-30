@@ -61,15 +61,14 @@ namespace Internal {
 // QmlProfilerEnginePrivate
 //
 
-class QmlProfilerEngine::QmlProfilerEnginePrivate
+class QmlProfilerRunControl::QmlProfilerEnginePrivate
 {
 public:
-    QmlProfilerEnginePrivate(const AnalyzerStartParameters &sp) : sp(sp), m_running(false) {}
+    QmlProfilerEnginePrivate() : m_running(false) {}
 
     QmlProfilerStateManager *m_profilerState;
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
-    const AnalyzerStartParameters sp;
     bool m_running;
 };
 
@@ -77,10 +76,10 @@ public:
 // QmlProfilerEngine
 //
 
-QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
+QmlProfilerRunControl::QmlProfilerRunControl(const Analyzer::AnalyzerStartParameters &sp,
                                      ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(sp, runConfiguration)
-    , d(new QmlProfilerEnginePrivate(sp))
+    : AnalyzerRunControl(sp, runConfiguration)
+    , d(new QmlProfilerEnginePrivate)
 {
     d->m_profilerState = 0;
 
@@ -99,14 +98,14 @@ QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp
             this, SLOT(wrongSetupMessageBox(QString)));
 }
 
-QmlProfilerEngine::~QmlProfilerEngine()
+QmlProfilerRunControl::~QmlProfilerRunControl()
 {
     if (d->m_profilerState && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning)
-        stop();
+        stopEngine();
     delete d;
 }
 
-bool QmlProfilerEngine::start()
+bool QmlProfilerRunControl::startEngine()
 {
     QTC_ASSERT(d->m_profilerState, return false);
 
@@ -122,7 +121,7 @@ bool QmlProfilerEngine::start()
         }
     }
 
-    if (d->sp.startMode == StartQmlRemote || d->sp.startMode == StartLocal) {
+    if (startParameters().startMode == StartQmlRemote || startParameters().startMode == StartLocal) {
         d->m_noDebugOutputTimer.start();
     } else {
         emit processRunning(startParameters().analyzerPort);
@@ -133,7 +132,7 @@ bool QmlProfilerEngine::start()
     return true;
 }
 
-void QmlProfilerEngine::stop()
+void QmlProfilerRunControl::stopEngine()
 {
     QTC_ASSERT(d->m_profilerState, return);
 
@@ -158,7 +157,7 @@ void QmlProfilerEngine::stop()
     }
 }
 
-void QmlProfilerEngine::notifyRemoteFinished(bool success)
+void QmlProfilerRunControl::notifyRemoteFinished(bool success)
 {
     QTC_ASSERT(d->m_profilerState, return);
 
@@ -170,7 +169,7 @@ void QmlProfilerEngine::notifyRemoteFinished(bool success)
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
         AnalyzerManager::stopTool();
 
-        engineFinished();
+        runControlFinished();
         break;
     }
     case QmlProfilerStateManager::AppStopped :
@@ -186,7 +185,7 @@ void QmlProfilerEngine::notifyRemoteFinished(bool success)
     }
 }
 
-void QmlProfilerEngine::cancelProcess()
+void QmlProfilerRunControl::cancelProcess()
 {
     QTC_ASSERT(d->m_profilerState, return);
 
@@ -206,16 +205,16 @@ void QmlProfilerEngine::cancelProcess()
         return;
     }
     }
-    engineFinished();
+    runControlFinished();
 }
 
-void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
+void QmlProfilerRunControl::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
 {
-    emit outputReceived(msg, format);
+    appendMessage(msg, format);
     d->m_outputParser.processOutput(msg);
 }
 
-void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
+void QmlProfilerRunControl::wrongSetupMessageBox(const QString &errorMessage)
 {
     QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
@@ -235,10 +234,10 @@ void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
     // KILL
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
     AnalyzerManager::stopTool();
-    engineFinished();
+    runControlFinished();
 }
 
-void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
+void QmlProfilerRunControl::wrongSetupMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Help) {
         Core::HelpManager *helpManager = Core::HelpManager::instance();
@@ -247,7 +246,7 @@ void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
     }
 }
 
-void QmlProfilerEngine::showNonmodalWarning(const QString &warningMsg)
+void QmlProfilerRunControl::showNonmodalWarning(const QString &warningMsg)
 {
     QMessageBox *noExecWarning = new QMessageBox(Core::ICore::mainWindow());
     noExecWarning->setIcon(QMessageBox::Warning);
@@ -259,13 +258,13 @@ void QmlProfilerEngine::showNonmodalWarning(const QString &warningMsg)
     noExecWarning->show();
 }
 
-void QmlProfilerEngine::notifyRemoteSetupDone(quint16 port)
+void QmlProfilerRunControl::notifyRemoteSetupDone(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
     emit processRunning(port);
 }
 
-void QmlProfilerEngine::processIsRunning(quint16 port)
+void QmlProfilerRunControl::processIsRunning(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
 
@@ -273,13 +272,13 @@ void QmlProfilerEngine::processIsRunning(quint16 port)
         emit processRunning(port);
 }
 
-void QmlProfilerEngine::engineStarted()
+void QmlProfilerRunControl::engineStarted()
 {
     d->m_running = true;
     emit starting(this);
 }
 
-void QmlProfilerEngine::engineFinished()
+void QmlProfilerRunControl::runControlFinished()
 {
     d->m_running = false;
     emit finished();
@@ -287,7 +286,7 @@ void QmlProfilerEngine::engineFinished()
 
 ////////////////////////////////////////////////////////////////
 // Profiler State
-void QmlProfilerEngine::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
+void QmlProfilerRunControl::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     // disconnect old
     if (d->m_profilerState)
@@ -300,7 +299,7 @@ void QmlProfilerEngine::registerProfilerStateManager( QmlProfilerStateManager *p
         connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
 }
 
-void QmlProfilerEngine::profilerStateChanged()
+void QmlProfilerRunControl::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
