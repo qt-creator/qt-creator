@@ -40,6 +40,7 @@
 #include <rewritingexception.h>
 #include <rewritertransaction.h>
 #include <qmlanchors.h>
+#include <limits>
 
 namespace QmlDesigner {
 
@@ -106,6 +107,52 @@ static inline bool modelNodesHaveProperty(const QList<ModelNode> &modelNodeList,
     return false;
 }
 
+static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
+{
+
+    if (parent.isValid() && node.isValid()) {
+        NodeAbstractProperty parentProperty;
+
+        if (parent.hasDefaultProperty())
+            parentProperty = parent.nodeAbstractProperty(parent.defaultPropertyName());
+        else
+            parentProperty = parent.nodeAbstractProperty("data");
+
+        parentProperty.reparentHere(node);
+    }
+}
+
+static void reparentToNodeAndRemovePositionForModelNodes(const ModelNode &parentModelNode, const QList<ModelNode> &modelNodeList)
+{
+    foreach (ModelNode modelNode, modelNodeList) {
+        reparentTo(modelNode, parentModelNode);
+        modelNode.removeProperty("x");
+        modelNode.removeProperty("y");
+    }
+}
+
+static inline QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
+{
+    QPointF postion(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
+    foreach (const ModelNode &modelNode, modelNodeList) {
+        if (QmlItemNode::isValidQmlItemNode(modelNode)) {
+            QmlItemNode qmlIitemNode = QmlItemNode(modelNode);
+            if (qmlIitemNode.instancePosition().x() < postion.x())
+                postion.setX(qmlIitemNode.instancePosition().x());
+            if (qmlIitemNode.instancePosition().y() < postion.y())
+                postion.setY(qmlIitemNode.instancePosition().y());
+        }
+    }
+
+    return postion;
+}
+
+static void setUpperLeftPostionToNode(const ModelNode &layoutNode, const QList<ModelNode> &modelNodeList)
+{
+    QPointF upperLeftPosition = getUpperLeftPosition(modelNodeList);
+    layoutNode.variantProperty("x").setValue(qRound(upperLeftPosition.x()));
+    layoutNode.variantProperty("y") .setValue(qRound(upperLeftPosition.y()));
+}
 
 namespace ModelNodeOperations {
 
@@ -382,21 +429,7 @@ void anchorsReset(const SelectionContext &selectionState)
     }
 }
 
-static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
-{
-
-    if (parent.isValid() && node.isValid()) {
-        NodeAbstractProperty parentProperty;
-
-        if (parent.hasDefaultProperty())
-            parentProperty = parent.nodeAbstractProperty(parent.defaultPropertyName());
-        else
-            parentProperty = parent.nodeAbstractProperty("data");
-
-        parentProperty.reparentHere(node);
-    }
-}
-
+typedef bool (*LessThan)(const ModelNode &node1, const ModelNode &node2);
 
 bool compareByX(const ModelNode &node1, const ModelNode &node2)
 {
@@ -430,339 +463,80 @@ bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
         return false;
 }
 
-static inline QPoint getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
+
+static void layoutHelperFunction(const SelectionContext &selectionContext,
+                                 TypeName layoutType,
+                                 LessThan lessThan)
 {
-    QPoint p(INT_MAX, INT_MAX);
-    foreach (ModelNode modelNode, modelNodeList) {
-        QmlItemNode itemNode = QmlItemNode(modelNode);
-        if (itemNode.isValid()) {
-            if (itemNode.instancePosition().x() < p.x())
-                p.setX(itemNode.instancePosition().x());
-            if (itemNode.instancePosition().y() < p.y())
-                p.setY(itemNode.instancePosition().y());
-        }
-    }
-    return p;
-}
-
-void layoutRowPositioner(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
+    if (!selectionContext.view()
+            || !selectionContext.hasSingleSelectedModelNode()
+             || !selectionContext.view()->model()->hasNodeMetaInfo(layoutType))
         return;
 
-    NodeMetaInfo rowMetaInfo = selectionState.view()->model()->metaInfo("QtQuick.Row");
+    if (QmlItemNode::isValidQmlItemNode(selectionContext.firstSelectedModelNode())) {
+        QmlItemNode qmlItemNode = QmlItemNode(selectionContext.firstSelectedModelNode());
 
-    if (!rowMetaInfo.isValid())
-        return;
+        if (qmlItemNode.hasInstanceParentItem()) {
 
-    QList<ModelNode> modelNodeList = selectionState.selectedModelNodes();
+            ModelNode layoutNode;
+            {
+                RewriterTransaction transaction(selectionContext.view());
 
-    ModelNode row;
-    {
-        RewriterTransaction transaction(selectionState.view());
+                QmlItemNode parentNode = qmlItemNode.instanceParentItem();
 
-        QmlItemNode parent = QmlItemNode(modelNodeList.first()).instanceParent().toQmlItemNode();
-        if (!parent.isValid())
-            return;
+                NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(layoutType);
 
-        qDebug() << parent.modelNode().majorQtQuickVersion();
+                layoutNode = selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
 
-        row = selectionState.view()->createModelNode("QtQuick.Row", rowMetaInfo.majorVersion(), rowMetaInfo.minorVersion());
+                reparentTo(layoutNode, parentNode);
+            }
 
-        reparentTo(row, parent);
-    }
+            {
+                RewriterTransaction transaction(selectionContext.view());
 
-    {
-        RewriterTransaction transaction(selectionState.view());
+                QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
+                qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), lessThan);
 
-        QPoint pos = getUpperLeftPosition(modelNodeList);
-        row.variantProperty("x").setValue(pos.x());
-        row.variantProperty("y").setValue(pos.y());
-
-        QList<ModelNode> sortedList = modelNodeList;
-        qSort(sortedList.begin(), sortedList.end(), compareByX);
-
-        foreach (ModelNode modelNode, sortedList) {
-            reparentTo(modelNode, row);
-            modelNode.removeProperty("x");
-            modelNode.removeProperty("y");
-        }
-    }
-}
-
-void layoutColumnPositioner(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
-        return;
-
-    NodeMetaInfo columnMetaInfo = selectionState.view()->model()->metaInfo("QtQuick.Column");
-
-    if (!columnMetaInfo.isValid())
-        return;
-
-    QList<ModelNode> modelNodeList = selectionState.selectedModelNodes();
-
-    ModelNode column;
-    {
-        RewriterTransaction transaction(selectionState.view());
-
-        QmlItemNode parent = QmlItemNode(modelNodeList.first()).instanceParent().toQmlItemNode();
-        if (!parent.isValid())
-            return;
-
-        column = selectionState.view()->createModelNode("QtQuick.Column", columnMetaInfo.majorVersion(), columnMetaInfo.minorVersion());
-
-        reparentTo(column, parent);
-    }
-
-    {
-        RewriterTransaction transaction(selectionState.view());
-
-        QPoint pos = getUpperLeftPosition(modelNodeList);
-        column.variantProperty("x").setValue(pos.x());
-        column.variantProperty("y").setValue(pos.y());
-
-        QList<ModelNode> sortedList = modelNodeList;
-        qSort(sortedList.begin(), sortedList.end(), compareByY);
-
-        foreach (ModelNode modelNode, sortedList) {
-            reparentTo(modelNode, column);
-            modelNode.removeProperty("x");
-            modelNode.removeProperty("y");
-        }
-    }
-}
-
-void layoutGridPositioner(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
-        return;
-
-    NodeMetaInfo gridMetaInfo = selectionState.view()->model()->metaInfo("QtQuick.Grid");
-
-    if (!gridMetaInfo.isValid())
-        return;
-
-    QList<ModelNode> modelNodeList = selectionState.selectedModelNodes();
-
-    ModelNode grid;
-    {
-        RewriterTransaction transaction(selectionState.view());
-
-        QmlItemNode parent = QmlItemNode(modelNodeList.first()).instanceParent().toQmlItemNode();
-        if (!parent.isValid())
-            return;
-
-        grid = selectionState.view()->createModelNode("QtQuick.Grid", gridMetaInfo.majorVersion(), gridMetaInfo.minorVersion());
-        grid.variantProperty("columns").setValue(int(sqrt(double(modelNodeList.count()))));
-
-        reparentTo(grid, parent);
-    }
-
-    {
-        RewriterTransaction transaction(selectionState.view());
-
-        QPoint pos = getUpperLeftPosition(modelNodeList);
-        grid.variantProperty("x").setValue(pos.x());
-        grid.variantProperty("y").setValue(pos.y());
-
-        QList<ModelNode> sortedList = modelNodeList;
-        qSort(sortedList.begin(), sortedList.end(), compareByGrid);
-
-        foreach (ModelNode modelNode, sortedList) {
-            reparentTo(modelNode, grid);
-            modelNode.removeProperty("x");
-            modelNode.removeProperty("y");
-        }
-    }
-}
-
-void layoutFlowPositioner(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
-        return;
-
-    NodeMetaInfo flowMetaInfo = selectionState.view()->model()->metaInfo("QtQuick.Flow");
-
-    if (!flowMetaInfo.isValid())
-        return;
-
-    QList<ModelNode> modelNodeList = selectionState.selectedModelNodes();
-
-    ModelNode flow;
-    {
-        RewriterTransaction transaction(selectionState.view());
-
-        QmlItemNode parent = QmlItemNode(modelNodeList.first()).instanceParent().toQmlItemNode();
-        if (!parent.isValid())
-            return;
-
-        flow = selectionState.view()->createModelNode("QtQuick.Flow", flowMetaInfo.majorVersion(), flowMetaInfo.minorVersion());
-
-        reparentTo(flow, parent);
-    }
-
-    {
-        RewriterTransaction transaction(selectionState.view());
-
-        QPoint pos = getUpperLeftPosition(modelNodeList);
-        flow.variantProperty("x").setValue(pos.x());
-        flow.variantProperty("y").setValue(pos.y());
-
-        QList<ModelNode> sortedList = modelNodeList;
-        qSort(sortedList.begin(), sortedList.end(), compareByGrid);
-
-        foreach (ModelNode modelNode, sortedList) {
-            reparentTo(modelNode, flow);
-            modelNode.removeProperty("x");
-            modelNode.removeProperty("y");
-        }
-    }
-}
-
-void layoutRowLayout(const SelectionContext &selectionState)
-{
-    if (!selectionState.view()
-            || !selectionState.hasSingleSelectedModelNode())
-        return;
-
-    static TypeName rowLayoutType = "QtQuick.Layouts.RowLayout";
-
-    if (!selectionState.view()->model()->hasNodeMetaInfo(rowLayoutType))
-        return;
-
-    NodeMetaInfo rowMetaInfo = selectionState.view()->model()->metaInfo(rowLayoutType);
-
-    QList<ModelNode> selectedNodeList = selectionState.selectedModelNodes();
-    QmlItemNode qmlItemNode = QmlItemNode(selectedNodeList.first());
-
-    if (qmlItemNode.isValid() && qmlItemNode.hasInstanceParentItem()) {
-
-        ModelNode rowNode;
-        {
-            RewriterTransaction transaction(selectionState.view());
-
-            QmlItemNode parentNode = qmlItemNode.instanceParentItem();
-
-            rowNode = selectionState.view()->createModelNode(rowLayoutType, rowMetaInfo.majorVersion(), rowMetaInfo.minorVersion());
-
-            reparentTo(rowNode, parentNode);
-        }
-
-        {
-            RewriterTransaction transaction(selectionState.view());
-
-            QPoint upperLeftPosition = getUpperLeftPosition(selectedNodeList);
-            rowNode.variantProperty("x").setValue(upperLeftPosition.x());
-            rowNode.variantProperty("y").setValue(upperLeftPosition.y());
-
-            QList<ModelNode> sortedSelectedNodes =  selectedNodeList;
-            qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), compareByX);
-
-            foreach (ModelNode selectedNode, sortedSelectedNodes) {
-                reparentTo(selectedNode, rowNode);
-                selectedNode.removeProperty("x");
-                selectedNode.removeProperty("y");
+                setUpperLeftPostionToNode(layoutNode, sortedSelectedNodes);
+                reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);
             }
         }
     }
 }
 
-void layoutColumnLayout(const SelectionContext &selectionState)
+void layoutRowPositioner(const SelectionContext &selectionContext)
 {
-    if (!selectionState.view()
-            || !selectionState.hasSingleSelectedModelNode())
-        return;
-
-    static TypeName columnLayoutType = "QtQuick.Layouts.ColumnLayout";
-
-    if (!selectionState.view()->model()->hasNodeMetaInfo(columnLayoutType))
-        return;
-
-    NodeMetaInfo columnMetaInfo = selectionState.view()->model()->metaInfo(columnLayoutType);
-
-    QList<ModelNode> selectedNodeList = selectionState.selectedModelNodes();
-    QmlItemNode qmlItemNode = QmlItemNode(selectedNodeList.first());
-
-    if (qmlItemNode.isValid() && qmlItemNode.hasInstanceParentItem()) {
-
-        ModelNode columnNode;
-        {
-            RewriterTransaction transaction(selectionState.view());
-
-            QmlItemNode parentNode = qmlItemNode.instanceParentItem();
-
-            columnNode = selectionState.view()->createModelNode(columnLayoutType, columnMetaInfo.majorVersion(), columnMetaInfo.minorVersion());
-
-            reparentTo(columnNode, parentNode);
-        }
-
-        {
-            RewriterTransaction transaction(selectionState.view());
-
-            QPoint upperLeftPosition = getUpperLeftPosition(selectedNodeList);
-            columnNode.variantProperty("x").setValue(upperLeftPosition.x());
-            columnNode.variantProperty("y").setValue(upperLeftPosition.y());
-
-            QList<ModelNode> sortedSelectedNodes = selectedNodeList;
-            qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), compareByY);
-
-            foreach (ModelNode selectedNode, sortedSelectedNodes) {
-                reparentTo(selectedNode, columnNode);
-                selectedNode.removeProperty("x");
-                selectedNode.removeProperty("y");
-            }
-        }
-    }
+    layoutHelperFunction(selectionContext, "QtQuick.Row", compareByX);
 }
 
-void layoutGridLayout(const SelectionContext &selectionState)
+void layoutColumnPositioner(const SelectionContext &selectionContext)
 {
-    if (!selectionState.view()
-            || !selectionState.hasSingleSelectedModelNode())
-        return;
+    layoutHelperFunction(selectionContext, "QtQuick.Column", compareByY);
+}
 
-    static TypeName gridLayoutType = "QtQuick.Layouts.GridLayout";
+void layoutGridPositioner(const SelectionContext &selectionContext)
+{
+    layoutHelperFunction(selectionContext, "QtQuick.Grid", compareByGrid);
+}
 
-    if (!selectionState.view()->model()->hasNodeMetaInfo(gridLayoutType))
-        return;
+void layoutFlowPositioner(const SelectionContext &selectionContext)
+{
+    layoutHelperFunction(selectionContext, "QtQuick.Flow", compareByGrid);
+}
 
-    NodeMetaInfo gridMetaInfo = selectionState.view()->model()->metaInfo(gridLayoutType);
+void layoutRowLayout(const SelectionContext &selectionContext)
+{
+    layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+}
 
-    QList<ModelNode> selectedNodeList = selectionState.selectedModelNodes();
-    QmlItemNode qmlItemNode = QmlItemNode(selectedNodeList.first());
+void layoutColumnLayout(const SelectionContext &selectionContext)
+{
+    layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+}
 
-    if (qmlItemNode.isValid() && qmlItemNode.hasInstanceParentItem()) {
-
-        ModelNode gridNode;
-        {
-            RewriterTransaction transaction(selectionState.view());
-
-            QmlItemNode parentNode = qmlItemNode.instanceParentItem();
-
-            gridNode = selectionState.view()->createModelNode(gridLayoutType, gridMetaInfo.majorVersion(), gridMetaInfo.minorVersion());
-            gridNode.variantProperty("columns").setValue(int(sqrt(double(selectedNodeList.count()))));
-
-            reparentTo(gridNode, parentNode);
-        }
-
-        {
-            RewriterTransaction transaction(selectionState.view());
-
-            QPoint upperLeftPosition = getUpperLeftPosition(selectedNodeList);
-            gridNode.variantProperty("x").setValue(upperLeftPosition.x());
-            gridNode.variantProperty("y") .setValue(upperLeftPosition.y());
-
-            QList<ModelNode> sortedSelectedNodes = selectedNodeList;
-            qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), compareByGrid);
-
-            foreach (ModelNode selectedNode, sortedSelectedNodes) {
-                reparentTo(selectedNode, gridNode);
-                selectedNode.removeProperty("x");
-                selectedNode.removeProperty("y");
-            }
-        }
-    }
+void layoutGridLayout(const SelectionContext &selectionContext)
+{
+    layoutHelperFunction(selectionContext, "QtQuick.Layouts.GridLayout", compareByGrid);
 }
 
 } // namespace Mode
