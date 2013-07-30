@@ -29,6 +29,7 @@
 
 #include "cpptoolsplugin.h"
 #include "cppcompletionassist.h"
+#include "cppmodelmanager.h"
 
 #include <texteditor/plaintexteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
@@ -50,102 +51,128 @@ using namespace CppTools::Internal;
 using namespace TextEditor;
 using namespace Core;
 
-struct TestData
+class CompletionTestCase
 {
-    QByteArray srcText;
-    int pos;
+public:
+    CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray())
+        : position(-1), editorWidget(0), textDocument(0), editor(0),
+          cmm(CppModelManager::instance())
+    {
+        source = sourceText;
+        position = source.indexOf('@');
+        QVERIFY(position != -1);
+        source[position] = ' ';
+
+        // Write source to file
+        const QString fileName = QDir::tempPath() + QLatin1String("/file.h");
+        Utils::FileSaver srcSaver(fileName);
+        srcSaver.write(source);
+        srcSaver.finalize();
+
+        // Open in editor
+        editor = EditorManager::openEditor(fileName);
+        QVERIFY(editor);
+        editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+        QVERIFY(editorWidget);
+
+        textDocument = editorWidget->document();
+
+        // Get Document
+        while (!cmm->snapshot().contains(fileName))
+            QCoreApplication::processEvents();
+        Document::Ptr document = cmm->snapshot().document(fileName);
+
+        snapshot.insert(document);
+
+        if (!textToInsert.isEmpty())
+            insertText(textToInsert);
+    }
+
+    ~CompletionTestCase()
+    {
+        EditorManager::instance()->closeEditors(QList<IEditor*>() << editor,
+                                                /*askAboutModifiedEditors=*/ false);
+        cmm->GC();
+        QVERIFY(cmm->snapshot().isEmpty());
+    }
+
+    QStringList getCompletions(bool *replaceAccessOperator = 0) const
+    {
+        QStringList completions;
+        CppCompletionAssistInterface *ai
+            = new CppCompletionAssistInterface(editorWidget->document(), position,
+                                               editorWidget->editorDocument()->fileName(),
+                                               ExplicitlyInvoked, snapshot,
+                                               QStringList(), QStringList());
+        CppCompletionAssistProcessor processor;
+        IAssistProposal *proposal = processor.perform(ai);
+        if (!proposal)
+            return completions;
+        IAssistProposalModel *model = proposal->model();
+        if (!model)
+            return completions;
+        CppAssistProposalModel *listmodel = dynamic_cast<CppAssistProposalModel *>(model);
+        if (!listmodel)
+            return completions;
+
+        for (int i = 0; i < listmodel->size(); ++i)
+            completions << listmodel->text(i);
+
+        if (replaceAccessOperator)
+            *replaceAccessOperator = listmodel->m_replaceDotForArrow;
+
+        return completions;
+    }
+
+    void insertText(const QByteArray &text)
+    {
+        Utils::ChangeSet change;
+        change.insert(position, QLatin1String(text));
+        QTextCursor cursor(textDocument);
+        change.apply(&cursor);
+        position += text.length();
+    }
+
+private:
+    QByteArray source;
+    int position;
     Snapshot snapshot;
-    BaseTextEditorWidget *editor;
-    QTextDocument *doc;
+    BaseTextEditorWidget *editorWidget;
+    QTextDocument *textDocument;
+    IEditor *editor;
+
+    CppModelManager *cmm;
 };
-
-static QStringList getCompletions(TestData &data, bool *replaceAccessOperator = 0)
-{
-    QStringList completions;
-
-    CppCompletionAssistInterface *ai = new CppCompletionAssistInterface(data.editor->document(), data.pos,
-                                                                        data.editor->editorDocument()->fileName(), ExplicitlyInvoked,
-                                                                        data.snapshot, QStringList(), QStringList());
-    CppCompletionAssistProcessor processor;
-    IAssistProposal *proposal = processor.perform(ai);
-    if (!proposal)
-        return completions;
-    IAssistProposalModel *model = proposal->model();
-    if (!model)
-        return completions;
-    CppAssistProposalModel *listmodel = dynamic_cast<CppAssistProposalModel *>(model);
-    if (!listmodel)
-        return completions;
-
-    for (int i = 0; i < listmodel->size(); ++i)
-        completions << listmodel->text(i);
-
-    if (replaceAccessOperator)
-        *replaceAccessOperator = listmodel->m_replaceDotForArrow;
-
-    return completions;
-}
-
-static void setup(TestData *data)
-{
-    data->pos = data->srcText.indexOf('@');
-    QVERIFY(data->pos != -1);
-    data->srcText[data->pos] = ' ';
-    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    Utils::FileSaver srcSaver(src->fileName());
-    srcSaver.write(data->srcText);
-    srcSaver.finalize();
-    src->setUtf8Source(data->srcText);
-    src->parse();
-    src->check();
-
-    data->snapshot.insert(src);
-
-    data->editor = new PlainTextEditorWidget(0);
-    QString error;
-    data->editor->open(&error, src->fileName(), src->fileName());
-
-    data->doc = data->editor->document();
-}
 
 void CppToolsPlugin::test_completion_forward_declarations_present()
 {
-    TestData data;
-    data.srcText = "\n"
-            "class Foo\n"
-            "{\n"
-            "    struct Bar;\n"
-            "    int i;\n"
-            "};\n"
-            "\n"
-            "struct Foo::Bar \n"
-            "{\n"
-            "    Bar() {}\n"
-            "};\n"
-            "\n"
-            "@\n"
-            "// padding so we get the scope right\n";
-
-    setup(&data);
-
-    Utils::ChangeSet change;
-    change.insert(data.pos, QLatin1String("Foo::Bar::"));
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += 10;
+    const QByteArray source =
+        "\n"
+        "class Foo\n"
+        "{\n"
+        "    struct Bar;\n"
+        "    int i;\n"
+        "};\n"
+        "\n"
+        "struct Foo::Bar \n"
+        "{\n"
+        "    Bar() {}\n"
+        "};\n"
+        "\n"
+        "@\n"
+        "// padding so we get the scope right\n";
+    CompletionTestCase test(source, "Foo::Bar::");
 
     QStringList expected;
     expected.append(QLatin1String("Bar"));
 
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions, expected);
 }
 
 void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "class Base\n"
             "{\n"
             "    int i_base;\n"
@@ -163,30 +190,19 @@ void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
             "        @\n"
             "}\n"
             ;
+    CompletionTestCase test(source, "((Derived *)b)->");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("((Derived *)b)->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 4);
     QVERIFY(completions.contains(QLatin1String("Derived")));
     QVERIFY(completions.contains(QLatin1String("Base")));
     QVERIFY(completions.contains(QLatin1String("i_derived")));
     QVERIFY(completions.contains(QLatin1String("i_base")));
-
 }
 
 void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "class Base\n"
             "{\n"
             "    int i_base;\n"
@@ -204,18 +220,9 @@ void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion
             "        @\n"
             "}\n"
             ;
+    CompletionTestCase test(source, "(static_cast<Derived *>(b))->");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("(static_cast<Derived *>(b))->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 4);
     QVERIFY(completions.contains(QLatin1String("Derived")));
     QVERIFY(completions.contains(QLatin1String("Base")));
@@ -225,8 +232,7 @@ void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion
 
 void CppToolsPlugin::test_completion_basic_1()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "class Foo\n"
             "{\n"
             "    void foo();\n"
@@ -238,25 +244,18 @@ void CppToolsPlugin::test_completion_basic_1()
             "    @\n"
             "    // padding so we get the scope right\n"
             "}";
+    CompletionTestCase test(source);
 
-    setup(&data);
-
-    QStringList basicCompletions = getCompletions(data);
-
+    QStringList basicCompletions = test.getCompletions();
     QVERIFY(!basicCompletions.contains(QLatin1String("foo")));
     QVERIFY(!basicCompletions.contains(QLatin1String("m")));
     QVERIFY(basicCompletions.contains(QLatin1String("Foo")));
     QVERIFY(basicCompletions.contains(QLatin1String("func")));
     QVERIFY(basicCompletions.contains(QLatin1String("f")));
 
-    Utils::ChangeSet change;
-    change.insert(data.pos, QLatin1String("f."));
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += 2;
+    test.insertText("f.");
 
-    QStringList memberCompletions = getCompletions(data);
-
+    QStringList memberCompletions = test.getCompletions();
     QVERIFY(memberCompletions.contains(QLatin1String("foo")));
     QVERIFY(memberCompletions.contains(QLatin1String("m")));
     QVERIFY(!memberCompletions.contains(QLatin1String("func")));
@@ -265,8 +264,7 @@ void CppToolsPlugin::test_completion_basic_1()
 
 void CppToolsPlugin::test_completion_template_1()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template <class T>\n"
             "class Foo\n"
             "{\n"
@@ -280,17 +278,9 @@ void CppToolsPlugin::test_completion_template_1()
             "    @\n"
             "    // padding so we get the scope right\n"
             "}";
+    CompletionTestCase test(source, "Foo::");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    change.insert(data.pos, QLatin1String("Foo::"));
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += 5;
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QVERIFY(completions.contains(QLatin1String("Type")));
     QVERIFY(completions.contains(QLatin1String("foo")));
     QVERIFY(completions.contains(QLatin1String("m")));
@@ -301,8 +291,7 @@ void CppToolsPlugin::test_completion_template_1()
 
 void CppToolsPlugin::test_completion_template_2()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -316,18 +305,9 @@ void CppToolsPlugin::test_completion_template_2()
             "    @\n"
             "    // padding so we get the scope right\n"
             "}";
+    CompletionTestCase test(source, "l.at(0).");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("l.at(0).");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 3);
     QVERIFY(completions.contains(QLatin1String("Tupple")));
     QVERIFY(completions.contains(QLatin1String("a")));
@@ -336,8 +316,7 @@ void CppToolsPlugin::test_completion_template_2()
 
 void CppToolsPlugin::test_completion_template_3()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -351,18 +330,9 @@ void CppToolsPlugin::test_completion_template_3()
             "    @\n"
             "    // padding so we get the scope right\n"
             "}";
+    CompletionTestCase test(source, "l.t.");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("l.t.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 3);
     QVERIFY(completions.contains(QLatin1String("Tupple")));
     QVERIFY(completions.contains(QLatin1String("a")));
@@ -371,8 +341,7 @@ void CppToolsPlugin::test_completion_template_3()
 
 void CppToolsPlugin::test_completion_template_4()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -387,18 +356,9 @@ void CppToolsPlugin::test_completion_template_4()
             "    @\n"
             "    // padding so we get the scope right\n"
             "}";
+    CompletionTestCase test(source, "l.u.");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("l.u.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 3);
     QVERIFY(completions.contains(QLatin1String("Tupple")));
     QVERIFY(completions.contains(QLatin1String("a")));
@@ -407,8 +367,7 @@ void CppToolsPlugin::test_completion_template_4()
 
 void CppToolsPlugin::test_completion_template_5()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -423,18 +382,9 @@ void CppToolsPlugin::test_completion_template_5()
             "    @\n"
             "    // padding so we get the scope right\n"
             "}";
+    CompletionTestCase test(source, "l.u.");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("l.u.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 3);
     QVERIFY(completions.contains(QLatin1String("Tupple")));
     QVERIFY(completions.contains(QLatin1String("a")));
@@ -443,8 +393,7 @@ void CppToolsPlugin::test_completion_template_5()
 
 void CppToolsPlugin::test_completion_template_6()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "class Item\n"
             "{\n"
             "    int i;\n"
@@ -463,28 +412,17 @@ void CppToolsPlugin::test_completion_template_6()
             "ItemContainer container;\n"
             "@\n"
             ;
+    CompletionTestCase test(source, "container.get().");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("container.get().");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Item")));
     QVERIFY(completions.contains(QLatin1String("i")));
 }
 
-
 void CppToolsPlugin::test_completion_template_7()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Test\n"
             "{\n"
             "   int i;\n"
@@ -506,18 +444,9 @@ void CppToolsPlugin::test_completion_template_7()
             "TemplateClass<Test> p(new Test);\n"
             "@\n"
             ;
+    CompletionTestCase test(source, "p->");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Test")));
     QVERIFY(completions.contains(QLatin1String("i")));
@@ -525,8 +454,7 @@ void CppToolsPlugin::test_completion_template_7()
 
 void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "typedef struct Foo\n"
             "{\n"
             "    int foo;\n"
@@ -534,18 +462,9 @@ void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
             "Foo *bar;\n"
             "@\n"
             ;
+    CompletionTestCase test(source, "bar->");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("bar->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("foo")));
@@ -553,8 +472,7 @@ void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
 
 void CppToolsPlugin::test_completion_instantiate_full_specialization()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template<typename T>\n"
             "struct Template\n"
             "{\n"
@@ -570,18 +488,9 @@ void CppToolsPlugin::test_completion_instantiate_full_specialization()
             "Template<char> templateChar;\n"
             "@\n"
             ;
+    CompletionTestCase test(source, "templateChar.");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("templateChar.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Template")));
     QVERIFY(completions.contains(QLatin1String("templateChar_i")));
@@ -592,17 +501,9 @@ void CppToolsPlugin::test_completion()
     QFETCH(QByteArray, code);
     QFETCH(QStringList, expectedCompletions);
 
-    TestData data;
-    data.srcText = code;
-    setup(&data);
+    CompletionTestCase test(code, "c.");
 
-    Utils::ChangeSet change;
-    change.insert(data.pos, QLatin1String("c."));
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += 2;
-
-    QStringList actualCompletions = getCompletions(data);
+    QStringList actualCompletions = test.getCompletions();
     actualCompletions.sort();
     expectedCompletions.sort();
 
@@ -637,7 +538,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("otherMember"));
     QTest::newRow("case: base as template directly") << code << completions;
 
-
     completions.clear();
     code = "\n"
             "class Data { int dataMember; };\n"
@@ -657,7 +557,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("moreMember"));
     QTest::newRow("case: base as class template") << code << completions;
 
-
     completions.clear();
     code = "\n"
             "class Data { int dataMember; };\n"
@@ -676,7 +575,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("More"));
     completions.append(QLatin1String("moreMember"));
     QTest::newRow("case: base as globally qualified class template") << code << completions;
-
 
     completions.clear();
     code = "\n"
@@ -699,7 +597,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("moreMember"));
     QTest::newRow("case: base as namespace qualified class template") << code << completions;
 
-
     completions.clear();
     code = "\n"
             "class Data { int dataMember; };\n"
@@ -718,7 +615,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("Final"));
     completions.append(QLatin1String("finalMember"));
     QTest::newRow("case: base as nested template name") << code << completions;
-
 
     completions.clear();
     code = "\n"
@@ -824,9 +720,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
 
     completions.clear();
 
-    //this test does not work due to the bug QTCREATORBUG-7912
-
-
+    // This test does not work due to the bug QTCREATORBUG-7912
 //    code = "\n"
 //            "struct Global\n"
 //            "{\n"
@@ -1026,7 +920,6 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             << code << completions;
 
     completions.clear();
-
 }
 
 void CppToolsPlugin::test_completion_cyclic_inheritance()
@@ -1190,11 +1083,9 @@ void CppToolsPlugin::test_completion_template_function()
     QFETCH(QByteArray, code);
     QFETCH(QStringList, expectedCompletions);
 
-    TestData data;
-    data.srcText = code;
-    setup(&data);
+    CompletionTestCase test(code);
 
-    QStringList actualCompletions = getCompletions(data);
+    QStringList actualCompletions = test.getCompletions();
     actualCompletions.sort();
     expectedCompletions.sort();
 
@@ -1291,8 +1182,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
 
 void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_template()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Foo \n"
             "{\n"
             "    int foo_i;\n"
@@ -1312,18 +1202,9 @@ void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_
             "Enclosing<Foo> enclosing;\n"
             "@\n"
             ;
+    CompletionTestCase test(source, "enclosing.nested.nested_t.");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("enclosing.nested.nested_t.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("foo_i")));
@@ -1331,8 +1212,7 @@ void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_
 
 void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Foo \n"
             "{\n"
             "    int foo_i;\n"
@@ -1356,18 +1236,9 @@ void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enc
             "Enclosing<Foo> enclosing;\n"
             "@\n"
             ;
+    CompletionTestCase test(source, "enclosing.nested.nestedNested.nestedNested_t.");
 
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("enclosing.nested.nestedNested.nestedNested_t.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("foo_i")));
@@ -1375,8 +1246,7 @@ void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enc
 
 void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Foo\n"
             "{\n"
             "    int bar;\n"
@@ -1391,17 +1261,9 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
             "Template<> templateWithDefaultTypeOfArgument;\n"
             "@\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "templateWithDefaultTypeOfArgument.t.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("templateWithDefaultTypeOfArgument.t.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1409,8 +1271,7 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
 
 void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type_as_template()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Foo\n"
             "{\n"
             "    int bar;\n"
@@ -1430,17 +1291,9 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
             "Template<Foo> templateWithDefaultTypeOfArgument;\n"
             "@\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "templateWithDefaultTypeOfArgument.s.t.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("templateWithDefaultTypeOfArgument.s.t.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1448,25 +1301,16 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
 
 void CppToolsPlugin::test_completion_member_access_operator_1()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct S { void t(); };\n"
             "void f() { S *s;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("s.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "s.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("t")));
@@ -1475,80 +1319,53 @@ void CppToolsPlugin::test_completion_member_access_operator_1()
 
 void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct S { int m; };\n"
             "typedef S SType;\n"
             "SType p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct S { int m; };\n"
             "typedef S *SType;\n"
             "SType *p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 0);
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct S { int m; };\n"
             "typedef S SType;\n"
             "SType *p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
@@ -1557,26 +1374,17 @@ void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace
 
 void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct S { int m; };\n"
             "typedef S* SPtr;\n"
             "SPtr p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
@@ -1585,26 +1393,17 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "typedef struct S SType;\n"
             "struct S { int m; };\n"
             "SType *p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
@@ -1613,80 +1412,53 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "typedef struct S SType;\n"
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "typedef struct S *SType;\n"
             "struct S { int m; };\n"
             "SType *p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 0);
-    QVERIFY(! replaceAccessOperator);
+    QVERIFY(!replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "typedef struct S *SType;\n"
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
             "}\n"
             ;
-    setup(&data);
-
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
+    CompletionTestCase test(source, "p.");
 
     bool replaceAccessOperator = false;
-    QStringList completions = getCompletions(data, &replaceAccessOperator);
-
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("S")));
     QVERIFY(completions.contains(QLatin1String("m")));
@@ -1695,8 +1467,7 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type
 
 void CppToolsPlugin::test_completion_typedef_of_pointer()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Foo { int bar; };\n"
             "typedef Foo *FooPtr;\n"
             "void main()\n"
@@ -1705,17 +1476,9 @@ void CppToolsPlugin::test_completion_typedef_of_pointer()
             "   @\n"
             "    // padding so we get the scope right\n"
             "}";
-    setup(&data);
+    CompletionTestCase test(source, "ptr->");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("ptr->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1723,8 +1486,7 @@ void CppToolsPlugin::test_completion_typedef_of_pointer()
 
 void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Foo { int bar; };\n"
             "void f()\n"
             "{\n"
@@ -1733,17 +1495,9 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
             "   @\n"
             "    // padding so we get the scope right\n"
             "}";
-    setup(&data);
+    CompletionTestCase test(source, "ptr->");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("ptr->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1751,8 +1505,7 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
 
 void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declaration_block()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "struct Foo { int bar; };\n"
             "void f()\n"
             "{\n"
@@ -1764,17 +1517,9 @@ void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declarati
             "   }"
             "}"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "ptr->");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("ptr->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1782,8 +1527,7 @@ void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declarati
 
 void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template <typename T>\n"
             "struct Template2\n"
             "{\n"
@@ -1806,17 +1550,9 @@ void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "template2.templateTypedef.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("template2.templateTypedef.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 3);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1825,8 +1561,7 @@ void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
 
 void CppToolsPlugin::test_completion_template_specialization_with_pointer()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "template <typename T>\n"
             "struct Template\n"
             "{\n"
@@ -1840,17 +1575,9 @@ void CppToolsPlugin::test_completion_template_specialization_with_pointer()
             "Template<int*> templ;\n"
             "@\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "templ.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("templ.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Template")));
     QVERIFY(completions.contains(QLatin1String("pointer")));
@@ -1858,8 +1585,7 @@ void CppToolsPlugin::test_completion_template_specialization_with_pointer()
 
 void CppToolsPlugin::test_completion_typedef_using_templates1()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "namespace NS1\n"
             "{\n"
             "template<typename T>\n"
@@ -1892,17 +1618,9 @@ void CppToolsPlugin::test_completion_typedef_using_templates1()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "s.p->");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("s.p->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1910,8 +1628,7 @@ void CppToolsPlugin::test_completion_typedef_using_templates1()
 
 void CppToolsPlugin::test_completion_typedef_using_templates2()
 {
-    TestData data;
-    data.srcText = "\n"
+    const QByteArray source = "\n"
             "namespace NS1\n"
             "{\n"
             "template<typename T>\n"
@@ -1944,17 +1661,9 @@ void CppToolsPlugin::test_completion_typedef_using_templates2()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "p->");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("p->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
@@ -1962,8 +1671,7 @@ void CppToolsPlugin::test_completion_typedef_using_templates2()
 
 void CppToolsPlugin::test_completion_namespace_alias_with_many_namespace_declarations()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "namespace NS1\n"
             "{\n"
             "namespace NS2\n"
@@ -1991,17 +1699,9 @@ void CppToolsPlugin::test_completion_namespace_alias_with_many_namespace_declara
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "NS::");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("NS::");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo1")));
     QVERIFY(completions.contains(QLatin1String("Foo2")));
@@ -2009,8 +1709,7 @@ void CppToolsPlugin::test_completion_namespace_alias_with_many_namespace_declara
 
 void CppToolsPlugin::test_completion_QTCREATORBUG9098()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "template <typename T>\n"
             "class B\n"
             "{\n"
@@ -2028,19 +1727,10 @@ void CppToolsPlugin::test_completion_QTCREATORBUG9098()
             "       // padding so we get the scope right\n"
             "    }\n"
             "};\n"
-
             ;
-    setup(&data);
+    CompletionTestCase test(source, "b.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("b.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("c")));
     QVERIFY(completions.contains(QLatin1String("B")));
@@ -2176,13 +1866,11 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     completions.append(QLatin1String("m"));
     QTest::newRow("case: type inside namespace NS1 and using declaration inside NS2 namespace")
             << code << completions;
-
 }
 
 void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "template <typename T>\n"
             "struct S\n"
             "{\n"
@@ -2194,27 +1882,17 @@ void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
             "   @\n"
             "   // padding so we get the scope right\n"
             "}\n"
-
             ;
-    setup(&data);
+    CompletionTestCase test(source, "s.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("s.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 1);
     QVERIFY(completions.contains(QLatin1String("S")));
 }
 
 void CppToolsPlugin::test_completion_instantiate_template_function()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "template <typename T>\n"
             "T* templateFunction() { return 0; }\n"
             "struct A { int a; };\n"
@@ -2224,17 +1902,9 @@ void CppToolsPlugin::test_completion_instantiate_template_function()
             "   // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "templateFunction<A>()->");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("templateFunction<A>()->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("A")));
     QVERIFY(completions.contains(QLatin1String("a")));
@@ -2242,8 +1912,7 @@ void CppToolsPlugin::test_completion_instantiate_template_function()
 
 void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG9329()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "struct A {};\n"
             "template <typename T>\n"
             "struct Templ {};\n"
@@ -2256,17 +1925,9 @@ void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG93
             "   }\n"
             "};\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "this->");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("this->");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 4);
     QVERIFY(completions.contains(QLatin1String("A")));
     QVERIFY(completions.contains(QLatin1String("B")));
@@ -2276,8 +1937,7 @@ void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG93
 
 void CppToolsPlugin::test_completion_recursive_auto_declarations1_QTCREATORBUG9503()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "void f()\n"
             "{\n"
             "    auto object2 = object1;\n"
@@ -2286,24 +1946,15 @@ void CppToolsPlugin::test_completion_recursive_auto_declarations1_QTCREATORBUG95
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "object1.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("object1.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
 }
 
 void CppToolsPlugin::test_completion_recursive_auto_declarations2_QTCREATORBUG9503()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "void f()\n"
             "{\n"
             "    auto object3 = object1;\n"
@@ -2313,24 +1964,15 @@ void CppToolsPlugin::test_completion_recursive_auto_declarations2_QTCREATORBUG95
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "object1.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("object1.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
 }
 
 void CppToolsPlugin::test_completion_recursive_typedefs_declarations1()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "void f()\n"
             "{\n"
             "    typedef A B;\n"
@@ -2340,24 +1982,15 @@ void CppToolsPlugin::test_completion_recursive_typedefs_declarations1()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "a.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("a.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
 }
 
 void CppToolsPlugin::test_completion_recursive_typedefs_declarations2()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "void f()\n"
             "{\n"
             "    typedef A C;\n"
@@ -2368,24 +2001,15 @@ void CppToolsPlugin::test_completion_recursive_typedefs_declarations2()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "a.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("a.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
 }
 
 void CppToolsPlugin::test_completion_recursive_using_declarations1()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "void f()\n"
             "{\n"
             "    using B = A;\n"
@@ -2395,24 +2019,15 @@ void CppToolsPlugin::test_completion_recursive_using_declarations1()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "a.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("a.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
 }
 
 void CppToolsPlugin::test_completion_recursive_using_declarations2()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "void f()\n"
             "{\n"
             "    using C = A;\n"
@@ -2423,24 +2038,15 @@ void CppToolsPlugin::test_completion_recursive_using_declarations2()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "a.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("a.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
 }
 
 void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
 {
-    TestData data;
-    data.srcText =
+    const QByteArray source =
             "void f()\n"
             "{\n"
             "    using B = A;\n"
@@ -2450,17 +2056,9 @@ void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
             "    // padding so we get the scope right\n"
             "}\n"
             ;
-    setup(&data);
+    CompletionTestCase test(source, "a.");
 
-    Utils::ChangeSet change;
-    QString txt = QLatin1String("a.");
-    change.insert(data.pos, txt);
-    QTextCursor cursor(data.doc);
-    change.apply(&cursor);
-    data.pos += txt.length();
-
-    QStringList completions = getCompletions(data);
-
+    const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
 }
 
