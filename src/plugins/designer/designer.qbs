@@ -14,71 +14,62 @@ QtcPlugin {
 
     cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: base.concat([
-        "../../libs/3rdparty",
-        "cpp",
-        "../../shared/designerintegrationv2"
+        cppGroup.prefix,
+        sharedSources.prefix
     ])
 
-    files: [
-        "README.txt",
-        "codemodelhelpers.cpp",
-        "codemodelhelpers.h",
-        "designer.qrc",
-        "designer_export.h",
-        "designerconstants.h",
-        "designercontext.cpp",
-        "designercontext.h",
-        "designerxmleditorwidget.cpp",
-        "designerxmleditorwidget.h",
-        "editordata.h",
-        "editorwidget.cpp",
-        "editorwidget.h",
-        "formeditorfactory.cpp",
-        "formeditorfactory.h",
-        "formeditorplugin.cpp",
-        "formeditorplugin.h",
-        "formeditorstack.cpp",
-        "formeditorstack.h",
-        "formeditorw.cpp",
-        "formeditorw.h",
-        "formtemplatewizardpage.cpp",
-        "formtemplatewizardpage.h",
-        "formwindoweditor.cpp",
-        "formwindoweditor.h",
-        "formwindowfile.cpp",
-        "formwindowfile.h",
-        "formwizard.cpp",
-        "formwizard.h",
-        "formwizarddialog.cpp",
-        "formwizarddialog.h",
-        "qtcreatorintegration.cpp",
-        "qtcreatorintegration.h",
-        "qtdesignerformclasscodegenerator.cpp",
-        "qtdesignerformclasscodegenerator.h",
-        "resourcehandler.cpp",
-        "resourcehandler.h",
-        "settingsmanager.cpp",
-        "settingsmanager.h",
-        "settingspage.cpp",
-        "settingspage.h",
-        "../../shared/designerintegrationv2/formresizer.cpp",
-        "../../shared/designerintegrationv2/formresizer.h",
-        "../../shared/designerintegrationv2/sizehandlerect.cpp",
-        "../../shared/designerintegrationv2/sizehandlerect.h",
-        "../../shared/designerintegrationv2/widgethost.cpp",
-        "../../shared/designerintegrationv2/widgethost.h",
-        "../../shared/designerintegrationv2/widgethostconstants.h",
-        "cpp/cppsettingspage.cpp",
-        "cpp/cppsettingspage.h",
-        "cpp/cppsettingspagewidget.ui",
-        "cpp/formclasswizard.cpp",
-        "cpp/formclasswizard.h",
-        "cpp/formclasswizarddialog.cpp",
-        "cpp/formclasswizarddialog.h",
-        "cpp/formclasswizardpage.cpp",
-        "cpp/formclasswizardpage.h",
-        "cpp/formclasswizardpage.ui",
-        "cpp/formclasswizardparameters.cpp",
-        "cpp/formclasswizardparameters.h",
-    ]
+    Group {
+        name: "General"
+        files: [
+            "README.txt",
+            "codemodelhelpers.cpp", "codemodelhelpers.h",
+            "designer.qrc",
+            "designer_export.h",
+            "designerconstants.h",
+            "designercontext.cpp", "designercontext.h",
+            "designerxmleditorwidget.cpp", "designerxmleditorwidget.h",
+            "editordata.h",
+            "editorwidget.cpp", "editorwidget.h",
+            "formeditorfactory.cpp", "formeditorfactory.h",
+            "formeditorplugin.cpp", "formeditorplugin.h",
+            "formeditorstack.cpp", "formeditorstack.h",
+            "formeditorw.cpp", "formeditorw.h",
+            "formtemplatewizardpage.cpp", "formtemplatewizardpage.h",
+            "formwindoweditor.cpp", "formwindoweditor.h",
+            "formwindowfile.cpp", "formwindowfile.h",
+            "formwizard.cpp", "formwizard.h",
+            "formwizarddialog.cpp", "formwizarddialog.h",
+            "qtcreatorintegration.cpp", "qtcreatorintegration.h",
+            "qtdesignerformclasscodegenerator.cpp", "qtdesignerformclasscodegenerator.h",
+            "resourcehandler.cpp", "resourcehandler.h",
+            "settingsmanager.cpp", "settingsmanager.h",
+            "settingspage.cpp", "settingspage.h",
+        ]
+    }
+
+    Group {
+        name: "Shared Sources"
+        id: sharedSources
+        prefix: "../../shared/designerintegrationv2/"
+        files: [
+            "formresizer.cpp", "formresizer.h",
+            "sizehandlerect.cpp", "sizehandlerect.h",
+            "widgethost.cpp", "widgethost.h",
+            "widgethostconstants.h",
+        ]
+    }
+
+    Group {
+        name: "cpp"
+        id: cppGroup
+        prefix: "cpp/"
+        files: [
+            "cppsettingspage.cpp", "cppsettingspage.h",
+            "cppsettingspagewidget.ui",
+            "formclasswizard.cpp", "formclasswizard.h",
+            "formclasswizarddialog.cpp", "formclasswizarddialog.h",
+            "formclasswizardpage.cpp", "formclasswizardpage.h", "formclasswizardpage.ui",
+            "formclasswizardparameters.cpp", "formclasswizardparameters.h",
+        ]
+    }
 }

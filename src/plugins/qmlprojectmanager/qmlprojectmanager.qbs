@@ -17,40 +17,35 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }
 
-    files: [
-        "qmlapp.cpp",
-        "qmlapp.h",
-        "qmlapplicationwizard.cpp",
-        "qmlapplicationwizard.h",
-        "qmlproject.cpp",
-        "qmlproject.h",
-        "qmlproject.qrc",
-        "qmlprojectconstants.h",
-        "qmlprojectenvironmentaspect.cpp",
-        "qmlprojectenvironmentaspect.h",
-        "qmlprojectfile.cpp",
-        "qmlprojectfile.h",
-        "qmlprojectmanager.cpp",
-        "qmlprojectmanager.h",
-        "qmlprojectmanager_global.h",
-        "qmlprojectmanagerconstants.h",
-        "qmlprojectnodes.cpp",
-        "qmlprojectnodes.h",
-        "qmlprojectplugin.cpp",
-        "qmlprojectplugin.h",
-        "qmlprojectrunconfiguration.cpp",
-        "qmlprojectrunconfiguration.h",
-        "qmlprojectrunconfigurationfactory.cpp",
-        "qmlprojectrunconfigurationfactory.h",
-        "qmlprojectrunconfigurationwidget.cpp",
-        "qmlprojectrunconfigurationwidget.h",
-        "qmlprojectruncontrol.cpp",
-        "qmlprojectruncontrol.h",
-        "fileformat/filefilteritems.cpp",
-        "fileformat/filefilteritems.h",
-        "fileformat/qmlprojectfileformat.cpp",
-        "fileformat/qmlprojectfileformat.h",
-        "fileformat/qmlprojectitem.cpp",
-        "fileformat/qmlprojectitem.h",
-    ]
+    Group {
+        name: "General"
+        files: [
+            "qmlapp.cpp", "qmlapp.h",
+            "qmlapplicationwizard.cpp", "qmlapplicationwizard.h",
+            "qmlproject.cpp", "qmlproject.h",
+            "qmlproject.qrc",
+            "qmlprojectconstants.h",
+            "qmlprojectenvironmentaspect.cpp", "qmlprojectenvironmentaspect.h",
+            "qmlprojectfile.cpp", "qmlprojectfile.h",
+            "qmlprojectmanager.cpp", "qmlprojectmanager.h",
+            "qmlprojectmanager_global.h",
+            "qmlprojectmanagerconstants.h",
+            "qmlprojectnodes.cpp", "qmlprojectnodes.h",
+            "qmlprojectplugin.cpp", "qmlprojectplugin.h",
+            "qmlprojectrunconfiguration.cpp", "qmlprojectrunconfiguration.h",
+            "qmlprojectrunconfigurationfactory.cpp", "qmlprojectrunconfigurationfactory.h",
+            "qmlprojectrunconfigurationwidget.cpp", "qmlprojectrunconfigurationwidget.h",
+            "qmlprojectruncontrol.cpp", "qmlprojectruncontrol.h",
+        ]
+    }
+
+    Group {
+        name: "File Format"
+        prefix: "fileformat/"
+        files: [
+            "filefilteritems.cpp", "filefilteritems.h",
+            "qmlprojectfileformat.cpp", "qmlprojectfileformat.h",
+            "qmlprojectitem.cpp", "qmlprojectitem.h",
+        ]
+    }
 }

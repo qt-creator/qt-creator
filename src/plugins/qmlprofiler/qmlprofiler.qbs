@@ -19,83 +19,71 @@ QtcPlugin {
     Depends { name: "QmlJSTools" }
     Depends { name: "CPlusPlus" }
 
-    cpp.includePaths: base.concat("canvas")
+    cpp.includePaths: base.concat(canvasGroup.prefix)
 
-    files: [
-        "abstracttimelinemodel.h",
-        "abstracttimelinemodel.cpp",
-        "abstractqmlprofilerrunner.h",
-        "localqmlprofilerrunner.cpp",
-        "localqmlprofilerrunner.h",
-        "qmlprofiler_global.h",
-        "qmlprofilerattachdialog.cpp",
-        "qmlprofilerattachdialog.h",
-        "qmlprofilerclientmanager.cpp",
-        "qmlprofilerclientmanager.h",
-        "qmlprofilerconstants.h",
-        "qmlprofilerdetailsrewriter.cpp",
-        "qmlprofilerdetailsrewriter.h",
-        "qmlprofilerengine.cpp",
-        "qmlprofilerengine.h",
-        "qmlprofilereventsmodelproxy.cpp",
-        "qmlprofilereventsmodelproxy.h",
-        "qmlprofilereventview.cpp",
-        "qmlprofilereventview.h",
-        "qmlprofilermodelmanager.cpp",
-        "qmlprofilermodelmanager.h",
-        "qmlprofilerplugin.cpp",
-        "qmlprofilerplugin.h",
-        "qmlprofilerruncontrolfactory.cpp",
-        "qmlprofilerruncontrolfactory.h",
-        "qmlprofilerprocessedmodel.cpp",
-        "qmlprofilerprocessedmodel.h",
-        "qmlprofilersimplemodel.cpp",
-        "qmlprofilersimplemodel.h",
-        "qmlprofilerstatemanager.cpp",
-        "qmlprofilerstatemanager.h",
-        "qmlprofilerstatewidget.cpp",
-        "qmlprofilerstatewidget.h",
-        "qmlprofilertimelinemodelproxy.cpp",
-        "qmlprofilertimelinemodelproxy.h",
-        "qmlprofilertool.cpp",
-        "qmlprofilertool.h",
-        "qmlprofilertreeview.cpp",
-        "qmlprofilertreeview.h",
-        "qmlprofilertracefile.cpp",
-        "qmlprofilertracefile.h",
-        "qmlprofilertraceview.cpp",
-        "qmlprofilertraceview.h",
-        "qmlprofilerviewmanager.cpp",
-        "qmlprofilerviewmanager.h",
-        "qv8profilereventview.h",
-        "qv8profilereventview.cpp",
-        "qv8profilerdatamodel.cpp",
-        "qv8profilerdatamodel.h",
-        "timelinemodelaggregator.cpp",
-        "timelinemodelaggregator.h",
-        "timelinerenderer.cpp",
-        "timelinerenderer.h",
-        "qmlprofilerpainteventsmodelproxy.h",
-        "qmlprofilerpainteventsmodelproxy.cpp",
-        "canvas/qdeclarativecanvas.cpp",
-        "canvas/qdeclarativecanvas_p.h",
-        "canvas/qdeclarativecanvastimer.cpp",
-        "canvas/qdeclarativecanvastimer_p.h",
-        "canvas/qdeclarativecontext2d.cpp",
-        "canvas/qdeclarativecontext2d_p.h",
-        "canvas/qmlprofilercanvas.cpp",
-        "canvas/qmlprofilercanvas.h",
-        "qml/Detail.qml",
-        "qml/Label.qml",
-        "qml/MainView.qml",
-        "qml/Overview.js",
-        "qml/Overview.qml",
-        "qml/RangeDetails.qml",
-        "qml/RangeMover.qml",
-        "qml/SelectionRange.qml",
-        "qml/SelectionRangeDetails.qml",
-        "qml/TimeDisplay.qml",
-        "qml/TimeMarks.qml",
-        "qml/qmlprofiler.qrc",
-    ]
+    Group {
+        name: "General"
+        files: [
+            "abstractqmlprofilerrunner.h",
+            "abstracttimelinemodel.h", "abstracttimelinemodel.cpp",
+            "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
+            "qmlprofiler_global.h",
+            "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
+            "qmlprofilerclientmanager.cpp", "qmlprofilerclientmanager.h",
+            "qmlprofilerconstants.h",
+            "qmlprofilerdetailsrewriter.cpp", "qmlprofilerdetailsrewriter.h",
+            "qmlprofilerengine.cpp", "qmlprofilerengine.h",
+            "qmlprofilereventsmodelproxy.cpp", "qmlprofilereventsmodelproxy.h",
+            "qmlprofilereventview.cpp", "qmlprofilereventview.h",
+            "qmlprofilermodelmanager.cpp", "qmlprofilermodelmanager.h",
+            "qmlprofilerpainteventsmodelproxy.h", "qmlprofilerpainteventsmodelproxy.cpp",
+            "qmlprofilerplugin.cpp", "qmlprofilerplugin.h",
+            "qmlprofilerprocessedmodel.cpp", "qmlprofilerprocessedmodel.h",
+            "qmlprofilerruncontrolfactory.cpp", "qmlprofilerruncontrolfactory.h",
+            "qmlprofilersimplemodel.cpp", "qmlprofilersimplemodel.h",
+            "qmlprofilerstatemanager.cpp", "qmlprofilerstatemanager.h",
+            "qmlprofilerstatewidget.cpp", "qmlprofilerstatewidget.h",
+            "qmlprofilertimelinemodelproxy.cpp", "qmlprofilertimelinemodelproxy.h",
+            "qmlprofilertool.cpp", "qmlprofilertool.h",
+            "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
+            "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
+            "qmlprofilertreeview.cpp", "qmlprofilertreeview.h",
+            "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
+            "qv8profilerdatamodel.cpp", "qv8profilerdatamodel.h",
+            "qv8profilereventview.h", "qv8profilereventview.cpp",
+            "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",
+            "timelinerenderer.cpp", "timelinerenderer.h",
+        ]
+    }
+
+    Group {
+        name: "Canvas"
+        id: canvasGroup
+        prefix: "canvas/"
+        files: [
+            "qdeclarativecanvas.cpp", "qdeclarativecanvas_p.h",
+            "qdeclarativecanvastimer.cpp", "qdeclarativecanvastimer_p.h",
+            "qdeclarativecontext2d.cpp", "qdeclarativecontext2d_p.h",
+            "qmlprofilercanvas.cpp", "qmlprofilercanvas.h"
+        ]
+    }
+
+    Group {
+        name: "QML"
+        prefix: "qml/"
+        files: [
+            "Detail.qml",
+            "Label.qml",
+            "MainView.qml",
+            "Overview.js",
+            "Overview.qml",
+            "RangeDetails.qml",
+            "RangeMover.qml",
+            "SelectionRange.qml",
+            "SelectionRangeDetails.qml",
+            "TimeDisplay.qml",
+            "TimeMarks.qml",
+            "qmlprofiler.qrc",
+        ]
+    }
 }
