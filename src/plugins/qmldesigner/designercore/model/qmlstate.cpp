@@ -53,41 +53,32 @@ QmlModelState::QmlModelState(const ModelNode &modelNode)
 
 QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node)
 {
-    //### exception if not valid
-
-    if (isBaseState())
-        return  QmlPropertyChanges();
-
-    addChangeSetIfNotExists(node);
-    foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        //### exception if not valid QmlModelStateOperation
-        if (QmlPropertyChanges::isValidQmlPropertyChanges(childNode)
-                && QmlPropertyChanges(childNode).target().isValid()
-                && QmlPropertyChanges(childNode).target() == node)
-            return QmlPropertyChanges(childNode); //### exception if not valid(childNode);
+    if (!isBaseState()) {
+        addChangeSetIfNotExists(node);
+        foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
+            //### exception if not valid QmlModelStateOperation
+            if (QmlPropertyChanges::isValidQmlPropertyChanges(childNode)
+                    && QmlPropertyChanges(childNode).target().isValid()
+                    && QmlPropertyChanges(childNode).target() == node)
+                return QmlPropertyChanges(childNode); //### exception if not valid(childNode);
+        }
     }
+
     return QmlPropertyChanges(); //not found
 }
 
 QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &node) const
 {
     QList<QmlModelStateOperation> returnList;
-    //### exception if not valid
 
-    if (isBaseState())
-        return returnList;
-
-    if (!modelNode().hasProperty("changes"))
-        return returnList;
-
-    Q_ASSERT(modelNode().property("changes").isNodeListProperty());
-
-    foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode)) {
-            QmlModelStateOperation stateOperation(childNode);
-            ModelNode targetNode = stateOperation.target();
-            if (targetNode.isValid() && targetNode == node)
-                returnList.append(stateOperation); //### exception if not valid(childNode);
+    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+        foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
+            if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode)) {
+                QmlModelStateOperation stateOperation(childNode);
+                ModelNode targetNode = stateOperation.target();
+                if (targetNode.isValid() && targetNode == node)
+                    returnList.append(stateOperation); //### exception if not valid(childNode);
+            }
         }
     }
 
@@ -96,50 +87,39 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &no
 
 QList<QmlPropertyChanges> QmlModelState::propertyChanges() const
 {
-    //### exception if not valid
     QList<QmlPropertyChanges> returnList;
 
-    if (isBaseState())
-        return returnList;
-
-    if (!modelNode().hasProperty("changes"))
-        return returnList;
-
-    Q_ASSERT(modelNode().property("changes").isNodeListProperty());
-
-    foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        //### exception if not valid QmlModelStateOperation
-        if (QmlPropertyChanges(childNode).isValid())
-            returnList.append(QmlPropertyChanges(childNode));
+    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+        foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
+            //### exception if not valid QmlModelStateOperation
+            if (QmlPropertyChanges::isValidQmlPropertyChanges(childNode))
+                returnList.append(QmlPropertyChanges(childNode));
+        }
     }
+
     return returnList;
 }
 
 
 bool QmlModelState::hasPropertyChanges(const ModelNode &node) const
 {
-    //### exception if not valid
-
-    if (isBaseState())
-        return false;
-
-    foreach (const QmlPropertyChanges &changeSet, propertyChanges()) {
-        if (changeSet.target().isValid() && changeSet.target() == node)
-            return true;
+    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+        foreach (const QmlPropertyChanges &changeSet, propertyChanges()) {
+            if (changeSet.target().isValid() && changeSet.target() == node)
+                return true;
+        }
     }
+
     return false;
 }
 
 bool QmlModelState::hasStateOperation(const ModelNode &node) const
 {
-    //### exception if not valid
-
-    if (isBaseState())
-        return false;
-
-    foreach (const  QmlModelStateOperation &stateOperation, stateOperations()) {
-        if (stateOperation.target() == node)
-            return true;
+    if (!isBaseState()) {
+        foreach (const  QmlModelStateOperation &stateOperation, stateOperations()) {
+            if (stateOperation.target() == node)
+                return true;
+        }
     }
     return false;
 }
@@ -149,19 +129,14 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations() const
     //### exception if not valid
     QList<QmlModelStateOperation> returnList;
 
-    if (isBaseState())
-        return returnList;
-
-    if (!modelNode().hasProperty("changes"))
-        return returnList;
-
-    Q_ASSERT(modelNode().property("changes").isNodeListProperty());
-
-    foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        //### exception if not valid QmlModelStateOperation
-        if (QmlModelStateOperation(childNode).isValid())
-            returnList.append(QmlModelStateOperation(childNode));
+    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+        foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
+            //### exception if not valid QmlModelStateOperation
+            if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode))
+                returnList.append(QmlModelStateOperation(childNode));
+        }
     }
+
     return returnList;
 }
 
@@ -173,24 +148,21 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations() const
 
 void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
 {
-    //### exception if not valid
-
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    if (hasPropertyChanges(node))
-        return; //changeSet already there
+    if (!hasPropertyChanges(node)) {
+        ModelNode newChangeSet;
+        if (view()->majorQtQuickVersion() > 1)
+            newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 2, 0);
+        else
+            newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 1, 0);
 
-    ModelNode newChangeSet;
-    if (view()->majorQtQuickVersion() > 1)
-        newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 2, 0);
-    else
-        newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 1, 0);
+        modelNode().nodeListProperty("changes").reparentHere(newChangeSet);
 
-    modelNode().nodeListProperty("changes").reparentHere(newChangeSet);
-
-    QmlPropertyChanges(newChangeSet).setTarget(node);
-    Q_ASSERT(QmlPropertyChanges(newChangeSet).isValid());
+        QmlPropertyChanges(newChangeSet).setTarget(node);
+        Q_ASSERT(QmlPropertyChanges::isValidQmlPropertyChanges(newChangeSet));
+    }
 }
 
 void QmlModelState::removePropertyChanges(const ModelNode &node)
@@ -200,12 +172,11 @@ void QmlModelState::removePropertyChanges(const ModelNode &node)
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    if (isBaseState())
-        return;
-
-     QmlPropertyChanges theChangeSet(propertyChanges(node));
-     if (theChangeSet.isValid())
-         theChangeSet.modelNode().destroy();
+    if (!isBaseState()) {
+        QmlPropertyChanges changeSet(propertyChanges(node));
+        if (changeSet.isValid())
+            changeSet.modelNode().destroy();
+    }
 }
 
 
@@ -227,11 +198,11 @@ QList<QmlObjectNode> QmlModelState::allAffectedNodes() const
     QList<QmlObjectNode> returnList;
 
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        //### exception if not valid QmlModelStateOperation
-        if (QmlModelStateOperation(childNode).isValid() &&
+        if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode) &&
             !returnList.contains(QmlModelStateOperation(childNode).target()))
             returnList.append(QmlModelStateOperation(childNode).target());
     }
+
     return returnList;
 }
 
@@ -290,8 +261,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    QmlItemNode parentNode(modelNode().parentProperty().parentModelNode());
-    if (!parentNode.isValid())
+    if (!QmlItemNode::isValidQmlItemNode(modelNode().parentProperty().parentModelNode()))
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
 //    QmlModelState newState(stateGroup().addState(name));
