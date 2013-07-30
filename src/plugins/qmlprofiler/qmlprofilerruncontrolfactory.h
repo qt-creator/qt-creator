@@ -49,7 +49,6 @@ public:
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
                                         ProjectExplorer::RunMode mode,
                                         QString *errorMessage);
-    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc);
 };
 
 } // namespace Internal
