@@ -46,8 +46,6 @@ class RunConfiguration;
 
 namespace Analyzer {
 
-class IAnalyzerTool;
-
 /**
  * An IAnalyzerEngine instance handles the launch of an analyzation tool.
  *
@@ -58,9 +56,7 @@ class ANALYZER_EXPORT IAnalyzerEngine : public QObject
     Q_OBJECT
 
 public:
-    IAnalyzerEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
-    IAnalyzerEngine(IAnalyzerTool *tool,
+    IAnalyzerEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
     /// Start analyzation process.
@@ -79,8 +75,6 @@ public:
     /// The start parameters for this engine.
     const AnalyzerStartParameters &startParameters() const { return m_sp; }
 
-    /// The tool this engine is associated with.
-    IAnalyzerTool *tool() const { return m_tool; }
     StartMode mode() const { return m_sp.startMode; }
 
     virtual void notifyRemoteSetupDone(quint16) {}
@@ -104,7 +98,6 @@ signals:
 private:
     ProjectExplorer::RunConfiguration *m_runConfig;
     AnalyzerStartParameters m_sp;
-    IAnalyzerTool *m_tool;
 };
 
 } // namespace Analyzer

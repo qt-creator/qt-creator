@@ -572,7 +572,7 @@ IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
 IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    CallgrindEngine *engine = new CallgrindEngine(q, sp, runConfiguration);
+    CallgrindEngine *engine = new CallgrindEngine(sp, runConfiguration);
 
     connect(engine, SIGNAL(parserDataReady(CallgrindEngine*)),
             SLOT(takeParserData(CallgrindEngine*)));

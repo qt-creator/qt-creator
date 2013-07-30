@@ -43,7 +43,7 @@ class CallgrindEngine : public Valgrind::Internal::ValgrindEngine
     Q_OBJECT
 
 public:
-    CallgrindEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
+    CallgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
     bool start();

@@ -32,19 +32,11 @@
 
 namespace Analyzer {
 
-IAnalyzerEngine::IAnalyzerEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+IAnalyzerEngine::IAnalyzerEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
     m_runConfig = runConfiguration;
     m_sp = sp;
-    m_tool = tool;
-}
-
-IAnalyzerEngine::IAnalyzerEngine(IAnalyzerTool *tool,
-        ProjectExplorer::RunConfiguration *runConfiguration)
-{
-    m_runConfig = runConfiguration;
-    m_tool = tool;
 }
 
 } // namespace Analyzer

@@ -451,7 +451,7 @@ IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
         ->project()->files(Project::AllFiles) : QStringList());
 
-    MemcheckEngine *engine = new MemcheckEngine(this, sp, runConfiguration);
+    MemcheckEngine *engine = new MemcheckEngine(sp, runConfiguration);
 
     connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
             this, SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));

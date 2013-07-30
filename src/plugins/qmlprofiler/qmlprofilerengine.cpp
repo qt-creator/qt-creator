@@ -77,10 +77,9 @@ public:
 // QmlProfilerEngine
 //
 
-QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
-                                     const Analyzer::AnalyzerStartParameters &sp,
+QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
                                      ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(tool, sp, runConfiguration)
+    : IAnalyzerEngine(sp, runConfiguration)
     , d(new QmlProfilerEnginePrivate(sp))
 {
     d->m_profilerState = 0;

@@ -48,8 +48,7 @@ class ValgrindEngine : public Analyzer::IAnalyzerEngine
     Q_OBJECT
 
 public:
-    ValgrindEngine(Analyzer::IAnalyzerTool *tool,
-        const Analyzer::AnalyzerStartParameters &sp,
+    ValgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
     ~ValgrindEngine();
 

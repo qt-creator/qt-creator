@@ -30,8 +30,9 @@
 #ifndef QMLPROFILERENGINE_H
 #define QMLPROFILERENGINE_H
 
-#include <analyzerbase/ianalyzerengine.h>
 #include "qmlprofilerstatemanager.h"
+
+#include <analyzerbase/ianalyzerengine.h>
 #include <utils/outputformat.h>
 
 namespace QmlProfiler {
@@ -42,8 +43,7 @@ class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
     Q_OBJECT
 
 public:
-    QmlProfilerEngine(Analyzer::IAnalyzerTool *tool,
-                      const Analyzer::AnalyzerStartParameters &sp,
+    QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
                       ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 

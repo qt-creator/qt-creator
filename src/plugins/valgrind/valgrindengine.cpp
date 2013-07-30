@@ -53,9 +53,9 @@ namespace Internal {
 
 const int progressMaximum  = 1000000;
 
-ValgrindEngine::ValgrindEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+ValgrindEngine::ValgrindEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(tool, sp, runConfiguration),
+    : IAnalyzerEngine(sp, runConfiguration),
       m_settings(0),
       m_progress(new QFutureInterface<void>()),
       m_progressWatcher(new QFutureWatcher<void>()),

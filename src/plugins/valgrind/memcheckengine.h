@@ -44,7 +44,7 @@ class MemcheckEngine : public ValgrindEngine
     Q_OBJECT
 
 public:
-    MemcheckEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
+    MemcheckEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
     bool start();

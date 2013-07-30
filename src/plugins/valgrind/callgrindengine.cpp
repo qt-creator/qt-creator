@@ -42,9 +42,9 @@ using namespace Analyzer;
 using namespace Valgrind;
 using namespace Valgrind::Internal;
 
-CallgrindEngine::CallgrindEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+CallgrindEngine::CallgrindEngine(const AnalyzerStartParameters &sp,
          ProjectExplorer::RunConfiguration *runConfiguration)
-    : ValgrindEngine(tool, sp, runConfiguration)
+    : ValgrindEngine(sp, runConfiguration)
     , m_markAsPaused(false)
 {
     connect(&m_runner, SIGNAL(finished()), this, SLOT(slotFinished()));
