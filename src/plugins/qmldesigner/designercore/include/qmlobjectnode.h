@@ -101,7 +101,7 @@ public:
 
     bool isAncestorOf(const QmlObjectNode &objectNode) const;
 
-    bool hasDefaultProperty() const;
+    bool hasDefaultPropertyName() const;
     PropertyName defaultPropertyName() const;
 
     static  QVariant instanceValue(const ModelNode &modelNode, const PropertyName &name);

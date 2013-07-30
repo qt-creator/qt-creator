@@ -147,7 +147,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             newQmlItemNode = createQmlItemNodeFromSource(view, itemLibraryEntry.qml(), position);
         }
 
-        if (parentQmlItemNode.hasDefaultProperty())
+        if (parentQmlItemNode.hasDefaultPropertyName())
             parentQmlItemNode.nodeAbstractProperty(parentQmlItemNode.defaultPropertyName()).reparentHere(newQmlItemNode);
 
         if (!newQmlItemNode.isValid())

@@ -517,7 +517,7 @@ QString QmlObjectNode::validId()
     return modelNode().validId();
 }
 
-bool QmlObjectNode::hasDefaultProperty() const
+bool QmlObjectNode::hasDefaultPropertyName() const
 {
     return modelNode().metaInfo().hasDefaultProperty();
 }
@@ -529,7 +529,7 @@ PropertyName QmlObjectNode::defaultPropertyName() const
 
 void QmlObjectNode::setParent(QmlObjectNode newParent)
 {
-    if (newParent.hasDefaultProperty())
+    if (newParent.hasDefaultPropertyName())
         newParent.modelNode().nodeAbstractProperty(newParent.defaultPropertyName()).reparentHere(modelNode());
 }
 
