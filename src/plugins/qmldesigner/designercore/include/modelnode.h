@@ -139,9 +139,9 @@ public:
     bool hasVariantProperty(const PropertyName &name) const;
     bool hasBindingProperty(const PropertyName &name) const;
     bool hasNodeAbstracProperty(const PropertyName &name) const;
+    bool hasDefaultNodeAbstracProperty() const;
     bool hasNodeProperty(const PropertyName &name) const;
     bool hasNodeListProperty(const PropertyName &name) const;
-
 
     void setScriptFunctions(const QStringList &scriptFunctionList);
     QStringList scriptFunctions() const;
