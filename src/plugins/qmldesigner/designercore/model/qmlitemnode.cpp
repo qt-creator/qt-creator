@@ -61,6 +61,35 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
     return false;
 }
 
+static QmlItemNode createQmlItemNodeFromSource(AbstractView *view, const QString &source, const QPointF &position)
+{
+    QScopedPointer<Model> inputModel(Model::create("QtQuick.Item", 1, 0, view->model()));
+    inputModel->setFileUrl(view->model()->fileUrl());
+    QPlainTextEdit textEdit;
+
+    textEdit.setPlainText(source);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+    rewriterView->setCheckSemanticErrors(false);
+    rewriterView->setTextModifier(&modifier);
+    inputModel->setRewriterView(rewriterView.data());
+
+    if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
+        ModelNode rootModelNode = rewriterView->rootModelNode();
+        inputModel->detachView(rewriterView.data());
+
+        rootModelNode.variantProperty("x").setValue(qRound(position.x()));
+        rootModelNode.variantProperty("y").setValue(qRound(position.y()));
+
+        ModelMerger merger(view);
+        return merger.insertModel(rootModelNode);
+    }
+
+    return QmlItemNode();
+}
+
+
 QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentQmlItemNode)
 {
     if (!parentQmlItemNode.isValid())
@@ -106,39 +135,17 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             }
         }
 
-        QList<QPair<PropertyName, QVariant> > propertyPairList;
-        propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
-        propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
-
         if (itemLibraryEntry.qml().isEmpty()) {
+            QList<QPair<PropertyName, QVariant> > propertyPairList;
+            propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
+            propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+
             foreach (const PropertyContainer &property, itemLibraryEntry.properties())
                 propertyPairList.append(qMakePair(property.name(), property.value()));
 
             newQmlItemNode = QmlItemNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
         } else {
-            QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, view->model()));
-            inputModel->setFileUrl(view->model()->fileUrl());
-            QPlainTextEdit textEdit;
-
-
-            textEdit.setPlainText(itemLibraryEntry.qmlSource());
-            NotIndentingTextEditModifier modifier(&textEdit);
-
-            QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
-            rewriterView->setCheckSemanticErrors(false);
-            rewriterView->setTextModifier(&modifier);
-            inputModel->setRewriterView(rewriterView.data());
-
-            if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
-                ModelNode rootModelNode = rewriterView->rootModelNode();
-                inputModel->detachView(rewriterView.data());
-
-                rootModelNode.variantProperty("x").setValue(propertyPairList.first().second);
-                rootModelNode.variantProperty("y").setValue(propertyPairList.at(1).second);
-
-                ModelMerger merger(view);
-                newQmlItemNode = merger.insertModel(rootModelNode);
-            }
+            newQmlItemNode = createQmlItemNodeFromSource(view, itemLibraryEntry.qml(), position);
         }
 
         if (parentQmlItemNode.hasDefaultProperty())
