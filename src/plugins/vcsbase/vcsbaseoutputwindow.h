@@ -87,13 +87,9 @@ public slots:
 
     // Append text and pop up.
     void append(const QString &text);
-    // Append data using the Locale's converter and pop up.
-    void appendData(const QByteArray &data);
 
     // Silently append text, do not pop up.
     void appendSilently(const QString &text);
-    // Silently append data using the Locale's converter, do not pop up.
-    void appendDataSilently(const QByteArray &data);
 
     // Append red error text and pop up.
     void appendError(const QString &text);

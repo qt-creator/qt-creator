@@ -260,7 +260,7 @@ void GitDiffHandler::collectShowDescription(const QString &id)
     m_editor->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
     command->setCodec(m_editor->editorWidget()->codec());
-    connect(command, SIGNAL(outputData(QString)), this, SLOT(slotShowDescriptionReceived(QString)));
+    connect(command, SIGNAL(output(QString)), this, SLOT(slotShowDescriptionReceived(QString)));
     QStringList arguments;
     arguments << QLatin1String("show") << QLatin1String("-s") << QLatin1String("--format=fuller")
               << QLatin1String(noColorOption) << QLatin1String(decorateOption) << id;
@@ -288,7 +288,7 @@ void GitDiffHandler::collectFilesList(const QStringList &additionalArguments)
     m_editor->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
     command->setCodec(m_editor->editorWidget()->codec());
-    connect(command, SIGNAL(outputData(QString)), this, SLOT(slotFileListReceived(QString)));
+    connect(command, SIGNAL(output(QString)), this, SLOT(slotFileListReceived(QString)));
     QStringList arguments;
     arguments << QLatin1String("diff") << QLatin1String("--name-only") << additionalArguments;
     command->addJob(arguments, m_timeout);
@@ -356,7 +356,7 @@ void GitDiffHandler::collectFilesContents()
                 VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
                 if (m_editor)
                     command->setCodec(m_editor->editorWidget()->codec());
-                connect(command, SIGNAL(outputData(QString)), this, SLOT(slotFileContentsReceived(QString)));
+                connect(command, SIGNAL(output(QString)), this, SLOT(slotFileContentsReceived(QString)));
 
                 QString revisionArgument = (revision.type == Other)
                         ? revision.id : QString();
@@ -690,7 +690,7 @@ public:
     {
         if (parentCommand) {
             parentCommand->setExpectChanges(true);
-            connect(parentCommand, SIGNAL(outputData(QString)), this, SLOT(readStdOut(QString)));
+            connect(parentCommand, SIGNAL(output(QString)), this, SLOT(readStdOut(QString)));
             connect(parentCommand, SIGNAL(errorText(QString)), this, SLOT(readStdErr(QString)));
         }
     }
@@ -1228,14 +1228,14 @@ void GitClient::slotBlameRevisionRequested(const QString &source, QString change
     blame(fi.absolutePath(), QStringList(), fi.fileName(), change, lineNumber);
 }
 
-void GitClient::appendOutputData(const QString &data) const
+void GitClient::appendOutput(const QString &text) const
 {
-    outputWindow()->append(data);
+    outputWindow()->append(text);
 }
 
-void GitClient::appendOutputDataSilently(const QString &data) const
+void GitClient::appendOutputSilently(const QString &text) const
 {
-    outputWindow()->appendSilently(data);
+    outputWindow()->appendSilently(text);
 }
 
 QTextCodec *GitClient::getSourceCodec(const QString &file) const
@@ -2216,12 +2216,11 @@ VcsBase::Command *GitClient::createCommand(const QString &workingDirectory,
         connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
     if (useOutputToWindow) {
         if (editor) // assume that the commands output is the important thing
-            connect(command, SIGNAL(outputData(QString)), this, SLOT(appendOutputDataSilently(QString)));
+            connect(command, SIGNAL(output(QString)), this, SLOT(appendOutputSilently(QString)));
         else
-            connect(command, SIGNAL(outputData(QString)), this, SLOT(appendOutputData(QString)));
-    } else {
-        if (editor)
-            connect(command, SIGNAL(outputData(QString)), editor, SLOT(setPlainTextDataFiltered(QString)));
+            connect(command, SIGNAL(output(QString)), this, SLOT(appendOutput(QString)));
+    } else if (editor) {
+        connect(command, SIGNAL(output(QString)), editor, SLOT(setPlainTextFiltered(QString)));
     }
 
     connect(command, SIGNAL(errorText(QString)), outputWindow(), SLOT(appendError(QString)));

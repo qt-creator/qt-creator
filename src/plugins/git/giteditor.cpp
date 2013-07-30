@@ -170,9 +170,9 @@ static QString removeAnnotationDate(const QString &b)
     return result;
 }
 
-void GitEditor::setPlainTextDataFiltered(const QString &a)
+void GitEditor::setPlainTextFiltered(const QString &text)
 {
-    QString array = a;
+    QString modText = text;
     GitPlugin *plugin = GitPlugin::instance();
     // If desired, filter out the date from annotation
     switch (contentType())
@@ -180,22 +180,22 @@ void GitEditor::setPlainTextDataFiltered(const QString &a)
     case VcsBase::AnnotateOutput: {
         const bool omitAnnotationDate = plugin->settings().boolValue(GitSettings::omitAnnotationDateKey);
         if (omitAnnotationDate)
-            array = removeAnnotationDate(a);
+            modText = removeAnnotationDate(text);
         break;
     }
     case VcsBase::DiffOutput: {
-        if (array.isEmpty())
-            array = QLatin1String("No difference to HEAD");
+        if (modText.isEmpty())
+            modText = QLatin1String("No difference to HEAD");
         const QFileInfo fi(source());
         const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
         QString precedes, follows;
-        if (array.startsWith(QLatin1String("commit "))) { // show
-            int lastHeaderLine = array.indexOf(QLatin1String("\n\n")) + 1;
-            plugin->gitClient()->synchronousTagsForCommit(workingDirectory, array.mid(7, 8), precedes, follows);
+        if (modText.startsWith(QLatin1String("commit "))) { // show
+            int lastHeaderLine = modText.indexOf(QLatin1String("\n\n")) + 1;
+            plugin->gitClient()->synchronousTagsForCommit(workingDirectory, modText.mid(7, 8), precedes, follows);
             if (!precedes.isEmpty())
-                array.insert(lastHeaderLine, QLatin1String("Precedes: ") + precedes + QLatin1Char('\n'));
+                modText.insert(lastHeaderLine, QLatin1String("Precedes: ") + precedes + QLatin1Char('\n'));
             if (!follows.isEmpty())
-                array.insert(lastHeaderLine, QLatin1String("Follows: ") + follows + QLatin1Char('\n'));
+                modText.insert(lastHeaderLine, QLatin1String("Follows: ") + follows + QLatin1Char('\n'));
         }
         break;
     }
@@ -203,7 +203,7 @@ void GitEditor::setPlainTextDataFiltered(const QString &a)
         break;
     }
 
-    setPlainText(array);
+    setPlainText(modText);
 }
 
 void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)

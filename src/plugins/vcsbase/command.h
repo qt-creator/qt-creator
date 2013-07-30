@@ -84,7 +84,7 @@ private:
     void run();
 
 signals:
-    void outputData(const QString &);
+    void output(const QString &);
     void errorText(const QString &);
     void finished(bool ok, int exitCode, const QVariant &cookie);
     void success(const QVariant &cookie);

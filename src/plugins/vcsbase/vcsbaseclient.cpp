@@ -436,7 +436,7 @@ void VcsBaseClient::emitParsedStatus(const QString &repository, const QStringLis
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
     Command *cmd = createCommand(repository);
-    connect(cmd, SIGNAL(outputData(QString)), this, SLOT(statusParser(QString)));
+    connect(cmd, SIGNAL(output(QString)), this, SLOT(statusParser(QString)));
     enqueueJob(cmd, args);
 }
 
@@ -598,15 +598,14 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
         d->bindCommandToEditor(cmd, editor);
     if (mode == VcsWindowOutputBind) {
         if (editor) { // assume that the commands output is the important thing
-            connect(cmd, SIGNAL(outputData(QString)),
+            connect(cmd, SIGNAL(output(QString)),
                     ::vcsOutputWindow(), SLOT(appendSilently(QString)));
         } else {
-            connect(cmd, SIGNAL(outputData(QString)),
+            connect(cmd, SIGNAL(output(QString)),
                     ::vcsOutputWindow(), SLOT(append(QString)));
         }
     } else if (editor) {
-        connect(cmd, SIGNAL(outputData(QString)),
-                editor, SLOT(setPlainTextData(QString)));
+        connect(cmd, SIGNAL(output(QString)), editor, SLOT(setPlainText(QString)));
     }
 
     if (::vcsOutputWindow())

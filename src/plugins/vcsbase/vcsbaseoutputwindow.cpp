@@ -433,19 +433,6 @@ void VcsBaseOutputWindow::appendCommand(const QString &workingDirectory,
     appendCommand(msgExecutionLogEntry(workingDirectory, binary, args));
 }
 
-
-void VcsBaseOutputWindow::appendData(const QByteArray &data)
-{
-    appendDataSilently(data);
-    if (!d->plainTextEdit()->isVisible())
-        popup(Core::IOutputPane::NoModeSwitch);
-}
-
-void VcsBaseOutputWindow::appendDataSilently(const QByteArray &data)
-{
-    appendSilently(QTextCodec::codecForLocale()->toUnicode(data));
-}
-
 VcsBaseOutputWindow *VcsBaseOutputWindow::instance()
 {
     if (!VcsBaseOutputWindowPrivate::instance) {

@@ -327,8 +327,8 @@ public slots:
 
 private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
-    void appendOutputData(const QString &data) const;
-    void appendOutputDataSilently(const QString &data) const;
+    void appendOutput(const QString &text) const;
+    void appendOutputSilently(const QString &text) const;
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
 

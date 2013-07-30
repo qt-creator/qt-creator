@@ -261,7 +261,7 @@ void Command::run()
     d->m_lastExecExitCode = exitCode;
 
     if (ok)
-        emit outputData(stdOutS);
+        emit output(stdOutS);
 
     if (!error.isEmpty())
         emit errorText(error);
