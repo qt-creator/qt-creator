@@ -602,6 +602,24 @@ Function *asFunctionOrTemplateFunctionType(FullySpecifiedType ty)
     return 0;
 }
 
+bool isQPrivateSignal(const Symbol *symbol)
+{
+    if (!symbol)
+        return false;
+
+    static Identifier qPrivateSignalIdentifier("QPrivateSignal", 14);
+
+    if (FullySpecifiedType type = symbol->type()) {
+        if (NamedType *namedType = type->asNamedType()) {
+            if (const Name *name = namedType->name()) {
+                if (name->isEqualTo(&qPrivateSignalIdentifier))
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
 } // Anonymous
 
 // ----------------------------
@@ -1620,6 +1638,8 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
                     signature += QLatin1Char('(');
                     for (unsigned i = 0; i < count; ++i) {
                         Symbol *arg = fun->argumentAt(i);
+                        if (isQPrivateSignal(arg))
+                            continue;
                         if (i != 0)
                             signature += QLatin1Char(',');
                         signature += o.prettyType(arg->type());

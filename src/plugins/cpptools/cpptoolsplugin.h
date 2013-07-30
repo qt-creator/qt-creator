@@ -148,6 +148,8 @@ private slots:
     void test_completion_recursive_using_declarations2();
     void test_completion_recursive_using_typedef_declarations();
 
+    void test_completion_signals_hide_QPrivateSignal();
+
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
     void test_format_pointerdeclaration_in_controlflowstatements();

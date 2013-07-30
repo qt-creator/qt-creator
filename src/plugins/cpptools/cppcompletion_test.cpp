@@ -2463,3 +2463,36 @@ void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
 
     QCOMPARE(completions.size(), 0);
 }
+
+void CppToolsPlugin::test_completion_signals_hide_QPrivateSignal()
+{
+    const QByteArray source =
+        "#define SIGNAL(a) #a\n"
+        "#define SLOT(a) #a\n"
+        "#define signals public\n"
+        "#define Q_OBJECT struct QPrivateSignal {};\n"
+        "\n"
+        "class QObject\n"
+        "{\n"
+        "public:\n"
+        "    void connect(QObject *, char *, QObject *, char *);\n"
+        "};\n"
+        "\n"
+        "class Timer : public QObject\n"
+        "{\n"
+        "    Q_OBJECT\n"
+        "signals:\n"
+        "    void timeout(QPrivateSignal);\n"
+        "};\n"
+        "\n"
+        "void client()\n"
+        "{\n"
+        "    Timer *timer = new Timer;\n"
+        "    connect(timer, SIGNAL(@\n"
+        "}\n";
+    CompletionTestCase test(source);
+
+    const QStringList completions = test.getCompletions();
+    QCOMPARE(completions.size(), 1);
+    QVERIFY(completions.contains(QLatin1String("timeout()")));
+}
