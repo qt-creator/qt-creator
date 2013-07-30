@@ -38,7 +38,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-inline QString stringForState(int state) {
+static QString stringForState(int state)
+{
     switch (state) {
     case QmlProfilerStateManager::Idle: return QLatin1String("Idle");
     case QmlProfilerStateManager::AppStarting: return QLatin1String("AppStarting");
@@ -53,92 +54,79 @@ inline QString stringForState(int state) {
     return QString();
 }
 
-class QmlProfilerStateManager::QmlProfilerStateManagerPrivate
-{
-public:
-    QmlProfilerStateManagerPrivate(QmlProfilerStateManager *qq) : q(qq) {}
-    ~QmlProfilerStateManagerPrivate() {}
-
-    QmlProfilerStateManager *q;
-
-    QmlProfilerStateManager::QmlProfilerState m_currentState;
-    bool m_clientRecording;
-    bool m_serverRecording;
-};
 QmlProfilerStateManager::QmlProfilerStateManager(QObject *parent) :
-    QObject(parent),d(new QmlProfilerStateManagerPrivate(this))
+    QObject(parent)
 {
-    d->m_currentState = Idle;
-    d->m_clientRecording = true;
-    d->m_serverRecording = false;
+    m_currentState = Idle;
+    m_clientRecording = true;
+    m_serverRecording = false;
 }
 
 QmlProfilerStateManager::~QmlProfilerStateManager()
 {
-    delete d;
 }
 
-QmlProfilerStateManager::QmlProfilerState QmlProfilerStateManager::currentState()
+QmlProfilerStateManager::QmlProfilerState QmlProfilerStateManager::currentState() const
 {
-    return d->m_currentState;
+    return m_currentState;
 }
 
-bool QmlProfilerStateManager::clientRecording()
+bool QmlProfilerStateManager::clientRecording() const
 {
-    return d->m_clientRecording;
+    return m_clientRecording;
 }
 
-bool QmlProfilerStateManager::serverRecording()
+bool QmlProfilerStateManager::serverRecording() const
 {
-    return d->m_serverRecording;
+    return m_serverRecording;
 }
 
-QString QmlProfilerStateManager::currentStateAsString()
+QString QmlProfilerStateManager::currentStateAsString() const
 {
-    return stringForState(d->m_currentState);
+    return stringForState(m_currentState);
 }
 
 void QmlProfilerStateManager::setCurrentState(QmlProfilerState newState)
 {
 #ifdef _DEBUG_PROFILERSTATE_
-    qDebug() << "Profiler state change request from" << stringForState(d->m_currentState) << "to" << stringForState(newState);
+    qDebug() << "Profiler state change request from" << currentStateAsString() << "to" << stringForState(newState);
 #endif
-    QTC_ASSERT(d->m_currentState != newState, /**/);
+    QTC_ASSERT(m_currentState != newState, /**/);
     switch (newState) {
     case Idle:
-        QTC_ASSERT(d->m_currentState == AppStarting ||
-                   d->m_currentState == AppStopped ||
-                   d->m_currentState == AppKilled,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == AppStarting ||
+                   m_currentState == AppStopped ||
+                   m_currentState == AppKilled,
+                   qDebug() << "from" << currentStateAsString());
         break;
     case AppStarting:
-        QTC_ASSERT(d->m_currentState == Idle,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == Idle,
+                   qDebug() << "from" << currentStateAsString());
         break;
     case AppRunning:
-        QTC_ASSERT(d->m_currentState == AppStarting,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == AppStarting,
+                   qDebug() << "from" << currentStateAsString());
         break;
     case AppStopRequested:
-        QTC_ASSERT(d->m_currentState == AppRunning,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == AppRunning,
+                   qDebug() << "from" << currentStateAsString());
         break;
     case AppReadyToStop:
-        QTC_ASSERT(d->m_currentState == AppStopRequested,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == AppStopRequested,
+                   qDebug() << "from" << currentStateAsString());
         break;
     case AppStopped:
-        QTC_ASSERT(d->m_currentState == AppReadyToStop ||
-                   d->m_currentState == AppDying,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == AppReadyToStop ||
+                   m_currentState == AppDying,
+                   qDebug() << "from" << currentStateAsString());
         break;
     case AppDying:
-        QTC_ASSERT(d->m_currentState == AppRunning,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == AppRunning,
+                   qDebug() << "from" << currentStateAsString());
         break;
     case AppKilled:
-        QTC_ASSERT(d->m_currentState == AppDying,
-                   qDebug() << "from" << stringForState(d->m_currentState));
+        QTC_ASSERT(m_currentState == AppDying,
+                   qDebug() << "from" << currentStateAsString());
         break;
     default: {
         const QString message = QString::fromLatin1("Switching to unknown state in %1:%2").arg(QString::fromLatin1(__FILE__), QString::number(__LINE__));
@@ -147,17 +135,17 @@ void QmlProfilerStateManager::setCurrentState(QmlProfilerState newState)
         break;
     }
 
-    d->m_currentState = newState;
+    m_currentState = newState;
     emit stateChanged();
 }
 
 void QmlProfilerStateManager::setClientRecording(bool recording)
 {
 #ifdef _DEBUG_PROFILERSTATE_
-    qDebug() << "Setting client recording flag from" << d->m_serverRecording << "to" << recording;
+    qDebug() << "Setting client recording flag from" << m_serverRecording << "to" << recording;
 #endif
-    if (d->m_clientRecording != recording) {
-        d->m_clientRecording = recording;
+    if (m_clientRecording != recording) {
+        m_clientRecording = recording;
         emit clientRecordingChanged();
     }
 }
@@ -165,13 +153,13 @@ void QmlProfilerStateManager::setClientRecording(bool recording)
 void QmlProfilerStateManager::setServerRecording(bool recording)
 {
 #ifdef _DEBUG_PROFILERSTATE_
-    qDebug() << "Setting server recording flag from" << d->m_serverRecording << "to" << recording;
+    qDebug() << "Setting server recording flag from" << m_serverRecording << "to" << recording;
 #endif
-    if (d->m_serverRecording != recording) {
-        d->m_serverRecording = recording;
+    if (m_serverRecording != recording) {
+        m_serverRecording = recording;
         emit serverRecordingChanged();
     }
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

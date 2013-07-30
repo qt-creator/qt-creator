@@ -30,11 +30,11 @@
 #ifndef QMLPROFILERCLIENTMANAGER_H
 #define QMLPROFILERCLIENTMANAGER_H
 
-#include <QObject>
-#include <QStringList>
-
 #include "qmlprofilerstatemanager.h"
 #include <qmldebug/qmlprofilereventlocation.h>
+
+#include <QObject>
+#include <QStringList>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -42,6 +42,7 @@ namespace Internal {
 class QmlProfilerClientManager : public QObject
 {
     Q_OBJECT
+
 public:
     explicit QmlProfilerClientManager(QObject *parent = 0);
     ~QmlProfilerClientManager();
@@ -84,9 +85,6 @@ private slots:
     void serverRecordingChanged();
 
 private:
-    class QmlProfilerClientManagerPrivate;
-    QmlProfilerClientManagerPrivate *d;
-
     void connectToClient();
 
     void enableServices();
@@ -94,9 +92,12 @@ private:
     void disconnectClientSignals();
 
     void stopClientsRecording();
+
+    class QmlProfilerClientManagerPrivate;
+    QmlProfilerClientManagerPrivate *d;
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler
 
 #endif // QMLPROFILERCLIENTMANAGER_H

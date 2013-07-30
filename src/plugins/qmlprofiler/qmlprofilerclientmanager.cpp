@@ -46,11 +46,10 @@ using namespace Core;
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerClientManager::QmlProfilerClientManagerPrivate {
+class QmlProfilerClientManager::QmlProfilerClientManagerPrivate
+{
 public:
-    QmlProfilerClientManagerPrivate(QmlProfilerClientManager *qq) { Q_UNUSED(qq); }
-
-    QmlProfilerStateManager* profilerState;
+    QmlProfilerStateManager *profilerState;
 
     QmlDebugConnection *connection;
     QPointer<QmlProfilerTraceClient> qmlclientplugin;
@@ -59,9 +58,7 @@ public:
     QTimer connectionTimer;
     int connectionAttempts;
 
-    enum ConnectMode {
-        TcpConnection, OstConnection
-    };
+    enum ConnectMode { TcpConnection, OstConnection };
     ConnectMode connectMode;
     QString tcpHost;
     quint64 tcpPort;
@@ -73,7 +70,7 @@ public:
 };
 
 QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
-    QObject(parent), d(new QmlProfilerClientManagerPrivate(this))
+    QObject(parent), d(new QmlProfilerClientManagerPrivate)
 {
     setObjectName(QLatin1String("QML Profiler Connections"));
 
@@ -97,6 +94,7 @@ QmlProfilerClientManager::~QmlProfilerClientManager()
 
     delete d;
 }
+
 ////////////////////////////////////////////////////////////////
 // Interface
 void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
