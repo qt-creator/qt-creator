@@ -66,6 +66,7 @@ public:
     void setVariantProperty(const PropertyName &name, const QVariant &value);
     void setBindingProperty(const PropertyName &name, const QString &expression);
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
+    NodeAbstractProperty defaultNodeAbstractProperty() const;
     NodeProperty nodeProperty(const PropertyName &name) const;
     NodeListProperty nodeListProperty(const PropertyName &name) const;
 

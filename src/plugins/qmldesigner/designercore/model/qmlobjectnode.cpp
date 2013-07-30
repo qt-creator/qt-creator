@@ -130,7 +130,12 @@ bool QmlObjectNode::hasBindingProperty(const PropertyName &name) const
 
 NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(const PropertyName &name) const
 {
-   return modelNode().nodeAbstractProperty(name);
+    return modelNode().nodeAbstractProperty(name);
+}
+
+NodeAbstractProperty QmlObjectNode::defaultNodeAbstractProperty() const
+{
+    return modelNode().defaultNodeAbstractProperty();
 }
 
 NodeProperty QmlObjectNode::nodeProperty(const PropertyName &name) const

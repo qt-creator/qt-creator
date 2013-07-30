@@ -414,7 +414,12 @@ NodeAbstractProperty ModelNode::nodeAbstractProperty(const PropertyName &name) c
      if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    return NodeAbstractProperty(name, m_internalNode, model(), view());
+     return NodeAbstractProperty(name, m_internalNode, model(), view());
+}
+
+NodeAbstractProperty ModelNode::defaultNodeAbstractProperty() const
+{
+    return nodeAbstractProperty(metaInfo().defaultPropertyName());
 }
 
 

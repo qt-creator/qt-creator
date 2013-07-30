@@ -123,6 +123,7 @@ public:
     NodeListProperty nodeListProperty(const PropertyName &name) const;
     NodeProperty nodeProperty(const PropertyName &name) const;
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
+    NodeAbstractProperty defaultNodeAbstractProperty() const;
 
     void removeProperty(const PropertyName &name); //### also implement in AbstractProperty
     QList<AbstractProperty> properties() const;
