@@ -64,14 +64,9 @@ namespace Internal {
 class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
-    QmlProfilerEnginePrivate(QmlProfilerEngine *qq, const AnalyzerStartParameters &sp) : q(qq), sp(sp), m_running(false) {}
-
-    bool attach(const QString &address, uint port);
-
-    QmlProfilerEngine *q;
+    QmlProfilerEnginePrivate(const AnalyzerStartParameters &sp) : sp(sp), m_running(false) {}
 
     QmlProfilerStateManager *m_profilerState;
-
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
     const AnalyzerStartParameters sp;
@@ -86,7 +81,7 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
                                      const Analyzer::AnalyzerStartParameters &sp,
                                      ProjectExplorer::RunConfiguration *runConfiguration)
     : IAnalyzerEngine(tool, sp, runConfiguration)
-    , d(new QmlProfilerEnginePrivate(this, sp))
+    , d(new QmlProfilerEnginePrivate(sp))
 {
     d->m_profilerState = 0;
 
