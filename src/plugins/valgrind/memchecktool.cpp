@@ -179,7 +179,7 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
 }
 
 MemcheckTool::MemcheckTool(QObject *parent)
-  : ValgrindTool(parent)
+  : IAnalyzerTool(parent)
 {
     m_settings = 0;
     m_errorModel = 0;
@@ -284,6 +284,11 @@ Core::Id MemcheckTool::id() const
 RunMode MemcheckTool::runMode() const
 {
     return MemcheckRunMode;
+}
+
+bool MemcheckTool::canRun(RunConfiguration *, RunMode mode) const
+{
+    return mode == MemcheckRunMode;
 }
 
 QString MemcheckTool::displayName() const

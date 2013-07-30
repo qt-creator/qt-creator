@@ -95,6 +95,7 @@
 using namespace Analyzer;
 using namespace Core;
 using namespace Valgrind::Callgrind;
+using namespace ProjectExplorer;
 
 namespace Valgrind {
 namespace Internal {
@@ -499,7 +500,7 @@ static QToolButton *createToolButton(QAction *action)
 }
 
 CallgrindTool::CallgrindTool(QObject *parent)
-    : ValgrindTool(parent)
+    : IAnalyzerTool(parent)
 {
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
@@ -518,9 +519,14 @@ Core::Id CallgrindTool::id() const
     return Core::Id("Callgrind");
 }
 
-ProjectExplorer::RunMode CallgrindTool::runMode() const
+RunMode CallgrindTool::runMode() const
 {
-    return ProjectExplorer::CallgrindRunMode;
+    return CallgrindRunMode;
+}
+
+bool CallgrindTool::canRun(RunConfiguration *, RunMode mode) const
+{
+    return mode == CallgrindRunMode;
 }
 
 QString CallgrindTool::displayName() const
@@ -564,13 +570,13 @@ void CallgrindTool::extensionsInitialized()
 }
 
 IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
-    ProjectExplorer::RunConfiguration *runConfiguration)
+    RunConfiguration *runConfiguration)
 {
     return d->createEngine(sp, runConfiguration);
 }
 
 IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameters &sp,
-    ProjectExplorer::RunConfiguration *runConfiguration)
+    RunConfiguration *runConfiguration)
 {
     CallgrindEngine *engine = new CallgrindEngine(sp, runConfiguration);
 

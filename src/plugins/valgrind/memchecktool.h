@@ -31,18 +31,13 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include "valgrindtool.h"
+#include <analyzerbase/ianalyzertool.h>
 
 #include <QSortFilterProxyModel>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
-class QItemSelection;
-class QTreeView;
 class QModelIndex;
 class QAction;
-class QSpinBox;
-class QCheckBox;
 class QMenu;
 QT_END_NAMESPACE
 
@@ -82,7 +77,7 @@ private:
     bool m_filterExternalIssues;
 };
 
-class MemcheckTool : public ValgrindTool
+class MemcheckTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
 
@@ -93,6 +88,7 @@ public:
     ProjectExplorer::RunMode runMode() const;
     QString displayName() const;
     QString description() const;
+    bool canRun(ProjectExplorer::RunConfiguration *, ProjectExplorer::RunMode mode) const;
 
     // Create the valgrind settings (for all valgrind tools)
     Analyzer::AbstractAnalyzerSubConfig *createGlobalSettings();
