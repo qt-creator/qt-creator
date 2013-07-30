@@ -322,20 +322,18 @@ QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() cons
 
 static QList<QmlItemNode> allQmlItemsRecursive(const QmlItemNode &qmlItemNode)
 {
-    QList<QmlItemNode> returnList;
+    QList<QmlItemNode> qmlItemNodeList;
 
     if (qmlItemNode.isValid()) {
-        returnList.append(qmlItemNode);
-        QList<QmlItemNode> allChildNodes;
-        foreach (const ModelNode &node, qmlItemNode.modelNode().allDirectSubModelNodes()) {
-            if (QmlItemNode::isValidQmlItemNode(node))
-                allChildNodes.append(node);
-        }
-        foreach (const QmlItemNode &node, allChildNodes) {
-            returnList.append(allQmlItemsRecursive(node));
+        qmlItemNodeList.append(qmlItemNode);
+
+        foreach (const ModelNode &modelNode, qmlItemNode.modelNode().allDirectSubModelNodes()) {
+            if (QmlItemNode::isValidQmlItemNode(modelNode))
+                qmlItemNodeList.append(allQmlItemsRecursive(modelNode));
         }
     }
-    return returnList;
+
+    return qmlItemNodeList;
 }
 
 QList<QmlModelState> QmlObjectNode::allDefinedStates() const
