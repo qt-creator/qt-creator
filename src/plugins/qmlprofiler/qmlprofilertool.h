@@ -62,10 +62,6 @@ public:
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const;
 
-    Analyzer::AnalyzerStartParameters createStartParameters(
-            ProjectExplorer::RunConfiguration *runConfiguration,
-            ProjectExplorer::RunMode mode) const;
-
     QWidget *createWidgets();
     void startTool(Analyzer::StartMode mode);
 

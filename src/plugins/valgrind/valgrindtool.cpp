@@ -29,21 +29,7 @@
 
 #include "valgrindtool.h"
 
-#include <remotelinux/remotelinuxrunconfiguration.h>
-
-#include <debugger/debuggerrunconfigurationaspect.h>
-#include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/target.h>
-
-#include <utils/qtcassert.h>
-
-#include <QTcpServer>
-
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
 
 namespace Valgrind {
 namespace Internal {
@@ -56,48 +42,6 @@ ValgrindTool::ValgrindTool(QObject *parent) :
 bool ValgrindTool::canRun(RunConfiguration *, RunMode mode) const
 {
     return mode == runMode();
-}
-
-Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
-    RunConfiguration *runConfiguration, RunMode mode) const
-{
-    Q_UNUSED(mode);
-
-    Analyzer::AnalyzerStartParameters sp;
-    sp.displayName = runConfiguration->displayName();
-    if (LocalApplicationRunConfiguration *rc1 =
-            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        EnvironmentAspect *aspect = runConfiguration->extraAspect<EnvironmentAspect>();
-        if (aspect)
-            sp.environment = aspect->environment();
-        sp.workingDirectory = rc1->workingDirectory();
-        sp.debuggee = rc1->executable();
-        sp.debuggeeArgs = rc1->commandLineArguments();
-        const IDevice::ConstPtr device =
-                DeviceKitInformation::device(runConfiguration->target()->kit());
-        QTC_ASSERT(device, return sp);
-        QTC_ASSERT(device->type() == Constants::DESKTOP_DEVICE_TYPE, return sp);
-        QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
-            qWarning() << "Cannot open port on host for profiling.";
-            return sp;
-        }
-        sp.connParams.host = server.serverAddress().toString();
-        sp.connParams.port = server.serverPort();
-        sp.startMode = Analyzer::StartLocal;
-    } else if (RemoteLinuxRunConfiguration *rc2 =
-               qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp.startMode = Analyzer::StartRemote;
-        sp.debuggee = rc2->remoteExecutableFilePath();
-        sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
-        sp.analyzerCmdPrefix = rc2->commandPrefix();
-        sp.debuggeeArgs = rc2->arguments();
-    } else {
-        // Might be S60DeviceRunfiguration, or something else ...
-        //sp.startMode = StartRemote;
-        sp.startMode = Analyzer::StartRemote;
-    }
-    return sp;
 }
 
 } // namespace Internal

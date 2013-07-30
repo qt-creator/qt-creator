@@ -70,8 +70,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
-#include <debugger/debuggerrunconfigurationaspect.h>
-
 #include <qtsupport/qtkitinformation.h>
 
 #include <QApplication>
@@ -283,54 +281,6 @@ static QString sysroot(RunConfiguration *runConfig)
     if (k && ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
         return ProjectExplorer::SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     return QString();
-}
-
-AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration *runConfiguration, RunMode mode) const
-{
-    Q_UNUSED(mode);
-
-    AnalyzerStartParameters sp;
-    ProjectExplorer::EnvironmentAspect *environment
-            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-    Debugger::DebuggerRunConfigurationAspect *debugger
-            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    QTC_ASSERT(debugger, return sp);
-
-    // FIXME: This is only used to communicate the connParams settings.
-    if (QmlProjectRunConfiguration *rc1 =
-            qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)) {
-        // This is a "plain" .qmlproject.
-        if (environment)
-            sp.environment = environment->environment();
-        sp.workingDirectory = rc1->workingDirectory();
-        sp.debuggee = rc1->observerPath();
-        sp.debuggeeArgs = rc1->viewerArguments();
-        sp.displayName = rc1->displayName();
-    } else if (LocalApplicationRunConfiguration *rc2 =
-            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        if (environment)
-            sp.environment = environment->environment();
-        sp.workingDirectory = rc2->workingDirectory();
-        sp.debuggee = rc2->executable();
-        sp.debuggeeArgs = rc2->commandLineArguments();
-        sp.displayName = rc2->displayName();
-    } else {
-        // What could that be?
-        QTC_ASSERT(false, return sp);
-    }
-    const ProjectExplorer::IDevice::ConstPtr device =
-            ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
-    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
-            qWarning() << "Cannot open port on host for QML profiling.";
-            return sp;
-        }
-        sp.analyzerHost = server.serverAddress().toString();
-        sp.analyzerPort = server.serverPort();
-    }
-    sp.startMode = StartQml;
-    return sp;
 }
 
 QWidget *QmlProfilerTool::createWidgets()

@@ -35,7 +35,18 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzersettings.h>
 
+#include <remotelinux/remotelinuxrunconfiguration.h>
+
+#include <debugger/debuggerrunconfigurationaspect.h>
+#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/target.h>
+
 #include <utils/qtcassert.h>
+
+#include <QTcpServer>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
@@ -58,6 +69,45 @@ bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMo
     return false;
 }
 
+static AnalyzerStartParameters createValgrindStartParameters(RunConfiguration *runConfiguration)
+{
+    Analyzer::AnalyzerStartParameters sp;
+    sp.displayName = runConfiguration->displayName();
+    if (LocalApplicationRunConfiguration *rc1 =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        EnvironmentAspect *aspect = runConfiguration->extraAspect<EnvironmentAspect>();
+        if (aspect)
+            sp.environment = aspect->environment();
+        sp.workingDirectory = rc1->workingDirectory();
+        sp.debuggee = rc1->executable();
+        sp.debuggeeArgs = rc1->commandLineArguments();
+        const IDevice::ConstPtr device =
+                DeviceKitInformation::device(runConfiguration->target()->kit());
+        QTC_ASSERT(device, return sp);
+        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
+        QTcpServer server;
+        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
+            qWarning() << "Cannot open port on host for profiling.";
+            return sp;
+        }
+        sp.connParams.host = server.serverAddress().toString();
+        sp.connParams.port = server.serverPort();
+        sp.startMode = Analyzer::StartLocal;
+    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc2 =
+               qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
+        sp.startMode = Analyzer::StartRemote;
+        sp.debuggee = rc2->remoteExecutableFilePath();
+        sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
+        sp.analyzerCmdPrefix = rc2->commandPrefix();
+        sp.debuggeeArgs = rc2->arguments();
+    } else {
+        // Might be S60DeviceRunfiguration, or something else ...
+        //sp.startMode = StartRemote;
+        sp.startMode = Analyzer::StartRemote;
+    }
+    return sp;
+}
+
 RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
     IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
@@ -69,7 +119,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
 
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-    AnalyzerStartParameters sp = tool->createStartParameters(runConfiguration, mode);
+    AnalyzerStartParameters sp = createValgrindStartParameters(runConfiguration);
     sp.toolId = tool->id();
 
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);

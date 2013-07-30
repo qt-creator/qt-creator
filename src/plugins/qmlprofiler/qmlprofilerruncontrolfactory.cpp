@@ -37,10 +37,21 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzersettings.h>
 
+#include <debugger/debuggerrunconfigurationaspect.h>
+
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+
 #include <utils/qtcassert.h>
+
+#include <QTcpServer>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
@@ -63,6 +74,51 @@ bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
     return false;
 }
 
+static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration *runConfiguration)
+{
+    AnalyzerStartParameters sp;
+    EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>();
+    Debugger::DebuggerRunConfigurationAspect *debugger
+            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    QTC_ASSERT(debugger, return sp);
+
+    // FIXME: This is only used to communicate the connParams settings.
+    if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
+            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
+        // This is a "plain" .qmlproject.
+        if (environment)
+            sp.environment = environment->environment();
+        sp.workingDirectory = rc1->workingDirectory();
+        sp.debuggee = rc1->observerPath();
+        sp.debuggeeArgs = rc1->viewerArguments();
+        sp.displayName = rc1->displayName();
+    } else if (LocalApplicationRunConfiguration *rc2 =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        if (environment)
+            sp.environment = environment->environment();
+        sp.workingDirectory = rc2->workingDirectory();
+        sp.debuggee = rc2->executable();
+        sp.debuggeeArgs = rc2->commandLineArguments();
+        sp.displayName = rc2->displayName();
+    } else {
+        // What could that be?
+        QTC_ASSERT(false, return sp);
+    }
+    const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
+    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        QTcpServer server;
+        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
+            qWarning() << "Cannot open port on host for QML profiling.";
+            return sp;
+        }
+        sp.analyzerHost = server.serverAddress().toString();
+        sp.analyzerPort = server.serverPort();
+    }
+    sp.startMode = StartQml;
+    sp.toolId = "QmlProfiler";
+    return sp;
+}
+
 RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
     IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
@@ -74,12 +130,10 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
 
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-    AnalyzerStartParameters sp = tool->createStartParameters(runConfiguration, mode);
-    sp.toolId = tool->id();
+    AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
 
     // only desktop device is supported
-    const ProjectExplorer::IDevice::ConstPtr device =
-            ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+    const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);

@@ -123,11 +123,6 @@ public:
     virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                         ProjectExplorer::RunMode mode) const = 0;
 
-    /// Create the start parameters for the run control factory
-    virtual AnalyzerStartParameters createStartParameters(
-            ProjectExplorer::RunConfiguration *runConfiguration,
-            ProjectExplorer::RunMode mode) const = 0;
-
     virtual void startTool(StartMode mode) = 0;
 
     /// Called when tools gets selected.
