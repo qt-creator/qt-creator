@@ -39,6 +39,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
+class QmlProfilerModelManager;
+
 class QmlProfilerClientManager : public QObject
 {
     Q_OBJECT
@@ -55,19 +57,11 @@ public:
     void discardPendingData();
     bool isConnected() const;
 
+    void setModelManager(QmlProfilerModelManager *m);
 signals:
     void connectionFailed();
     void connectionClosed();
-
-    // data
-    void addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation);
-    void addV8Event(int,QString,QString,int,double,double);
-    void addFrameEvent(qint64,int,int);
-    void traceStarted(qint64);
-    void traceFinished(qint64);
     void dataReadyForProcessing();
-    void addSceneGraphEvent(int, int, qint64, qint64, qint64, qint64, qint64, qint64);
-    void addPixmapCacheEvent(qint64,int,QString,int,int,int);
 
 public slots:
     void connectClient(quint16 port);

@@ -149,27 +149,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerModelManager = new QmlProfilerModelManager(&d->m_projectFinder, this);
     connect(d->m_profilerModelManager, SIGNAL(stateChanged()), this, SLOT(profilerDataModelStateChanged()));
     connect(d->m_profilerModelManager, SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
-    connect(d->m_profilerConnections,
-            SIGNAL(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
-            d->m_profilerModelManager,
-            SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
-    connect(d->m_profilerConnections,
-            SIGNAL(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
-            d->m_profilerModelManager,
-            SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
-    connect(d->m_profilerConnections,
-            SIGNAL(addPixmapCacheEvent(qint64,int,QString,int,int,int)),
-            d->m_profilerModelManager,
-            SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
-    connect(d->m_profilerConnections,
-            SIGNAL(addV8Event(int,QString,QString,int,double,double)),
-            d->m_profilerModelManager,
-            SLOT(addV8Event(int,QString,QString,int,double,double)));
-    connect(d->m_profilerConnections, SIGNAL(addFrameEvent(qint64,int,int)), d->m_profilerModelManager, SLOT(addFrameEvent(qint64,int,int)));
-    connect(d->m_profilerConnections, SIGNAL(traceStarted(qint64)), d->m_profilerModelManager->traceTime(), SLOT(setStartTime(qint64)));
-    connect(d->m_profilerConnections, SIGNAL(traceFinished(qint64)), d->m_profilerModelManager->traceTime(), SLOT(setEndTime(qint64)));
-    connect(d->m_profilerConnections, SIGNAL(dataReadyForProcessing()), d->m_profilerModelManager, SLOT(complete()));
 
+    d->m_profilerConnections->setModelManager(d->m_profilerModelManager);
     Command *command = 0;
     const Context globalContext(C_GLOBAL);
 
