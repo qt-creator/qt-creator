@@ -98,11 +98,6 @@ using namespace QmlProjectManager;
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
 public:
-    QmlProfilerToolPrivate(QmlProfilerTool *qq) : q(qq) {}
-    ~QmlProfilerToolPrivate() {}
-
-    QmlProfilerTool *q;
-
     QmlProfilerStateManager *m_profilerState;
     QmlProfilerClientManager *m_profilerConnections;
     QmlProfilerDataModel *m_profilerDataModel;
@@ -124,7 +119,7 @@ public:
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
-    : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
+    : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
 
