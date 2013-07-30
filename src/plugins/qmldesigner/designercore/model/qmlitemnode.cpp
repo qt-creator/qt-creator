@@ -171,66 +171,66 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
     return newQmlItemNode;
 }
 
+static void checkImageImport(AbstractView *view)
+{
+    const QString newImportUrl = QLatin1String("QtQuick");
+    const QString newImportVersion = QLatin1String("1.1");
+    Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+
+    foreach (const Import &import, view->model()->imports()) {
+        if (import.isLibraryImport()
+            && import.url() == newImport.url()) {
+            // reuse this import
+            newImport = import;
+            break;
+        }
+    }
+
+    if (!view->model()->hasImport(newImport, true, true))
+        view->model()->changeImports(QList<Import>() << newImport, QList<Import>());
+}
+
 QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode)
 {
-    if (!parentQmlItemNode.isValid() && QmlItemNode::isValidQmlItemNode(view->rootModelNode()))
-        parentQmlItemNode = QmlItemNode(view->rootModelNode());
-    else
-        return QmlItemNode();
-
     QmlItemNode newQmlItemNode;
-    RewriterTransaction transaction = view->beginRewriterTransaction();
-    {
-        const QString newImportUrl = QLatin1String("QtQuick");
-        const QString newImportVersion = QLatin1String("1.1");
-        Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+    if (!parentQmlItemNode.isValid())
+        parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
-        foreach (const Import &import, view->model()->imports()) {
-            if (import.isLibraryImport()
-                && import.url() == newImport.url()) {
-                // reuse this import
-                newImport = import;
-                break;
+    if (parentQmlItemNode.isValid()) {
+        RewriterTransaction transaction = view->beginRewriterTransaction();
+
+        checkImageImport(view);
+
+        if (view->model()->hasNodeMetaInfo("QtQuick.Image")) {
+            NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
+            QList<QPair<PropertyName, QVariant> > propertyPairList;
+            propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
+            propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+
+            QString relativeImageName = imageName;
+
+            //use relative path
+            if (QFileInfo(view->model()->fileUrl().toLocalFile()).exists()) {
+                QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
+                relativeImageName = fileDir.relativeFilePath(imageName);
+                propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));
             }
+
+            newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
+            parentQmlItemNode.defaultNodeAbstractProperty().reparentHere(newQmlItemNode);
+
+            newQmlItemNode.setId(view->generateNewId("image"));
+
+            if (!QmlModelState(view->actualStateNode()).isBaseState()) {
+                newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
+                newQmlItemNode.setVariantProperty("opacity", 1);
+            }
+
+            Q_ASSERT(newQmlItemNode.isValid());
         }
-
-        if (!view->model()->hasImport(newImport, true, true))
-            view->model()->changeImports(QList<Import>() << newImport, QList<Import>());
-
-        QList<QPair<PropertyName, QVariant> > propertyPairList;
-        propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
-        propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
-
-        QString relativeImageName = imageName;
-
-        //use relative path
-        if (QFileInfo(view->model()->fileUrl().toLocalFile()).exists()) {
-            QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
-            relativeImageName = fileDir.relativeFilePath(imageName);
-        }
-
-        propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));
-        NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
-        if (metaInfo.isValid()) {
-            int minorVersion = metaInfo.minorVersion();
-            int majorVersion = metaInfo.majorVersion();
-            newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", majorVersion, minorVersion, propertyPairList));
-            parentQmlItemNode.nodeAbstractProperty("data").reparentHere(newQmlItemNode);
-        }
-
-        Q_ASSERT(newQmlItemNode.isValid());
-
-        newQmlItemNode.setId(view->generateNewId("image"));
-
-        if (!QmlModelState(view->actualStateNode()).isBaseState()) {
-            newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
-            newQmlItemNode.setVariantProperty("opacity", 1);
-        }
-
         Q_ASSERT(newQmlItemNode.isValid());
     }
 
-    Q_ASSERT(newQmlItemNode.isValid());
 
     return newQmlItemNode;
 }
