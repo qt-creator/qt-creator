@@ -278,7 +278,9 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     // if Creator is launched within a session set up by setenv.cmd.
     env.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(env);
-    const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    if (cmdPath.isEmpty())
+        cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QString cmdArguments = QLatin1String(" /E:ON /V:ON /c \"");
     cmdArguments += QDir::toNativeSeparators(saver.fileName());
