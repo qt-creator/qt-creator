@@ -134,7 +134,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             }
         }
 
-        if (itemLibraryEntry.qml().isEmpty()) {
+        if (itemLibraryEntry.qmlSource().isEmpty()) {
             QList<QPair<PropertyName, QVariant> > propertyPairList;
             propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
             propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
@@ -144,7 +144,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
             newQmlItemNode = QmlItemNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
         } else {
-            newQmlItemNode = createQmlItemNodeFromSource(view, itemLibraryEntry.qml(), position);
+            newQmlItemNode = createQmlItemNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
         }
 
         if (parentQmlItemNode.hasDefaultPropertyName())
