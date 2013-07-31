@@ -121,7 +121,7 @@ TypeName ItemLibraryEntry::typeName() const
     return m_data->typeName;
 }
 
-QString ItemLibraryEntry::qml() const
+QString ItemLibraryEntry::qmlPath() const
 {
     return m_data->qml;
 }
@@ -199,7 +199,7 @@ static QString getSourceForUrl(const QString &fileURl)
     }
 }
 
-void ItemLibraryEntry::setQml(const QString &qml)
+void ItemLibraryEntry::setQmlPath(const QString &qml)
 {
     m_data->qml = qml;
 

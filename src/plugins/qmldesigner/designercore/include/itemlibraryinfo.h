@@ -69,7 +69,7 @@ public:
     int minorVersion() const;
     QString category() const;
     QIcon dragIcon() const;
-    QString qml() const;
+    QString qmlPath() const;
     QString qmlSource() const;
     QString requiredImport() const;
     bool forceImport() const;
@@ -89,7 +89,7 @@ public:
     void setDragIcon(const QIcon &icon);
     void setIcon(const QIcon &icon);
     void setCategory(const QString &category);
-    void setQml(const QString &qml);
+    void setQmlPath(const QString &qml);
     void setRequiredImport(const QString &requiredImport);
     void setForceImport(bool b);
 private:
