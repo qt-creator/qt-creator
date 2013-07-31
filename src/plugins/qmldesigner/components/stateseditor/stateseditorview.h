@@ -77,7 +77,7 @@ public:
 
 
     // AbstractView
-    void actualStateChanged(const ModelNode &node) QTC_OVERRIDE;
+    void currentStateChanged(const ModelNode &node) QTC_OVERRIDE;
 
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) QTC_OVERRIDE;
     void nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId) QTC_OVERRIDE;

@@ -96,7 +96,7 @@ public:
     void rewriterBeginTransaction() QTC_OVERRIDE;
     void rewriterEndTransaction() QTC_OVERRIDE;
 
-    void actualStateChanged(const ModelNode &node) QTC_OVERRIDE;
+    void currentStateChanged(const ModelNode &node) QTC_OVERRIDE;
 
     void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) QTC_OVERRIDE;
 

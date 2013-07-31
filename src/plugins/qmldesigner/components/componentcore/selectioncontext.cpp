@@ -63,7 +63,7 @@ bool SelectionContext::singleNodeIsSelected() const
 
 bool SelectionContext::isInBaseState() const
 {
-    return QmlModelState(view()->actualStateNode()).isBaseState();
+    return QmlModelState(view()->currentStateNode()).isBaseState();
 }
 
 ModelNode SelectionContext::currentSingleSelectedNode() const

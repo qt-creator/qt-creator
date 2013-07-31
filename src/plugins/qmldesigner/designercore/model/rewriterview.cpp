@@ -442,7 +442,7 @@ void RewriterView::rewriterEndTransaction()
     }
 }
 
-void RewriterView::actualStateChanged(const ModelNode & /*node*/)
+void RewriterView::currentStateChanged(const ModelNode & /*node*/)
 {
 }
 

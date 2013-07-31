@@ -84,7 +84,7 @@ ModelPrivate::ModelPrivate(Model *model) :
         m_internalIdCounter(1)
 {
     m_rootInternalNode = createNode("QtQuick.Item", 1, 0, PropertyListType(), PropertyListType(), QString(), ModelNode::NodeWithoutSource,true);
-    m_acutalStateNode = m_rootInternalNode;
+    m_currentStateNode = m_rootInternalNode;
 }
 
 ModelPrivate::~ModelPrivate()
@@ -574,16 +574,16 @@ void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &node
         resetModelByRewriter(description);
 }
 
-void ModelPrivate::notifyActualStateChanged(const ModelNode &node)
+void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 {
     bool resetModel = false;
     QString description;
 
-    m_acutalStateNode = node.internalNode();
+    m_currentStateNode = node.internalNode();
 
     try {
         if (rewriterView())
-            rewriterView()->actualStateChanged(ModelNode(node.internalNode(), model(), rewriterView()));
+            rewriterView()->currentStateChanged(ModelNode(node.internalNode(), model(), rewriterView()));
     } catch (RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -591,11 +591,11 @@ void ModelPrivate::notifyActualStateChanged(const ModelNode &node)
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
-        view->actualStateChanged(ModelNode(node.internalNode(), model(), view.data()));
+        view->currentStateChanged(ModelNode(node.internalNode(), model(), view.data()));
     }
 
     if (nodeInstanceView())
-        nodeInstanceView()->actualStateChanged(ModelNode(node.internalNode(), model(), nodeInstanceView()));
+        nodeInstanceView()->currentStateChanged(ModelNode(node.internalNode(), model(), nodeInstanceView()));
 
     if (resetModel)
         resetModelByRewriter(description);
@@ -1641,9 +1641,9 @@ bool ModelPrivate::isWriteLocked() const
     return m_writeLock;
 }
 
-InternalNode::Pointer ModelPrivate::actualStateNode() const
+InternalNode::Pointer ModelPrivate::currentStateNode() const
 {
-    return m_acutalStateNode;
+    return m_currentStateNode;
 }
 
 

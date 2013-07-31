@@ -158,7 +158,7 @@ public:
     void notifyInstancesChildrenChanged(const QVector<ModelNode> &nodeList);
     void notifyInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
-    void notifyActualStateChanged(const ModelNode &node);
+    void notifyCurrentStateChanged(const ModelNode &node);
 
     void notifyRewriterBeginTransaction();
     void notifyRewriterEndTransaction();
@@ -221,7 +221,7 @@ public:
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
     NodeInstanceView *nodeInstanceView() const;
 
-    InternalNodePointer actualStateNode() const;
+    InternalNodePointer currentStateNode() const;
 
 private: //functions
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
@@ -241,7 +241,7 @@ private:
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
     QSet<InternalNodePointer> m_nodeSet;
-    InternalNodePointer m_acutalStateNode;
+    InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     QUrl m_fileUrl;
     QWeakPointer<RewriterView> m_rewriterView;

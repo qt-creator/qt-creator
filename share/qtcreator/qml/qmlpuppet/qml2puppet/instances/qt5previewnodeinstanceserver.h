@@ -51,7 +51,7 @@ protected:
     void startRenderTimer() Q_DECL_OVERRIDE;
 
 private:
-    ServerNodeInstance m_actualState;
+    ServerNodeInstance m_currentState;
 };
 
 } // namespace QmlDesigner

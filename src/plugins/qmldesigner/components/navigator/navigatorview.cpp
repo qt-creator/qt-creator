@@ -275,7 +275,7 @@ void NavigatorView::rewriterEndTransaction()
 {
 }
 
-void NavigatorView::actualStateChanged(const ModelNode &/*node*/)
+void NavigatorView::currentStateChanged(const ModelNode &/*node*/)
 {
 }
 

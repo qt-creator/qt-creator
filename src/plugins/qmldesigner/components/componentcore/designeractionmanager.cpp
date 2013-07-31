@@ -154,7 +154,7 @@ public:
             setupContext();
     }
 
-    virtual void actualStateChanged(const ModelNode &) QTC_OVERRIDE
+    virtual void currentStateChanged(const ModelNode &) QTC_OVERRIDE
     {
         setupContext();
     }

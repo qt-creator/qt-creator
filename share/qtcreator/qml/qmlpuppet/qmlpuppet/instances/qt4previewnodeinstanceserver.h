@@ -51,7 +51,7 @@ protected:
     void startRenderTimer();
 
 private:
-    ServerNodeInstance m_actualState;
+    ServerNodeInstance m_currentState;
 };
 
 } // namespace QmlDesigner

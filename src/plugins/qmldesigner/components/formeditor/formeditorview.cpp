@@ -619,7 +619,7 @@ bool FormEditorView::isMoveToolAvailable() const
     return true;
 }
 
-void FormEditorView::actualStateChanged(const ModelNode &/*node*/)
+void FormEditorView::currentStateChanged(const ModelNode &/*node*/)
 {
 }
 

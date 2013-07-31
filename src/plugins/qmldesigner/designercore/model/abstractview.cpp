@@ -515,11 +515,11 @@ void AbstractView::emitRewriterEndTransaction()
         model()->d->notifyRewriterEndTransaction();
 }
 
-void AbstractView::setAcutalStateNode(const ModelNode &node)
+void AbstractView::setCurrentStateNode(const ModelNode &node)
 {
     Internal::WriteLocker locker(m_model.data());
     if (model())
-        model()->d->notifyActualStateChanged(node);
+        model()->d->notifyCurrentStateChanged(node);
 }
 
 void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
@@ -529,10 +529,10 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
     m_model.data()->d->changeRootNodeType(type, majorVersion, minorVersion);
 }
 
-ModelNode AbstractView::actualStateNode() const
+ModelNode AbstractView::currentStateNode() const
 {
     if (model())
-        return ModelNode(m_model.data()->d->actualStateNode(), m_model.data(), const_cast<AbstractView*>(this));
+        return ModelNode(m_model.data()->d->currentStateNode(), m_model.data(), const_cast<AbstractView*>(this));
 
     return ModelNode();
 }

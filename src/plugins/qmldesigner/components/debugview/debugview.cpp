@@ -386,7 +386,7 @@ void DebugView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/
 
 }
 
-void DebugView::actualStateChanged(const ModelNode &/*node*/)
+void DebugView::currentStateChanged(const ModelNode &/*node*/)
 {
 
 }

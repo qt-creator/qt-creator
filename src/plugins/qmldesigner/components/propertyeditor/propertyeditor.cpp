@@ -738,7 +738,7 @@ void PropertyEditor::resetView()
 
     NodeType *type = m_typeHash.value(qmlFile.toString());
 
-    QString currentStateName = QmlModelState::isValidQmlModelState(actualStateNode()) ? QmlModelState(actualStateNode()).name() : QLatin1String("invalid state");
+    QString currentStateName = QmlModelState::isValidQmlModelState(currentStateNode()) ? QmlModelState(currentStateNode()).name() : QLatin1String("invalid state");
 
     if (!type) {
         type = new NodeType(this);
@@ -961,7 +961,7 @@ WidgetInfo PropertyEditor::widgetInfo()
     return createWidgetInfo(m_stackedWidget, 0, QLatin1String("Properties"), WidgetInfo::RightPane, 0);
 }
 
-void PropertyEditor::actualStateChanged(const ModelNode &node)
+void PropertyEditor::currentStateChanged(const ModelNode &node)
 {
     QmlModelState newQmlModelState(node);
     Q_ASSERT(newQmlModelState.isValid());

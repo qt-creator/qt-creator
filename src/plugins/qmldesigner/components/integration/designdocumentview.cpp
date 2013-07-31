@@ -119,7 +119,7 @@ void DesignDocumentView::rewriterEndTransaction()
 {
 }
 
-void DesignDocumentView::actualStateChanged(const ModelNode &/*node*/)
+void DesignDocumentView::currentStateChanged(const ModelNode &/*node*/)
 {
 }
 

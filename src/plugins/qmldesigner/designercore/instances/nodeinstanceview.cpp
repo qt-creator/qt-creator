@@ -159,7 +159,7 @@ void NodeInstanceView::modelAttached(Model *model)
     if (!isSkippedRootNode(rootModelNode()))
         nodeInstanceServer()->createScene(createCreateSceneCommand());
 
-    ModelNode stateNode = actualStateNode();
+    ModelNode stateNode = currentStateNode();
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
         NodeInstance newStateInstance = instanceForModelNode(stateNode);
         activateState(newStateInstance);
@@ -203,7 +203,7 @@ void NodeInstanceView::restartProcess()
         if (!isSkippedRootNode(rootModelNode()))
             nodeInstanceServer()->createScene(createCreateSceneCommand());
 
-        ModelNode stateNode = actualStateNode();
+        ModelNode stateNode = currentStateNode();
         if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
             NodeInstance newStateInstance = instanceForModelNode(stateNode);
             activateState(newStateInstance);
@@ -539,7 +539,7 @@ void NodeInstanceView::rewriterEndTransaction()
 
 }
 
-void NodeInstanceView::actualStateChanged(const ModelNode &node)
+void NodeInstanceView::currentStateChanged(const ModelNode &node)
 {
     NodeInstance newStateInstance = instanceForModelNode(node);
 

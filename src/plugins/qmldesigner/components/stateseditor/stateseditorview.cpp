@@ -247,7 +247,7 @@ void StatesEditorView::duplicateCurrentState()
 
 QmlModelState StatesEditorView::currentState() const
 {
-    return QmlModelState(actualStateNode());
+    return QmlModelState(currentStateNode());
 }
 
 void StatesEditorView::setCurrentState(const QmlModelState &state)
@@ -255,8 +255,8 @@ void StatesEditorView::setCurrentState(const QmlModelState &state)
     if (!model() && !state.isValid())
         return;
 
-    if (actualStateNode() != state.modelNode())
-        setAcutalStateNode(state.modelNode());
+    if (currentStateNode() != state.modelNode())
+        setCurrentStateNode(state.modelNode());
 }
 
 QmlModelState StatesEditorView::baseState() const
@@ -383,7 +383,7 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
         resetModel();
 }
 
-void StatesEditorView::actualStateChanged(const ModelNode &node)
+void StatesEditorView::currentStateChanged(const ModelNode &node)
 {
     QmlModelState newQmlModelState(node);
 

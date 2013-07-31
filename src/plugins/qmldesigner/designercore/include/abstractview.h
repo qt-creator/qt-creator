@@ -210,7 +210,7 @@ public:
     virtual void rewriterBeginTransaction() = 0;
     virtual void rewriterEndTransaction() = 0;
 
-    virtual void actualStateChanged(const ModelNode &node) = 0; // base state is a invalid model node
+    virtual void currentStateChanged(const ModelNode &node) = 0; // base state is a invalid model node
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList) = 0;
@@ -233,8 +233,8 @@ public:
     NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;
 
-    void setAcutalStateNode(const ModelNode &node);
-    ModelNode actualStateNode() const;
+    void setCurrentStateNode(const ModelNode &node);
+    ModelNode currentStateNode() const;
 
     int majorQtQuickVersion() const;
 

@@ -202,7 +202,7 @@ void ComponentView::nodeSourceChanged(const ModelNode &, const QString & /*newNo
 
 void ComponentView::rewriterBeginTransaction() {}
 void ComponentView::rewriterEndTransaction() {}
-void ComponentView::actualStateChanged(const ModelNode &/*node*/) {}
+void ComponentView::currentStateChanged(const ModelNode &/*node*/) {}
 void ComponentView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
                                   const QList<ModelNode> &/*lastSelectedNodeList*/) {}
 

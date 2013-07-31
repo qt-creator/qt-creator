@@ -277,7 +277,7 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSn
                 continue;
 
             // don't support anchors for base state because it is not needed by the droptool
-            if (stateToBeManipulated == UseActualState) {
+            if (stateToBeManipulated == UseCurrentState) {
                 QmlAnchors anchors(item->qmlItemNode().anchors());
 
                 if (anchors.instanceHasAnchor(AnchorLine::Top))

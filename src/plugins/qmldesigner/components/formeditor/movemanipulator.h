@@ -50,7 +50,7 @@ class MoveManipulator
 {
 public:
     enum State {
-        UseActualState,
+        UseCurrentState,
         UseBaseState
     };
 
@@ -62,7 +62,7 @@ public:
     void synchronizeParent(const QList<FormEditorItem*> &itemList, const ModelNode &parentNode);
 
     void begin(const QPointF& beginPoint);
-    void update(const QPointF& updatePoint, Snapper::Snapping useSnapping, State stateToBeManipulated = UseActualState);
+    void update(const QPointF& updatePoint, Snapper::Snapping useSnapping, State stateToBeManipulated = UseCurrentState);
     void reparentTo(FormEditorItem *newParent);
     void end();
     void end(Snapper::Snapping useSnapping);
