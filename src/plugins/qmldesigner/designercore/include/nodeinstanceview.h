@@ -123,7 +123,7 @@ public:
 
     QList<NodeInstance> instances() const;
     NodeInstance instanceForModelNode(const ModelNode &node) const ;
-    bool hasInstanceForNode(const ModelNode &node) const;
+    bool hasInstanceForModelNode(const ModelNode &node) const;
 
     NodeInstance instanceForId(qint32 id);
     bool hasInstanceForId(qint32 id);

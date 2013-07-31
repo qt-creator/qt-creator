@@ -80,7 +80,7 @@ bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
 {
     return modelNode.isValid()
             && nodeInstanceView()
-            && nodeInstanceView()->hasInstanceForNode(modelNode)
+            && nodeInstanceView()->hasInstanceForModelNode(modelNode)
             && nodeInstanceView()->instanceForModelNode(modelNode).isValid();
 }
 

@@ -409,7 +409,7 @@ bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode) const
 
 QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const PropertyName &name)
 {
-    Q_ASSERT(modelNode.view()->nodeInstanceView()->hasInstanceForNode(modelNode));
+    Q_ASSERT(modelNode.view()->nodeInstanceView()->hasInstanceForModelNode(modelNode));
     return modelNode.view()->nodeInstanceView()->instanceForModelNode(modelNode).property(name);
 }
 
