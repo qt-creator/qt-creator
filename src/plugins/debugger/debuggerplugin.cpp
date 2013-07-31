@@ -2660,6 +2660,7 @@ void DebuggerPluginPrivate::runControlFinished(DebuggerEngine *engine)
         m_snapshotHandler->activateSnapshot(0);
     }
     action(OperateByInstruction)->setValue(QVariant(false));
+    m_logWindow->clearUndoRedoStacks();
 }
 
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options,

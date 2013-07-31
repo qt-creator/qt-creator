@@ -198,6 +198,13 @@ public:
         appendPlainText(text);
     }
 
+    void clearUndoRedoStacks()
+    {
+        if (!isUndoRedoEnabled())
+            return;
+        setUndoRedoEnabled(false);
+        setUndoRedoEnabled(true);
+    }
 
 private slots:
     void saveContents();
@@ -525,6 +532,12 @@ QString LogWindow::combinedContents() const
 QString LogWindow::inputContents() const
 {
     return m_inputText->toPlainText();
+}
+
+void LogWindow::clearUndoRedoStacks()
+{
+    m_inputText->clearUndoRedoStacks();
+    m_combinedText->clearUndoRedoStacks();
 }
 
 QString LogWindow::logTimeStamp()
