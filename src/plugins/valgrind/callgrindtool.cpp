@@ -524,11 +524,6 @@ RunMode CallgrindTool::runMode() const
     return CallgrindRunMode;
 }
 
-bool CallgrindTool::canRun(RunConfiguration *, RunMode mode) const
-{
-    return mode == CallgrindRunMode;
-}
-
 QString CallgrindTool::displayName() const
 {
     return tr("Valgrind Function Profiler");

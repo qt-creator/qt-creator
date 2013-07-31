@@ -119,10 +119,6 @@ public:
     virtual AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
-    /// Returns true if the tool can be run
-    virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                        ProjectExplorer::RunMode mode) const = 0;
-
     virtual void startTool(StartMode mode) = 0;
 
     /// Called when tools gets selected.

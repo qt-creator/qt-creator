@@ -266,14 +266,6 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
     return engine;
 }
 
-bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, RunMode mode) const
-{
-    if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)
-            || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration))
-        return mode == runMode();
-    return false;
-}
-
 static QString sysroot(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return QString());

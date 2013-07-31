@@ -61,12 +61,8 @@ ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent) :
 
 bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    if (mode != CallgrindRunMode && mode != MemcheckRunMode)
-        return false;
-    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-    if (tool)
-        return tool->canRun(runConfiguration, mode);
-    return false;
+    Q_UNUSED(runConfiguration);
+    return mode == CallgrindRunMode || mode == MemcheckRunMode;
 }
 
 static AnalyzerStartParameters createValgrindStartParameters(RunConfiguration *runConfiguration)

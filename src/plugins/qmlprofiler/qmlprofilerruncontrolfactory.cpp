@@ -66,12 +66,9 @@ QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent) :
 
 bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    if (mode != QmlProfilerRunMode)
-        return false;
-    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-    if (tool)
-        return tool->canRun(runConfiguration, mode);
-    return false;
+    return mode == QmlProfilerRunMode
+            && (qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)
+                || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
 }
 
 static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration *runConfiguration)

@@ -50,7 +50,6 @@ public:
     QString displayName() const;
     QString description() const;
     ToolMode toolMode() const;
-    bool canRun(ProjectExplorer::RunConfiguration *, ProjectExplorer::RunMode mode) const;
 
     void extensionsInitialized();
 

@@ -286,11 +286,6 @@ RunMode MemcheckTool::runMode() const
     return MemcheckRunMode;
 }
 
-bool MemcheckTool::canRun(RunConfiguration *, RunMode mode) const
-{
-    return mode == MemcheckRunMode;
-}
-
 QString MemcheckTool::displayName() const
 {
     return tr("Valgrind Memory Analyzer");
