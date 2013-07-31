@@ -530,7 +530,7 @@ PropertyName QmlObjectNode::defaultPropertyName() const
 void QmlObjectNode::setParent(QmlObjectNode newParent)
 {
     if (newParent.hasDefaultPropertyName())
-        newParent.modelNode().nodeAbstractProperty(newParent.defaultPropertyName()).reparentHere(modelNode());
+        newParent.modelNode().defaultNodeAbstractProperty().reparentHere(modelNode());
 }
 
 QmlItemNode QmlObjectNode::toQmlItemNode() const
