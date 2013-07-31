@@ -101,12 +101,12 @@ bool SelectionContext::showSelectionTools() const
     return m_showSelectionTools;
 }
 
-void SelectionContext::setScenePos(const QPoint &postition)
+void SelectionContext::setScenePosition(const QPointF &postition)
 {
     m_scenePosition = postition;
 }
 
-QPoint SelectionContext::scenePos() const
+QPointF SelectionContext::scenePosition() const
 {
     return m_scenePosition;
 }

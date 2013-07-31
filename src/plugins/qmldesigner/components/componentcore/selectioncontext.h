@@ -29,7 +29,7 @@
 
 #include <qmldesignercorelib_global.h>
 #include <abstractview.h>
-#include <QPoint>
+#include <QPointF>
 
 #ifndef SELECTIONCONTEXT_H
 #define SELECTIONCONTEXT_H
@@ -58,8 +58,8 @@ public:
     void setShowSelectionTools(bool show);
     bool showSelectionTools() const;
 
-    void setScenePos(const QPoint &postition);
-    QPoint scenePos() const;
+    void setScenePosition(const QPointF &postition);
+    QPointF scenePosition() const;
 
     void setToggled(bool toggled);
     bool toggled() const;
@@ -70,7 +70,7 @@ private:
     QWeakPointer<AbstractView> m_view;
     ModelNode m_targetNode;
     bool m_showSelectionTools;
-    QPoint m_scenePosition;
+    QPointF m_scenePosition;
     bool m_toggled;
 };
 

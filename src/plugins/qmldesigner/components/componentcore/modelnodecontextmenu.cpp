@@ -94,7 +94,7 @@ void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBoo
     QMenu* mainMenu = new QMenu();
 
     m_selectionContext.setShowSelectionTools(selectionMenuBool);
-    m_selectionContext.setScenePos(m_scenePos);
+    m_selectionContext.setScenePosition(m_scenePos);
 
 
      QSet<AbstractDesignerAction* > factories =

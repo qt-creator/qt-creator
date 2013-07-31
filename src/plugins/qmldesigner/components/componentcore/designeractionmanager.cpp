@@ -42,7 +42,7 @@ static inline QString captionForModelNode(const ModelNode &modelNode)
     return modelNode.id();
 }
 
-static inline bool contains(const QmlItemNode &node, const QPoint &position)
+static inline bool contains(const QmlItemNode &node, const QPointF &position)
 {
     return node.isValid() && node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
 }
@@ -346,7 +346,7 @@ public:
             foreach (const ModelNode &node, m_selectionContext.view()->allModelNodes()) {
                 if (node != m_selectionContext.currentSingleSelectedNode()
                         && node != parentNode
-                        && contains(node, m_selectionContext.scenePos())
+                        && contains(node, m_selectionContext.scenePosition())
                         && !node.isRootNode()) {
                     m_selectionContext.setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
