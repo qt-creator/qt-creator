@@ -120,7 +120,7 @@ void PaintEventsModelProxy::clear()
 
 void PaintEventsModelProxy::dataChanged()
 {
-    if (m_modelManager->state() == QmlProfilerDataState::Done)
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
     if (m_modelManager->state() == QmlProfilerDataState::Empty)

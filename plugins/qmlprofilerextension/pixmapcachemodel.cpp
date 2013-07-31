@@ -483,7 +483,7 @@ void PixmapCacheModel::clear()
 
 void PixmapCacheModel::dataChanged()
 {
-    if (m_modelManager->state() == QmlProfilerDataState::Done)
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
     if (m_modelManager->state() == QmlProfilerDataState::Empty)

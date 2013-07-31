@@ -476,7 +476,7 @@ void SceneGraphTimelineModel::clear()
 
 void SceneGraphTimelineModel::dataChanged()
 {
-    if (m_modelManager->state() == QmlProfilerDataState::Done)
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
     if (m_modelManager->state() == QmlProfilerDataState::Empty)

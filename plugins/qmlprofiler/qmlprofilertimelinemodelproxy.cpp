@@ -132,7 +132,7 @@ void BasicTimelineModel::clear()
 
 void BasicTimelineModel::dataChanged()
 {
-    if (m_modelManager->state() == QmlProfilerDataState::Done)
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
     if (m_modelManager->state() == QmlProfilerDataState::Empty)

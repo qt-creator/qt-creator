@@ -155,6 +155,7 @@ void QmlProfilerProcessedModel::complete()
 
     m_detailsRewriter->reloadDocuments();
 
+    QmlProfilerSimpleModel::complete();
     emit changed();
     m_emitChanged = false;
 }
