@@ -35,6 +35,7 @@
 #include <invalidmodelnodeexception.h>
 #include "bindingproperty.h"
 
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -294,8 +295,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
 //    QmlModelState newState(stateGroup().addState(name));
     PropertyListType propertyList;
     propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
-    QmlModelState newState ( qmlModelView()->createQmlState(propertyList) );
-
+    QmlModelState newState(createQmlState(qmlModelView(), propertyList));
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
         ModelNode newModelNode(qmlModelView()->createModelNode(childNode.type(), childNode.majorVersion(), childNode.minorVersion()));
         foreach (const BindingProperty &bindingProperty, childNode.bindingProperties())
@@ -314,6 +314,16 @@ QmlModelStateGroup QmlModelState::stateGroup() const
 {
     QmlItemNode parentNode(modelNode().parentProperty().parentModelNode());
     return parentNode.states();
+}
+
+ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListType &propertyList)
+{
+    QTC_CHECK(view->majorQtQuickVersion() < 3);
+
+    if (view->majorQtQuickVersion() > 1)
+        return view->createModelNode("QtQuick.State", 2, 0, propertyList);
+    else
+        return view->createModelNode("QtQuick.State", 1, 0, propertyList);
 }
 
 QmlModelState QmlModelState::createBaseState(const QmlModelView *view)

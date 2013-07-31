@@ -72,6 +72,8 @@ public:
     QmlModelState duplicate(const QString &name) const;
     QmlModelStateGroup stateGroup() const;
 
+    static ModelNode createQmlState(AbstractView *view, const PropertyListType &propertyList);
+
 protected:
     void addChangeSetIfNotExists(const ModelNode &node);
     static QmlModelState createBaseState(const QmlModelView *view);

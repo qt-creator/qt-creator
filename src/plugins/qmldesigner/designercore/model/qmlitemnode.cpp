@@ -506,7 +506,7 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
     PropertyListType propertyList;
     propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
 
-    ModelNode newState = QmlObjectNode(modelNode()).qmlModelView()->createQmlState(propertyList);
+    ModelNode newState = QmlModelState::createQmlState(modelNode().view(), propertyList);
     modelNode().nodeListProperty("states").reparentHere(newState);
 
     return newState;

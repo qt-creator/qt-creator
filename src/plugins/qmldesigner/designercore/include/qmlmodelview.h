@@ -56,8 +56,6 @@ public:
     QmlModelState baseState() const;
     QmlModelStateGroup rootStateGroup() const;
 
-    ModelNode createQmlState(const PropertyListType &propertyList = PropertyListType());
-
     QmlItemNode rootQmlItemNode() const;
 
 protected:

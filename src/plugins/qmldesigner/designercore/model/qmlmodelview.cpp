@@ -47,7 +47,7 @@
 #include "modelmerger.h"
 #include "nodemetainfo.h"
 
-#include <utils/qtcassert.h>
+
 
 namespace QmlDesigner {
 
@@ -94,17 +94,5 @@ bool QmlModelView::hasInstanceForModelNode(const ModelNode &modelNode)
 {
     return nodeInstanceView() && nodeInstanceView()->hasInstanceForNode(modelNode);
 }
-
-ModelNode QmlModelView::createQmlState(const QmlDesigner::PropertyListType &propertyList)
-{
-
-    QTC_CHECK(majorQtQuickVersion() < 3);
-
-    if (majorQtQuickVersion() > 1)
-        return createModelNode("QtQuick.State", 2, 0, propertyList);
-    else
-        return createModelNode("QtQuick.State", 1, 0, propertyList);
-}
-
 
 } //QmlDesigner
