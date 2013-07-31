@@ -31,7 +31,7 @@
 #include "bindingproperty.h"
 #include "nodeabstractproperty.h"
 #include "rewritertransaction.h"
-#include "qmlmodelview.h"
+#include "nodeinstanceview.h"
 
 namespace QmlDesigner {
 
@@ -128,7 +128,7 @@ void QmlAnchors::setAnchor(AnchorLine::Type sourceAnchorLine,
                           const QmlItemNode &targetQmlItemNode,
                           AnchorLine::Type targetAnchorLine)
 {
-    RewriterTransaction transaction = qmlItemNode().qmlModelView()->beginRewriterTransaction();
+    RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction();
     if (qmlItemNode().isInBaseState()) {
         if ((qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLine::Fill))
              || ((qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLine::Center)))) {
@@ -277,12 +277,12 @@ AnchorLine QmlAnchors::instanceAnchor(AnchorLine::Type sourceAnchorLine) const
     if (targetAnchorLinePair.second < 0) //there might be no node instance for the parent
         return AnchorLine();
 
-    return AnchorLine(QmlItemNode(qmlItemNode().nodeForInstance(qmlItemNode().qmlModelView()->nodeInstanceView()->instanceForId(targetAnchorLinePair.second))), targetAnchorLine);
+    return AnchorLine(QmlItemNode(qmlItemNode().nodeForInstance(qmlItemNode().nodeInstanceView()->instanceForId(targetAnchorLinePair.second))), targetAnchorLine);
 }
 
 void QmlAnchors::removeAnchor(AnchorLine::Type sourceAnchorLine)
 {
-   RewriterTransaction transaction = qmlItemNode().qmlModelView()->beginRewriterTransaction();
+   RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction();
     if (qmlItemNode().isInBaseState()) {
         const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
         if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLine::Fill)) {
@@ -304,7 +304,7 @@ void QmlAnchors::removeAnchor(AnchorLine::Type sourceAnchorLine)
 
 void QmlAnchors::removeAnchors()
 {
-    RewriterTransaction transaction = qmlItemNode().qmlModelView()->beginRewriterTransaction();
+    RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction();
     if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill"))
         qmlItemNode().modelNode().removeProperty("anchors.fill");
     if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn"))
@@ -492,7 +492,7 @@ void QmlAnchors::removeMargin(AnchorLine::Type sourceAnchorLineType)
 
 void QmlAnchors::removeMargins()
 {
-    RewriterTransaction transaction = qmlItemNode().qmlModelView()->beginRewriterTransaction();
+    RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction();
     removeMargin(AnchorLine::Left);
     removeMargin(AnchorLine::Right);
     removeMargin(AnchorLine::Top);

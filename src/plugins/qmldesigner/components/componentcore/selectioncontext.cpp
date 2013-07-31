@@ -29,6 +29,8 @@
 
 #include "selectioncontext.h"
 
+#include <qmlstate.h>
+
 namespace QmlDesigner {
 
 

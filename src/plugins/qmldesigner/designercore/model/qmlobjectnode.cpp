@@ -33,11 +33,12 @@
 #include "variantproperty.h"
 #include "nodeproperty.h"
 #include <invalidmodelnodeexception.h>
-#include "qmlmodelview.h"
+#include "abstractview.h"
 #include "nodeinstance.h"
 #include "nodemetainfo.h"
 #include "bindingproperty.h"
 #include "nodelistproperty.h"
+#include "nodeinstanceview.h"
 
 namespace QmlDesigner {
 
@@ -76,7 +77,7 @@ void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &
 QmlModelState QmlObjectNode::currentState() const
 {
     if (isValid())
-        return QmlModelState(qmlModelView()->actualStateNode());
+        return QmlModelState(view()->actualStateNode());
     else
         return QmlModelState();
 }
@@ -345,8 +346,8 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
 
     QList<QmlItemNode> allQmlItems;
 
-    if (QmlItemNode::isValidQmlItemNode(qmlModelView()->rootModelNode()))
-        allQmlItems.append(allQmlItemsRecursive(qmlModelView()->rootModelNode()));
+    if (QmlItemNode::isValidQmlItemNode(view()->rootModelNode()))
+        allQmlItems.append(allQmlItemsRecursive(view()->rootModelNode()));
 
     foreach (const QmlItemNode &item, allQmlItems) {
         returnList.append(item.states().allStates());
@@ -419,26 +420,22 @@ TypeName QmlObjectNode::instanceType(const PropertyName &name) const
 
 bool QmlObjectNode::instanceHasBinding(const PropertyName &name) const
 {
-    QmlModelView *modelView = qobject_cast<QmlModelView*>(modelNode().view());
-    if (!modelView)
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
     return nodeInstance().hasBindingForProperty(name);
 }
 
 NodeInstance QmlObjectNode::nodeInstance() const
 {
-    return qmlModelView()->nodeInstanceView()->instanceForModelNode(modelNode());
+    return nodeInstanceView()->instanceForModelNode(modelNode());
 }
 
 QmlObjectNode QmlObjectNode::nodeForInstance(const NodeInstance &instance) const
 {
-    return QmlObjectNode(ModelNode(instance.modelNode(), qmlModelView()));
+    return QmlObjectNode(ModelNode(instance.modelNode(), view()));
 }
 
 QmlItemNode QmlObjectNode::itemForInstance(const NodeInstance &instance) const
 {
-    return QmlItemNode(ModelNode(instance.modelNode(), qmlModelView()));
+    return QmlItemNode(ModelNode(instance.modelNode(), view()));
 }
 
 QmlObjectNode::QmlObjectNode()
@@ -468,14 +465,14 @@ bool QmlObjectNode::hasNodeParent() const
 
 bool QmlObjectNode::hasInstanceParent() const
 {
-    return nodeInstance().parentId() >= 0 && qmlModelView()->nodeInstanceView()->hasInstanceForId(nodeInstance().parentId());
+    return nodeInstance().parentId() >= 0 && nodeInstanceView()->hasInstanceForId(nodeInstance().parentId());
 }
 
 bool QmlObjectNode::hasInstanceParentItem() const
 {
     return nodeInstance().parentId() >= 0
-            && qmlModelView()->nodeInstanceView()->hasInstanceForId(nodeInstance().parentId())
-            && QmlItemNode::isItemOrWindow(qmlModelView()->modelNodeForInternalId(nodeInstance().parentId()));
+            && nodeInstanceView()->hasInstanceForId(nodeInstance().parentId())
+            && QmlItemNode::isItemOrWindow(view()->modelNodeForInternalId(nodeInstance().parentId()));
 }
 
 
@@ -487,7 +484,7 @@ void QmlObjectNode::setParentProperty(const NodeAbstractProperty &parentProeprty
 QmlObjectNode QmlObjectNode::instanceParent() const
 {
     if (hasInstanceParent())
-        return nodeForInstance(qmlModelView()->nodeInstanceView()->instanceForId(nodeInstance().parentId()));
+        return nodeForInstance(nodeInstanceView()->instanceForId(nodeInstance().parentId()));
 
     return QmlObjectNode();
 }
@@ -495,7 +492,7 @@ QmlObjectNode QmlObjectNode::instanceParent() const
 QmlItemNode QmlObjectNode::instanceParentItem() const
 {
     if (hasInstanceParentItem())
-        return itemForInstance(qmlModelView()->nodeInstanceView()->instanceForId(nodeInstance().parentId()));
+        return itemForInstance(nodeInstanceView()->instanceForId(nodeInstance().parentId()));
 
     return QmlItemNode();
 }

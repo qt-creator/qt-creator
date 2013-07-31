@@ -35,7 +35,8 @@
 
 namespace QmlDesigner {
 
-class QmlModelView;
+class AbstractView;
+class NodeInstanceView;
 
 class QMLDESIGNERCORE_EXPORT QmlModelNodeFacade
 {
@@ -48,9 +49,10 @@ public:
     virtual ~QmlModelNodeFacade();
     QmlModelNodeFacade();
 
-    bool isRootNode() const;
-    static QmlModelView* qmlModelView();
+    AbstractView *view() const;
+    static NodeInstanceView *nodeInstanceView();
 
+    bool isRootNode() const;
 
 protected:
     QmlModelNodeFacade(const ModelNode &modelNode);

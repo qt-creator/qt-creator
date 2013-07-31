@@ -32,6 +32,8 @@
 
 #include "formeditorview.h"
 
+#include <QPointF>
+
 namespace QmlDesigner {
 
 class SingleSelectionManipulator

@@ -28,13 +28,26 @@
 ****************************************************************************/
 
 #include "qmlmodelnodefacade.h"
-#include "qmlmodelview.h"
+#include "nodeinstanceview.h"
 #include <qmldesignerplugin.h>
-#include <QDebug>
+
 namespace QmlDesigner {
 
 QmlModelNodeFacade::QmlModelNodeFacade() : m_modelNode(ModelNode())
 {}
+
+AbstractView *QmlModelNodeFacade::view() const
+{
+    if (modelNode().isValid())
+        return modelNode().view();
+    else
+        return 0;
+}
+
+NodeInstanceView *QmlModelNodeFacade::nodeInstanceView()
+{
+    return QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
+}
 
 
 QmlModelNodeFacade::QmlModelNodeFacade(const ModelNode &modelNode) : m_modelNode(modelNode)
@@ -63,18 +76,12 @@ bool QmlModelNodeFacade::isValid() const
     return isValidQmlModelNodeFacade(m_modelNode);
 }
 
-QmlModelView* QmlModelNodeFacade::qmlModelView()
-{
-    return QmlDesignerPlugin::instance()->viewManager().qmlModelView();
-}
-
 bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
 {
     return modelNode.isValid()
-            && qmlModelView()
-            && qmlModelView()->nodeInstanceView()
-            && qmlModelView()->nodeInstanceView()->hasInstanceForNode(modelNode)
-            && qmlModelView()->nodeInstanceView()->instanceForModelNode(modelNode).isValid();
+            && nodeInstanceView()
+            && nodeInstanceView()->hasInstanceForNode(modelNode)
+            && nodeInstanceView()->instanceForModelNode(modelNode).isValid();
 }
 
 bool QmlModelNodeFacade::isRootNode() const

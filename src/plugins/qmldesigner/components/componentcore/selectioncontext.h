@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include <qmldesignercorelib_global.h>
-#include <qmlmodelview.h>
+#include <abstractview.h>
+#include <QPoint>
 
 #ifndef SELECTIONCONTEXT_H
 #define SELECTIONCONTEXT_H

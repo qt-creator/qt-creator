@@ -57,7 +57,7 @@ class TextModifier;
 class QmlObjectNode;
 class CrumbleBarInfo;
 class ViewManager;
-class QmlModelView;
+class AbstractView;
 
 class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
 {
@@ -140,7 +140,7 @@ private: // functions
 
     bool loadInFileComponent(const ModelNode &componentNode);
 
-    QmlModelView *qmlModelView();
+    AbstractView *view();
 
     Model *createInFileComponentModel();
 

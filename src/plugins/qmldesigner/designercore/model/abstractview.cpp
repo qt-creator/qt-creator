@@ -32,7 +32,7 @@
 #include "model.h"
 #include "model_p.h"
 #include "internalnode_p.h"
-#include <qmlmodelview.h>
+#include "nodeinstanceview.h"
 
 namespace QmlDesigner {
 
@@ -397,11 +397,6 @@ ModelNode AbstractView::modelNodeForInternalId(qint32 internalId)
 bool AbstractView::hasModelNodeForInternalId(qint32 internalId) const
 {
     return model()->d->hasNodeForInternalId(internalId);
-}
-
-QmlModelView *AbstractView::toQmlModelView()
-{
-    return qobject_cast<QmlModelView*>(this);
 }
 
 NodeInstanceView *AbstractView::nodeInstanceView() const

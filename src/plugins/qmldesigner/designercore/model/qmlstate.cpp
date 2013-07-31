@@ -28,12 +28,14 @@
 ****************************************************************************/
 
 #include "qmlstate.h"
-#include "qmlmodelview.h"
+#include "abstractview.h"
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <metainfo.h>
 #include <invalidmodelnodeexception.h>
 #include "bindingproperty.h"
+#include "qmlchangeset.h"
+#include "qmlitemnode.h"
 
 #include <utils/qtcassert.h>
 
@@ -180,7 +182,7 @@ void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
         return; //changeSet already there
 
     ModelNode newChangeSet;
-    if (qmlModelView()->majorQtQuickVersion() > 1)
+    if (view()->majorQtQuickVersion() > 1)
         newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 2, 0);
     else
         newChangeSet = modelNode().view()->createModelNode("QtQuick.PropertyChanges", 1, 0);
@@ -295,9 +297,9 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
 //    QmlModelState newState(stateGroup().addState(name));
     PropertyListType propertyList;
     propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
-    QmlModelState newState(createQmlState(qmlModelView(), propertyList));
+    QmlModelState newState(createQmlState(view(), propertyList));
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        ModelNode newModelNode(qmlModelView()->createModelNode(childNode.type(), childNode.majorVersion(), childNode.minorVersion()));
+        ModelNode newModelNode(view()->createModelNode(childNode.type(), childNode.majorVersion(), childNode.minorVersion()));
         foreach (const BindingProperty &bindingProperty, childNode.bindingProperties())
             newModelNode.bindingProperty(bindingProperty.name()).setExpression(bindingProperty.expression());
         foreach (const VariantProperty &variantProperty, childNode.variantProperties())
@@ -326,11 +328,11 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
         return view->createModelNode("QtQuick.State", 1, 0, propertyList);
 }
 
-QmlModelState QmlModelState::createBaseState(const QmlModelView *view)
+QmlModelState QmlModelState::createBaseState(const AbstractView *view)
 {
-    QmlModelState fxState(view->rootModelNode());
+    QmlModelState qmlModelState(view->rootModelNode());
 
-    return fxState;
+    return qmlModelState;
 }
 
 } // QmlDesigner

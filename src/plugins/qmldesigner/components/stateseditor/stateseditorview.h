@@ -30,7 +30,9 @@
 #ifndef STATESEDITORVIEW_H
 #define STATESEDITORVIEW_H
 
-#include <qmlmodelview.h>
+#include <abstractview.h>
+
+#include <qmlstate.h>
 
 namespace QmlDesigner {
 
@@ -38,7 +40,7 @@ namespace QmlDesigner {
 class StatesEditorModel;
 class StatesEditorWidget;
 
-class StatesEditorView : public QmlModelView {
+class StatesEditorView : public AbstractView {
     Q_OBJECT
 
 public:
@@ -74,7 +76,7 @@ public:
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) QTC_OVERRIDE;
 
 
-    // QmlModelView
+    // AbstractView
     void actualStateChanged(const ModelNode &node) QTC_OVERRIDE;
 
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) QTC_OVERRIDE;

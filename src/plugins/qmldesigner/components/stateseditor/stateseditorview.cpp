@@ -41,6 +41,8 @@
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 
+#include <qmlitemnode.h>
+
 namespace QmlDesigner {
 
 /**
@@ -48,7 +50,7 @@ namespace QmlDesigner {
   the current state is the base state, we render the base state + all other states.
   */
 StatesEditorView::StatesEditorView(QObject *parent) :
-        QmlModelView(parent),
+        AbstractView(parent),
         m_statesEditorModel(new StatesEditorModel(this)),
         m_statesEditorWidget(new StatesEditorWidget(this, m_statesEditorModel.data())),
         m_lastIndex(-1)
@@ -304,11 +306,11 @@ void StatesEditorView::renameState(int nodeId, const QString &newName)
 
 void StatesEditorView::modelAttached(Model *model)
 {
-    if (model == QmlModelView::model())
+    if (model == AbstractView::model())
         return;
 
     Q_ASSERT(model);
-    QmlModelView::modelAttached(model);
+    AbstractView::modelAttached(model);
 
     if (m_statesEditorWidget)
         m_statesEditorWidget->setNodeInstanceView(nodeInstanceView());
@@ -318,7 +320,7 @@ void StatesEditorView::modelAttached(Model *model)
 
 void StatesEditorView::modelAboutToBeDetached(Model *model)
 {
-    QmlModelView::modelAboutToBeDetached(model);
+    AbstractView::modelAboutToBeDetached(model);
     resetModel();
 }
 

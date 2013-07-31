@@ -55,7 +55,6 @@ namespace QmlDesigner {
 
 namespace QmlDesigner {
 
-class QmlModelView;
 class NodeInstanceView;
 class RewriterView;
 
@@ -228,7 +227,6 @@ public:
 
     virtual void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) = 0;
 
-    QmlModelView *toQmlModelView();
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 

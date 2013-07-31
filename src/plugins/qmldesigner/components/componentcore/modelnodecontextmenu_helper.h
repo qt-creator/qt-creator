@@ -32,6 +32,7 @@
 
 #include "modelnodeoperations.h"
 #include "defaultdesigneraction.h"
+#include "qmlitemnode.h"
 
 #include <QAction>
 #include <QMenu>

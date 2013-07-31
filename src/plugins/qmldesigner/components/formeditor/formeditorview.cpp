@@ -53,7 +53,7 @@
 namespace QmlDesigner {
 
 FormEditorView::FormEditorView(QObject *parent)
-    : QmlModelView(parent),
+    : AbstractView(parent),
       m_formEditorWidget(new FormEditorWidget(this)),
       m_scene(new FormEditorScene(m_formEditorWidget.data(), this)),
       m_moveTool(new MoveTool(this)),
@@ -100,7 +100,7 @@ void FormEditorView::modelAttached(Model *model)
 {
     Q_ASSERT(model);
 
-    QmlModelView::modelAttached(model);
+    AbstractView::modelAttached(model);
 
     Q_ASSERT(m_scene->formLayerItem());
 
@@ -177,7 +177,7 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
 
     m_currentTool = m_selectionTool;
 
-    QmlModelView::modelAboutToBeDetached(model);
+    AbstractView::modelAboutToBeDetached(model);
 }
 
 void FormEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
@@ -456,7 +456,7 @@ void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int
 
 void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
 {
-    QmlModelView::auxiliaryDataChanged(node, name, data);
+    AbstractView::auxiliaryDataChanged(node, name, data);
     if (name == "invisible" && m_scene->hasItemForQmlItemNode(QmlItemNode(node))) {
         FormEditorItem *item(m_scene->itemForQmlItemNode(QmlItemNode(node)));
         bool isInvisible = data.toBool();

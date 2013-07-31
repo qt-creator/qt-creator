@@ -333,7 +333,7 @@ void PropertyEditor::NodeType::initialSetup(const TypeName &typeName, const QUrl
 }
 
 PropertyEditor::PropertyEditor(QWidget *parent) :
-        QmlModelView(parent),
+        AbstractView(parent),
         m_parent(parent),
         m_updateShortcut(0),
         m_timerId(0),
@@ -814,7 +814,7 @@ void PropertyEditor::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void PropertyEditor::modelAttached(Model *model)
 {
-    QmlModelView::modelAttached(model);
+    AbstractView::modelAttached(model);
 
     if (debug)
         qDebug() << Q_FUNC_INFO;
@@ -834,7 +834,7 @@ void PropertyEditor::modelAttached(Model *model)
 
 void PropertyEditor::modelAboutToBeDetached(Model *model)
 {
-    QmlModelView::modelAboutToBeDetached(model);
+    AbstractView::modelAboutToBeDetached(model);
     m_currentType->m_propertyEditorTransaction->end();
 
     resetView();

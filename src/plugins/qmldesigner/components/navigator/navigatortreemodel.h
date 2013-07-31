@@ -39,7 +39,7 @@
 namespace QmlDesigner {
 
 class Model;
-class QmlModelView;
+class AbstractView;
 class ModelNode;
 
 class NavigatorTreeModel : public QStandardItemModel
@@ -95,7 +95,7 @@ public:
                       int column,
                       const QModelIndex &parent);
 
-    void setView(QmlModelView *view);
+    void setView(AbstractView *view);
     void clearView();
 
     QModelIndex indexForNode(const ModelNode &node) const;
@@ -140,7 +140,7 @@ private:
 private:
     QHash<ModelNode, ItemRow> m_nodeItemHash;
     QHash<uint, ModelNode> m_nodeHash;
-    QWeakPointer<QmlModelView> m_view;
+    QWeakPointer<AbstractView> m_view;
 
     bool m_blockItemChangedSignal;
 

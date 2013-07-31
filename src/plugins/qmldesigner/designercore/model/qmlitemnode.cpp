@@ -34,7 +34,6 @@
 #include "variantproperty.h"
 #include "qmlanchors.h"
 #include "invalidmodelnodeexception.h"
-#include "qmlmodelview.h"
 #include "itemlibraryinfo.h"
 
 #include "plaintexteditmodifier.h"

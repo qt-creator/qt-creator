@@ -30,7 +30,7 @@
 #ifndef PROPERTYEDITOR_H
 #define PROPERTYEDITOR_H
 
-#include <qmlmodelview.h>
+#include <abstractview.h>
 #include <declarativewidgetview.h>
 #include <QHash>
 #include <QStackedWidget>
@@ -55,7 +55,7 @@ class PropertyEditorTransaction;
 class CollapseButton;
 class StackedWidget;
 
-class PropertyEditor: public QmlModelView
+class PropertyEditor: public AbstractView
 {
     Q_OBJECT
 

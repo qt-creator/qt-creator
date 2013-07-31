@@ -33,7 +33,7 @@
 #include <QPoint>
 #include <QCoreApplication>
 
-#include <qmlmodelview.h>
+#include <abstractview.h>
 #include "selectioncontext.h"
 
 namespace QmlDesigner {
@@ -42,11 +42,11 @@ class ModelNodeContextMenu
 {
     Q_DECLARE_TR_FUNCTIONS(QmlDesigner::ModelNodeContextMenu)
 public:
-    ModelNodeContextMenu(QmlModelView *view);
+    ModelNodeContextMenu(AbstractView *view);
     void execute(const QPoint &pos, bool selectionMenu);
     void setScenePos(const QPoint &pos);
 
-    static void showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
+    static void showContextMenu(AbstractView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
 
 private:
     QPoint m_scenePos;

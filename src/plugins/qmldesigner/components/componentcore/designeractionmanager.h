@@ -32,7 +32,7 @@
 
 #include <qmldesignercorelib_global.h>
 #include "abstractdesigneraction.h"
-#include "qmlmodelview.h"
+#include "abstractview.h"
 
 namespace QmlDesigner {
 

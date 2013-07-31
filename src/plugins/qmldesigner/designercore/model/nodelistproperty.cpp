@@ -84,17 +84,15 @@ const QList<ModelNode> NodeListProperty::toModelNodeList() const
 
 const QList<QmlObjectNode> NodeListProperty::toQmlObjectNodeList() const
 {
-    QmlModelView *fxView = view()->toQmlModelView();
-
-    if (fxView == 0)
+    if (model()->nodeInstanceView())
         return QList<QmlObjectNode>();
 
-    QList<QmlObjectNode> fxObjectNodeList;
+    QList<QmlObjectNode> qmlObjectNodeList;
 
     foreach (const ModelNode &modelNode, toModelNodeList())
-        fxObjectNodeList.append(QmlObjectNode(modelNode));
+        qmlObjectNodeList.append(QmlObjectNode(modelNode));
 
-    return fxObjectNodeList;
+    return qmlObjectNodeList;
 }
 
 void NodeListProperty::slide(int from, int to) const

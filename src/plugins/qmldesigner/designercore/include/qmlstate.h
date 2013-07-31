@@ -36,9 +36,9 @@
 
 namespace QmlDesigner {
 
-class QmlModelView;
-class QmlModelStateGroup;
+class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
+class QmlModelStateGroup;
 
 class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
 {
@@ -76,7 +76,7 @@ public:
 
 protected:
     void addChangeSetIfNotExists(const ModelNode &node);
-    static QmlModelState createBaseState(const QmlModelView *view);
+    static QmlModelState createBaseState(const AbstractView *view);
 
 };
 

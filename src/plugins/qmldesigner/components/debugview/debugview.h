@@ -30,7 +30,7 @@
 #ifndef DEBUGVIEW_H
 #define DEBUGVIEW_H
 
-#include <qmlmodelview.h>
+#include <abstractview.h>
 #include <QPointer>
 
 namespace QmlDesigner {
@@ -39,7 +39,7 @@ namespace Internal {
 
 class DebugViewWidget;
 
-class  DebugView : public QmlModelView
+class  DebugView : public AbstractView
 {
     Q_OBJECT
 

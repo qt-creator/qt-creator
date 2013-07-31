@@ -165,9 +165,9 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
     return true;
 }
 
-QmlModelView *DesignDocument::qmlModelView()
+AbstractView *DesignDocument::view()
 {
-    return viewManager().qmlModelView();
+    return viewManager().nodeInstanceView();
 }
 
 Model* DesignDocument::createInFileComponentModel()
@@ -319,7 +319,7 @@ void DesignDocument::goIntoSelectedComponent()
 
     QList<ModelNode> selectedNodes;
     if (rewriterView())
-        selectedNodes = qmlModelView()->selectedModelNodes();
+        selectedNodes = view()->selectedModelNodes();
 
     if (selectedNodes.count() == 1) {
         viewManager().setComponentNode(selectedNodes.first());
@@ -377,7 +377,7 @@ void DesignDocument::deleteSelected()
 
     try {
         RewriterTransaction transaction(rewriterView());
-        QList<ModelNode> toDelete = qmlModelView()->selectedModelNodes();
+        QList<ModelNode> toDelete = view()->selectedModelNodes();
         foreach (ModelNode node, toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode::isValidQmlObjectNode(node))
                 QmlObjectNode(node).destroy();

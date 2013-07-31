@@ -30,7 +30,7 @@
 #ifndef NAVIGATORVIEW_H
 #define NAVIGATORVIEW_H
 
-#include <qmlmodelview.h>
+#include <abstractview.h>
 
 #include <QWeakPointer>
 
@@ -48,7 +48,7 @@ class NavigatorTreeModel;
 class IconCheckboxItemDelegate;
 class IdItemDelegate;
 
-class NavigatorView : public QmlModelView
+class NavigatorView : public AbstractView
 {
     Q_OBJECT
 

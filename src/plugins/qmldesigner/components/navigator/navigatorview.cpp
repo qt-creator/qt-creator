@@ -39,6 +39,7 @@
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <QHeaderView>
+#include <qmlitemnode.h>
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
 {
@@ -53,7 +54,7 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
 namespace QmlDesigner {
 
 NavigatorView::NavigatorView(QObject* parent) :
-        QmlModelView(parent),
+        AbstractView(parent),
         m_blockSelectionChangedSignal(false),
         m_widget(new NavigatorWidget(this)),
         m_treeModel(new NavigatorTreeModel(this))
@@ -114,7 +115,7 @@ WidgetInfo NavigatorView::widgetInfo()
 
 void NavigatorView::modelAttached(Model *model)
 {
-    QmlModelView::modelAttached(model);
+    AbstractView::modelAttached(model);
 
     m_treeModel->setView(this);
 
@@ -133,7 +134,7 @@ void NavigatorView::modelAttached(Model *model)
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
     m_treeModel->clearView();
-    QmlModelView::modelAboutToBeDetached(model);
+    AbstractView::modelAboutToBeDetached(model);
 }
 
 void NavigatorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)

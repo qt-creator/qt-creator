@@ -223,10 +223,10 @@ void ViewManager::nextFileIsCalledInternally()
     m_formEditorView.formEditorWidget()->formEditorCrumbleBar()->nextFileIsCalledInternally();
 }
 
- QmlModelView *ViewManager::qmlModelView()
- {
-     return &m_formEditorView;
- }
+NodeInstanceView *ViewManager::nodeInstanceView()
+{
+    return &m_nodeInstanceView;
+}
 
 Model *ViewManager::currentModel() const
 {

@@ -34,11 +34,12 @@
 #include <nodeproperty.h>
 #include <variantproperty.h>
 #include <metainfo.h>
-#include <qmlmodelview.h>
+#include <abstractview.h>
 #include <rewriterview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
 #include <modelnodecontextmenu.h>
+#include <qmlitemnode.h>
 
 #include <QMimeData>
 #include <QMessageBox>
@@ -380,7 +381,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::itemRowForNode(const ModelNode &
     return m_nodeItemHash.value(node);
 }
 
-void NavigatorTreeModel::setView(QmlModelView *view)
+void NavigatorTreeModel::setView(AbstractView *view)
 {
     m_view = view;
     m_hiddenProperties.clear();

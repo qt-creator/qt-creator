@@ -30,7 +30,7 @@
 #include "qmlchangeset.h"
 #include "bindingproperty.h"
 #include "variantproperty.h"
-#include "qmlmodelview.h"
+#include "abstractview.h"
 #include <metainfo.h>
 
 namespace QmlDesigner {
@@ -72,7 +72,7 @@ bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &mode
 
 void QmlPropertyChanges::removeProperty(const PropertyName &name)
 {
-    RewriterTransaction transaction(qmlModelView()->beginRewriterTransaction());
+    RewriterTransaction transaction(view()->beginRewriterTransaction());
     if (name == "name")
         return;
     modelNode().removeProperty(name);

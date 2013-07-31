@@ -30,7 +30,7 @@
 #ifndef FORMEDITORVIEW_H
 #define FORMEDITORVIEW_H
 
-#include <qmlmodelview.h>
+#include <abstractview.h>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
@@ -57,7 +57,7 @@ class DragTool;
 class ItemLibraryEntry;
 class QmlItemNode;
 
-class QMLDESIGNERCORE_EXPORT FormEditorView : public QmlModelView
+class QMLDESIGNERCORE_EXPORT FormEditorView : public AbstractView
 {
     Q_OBJECT
 

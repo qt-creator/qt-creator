@@ -60,7 +60,6 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/plaintexteditmodifier.cpp \
     $$PWD/model/componenttextmodifier.cpp \
     $$PWD/model/textmodifier.cpp \
-    $$PWD/model/qmlmodelview.cpp \
     $$PWD/model/qmlitemnode.cpp \
     $$PWD/model/qmlstate.cpp \
     $$PWD/model/qmlchangeset.cpp \
@@ -129,7 +128,6 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/textmodifier.h \
     $$PWD/model/modeltotextmerger.h \
     $$PWD/model/texttomodelmerger.h \
-    $$PWD/include/qmlmodelview.h \
     $$PWD/include/qmlitemnode.h \
     $$PWD/include/qmlstate.h \
     $$PWD/include/qmlchangeset.h \
