@@ -687,12 +687,16 @@ public:
 
     ~ConflictHandler()
     {
-        GitClient *client = GitPlugin::instance()->gitClient();
-        if (m_commit.isEmpty() && m_files.isEmpty()) {
-            if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
-                client->endStashScope(m_workingDirectory);
-        } else {
-            client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_command);
+        // If interactive rebase editor window is closed, plugin is terminated
+        // but referenced here when the command ends
+        if (GitPlugin *plugin = GitPlugin::instance()) {
+            GitClient *client = plugin->gitClient();
+            if (m_commit.isEmpty() && m_files.isEmpty()) {
+                if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
+                    client->endStashScope(m_workingDirectory);
+            } else {
+                client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_command);
+            }
         }
     }
 

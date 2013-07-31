@@ -34,9 +34,13 @@
 
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-QT_FORWARD_DECLARE_CLASS(QVariant)
-QT_FORWARD_DECLARE_CLASS(QProcessEnvironment)
+QT_BEGIN_NAMESPACE
+class QStringList;
+class QVariant;
+class QProcessEnvironment;
+template <typename T>
+class QFutureInterface;
+QT_END_NAMESPACE
 
 namespace VcsBase {
 
@@ -94,7 +98,7 @@ public:
     void setCookie(const QVariant &cookie);
 
 private:
-    void run();
+    void run(QFutureInterface<void> &future);
 
 signals:
     void outputData(const QByteArray &);

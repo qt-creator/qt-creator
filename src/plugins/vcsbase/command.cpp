@@ -33,6 +33,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/synchronousprocess.h>
+#include <utils/runextensions.h>
 
 #include <QDebug>
 #include <QProcess>
@@ -202,7 +203,7 @@ void Command::execute()
         return;
 
     // For some reason QtConcurrent::run() only works on this
-    QFuture<void> task = QtConcurrent::run(this, &Command::run);
+    QFuture<void> task = QtConcurrent::run(&Command::run, this);
     QString binary = QFileInfo(d->m_binaryPath).baseName();
     if (!binary.isEmpty())
         binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
@@ -226,7 +227,7 @@ QString Command::msgTimeout(int seconds)
     return tr("Error: VCS timed out after %1s.").arg(seconds);
 }
 
-void Command::run()
+void Command::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
     if (binaryPath().trimmed().isEmpty()) {
@@ -284,23 +285,25 @@ void Command::run()
         }
     }
 
-    if (ok && d->m_jobs.front().arguments.at(0) == QLatin1String("status"))
-        removeColorCodes(&stdOut);
+    if (!future.isCanceled()) {
+        if (ok && d->m_jobs.front().arguments.at(0) == QLatin1String("status"))
+            removeColorCodes(&stdOut);
 
-    d->m_lastExecSuccess = ok;
-    d->m_lastExecExitCode = exitCode;
+        d->m_lastExecSuccess = ok;
+        d->m_lastExecExitCode = exitCode;
 
-    if (ok)
-        emit outputData(stdOut);
+        if (ok)
+            emit outputData(stdOut);
 
-    if (!error.isEmpty())
-        emit errorText(error);
+        if (!error.isEmpty())
+            emit errorText(error);
 
-    emit finished(ok, exitCode, cookie());
-    if (ok) {
-        emit success(cookie());
-        if (d->m_expectChanges)
-            Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
+        emit finished(ok, exitCode, cookie());
+        if (ok) {
+            emit success(cookie());
+            if (d->m_expectChanges)
+                Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
+        }
     }
 
     // As it is used asynchronously, we need to delete ourselves
