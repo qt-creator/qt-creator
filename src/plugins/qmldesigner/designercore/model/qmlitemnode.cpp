@@ -35,6 +35,18 @@
 #include "qmlanchors.h"
 #include "invalidmodelnodeexception.h"
 #include "qmlmodelview.h"
+#include "itemlibraryinfo.h"
+
+#include "plaintexteditmodifier.h"
+#include "rewriterview.h"
+#include "modelmerger.h"
+#include "rewritingexception.h"
+
+#include <QMessageBox>
+#include <QUrl>
+#include <QPlainTextEdit>
+#include <QFileInfo>
+#include <QDir>
 
 namespace QmlDesigner {
 
@@ -47,6 +59,192 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
         return true;
 
     return false;
+}
+
+QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentQmlItemNode)
+{
+    if (!parentQmlItemNode.isValid())
+        parentQmlItemNode = QmlItemNode(view->rootModelNode());
+
+    Q_ASSERT(parentQmlItemNode.isValid());
+
+    QmlItemNode newQmlItemNode;
+
+    try {
+        RewriterTransaction transaction = view->beginRewriterTransaction();
+
+        NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
+
+        int minorVersion = metaInfo.minorVersion();
+        int majorVersion = metaInfo.majorVersion();
+
+        if (itemLibraryEntry.typeName().contains('.')) {
+
+            const QString newImportUrl = itemLibraryEntry.requiredImport();
+
+            if (!itemLibraryEntry.requiredImport().isEmpty()) {
+                const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
+
+                Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+                if (itemLibraryEntry.majorVersion() == -1 && itemLibraryEntry.minorVersion() == -1)
+                    newImport = Import::createFileImport(newImportUrl, QString());
+                else
+                    newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+
+                foreach (const Import &import, view->model()->imports()) {
+                    if (import.isLibraryImport()
+                            && import.url() == newImport.url()
+                            && import.version() == newImport.version()) {
+                        // reuse this import
+                        newImport = import;
+                        break;
+                    }
+                }
+
+                if (!view->model()->hasImport(newImport, true, true))
+                    view->model()->changeImports(QList<Import>() << newImport, QList<Import>());
+            }
+        }
+
+        QList<QPair<PropertyName, QVariant> > propertyPairList;
+        propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
+        propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+
+        if (itemLibraryEntry.qml().isEmpty()) {
+            foreach (const PropertyContainer &property, itemLibraryEntry.properties())
+                propertyPairList.append(qMakePair(property.name(), property.value()));
+
+            newQmlItemNode = QmlItemNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
+        } else {
+            QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, view->model()));
+            inputModel->setFileUrl(view->model()->fileUrl());
+            QPlainTextEdit textEdit;
+
+
+            textEdit.setPlainText(itemLibraryEntry.qmlSource());
+            NotIndentingTextEditModifier modifier(&textEdit);
+
+            QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+            rewriterView->setCheckSemanticErrors(false);
+            rewriterView->setTextModifier(&modifier);
+            inputModel->setRewriterView(rewriterView.data());
+
+            if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
+                ModelNode rootModelNode = rewriterView->rootModelNode();
+                inputModel->detachView(rewriterView.data());
+
+                rootModelNode.variantProperty("x").setValue(propertyPairList.first().second);
+                rootModelNode.variantProperty("y").setValue(propertyPairList.at(1).second);
+
+                ModelMerger merger(view);
+                newQmlItemNode = merger.insertModel(rootModelNode);
+            }
+        }
+
+        if (parentQmlItemNode.hasDefaultProperty())
+            parentQmlItemNode.nodeAbstractProperty(parentQmlItemNode.defaultPropertyName()).reparentHere(newQmlItemNode);
+
+        if (!newQmlItemNode.isValid())
+            return newQmlItemNode;
+
+        QString id;
+        int i = 1;
+        QString name(itemLibraryEntry.name().toLower());
+        //remove forbidden characters
+        name.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_]")), QLatin1String("_"));
+        do {
+            id = name + QString::number(i);
+            i++;
+        } while (view->hasId(id)); //If the name already exists count upwards
+
+        newQmlItemNode.setId(id);
+
+        if (!QmlModelState(view->actualStateNode()).isBaseState()) {
+            newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
+            newQmlItemNode.setVariantProperty("opacity", 1);
+        }
+
+        Q_ASSERT(newQmlItemNode.isValid());
+    }
+    catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
+
+    Q_ASSERT(newQmlItemNode.isValid());
+
+    return newQmlItemNode;
+}
+
+QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode)
+{
+    if (!parentQmlItemNode.isValid() && QmlItemNode::isValidQmlItemNode(view->rootModelNode()))
+        parentQmlItemNode = QmlItemNode(view->rootModelNode());
+    else
+        return QmlItemNode();
+
+    QmlItemNode newQmlItemNode;
+    RewriterTransaction transaction = view->beginRewriterTransaction();
+    {
+        const QString newImportUrl = QLatin1String("QtQuick");
+        const QString newImportVersion = QLatin1String("1.1");
+        Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+
+        foreach (const Import &import, view->model()->imports()) {
+            if (import.isLibraryImport()
+                && import.url() == newImport.url()) {
+                // reuse this import
+                newImport = import;
+                break;
+            }
+        }
+
+        if (!view->model()->hasImport(newImport, true, true))
+            view->model()->changeImports(QList<Import>() << newImport, QList<Import>());
+
+        QList<QPair<PropertyName, QVariant> > propertyPairList;
+        propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
+        propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+
+        QString relativeImageName = imageName;
+
+        //use relative path
+        if (QFileInfo(view->model()->fileUrl().toLocalFile()).exists()) {
+            QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
+            relativeImageName = fileDir.relativeFilePath(imageName);
+        }
+
+        propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));
+        NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
+        if (metaInfo.isValid()) {
+            int minorVersion = metaInfo.minorVersion();
+            int majorVersion = metaInfo.majorVersion();
+            newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", majorVersion, minorVersion, propertyPairList));
+            parentQmlItemNode.nodeAbstractProperty("data").reparentHere(newQmlItemNode);
+        }
+
+        Q_ASSERT(newQmlItemNode.isValid());
+
+        QString id;
+        int i = 1;
+        QString name("image");
+        name.remove(QLatin1Char(' '));
+        do {
+            id = name + QString::number(i);
+            i++;
+        } while (view->hasId(id)); //If the name already exists count upwards
+
+        newQmlItemNode.setId(id);
+        if (!QmlModelState(view->actualStateNode()).isBaseState()) {
+            newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
+            newQmlItemNode.setVariantProperty("opacity", 1);
+        }
+
+        Q_ASSERT(newQmlItemNode.isValid());
+    }
+
+    Q_ASSERT(newQmlItemNode.isValid());
+
+    return newQmlItemNode;
 }
 
 bool QmlItemNode::isValid() const

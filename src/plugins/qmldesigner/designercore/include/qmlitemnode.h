@@ -43,6 +43,7 @@ namespace QmlDesigner {
 
 class QmlModelStateGroup;
 class QmlAnchors;
+class ItemLibraryEntry;
 
 class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlObjectNode
 {
@@ -55,6 +56,15 @@ public:
     bool isRootNode() const;
 
     static bool isItemOrWindow(const ModelNode &modelNode);
+
+    static QmlItemNode createQmlItemNode(AbstractView *view,
+                                         const ItemLibraryEntry &itemLibraryEntry,
+                                         const QPointF &position,
+                                         QmlItemNode parentQmlItemNode);
+    static QmlItemNode createQmlItemNodeFromImage(AbstractView *view,
+                                                  const QString &imageName,
+                                                  const QPointF &position,
+                                                  QmlItemNode parentQmlItemNode);
 
     QmlModelStateGroup states() const;
     QList<QmlItemNode> children() const;
