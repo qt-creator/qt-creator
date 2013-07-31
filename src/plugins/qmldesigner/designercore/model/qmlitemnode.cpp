@@ -318,18 +318,6 @@ QList<QmlObjectNode> QmlItemNode::resources() const
     return toQmlObjectNodeList(resourcesList);
 }
 
-QList<QmlItemNode> QmlItemNode::defaultPropertyChildren() const
-{
-    QList<ModelNode> defaultPropertyChildrenList;
-
-    if (isValid()) {
-        if (modelNode().hasNodeListProperty(defaultPropertyName()))
-            defaultPropertyChildrenList.append(modelNode().nodeListProperty(defaultPropertyName()).toModelNodeList());
-    }
-
-    return toQmlItemNodeList(defaultPropertyChildrenList);
-}
-
 QList<QmlObjectNode> QmlItemNode::allDirectSubNodes() const
 {
     return toQmlObjectNodeList(modelNode().allDirectSubModelNodes());

@@ -69,7 +69,6 @@ public:
     QmlModelStateGroup states() const;
     QList<QmlItemNode> children() const;
     QList<QmlObjectNode> resources() const;
-    QList<QmlItemNode> defaultPropertyChildren() const;
     QList<QmlObjectNode> allDirectSubNodes() const;
     QmlAnchors anchors() const;
 
