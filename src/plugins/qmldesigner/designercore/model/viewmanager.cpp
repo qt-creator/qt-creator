@@ -67,7 +67,7 @@ void ViewManager::detachRewriterView()
 void ViewManager::switchStateEditorViewToBaseState()
 {
     if (m_statesEditorView.isAttached()) {
-        m_savedState = QmlModelState(m_statesEditorView.currentStateNode());
+        m_savedState = m_statesEditorView.currentState();
         m_statesEditorView.setCurrentState(m_statesEditorView.baseState());
     }
 }

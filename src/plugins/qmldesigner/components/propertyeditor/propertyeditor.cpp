@@ -738,7 +738,7 @@ void PropertyEditor::resetView()
 
     NodeType *type = m_typeHash.value(qmlFile.toString());
 
-    QString currentStateName = QmlModelState::isValidQmlModelState(currentStateNode()) ? QmlModelState(currentStateNode()).name() : QLatin1String("invalid state");
+    QString currentStateName = currentState().isBaseState() ? currentState().name() : QLatin1String("invalid state");
 
     if (!type) {
         type = new NodeType(this);

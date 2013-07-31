@@ -49,7 +49,6 @@ public:
     void renameState(int nodeId,const QString &newName);
     bool validStateName(const QString &name) const;
     QString currentStateName() const;
-    QmlModelState currentState() const;
     void setCurrentState(const QmlModelState &state);
     QmlModelState baseState() const;
     QmlModelStateGroup rootStateGroup() const;

@@ -57,6 +57,7 @@ namespace QmlDesigner {
 
 class NodeInstanceView;
 class RewriterView;
+class QmlModelState;
 
 class WidgetInfo {
 
@@ -235,6 +236,7 @@ public:
 
     void setCurrentStateNode(const ModelNode &node);
     ModelNode currentStateNode() const;
+    QmlModelState currentState() const;
 
     int majorQtQuickVersion() const;
 

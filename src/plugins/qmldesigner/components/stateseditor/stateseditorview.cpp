@@ -245,11 +245,6 @@ void StatesEditorView::duplicateCurrentState()
     setCurrentState(newState);
 }
 
-QmlModelState StatesEditorView::currentState() const
-{
-    return QmlModelState(currentStateNode());
-}
-
 void StatesEditorView::setCurrentState(const QmlModelState &state)
 {
     if (!model() && !state.isValid())

@@ -155,7 +155,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
         newQmlItemNode.setId(view->generateNewId("image"));
 
-        if (!QmlModelState(view->currentStateNode()).isBaseState()) {
+        if (!view->currentState().isBaseState()) {
             newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
             newQmlItemNode.setVariantProperty("opacity", 1);
         }
@@ -221,7 +221,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
 
             newQmlItemNode.setId(view->generateNewId("image"));
 
-            if (!QmlModelState(view->currentStateNode()).isBaseState()) {
+            if (!view->currentState().isBaseState()) {
                 newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
                 newQmlItemNode.setVariantProperty("opacity", 1);
             }

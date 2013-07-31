@@ -33,6 +33,7 @@
 #include "model_p.h"
 #include "internalnode_p.h"
 #include "nodeinstanceview.h"
+#include <qmlstate.h>
 
 namespace QmlDesigner {
 
@@ -535,6 +536,11 @@ ModelNode AbstractView::currentStateNode() const
         return ModelNode(m_model.data()->d->currentStateNode(), m_model.data(), const_cast<AbstractView*>(this));
 
     return ModelNode();
+}
+
+QmlModelState AbstractView::currentState() const
+{
+    return QmlModelState(currentStateNode());
 }
 
 static int getMajorVersionFromImport(const Model *model)
