@@ -35,7 +35,6 @@
 
 #include <QMetaType>
 
-#include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -55,7 +54,6 @@ public:
     ProjectExplorer::RunMode runMode;
     QSsh::SshConnectionParameters connParams;
 
-    Core::Id toolId;
     QString debuggee;
     QString debuggeeArgs;
     QString analyzerCmdPrefix;

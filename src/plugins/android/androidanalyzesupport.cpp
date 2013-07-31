@@ -61,7 +61,6 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
     }
 
     AnalyzerStartParameters params;
-    params.toolId = tool->id();
     params.runMode = runMode;
     Target *target = runConfig->target();
     params.displayName = AndroidManager::packageName(target);

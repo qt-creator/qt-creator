@@ -112,7 +112,6 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
         sp.analyzerPort = server.serverPort();
     }
     sp.startMode = StartQml;
-    sp.toolId = "QmlProfiler";
     return sp;
 }
 

@@ -67,7 +67,6 @@ static void startRemoteTool(IAnalyzerTool *tool)
         return;
 
     AnalyzerStartParameters sp;
-    sp.toolId = tool->id();
     sp.startMode = StartRemote;
     sp.connParams = dlg.sshParams();
     sp.debuggee = dlg.executable();

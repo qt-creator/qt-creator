@@ -116,8 +116,6 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
     AnalyzerStartParameters sp = createValgrindStartParameters(runConfiguration);
-    sp.toolId = tool->id();
-
     return tool->createRunControl(sp, runConfiguration);
 }
 

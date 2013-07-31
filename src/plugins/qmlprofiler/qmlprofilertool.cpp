@@ -465,7 +465,6 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     }
 
     AnalyzerStartParameters sp;
-    sp.toolId = tool->id();
     sp.startMode = mode;
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);

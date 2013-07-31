@@ -34,6 +34,7 @@
 #include "analyzerbase_global.h"
 #include "analyzerstartparameters.h"
 
+#include <coreplugin/id.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QObject>
