@@ -70,7 +70,7 @@ public:
     QString simplfiedDisplayName() const;
 
     void loadDocument(QPlainTextEdit *edit);
-    void activateDocumentModel();
+    void attachRewriterToModel();
     void close();
     void updateSubcomponentManager();
 
@@ -127,8 +127,7 @@ private slots:
     void updateFileName(const QString &oldFileName, const QString &newFileName);
 
 private: // functions
-    void changeToInFileComponentModel();
-    void activateCurrentModel(TextModifier *textModifier);
+    void changeToInFileComponentModel(ComponentTextModifier *textModifer);
 
     QWidget *centralWidget() const;
     QString pathToQt() const;

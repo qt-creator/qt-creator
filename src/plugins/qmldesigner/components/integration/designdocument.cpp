@@ -156,10 +156,7 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 
     if (!componentNode.isRootNode()) {
         //change to subcomponent model
-
-        m_inFileComponentTextModifier.reset(createComponentTextModifier(m_documentTextModifier.data(), rewriterView(), componentText, componentNode));
-
-        changeToInFileComponentModel();
+        changeToInFileComponentModel(createComponentTextModifier(m_documentTextModifier.data(), rewriterView(), componentText, componentNode));
     }
 
     return true;
@@ -239,7 +236,6 @@ bool DesignDocument::isDocumentLoaded() const
 void DesignDocument::resetToDocumentModel()
 {
     m_inFileComponentModel.reset();
-    m_rewriterView->setTextModifier(m_documentTextModifier.data());
 }
 
 void DesignDocument::loadDocument(QPlainTextEdit *edit)
@@ -254,6 +250,7 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
             this, SIGNAL(dirtyStateChanged(bool)));
 
     m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())));
+    m_documentModel->setTextModifier(m_documentTextModifier.data());
 
     m_inFileComponentTextModifier.reset();
 
@@ -271,18 +268,20 @@ void DesignDocument::changeToDocumentModel()
 
     m_inFileComponentModel.reset();
 
-    viewManager().attachRewriterView(m_documentTextModifier.data());
+    viewManager().attachRewriterView();
     viewManager().attachViewsExceptRewriterAndComponetView();
 }
 
-void DesignDocument::changeToInFileComponentModel()
+void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)
 {
+    m_inFileComponentTextModifier.reset(textModifer);
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
     m_inFileComponentModel.reset(createInFileComponentModel());
+    m_inFileComponentModel->setTextModifier(m_inFileComponentTextModifier.data());
 
-    viewManager().attachRewriterView(m_inFileComponentTextModifier.data());
+    viewManager().attachRewriterView();
     viewManager().attachViewsExceptRewriterAndComponetView();
 }
 
@@ -304,7 +303,7 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
     bool subComponentLoaded = loadInFileComponent(componentNode);
 
     if (subComponentLoaded)
-        activateCurrentModel(m_inFileComponentTextModifier.data());
+        attachRewriterToModel();
 }
 
 void DesignDocument::changeToExternalSubComponent(const QString &fileName)
@@ -327,25 +326,19 @@ void DesignDocument::goIntoSelectedComponent()
     }
 }
 
-void DesignDocument::activateCurrentModel(TextModifier *textModifier)
+void DesignDocument::attachRewriterToModel()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Q_ASSERT(m_documentModel);
 
-    viewManager().attachRewriterView(textModifier);
+    viewManager().attachRewriterView();
 
     Q_ASSERT(m_documentModel);
     QApplication::restoreOverrideCursor();
 }
 
-void DesignDocument::activateDocumentModel()
-{
-    activateCurrentModel(m_documentTextModifier.data());
-}
-
 bool DesignDocument::isUndoAvailable() const
 {
-
     if (plainTextEdit())
         return plainTextEdit()->document()->isUndoAvailable();
     return false;

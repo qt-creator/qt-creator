@@ -56,7 +56,7 @@ public:
     ViewManager();
     ~ViewManager();
 
-    void attachRewriterView(TextModifier *textModifier);
+    void attachRewriterView();
     void detachRewriterView();
 
     void attachComponentView();

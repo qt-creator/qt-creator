@@ -47,12 +47,11 @@ void ViewManager::attachNodeInstanceView()
     currentModel()->setNodeInstanceView(&m_nodeInstanceView);
 }
 
-void ViewManager::attachRewriterView(TextModifier *textModifier)
+void ViewManager::attachRewriterView()
 {
     if (currentDesignDocument()->rewriterView()) {
-        currentDesignDocument()->rewriterView()->setTextModifier(textModifier);
-        currentDesignDocument()->rewriterView()->reactivateTextMofifierChangeSignals();
         currentModel()->setRewriterView(currentDesignDocument()->rewriterView());
+        currentDesignDocument()->rewriterView()->reactivateTextMofifierChangeSignals();
     }
 }
 
