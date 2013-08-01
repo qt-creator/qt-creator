@@ -359,13 +359,13 @@ void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString
         } else {
             UiCodeModelSupport *cms = new UiCodeModelSupport(mm, project, it.key(), it.value());
             newSupport.append(cms);
-            mm->addEditorSupport(cms);
+            mm->addExtraEditorSupport(cms);
         }
     }
 
     // Remove old:
     foreach (UiCodeModelSupport *support, oldSupport) {
-        mm->removeEditorSupport(support);
+        mm->removeExtraEditorSupport(support);
         delete support;
     }
 
@@ -400,7 +400,7 @@ void UiCodeModelManager::projectWasRemoved(ProjectExplorer::Project *project)
 
     QList<UiCodeModelSupport *> projectSupport = m_projectUiSupport.value(project);
     foreach (UiCodeModelSupport *const i, projectSupport) {
-        mm->removeEditorSupport(i);
+        mm->removeExtraEditorSupport(i);
         delete i;
     }
 
