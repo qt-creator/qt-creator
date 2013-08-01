@@ -43,10 +43,11 @@ class AbstractQmlProfilerRunner : public QObject
 public:
     explicit AbstractQmlProfilerRunner(QObject *parent = 0) : QObject(parent) { }
 
+    virtual quint16 debugPort() const = 0;
+
+public slots:
     virtual void start() = 0;
     virtual void stop() = 0;
-
-    virtual quint16 debugPort() const = 0;
 
 signals:
     void started();

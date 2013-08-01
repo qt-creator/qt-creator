@@ -64,63 +64,19 @@ namespace Internal {
 class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
-    QmlProfilerEnginePrivate(QmlProfilerEngine *qq, const AnalyzerStartParameters &sp) : q(qq), m_runner(0), sp(sp) {}
-    ~QmlProfilerEnginePrivate() { delete m_runner; }
+    QmlProfilerEnginePrivate(QmlProfilerEngine *qq, const AnalyzerStartParameters &sp) : q(qq), sp(sp), m_running(false) {}
 
     bool attach(const QString &address, uint port);
-    AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                            QObject *parent);
 
     QmlProfilerEngine *q;
 
     QmlProfilerStateManager *m_profilerState;
 
-    AbstractQmlProfilerRunner *m_runner;
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
     const AnalyzerStartParameters sp;
+    bool m_running;
 };
-
-AbstractQmlProfilerRunner *
-QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                          QObject *parent)
-{
-    AbstractQmlProfilerRunner *runner = 0;
-    if (!runConfiguration) // attaching
-        return 0;
-
-    QmlProjectManager::QmlProjectRunConfiguration *rc1 =
-                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
-    LocalApplicationRunConfiguration *rc2 =
-                   qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    // Supports only local run configurations
-    if (!rc1 && !rc2)
-        return 0;
-
-    ProjectExplorer::EnvironmentAspect *environment
-            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-    QTC_ASSERT(environment, return 0);
-    LocalQmlProfilerRunner::Configuration conf;
-    if (rc1) {
-        // This is a "plain" .qmlproject.
-        conf.executable = rc1->observerPath();
-        conf.executableArguments = rc1->viewerArguments();
-        conf.workingDirectory = rc1->workingDirectory();
-        conf.environment = environment->environment();
-    } else {
-        // FIXME: Check.
-        conf.executable = rc2->executable();
-        conf.executableArguments = rc2->commandLineArguments();
-        conf.workingDirectory = rc2->workingDirectory();
-        conf.environment = environment->environment();
-    }
-    const ProjectExplorer::IDevice::ConstPtr device =
-            ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
-    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-    conf.port = sp.analyzerPort;
-    runner = new LocalQmlProfilerRunner(conf, parent);
-    return runner;
-}
 
 //
 // QmlProfilerEngine
@@ -160,11 +116,6 @@ bool QmlProfilerEngine::start()
 {
     QTC_ASSERT(d->m_profilerState, return false);
 
-    if (d->m_runner) {
-        delete d->m_runner;
-        d->m_runner = 0;
-    }
-
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStarting);
 
     if (QmlProjectManager::QmlProjectRunConfiguration *rc =
@@ -177,31 +128,14 @@ bool QmlProfilerEngine::start()
         }
     }
 
-    d->m_runner = d->createRunner(runConfiguration(), this);
-
-    if (LocalQmlProfilerRunner *qmlRunner = qobject_cast<LocalQmlProfilerRunner *>(d->m_runner)) {
-        if (!qmlRunner->hasExecutable()) {
-            showNonmodalWarning(tr("No executable file to launch."));
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
-            AnalyzerManager::stopTool();
-            return false;
-        }
-    }
-
-    if (d->m_runner) {
-        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(processEnded()));
-        connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-                this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
-        d->m_runner->start();
-        d->m_noDebugOutputTimer.start();
-    } else if (d->sp.startMode == StartQmlRemote) {
+    if (d->sp.startMode == StartQmlRemote || d->sp.startMode == StartLocal) {
         d->m_noDebugOutputTimer.start();
     } else {
         emit processRunning(startParameters().analyzerPort);
     }
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
-    emit starting(this);
+    engineStarted();
     return true;
 }
 
@@ -230,16 +164,19 @@ void QmlProfilerEngine::stop()
     }
 }
 
-void QmlProfilerEngine::processEnded()
+void QmlProfilerEngine::notifyRemoteFinished(bool success)
 {
     QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning : {
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+        if (success)
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+        else
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
         AnalyzerManager::stopTool();
 
-        emit finished();
+        engineFinished();
         break;
     }
     case QmlProfilerStateManager::AppStopped :
@@ -259,10 +196,6 @@ void QmlProfilerEngine::cancelProcess()
 {
     QTC_ASSERT(d->m_profilerState, return);
 
-     // no process to be canceled? (there might be multiple engines, but only one runs a process)
-    if (!d->m_runner)
-        return;
-
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
@@ -279,10 +212,7 @@ void QmlProfilerEngine::cancelProcess()
         return;
     }
     }
-
-    if (d->m_runner)
-        d->m_runner->stop();
-    emit finished();
+    engineFinished();
 }
 
 void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
@@ -345,10 +275,20 @@ void QmlProfilerEngine::processIsRunning(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    if (port > 0)
+    if (port > 0 && mode() != StartQmlRemote)
         emit processRunning(port);
-    else if (d->m_runner)
-        emit processRunning(d->m_runner->debugPort());
+}
+
+void QmlProfilerEngine::engineStarted()
+{
+    d->m_running = true;
+    emit starting(this);
+}
+
+void QmlProfilerEngine::engineFinished()
+{
+    d->m_running = false;
+    emit finished();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -370,17 +310,12 @@ void QmlProfilerEngine::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
-        cancelProcess();
+        if (d->m_running)
+            cancelProcess();
         break;
     }
     case QmlProfilerStateManager::Idle : {
-        // When all the profiling is done, delete the profiler runner
-        // (a new one will be created at start)
         d->m_noDebugOutputTimer.stop();
-        if (d->m_runner) {
-            delete d->m_runner;
-            d->m_runner = 0;
-        }
         break;
     }
     default:
