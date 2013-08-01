@@ -853,7 +853,9 @@ bool replaceFieldHelper(ValueStringTransformation transform,
         if (nextPos == -1)
             break;
         if (nextPos == pos + 1) {
-            pos = nextPos; // Skip '%%'
+            pos = nextPos; // Replace '%%' with '%'
+            s->remove(pos, 1);
+            pos = pos + 1;
             continue;
         }
         // Evaluate field specification for modifiers
