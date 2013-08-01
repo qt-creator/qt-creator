@@ -180,30 +180,27 @@ void BlackBerryConfigurationManager::saveManualConfigurations()
     settings->endGroup();
 }
 
-// Remove no longer available 'auo detected' kits
+// Remove no longer available/valid 'auto detected' BlackBerry kits and qt versions
 void BlackBerryConfigurationManager::clearInvalidConfigurations()
 {
-    QList<NdkInstallInformation> autoNdks = QnxUtils::installedNdks();
-    foreach (Kit *kit, KitManager::kits()) {
+    // Deregister invalid auto deteted BlackBerry Kits
+    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::instance()->kits()) {
         if (!kit->isAutoDetected())
             continue;
 
-        if (kit->displayName().contains(QLatin1String("BlackBerry"))) {
-            // Check if related target is still installed
-            bool isValid = false;
-            foreach (const NdkInstallInformation &ndkInfo, autoNdks) {
-                if (ndkInfo.target == SysRootKitInformation::sysRoot(kit).toString()) {
-                    isValid = true;
-                    break;
-                }
-            }
+        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_BB_OS_TYPE
+                && !kit->isValid())
+       ProjectExplorer::KitManager::instance()->deregisterKit(kit);
+    }
 
-            if (!isValid) {
-                QtSupport::QtVersionManager::removeVersion(QtSupport::QtKitInformation::qtVersion(kit));
-                ToolChainManager::deregisterToolChain(ToolChainKitInformation::toolChain(kit));
-                KitManager::deregisterKit(kit);
-            }
-        }
+    // Remove invalid auto detected BlackBerry qtVerions
+    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
+        if (!qtVersion->isAutodetected())
+            continue;
+
+        if (qtVersion->platformName() == QLatin1String(Constants::QNX_BB_PLATFORM_NAME)
+                && !qtVersion->isValid())
+           QtSupport::QtVersionManager::removeVersion(qtVersion);
     }
 }
 
