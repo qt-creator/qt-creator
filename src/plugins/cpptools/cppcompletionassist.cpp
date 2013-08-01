@@ -474,8 +474,10 @@ private:
 
 void CppAssistProposal::makeCorrection(BaseTextEditor *editor)
 {
+    const int oldPosition = editor->position();
     editor->setCursorPosition(basePosition() - 1);
     editor->replace(1, QLatin1String("->"));
+    editor->setCursorPosition(oldPosition + 1);
     moveBasePosition(1);
 }
 
