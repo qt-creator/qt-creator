@@ -67,7 +67,6 @@ void AnalyzerRunControl::runControlFinished()
 {
     m_isRunning = false;
     AnalyzerManager::handleToolFinished();
-    emit finished();
 }
 
 void AnalyzerRunControl::start()
