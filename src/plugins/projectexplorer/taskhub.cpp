@@ -54,19 +54,19 @@ private:
 
 void TaskMark::updateLineNumber(int lineNumber)
 {
-    ProjectExplorerPlugin::instance()->taskHub()->updateTaskLineNumber(m_id, lineNumber);
+    ProjectExplorerPlugin::taskHub()->updateTaskLineNumber(m_id, lineNumber);
     BaseTextMark::updateLineNumber(lineNumber);
 }
 
 void TaskMark::updateFileName(const QString &fileName)
 {
-    ProjectExplorerPlugin::instance()->taskHub()->updateTaskFileName(m_id, fileName);
+    ProjectExplorerPlugin::taskHub()->updateTaskFileName(m_id, fileName);
     BaseTextMark::updateFileName(fileName);
 }
 
 void TaskMark::removedFromEditor()
 {
-    ProjectExplorerPlugin::instance()->taskHub()->updateTaskLineNumber(m_id, -1);
+    ProjectExplorerPlugin::taskHub()->updateTaskLineNumber(m_id, -1);
 }
 
 bool TaskMark::isClickable() const
@@ -76,7 +76,7 @@ bool TaskMark::isClickable() const
 
 void TaskMark::clicked()
 {
-    ProjectExplorerPlugin::instance()->taskHub()->taskMarkClicked(m_id);
+    ProjectExplorerPlugin::taskHub()->taskMarkClicked(m_id);
 }
 
 TaskHub::TaskHub()
@@ -92,7 +92,7 @@ TaskHub::~TaskHub()
 
 }
 
-void TaskHub::addCategory(const Core::Id &categoryId, const QString &displayName, bool visible)
+void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
 {
     emit categoryAdded(categoryId, displayName, visible);
 }
@@ -112,7 +112,7 @@ void TaskHub::addTask(Task task)
     }
 }
 
-void TaskHub::clearTasks(const Core::Id &categoryId)
+void TaskHub::clearTasks(Core::Id categoryId)
 {
     emit tasksCleared(categoryId);
 }

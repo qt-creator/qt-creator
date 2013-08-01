@@ -49,7 +49,7 @@ namespace Internal {
 
 QbsLogSink::QbsLogSink(QObject *parent) : QObject(parent)
 {
-    ProjectExplorer::TaskHub *hub = ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
+    ProjectExplorer::TaskHub *hub = ProjectExplorer::ProjectExplorerPlugin::taskHub();
     connect(this, SIGNAL(newTask(ProjectExplorer::Task)),
             hub, SLOT(addTask(ProjectExplorer::Task)), Qt::QueuedConnection);
 }

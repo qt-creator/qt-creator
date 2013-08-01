@@ -39,15 +39,10 @@ class QActionGroup;
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-    class TaskHub;
-}
-
 namespace Qnx {
 namespace Internal {
 
 class BarDescriptorDocument;
-
 class BarDescriptorEditorWidget;
 
 class BarDescriptorEditor : public Core::IEditor
@@ -74,8 +69,6 @@ private slots:
     void changeEditorPage(QAction *action);
 
 private:
-    ProjectExplorer::TaskHub *taskHub();
-
     void setActivePage(EditorPage page);
 
     BarDescriptorDocument *m_file;

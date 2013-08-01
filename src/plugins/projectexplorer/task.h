@@ -53,8 +53,8 @@ public:
     };
 
     Task();
-    Task(TaskType type_, const QString &description_,
-         const Utils::FileName &file_, int line_, const Core::Id &category_);
+    Task(TaskType type, const QString &description,
+         const Utils::FileName &file, int line, Core::Id category);
 
     bool isNull() const;
     void clear();

@@ -39,7 +39,7 @@ using namespace ProjectExplorer::Internal;
 
 void RemoveTaskHandler::handle(const ProjectExplorer::Task &task)
 {
-    ProjectExplorerPlugin::instance()->taskHub()->removeTask(task);
+    ProjectExplorerPlugin::taskHub()->removeTask(task);
 }
 
 QAction *RemoveTaskHandler::createAction(QObject *parent) const

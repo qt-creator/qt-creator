@@ -1656,9 +1656,9 @@ BuildManager *ProjectExplorerPlugin::buildManager() const
     return d->m_buildManager;
 }
 
-TaskHub *ProjectExplorerPlugin::taskHub() const
+TaskHub *ProjectExplorerPlugin::taskHub()
 {
-    return d->m_taskHub;
+    return m_instance->d->m_taskHub;
 }
 
 void ProjectExplorerPlugin::buildStateChanged(Project * pro)

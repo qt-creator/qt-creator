@@ -458,7 +458,7 @@ static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, 
 DebuggerRunControl *DebuggerRunControlFactory::doCreate
     (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
 {
-    TaskHub *th = ProjectExplorerPlugin::instance()->taskHub();
+    TaskHub *th = ProjectExplorerPlugin::taskHub();
     th->clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     th->clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST);
     th->clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);

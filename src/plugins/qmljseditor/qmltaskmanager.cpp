@@ -54,7 +54,7 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
     m_taskHub(0),
     m_updatingSemantic(false)
 {
-    m_taskHub = ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
+    m_taskHub = ProjectExplorer::ProjectExplorerPlugin::taskHub();
 
     // displaying results incrementally leads to flickering
 //    connect(&m_messageCollector, SIGNAL(resultsReadyAt(int,int)),

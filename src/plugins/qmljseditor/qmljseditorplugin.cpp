@@ -248,7 +248,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
 void QmlJSEditorPlugin::extensionsInitialized()
 {
-    TaskHub *taskHub = ProjectExplorerPlugin::instance()->taskHub();
+    TaskHub *taskHub = ProjectExplorerPlugin::taskHub();
     taskHub->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
     taskHub->addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, tr("QML Analysis"), false);
 }
@@ -348,7 +348,7 @@ void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
 void QmlJSEditorPlugin::runSemanticScan()
 {
     m_qmlTaskManager->updateSemanticMessagesNow();
-    TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
+    TaskHub *hub = ProjectExplorerPlugin::taskHub();
     hub->setCategoryVisibility(Constants::TASK_CATEGORY_QML_ANALYSIS, true);
     hub->requestPopup();
 }

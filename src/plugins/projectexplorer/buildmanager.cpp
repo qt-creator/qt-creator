@@ -126,7 +126,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAc
     d->m_outputWindow = new Internal::CompileOutputWindow(this, cancelBuildAction);
     ExtensionSystem::PluginManager::addObject(d->m_outputWindow);
 
-    d->m_taskHub = ProjectExplorerPlugin::instance()->taskHub();
+    d->m_taskHub = ProjectExplorerPlugin::taskHub();
     d->m_taskWindow = new Internal::TaskWindow(d->m_taskHub);
     ExtensionSystem::PluginManager::addObject(d->m_taskWindow);
 

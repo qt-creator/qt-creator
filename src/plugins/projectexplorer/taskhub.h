@@ -46,9 +46,9 @@ public:
     virtual ~TaskHub();
 
 public slots:
-    void addCategory(const Core::Id &categoryId, const QString &displayName, bool visible = true);
+    void addCategory(Core::Id categoryId, const QString &displayName, bool visible = true);
     void addTask(ProjectExplorer::Task task);
-    void clearTasks(const Core::Id &categoryId = Core::Id());
+    void clearTasks(Core::Id categoryId = Core::Id());
     void removeTask(const ProjectExplorer::Task &task);
 
 public:
@@ -63,10 +63,10 @@ public:
     QIcon taskTypeIcon(ProjectExplorer::Task::TaskType t) const;
 
 signals:
-    void categoryAdded(const Core::Id &categoryId, const QString &displayName, bool visible);
+    void categoryAdded(Core::Id categoryId, const QString &displayName, bool visible);
     void taskAdded(const ProjectExplorer::Task &task);
     void taskRemoved(const ProjectExplorer::Task &task);
-    void tasksCleared(const Core::Id &categoryId);
+    void tasksCleared(Core::Id categoryId);
     void taskFileNameUpdated(unsigned int id, const QString &fileName);
     void taskLineNumberUpdated(unsigned int id, int line);
     void categoryVisibilityChanged(const Core::Id &categoryId, bool visible);

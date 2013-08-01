@@ -85,7 +85,7 @@ static const char CONFIGURATION_PATH[] = "<configuration>";
 
 ProjectExplorer::TaskHub *taskHub()
 {
-    return ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
+    return ProjectExplorer::ProjectExplorerPlugin::taskHub();
 }
 
 
@@ -393,8 +393,7 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
     QTC_ASSERT(!dir.isNull(), return);
 
     // Clear buildsystem related tasks:
-    ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub()
-            ->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
