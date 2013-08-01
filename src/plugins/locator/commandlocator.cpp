@@ -71,6 +71,7 @@ QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator:
     // Get active, enabled actions matching text, store in list.
     // Reference via index in extraInfo.
     const QChar ampersand = QLatin1Char('&');
+    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
     const int count = d->commands.size();
     for (int i = 0; i  < count; i++) {
         if (future.isCanceled())
@@ -80,9 +81,9 @@ QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator:
                 if (action->isEnabled()) {
                 QString text = action->text();
                 text.remove(ampersand);
-                if (text.startsWith(entry, Qt::CaseInsensitive))
+                if (text.startsWith(entry, caseSensitivity_))
                     betterEntries.append(FilterEntry(this, text, QVariant(i)));
-                else if (text.contains(entry, Qt::CaseInsensitive))
+                else if (text.contains(entry, caseSensitivity_))
                     goodEntries.append(FilterEntry(this, text, QVariant(i)));
             }
         }

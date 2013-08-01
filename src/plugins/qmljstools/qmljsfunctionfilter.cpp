@@ -72,6 +72,7 @@ QList<Locator::FilterEntry> FunctionFilter::matchesFor(QFutureInterface<Locator:
     if (!regexp.isValid())
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
     QHashIterator<QString, QList<LocatorData::Entry> > it(m_data->entries());
     while (it.hasNext()) {
@@ -91,7 +92,7 @@ QList<Locator::FilterEntry> FunctionFilter::matchesFor(QFutureInterface<Locator:
                 Locator::FilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
                 filterEntry.extraInfo = info.extraInfo;
 
-                if (info.symbolName.startsWith(entry))
+                if (info.symbolName.startsWith(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
                 else
                     goodEntries.append(filterEntry);

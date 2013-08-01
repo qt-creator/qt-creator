@@ -64,12 +64,13 @@ QList<FilterEntry> ExecuteFilter::matchesFor(QFutureInterface<Locator::FilterEnt
     if (!entry.isEmpty()) // avoid empty entry
         value.append(FilterEntry(this, entry, QVariant()));
     QList<FilterEntry> others;
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
     foreach (const QString& i, m_commandHistory) {
         if (future.isCanceled())
             break;
         if (i == entry) // avoid repeated entry
             continue;
-        if (i.startsWith(entry))
+        if (i.startsWith(entry, caseSensitivityForPrefix))
             value.append(FilterEntry(this, i, QVariant()));
         else
             others.append(FilterEntry(this, i, QVariant()));

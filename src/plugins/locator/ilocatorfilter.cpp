@@ -132,6 +132,11 @@ QString ILocatorFilter::trimWildcards(const QString &str)
     return str.mid(first, last-first+1);
 }
 
+Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
+{
+    return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
+}
+
 bool ILocatorFilter::isConfigurable() const
 {
     return m_isConfigurable;

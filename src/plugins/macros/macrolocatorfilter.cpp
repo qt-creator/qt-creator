@@ -55,7 +55,10 @@ MacroLocatorFilter::~MacroLocatorFilter()
 QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     Q_UNUSED(future)
-    QList<Locator::FilterEntry> result;
+    QList<Locator::FilterEntry> goodEntries;
+    QList<Locator::FilterEntry> betterEntries;
+
+    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
 
     const QMap<QString, Macro*> &macros = MacroManager::macros();
     QMapIterator<QString, Macro*> it(macros);
@@ -64,14 +67,21 @@ QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Loca
         it.next();
         QString name = it.key();
 
-        if (name.contains(entry)) {
+        QList<Locator::FilterEntry> *category = 0;
+        if (name.startsWith(entry, caseSensitivity_))
+            category = &betterEntries;
+        else if (name.contains(entry, caseSensitivity_))
+            category = &goodEntries;
+
+        if (category) {
             QVariant id;
             Locator::FilterEntry entry(this, it.key(), id, m_icon);
             entry.extraInfo = it.value()->description();
-            result.append(entry);
+            category->append(entry);
         }
     }
-    return result;
+    betterEntries.append(goodEntries);
+    return betterEntries;
 }
 
 void MacroLocatorFilter::accept(Locator::FilterEntry selection) const

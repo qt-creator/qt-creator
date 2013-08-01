@@ -70,6 +70,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
     m_previousResultNames.clear();
     m_forceNewSearchList = false;
     m_previousEntry = needle;
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(needle);
     QStringListIterator paths(searchListPaths);
     QStringListIterator names(searchListNames);
     while (paths.hasNext() && names.hasNext()) {
@@ -84,7 +85,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
             FilterEntry entry(this, fi.fileName(), QString(path + lineNoSuffix));
             entry.extraInfo = FileUtils::shortNativePath(FileName(fi));
             entry.fileName = path;
-            if (name.startsWith(needle))
+            if (name.startsWith(needle, caseSensitivityForPrefix))
                 matches.append(entry);
             else
                 badMatches.append(entry);

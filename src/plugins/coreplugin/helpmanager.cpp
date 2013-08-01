@@ -222,7 +222,8 @@ QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id) const
 }
 
 // This should go into Qt 4.8 once we start using it for Qt Creator
-QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
+QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity caseSensitivity,
+                                      int maxHits) const
 {
     if (d->m_needsSetup)
         return QStringList();
@@ -251,7 +252,7 @@ QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
                 while (query.next()) {
                     const QString &keyValue = query.value(0).toString();
                     if (!keyValue.isEmpty()) {
-                        if (keyValue.startsWith(key, Qt::CaseInsensitive))
+                        if (keyValue.startsWith(key, caseSensitivity))
                             keywordsToSort.insert(keyValue);
                         else
                             keywords.insert(keyValue);

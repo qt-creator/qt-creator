@@ -38,6 +38,21 @@ using namespace Core;
 using namespace Locator;
 using namespace Locator::Internal;
 
+namespace {
+
+QList<FilterEntry> *categorize(const QString &entry, const QString &candidate,
+                               Qt::CaseSensitivity caseSensitivity,
+                               QList<FilterEntry> *betterEntries, QList<FilterEntry> *goodEntries)
+{
+    if (entry.isEmpty() || candidate.startsWith(entry, caseSensitivity))
+        return betterEntries;
+    else if (candidate.contains(entry, caseSensitivity))
+        return goodEntries;
+    return 0;
+}
+
+} // anynoumous namespace
+
 FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *locatorWidget)
         : m_editorManager(editorManager), m_locatorWidget(locatorWidget), m_includeHidden(true)
 {
@@ -49,7 +64,8 @@ FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *
 
 QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
-    QList<FilterEntry> value;
+    QList<FilterEntry> goodEntries;
+    QList<FilterEntry> betterEntries;
     QFileInfo entryInfo(entry);
     QString name = entryInfo.fileName();
     QString directory = entryInfo.path();
@@ -72,6 +88,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
         dirFilter |= QDir::Hidden;
         fileFilter |= QDir::Hidden;
     }
+    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
     QStringList dirs = dirInfo.entryList(dirFilter,
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     QStringList files = dirInfo.entryList(fileFilter,
@@ -79,11 +96,12 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
     foreach (const QString &dir, dirs) {
         if (future.isCanceled())
             break;
-        if (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive)) {
+        if (QList<FilterEntry> *category = categorize(name, dir, caseSensitivity_, &betterEntries,
+                                                      &goodEntries)) {
             const QString fullPath = dirInfo.filePath(dir);
             FilterEntry filterEntry(this, dir, QVariant());
             filterEntry.fileName = fullPath;
-            value.append(filterEntry);
+            category->append(filterEntry);
         }
     }
     // file names can match with +linenumber or :linenumber
@@ -93,14 +111,16 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
     foreach (const QString &file, files) {
         if (future.isCanceled())
             break;
-        if (name.isEmpty() || file.startsWith(name, Qt::CaseInsensitive)) {
+        if (QList<FilterEntry> *category = categorize(name, file, caseSensitivity_, &betterEntries,
+                                                      &goodEntries)) {
             const QString fullPath = dirInfo.filePath(file);
             FilterEntry filterEntry(this, file, QString(fullPath + lineNoSuffix));
             filterEntry.fileName = fullPath;
-            value.append(filterEntry);
+            category->append(filterEntry);
         }
     }
-    return value;
+    betterEntries.append(goodEntries);
+    return betterEntries;
 }
 
 void FileSystemFilter::accept(FilterEntry selection) const

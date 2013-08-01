@@ -138,6 +138,7 @@ public:
     bool isEnabled() const;
 
     static QString trimWildcards(const QString &str);
+    static Qt::CaseSensitivity caseSensitivity(const QString &str);
 
 public slots:
     /* Enable or disable the filter. */

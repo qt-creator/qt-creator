@@ -135,6 +135,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
     if (!regexp.isValid())
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
     QHashIterator<QString, QList<ModelItemInfo> > it(m_searchList);
     while (it.hasNext()) {
@@ -157,7 +158,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
                         FileName::fromString(info.fileName));
                 }
 
-                if (info.symbolName.startsWith(entry))
+                if (info.symbolName.startsWith(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
                 else
                     goodEntries.append(filterEntry);

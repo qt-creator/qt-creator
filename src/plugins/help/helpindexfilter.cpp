@@ -62,9 +62,9 @@ QList<FilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<Locator::FilterE
 {
     QStringList keywords;
     if (entry.length() < 2)
-        keywords = Core::HelpManager::instance()->findKeywords(entry, 200);
+        keywords = Core::HelpManager::instance()->findKeywords(entry, caseSensitivity(entry), 200);
     else
-        keywords = Core::HelpManager::instance()->findKeywords(entry);
+        keywords = Core::HelpManager::instance()->findKeywords(entry, caseSensitivity(entry));
 
     QList<FilterEntry> entries;
     foreach (const QString &keyword, keywords) {

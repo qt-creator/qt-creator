@@ -81,6 +81,8 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
             m_itemsOfCurrentDoc = search(thisDocument);
     }
 
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
+
     foreach (const ModelItemInfo & info, m_itemsOfCurrentDoc)
     {
         if (future.isCanceled())
@@ -94,7 +96,7 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
             Locator::FilterEntry filterEntry(this, symbolName, id, info.icon);
             filterEntry.extraInfo = info.symbolType;
 
-            if (info.symbolName.startsWith(entry))
+            if (info.symbolName.startsWith(entry, caseSensitivityForPrefix))
                 betterEntries.append(filterEntry);
             else
                 goodEntries.append(filterEntry);

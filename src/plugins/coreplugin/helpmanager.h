@@ -63,7 +63,9 @@ public:
 
     QMap<QString, QUrl> linksForKeyword(const QString &key) const;
     QMap<QString, QUrl> linksForIdentifier(const QString &id) const;
-    QStringList findKeywords(const QString &key, int maxHits = INT_MAX) const;
+    QStringList findKeywords(const QString &key,
+                             Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive,
+                             int maxHits = INT_MAX) const;
 
     QUrl findFile(const QUrl &url) const;
     QByteArray fileData(const QUrl &url) const;
