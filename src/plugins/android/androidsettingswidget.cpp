@@ -176,8 +176,11 @@ void AndroidSettingsWidget::saveSettings(bool saveNow)
 
 bool AndroidSettingsWidget::checkSDK(const Utils::FileName &location)
 {
-    if (location.isEmpty())
+    if (location.isEmpty()) {
+        m_ui->sdkWarningIconLabel->setVisible(false);
+        m_ui->sdkWarningLabel->setVisible(false);
         return false;
+    }
     Utils::FileName adb = location;
     Utils::FileName androidExe = location;
     Utils::FileName androidBat = location;
