@@ -84,8 +84,8 @@ LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfig
             this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processStarted()),
             this, SLOT(processStarted()));
-    connect(&m_applicationLauncher, SIGNAL(processExited(int)),
-            this, SLOT(processExited(int)));
+    connect(&m_applicationLauncher, SIGNAL(processExited(int,QProcess::ExitStatus)),
+            this, SLOT(processExited(int,QProcess::ExitStatus)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
             this, SLOT(bringApplicationToForeground(qint64)));
 }
@@ -141,12 +141,18 @@ void LocalApplicationRunControl::processStarted()
     setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
 }
 
-void LocalApplicationRunControl::processExited(int exitCode)
+void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatus status)
 {
     m_running = false;
     setApplicationProcessHandle(ProcessHandle());
-    QString msg = tr("%1 exited with code %2\n")
-        .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
+    QString msg;
+    if (status == QProcess::CrashExit) {
+        msg = tr("%1 crashed\n")
+                .arg(QDir::toNativeSeparators(m_executable));
+    } else {
+        msg = tr("%1 exited with code %2\n")
+                .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
+    }
     appendMessage(msg, Utils::NormalMessageFormat);
     emit finished();
 }

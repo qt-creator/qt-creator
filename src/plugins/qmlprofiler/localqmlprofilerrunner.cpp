@@ -111,19 +111,25 @@ void LocalQmlProfilerRunner::start()
 
     m_launcher.setWorkingDirectory(m_configuration.workingDirectory);
     m_launcher.setEnvironment(m_configuration.environment);
-    connect(&m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
+    connect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
+            this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
     m_launcher.start(ProjectExplorer::ApplicationLauncher::Gui, m_configuration.executable,
                      arguments);
 
     emit started();
 }
 
-void LocalQmlProfilerRunner::spontaneousStop(int exitCode)
+void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus status)
 {
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
+    if (QmlProfilerPlugin::debugOutput) {
+        if (status == QProcess::CrashExit)
+            qWarning("QmlProfiler: Application crashed.");
+        else
+            qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
+    }
 
-    disconnect(&m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
+    disconnect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
+               this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
 
     emit stopped();
 }

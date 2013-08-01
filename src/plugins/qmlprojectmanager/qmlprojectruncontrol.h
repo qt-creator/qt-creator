@@ -56,7 +56,7 @@ public:
     QString mainQmlFile() const;
 
 private slots:
-    void processExited(int exitCode);
+    void processExited(int exitCode, QProcess::ExitStatus status);
     void slotBringApplicationToForeground(qint64 pid);
     void slotAppendMessage(const QString &line, Utils::OutputFormat);
 

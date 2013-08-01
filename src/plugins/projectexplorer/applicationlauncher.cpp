@@ -214,12 +214,14 @@ qint64 ApplicationLauncher::applicationPID() const
 void ApplicationLauncher::guiProcessError()
 {
     QString error;
+    QProcess::ExitStatus status = QProcess::NormalExit;
     switch (d->m_guiProcess.error()) {
     case QProcess::FailedToStart:
         error = tr("Failed to start program. Path or permissions wrong?");
         break;
     case QProcess::Crashed:
         error = tr("The program has unexpectedly finished.");
+        status = QProcess::CrashExit;
         break;
     default:
         error = tr("Some error has occurred while running the program.");
@@ -227,7 +229,7 @@ void ApplicationLauncher::guiProcessError()
     emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
     if (d->m_processRunning && !isRunning()) {
         d->m_processRunning = false;
-        emit processExited(-1);
+        emit processExited(-1, status);
     }
 }
 
@@ -236,7 +238,7 @@ void ApplicationLauncher::consoleProcessError(const QString &error)
     emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
     if (d->m_processRunning && d->m_consoleProcess.applicationPID() == 0) {
         d->m_processRunning = false;
-        emit processExited(-1);
+        emit processExited(-1, QProcess::NormalExit);
     }
 }
 
@@ -270,9 +272,9 @@ void ApplicationLauncher::checkDebugOutput(qint64 pid, const QString &message)
 }
 #endif
 
-void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus)
+void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus status)
 {
-    emit processExited(exitCode);
+    emit processExited(exitCode, status);
 }
 
 void ApplicationLauncher::bringToForeground()

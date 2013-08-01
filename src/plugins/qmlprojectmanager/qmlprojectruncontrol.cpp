@@ -71,8 +71,8 @@ QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfig
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));
-    connect(&m_applicationLauncher, SIGNAL(processExited(int)),
-            this, SLOT(processExited(int)));
+    connect(&m_applicationLauncher, SIGNAL(processExited(int,QProcess::ExitStatus)),
+            this, SLOT(processExited(int,QProcess::ExitStatus)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
             this, SLOT(slotBringApplicationToForeground(qint64)));
 }
@@ -119,10 +119,15 @@ void QmlProjectRunControl::slotAppendMessage(const QString &line, Utils::OutputF
     appendMessage(line, format);
 }
 
-void QmlProjectRunControl::processExited(int exitCode)
+void QmlProjectRunControl::processExited(int exitCode,QProcess::ExitStatus status)
 {
-    QString msg = tr("%1 exited with code %2\n")
-        .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
+    QString msg;
+    if (status == QProcess::CrashExit)
+        msg = tr("%1 crashed\n") .arg(QDir::toNativeSeparators(m_executable));
+    else
+        msg = tr("%1 exited with code %2\n")
+                .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
+
     appendMessage(msg, exitCode ? Utils::ErrorMessageFormat : Utils::NormalMessageFormat);
     emit finished();
 }

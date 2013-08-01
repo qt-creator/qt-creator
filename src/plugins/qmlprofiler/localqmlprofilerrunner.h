@@ -68,7 +68,7 @@ public:
     virtual quint16 debugPort() const;
 
 private slots:
-    void spontaneousStop(int exitCode);
+    void spontaneousStop(int exitCode, QProcess::ExitStatus status);
 
 private:
     LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);

@@ -292,7 +292,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters, DebuggerEng
 
 
     connect(&m_applicationLauncher,
-        SIGNAL(processExited(int)),
+        SIGNAL(processExited(int, QProcess::ExitStatus)),
         SLOT(disconnected()));
     connect(&m_applicationLauncher,
         SIGNAL(appendMessage(QString,Utils::OutputFormat)),
@@ -597,7 +597,7 @@ void QmlEngine::startApplicationLauncher()
 void QmlEngine::stopApplicationLauncher()
 {
     if (m_applicationLauncher.isRunning()) {
-        disconnect(&m_applicationLauncher, SIGNAL(processExited(int)),
+        disconnect(&m_applicationLauncher, SIGNAL(processExited(int,QProcess::ExitStatus)),
                    this, SLOT(disconnected()));
         m_applicationLauncher.stop();
     }
