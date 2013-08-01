@@ -33,6 +33,7 @@
 #include "androiddevice.h"
 #include "androidgdbserverkitinformation.h"
 #include "ui_addnewavddialog.h"
+#include "androidqtversion.h"
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
@@ -776,10 +777,9 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     foreach (Kit *kit, newKits) {
         AndroidToolChain *tc = static_cast<AndroidToolChain *>(ToolChainKitInformation::toolChain(kit));
-        QString arch = ProjectExplorer::Abi::toString(tc->targetAbi().architecture());
-        QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit);
+        AndroidQtVersion *qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit));
         kit->setDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
-                            .arg(arch)
+                            .arg(qt->targetArch())
                             .arg(tc->ndkToolChainVersion())
                             .arg(qt->qtVersionString()));
         KitManager::instance()->registerKit(kit);

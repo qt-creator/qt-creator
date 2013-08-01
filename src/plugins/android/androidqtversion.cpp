@@ -46,6 +46,8 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <proparser/profileevaluator.h>
+
 using namespace Android::Internal;
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
@@ -128,6 +130,17 @@ QString AndroidQtVersion::description() const
 {
     //: Qt Version is meant for Android
     return tr("Android");
+}
+
+QString AndroidQtVersion::targetArch() const
+{
+    ensureMkSpecParsed();
+    return m_targetArch;
+}
+
+void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
+{
+    m_targetArch = evaluator->value(QLatin1String("ANDROID_TARGET_ARCH"));
 }
 
 Core::FeatureSet AndroidQtVersion::availableFeatures() const

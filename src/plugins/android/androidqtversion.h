@@ -59,6 +59,11 @@ public:
     QString platformDisplayName() const;
 
     QString description() const;
+    QString targetArch() const;
+protected:
+    virtual void parseMkSpec(ProFileEvaluator *) const;
+private:
+    mutable QString m_targetArch;
 };
 
 } // namespace Internal
