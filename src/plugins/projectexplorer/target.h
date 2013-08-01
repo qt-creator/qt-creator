@@ -30,7 +30,6 @@
 #ifndef TARGET_H
 #define TARGET_H
 
-#include "devicesupport/idevice.h"
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
