@@ -43,16 +43,17 @@ class QDockWidget;
 class QAction;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FancyMainWindow;
-}
+namespace Utils { class FancyMainWindow; }
+namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 
 typedef QList<StartMode> StartModes;
 
 class IAnalyzerTool;
+class AnalyzerRunControl;
 class AnalyzerManagerPrivate;
+class AnalyzerStartParameters;
 
 
 // FIXME: Merge with AnalyzerPlugin.
@@ -69,7 +70,6 @@ public:
 
     // Register a tool and initialize it.
     static void addTool(IAnalyzerTool *tool, const StartModes &mode);
-    static IAnalyzerTool *toolFromRunMode(ProjectExplorer::RunMode runMode);
 
     // Dockwidgets are registered to the main window.
     static QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,
@@ -96,6 +96,10 @@ public:
     static void handleToolStarted();
     static void handleToolFinished();
     static QAction *stopAction();
+
+    static AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode runMode,
+        QString *errorMessage);
 
 private:
     friend class AnalyzerManagerPrivate;

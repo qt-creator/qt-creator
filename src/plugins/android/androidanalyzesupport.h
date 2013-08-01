@@ -48,8 +48,7 @@ class AndroidAnalyzeSupport : public AndroidRunSupport
 
 public:
     static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                                ProjectExplorer::RunMode runMode,
-                                                                QString *errorMessage);
+                                                                ProjectExplorer::RunMode runMode, QString *errorMessage);
 
     AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
         Analyzer::AnalyzerRunControl *runControl);

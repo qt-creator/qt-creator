@@ -189,15 +189,8 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         return runControl;
     }
     case QmlProfilerRunMode: {
-        IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-        if (!tool) {
-            if (errorMessage)
-                *errorMessage = tr("No analyzer tool selected.");
-            return 0;
-        }
         const AnalyzerStartParameters params = createAnalyzerStartParameters(rc, mode);
-        AnalyzerRunControl *runControl = tool->createRunControl(params, runConfig);
-        //AnalyzerRunControl * const runControl = new AnalyzerRunControl(tool, params, runConfig);
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode, errorMessage);
         QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;

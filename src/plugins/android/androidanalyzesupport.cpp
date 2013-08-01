@@ -53,16 +53,9 @@ namespace Internal {
 RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
                                                            RunMode runMode, QString *errorMessage)
 {
-    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(runMode);
-    if (!tool) {
-        if (errorMessage)
-            *errorMessage = tr("No analyzer tool selected.");
-        return 0;
-    }
-
+    Target *target = runConfig->target();
     AnalyzerStartParameters params;
     params.runMode = runMode;
-    Target *target = runConfig->target();
     params.displayName = AndroidManager::packageName(target);
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
     // TODO: Not sure if these are the right paths.
@@ -75,7 +68,8 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
         params.startMode = StartQmlRemote;
     }
 
-    AnalyzerRunControl *analyzerRunControl = tool->createRunControl(params, runConfig);
+    AnalyzerRunControl *analyzerRunControl =
+            AnalyzerManager::createRunControl(params, runConfig, runMode, errorMessage);
     (void) new AndroidAnalyzeSupport(runConfig, analyzerRunControl);
     return analyzerRunControl;
 }

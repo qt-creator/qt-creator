@@ -107,18 +107,8 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         return runControl;
     }
     case QmlProfilerRunMode: {
-        IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-        if (!tool) {
-            if (errorMessage)
-                *errorMessage = tr("No analyzer tool selected.");
-            return 0;
-        }
         AnalyzerStartParameters params = RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
-        //AnalyzerRunControl * const runControl = new AnalyzerRunControl(tool, params, runConfig);
-
-        AnalyzerRunControl *runControl = tool->createRunControl(params, runConfig);
-        //m_engine->setRunControl(this);
-
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode, errorMessage);
         RemoteLinuxAnalyzeSupport * const analyzeSupport =
                 new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));

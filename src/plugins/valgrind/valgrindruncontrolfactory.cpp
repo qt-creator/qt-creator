@@ -106,17 +106,8 @@ static AnalyzerStartParameters createValgrindStartParameters(RunConfiguration *r
 
 RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
-    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-    if (!tool) {
-        if (errorMessage)
-            *errorMessage = tr("No analyzer tool selected"); // never happens
-        return 0;
-    }
-
-    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-
     AnalyzerStartParameters sp = createValgrindStartParameters(runConfiguration);
-    return tool->createRunControl(sp, runConfiguration);
+    return AnalyzerManager::createRunControl(sp, runConfiguration, mode, errorMessage);
 }
 
 IRunConfigurationAspect *ValgrindRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)

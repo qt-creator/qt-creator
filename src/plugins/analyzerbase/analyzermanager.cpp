@@ -867,11 +867,17 @@ void AnalyzerManager::handleToolFinished()
     m_instance->d->handleToolFinished();
 }
 
-IAnalyzerTool *AnalyzerManager::toolFromRunMode(RunMode runMode)
+AnalyzerRunControl *AnalyzerManager::createRunControl(
+    const AnalyzerStartParameters &sp,
+    ProjectExplorer::RunConfiguration *runConfiguration,
+    ProjectExplorer::RunMode runMode,
+    QString *errorMessage)
 {
     foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
         if (tool->runMode() == runMode)
-            return tool;
+            return tool->createRunControl(sp, runConfiguration);
+    if (errorMessage)
+        *errorMessage = tr("No analyzer tool selected.");
     return 0;
 }
 

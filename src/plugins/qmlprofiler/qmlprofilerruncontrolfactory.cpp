@@ -117,13 +117,6 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
 
 RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
-    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-    if (!tool) {
-        if (errorMessage)
-            *errorMessage = tr("No analyzer tool selected"); // never happens
-        return 0;
-    }
-
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
     AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
@@ -133,7 +126,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
-    AnalyzerRunControl *rc = tool->createRunControl(sp, runConfiguration);
+    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, runConfiguration, mode, errorMessage);
     QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
     if (!engine) {
         delete rc;
