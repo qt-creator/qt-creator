@@ -99,7 +99,7 @@ signals:
     void processError(const QString &error);
     // These reflect the state of the actual client process
     void processStarted();
-    void processStopped();
+    void processStopped(int, QProcess::ExitStatus);
 
     // These reflect the state of the console+stub
     void stubStarted();

@@ -295,12 +295,12 @@ void ConsoleProcess::readStubOutput()
             d->m_appStatus = QProcess::NormalExit;
             d->m_appCode = out.mid(5).toInt();
             d->m_appPid = 0;
-            emit processStopped();
+            emit processStopped(d->m_appCode, d->m_appStatus);
         } else if (out.startsWith("crash ")) {
             d->m_appStatus = QProcess::CrashExit;
             d->m_appCode = out.mid(6).toInt();
             d->m_appPid = 0;
-            emit processStopped();
+            emit processStopped(d->m_appCode, d->m_appStatus);
         } else {
             emit processError(msgUnexpectedOutput(out));
             d->m_stubPid = 0;
@@ -323,7 +323,7 @@ void ConsoleProcess::stubExited()
         d->m_appStatus = QProcess::CrashExit;
         d->m_appCode = -1;
         d->m_appPid = 0;
-        emit processStopped(); // Maybe it actually did not, but keep state consistent
+        emit processStopped(d->m_appCode, d->m_appStatus); // Maybe it actually did not, but keep state consistent
     }
     emit stubStopped();
 }

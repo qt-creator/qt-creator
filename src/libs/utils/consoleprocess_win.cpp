@@ -261,7 +261,7 @@ void ConsoleProcess::inferiorExited()
     cleanupInferior();
     d->m_appStatus = QProcess::NormalExit;
     d->m_appCode = chldStatus;
-    emit processStopped();
+    emit processStopped(d->m_appCode, d->m_appStatus);
 }
 
 void ConsoleProcess::cleanupStub()
@@ -288,7 +288,7 @@ void ConsoleProcess::stubExited()
         cleanupInferior();
         d->m_appStatus = QProcess::CrashExit;
         d->m_appCode = -1;
-        emit processStopped();
+        emit processStopped(d->m_appCode, d->m_appStatus);
     }
     emit stubStopped();
 }

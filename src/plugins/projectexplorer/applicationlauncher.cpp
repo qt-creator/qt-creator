@@ -113,8 +113,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SIGNAL(processStarted()));
     connect(&d->m_consoleProcess, SIGNAL(processError(QString)),
             this, SLOT(consoleProcessError(QString)));
-    connect(&d->m_consoleProcess, SIGNAL(processStopped()),
-            this, SLOT(processStopped()));
+    connect(&d->m_consoleProcess, SIGNAL(processStopped(int,QProcess::ExitStatus)),
+            this, SLOT(processDone(int,QProcess::ExitStatus)));
 
 #ifdef Q_OS_WIN
     connect(WinDebugInterface::instance(), SIGNAL(cannotRetrieveDebugOutput()),
@@ -181,7 +181,7 @@ void ApplicationLauncher::stop()
         }
     } else {
         d->m_consoleProcess.stop();
-        processStopped();
+        processDone(0, QProcess::CrashExit);
     }
 }
 
@@ -269,11 +269,6 @@ void ApplicationLauncher::checkDebugOutput(qint64 pid, const QString &message)
         emit appendMessage(message, Utils::DebugFormat);
 }
 #endif
-
-void ApplicationLauncher::processStopped()
-{
-    emit processExited(0);
-}
 
 void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus)
 {

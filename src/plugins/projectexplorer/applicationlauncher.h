@@ -75,7 +75,6 @@ signals:
     void bringToForegroundRequested(qint64 pid);
 
 private slots:
-    void processStopped();
     void guiProcessError();
     void consoleProcessError(const QString &error);
     void readStandardOutput();
