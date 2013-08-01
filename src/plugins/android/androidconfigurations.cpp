@@ -752,6 +752,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             item.binary = tc->suggestedDebugger();
             Debugger::DebuggerKitInformation::setDebuggerItem(newKit, item);
             AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
+            newKit->makeSticky();
             newKits << newKit;
         }
     }
