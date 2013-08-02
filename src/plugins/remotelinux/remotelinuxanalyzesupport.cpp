@@ -78,7 +78,7 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RemoteL
 {
     AnalyzerStartParameters params;
     if (runMode == QmlProfilerRunMode)
-        params.startMode = StartQmlRemote;
+        params.startMode = StartLocal;
     params.runMode = runMode;
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
     params.analyzerCmdPrefix = runConfig->commandPrefix();
@@ -114,9 +114,6 @@ void RemoteLinuxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFor
 
 void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
 {
-    if (d->runControl->mode() != Analyzer::StartQmlRemote)
-        return;
-
     QTC_ASSERT(state() == Inactive, return);
 
     showMessage(tr("Checking available ports...\n"), Utils::NormalMessageFormat);
@@ -169,8 +166,6 @@ void RemoteLinuxAnalyzeSupport::handleAppRunnerFinished(bool success)
 
 void RemoteLinuxAnalyzeSupport::handleProfilingFinished()
 {
-    if (d->runControl->mode() != Analyzer::StartQmlRemote)
-        return;
     setFinished();
 }
 

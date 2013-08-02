@@ -125,7 +125,7 @@ static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfigu
         return params;
 
     if (mode == QmlProfilerRunMode)
-        params.startMode = StartQmlRemote;
+        params.startMode = StartLocal;
     params.debuggee = runConfig->remoteExecutableFilePath();
     params.debuggeeArgs = runConfig->arguments();
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();

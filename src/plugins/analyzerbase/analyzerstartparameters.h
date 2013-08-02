@@ -47,7 +47,7 @@ namespace Analyzer {
 class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
-    AnalyzerStartParameters()
+    AnalyzerStartParameters() : analyzerPort(0)
     {}
 
     StartMode startMode;

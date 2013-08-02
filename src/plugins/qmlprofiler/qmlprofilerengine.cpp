@@ -120,7 +120,7 @@ bool QmlProfilerRunControl::startEngine()
         }
     }
 
-    if (startParameters().startMode == StartQmlRemote || startParameters().startMode == StartLocal) {
+    if (startParameters().startMode == StartLocal) {
         d->m_noDebugOutputTimer.start();
     } else {
         emit processRunning(startParameters().analyzerPort);
@@ -267,7 +267,7 @@ void QmlProfilerRunControl::processIsRunning(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    if (port > 0 && mode() != StartQmlRemote)
+    if (port > 0 && startParameters().analyzerPort != 0)
         emit processRunning(port);
 }
 
