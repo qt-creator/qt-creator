@@ -33,7 +33,6 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/icore.h>
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
