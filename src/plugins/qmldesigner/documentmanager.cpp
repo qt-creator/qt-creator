@@ -102,13 +102,14 @@ static inline void openFileForComponent(const ModelNode &node)
     if (node.metaInfo().isFileComponent()) {
         //getWidthHeight(node, width, height);
         getProperties(node, propertyHash);
-        currentDesignDocument()->changeToExternalSubComponent(node.metaInfo().componentFileName());
+        Core::EditorManager::openEditor(node.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
     } else if (node.metaInfo().isView() &&
                node.hasNodeProperty("delegate") &&
                node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent()) {
         //getWidthHeight(node, width, height);
         getProperties(node, propertyHash);
-        currentDesignDocument()->changeToExternalSubComponent(node.nodeProperty("delegate").modelNode().metaInfo().componentFileName());
+        Core::EditorManager::openEditor(node.nodeProperty("delegate").modelNode().metaInfo().componentFileName(),
+                                        Core::Id(), Core::EditorManager::DoNotMakeVisible);
     }
     ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
     applyProperties(rootModelNode, propertyHash);

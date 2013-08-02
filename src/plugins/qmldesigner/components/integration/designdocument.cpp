@@ -306,11 +306,6 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
         attachRewriterToModel();
 }
 
-void DesignDocument::changeToExternalSubComponent(const QString &fileName)
-{
-    Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::DoNotMakeVisible);
-}
-
 void DesignDocument::attachRewriterToModel()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

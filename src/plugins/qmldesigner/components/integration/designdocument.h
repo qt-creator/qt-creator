@@ -119,7 +119,6 @@ public slots:
     void updateActiveQtVersion();
     void changeToSubComponentAndPushOnCrumblePath(const ModelNode &componentNode);
     void changeToSubComponent(const ModelNode &componentNode);
-    void changeToExternalSubComponent(const QString &m_oldFileName);
 
 private slots:
     void updateFileName(const QString &oldFileName, const QString &newFileName);
