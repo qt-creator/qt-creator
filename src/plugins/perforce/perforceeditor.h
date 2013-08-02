@@ -55,7 +55,6 @@ private:
     QStringList annotationPreviousVersions(const QString &v) const;
 
     mutable QRegExp m_changeNumberPattern;
-    PerforcePlugin *m_plugin;
 };
 
 } // namespace Perforce

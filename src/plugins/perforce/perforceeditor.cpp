@@ -59,8 +59,7 @@ namespace Internal {
 PerforceEditor::PerforceEditor(const VcsBase::VcsBaseEditorParameters *type,
                                QWidget *parent)  :
     VcsBase::VcsBaseEditorWidget(type, parent),
-    m_changeNumberPattern(QLatin1String("^\\d+$")),
-    m_plugin(PerforcePlugin::perforcePluginInstance())
+    m_changeNumberPattern(QLatin1String("^\\d+$"))
 {
     QTC_CHECK(m_changeNumberPattern.isValid());
     // Diff format:
@@ -119,7 +118,7 @@ VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(
 QString PerforceEditor::findDiffFile(const QString &f) const
 {
     QString errorMessage;
-    const QString fileName = m_plugin->fileNameFromPerforceName(f.trimmed(), false, &errorMessage);
+    const QString fileName = PerforcePlugin::fileNameFromPerforceName(f.trimmed(), false, &errorMessage);
     if (fileName.isEmpty())
         qWarning("%s", qPrintable(errorMessage));
     return fileName;

@@ -165,7 +165,7 @@ PerforceResponse::PerforceResponse() :
 {
 }
 
-PerforcePlugin *PerforcePlugin::m_perforcePluginInstance = NULL;
+PerforcePlugin *PerforcePlugin::m_instance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
     m_commandLocator(0),
@@ -215,7 +215,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
         return false;
-    m_perforcePluginInstance = this;
+    m_instance = this;
 
     m_settings.fromSettings(Core::ICore::settings());
 
@@ -920,19 +920,21 @@ bool PerforcePlugin::vcsMove(const QString &workingDir, const QString &from, con
 
 // Write extra args to temporary file
 QSharedPointer<Utils::TempFileSaver>
-        PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
-                                                    QString *errorString) const
+PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
+                                            QString *errorString)
 {
     if (extraArgs.isEmpty())
         return QSharedPointer<Utils::TempFileSaver>();
     // create pattern
-    if (m_tempFilePattern.isEmpty()) {
-        m_tempFilePattern = QDir::tempPath();
-        if (!m_tempFilePattern.endsWith(QDir::separator()))
-            m_tempFilePattern += QDir::separator();
-        m_tempFilePattern += QLatin1String("qtc_p4_XXXXXX.args");
+    QString pattern = m_instance->m_tempFilePattern;
+    if (pattern.isEmpty()) {
+        pattern = QDir::tempPath();
+        if (!pattern.endsWith(QDir::separator()))
+            pattern += QDir::separator();
+        pattern += QLatin1String("qtc_p4_XXXXXX.args");
+        m_instance->m_tempFilePattern = pattern;
     }
-    QSharedPointer<Utils::TempFileSaver> rc(new Utils::TempFileSaver(m_tempFilePattern));
+    QSharedPointer<Utils::TempFileSaver> rc(new Utils::TempFileSaver(pattern));
     rc->setAutoRemove(true);
     const int last = extraArgs.size() - 1;
     for (int i = 0; i <= last; i++) {
@@ -972,14 +974,14 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
                                                     const QStringList &args,
                                                     unsigned flags,
                                                     const QByteArray &stdInput,
-                                                    QTextCodec *outputCodec) const
+                                                    QTextCodec *outputCodec)
 {
     QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
 
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     // Run, connect stderr to the output window
     Utils::SynchronousProcess process;
-    const int timeOut = (flags & LongTimeOut) ? m_settings.longTimeOutMS() : m_settings.timeOutMS();
+    const int timeOut = (flags & LongTimeOut) ? settings().longTimeOutMS() : settings().timeOutMS();
     process.setTimeout(timeOut);
     process.setCodec(outputCodec);
     if (flags & OverrideDiffEnvironment)
@@ -1001,7 +1003,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::run syncp actual args [" << process.workingDirectory() << ']' << args;
     process.setTimeOutMessageBoxEnabled(true);
-    const Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4BinaryPath(), args);
+    const Utils::SynchronousProcessResponse sp_resp = process.run(settings().p4BinaryPath(), args);
     if (Perforce::Constants::debug)
         qDebug() << sp_resp;
 
@@ -1022,7 +1024,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
         response.message = msgCrash();
         break;
     case Utils::SynchronousProcessResponse::StartFailed:
-        response.message = msgNotStarted(m_settings.p4BinaryPath());
+        response.message = msgNotStarted(settings().p4BinaryPath());
         break;
     case Utils::SynchronousProcessResponse::Hang:
         response.message = msgCrash();
@@ -1036,7 +1038,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
                                                          const QStringList &args,
                                                          unsigned flags,
                                                          const QByteArray &stdInput,
-                                                         QTextCodec *outputCodec) const
+                                                         QTextCodec *outputCodec)
 {
     QProcess process;
 
@@ -1049,13 +1051,13 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
         qDebug() << "PerforcePlugin::run fully syncp actual args [" << process.workingDirectory() << ']' << args;
 
     PerforceResponse response;
-    process.start(m_settings.p4BinaryPath(), args);
+    process.start(settings().p4BinaryPath(), args);
     if (stdInput.isEmpty())
         process.closeWriteChannel();
 
     if (!process.waitForStarted(3000)) {
         response.error = true;
-        response.message = msgNotStarted(m_settings.p4BinaryPath());
+        response.message = msgNotStarted(settings().p4BinaryPath());
         return response;
     }
     if (!stdInput.isEmpty()) {
@@ -1063,7 +1065,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
             Utils::SynchronousProcess::stopProcess(process);
             response.error = true;
             response.message = tr("Unable to write input data to process %1: %2").
-                               arg(QDir::toNativeSeparators(m_settings.p4BinaryPath()),
+                               arg(QDir::toNativeSeparators(settings().p4BinaryPath()),
                                    process.errorString());
             return response;
         }
@@ -1072,7 +1074,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
 
     QByteArray stdOut;
     QByteArray stdErr;
-    const int timeOut = (flags & LongTimeOut) ? m_settings.longTimeOutMS() : m_settings.timeOutMS();
+    const int timeOut = (flags & LongTimeOut) ? settings().longTimeOutMS() : settings().timeOutMS();
     if (!Utils::SynchronousProcess::readDataFromProcess(process, timeOut, &stdOut, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(process);
         response.error = true;
@@ -1106,20 +1108,20 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
                                           unsigned flags,
                                           const QStringList &extraArgs,
                                           const QByteArray &stdInput,
-                                          QTextCodec *outputCodec) const
+                                          QTextCodec *outputCodec)
 {
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::runP4Cmd [" << workingDir << ']' << args << extraArgs << stdInput << debugCodec(outputCodec);
 
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
-    if (!m_settings.isValid()) {
+    if (!settings().isValid()) {
         PerforceResponse invalidConfigResponse;
         invalidConfigResponse.error = true;
         invalidConfigResponse.message = tr("Perforce is not correctly configured.");
         outputWindow->appendError(invalidConfigResponse.message);
         return invalidConfigResponse;
     }
-    QStringList actualArgs = m_settings.commonP4Arguments(workingDir);
+    QStringList actualArgs = settings().commonP4Arguments(workingDir);
     QString errorMessage;
     QSharedPointer<Utils::TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
     if (!tempFile.isNull()) {
@@ -1133,7 +1135,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        outputWindow->appendCommand(workingDir, m_settings.p4BinaryPath(), actualArgs);
+        outputWindow->appendCommand(workingDir, settings().p4BinaryPath(), actualArgs);
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1414,17 +1416,17 @@ PerforcePlugin::~PerforcePlugin()
 {
 }
 
-const PerforceSettings& PerforcePlugin::settings() const
+const PerforceSettings& PerforcePlugin::settings()
 {
-    return m_settings;
+    return m_instance->m_settings;
 }
 
 void PerforcePlugin::setSettings(const Settings &newSettings)
 {
-    if (newSettings != m_settings.settings()) {
-        m_settings.setSettings(newSettings);
-        m_managedDirectoryCache.clear();
-        m_settings.toSettings(Core::ICore::settings());
+    if (newSettings != m_instance->m_settings.settings()) {
+        m_instance->m_settings.setSettings(newSettings);
+        m_instance->m_managedDirectoryCache.clear();
+        m_instance->m_settings.toSettings(Core::ICore::settings());
         getTopLevel();
         perforceVersionControl()->emitConfigurationChanged();
     }
@@ -1441,7 +1443,7 @@ static inline QString msgWhereFailed(const QString & file, const QString &why)
 // Map a perforce name "//xx" to its real name in the file system
 QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
                                                  bool quiet,
-                                                 QString *errorMessage) const
+                                                 QString *errorMessage)
 {
     // All happy, already mapped
     if (!perforceName.startsWith(QLatin1String("//")))
@@ -1452,7 +1454,7 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
     unsigned flags = RunFullySynchronous;
     if (!quiet)
         flags |= CommandToWindow|StdErrToWindow|ErrorToWindow;
-    const PerforceResponse response = runP4Cmd(m_settings.topLevelSymLinkTarget(), args, flags);
+    const PerforceResponse response = runP4Cmd(settings().topLevelSymLinkTarget(), args, flags);
     if (response.error) {
         *errorMessage = msgWhereFailed(perforceName, response.message);
         return QString();
@@ -1470,21 +1472,15 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
         return QString();
     }
     const QString p4fileSpec = output.mid(output.lastIndexOf(QLatin1Char(' ')) + 1);
-    const QString rc = m_settings.mapToFileSystem(p4fileSpec);
+    const QString rc = m_instance->m_settings.mapToFileSystem(p4fileSpec);
     if (Perforce::Constants::debug)
         qDebug() << "fileNameFromPerforceName" << perforceName << p4fileSpec << rc;
     return rc;
 }
 
-PerforcePlugin *PerforcePlugin::perforcePluginInstance()
+PerforceVersionControl *PerforcePlugin::perforceVersionControl()
 {
-    QTC_ASSERT(m_perforcePluginInstance, return 0);
-    return m_perforcePluginInstance;
-}
-
-PerforceVersionControl *PerforcePlugin::perforceVersionControl() const
-{
-    return static_cast<PerforceVersionControl *>(versionControl());
+    return static_cast<PerforceVersionControl *>(m_instance->versionControl());
 }
 
 void PerforcePlugin::slotTopLevelFound(const QString &t)
@@ -1507,14 +1503,14 @@ void PerforcePlugin::slotTopLevelFailed(const QString &errorMessage)
 void PerforcePlugin::getTopLevel()
 {
     // Run a new checker
-    if (m_settings.p4BinaryPath().isEmpty())
+    if (m_instance->m_settings.p4BinaryPath().isEmpty())
         return;
-    PerforceChecker *checker = new PerforceChecker(this);
-    connect(checker, SIGNAL(failed(QString)), this, SLOT(slotTopLevelFailed(QString)));
+    PerforceChecker *checker = new PerforceChecker(m_instance);
+    connect(checker, SIGNAL(failed(QString)), m_instance, SLOT(slotTopLevelFailed(QString)));
     connect(checker, SIGNAL(failed(QString)), checker, SLOT(deleteLater()));
-    connect(checker, SIGNAL(succeeded(QString)), this, SLOT(slotTopLevelFound(QString)));
+    connect(checker, SIGNAL(succeeded(QString)), m_instance, SLOT(slotTopLevelFound(QString)));
     connect(checker, SIGNAL(succeeded(QString)),checker, SLOT(deleteLater()));
-    checker->start(m_settings.p4BinaryPath(), m_settings.commonP4Arguments(QString()), 30000);
+    checker->start(settings().p4BinaryPath(), settings().commonP4Arguments(QString()), 30000);
 }
 
 #ifdef WITH_TESTS

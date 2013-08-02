@@ -145,7 +145,7 @@ SettingsPage::SettingsPage()
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(PerforcePlugin::perforcePluginInstance()->settings());
+    m_widget->setSettings(PerforcePlugin::settings());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -153,7 +153,7 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 
 void SettingsPage::apply()
 {
-    PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->settings());
+    PerforcePlugin::setSettings(m_widget->settings());
 }
 
 bool SettingsPage::matches(const QString &s) const
