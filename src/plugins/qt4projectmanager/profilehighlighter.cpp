@@ -41,7 +41,7 @@ ProFileHighlighter::ProFileHighlighter(QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document)
 {
     ProFileCompletionAssistProvider *pcap
-            = ExtensionSystem::PluginManager::instance()->getObject<ProFileCompletionAssistProvider>();
+            = ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
     m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 

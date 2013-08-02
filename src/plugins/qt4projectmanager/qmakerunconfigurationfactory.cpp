@@ -43,7 +43,7 @@ QmakeRunConfigurationFactory *QmakeRunConfigurationFactory::find(ProjectExplorer
         return 0;
 
     QList<QmakeRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<QmakeRunConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObjects<QmakeRunConfigurationFactory>();
     foreach (QmakeRunConfigurationFactory *factory, factories) {
         if (factory->canHandle(t))
             return factory;

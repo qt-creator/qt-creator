@@ -222,7 +222,7 @@ void Qt4TargetSetupWidget::targetCheckBoxToggled(bool b)
 void Qt4TargetSetupWidget::manageKit()
 {
     ProjectExplorer::KitOptionsPage *page =
-            ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::KitOptionsPage>();
+            ExtensionSystem::PluginManager::getObject<ProjectExplorer::KitOptionsPage>();
     if (!page || !m_kit)
         return;
 

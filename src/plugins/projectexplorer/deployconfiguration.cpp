@@ -232,7 +232,7 @@ DeployConfiguration *DeployConfigurationFactory::clone(Target *parent, DeployCon
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
     foreach (DeployConfigurationFactory *factory, factories) {
         if (factory->canRestore(parent, map))
             return factory;
@@ -244,7 +244,7 @@ QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *par
 {
     QList<DeployConfigurationFactory *> result;
     QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
     foreach (DeployConfigurationFactory *factory, factories) {
         if (!factory->availableCreationIds(parent).isEmpty())
             result << factory;
@@ -255,7 +255,7 @@ QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *par
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, DeployConfiguration *dc)
 {
     QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
     foreach (DeployConfigurationFactory *factory, factories) {
         if (factory->canClone(parent, dc))
             return factory;

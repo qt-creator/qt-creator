@@ -303,7 +303,7 @@ IBuildConfigurationFactory::~IBuildConfigurationFactory()
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
     foreach (IBuildConfigurationFactory *factory, factories) {
         if (factory->canRestore(parent, map))
             return factory;
@@ -315,7 +315,7 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, con
 IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {
     QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
     foreach (IBuildConfigurationFactory *factory, factories) {
         if (!factory->availableCreationIds(parent).isEmpty())
             return factory;
@@ -327,7 +327,7 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, BuildConfiguration *bc)
 {
     QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
     foreach (IBuildConfigurationFactory *factory, factories) {
         if (factory->canClone(parent, bc))
             return factory;

@@ -328,7 +328,7 @@ KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(const Kit *k) co
     QString typeDisplayName = tr("Unknown device type");
     if (type.isValid()) {
         QList<IDeviceFactory *> factories
-                = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+                = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
         foreach (IDeviceFactory *factory, factories) {
             if (factory->availableCreationIds().contains(type)) {
                 typeDisplayName = factory->displayNameForId(type);

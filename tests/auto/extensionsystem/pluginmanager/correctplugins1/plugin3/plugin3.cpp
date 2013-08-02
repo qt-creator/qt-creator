@@ -49,7 +49,7 @@ bool MyPlugin3::initialize(const QStringList & /*arguments*/, QString *errorStri
     addAutoReleasedObject(obj);
 
     bool found2 = false;
-    foreach (QObject *object, ExtensionSystem::PluginManager::instance()->allObjects()) {
+    foreach (QObject *object, ExtensionSystem::PluginManager::allObjects()) {
         if (object->objectName() == QLatin1String("MyPlugin2"))
             found2 = true;
     }

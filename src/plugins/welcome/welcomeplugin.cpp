@@ -167,8 +167,7 @@ WelcomeMode::WelcomeMode() :
     scrollArea->setWidgetResizable(true);
     m_welcomePage->setMinimumWidth(880);
     m_welcomePage->setMinimumHeight(548);
-    PluginManager *pluginManager = PluginManager::instance();
-    connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
+    connect(PluginManager::instance(), SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
     setWidget(m_modeWidget);
 }

@@ -248,7 +248,7 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workin
     KitConfigWidget(workingCopy, sticky), m_isReadOnly(false), m_comboBox(new QComboBox)
 {
     QList<IDeviceFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+            = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
     foreach (IDeviceFactory *factory, factories) {
         foreach (Core::Id id, factory->availableCreationIds())
             m_comboBox->addItem(factory->displayNameForId(id), id.uniqueIdentifier());

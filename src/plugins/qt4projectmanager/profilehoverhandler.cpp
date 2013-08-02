@@ -47,7 +47,7 @@ ProFileHoverHandler::ProFileHoverHandler(QObject *parent)
     m_manualKind(UnknownManual)
 {
     ProFileCompletionAssistProvider *pcap
-            = ExtensionSystem::PluginManager::instance()->getObject<ProFileCompletionAssistProvider>();
+            = ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
     m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 

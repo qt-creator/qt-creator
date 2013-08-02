@@ -573,7 +573,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
         t->addBuildConfiguration(bc);
 
-        DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::instance()->getObject<DeployConfigurationFactory>();
+        DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>();
         ProjectExplorer::DeployConfiguration *dc = fac->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
         t->addDeployConfiguration(dc);
 
@@ -630,14 +630,14 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 bool CMakeProject::setupTarget(Target *t)
 {
     CMakeBuildConfigurationFactory *factory
-            = ExtensionSystem::PluginManager::instance()->getObject<CMakeBuildConfigurationFactory>();
+            = ExtensionSystem::PluginManager::getObject<CMakeBuildConfigurationFactory>();
     CMakeBuildConfiguration *bc = factory->create(t, Constants::CMAKE_BC_ID, QLatin1String("all"));
     if (!bc)
         return false;
 
     t->addBuildConfiguration(bc);
 
-    DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::instance()->getObject<DeployConfigurationFactory>();
+    DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>();
     ProjectExplorer::DeployConfiguration *dc = fac->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
     t->addDeployConfiguration(dc);
     return true;
