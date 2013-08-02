@@ -60,20 +60,6 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-Id IAnalyzerTool::actionId(StartMode mode) const
-{
-    Id id = Id("Analyzer").withSuffix(this->id().toString());
-    switch (mode) {
-    case StartLocal:
-        return id.withSuffix(".Local");
-    case StartRemote:
-        return id.withSuffix(".Remote");
-    case StartQmlRemote:
-        return id.withSuffix(".Qml");
-    }
-    return Id();
-}
-
 Id IAnalyzerTool::menuGroup(StartMode mode) const
 {
     if (mode == StartRemote)

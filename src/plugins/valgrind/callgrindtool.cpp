@@ -535,6 +535,11 @@ QString CallgrindTool::description() const
               "record function calls when a program runs.");
 }
 
+Core::Id CallgrindTool::actionId(StartMode mode) const
+{
+    return mode == StartLocal ? "Analyzer.Callgrind.Local" : "Analyzer.Callgrind.Remote";
+}
+
 IAnalyzerTool::ToolMode CallgrindTool::toolMode() const
 {
     return ReleaseMode;
