@@ -99,6 +99,7 @@ public:
     bool isSubclassOf(const TypeName &type, int majorVersion, int minorVersio) const;
 
     bool isLayoutable() const;
+    bool isView() const;
 
     QString importDirectoryPath() const;
 

@@ -1307,4 +1307,12 @@ bool NodeMetaInfo::isLayoutable() const
     return isSubclassOf("QtQuick.Positioner", -1, -1) || isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
 }
 
+bool NodeMetaInfo::isView() const
+{
+    return isValid() &&
+            (isSubclassOf("QtQuick.ListView", -1, -1) ||
+             isSubclassOf("QtQuick.GridView", -1, -1) ||
+             isSubclassOf("QtQuick.PathView", -1, -1));
+}
+
 } // namespace QmlDesigner
