@@ -38,16 +38,9 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-Id IAnalyzerTool::defaultMenuGroup(StartMode mode)
+Id IAnalyzerTool::actionId(StartMode mode) const
 {
-    if (mode == StartRemote)
-        return Id(Constants::G_ANALYZER_REMOTE_TOOLS);
-    return Id(Constants::G_ANALYZER_TOOLS);
-}
-
-Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
-{
-    Id id = Id("Analyzer").withSuffix(tool->id().toString());
+    Id id = Id("Analyzer").withSuffix(this->id().toString());
     switch (mode) {
     case StartLocal:
         return id.withSuffix(".Local");
@@ -60,9 +53,16 @@ Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
     return Id();
 }
 
-QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mode)
+Id IAnalyzerTool::menuGroup(StartMode mode) const
 {
-    QString base = tool->displayName();
+    if (mode == StartRemote)
+        return Constants::G_ANALYZER_REMOTE_TOOLS;
+    return Constants::G_ANALYZER_TOOLS;
+}
+
+QString IAnalyzerTool::actionName(StartMode mode) const
+{
+    QString base = displayName();
     if (mode == StartRemote)
         return base + tr(" (External)");
     return base;

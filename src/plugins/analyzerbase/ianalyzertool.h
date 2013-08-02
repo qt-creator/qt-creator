@@ -79,14 +79,11 @@ public:
     /// Returns a user readable description name for this tool.
     virtual QString description() const = 0;
     /// Returns an id for the start action.
-    virtual Core::Id actionId(StartMode mode) const
-        { return defaultActionId(this, mode); }
+    virtual Core::Id actionId(StartMode mode) const;
     /// Returns the menu group the start action should go to.
-    virtual Core::Id menuGroup(StartMode mode) const
-        { return defaultMenuGroup(mode); }
+    virtual Core::Id menuGroup(StartMode mode) const;
     /// Returns a short user readable action name for this tool.
-    virtual QString actionName(StartMode mode) const
-        { return defaultActionName(this, mode); }
+    virtual QString actionName(StartMode mode) const;
 
     /**
      * The mode in which this tool should preferably be run
@@ -101,11 +98,6 @@ public:
         AnyMode
     };
     virtual ToolMode toolMode() const = 0;
-
-    /// Convenience implementation.
-    static Core::Id defaultMenuGroup(StartMode mode);
-    static Core::Id defaultActionId(const IAnalyzerTool *tool, StartMode mode);
-    static QString defaultActionName(const IAnalyzerTool *tool, StartMode mode);
 
     /// This gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
