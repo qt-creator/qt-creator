@@ -57,7 +57,7 @@ QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Loca
     Q_UNUSED(future)
     QList<Locator::FilterEntry> result;
 
-    const QMap<QString, Macro*> &macros = MacroManager::instance()->macros();
+    const QMap<QString, Macro*> &macros = MacroManager::macros();
     QMapIterator<QString, Macro*> it(macros);
 
     while (it.hasNext()) {

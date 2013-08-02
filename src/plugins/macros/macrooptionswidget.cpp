@@ -97,9 +97,9 @@ void MacroOptionsWidget::initialize()
 
 void MacroOptionsWidget::createTable()
 {
-    QDir dir(MacroManager::instance()->macrosDirectory());
+    QDir dir(MacroManager::macrosDirectory());
     const Core::Id base = Core::Id(Constants::PREFIX_MACRO);
-    QMapIterator<QString, Macro *> it(MacroManager::instance()->macros());
+    QMapIterator<QString, Macro *> it(MacroManager::macros());
     while (it.hasNext()) {
         it.next();
         QFileInfo fileInfo(it.value()->fileName());

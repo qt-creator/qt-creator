@@ -253,10 +253,10 @@ MacroManager::MacroManager(QObject *parent) :
     QObject(parent),
     d(new MacroManagerPrivate(this))
 {
+    m_instance = this;
     registerMacroHandler(d->actionHandler);
     registerMacroHandler(d->findHandler);
     registerMacroHandler(d->textEditorHandler);
-    m_instance = this;
 }
 
 MacroManager::~MacroManager()
@@ -360,14 +360,14 @@ void MacroManager::deleteMacro(const QString &name)
     }
 }
 
-const QMap<QString,Macro*> &MacroManager::macros() const
+const QMap<QString,Macro*> &MacroManager::macros()
 {
-    return d->macros;
+    return m_instance->d->macros;
 }
 
 void MacroManager::registerMacroHandler(IMacroHandler *handler)
 {
-    d->handlers.prepend(handler);
+    m_instance->d->handlers.prepend(handler);
 }
 
 MacroManager *MacroManager::instance()
@@ -392,7 +392,7 @@ void Macros::MacroManager::saveLastMacro()
         d->showSaveDialog();
 }
 
-QString Macros::MacroManager::macrosDirectory() const
+QString Macros::MacroManager::macrosDirectory()
 {
     const QString &path =
         Core::ICore::userResourcePath() + QLatin1String("/macros");

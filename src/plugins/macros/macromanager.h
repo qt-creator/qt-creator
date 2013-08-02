@@ -45,23 +45,21 @@ class Macro;
 class IMacroHandler;
 
 namespace Internal {
-    class MacroOptionsWidget;
+class MacroOptionsWidget;
+class MacrosPlugin;
 }
 
 class MACROS_EXPORT MacroManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit MacroManager(QObject *parent = 0);
-    ~MacroManager();
-
     static MacroManager *instance();
 
-    const QMap<QString, Macro *> &macros() const;
+    static const QMap<QString, Macro *> &macros();
 
-    void registerMacroHandler(IMacroHandler *handler);
+    static void registerMacroHandler(IMacroHandler *handler);
 
-    QString macrosDirectory() const;
+    static QString macrosDirectory();
 
 public slots:
     void startMacro();
@@ -77,10 +75,15 @@ protected:
     void changeMacro(const QString &name, const QString &description);
 
 private:
+    explicit MacroManager(QObject *parent = 0);
+    ~MacroManager();
+
     static MacroManager *m_instance;
 
     class MacroManagerPrivate;
     MacroManagerPrivate* d;
+
+    friend class Internal::MacrosPlugin;
 };
 
 } // namespace Macros

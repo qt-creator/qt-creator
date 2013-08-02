@@ -59,6 +59,7 @@ MacrosPlugin::MacrosPlugin()
 
 MacrosPlugin::~MacrosPlugin()
 {
+    delete m_macroManager;
 }
 
 bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
