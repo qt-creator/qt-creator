@@ -71,6 +71,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
 
     AnalyzerStartParameters sp;
     sp.displayName = runConfiguration->displayName();
+    sp.runMode = mode;
     if (LocalApplicationRunConfiguration *rc1 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         EnvironmentAspect *aspect = runConfiguration->extraAspect<EnvironmentAspect>();
@@ -102,7 +103,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         QTC_ASSERT(false, return 0);
     }
 
-    return AnalyzerManager::createRunControl(sp, runConfiguration, mode);
+    return AnalyzerManager::createRunControl(sp, runConfiguration);
 }
 
 IRunConfigurationAspect *ValgrindRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)

@@ -63,7 +63,7 @@ using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConfig)
+static DebuggerStartParameters createDebuggerStartParameters(const QnxRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
     Target *target = runConfig->target();
@@ -114,7 +114,7 @@ DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConf
     return params;
 }
 
-AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfiguration *runConfig, RunMode mode)
+static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfiguration *runConfig, RunMode mode)
 {
     AnalyzerStartParameters params;
     Target *target = runConfig->target();
@@ -178,7 +178,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
     case NormalRunMode:
         return new QnxRunControl(rc);
     case DebugRunMode: {
-        const DebuggerStartParameters params = createStartParameters(rc);
+        const DebuggerStartParameters params = createDebuggerStartParameters(rc);
         DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc, errorMessage);
         if (!runControl)
             return 0;
@@ -190,7 +190,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
     }
     case QmlProfilerRunMode: {
         const AnalyzerStartParameters params = createAnalyzerStartParameters(rc, mode);
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode);
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig);
         QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;

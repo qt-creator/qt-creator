@@ -123,7 +123,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
-    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, runConfiguration, mode);
+    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, runConfiguration);
     QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
     if (!engine) {
         delete rc;

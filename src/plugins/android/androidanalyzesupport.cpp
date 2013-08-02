@@ -51,7 +51,7 @@ namespace Android {
 namespace Internal {
 
 RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                           RunMode runMode, QString *errorMessage)
+                                                           RunMode runMode)
 {
     Target *target = runConfig->target();
     AnalyzerStartParameters params;
@@ -68,8 +68,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
         params.startMode = StartQmlRemote;
     }
 
-    AnalyzerRunControl *analyzerRunControl =
-            AnalyzerManager::createRunControl(params, runConfig, runMode);
+    AnalyzerRunControl *analyzerRunControl = AnalyzerManager::createRunControl(params, runConfig);
     (void) new AndroidAnalyzeSupport(runConfig, analyzerRunControl);
     return analyzerRunControl;
 }

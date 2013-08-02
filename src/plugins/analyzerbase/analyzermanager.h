@@ -93,7 +93,7 @@ public:
     static QAction *stopAction();
 
     static AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode runMode);
+        ProjectExplorer::RunConfiguration *runConfiguration);
 
 private:
     friend class AnalyzerManagerPrivate;

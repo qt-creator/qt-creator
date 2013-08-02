@@ -754,12 +754,10 @@ void AnalyzerManager::handleToolFinished()
 }
 
 AnalyzerRunControl *AnalyzerManager::createRunControl(
-    const AnalyzerStartParameters &sp,
-    ProjectExplorer::RunConfiguration *runConfiguration,
-    ProjectExplorer::RunMode runMode)
+    const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
 {
     foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
-        if (tool->runMode() == runMode)
+        if (tool->runMode() == sp.runMode)
             return tool->createRunControl(sp, runConfiguration);
     QTC_CHECK(false);
     return 0;

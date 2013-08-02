@@ -168,7 +168,7 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
     case DebugRunMode:
         return AndroidDebugSupport::createDebugRunControl(rc, errorMessage);
     case QmlProfilerRunMode:
-        return AndroidAnalyzeSupport::createAnalyzeRunControl(rc, mode, errorMessage);
+        return AndroidAnalyzeSupport::createAnalyzeRunControl(rc, mode);
     case NoRunMode:
     case DebugRunModeWithBreakOnMain:
     case CallgrindRunMode:
