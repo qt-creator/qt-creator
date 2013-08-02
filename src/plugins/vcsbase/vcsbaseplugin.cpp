@@ -863,14 +863,15 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
                                                             &stdOut, &stdErr, true);
 
     if (!stdErr.isEmpty()) {
-        response.stdErr = QString::fromLocal8Bit(stdErr).remove(QLatin1Char('\r'));
+        response.stdErr = (outputCodec ? outputCodec->toUnicode(stdErr) : QString::fromLocal8Bit(stdErr));
+        response.stdErr.remove(QLatin1Char('\r'));
         if (!(flags & VcsBasePlugin::SuppressStdErrInLogWindow))
             outputWindow->append(response.stdErr);
     }
 
     if (!stdOut.isEmpty()) {
-        response.stdOut = (outputCodec ? outputCodec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut))
-                          .remove(QLatin1Char('\r'));
+        response.stdOut = (outputCodec ? outputCodec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut));
+        response.stdOut.remove(QLatin1Char('\r'));
         if (flags & VcsBasePlugin::ShowStdOutInLogWindow) {
             if (flags & VcsBasePlugin::SilentOutput)
                 outputWindow->appendSilently(response.stdOut);
