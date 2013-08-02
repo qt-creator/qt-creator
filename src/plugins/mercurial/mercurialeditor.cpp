@@ -100,7 +100,7 @@ QString MercurialEditor::decorateVersion(const QString &revision) const
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Format with short summary
-    return MercurialPlugin::instance()->client()->shortDescriptionSync(workingDirectory, revision);
+    return MercurialPlugin::client()->shortDescriptionSync(workingDirectory, revision);
 }
 
 QStringList MercurialEditor::annotationPreviousVersions(const QString &revision) const
@@ -108,5 +108,5 @@ QStringList MercurialEditor::annotationPreviousVersions(const QString &revision)
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Retrieve parent revisions
-    return MercurialPlugin::instance()->client()->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
+    return MercurialPlugin::client()->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
 }

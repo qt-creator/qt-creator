@@ -72,10 +72,10 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     static MercurialPlugin *instance() { return m_instance; }
-    MercurialClient *client() const { return m_client; }
+    static MercurialClient *client() { return m_instance->m_client; }
 
-    const MercurialSettings &settings() const;
-    void setSettings(const MercurialSettings &settings);
+    static const MercurialSettings &settings();
+    static void setSettings(const MercurialSettings &settings);
 
 private slots:
     // File menu action slots

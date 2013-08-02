@@ -50,7 +50,7 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
 
 MercurialSettings OptionsPageWidget::settings() const
 {
-    MercurialSettings s = MercurialPlugin::instance()->settings();
+    MercurialSettings s = MercurialPlugin::settings();
     s.setValue(MercurialSettings::binaryPathKey, m_ui.commandChooser->rawPath());
     s.setValue(MercurialSettings::userNameKey, m_ui.defaultUsernameLineEdit->text().trimmed());
     s.setValue(MercurialSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
@@ -99,7 +99,7 @@ QWidget *OptionsPage::createPage(QWidget *parent)
 {
     if (!optionsPageWidget)
         optionsPageWidget = new OptionsPageWidget(parent);
-    optionsPageWidget->setSettings(MercurialPlugin::instance()->settings());
+    optionsPageWidget->setSettings(MercurialPlugin::settings());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = optionsPageWidget->searchKeywords();
     return optionsPageWidget;
@@ -109,11 +109,10 @@ void OptionsPage::apply()
 {
     if (!optionsPageWidget)
         return;
-    MercurialPlugin *plugin = MercurialPlugin::instance();
     const MercurialSettings newSettings = optionsPageWidget->settings();
-    if (newSettings != plugin->settings()) {
+    if (newSettings != MercurialPlugin::settings()) {
         //assume success and emit signal that settings are changed;
-        plugin->setSettings(newSettings);
+        MercurialPlugin::setSettings(newSettings);
         newSettings.writeSettings(Core::ICore::settings());
         emit settingsChanged();
     }

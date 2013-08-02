@@ -82,7 +82,7 @@ QSharedPointer<AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPa
     if (!page)
         return QSharedPointer<AbstractCheckoutJob>();
 
-    const MercurialSettings &settings = MercurialPlugin::instance()->settings();
+    const MercurialSettings &settings = MercurialPlugin::settings();
 
     QString path = page->path();
     QString directory = page->directory();

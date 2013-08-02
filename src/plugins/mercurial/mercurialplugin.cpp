@@ -162,16 +162,16 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     return true;
 }
 
-const MercurialSettings &MercurialPlugin::settings() const
+const MercurialSettings &MercurialPlugin::settings()
 {
-    return mercurialSettings;
+    return m_instance->mercurialSettings;
 }
 
 void MercurialPlugin::setSettings(const MercurialSettings &settings)
 {
-    if (settings != mercurialSettings) {
-        mercurialSettings = settings;
-        static_cast<MercurialControl *>(versionControl())->emitConfigurationChanged();
+    if (settings != m_instance->mercurialSettings) {
+        m_instance->mercurialSettings = settings;
+        static_cast<MercurialControl *>(m_instance->versionControl())->emitConfigurationChanged();
     }
 }
 
