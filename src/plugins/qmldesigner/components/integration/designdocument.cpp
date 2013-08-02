@@ -29,13 +29,13 @@
 
 #include "designdocument.h"
 #include "designdocumentview.h"
+#include "documentmanager.h"
 
 #include <metainfo.h>
 #include <qmlobjectnode.h>
 #include <rewritingexception.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
-#include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>
 
@@ -322,7 +322,7 @@ void DesignDocument::goIntoSelectedComponent()
 
     if (selectedNodes.count() == 1) {
         viewManager().setComponentNode(selectedNodes.first());
-        ModelNodeOperations::goIntoComponent(selectedNodes.first());
+        DocumentManager::goIntoComponent(selectedNodes.first());
     }
 }
 
