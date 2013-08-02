@@ -253,15 +253,14 @@ void Command::run()
         exitCode = process->exitCode();
     }
 
-    QString stdOutS = d->m_codec ? d->m_codec->toUnicode(stdOut)
-                                 : QString::fromLocal8Bit(stdOut.constData(), stdOut.size());
-    stdOutS.remove(QLatin1Char('\r'));
-
     d->m_lastExecSuccess = ok;
     d->m_lastExecExitCode = exitCode;
 
-    if (ok)
-        emit output(stdOutS);
+    if (ok) {
+        emit output(Utils::SynchronousProcess::normalizeNewlines(
+                        d->m_codec ? d->m_codec->toUnicode(stdOut)
+                                   : QString::fromLocal8Bit(stdOut.constData(), stdOut.size())));
+    }
 
     if (!error.isEmpty())
         emit errorText(error);

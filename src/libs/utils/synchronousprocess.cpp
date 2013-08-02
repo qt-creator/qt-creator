@@ -476,8 +476,8 @@ void SynchronousProcess::stdErrReady()
 
 QString SynchronousProcess::convertOutput(const QByteArray &ba) const
 {
-    QString output = d->m_codec ? d->m_codec->toUnicode(ba) : QString::fromLocal8Bit(ba.constData(), ba.size());
-    return output.remove(QLatin1Char('\r'));
+    return normalizeNewlines(d->m_codec ? d->m_codec->toUnicode(ba)
+                                        : QString::fromLocal8Bit(ba.constData(), ba.size()));
 }
 
 void SynchronousProcess::processStdOut(bool emitSignals)
@@ -674,6 +674,25 @@ QString SynchronousProcess::locateBinary(const QString &path, const QString &bin
             return rc;
     }
     return QString();
+}
+
+QString SynchronousProcess::normalizeNewlines(const QString &text)
+{
+    const QChar cr(QLatin1Char('\r'));
+    const QChar lf(QLatin1Char('\n'));
+    QString res;
+    res.reserve(text.size());
+    for (int i = 0, count = text.size(); i < count; ++i) {
+        const QChar c = text.at(i);
+        if (c == cr) {
+            res += lf;
+            if (i + 1 < count && text.at(i + 1) == lf)
+                ++i;
+        } else {
+            res += c;
+        }
+    }
+    return res;
 }
 
 QString SynchronousProcess::locateBinary(const QString &binary)

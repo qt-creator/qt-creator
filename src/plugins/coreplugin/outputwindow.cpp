@@ -33,6 +33,8 @@
 #include "coreconstants.h"
 #include "icore.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QAction>
 #include <QScrollBar>
 
@@ -200,8 +202,7 @@ void OutputWindow::setMaxLineCount(int count)
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
-    QString out = output;
-    out.remove(QLatin1Char('\r'));
+    const QString out = Utils::SynchronousProcess::normalizeNewlines(output);
     setMaximumBlockCount(m_maxLineCount);
     const bool atBottom = isScrollbarAtBottom();
 
@@ -251,8 +252,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 // TODO rename
 void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format)
 {
-    QString text = textIn;
-    text.remove(QLatin1Char('\r'));
+    const QString text = Utils::SynchronousProcess::normalizeNewlines(textIn);
     if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();

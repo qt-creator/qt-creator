@@ -138,6 +138,8 @@ public:
     static QString locateBinary(const QString &binary);
     static QString locateBinary(const QString &path, const QString &binary);
 
+    static QString normalizeNewlines(const QString &text);
+
 signals:
     void stdOut(const QByteArray &data, bool firstTime);
     void stdErr(const QByteArray &data, bool firstTime);

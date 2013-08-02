@@ -187,8 +187,8 @@ QStringList MercurialClient::parentRevisionsSync(const QString &workingDirectory
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return QStringList();
-    QString output = QString::fromLocal8Bit(outputData);
-    output.remove(QLatin1Char('\r'));
+    const QString output = Utils::SynchronousProcess::normalizeNewlines(
+                QString::fromLocal8Bit(outputData));
     /* Looks like: \code
 changeset:   0:031a48610fba
 user: ...
@@ -230,8 +230,7 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return revision;
-    description = QString::fromLocal8Bit(outputData);
-    description.remove(QLatin1Char('\r'));
+    description = Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(outputData));
     if (description.endsWith(QLatin1Char('\n')))
         description.truncate(description.size() - 1);
     return description;

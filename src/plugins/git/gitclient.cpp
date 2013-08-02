@@ -744,9 +744,7 @@ Core::IEditor *locateEditor(const char *property, const QString &entry)
 // Return converted command output, remove '\r' read on Windows
 static inline QString commandOutputFromLocal8Bit(const QByteArray &a)
 {
-    QString output = QString::fromLocal8Bit(a);
-    output.remove(QLatin1Char('\r'));
-    return output;
+    return Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(a));
 }
 
 // Return converted command output split into lines
@@ -3398,7 +3396,7 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
                              VcsBasePlugin::SuppressCommandLogging))
         return QString();
     if (Utils::HostOsInfo::isWindowsHost())
-        return QString::fromUtf8(outputText).remove(QLatin1Char('\r'));
+        return Utils::SynchronousProcess::normalizeNewlines(QString::fromUtf8(outputText));
     return commandOutputFromLocal8Bit(outputText);
 }
 

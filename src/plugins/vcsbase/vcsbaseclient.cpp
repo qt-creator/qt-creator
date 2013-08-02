@@ -189,9 +189,8 @@ bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return false;
-    QString output = QString::fromLocal8Bit(outputData);
-    output.remove(QLatin1Char('\r'));
-    ::vcsOutputWindow()->append(output);
+    ::vcsOutputWindow()->append(
+                Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(outputData)));
 
     resetCachedVcsInfo(workingDirectory);
 
