@@ -324,11 +324,6 @@ UiCodeModelManager::UiCodeModelManager() :
             this, SLOT(editorWasChanged(Core::IEditor*)));
 }
 
-UiCodeModelManager *UiCodeModelManager::instance()
-{
-    return m_instance;
-}
-
 UiCodeModelManager::~UiCodeModelManager()
 {
     m_instance = 0;
@@ -348,7 +343,7 @@ void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString
     CppTools::CppModelManagerInterface *mm = CppTools::CppModelManagerInterface::instance();
 
     // Find support to add/update:
-    QList<UiCodeModelSupport *> oldSupport = m_projectUiSupport.value(project);
+    QList<UiCodeModelSupport *> oldSupport = m_instance->m_projectUiSupport.value(project);
     QList<UiCodeModelSupport *> newSupport;
     QHash<QString, QString>::const_iterator it;
     for (it = uiHeaders.constBegin(); it != uiHeaders.constEnd(); ++it) {
@@ -370,13 +365,14 @@ void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString
     }
 
     // Update state:
-    m_projectUiSupport.insert(project, newSupport);
+    m_instance->m_projectUiSupport.insert(project, newSupport);
 }
 
 void UiCodeModelManager::updateContents(const QString &uiFileName, const QString &contents)
 {
     QHash<ProjectExplorer::Project *, QList<UiCodeModelSupport *> >::iterator i;
-    for (i = m_projectUiSupport.begin(); i != m_projectUiSupport.end(); ++i) {
+    for (i = m_instance->m_projectUiSupport.begin();
+         i != m_instance->m_projectUiSupport.end(); ++i) {
         foreach (UiCodeModelSupport *support, i.value()) {
             if (support->uiFileName() == uiFileName)
                 support->updateFromEditor(contents);

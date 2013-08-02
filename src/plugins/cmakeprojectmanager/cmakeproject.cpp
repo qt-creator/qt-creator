@@ -751,7 +751,7 @@ void CMakeProject::createUiCodeModelSupport()
             uiFileHash.insert(uiFile, uiHeaderFile(uiFile));
     }
 
-    QtSupport::UiCodeModelManager::instance()->update(this, uiFileHash);
+    QtSupport::UiCodeModelManager::update(this, uiFileHash);
 }
 
 // CMakeFile

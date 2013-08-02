@@ -93,12 +93,9 @@ class QTSUPPORT_EXPORT UiCodeModelManager : public QObject
     Q_OBJECT
 
 public:
-    static UiCodeModelManager *instance();
-    ~UiCodeModelManager();
-
     // This needs to be called by the project *before* the C++ code model is updated!
-    void update(ProjectExplorer::Project *project,
-                QHash<QString, QString> uiHeaders);
+    static void update(ProjectExplorer::Project *project,
+                       QHash<QString, QString> uiHeaders);
 
 private slots:
     void buildStateHasChanged(ProjectExplorer::Project *project);
@@ -109,8 +106,9 @@ private slots:
 
 private:
     UiCodeModelManager();
+    ~UiCodeModelManager();
 
-    void updateContents(const QString &uiFileName, const QString &contents);
+    static void updateContents(const QString &uiFileName, const QString &contents);
 
     QHash<ProjectExplorer::Project *, QList<UiCodeModelSupport *> > m_projectUiSupport;
     Core::IEditor *m_lastEditor;

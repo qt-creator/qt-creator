@@ -610,7 +610,7 @@ void Qt4Project::updateCppCodeModel()
     setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !allFiles.isEmpty());
 
     // Also update Ui Code Model Support:
-    QtSupport::UiCodeModelManager::instance()->update(this, uiCodeModelData);
+    QtSupport::UiCodeModelManager::update(this, uiCodeModelData);
 
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 }
