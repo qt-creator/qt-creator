@@ -44,7 +44,6 @@ enum StartMode
 {
     StartLocal = -1,
     StartRemote = -2,
-    StartQml = -3,
     StartQmlRemote = -4 // TODO: remove this enum and make it generic
 };
 

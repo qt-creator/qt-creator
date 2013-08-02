@@ -68,7 +68,6 @@ Id IAnalyzerTool::actionId(StartMode mode) const
         return id.withSuffix(".Local");
     case StartRemote:
         return id.withSuffix(".Remote");
-    case StartQml:
     case StartQmlRemote:
         return id.withSuffix(".Qml");
     }

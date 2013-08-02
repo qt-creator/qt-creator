@@ -108,7 +108,7 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
         sp.analyzerHost = server.serverAddress().toString();
         sp.analyzerPort = server.serverPort();
     }
-    sp.startMode = StartQml;
+    sp.startMode = StartLocal;
     return sp;
 }
 
