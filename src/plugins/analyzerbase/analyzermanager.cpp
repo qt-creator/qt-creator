@@ -33,6 +33,7 @@
 #include "analyzerplugin.h"
 #include "ianalyzertool.h"
 #include "analyzersettings.h"
+#include "analyzerruncontrol.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
@@ -730,18 +731,6 @@ void AnalyzerManager::showPermanentStatusMessage(const QString &message)
     showStatusMessage(message, -1);
 }
 
-QString AnalyzerManager::msgToolStarted(const QString &name)
-{
-    return tr("Tool \"%1\" started...").arg(name);
-}
-
-QString AnalyzerManager::msgToolFinished(const QString &name, int issuesFound)
-{
-    return issuesFound ?
-        tr("Tool \"%1\" finished, %n issues were found.", 0, issuesFound).arg(name) :
-        tr("Tool \"%1\" finished, no issues were found.").arg(name);
-}
-
 void AnalyzerManager::showMode()
 {
     if (m_instance->d->m_mode)
@@ -774,9 +763,14 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(
     ProjectExplorer::RunMode runMode,
     QString *errorMessage)
 {
-    foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
-        if (tool->runMode() == runMode)
-            return tool->createRunControl(sp, runConfiguration);
+    foreach (IAnalyzerTool *tool, m_instance->d->m_tools) {
+        if (tool->runMode() == runMode) {
+            AnalyzerRunControl *rc = tool->createRunControl(sp, runConfiguration);
+            showStatusMessage(tr("Tool \"%1\" started...").arg(rc->displayName()));
+            return rc;
+        }
+    }
+
     if (errorMessage)
         *errorMessage = tr("No analyzer tool selected.");
     return 0;

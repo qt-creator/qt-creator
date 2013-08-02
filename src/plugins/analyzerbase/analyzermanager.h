@@ -85,9 +85,6 @@ public:
     static void stopTool();
 
     // Convenience functions.
-    static QString msgToolStarted(const QString &name);
-    static QString msgToolFinished(const QString &name, int issuesFound);
-
     static void showStatusMessage(const QString &message, int timeoutMS = 10000);
     static void showPermanentStatusMessage(const QString &message);
 

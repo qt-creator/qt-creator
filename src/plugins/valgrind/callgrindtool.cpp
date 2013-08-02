@@ -593,8 +593,6 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
     rc->setToggleCollectFunction(m_toggleCollectFunction);
     m_toggleCollectFunction.clear();
 
-    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
-
     QTC_ASSERT(m_visualisation, return rc);
 
     // apply project settings

@@ -460,7 +460,6 @@ AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters
     connect(engine, SIGNAL(internalParserError(QString)),
             this, SLOT(internalParserError(QString)));
     connect(engine, SIGNAL(finished()), this, SLOT(finished()));
-    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
     return engine;
 }
 
@@ -545,11 +544,14 @@ void MemcheckTool::updateErrorFilter()
 
 void MemcheckTool::finished()
 {
-    const int n = m_errorModel->rowCount();
-    m_goBack->setEnabled(n > 1);
-    m_goNext->setEnabled(n > 1);
-    const QString msg = AnalyzerManager::msgToolFinished(displayName(), n);
-    AnalyzerManager::showStatusMessage(msg);
+    const int issuesFound = m_errorModel->rowCount();
+    m_goBack->setEnabled(issuesFound > 1);
+    m_goNext->setEnabled(issuesFound > 1);
+    AnalyzerManager::showStatusMessage((issuesFound > 0
+        ? AnalyzerManager::tr("Tool \"%1\" finished, %n issues were found.", 0, issuesFound)
+        : AnalyzerManager::tr("Tool \"%1\" finished, no issues were found."))
+            .arg(displayName()));
+
     setBusyCursor(false);
 }
 
