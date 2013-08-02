@@ -108,7 +108,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
     }
     case QmlProfilerRunMode: {
         AnalyzerStartParameters params = RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode, errorMessage);
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode);
         RemoteLinuxAnalyzeSupport * const analyzeSupport =
                 new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));

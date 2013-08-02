@@ -69,7 +69,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
     }
 
     AnalyzerRunControl *analyzerRunControl =
-            AnalyzerManager::createRunControl(params, runConfig, runMode, errorMessage);
+            AnalyzerManager::createRunControl(params, runConfig, runMode);
     (void) new AndroidAnalyzeSupport(runConfig, analyzerRunControl);
     return analyzerRunControl;
 }

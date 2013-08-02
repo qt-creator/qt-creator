@@ -190,7 +190,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
     }
     case QmlProfilerRunMode: {
         const AnalyzerStartParameters params = createAnalyzerStartParameters(rc, mode);
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode, errorMessage);
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode);
         QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;

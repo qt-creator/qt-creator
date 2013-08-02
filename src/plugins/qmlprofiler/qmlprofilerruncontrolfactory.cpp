@@ -75,9 +75,6 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
 {
     AnalyzerStartParameters sp;
     EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>();
-    Debugger::DebuggerRunConfigurationAspect *debugger
-            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    QTC_ASSERT(debugger, return sp);
 
     // FIXME: This is only used to communicate the connParams settings.
     if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
@@ -126,7 +123,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
-    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, runConfiguration, mode, errorMessage);
+    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, runConfiguration, mode);
     QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
     if (!engine) {
         delete rc;

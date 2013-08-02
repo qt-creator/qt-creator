@@ -33,7 +33,6 @@
 #include "analyzerplugin.h"
 #include "ianalyzertool.h"
 #include "analyzersettings.h"
-#include "analyzerruncontrol.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
@@ -659,9 +658,6 @@ AnalyzerManager::~AnalyzerManager()
 
 void AnalyzerManager::extensionsInitialized()
 {
-    if (m_instance->d->m_tools.isEmpty())
-        return;
-
     foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
         tool->extensionsInitialized();
 }
@@ -760,19 +756,12 @@ void AnalyzerManager::handleToolFinished()
 AnalyzerRunControl *AnalyzerManager::createRunControl(
     const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration,
-    ProjectExplorer::RunMode runMode,
-    QString *errorMessage)
+    ProjectExplorer::RunMode runMode)
 {
-    foreach (IAnalyzerTool *tool, m_instance->d->m_tools) {
-        if (tool->runMode() == runMode) {
-            AnalyzerRunControl *rc = tool->createRunControl(sp, runConfiguration);
-            showStatusMessage(tr("Tool \"%1\" started...").arg(rc->displayName()));
-            return rc;
-        }
-    }
-
-    if (errorMessage)
-        *errorMessage = tr("No analyzer tool selected.");
+    foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
+        if (tool->runMode() == runMode)
+            return tool->createRunControl(sp, runConfiguration);
+    QTC_CHECK(false);
     return 0;
 }
 
