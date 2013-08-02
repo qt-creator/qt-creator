@@ -47,8 +47,6 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized() {}
-
-    static void startValgrindTool(Analyzer::IAnalyzerTool *tool, Analyzer::StartMode mode);
 };
 
 } // namespace Internal

@@ -464,11 +464,6 @@ AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters
     return engine;
 }
 
-void MemcheckTool::startTool(StartMode mode)
-{
-    ValgrindPlugin::startValgrindTool(this, mode);
-}
-
 void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
 {
     setBusyCursor(true);

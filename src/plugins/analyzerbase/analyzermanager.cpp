@@ -156,7 +156,6 @@ public:
     QAction *actionFromToolAndMode(IAnalyzerTool *tool, StartMode mode);
 
     // Convenience.
-    void startLocalTool(IAnalyzerTool *tool);
     bool isActionRunnable(QAction *action) const;
 
 public slots:
@@ -409,22 +408,6 @@ void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
     dockWidget->setParent(0);
 }
 
-bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
-                       BuildConfiguration::BuildType buildType)
-{
-    if (toolMode == IAnalyzerTool::AnyMode)
-        return true;
-    if (buildType == BuildConfiguration::Unknown)
-        return true;
-    if (buildType == BuildConfiguration::Debug
-            && toolMode == IAnalyzerTool::DebugMode)
-        return true;
-    if (buildType == BuildConfiguration::Release
-            && toolMode == IAnalyzerTool::ReleaseMode)
-        return true;
-    return false;
-}
-
 bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QString &text,
     const QString &stopButtonText, const QString &cancelButtonText) const
 {
@@ -440,83 +423,6 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
     messageBox.setCheckBoxVisible(false);
     messageBox.exec();;
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
-}
-
-void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
-{
-    int index = m_tools.indexOf(tool);
-    QTC_ASSERT(index >= 0, return);
-    QTC_ASSERT(index < m_tools.size(), return);
-    QTC_ASSERT(tool == m_currentTool, return);
-
-    // Make sure mode is shown.
-    q->showMode();
-
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-
-    // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-    Project *pro = pe->startupProject();
-    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-    if (pro) {
-        if (const Target *target = pro->activeTarget()) {
-            // Build configuration is 0 for QML projects.
-            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-                buildType = buildConfig->buildType();
-        }
-    }
-
-    IAnalyzerTool::ToolMode toolMode = tool->toolMode();
-
-    // Check the project for whether the build config is in the correct mode
-    // if not, notify the user and urge him to use the correct mode.
-    if (!buildTypeAccepted(toolMode, buildType)) {
-        const QString toolName = tool->displayName();
-        const QString currentMode =
-            buildType == BuildConfiguration::Debug ? tr("Debug") : tr("Release");
-
-        QSettings *settings = ICore::settings();
-        const QString configKey = QLatin1String("Analyzer.AnalyzeCorrectMode");
-        int ret;
-        if (settings->contains(configKey)) {
-            ret = settings->value(configKey, QDialog::Accepted).toInt();
-        } else {
-            QString toolModeString;
-            switch (toolMode) {
-                case IAnalyzerTool::DebugMode:
-                    toolModeString = tr("Debug");
-                    break;
-                case IAnalyzerTool::ReleaseMode:
-                    toolModeString = tr("Release");
-                    break;
-                default:
-                    QTC_CHECK(false);
-            }
-            const QString title = tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
-            const QString message = tr("<html><head/><body><p>You are trying "
-                "to run the tool \"%1\" on an application in %2 mode. "
-                "The tool is designed to be used in %3 mode.</p><p>"
-                "Debug and Release mode run-time characteristics differ "
-                "significantly, analytical findings for one mode may or "
-                "may not be relevant for the other.</p><p>"
-                "Do you want to continue and run the tool in %2 mode?</p></body></html>")
-                    .arg(toolName).arg(currentMode).arg(toolModeString);
-            const QString checkBoxText = tr("&Do not ask again");
-            bool checkBoxSetting = false;
-            const QDialogButtonBox::StandardButton button =
-                Utils::CheckableMessageBox::question(ICore::mainWindow(),
-                    title, message, checkBoxText,
-                    &checkBoxSetting, QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
-                    QDialogButtonBox::Cancel);
-            ret = button == QDialogButtonBox::Yes ? QDialog::Accepted : QDialog::Rejected;
-
-            if (checkBoxSetting && ret == QDialog::Accepted)
-                settings->setValue(configKey, ret);
-        }
-        if (ret == QDialog::Rejected)
-            return;
-    }
-
-    pe->runProject(pro, tool->runMode());
 }
 
 bool AnalyzerManagerPrivate::isActionRunnable(QAction *action) const
@@ -845,11 +751,6 @@ void AnalyzerManager::showMode()
 void AnalyzerManager::stopTool()
 {
     stopAction()->trigger();
-}
-
-void AnalyzerManager::startLocalTool(IAnalyzerTool *tool)
-{
-    m_instance->d->startLocalTool(tool);
 }
 
 QAction *AnalyzerManager::stopAction()

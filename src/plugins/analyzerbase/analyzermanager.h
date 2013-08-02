@@ -85,8 +85,6 @@ public:
     static void stopTool();
 
     // Convenience functions.
-    static void startLocalTool(IAnalyzerTool *tool);
-
     static QString msgToolStarted(const QString &name);
     static QString msgToolFinished(const QString &name, int issuesFound);
 

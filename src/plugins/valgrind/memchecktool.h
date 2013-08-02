@@ -113,7 +113,6 @@ private:
 
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
                                ProjectExplorer::RunConfiguration *runConfiguration = 0);
-    void startTool(Analyzer::StartMode mode);
 
     void clearErrorView();
 

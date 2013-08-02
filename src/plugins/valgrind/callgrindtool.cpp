@@ -612,7 +612,7 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 
 void CallgrindTool::startTool(StartMode mode)
 {
-    ValgrindPlugin::startValgrindTool(this, mode);
+    IAnalyzerTool::startTool(mode);
     d->setBusyCursor(true);
 }
 

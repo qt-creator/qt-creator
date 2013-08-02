@@ -112,7 +112,7 @@ public:
     virtual AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
-    virtual void startTool(StartMode mode) = 0;
+    virtual void startTool(StartMode mode);
 
     /// Called when tools gets selected.
     virtual void toolSelected() const {}

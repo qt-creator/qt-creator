@@ -34,61 +34,15 @@
 #include "memchecktool.h"
 #include "valgrindruncontrolfactory.h"
 
-#include <analyzerbase/analyzerconstants.h>
 #include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerrunconfigwidget.h>
-#include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
-#include <analyzerbase/startremotedialog.h>
-
-#include <projectexplorer/localapplicationrunconfiguration.h>
-#include <projectexplorer/projectexplorer.h>
-
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 
-#include <QDebug>
-#include <QStringList>
 #include <QtPlugin>
-#include <QAction>
 
 using namespace Analyzer;
-using namespace ProjectExplorer;
-
 
 namespace Valgrind {
 namespace Internal {
-
-static void startRemoteTool(IAnalyzerTool *tool)
-{
-    Q_UNUSED(tool);
-    StartRemoteDialog dlg;
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-
-    AnalyzerStartParameters sp;
-    sp.startMode = StartRemote;
-    sp.connParams = dlg.sshParams();
-    sp.debuggee = dlg.executable();
-    sp.debuggeeArgs = dlg.arguments();
-    sp.displayName = dlg.executable();
-    sp.workingDirectory = dlg.workingDirectory();
-
-    //AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
-    AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
-    //m_currentRunControl = rc;
-    QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
-
-    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->runMode());
-}
-
-void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)
-{
-    if (mode == StartLocal)
-        AnalyzerManager::startLocalTool(tool);
-    if (mode == StartRemote)
-        startRemoteTool(tool);
-}
 
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
