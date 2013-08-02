@@ -34,9 +34,6 @@
 
 #include <QObject>
 
-namespace Core {
-class Context;
-}
 namespace ProjectExplorer {
 
 class Project;
