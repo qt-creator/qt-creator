@@ -36,7 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
-#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
@@ -119,9 +119,10 @@ public:
             }
             description = unescape(description);
 
-            hub->addTask(ProjectExplorer::Task(type, description,
-                                               Utils::FileName::fromUserInput(file), line,
-                                               Core::Id(Constants::TASKLISTTASK_ID)));
+            ProjectExplorer::ProjectExplorerPlugin::taskHub()
+                    ->addTask(ProjectExplorer::Task(type, description,
+                                                    Utils::FileName::fromUserInput(file), line,
+                                                    Core::Id(Constants::TASKLISTTASK_ID)));
         }
         return true;
     }
@@ -163,7 +164,6 @@ public:
         return result;
     }
 
-    ProjectExplorer::TaskHub *hub;
     TaskFileFactory *fileFactory;
 };
 
@@ -182,19 +182,13 @@ TaskListPlugin::~TaskListPlugin()
     delete d;
 }
 
-TaskListPlugin *TaskListPlugin::instance()
-{
-    return m_instance;
-}
-
 bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
 
-    d->hub = ExtensionSystem::PluginManager::getObject<ProjectExplorer::TaskHub>();
-
     //: Category under which tasklist tasks are listed in Issues view
-    d->hub->addCategory(Core::Id(Constants::TASKLISTTASK_ID), tr("My Tasks"));
+    ProjectExplorer::ProjectExplorerPlugin::taskHub()
+            ->addCategory(Core::Id(Constants::TASKLISTTASK_ID), tr("My Tasks"));
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
         return false;
@@ -211,22 +205,22 @@ void TaskListPlugin::extensionsInitialized()
 bool TaskListPlugin::loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName)
 {
     clearTasks();
-    return d->parseTaskFile(errorString, context, fileName);
+    return m_instance->d->parseTaskFile(errorString, context, fileName);
 }
 
 bool TaskListPlugin::monitorFile(ProjectExplorer::Project *context, const QString &fileName)
 {
-    return d->fileFactory->open(context, fileName);
+    return m_instance->d->fileFactory->open(context, fileName);
 }
 
 void TaskListPlugin::stopMonitoring()
 {
-    d->fileFactory->closeAllFiles();
+    m_instance->d->fileFactory->closeAllFiles();
 }
 
 void TaskListPlugin::clearTasks()
 {
-    d->hub->clearTasks(Core::Id(Constants::TASKLISTTASK_ID));
+    ProjectExplorer::ProjectExplorerPlugin::taskHub()->clearTasks(Core::Id(Constants::TASKLISTTASK_ID));
 }
 
 Q_EXPORT_PLUGIN(TaskListPlugin)

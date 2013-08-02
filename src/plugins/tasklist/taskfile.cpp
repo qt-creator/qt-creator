@@ -101,7 +101,7 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 bool TaskFile::open(QString *errorString, const QString &fileName)
 {
     setFilePath(fileName);
-    return TaskList::TaskListPlugin::instance()->loadFile(errorString, m_context, fileName);
+    return TaskList::TaskListPlugin::loadFile(errorString, m_context, fileName);
 }
 
 ProjectExplorer::Project *TaskFile::context() const

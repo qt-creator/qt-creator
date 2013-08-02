@@ -50,17 +50,15 @@ public:
     TaskListPlugin();
     ~TaskListPlugin();
 
-    static TaskListPlugin *instance();
-
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void extensionsInitialized();
 
-    bool loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName);
-    bool monitorFile(ProjectExplorer::Project *context, const QString &fileName);
+    static bool loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName);
+    static bool monitorFile(ProjectExplorer::Project *context, const QString &fileName);
 
-    void stopMonitoring();
-    void clearTasks();
+    static void stopMonitoring();
+    static void clearTasks();
 
 private:
     static TaskListPlugin *m_instance;
