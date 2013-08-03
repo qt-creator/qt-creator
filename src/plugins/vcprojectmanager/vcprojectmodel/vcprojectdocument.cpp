@@ -35,6 +35,9 @@
 #include <QStringList>
 #include <QTextStream>
 #include <QVBoxLayout>
+#include <QMessageBox>
+
+#include <coreplugin/mainwindow.h>
 
 #include "../widgets/projectsettingswidget.h"
 #include "../widgets/configurationswidgets.h"
@@ -65,7 +68,7 @@ bool VcProjectDocument::saveToFile(const QString &filePath) const
 
     QFile outFile(filePath);
     if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug( "VcProjectDocument::saveToFile::Failed to open file for writing." );
+        QMessageBox::warning(Core::ICore::mainWindow(), QObject::tr("Error!"), QObject::tr("Failed to open project file for writing."));
         return false;
     }
 
