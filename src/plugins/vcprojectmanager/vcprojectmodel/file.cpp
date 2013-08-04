@@ -30,41 +30,93 @@
 #include "file.h"
 
 #include "fileconfiguration.h"
-#include "filetype.h"
 #include "fileconfigurationfactory.h"
+#include "vcprojectdocument.h"
+
+#include <projectexplorer/projectexplorerconstants.h>
+#include <coreplugin/mimedatabase.h>
+#include <coreplugin/icore.h>
 
 namespace VcProjectManager {
 namespace Internal {
 
 File::File(VcProjectDocument *parentProjectDoc)
-    : m_fileType(FileType::Ptr(new FileType(parentProjectDoc)))
+    : m_parentProjectDoc(parentProjectDoc)
 {
 }
 
 File::File(const File &file)
 {
-    m_fileType = file.m_fileType->clone();
+    m_parentProjectDoc = file.m_parentProjectDoc;
+    m_relativePath = file.m_relativePath;
+
+    foreach (const File::Ptr &f, file.m_files)
+        m_files.append(File::Ptr(new File(*f)));
+
+    foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
+        m_fileConfigurations.append(fileConfig->clone());
 }
 
 File &File::operator =(const File &file)
 {
-    if (this != &file)
-        m_fileType = file.m_fileType->clone();
+    if (this != &file) {
+        m_parentProjectDoc = file.m_parentProjectDoc;
+        m_relativePath = file.m_relativePath;
+
+        m_files.clear();
+        m_fileConfigurations.clear();
+
+        foreach (const File::Ptr &f, file.m_files)
+            m_files.append(File::Ptr(new File(*f)));
+
+        foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
+            m_fileConfigurations.append(fileConfig->clone());
+    }
     return *this;
 }
 
 File::~File()
 {
+    m_files.clear();
+    m_fileConfigurations.clear();
 }
 
 void File::processNode(const QDomNode &node)
 {
-    m_fileType->processNode(node);
+    if (node.isNull())
+        return;
+
+    if (node.nodeType() == QDomNode::ElementNode)
+        processNodeAttributes(node.toElement());
+
+    if (node.hasChildNodes()) {
+        QDomNode firstChild = node.firstChild();
+        if (!firstChild.isNull()) {
+            if (firstChild.nodeName() == QLatin1String("FileConfiguration"))
+                processFileConfiguration(firstChild);
+            else if (firstChild.nodeName() == QLatin1String("File"))
+                processFile(firstChild);
+        }
+    }
 }
 
 void File::processNodeAttributes(const QDomElement &element)
 {
-    Q_UNUSED(element)
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("RelativePath"))
+                m_relativePath = domElement.value();
+
+            else
+                m_anyAttribute.insert(domElement.name(), domElement.value());
+        }
+    }
 }
 
 VcNodeWidget *File::createSettingsWidget()
@@ -74,67 +126,146 @@ VcNodeWidget *File::createSettingsWidget()
 
 QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
-    return m_fileType->toXMLDomNode(domXMLDocument);
+    QDomElement fileNode = domXMLDocument.createElement(QLatin1String("File"));
+
+    fileNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
+
+    QHashIterator<QString, QString> it(m_anyAttribute);
+
+    while (it.hasNext()) {
+        it.next();
+        fileNode.setAttribute(it.key(), it.value());
+    }
+
+    foreach (const File::Ptr &file, m_files)
+        fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
+
+    foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
+        fileNode.appendChild(fileConfig->toXMLDomNode(domXMLDocument));
+
+    return fileNode;
 }
 
 void File::addFile(File::Ptr file)
 {
-    m_fileType->addFile(file);
+    if (m_files.contains(file))
+        return;
+    m_files.append(file);
 }
 
 void File::removeFile(File::Ptr file)
 {
-    m_fileType->removeFile(file);
+    if (m_files.contains(file))
+        m_files.removeAll(file);
 }
 
 void File::addFileConfiguration(FileConfiguration::Ptr fileConfig)
 {
-    m_fileType->addFileConfiguration(fileConfig);
+    if (m_fileConfigurations.contains(fileConfig))
+        return;
+    m_fileConfigurations.append(fileConfig);
 }
 
 void File::removeFileConfiguration(FileConfiguration::Ptr fileConfig)
 {
-    m_fileType->removeFileConfiguration(fileConfig);
+    if (m_fileConfigurations.contains(fileConfig))
+        m_fileConfigurations.removeAll(fileConfig);
 }
 
 QString File::attributeValue(const QString &attributeName) const
 {
-    return m_fileType->attributeValue(attributeName);
+    return m_anyAttribute.value(attributeName);
 }
 
 void File::setAttribute(const QString &attributeName, const QString &attributeValue)
 {
-    m_fileType->setAttribute(attributeName, attributeValue);
+    m_anyAttribute.insert(attributeName, attributeValue);
 }
 
 void File::clearAttribute(const QString &attributeName)
 {
-    m_fileType->clearAttribute(attributeName);
+    // no need to clear the attribute's value if attribute isn't present
+    if (m_anyAttribute.contains(attributeName))
+        m_anyAttribute.insert(attributeName, QString());
 }
 
 void File::removeAttribute(const QString &attributeName)
 {
-    m_fileType->removeAttribute(attributeName);
+    m_anyAttribute.remove(attributeName);
 }
 
 QString File::relativePath() const
 {
-    return m_fileType->relativePath();
+    return m_relativePath;
 }
 
 void File::setRelativePath(const QString &relativePath)
 {
-    m_fileType->setRelativePath(relativePath);
+    m_relativePath = relativePath;
 }
 
 ProjectExplorer::FileType File::fileType() const
 {
-    return  m_fileType->fileType();
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
+    QString mimeType = mdb->findByFile(canonicalPath()).type();
+
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
+        || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE))
+        return ProjectExplorer::SourceType;
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE)
+        || mimeType == QLatin1String(ProjectExplorer::Constants::C_HEADER_MIMETYPE))
+        return ProjectExplorer::HeaderType;
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE))
+        return ProjectExplorer::ResourceType;
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE))
+        return ProjectExplorer::FormType;
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
+        return ProjectExplorer::QMLType;
+
+    return ProjectExplorer::UnknownFileType;
 }
 
 QString File::canonicalPath() const
 {
-    return m_fileType->canonicalPath();
+    if (m_parentProjectDoc) {
+        QFileInfo fileInfo(m_parentProjectDoc->filePath());
+        fileInfo = QFileInfo(fileInfo.canonicalPath() + QLatin1Char('/') + m_relativePath);
+        return fileInfo.canonicalFilePath();
+    }
+
+    return QString() + m_relativePath;
+}
+
+void File::processFileConfiguration(const QDomNode &fileConfigNode)
+{
+    FileConfiguration::Ptr fileConfig = FileConfigFactory::createFileConfiguration(m_parentProjectDoc->documentVersion());
+    fileConfig->processNode(fileConfigNode);
+    m_fileConfigurations.append(fileConfig);
+
+    // process next sibling
+    QDomNode nextSibling = fileConfigNode.nextSibling();
+    if (!nextSibling.isNull()) {
+        if (nextSibling.nodeName() == QLatin1String("FileConfiguration"))
+            processFileConfiguration(nextSibling);
+        else
+            processFile(nextSibling);
+    }
+}
+
+void File::processFile(const QDomNode &fileNode)
+{
+    File::Ptr file(new File(m_parentProjectDoc));
+    file->processNode(fileNode);
+    m_files.append(file);
+
+    // process next sibling
+    QDomNode nextSibling = fileNode.nextSibling();
+    if (!nextSibling.isNull()) {
+        if (nextSibling.nodeName() == QLatin1String("FileConfiguration"))
+            processFileConfiguration(nextSibling);
+        else
+            processFile(nextSibling);
+    }
 }
 
 } // namespace Internal

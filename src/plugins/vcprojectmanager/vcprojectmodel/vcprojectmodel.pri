@@ -18,7 +18,6 @@ HEADERS += \
     vcprojectmodel/folder.h \
     vcprojectmodel/filtertype.h \
     vcprojectmodel/filter.h \
-    vcprojectmodel/filetype.h \
     vcprojectmodel/files_private.h \
     vcprojectmodel/files.h \
     vcprojectmodel/fileconfigurationfactory.h \
@@ -73,7 +72,6 @@ SOURCES += \
     vcprojectmodel/folder.cpp \
     vcprojectmodel/filtertype.cpp \
     vcprojectmodel/filter.cpp \
-    vcprojectmodel/filetype.cpp \
     vcprojectmodel/files_private.cpp \
     vcprojectmodel/files.cpp \
     vcprojectmodel/fileconfigurationfactory.cpp \

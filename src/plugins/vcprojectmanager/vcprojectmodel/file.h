@@ -31,11 +31,14 @@
 #define VCPROJECTMANAGER_INTERNAL_FILE_H
 
 #include "ivcprojectnodemodel.h"
+#include "fileconfiguration.h"
 
-#include "filetype.h"
+#include <projectexplorer/projectnodes.h>
 
 namespace VcProjectManager {
 namespace Internal {
+
+class VcProjectDocument;
 
 class File : public IVcProjectXMLNode
 {
@@ -69,7 +72,14 @@ public:
     ProjectExplorer::FileType fileType() const;
     QString canonicalPath() const;
 private:
-    FileType::Ptr m_fileType;
+    void processFileConfiguration(const QDomNode &fileConfigNode);
+    void processFile(const QDomNode &fileNode);
+
+    QString m_relativePath; // required
+    QList<QSharedPointer<File> > m_files;
+    QList<FileConfiguration::Ptr> m_fileConfigurations;
+    QHash<QString, QString> m_anyAttribute;
+    VcProjectDocument *m_parentProjectDoc;
 };
 
 } // namespace Internal
