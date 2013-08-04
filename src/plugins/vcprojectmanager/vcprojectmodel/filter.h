@@ -31,11 +31,12 @@
 #define VCPROJECTMANAGER_INTERNAL_FILTER_H
 
 #include "ivcprojectnodemodel.h"
-
-#include "filtertype.h"
+#include "file.h"
 
 namespace VcProjectManager {
 namespace Internal {
+
+class Filter;
 
 class Filter : public IVcProjectXMLNode
 {
@@ -75,7 +76,14 @@ public:
     void allFiles(QStringList &sl) const;
 
 private:
-    FilterType::Ptr m_filterType;
+    void processFile(const QDomNode &fileNode);
+    void processFilter(const QDomNode &filterNode);
+
+    QString m_name;
+    QHash<QString, QString> m_anyAttribute;
+    QList<QSharedPointer<Filter> > m_filters;
+    QList<File::Ptr> m_files;
+    VcProjectDocument *m_parentProjectDoc;
 };
 
 } // namespace Internal

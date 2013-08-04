@@ -16,7 +16,6 @@ HEADERS += \
     vcprojectmodel/global.h \
     vcprojectmodel/foldertype.h \
     vcprojectmodel/folder.h \
-    vcprojectmodel/filtertype.h \
     vcprojectmodel/filter.h \
     vcprojectmodel/files_private.h \
     vcprojectmodel/files.h \
@@ -70,7 +69,6 @@ SOURCES += \
     vcprojectmodel/global.cpp \
     vcprojectmodel/foldertype.cpp \
     vcprojectmodel/folder.cpp \
-    vcprojectmodel/filtertype.cpp \
     vcprojectmodel/filter.cpp \
     vcprojectmodel/files_private.cpp \
     vcprojectmodel/files.cpp \
