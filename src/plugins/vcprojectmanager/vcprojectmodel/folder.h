@@ -32,7 +32,8 @@
 
 #include "ivcprojectnodemodel.h"
 
-#include "foldertype.h"
+#include "file.h"
+#include "filter.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -53,8 +54,8 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     void addFilter(Filter::Ptr filter);
-    void removeFilter(Filter::Ptr filterName);
-    void removeFilter(const QString &filter);
+    void removeFilter(Filter::Ptr filter);
+    void removeFilter(const QString &filterName);
     QList<Filter::Ptr> filters() const;
     Filter::Ptr filter(const QString &filterName) const;
 
@@ -82,7 +83,17 @@ public:
     void allFiles(QStringList &sl);
 
 private:
-    QSharedPointer<FolderType> m_folderType;
+    void processFile(const QDomNode &fileNode);
+    void processFilter(const QDomNode &filterNode);
+    void processFolder(const QDomNode &folderNode);
+
+    QList<QSharedPointer<Folder> > m_folders;
+    QList<File::Ptr> m_files;
+    QList<Filter::Ptr> m_filters;
+
+    QString m_name; // required
+    QHash<QString, QString> m_anyAttribute;
+    VcProjectDocument *m_parentProjectDoc;
 };
 
 } // namespace Internal
