@@ -89,6 +89,7 @@ public:
 
     QVariant auxiliaryData(const PropertyName &name) const;
     void setAuxiliaryData(const PropertyName &name, const QVariant &data);
+    void removeAuxiliaryData(const PropertyName &name);
     bool hasAuxiliaryData(const PropertyName &name) const;
     QHash<PropertyName, QVariant> auxiliaryData() const;
 

@@ -174,6 +174,11 @@ void InternalNode::setAuxiliaryData(const PropertyName &name, const QVariant &da
     m_auxiliaryDataHash.insert(name, data);
 }
 
+void InternalNode::removeAuxiliaryData(const PropertyName &name)
+{
+    m_auxiliaryDataHash.remove(name);
+}
+
 bool InternalNode::hasAuxiliaryData(const PropertyName &name) const
 {
     return m_auxiliaryDataHash.contains(name);

@@ -803,7 +803,11 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
 
 void ModelPrivate::setAuxiliaryData(const InternalNode::Pointer& node, const PropertyName &name, const QVariant &data)
 {
-    node->setAuxiliaryData(name, data);
+    if (data.isValid())
+        node->setAuxiliaryData(name, data);
+    else
+        node->removeAuxiliaryData(name);
+
     notifyAuxiliaryDataChanged(node, name,data);
 }
 
