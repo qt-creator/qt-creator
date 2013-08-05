@@ -635,6 +635,12 @@ void QtOptionsPageWidget::addQtDir()
                                              QFileDialog::DontResolveSymlinks));
     if (qtVersion.isNull())
         return;
+
+    QFileInfo fi(qtVersion.toString());
+    // should add all qt versions here ?
+    if (BuildableHelperLibrary::isQtChooser(fi))
+        qtVersion = Utils::FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
+
     BaseQtVersion *version = 0;
     foreach (BaseQtVersion *v, m_versions) {
         if (v->qmakeCommand() == qtVersion) {

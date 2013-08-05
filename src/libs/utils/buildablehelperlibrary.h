@@ -43,6 +43,8 @@ public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake
     static FileName findSystemQt(const Utils::Environment &env);
+    static bool isQtChooser(const QFileInfo &info);
+    static QString qtChooserToQmakePath(const QString &path);
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
     static QString qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable);

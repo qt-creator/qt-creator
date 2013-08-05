@@ -37,6 +37,32 @@
 
 namespace Utils {
 
+bool BuildableHelperLibrary::isQtChooser(const QFileInfo &info)
+{
+    return info.isSymLink() && info.symLinkTarget().endsWith(QLatin1String("/qtchooser"));
+}
+
+QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
+{
+    QProcess proc;
+    proc.start(path, QStringList(QLatin1String("-print-env")));
+    if (!proc.waitForStarted(1000))
+        return QString();
+    if (!proc.waitForFinished(1000))
+        return QString();
+    QByteArray output = proc.readAllStandardOutput();
+    int pos = output.indexOf("QTTOOLDIR=");
+    if (pos == -1)
+        return QString();
+    pos += strlen("QTTOOLDIR=\"");
+    int end = output.indexOf('\"', pos);
+    if (end == -1)
+        return QString();
+
+    QString result = QString::fromLocal8Bit(output.mid(pos, end - pos)) + QLatin1String("/qmake");
+    return result;
+}
+
 Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &env)
 {
     QStringList paths = env.path();
@@ -45,8 +71,11 @@ Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &e
         if (!prefix.endsWith(QLatin1Char('/')))
             prefix.append(QLatin1Char('/'));
         foreach (const QString &possibleCommand, possibleQMakeCommands()) {
-            const QFileInfo qmake(prefix + possibleCommand);
+            QFileInfo qmake(prefix + possibleCommand);
             if (qmake.exists()) {
+                if (isQtChooser(qmake))
+                    qmake.setFile(qtChooserToQmakePath(qmake.symLinkTarget()));
+
                 if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull())
                     return Utils::FileName(qmake);
             }
