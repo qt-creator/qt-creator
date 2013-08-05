@@ -96,11 +96,6 @@ bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState);
 
 } // namespace SelectionStateFunctors
 
-
-namespace ComponentUtils {
-    void goIntoComponent(const ModelNode &modelNode);
-}
-
 class ActionTemplate : public DefaultAction
 {
 

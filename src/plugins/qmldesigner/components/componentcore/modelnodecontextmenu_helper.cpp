@@ -38,89 +38,6 @@
 
 namespace QmlDesigner {
 
-static inline DesignDocument* currentDesignDocument()
-{
-    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
-}
-
-static inline bool checkIfNodeIsAView(const ModelNode &node)
-{
-    return node.metaInfo().isValid() &&
-            (node.metaInfo().isSubclassOf("QtQuick.ListView", -1, -1) ||
-             node.metaInfo().isSubclassOf("QtQuick.GridView", -1, -1) ||
-             node.metaInfo().isSubclassOf("QtQuick.PathView", -1, -1));
-}
-
-static inline void getProperties(const ModelNode node, QHash<PropertyName, QVariant> &propertyHash)
-{
-    if (QmlObjectNode::isValidQmlObjectNode(node)) {
-        foreach (const PropertyName &propertyName, node.propertyNames()) {
-            if (node.property(propertyName).isVariantProperty() ||
-                    (node.property(propertyName).isBindingProperty() &&
-                     !propertyName.contains("anchors."))) {
-                propertyHash.insert(propertyName, QmlObjectNode(node).instanceValue(propertyName));
-            }
-        }
-
-        if (QmlItemNode::isValidQmlItemNode(node)) {
-            QmlItemNode itemNode(node);
-
-            propertyHash.insert("width", itemNode.instanceValue("width"));
-            propertyHash.insert("height", itemNode.instanceValue("height"));
-            propertyHash.remove("x");
-            propertyHash.remove("y");
-            propertyHash.remove("rotation");
-            propertyHash.remove("opacity");
-        }
-    }
-}
-
-static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
-{
-    QHash<PropertyName, QVariant> auxiliaryData  = node.auxiliaryData();
-    foreach (const PropertyName &propertyName, auxiliaryData.keys()) {
-        node.setAuxiliaryData(propertyName, QVariant());
-    }
-
-    QHashIterator<PropertyName, QVariant> propertyIterator(propertyHash);
-    while (propertyIterator.hasNext()) {
-        propertyIterator.next();
-        const PropertyName propertyName = propertyIterator.key();
-        if (propertyName == "width" || propertyName == "height") {
-            node.setAuxiliaryData(propertyIterator.key(), propertyIterator.value());
-        } else if (node.property(propertyIterator.key()).isDynamic() &&
-                   node.property(propertyIterator.key()).dynamicTypeName() == "alias" &&
-                   node.property(propertyIterator.key()).isBindingProperty()) {
-            AbstractProperty targetProperty = node.bindingProperty(propertyIterator.key()).resolveToProperty();
-            if (targetProperty.isValid())
-                targetProperty.parentModelNode().setAuxiliaryData(targetProperty.name() + "@NodeInstance", propertyIterator.value());
-        } else {
-            node.setAuxiliaryData(propertyIterator.key() + "@NodeInstance", propertyIterator.value());
-        }
-    }
-}
-
-static inline bool modelNodeIsComponent(const ModelNode &node)
-{
-    if (!node.isValid() || !node.metaInfo().isValid())
-        return false;
-
-    if (node.metaInfo().isFileComponent())
-        return true;
-
-    if (node.nodeSourceType() == ModelNode::NodeWithComponentSource)
-        return true;
-    if (checkIfNodeIsAView(node) &&
-        node.hasNodeProperty("delegate")) {
-        if (node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent())
-            return true;
-        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
-            return true;
-    }
-
-    return false;
-}
-
 static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
 {
     if (siblingList.isEmpty())
@@ -153,91 +70,6 @@ static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
     return true;
 }
 
-static inline bool isFileComponent(const ModelNode &node)
-{
-    if (!node.isValid() || !node.metaInfo().isValid())
-        return false;
-
-    if (node.metaInfo().isFileComponent())
-        return true;
-
-    if (checkIfNodeIsAView(node) &&
-        node.hasNodeProperty("delegate")) {
-        if (node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent())
-            return true;
-    }
-
-    return false;
-}
-
-static inline void openFileForComponent(const ModelNode &node)
-{
-    QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
-
-    //int width = 0;
-    //int height = 0;
-    QHash<PropertyName, QVariant> propertyHash;
-    if (node.metaInfo().isFileComponent()) {
-        //getWidthHeight(node, width, height);
-        getProperties(node, propertyHash);
-        currentDesignDocument()->changeToExternalSubComponent(node.metaInfo().componentFileName());
-    } else if (checkIfNodeIsAView(node) &&
-               node.hasNodeProperty("delegate") &&
-               node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent()) {
-        //getWidthHeight(node, width, height);
-        getProperties(node, propertyHash);
-        currentDesignDocument()->changeToExternalSubComponent(node.nodeProperty("delegate").modelNode().metaInfo().componentFileName());
-    }
-    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
-    applyProperties(rootModelNode, propertyHash);
-    //rootModelNode.setAuxiliaryData("width", width);
-    //rootModelNode.setAuxiliaryData("height", height);
-}
-
-static inline void openInlineComponent(const ModelNode &node)
-{
-
-    if (!node.isValid() || !node.metaInfo().isValid())
-        return;
-
-    if (!currentDesignDocument())
-        return;
-
-    QHash<PropertyName, QVariant> propertyHash;
-
-    if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
-        //getWidthHeight(node, width, height);
-        getProperties(node, propertyHash);
-        currentDesignDocument()->changeToSubComponent(node);
-    } else if (checkIfNodeIsAView(node) &&
-               node.hasNodeProperty("delegate")) {
-        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource) {
-            //getWidthHeight(node, width, height);
-            getProperties(node, propertyHash);
-            currentDesignDocument()->changeToSubComponent(node.nodeProperty("delegate").modelNode());
-        }
-    }
-
-    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
-    applyProperties(rootModelNode, propertyHash);
-    //rootModelNode.setAuxiliaryData("width", width);
-    //rootModelNode.setAuxiliaryData("height", height);
-}
-
-namespace ComponentUtils {
-void goIntoComponent(const ModelNode &modelNode)
-{
-    if (modelNode.isValid() && modelNodeIsComponent(modelNode)) {
-        QmlDesignerPlugin::instance()->viewManager().setComponentNode(modelNode);
-        if (isFileComponent(modelNode))
-            openFileForComponent(modelNode);
-        else
-            openInlineComponent(modelNode);
-    }
-}
-
-} // namespace ComponentUtils
-
 namespace SelectionContextFunctors {
 
 bool singleSelectionItemIsAnchored(const SelectionContext &selectionState)
@@ -267,7 +99,7 @@ bool selectionHasSameParent(const SelectionContext &selectionState)
 
 bool selectionIsComponent(const SelectionContext &selectionState)
 {
-    return modelNodeIsComponent(selectionState.currentSingleSelectedNode());
+    return selectionState.currentSingleSelectedNode().isComponent();
 }
 
 } //SelectionStateFunctors

@@ -39,6 +39,7 @@
 #include <variantproperty.h>
 #include <rewritingexception.h>
 #include <rewritertransaction.h>
+#include <documentmanager.h>
 #include <qmlanchors.h>
 #include <limits>
 
@@ -158,7 +159,7 @@ namespace ModelNodeOperations {
 
 void goIntoComponent(const ModelNode &modelNode)
 {
-    ComponentUtils::goIntoComponent(modelNode);
+    DocumentManager::goIntoComponent(modelNode);
 }
 
 void select(const SelectionContext &selectionState)
