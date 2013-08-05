@@ -7203,10 +7203,10 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
                 if (position < m_insertState.pos1) {
                     // backspaces
                     const int bs = m_insertState.pos1 - position;
-                    const QString inserted = textAt(position, position + charsAdded);
+                    const QString inserted = textAt(position, m_oldPosition);
                     const QString removed = m_insertState.textBeforeCursor.right(bs);
                     // Ignore backspaces if same text was just inserted.
-                    if ( !inserted.startsWith(removed) ) {
+                    if ( !inserted.endsWith(removed) ) {
                         m_insertState.backspaces += bs;
                         m_insertState.pos1 = position;
                         m_insertState.pos2 = qMax(position, m_insertState.pos2 - bs);
