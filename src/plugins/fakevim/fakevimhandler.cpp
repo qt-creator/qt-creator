@@ -2273,12 +2273,7 @@ void FakeVimHandler::Private::exportSelection()
                 ++anc;
             else
                 ++pos;
-        } else if (anc > pos) {
-            ++anc;
-        }
-        setAnchorAndPosition(anc, pos);
-
-        if (g.visualMode == VisualBlockMode) {
+            setAnchorAndPosition(anc, pos);
             commitCursor();
             emit q->requestSetBlockSelection(false);
             emit q->requestSetBlockSelection(true);
@@ -2290,17 +2285,20 @@ void FakeVimHandler::Private::exportSelection()
                 anc = firstPositionInLine(ancLine);
             } else {
                 pos = firstPositionInLine(posLine);
-                anc = lastPositionInLine(ancLine);
+                anc = lastPositionInLine(ancLine) + 1;
             }
             // putting cursor on folded line will unfold the line, so move the cursor a bit
             if (!document()->findBlock(pos).isVisible())
                 ++pos;
             setAnchorAndPosition(anc, pos);
         } else if (g.visualMode == VisualCharMode) {
-            /* Nothing */
+            if (anc > pos)
+                ++anc;
         } else {
             QTC_CHECK(false);
         }
+
+        setAnchorAndPosition(anc, pos);
 
         setMark(QLatin1Char('<'), mark(QLatin1Char('<')).position);
         setMark(QLatin1Char('>'), mark(QLatin1Char('>')).position);
