@@ -213,11 +213,6 @@ QString QmlProfilerTool::description() const
               "applications using QML.");
 }
 
-Core::Id QmlProfilerTool::actionId(StartMode mode) const
-{
-    return mode == StartLocal ? "Analyzer.QmlProfiler.Local" : "Analyzer.QmlProfiler.Remote";
-}
-
 IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 {
     return AnyMode;

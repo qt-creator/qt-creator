@@ -297,11 +297,6 @@ QString MemcheckTool::description() const
               "memory leaks");
 }
 
-Core::Id MemcheckTool::actionId(StartMode mode) const
-{
-    return mode == StartLocal ? "Analyzer.Memcheck.Local" : "Analyzer.Memcheck.Remote";
-}
-
 AbstractAnalyzerSubConfig *MemcheckTool::createGlobalSettings()
 {
     return new ValgrindGlobalSettings();

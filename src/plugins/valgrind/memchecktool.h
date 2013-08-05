@@ -88,7 +88,6 @@ public:
     ProjectExplorer::RunMode runMode() const;
     QString displayName() const;
     QString description() const;
-    Core::Id actionId(Analyzer::StartMode mode) const;
 
     // Create the valgrind settings (for all valgrind tools)
     Analyzer::AbstractAnalyzerSubConfig *createGlobalSettings();

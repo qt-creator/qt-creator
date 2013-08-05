@@ -78,12 +78,6 @@ public:
     virtual QString displayName() const = 0;
     /// Returns a user readable description name for this tool.
     virtual QString description() const = 0;
-    /// Returns an id for the start action.
-    virtual Core::Id actionId(StartMode mode) const = 0;
-    /// Returns the menu group the start action should go to.
-    virtual Core::Id menuGroup(StartMode mode) const;
-    /// Returns a short user readable action name for this tool.
-    virtual QString actionName(StartMode mode) const;
 
     /**
      * The mode in which this tool should preferably be run

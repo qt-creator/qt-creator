@@ -60,21 +60,6 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-Id IAnalyzerTool::menuGroup(StartMode mode) const
-{
-    if (mode == StartRemote)
-        return Constants::G_ANALYZER_REMOTE_TOOLS;
-    return Constants::G_ANALYZER_TOOLS;
-}
-
-QString IAnalyzerTool::actionName(StartMode mode) const
-{
-    QString base = displayName();
-    if (mode == StartRemote)
-        return base + tr(" (External)");
-    return base;
-}
-
 AbstractAnalyzerSubConfig *IAnalyzerTool::createGlobalSettings()
 {
     return 0;

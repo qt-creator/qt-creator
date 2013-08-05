@@ -81,6 +81,7 @@ namespace Analyzer {
 namespace Internal {
 
 const char LAST_ACTIVE_TOOL[] = "Analyzer.Plugin.LastActiveTool";
+const char LAST_ACTIVE_MODE[] = "Analyzer.Plugin.LastActiveMode";
 const char INITIAL_DOCK_AREA[] = "initial_dock_area";
 
 ////////////////////////////////////////////////////////////////////
@@ -470,12 +471,11 @@ void AnalyzerManagerPrivate::selectSavedTool()
     const QSettings *settings = ICore::settings();
 
     if (settings->contains(QLatin1String(LAST_ACTIVE_TOOL))) {
-        const Id lastActiveAction = Id::fromSetting(settings->value(QLatin1String(LAST_ACTIVE_TOOL)));
-        foreach (QAction *action, m_actions) {
-            IAnalyzerTool *tool = m_toolFromAction.value(action);
-            StartMode mode = m_modeFromAction.value(action);
-            if (tool->actionId(mode) == lastActiveAction) {
-                selectTool(tool, mode);
+        const Id lastTool = Id::fromSetting(settings->value(QLatin1String(LAST_ACTIVE_TOOL)));
+        const StartMode lastMode = StartMode(settings->value(QLatin1String(LAST_ACTIVE_MODE)).toInt());
+        foreach (IAnalyzerTool *tool, m_tools) {
+            if (tool->id() == lastTool) {
+                selectTool(tool, lastMode);
                 return;
             }
         }
@@ -554,9 +554,13 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
 
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
     foreach (StartMode mode, modes) {
-        QString actionName = tool->actionName(mode);
-        Id menuGroup = tool->menuGroup(mode);
-        Id actionId = tool->actionId(mode);
+        QString actionName = tool->displayName();
+        Id menuGroup = Constants::G_ANALYZER_TOOLS;
+        if (mode == StartRemote) {
+            actionName += IAnalyzerTool::tr(" (External)");
+            menuGroup = Constants::G_ANALYZER_REMOTE_TOOLS;
+        }
+        Id actionId = tool->id().withSuffix(mode);
         QAction *action = new QAction(actionName, this);
         Command *command = Core::ActionManager::registerAction(action, actionId, Context(C_GLOBAL));
         m_menu->addAction(command, menuGroup);
@@ -610,7 +614,8 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
     m_mainWindow->saveSettings(settings);
     settings->setValue(QLatin1String("ToolSettingsSaved"), true);
     settings->endGroup();
-    settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), tool->actionId(mode).toString());
+    settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), tool->id().toString());
+    settings->setValue(QLatin1String(LAST_ACTIVE_MODE), int(mode));
 }
 
 void AnalyzerManagerPrivate::updateRunActions()
