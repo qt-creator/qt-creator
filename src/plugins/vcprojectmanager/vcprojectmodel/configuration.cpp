@@ -93,7 +93,6 @@ void Configuration::processNodeAttributes(const QDomElement &element)
 
             if (domElement.name() == QLatin1String("Name")) {
                 m_name = domElement.value();
-                m_oldName = m_name;
             }
 
             else
@@ -161,16 +160,6 @@ void Configuration::setName(const QString &name)
 {
     m_name = name;
     emit nameChanged();
-}
-
-QString Configuration::oldName() const
-{
-    return m_oldName;
-}
-
-void Configuration::setOldName(const QString &oldName)
-{
-    m_oldName = oldName;
 }
 
 QString Configuration::attributeValue(const QString &attributeName) const
