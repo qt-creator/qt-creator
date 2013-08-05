@@ -4,8 +4,6 @@ HEADERS += \
     vcprojectmodel/toolfiles.h \
     vcprojectmodel/toolfile.h \
     vcprojectmodel/references.h \
-    vcprojectmodel/referenceconfigurationfactory.h \
-    vcprojectmodel/referenceconfiguration.h \
     vcprojectmodel/publishingitem.h \
     vcprojectmodel/publishingdata.h \
     vcprojectmodel/projectreference_private.h \
@@ -18,8 +16,6 @@ HEADERS += \
     vcprojectmodel/filter.h \
     vcprojectmodel/files_private.h \
     vcprojectmodel/files.h \
-    vcprojectmodel/fileconfigurationfactory.h \
-    vcprojectmodel/fileconfiguration.h \
     vcprojectmodel/file.h \
     vcprojectmodel/deploymenttool.h \
     vcprojectmodel/defaulttoolfile.h \
@@ -56,8 +52,6 @@ SOURCES += \
     vcprojectmodel/toolfiles.cpp \
     vcprojectmodel/toolfile.cpp \
     vcprojectmodel/references.cpp \
-    vcprojectmodel/referenceconfigurationfactory.cpp \
-    vcprojectmodel/referenceconfiguration.cpp \
     vcprojectmodel/publishingitem.cpp \
     vcprojectmodel/publishingdata.cpp \
     vcprojectmodel/projectreference_private.cpp \
@@ -70,8 +64,6 @@ SOURCES += \
     vcprojectmodel/filter.cpp \
     vcprojectmodel/files_private.cpp \
     vcprojectmodel/files.cpp \
-    vcprojectmodel/fileconfigurationfactory.cpp \
-    vcprojectmodel/fileconfiguration.cpp \
     vcprojectmodel/file.cpp \
     vcprojectmodel/deploymenttool.cpp \
     vcprojectmodel/defaulttoolfile.cpp \

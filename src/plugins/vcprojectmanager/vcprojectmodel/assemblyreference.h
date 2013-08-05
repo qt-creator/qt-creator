@@ -58,11 +58,11 @@ public:
 
     QString relativePath() const;
     void setRelativePath(const QString &relativePath);
-    void addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
-    void removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
+    void addReferenceConfiguration(Configuration::Ptr refConfig);
+    void removeReferenceConfiguration(Configuration::Ptr refConfig);
     void removeReferenceConfiguration(const QString &refConfName);
-    QList<ReferenceConfiguration::Ptr> referenceConfigurations() const;
-    ReferenceConfiguration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    QList<Configuration::Ptr> referenceConfigurations() const;
+    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
 
 protected:
     AssemblyReference();

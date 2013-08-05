@@ -29,8 +29,6 @@
 ****************************************************************************/
 #include "activexreference.h"
 
-#include "referenceconfiguration.h"
-
 namespace VcProjectManager {
 namespace Internal {
 
@@ -59,12 +57,12 @@ QDomNode ActiveXReference::toXMLDomNode(QDomDocument &domXMLDocument) const
     return m_private->toXMLDomNode(domXMLDocument);
 }
 
-void ActiveXReference::addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void ActiveXReference::addReferenceConfiguration(Configuration::Ptr refConfig)
 {
     m_private->addReferenceConfiguration(refConfig);
 }
 
-void ActiveXReference::removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void ActiveXReference::removeReferenceConfiguration(Configuration::Ptr refConfig)
 {
     m_private->removeReferenceConfiguration(refConfig);
 }
@@ -74,12 +72,12 @@ void ActiveXReference::removeReferenceConfiguration(const QString &refConfigName
     m_private->removeReferenceConfiguration(refConfigName);
 }
 
-QList<ReferenceConfiguration::Ptr> ActiveXReference::referenceConfigurations() const
+QList<Configuration::Ptr> ActiveXReference::referenceConfigurations() const
 {
     return m_private->referenceConfigurations();
 }
 
-ReferenceConfiguration::Ptr ActiveXReference::referenceConfiguration(const QString &refConfigName) const
+Configuration::Ptr ActiveXReference::referenceConfiguration(const QString &refConfigName) const
 {
     return m_private->referenceConfiguration(refConfigName);
 }

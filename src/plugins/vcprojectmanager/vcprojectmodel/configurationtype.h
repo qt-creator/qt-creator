@@ -43,8 +43,7 @@ namespace Internal {
 class ConfigurationType
 {
     friend class Configuration;
-    friend class ReferenceConfiguration;
-    friend class FileConfiguration;
+
 public:
     typedef QSharedPointer<ConfigurationType>   Ptr;
 
@@ -87,8 +86,6 @@ protected:
 class ConfigurationType2003 : public ConfigurationType
 {
     friend class Configuration2003;
-    friend class ReferenceConfiguration2003;
-    friend class FileConfiguration2003;
 
 public:
     ~ConfigurationType2003();
@@ -103,8 +100,6 @@ protected:
 class ConfigurationType2005 : public ConfigurationType2003
 {
     friend class Configuration2005;
-    friend class ReferenceConfiguration2005;
-    friend class FileConfiguration2005;
 
 public:
     ~ConfigurationType2005();
@@ -128,8 +123,6 @@ protected:
 class ConfigurationType2008 : public ConfigurationType2005
 {
     friend class Configuration2008;
-    friend class ReferenceConfiguration2008;
-    friend class FileConfiguration2008;
 
 public:
     ~ConfigurationType2008();

@@ -56,11 +56,11 @@ public:
      */
     virtual ActiveXReference::Ptr clone() const = 0;
 
-    void addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
-    void removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
+    void addReferenceConfiguration(Configuration::Ptr refConfig);
+    void removeReferenceConfiguration(Configuration::Ptr refConfig);
     void removeReferenceConfiguration(const QString &refConfigName);
-    QList<ReferenceConfiguration::Ptr> referenceConfigurations() const;
-    ReferenceConfiguration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    QList<Configuration::Ptr> referenceConfigurations() const;
+    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
 
     QString controlGUID() const;
     void setControlGUID(const QString &ctrlGUID);

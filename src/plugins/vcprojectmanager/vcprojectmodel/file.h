@@ -31,7 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_FILE_H
 
 #include "ivcprojectnodemodel.h"
-#include "fileconfiguration.h"
+#include "configuration.h"
 
 #include <projectexplorer/projectnodes.h>
 
@@ -58,8 +58,8 @@ public:
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
-    void addFileConfiguration(FileConfiguration::Ptr fileConfig);
-    void removeFileConfiguration(FileConfiguration::Ptr fileConfig);
+    void addFileConfiguration(Configuration::Ptr fileConfig);
+    void removeFileConfiguration(Configuration::Ptr fileConfig);
 
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
@@ -77,7 +77,7 @@ private:
 
     QString m_relativePath; // required
     QList<QSharedPointer<File> > m_files;
-    QList<FileConfiguration::Ptr> m_fileConfigurations;
+    QList<Configuration::Ptr> m_fileConfigurations;
     QHash<QString, QString> m_anyAttribute;
     VcProjectDocument *m_parentProjectDoc;
 };

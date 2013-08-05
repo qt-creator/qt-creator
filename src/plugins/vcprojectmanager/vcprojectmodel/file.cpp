@@ -29,8 +29,7 @@
 ****************************************************************************/
 #include "file.h"
 
-#include "fileconfiguration.h"
-#include "fileconfigurationfactory.h"
+#include "configurationsfactory.h"
 #include "vcprojectdocument.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -53,7 +52,7 @@ File::File(const File &file)
     foreach (const File::Ptr &f, file.m_files)
         m_files.append(File::Ptr(new File(*f)));
 
-    foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
+    foreach (const Configuration::Ptr &fileConfig, m_fileConfigurations)
         m_fileConfigurations.append(fileConfig->clone());
 }
 
@@ -69,7 +68,7 @@ File &File::operator =(const File &file)
         foreach (const File::Ptr &f, file.m_files)
             m_files.append(File::Ptr(new File(*f)));
 
-        foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
+        foreach (const Configuration::Ptr &fileConfig, m_fileConfigurations)
             m_fileConfigurations.append(fileConfig->clone());
     }
     return *this;
@@ -140,7 +139,7 @@ QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
     foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (const FileConfiguration::Ptr &fileConfig, m_fileConfigurations)
+    foreach (const Configuration::Ptr &fileConfig, m_fileConfigurations)
         fileNode.appendChild(fileConfig->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -159,14 +158,14 @@ void File::removeFile(File::Ptr file)
         m_files.removeAll(file);
 }
 
-void File::addFileConfiguration(FileConfiguration::Ptr fileConfig)
+void File::addFileConfiguration(Configuration::Ptr fileConfig)
 {
     if (m_fileConfigurations.contains(fileConfig))
         return;
     m_fileConfigurations.append(fileConfig);
 }
 
-void File::removeFileConfiguration(FileConfiguration::Ptr fileConfig)
+void File::removeFileConfiguration(Configuration::Ptr fileConfig)
 {
     if (m_fileConfigurations.contains(fileConfig))
         m_fileConfigurations.removeAll(fileConfig);
@@ -238,7 +237,7 @@ QString File::canonicalPath() const
 
 void File::processFileConfiguration(const QDomNode &fileConfigNode)
 {
-    FileConfiguration::Ptr fileConfig = FileConfigFactory::createFileConfiguration(m_parentProjectDoc->documentVersion());
+    Configuration::Ptr fileConfig = ConfigurationsFactory::createConfiguration(m_parentProjectDoc->documentVersion());
     fileConfig->processNode(fileConfigNode);
     m_fileConfigurations.append(fileConfig);
 

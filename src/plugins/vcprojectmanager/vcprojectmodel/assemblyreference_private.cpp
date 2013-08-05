@@ -31,7 +31,7 @@
 
 #include <QVariant>
 
-#include "referenceconfigurationfactory.h"
+#include "configurationsfactory.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -62,7 +62,7 @@ QDomNode AssemblyReference_Private::toXMLDomNode(QDomDocument &domXMLDocument) c
 
     assemblyRefNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
 
-    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations)
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations)
         assemblyRefNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
 
     return assemblyRefNode;
@@ -78,12 +78,12 @@ void AssemblyReference_Private::setRelativePath(const QString &relativePath)
     m_relativePath = relativePath;
 }
 
-void AssemblyReference_Private::addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void AssemblyReference_Private::addReferenceConfiguration(Configuration::Ptr refConfig)
 {
     if (m_referenceConfigurations.contains(refConfig))
         return;
 
-    foreach (const ReferenceConfiguration::Ptr &refConf, m_referenceConfigurations) {
+    foreach (const Configuration::Ptr &refConf, m_referenceConfigurations) {
         if (refConfig->name() == refConf->name())
             return;
     }
@@ -91,14 +91,14 @@ void AssemblyReference_Private::addReferenceConfiguration(ReferenceConfiguration
     m_referenceConfigurations.append(refConfig);
 }
 
-void AssemblyReference_Private::removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void AssemblyReference_Private::removeReferenceConfiguration(Configuration::Ptr refConfig)
 {
     m_referenceConfigurations.removeAll(refConfig);
 }
 
 void AssemblyReference_Private::removeReferenceConfiguration(const QString &refConfName)
 {
-    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfName) {
             removeReferenceConfiguration(refConfig);
             return;
@@ -106,18 +106,18 @@ void AssemblyReference_Private::removeReferenceConfiguration(const QString &refC
     }
 }
 
-QList<ReferenceConfiguration::Ptr> AssemblyReference_Private::referenceConfigurations() const
+QList<Configuration::Ptr> AssemblyReference_Private::referenceConfigurations() const
 {
     return m_referenceConfigurations;
 }
 
-ReferenceConfiguration::Ptr AssemblyReference_Private::referenceConfiguration(const QString &refConfigName) const
+Configuration::Ptr AssemblyReference_Private::referenceConfiguration(const QString &refConfigName) const
 {
-    foreach (const ReferenceConfiguration::Ptr &refConfig, m_referenceConfigurations) {
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
         if (refConfig->name() == refConfigName)
             return refConfig;
     }
-    return ReferenceConfiguration::Ptr();
+    return Configuration::Ptr();
 }
 
 AssemblyReference_Private::AssemblyReference_Private()
@@ -128,7 +128,7 @@ AssemblyReference_Private::AssemblyReference_Private(const AssemblyReference_Pri
 {
     m_relativePath = asmPrivate.m_relativePath;
 
-    foreach (const ReferenceConfiguration::Ptr &refConfig, asmPrivate.m_referenceConfigurations)
+    foreach (const Configuration::Ptr &refConfig, asmPrivate.m_referenceConfigurations)
         m_referenceConfigurations.append(refConfig->clone());
 }
 
@@ -137,7 +137,7 @@ AssemblyReference_Private &AssemblyReference_Private::operator =(const AssemblyR
     if (this != &asmPrivate) {
         m_relativePath = asmPrivate.m_relativePath;
 
-        foreach (const ReferenceConfiguration::Ptr &refConfig, asmPrivate.m_referenceConfigurations)
+        foreach (const Configuration::Ptr &refConfig, asmPrivate.m_referenceConfigurations)
             m_referenceConfigurations.append(refConfig->clone());
     }
 
@@ -162,7 +162,7 @@ void AssemblyReference_Private::processNodeAttributes(const QDomElement &element
 
 void AssemblyReference_Private::processReferenceConfig(const QDomNode &referenceConfig)
 {
-    ReferenceConfiguration::Ptr referenceConfiguration = createReferenceConfiguration();
+    Configuration::Ptr referenceConfiguration = createReferenceConfiguration();
     referenceConfiguration->processNode(referenceConfig);
     m_referenceConfigurations.append(referenceConfiguration);
 
@@ -197,9 +197,9 @@ AssemblyReference2003_Private &AssemblyReference2003_Private::operator =(const A
     return *this;
 }
 
-ReferenceConfiguration::Ptr AssemblyReference2003_Private::createReferenceConfiguration() const
+Configuration::Ptr AssemblyReference2003_Private::createReferenceConfiguration() const
 {
-    return ReferenceConfigurationFactory::createRefConfiguration(VcDocConstants::DV_MSVC_2003);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2003);
 }
 
 
@@ -311,9 +311,9 @@ void AssemblyReference2005_Private::processNodeAttributes(const QDomElement &ele
     }
 }
 
-ReferenceConfiguration::Ptr AssemblyReference2005_Private::createReferenceConfiguration() const
+Configuration::Ptr AssemblyReference2005_Private::createReferenceConfiguration() const
 {
-    return ReferenceConfigurationFactory::createRefConfiguration(VcDocConstants::DV_MSVC_2005);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2005);
 }
 
 
@@ -459,9 +459,9 @@ void AssemblyReference2008_Private::processNodeAttributes(const QDomElement &ele
     }
 }
 
-ReferenceConfiguration::Ptr AssemblyReference2008_Private::createReferenceConfiguration() const
+Configuration::Ptr AssemblyReference2008_Private::createReferenceConfiguration() const
 {
-    return ReferenceConfigurationFactory::createRefConfiguration(VcDocConstants::DV_MSVC_2008);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2008);
 }
 
 } // namespace Internal

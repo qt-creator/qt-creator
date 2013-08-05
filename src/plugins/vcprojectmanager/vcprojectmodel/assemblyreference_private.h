@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ASSEMBLYREFERENCE_PRIVATE_H
 #define VCPROJECTMANAGER_INTERNAL_ASSEMBLYREFERENCE_PRIVATE_H
 
-#include "referenceconfiguration.h"
+#include "configuration.h"
 #include "vcprojectdocument_constants.h"
 
 namespace VcProjectManager {
@@ -49,11 +49,11 @@ public:
 
     QString relativePath() const;
     void setRelativePath(const QString &relativePath);
-    void addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
-    void removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
+    void addReferenceConfiguration(Configuration::Ptr refConfig);
+    void removeReferenceConfiguration(Configuration::Ptr refConfig);
     void removeReferenceConfiguration(const QString &refConfName);
-    QList<ReferenceConfiguration::Ptr> referenceConfigurations() const;
-    ReferenceConfiguration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    QList<Configuration::Ptr> referenceConfigurations() const;
+    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
 
 protected:
     AssemblyReference_Private();
@@ -67,7 +67,7 @@ protected:
      * Reimplement this to create a new reference configuration.
      * \return A shared pointer to a newly created reference configuration.
      */
-    virtual ReferenceConfiguration::Ptr createReferenceConfiguration() const = 0;
+    virtual Configuration::Ptr createReferenceConfiguration() const = 0;
 
     /*!
      * Implement in order to support creating a clone of a AssemblyReference_Private instance.
@@ -75,7 +75,7 @@ protected:
      */
     virtual AssemblyReference_Private::Ptr clone() const = 0;
 
-    QList<ReferenceConfiguration::Ptr> m_referenceConfigurations;
+    QList<Configuration::Ptr> m_referenceConfigurations;
     QString m_relativePath; // required
 };
 
@@ -91,7 +91,7 @@ protected:
     AssemblyReference2003_Private();
     AssemblyReference2003_Private(const AssemblyReference2003_Private &ref);
     AssemblyReference2003_Private& operator=(const AssemblyReference2003_Private &ref);
-    ReferenceConfiguration::Ptr createReferenceConfiguration() const;
+    Configuration::Ptr createReferenceConfiguration() const;
 };
 
 class AssemblyReference2005_Private : public AssemblyReference2003_Private
@@ -115,7 +115,7 @@ protected:
     AssemblyReference2005_Private(const AssemblyReference2005_Private &ref);
     AssemblyReference2005_Private& operator=(const AssemblyReference2005_Private &ref);
     void processNodeAttributes(const QDomElement &element);
-    ReferenceConfiguration::Ptr createReferenceConfiguration() const;
+    Configuration::Ptr createReferenceConfiguration() const;
 
     QString m_assemblyName; // optional
     bool m_copyLocal;       // optional
@@ -147,7 +147,7 @@ protected:
     AssemblyReference2008_Private(const AssemblyReference2008_Private &ref);
     AssemblyReference2008_Private& operator=(const AssemblyReference2008_Private &ref);
     void processNodeAttributes(const QDomElement &element);
-    ReferenceConfiguration::Ptr createReferenceConfiguration() const;
+    Configuration::Ptr createReferenceConfiguration() const;
 
 private:
     bool m_copyLocalDependencies; //optional    default: true

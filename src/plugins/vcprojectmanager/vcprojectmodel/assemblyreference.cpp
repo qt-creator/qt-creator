@@ -29,8 +29,7 @@
 ****************************************************************************/
 #include "assemblyreference.h"
 
-#include "assemblyreference_private.h"
-#include "referenceconfiguration.h"
+#include "configuration.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -69,12 +68,12 @@ void AssemblyReference::setRelativePath(const QString &relativePath)
     m_private->setRelativePath(relativePath);
 }
 
-void AssemblyReference::addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void AssemblyReference::addReferenceConfiguration(Configuration::Ptr refConfig)
 {
     m_private->addReferenceConfiguration(refConfig);
 }
 
-void AssemblyReference::removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void AssemblyReference::removeReferenceConfiguration(Configuration::Ptr refConfig)
 {
     m_private->removeReferenceConfiguration(refConfig);
 }
@@ -84,12 +83,12 @@ void AssemblyReference::removeReferenceConfiguration(const QString &refConfName)
     m_private->removeReferenceConfiguration(refConfName);
 }
 
-QList<ReferenceConfiguration::Ptr> AssemblyReference::referenceConfigurations() const
+QList<Configuration::Ptr> AssemblyReference::referenceConfigurations() const
 {
     return m_private->referenceConfigurations();
 }
 
-ReferenceConfiguration::Ptr AssemblyReference::referenceConfiguration(const QString &refConfigName) const
+Configuration::Ptr AssemblyReference::referenceConfiguration(const QString &refConfigName) const
 {
     return m_private->referenceConfiguration(refConfigName);
 }

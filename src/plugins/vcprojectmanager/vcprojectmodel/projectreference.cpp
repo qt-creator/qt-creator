@@ -29,8 +29,6 @@
 ****************************************************************************/
 #include "projectreference.h"
 
-#include "referenceconfiguration.h"
-
 namespace VcProjectManager {
 namespace Internal {
 
@@ -79,12 +77,12 @@ void ProjectReference::setReferencedProjectIdentifier(const QString &referencedP
     m_private->setReferencedProjectIdentifier(referencedProjectIdentifier);
 }
 
-void ProjectReference::addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void ProjectReference::addReferenceConfiguration(Configuration::Ptr refConfig)
 {
     m_private->addReferenceConfiguration(refConfig);
 }
 
-void ProjectReference::removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig)
+void ProjectReference::removeReferenceConfiguration(Configuration::Ptr refConfig)
 {
     m_private->removeReferenceConfiguration(refConfig);
 }
@@ -94,12 +92,12 @@ void ProjectReference::removeReferenceConfiguration(const QString &refConfigName
     m_private->removeReferenceConfiguration(refConfigName);
 }
 
-QList<ReferenceConfiguration::Ptr> ProjectReference::referenceConfigurations() const
+QList<Configuration::Ptr> ProjectReference::referenceConfigurations() const
 {
     return m_private->referenceConfigurations();
 }
 
-ReferenceConfiguration::Ptr ProjectReference::referenceConfiguration(const QString &refConfigName) const
+Configuration::Ptr ProjectReference::referenceConfiguration(const QString &refConfigName) const
 {
     return m_private->referenceConfiguration(refConfigName);
 }

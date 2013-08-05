@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_PRIVATE_H
 #define VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_PRIVATE_H
 
-#include "referenceconfiguration.h"
+#include "configuration.h"
 #include "vcprojectdocument_constants.h"
 
 namespace VcProjectManager {
@@ -47,11 +47,11 @@ public:
     virtual void processNode(const QDomNode &node);
     virtual QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    void addReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
-    void removeReferenceConfiguration(ReferenceConfiguration::Ptr refConfig);
+    void addReferenceConfiguration(Configuration::Ptr refConfig);
+    void removeReferenceConfiguration(Configuration::Ptr refConfig);
     void removeReferenceConfiguration(const QString &refConfigName);
-    QList<ReferenceConfiguration::Ptr> referenceConfigurations() const;
-    ReferenceConfiguration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    QList<Configuration::Ptr> referenceConfigurations() const;
+    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
 
     QString controlGUID() const;
     void setControlGUID(const QString &ctrlGUID);
@@ -72,7 +72,7 @@ protected:
      * Reimplement this to create a new reference configuration.
      * \return A shared pointer to a newly created reference configuration.
      */
-    virtual ReferenceConfiguration::Ptr createReferenceConfiguration() const = 0;
+    virtual Configuration::Ptr createReferenceConfiguration() const = 0;
 
     /*!
      * Implement in order to support creating a clone of a ActiveXReference_Private instance.
@@ -83,7 +83,7 @@ protected:
     QString m_controlGUID;  // required
     QString m_controlVersion;   // required
     QString m_wrapperTool;  // required
-    QList<ReferenceConfiguration::Ptr> m_referenceConfigurations;
+    QList<Configuration::Ptr> m_referenceConfigurations;
 };
 
 class ActiveXReference2003_Private : public ActiveXReference_Private
@@ -97,7 +97,7 @@ protected:
     ActiveXReference2003_Private();
     ActiveXReference2003_Private(const ActiveXReference2003_Private &ref);
     ActiveXReference2003_Private& operator=(const ActiveXReference2003_Private &ref);
-    ReferenceConfiguration::Ptr createReferenceConfiguration() const;
+    Configuration::Ptr createReferenceConfiguration() const;
 };
 
 class ActiveXReference2005_Private : public ActiveXReference2003_Private
@@ -121,7 +121,7 @@ protected:
     ActiveXReference2005_Private(const ActiveXReference2005_Private &ref);
     ActiveXReference2005_Private& operator=(const ActiveXReference2005_Private &ref);
     void processNodeAttributes(const QDomElement &element);
-    ReferenceConfiguration::Ptr createReferenceConfiguration() const;
+    Configuration::Ptr createReferenceConfiguration() const;
 
     QString m_localeID;         // opt
     QString m_copyLocal;        // opt
@@ -149,7 +149,7 @@ protected:
     ActiveXReference2008_Private(const ActiveXReference2008_Private &ref);
     ActiveXReference2008_Private& operator=(const ActiveXReference2008_Private &ref);
     void processNodeAttributes(const QDomElement &element);
-    ReferenceConfiguration::Ptr createReferenceConfiguration() const;
+    Configuration::Ptr createReferenceConfiguration() const;
 
     bool m_copyLocalDependencies; //optional    default: true
     bool m_copyLocalSatelliteAssemblies; //optional     default: true
