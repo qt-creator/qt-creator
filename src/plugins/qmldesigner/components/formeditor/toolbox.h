@@ -32,8 +32,6 @@
 
 #include "utils/styledbar.h"
 
-#include "formeditorcrumblebar.h"
-
 QT_BEGIN_NAMESPACE
 class QToolBar;
 QT_END_NAMESPACE
@@ -53,12 +51,10 @@ public:
     void addLeftSideAction(QAction *action);
     void addRightSideAction(QAction *action);
     QList<QAction*> actions() const;
-    FormEditorCrumbleBar *formEditorCrumbleBar() const;
 
 private:
     QToolBar *m_leftToolBar;
     QToolBar *m_rightToolBar;
-    FormEditorCrumbleBar *m_formEditorCrumbleBar;
 };
 
 } // namespace QmlDesigner

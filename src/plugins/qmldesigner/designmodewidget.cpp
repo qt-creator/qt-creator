@@ -30,6 +30,7 @@
 #include "designmodewidget.h"
 #include "styledoutputpaneplaceholder.h"
 #include "qmldesignerplugin.h"
+#include "crumblebar.h"
 
 #include <rewriterview.h>
 #include <itemlibrarywidget.h>
@@ -51,6 +52,7 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QTabWidget>
+#include <QToolBar>
 
 using Core::MiniSplitter;
 using Core::IEditor;
@@ -170,6 +172,8 @@ void DocumentWarningWidget::goToError()
 DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
     m_mainSplitter(0),
+    m_toolBar(Core::EditorManager::createToolBar(this)),
+    m_crumbleBar(new CrumbleBar(this)),
     m_isDisabled(false),
     m_showSidebars(true),
     m_initStatus(NotInitialized),
@@ -332,7 +336,10 @@ void DesignModeWidget::setup()
     }
 
 
-    m_toolBar = Core::EditorManager::createToolBar(this);
+    QToolBar *toolBar = new QToolBar(m_toolBar);
+
+    toolBar->addAction(viewManager().componentViewAction());
+    m_toolBar->addCenterToolBar(toolBar);
 
     m_mainSplitter = new MiniSplitter(this);
     m_mainSplitter->setObjectName("mainSplitter");
@@ -524,8 +531,9 @@ QWidget *DesignModeWidget::createCenterWidget()
     QVBoxLayout *rightLayout = new QVBoxLayout(centerWidget);
     rightLayout->setMargin(0);
     rightLayout->setSpacing(0);
-    rightLayout->addWidget(m_toolBar);
 
+    rightLayout->addWidget(m_toolBar);
+    rightLayout->addWidget(createCrumbleBarFrame());
 
     //### we now own these here
     QList<WidgetInfo> topWidgetInfos;
@@ -561,12 +569,33 @@ QWidget *DesignModeWidget::createCenterWidget()
     return centerWidget;
 }
 
+QWidget *DesignModeWidget::createCrumbleBarFrame()
+{
+    QFrame *frame = new QFrame(this);
+    frame->setStyleSheet("background-color: #4e4e4e;");
+    frame->setFrameShape(QFrame::NoFrame);
+    QHBoxLayout *layout = new QHBoxLayout(frame);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    frame->setLayout(layout);
+    layout->addWidget(m_crumbleBar->crumblePath());
+    frame->setProperty("panelwidget", true);
+    frame->setProperty("panelwidget_singlerow", false);
+
+    return frame;
+}
+
 void DesignModeWidget::showErrorMessage(const QList<RewriterView::Error> &errors)
 {
     Q_ASSERT(!errors.isEmpty());
     m_warningWidget->setError(errors.first());
     m_warningWidget->setVisible(true);
     m_warningWidget->move(width() / 2, height() / 2);
+}
+
+CrumbleBar *DesignModeWidget::crumbleBar() const
+{
+    return m_crumbleBar;
 }
 
 QString DesignModeWidget::contextHelpId() const

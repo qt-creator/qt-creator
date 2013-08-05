@@ -58,6 +58,7 @@ namespace Core {
 namespace QmlDesigner {
 
 class ItemLibraryWidget;
+class CrumbleBar;
 
 namespace Internal {
 
@@ -110,6 +111,8 @@ public:
     void disableWidgets();
     void showErrorMessage(const QList<RewriterView::Error> &errors);
 
+    CrumbleBar* crumbleBar() const;
+
 public slots:
     void updateErrorStatus(const QList<RewriterView::Error> &errors);
     void restoreDefaultView();
@@ -139,12 +142,14 @@ private: // functions
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
     void addNavigatorHistoryEntry(const QString &fileName);
     QWidget *createCenterWidget();
+    QWidget *createCrumbleBarFrame();
 
 private: // variables
     QSplitter *m_mainSplitter;
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;
     Core::EditorToolBar *m_toolBar;
+    CrumbleBar *m_crumbleBar;
     Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
     Core::MiniSplitter *m_outputPlaceholderSplitter;
     bool m_isDisabled;

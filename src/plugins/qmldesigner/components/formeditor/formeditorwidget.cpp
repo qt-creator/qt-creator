@@ -230,11 +230,6 @@ void FormEditorWidget::setFocus()
     m_graphicsView->setFocus(Qt::OtherFocusReason);
 }
 
-FormEditorCrumbleBar *FormEditorWidget::formEditorCrumbleBar() const
-{
-    return toolBox()->formEditorCrumbleBar();
-}
-
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();

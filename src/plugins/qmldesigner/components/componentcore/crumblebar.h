@@ -35,11 +35,11 @@
 
 namespace QmlDesigner {
 
-class FormEditorCrumbleBar : public QObject
+class CrumbleBar : public QObject
 {
     Q_OBJECT
 public:
-    explicit FormEditorCrumbleBar(QObject *parent = 0);
+    explicit CrumbleBar(QObject *parent = 0);
 
     void pushFile(const QString &fileName);
     void pushInFileComponent(const QString &componentId);

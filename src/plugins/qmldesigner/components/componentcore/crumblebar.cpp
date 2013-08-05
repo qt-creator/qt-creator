@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "formeditorcrumblebar.h"
+#include "crumblebar.h"
 
 #include "qmldesignerplugin.h"
 
@@ -36,7 +36,7 @@
 
 namespace QmlDesigner {
 
-FormEditorCrumbleBar::FormEditorCrumbleBar(QObject *parent) :
+CrumbleBar::CrumbleBar(QObject *parent) :
     QObject(parent),
     m_isInternalCalled(false),
     m_crumblePath(new Utils::CrumblePath)
@@ -47,7 +47,7 @@ FormEditorCrumbleBar::FormEditorCrumbleBar(QObject *parent) :
             SLOT(onCrumblePathElementClicked(QVariant)));
 }
 
-void FormEditorCrumbleBar::pushFile(const QString &fileName)
+void CrumbleBar::pushFile(const QString &fileName)
 {
     if (m_isInternalCalled == false) {
         crumblePath()->clear();
@@ -72,7 +72,7 @@ static DesignDocument *currentDesignDocument()
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-void FormEditorCrumbleBar::pushInFileComponent(const QString &componentId)
+void CrumbleBar::pushInFileComponent(const QString &componentId)
 {
     CrumbleBarInfo crumbleBarInfo;
     crumbleBarInfo.componentId = componentId;
@@ -88,17 +88,17 @@ void FormEditorCrumbleBar::pushInFileComponent(const QString &componentId)
     m_isInternalCalled = false;
 }
 
-void FormEditorCrumbleBar::nextFileIsCalledInternally()
+void CrumbleBar::nextFileIsCalledInternally()
 {
     m_isInternalCalled = true;
 }
 
-Utils::CrumblePath *FormEditorCrumbleBar::crumblePath()
+Utils::CrumblePath *CrumbleBar::crumblePath()
 {
     return m_crumblePath;
 }
 
-void FormEditorCrumbleBar::onCrumblePathElementClicked(const QVariant &data)
+void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 {
     CrumbleBarInfo clickedCrumbleBarInfo = data.value<CrumbleBarInfo>();
 

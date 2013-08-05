@@ -39,39 +39,19 @@ namespace QmlDesigner {
 ToolBox::ToolBox(QWidget *parentWidget)
     : Utils::StyledBar(parentWidget),
   m_leftToolBar(new QToolBar("LeftSidebar", this)),
-  m_rightToolBar(new QToolBar("RightSidebar", this)),
-  m_formEditorCrumbleBar(new FormEditorCrumbleBar(this))
+  m_rightToolBar(new QToolBar("RightSidebar", this))
 {
-    setMaximumHeight(44);
-    setSingleRow(false);
-    QFrame *frame = new QFrame(this);
-    frame->setStyleSheet("background-color: #4e4e4e;");
-    frame->setFrameShape(QFrame::NoFrame);
-    QHBoxLayout *layout = new QHBoxLayout(frame);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    frame->setLayout(layout);
-    layout->addWidget(m_formEditorCrumbleBar->crumblePath());
-    frame->setProperty("panelwidget", true);
-    frame->setProperty("panelwidget_singlerow", false);
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
-    verticalLayout->setMargin(0);
-    verticalLayout->setSpacing(0);
-
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    verticalLayout->addLayout(horizontalLayout);
-    verticalLayout->addWidget(frame);
-    horizontalLayout->setMargin(0);
-    horizontalLayout->setSpacing(0);
-
+    setMaximumHeight(22);
     m_leftToolBar->setFloatable(true);
     m_leftToolBar->setMovable(true);
     m_leftToolBar->setOrientation(Qt::Horizontal);
     m_leftToolBar->setIconSize(QSize(24, 24));
 
-    QToolBar *stretchToolbar = new QToolBar(this);
+    QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
+    horizontalLayout->setMargin(0);
+    horizontalLayout->setSpacing(0);
 
-    setSingleRow(false);
+    QToolBar *stretchToolbar = new QToolBar(this);
 
     m_leftToolBar->setProperty("panelwidget", true);
     m_leftToolBar->setProperty("panelwidget_singlerow", false);
@@ -119,11 +99,6 @@ void ToolBox::addRightSideAction(QAction *action)
 QList<QAction*> ToolBox::actions() const
 {
     return QList<QAction*>() << m_leftToolBar->actions() << m_rightToolBar->actions();
-}
-
-FormEditorCrumbleBar *ToolBox::formEditorCrumbleBar() const
-{
-    return m_formEditorCrumbleBar;
 }
 
 } // namespace QmlDesigner

@@ -1,9 +1,9 @@
 #include "viewmanager.h"
 
 #include "componentaction.h"
-#include "formeditorwidget.h"
-#include "toolbox.h"
 #include "designeractionmanager.h"
+#include "designmodewidget.h"
+#include "crumblebar.h"
 
 #include <qmldesigner/qmldesignerplugin.h>
 
@@ -12,11 +12,13 @@
 
 namespace QmlDesigner {
 
+
+static CrumbleBar *crumbleBar() {
+    return QmlDesignerPlugin::instance()->mainWidget()->crumbleBar();
+}
+
 ViewManager::ViewManager()
 {
-    //QObject::connect(&m_nodeInstanceView, SIGNAL(qmlPuppetCrashed()), designModeWidget, SLOT(qmlPuppetCrashed()));
-    //QObject::connect(m_formEditorView.crumblePath(), SIGNAL(elementClicked(QVariant)), designModeWidget, SLOT(onCrumblePathElementClicked(QVariant)));
-    m_formEditorView.formEditorWidget()->toolBox()->addLeftSideAction(m_componentView.action()); // ugly hack
 }
 
 ViewManager::~ViewManager()
@@ -206,25 +208,30 @@ void ViewManager::enableWidgets()
         widgetInfo.widget->setEnabled(true);
 }
 
-void ViewManager::pushFileOnCrambleBar(const QString &fileName)
+void ViewManager::pushFileOnCrumbleBar(const QString &fileName)
 {
-    m_formEditorView.formEditorWidget()->formEditorCrumbleBar()->pushFile(fileName);
+    crumbleBar()->pushFile(fileName);
 }
 
 void ViewManager::pushInFileComponentOnCrambleBar(const QString &componentId)
 
 {
-    m_formEditorView.formEditorWidget()->formEditorCrumbleBar()->pushInFileComponent(componentId);
+    crumbleBar()->pushInFileComponent(componentId);
 }
 
 void ViewManager::nextFileIsCalledInternally()
 {
-    m_formEditorView.formEditorWidget()->formEditorCrumbleBar()->nextFileIsCalledInternally();
+    crumbleBar()->nextFileIsCalledInternally();
 }
 
 NodeInstanceView *ViewManager::nodeInstanceView()
 {
     return &m_nodeInstanceView;
+}
+
+QWidgetAction *ViewManager::componentViewAction()
+{
+    return m_componentView.action();
 }
 
 Model *ViewManager::currentModel() const

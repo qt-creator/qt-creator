@@ -41,6 +41,7 @@
 #include <propertyeditor.h>
 #include <componentview.h>
 #include <debugview.h>
+#include <QWidgetAction>
 
 namespace QmlDesigner {
 
@@ -79,11 +80,14 @@ public:
     void disableWidgets();
     void enableWidgets();
 
-    void pushFileOnCrambleBar(const QString &fileName);
+    void pushFileOnCrumbleBar(const QString &fileName);
     void pushInFileComponentOnCrambleBar(const QString &componentId);
+
     void nextFileIsCalledInternally();
 
     NodeInstanceView *nodeInstanceView();
+
+    QWidgetAction *componentViewAction();
 
 private: // functions
     Q_DISABLE_COPY(ViewManager)
