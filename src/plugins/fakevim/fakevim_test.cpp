@@ -454,6 +454,79 @@ void FakeVimPlugin::test_vim_movement()
     data.setText("abc def");
     KEYS("}", "abc de" X "f");
     KEYS("{", X "abc def");
+
+    // bracket movement commands
+    data.setText(
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("]]",
+         "void a()" N
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("]]",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         X "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("2[[",
+         X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("4]]",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         X "");
+
+    KEYS("2[]",
+         "void a()" N
+         "{" N
+         X "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("][",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         X "}" N
+         "");
+
+    KEYS("][",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         X "");
 }
 
 void FakeVimPlugin::test_vim_insert()
@@ -809,6 +882,61 @@ void FakeVimPlugin::test_vim_delete()
     data.setText("abc" N "def");
     KEYS("2lvox", "a" X "b" N "def");
     KEYS("vlox", "a" X "def");
+
+    // bracket movement command
+    data.setText(
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("d]]",
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("u",
+         X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    // When ]] is used after an operator, then also stops below a '}' in the first column.
+    KEYS("jd]]",
+         "void a()" N
+         X "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("u",
+         "void a()" N
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    // do nothing on failed movement
+    KEYS("Gd5[[",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         X "");
 }
 
 void FakeVimPlugin::test_vim_delete_inner_word()

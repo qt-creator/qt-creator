@@ -584,6 +584,40 @@ static void searchBackward(QTextCursor *tc, QRegExp &needleExp, int *repeat)
     tc->setPosition(block.position() + i);
 }
 
+// Commands [[, []
+static void bracketSearchBackward(QTextCursor *tc, const QString &needleExp, int repeat)
+{
+    QRegExp re(needleExp);
+    QTextCursor tc2 = *tc;
+    tc2.setPosition(tc2.position() - 1);
+    searchBackward(&tc2, re, &repeat);
+    if (repeat <= 1)
+        tc->setPosition(tc2.isNull() ? 0 : tc2.position(), KeepAnchor);
+}
+
+// Commands ][, ]]
+// When ]] is used after an operator, then also stops below a '}' in the first column.
+static void bracketSearchForward(QTextCursor *tc, const QString &needleExp, int repeat,
+                                 bool searchWithCommand)
+{
+    QRegExp re(searchWithCommand ? QString(_("^\\}|^\\{")) : needleExp);
+    QTextCursor tc2 = *tc;
+    tc2.setPosition(tc2.position() + 1);
+    searchForward(&tc2, re, &repeat);
+    if (repeat <= 1) {
+        if (tc2.isNull()) {
+            tc->setPosition(tc->document()->characterCount() - 1, KeepAnchor);
+        } else {
+            tc->setPosition(tc2.position() - 1, KeepAnchor);
+            if (searchWithCommand && tc->document()->characterAt(tc->position()).unicode() == '}') {
+                QTextBlock block = tc->block().next();
+                if (block.isValid())
+                    tc->setPosition(block.position(), KeepAnchor);
+            }
+        }
+    }
+}
+
 static bool substituteText(QString *text, QRegExp &pattern, const QString &replacement,
     bool global)
 {
@@ -2897,7 +2931,7 @@ void FakeVimHandler::Private::fixSelection()
         }
     }
 
-    if (g.movetype == MoveExclusive) {
+    if (g.movetype == MoveExclusive && g.subsubmode == NoSubSubMode) {
         if (anchor() < position() && atBlockStart()) {
             // Exlusive motion ending at the beginning of line
             // becomes inclusive and end is moved to end of previous line.
@@ -3321,14 +3355,22 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         }
     } else if (g.subsubmode == OpenSquareSubSubMode || CloseSquareSubSubMode) {
         int pos = position();
-        if ((input.is('{') && g.subsubmode == OpenSquareSubSubMode))
+        if (input.is('{') && g.subsubmode == OpenSquareSubSubMode)
             searchBalanced(false, QLatin1Char('{'), QLatin1Char('}'));
-        else if ((input.is('}') && g.subsubmode == CloseSquareSubSubMode))
+        else if (input.is('}') && g.subsubmode == CloseSquareSubSubMode)
             searchBalanced(true, QLatin1Char('}'), QLatin1Char('{'));
-        else if ((input.is('(') && g.subsubmode == OpenSquareSubSubMode))
+        else if (input.is('(') && g.subsubmode == OpenSquareSubSubMode)
             searchBalanced(false, QLatin1Char('('), QLatin1Char(')'));
-        else if ((input.is(')') && g.subsubmode == CloseSquareSubSubMode))
+        else if (input.is(')') && g.subsubmode == CloseSquareSubSubMode)
             searchBalanced(true, QLatin1Char(')'), QLatin1Char('('));
+        else if (input.is('[') && g.subsubmode == OpenSquareSubSubMode)
+            bracketSearchBackward(&m_cursor, _("^\\{"), count());
+        else if (input.is('[') && g.subsubmode == CloseSquareSubSubMode)
+            bracketSearchForward(&m_cursor, _("^\\}"), count(), false);
+        else if (input.is(']') && g.subsubmode == OpenSquareSubSubMode)
+            bracketSearchBackward(&m_cursor, _("^\\}"), count());
+        else if (input.is(']') && g.subsubmode == CloseSquareSubSubMode)
+            bracketSearchForward(&m_cursor, _("^\\{"), count(), g.submode != NoSubMode);
         else if (input.is('z'))
             emit q->foldGoTo(g.subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
         handled = pos != position();
@@ -3629,8 +3671,6 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         movePageUp(count);
         handleStartOfLine();
         movement = _("b");
-    } else if (input.isKey(Key_BracketLeft) || input.isKey(Key_BracketRight)) {
-
     } else {
         handled = false;
     }
