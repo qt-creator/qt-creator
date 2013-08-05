@@ -109,7 +109,7 @@ bool Configurations::isEmpty() const
 
 Configuration::Ptr Configurations::addConfiguration(const QString &configName)
 {
-    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion());
+    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion(), QLatin1String("Configuration"));
     config->setName(configName);
 
     if (appendConfiguration(config)) {
@@ -227,7 +227,7 @@ QList<Configuration::Ptr> Configurations::configurations() const
 
 void Configurations::processConfiguration(const QDomNode &configurationNode)
 {
-    Configuration::Ptr configuration = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion());
+    Configuration::Ptr configuration = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion(), QLatin1String("Configuration"));
     configuration->processNode(configurationNode);
     m_configurations.append(configuration);
 

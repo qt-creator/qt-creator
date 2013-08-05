@@ -237,7 +237,7 @@ QString File::canonicalPath() const
 
 void File::processFileConfiguration(const QDomNode &fileConfigNode)
 {
-    Configuration::Ptr fileConfig = ConfigurationsFactory::createConfiguration(m_parentProjectDoc->documentVersion());
+    Configuration::Ptr fileConfig = ConfigurationsFactory::createConfiguration(m_parentProjectDoc->documentVersion(), QLatin1String("FileConfiguration"));
     fileConfig->processNode(fileConfigNode);
     m_fileConfigurations.append(fileConfig);
 

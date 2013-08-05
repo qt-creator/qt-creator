@@ -251,7 +251,7 @@ void ConfigurationsBaseWidget::removeConfiguration(Configuration *config)
 
 Configuration::Ptr ConfigurationsBaseWidget::createConfiguration(const QString &configNameWithPlatform) const
 {
-    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion());
+    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion(), QLatin1String("Configuration"));
     config->setName(configNameWithPlatform);
 
     Tool::Ptr tool = ToolFactory::createTool(QLatin1String("VCPreBuildEventTool"));

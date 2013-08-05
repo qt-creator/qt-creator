@@ -32,7 +32,9 @@
 
 #include "ivcprojectnodemodel.h"
 
-#include "configurationtype.h"
+#include "tools/tool.h"
+#include "deploymenttool.h"
+#include "debuggertool.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -46,6 +48,8 @@ class Configuration : public QObject, public IVcProjectXMLNode
 public:
     typedef QSharedPointer<Configuration>   Ptr;
 
+    Configuration(const Configuration &config);
+    Configuration& operator=(const Configuration &config);
     ~Configuration();
     void processNode(const QDomNode &node);
     void processNodeAttributes(const QDomElement &element);
@@ -75,12 +79,14 @@ signals:
     void nameChanged();
 
 protected:
-    Configuration();
-    Configuration(const Configuration &config);
-    Configuration& operator=(const Configuration &config);
+    Configuration(const QString &nodeName);
     virtual void processToolNode(const QDomNode &toolNode);
 
-    ConfigurationType::Ptr m_configType;
+    QString m_name;
+    QString m_oldName;
+    QString m_nodeName;
+    QList<Tool::Ptr> m_tools;
+    QHash<QString, QString> m_anyAttribute;
 };
 
 class Configuration2003 : public Configuration
@@ -95,7 +101,7 @@ public:
     Configuration::Ptr clone() const;
 
 protected:
-    Configuration2003();
+    Configuration2003(const QString &nodeName);
 };
 
 class Configuration2005 : public Configuration2003
@@ -104,7 +110,10 @@ class Configuration2005 : public Configuration2003
 
 public:
     Configuration2005(const Configuration2005 &config);
+    Configuration2005& operator=(const Configuration2005 &config);
     ~Configuration2005();
+    void processToolNode(const QDomNode &toolNode);
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     VcNodeWidget* createSettingsWidget();
     Configuration::Ptr clone() const;
@@ -115,7 +124,9 @@ public:
     QList<DeploymentTool::Ptr> deploymentTools(const QString &attributeName, const QString &attributeValue) const;
 
 protected:
-    Configuration2005();
+    Configuration2005(const QString &nodeName);
+
+    QList<DeploymentTool::Ptr> m_deploymentTools;
 };
 
 class Configuration2008 : public Configuration2005
@@ -124,8 +135,11 @@ class Configuration2008 : public Configuration2005
 
 public:
     Configuration2008(const Configuration2008 &config);
+    Configuration2008& operator=(const Configuration2008 &config);
     ~Configuration2008();
 
+    void processToolNode(const QDomNode &toolNode);
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     VcNodeWidget* createSettingsWidget();
     Configuration::Ptr clone() const;
 
@@ -135,7 +149,9 @@ public:
     QList<DebuggerTool::Ptr> debuggerTools(const QString &attributeName, const QString &attributeValue) const;
 
 private:
-    Configuration2008();
+    Configuration2008(const QString &nodeName);
+
+    QList<DebuggerTool::Ptr> m_debuggerTools;
 };
 
 } // namespace Internal

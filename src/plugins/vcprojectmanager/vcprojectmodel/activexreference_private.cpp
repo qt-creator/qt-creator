@@ -235,7 +235,7 @@ ActiveXReference2003_Private &ActiveXReference2003_Private::operator =(const Act
 
 Configuration::Ptr ActiveXReference2003_Private::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2003);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2003, QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -342,7 +342,7 @@ void ActiveXReference2005_Private::processNodeAttributes(const QDomElement &elem
 
 Configuration::Ptr ActiveXReference2005_Private::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2005);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2005, QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -459,7 +459,7 @@ void ActiveXReference2008_Private::processNodeAttributes(const QDomElement &elem
 
 Configuration::Ptr ActiveXReference2008_Private::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2008);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2008, QLatin1String("ReferenceConfiguration"));
 }
 
 } // namespace Internal
