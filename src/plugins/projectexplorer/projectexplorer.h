@@ -246,6 +246,9 @@ private slots:
     void testGccOutputParsers_data();
     void testGccOutputParsers();
 
+    void testCustomOutputParsers_data();
+    void testCustomOutputParsers();
+
     void testClangOutputParser_data();
     void testClangOutputParser();
 

@@ -130,7 +130,9 @@ HEADERS += projectexplorer.h \
     deploymentdata.h \
     buildtargetinfo.h \
     customtoolchain.h \
-    projectmacroexpander.h
+    projectmacroexpander.h \
+    customparser.h \
+    customparserconfigdialog.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -246,7 +248,9 @@ SOURCES += projectexplorer.cpp \
     devicesupport/desktopdeviceconfigurationwidget.cpp \
     deployablefile.cpp \
     customtoolchain.cpp \
-    projectmacroexpander.cpp
+    projectmacroexpander.cpp \
+    customparser.cpp \
+    customparserconfigdialog.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
@@ -260,7 +264,8 @@ FORMS += processstep.ui \
     devicesupport/devicefactoryselectiondialog.ui \
     devicesupport/devicesettingswidget.ui \
     devicesupport/devicetestdialog.ui \
-    devicesupport/desktopdeviceconfigurationwidget.ui
+    devicesupport/desktopdeviceconfigurationwidget.ui \
+    customparserconfigdialog.ui
 
 WINSOURCES += \
     windebuginterface.cpp \

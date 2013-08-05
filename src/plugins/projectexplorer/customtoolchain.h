@@ -33,6 +33,7 @@
 #include "projectexplorer_export.h"
 
 #include "abi.h"
+#include "customparser.h"
 #include "headerpath.h"
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
@@ -43,6 +44,7 @@ QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QTextEdit;
 class QComboBox;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
@@ -69,6 +71,7 @@ public:
 #if defined(Q_OS_WIN)
         Msvc = 3,
 #endif
+        Custom,
         OutputParserCount
     };
 
@@ -114,7 +117,10 @@ public:
 
     OutputParser outputParserType() const;
     void setOutputParserType(OutputParser parser);
+    CustomParserSettings customParserSettings() const;
+    void setCustomParserSettings(const CustomParserSettings &settings);
     static QString parserName(OutputParser parser);
+
 protected:
     CustomToolChain(const QString &id, bool autodetect);
     CustomToolChain(const CustomToolChain &);
@@ -132,6 +138,8 @@ private:
     QList<Utils::FileName> m_mkspecs;
 
     OutputParser m_outputParser;
+    CustomParserSettings m_customParserSettings;
+
     friend class Internal::CustomToolChainFactory;
     friend class ToolChainFactory;
 };
@@ -176,6 +184,7 @@ public:
 private slots:
     void updateSummaries();
     void errorParserChanged(int index);
+    void openCustomParserSettingsDialog();
 
 protected:
     void applyImpl();
@@ -195,6 +204,9 @@ protected:
     QLineEdit *m_cxx11Flags;
     QLineEdit *m_mkspecs;
     QComboBox *m_errorParserComboBox;
+    QPushButton *m_customParserSettingsButton;
+
+    CustomParserSettings m_customParserSettings;
 };
 
 } // namespace Internal
