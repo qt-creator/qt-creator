@@ -184,6 +184,8 @@ public:
 
     NodeSourceType nodeSourceType() const;
 
+    bool isComponent() const;
+
 private: // functions
     Internal::InternalNodePointer internalNode() const;
 

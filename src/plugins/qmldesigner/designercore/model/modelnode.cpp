@@ -984,4 +984,26 @@ ModelNode::NodeSourceType ModelNode::nodeSourceType() const
 
 }
 
+bool ModelNode::isComponent() const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (metaInfo().isFileComponent())
+        return true;
+
+    if (nodeSourceType() == ModelNode::NodeWithComponentSource)
+        return true;
+
+    if (metaInfo().isView() && hasNodeProperty("delegate")) {
+        if (nodeProperty("delegate").modelNode().metaInfo().isFileComponent())
+            return true;
+
+        if (nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
+            return true;
+    }
+
+    return false;
+}
+
 }
