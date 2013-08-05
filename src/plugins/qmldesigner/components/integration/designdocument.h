@@ -97,8 +97,6 @@ public:
 
     void resetToDocumentModel();
 
-    void goIntoSelectedComponent();
-
     void changeToDocumentModel();
 
 signals:

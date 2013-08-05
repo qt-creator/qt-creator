@@ -304,8 +304,12 @@ void ShortCutManager::redoAvailable(bool isAvailable)
 
 void ShortCutManager::goIntoComponent()
 {
-    if (currentDesignDocument())
-        currentDesignDocument()->goIntoSelectedComponent();
+    if (currentDesignDocument()
+            && currentDesignDocument()->currentModel()
+            && currentDesignDocument()->rewriterView()
+            && currentDesignDocument()->rewriterView()->hasSingleSelectedModelNode()) {
+        DocumentManager::goIntoComponent(currentDesignDocument()->rewriterView()->singleSelectedModelNode());
+    }
 }
 
 } // namespace QmlDesigner

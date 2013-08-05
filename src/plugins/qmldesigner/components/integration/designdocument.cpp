@@ -311,21 +311,6 @@ void DesignDocument::changeToExternalSubComponent(const QString &fileName)
     Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::DoNotMakeVisible);
 }
 
-void DesignDocument::goIntoSelectedComponent()
-{
-    if (currentModel())
-        return;
-
-    QList<ModelNode> selectedNodes;
-    if (rewriterView())
-        selectedNodes = view()->selectedModelNodes();
-
-    if (selectedNodes.count() == 1) {
-        viewManager().setComponentNode(selectedNodes.first());
-        DocumentManager::goIntoComponent(selectedNodes.first());
-    }
-}
-
 void DesignDocument::attachRewriterToModel()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
