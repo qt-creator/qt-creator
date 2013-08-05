@@ -210,8 +210,13 @@ public:
     QAction *m_showCostsOfFunctionAction;
 
     QString m_toggleCollectFunction;
-    ValgrindGlobalSettings *m_settings; // Not owned
 };
+
+
+static ValgrindGlobalSettings *globalSettings()
+{
+    return AnalyzerGlobalSettings::instance()->subConfig<ValgrindGlobalSettings>();
+}
 
 
 CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
@@ -238,7 +243,6 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     , m_resetAction(0)
     , m_pauseAction(0)
     , m_showCostsOfFunctionAction(0)
-    , m_settings(0)
 {
     m_updateTimer->setInterval(200);
     m_updateTimer->setSingleShot(true);
@@ -248,8 +252,6 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_proxyModel->setFilterKeyColumn(DataModel::NameColumn);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-    m_settings = AnalyzerGlobalSettings::instance()->subConfig<ValgrindGlobalSettings>();
 
     connect(m_stackBrowser, SIGNAL(currentChanged()), SLOT(stackBrowserChanged()));
     connect(m_updateTimer, SIGNAL(timeout()), SLOT(updateFilterString()));
@@ -397,8 +399,8 @@ void CallgrindToolPrivate::updateCostFormat()
         m_calleesView->setCostFormat(format);
         m_callersView->setCostFormat(format);
     }
-    if (m_settings)
-        m_settings->setCostFormat(format);
+    if (ValgrindGlobalSettings *settings = globalSettings())
+        settings->setCostFormat(format);
 }
 
 void CallgrindToolPrivate::handleFilterProjectCosts()
@@ -798,13 +800,16 @@ QWidget *CallgrindToolPrivate::createWidgets()
     layout->addWidget(button);
     }
 
+
+    ValgrindGlobalSettings *settings = globalSettings();
+
     // cycle detection
     //action = new QAction(QLatin1String("Cycle Detection"), this); ///FIXME: icon
     action = new QAction(QLatin1String("O"), this); ///FIXME: icon
     action->setToolTip(tr("Enable cycle detection to properly handle recursive or circular function calls."));
     action->setCheckable(true);
     connect(action, SIGNAL(toggled(bool)), m_dataModel, SLOT(enableCycleDetection(bool)));
-    connect(action, SIGNAL(toggled(bool)), m_settings, SLOT(setDetectCycles(bool)));
+    connect(action, SIGNAL(toggled(bool)), settings, SLOT(setDetectCycles(bool)));
     layout->addWidget(createToolButton(action));
     m_cycleDetection = action;
 
@@ -813,7 +818,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     action->setToolTip(tr("This removes template parameter lists when displaying function names."));
     action->setCheckable(true);
     connect(action, SIGNAL(toggled(bool)), m_dataModel, SLOT(setShortenTemplates(bool)));
-    connect(action, SIGNAL(toggled(bool)), m_settings, SLOT(setShortenTemplates(bool)));
+    connect(action, SIGNAL(toggled(bool)), settings, SLOT(setShortenTemplates(bool)));
     layout->addWidget(createToolButton(action));
     m_shortenTemplates = action;
 
@@ -834,8 +839,8 @@ QWidget *CallgrindToolPrivate::createWidgets()
     layout->addWidget(filter);
     m_searchFilter = filter;
 
-    setCostFormat(m_settings->costFormat());
-    enableCycleDetection(m_settings->detectCycles());
+    setCostFormat(settings->costFormat());
+    enableCycleDetection(settings->detectCycles());
 
     layout->addWidget(new Utils::StyledSeparator);
     layout->addStretch();

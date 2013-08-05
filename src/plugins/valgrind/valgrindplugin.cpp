@@ -35,6 +35,10 @@
 #include "valgrindruncontrolfactory.h"
 
 #include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzersettings.h>
+
+#include <valgrind/valgrindsettings.h>
+
 #include <utils/hostosinfo.h>
 
 #include <QtPlugin>
@@ -46,13 +50,17 @@ namespace Internal {
 
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
+    AnalyzerGlobalSettings::registerConfig(new ValgrindGlobalSettings());
+
     StartModes modes;
     if (!Utils::HostOsInfo::isWindowsHost())
         modes.append(StartMode(StartLocal));
     modes.append(StartMode(StartRemote));
 
-    AnalyzerManager::addTool(new MemcheckTool(this), modes);
-    AnalyzerManager::addTool(new CallgrindTool(this), modes);
+    IAnalyzerTool *memcheckTool = new MemcheckTool(this);
+    IAnalyzerTool *callgrindTool = new CallgrindTool(this);
+    AnalyzerManager::addTool(memcheckTool, modes);
+    AnalyzerManager::addTool(callgrindTool, modes);
 
     addAutoReleasedObject(new ValgrindRunControlFactory());
 

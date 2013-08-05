@@ -60,11 +60,6 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-AbstractAnalyzerSubConfig *IAnalyzerTool::createGlobalSettings()
-{
-    return 0;
-}
-
 AbstractAnalyzerSubConfig *IAnalyzerTool::createProjectSettings()
 {
     return 0;

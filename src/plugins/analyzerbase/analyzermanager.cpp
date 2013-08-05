@@ -667,7 +667,6 @@ void AnalyzerManager::shutdown()
 void AnalyzerManager::addTool(IAnalyzerTool *tool, const StartModes &modes)
 {
     m_instance->d->addTool(tool, modes);
-    AnalyzerGlobalSettings::instance()->registerTool(tool);
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,

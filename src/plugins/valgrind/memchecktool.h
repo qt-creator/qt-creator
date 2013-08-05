@@ -90,7 +90,6 @@ public:
     QString description() const;
 
     // Create the valgrind settings (for all valgrind tools)
-    Analyzer::AbstractAnalyzerSubConfig *createGlobalSettings();
     Analyzer::AbstractAnalyzerSubConfig *createProjectSettings();
 
 private slots:

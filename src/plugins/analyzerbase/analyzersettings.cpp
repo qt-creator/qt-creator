@@ -143,14 +143,11 @@ void AnalyzerGlobalSettings::writeSettings() const
     settings->endGroup();
 }
 
-void AnalyzerGlobalSettings::registerTool(IAnalyzerTool *tool)
+void AnalyzerGlobalSettings::registerConfig(AbstractAnalyzerSubConfig *config)
 {
-    AbstractAnalyzerSubConfig *config = tool->createGlobalSettings();
-    if (config) {
-        m_subConfigs.append(config);
-        AnalyzerPlugin::instance()->addAutoReleasedObject(new AnalyzerOptionsPage(config));
-        readSettings();
-    }
+    instance()->m_subConfigs.append(config);
+    AnalyzerPlugin::instance()->addAutoReleasedObject(new AnalyzerOptionsPage(config));
+    m_instance->readSettings();
 }
 
 

@@ -142,7 +142,7 @@ public:
     void writeSettings() const;
     void readSettings();
 
-    void registerTool(IAnalyzerTool *tool);
+    static void registerConfig(AbstractAnalyzerSubConfig *config);
 
 private:
     AnalyzerGlobalSettings(QObject *parent);
