@@ -549,8 +549,7 @@ void QmlProfilerTool::showLoadDialog()
     if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
-    if (AnalyzerManager::currentSelectedTool() != this)
-        AnalyzerManager::selectTool(this, StartRemote);
+    AnalyzerManager::selectTool(this, StartRemote);
 
     QString filename = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Load QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
