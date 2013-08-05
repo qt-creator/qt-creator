@@ -125,7 +125,7 @@ bool AndroidDeployStep::init()
     if (!bc)
         return false;
 
-    m_qtVersionSourcePath = version->sourcePath().toString();
+    m_qtVersionSourcePath = version->qmakeProperty("QT_INSTALL_PREFIX");
     m_qtVersionQMakeBuildConfig = bc->qmakeBuildConfiguration();
     m_androidDirPath = AndroidManager::dirPath(target());
     m_apkPathDebug = AndroidManager::apkPath(target(), AndroidManager::DebugBuild).toString();
