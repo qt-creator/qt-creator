@@ -42,6 +42,7 @@
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QTextEdit;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
@@ -57,7 +58,18 @@ namespace Internal { class CustomToolChainFactory; }
 
 class PROJECTEXPLORER_EXPORT CustomToolChain : public ToolChain
 {
+    Q_DECLARE_TR_FUNCTIONS(CustomToolChain)
+
 public:
+    enum OutputParser
+    {
+        Gcc = 0,
+        Clang = 1,
+        LinuxIcc = 2,
+        Msvc = 3,
+        OutputParserCount
+    };
+
     QString type() const;
     QString typeDisplayName() const;
     Abi targetAbi() const;
@@ -98,6 +110,9 @@ public:
 
     ToolChain *clone() const;
 
+    OutputParser outputParserType() const;
+    void setOutputParserType(OutputParser parser);
+    static QString parserName(OutputParser parser);
 protected:
     CustomToolChain(const QString &id, bool autodetect);
     CustomToolChain(const CustomToolChain &);
@@ -114,6 +129,7 @@ private:
     QStringList m_cxx11Flags;
     QList<Utils::FileName> m_mkspecs;
 
+    OutputParser m_outputParser;
     friend class Internal::CustomToolChainFactory;
     friend class ToolChainFactory;
 };
@@ -157,6 +173,7 @@ public:
 
 private slots:
     void updateSummaries();
+    void errorParserChanged(int index);
 
 protected:
     void applyImpl();
@@ -175,6 +192,7 @@ protected:
     TextEditDetailsWidget *m_headerDetails;
     QLineEdit *m_cxx11Flags;
     QLineEdit *m_mkspecs;
+    QComboBox *m_errorParserComboBox;
 };
 
 } // namespace Internal
