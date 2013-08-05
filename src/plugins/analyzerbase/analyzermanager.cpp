@@ -147,7 +147,7 @@ public:
 
     void activateDock(Qt::DockWidgetArea area, QDockWidget *dockWidget);
     void deactivateDock(QDockWidget *dockWidget);
-    void addTool(IAnalyzerTool *tool, const StartModes &modes);
+    void addTool(IAnalyzerTool *tool, StartMode mode);
     void selectSavedTool();
     void selectTool(QAction *action);
     void handleToolStarted();
@@ -537,34 +537,35 @@ void AnalyzerManagerPrivate::selectTool(QAction *action)
     updateRunActions();
 }
 
-void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &modes)
+void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, StartMode mode)
 {
     delayedInit(); // Make sure that there is a valid IMode instance.
 
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
-    foreach (StartMode mode, modes) {
-        QString actionName = tool->displayName();
-        Id menuGroup = Constants::G_ANALYZER_TOOLS;
-        if (mode == StartRemote) {
-            actionName += IAnalyzerTool::tr(" (External)");
-            menuGroup = Constants::G_ANALYZER_REMOTE_TOOLS;
-        }
-        Id actionId = tool->id().withSuffix(mode);
-        QAction *action = new QAction(actionName, this);
-        Command *command = Core::ActionManager::registerAction(action, actionId, Context(C_GLOBAL));
-        m_menu->addAction(command, menuGroup);
-        command->action()->setData(int(StartLocal));
-        // Assuming this happens before project loading.
-        if (mode == StartLocal)
-            command->action()->setEnabled(false);
-        m_actions.append(action);
-        m_toolFromAction[action] = tool;
-        m_modeFromAction[action] = mode;
-        m_toolBox->addItem(actionName);
-        m_toolBox->blockSignals(blocked);
-        connect(action, SIGNAL(triggered()), SLOT(selectMenuAction()));
+
+    QString actionName = tool->displayName();
+    Id menuGroup = Constants::G_ANALYZER_TOOLS;
+    if (mode == StartRemote) {
+        actionName += IAnalyzerTool::tr(" (External)");
+        menuGroup = Constants::G_ANALYZER_REMOTE_TOOLS;
     }
-    m_tools.append(tool);
+    Id actionId = tool->id().withSuffix(mode);
+    QAction *action = new QAction(actionName, this);
+    Command *command = Core::ActionManager::registerAction(action, actionId, Context(C_GLOBAL));
+    m_menu->addAction(command, menuGroup);
+    command->action()->setData(int(StartLocal));
+    // Assuming this happens before project loading.
+    if (mode == StartLocal)
+        command->action()->setEnabled(false);
+    m_actions.append(action);
+    m_toolFromAction[action] = tool;
+    m_modeFromAction[action] = mode;
+    m_toolBox->addItem(actionName);
+    m_toolBox->blockSignals(blocked);
+    connect(action, SIGNAL(triggered()), SLOT(selectMenuAction()));
+
+    if (!m_tools.contains(tool))
+        m_tools.append(tool);
     m_toolBox->setEnabled(true);
 }
 
@@ -664,9 +665,9 @@ void AnalyzerManager::shutdown()
     m_instance->d->saveToolSettings(m_instance->d->m_currentAction);
 }
 
-void AnalyzerManager::addTool(IAnalyzerTool *tool, const StartModes &modes)
+void AnalyzerManager::addTool(IAnalyzerTool *tool, StartMode mode)
 {
-    m_instance->d->addTool(tool, modes);
+    m_instance->d->addTool(tool, mode);
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,

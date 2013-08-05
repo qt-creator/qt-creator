@@ -46,10 +46,9 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    StartModes modes;
-    modes.append(StartMode(StartLocal));
-    modes.append(StartMode(StartRemote));
-    AnalyzerManager::addTool(new QmlProfilerTool(this), modes);
+    IAnalyzerTool *tool = new QmlProfilerTool(this);
+    AnalyzerManager::addTool(tool, StartLocal);
+    AnalyzerManager::addTool(tool, StartRemote);
 
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
 

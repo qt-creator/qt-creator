@@ -48,8 +48,6 @@ namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 
-typedef QList<StartMode> StartModes;
-
 class IAnalyzerTool;
 class AnalyzerRunControl;
 class AnalyzerManagerPrivate;
@@ -68,8 +66,8 @@ public:
     static void extensionsInitialized();
     static void shutdown();
 
-    // Register a tool and initialize it.
-    static void addTool(IAnalyzerTool *tool, const StartModes &mode);
+    // Register a tool for a given start mode.
+    static void addTool(IAnalyzerTool *tool, StartMode mode);
 
     // Dockwidgets are registered to the main window.
     static QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,

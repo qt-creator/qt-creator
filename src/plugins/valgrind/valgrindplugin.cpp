@@ -52,15 +52,14 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
     AnalyzerGlobalSettings::registerConfig(new ValgrindGlobalSettings());
 
-    StartModes modes;
-    if (!Utils::HostOsInfo::isWindowsHost())
-        modes.append(StartMode(StartLocal));
-    modes.append(StartMode(StartRemote));
-
     IAnalyzerTool *memcheckTool = new MemcheckTool(this);
     IAnalyzerTool *callgrindTool = new CallgrindTool(this);
-    AnalyzerManager::addTool(memcheckTool, modes);
-    AnalyzerManager::addTool(callgrindTool, modes);
+    if (!Utils::HostOsInfo::isWindowsHost()) {
+        AnalyzerManager::addTool(memcheckTool, StartLocal);
+        AnalyzerManager::addTool(callgrindTool, StartLocal);
+    }
+    AnalyzerManager::addTool(memcheckTool, StartRemote);
+    AnalyzerManager::addTool(callgrindTool, StartRemote);
 
     addAutoReleasedObject(new ValgrindRunControlFactory());
 
