@@ -31,8 +31,8 @@
 #define VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
 
 #include "ivcprojectnodemodel.h"
-
-#include "activexreference_private.h"
+#include "vcprojectdocument_constants.h"
+#include "configuration.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -73,14 +73,18 @@ protected:
     ActiveXReference();
     ActiveXReference(const ActiveXReference &ref);
     ActiveXReference& operator=(const ActiveXReference &ref);
+    virtual void processReferenceConfig(const QDomNode &referenceConfig);
 
     /*!
-     * Called after instance of the ActiveXReference is created in order to initialize \b m_private member variable to
-     * a proper version of a ActiveXReference_Private implementation (2003, 2005 or 2008).
+     * Reimplement this to create a new reference configuration.
+     * \return A shared pointer to a newly created reference configuration.
      */
-    virtual void init() = 0;
+    virtual Configuration::Ptr createReferenceConfiguration() const = 0;
 
-    ActiveXReference_Private::Ptr m_private;
+    QString m_controlGUID;  // required
+    QString m_controlVersion;   // required
+    QString m_wrapperTool;  // required
+    QList<Configuration::Ptr> m_referenceConfigurations;
 };
 
 class ActiveXReference2003 : public ActiveXReference
@@ -97,6 +101,7 @@ public:
 protected:
     ActiveXReference2003();
     void init();
+    Configuration::Ptr createReferenceConfiguration() const;
 };
 
 class ActiveXReference2005 : public ActiveXReference2003
@@ -108,6 +113,8 @@ public:
     ActiveXReference2005& operator=(const ActiveXReference2005 &ref);
     ~ActiveXReference2005();
 
+    void processNodeAttributes(const QDomElement &element);
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     ActiveXReference::Ptr clone() const;
 
     QString localeID() const;
@@ -119,7 +126,11 @@ public:
 
 protected:
     ActiveXReference2005();
-    void init();
+    Configuration::Ptr createReferenceConfiguration() const;
+
+    QString m_localeID;         // opt
+    QString m_copyLocal;        // opt
+    bool m_useInBuild;          // opt, default "true"
 };
 
 class ActiveXReference2008 : public ActiveXReference2005
@@ -131,6 +142,8 @@ public:
     ActiveXReference2008& operator=(const ActiveXReference2008 &ref);
     ~ActiveXReference2008();
 
+    void processNodeAttributes(const QDomElement &element);
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     ActiveXReference::Ptr clone() const;
 
     bool copyLocalDependencies() const;
@@ -142,7 +155,11 @@ public:
 
 protected:
     ActiveXReference2008();
-    void init();
+    Configuration::Ptr createReferenceConfiguration() const;
+
+    bool m_copyLocalDependencies; //optional    default: true
+    bool m_copyLocalSatelliteAssemblies; //optional     default: true
+    bool m_useDependenciesInBuild; //optional   default: true
 };
 
 class ActiveXReferenceFactory

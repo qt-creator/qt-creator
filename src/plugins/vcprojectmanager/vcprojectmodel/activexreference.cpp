@@ -29,21 +29,52 @@
 ****************************************************************************/
 #include "activexreference.h"
 
+#include <QVariant>
+#include "configurationsfactory.h"
+
 namespace VcProjectManager {
 namespace Internal {
 
 ActiveXReference::~ActiveXReference()
 {
+    m_referenceConfigurations.clear();
 }
 
 void ActiveXReference::processNode(const QDomNode &node)
 {
-    m_private->processNode(node);
+    if (node.isNull())
+        return;
+
+    if (node.nodeType() == QDomNode::ElementNode)
+        processNodeAttributes(node.toElement());
+
+    if (node.hasChildNodes()) {
+        QDomNode firstChild = node.firstChild();
+        if (!firstChild.isNull())
+            processReferenceConfig(firstChild);
+    }
 }
 
 void ActiveXReference::processNodeAttributes(const QDomElement &element)
 {
-    Q_UNUSED(element)
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("ControlGUID"))
+                m_controlGUID = domElement.value();
+
+            else if (domElement.name() == QLatin1String("ControlVersion"))
+                m_controlVersion = domElement.value();
+
+            else if (domElement.name() == QLatin1String("WrapperTool"))
+                m_wrapperTool = domElement.value();
+        }
+    }
 }
 
 VcNodeWidget *ActiveXReference::createSettingsWidget()
@@ -54,62 +85,90 @@ VcNodeWidget *ActiveXReference::createSettingsWidget()
 
 QDomNode ActiveXReference::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
-    return m_private->toXMLDomNode(domXMLDocument);
+    QDomElement activeXNode = domXMLDocument.createElement(QLatin1String("ActiveXReference"));
+
+    activeXNode.setAttribute(QLatin1String("ControlGUID"), m_controlGUID);
+    activeXNode.setAttribute(QLatin1String("ControlVersion"), m_controlVersion);
+    activeXNode.setAttribute(QLatin1String("WrapperTool"), m_wrapperTool);
+
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations)
+        activeXNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
+
+    return activeXNode;
 }
 
 void ActiveXReference::addReferenceConfiguration(Configuration::Ptr refConfig)
 {
-    m_private->addReferenceConfiguration(refConfig);
+    if (m_referenceConfigurations.contains(refConfig))
+        return;
+
+    // Don't add configuration with the same name
+    foreach (const Configuration::Ptr &refConf, m_referenceConfigurations) {
+        if (refConfig->name() == refConf->name())
+            return;
+    }
+
+    m_referenceConfigurations.append(refConfig);
 }
 
 void ActiveXReference::removeReferenceConfiguration(Configuration::Ptr refConfig)
 {
-    m_private->removeReferenceConfiguration(refConfig);
+    m_referenceConfigurations.removeAll(refConfig);
 }
 
 void ActiveXReference::removeReferenceConfiguration(const QString &refConfigName)
 {
-    m_private->removeReferenceConfiguration(refConfigName);
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
+        if (refConfig->name() == refConfigName) {
+            removeReferenceConfiguration(refConfig);
+            return;
+        }
+    }
 }
 
 QList<Configuration::Ptr> ActiveXReference::referenceConfigurations() const
 {
-    return m_private->referenceConfigurations();
+    return m_referenceConfigurations;
 }
 
 Configuration::Ptr ActiveXReference::referenceConfiguration(const QString &refConfigName) const
 {
-    return m_private->referenceConfiguration(refConfigName);
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
+        if (refConfig->name() == refConfigName)
+            return refConfig;
+    }
+
+    return Configuration::Ptr();
 }
 
 QString ActiveXReference::controlGUID() const
 {
-    return m_private->controlGUID();
+    return m_controlGUID;
 }
 
 void ActiveXReference::setControlGUID(const QString &ctrlGUID)
 {
-    m_private->setControlGUID(ctrlGUID);
+    m_controlGUID = ctrlGUID;
 }
 
 QString ActiveXReference::controlVersion() const
 {
-    return m_private->controlVersion();
+    return m_controlVersion;
 }
 
 void ActiveXReference::setControlVersion(const QString &ctrlVersion)
 {
-    m_private->setControlVersion(ctrlVersion);
+    m_controlVersion = ctrlVersion;
 }
 
 QString ActiveXReference::wrapperTool() const
 {
-    return m_private->wrapperTool();
+    return m_wrapperTool;
 }
 
 void ActiveXReference::setWrapperTool(const QString &wrapperTool)
 {
-    m_private->setWrapperTool(wrapperTool);
+    m_wrapperTool = wrapperTool;
 }
 
 ActiveXReference::ActiveXReference()
@@ -118,14 +177,40 @@ ActiveXReference::ActiveXReference()
 
 ActiveXReference::ActiveXReference(const ActiveXReference &ref)
 {
-    m_private = ref.m_private->clone();
+    m_controlGUID = ref.m_controlGUID;
+    m_controlVersion = ref.m_controlVersion;
+    m_wrapperTool = ref.m_wrapperTool;
+
+    foreach (const Configuration::Ptr &refConf, ref.m_referenceConfigurations)
+        m_referenceConfigurations.append(refConf->clone());
 }
 
 ActiveXReference &ActiveXReference::operator =(const ActiveXReference &ref)
 {
-    if (this != &ref)
-        m_private = ref.m_private->clone();
+    if (this != &ref) {
+        m_controlGUID = ref.m_controlGUID;
+        m_controlVersion = ref.m_controlVersion;
+        m_wrapperTool = ref.m_wrapperTool;
+
+        m_referenceConfigurations.clear();
+
+        foreach (const Configuration::Ptr &refConf, ref.m_referenceConfigurations)
+            m_referenceConfigurations.append(refConf->clone());
+    }
+
     return *this;
+}
+
+void ActiveXReference::processReferenceConfig(const QDomNode &referenceConfig)
+{
+    Configuration::Ptr referenceConfiguration = createReferenceConfiguration();
+    referenceConfiguration->processNode(referenceConfig);
+    m_referenceConfigurations.append(referenceConfiguration);
+
+    // process next sibling
+    QDomNode nextSibling = referenceConfig.nextSibling();
+    if (!nextSibling.isNull())
+        processReferenceConfig(nextSibling);
 }
 
 ActiveXReference2003::ActiveXReference2003(const ActiveXReference2003 &ref)
@@ -152,9 +237,9 @@ ActiveXReference2003::ActiveXReference2003()
 {
 }
 
-void ActiveXReference2003::init()
+Configuration::Ptr ActiveXReference2003::createReferenceConfiguration() const
 {
-    m_private = ActiveXReference_Private::Ptr(new ActiveXReference2003_Private);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2003, QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -173,6 +258,45 @@ ActiveXReference2005::~ActiveXReference2005()
 {
 }
 
+void ActiveXReference2005::processNodeAttributes(const QDomElement &element)
+{
+    ActiveXReference2003::processNodeAttributes(element);
+
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("LocaleID"))
+                m_localeID = domElement.value();
+
+            else if (domElement.name() == QLatin1String("CopyLocal"))
+                m_copyLocal = domElement.value();
+
+            else if (domElement.name() == QLatin1String("UseInBuild")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_useInBuild = false;
+                else
+                    m_useInBuild = true;
+            }
+        }
+    }
+}
+
+QDomNode ActiveXReference2005::toXMLDomNode(QDomDocument &domXMLDocument) const
+{
+    QDomElement activeXNode = ActiveXReference2003::toXMLDomNode(domXMLDocument).toElement();
+
+    activeXNode.setAttribute(QLatin1String("LocaleID"), m_localeID);
+    activeXNode.setAttribute(QLatin1String("CopyLocal"), m_copyLocal);
+    activeXNode.setAttribute(QLatin1String("UseInBuild"), QVariant(m_useInBuild).toString());
+
+    return activeXNode;
+}
+
 ActiveXReference::Ptr ActiveXReference2005::clone() const
 {
     return ActiveXReference::Ptr(new ActiveXReference2005(*this));
@@ -180,58 +304,43 @@ ActiveXReference::Ptr ActiveXReference2005::clone() const
 
 QString ActiveXReference2005::localeID() const
 {
-    QSharedPointer<ActiveXReference2005_Private> activeRef = m_private.staticCast<ActiveXReference2005_Private>();
-    return activeRef->localeID();
+    return m_localeID;
 }
 
 void ActiveXReference2005::setLocaleID(const QString &localeID)
 {
-    QSharedPointer<ActiveXReference2005_Private> activeRef = m_private.staticCast<ActiveXReference2005_Private>();
-    activeRef->setLocaleID(localeID);
+    m_localeID = localeID;
 }
 
 QString ActiveXReference2005::copyLocal() const
 {
-    QSharedPointer<ActiveXReference2005_Private> activeRef = m_private.staticCast<ActiveXReference2005_Private>();
-    return activeRef->copyLocal();
+    return m_copyLocal;
 }
 
 void ActiveXReference2005::setCopyLocal(const QString &copyLocal)
 {
-    QSharedPointer<ActiveXReference2005_Private> activeRef = m_private.staticCast<ActiveXReference2005_Private>();
-    activeRef->setCopyLocal(copyLocal);
+    m_copyLocal = copyLocal;
 }
 
 bool ActiveXReference2005::useInBuild() const
 {
-    QSharedPointer<ActiveXReference2005_Private> activeRef = m_private.staticCast<ActiveXReference2005_Private>();
-    return activeRef->useInBuild();
+    return m_useInBuild;
 }
 
 void ActiveXReference2005::setUseInBuild(bool useInBuild)
 {
-    QSharedPointer<ActiveXReference2005_Private> activeRef = m_private.staticCast<ActiveXReference2005_Private>();
-    activeRef->setUseInBuild(useInBuild);
+    m_useInBuild = useInBuild;
 }
 
 ActiveXReference2005::ActiveXReference2005()
 {
 }
 
-void ActiveXReference2005::init()
+Configuration::Ptr ActiveXReference2005::createReferenceConfiguration() const
 {
-    m_private = ActiveXReference_Private::Ptr(new ActiveXReference2005_Private);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2005, QLatin1String("ReferenceConfiguration"));
 }
 
-
-ActiveXReference2008::ActiveXReference2008()
-{
-}
-
-void ActiveXReference2008::init()
-{
-    m_private = ActiveXReference_Private::Ptr(new ActiveXReference2008_Private);
-}
 
 ActiveXReference2008::ActiveXReference2008(const ActiveXReference2008 &ref)
     : ActiveXReference2005(ref)
@@ -248,6 +357,53 @@ ActiveXReference2008::~ActiveXReference2008()
 {
 }
 
+void ActiveXReference2008::processNodeAttributes(const QDomElement &element)
+{
+    ActiveXReference2005::processNodeAttributes(element);
+
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("CopyLocalDependencies")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_copyLocalDependencies = false;
+                else
+                    m_copyLocalDependencies = true;
+            }
+
+            else if (domElement.name() == QLatin1String("CopyLocalSatelliteAssemblies")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_copyLocalSatelliteAssemblies = false;
+                else
+                    m_copyLocalSatelliteAssemblies = true;
+            }
+
+            else if (domElement.name() == QLatin1String("UseDependenciesInBuild")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_useDependenciesInBuild = false;
+                else
+                    m_useDependenciesInBuild = true;
+            }
+        }
+    }
+}
+
+QDomNode ActiveXReference2008::toXMLDomNode(QDomDocument &domXMLDocument) const
+{
+    QDomElement activeXNode = ActiveXReference2005::toXMLDomNode(domXMLDocument).toElement();
+
+    activeXNode.setAttribute(QLatin1String("CopyLocalDependencies"), QVariant(m_copyLocalDependencies).toString());
+    activeXNode.setAttribute(QLatin1String("CopyLocalSatelliteAssemblies"), QVariant(m_copyLocalSatelliteAssemblies).toString());
+    activeXNode.setAttribute(QLatin1String("UseDependenciesInBuild"), QVariant(m_useDependenciesInBuild).toString());
+
+    return activeXNode;
+}
+
 ActiveXReference::Ptr ActiveXReference2008::clone() const
 {
     return ActiveXReference::Ptr(new ActiveXReference2005(*this));
@@ -255,39 +411,43 @@ ActiveXReference::Ptr ActiveXReference2008::clone() const
 
 bool ActiveXReference2008::copyLocalDependencies() const
 {
-    QSharedPointer<ActiveXReference2008_Private> activeRef = m_private.staticCast<ActiveXReference2008_Private>();
-    return activeRef->copyLocalDependencies();
+    return m_copyLocalDependencies;
 }
 
 void ActiveXReference2008::setCopyLocalDependencies(bool copyLocalDependencies)
 {
-    QSharedPointer<ActiveXReference2008_Private> activeRef = m_private.staticCast<ActiveXReference2008_Private>();
-    activeRef->setCopyLocalDependencies(copyLocalDependencies);
+    m_copyLocalDependencies = copyLocalDependencies;
 }
 
 bool ActiveXReference2008::copyLocalSatelliteAssemblies() const
 {
-    QSharedPointer<ActiveXReference2008_Private> activeRef = m_private.staticCast<ActiveXReference2008_Private>();
-    return activeRef->copyLocalSatelliteAssemblies();
+    return m_copyLocalSatelliteAssemblies;
 }
 
 void ActiveXReference2008::setCopyLocalSatelliteAssemblies(bool copyLocalSatelliteAssemblies)
 {
-    QSharedPointer<ActiveXReference2008_Private> activeRef = m_private.staticCast<ActiveXReference2008_Private>();
-    activeRef->setCopyLocalSatelliteAssemblies(copyLocalSatelliteAssemblies);
+    m_copyLocalSatelliteAssemblies = copyLocalSatelliteAssemblies;
 }
 
 bool ActiveXReference2008::useDependenciesInBuild() const
 {
-    QSharedPointer<ActiveXReference2008_Private> activeRef = m_private.staticCast<ActiveXReference2008_Private>();
-    return activeRef->useDependenciesInBuild();
+    return m_useDependenciesInBuild;
 }
 
 void ActiveXReference2008::setUseDependenciesInBuild(bool useDependenciesInBuild)
 {
-    QSharedPointer<ActiveXReference2008_Private> activeRef = m_private.staticCast<ActiveXReference2008_Private>();
-    activeRef->setUseDependenciesInBuild(useDependenciesInBuild);
+    m_useDependenciesInBuild = useDependenciesInBuild;
 }
+
+ActiveXReference2008::ActiveXReference2008()
+{
+}
+
+Configuration::Ptr ActiveXReference2008::createReferenceConfiguration() const
+{
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2008, QLatin1String("ReferenceConfiguration"));
+}
+
 
 ActiveXReferenceFactory &ActiveXReferenceFactory::instance()
 {
@@ -310,9 +470,6 @@ ActiveXReference::Ptr ActiveXReferenceFactory::create(VcDocConstants::DocumentVe
         ref = ActiveXReference::Ptr(new ActiveXReference2008);
         break;
     }
-
-    if (ref)
-        ref->init();
 
     return ref;
 }
