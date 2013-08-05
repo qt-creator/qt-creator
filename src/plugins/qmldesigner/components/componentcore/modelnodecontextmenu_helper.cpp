@@ -99,7 +99,8 @@ bool selectionHasSameParent(const SelectionContext &selectionState)
 
 bool selectionIsComponent(const SelectionContext &selectionState)
 {
-    return selectionState.currentSingleSelectedNode().isComponent();
+    return selectionState.currentSingleSelectedNode().isValid()
+            && selectionState.currentSingleSelectedNode().isComponent();
 }
 
 } //SelectionStateFunctors
