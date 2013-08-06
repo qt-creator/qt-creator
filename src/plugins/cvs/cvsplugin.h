@@ -150,16 +150,16 @@ private:
     bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CvsLogEntry> entries, QString *errorMessage);
     void filelog(const QString &workingDir,
-                 const QStringList &files = QStringList(),
+                 const QString &file = QString(),
                  bool enableAnnotationContextMenu = false);
     bool unedit(const QString &topLevel, const QStringList &files);
-    bool status(const QString &topLevel, const QStringList &files, const QString &title);
-    bool update(const QString &topLevel, const QStringList &files);
+    bool status(const QString &topLevel, const QString &file, const QString &title);
+    bool update(const QString &topLevel, const QString &file);
     bool checkCVSDirectory(const QDir &directory) const;
     // Quick check if files are modified
     bool diffCheckModified(const QString &topLevel, const QStringList &files, bool *modified);
     QString findTopLevelForDirectoryI(const QString &directory) const;
-    void startCommit(const QString &workingDir, const QStringList &files = QStringList());
+    void startCommit(const QString &workingDir, const QString &file = QString());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
     inline CvsControl *cvsVersionControl() const;

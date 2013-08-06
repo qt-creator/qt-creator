@@ -105,19 +105,16 @@ static inline QString debugCodec(const QTextCodec *c)
 
 // Ensure adding "..." to relative paths which is p4's convention
 // for the current directory
-static inline QStringList perforceRelativeFileArguments(const QStringList &args)
+static inline QString perforceRelativeFileArguments(const QString &args)
 {
     if (args.isEmpty())
-        return QStringList(QLatin1String("..."));
-    QTC_ASSERT(args.size() == 1, return QStringList());
-    QStringList p4Args = args;
-    p4Args.front() += QLatin1String("/...");
-    return p4Args;
+        return QLatin1String("...");
+    return args + QLatin1String("/...");
 }
 
 static inline QStringList perforceRelativeProjectDirectory(const VcsBase::VcsBasePluginState &s)
 {
-    return perforceRelativeFileArguments(s.relativeCurrentProject());
+    return QStringList(perforceRelativeFileArguments(s.relativeCurrentProject()));
 }
 
 // Clean user setting off diff-binary for 'p4 resolve' and 'p4 diff'.
@@ -735,7 +732,7 @@ void PerforcePlugin::filelogCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
+    filelog(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
 void PerforcePlugin::filelog()
@@ -743,7 +740,7 @@ void PerforcePlugin::filelog()
     const QString file = QFileDialog::getOpenFileName(0, tr("p4 filelog"));
     if (!file.isEmpty()) {
         const QFileInfo fi(file);
-        filelog(fi.absolutePath(), QStringList(fi.fileName()));
+        filelog(fi.absolutePath(), fi.fileName());
     }
 }
 
@@ -758,24 +755,25 @@ void PerforcePlugin::logRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    filelog(state.topLevel(), perforceRelativeFileArguments(QStringList()));
+    filelog(state.topLevel(), perforceRelativeFileArguments(QString()));
 }
 
-void PerforcePlugin::filelog(const QString &workingDir, const QStringList &fileNames,
+void PerforcePlugin::filelog(const QString &workingDir, const QString &fileName,
                              bool enableAnnotationContextMenu)
 {
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, fileNames);
-    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(workingDir, fileNames);
+    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, QStringList(fileName));
+    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(workingDir, QStringList(fileName));
     QStringList args;
     args << QLatin1String("filelog") << QLatin1String("-li");
     if (m_settings.logCount() > 0)
         args << QLatin1String("-m") << QString::number(m_settings.logCount());
-    args.append(fileNames);
+    if (!fileName.isEmpty())
+        args.append(fileName);
     const PerforceResponse result = runP4Cmd(workingDir, args,
                                              CommandToWindow|StdErrToWindow|ErrorToWindow,
                                              QStringList(), QByteArray(), codec);
     if (!result.error) {
-        const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, fileNames);
+        const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, fileName);
         Core::IEditor *editor = showOutputInEditor(tr("p4 filelog %1").arg(id), result.stdOut,
                                 VcsBase::LogOutput, source, codec);
         if (enableAnnotationContextMenu)
@@ -843,8 +841,8 @@ bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
     bool managed = false;
     do {
         // Quick check: Must be at or below top level and not "../../other_path"
-        const QStringList relativeDirArgs = m_settings.relativeToTopLevelArguments(directory);
-        if (!relativeDirArgs.empty() && relativeDirArgs.front().startsWith(QLatin1String("..")))
+        const QString relativeDirArgs = m_settings.relativeToTopLevelArguments(directory);
+        if (!relativeDirArgs.isEmpty() && relativeDirArgs.startsWith(QLatin1String("..")))
             break;
         // Is it actually managed by perforce?
         QStringList args;

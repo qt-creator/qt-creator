@@ -241,10 +241,9 @@ QString PerforceSettings::relativeToTopLevel(const QString &dir) const
     return m_topLevelDir->relativeFilePath(dir);
 }
 
-QStringList PerforceSettings::relativeToTopLevelArguments(const QString &dir) const
+QString PerforceSettings::relativeToTopLevelArguments(const QString &dir) const
 {
-    const QString relative = relativeToTopLevel(dir);
-    return relative.isEmpty() ? QStringList() : QStringList(relative);
+    return relativeToTopLevel(dir);
 }
 
 // Map the root part of a path:

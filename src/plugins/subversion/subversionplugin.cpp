@@ -724,7 +724,8 @@ void SubversionPlugin::diffProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
-    svnDiff(state.currentProjectTopLevel(), state.relativeCurrentProject(), state.currentProjectName());
+    svnDiff(state.currentProjectTopLevel(), QStringList(state.relativeCurrentProject()),
+            state.currentProjectName());
 }
 
 void SubversionPlugin::diffCurrentFile()
@@ -820,7 +821,7 @@ void SubversionPlugin::filelogCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
+    filelog(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
 void SubversionPlugin::logProject()
@@ -858,13 +859,13 @@ void SubversionPlugin::updateRepository()
     svnUpdate(state.topLevel());
 }
 
-void SubversionPlugin::svnStatus(const QString &workingDir, const QStringList &relativePaths)
+void SubversionPlugin::svnStatus(const QString &workingDir, const QString &relativePath)
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList args(QLatin1String("status"));
-    if (!relativePaths.isEmpty())
-        args.append(relativePaths);
+    if (!relativePath.isEmpty())
+        args.append(relativePath);
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     outwin->setRepository(workingDir);
     runSvn(workingDir, args, m_settings.timeOutMs(),
@@ -873,7 +874,7 @@ void SubversionPlugin::svnStatus(const QString &workingDir, const QStringList &r
 }
 
 void SubversionPlugin::filelog(const QString &workingDir,
-                               const QStringList &files,
+                               const QString &file,
                                bool enableAnnotationContextMenu)
 {
     // no need for temp file
@@ -882,7 +883,7 @@ void SubversionPlugin::filelog(const QString &workingDir,
         args << QLatin1String("-l")
              << QString::number(m_settings.intValue(SubversionSettings::logCountKey));
     }
-    foreach (const QString &file, files)
+    if (!file.isEmpty())
         args.append(QDir::toNativeSeparators(file));
 
     // subversion stores log in UTF-8 and returns it back in user system locale.
@@ -896,14 +897,15 @@ void SubversionPlugin::filelog(const QString &workingDir,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
 
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
+    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, QStringList(file));
+    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir,
+                                                                QStringList(file));
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
         Core::EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("svn log %1").arg(id);
-        const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
+        const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, file);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::LogOutput, source, /*codec*/0);
         VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
@@ -918,12 +920,12 @@ void SubversionPlugin::updateProject()
     svnUpdate(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
-void SubversionPlugin::svnUpdate(const QString &workingDir, const QStringList &relativePaths)
+void SubversionPlugin::svnUpdate(const QString &workingDir, const QString &relativePath)
 {
     QStringList args(QLatin1String("update"));
     args.push_back(QLatin1String(nonInteractiveOptionC));
-    if (!relativePaths.isEmpty())
-        args.append(relativePaths);
+    if (!relativePath.isEmpty())
+        args.append(relativePath);
         const SubversionResponse response =
                 runSvn(workingDir, args, 10 * m_settings.timeOutMs(),
                        SshPasswordPrompt|ShowStdOutInLogWindow);

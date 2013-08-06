@@ -185,7 +185,7 @@ private:
     QString clientFilePath(const QString &serverFilePath);
     void annotate(const QString &workingDir, const QString &fileName,
                   const QString &changeList = QString(), int lineNumber = -1);
-    void filelog(const QString &workingDir, const QStringList &fileNames = QStringList(),
+    void filelog(const QString &workingDir, const QString &fileName = QString(),
                  bool enableAnnotationContextMenu = false);
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;

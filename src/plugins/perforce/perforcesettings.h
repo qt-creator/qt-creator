@@ -117,7 +117,7 @@ public:
     QString relativeToTopLevel(const QString &dir) const;
     // Return argument list relative to top level (empty meaning,
     // it is the same directory).
-    QStringList relativeToTopLevelArguments(const QString &dir) const;
+    QString relativeToTopLevelArguments(const QString &dir) const;
 
     // Map p4 path back to file system in case of a symlinked top-level
     QString mapToFileSystem(const QString &perforceFilePath) const;
