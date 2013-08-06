@@ -66,6 +66,8 @@ QtcLibrary {
         "qmljsscopebuilder.h",
         "qmljsscopechain.cpp",
         "qmljsscopechain.h",
+        "qmljssimplereader.cpp",
+        "qmljssimplereader.h",
         "qmljsstaticanalysismessage.cpp",
         "qmljsstaticanalysismessage.h",
         "qmljstypedescriptionreader.cpp",

@@ -32,6 +32,9 @@
 #include "filefilteritems.h"
 #include <qmljs/qmljssimplereader.h>
 
+#include <QVariant>
+#include <QDebug>
+
 enum {
     debug = false
 };
