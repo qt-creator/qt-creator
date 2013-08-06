@@ -66,7 +66,9 @@ public:
         Gcc = 0,
         Clang = 1,
         LinuxIcc = 2,
+#if defined(Q_OS_WIN)
         Msvc = 3,
+#endif
         OutputParserCount
     };
 

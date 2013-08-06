@@ -201,7 +201,9 @@ IOutputParser *CustomToolChain::outputParser() const
     case Gcc: return new GccParser;
     case Clang: return new ClangParser;
     case LinuxIcc: return new LinuxIccParser;
+#if defined(QT_OS_WIN)
     case Msvc: return new MsvcParser;
+#endif
     default: return 0;
     }
 }
@@ -343,7 +345,9 @@ QString CustomToolChain::parserName(CustomToolChain::OutputParser parser)
     case Gcc: return tr("GCC");
     case Clang: return tr("Clang");
     case LinuxIcc: return tr("ICC");
+#if defined(Q_OS_WIN)
     case Msvc: return tr("MSVC");
+#endif
     default: return QString();
     }
 }
