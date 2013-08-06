@@ -1901,6 +1901,7 @@ public:
     QTextCursor m_searchCursor;
     int m_searchStartPosition;
     int m_searchFromScreenLine;
+    QString m_highlighted; // currently highlighted text
 
     bool handleExCommandHelper(ExCommand &cmd); // Returns success.
     bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
@@ -1954,6 +1955,7 @@ public:
             , mapDepth(0)
             , currentMessageLevel(MessageInfo)
             , lastSearchForward(false)
+            , highlightsCleared(false)
             , findPending(false)
             , returnToMode(CommandMode)
             , currentRegister(0)
@@ -2001,7 +2003,6 @@ public:
         // Command line buffers.
         CommandBuffer commandBuffer;
         CommandBuffer searchBuffer;
-        QString oldNeedle;
 
         // Current mini buffer message.
         QString currentMessage;
@@ -2009,9 +2010,11 @@ public:
         QString currentCommand;
 
         // Search state.
-        QString lastSearch;
-        bool lastSearchForward;
-        bool findPending;
+        QString lastSearch; // last search expression as entered by user
+        QString lastNeedle; // last search expression translated with vimPatternToQtPattern()
+        bool lastSearchForward; // last search command was '/' or '*'
+        bool highlightsCleared; // ':nohlsearch' command is active until next search
+        bool findPending; // currently searching using external tool (until editor is focused again)
 
         // Last substitution command.
         QString lastSubstituteFlags;
@@ -2087,6 +2090,7 @@ void FakeVimHandler::Private::focus()
     updateCursorShape();
     if (!g.inFakeVim || g.mode != CommandMode)
         updateMiniBuffer();
+    updateHighlights();
 }
 
 void FakeVimHandler::Private::enterFakeVim()
@@ -3177,8 +3181,17 @@ void FakeVimHandler::Private::updateSelection()
 
 void FakeVimHandler::Private::updateHighlights()
 {
-    if (!hasConfig(ConfigUseCoreSearch))
-        emit q->highlightMatches(g.oldNeedle);
+    if (hasConfig(ConfigUseCoreSearch) || !hasConfig(ConfigHlSearch) || g.highlightsCleared) {
+        if (m_highlighted.isEmpty())
+            return;
+        m_highlighted.clear();
+    } else if (m_highlighted != g.lastNeedle) {
+        m_highlighted = g.lastNeedle;
+    } else {
+        return;
+    }
+
+    emit q->highlightMatches(m_highlighted);
 }
 
 void FakeVimHandler::Private::updateMiniBuffer()
@@ -5319,6 +5332,8 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
             act->setValue(true);
         else if (oldValue == true)
             {} // nothing to do
+        if (g.highlightsCleared && (cmd.args == _("hls") || cmd.args == _("hlsearch")))
+            highlightMatches(g.lastNeedle);
     } else if (act) {
         // Non-boolean to show.
         showMessage(MessageInfo, cmd.args + QLatin1Char('=') + act->value().toString());
@@ -5654,11 +5669,12 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExNohlsearchCommand(const ExCommand &cmd)
 {
-    // :nohlsearch
-    if (!cmd.cmd.startsWith(_("noh")))
+    // :noh, :nohl, ..., :nohlsearch
+    if (cmd.cmd.size() < 3 || !QString(_("nohlsearch")).startsWith(cmd.cmd))
         return false;
 
-    highlightMatches(QString());
+    g.highlightsCleared = true;
+    updateHighlights();
     return true;
 }
 
@@ -5955,10 +5971,8 @@ void FakeVimHandler::Private::searchNext(bool forward)
 
 void FakeVimHandler::Private::highlightMatches(const QString &needle)
 {
-    if (!hasConfig(ConfigHlSearch) || needle == g.oldNeedle)
-        return;
-    g.oldNeedle = needle;
-
+    g.lastNeedle = needle;
+    g.highlightsCleared = false;
     updateHighlights();
 }
 
@@ -7230,6 +7244,9 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
                                             m_oldPosition);
         }
     }
+
+    if (!m_highlighted.isEmpty())
+        emit q->highlightMatches(m_highlighted);
 }
 
 void FakeVimHandler::Private::onUndoCommandAdded()

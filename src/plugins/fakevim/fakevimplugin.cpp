@@ -1987,11 +1987,12 @@ void FakeVimPluginPrivate::changeSelection(const QList<QTextEdit::ExtraSelection
 
 void FakeVimPluginPrivate::highlightMatches(const QString &needle)
 {
-    IEditor *editor = EditorManager::currentEditor();
-    QWidget *w = editor->widget();
-    Find::IFindSupport *find = Aggregation::query<Find::IFindSupport>(w);
-    if (find != 0)
-        find->highlightAll(needle, Find::FindRegularExpression | Find::FindCaseSensitively);
+    foreach (IEditor *editor, EditorManager::instance()->visibleEditors()) {
+        QWidget *w = editor->widget();
+        Find::IFindSupport *find = Aggregation::query<Find::IFindSupport>(w);
+        if (find != 0)
+            find->highlightAll(needle, Find::FindRegularExpression | Find::FindCaseSensitively);
+    }
 }
 
 int FakeVimPluginPrivate::currentFile() const
