@@ -842,8 +842,9 @@ static void fixValue(const std::string &type, std::wstring *value)
     const bool isHexNumber = value->size() > 3 && value->compare(0, 2, L"0x") == 0 && isHexDigit(value->at(2));
     if (isHexNumber) {
         // Remove dumb 64bit separator
-        if (value->size() > 10 && value->at(10) == L'`')
-            value->erase(10, 1);
+        const size_t separator = value->find(L'`');
+        if (separator != std::wstring::npos)
+            value->erase(separator, 1);
         const std::string::size_type firstNonNullDigit = value->find_first_not_of(L"0", 2);
         // No on-null digits: plain null ptr.
         if (firstNonNullDigit == std::string::npos || value->at(firstNonNullDigit) == ' ') {
