@@ -2855,6 +2855,7 @@ bool FakeVimHandler::Private::moveToNextParagraph(int count)
 {
     const bool forward = count > 0;
     int repeat = forward ? count : -count;
+    int pos = position();
     QTextBlock block = this->block();
 
     if (block.isValid() && block.length() == 1)
@@ -2876,6 +2877,7 @@ bool FakeVimHandler::Private::moveToNextParagraph(int count)
     else
         return false;
 
+    recordJump(pos);
     setTargetColumn();
     g.movetype = MoveExclusive;
 
@@ -3375,6 +3377,8 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             emit q->foldGoTo(g.subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
         handled = pos != position();
         if (handled) {
+            if (lineForPosition(pos) != lineForPosition(position()))
+                recordJump(pos);
             finishMovement(QString::fromLatin1("%1%2%3")
                            .arg(count())
                            .arg(g.subsubmode == OpenSquareSubSubMode ? '[' : ']')
