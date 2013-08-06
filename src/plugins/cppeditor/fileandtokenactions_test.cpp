@@ -135,7 +135,6 @@ typedef TestActionsTestCase::ActionPointer ActionPointer;
 void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileActions)
 {
     CppModelManagerInterface *mm = CppModelManagerInterface::instance();
-    EditorManager *em = EditorManager::instance();
 
     // Collect files to process
     QStringList filesToOpen;
@@ -176,7 +175,7 @@ void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileAc
 
         // Open editor
         QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
-        CPPEditor *editor = dynamic_cast<CPPEditor *>(em->openEditor(filePath));
+        CPPEditor *editor = dynamic_cast<CPPEditor *>(EditorManager::openEditor(filePath));
         QVERIFY(editor);
         QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
