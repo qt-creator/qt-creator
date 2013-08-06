@@ -637,7 +637,7 @@ public:
                           const QString &directory,
                           bool enableAnnotationContextMenu,
                           const QStringList &args,
-                          const QString &fileName) :
+                          const QStringList &fileNames) :
         BaseGitDiffArgumentsWidget(client, directory, args),
         m_client(client),
         m_workingDirectory(directory),
@@ -657,24 +657,24 @@ public:
         QToolButton *graphButton = addToggleButton(graphArguments, tr("Graph"),
                                               tr("Show textual graph log."));
         mapSetting(graphButton, m_client->settings()->boolPointer(GitSettings::graphLogKey));
-        setFileName(fileName);
+        setFileNames(fileNames);
     }
 
-    void setFileName(const QString &fileNames)
+    void setFileNames(const QStringList &fileNames)
     {
-        m_fileName = fileNames;
+        m_fileNames = fileNames;
     }
 
     void executeCommand()
     {
-        m_client->log(m_workingDirectory, m_fileName, m_enableAnnotationContextMenu, baseArguments());
+        m_client->log(m_workingDirectory, m_fileNames, m_enableAnnotationContextMenu, baseArguments());
     }
 
 private:
     GitClient *m_client;
     QString m_workingDirectory;
     bool m_enableAnnotationContextMenu;
-    QString m_fileName;
+    QStringList m_fileNames;
 };
 
 class ConflictHandler : public QObject
@@ -1113,19 +1113,20 @@ void GitClient::status(const QString &workingDirectory)
             Qt::QueuedConnection);
 }
 
-void GitClient::log(const QString &workingDirectory, const QString &fileName,
+void GitClient::log(const QString &workingDirectory, const QStringList &fileNames,
                     bool enableAnnotationContextMenu, const QStringList &args)
 {
-    const QString msgArg = fileName.isEmpty() ? workingDirectory : fileName;
+    const QString msgArg = fileNames.empty() ? workingDirectory :
+                           fileNames.join(QLatin1String(", "));
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
+    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileNames);
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
     if (!editor)
         editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile,
                                  new GitLogArgumentsWidget(this, workingDirectory,
                                                            enableAnnotationContextMenu,
-                                                           args, fileName));
+                                                           args, fileNames));
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     editor->setDiffBaseDirectory(workingDirectory);
 
@@ -1139,13 +1140,13 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
 
     GitLogArgumentsWidget *argWidget = qobject_cast<GitLogArgumentsWidget *>(editor->configurationWidget());
     argWidget->setBaseArguments(args);
-    argWidget->setFileName(fileName);
+    argWidget->setFileNames(fileNames);
     QStringList userArgs = argWidget->arguments();
 
     arguments.append(userArgs);
 
-    if (!fileName.isEmpty())
-        arguments << QLatin1String("--") << fileName;
+    if (!fileNames.isEmpty())
+        arguments << QLatin1String("--") << fileNames;
 
     executeGit(workingDirectory, arguments, editor);
 }

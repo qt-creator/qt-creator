@@ -96,7 +96,7 @@ public:
     /* Convenience: Returns project path relative to top level if it
      * differs from top level (else empty()) as an argument list to do
      * eg a 'vcs diff <args>' */
-    QString relativeCurrentProject() const;
+    QStringList relativeCurrentProject() const;
 
     // Top level directory for actions on the top level. Preferably
     // the file one.

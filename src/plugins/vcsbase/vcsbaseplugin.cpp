@@ -404,12 +404,13 @@ QString VcsBasePluginState::currentProjectTopLevel() const
     return data->m_state.currentProjectTopLevel;
 }
 
-QString VcsBasePluginState::relativeCurrentProject() const
+QStringList VcsBasePluginState::relativeCurrentProject() const
 {
-    QTC_ASSERT(hasProject(), return QString());
+    QStringList rc;
+    QTC_ASSERT(hasProject(), return rc);
     if (data->m_state.currentProjectTopLevel != data->m_state.currentProjectPath)
-        return QDir(data->m_state.currentProjectTopLevel).relativeFilePath(data->m_state.currentProjectPath);
-    return QString();
+        rc.append(QDir(data->m_state.currentProjectTopLevel).relativeFilePath(data->m_state.currentProjectPath));
+    return rc;
 }
 
 bool VcsBasePluginState::hasTopLevel() const
