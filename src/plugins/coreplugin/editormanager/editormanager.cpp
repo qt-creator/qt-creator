@@ -1009,11 +1009,11 @@ void EditorManager::setCurrentEditorFromContextChange()
     setCurrentEditor(newCurrent);
 }
 
-void EditorManager::closeEditor(Core::IEditor *editor)
+void EditorManager::closeEditor(Core::IEditor *editor, bool askAboutModifiedEditors)
 {
     if (!editor)
         return;
-    closeEditors(QList<IEditor *>() << editor);
+    closeEditors(QList<IEditor *>() << editor, askAboutModifiedEditors);
 }
 
 void EditorManager::closeEditor(DocumentModel::Entry *entry)

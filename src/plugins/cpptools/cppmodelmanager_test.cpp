@@ -540,8 +540,7 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     QVERIFY(mm->snapshot().contains(file));
 
     // Close file/editor
-    const QList<Core::IEditor*> editorsToClose = QList<Core::IEditor*>() << editor;
-    em->closeEditors(editorsToClose, /*askAboutModifiedEditors=*/ false);
+    em->closeEditor(editor, /*askAboutModifiedEditors=*/ false);
 
     // Check: File is removed from the snapshpt
     QVERIFY(!mm->workingCopy().contains(file));

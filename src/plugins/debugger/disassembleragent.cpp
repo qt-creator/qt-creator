@@ -124,10 +124,8 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate()
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 {
-    if (editor) {
-        EditorManager *editorManager = EditorManager::instance();
-        editorManager->closeEditors(QList<IEditor *>() << editor);
-    }
+    if (editor)
+        EditorManager::instance()->closeEditor(editor);
     editor = 0;
     delete locationMark;
     qDeleteAll(breakpointMarks);

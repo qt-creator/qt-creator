@@ -1865,13 +1865,10 @@ void FakeVimPluginPrivate::handleDelayedQuit(bool forced, IEditor *editor)
     // This tries to simulate vim behaviour. But the models of vim and
     // Qt Creator core do not match well...
     EditorManager *editorManager = ICore::editorManager();
-    if (editorManager->hasSplitter()) {
+    if (editorManager->hasSplitter())
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
-    } else {
-        QList<IEditor *> editors;
-        editors.append(editor);
-        editorManager->closeEditors(editors, !forced);
-    }
+    else
+        editorManager->closeEditor(editor, !forced);
 }
 
 void FakeVimPluginPrivate::handleDelayedQuitAll(bool forced)

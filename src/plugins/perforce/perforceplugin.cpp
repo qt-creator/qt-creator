@@ -1296,8 +1296,7 @@ void PerforcePlugin::describe(const QString & source, const QString &n)
 void PerforcePlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
-    Core::EditorManager *em = Core::EditorManager::instance();
-    em->closeEditors(QList<Core::IEditor*>() << Core::EditorManager::currentEditor());
+    Core::EditorManager::instance()->closeEditor(Core::EditorManager::currentEditor());
 }
 
 void PerforcePlugin::cleanCommitMessageFile()

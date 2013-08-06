@@ -142,6 +142,7 @@ public:
     bool saveEditor(IEditor *editor);
 
     bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
+    void closeEditor(IEditor *editor, bool askAboutModifiedEditors = true);
 
     MakeWritableResult makeFileWritable(IDocument *document);
 
@@ -268,7 +269,6 @@ private:
     static Internal::EditorView *viewForEditor(IEditor *editor);
     static Internal::SplitterOrView *findRoot(const Internal::EditorView *view, int *rootIndex = 0);
 
-    void closeEditor(IEditor *editor);
     void closeView(Internal::EditorView *view);
     void emptyView(Internal::EditorView *view);
     static void splitNewWindow(Internal::EditorView *view);

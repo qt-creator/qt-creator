@@ -181,7 +181,7 @@ void GitSubmitEditor::updateFileModel()
     } else {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
         m_forceClose = true;
-        Core::EditorManager::instance()->closeEditors(QList<IEditor*>() << this);
+        Core::EditorManager::instance()->closeEditor(this);
     }
 }
 

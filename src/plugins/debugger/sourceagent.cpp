@@ -76,10 +76,8 @@ SourceAgentPrivate::SourceAgentPrivate()
 
 SourceAgentPrivate::~SourceAgentPrivate()
 {
-    if (editor) {
-        EditorManager *editorManager = EditorManager::instance();
-        editorManager->closeEditors(QList<IEditor *>() << editor);
-    }
+    if (editor)
+        EditorManager::instance()->closeEditor(editor);
     editor = 0;
     delete locationMark;
 }
