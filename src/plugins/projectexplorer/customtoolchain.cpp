@@ -478,8 +478,7 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_mainLayout->addRow(tr("&Header paths:"), m_headerDetails);
     m_mainLayout->addRow(tr("C++11 &flags:"), m_cxx11Flags);
     m_mainLayout->addRow(tr("&Qt mkspecs:"), m_mkspecs);
-    m_mainLayout->addRow(tr("Error Parser:"), m_errorParserComboBox);
-    m_mainLayout->addRow(tr("&Error Parser:"), m_parserLayout);
+    m_mainLayout->addRow(tr("&Error Parser:"), m_errorParserComboBox);
     addErrorLabel();
 
     setFromToolchain();
