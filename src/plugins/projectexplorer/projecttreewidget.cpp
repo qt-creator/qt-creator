@@ -373,7 +373,7 @@ void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
     if (node->nodeType() != FileNodeType)
         return;
     IEditor *editor = EditorManager::openEditor(node->path());
-    if (node->line() >= 0)
+    if (editor && node->line() >= 0)
         editor->gotoLine(node->line());
 }
 
