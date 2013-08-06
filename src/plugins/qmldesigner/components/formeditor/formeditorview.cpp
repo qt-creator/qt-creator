@@ -236,7 +236,7 @@ void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
 
 static inline bool hasNodeSourceParent(const ModelNode &node)
 {
-    if (node.parentProperty().isValid() && node.parentProperty().parentModelNode().isValid()) {
+    if (node.hasParentProperty() && node.parentProperty().parentModelNode().isValid()) {
         ModelNode parent = node.parentProperty().parentModelNode();
         if (parent.nodeSourceType() != ModelNode::NodeWithoutSource)
             return true;

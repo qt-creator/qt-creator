@@ -488,7 +488,7 @@ void DesignDocument::paste()
             targetNode = view.selectedModelNodes().first();
 
         //In case we copy and paste a selection we paste in the parent item
-        if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.parentProperty().isValid())
+        if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.hasParentProperty())
             targetNode = targetNode.parentProperty().parentModelNode();
 
         if (!targetNode.isValid())

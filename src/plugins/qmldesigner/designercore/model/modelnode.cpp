@@ -38,6 +38,7 @@
 #include "invalidargumentexception.h"
 #include "invalididexception.h"
 #include "invalidmodelnodeexception.h"
+#include "invalidpropertyexception.h"
 #include "model_p.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
@@ -277,8 +278,11 @@ NodeAbstractProperty ModelNode::parentProperty() const
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
-    if (m_internalNode->parentProperty().isNull())
-        return NodeAbstractProperty();
+
+    if (m_internalNode->parentProperty().isNull()) {
+        Q_ASSERT_X(m_internalNode->parentProperty(), Q_FUNC_INFO, "parentProperty is invalid");
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "parent");
+    }
 
     return NodeAbstractProperty(m_internalNode->parentProperty()->name(), m_internalNode->parentProperty()->propertyOwner(), m_model.data(), view());
 }

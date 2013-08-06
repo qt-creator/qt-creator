@@ -56,7 +56,7 @@ static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
 {
     QList<QmlItemNode> siblingList;
 
-    if (itemNode.isValid() && itemNode.modelNode().parentProperty().isValid()) {
+    if (itemNode.isValid() && itemNode.modelNode().hasParentProperty()) {
         QList<ModelNode> modelNodes = itemNode.modelNode().parentProperty().parentModelNode().allDirectSubModelNodes();
         foreach (const ModelNode &node, modelNodes) {
             QmlItemNode childItemNode = node;

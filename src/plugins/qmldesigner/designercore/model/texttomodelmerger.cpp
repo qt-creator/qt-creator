@@ -901,7 +901,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         }
     }
 
-    bool isImplicitComponent = modelNode.parentProperty().isValid() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
+    bool isImplicitComponent = modelNode.hasParentProperty() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
 
 
     if (modelNode.type() != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
@@ -1656,7 +1656,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                QmlJS::AST::UiObjectMember *astNode,
                                ReadingContext *context)
 {
-    const bool propertyTakesComponent = propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
+    const bool propertyTakesComponent = modelNode.hasParentProperty() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
 
     if (isRootNode) {
         modelNode.view()->changeRootNodeType(typeName, majorVersion, minorVersion);

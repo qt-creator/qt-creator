@@ -65,7 +65,7 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode)
 
 void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNodeList)
 {
-    if (modelNode.parentProperty() == *this)
+    if (modelNode.hasParentProperty() && modelNode.parentProperty() == *this)
         return;
     Internal::WriteLocker locker(model());
     if (!isValid())
