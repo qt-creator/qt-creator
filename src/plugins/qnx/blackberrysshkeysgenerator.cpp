@@ -53,8 +53,20 @@ void BlackBerrySshKeysGenerator::run()
     const bool success = m_keyGen->generateKeys(QSsh::SshKeyGenerator::Rsa,
                                                 QSsh::SshKeyGenerator::Mixed, 4096,
                                                 QSsh::SshKeyGenerator::DoNotOfferEncryption);
-    if (success)
-        emit sshKeysGenerationFinished(m_privateKeyPath, m_keyGen->privateKey(), m_keyGen->publicKey());
-    else
+    if (success) {
+        // BB10 devices allow to use public key with no comment
+        // or a comment in username@hostname format
+        // QSsh::SshKeyGenerator class creates comments in 'QtCreator/TIMEZONE' format
+        // therefore stripping this comment out
+        QByteArray publicKey = m_keyGen->publicKey();
+        int firstSpace = publicKey.indexOf(' ');
+        if (firstSpace >= 0) {
+            int secondSpace = publicKey.indexOf(' ', firstSpace + 1);
+            if (secondSpace >= 0)
+                publicKey.truncate(secondSpace);
+        }
+
+        emit sshKeysGenerationFinished(m_privateKeyPath, m_keyGen->privateKey(), publicKey);
+    } else
         emit sshKeysGenerationFailed(m_keyGen->error());
 }
