@@ -274,12 +274,6 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
     } else {
         // On empty data, still add a fake root event
         clearV8RootEvent();
-        v8RootEvent.totalPercent = 100;
-        QString rootEventHash = getHashStringForV8Event(
-                    tr("<program>"),
-                    tr("Main Program"));
-        v8EventHash[rootEventHash] = new QV8EventData;
-        *v8EventHash[rootEventHash] = v8RootEvent;
     }
 }
 

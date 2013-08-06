@@ -68,14 +68,11 @@ public:
     ~QmlProfilerEnginePrivate() { delete m_runner; }
 
     bool attach(const QString &address, uint port);
-    AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                            QObject *parent);
 
     QmlProfilerEngine *q;
 
     QmlProfilerStateManager *m_profilerState;
 
-    AbstractQmlProfilerRunner *m_runner;
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
 };
@@ -160,11 +157,6 @@ bool QmlProfilerEngine::start()
 {
     QTC_ASSERT(d->m_profilerState, return false);
 
-    if (d->m_runner) {
-        delete d->m_runner;
-        d->m_runner = 0;
-    }
-
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStarting);
 
     if (QmlProjectManager::QmlProjectRunConfiguration *rc =
@@ -201,7 +193,7 @@ bool QmlProfilerEngine::start()
     }
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
-    emit starting(this);
+    engineStarted();
     return true;
 }
 
@@ -242,7 +234,7 @@ void QmlProfilerEngine::notifyRemoteFinished(bool success)
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
         AnalyzerManager::stopTool();
 
-        emit finished();
+        engineFinished();
         break;
     }
     case QmlProfilerStateManager::AppStopped :
@@ -262,10 +254,6 @@ void QmlProfilerEngine::cancelProcess()
 {
     QTC_ASSERT(d->m_profilerState, return);
 
-     // no process to be canceled? (there might be multiple engines, but only one runs a process)
-    if (!d->m_runner)
-        return;
-
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
@@ -282,10 +270,7 @@ void QmlProfilerEngine::cancelProcess()
         return;
     }
     }
-
-    if (d->m_runner)
-        d->m_runner->stop();
-    emit finished();
+    engineFinished();
 }
 
 void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
@@ -348,10 +333,20 @@ void QmlProfilerEngine::processIsRunning(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    if (port > 0)
+    if (port > 0 && mode() != StartQmlRemote)
         emit processRunning(port);
-    else if (d->m_runner)
-        emit processRunning(d->m_runner->debugPort());
+}
+
+void QmlProfilerEngine::engineStarted()
+{
+    d->m_running = true;
+    emit starting(this);
+}
+
+void QmlProfilerEngine::engineFinished()
+{
+    d->m_running = false;
+    emit finished();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -373,17 +368,12 @@ void QmlProfilerEngine::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
-        cancelProcess();
+        if (d->m_running)
+            cancelProcess();
         break;
     }
     case QmlProfilerStateManager::Idle : {
-        // When all the profiling is done, delete the profiler runner
-        // (a new one will be created at start)
         d->m_noDebugOutputTimer.stop();
-        if (d->m_runner) {
-            delete d->m_runner;
-            d->m_runner = 0;
-        }
         break;
     }
     default:

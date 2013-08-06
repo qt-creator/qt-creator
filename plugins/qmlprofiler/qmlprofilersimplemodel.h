@@ -82,6 +82,8 @@ signals:
 
 protected:
     QVector<QmlEventData> eventList;
+    QmlProfilerModelManager *m_modelManager;
+    int m_modelId;
 };
 
 }

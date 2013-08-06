@@ -21,6 +21,7 @@ SOURCES += \
     qmlprofilerclientmanager.cpp \
     qmlprofilerviewmanager.cpp \
     qmlprofilerstatewidget.cpp \
+    qmlprofilerruncontrolfactory.cpp \
     qmlprofilermodelmanager.cpp \
     qmlprofilersimplemodel.cpp \
     qmlprofilerprocessedmodel.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     qmlprofilerclientmanager.h \
     qmlprofilerviewmanager.h \
     qmlprofilerstatewidget.h \
+    qmlprofilerruncontrolfactory.h \
     qmlprofilermodelmanager.h \
     qmlprofilersimplemodel.h \
     qmlprofilerprocessedmodel.h \

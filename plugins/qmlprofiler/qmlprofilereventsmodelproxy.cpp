@@ -56,6 +56,8 @@ public:
     QmlProfilerModelManager *modelManager;
     QmlProfilerEventsModelProxy *q;
 
+    int modelId;
+
     QVector<int> acceptedTypes;
     QSet<QString> eventsInBindingLoop;
 };
@@ -65,6 +67,7 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
 {
     d->modelManager = modelManager;
     connect(modelManager->simpleModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
+    d->modelId = modelManager->registerModelProxy();
 
     d->acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal;
 }
@@ -81,6 +84,7 @@ const QList<QmlProfilerEventsModelProxy::QmlEventStats> QmlProfilerEventsModelPr
 
 void QmlProfilerEventsModelProxy::clear()
 {
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
     d->data.clear();
     d->eventsInBindingLoop.clear();
 }
@@ -92,7 +96,11 @@ void QmlProfilerEventsModelProxy::limitToRange(qint64 rangeStart, qint64 rangeEn
 
 void QmlProfilerEventsModelProxy::dataChanged()
 {
-    loadData();
+    if (d->modelManager->state() == QmlProfilerDataState::ProcessingData)
+        loadData();
+
+    if (d->modelManager->state() == QmlProfilerDataState::Empty)
+        clear();
 }
 
 QSet<QString> QmlProfilerEventsModelProxy::eventsInBindingLoop() const
@@ -199,6 +207,8 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
 
         CallStackEntry newEntry(hash, event);
         callStack.push(newEntry);
+
+        d->modelManager->modelProxyCountUpdated(d->modelId, i, eventList.count()*2);
     }
 
     // post-process: calc mean time, median time, percentoftime
@@ -243,6 +253,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     d->data.insert(rootEventName, rootEvent);
 
+    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
     emit dataAvailable();
 }
 

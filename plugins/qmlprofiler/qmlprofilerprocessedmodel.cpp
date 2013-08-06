@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "qmlprofilerprocessedmodel.h"
-
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>
@@ -44,7 +43,8 @@ QString getInitialDetails(const QmlProfilerSimpleModel::QmlEventData &event);
 QmlDebug::QmlEventLocation getLocation(const QmlProfilerSimpleModel::QmlEventData &event)
 {
     QmlDebug::QmlEventLocation eventLocation = event.location;
-    if (event.eventType == QmlDebug::Compiling && eventLocation.filename.isEmpty()) {
+    if ((event.eventType == QmlDebug::Creating || event.eventType == QmlDebug::Compiling)
+            && eventLocation.filename.isEmpty()) {
         eventLocation.filename = getInitialDetails(event);
         eventLocation.line = 1;
         eventLocation.column = 1;
@@ -155,6 +155,7 @@ void QmlProfilerProcessedModel::complete()
 
     m_detailsRewriter->reloadDocuments();
 
+    QmlProfilerSimpleModel::complete();
     emit changed();
     m_emitChanged = false;
 }

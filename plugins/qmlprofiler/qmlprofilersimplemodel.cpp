@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmlprofilersimplemodel.h"
+#include "qmlprofilermodelmanager.h"
 #include <QStringList>
 #include <QVector>
 #include <QDebug>
@@ -39,6 +40,9 @@ namespace Internal {
 QmlProfilerSimpleModel::QmlProfilerSimpleModel(QObject *parent)
     : QObject(parent)
 {
+    m_modelManager = qobject_cast<QmlProfilerModelManager *>(parent);
+    Q_ASSERT(m_modelManager);
+    m_modelId = m_modelManager->registerModelProxy();
 }
 
 QmlProfilerSimpleModel::~QmlProfilerSimpleModel()
@@ -47,6 +51,7 @@ QmlProfilerSimpleModel::~QmlProfilerSimpleModel()
 
 void QmlProfilerSimpleModel::clear()
 {
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
     eventList.clear();
     emit changed();
 }
@@ -73,6 +78,8 @@ void QmlProfilerSimpleModel::addRangedEvent(int type, int bindingType, qint64 st
                 QString::number(location.line));
     QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location, 0, 0, 0, 0, 0};
     eventList.append(eventData);
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, startTime, m_modelManager->estimatedProfilingTime());
 }
 
 void QmlProfilerSimpleModel::addFrameEvent(qint64 time, int framerate, int animationcount)
@@ -80,12 +87,14 @@ void QmlProfilerSimpleModel::addFrameEvent(qint64 time, int framerate, int anima
     qint64 duration = 1e9 / framerate;
     QmlEventData eventData = {tr("Animations"), QmlDebug::Painting, QmlDebug::AnimationFrame, time, duration, QStringList(), QmlDebug::QmlEventLocation(), framerate, animationcount, 0, 0, 0};
     eventList.append(eventData);
+    m_modelManager->modelProxyCountUpdated(m_modelId, time, m_modelManager->estimatedProfilingTime());
 }
 
 void QmlProfilerSimpleModel::addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5)
 {
     QmlEventData eventData = {QString(), eventType, SGEtype, startTime, 0, QStringList(), QmlDebug::QmlEventLocation(), timing1, timing2, timing3, timing4, timing5};
     eventList.append(eventData);
+    m_modelManager->modelProxyCountUpdated(m_modelId, startTime, m_modelManager->estimatedProfilingTime());
 }
 
 void QmlProfilerSimpleModel::addPixmapCacheEvent(qint64 time, int cacheEventType, const QString &url, int width, int height, int refCount)
@@ -93,6 +102,7 @@ void QmlProfilerSimpleModel::addPixmapCacheEvent(qint64 time, int cacheEventType
     QmlDebug::QmlEventLocation location(url, 0, 0);
     QmlEventData eventData = {QString(), QmlDebug::PixmapCacheEvent, cacheEventType, time, 0, QStringList(), location, width, height, refCount, -1, -1};
     eventList.append(eventData);
+    m_modelManager->modelProxyCountUpdated(m_modelId, time, m_modelManager->estimatedProfilingTime());
 }
 
 qint64 QmlProfilerSimpleModel::lastTimeMark() const
@@ -105,6 +115,7 @@ qint64 QmlProfilerSimpleModel::lastTimeMark() const
 
 void QmlProfilerSimpleModel::complete()
 {
+    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
     emit changed();
 }
 

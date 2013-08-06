@@ -126,15 +126,22 @@ void BasicTimelineModel::clear()
     d->startTimeData.clear();
     d->endTimeData.clear();
     d->categorySpan.clear();
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
 void BasicTimelineModel::dataChanged()
 {
-    loadData();
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
+        loadData();
+
+    if (m_modelManager->state() == QmlProfilerDataState::Empty)
+        clear();
 
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
+    emit expandedChanged();
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
@@ -208,22 +215,36 @@ void BasicTimelineModel::loadData()
             -1  // bindingLoopHead
         };
         d->startTimeData.append(eventStartInstance);
+
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->startTimeData.count(), eventList.count() * 7);
     }
 
     qSort(d->startTimeData.begin(), d->startTimeData.end(), compareStartTimes);
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 2, 7);
+
     // compute nestingLevel - nonexpanded
     d->computeNestingContracted();
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 3, 7);
 
     // compute nestingLevel - expanded
     d->computeExpandedLevels();
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 4, 7);
+
     // populate endtimelist
     d->buildEndTimeList();
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 5, 7);
+
     d->findBindingLoops();
 
+    m_modelManager->modelProxyCountUpdated(m_modelId, 6, 7);
+
     d->computeRowStarts();
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 
     emit countChanged();
 }
@@ -391,6 +412,13 @@ int BasicTimelineModel::count() const
 qint64 BasicTimelineModel::lastTimeMark() const
 {
     return d->startTimeData.last().startTime + d->startTimeData.last().duration;
+}
+
+bool BasicTimelineModel::expanded(int category) const
+{
+    if (d->categorySpan.count() <= category)
+        return false;
+    return d->categorySpan[category].expanded;
 }
 
 void BasicTimelineModel::setExpanded(int category, bool expanded)

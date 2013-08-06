@@ -68,6 +68,8 @@ private slots:
     void wrongSetupMessageBox(const QString &errorMessage);
     void wrongSetupMessageBoxFinished(int);
     void processIsRunning(quint16 port = 0);
+    void engineStarted();
+    void engineFinished();
 
 private slots:
     void profilerStateChanged();

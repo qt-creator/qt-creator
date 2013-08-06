@@ -68,6 +68,7 @@ public:
 
     Q_INVOKABLE qint64 lastTimeMark() const;
 
+    Q_INVOKABLE bool expanded(int modelIndex, int category) const;
     Q_INVOKABLE void setExpanded(int modelIndex, int category, bool expanded);
     Q_INVOKABLE int categoryDepth(int modelIndex, int categoryIndex) const;
     Q_INVOKABLE int categoryCount(int modelIndex) const;

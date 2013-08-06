@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Kläralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,59 +27,31 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALQMLPROFILERRUNNER_H
-#define LOCALQMLPROFILERRUNNER_H
+#ifndef QMLPROFILERRUNCONTROLFACTORY_H
+#define QMLPROFILERRUNCONTROLFACTORY_H
 
-#include "abstractqmlprofilerrunner.h"
-
-#include <utils/environment.h>
-#include <projectexplorer/applicationlauncher.h>
-
-namespace ProjectExplorer { class RunConfiguration; }
-namespace Analyzer { class AnalyzerStartParameters; }
+#include <projectexplorer/runconfiguration.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerEngine;
-class LocalQmlProfilerRunner : public AbstractQmlProfilerRunner
+class QmlProfilerRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
-
 public:
-    struct Configuration {
-        QString executable;
-        QString executableArguments;
-        quint16 port;
-        QString workingDirectory;
-        Utils::Environment environment;
-    };
+    typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
-    static LocalQmlProfilerRunner *createLocalRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                     const Analyzer::AnalyzerStartParameters &sp,
-                                                     QString *errorMessage,
-                                                     QmlProfilerEngine *engine);
+    explicit QmlProfilerRunControlFactory(QObject *parent = 0);
 
-    ~LocalQmlProfilerRunner();
+    // IRunControlFactory implementation
+    bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
 
-    // AbstractQmlProfilerRunner
-    virtual void start();
-    virtual void stop();
-    virtual quint16 debugPort() const;
-
-private slots:
-    void spontaneousStop(int exitCode);
-
-private:
-    LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerEngine *engine);
-
-private:
-    Configuration m_configuration;
-    ProjectExplorer::ApplicationLauncher m_launcher;
-    QmlProfilerEngine *m_engine;
+    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
+                                        ProjectExplorer::RunMode mode,
+                                        QString *errorMessage);
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // LOCALQMLPROFILERRUNNER_H
+#endif // QMLPROFILERRUNCONTROLFACTORY_H

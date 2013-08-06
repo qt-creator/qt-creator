@@ -46,6 +46,8 @@ QtcPlugin {
         "qmlprofilermodelmanager.h",
         "qmlprofilerplugin.cpp",
         "qmlprofilerplugin.h",
+        "qmlprofilerruncontrolfactory.cpp",
+        "qmlprofilerruncontrolfactory.h",
         "qmlprofilerprocessedmodel.cpp",
         "qmlprofilerprocessedmodel.h",
         "qmlprofilersimplemodel.cpp",

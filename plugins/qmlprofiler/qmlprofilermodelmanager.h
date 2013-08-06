@@ -107,10 +107,18 @@ public:
     bool isEmpty() const;
     int count() const;
 
+    double progress() const;
+    int registerModelProxy();
+    void modelProxyCountUpdated(int proxyId, qint64 count, qint64 max);
+
+    qint64 estimatedProfilingTime() const;
+
 signals:
     void countChanged();
     void error(const QString &error);
     void stateChanged();
+    void progressChanged();
+    void dataAvailable();
 
     void requestDetailsForLocation(int eventType, const QmlDebug::QmlEventLocation &location);
 
@@ -136,6 +144,7 @@ public slots:
     void setFilename(const QString &filename);
     void load();
 
+    void newTimeEstimation(qint64 estimation);
 private:
     void setState(QmlProfilerDataState::State state);
 

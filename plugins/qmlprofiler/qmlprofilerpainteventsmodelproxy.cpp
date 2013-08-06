@@ -61,6 +61,7 @@ public:
     QVector <PaintEventsModelProxy::QmlPaintEventData> eventList;
     int minAnimationCount;
     int maxAnimationCount;
+    bool expanded;
 
     PaintEventsModelProxy *q;
 };
@@ -113,11 +114,13 @@ void PaintEventsModelProxy::clear()
     d->eventList.clear();
     d->minAnimationCount = 1;
     d->maxAnimationCount = 1;
+    d->expanded = false;
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
 void PaintEventsModelProxy::dataChanged()
 {
-    if (m_modelManager->state() == QmlProfilerDataState::Done)
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
     if (m_modelManager->state() == QmlProfilerDataState::Empty)
@@ -126,6 +129,7 @@ void PaintEventsModelProxy::dataChanged()
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
+    emit expandedChanged();
 }
 
 bool compareStartTimes(const PaintEventsModelProxy::QmlPaintEventData &t1, const PaintEventsModelProxy::QmlPaintEventData &t2)
@@ -173,11 +177,15 @@ void PaintEventsModelProxy::loadData()
         };
 
         d->eventList.append(newEvent);
+
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), referenceList.count());
     }
 
     d->computeAnimationCountLimit();
 
     qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 
     emit countChanged();
 }
@@ -199,10 +207,15 @@ qint64 PaintEventsModelProxy::lastTimeMark() const
     return d->eventList.last().startTime + d->eventList.last().duration;
 }
 
+bool PaintEventsModelProxy::expanded(int ) const
+{
+    return d->expanded;
+}
+
 void PaintEventsModelProxy::setExpanded(int category, bool expanded)
 {
     Q_UNUSED(category);
-    Q_UNUSED(expanded);
+    d->expanded = expanded;
     emit expandedChanged();
 }
 
@@ -324,6 +337,8 @@ QColor PaintEventsModelProxy::getColor(int index) const
     double fpsFraction = d->eventList[index].framerate / 60.0;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
+    if (fpsFraction < 0.0)
+        fpsFraction = 0.0;
     return QColor::fromHsl((fpsFraction*96)+10, 76, 166);
 }
 

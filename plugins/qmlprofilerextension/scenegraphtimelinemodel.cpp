@@ -109,6 +109,11 @@ qint64 SceneGraphTimelineModel::lastTimeMark() const
     return d->eventList.last().startTime;
 }
 
+bool SceneGraphTimelineModel::expanded(int ) const
+{
+    return d->isExpanded;
+}
+
 void SceneGraphTimelineModel::setExpanded(int category, bool expanded)
 {
     Q_UNUSED(category);
@@ -454,19 +459,24 @@ void SceneGraphTimelineModel::loadData()
             default: break;
             }
         }
+
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), simpleModel->getEvents().count());
     }
 
     qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 }
 
 void SceneGraphTimelineModel::clear()
 {
     d->eventList.clear();
+    d->isExpanded = false;
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
 void SceneGraphTimelineModel::dataChanged()
 {
-    if (m_modelManager->state() == QmlProfilerDataState::Done)
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
     if (m_modelManager->state() == QmlProfilerDataState::Empty)
@@ -475,7 +485,7 @@ void SceneGraphTimelineModel::dataChanged()
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
-    return;
+    emit expandedChanged();
 }
 
 

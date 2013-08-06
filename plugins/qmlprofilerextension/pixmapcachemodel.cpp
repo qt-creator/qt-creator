@@ -101,6 +101,11 @@ qint64 PixmapCacheModel::lastTimeMark() const
     return d->eventList.last().startTime;
 }
 
+bool PixmapCacheModel::expanded(int ) const
+{
+    return d->isExpanded;
+}
+
 void PixmapCacheModel::setExpanded(int category, bool expanded)
 {
     Q_UNUSED(category);
@@ -445,6 +450,8 @@ void PixmapCacheModel::loadData()
             else
                 d->eventList[loadIndex].cacheSize = -1; // ... or failure
         }
+
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), 2*simpleModel->getEvents().count());
     }
 
     if (lastCacheSizeEvent != -1) {
@@ -458,6 +465,8 @@ void PixmapCacheModel::loadData()
     d->computeCacheSizes();
     d->flattenLoads();
     d->computeRowCounts();
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 }
 
 void PixmapCacheModel::clear()
@@ -467,11 +476,14 @@ void PixmapCacheModel::clear()
     d->pixmapSizes.clear();
     d->collapsedRowCount = 1;
     d->expandedRowCount = 1;
+    d->isExpanded = false;
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
 void PixmapCacheModel::dataChanged()
 {
-    if (m_modelManager->state() == QmlProfilerDataState::Done)
+    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
     if (m_modelManager->state() == QmlProfilerDataState::Empty)
@@ -480,7 +492,7 @@ void PixmapCacheModel::dataChanged()
     emit stateChanged();
     emit dataAvailable();
     emit emptyChanged();
-    return;
+    emit expandedChanged();
 }
 
 void PixmapCacheModel::PixmapCacheModelPrivate::computeCacheSizes()

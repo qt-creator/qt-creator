@@ -40,6 +40,8 @@
 #include <QTimer>
 #include <QMessageBox>
 
+#include "qmlprofilermodelmanager.h"
+
 using namespace QmlDebug;
 using namespace Core;
 
@@ -70,6 +72,8 @@ public:
 
     bool v8DataReady;
     bool qmlDataReady;
+
+    QmlProfilerModelManager *modelManager;
 };
 
 QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
@@ -84,6 +88,8 @@ QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
     d->v8DataReady = false;
     d->qmlDataReady = false;
 
+    d->modelManager = 0;
+
     d->connectionTimer.setInterval(200);
     connect(&d->connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
 }
@@ -97,6 +103,18 @@ QmlProfilerClientManager::~QmlProfilerClientManager()
 
     delete d;
 }
+
+void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
+{
+    if (d->modelManager) {
+        disconnect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
+    }
+    d->modelManager = m;
+    if (d->modelManager) {
+        connect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
+    }
+}
+
 ////////////////////////////////////////////////////////////////
 // Interface
 void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
@@ -162,22 +180,22 @@ void QmlProfilerClientManager::connectClientSignals()
                 this, SLOT(qmlComplete()));
         connect(d->qmlclientplugin.data(),
                 SIGNAL(range(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
-                this,
-                SIGNAL(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+                d->modelManager,
+                SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
-                this, SIGNAL(traceFinished(qint64)));
+                d->modelManager->traceTime(), SLOT(setEndTime(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
-                this, SIGNAL(traceStarted(qint64)));
+                d->modelManager->traceTime(), SLOT(setStartTime(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
-                this, SIGNAL(addFrameEvent(qint64,int,int)));
+                d->modelManager, SLOT(addFrameEvent(qint64,int,int)));
         connect(d->qmlclientplugin.data(),
                 SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
-                this,
-                SIGNAL(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
+                d->modelManager,
+                SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
         connect(d->qmlclientplugin.data(),
                 SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
-                this,
-                SIGNAL(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
+                d->modelManager,
+                SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                 d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients
@@ -188,8 +206,8 @@ void QmlProfilerClientManager::connectClientSignals()
         connect(d->v8clientplugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
         connect(d->v8clientplugin.data(),
                 SIGNAL(v8range(int,QString,QString,int,double,double)),
-                this,
-                SIGNAL(addV8Event(int,QString,QString,int,double,double)));
+                d->modelManager,
+                SLOT(addV8Event(int,QString,QString,int,double,double)));
         connect(d->v8clientplugin.data(), SIGNAL(enabledChanged()),
                 d->v8clientplugin.data(), SLOT(sendRecordingStatus()));
     }
@@ -202,22 +220,22 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    this, SLOT(qmlComplete()));
         disconnect(d->qmlclientplugin.data(),
                    SIGNAL(range(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
-                   this,
-                   SIGNAL(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+                   d->modelManager,
+                   SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
-                   this, SIGNAL(traceFinished(qint64)));
+                d->modelManager->traceTime(), SLOT(setEndTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
-                   this, SIGNAL(traceStarted(qint64)));
+                d->modelManager->traceTime(), SLOT(setStartTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
-                   this, SIGNAL(addFrameEvent(qint64,int,int)));
+                   d->modelManager, SLOT(addFrameEvent(qint64,int,int)));
         disconnect(d->qmlclientplugin.data(),
                 SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
-                this,
-                SIGNAL(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
+                d->modelManager,
+                SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
         disconnect(d->qmlclientplugin.data(),
                    SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)),
-                   this,
-                   SIGNAL(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)));
+                   d->modelManager,
+                   SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                    d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients
@@ -228,8 +246,8 @@ void QmlProfilerClientManager::disconnectClientSignals()
         disconnect(d->v8clientplugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
         disconnect(d->v8clientplugin.data(),
                    SIGNAL(v8range(int,QString,QString,int,double,double)),
-                   this,
-                   SIGNAL(addV8Event(int,QString,QString,int,double,double)));
+                   d->modelManager,
+                   SLOT(addV8Event(int,QString,QString,int,double,double)));
         disconnect(d->v8clientplugin.data(), SIGNAL(enabledChanged()),
                    d->v8clientplugin.data(), SLOT(sendRecordingStatus()));
     }

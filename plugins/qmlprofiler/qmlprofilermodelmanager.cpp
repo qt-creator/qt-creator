@@ -139,6 +139,10 @@ public:
     QmlProfilerDataState *dataState;
     QmlProfilerTraceTime *traceTime;
 
+    QVector <double> partialCounts;
+    double progress;
+    qint64 estimatedTime;
+
     // file to load
     QString fileName;
 };
@@ -182,6 +186,43 @@ bool QmlProfilerModelManager::isEmpty() const
 int QmlProfilerModelManager::count() const
 {
     return d->model->count();
+}
+
+double QmlProfilerModelManager::progress() const
+{
+    return d->progress;
+}
+
+int QmlProfilerModelManager::registerModelProxy()
+{
+    d->partialCounts << 0;
+    return d->partialCounts.count()-1;
+}
+
+void QmlProfilerModelManager::modelProxyCountUpdated(int proxyId, qint64 count, qint64 max)
+{
+    d->progress -= d->partialCounts[proxyId] / d->partialCounts.count();
+
+    if (max <= 0)
+        d->partialCounts[proxyId] = 1;
+    else
+        d->partialCounts[proxyId] = (double)count / (double) max;
+
+    d->progress += d->partialCounts[proxyId] / d->partialCounts.count();
+
+    emit progressChanged();
+    if (d->progress > 0.99)
+        emit dataAvailable();
+}
+
+qint64 QmlProfilerModelManager::estimatedProfilingTime() const
+{
+    return d->estimatedTime;
+}
+
+void QmlProfilerModelManager::newTimeEstimation(qint64 estimation)
+{
+    d->estimatedTime = estimation;
 }
 
 void QmlProfilerModelManager::addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length, const QStringList &data, const QmlDebug::QmlEventLocation &location)
@@ -313,6 +354,7 @@ void QmlProfilerModelManager::load()
     complete();
 }
 
+
 void QmlProfilerModelManager::setState(QmlProfilerDataState::State state)
 {
     d->dataState->setState(state);
@@ -325,6 +367,9 @@ QmlProfilerDataState::State QmlProfilerModelManager::state() const
 
 void QmlProfilerModelManager::clear()
 {
+    for (int i = 0; i < d->partialCounts.count(); i++)
+        d->partialCounts[i] = 0;
+    d->progress = 0;
     d->model->clear();
     d->v8Model->clear();
     d->traceTime->clear();
