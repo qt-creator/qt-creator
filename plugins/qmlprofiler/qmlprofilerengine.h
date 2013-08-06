@@ -30,21 +30,22 @@
 #ifndef QMLPROFILERENGINE_H
 #define QMLPROFILERENGINE_H
 
-#include <analyzerbase/ianalyzerengine.h>
 #include "qmlprofilerstatemanager.h"
+
+#include <analyzerbase/analyzerruncontrol.h>
 #include <utils/outputformat.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
+class QmlProfilerRunControl : public Analyzer::AnalyzerRunControl
 {
     Q_OBJECT
 
 public:
-    QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
+    QmlProfilerRunControl(const Analyzer::AnalyzerStartParameters &sp,
                       ProjectExplorer::RunConfiguration *runConfiguration);
-    ~QmlProfilerEngine();
+    ~QmlProfilerRunControl();
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
@@ -57,8 +58,8 @@ signals:
     void timeUpdate();
 
 public slots:
-    bool start();
-    void stop();
+    bool startEngine();
+    void stopEngine();
 
 private slots:
     void notifyRemoteFinished(bool success = true);
@@ -69,7 +70,7 @@ private slots:
     void wrongSetupMessageBoxFinished(int);
     void processIsRunning(quint16 port = 0);
     void engineStarted();
-    void engineFinished();
+    void runControlFinished();
 
 private slots:
     void profilerStateChanged();

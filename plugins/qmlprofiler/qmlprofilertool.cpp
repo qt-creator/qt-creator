@@ -70,8 +70,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
-#include <debugger/debuggerrunconfigurationaspect.h>
-
 #include <qtsupport/qtkitinformation.h>
 
 #include <QApplication>
@@ -98,18 +96,12 @@ using namespace QmlProjectManager;
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
 public:
-    QmlProfilerToolPrivate(QmlProfilerTool *qq) : q(qq) {}
-    ~QmlProfilerToolPrivate() {}
-
-    QmlProfilerTool *q;
-
     QmlProfilerStateManager *m_profilerState;
     QmlProfilerClientManager *m_profilerConnections;
     QmlProfilerModelManager *m_profilerModelManager;
 
     QmlProfilerViewManager *m_viewContainer;
     Utils::FileInProjectFinder m_projectFinder;
-    RunConfiguration *m_runConfiguration;
     QToolButton *m_recordButton;
     QToolButton *m_clearButton;
 
@@ -124,13 +116,12 @@ public:
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
-    : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
+    : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
 
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
-    d->m_runConfiguration = 0;
 
     qmlRegisterType<QmlProfilerCanvas>("Monitor", 1, 0, "Canvas2D");
     qmlRegisterType<Context2D>();
@@ -206,10 +197,10 @@ IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
     return AnyMode;
 }
 
-IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
+AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
-    QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
+    QmlProfilerRunControl *engine = new QmlProfilerRunControl(sp, runConfiguration);
 
     engine->registerProfilerStateManager(d->m_profilerState);
 
@@ -236,15 +227,13 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     if (isTcpConnection)
         d->m_profilerConnections->setTcpConnection(sp.analyzerHost, sp.analyzerPort);
 
-    d->m_runConfiguration = runConfiguration;
-
     //
     // Initialize m_projectFinder
     //
 
     QString projectDirectory;
-    if (d->m_runConfiguration) {
-        Project *project = d->m_runConfiguration->target()->project();
+    if (runConfiguration) {
+        Project *project = runConfiguration->target()->project();
         projectDirectory = project->projectDirectory();
     }
 
@@ -256,14 +245,6 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, RunMode mode) const
-{
-    if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)
-            || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration))
-        return mode == runMode();
-    return false;
-}
-
 static QString sysroot(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return QString());
@@ -271,54 +252,6 @@ static QString sysroot(RunConfiguration *runConfig)
     if (k && ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
         return ProjectExplorer::SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     return QString();
-}
-
-AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration *runConfiguration, RunMode mode) const
-{
-    Q_UNUSED(mode);
-
-    AnalyzerStartParameters sp;
-    ProjectExplorer::EnvironmentAspect *environment
-            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-    Debugger::DebuggerRunConfigurationAspect *debugger
-            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    QTC_ASSERT(debugger, return sp);
-
-    // FIXME: This is only used to communicate the connParams settings.
-    if (QmlProjectRunConfiguration *rc1 =
-            qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)) {
-        // This is a "plain" .qmlproject.
-        if (environment)
-            sp.environment = environment->environment();
-        sp.workingDirectory = rc1->workingDirectory();
-        sp.debuggee = rc1->observerPath();
-        sp.debuggeeArgs = rc1->viewerArguments();
-        sp.displayName = rc1->displayName();
-    } else if (LocalApplicationRunConfiguration *rc2 =
-            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        if (environment)
-            sp.environment = environment->environment();
-        sp.workingDirectory = rc2->workingDirectory();
-        sp.debuggee = rc2->executable();
-        sp.debuggeeArgs = rc2->commandLineArguments();
-        sp.displayName = rc2->displayName();
-    } else {
-        // What could that be?
-        QTC_ASSERT(false, return sp);
-    }
-    const ProjectExplorer::IDevice::ConstPtr device =
-            ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
-    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
-            qWarning() << "Cannot open port on host for QML profiling.";
-            return sp;
-        }
-        sp.analyzerHost = server.serverAddress().toString();
-        sp.analyzerPort = server.serverPort();
-    }
-    sp.startMode = StartQml;
-    return sp;
 }
 
 QWidget *QmlProfilerTool::createWidgets()
@@ -332,7 +265,6 @@ QWidget *QmlProfilerTool::createWidgets()
                                                     d->m_profilerState);
     connect(d->m_viewContainer, SIGNAL(gotoSourceLocation(QString,int,int)),
             this, SLOT(gotoSourceLocation(QString,int,int)));
-
 
     //
     // Toolbar
@@ -513,7 +445,6 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     }
 
     AnalyzerStartParameters sp;
-    sp.toolId = tool->id();
     sp.startMode = mode;
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
@@ -529,7 +460,8 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     sp.sysroot = SysRootKitInformation::sysRoot(kit).toString();
     sp.analyzerPort = port;
 
-    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
+    //AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
+    AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
     ProjectExplorerPlugin::instance()->startRunControl(rc, tool->runMode());
@@ -597,8 +529,7 @@ void QmlProfilerTool::showLoadDialog()
     if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
-    if (AnalyzerManager::currentSelectedTool() != this)
-        AnalyzerManager::selectTool(this, StartRemote);
+    AnalyzerManager::selectTool(this, StartRemote);
 
     QString filename = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Load QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));

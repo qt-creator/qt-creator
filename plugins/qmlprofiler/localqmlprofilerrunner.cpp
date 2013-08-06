@@ -45,7 +45,7 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
         RunConfiguration *runConfiguration,
         const Analyzer::AnalyzerStartParameters &sp,
         QString *errorMessage,
-        QmlProfilerEngine *engine)
+        QmlProfilerRunControl *engine)
 {
     QmlProjectManager::QmlProjectRunConfiguration *rc1 =
                 qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
@@ -81,7 +81,7 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
-                                               QmlProfilerEngine *engine) :
+                                               QmlProfilerRunControl *engine) :
     AbstractQmlProfilerRunner(engine),
     m_configuration(configuration),
     m_engine(engine)
@@ -92,12 +92,12 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
 
 LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
 {
-    disconnect(&m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
+    disconnect();
 }
 
 void LocalQmlProfilerRunner::start()
 {
-    if (m_engine->mode() != Analyzer::StartQml)
+    if (m_engine->mode() != Analyzer::StartLocal)
         return;
 
     QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);
@@ -111,26 +111,32 @@ void LocalQmlProfilerRunner::start()
 
     m_launcher.setWorkingDirectory(m_configuration.workingDirectory);
     m_launcher.setEnvironment(m_configuration.environment);
-    connect(&m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
+    connect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
+            this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
     m_launcher.start(ProjectExplorer::ApplicationLauncher::Gui, m_configuration.executable,
                      arguments);
 
     emit started();
 }
 
-void LocalQmlProfilerRunner::spontaneousStop(int exitCode)
+void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus status)
 {
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
+    if (QmlProfilerPlugin::debugOutput) {
+        if (status == QProcess::CrashExit)
+            qWarning("QmlProfiler: Application crashed.");
+        else
+            qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
+    }
 
-    disconnect(&m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
+    disconnect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
+               this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
 
     emit stopped();
 }
 
 void LocalQmlProfilerRunner::stop()
 {
-    if (m_engine->mode() != Analyzer::StartQml)
+    if (m_engine->mode() != Analyzer::StartLocal)
         return;
 
     if (QmlProfilerPlugin::debugOutput)

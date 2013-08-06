@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Kläralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -37,10 +37,21 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzersettings.h>
 
+#include <debugger/debuggerrunconfigurationaspect.h>
+
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+
 #include <utils/qtcassert.h>
+
+#include <QTcpServer>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
@@ -55,35 +66,65 @@ QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent) :
 
 bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    if (mode != QmlProfilerRunMode)
-        return false;
-    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-    if (tool)
-        return tool->canRun(runConfiguration, mode);
-    return false;
+    return mode == QmlProfilerRunMode
+            && (qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)
+                || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
+}
+
+static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration *runConfiguration)
+{
+    AnalyzerStartParameters sp;
+    EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>();
+
+    // FIXME: This is only used to communicate the connParams settings.
+    if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
+            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
+        // This is a "plain" .qmlproject.
+        if (environment)
+            sp.environment = environment->environment();
+        sp.workingDirectory = rc1->workingDirectory();
+        sp.debuggee = rc1->observerPath();
+        sp.debuggeeArgs = rc1->viewerArguments();
+        sp.displayName = rc1->displayName();
+    } else if (LocalApplicationRunConfiguration *rc2 =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        if (environment)
+            sp.environment = environment->environment();
+        sp.workingDirectory = rc2->workingDirectory();
+        sp.debuggee = rc2->executable();
+        sp.debuggeeArgs = rc2->commandLineArguments();
+        sp.displayName = rc2->displayName();
+    } else {
+        // What could that be?
+        QTC_ASSERT(false, return sp);
+    }
+    const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
+    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        QTcpServer server;
+        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
+            qWarning() << "Cannot open port on host for QML profiling.";
+            return sp;
+        }
+        sp.analyzerHost = server.serverAddress().toString();
+        sp.analyzerPort = server.serverPort();
+    }
+    sp.startMode = StartLocal;
+    return sp;
 }
 
 RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
-    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-    if (!tool) {
-        if (errorMessage)
-            *errorMessage = tr("No analyzer tool selected"); // never happens
-        return 0;
-    }
-
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-    AnalyzerStartParameters sp = tool->createStartParameters(runConfiguration, mode);
-    sp.toolId = tool->id();
+    AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
+    sp.runMode = mode;
 
     // only desktop device is supported
-    const ProjectExplorer::IDevice::ConstPtr device =
-            ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+    const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
-    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
-    QmlProfilerEngine *engine = qobject_cast<QmlProfilerEngine *>(rc->engine());
+    AnalyzerRunControl *rc = AnalyzerManager::createRunControl(sp, runConfiguration);
+    QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
     if (!engine) {
         delete rc;
         return 0;
@@ -94,7 +135,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     connect(runner, SIGNAL(stopped()), engine, SLOT(notifyRemoteFinished()));
     connect(runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             engine, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
-    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)), runner,
+    connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)), runner,
             SLOT(start()));
     connect(rc, SIGNAL(finished()), runner, SLOT(stop()));
     return rc;

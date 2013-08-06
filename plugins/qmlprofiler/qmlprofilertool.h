@@ -31,7 +31,7 @@
 #define QMLPROFILERTOOL_H
 
 #include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/ianalyzerengine.h>
+#include <analyzerbase/analyzerruncontrol.h>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
@@ -56,15 +56,8 @@ public:
 
     void extensionsInitialized() {}
 
-    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
+    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
-
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const;
-
-    Analyzer::AnalyzerStartParameters createStartParameters(
-            ProjectExplorer::RunConfiguration *runConfiguration,
-            ProjectExplorer::RunMode mode) const;
 
     QWidget *createWidgets();
     void startTool(Analyzer::StartMode mode);
