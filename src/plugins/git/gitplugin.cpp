@@ -744,7 +744,7 @@ void GitPlugin::diffCurrentProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
-    m_gitClient->diff(state.currentProjectTopLevel(), state.relativeCurrentProject());
+    m_gitClient->diff(state.currentProjectTopLevel(), QStringList(state.relativeCurrentProject()));
 }
 
 void GitPlugin::diffRepository()
@@ -758,7 +758,7 @@ void GitPlugin::logFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
+    m_gitClient->log(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
 void GitPlugin::blameFile()
