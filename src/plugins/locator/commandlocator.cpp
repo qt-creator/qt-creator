@@ -66,7 +66,8 @@ void CommandLocator::appendCommand(Core::Command *cmd)
 
 QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
-    QList<FilterEntry> filters;
+    QList<FilterEntry> goodEntries;
+    QList<FilterEntry> betterEntries;
     // Get active, enabled actions matching text, store in list.
     // Reference via index in extraInfo.
     const QChar ampersand = QLatin1Char('&');
@@ -79,12 +80,15 @@ QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator:
                 if (action->isEnabled()) {
                 QString text = action->text();
                 text.remove(ampersand);
-                if (text.contains(entry, Qt::CaseInsensitive))
-                    filters.append(FilterEntry(this, text, QVariant(i)));
+                if (text.startsWith(entry, Qt::CaseInsensitive))
+                    betterEntries.append(FilterEntry(this, text, QVariant(i)));
+                else if (text.contains(entry, Qt::CaseInsensitive))
+                    goodEntries.append(FilterEntry(this, text, QVariant(i)));
             }
         }
     }
-    return filters;
+    betterEntries.append(goodEntries);
+    return betterEntries;
 }
 
 void CommandLocator::accept(Locator::FilterEntry entry) const
