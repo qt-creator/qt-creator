@@ -30,9 +30,13 @@
 #ifndef QMLDESIGNER_IMPORTSWIDGET_H
 #define QMLDESIGNER_IMPORTSWIDGET_H
 
+#include <import.h>
+
 #include <QWidget>
 
 namespace QmlDesigner {
+
+class ImportLabel;
 
 class ImportsWidget : public QWidget
 {
@@ -40,10 +44,14 @@ class ImportsWidget : public QWidget
 public:
     explicit ImportsWidget(QWidget *parent = 0);
 
-signals:
+    void setImports(const QList<Import> &imports);
+    void removeAllImports();
 
-public slots:
+protected:
+    void updateLayout();
 
+private:
+    QList<ImportLabel*> m_importLabels;
 };
 
 } // namespace QmlDesigner

@@ -44,6 +44,7 @@ public:
     explicit ImportManagerView(QObject *parent = 0);
     ~ImportManagerView();
 
+    bool hasWidget() const;
     WidgetInfo widgetInfo();
 
     void modelAttached(Model *model);

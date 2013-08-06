@@ -30,18 +30,21 @@
 #ifndef IMPORTLABEL_H
 #define IMPORTLABEL_H
 
-#include <QWidget>
+#include <QLabel>
 
-class ImportLabel : public QWidget
+#include <import.h>
+
+namespace QmlDesigner {
+
+class ImportLabel : public QLabel
 {
     Q_OBJECT
 public:
     explicit ImportLabel(QWidget *parent = 0);
 
-signals:
-
-public slots:
+    void setImport(const Import &import);
 
 };
 
+}
 #endif // IMPORTLABEL_H

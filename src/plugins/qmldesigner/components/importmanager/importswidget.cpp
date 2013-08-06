@@ -29,11 +29,48 @@
 
 #include "importswidget.h"
 
+#include <QVBoxLayout>
+
+#include "importlabel.h"
+
 namespace QmlDesigner {
 
 ImportsWidget::ImportsWidget(QWidget *parent) :
     QWidget(parent)
 {
+}
+
+void ImportsWidget::removeAllImports()
+{
+    qDeleteAll(m_importLabels);
+    m_importLabels.clear();
+    updateLayout();
+}
+
+void ImportsWidget::setImports(const QList<Import> &imports)
+{
+    qDeleteAll(m_importLabels);
+    m_importLabels.clear();
+
+    foreach (const Import &import, imports) {
+        ImportLabel *importLabel = new ImportLabel(this);
+        importLabel->setImport(import);
+        m_importLabels.append(importLabel);
+    }
+
+    updateLayout();
+}
+
+void ImportsWidget::updateLayout()
+{
+    delete layout();
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    foreach (ImportLabel *importLabel, m_importLabels)
+        layout->addWidget(importLabel);
+
+    layout->addStretch();
 }
 
 } // namespace QmlDesigner

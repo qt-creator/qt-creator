@@ -184,6 +184,7 @@ QList<WidgetInfo> ViewManager::widgetInfos()
     QList<WidgetInfo> widgetInfoList;
 
     widgetInfoList.append(m_formEditorView.widgetInfo());
+    widgetInfoList.append(m_importManagerView.widgetInfo());
     widgetInfoList.append(m_itemLibraryView.widgetInfo());
     widgetInfoList.append(m_navigatorView.widgetInfo());
     widgetInfoList.append(m_propertyEditorView.widgetInfo());

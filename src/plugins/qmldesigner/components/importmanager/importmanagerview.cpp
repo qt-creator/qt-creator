@@ -45,22 +45,36 @@ ImportManagerView::~ImportManagerView()
 
 }
 
+bool ImportManagerView::hasWidget() const
+{
+    return true;
+}
+
 WidgetInfo ImportManagerView::widgetInfo()
 {
-    if (m_importsWidget == 0)
+    if (m_importsWidget == 0) {
         m_importsWidget = new ImportsWidget;
+        if (model())
+            m_importsWidget->setImports(model()->imports());
+    }
 
     return createWidgetInfo(m_importsWidget, 0, "ImportManager", WidgetInfo::LeftPane, 1);
 }
 
 void ImportManagerView::modelAttached(Model *model)
 {
+    AbstractView::modelAttached(model);
 
+    if (m_importsWidget)
+        m_importsWidget->setImports(model->imports());
 }
 
 void ImportManagerView::modelAboutToBeDetached(Model *model)
 {
+    if (m_importsWidget)
+        m_importsWidget->removeAllImports();
 
+    AbstractView::modelAboutToBeDetached(model);
 }
 
 void ImportManagerView::nodeCreated(const ModelNode &createdNode)
@@ -193,9 +207,10 @@ void ImportManagerView::nodeOrderChanged(const NodeListProperty &/*listProperty*
 
 }
 
-void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void ImportManagerView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
-
+    if (m_importsWidget)
+        m_importsWidget->setImports(model()->imports());
 }
 
 void ImportManagerView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)

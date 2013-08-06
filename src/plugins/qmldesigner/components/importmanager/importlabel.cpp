@@ -29,7 +29,16 @@
 
 #include "importlabel.h"
 
+namespace QmlDesigner {
+
 ImportLabel::ImportLabel(QWidget *parent) :
-    QWidget(parent)
+    QLabel(parent)
 {
 }
+
+void ImportLabel::setImport(const Import &import)
+{
+    setText(import.toString());
+}
+
+} // namespace QmlDesigner
