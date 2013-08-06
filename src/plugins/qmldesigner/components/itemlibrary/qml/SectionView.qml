@@ -77,18 +77,18 @@ Column {
 
         var currentItemX = sectionView.x + gridFrame.x + gridView.x + gridView.currentItem.x;
         var currentItemY = sectionView.y + gridFrame.y + gridView.y + gridView.currentItem.y
-        - gridView.contentY;  // workaround: GridView reports wrong contentY
+                - gridView.contentY;  // workaround: GridView reports wrong contentY
 
         if (currentItemY < flickable.contentY)
             pos = Math.max(0, currentItemY)
 
-            else if ((currentItemY + gridView.currentItem.height) >
-                     (flickable.contentY + flickable.height - 1))
-                pos = Math.min(Math.max(0, flickable.contentHeight - flickable.height),
-        currentItemY + gridView.currentItem.height - flickable.height + 1)
+        else if ((currentItemY + gridView.currentItem.height) >
+                 (flickable.contentY + flickable.height - 1))
+            pos = Math.min(Math.max(0, flickable.contentHeight - flickable.height),
+                           currentItemY + gridView.currentItem.height - flickable.height + 1)
 
-                if (pos >= 0)
-                    flickable.contentY = pos
+        if (pos >= 0)
+            flickable.contentY = pos
     }
 
     // internal
@@ -168,7 +168,8 @@ Column {
 
         clip: true
         width: entriesPerRow * cellWidth + 1
-        height: Math.ceil(sectionEntries.count / entriesPerRow) * cellHeight + 1
+        height: gridView.model !== undefined ? Math.ceil(gridView.count / sectionView.entriesPerRow) * cellHeight + 1 : 0
+
         anchors.horizontalCenter: parent.horizontalCenter
 
         GridView {
@@ -198,18 +199,18 @@ updated properly under all conditions */
         }
 
         states: [
-        State {
-            name: "shrunk"
-            PropertyChanges {
-                target: gridFrame
-                height: 0
-                opacity: 0
+            State {
+                name: "shrunk"
+                PropertyChanges {
+                    target: gridFrame
+                    height: 0
+                    opacity: 0
+                }
+                PropertyChanges {
+                    target: arrow
+                    rotation: -90
+                }
             }
-            PropertyChanges {
-                target: arrow
-                rotation: -90
-            }
-        }
         ]
     }
 

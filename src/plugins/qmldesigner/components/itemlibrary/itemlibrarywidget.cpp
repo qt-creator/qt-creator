@@ -67,6 +67,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_resourcesView(new Internal::ItemLibraryTreeView(this)),
     m_filterFlag(QtBasic)
 {
+    Internal::registerQmlTypes();
+
     setWindowTitle(tr("Library", "Title of library view"));
 
     /* create Items view and its model */
@@ -75,7 +77,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_itemsView->setAcceptDrops(false);
     m_itemsView->setFocusPolicy(Qt::ClickFocus);
     m_itemsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    m_itemLibraryModel = new Internal::ItemLibraryModel(QDeclarativeEnginePrivate::getScriptEngine(m_itemsView->engine()), this);
+    m_itemLibraryModel = new Internal::ItemLibraryModel(this);
     m_itemLibraryModel->setItemIconSize(m_itemIconSize);
 
     QDeclarativeContext *rootContext = m_itemsView->rootContext();

@@ -32,8 +32,8 @@
 
 #include <QMap>
 #include <QIcon>
-#include <QScriptEngine>
-#include <private/qdeclarativelistmodel_p.h>
+#include <QAbstractListModel>
+#include <QtDeclarative>
 
 QT_FORWARD_DECLARE_CLASS(QMimeData)
 
@@ -45,52 +45,82 @@ class Model;
 
 namespace Internal {
 
-template <class T>
-class ItemLibrarySortedModel: public QDeclarativeListModel {
+void registerQmlTypes();
+
+class ItemLibrarySortedModel: public QAbstractListModel {
+
+    Q_OBJECT
+
 public:
     ItemLibrarySortedModel(QObject *parent = 0);
     ~ItemLibrarySortedModel();
 
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
     void clearElements();
 
-    void addElement(T *element, int libId);
+    void addElement(QObject *element, int libId);
     void removeElement(int libId);
 
     bool elementVisible(int libId) const;
     bool setElementVisible(int libId, bool visible);
 
-    const QMap<int, T *> &elements() const;
+    void privateInsert(int pos, QObject *element);
+    void privateRemove(int pos);
 
-    T *elementModel(int libId);
+    const QMap<int, QObject *> &elements() const;
+
+    template<typename T>
+    const QList<T> elementsByType() const;
+
+    QObject *element(int libId);
+
+    template<typename T>
+    T elementByType(int libId);
+
     int findElement(int libId) const;
     int visibleElementPosition(int libId) const;
 
+    void resetModel();
+
 private:
+    void addRoleName(const QByteArray &roleName);
+
     struct order_struct {
         int libId;
         bool visible;
     };
 
-    QMap<int, T *> m_elementModels;
+    QMap<int, QObject *> m_elementModels;
     QList<struct order_struct> m_elementOrder;
+
+    QList<QObject *> m_privList;
+    QHash<int, QByteArray> m_roleNames;
 };
 
+class ItemLibraryItemModel: public QObject {
 
-class ItemLibraryItemModel: public QScriptValue {
+    Q_OBJECT
+
+    Q_PROPERTY(int itemLibId READ itemLibId FINAL)
+    Q_PROPERTY(QString itemName READ itemName FINAL)
+    Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
+    Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
+
 public:
-    ItemLibraryItemModel(QScriptEngine *scriptEngine, int itemLibId, const QString &itemName);
+    ItemLibraryItemModel(int itemLibId, const QString &itemName, QObject *parent);
     ~ItemLibraryItemModel();
 
     int itemLibId() const;
     QString itemName() const;
+    QString itemLibraryIconPath() const;
+    QVariant sortingRole() const;
 
     void setItemIconPath(const QString &iconPath);
     void setItemIconSize(const QSize &itemIconSize);
 
-    bool operator<(const ItemLibraryItemModel &other) const;
-
 private:
-    QWeakPointer<QScriptEngine> m_scriptEngine;
     int m_libId;
     QString m_name;
     QString m_iconPath;
@@ -98,14 +128,27 @@ private:
 };
 
 
-class ItemLibrarySectionModel: public QScriptValue {
+class ItemLibrarySectionModel: public QObject {
+
+    Q_OBJECT
+
+    Q_PROPERTY(QObject* sectionEntries READ sectionEntries NOTIFY sectionEntriesChanged FINAL)
+    Q_PROPERTY(int sectionLibId READ sectionLibId FINAL)
+    Q_PROPERTY(QString sectionName READ sectionName FINAL)
+    Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
+    Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
+
 public:
-    ItemLibrarySectionModel(QScriptEngine *scriptEngine, int sectionLibId, const QString &sectionName, QObject *parent = 0);
+    ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent = 0);
 
     QString sectionName() const;
+    int sectionLibId() const;
+    bool sectionExpanded() const;
+    QVariant sortingRole() const;
 
     void addSectionEntry(ItemLibraryItemModel *sectionEntry);
     void removeSectionEntry(int itemLibId);
+    QObject *sectionEntries();
 
     int visibleItemIndex(int itemLibId);
     bool isItemVisible(int itemLibId);
@@ -113,20 +156,24 @@ public:
     bool updateSectionVisibility(const QString &searchText, bool *changed);
     void updateItemIconSize(const QSize &itemIconSize);
 
-    bool operator<(const ItemLibrarySectionModel &other) const;
+signals:
+    void sectionEntriesChanged();
 
 private:
     QString m_name;
-    ItemLibrarySortedModel<ItemLibraryItemModel> m_sectionEntries;
+    int m_sectionLibId;
+    bool m_sectionExpanded;
+    ItemLibrarySortedModel m_sectionEntries;
 };
 
 
-class ItemLibraryModel: public ItemLibrarySortedModel<ItemLibrarySectionModel> {
+class ItemLibraryModel: public ItemLibrarySortedModel {
+
     Q_OBJECT
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
 public:
-    explicit ItemLibraryModel(QScriptEngine *scriptEngine, QObject *parent = 0);
+    explicit ItemLibraryModel(QObject *parent = 0);
     ~ItemLibraryModel();
 
     QString searchText() const;
@@ -136,6 +183,9 @@ public:
     QString getTypeName(int libId);
     QMimeData *getMimeData(int libId);
     QIcon getIcon(int libId);
+
+    ItemLibrarySectionModel* section(int libId);
+    QList<ItemLibrarySectionModel*> sections() const;
 
 public slots:
     void setSearchText(const QString &searchText);
@@ -159,7 +209,6 @@ private:
     int getHeight(const ItemLibraryEntry &entry);
     QPixmap createDragPixmap(int width, int height);
 
-    QWeakPointer<QScriptEngine> m_scriptEngine;
     QMap<int, ItemLibraryEntry> m_itemInfos;
     QMap<int, int> m_sections;
 
@@ -170,6 +219,8 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
+
+QML_DECLARE_TYPE(QmlDesigner::Internal::ItemLibrarySortedModel)
 
 #endif // ITEMLIBRARYMODEL_H
 
