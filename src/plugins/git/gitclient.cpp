@@ -1145,7 +1145,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     arguments.append(userArgs);
 
     if (!fileName.isEmpty())
-        arguments << QLatin1String("--follow") << QLatin1String("--") << fileName;
+        arguments << QLatin1String("--") << fileName;
 
     executeGit(workingDirectory, arguments, editor);
 }
