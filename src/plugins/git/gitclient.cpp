@@ -2462,6 +2462,11 @@ void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
 {
     CommandInProgress command = checkCommandInProgress(workingDirectory);
     switch (command) {
+    case Merge:
+        continuePreviousGitCommand(workingDirectory, tr("Continue Merge"),
+                                   tr("Merge is in progress. What do you want to do?"),
+                                   tr("Continue"), QLatin1String("merge"));
+        break;
     case Rebase:
     case RebaseMerge:
         continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
