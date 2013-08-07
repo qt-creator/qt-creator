@@ -23,7 +23,6 @@ HEADERS += \
     vcprojectmodel/configurationsfactory.h \
     vcprojectmodel/configurations.h \
     vcprojectmodel/configuration.h \
-    vcprojectmodel/assemblyreference_private.h \
     vcprojectmodel/assemblyreference.h \
     vcprojectmodel/activexreference.h \
     vcprojectmodel/tools/xmldocgeneratortool.h \
@@ -69,7 +68,6 @@ SOURCES += \
     vcprojectmodel/configurationsfactory.cpp \
     vcprojectmodel/configurations.cpp \
     vcprojectmodel/configuration.cpp \
-    vcprojectmodel/assemblyreference_private.cpp \
     vcprojectmodel/assemblyreference.cpp \
     vcprojectmodel/activexreference.cpp \
     vcprojectmodel/tools/xmldocgeneratortool.cpp \

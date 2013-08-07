@@ -29,7 +29,9 @@
 ****************************************************************************/
 #include "assemblyreference.h"
 
-#include "configuration.h"
+#include <QVariant>
+
+#include "configurationsfactory.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -40,12 +42,33 @@ AssemblyReference::~AssemblyReference()
 
 void AssemblyReference::processNode(const QDomNode &node)
 {
-    m_private->processNode(node);
+    if (node.isNull())
+        return;
+
+    if (node.nodeType() == QDomNode::ElementNode)
+        processNodeAttributes(node.toElement());
+
+    if (node.hasChildNodes()) {
+        QDomNode firstChild = node.firstChild();
+        if (!firstChild.isNull())
+            processReferenceConfig(firstChild);
+    }
 }
 
 void AssemblyReference::processNodeAttributes(const QDomElement &element)
 {
-    Q_UNUSED(element)
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    if (namedNodeMap.size() == 1) {
+        QDomNode domNode = namedNodeMap.item(0);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("RelativePath"))
+                m_relativePath = domElement.value();
+        }
+    }
 }
 
 VcNodeWidget *AssemblyReference::createSettingsWidget()
@@ -55,42 +78,66 @@ VcNodeWidget *AssemblyReference::createSettingsWidget()
 
 QDomNode AssemblyReference::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
-    return m_private->toXMLDomNode(domXMLDocument);
+    QDomElement assemblyRefNode = domXMLDocument.createElement(QLatin1String("AssemblyReference"));
+
+    assemblyRefNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
+
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations)
+        assemblyRefNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
+
+    return assemblyRefNode;
 }
 
 QString AssemblyReference::relativePath() const
 {
-    return m_private->relativePath();
+    return m_relativePath;
 }
 
 void AssemblyReference::setRelativePath(const QString &relativePath)
 {
-    m_private->setRelativePath(relativePath);
+    m_relativePath = relativePath;
 }
 
 void AssemblyReference::addReferenceConfiguration(Configuration::Ptr refConfig)
 {
-    m_private->addReferenceConfiguration(refConfig);
+    if (m_referenceConfigurations.contains(refConfig))
+        return;
+
+    foreach (const Configuration::Ptr &refConf, m_referenceConfigurations) {
+        if (refConfig->name() == refConf->name())
+            return;
+    }
+
+    m_referenceConfigurations.append(refConfig);
 }
 
 void AssemblyReference::removeReferenceConfiguration(Configuration::Ptr refConfig)
 {
-    m_private->removeReferenceConfiguration(refConfig);
+    m_referenceConfigurations.removeAll(refConfig);
 }
 
 void AssemblyReference::removeReferenceConfiguration(const QString &refConfName)
 {
-    m_private->removeReferenceConfiguration(refConfName);
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
+        if (refConfig->name() == refConfName) {
+            removeReferenceConfiguration(refConfig);
+            return;
+        }
+    }
 }
 
 QList<Configuration::Ptr> AssemblyReference::referenceConfigurations() const
 {
-    return m_private->referenceConfigurations();
+    return m_referenceConfigurations;
 }
 
 Configuration::Ptr AssemblyReference::referenceConfiguration(const QString &refConfigName) const
 {
-    return m_private->referenceConfiguration(refConfigName);
+    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
+        if (refConfig->name() == refConfigName)
+            return refConfig;
+    }
+    return Configuration::Ptr();
 }
 
 AssemblyReference::AssemblyReference()
@@ -99,14 +146,34 @@ AssemblyReference::AssemblyReference()
 
 AssemblyReference::AssemblyReference(const AssemblyReference &asmRef)
 {
-    m_private = asmRef.m_private->clone();
+    m_relativePath = asmRef.m_relativePath;
+
+    foreach (const Configuration::Ptr &refConfig, asmRef.m_referenceConfigurations)
+        m_referenceConfigurations.append(refConfig->clone());
 }
 
 AssemblyReference &AssemblyReference::operator =(const AssemblyReference &asmRef)
 {
-    if (this != &asmRef)
-        m_private = asmRef.m_private->clone();
+    if (this != &asmRef) {
+        m_relativePath = asmRef.m_relativePath;
+
+        foreach (const Configuration::Ptr &refConfig, asmRef.m_referenceConfigurations)
+            m_referenceConfigurations.append(refConfig->clone());
+    }
+
     return *this;
+}
+
+void AssemblyReference::processReferenceConfig(const QDomNode &referenceConfig)
+{
+    Configuration::Ptr referenceConfiguration = createReferenceConfiguration();
+    referenceConfiguration->processNode(referenceConfig);
+    m_referenceConfigurations.append(referenceConfiguration);
+
+    // process next sibling
+    QDomNode nextSibling = referenceConfig.nextSibling();
+    if (!nextSibling.isNull())
+        processReferenceConfig(nextSibling);
 }
 
 
@@ -134,25 +201,45 @@ AssemblyReference2003::AssemblyReference2003()
 {
 }
 
-void AssemblyReference2003::init()
+Configuration::Ptr AssemblyReference2003::createReferenceConfiguration() const
 {
-    m_private = AssemblyReference_Private::Ptr(new AssemblyReference2003_Private);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2003, QLatin1String("ReferenceConfiguration"));
 }
 
 
 AssemblyReference2005::AssemblyReference2005(const AssemblyReference2005 &ref)
     : AssemblyReference2003(ref)
 {
+    m_assemblyName = ref.m_assemblyName;
+    m_copyLocal = ref.m_copyLocal;
+    m_useInBuild = ref.m_useInBuild;
 }
 
 AssemblyReference2005 &AssemblyReference2005::operator =(const AssemblyReference2005 &ref)
 {
-    AssemblyReference2003::operator =(ref);
+    if (this != &ref) {
+        AssemblyReference2003::operator =(ref);
+        m_assemblyName = ref.m_assemblyName;
+        m_copyLocal = ref.m_copyLocal;
+        m_useInBuild = ref.m_useInBuild;
+    }
+
     return *this;
 }
 
 AssemblyReference2005::~AssemblyReference2005()
 {
+}
+
+QDomNode AssemblyReference2005::toXMLDomNode(QDomDocument &domXMLDocument) const
+{
+    QDomElement assemblyRefNode = AssemblyReference2003::toXMLDomNode(domXMLDocument).toElement();
+
+    assemblyRefNode.setAttribute(QLatin1String("AssemblyName"), m_assemblyName);
+    assemblyRefNode.setAttribute(QLatin1String("CopyLocal"), QVariant(m_copyLocal).toString());
+    assemblyRefNode.setAttribute(QLatin1String("UseInBuild"), QVariant(m_useInBuild).toString());
+
+    return assemblyRefNode;
 }
 
 AssemblyReference::Ptr AssemblyReference2005::clone() const
@@ -162,63 +249,117 @@ AssemblyReference::Ptr AssemblyReference2005::clone() const
 
 QString AssemblyReference2005::assemblyName() const
 {
-    QSharedPointer<AssemblyReference2005_Private> asmRef = m_private.staticCast<AssemblyReference2005_Private>();
-    return asmRef->assemblyName();
+    return m_assemblyName;
 }
 
 void AssemblyReference2005::setAssemblyName(const QString &assemblyName)
 {
-    QSharedPointer<AssemblyReference2005_Private> asmRef = m_private.staticCast<AssemblyReference2005_Private>();
-    asmRef->setAssemblyName(assemblyName);
+    m_assemblyName = assemblyName;
 }
 
 bool AssemblyReference2005::copyLocal() const
 {
-    QSharedPointer<AssemblyReference2005_Private> asmRef = m_private.staticCast<AssemblyReference2005_Private>();
-    return asmRef->copyLocal();
+    return m_copyLocal;
 }
 
 void AssemblyReference2005::setCopyLocal(bool copyLocal)
 {
-    QSharedPointer<AssemblyReference2005_Private> asmRef = m_private.staticCast<AssemblyReference2005_Private>();
-    asmRef->setCopyLocal(copyLocal);
+    m_copyLocal = copyLocal;
 }
 
 bool AssemblyReference2005::useInBuild() const
 {
-    QSharedPointer<AssemblyReference2005_Private> asmRef = m_private.staticCast<AssemblyReference2005_Private>();
-    return asmRef->useInBuild();
+    return m_useInBuild;
 }
 
 void AssemblyReference2005::setUseInBuild(bool useInBuild)
 {
-    QSharedPointer<AssemblyReference2005_Private> asmRef = m_private.staticCast<AssemblyReference2005_Private>();
-    asmRef->setUseInBuild(useInBuild);
+    m_useInBuild = useInBuild;
 }
 
 AssemblyReference2005::AssemblyReference2005()
 {
 }
 
-void AssemblyReference2005::init()
+Configuration::Ptr AssemblyReference2005::createReferenceConfiguration() const
 {
-    m_private = AssemblyReference_Private::Ptr(new AssemblyReference2005_Private);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2005, QLatin1String("ReferenceConfiguration"));
+}
+
+void AssemblyReference2005::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("RelativePath"))
+                m_relativePath = domElement.value();
+
+
+            else if (domElement.name() == QLatin1String("AssemblyName"))
+                m_assemblyName = domElement.value();
+
+            else if (domElement.name() == QLatin1String("CopyLocal")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_copyLocal = false;
+                else
+                    m_copyLocal = true;
+            }
+
+            else if (domElement.name() == QLatin1String("UseInBuild")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_useInBuild = false;
+                else
+                    m_useInBuild = true;
+            }
+        }
+    }
 }
 
 
 AssemblyReference2008::AssemblyReference2008(const AssemblyReference2008 &ref)
     : AssemblyReference2005(ref)
 {
+    m_copyLocalDependencies = ref.m_copyLocalDependencies;
+    m_copyLocalSatelliteAssemblies = ref.m_copyLocalSatelliteAssemblies;
+    m_useDependenciesInBuild = ref.m_useDependenciesInBuild;
+    m_subType = ref.m_subType;
+    m_minFrameworkVersion = ref.m_minFrameworkVersion;
 }
 
 AssemblyReference2008 &AssemblyReference2008::operator =(const AssemblyReference2008 &ref)
 {
-    AssemblyReference2005::operator =(ref);
+    if (this != &ref) {
+        AssemblyReference2005::operator =(ref);
+        m_copyLocalDependencies = ref.m_copyLocalDependencies;
+        m_copyLocalSatelliteAssemblies = ref.m_copyLocalSatelliteAssemblies;
+        m_useDependenciesInBuild = ref.m_useDependenciesInBuild;
+        m_subType = ref.m_subType;
+        m_minFrameworkVersion = ref.m_minFrameworkVersion;
+    }
+
     return *this;
 }
 
 AssemblyReference2008::~AssemblyReference2008()
 {
+}
+
+QDomNode AssemblyReference2008::toXMLDomNode(QDomDocument &domXMLDocument) const
+{
+    QDomElement assemblyRefNode = AssemblyReference2005::toXMLDomNode(domXMLDocument).toElement();
+
+    assemblyRefNode.setAttribute(QLatin1String("CopyLocalDependencies"), QVariant(m_copyLocalDependencies).toString());
+    assemblyRefNode.setAttribute(QLatin1String("CopyLocalSatelliteAssemblies"), QVariant(m_copyLocalSatelliteAssemblies).toString());
+    assemblyRefNode.setAttribute(QLatin1String("UseDependenciesInBuild"), QVariant(m_useDependenciesInBuild).toString());
+    assemblyRefNode.setAttribute(QLatin1String("SubType"), m_subType);
+    assemblyRefNode.setAttribute(QLatin1String("MinFrameworkVersion"), m_minFrameworkVersion);
+
+    return assemblyRefNode;
 }
 
 AssemblyReference::Ptr AssemblyReference2008::clone() const
@@ -228,71 +369,103 @@ AssemblyReference::Ptr AssemblyReference2008::clone() const
 
 bool AssemblyReference2008::copyLocalDependencies() const
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    return asmRef->copyLocalDependencies();
+    return m_copyLocalDependencies;
 }
 
 void AssemblyReference2008::setCopyLocalDependencies(bool copyLocalDependencies)
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    asmRef->setCopyLocalDependencies(copyLocalDependencies);
+    m_copyLocalDependencies = copyLocalDependencies;
 }
 
 bool AssemblyReference2008::copyLocalSatelliteAssemblies() const
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    return asmRef->copyLocalSatelliteAssemblies();
+    return m_copyLocalSatelliteAssemblies;
 }
 
 void AssemblyReference2008::setCopyLocalSatelliteAssemblies(bool copyLocalSatelliteAssemblies)
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    asmRef->setCopyLocalSatelliteAssemblies(copyLocalSatelliteAssemblies);
+    m_copyLocalSatelliteAssemblies = copyLocalSatelliteAssemblies;
 }
 
 bool AssemblyReference2008::useDependenciesInBuild() const
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    return asmRef->useDependenciesInBuild();
+    return m_useDependenciesInBuild;
 }
 
 void AssemblyReference2008::setUseDependenciesInBuild(bool useDependenciesInBuild)
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    asmRef->setUseDependenciesInBuild(useDependenciesInBuild);
+    m_useDependenciesInBuild = useDependenciesInBuild;
 }
 
 QString AssemblyReference2008::subType() const
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    return asmRef->subType();
+    return m_subType;
 }
 
 void AssemblyReference2008::setSubType(const QString &subType)
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    asmRef->setSubType(subType);
+    m_subType = subType;
 }
 
 QString AssemblyReference2008::minFrameworkVersion() const
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    return asmRef->minFrameworkVersion();
+    return m_minFrameworkVersion;
 }
 
 void AssemblyReference2008::setMinFrameworkVersion(const QString &minFrameworkVersion)
 {
-    QSharedPointer<AssemblyReference2008_Private> asmRef = m_private.staticCast<AssemblyReference2008_Private>();
-    asmRef->setMinFrameworkVersion(minFrameworkVersion);
+    m_minFrameworkVersion = minFrameworkVersion;
 }
 
 AssemblyReference2008::AssemblyReference2008()
 {
 }
 
-void AssemblyReference2008::init()
+Configuration::Ptr AssemblyReference2008::createReferenceConfiguration() const
 {
-    m_private = AssemblyReference_Private::Ptr(new AssemblyReference2008_Private);
+    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2008, QLatin1String("ReferenceConfiguration"));
+}
+
+void AssemblyReference2008::processNodeAttributes(const QDomElement &element)
+{
+    AssemblyReference2005::processNodeAttributes(element);
+
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("CopyLocalDependencies")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_copyLocalDependencies = false;
+                else
+                    m_copyLocalDependencies = true;
+            }
+
+            else if (domElement.name() == QLatin1String("CopyLocalSatelliteAssemblies")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_copyLocalSatelliteAssemblies = false;
+                else
+                    m_copyLocalSatelliteAssemblies = true;
+            }
+
+            else if (domElement.name() == QLatin1String("UseDependenciesInBuild")) {
+                if (domElement.value() == QLatin1String("false"))
+                    m_useDependenciesInBuild = false;
+                else
+                    m_useDependenciesInBuild = true;
+            }
+
+            else if (domElement.name() == QLatin1String("SubType"))
+                m_subType = domElement.value();
+
+            else if (domElement.name() == QLatin1String("MinFrameworkVersion"))
+                m_minFrameworkVersion = domElement.value();
+        }
+    }
 }
 
 
@@ -317,9 +490,6 @@ AssemblyReference::Ptr AssemblyReferenceFactory::create(VcDocConstants::Document
         ref = AssemblyReference::Ptr(new AssemblyReference2008);
         break;
     }
-
-    if (ref)
-        ref->init();
 
     return ref;
 }

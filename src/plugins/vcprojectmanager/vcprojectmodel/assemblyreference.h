@@ -32,7 +32,8 @@
 
 #include "ivcprojectnodemodel.h"
 
-#include "assemblyreference_private.h"
+#include "configuration.h"
+#include "vcprojectdocument_constants.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -69,13 +70,16 @@ protected:
     AssemblyReference(const AssemblyReference &asmRef);
     AssemblyReference& operator=(const AssemblyReference &asmRef);
 
-    /*!
-     * Called after instance of the AssemblyReference is created in order to initialize \b m_private member variable to
-     * a proper version of a AssemblyReference_Private implementation (2003, 2005 or 2008).
-     */
-    virtual void init() = 0;
+    void processReferenceConfig(const QDomNode &referenceConfig);
 
-    AssemblyReference_Private::Ptr m_private;
+    /*!
+     * Reimplement this to create a new reference configuration.
+     * \return A shared pointer to a newly created reference configuration.
+     */
+    virtual Configuration::Ptr createReferenceConfiguration() const = 0;
+
+    QList<Configuration::Ptr> m_referenceConfigurations;
+    QString m_relativePath; // required
 };
 
 class AssemblyReference2003 : public AssemblyReference
@@ -91,7 +95,7 @@ public:
 
 protected:
     AssemblyReference2003();
-    void init();
+    Configuration::Ptr createReferenceConfiguration() const;
 };
 
 class AssemblyReference2005 : public AssemblyReference2003
@@ -102,6 +106,7 @@ public:
     AssemblyReference2005(const AssemblyReference2005 &ref);
     AssemblyReference2005& operator=(const AssemblyReference2005 &ref);
     ~AssemblyReference2005();
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     AssemblyReference::Ptr clone() const;
 
@@ -114,7 +119,12 @@ public:
 
 protected:
     AssemblyReference2005();
-    void init();
+    Configuration::Ptr createReferenceConfiguration() const;
+    void processNodeAttributes(const QDomElement &element);
+
+    QString m_assemblyName; // optional
+    bool m_copyLocal;       // optional
+    bool m_useInBuild;      // optional default: true
 };
 
 class AssemblyReference2008 : public AssemblyReference2005
@@ -125,6 +135,7 @@ public:
     AssemblyReference2008(const AssemblyReference2008 &ref);
     AssemblyReference2008& operator=(const AssemblyReference2008 &ref);
     ~AssemblyReference2008();
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     AssemblyReference::Ptr clone() const;
 
@@ -141,7 +152,14 @@ public:
 
 protected:
     AssemblyReference2008();
-    void init();
+    Configuration::Ptr createReferenceConfiguration() const;
+    void processNodeAttributes(const QDomElement &element);
+
+    bool m_copyLocalDependencies; //optional    default: true
+    bool m_copyLocalSatelliteAssemblies; //optional     default: true
+    bool m_useDependenciesInBuild; //optional   default: true
+    QString m_subType; //optional
+    QString m_minFrameworkVersion;
 };
 
 class AssemblyReferenceFactory
