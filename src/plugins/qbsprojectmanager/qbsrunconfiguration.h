@@ -128,7 +128,6 @@ private:
 
     // Cached startup sub project information
     ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
-    bool m_forcedGuiMode;
     bool m_userSetName;
     QString m_userWorkingDirectory;
 

@@ -204,14 +204,18 @@ QString QbsRunConfiguration::executable() const
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
 {
-    if (m_forcedGuiMode)
+    if (forcedGuiMode())
         return LocalApplicationRunConfiguration::Gui;
+
     return m_runMode;
 }
 
 bool QbsRunConfiguration::forcedGuiMode() const
 {
-    return m_forcedGuiMode;
+    QbsProject *pro = static_cast<QbsProject *>(target()->project());
+    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
+
+    return !product.properties().getProperty(QLatin1String("consoleApplication")).toBool();
 }
 
 QString QbsRunConfiguration::workingDirectory() const
