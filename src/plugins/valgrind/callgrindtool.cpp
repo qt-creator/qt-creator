@@ -502,7 +502,7 @@ static QToolButton *createToolButton(QAction *action)
 }
 
 CallgrindTool::CallgrindTool(QObject *parent)
-    : IAnalyzerTool(parent)
+    : ValgrindTool(parent)
 {
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
@@ -612,7 +612,7 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 
 void CallgrindTool::startTool(StartMode mode)
 {
-    IAnalyzerTool::startTool(mode);
+    ValgrindTool::startTool(mode);
     d->setBusyCursor(true);
 }
 

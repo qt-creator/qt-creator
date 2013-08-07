@@ -179,7 +179,7 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
 }
 
 MemcheckTool::MemcheckTool(QObject *parent)
-  : IAnalyzerTool(parent)
+  : ValgrindTool(parent)
 {
     m_settings = 0;
     m_errorModel = 0;

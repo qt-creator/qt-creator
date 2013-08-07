@@ -54,6 +54,8 @@ QtcPlugin {
         "valgrindrunner.h",
         "valgrindsettings.cpp",
         "valgrindsettings.h",
+        "valgrindtool.cpp",
+        "valgrindtool.h",
         "workarounds.cpp",
         "workarounds.h",
         "callgrind/callgrindabstractmodel.h",

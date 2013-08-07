@@ -2,6 +2,7 @@
 **
 ** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
+** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -27,43 +28,25 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDTOOL_H
-#define CALLGRINDTOOL_H
+#ifndef VALGRINDTOOL_H
+#define VALGRINDTOOL_H
 
-#include "valgrindtool.h"
+#include <analyzerbase/ianalyzertool.h>
 
 namespace Valgrind {
 namespace Internal {
 
-class CallgrindToolPrivate;
-
-class CallgrindTool : public ValgrindTool
+class ValgrindTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
 
 public:
-    CallgrindTool(QObject *parent);
-    ~CallgrindTool();
-
-    Core::Id id() const;
-    ProjectExplorer::RunMode runMode() const;
-    QString displayName() const;
-    QString description() const;
-    ToolMode toolMode() const;
-
-    void extensionsInitialized();
-
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
-    QWidget *createWidgets();
+    explicit ValgrindTool(QObject *parent = 0);
 
     void startTool(Analyzer::StartMode mode);
-
-private:
-    CallgrindToolPrivate *d;
 };
 
 } // namespace Internal
 } // namespace Valgrind
 
-#endif // CALLGRINDTOOL_H
+#endif // VALGRIND_TOOL

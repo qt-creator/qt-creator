@@ -31,7 +31,7 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include <analyzerbase/ianalyzertool.h>
+#include "valgrindtool.h"
 
 #include <QSortFilterProxyModel>
 
@@ -77,7 +77,7 @@ private:
     bool m_filterExternalIssues;
 };
 
-class MemcheckTool : public Analyzer::IAnalyzerTool
+class MemcheckTool : public ValgrindTool
 {
     Q_OBJECT
 
