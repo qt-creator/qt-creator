@@ -39,8 +39,6 @@
 
 namespace Analyzer {
 
-class IAnalyzerTool;
-
 /**
  * Utility function to set @p val if @p key is present in @p map.
  */

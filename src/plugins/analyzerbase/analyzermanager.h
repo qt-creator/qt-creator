@@ -49,6 +49,7 @@ namespace ProjectExplorer { class RunConfiguration; }
 namespace Analyzer {
 
 class IAnalyzerTool;
+class AnalyzerAction;
 class AnalyzerRunControl;
 class AnalyzerStartParameters;
 
@@ -66,7 +67,7 @@ public:
     static void shutdown();
 
     // Register a tool for a given start mode.
-    static void addTool(IAnalyzerTool *tool, StartMode mode);
+    static void addAction(AnalyzerAction *action);
 
     // Dockwidgets are registered to the main window.
     static QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,

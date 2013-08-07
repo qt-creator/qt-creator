@@ -56,6 +56,12 @@ class ProjectSettingsFactory : public AnalyzerSubConfigFactory
     }
 };
 
+class ValgrindAction : public AnalyzerAction
+{
+public:
+    ValgrindAction() {}
+};
+
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
     AnalyzerGlobalSettings::registerConfig(new ValgrindGlobalSettings());
@@ -63,12 +69,53 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 
     IAnalyzerTool *memcheckTool = new MemcheckTool(this);
     IAnalyzerTool *callgrindTool = new CallgrindTool(this);
+    ValgrindAction *action = 0;
+
+    QString callgrindToolTip = tr("Valgrind Function Profile uses the "
+        "\"callgrind\" tool to record function calls when a program runs.");
+
+    QString memcheckToolTip = tr("Valgrind Analyze Memory uses the "
+         "\"memcheck\" tool to find memory leaks");
+
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        AnalyzerManager::addTool(memcheckTool, StartLocal);
-        AnalyzerManager::addTool(callgrindTool, StartLocal);
+        action = new ValgrindAction;
+        action->setId("Memcheck.Local");
+        action->setTool(memcheckTool);
+        action->setText(tr("Valgrind Memory Analyzer"));
+        action->setToolTip(memcheckToolTip);
+        action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
+        action->setStartMode(StartLocal);
+        action->setEnabled(false);
+        AnalyzerManager::addAction(action);
+
+        action = new ValgrindAction;
+        action->setId("Callgrind.Local");
+        action->setTool(callgrindTool);
+        action->setText(tr("Valgrind Function Profiler"));
+        action->setToolTip(callgrindToolTip);
+        action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
+        action->setStartMode(StartLocal);
+        action->setEnabled(false);
+        AnalyzerManager::addAction(action);
     }
-    AnalyzerManager::addTool(memcheckTool, StartRemote);
-    AnalyzerManager::addTool(callgrindTool, StartRemote);
+
+    action = new ValgrindAction;
+    action->setId("Memcheck.Remote");
+    action->setTool(memcheckTool);
+    action->setText(tr("Valgrind Memory Analyzer (Remote)"));
+    action->setToolTip(memcheckToolTip);
+    action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
+    action->setStartMode(StartRemote);
+    AnalyzerManager::addAction(action);
+
+    action = new ValgrindAction;
+    action->setId("Callgrind.Remote");
+    action->setTool(callgrindTool);
+    action->setText(tr("Valgrind Function Profiler (Remote)"));
+    action->setToolTip(callgrindToolTip);
+    action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
+    action->setStartMode(StartRemote);
+    AnalyzerManager::addAction(action);
 
     addAutoReleasedObject(new ValgrindRunControlFactory());
 

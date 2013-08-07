@@ -516,25 +516,9 @@ CallgrindTool::~CallgrindTool()
     delete d;
 }
 
-Core::Id CallgrindTool::id() const
-{
-    return Core::Id("Callgrind");
-}
-
 RunMode CallgrindTool::runMode() const
 {
     return CallgrindRunMode;
-}
-
-QString CallgrindTool::displayName() const
-{
-    return tr("Valgrind Function Profiler");
-}
-
-QString CallgrindTool::description() const
-{
-    return tr("Valgrind Profile uses the \"callgrind\" tool to "
-              "record function calls when a program runs.");
 }
 
 IAnalyzerTool::ToolMode CallgrindTool::toolMode() const

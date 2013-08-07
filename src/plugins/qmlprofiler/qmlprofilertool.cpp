@@ -192,25 +192,9 @@ QmlProfilerTool::~QmlProfilerTool()
     delete d;
 }
 
-Core::Id QmlProfilerTool::id() const
-{
-    return Core::Id("QmlProfiler");
-}
-
 RunMode QmlProfilerTool::runMode() const
 {
     return QmlProfilerRunMode;
-}
-
-QString QmlProfilerTool::displayName() const
-{
-    return tr("QML Profiler");
-}
-
-QString QmlProfilerTool::description() const
-{
-    return tr("The QML Profiler can be used to find performance bottlenecks in "
-              "applications using QML.");
 }
 
 IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const

@@ -276,25 +276,9 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     m_errorProxyModel->setFilterExternalIssues(memcheckSettings->filterExternalIssues());
 }
 
-Core::Id MemcheckTool::id() const
-{
-    return Core::Id("Memcheck");
-}
-
 RunMode MemcheckTool::runMode() const
 {
     return MemcheckRunMode;
-}
-
-QString MemcheckTool::displayName() const
-{
-    return tr("Valgrind Memory Analyzer");
-}
-
-QString MemcheckTool::description() const
-{
-    return tr("Valgrind Analyze Memory uses the \"memcheck\" tool to find "
-              "memory leaks");
 }
 
 IAnalyzerTool::ToolMode MemcheckTool::toolMode() const
@@ -537,10 +521,9 @@ void MemcheckTool::finished()
     const int issuesFound = m_errorModel->rowCount();
     m_goBack->setEnabled(issuesFound > 1);
     m_goNext->setEnabled(issuesFound > 1);
-    AnalyzerManager::showStatusMessage((issuesFound > 0
-        ? AnalyzerManager::tr("Tool \"%1\" finished, %n issues were found.", 0, issuesFound)
-        : AnalyzerManager::tr("Tool \"%1\" finished, no issues were found."))
-            .arg(displayName()));
+    AnalyzerManager::showStatusMessage(issuesFound > 0
+        ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
+        : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
 
     setBusyCursor(false);
 }

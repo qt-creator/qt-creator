@@ -36,4 +36,8 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
+AnalyzerAction::AnalyzerAction(QObject *parent)
+    : QAction(parent)
+{}
+
 } // namespace Analyzer

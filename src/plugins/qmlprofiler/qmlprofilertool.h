@@ -48,13 +48,8 @@ public:
     explicit QmlProfilerTool(QObject *parent);
     ~QmlProfilerTool();
 
-    Core::Id id() const;
     ProjectExplorer::RunMode runMode() const;
-    QString displayName() const;
-    QString description() const;
     ToolMode toolMode() const;
-
-    void extensionsInitialized() {}
 
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);

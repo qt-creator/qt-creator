@@ -120,7 +120,8 @@ static void startLocalTool(IAnalyzerTool *tool)
                 default:
                     QTC_CHECK(false);
             }
-            const QString toolName = tool->displayName();
+            //const QString toolName = tool->displayName();
+            const QString toolName = AnalyzerManager::tr("Tool"); // FIXME
             const QString title = AnalyzerManager::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
             const QString message = AnalyzerManager::tr("<html><head/><body><p>You are trying "
                 "to run the tool \"%1\" on an application in %2 mode. "
