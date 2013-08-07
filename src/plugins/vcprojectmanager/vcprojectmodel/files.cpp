@@ -29,6 +29,8 @@
 ****************************************************************************/
 #include "files.h"
 
+#include "vcprojectdocument.h"
+
 namespace VcProjectManager {
 namespace Internal {
 
@@ -38,7 +40,18 @@ Files::~Files()
 
 void Files::processNode(const QDomNode &node)
 {
-    m_private->processNode(node);
+    if (node.isNull())
+        return;
+
+    if (node.hasChildNodes()) {
+        QDomNode firstChild = node.firstChild();
+        if (!firstChild.isNull()) {
+            if (firstChild.nodeName() == QLatin1String("Filter"))
+                processFilter(firstChild);
+            else if (firstChild.nodeName() == QLatin1String("File"))
+                processFile(firstChild);
+        }
+    }
 }
 
 void Files::processNodeAttributes(const QDomElement &element)
@@ -53,31 +66,45 @@ VcNodeWidget *Files::createSettingsWidget()
 
 QDomNode Files::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
-    return m_private->toXMLDomNode(domXMLDocument);
+    QDomElement fileNode = domXMLDocument.createElement(QLatin1String("Files"));
+
+    foreach (const File::Ptr &file, m_files)
+        fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
+
+    foreach (const Filter::Ptr &filter, m_filters)
+        fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
+
+    return fileNode;
 }
 
 bool Files::isEmpty() const
 {
-    return m_private->files().isEmpty() && m_private->filters().isEmpty();
+    return m_files.isEmpty() && m_filters.isEmpty();
 }
 
 void Files::addFilter(Filter::Ptr newFilter)
 {
-    m_private->addFilter(newFilter);
+    if (m_filters.contains(newFilter))
+        return;
+
+    foreach (const Filter::Ptr &filter, m_filters) {
+        if (filter->name() == newFilter->name())
+            return;
+    }
+
+    m_filters.append(newFilter);
 }
 
 void Files::removeFilter(Filter::Ptr filter)
 {
-    m_private->removeFilter(filter);
+    m_filters.removeAll(filter);
 }
 
 void Files::removeFilter(const QString &filterName)
 {
-    QList<Filter::Ptr> filters = m_private->filters();
-
-    foreach (const Filter::Ptr &filter, filters) {
+    foreach (const Filter::Ptr &filter, m_filters) {
         if (filter->name() == filterName) {
-            m_private->removeFilter(filter);
+            removeFilter(filter);
             return;
         }
     }
@@ -85,46 +112,58 @@ void Files::removeFilter(const QString &filterName)
 
 QList<Filter::Ptr> Files::filters() const
 {
-    return m_private->filters();
+    return m_filters;
 }
 
 Filter::Ptr Files::filter(const QString &filterName) const
 {
-    return m_private->filter(filterName);
+    foreach (const Filter::Ptr &filter, m_filters) {
+        if (filter->name() == filterName)
+            return filter;
+    }
+    return Filter::Ptr();
 }
 
-void Files::addFile(File::Ptr file)
+void Files::addFile(File::Ptr newFile)
 {
-    m_private->addFile(file);
+    if (m_files.contains(newFile))
+        return;
+
+    foreach (const File::Ptr &file, m_files) {
+        if (file->relativePath() == newFile->relativePath())
+            return;
+    }
+
+    m_files.append(newFile);
 }
 
 void Files::removeFile(File::Ptr file)
 {
-    m_private->removeFile(file);
+    m_files.removeAll(file);
 }
 
 QList<File::Ptr> Files::files() const
 {
-    return m_private->files();
+    return m_files;
 }
 
 File::Ptr Files::file(const QString &relativePath) const
 {
-    return m_private->file(relativePath);
+    foreach (const File::Ptr &file, m_files) {
+        if (file->relativePath() == relativePath)
+            return file;
+    }
+    return File::Ptr();
 }
 
 bool Files::fileExists(const QString &relativeFilePath) const
 {
-    QList<File::Ptr> files = m_private->files();
-
-    foreach (const File::Ptr &filePtr, files) {
+    foreach (const File::Ptr &filePtr, m_files) {
         if (filePtr->relativePath() == relativeFilePath)
             return true;
     }
 
-    QList<Filter::Ptr> filters = m_private->filters();
-
-    foreach (const Filter::Ptr &filterPtr, filters) {
+    foreach (const Filter::Ptr &filterPtr, m_filters) {
         if (filterPtr->fileExists(relativeFilePath))
             return true;
     }
@@ -134,37 +173,80 @@ bool Files::fileExists(const QString &relativeFilePath) const
 
 void Files::allProjectFiles(QStringList &sl) const
 {
-    QList<Filter::Ptr> filters = m_private->filters();
-    QList<File::Ptr> files = m_private->files();
-
-    foreach (const Filter::Ptr &filter, filters)
+    foreach (const Filter::Ptr &filter, m_filters)
         filter->allFiles(sl);
 
-    foreach (const File::Ptr &file, files)
+    foreach (const File::Ptr &file, m_files)
         sl.append(file->canonicalPath());
 }
 
-Files::Files(Files_Private *pr)
-    : m_private(pr)
+Files::Files(VcProjectDocument *parentProject)
+    : m_parentProject(parentProject)
 {
 }
 
 Files::Files(const Files &files)
 {
-    m_private = files.m_private->clone();
+    m_files.clear();
+    m_filters.clear();
+
+    foreach (const File::Ptr &file, files.m_files)
+        m_files.append(File::Ptr(new File(*file)));
+
+    foreach (const Filter::Ptr &filter, files.m_filters)
+        m_filters.append(Filter::Ptr(new Filter(*filter)));
 }
 
 Files &Files::operator=(const Files &files)
 {
     if (this != &files) {
-        m_private = files.m_private->clone();
+        m_files.clear();
+        m_filters.clear();
+
+        foreach (const File::Ptr &file, files.m_files)
+            m_files.append(File::Ptr(new File(*file)));
+
+        foreach (const Filter::Ptr &filter, files.m_filters)
+            m_filters.append(Filter::Ptr(new Filter(*filter)));
     }
     return *this;
 }
 
+void Files::processFile(const QDomNode &fileNode)
+{
+    File::Ptr file(new File(m_parentProject));
+    file->processNode(fileNode);
+    m_files.append(file);
+
+    // process next sibling
+    QDomNode nextSibling = fileNode.nextSibling();
+    if (!nextSibling.isNull()) {
+        if (nextSibling.nodeName() == QLatin1String("File"))
+            processFile(nextSibling);
+        else
+            processFilter(nextSibling);
+    }
+}
+
+void Files::processFilter(const QDomNode &filterNode)
+{
+    Filter::Ptr filter(new Filter(m_parentProject));
+    filter->processNode(filterNode);
+    m_filters.append(filter);
+
+    // process next sibling
+    QDomNode nextSibling = filterNode.nextSibling();
+    if (!nextSibling.isNull()) {
+        if (nextSibling.nodeName() == QLatin1String("File"))
+            processFile(nextSibling);
+        else
+            processFilter(nextSibling);
+    }
+}
+
 
 Files2003::Files2003(VcProjectDocument *parentProjectDocument)
-    : Files(new Files2003_Private(parentProjectDocument))
+    : Files(parentProjectDocument)
 {
 }
 
@@ -175,7 +257,8 @@ Files2003::Files2003(const Files2003 &files)
 
 Files2003 &Files2003::operator =(const Files2003 &files)
 {
-    Files::operator =(files);
+    if (this != &files)
+        Files::operator =(files);
     return *this;
 }
 
@@ -190,18 +273,28 @@ Files *Files2003::clone() const
 
 
 Files2005::Files2005(VcProjectDocument *parentProjectDocument)
-    : Files(new Files2005_Private(parentProjectDocument))
+    : Files(parentProjectDocument)
 {
 }
 
 Files2005::Files2005(const Files2005 &files)
     : Files(files)
 {
+    m_folders.clear();
+
+    foreach (const Folder::Ptr &folder, files.m_folders)
+        m_folders.append(Folder::Ptr(new Folder(*folder)));
 }
 
 Files2005 &Files2005::operator=(const Files2005 &files)
 {
-    Files::operator =(files);
+    if (this != &files) {
+        Files::operator =(files);
+        m_folders.clear();
+
+        foreach (const Folder::Ptr &folder, files.m_folders)
+            m_folders.append(Folder::Ptr(new Folder(*folder)));
+    }
     return *this;
 }
 
@@ -209,10 +302,44 @@ Files2005::~Files2005()
 {
 }
 
+void Files2005::processNode(const QDomNode &node)
+{
+    if (node.isNull())
+        return;
+
+    if (node.hasChildNodes()) {
+        QDomNode firstChild = node.firstChild();
+
+        if (!firstChild.isNull()) {
+            if (firstChild.nodeName() == QLatin1String("Filter"))
+                processFilter(firstChild);
+            else if (firstChild.nodeName() == QLatin1String("File"))
+                processFile(firstChild);
+            else if (firstChild.nodeName() == QLatin1String("Folder"))
+                processFolder(firstChild);
+        }
+    }
+}
+
+QDomNode Files2005::toXMLDomNode(QDomDocument &domXMLDocument) const
+{
+    QDomElement fileNode = domXMLDocument.createElement(QLatin1String("Files"));
+
+    foreach (const File::Ptr &file, m_files)
+        fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
+
+    foreach (const Filter::Ptr &filter, m_filters)
+        fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
+
+    foreach (const Folder::Ptr &folder, m_folders)
+        fileNode.appendChild(folder->toXMLDomNode(domXMLDocument));
+
+    return fileNode;
+}
+
 bool Files2005::isEmpty() const
 {
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    return Files::isEmpty() && files_p->folders().isEmpty();
+    return Files::isEmpty() && m_folders.isEmpty();
 }
 
 Files *Files2005::clone() const
@@ -222,24 +349,17 @@ Files *Files2005::clone() const
 
 bool Files2005::fileExists(const QString &relativeFilePath) const
 {
-    QList<File::Ptr> files = m_private->files();
-
-    foreach (const File::Ptr &filePtr, files) {
+    foreach (const File::Ptr &filePtr, m_files) {
         if (filePtr->relativePath() == relativeFilePath)
             return true;
     }
 
-    QList<Filter::Ptr> filters = m_private->filters();
-
-    foreach (const Filter::Ptr &filterPtr, filters) {
+    foreach (const Filter::Ptr &filterPtr, m_filters) {
         if (filterPtr->fileExists(relativeFilePath))
             return true;
     }
 
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    QList<Folder::Ptr> folders = files_p->folders();
-
-    foreach (const Folder::Ptr &folderPtr, folders) {
+    foreach (const Folder::Ptr &folderPtr, m_folders) {
         if (folderPtr->fileExists(relativeFilePath))
             return true;
     }
@@ -249,24 +369,27 @@ bool Files2005::fileExists(const QString &relativeFilePath) const
 
 void Files2005::addFolder(Folder::Ptr newFolder)
 {
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    files_p->addFolder(newFolder);
+    if (m_folders.contains(newFolder))
+        return;
+
+    foreach (const Folder::Ptr &folder, m_folders) {
+        if (folder->name() == newFolder->name())
+            return;
+    }
+
+    m_folders.append(newFolder);
 }
 
 void Files2005::removeFolder(Folder::Ptr folder)
 {
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    files_p->removeFolder(folder);
+    m_folders.removeAll(folder);
 }
 
 void Files2005::removeFolder(const QString &folderName)
 {
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    QList<Folder::Ptr> folders = files_p->folders();
-
-    foreach (const Folder::Ptr &folder, folders) {
+    foreach (const Folder::Ptr &folder, m_folders) {
         if (folder->name() == folderName) {
-            files_p->removeFolder(folder);
+            removeFolder(folder);
             return;
         }
     }
@@ -274,36 +397,87 @@ void Files2005::removeFolder(const QString &folderName)
 
 QList<Folder::Ptr> Files2005::folders() const
 {
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    return files_p->folders();
+    return m_folders;
 }
 
 Folder::Ptr Files2005::folder(const QString &folderName) const
 {
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    return files_p->folder(folderName);
+    foreach (const Folder::Ptr &folder, m_folders) {
+        if (folder->name() == folderName)
+            return folder;
+    }
+    return Folder::Ptr();
 }
 
 void Files2005::allProjectFiles(QStringList &sl) const
 {
-    QSharedPointer<Files2005_Private> files_p = m_private.staticCast<Files2005_Private>();
-    QList<Folder::Ptr> folders = files_p->folders();
-    QList<Filter::Ptr> filters = m_private->filters();
-    QList<File::Ptr> files = m_private->files();
-
-    foreach (const Filter::Ptr &filter, filters)
+    foreach (const Filter::Ptr &filter, m_filters)
         filter->allFiles(sl);
 
-    foreach (const Folder::Ptr &filter, folders)
+    foreach (const Folder::Ptr &filter, m_folders)
         filter->allFiles(sl);
 
-    foreach (const File::Ptr &file, files)
+    foreach (const File::Ptr &file, m_files)
         sl.append(file->canonicalPath());
+}
+
+void Files2005::processFile(const QDomNode &fileNode)
+{
+    File::Ptr file(new File(m_parentProject));
+    file->processNode(fileNode);
+    m_files.append(file);
+
+    // process next sibling
+    QDomNode nextSibling = fileNode.nextSibling();
+    if (!nextSibling.isNull()) {
+        if (nextSibling.nodeName() == QLatin1String("File"))
+            processFile(nextSibling);
+        else if (nextSibling.nodeName() == QLatin1String("Filter"))
+            processFilter(nextSibling);
+        else
+            processFolder(nextSibling);
+    }
+}
+
+void Files2005::processFilter(const QDomNode &filterNode)
+{
+    Filter::Ptr filter(new Filter(m_parentProject));
+    filter->processNode(filterNode);
+    m_filters.append(filter);
+
+    // process next sibling
+    QDomNode nextSibling = filterNode.nextSibling();
+    if (!nextSibling.isNull()) {
+        if (nextSibling.nodeName() == QLatin1String("File"))
+            processFile(nextSibling);
+        else if (nextSibling.nodeName() == QLatin1String("Filter"))
+            processFilter(nextSibling);
+        else
+            processFolder(nextSibling);
+    }
+}
+
+void Files2005::processFolder(const QDomNode &folderNode)
+{
+    Folder::Ptr folder(new Folder(m_parentProject));
+    folder->processNode(folderNode);
+    m_folders.append(folder);
+
+    // process next sibling
+    QDomNode nextSibling = folderNode.nextSibling();
+    if (!nextSibling.isNull()) {
+        if (nextSibling.nodeName() == QLatin1String("File"))
+            processFile(nextSibling);
+        else if (nextSibling.nodeName() == QLatin1String("Filter"))
+            processFilter(nextSibling);
+        else
+            processFolder(nextSibling);
+    }
 }
 
 
 Files2008::Files2008(VcProjectDocument *parentProjectDocument)
-    : Files(new Files2008_Private(parentProjectDocument))
+    : Files(parentProjectDocument)
 {
 }
 
@@ -314,7 +488,8 @@ Files2008::Files2008(const Files2008 &files)
 
 Files2008 &Files2008::operator=(const Files2008 &files)
 {
-    Files::operator =(files);
+    if (this != &files)
+        Files::operator =(files);
     return *this;
 }
 

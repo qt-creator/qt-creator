@@ -35,7 +35,6 @@
 #include "file.h"
 #include "filter.h"
 #include "folder.h"
-#include "files_private.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -74,11 +73,16 @@ public:
     virtual void allProjectFiles(QStringList &sl) const;
 
 protected:
-    Files(Files_Private *pr);
+    Files(VcProjectDocument *parentProject);
     Files(const Files &files);
     Files& operator=(const Files &files);
 
-    Files_Private::Ptr m_private;
+    virtual void processFile(const QDomNode &fileNode);
+    virtual void processFilter(const QDomNode &filterNode);
+
+    QList<Filter::Ptr> m_filters;
+    QList<File::Ptr> m_files;
+    VcProjectDocument *m_parentProject;
 };
 
 class Files2003 : public Files
@@ -104,6 +108,9 @@ public:
     Files2005& operator=(const Files2005 &files);
     ~Files2005();
 
+    void processNode(const QDomNode &node);
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
+
     bool isEmpty() const;
     Files* clone() const;
     bool fileExists(const QString &relativeFilePath) const;
@@ -115,6 +122,13 @@ public:
     Folder::Ptr folder(const QString &folderName) const;
 
     void allProjectFiles(QStringList &sl) const;
+
+protected:
+    void processFile(const QDomNode &fileNode);
+    void processFilter(const QDomNode &filterNode);
+    void processFolder(const QDomNode &folderNode);
+
+    QList<Folder::Ptr> m_folders;
 };
 
 class Files2008 : public Files

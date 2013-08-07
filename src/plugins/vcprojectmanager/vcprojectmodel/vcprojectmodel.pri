@@ -14,7 +14,6 @@ HEADERS += \
     vcprojectmodel/global.h \
     vcprojectmodel/folder.h \
     vcprojectmodel/filter.h \
-    vcprojectmodel/files_private.h \
     vcprojectmodel/files.h \
     vcprojectmodel/file.h \
     vcprojectmodel/deploymenttool.h \
@@ -59,7 +58,6 @@ SOURCES += \
     vcprojectmodel/global.cpp \
     vcprojectmodel/folder.cpp \
     vcprojectmodel/filter.cpp \
-    vcprojectmodel/files_private.cpp \
     vcprojectmodel/files.cpp \
     vcprojectmodel/file.cpp \
     vcprojectmodel/deploymenttool.cpp \
