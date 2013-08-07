@@ -50,7 +50,6 @@ public:
     ~References();
 
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 

@@ -52,7 +52,6 @@ public:
     Configuration& operator=(const Configuration &config);
     ~Configuration();
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     virtual QString nodeWidgetName() const;
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
@@ -79,6 +78,7 @@ signals:
 protected:
     Configuration(const QString &nodeName);
     virtual void processToolNode(const QDomNode &toolNode);
+    void processNodeAttributes(const QDomElement &element);
 
     QString m_name;
     QString m_nodeName;

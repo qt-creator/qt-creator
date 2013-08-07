@@ -91,7 +91,6 @@ protected:
     VcProjectDocument(const VcProjectDocument &vcDoc);
     VcProjectDocument& operator=(const VcProjectDocument &vcDoc);
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     virtual void processVisualStudioNode(const QDomElement &vsNode);
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     virtual QDomElement toVcDocumentElement(QDomDocument &domXMLDocument) const;

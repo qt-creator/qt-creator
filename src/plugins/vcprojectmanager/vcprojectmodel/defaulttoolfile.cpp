@@ -61,22 +61,6 @@ void DefaultToolFile::processNode(const QDomNode &node)
         processNodeAttributes(node.toElement());
 }
 
-void DefaultToolFile::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    if (namedNodeMap.size() == 1) {
-        QDomNode domNode = namedNodeMap.item(0);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domAttr = domNode.toAttr();
-
-            if (domAttr.name() == QLatin1String("FileName"))
-                m_fileName = domAttr.value();
-        }
-    }
-}
-
 VcNodeWidget *DefaultToolFile::createSettingsWidget()
 {
     return 0;
@@ -97,6 +81,22 @@ QString DefaultToolFile::fileName() const
 void DefaultToolFile::setFileName(const QString &fileName)
 {
     m_fileName = fileName;
+}
+
+void DefaultToolFile::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    if (namedNodeMap.size() == 1) {
+        QDomNode domNode = namedNodeMap.item(0);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domAttr = domNode.toAttr();
+
+            if (domAttr.name() == QLatin1String("FileName"))
+                m_fileName = domAttr.value();
+        }
+    }
 }
 
 } // namespace Internal

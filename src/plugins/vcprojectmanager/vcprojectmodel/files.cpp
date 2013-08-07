@@ -54,11 +54,6 @@ void Files::processNode(const QDomNode &node)
     }
 }
 
-void Files::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element)
-}
-
 VcNodeWidget *Files::createSettingsWidget()
 {
     return 0;

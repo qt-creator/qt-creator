@@ -81,11 +81,6 @@ void Configurations::processNode(const QDomNode &node)
     }
 }
 
-void Configurations::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element)
-}
-
 VcNodeWidget *Configurations::createSettingsWidget()
 {
     ConfigurationsBaseWidget* widget = ConfigurationsFactory::createSettingsWidget(m_vcProjDoc, this);

@@ -87,11 +87,6 @@ void References::processNode(const QDomNode &node)
     }
 }
 
-void References::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element);
-}
-
 VcNodeWidget *References::createSettingsWidget()
 {
     return 0;

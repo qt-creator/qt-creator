@@ -54,12 +54,6 @@ public:
     virtual void processNode(const QDomNode &node) = 0;
 
     /*!
-     * This member function is called whenever XML DOM node element's attributes are processed.
-     * \param element is the current XML DOM elements which attributes we are processing.
-     */
-    virtual void processNodeAttributes(const QDomElement &element) = 0;
-
-    /*!
      * This member function is used to create settings widget for a node.
      * For example, every Configuration project node creates it's own settings widget.
      * This widget is created by calling createSettingsWidget() of every Tool project node present

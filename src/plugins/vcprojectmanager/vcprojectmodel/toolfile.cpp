@@ -61,22 +61,6 @@ void ToolFile::processNode(const QDomNode &node)
         processNodeAttributes(node.toElement());
 }
 
-void ToolFile::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    if (namedNodeMap.size() == 1) {
-        QDomNode domNode = namedNodeMap.item(0);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("RelativePath"))
-                m_relativePath = domElement.value();
-        }
-    }
-}
-
 VcNodeWidget *ToolFile::createSettingsWidget()
 {
     return 0;
@@ -98,6 +82,22 @@ QString ToolFile::relativePath() const
 void ToolFile::setRelativePath(const QString &relativePath)
 {
     m_relativePath = relativePath;
+}
+
+void ToolFile::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    if (namedNodeMap.size() == 1) {
+        QDomNode domNode = namedNodeMap.item(0);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("RelativePath"))
+                m_relativePath = domElement.value();
+        }
+    }
 }
 
 } // namespace Internal

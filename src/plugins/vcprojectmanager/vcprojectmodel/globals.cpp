@@ -72,11 +72,6 @@ void Globals::processNode(const QDomNode &node)
     }
 }
 
-void Globals::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element)
-}
-
 VcNodeWidget *Globals::createSettingsWidget()
 {
     return 0;

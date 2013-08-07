@@ -46,7 +46,6 @@ public:
 
     virtual ~ActiveXReference();
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
@@ -73,6 +72,7 @@ protected:
     ActiveXReference();
     ActiveXReference(const ActiveXReference &ref);
     ActiveXReference& operator=(const ActiveXReference &ref);
+    virtual void processNodeAttributes(const QDomElement &element);
     virtual void processReferenceConfig(const QDomNode &referenceConfig);
 
     /*!
@@ -113,7 +113,6 @@ public:
     ActiveXReference2005& operator=(const ActiveXReference2005 &ref);
     ~ActiveXReference2005();
 
-    void processNodeAttributes(const QDomElement &element);
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     ActiveXReference::Ptr clone() const;
 
@@ -127,6 +126,7 @@ public:
 protected:
     ActiveXReference2005();
     Configuration::Ptr createReferenceConfiguration() const;
+    void processNodeAttributes(const QDomElement &element);
 
     QString m_localeID;         // opt
     QString m_copyLocal;        // opt
@@ -142,7 +142,6 @@ public:
     ActiveXReference2008& operator=(const ActiveXReference2008 &ref);
     ~ActiveXReference2008();
 
-    void processNodeAttributes(const QDomElement &element);
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     ActiveXReference::Ptr clone() const;
 
@@ -156,6 +155,7 @@ public:
 protected:
     ActiveXReference2008();
     Configuration::Ptr createReferenceConfiguration() const;
+    void processNodeAttributes(const QDomElement &element);
 
     bool m_copyLocalDependencies; //optional    default: true
     bool m_copyLocalSatelliteAssemblies; //optional     default: true

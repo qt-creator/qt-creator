@@ -99,25 +99,6 @@ void File::processNode(const QDomNode &node)
     }
 }
 
-void File::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    for (int i = 0; i < namedNodeMap.size(); ++i) {
-        QDomNode domNode = namedNodeMap.item(i);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("RelativePath"))
-                m_relativePath = domElement.value();
-
-            else
-                m_anyAttribute.insert(domElement.name(), domElement.value());
-        }
-    }
-}
-
 VcNodeWidget *File::createSettingsWidget()
 {
     return 0;
@@ -264,6 +245,25 @@ void File::processFile(const QDomNode &fileNode)
             processFileConfiguration(nextSibling);
         else
             processFile(nextSibling);
+    }
+}
+
+void File::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("RelativePath"))
+                m_relativePath = domElement.value();
+
+            else
+                m_anyAttribute.insert(domElement.name(), domElement.value());
+        }
     }
 }
 

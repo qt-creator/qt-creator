@@ -61,20 +61,6 @@ void PublishingItem::processNode(const QDomNode &node)
         processNodeAttributes(node.toElement());
 }
 
-void PublishingItem::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    for (int i = 0; i < namedNodeMap.size(); ++i) {
-        QDomNode domNode = namedNodeMap.item(i);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-            m_anyAttribute.insert(domElement.name(), domElement.value());
-        }
-    }
-}
-
 VcNodeWidget *PublishingItem::createSettingsWidget()
 {
     return 0;
@@ -113,6 +99,20 @@ void PublishingItem::clearAttribute(const QString &attributeName)
 void PublishingItem::removeAttribute(const QString &attributeName)
 {
     m_anyAttribute.remove(attributeName);
+}
+
+void PublishingItem::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+            m_anyAttribute.insert(domElement.name(), domElement.value());
+        }
+    }
 }
 
 } // namespace Internal

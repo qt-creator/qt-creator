@@ -65,25 +65,6 @@ void Global::processNode(const QDomNode &node)
         processNodeAttributes(node.toElement());
 }
 
-void Global::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    for (int i = 0; i < namedNodeMap.size(); ++i) {
-        QDomNode domNode = namedNodeMap.item(i);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("Name"))
-                m_name = domElement.value();
-
-            else if (domElement.name() == QLatin1String("Value"))
-                m_value = domElement.value();
-        }
-    }
-}
-
 VcNodeWidget *Global::createSettingsWidget()
 {
     return 0;
@@ -117,6 +98,25 @@ QString Global::value() const
 void Global::setValue(const QString &value)
 {
     m_value = value;
+}
+
+void Global::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("Name"))
+                m_name = domElement.value();
+
+            else if (domElement.name() == QLatin1String("Value"))
+                m_value = domElement.value();
+        }
+    }
 }
 
 } // namespace Internal

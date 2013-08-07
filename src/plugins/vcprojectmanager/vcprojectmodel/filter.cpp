@@ -95,25 +95,6 @@ void Filter::processNode(const QDomNode &node)
     }
 }
 
-void Filter::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    for (int i = 0; i < namedNodeMap.size(); ++i) {
-        QDomNode domNode = namedNodeMap.item(i);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("Name"))
-                m_name = domElement.value();
-
-            else
-                m_anyAttribute.insert(domElement.name(), domElement.value());
-        }
-    }
-}
-
 VcNodeWidget *Filter::createSettingsWidget()
 {
     return 0;
@@ -298,6 +279,25 @@ void Filter::processFilter(const QDomNode &filterNode)
             processFile(nextSibling);
         else
             processFilter(nextSibling);
+    }
+}
+
+void Filter::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("Name"))
+                m_name = domElement.value();
+
+            else
+                m_anyAttribute.insert(domElement.name(), domElement.value());
+        }
     }
 }
 

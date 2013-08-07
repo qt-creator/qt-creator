@@ -61,22 +61,6 @@ void Platform::processNode(const QDomNode &node)
         processNodeAttributes(node.toElement());
 }
 
-void Platform::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    if (namedNodeMap.size() == 1) {
-        QDomNode domNode = namedNodeMap.item(0);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("Name"))
-                m_name = domElement.value();
-        }
-    }
-}
-
 VcNodeWidget *Platform::createSettingsWidget()
 {
     return 0;
@@ -97,6 +81,22 @@ QString Platform::name() const
 void Platform::setName(const QString &name)
 {
     m_name = name;
+}
+
+void Platform::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    if (namedNodeMap.size() == 1) {
+        QDomNode domNode = namedNodeMap.item(0);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("Name"))
+                m_name = domElement.value();
+        }
+    }
 }
 
 } // namespace Internal

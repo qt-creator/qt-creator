@@ -49,7 +49,6 @@ public:
     Tool& operator= (const Tool& tool);
     ~Tool();
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     virtual QString nodeWidgetName() const = 0;
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
@@ -89,6 +88,7 @@ protected:
     }
 
     void setIntegerEnumAttribute(const QString &attributeName, int value, int defaultValue);
+    void processNodeAttributes(const QDomElement &element);
 
     QHash<QString, QString> m_anyAttribute;
     QString m_name;

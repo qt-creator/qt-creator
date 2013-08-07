@@ -52,7 +52,6 @@ public:
     File& operator=(const File &file);
     ~File();
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
@@ -74,6 +73,7 @@ public:
 private:
     void processFileConfiguration(const QDomNode &fileConfigNode);
     void processFile(const QDomNode &fileNode);
+    void processNodeAttributes(const QDomElement &element);
 
     QString m_relativePath; // required
     QList<QSharedPointer<File> > m_files;

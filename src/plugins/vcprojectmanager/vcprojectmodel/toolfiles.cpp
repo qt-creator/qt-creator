@@ -80,11 +80,6 @@ void ToolFiles::processNode(const QDomNode &node)
     }
 }
 
-void ToolFiles::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element)
-}
-
 VcNodeWidget *ToolFiles::createSettingsWidget()
 {
     return 0;

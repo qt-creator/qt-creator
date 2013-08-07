@@ -49,7 +49,6 @@ public:
     ~DefaultToolFile();
 
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
@@ -57,6 +56,8 @@ public:
     void setFileName(const QString &fileName);
 
 private:
+    void processNodeAttributes(const QDomElement &element);
+
     QString m_fileName; // required
 };
 

@@ -41,11 +41,6 @@ void ProjectReference::processNode(const QDomNode &node)
     m_private->processNode(node);
 }
 
-void ProjectReference::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element)
-}
-
 VcNodeWidget *ProjectReference::createSettingsWidget()
 {
     // TODO(Radovan): Finish implementation

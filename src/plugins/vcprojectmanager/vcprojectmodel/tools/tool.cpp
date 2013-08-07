@@ -65,25 +65,6 @@ void Tool::processNode(const QDomNode &node)
         processNodeAttributes(node.toElement());
 }
 
-void Tool::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    for (int i = 0; i < namedNodeMap.size(); ++i) {
-        QDomNode domNode = namedNodeMap.item(i);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("Name"))
-                m_name = domElement.value();
-
-            else
-                m_anyAttribute.insert(domElement.name(), domElement.value());
-        }
-    }
-}
-
 QDomNode Tool::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolNode = domXMLDocument.createElement(QLatin1String("Tool"));
@@ -199,6 +180,25 @@ void Tool::setIntegerEnumAttribute(const QString &attributeName, int value, int 
     if (!containsAttribute(attributeName) && value == defaultValue)
         return;
     setAttribute(attributeName, QVariant(value).toString());
+}
+
+void Tool::processNodeAttributes(const QDomElement &element)
+{
+    QDomNamedNodeMap namedNodeMap = element.attributes();
+
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
+
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
+
+            if (domElement.name() == QLatin1String("Name"))
+                m_name = domElement.value();
+
+            else
+                m_anyAttribute.insert(domElement.name(), domElement.value());
+        }
+    }
 }
 
 } // namespace Internal

@@ -49,7 +49,6 @@ public:
     ~PublishingItem();
 
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
@@ -59,6 +58,8 @@ public:
     void removeAttribute(const QString &attributeName);
 
 private:
+    void processNodeAttributes(const QDomElement &element);
+
     QHash<QString, QString> m_anyAttribute;
 };
 

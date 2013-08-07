@@ -49,7 +49,6 @@ public:
     ~Folder();
 
     void processNode(const QDomNode &node);
-    void processNodeAttributes(const QDomElement &element);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
@@ -86,6 +85,7 @@ private:
     void processFile(const QDomNode &fileNode);
     void processFilter(const QDomNode &filterNode);
     void processFolder(const QDomNode &folderNode);
+    void processNodeAttributes(const QDomElement &element);
 
     QList<QSharedPointer<Folder> > m_folders;
     QList<File::Ptr> m_files;

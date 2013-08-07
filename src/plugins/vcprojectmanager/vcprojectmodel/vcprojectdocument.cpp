@@ -212,11 +212,6 @@ void VcProjectDocument::processNode(const QDomNode &node)
     processNode(node.nextSibling());
 }
 
-void VcProjectDocument::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element)
-}
-
 void VcProjectDocument::parseProcessingInstruction(const QDomProcessingInstruction &processingInstruction)
 {
     QStringList data = processingInstruction.data().split(QLatin1Char(' '));

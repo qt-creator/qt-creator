@@ -70,11 +70,6 @@ void Platforms::processNode(const QDomNode &node)
     }
 }
 
-void Platforms::processNodeAttributes(const QDomElement &element)
-{
-    Q_UNUSED(element)
-}
-
 VcNodeWidget *Platforms::createSettingsWidget()
 {
     return 0;
