@@ -56,6 +56,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/uicodemodelsupport.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -527,6 +528,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
             qtVersionForPart = CppTools::ProjectPart::Qt5;
     }
 
+    QHash<QString, QString> uiFiles;
     QStringList allFiles;
     foreach (const qbs::ProductData &prd, prj.allProducts()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
@@ -578,9 +580,16 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
                                     ProjectExplorer::SysRootKitInformation::sysRoot(k));
 
             CppTools::ProjectFileAdder adder(part->files);
-            foreach (const QString &file, grp.allFilePaths())
+            foreach (const QString &file, grp.allFilePaths()) {
+                if (file.endsWith(QLatin1String(".ui"))) {
+                    QStringList generated = m_rootProjectNode->qbsProject()
+                            ->generatedFiles(prd, file, QStringList(QLatin1String("hpp")));
+                    if (generated.count() == 1)
+                        uiFiles.insert(file, generated.at(0));
+                }
                 if (adder.maybeAdd(file))
                     allFiles.append(file);
+            }
             part->files << CppTools::ProjectFile(QLatin1String(CONFIGURATION_PATH),
                                                   CppTools::ProjectFile::CXXHeader);
 
@@ -597,6 +606,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
     if (pinfo.projectParts().isEmpty())
         return;
+
+    QtSupport::UiCodeModelManager::update(this, uiFiles);
 
     // Register update the code model:
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
