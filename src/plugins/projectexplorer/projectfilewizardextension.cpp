@@ -48,6 +48,7 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/normalindenter.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/storagesettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/editorconfiguration.h>
 
@@ -580,13 +581,19 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
 
     TextEditor::ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
     indenter->setCodeStylePreferences(codeStylePrefs);
-
     QTextDocument doc(file->contents());
     QTextCursor cursor(&doc);
     cursor.select(QTextCursor::Document);
     indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
-    file->setContents(doc.toPlainText());
     delete indenter;
+    if (TextEditor::TextEditorSettings::instance()->storageSettings().m_cleanWhitespace) {
+        QTextBlock block = doc.firstBlock();
+        while (block.isValid()) {
+            codeStylePrefs->currentTabSettings().removeTrailingWhitespace(cursor, block);
+            block = block.next();
+        }
+    }
+    file->setContents(doc.toPlainText());
 }
 
 QStringList ProjectFileWizardExtension::getProjectChoices() const

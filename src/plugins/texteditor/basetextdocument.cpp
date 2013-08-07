@@ -469,11 +469,7 @@ void BaseTextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentatio
         if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision) {
 
             QString blockText = block.text();
-            if (int trailing = d->m_tabSettings.trailingWhitespaces(blockText)) {
-                cursor.setPosition(block.position() + block.length() - 1);
-                cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, trailing);
-                cursor.removeSelectedText();
-            }
+            d->m_tabSettings.removeTrailingWhitespace(cursor, block);
             if (cleanIndentation && !d->m_tabSettings.isIndentationClean(block)) {
                 cursor.setPosition(block.position());
                 int firstNonSpace = d->m_tabSettings.firstNonSpace(blockText);

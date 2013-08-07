@@ -152,6 +152,15 @@ int TabSettings::trailingWhitespaces(const QString &text) const
     return i;
 }
 
+void TabSettings::removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block) const
+{
+    if (const int trailing = trailingWhitespaces(block.text())) {
+        cursor.setPosition(block.position() + block.length() - 1);
+        cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, trailing);
+        cursor.removeSelectedText();
+    }
+}
+
 bool TabSettings::isIndentationClean(const QTextBlock &block) const
 {
     int i = 0;
