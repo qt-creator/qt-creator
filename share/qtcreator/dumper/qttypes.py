@@ -2941,7 +2941,7 @@ def qdump__CPlusPlus__Internal__PPToken(d, value):
     offset = int(value["offset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
-    d.putValue(encodeCharArray(data + offset, 100, length),
+    d.putValue(d.readRawMemory(data + offset, min(100, length)),
         Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
