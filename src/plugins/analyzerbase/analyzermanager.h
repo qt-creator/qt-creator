@@ -50,7 +50,6 @@ namespace Analyzer {
 
 class IAnalyzerTool;
 class AnalyzerRunControl;
-class AnalyzerManagerPrivate;
 class AnalyzerStartParameters;
 
 
@@ -91,10 +90,6 @@ public:
 
     static AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
-
-private:
-    friend class AnalyzerManagerPrivate;
-    AnalyzerManagerPrivate *const d;
 };
 
 } // namespace Analyzer
