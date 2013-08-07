@@ -179,23 +179,15 @@ void QmlProfilerClientManager::connectClientSignals()
         connect(d->qmlclientplugin.data(), SIGNAL(complete()),
                 this, SLOT(qmlComplete()));
         connect(d->qmlclientplugin.data(),
-                SIGNAL(range(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
+                SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
+                             qint64,qint64,qint64,qint64,qint64)),
                 d->modelManager,
-                SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+                SLOT(addQmlEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
+                             qint64,qint64,qint64,qint64,qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
                 d->modelManager->traceTime(), SLOT(setEndTime(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
                 d->modelManager->traceTime(), SLOT(setStartTime(qint64)));
-        connect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
-                d->modelManager, SLOT(addFrameEvent(qint64,int,int)));
-        connect(d->qmlclientplugin.data(),
-                SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
-                d->modelManager,
-                SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
-        connect(d->qmlclientplugin.data(),
-                SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
-                d->modelManager,
-                SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                 d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients
@@ -219,23 +211,17 @@ void QmlProfilerClientManager::disconnectClientSignals()
         disconnect(d->qmlclientplugin.data(), SIGNAL(complete()),
                    this, SLOT(qmlComplete()));
         disconnect(d->qmlclientplugin.data(),
-                   SIGNAL(range(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
+                   SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
+                                qint64,qint64,qint64,qint64,qint64)),
                    d->modelManager,
-                   SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+                   SLOT(addQmlEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
+                                    qint64,qint64,qint64,qint64,qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
                 d->modelManager->traceTime(), SLOT(setEndTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
                 d->modelManager->traceTime(), SLOT(setStartTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
                    d->modelManager, SLOT(addFrameEvent(qint64,int,int)));
-        disconnect(d->qmlclientplugin.data(),
-                SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
-                d->modelManager,
-                SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
-        disconnect(d->qmlclientplugin.data(),
-                   SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)),
-                   d->modelManager,
-                   SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64,qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                    d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients

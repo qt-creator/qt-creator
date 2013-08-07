@@ -225,14 +225,15 @@ void QmlProfilerModelManager::newTimeEstimation(qint64 estimation)
     d->estimatedTime = estimation;
 }
 
-void QmlProfilerModelManager::addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length, const QStringList &data, const QmlDebug::QmlEventLocation &location)
+void QmlProfilerModelManager::addQmlEvent(int type, int bindingType, qint64 startTime, qint64 length, const QStringList &data, const QmlDebug::QmlEventLocation &location,
+                                          qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5)
 {
     // If trace start time was not explicitly set, use the first event
     if (d->traceTime->startTime() == -1)
         d->traceTime->setStartTime(startTime);
 
     QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
-    d->model->addRangedEvent(type, bindingType, startTime, length, data, location);
+    d->model->addQmlEvent(type, bindingType, startTime, length, data, location, ndata1, ndata2, ndata3, ndata4, ndata5);
     emit countChanged();
 }
 
@@ -241,37 +242,6 @@ void QmlProfilerModelManager::addV8Event(int depth, const QString &function, con
 {
     d->v8Model->addV8Event(depth, function, filename, lineNumber,totalTime, selfTime);
 }
-
-void QmlProfilerModelManager::addFrameEvent(qint64 time, int framerate, int animationcount)
-{
-    if (d->traceTime->startTime() == -1)
-        d->traceTime->setStartTime(time);
-
-    QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
-    d->model->addFrameEvent(time, framerate, animationcount);
-    emit countChanged();
-}
-
-void QmlProfilerModelManager::addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5)
-{
-    if (d->traceTime->startTime() == -1)
-        d->traceTime->setStartTime(startTime);
-
-    QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
-    d->model->addSceneGraphEvent(eventType, SGEtype, startTime, timing1, timing2, timing3, timing4, timing5);
-    emit countChanged();
-}
-
-void QmlProfilerModelManager::addPixmapCacheEvent(qint64 time, int pixmapEventType, QString Url, int pixmapWidth, int pixmapHeight, int referenceCount)
-{
-    if (d->traceTime->startTime() == -1)
-        d->traceTime->setStartTime(time);
-
-    QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
-    d->model->addPixmapCacheEvent(time, pixmapEventType, Url, pixmapWidth, pixmapHeight, referenceCount);
-    emit countChanged();
-}
-
 
 void QmlProfilerModelManager::complete()
 {
@@ -339,15 +309,12 @@ void QmlProfilerModelManager::load()
 
     QmlProfilerFileReader reader;
     connect(&reader, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
-    connect(&reader, SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)), this,
-            SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+    connect(&reader, SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
+                                        qint64, qint64, qint64, qint64, qint64)),
+            this, SLOT(addQmlEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
+                             qint64, qint64, qint64, qint64, qint64)));
     connect(&reader, SIGNAL(traceStartTime(qint64)), traceTime(), SLOT(setStartTime(qint64)));
     connect(&reader, SIGNAL(traceEndTime(qint64)), traceTime(), SLOT(setEndTime(qint64)));
-    connect(&reader, SIGNAL(sceneGraphFrame(int,int,qint64,qint64,qint64,qint64,qint64,qint64)),
-            this, SLOT(addSceneGraphEvent(int,int,qint64,qint64,qint64,qint64,qint64,qint64)));
-    connect(&reader, SIGNAL(pixmapCacheEvent(qint64,int,QString,int,int,int)),
-            this, SLOT(addPixmapCacheEvent(qint64,int,QString,int,int,int)));
-    connect(&reader, SIGNAL(frame(qint64,int,int)), this, SLOT(addFrameEvent(qint64,int,int)));
     reader.setV8DataModel(d->v8Model);
     reader.load(&file);
 

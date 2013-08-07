@@ -155,8 +155,13 @@ void PaintEventsModelProxy::loadData()
         if (!eventAccepted(event))
             continue;
 
+        qint64 estimatedDuration = 0;
+        // initial estimation of the event duration: 1/framerate
+        if (event.numericData1 > 0)
+            estimatedDuration = 1e9/event.numericData1;
+
         // the profiler registers the animation events at the end of them
-        qint64 realStartTime = event.startTime - event.duration;
+        qint64 realStartTime = event.startTime - estimatedDuration;
 
         // the duration of the events is estimated from the framerate
         // we need to correct it before appending a new event
@@ -171,7 +176,7 @@ void PaintEventsModelProxy::loadData()
 
         QmlPaintEventData newEvent = {
             realStartTime,
-            event.duration,
+            estimatedDuration,
             (int)event.numericData1,
             (int)event.numericData2
         };

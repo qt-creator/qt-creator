@@ -372,18 +372,11 @@ void QmlProfilerFileReader::processQmlEvents()
 
         QmlEvent &event = m_qmlEvents[eventIndex];
 
-        if (event.type == Painting && event.bindingType == QmlDebug::AnimationFrame) {
-            emit frame(range.startTime, range.numericData1, range.numericData2);
-        } else if (event.type == PixmapCacheEvent) {
-            emit pixmapCacheEvent(range.startTime, event.bindingType, event.filename, range.numericData1, range.numericData2, range.numericData3);
-        } else if (event.type == SceneGraphFrameEvent) {
-            emit sceneGraphFrame(SceneGraphFrameEvent, event.bindingType, range.startTime, range.numericData1, range.numericData2, range.numericData3, range.numericData4, range.numericData5);
-        } else {
-            emit rangedEvent(event.type, event.bindingType, range.startTime, range.duration,
-                         QStringList(event.displayName), QmlEventLocation(event.filename,
-                                                                          event.line,
-                                                                          event.column));
-        }
+        emit rangedEvent(event.type, event.bindingType, range.startTime, range.duration,
+                         QStringList(event.displayName),
+                         QmlEventLocation(event.filename, event.line, event.column),
+                         range.numericData1,range.numericData2, range.numericData3, range.numericData4, range.numericData5);
+
     }
 }
 
@@ -522,11 +515,6 @@ void QmlProfilerFileWriter::save(QIODevice *device)
             if (range.numericData5 > 0)
                 stream.writeAttribute(_("timing5"), QString::number(range.numericData5));
         }
-//        if (event.type == QmlDebug::Painting && range.animationCount >= 0) {
-//            // animation frame
-//            stream.writeAttribute(_("framerate"), QString::number(rangedEvent.frameRate));
-//            stream.writeAttribute(_("animationcount"), QString::number(rangedEvent.animationCount));
-//        }
         stream.writeEndElement();
     }
     stream.writeEndElement(); // profilerDataModel

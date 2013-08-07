@@ -68,10 +68,8 @@ public:
     bool isEmpty() const;
     const QVector<QmlEventData> &getEvents() const;
     int count() const;
-    void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length, const QStringList &data, const QmlDebug::QmlEventLocation &location);
-    void addFrameEvent(qint64 time, int framerate, int animationcount);
-    void addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime, qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
-    void addPixmapCacheEvent(qint64 time, int cacheEventType, const QString& url, int width, int height, int refCount);
+    void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 duration, const QStringList &data, const QmlDebug::QmlEventLocation &location,
+                     qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
     qint64 lastTimeMark() const;
     virtual void complete();
 

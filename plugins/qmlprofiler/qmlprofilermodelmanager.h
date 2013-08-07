@@ -126,16 +126,11 @@ public slots:
     void clear();
 
     void prepareForWriting();
-    void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length,
-                        const QStringList &data, const QmlDebug::QmlEventLocation &location);
-    void addSceneGraphEvent(int eventType, int SGEtype, qint64 startTime,
-                            qint64 timing1, qint64 timing2, qint64 timing3, qint64 timing4, qint64 timing5);
-    void addPixmapCacheEvent(qint64 time, int pixmapEventType, QString Url,
-                             int pixmapWidth, int pixmapHeight, int referenceCount);
+    void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 length,
+                        const QStringList &data, const QmlDebug::QmlEventLocation &location,
+                     qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
     void addV8Event(int depth, const QString &function,const QString &filename, int lineNumber,
                     double totalTime, double selfTime);
-
-    void addFrameEvent(qint64 time, int framerate, int animationcount);
 
     void complete();
 
