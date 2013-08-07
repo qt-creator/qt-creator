@@ -44,9 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer::singleShot(200, this, SLOT(test()));
 }
 
-void MainWindow::append(const QByteArray &a)
+void MainWindow::append(const QString &s)
 {
-    m_logWindow->appendPlainText(QString::fromLocal8Bit(a));
+    m_logWindow->appendPlainText(s);
 }
 
 void MainWindow::test()
@@ -58,8 +58,8 @@ void MainWindow::test()
     Utils::SynchronousProcess process;
     process.setTimeout(2000);
     qDebug() << "Async: " << cmd << args;
-    connect(&process, SIGNAL(stdOut(QByteArray,bool)), this, SLOT(append(QByteArray)));
-    connect(&process, SIGNAL(stdErr(QByteArray,bool)), this, SLOT(append(QByteArray)));
+    connect(&process, SIGNAL(stdOut(QString,bool)), this, SLOT(append(QString)));
+    connect(&process, SIGNAL(stdErr(QString,bool)), this, SLOT(append(QString)));
     const Utils::SynchronousProcessResponse resp = process.run(cmd, args);
     qDebug() << resp;
 }

@@ -46,7 +46,7 @@ signals:
 
 public slots:
     void test();
-    void append(const QByteArray &a);
+    void append(const QString &s);
 
 private:
     QPlainTextEdit *m_logWindow;

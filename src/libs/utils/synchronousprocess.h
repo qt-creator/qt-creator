@@ -34,11 +34,9 @@
 
 #include <QProcess>
 #include <QSharedPointer>
+#include <QTextCodec>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-class QDebug;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QDebug)
 
 namespace Utils {
 
@@ -141,8 +139,8 @@ public:
     static QString normalizeNewlines(const QString &text);
 
 signals:
-    void stdOut(const QByteArray &data, bool firstTime);
-    void stdErr(const QByteArray &data, bool firstTime);
+    void stdOut(const QString &text, bool firstTime);
+    void stdErr(const QString &text, bool firstTime);
 
     void stdOutBuffered(const QString &data, bool firstTime);
     void stdErrBuffered(const QString &data, bool firstTime);
@@ -157,7 +155,7 @@ private slots:
 private:
     void processStdOut(bool emitSignals);
     void processStdErr(bool emitSignals);
-    QString convertOutput(const QByteArray &) const;
+    QString convertOutput(const QByteArray &, QTextCodec::ConverterState *state) const;
 
     SynchronousProcessPrivate *d;
 };
