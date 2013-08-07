@@ -576,7 +576,7 @@ void DesignDocument::setEditor(Core::IEditor *editor)
 {
     m_textEditor = editor;
     connect(editor->document(),
-            SIGNAL(fileNameChanged(QString,QString)),
+            SIGNAL(filePathChanged(QString,QString)),
             SLOT(updateFileName(QString,QString)));
 
     updateActiveQtVersion();
