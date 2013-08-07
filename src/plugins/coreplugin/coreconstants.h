@@ -114,6 +114,7 @@ const char CLOSE[]                 = "QtCreator.Close";
 const char CLOSE_ALTERNATIVE[]     = "QtCreator.Close_Alternative"; // temporary, see QTCREATORBUG-72
 const char CLOSEALL[]              = "QtCreator.CloseAll";
 const char CLOSEOTHERS[]           = "QtCreator.CloseOthers";
+const char CLOSEALLEXCEPTVISIBLE[] = "QtCreator.CloseAllExceptVisible";
 const char GOTONEXT[]              = "QtCreator.GotoNext";
 const char GOTOPREV[]              = "QtCreator.GotoPrevious";
 const char GOTONEXTINHISTORY[]     = "QtCreator.GotoNextInHistory";

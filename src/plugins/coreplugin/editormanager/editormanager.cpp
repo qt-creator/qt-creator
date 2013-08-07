@@ -176,6 +176,7 @@ public:
     QAction *m_closeCurrentEditorAction;
     QAction *m_closeAllEditorsAction;
     QAction *m_closeOtherEditorsAction;
+    QAction *m_closeAllEditorsExceptVisibleAction;
     QAction *m_gotoNextDocHistoryAction;
     QAction *m_gotoPreviousDocHistoryAction;
     QAction *m_goBackAction;
@@ -194,6 +195,7 @@ public:
     QAction *m_closeCurrentEditorContextAction;
     QAction *m_closeAllEditorsContextAction;
     QAction *m_closeOtherEditorsContextAction;
+    QAction *m_closeAllEditorsExceptVisibleContextAction;
     QAction *m_openGraphicalShellAction;
     QAction *m_openTerminalAction;
     DocumentModel::Entry *m_contextMenuEntry;
@@ -224,6 +226,7 @@ EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
     m_closeCurrentEditorAction(new QAction(EditorManager::tr("Close"), parent)),
     m_closeAllEditorsAction(new QAction(EditorManager::tr("Close All"), parent)),
     m_closeOtherEditorsAction(new QAction(EditorManager::tr("Close Others"), parent)),
+    m_closeAllEditorsExceptVisibleAction(new QAction(EditorManager::tr("Close All Except Visible"), parent)),
     m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Open Document in History"), parent)),
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), parent)),
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
@@ -234,6 +237,7 @@ EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
     m_closeCurrentEditorContextAction(new QAction(EditorManager::tr("Close"), parent)),
     m_closeAllEditorsContextAction(new QAction(EditorManager::tr("Close All"), parent)),
     m_closeOtherEditorsContextAction(new QAction(EditorManager::tr("Close Others"), parent)),
+    m_closeAllEditorsExceptVisibleContextAction(new QAction(EditorManager::tr("Close All Except Visible"), parent)),
     m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), parent)),
     m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), parent)),
     m_windowPopup(0),
@@ -323,6 +327,11 @@ EditorManager::EditorManager(QWidget *parent) :
     cmd->setAttribute(Core::Command::CA_UpdateText);
     connect(d->m_closeOtherEditorsAction, SIGNAL(triggered()), this, SLOT(closeOtherEditors()));
 
+    // Close All Others Except Visible Action
+    cmd = ActionManager::registerAction(d->m_closeAllEditorsExceptVisibleAction, Constants::CLOSEALLEXCEPTVISIBLE, editManagerContext, true);
+    mfile->addAction(cmd, Constants::G_FILE_CLOSE);
+    connect(d->m_closeAllEditorsExceptVisibleAction, SIGNAL(triggered()), this, SLOT(closeAllEditorsExceptVisible()));
+
     //Save XXX Context Actions
     connect(d->m_saveCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(saveDocumentFromContextMenu()));
     connect(d->m_saveAsCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(saveDocumentAsFromContextMenu()));
@@ -332,6 +341,7 @@ EditorManager::EditorManager(QWidget *parent) :
     connect(d->m_closeAllEditorsContextAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
     connect(d->m_closeCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(closeEditorFromContextMenu()));
     connect(d->m_closeOtherEditorsContextAction, SIGNAL(triggered()), this, SLOT(closeOtherEditorsFromContextMenu()));
+    connect(d->m_closeAllEditorsExceptVisibleContextAction, SIGNAL(triggered()), this, SLOT(closeAllEditorsExceptVisible()));
 
     connect(d->m_openGraphicalShellAction, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
     connect(d->m_openTerminalAction, SIGNAL(triggered()), this, SLOT(openTerminal()));
@@ -716,6 +726,15 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
     return false;
 }
 
+void EditorManager::closeAllEditorsExceptVisible()
+{
+    d->m_documentModel->removeAllRestoredDocuments();
+    QList<IDocument *> documentsToClose = d->m_documentModel->openedDocuments();
+    foreach (IEditor *editor, visibleEditors())
+        documentsToClose.removeAll(editor->document());
+    closeDocuments(documentsToClose, true);
+}
+
 void EditorManager::closeOtherEditors(IDocument *document)
 {
     d->m_documentModel->removeAllRestoredDocuments();
@@ -781,9 +800,11 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     d->m_closeCurrentEditorContextAction->setEnabled(entry != 0);
     d->m_closeOtherEditorsContextAction->setEnabled(entry != 0);
     d->m_closeAllEditorsContextAction->setEnabled(!d->m_documentModel->documents().isEmpty());
+    d->m_closeAllEditorsExceptVisibleContextAction->setEnabled(visibleDocumentsCount() < d->m_documentModel->documents().count());
     contextMenu->addAction(d->m_closeCurrentEditorContextAction);
     contextMenu->addAction(d->m_closeAllEditorsContextAction);
     contextMenu->addAction(d->m_closeOtherEditorsContextAction);
+    contextMenu->addAction(d->m_closeAllEditorsExceptVisibleContextAction);
 }
 
 void EditorManager::addNativeDirActions(QMenu *contextMenu, DocumentModel::Entry *entry)
@@ -1987,6 +2008,8 @@ void EditorManager::updateActions()
     d->m_closeOtherEditorsAction->setEnabled(openedCount > 1);
     d->m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
 
+    d->m_closeAllEditorsExceptVisibleAction->setEnabled(visibleDocumentsCount() < d->m_documentModel->documents().count());
+
     d->m_gotoNextDocHistoryAction->setEnabled(d->m_documentModel->rowCount() != 0);
     d->m_gotoPreviousDocHistoryAction->setEnabled(d->m_documentModel->rowCount() != 0);
     EditorView *view  = currentEditorView();
@@ -2044,6 +2067,21 @@ QList<IEditor*> EditorManager::visibleEditors()
         }
     }
     return editors;
+}
+
+int EditorManager::visibleDocumentsCount()
+{
+    const QList<IEditor *> editors = visibleEditors();
+    const int editorsCount = editors.count();
+    if (editorsCount < 2)
+        return editorsCount;
+
+    QSet<const IDocument *> visibleDocuments;
+    foreach (IEditor *editor, editors) {
+        if (const IDocument *document = editor->document())
+            visibleDocuments << document;
+    }
+    return visibleDocuments.count();
 }
 
 DocumentModel *EditorManager::documentModel()
