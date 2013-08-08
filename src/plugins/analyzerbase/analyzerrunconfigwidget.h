@@ -46,7 +46,6 @@ class DetailsWidget;
 
 namespace Analyzer {
 
-class AnalyzerSettings;
 class AbstractAnalyzerSubConfig;
 
 namespace Internal {

@@ -81,6 +81,17 @@ public:
     virtual AbstractAnalyzerSubConfig *clone() = 0;
 };
 
+class ANALYZER_EXPORT AnalyzerSubConfigFactory : public QObject
+{
+    Q_OBJECT
+
+public:
+    AnalyzerSubConfigFactory() {}
+
+    /// Factory method to create the project tool setting
+    virtual AbstractAnalyzerSubConfig *createProjectSettings() = 0;
+};
+
 /**
  * Shared interface for the global and per-project settings.
  *
@@ -167,6 +178,8 @@ public:
     AnalyzerRunConfigurationAspect();
     AnalyzerRunConfigurationAspect(const AnalyzerRunConfigurationAspect *other);
     ~AnalyzerRunConfigurationAspect();
+
+    static void registerConfigFactory(AnalyzerSubConfigFactory *factory);
 
     QString displayName() const;
     virtual QVariantMap toMap() const;

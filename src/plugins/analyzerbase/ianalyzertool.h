@@ -113,9 +113,6 @@ public:
 
     /// Called when tools gets deselected.
     virtual void toolDeselected() const {}
-
-    /// Factory method to create the project tool setting
-    virtual AbstractAnalyzerSubConfig *createProjectSettings();
 };
 
 } // namespace Analyzer

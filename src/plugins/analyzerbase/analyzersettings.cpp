@@ -151,16 +151,18 @@ void AnalyzerGlobalSettings::registerConfig(AbstractAnalyzerSubConfig *config)
 }
 
 
+static QList<AnalyzerSubConfigFactory *> theAnalyzerSubConfigFactories()
+{
+    static QList<AnalyzerSubConfigFactory *> theFactories;
+    return theFactories;
+}
+
 AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect()
     : AnalyzerSettings((QObject *)0), m_useGlobalSettings(true)
 {
-    QList<IAnalyzerTool*> tools = AnalyzerManager::tools();
     // add sub configs
-    foreach (IAnalyzerTool *tool, tools) {
-        AbstractAnalyzerSubConfig *config = tool->createProjectSettings();
-        if (config)
-            m_customConfigurations.append(config);
-    }
+    foreach (AnalyzerSubConfigFactory *factory, theAnalyzerSubConfigFactories())
+        m_customConfigurations.append(factory->createProjectSettings());
 
     m_subConfigs = AnalyzerGlobalSettings::instance()->subConfigs();
     resetCustomToGlobalSettings();
@@ -182,6 +184,11 @@ AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(const AnalyzerRun
 AnalyzerRunConfigurationAspect::~AnalyzerRunConfigurationAspect()
 {
     qDeleteAll(m_customConfigurations);
+}
+
+void AnalyzerRunConfigurationAspect::registerConfigFactory(AnalyzerSubConfigFactory *factory)
+{
+    theAnalyzerSubConfigFactories().append(factory);
 }
 
 QString AnalyzerRunConfigurationAspect::displayName() const

@@ -60,11 +60,6 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-AbstractAnalyzerSubConfig *IAnalyzerTool::createProjectSettings()
-{
-    return 0;
-}
-
 static bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
                        BuildConfiguration::BuildType buildType)
 {

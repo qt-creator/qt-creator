@@ -297,11 +297,6 @@ QString MemcheckTool::description() const
               "memory leaks");
 }
 
-AbstractAnalyzerSubConfig *MemcheckTool::createProjectSettings()
-{
-    return new ValgrindProjectSettings();
-}
-
 IAnalyzerTool::ToolMode MemcheckTool::toolMode() const
 {
     return DebugMode;

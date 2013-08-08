@@ -48,9 +48,18 @@ using namespace Analyzer;
 namespace Valgrind {
 namespace Internal {
 
+class ProjectSettingsFactory : public AnalyzerSubConfigFactory
+{
+    AbstractAnalyzerSubConfig *createProjectSettings()
+    {
+        return new ValgrindProjectSettings();
+    }
+};
+
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
     AnalyzerGlobalSettings::registerConfig(new ValgrindGlobalSettings());
+    AnalyzerRunConfigurationAspect::registerConfigFactory(new ProjectSettingsFactory());
 
     IAnalyzerTool *memcheckTool = new MemcheckTool(this);
     IAnalyzerTool *callgrindTool = new CallgrindTool(this);

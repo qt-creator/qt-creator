@@ -684,11 +684,6 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     return dockWidget;
 }
 
-QList<IAnalyzerTool *> AnalyzerManager::tools()
-{
-    return d->m_tools;
-}
-
 void AnalyzerManager::selectTool(IAnalyzerTool *tool, StartMode mode)
 {
     d->selectTool(d->actionFromToolAndMode(tool, mode));

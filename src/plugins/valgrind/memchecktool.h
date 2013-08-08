@@ -89,9 +89,6 @@ public:
     QString displayName() const;
     QString description() const;
 
-    // Create the valgrind settings (for all valgrind tools)
-    Analyzer::AbstractAnalyzerSubConfig *createProjectSettings();
-
 private slots:
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
