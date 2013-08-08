@@ -58,7 +58,7 @@ class QmlProfilerEventsWidget : public QWidget
     Q_OBJECT
 public:
     explicit QmlProfilerEventsWidget(QWidget *parent,
-                                     Analyzer::IAnalyzerTool *profilerTool,
+                                     QmlProfilerTool *profilerTool,
                                      QmlProfilerViewManager *container,
                                      QmlProfilerDataModel *profilerDataModel );
     ~QmlProfilerEventsWidget();

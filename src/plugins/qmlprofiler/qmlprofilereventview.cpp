@@ -100,7 +100,7 @@ public:
 
     QmlProfilerEventsWidget *q;
 
-    Analyzer::IAnalyzerTool *m_profilerTool;
+    QmlProfilerTool *m_profilerTool;
     QmlProfilerViewManager *m_viewContainer;
 
     QmlProfilerEventsMainView *m_eventTree;
@@ -112,7 +112,7 @@ public:
 };
 
 QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
-                                                 Analyzer::IAnalyzerTool *profilerTool,
+                                                 QmlProfilerTool *profilerTool,
                                                  QmlProfilerViewManager *container,
                                                  QmlProfilerDataModel *profilerDataModel )
     : QWidget(parent), d(new QmlProfilerEventsWidgetPrivate(this))
@@ -215,11 +215,10 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *getLocalStatsAction = 0;
     QAction *getGlobalStatsAction = 0;
 
-    QmlProfilerTool *profilerTool = qobject_cast<QmlProfilerTool *>(d->m_profilerTool);
     QPoint position = ev->globalPos();
 
-    if (profilerTool) {
-        QList <QAction *> commonActions = profilerTool->profilerContextMenuActions();
+    if (d->m_profilerTool) {
+        QList <QAction *> commonActions = d->m_profilerTool->profilerContextMenuActions();
         foreach (QAction *act, commonActions) {
             menu.addAction(act);
         }
