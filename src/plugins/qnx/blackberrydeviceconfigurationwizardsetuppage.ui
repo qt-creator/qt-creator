@@ -6,125 +6,118 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>546</width>
-    <height>170</height>
+    <width>612</width>
+    <height>303</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>WizardPage</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>The name to identify this configuration:</string>
-     </property>
-    </widget>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QListWidget" name="deviceListWidget"/>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="deviceName"/>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Device type:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QRadioButton" name="physicalDevice">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Physical device</string>
+        <string>Configuration name:</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QRadioButton" name="simulator">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="deviceName"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Simulator</string>
+        <string>Device type:</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>The device's host name or IP address:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QRadioButton" name="physicalDevice">
+         <property name="text">
+          <string>Physical device</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="simulator">
+         <property name="text">
+          <string>Simulator</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Device host name or IP address:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
       <widget class="QLineEdit" name="deviceHostIp"/>
      </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Device password:</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
-    </layout>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Device password:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+     <item row="3" column="1">
       <widget class="QLineEdit" name="password">
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Debug token:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="Utils::PathChooser" name="debugToken" native="true"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="requestButton">
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Request</string>
+        <string>Debug token:</string>
        </property>
       </widget>
+     </item>
+     <item row="4" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="Utils::PathChooser" name="debugToken" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="requestButton">
+         <property name="text">
+          <string>Request</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

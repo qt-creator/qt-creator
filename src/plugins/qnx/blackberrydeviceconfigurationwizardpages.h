@@ -32,9 +32,12 @@
 #ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARDPAGES_H
 #define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARDPAGES_H
 
+#include "blackberrydevicelistdetector.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QWizardPage>
+#include <QListWidgetItem>
 
 namespace QSsh {
 class SshKeyGenerator;
@@ -52,6 +55,10 @@ class BlackBerryDeviceConfigurationWizardSetupPage : public QWizardPage
 {
     Q_OBJECT
 public:
+    enum ItemKind {
+        SpecifyManually, Autodetected, PleaseWait, Note
+    };
+
     explicit BlackBerryDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
     ~BlackBerryDeviceConfigurationWizardSetupPage();
 
@@ -63,13 +70,19 @@ public:
     QString password() const;
     QString debugToken() const;
     ProjectExplorer::IDevice::MachineType machineType() const;
-
 private slots:
-    void handleMachineTypeChanged();
     void requestDebugToken();
+    void onDeviceSelectionChanged();
+    void onDeviceDetected(const QString &deviceName, const QString &hostName, const BlackBerryDeviceListDetector::DeviceType deviceType);
+    void onDeviceListDetectorFinished();
 
 private:
+    void refreshDeviceList();
+    QListWidgetItem *createDeviceListItem(const QString &displayName, ItemKind itemKind) const;
+    QListWidgetItem *findDeviceListItem(ItemKind itemKind) const;
+
     Ui::BlackBerryDeviceConfigurationWizardSetupPage *m_ui;
+    BlackBerryDeviceListDetector *m_deviceListDetector;
 };
 
 class BlackBerryDeviceConfigurationWizardSshKeyPage : public QWizardPage
@@ -108,5 +121,7 @@ public:
 
 } // namespace Internal
 } // namespace Qnx
+
+Q_DECLARE_METATYPE(Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage::ItemKind)
 
 #endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARDPAGES_H

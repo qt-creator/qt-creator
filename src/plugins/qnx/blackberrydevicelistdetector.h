@@ -3,7 +3,6 @@
 ** Copyright (C) 2011 - 2013 Research In Motion
 **
 ** Contact: Research In Motion (blackberry-qt@qnx.com)
-** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -29,67 +28,51 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYNDKPROCESS_H
-#define QNX_INTERNAL_BLACKBERRYNDKPROCESS_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEVICELISTDETECTOR_H
+#define QNX_INTERNAL_BLACKBERRYDEVICELISTDETECTOR_H
+
+#include "blackberryndkprocess.h"
 
 #include <QObject>
-#include <QProcess>
-#include <QMap>
+#include <QString>
 
 namespace Qnx {
+
 namespace Internal {
 
-class BlackBerryNdkProcess : public QObject
+class BlackBerryDeviceListDetector : public QObject
 {
     Q_OBJECT
-
 public:
-    enum ProcessStatus
-    {
-        Success,
-        FailedToStartInferiorProcess,
-        InferiorProcessTimedOut,
-        InferiorProcessCrashed,
-        InferiorProcessWriteError,
-        InferiorProcessReadError,
-        UnknownError,
-        UserStatus
+    enum DeviceType {
+        Device,
+        Simulator
     };
 
-    /**
-     * @brief Resolves full path to an NDK cmd-line tool.
-     * @return a full-path to the NDK cmd-line tool;
-     *         or empty QString when no default QNX configuration is found.
-     */
-    static const QString resolveNdkToolPath(const QString &tool);
+    explicit BlackBerryDeviceListDetector(QObject *parent = 0);
+
+    void detectDeviceList();
 
 signals:
-    void finished(int status);
-
-protected:
-    explicit BlackBerryNdkProcess(const QString &command, QObject *parent = 0);
-
-    void start(const QStringList &arguments);
-    void addErrorStringMapping(const QString &message, int errorCode);
-
-    QString command() const;
+    void deviceDetected(
+            const QString &deviceName, const QString &deviceHostName,
+            const BlackBerryDeviceListDetector::DeviceType deviceType);
+    void finished();
 
 private slots:
+    void processReadyRead();
     void processFinished();
-    void processError(QProcess::ProcessError error);
 
 private:
-    int errorLineToReturnStatus(const QString &line) const;
-    virtual void processData(const QString &line);
+    const QString readProcessLine();
+    void processData(const QString &line);
 
     QProcess *m_process;
-
-    QString m_command;
-
-    QMap<QString, int> m_errorStringMap;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYNDKPROCESS_H
+Q_DECLARE_METATYPE(Qnx::Internal::BlackBerryDeviceListDetector::DeviceType)
+
+#endif // QNX_INTERNAL_BLACKBERRYDEVICELISTDETECTOR_H

@@ -47,6 +47,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHostInfo>
+#include <QAbstractItemModel>
 
 using namespace ProjectExplorer;
 using namespace Qnx;
@@ -55,15 +56,17 @@ using namespace Qnx::Internal;
 namespace {
 const char DEVICENAME_FIELD_ID[] = "DeviceName";
 
-QString defaultDeviceHostIp(IDevice::MachineType type)
+enum DeviceListUserRole
 {
-    return type == IDevice::Hardware ? QLatin1String("169.254.0.1") : QString();
-}
+    ItemKindRole = Qt::UserRole, DeviceNameRole, DeviceIpRole, DeviceTypeRole
+};
 }
 
 BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizardSetupPage(QWidget *parent)
     : QWizardPage(parent)
     , m_ui(new Ui::BlackBerryDeviceConfigurationWizardSetupPage)
+    , m_deviceListDetector(new BlackBerryDeviceListDetector(this))
+
 {
     m_ui->setupUi(this);
     setTitle(tr("Connection Details"));
@@ -76,9 +79,12 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
         debugTokenBrowsePath = QDir::homePath();
     m_ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);
 
+    connect(m_ui->deviceListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(onDeviceSelectionChanged()));
+    connect(m_deviceListDetector, SIGNAL(deviceDetected(QString,QString,BlackBerryDeviceListDetector::DeviceType)),
+            this, SLOT(onDeviceDetected(QString,QString,BlackBerryDeviceListDetector::DeviceType)));
+    connect(m_deviceListDetector, SIGNAL(finished()), this, SLOT(onDeviceListDetectorFinished()));
     connect(m_ui->deviceName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->deviceHostIp, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
-    connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SLOT(handleMachineTypeChanged()));
     connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SIGNAL(completeChanged()));
     connect(m_ui->debugToken, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
@@ -94,10 +100,128 @@ BlackBerryDeviceConfigurationWizardSetupPage::~BlackBerryDeviceConfigurationWiza
 
 void BlackBerryDeviceConfigurationWizardSetupPage::initializePage()
 {
-    m_ui->deviceName->setText(tr("BlackBerry Device"));
-    m_ui->password->setText(QString());
-    m_ui->physicalDevice->setChecked(true);
-    m_ui->deviceHostIp->setText(defaultDeviceHostIp(machineType()));
+    m_ui->password->clear();
+    refreshDeviceList();
+}
+
+void BlackBerryDeviceConfigurationWizardSetupPage::refreshDeviceList()
+{
+    m_ui->deviceListWidget->clear();
+
+    QListWidgetItem *manual = createDeviceListItem(tr("Specify device manually"), SpecifyManually);
+    m_ui->deviceListWidget->addItem(manual);
+    manual->setSelected(true);
+
+    QListWidgetItem *pleaseWait =
+            createDeviceListItem(tr("Auto-detecting devices - please wait..."), PleaseWait);
+    m_ui->deviceListWidget->addItem(pleaseWait);
+
+    m_deviceListDetector->detectDeviceList();
+}
+
+void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceListDetectorFinished()
+{
+    QListWidgetItem *pleaseWait = findDeviceListItem(PleaseWait);
+    if (pleaseWait) {
+        m_ui->deviceListWidget->removeItemWidget(pleaseWait);
+        delete pleaseWait;
+    }
+
+    if (!findDeviceListItem(Autodetected)) {
+        QListWidgetItem *note = createDeviceListItem(tr("No device has been auto-detected."), Note);
+        note->setToolTip(tr("Device auto-detection is available in BB NDK 10.2. "
+                            "Make sure that your device is in Development Mode."));
+        m_ui->deviceListWidget->addItem(note);
+    }
+}
+
+void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceDetected(
+        const QString &deviceName, const QString &hostName,
+        const BlackBerryDeviceListDetector::DeviceType deviceType)
+{
+    QString displayName(deviceName);
+    if (displayName != hostName)
+        displayName.append(QLatin1String(" (")).append(hostName).append(QLatin1String(")"));
+
+    QListWidgetItem *device = createDeviceListItem(displayName, Autodetected);
+    device->setData(DeviceNameRole, displayName);
+    device->setData(DeviceIpRole, hostName);
+    device->setData(DeviceTypeRole, QVariant::fromValue(deviceType));
+    QListWidgetItem *pleaseWait = findDeviceListItem(PleaseWait);
+    int row = pleaseWait ? m_ui->deviceListWidget->row(pleaseWait) : m_ui->deviceListWidget->count();
+    m_ui->deviceListWidget->insertItem(row, device);
+}
+
+void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceSelectionChanged()
+{
+    QList<QListWidgetItem *> selectedItems = m_ui->deviceListWidget->selectedItems();
+    const QListWidgetItem *selected = selectedItems.count() == 1 ? selectedItems[0] : 0;
+    const ItemKind itemKind = selected ? selected->data(ItemKindRole).value<ItemKind>() : Note;
+    const BlackBerryDeviceListDetector::DeviceType deviceType = selected && itemKind == Autodetected
+            ? selected->data(DeviceTypeRole).value<BlackBerryDeviceListDetector::DeviceType>()
+            : BlackBerryDeviceListDetector::Device;
+    switch (itemKind) {
+    case SpecifyManually:
+        m_ui->deviceName->setEnabled(true);
+        m_ui->deviceName->setText(tr("BlackBerry Device"));
+        m_ui->deviceHostIp->setEnabled(true);
+        m_ui->deviceHostIp->setText(QLatin1String("169.254.0.1"));
+        m_ui->physicalDevice->setEnabled(true);
+        m_ui->physicalDevice->setChecked(true);
+        m_ui->simulator->setEnabled(true);
+        m_ui->simulator->setChecked(false);
+        m_ui->deviceHostIp->selectAll();
+        m_ui->deviceHostIp->setFocus();
+        break;
+    case Autodetected:
+        m_ui->deviceName->setEnabled(true);
+        m_ui->deviceName->setText(selected->data(DeviceNameRole).toString());
+        m_ui->deviceHostIp->setEnabled(false);
+        m_ui->deviceHostIp->setText(selected->data(DeviceIpRole).toString());
+        m_ui->physicalDevice->setEnabled(false);
+        m_ui->physicalDevice->setChecked(deviceType == BlackBerryDeviceListDetector::Device);
+        m_ui->simulator->setEnabled(false);
+        m_ui->simulator->setChecked(deviceType == BlackBerryDeviceListDetector::Simulator);
+        m_ui->password->setFocus();
+        break;
+    case PleaseWait:
+    case Note:
+        m_ui->deviceName->setEnabled(false);
+        m_ui->deviceName->clear();
+        m_ui->deviceHostIp->setEnabled(false);
+        m_ui->deviceHostIp->clear();
+        m_ui->physicalDevice->setEnabled(false);
+        m_ui->physicalDevice->setChecked(false);
+        m_ui->simulator->setEnabled(false);
+        m_ui->simulator->setChecked(false);
+        break;
+    }
+}
+
+QListWidgetItem *BlackBerryDeviceConfigurationWizardSetupPage::createDeviceListItem(
+        const QString &displayName, ItemKind itemKind) const
+{
+    QListWidgetItem *item = new QListWidgetItem(displayName);
+    if (itemKind == PleaseWait || itemKind == Note) {
+        item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+        QFont font = item->font();
+        font.setItalic(true);
+        item->setFont(font);
+    }
+    item->setData(ItemKindRole, QVariant::fromValue(itemKind));
+    return item;
+}
+
+QListWidgetItem *BlackBerryDeviceConfigurationWizardSetupPage::findDeviceListItem(ItemKind itemKind) const
+{
+    int count = m_ui->deviceListWidget->count();
+    for (int i = 0; i < count; ++i) {
+        QListWidgetItem *item = m_ui->deviceListWidget->item(i);
+        if (item->data(ItemKindRole).value<ItemKind>() == itemKind) {
+            return item;
+        }
+    }
+    return 0;
 }
 
 bool BlackBerryDeviceConfigurationWizardSetupPage::isComplete() const
@@ -133,12 +257,6 @@ QString BlackBerryDeviceConfigurationWizardSetupPage::debugToken() const
 IDevice::MachineType BlackBerryDeviceConfigurationWizardSetupPage::machineType() const
 {
     return m_ui->physicalDevice->isChecked() ? IDevice::Hardware : IDevice::Emulator;
-}
-
-void BlackBerryDeviceConfigurationWizardSetupPage::handleMachineTypeChanged()
-{
-    if (m_ui->deviceHostIp->text().isEmpty())
-        m_ui->deviceHostIp->setText(defaultDeviceHostIp(machineType()));
 }
 
 void BlackBerryDeviceConfigurationWizardSetupPage::requestDebugToken()

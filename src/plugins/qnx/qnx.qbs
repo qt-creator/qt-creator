@@ -113,6 +113,8 @@ QtcPlugin {
         "blackberrydeviceconnection.h",
         "blackberrydeviceconnectionmanager.cpp",
         "blackberrydeviceconnectionmanager.h",
+        "blackberrydevicelistdetector.cpp",
+        "blackberrydevicelistdetector.h",
         "blackberrydeviceprocesssupport.h",
         "blackberrydeviceprocesssupport.cpp",
         "blackberryqtversion.cpp",
