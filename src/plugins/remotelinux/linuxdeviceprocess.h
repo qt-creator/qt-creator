@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
-**
-** Contact: Research In Motion (blackberry-qt@qnx.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -29,45 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXRUNCONFIGURATION_H
-#define QNX_INTERNAL_QNXRUNCONFIGURATION_H
+#ifndef QTC_LINUXDEVICEPROCESS_H
+#define QTC_LINUXDEVICEPROCESS_H
 
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include "remotelinux_export.h"
 
-namespace Utils { class Environment; }
+#include <projectexplorer/devicesupport/sshdeviceprocess.h>
 
-namespace Qnx {
-namespace Internal {
+#include <QStringList>
 
-class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
+namespace RemoteLinux {
+
+class REMOTELINUX_EXPORT LinuxDeviceProcess : public ProjectExplorer::SshDeviceProcess
 {
     Q_OBJECT
 public:
-    QnxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
-            const QString &projectFilePath);
+    explicit LinuxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
+                                QObject *parent = 0);
 
-    Utils::Environment environment() const;
+    // Files to source before executing the command (if they exist). Overrides the default.
+    void setRcFilesToSource(const QStringList &filePaths);
 
-    QWidget *createConfigurationWidget();
-
-    QVariantMap toMap() const;
-
-protected:
-    friend class QnxRunConfigurationFactory;
-
-    QnxRunConfiguration(ProjectExplorer::Target *parent,
-                        QnxRunConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
-
-private slots:
-    void setQtLibPath(const QString &path);
+    void setWorkingDirectory(const QString &directory);
 
 private:
-    QString m_qtLibPath;
+    QString fullCommandLine() const;
+
+    QStringList rcFilesToSource() const;
+
+    QStringList m_rcFilesToSource;
+    QString m_workingDir;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // namespace RemoteLinux
 
-#endif // QNX_INTERNAL_QNXRUNCONFIGURATION_H
+#endif // Include guard.

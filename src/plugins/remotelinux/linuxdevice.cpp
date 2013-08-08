@@ -30,6 +30,7 @@
 #include "linuxdevice.h"
 
 #include "genericlinuxdeviceconfigurationwidget.h"
+#include "linuxdeviceprocess.h"
 #include "linuxdevicetester.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
@@ -122,14 +123,26 @@ QString LinuxDeviceProcessSupport::killProcessByPidCommandLine(int pid) const
     return QLatin1String("kill -9 ") + QString::number(pid);
 }
 
-QString LinuxDeviceProcessSupport::killProcessByNameCommandLine(const QString &filePath) const
+
+static QString signalProcessByNameCommandLine(const QString &filePath, int signal)
 {
     return QString::fromLatin1("cd /proc; for pid in `ls -d [0123456789]*`; "
             "do "
                 "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
-                "    kill $pid; sleep 1; kill -9 $pid; "
+                "    kill %2 $pid;"
                 "fi; "
-            "done").arg(filePath);
+            "done").arg(filePath).arg(signal);
+}
+
+QString LinuxDeviceProcessSupport::killProcessByNameCommandLine(const QString &filePath) const
+{
+    return QString::fromLatin1("%1; %2").arg(signalProcessByNameCommandLine(filePath, 15),
+                                             signalProcessByNameCommandLine(filePath, 9));
+}
+
+QString LinuxDeviceProcessSupport::interruptProcessByNameCommandLine(const QString &filePath) const
+{
+    return signalProcessByNameCommandLine(filePath, 2);
 }
 
 
@@ -242,6 +255,11 @@ ProjectExplorer::IDevice::Ptr LinuxDevice::clone() const
 DeviceProcessSupport::Ptr LinuxDevice::processSupport() const
 {
     return DeviceProcessSupport::Ptr(new LinuxDeviceProcessSupport);
+}
+
+DeviceProcess *LinuxDevice::createProcess(QObject *parent) const
+{
+    return new LinuxDeviceProcess(sharedFromThis(), parent);
 }
 
 bool LinuxDevice::canAutoDetectPorts() const

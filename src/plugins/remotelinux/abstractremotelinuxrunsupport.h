@@ -41,6 +41,8 @@ class DeviceApplicationHelperAction;
 class DeviceApplicationRunner;
 }
 
+namespace Utils { class Environment; }
+
 namespace RemoteLinux {
 
 class RemoteLinuxRunConfiguration;
@@ -79,9 +81,10 @@ protected:
     void setFinished();
     bool setPort(int &port);
 
-    QString arguments() const;
-    QString commandPrefix() const;
+    QStringList arguments() const;
     QString remoteFilePath() const;
+    Utils::Environment environment() const;
+    QString workingDirectory() const;
     const ProjectExplorer::IDevice::ConstPtr device() const;
 
     void reset();

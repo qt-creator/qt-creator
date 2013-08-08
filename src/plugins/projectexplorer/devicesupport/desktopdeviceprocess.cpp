@@ -1,0 +1,125 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#include "desktopdeviceprocess.h"
+
+#include <utils/environment.h>
+#include <utils/qtcassert.h>
+
+#ifdef Q_OS_UNIX
+#include <signal.h>
+#endif
+
+namespace ProjectExplorer {
+namespace Internal {
+
+DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &device,
+                                           QObject *parent)
+    : DeviceProcess(device, parent), m_process(new QProcess(this))
+{
+    connect(m_process, SIGNAL(error(QProcess::ProcessError)),
+            SIGNAL(error(QProcess::ProcessError)));
+    connect(m_process, SIGNAL(finished(int)), SIGNAL(finished()));
+    connect(m_process, SIGNAL(readyReadStandardOutput()), SIGNAL(readyReadStandardOutput()));
+    connect(m_process, SIGNAL(readyReadStandardError()), SIGNAL(readyReadStandardError()));
+    connect(m_process, SIGNAL(started()), SIGNAL(started()));
+}
+
+void DesktopDeviceProcess::start(const QString &executable, const QStringList &arguments)
+{
+    QTC_ASSERT(m_process->state() == QProcess::NotRunning, return);
+    m_process->start(executable, arguments);
+}
+
+void DesktopDeviceProcess::interrupt()
+{
+#ifdef Q_OS_UNIX
+    ::kill(m_process->pid(), SIGINT);
+#elif Q_OS_WIN
+    // tbd
+#endif
+}
+
+void DesktopDeviceProcess::terminate()
+{
+    m_process->terminate();
+}
+
+void DesktopDeviceProcess::kill()
+{
+    m_process->kill();
+}
+
+QProcess::ProcessState DesktopDeviceProcess::state() const
+{
+    return m_process->state();
+}
+
+QProcess::ExitStatus DesktopDeviceProcess::exitStatus() const
+{
+    return m_process->exitStatus();
+}
+
+int DesktopDeviceProcess::exitCode() const
+{
+    return m_process->exitCode();
+}
+
+QString DesktopDeviceProcess::errorString() const
+{
+    return m_process->errorString();
+}
+
+Utils::Environment DesktopDeviceProcess::environment() const
+{
+    return Utils::Environment(m_process->processEnvironment().toStringList());
+}
+
+void DesktopDeviceProcess::setEnvironment(const Utils::Environment &env)
+{
+    m_process->setProcessEnvironment(env.toProcessEnvironment());
+}
+
+void DesktopDeviceProcess::setWorkingDirectory(const QString &directory)
+{
+    m_process->setWorkingDirectory(directory);
+}
+
+QByteArray DesktopDeviceProcess::readAllStandardOutput()
+{
+    return m_process->readAllStandardOutput();
+}
+
+QByteArray DesktopDeviceProcess::readAllStandardError()
+{
+    return m_process->readAllStandardError();
+}
+
+} // namespace Internal
+} // namespace ProjectExplorer

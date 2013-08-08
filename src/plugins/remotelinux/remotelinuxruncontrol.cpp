@@ -34,6 +34,7 @@
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+#include <utils/environment.h>
 
 #include <QString>
 #include <QIcon>
@@ -49,8 +50,9 @@ public:
     ProjectExplorer::DeviceApplicationRunner runner;
     IDevice::ConstPtr device;
     QString remoteExecutable;
-    QString arguments;
-    QString prefix;
+    QStringList arguments;
+    Utils::Environment environment;
+    QString workingDir;
 };
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
@@ -61,7 +63,8 @@ RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
     const RemoteLinuxRunConfiguration * const lrc = qobject_cast<RemoteLinuxRunConfiguration *>(rc);
     d->remoteExecutable = lrc->remoteExecutableFilePath();
     d->arguments = lrc->arguments();
-    d->prefix = lrc->commandPrefix();
+    d->environment = lrc->environment();
+    d->workingDir = lrc->workingDirectory();
 }
 
 RemoteLinuxRunControl::~RemoteLinuxRunControl()
@@ -80,16 +83,14 @@ void RemoteLinuxRunControl::start()
     connect(&d->runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
     connect(&d->runner, SIGNAL(finished(bool)), SLOT(handleRunnerFinished()));
     connect(&d->runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
-    const QString commandLine = QString::fromLatin1("%1 %2 %3")
-            .arg(d->prefix, d->remoteExecutable, d->arguments);
-    d->runner.start(d->device, commandLine.toUtf8());
+    d->runner.setEnvironment(d->environment);
+    d->runner.setWorkingDirectory(d->workingDir);
+    d->runner.start(d->device, d->remoteExecutable, d->arguments);
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()
 {
-    const QString stopCommandLine
-            = d->device->processSupport()->killProcessByNameCommandLine(d->remoteExecutable);
-    d->runner.stop(stopCommandLine.toUtf8());
+    d->runner.stop();
     return AsynchronousStop;
 }
 

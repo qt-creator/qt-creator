@@ -28,7 +28,7 @@
 ****************************************************************************/
 #include "remotelinuxenvironmentreader.h"
 
-#include <ssh/sshremoteprocessrunner.h>
+#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfiguration.h>
@@ -44,79 +44,67 @@ RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RunConfiguration *con
     , m_stop(false)
     , m_env(Utils::OsTypeLinux)
     , m_kit(config->target()->kit())
-    , m_remoteProcessRunner(0)
+    , m_deviceProcess(0)
 {
     connect(config->target(), SIGNAL(kitChanged()),
         this, SLOT(handleCurrentDeviceConfigChanged()));
 }
 
-void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
+void RemoteLinuxEnvironmentReader::start()
 {
     IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
     if (!device)
         return;
     m_stop = false;
-    if (!m_remoteProcessRunner)
-        m_remoteProcessRunner = new QSsh::SshRemoteProcessRunner(this);
-    connect(m_remoteProcessRunner, SIGNAL(connectionError()), SLOT(handleConnectionFailure()));
-    connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
-    const QByteArray remoteCall
-        = QString(environmentSetupCommand + QLatin1String("; env")).toUtf8();
-    m_remoteProcessRunner->run(remoteCall, device->sshParameters());
+    m_deviceProcess = device->createProcess(this);
+    connect(m_deviceProcess, SIGNAL(error(QProcess::ProcessError)), SLOT(handleError()));
+    connect(m_deviceProcess, SIGNAL(finished()), SLOT(remoteProcessFinished()));
+    m_deviceProcess->start(QLatin1String("env"));
 }
 
 void RemoteLinuxEnvironmentReader::stop()
 {
     m_stop = true;
-    if (m_remoteProcessRunner)
-        disconnect(m_remoteProcessRunner, 0, this, 0);
+    destroyProcess();
 }
 
-void RemoteLinuxEnvironmentReader::handleConnectionFailure()
+void RemoteLinuxEnvironmentReader::handleError()
 {
     if (m_stop)
         return;
 
-    disconnect(m_remoteProcessRunner, 0, this, 0);
-    emit error(tr("Connection error: %1").arg(m_remoteProcessRunner->lastConnectionErrorString()));
-    emit finished();
+    emit error(tr("Error: %1").arg(m_deviceProcess->errorString()));
+    setFinished();
 }
 
 void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
 {
-    if (m_remoteProcessRunner)
-        disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
     setFinished();
 }
 
-void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitStatus)
+void RemoteLinuxEnvironmentReader::remoteProcessFinished()
 {
-    Q_ASSERT(exitStatus == QSsh::SshRemoteProcess::FailedToStart
-        || exitStatus == QSsh::SshRemoteProcess::CrashExit
-        || exitStatus == QSsh::SshRemoteProcess::NormalExit);
-
     if (m_stop)
         return;
 
-    disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
     QString errorMessage;
-    if (exitStatus != QSsh::SshRemoteProcess::NormalExit) {
-        errorMessage = m_remoteProcessRunner->processErrorString();
-    } else if (m_remoteProcessRunner->processExitCode() != 0) {
+    if (m_deviceProcess->exitStatus() != QProcess::NormalExit) {
+        errorMessage = m_deviceProcess->errorString();
+    } else if (m_deviceProcess->exitCode() != 0) {
         errorMessage = tr("Process exited with code %1.")
-                .arg(m_remoteProcessRunner->processExitCode());
+                .arg(m_deviceProcess->exitCode());
     }
     if (!errorMessage.isEmpty()) {
         errorMessage = tr("Error running 'env': %1").arg(errorMessage);
         const QString remoteStderr
-                = QString::fromUtf8(m_remoteProcessRunner->readAllStandardError()).trimmed();
+                = QString::fromUtf8(m_deviceProcess->readAllStandardError()).trimmed();
         if (!remoteStderr.isEmpty())
             errorMessage += tr("\nRemote stderr was: '%1'").arg(remoteStderr);
         emit error(errorMessage);
     } else {
-        QString remoteOutput = QString::fromUtf8(m_remoteProcessRunner->readAllStandardOutput());
+        QString remoteOutput = QString::fromUtf8(m_deviceProcess->readAllStandardOutput());
         if (!remoteOutput.isEmpty()) {
             m_env = Utils::Environment(remoteOutput.split(QLatin1Char('\n'),
                 QString::SkipEmptyParts), Utils::OsTypeLinux);
@@ -129,6 +117,17 @@ void RemoteLinuxEnvironmentReader::setFinished()
 {
     stop();
     emit finished();
+}
+
+void RemoteLinuxEnvironmentReader::destroyProcess()
+{
+    if (!m_deviceProcess)
+        return;
+    m_deviceProcess->disconnect(this);
+    if (m_deviceProcess->state() != QProcess::NotRunning)
+        m_deviceProcess->terminate();
+    m_deviceProcess->deleteLater();
+    m_deviceProcess = 0;
 }
 
 } // namespace Internal

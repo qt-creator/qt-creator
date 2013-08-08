@@ -27,49 +27,61 @@
 **
 ****************************************************************************/
 
-#ifndef MADDEDEVICE_H
-#define MADDEDEVICE_H
+#ifndef QTC_DEVICEPROCESS_H
+#define QTC_DEVICEPROCESS_H
 
-#include <remotelinux/linuxdevice.h>
+#include "../projectexplorer_export.h"
 
-#include <QCoreApplication>
+#include <QObject>
+#include <QProcess>
+#include <QSharedPointer>
+#include <QStringList>
 
-namespace Madde {
-namespace Internal {
+namespace Utils { class Environment; }
 
-class MaddeDevice : public RemoteLinux::LinuxDevice
+namespace ProjectExplorer {
+class IDevice;
+
+class PROJECTEXPLORER_EXPORT DeviceProcess : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Madde::Internal::MaddeDevice)
+    Q_OBJECT
 public:
-    typedef QSharedPointer<MaddeDevice> Ptr;
-    typedef QSharedPointer<const MaddeDevice> ConstPtr;
+    virtual ~DeviceProcess();
 
-    static Ptr create();
-    static Ptr create(const QString &name, Core::Id type, MachineType machineType,
-                      Origin origin = ManuallyAdded, Core::Id id = Core::Id());
+    virtual void start(const QString &executable, const QStringList &arguments = QStringList()) = 0;
+    virtual void interrupt() = 0;
+    virtual void terminate() = 0;
+    virtual void kill() = 0;
 
-    QString displayType() const;
-    ProjectExplorer::IDevice::Ptr clone() const;
-    static QString maddeDisplayType(Core::Id type);
+    virtual QProcess::ProcessState state() const = 0;
+    virtual QProcess::ExitStatus exitStatus() const = 0;
+    virtual int exitCode() const = 0;
+    virtual QString errorString() const = 0;
 
-    static bool allowsRemoteMounts(Core::Id type);
-    static bool allowsPackagingDisabling(Core::Id type);
-    static bool allowsQmlDebugging(Core::Id type);
+    virtual Utils::Environment environment() const = 0;
+    virtual void setEnvironment(const Utils::Environment &env) = 0;
 
-    static QSize packageManagerIconSize(Core::Id type);
+    virtual void setWorkingDirectory(const QString &workingDirectory) = 0;
 
-    ProjectExplorer::DeviceTester *createDeviceTester() const;
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
+    virtual QByteArray readAllStandardOutput() = 0;
+    virtual QByteArray readAllStandardError() = 0;
+
+signals:
+    void started();
+    void finished();
+    void error(QProcess::ProcessError error);
+
+    void readyReadStandardOutput();
+    void readyReadStandardError();
+
+protected:
+    DeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+    QSharedPointer<const IDevice> device() const;
 
 private:
-    MaddeDevice();
-    MaddeDevice(const QString &name, Core::Id type, MachineType machineType,
-                Origin origin, Core::Id id);
-
-    MaddeDevice(const MaddeDevice &other);
+    const QSharedPointer<const IDevice> m_device;
 };
 
-} // namespace Internal
-} // namespace Madde
+} // namespace ProjectExplorer
 
-#endif // MADDEDEVICE_H
+#endif // Include guard.

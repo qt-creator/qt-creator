@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
-**
-** Contact: Research In Motion (blackberry-qt@qnx.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -29,45 +27,26 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXRUNCONFIGURATION_H
-#define QNX_INTERNAL_QNXRUNCONFIGURATION_H
+#include "deviceprocess.h"
 
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include "idevice.h"
 
-namespace Utils { class Environment; }
+#include <utils/qtcassert.h>
 
-namespace Qnx {
-namespace Internal {
+namespace ProjectExplorer {
 
-class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
+DeviceProcess::DeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
+    : QObject(parent), m_device(device)
 {
-    Q_OBJECT
-public:
-    QnxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
-            const QString &projectFilePath);
+}
 
-    Utils::Environment environment() const;
+DeviceProcess::~DeviceProcess()
+{
+}
 
-    QWidget *createConfigurationWidget();
+IDevice::ConstPtr DeviceProcess::device() const
+{
+    return m_device;
+}
 
-    QVariantMap toMap() const;
-
-protected:
-    friend class QnxRunConfigurationFactory;
-
-    QnxRunConfiguration(ProjectExplorer::Target *parent,
-                        QnxRunConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
-
-private slots:
-    void setQtLibPath(const QString &path);
-
-private:
-    QString m_qtLibPath;
-};
-
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXRUNCONFIGURATION_H
+} // namespace ProjectExplorer

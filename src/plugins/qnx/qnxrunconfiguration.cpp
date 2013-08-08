@@ -33,6 +33,7 @@
 #include "qnxconstants.h"
 
 #include <remotelinux/remotelinuxrunconfigurationwidget.h>
+#include <utils/environment.h>
 
 #include <QLabel>
 #include <QLineEdit>
@@ -60,22 +61,14 @@ void QnxRunConfiguration::setQtLibPath(const QString &path)
     m_qtLibPath = path;
 }
 
-QString QnxRunConfiguration::environmentPreparationCommand() const
+Utils::Environment QnxRunConfiguration::environment() const
 {
-    QString command;
-    const QStringList filesToSource = QStringList() << QLatin1String("/etc/profile")
-        << QLatin1String("$HOME/.profile");
-    foreach (const QString &filePath, filesToSource)
-        command += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
-    if (!workingDirectory().isEmpty())
-        command += QLatin1String("cd ") + workingDirectory() + QLatin1Char(';');
-
-    if (!m_qtLibPath.isEmpty())
-        command += QLatin1String("LD_LIBRARY_PATH=") + m_qtLibPath + QLatin1String(":$LD_LIBRARY_PATH");
-    else
-        command.chop(1); // Trailing semicolon.
-
-    return command;
+    Utils::Environment env = RemoteLinuxRunConfiguration::environment();
+    if (!m_qtLibPath.isEmpty()) {
+        env.appendOrSet(QLatin1String("LD_LIBRARY_PATH"),
+                        m_qtLibPath + QLatin1String(":$LD_LIBRARY_PATH"));
+    }
+    return env;
 }
 
 QWidget *QnxRunConfiguration::createConfigurationWidget()

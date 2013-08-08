@@ -31,6 +31,7 @@
 #define QNXABSTRACTRUNSUPPORT_H
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/environment.h>
 #include <utils/portlist.h>
 
 #include <QObject>
@@ -64,6 +65,8 @@ protected:
     virtual void startExecution() = 0;
 
     virtual QString executable() const;
+    Utils::Environment environment() const { return m_environment; }
+    QString workingDirectory() const { return m_workingDir; }
 
     void setFinished();
 
@@ -71,7 +74,6 @@ protected:
     void setState(State state);
 
     ProjectExplorer::DeviceApplicationRunner *appRunner() const;
-    QString commandPrefix() const;
     const ProjectExplorer::IDevice::ConstPtr device() const;
 
 protected slots:
@@ -90,10 +92,11 @@ private:
     ProjectExplorer::DeviceUsedPortsGatherer * m_portsGatherer;
     Utils::PortList m_portList;
     const QString m_remoteExecutable;
-    const QString m_commandPrefix;
     ProjectExplorer::IDevice::ConstPtr m_device;
     ProjectExplorer::DeviceApplicationRunner *m_runner;
     State m_state;
+    Utils::Environment m_environment;
+    QString m_workingDir;
 };
 
 } // namespace Internal

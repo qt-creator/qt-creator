@@ -176,6 +176,11 @@ void SshRemoteProcess::addToEnvironment(const QByteArray &var, const QByteArray 
         d->m_env << qMakePair(var, value); // Cached locally and sent on start()
 }
 
+void SshRemoteProcess::clearEnvironment()
+{
+    d->m_env.clear();
+}
+
 void SshRemoteProcess::requestTerminal(const SshPseudoTerminal &terminal)
 {
     QSSH_ASSERT_AND_RETURN(d->channelState() == Internal::SshRemoteProcessPrivate::Inactive);

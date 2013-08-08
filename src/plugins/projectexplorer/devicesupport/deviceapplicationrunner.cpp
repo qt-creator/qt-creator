@@ -28,11 +28,14 @@
 ****************************************************************************/
 #include "deviceapplicationrunner.h"
 
+#include "sshdeviceprocess.h"
+
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
-#include <ssh/sshremoteprocess.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <QStringList>
 #include <QTimer>
 
 using namespace QSsh;
@@ -49,10 +52,13 @@ public:
     SshConnection *connection;
     DeviceApplicationHelperAction *preRunAction;
     DeviceApplicationHelperAction *postRunAction;
+    DeviceProcess *deviceProcess;
     IDevice::ConstPtr device;
-    SshRemoteProcess::Ptr remoteApp;
     QTimer stopTimer;
-    QByteArray commandLine;
+    QString command;
+    QStringList arguments;
+    Utils::Environment environment;
+    QString workingDir;
     State state;
     bool stopRequested;
     bool success;
@@ -74,6 +80,7 @@ DeviceApplicationRunner::DeviceApplicationRunner(QObject *parent) :
     d->preRunAction = 0;
     d->postRunAction = 0;
     d->connection = 0;
+    d->deviceProcess = 0;
     d->state = Inactive;
 
     d->stopTimer.setSingleShot(true);
@@ -86,23 +93,33 @@ DeviceApplicationRunner::~DeviceApplicationRunner()
     delete d;
 }
 
-void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
-        const QByteArray &commandLine)
+void DeviceApplicationRunner::setEnvironment(const Utils::Environment &env)
 {
+    d->environment = env;
+}
+
+void DeviceApplicationRunner::setWorkingDirectory(const QString &workingDirectory)
+{
+    d->workingDir = workingDirectory;
+}
+
+void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
+        const QString &command, const QStringList &arguments)
+{
+    QTC_ASSERT(device->canCreateProcess(), return);
     QTC_ASSERT(d->state == Inactive, return);
 
     d->device = device;
-    d->commandLine = commandLine;
+    d->command = command;
+    d->arguments = arguments;
     d->stopRequested = false;
     d->success = true;
 
     connectToServer();
 }
 
-void DeviceApplicationRunner::stop(const QByteArray &stopCommand)
+void DeviceApplicationRunner::stop()
 {
-    QTC_ASSERT(d->state != Inactive, return);
-
     if (d->stopRequested)
         return;
     d->stopRequested = true;
@@ -117,7 +134,7 @@ void DeviceApplicationRunner::stop(const QByteArray &stopCommand)
         break;
     case Run:
         d->stopTimer.start(10000);
-        d->connection->createRemoteProcess(stopCommand)->start();
+        d->deviceProcess->terminate();
         break;
     case PostRun:
         d->postRunAction->stop();
@@ -188,10 +205,10 @@ void DeviceApplicationRunner::setFinished()
     if (d->state == Inactive)
         return;
 
-    if (d->remoteApp) {
-        d->remoteApp->disconnect(this);
-        d->remoteApp->close();
-        d->remoteApp.clear();
+    if (d->deviceProcess) {
+        d->deviceProcess->disconnect(this);
+        d->deviceProcess->deleteLater();
+        d->deviceProcess = 0;
     }
     if (d->connection) {
         d->connection->disconnect(this);
@@ -232,7 +249,7 @@ void DeviceApplicationRunner::handleConnectionFailure()
         break;
     case Run:
         d->stopTimer.stop();
-        d->remoteApp->disconnect(this);
+        d->deviceProcess->disconnect(this);
         executePostRunAction();
         break;
     case PostRun:
@@ -290,16 +307,16 @@ void DeviceApplicationRunner::handleStopTimeout()
     setFinished();
 }
 
-void DeviceApplicationRunner::handleApplicationFinished(int exitStatus)
+void DeviceApplicationRunner::handleApplicationFinished()
 {
     QTC_ASSERT(d->state == Run, return);
 
     d->stopTimer.stop();
-    if (exitStatus == SshRemoteProcess::CrashExit) {
-        emit reportError(tr("Remote application crashed: %1").arg(d->remoteApp->errorString()));
+    if (d->deviceProcess->exitStatus() == QProcess::CrashExit) {
+        emit reportError(tr("Remote application crashed: %1").arg(d->deviceProcess->errorString()));
         d->success = false;
     } else {
-        const int exitCode = d->remoteApp->exitCode();
+        const int exitCode = d->deviceProcess->exitCode();
         if (exitCode != 0) {
             emit reportError(tr("Remote application finished with exit code %1.").arg(exitCode));
             d->success = false;
@@ -313,13 +330,13 @@ void DeviceApplicationRunner::handleApplicationFinished(int exitStatus)
 void DeviceApplicationRunner::handleRemoteStdout()
 {
     QTC_ASSERT(d->state == Run, return);
-    emit remoteStdout(d->remoteApp->readAllStandardOutput());
+    emit remoteStdout(d->deviceProcess->readAllStandardOutput());
 }
 
 void DeviceApplicationRunner::handleRemoteStderr()
 {
     QTC_ASSERT(d->state == Run, return);
-    emit remoteStderr(d->remoteApp->readAllStandardError());
+    emit remoteStderr(d->deviceProcess->readAllStandardError());
 }
 
 void DeviceApplicationRunner::runApplication()
@@ -327,12 +344,14 @@ void DeviceApplicationRunner::runApplication()
     QTC_ASSERT(d->state == PreRun, return);
 
     d->state = Run;
-    d->remoteApp = d->connection->createRemoteProcess(d->commandLine);
-    connect(d->remoteApp.data(), SIGNAL(started()), SIGNAL(remoteProcessStarted()));
-    connect(d->remoteApp.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
-    connect(d->remoteApp.data(), SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
-    connect(d->remoteApp.data(), SIGNAL(closed(int)), SLOT(handleApplicationFinished(int)));
-    d->remoteApp->start();
+    d->deviceProcess = d->device->createProcess(this);
+    connect(d->deviceProcess, SIGNAL(started()), SIGNAL(remoteProcessStarted()));
+    connect(d->deviceProcess, SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
+    connect(d->deviceProcess, SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
+    connect(d->deviceProcess, SIGNAL(finished()), SLOT(handleApplicationFinished()));
+    d->deviceProcess->setEnvironment(d->environment);
+    d->deviceProcess->setWorkingDirectory(d->workingDir);
+    d->deviceProcess->start(d->command, d->arguments);
 }
 
 } // namespace ProjectExplorer

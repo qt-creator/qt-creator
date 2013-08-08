@@ -81,7 +81,6 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RemoteL
         params.startMode = StartLocal;
     params.runMode = runMode;
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
-    params.analyzerCmdPrefix = runConfig->commandPrefix();
     params.displayName = runConfig->displayName();
     params.sysroot = SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     params.analyzerHost = params.connParams.host;
@@ -140,11 +139,11 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
     connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
 
-    const QString args = arguments()
-            + QString::fromLocal8Bit(" -qmljsdebugger=port:%1,block").arg(d->qmlPort);
-    const QString remoteCommandLine =
-            QString::fromLatin1("%1 %2 %3").arg(commandPrefix()).arg(remoteFilePath()).arg(args);
-    runner->start(device(), remoteCommandLine.toUtf8());
+    const QStringList args = arguments()
+            << QString::fromLocal8Bit("-qmljsdebugger=port:%1,block").arg(d->qmlPort);
+    runner->setWorkingDirectory(workingDirectory());
+    runner->setEnvironment(environment());
+    runner->start(device(), remoteFilePath(), args);
 }
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)

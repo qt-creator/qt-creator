@@ -47,6 +47,8 @@ QtcPlugin {
         "genericremotelinuxdeploystepfactory.h",
         "linuxdevice.cpp",
         "linuxdevice.h",
+        "linuxdeviceprocess.cpp",
+        "linuxdeviceprocess.h",
         "linuxdevicetester.cpp",
         "linuxdevicetester.h",
         "packageuploader.cpp",

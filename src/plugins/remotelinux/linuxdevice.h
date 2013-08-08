@@ -47,6 +47,7 @@ class REMOTELINUX_EXPORT LinuxDeviceProcessSupport : public ProjectExplorer::Dev
 public:
     QString killProcessByPidCommandLine(int pid) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;
+    QString interruptProcessByNameCommandLine(const QString &filePath) const;
 };
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
@@ -69,6 +70,8 @@ public:
     ProjectExplorer::IDevice::Ptr clone() const;
 
     ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
+    bool canCreateProcess() const { return true; }
+    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
     bool canAutoDetectPorts() const;
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
     bool canCreateProcessModel() const { return true; }

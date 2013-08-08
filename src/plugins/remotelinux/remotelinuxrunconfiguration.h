@@ -34,7 +34,12 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Utils { class PortList; }
+#include <QStringList>
+
+namespace Utils {
+class Environment;
+class PortList;
+}
 
 namespace RemoteLinux {
 class RemoteLinuxRunConfigurationWidget;
@@ -62,13 +67,12 @@ public:
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
 
-    virtual QString environmentPreparationCommand() const;
-    virtual QString commandPrefix() const;
+    virtual Utils::Environment environment() const;
 
     QString localExecutableFilePath() const;
     QString defaultRemoteExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
-    QString arguments() const;
+    QStringList arguments() const;
     void setArguments(const QString &args);
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &wd);

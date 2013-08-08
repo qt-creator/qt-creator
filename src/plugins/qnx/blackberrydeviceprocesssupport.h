@@ -41,6 +41,7 @@ class BlackBerryDeviceProcessSupport : public RemoteLinux::LinuxDeviceProcessSup
 {
 public:
     QString killProcessByNameCommandLine(const QString &filePath) const;
+    QString interruptProcessByNameCommandLine(const QString &filePath) const;
 };
 
 } // namespace Internal

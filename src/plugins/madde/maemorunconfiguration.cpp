@@ -112,24 +112,6 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-QString MaemoRunConfiguration::environmentPreparationCommand() const
-{
-    return MaemoGlobal::remoteSourceProfilesCommand();
-}
-
-QString MaemoRunConfiguration::commandPrefix() const
-{
-    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
-    if (!dev)
-        return QString();
-
-    const QString prefix = environmentPreparationCommand() + QLatin1Char(';');
-
-    RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
-    QTC_ASSERT(aspect, return QString());
-    return QString::fromLatin1("%1 %2").arg(prefix, aspect->userEnvironmentChangesAsString());
-}
-
 Utils::PortList MaemoRunConfiguration::freePorts() const
 {
     return MaemoGlobal::freePorts(target()->kit());

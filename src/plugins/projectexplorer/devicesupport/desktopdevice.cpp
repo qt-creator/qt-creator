@@ -29,6 +29,7 @@
 
 #include "desktopdevice.h"
 #include "projectexplorerconstants.h"
+#include "desktopdeviceprocess.h"
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
 #include "desktopdeviceconfigurationwidget.h"
@@ -106,6 +107,11 @@ bool DesktopDevice::canCreateProcessModel() const
 DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
 {
     return new Internal::LocalProcessList(sharedFromThis(), parent);
+}
+
+DeviceProcess *DesktopDevice::createProcess(QObject *parent) const
+{
+    return new Internal::DesktopDeviceProcess(sharedFromThis(), parent);
 }
 
 IDevice::Ptr DesktopDevice::clone() const

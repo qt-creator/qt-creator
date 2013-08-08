@@ -275,6 +275,12 @@ DeviceTester *IDevice::createDeviceTester() const
     return 0;
 }
 
+DeviceProcess *IDevice::createProcess(QObject * /* parent */) const
+{
+    QTC_CHECK(false);
+    return 0;
+}
+
 IDevice::DeviceState IDevice::deviceState() const
 {
     return d->deviceState;

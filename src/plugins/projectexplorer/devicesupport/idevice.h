@@ -47,6 +47,7 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils { class PortList; }
 
 namespace ProjectExplorer {
+class DeviceProcess;
 class DeviceProcessList;
 
 namespace Internal { class IDevicePrivate; }
@@ -62,6 +63,7 @@ public:
     virtual ~DeviceProcessSupport();
     virtual QString killProcessByPidCommandLine(int pid) const = 0;
     virtual QString killProcessByNameCommandLine(const QString &filePath) const = 0;
+    virtual QString interruptProcessByNameCommandLine(const QString &filePath) const = 0;
 };
 
 class PROJECTEXPLORER_EXPORT PortsGatheringMethod
@@ -120,6 +122,9 @@ public:
     virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
+
+    virtual bool canCreateProcess() const { return false; }
+    virtual DeviceProcess *createProcess(QObject *parent) const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;

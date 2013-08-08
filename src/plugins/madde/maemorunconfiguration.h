@@ -48,8 +48,6 @@ public:
     bool fromMap(const QVariantMap &map);
     bool isEnabled() const;
     QWidget *createConfigurationWidget();
-    QString environmentPreparationCommand() const;
-    QString commandPrefix() const;
     Utils::PortList freePorts() const;
 
     Internal::MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }

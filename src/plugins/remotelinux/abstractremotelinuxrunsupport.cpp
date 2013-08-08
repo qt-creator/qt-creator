@@ -34,7 +34,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-
+#include <utils/environment.h>
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
@@ -50,7 +50,8 @@ public:
           device(DeviceKitInformation::device(runConfig->target()->kit())),
           remoteFilePath(runConfig->remoteExecutableFilePath()),
           arguments(runConfig->arguments()),
-          commandPrefix(runConfig->commandPrefix())
+          environment(runConfig->environment()),
+          workingDir(runConfig->workingDirectory())
     {
     }
 
@@ -60,8 +61,9 @@ public:
     const ProjectExplorer::IDevice::ConstPtr device;
     Utils::PortList portList;
     const QString remoteFilePath;
-    const QString arguments;
-    const QString commandPrefix;
+    const QStringList arguments;
+    const Utils::Environment environment;
+    const QString workingDir;
 };
 
 } // namespace Internal
@@ -138,11 +140,8 @@ void AbstractRemoteLinuxRunSupport::setFinished()
 {
     if (d->state == Inactive)
         return;
-    if (d->state == Running) {
-        const QString stopCommand
-                = d->device->processSupport()->killProcessByNameCommandLine(d->remoteFilePath);
-        d->appRunner.stop(stopCommand.toUtf8());
-    }
+    if (d->state == Running)
+        d->appRunner.stop();
     d->state = Inactive;
 }
 
@@ -156,19 +155,24 @@ bool AbstractRemoteLinuxRunSupport::setPort(int &port)
     return true;
 }
 
-QString AbstractRemoteLinuxRunSupport::arguments() const
+QStringList AbstractRemoteLinuxRunSupport::arguments() const
 {
     return d->arguments;
-}
-
-QString AbstractRemoteLinuxRunSupport::commandPrefix() const
-{
-    return d->commandPrefix;
 }
 
 QString AbstractRemoteLinuxRunSupport::remoteFilePath() const
 {
     return d->remoteFilePath;
+}
+
+Utils::Environment AbstractRemoteLinuxRunSupport::environment() const
+{
+    return d->environment;
+}
+
+QString AbstractRemoteLinuxRunSupport::workingDirectory() const
+{
+    return d->workingDir;
 }
 
 const IDevice::ConstPtr AbstractRemoteLinuxRunSupport::device() const

@@ -34,6 +34,7 @@
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 
@@ -78,10 +79,12 @@ void QnxAnalyzeSupport::startExecution()
 
     setState(StartingRemoteProcess);
 
-    const QString args = m_runControl->startParameters().debuggeeArgs +
-            QString::fromLatin1(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
-    const QString command = QString::fromLatin1("%1 %2 %3").arg(commandPrefix(), executable(), args);
-    appRunner()->start(device(), command.toUtf8());
+    const QStringList args = QStringList()
+            << Utils::QtcProcess::splitArgs(m_runControl->startParameters().debuggeeArgs)
+            << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_qmlPort);
+    appRunner()->setEnvironment(environment());
+    appRunner()->setWorkingDirectory(workingDirectory());
+    appRunner()->start(device(), executable(), args);
 }
 
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)

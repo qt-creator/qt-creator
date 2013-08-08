@@ -41,6 +41,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -91,15 +92,14 @@ void QnxDebugSupport::startExecution()
     if (m_useQmlDebugger)
         m_engine->startParameters().processArgs += QString::fromLocal8Bit(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
 
-    QString remoteCommandLine;
+    QStringList arguments;
     if (m_useCppDebugger)
-        remoteCommandLine = QString::fromLatin1("%1 %2 %3")
-                .arg(commandPrefix(), executable()).arg(m_pdebugPort);
+        arguments << QString::number(m_pdebugPort);
     else if (m_useQmlDebugger && !m_useCppDebugger)
-        remoteCommandLine = QString::fromLatin1("%1 %2 %3")
-                .arg(commandPrefix(), executable(), m_engine->startParameters().processArgs);
-
-    appRunner()->start(device(), remoteCommandLine.toUtf8());
+        arguments = Utils::QtcProcess::splitArgs(m_engine->startParameters().processArgs);
+    appRunner()->setEnvironment(environment());
+    appRunner()->setWorkingDirectory(workingDirectory());
+    appRunner()->start(device(), executable(), arguments);
 }
 
 void QnxDebugSupport::handleRemoteProcessStarted()

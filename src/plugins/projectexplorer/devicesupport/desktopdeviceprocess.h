@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
-**
-** Contact: Research In Motion (blackberry-qt@qnx.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -29,45 +27,44 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXRUNCONFIGURATION_H
-#define QNX_INTERNAL_QNXRUNCONFIGURATION_H
+#ifndef QTC_DESKTOPDEVICEPROCESS_H
+#define QTC_DESKTOPDEVICEPROCESS_H
 
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include "deviceprocess.h"
 
-namespace Utils { class Environment; }
-
-namespace Qnx {
+namespace ProjectExplorer {
 namespace Internal {
+class ProcessHelper;
 
-class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
+class DesktopDeviceProcess : public DeviceProcess
 {
     Q_OBJECT
 public:
-    QnxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
-            const QString &projectFilePath);
+    DesktopDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+
+    void start(const QString &executable, const QStringList &arguments);
+    void interrupt();
+    void terminate();
+    void kill();
+
+    QProcess::ProcessState state() const;
+    QProcess::ExitStatus exitStatus() const;
+    int exitCode() const;
+    QString errorString() const;
 
     Utils::Environment environment() const;
+    void setEnvironment(const Utils::Environment &env);
 
-    QWidget *createConfigurationWidget();
+    void setWorkingDirectory(const QString &directory);
 
-    QVariantMap toMap() const;
-
-protected:
-    friend class QnxRunConfigurationFactory;
-
-    QnxRunConfiguration(ProjectExplorer::Target *parent,
-                        QnxRunConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
-
-private slots:
-    void setQtLibPath(const QString &path);
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
 
 private:
-    QString m_qtLibPath;
+    QProcess * const m_process;
 };
 
 } // namespace Internal
-} // namespace Qnx
+} // namespace ProjectExplorer
 
-#endif // QNX_INTERNAL_QNXRUNCONFIGURATION_H
+#endif // Include guard

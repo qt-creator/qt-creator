@@ -99,8 +99,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         sp.startMode = StartRemote;
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
-        sp.analyzerCmdPrefix = rc2->commandPrefix();
-        sp.debuggeeArgs = rc2->arguments();
+        sp.debuggeeArgs = rc2->arguments().join(QLatin1String(" "));
     } else {
         QTC_ASSERT(false, return 0);
     }

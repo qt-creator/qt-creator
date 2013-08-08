@@ -35,6 +35,12 @@
 
 #include <QObject>
 
+QT_BEGIN_NAMESPACE
+class QStringList;
+QT_END_NAMESPACE
+
+namespace Utils { class Environment; }
+
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT DeviceApplicationHelperAction : public QObject
@@ -60,8 +66,12 @@ public:
     explicit DeviceApplicationRunner(QObject *parent = 0);
     virtual ~DeviceApplicationRunner();
 
-    void start(const IDevice::ConstPtr &device, const QByteArray &commandLine);
-    void stop(const QByteArray &stopCommand);
+    void setEnvironment(const Utils::Environment &env);
+    void setWorkingDirectory(const QString &workingDirectory);
+
+    void start(const IDevice::ConstPtr &device, const QString &command,
+               const QStringList &arguments);
+    void stop();
 
     // Use these if you need to do something before and after the application is run, respectively.
     // Typically, the post-run action reverts the effects of the pre-run action.
@@ -82,7 +92,7 @@ private slots:
     void handleConnectionFailure();
     void handleHelperActionFinished(bool success);
     void handleStopTimeout();
-    void handleApplicationFinished(int exitStatus);
+    void handleApplicationFinished();
     void handleRemoteStdout();
     void handleRemoteStderr();
 

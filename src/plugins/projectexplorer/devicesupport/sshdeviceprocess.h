@@ -27,45 +27,60 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPDEVICE_H
-#define DESKTOPDEVICE_H
+#ifndef QTC_SSHDEVICEPROCESS_H
+#define QTC_SSHDEVICEPROCESS_H
 
-#include "../projectexplorer_export.h"
-
-#include "idevice.h"
-#include "idevicefactory.h"
+#include "deviceprocess.h"
 
 namespace ProjectExplorer {
-class ProjectExplorerPlugin;
 
-namespace Internal { class DesktopDeviceFactory; }
-
-class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
+class PROJECTEXPLORER_EXPORT SshDeviceProcess : public DeviceProcess
 {
+    Q_OBJECT
 public:
-    IDevice::DeviceInfo deviceInformation() const;
+    SshDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+    ~SshDeviceProcess();
 
-    QString displayType() const;
-    IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent = 0) const;
-    bool canAutoDetectPorts() const;
-    bool canCreateProcessModel() const;
-    DeviceProcessList *createProcessListModel(QObject *parent) const;
-    bool canCreateProcess() const { return true; }
-    DeviceProcess *createProcess(QObject *parent) const;
+    void start(const QString &executable, const QStringList &arguments);
+    void interrupt();
+    void terminate();
+    void kill();
 
-    IDevice::Ptr clone() const;
+    QString executable() const;
+    QStringList arguments() const;
+    QProcess::ProcessState state() const;
+    QProcess::ExitStatus exitStatus() const;
+    int exitCode() const;
+    QString errorString() const;
 
-protected:
-    DesktopDevice();
-    DesktopDevice(const DesktopDevice &other);
+    Utils::Environment environment() const;
+    void setEnvironment(const Utils::Environment &env);
 
-    friend class ProjectExplorerPlugin;
-    friend class Internal::DesktopDeviceFactory;
+    void setWorkingDirectory(const QString & /* directory */) { } // No such thing in the RFC.
+
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
+
+    // Default is "false" due to OpenSSH not implementing this feature for some reason.
+    void setSshServerSupportsSignals(bool signalsSupported);
+
+private slots:
+    void handleConnected();
+    void handleConnectionError();
+    void handleDisconnected();
+    void handleProcessStarted();
+    void handleProcessFinished(int exitStatus);
+    void handleStdout();
+    void handleStderr();
+
+private:
+    virtual QString fullCommandLine() const;
+
+    class SshDeviceProcessPrivate;
+    friend class SshDeviceProcessPrivate;
+    SshDeviceProcessPrivate * const d;
 };
 
 } // namespace ProjectExplorer
 
-#endif // DESKTOPDEVICE_H
+#endif // Include guard.

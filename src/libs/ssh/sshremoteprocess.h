@@ -80,6 +80,7 @@ public:
      * usually configured to ignore such requests for security reasons.
      */
     void addToEnvironment(const QByteArray &var, const QByteArray &value);
+    void clearEnvironment();
 
     void requestTerminal(const SshPseudoTerminal &terminal);
     void start();

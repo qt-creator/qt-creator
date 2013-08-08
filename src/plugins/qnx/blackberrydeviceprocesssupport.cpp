@@ -34,12 +34,23 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-QString BlackBerryDeviceProcessSupport::killProcessByNameCommandLine(const QString &filePath) const
+static QString signalProcessByNameCommandLine(const QString &filePath, int signal)
 {
     QString executable = filePath;
 
     return QString::fromLatin1("for PID in $(pidin -F \"%a %A\" | grep \"%1\" | awk '/%1/ {print $1}'); "
         "do "
-            "kill $PID; sleep 1; kill -9 $PID; "
-        "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/")));
+            "kill -%2 $PID; "
+        "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/"))).arg(signal);
+}
+
+QString BlackBerryDeviceProcessSupport::killProcessByNameCommandLine(const QString &filePath) const
+{
+    return QString::fromLatin1("%1; %2").arg(signalProcessByNameCommandLine(filePath, 15),
+                                             signalProcessByNameCommandLine(filePath, 9));
+}
+
+QString BlackBerryDeviceProcessSupport::interruptProcessByNameCommandLine(const QString &filePath) const
+{
+    return signalProcessByNameCommandLine(filePath, 2);
 }

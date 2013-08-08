@@ -46,9 +46,10 @@ using namespace Qnx::Internal;
 QnxAbstractRunSupport::QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QObject *parent)
     : QObject(parent)
     , m_remoteExecutable(runConfig->remoteExecutableFilePath())
-    , m_commandPrefix(runConfig->commandPrefix())
     , m_device(DeviceKitInformation::device(runConfig->target()->kit()))
     , m_state(Inactive)
+    , m_environment(runConfig->environment())
+    , m_workingDir(runConfig->workingDirectory())
 {
     m_runner = new DeviceApplicationRunner(this);
     m_portsGatherer = new DeviceUsedPortsGatherer(this);
@@ -84,7 +85,7 @@ void QnxAbstractRunSupport::handleRemoteProcessFinished(bool)
 void QnxAbstractRunSupport::setFinished()
 {
     if (m_state != GatheringPorts && m_state != Inactive)
-        m_runner->stop(m_device->processSupport()->killProcessByNameCommandLine(executable()).toUtf8());
+        m_runner->stop();
 
     m_state = Inactive;
 }
@@ -102,11 +103,6 @@ void QnxAbstractRunSupport::setState(QnxAbstractRunSupport::State state)
 DeviceApplicationRunner *QnxAbstractRunSupport::appRunner() const
 {
     return m_runner;
-}
-
-QString QnxAbstractRunSupport::commandPrefix() const
-{
-    return m_commandPrefix;
 }
 
 const IDevice::ConstPtr QnxAbstractRunSupport::device() const

@@ -31,9 +31,12 @@
 #include "maddedevicetester.h"
 #include "maemoconstants.h"
 
+#include <remotelinux/linuxdeviceprocess.h>
 #include <remotelinux/publickeydeploymentdialog.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/qtcassert.h>
+
+#include <QStringList>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -113,6 +116,15 @@ QSize MaddeDevice::packageManagerIconSize(Core::Id type)
 DeviceTester *MaddeDevice::createDeviceTester() const
 {
     return new MaddeDeviceTester;
+}
+
+DeviceProcess *MaddeDevice::createProcess(QObject *parent) const
+{
+    LinuxDeviceProcess * const proc
+            = static_cast<LinuxDeviceProcess *>(LinuxDevice::createProcess(parent));
+    proc->setRcFilesToSource(QStringList() << QLatin1String("/etc/profile")
+            << QLatin1String("/home/user/.profile") << QLatin1String("~/.profile"));
+    return proc;
 }
 
 } // namespace Internal

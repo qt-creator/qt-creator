@@ -38,6 +38,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -73,7 +74,7 @@ public:
 
     QString projectFilePath;
     QString gdbPath;
-    QString arguments;
+    QStringList arguments;
     QString disabledReason;
     bool useAlternateRemoteExecutable;
     QString alternateRemoteExecutable;
@@ -142,6 +143,7 @@ OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
+
 QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
@@ -159,7 +161,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
+    d->arguments = map.value(QLatin1String(ArgumentsKey)).toStringList();
     const QDir dir = QDir(target()->project()->projectDirectory());
     d->projectFilePath
             = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
@@ -181,31 +183,21 @@ QString RemoteLinuxRunConfiguration::defaultDisplayName()
     return tr("Run on Remote Device");
 }
 
-QString RemoteLinuxRunConfiguration::arguments() const
+QStringList RemoteLinuxRunConfiguration::arguments() const
 {
     return d->arguments;
 }
 
-QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
-{
-    QString command;
-    const QStringList filesToSource = QStringList() << QLatin1String("/etc/profile")
-        << QLatin1String("$HOME/.profile");
-    foreach (const QString &filePath, filesToSource)
-        command += QString::fromLatin1("test -f %1 && source %1;").arg(filePath);
-    if (!workingDirectory().isEmpty())
-        command += QLatin1String("cd ") + workingDirectory();
-    else
-        command.chop(1); // Trailing semicolon.
-    return command;
-}
-
-QString RemoteLinuxRunConfiguration::commandPrefix() const
+Environment RemoteLinuxRunConfiguration::environment() const
 {
     RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
-    QTC_ASSERT(aspect, return QString());
-    return QString::fromLatin1("%1; DISPLAY=:0.0 %2")
-            .arg(environmentPreparationCommand(), aspect->userEnvironmentChangesAsString());
+    QTC_ASSERT(aspect, return Environment());
+    Environment env(OsTypeLinux);
+    env.modify(aspect->userEnvironmentChanges());
+    const QString displayKey = QLatin1String("DISPLAY");
+    if (!env.hasKey(displayKey))
+        env.appendOrSet(displayKey, QLatin1String(":0.0"));
+    return env;
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
@@ -228,7 +220,7 @@ QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)
 {
-    d->arguments = args;
+    d->arguments = QtcProcess::splitArgs(args); // TODO: Widget should be list-based.
 }
 
 QString RemoteLinuxRunConfiguration::workingDirectory() const

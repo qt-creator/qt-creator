@@ -35,11 +35,10 @@
 #include <QObject>
 
 namespace ProjectExplorer {
-class RunConfiguration;
+class DeviceProcess;
 class Kit;
+class RunConfiguration;
 }
-
-namespace QSsh { class SshRemoteProcessRunner; }
 
 namespace RemoteLinux {
 namespace Internal {
@@ -51,7 +50,7 @@ class RemoteLinuxEnvironmentReader : public QObject
 public:
     RemoteLinuxEnvironmentReader(ProjectExplorer::RunConfiguration *config, QObject *parent = 0);
 
-    void start(const QString &environmentSetupCommand);
+    void start();
     void stop();
 
     Utils::Environment remoteEnvironment() const { return m_env; }
@@ -61,18 +60,18 @@ signals:
     void error(const QString &error);
 
 private slots:
-    void handleConnectionFailure();
+    void handleError();
     void handleCurrentDeviceConfigChanged();
-
-    void remoteProcessFinished(int exitStatus);
+    void remoteProcessFinished();
 
 private:
     void setFinished();
+    void destroyProcess();
 
     bool m_stop;
     Utils::Environment m_env;
     ProjectExplorer::Kit *m_kit;
-    QSsh::SshRemoteProcessRunner *m_remoteProcessRunner;
+    ProjectExplorer::DeviceProcess *m_deviceProcess;
 };
 
 } // namespace Internal

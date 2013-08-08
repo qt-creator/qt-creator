@@ -70,7 +70,7 @@ void RemoteLinuxEnvironmentAspectWidget::fetchEnvironment()
     disconnect(button, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
     connect(button, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
     button->setText(tr("Cancel Fetch Operation"));
-    deviceEnvReader->start(aspect()->runConfiguration()->environmentPreparationCommand());
+    deviceEnvReader->start();
 }
 
 void RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentFinished()
