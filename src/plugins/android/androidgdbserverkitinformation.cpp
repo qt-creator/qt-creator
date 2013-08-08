@@ -42,12 +42,13 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+
 using namespace Android;
 using namespace Android::Internal;
 
-namespace {
-static const char ANDROIDGDBSERVER_INFORMATION[] = "Android.GdbServer.Information";
-}
+static const char ANDROID_GDBSERVER_INFORMATION[] = "Android.GdbServer.Information";
 
 AndroidGdbServerKitInformation::AndroidGdbServerKitInformation()
 {
@@ -55,7 +56,7 @@ AndroidGdbServerKitInformation::AndroidGdbServerKitInformation()
 
 Core::Id AndroidGdbServerKitInformation::dataId() const
 {
-    return Core::Id(ANDROIDGDBSERVER_INFORMATION);
+    return Core::Id(ANDROID_GDBSERVER_INFORMATION);
 }
 
 unsigned int AndroidGdbServerKitInformation::priority() const
@@ -84,14 +85,25 @@ ProjectExplorer::KitConfigWidget *AndroidGdbServerKitInformation::createConfigWi
     return new AndroidGdbServerKitInformationWidget(kit, isSticky(kit));
 }
 
+bool AndroidGdbServerKitInformation::isAndroidKit(const ProjectExplorer::Kit *kit)
+{
+    QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
+    if (qt && tc)
+        return qt->type() == QLatin1String(Android::Constants::ANDROIDQT)
+                && tc->type() == QLatin1String(Android::Constants::ANDROID_TOOLCHAIN_TYPE);
+    return false;
+
+}
+
 Utils::FileName AndroidGdbServerKitInformation::gdbServer(const ProjectExplorer::Kit *kit)
 {
-    return Utils::FileName::fromString(kit->value(Core::Id(ANDROIDGDBSERVER_INFORMATION)).toString());
+    return Utils::FileName::fromString(kit->value(Core::Id(ANDROID_GDBSERVER_INFORMATION)).toString());
 }
 
 void AndroidGdbServerKitInformation::setGdbSever(ProjectExplorer::Kit *kit, const Utils::FileName &gdbServerCommand)
 {
-    kit->setValue(Core::Id(ANDROIDGDBSERVER_INFORMATION),
+    kit->setValue(Core::Id(ANDROID_GDBSERVER_INFORMATION),
                   gdbServerCommand.toString());
 }
 
@@ -106,7 +118,7 @@ Utils::FileName AndroidGdbServerKitInformation::autoDetect(ProjectExplorer::Kit 
 
 void AndroidGdbServerKitInformation::makeSticky(ProjectExplorer::Kit *k)
 {
-    k->makeSticky(ANDROIDGDBSERVER_INFORMATION);
+    k->makeSticky(ANDROID_GDBSERVER_INFORMATION);
 }
 
 ///////////////

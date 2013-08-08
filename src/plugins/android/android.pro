@@ -40,7 +40,8 @@ HEADERS += \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
-    androidmanifestdocument.h
+    androidmanifestdocument.h \
+    androidqbspropertyprovider.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -75,7 +76,8 @@ SOURCES += \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \
-    androidmanifestdocument.cpp
+    androidmanifestdocument.cpp \
+    androidqbspropertyprovider.cpp
 
 FORMS += \
     androidsettingswidget.ui \

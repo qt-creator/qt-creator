@@ -721,7 +721,7 @@ QStringList AndroidConfigurations::makeExtraSearchDirectories() const
     return m_config.makeExtraSearchDirectories;
 }
 
-bool equalKits(Kit *a, Kit *b)
+static bool equalKits(Kit *a, Kit *b)
 {
     return ToolChainKitInformation::toolChain(a) == ToolChainKitInformation::toolChain(b)
             && QtSupport::QtKitInformation::qtVersion(a) == QtSupport::QtKitInformation::qtVersion(b);

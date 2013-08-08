@@ -8,6 +8,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Qt4ProjectManager" }
+    Depends { name: "QbsProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
@@ -72,6 +73,8 @@ QtcPlugin {
         "androidpackageinstallationstep.h",
         "androidplugin.cpp",
         "androidplugin.h",
+        "androidqbspropertyprovider.cpp",
+        "androidqbspropertyprovider.h",
         "androidqtversion.cpp",
         "androidqtversion.h",
         "androidqtversionfactory.cpp",

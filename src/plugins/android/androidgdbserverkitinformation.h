@@ -82,6 +82,7 @@ public:
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *) const;
 
+    static bool isAndroidKit(const ProjectExplorer::Kit *kit);
     static Utils::FileName gdbServer(const ProjectExplorer::Kit *kit);
     static void setGdbSever(ProjectExplorer::Kit *kit, const Utils::FileName &gdbServerCommand);
     static Utils::FileName autoDetect(ProjectExplorer::Kit *kit);

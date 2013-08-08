@@ -44,6 +44,7 @@
 #include "androiddeployconfiguration.h"
 #include "androidgdbserverkitinformation.h"
 #include "androidmanifesteditorfactory.h"
+#include "androidqbspropertyprovider.h"
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
@@ -97,7 +98,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     connect(ProjectExplorer::DeviceManager::instance(), SIGNAL(devicesLoaded()),
             this, SLOT(updateDevice()));
-
+    addAutoReleasedObject(new Internal::AndroidQBSPropertyProvider);
     return true;
 }
 
