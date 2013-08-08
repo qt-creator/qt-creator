@@ -62,6 +62,8 @@ public:
     enum Status { Null, Ready, Loading, Error };
     Status status() const;
 
+    static void registerQmlTypes();
+
 signals:
     void statusChanged(QuickPropertyEditorView::Status);
 

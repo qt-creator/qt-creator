@@ -43,17 +43,7 @@
 #include <rewriterview.h>
 
 #include "propertyeditorvalue.h"
-#include "basiclayouts.h"
-#include "basicwidgets.h"
-#include "resetwidget.h"
-#include "qlayoutobject.h"
-#include <qmleditorwidgets/colorwidgets.h>
-#include "gradientlineqmladaptor.h"
-#include "behaviordialog.h"
-#include "fontwidget.h"
-#include "siblingcombobox.h"
 #include "propertyeditortransaction.h"
-#include "originwidget.h"
 
 #include <utils/fileutils.h>
 
@@ -96,22 +86,7 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
 
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
-
-    static bool declarativeTypesRegistered = false;
-    if (!declarativeTypesRegistered) {
-        declarativeTypesRegistered = true;
-        BasicWidgets::registerDeclarativeTypes();
-        BasicLayouts::registerDeclarativeTypes();
-        ResetWidget::registerDeclarativeType();
-        QLayoutObject::registerDeclarativeType();
-        QmlEditorWidgets::ColorWidgets::registerDeclarativeTypes();
-        BehaviorDialog::registerDeclarativeType();
-        PropertyEditorValue::registerDeclarativeTypes();
-        FontWidget::registerDeclarativeTypes();
-        SiblingComboBox::registerDeclarativeTypes();
-        OriginWidget::registerDeclarativeType();
-        GradientLineQmlAdaptor::registerDeclarativeType();
-    }
+    QuickPropertyEditorView::registerQmlTypes();
     setQmlDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
     m_stackedWidget->setWindowTitle(tr("Properties"));
 }

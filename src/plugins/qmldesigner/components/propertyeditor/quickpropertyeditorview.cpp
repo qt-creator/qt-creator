@@ -29,6 +29,17 @@
 
 #include "quickpropertyeditorview.h"
 
+#include "basiclayouts.h"
+#include "basicwidgets.h"
+#include "resetwidget.h"
+#include "qlayoutobject.h"
+#include <qmleditorwidgets/colorwidgets.h>
+#include "gradientlineqmladaptor.h"
+#include "behaviordialog.h"
+#include "fontwidget.h"
+#include "siblingcombobox.h"
+#include "originwidget.h"
+
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
@@ -138,6 +149,26 @@ void QuickPropertyEditorView::setRootWidget(QWidget *widget)
         QSize initialSize = m_root->size();
         if (initialSize != size())
             resize(initialSize);
+    }
+}
+
+void QuickPropertyEditorView::registerQmlTypes()
+{
+
+    static bool declarativeTypesRegistered = false;
+    if (!declarativeTypesRegistered) {
+        declarativeTypesRegistered = true;
+        BasicWidgets::registerDeclarativeTypes();
+        BasicLayouts::registerDeclarativeTypes();
+        ResetWidget::registerDeclarativeType();
+        QLayoutObject::registerDeclarativeType();
+        QmlEditorWidgets::ColorWidgets::registerDeclarativeTypes();
+        BehaviorDialog::registerDeclarativeType();
+        PropertyEditorValue::registerDeclarativeTypes();
+        FontWidget::registerDeclarativeTypes();
+        SiblingComboBox::registerDeclarativeTypes();
+        OriginWidget::registerDeclarativeType();
+        GradientLineQmlAdaptor::registerDeclarativeType();
     }
 }
 
