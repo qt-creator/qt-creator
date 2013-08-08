@@ -35,19 +35,20 @@ gettingStartedText = getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
                                 "text='Getting Started'")
 
 # wait until help gets loaded
-def webPageContentLoaded(obj, param):
+def webPageContentLoaded(*args):
     global webPageContentLoadedValue
-    objectClass = str(obj.metaObject().className())
+    objectClass = str(args[0].metaObject().className())
     if objectClass in ("QWebPage", "Help::Internal::HelpViewer"):
         webPageContentLoadedValue += 1
 
-def clickItemVerifyHelpCombo(qmlItem, expectedHelpComboText, testDetails):
+def clickItemVerifyHelpCombo(qmlItem, expectedHelpComboRegex, testDetails):
     global gettingStartedText
     webPageContentLoadedValue = 0
     mouseClick(waitForObject(qmlItem), 5, 5, 0, Qt.LeftButton)
     waitFor("webPageContentLoadedValue == 4", 5000)
-    test.compare(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText,
-                 expectedHelpComboText, testDetails)
+    foundText = str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText)
+    if not test.verify(re.match(expectedHelpComboRegex, foundText), testDetails):
+        test.log("Found %s" % foundText)
     # select "Welcome" page from left toolbar again
     switchViewTo(ViewConstants.WELCOME)
     test.verify(checkIfObjectExists(gettingStartedText),
@@ -68,7 +69,7 @@ def main():
         mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
                                             "text='Getting Started'")), 5, 5, 0, Qt.LeftButton)
     qmlItem = getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False, "text='User Guide'")
-    expectedText = "QtCreator : Qt Creator Manual"
+    expectedText = "(QtCreator : Qt Creator Manual)|(Qt Creator Manual [|] QtCreator)"
     testDetails = "Verifying: Help with Creator Documentation is being opened."
     # select "User Guide" topic
     clickItemVerifyHelpCombo(qmlItem, expectedText, testDetails)
@@ -80,12 +81,12 @@ def main():
                                                "text='Blogs'")),
                 "Verifying: Link to Planet Qt exists.")
     qmlItem = getQmlItem("Text", ":Qt Creator_QDeclarativeView", False, "text='IDE Overview'")
-    expectedText = "QtCreator : IDE Overview"
+    expectedText = "(QtCreator : IDE Overview)|(IDE Overview [|] QtCreator)"
     testDetails = "Verifying: Help with IDE Overview topic is being opened."
     # select "IDE Overview"
     clickItemVerifyHelpCombo(qmlItem, expectedText, testDetails)
     qmlItem = getQmlItem("Text", ":Qt Creator_QDeclarativeView", False, "text='User Interface'")
-    expectedText = "QtCreator : User Interface"
+    expectedText = "(QtCreator : User Interface)|(User Interface [|]) QtCreator"
     testDetails = "Verifying: Help with User Interface topic is being opened."
     # select "User interface"
     clickItemVerifyHelpCombo(qmlItem, expectedText, testDetails)
@@ -95,7 +96,8 @@ def main():
                                         "text='Building and Running an Example Application'")),
                                         5, 5, 0, Qt.LeftButton)
     waitFor("webPageContentLoadedValue == 4", 5000)
-    checkPattern = "QtCreator : Building and Running an Example( Application)?"
+    checkPattern = ("(QtCreator : Building and Running an Example( Application)?)"
+                    "|(Building and Running an Example( Application)? [|] QtCreator)")
     checkText = str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText)
     if not test.verify(re.search(checkPattern, checkText),
                        "Verifying: Building and Running an Example is opened."):

@@ -40,6 +40,9 @@ def main():
         clickItem(":Options_QListView", "Environment", 14, 15, 0, Qt.LeftButton)
         clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
         languageName = testData.field(lang, "language")
+        if "%1" in languageName:
+            country = str(QLocale.countryToString(QLocale(testData.field(lang, "ISO")).country()))
+            languageName = languageName.replace("%1", country)
         selectFromCombo(":User Interface.languageBox_QComboBox", languageName)
         clickButton(waitForObject(":Options.OK_QPushButton"))
         clickButton(waitForObject(":Restart required.OK_QPushButton"))

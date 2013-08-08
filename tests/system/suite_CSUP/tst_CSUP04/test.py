@@ -84,8 +84,8 @@ def main():
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
-def __handleFutureProgress__(obj):
+def __handleFutureProgress__(*args):
     global searchFinished
-    if className(obj) == "Core::FutureProgress":
+    if className(args[0]) == "Core::FutureProgress":
         searchFinished = True
 

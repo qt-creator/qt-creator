@@ -112,7 +112,7 @@ def main():
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
     invokeMenuItem("File", "Exit")
 
-def __handleTextChanged__(object):
+def __handleTextChanged__(*args):
     global textChanged
     textChanged = True
 

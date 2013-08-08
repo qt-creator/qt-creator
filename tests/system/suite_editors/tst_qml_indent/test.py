@@ -76,7 +76,7 @@ def prepareQmlFile():
     editor.plainText = "\n".join([line.lstrip() for line in lines]) + "\n"
     return True
 
-def handleTextChanged(object):
+def handleTextChanged(*args):
     global textHasChanged
     textHasChanged = True
 

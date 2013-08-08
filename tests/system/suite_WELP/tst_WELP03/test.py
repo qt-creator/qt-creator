@@ -33,9 +33,9 @@ source("../../shared/suites_qtta.py")
 webPageContentLoadedValue = 0
 
 # wait until help gets loaded
-def webPageContentLoaded(obj, param):
+def webPageContentLoaded(*args):
     global webPageContentLoadedValue
-    objectClass = str(obj.metaObject().className())
+    objectClass = str(args[0].metaObject().className())
     if objectClass in ("QWebPage", "Help::Internal::HelpViewer"):
         webPageContentLoadedValue += 1
 

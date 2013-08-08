@@ -33,11 +33,11 @@ import re
 processStarted = False
 processExited = False
 
-def __handleProcessStarted__(object):
+def __handleProcessStarted__(*args):
     global processStarted
     processStarted = True
 
-def __handleProcessExited__(object, exitCode):
+def __handleProcessExited__(*args):
     global processExited
     processExited = True
 
@@ -330,8 +330,8 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
     global processStarted, processExited
     processStarted = processExited = False
     overrideInstallLazySignalHandler()
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processStarted()", "__handleProcessStarted__")
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processExited(int)", "__handleProcessExited__")
+    installLazySignalHandler("{type='QProcess'}", "started()", "__handleProcessStarted__")
+    installLazySignalHandler("{type='QProcess'}", "finished(int,QProcess::ExitStatus)", "__handleProcessExited__")
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
@@ -445,7 +445,7 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
                        "Using fallback of pushing STOP inside Creator.")
             resetApplicationContextToCreator()
             __closeSubprocessByPushingStop__(sType)
-    waitFor("processExited==True", 10000)
+    waitFor("processExited==True and 'exited with code' in str(output.plainText)", 10000)
     if not processExited:
         test.warning("Sub-process seems not to have closed properly.")
         try:

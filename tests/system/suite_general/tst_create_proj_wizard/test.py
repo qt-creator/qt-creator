@@ -160,6 +160,6 @@ def enableMaddePlugin():
                              "occurrence='%d'}" % (devSupport, maddePos)), 5, 5, 0, Qt.LeftButton)
     clickButton(":Installed Plugins.Close_QPushButton")
 
-def __handleTextChanged__(object):
+def __handleTextChanged__(*args):
     global textChanged
     textChanged = True
