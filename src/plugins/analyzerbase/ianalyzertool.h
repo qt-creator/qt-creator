@@ -86,9 +86,6 @@ public:
     };
     virtual ToolMode toolMode() const = 0;
 
-    /// This gets called after all analyzation tools where initialized.
-    virtual void extensionsInitialized() {}
-
     /// Creates all widgets used by the tool.
     /// Returns a control widget which will be shown in the status bar when
     /// this tool is selected. Must be non-zero.

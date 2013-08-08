@@ -33,13 +33,20 @@
 #include "callgrindtool.h"
 #include "memchecktool.h"
 #include "valgrindruncontrolfactory.h"
+#include "valgrindsettings.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzersettings.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 
-#include <valgrind/valgrindsettings.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <utils/hostosinfo.h>
 
@@ -95,8 +102,9 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 
     addAutoReleasedObject(new ValgrindOptionsPage());
 
-    IAnalyzerTool *memcheckTool = new MemcheckTool(this);
-    IAnalyzerTool *callgrindTool = new CallgrindTool(this);
+    m_memcheckTool = new MemcheckTool(this);
+    m_callgrindTool = new CallgrindTool(this);
+
     ValgrindAction *action = 0;
 
     QString callgrindToolTip = tr("Valgrind Function Profile uses the "
@@ -108,7 +116,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     if (!Utils::HostOsInfo::isWindowsHost()) {
         action = new ValgrindAction;
         action->setId("Memcheck.Local");
-        action->setTool(memcheckTool);
+        action->setTool(m_memcheckTool);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
@@ -118,7 +126,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 
         action = new ValgrindAction;
         action->setId("Callgrind.Local");
-        action->setTool(callgrindTool);
+        action->setTool(m_callgrindTool);
         action->setText(tr("Valgrind Function Profiler"));
         action->setToolTip(callgrindToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
@@ -129,7 +137,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 
     action = new ValgrindAction;
     action->setId("Memcheck.Remote");
-    action->setTool(memcheckTool);
+    action->setTool(m_memcheckTool);
     action->setText(tr("Valgrind Memory Analyzer (Remote)"));
     action->setToolTip(memcheckToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
@@ -138,7 +146,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 
     action = new ValgrindAction;
     action->setId("Callgrind.Remote");
-    action->setTool(callgrindTool);
+    action->setTool(m_callgrindTool);
     action->setText(tr("Valgrind Function Profiler (Remote)"));
     action->setToolTip(callgrindToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
@@ -153,6 +161,27 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
 ValgrindGlobalSettings *ValgrindPlugin::globalSettings()
 {
    return theGlobalSettings;
+}
+
+void ValgrindPlugin::extensionsInitialized()
+{
+    using namespace Core;
+
+    // If there is a CppEditor context menu add our own context menu actions.
+    if (ActionContainer *editorContextMenu =
+            ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
+        Context analyzerContext = Context(Analyzer::Constants::C_ANALYZEMODE);
+        editorContextMenu->addSeparator(analyzerContext);
+
+        QAction *action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
+        action->setIcon(QIcon(QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
+        connect(action, SIGNAL(triggered()), m_callgrindTool, SLOT(handleShowCostsOfFunction()));
+        Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
+            analyzerContext);
+        editorContextMenu->addAction(cmd);
+        cmd->setAttribute(Command::CA_Hide);
+        cmd->setAttribute(Command::CA_NonConfigurable);
+    }
 }
 
 } // namespace Internal

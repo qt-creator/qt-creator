@@ -51,16 +51,11 @@
 #include <analyzerbase/analyzerutils.h>
 #include <analyzerbase/analyzerconstants.h>
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
-#include <cppeditor/cppeditorconstants.h>
 #include <extensionsystem/iplugin.h>
 #include <texteditor/itexteditor.h>
 
@@ -207,7 +202,6 @@ public:
     QAction *m_dumpAction;
     QAction *m_resetAction;
     QAction *m_pauseAction;
-    QAction *m_showCostsOfFunctionAction;
 
     QString m_toggleCollectFunction;
 };
@@ -236,7 +230,6 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     , m_dumpAction(0)
     , m_resetAction(0)
     , m_pauseAction(0)
-    , m_showCostsOfFunctionAction(0)
 {
     m_updateTimer->setInterval(200);
     m_updateTimer->setSingleShot(true);
@@ -520,30 +513,6 @@ IAnalyzerTool::ToolMode CallgrindTool::toolMode() const
     return ReleaseMode;
 }
 
-void CallgrindTool::extensionsInitialized()
-{
-    Core::Context analyzerContext = Core::Context(Analyzer::Constants::C_ANALYZEMODE);
-
-    // check if there is a CppEditor context menu, if true, add our own context menu actions
-    if (Core::ActionContainer *editorContextMenu =
-            Core::ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
-        QAction *action = 0;
-        Core::Command *cmd = 0;
-
-        editorContextMenu->addSeparator(analyzerContext);
-
-        action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
-        action->setIcon(QIcon(QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
-        connect(action, SIGNAL(triggered()), d, SLOT(handleShowCostsOfFunction()));
-        cmd = Core::ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
-            analyzerContext);
-        editorContextMenu->addAction(cmd);
-        cmd->setAttribute(Core::Command::CA_Hide);
-        cmd->setAttribute(Core::Command::CA_NonConfigurable);
-        d->m_showCostsOfFunctionAction = action;
-    }
-}
-
 AnalyzerRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
@@ -593,6 +562,11 @@ void CallgrindTool::startTool(StartMode mode)
 {
     ValgrindTool::startTool(mode);
     d->setBusyCursor(true);
+}
+
+void CallgrindTool::handleShowCostsOfFunction()
+{
+   d->handleShowCostsOfFunction();
 }
 
 QWidget *CallgrindTool::createWidgets()

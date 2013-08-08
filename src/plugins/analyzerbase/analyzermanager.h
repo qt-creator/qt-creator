@@ -63,7 +63,6 @@ public:
     explicit AnalyzerManager(QObject *parent);
     ~AnalyzerManager();
 
-    static void extensionsInitialized();
     static void shutdown();
 
     // Register a tool for a given start mode.

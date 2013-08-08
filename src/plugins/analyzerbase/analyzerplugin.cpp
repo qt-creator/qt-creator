@@ -72,11 +72,6 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
     return true;
 }
 
-void AnalyzerPlugin::extensionsInitialized()
-{
-    AnalyzerManager::extensionsInitialized();
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag AnalyzerPlugin::aboutToShutdown()
 {
     AnalyzerManager::shutdown();

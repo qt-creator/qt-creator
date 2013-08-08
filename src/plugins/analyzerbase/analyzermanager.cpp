@@ -624,12 +624,6 @@ AnalyzerManager::~AnalyzerManager()
     d = 0;
 }
 
-void AnalyzerManager::extensionsInitialized()
-{
-    foreach (IAnalyzerTool *tool, d->m_tools)
-        tool->extensionsInitialized();
-}
-
 void AnalyzerManager::shutdown()
 {
     if (d->m_currentAction)

@@ -48,13 +48,14 @@ public:
     ProjectExplorer::RunMode runMode() const;
     ToolMode toolMode() const;
 
-    void extensionsInitialized();
-
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();
 
     void startTool(Analyzer::StartMode mode);
+
+public slots:
+    void handleShowCostsOfFunction();
 
 private:
     CallgrindToolPrivate *d;
