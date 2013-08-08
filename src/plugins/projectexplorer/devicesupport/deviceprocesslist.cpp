@@ -46,7 +46,7 @@ public:
     { }
 
     const IDevice::ConstPtr device;
-    QList<DeviceProcess> remoteProcesses;
+    QList<DeviceProcessItem> remoteProcesses;
     State state;
 };
 
@@ -96,7 +96,7 @@ void DeviceProcessList::update()
     doUpdate();
 }
 
-void DeviceProcessList::reportProcessListUpdated(const QList<DeviceProcess> &processes)
+void DeviceProcessList::reportProcessListUpdated(const QList<DeviceProcessItem> &processes)
 {
     QTC_ASSERT(d->state == Listing, return);
     setFinished();
@@ -125,7 +125,7 @@ void DeviceProcessList::reportProcessKilled()
     emit processKilled();
 }
 
-DeviceProcess DeviceProcessList::at(int row) const
+DeviceProcessItem DeviceProcessList::at(int row) const
 {
     return d->remoteProcesses.at(row);
 }
@@ -156,7 +156,7 @@ QVariant DeviceProcessList::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
-        const DeviceProcess &proc = d->remoteProcesses.at(index.row());
+        const DeviceProcessItem &proc = d->remoteProcesses.at(index.row());
         if (index.column() == 0)
             return proc.pid;
         else
@@ -182,12 +182,12 @@ void DeviceProcessList::reportError(const QString &message)
     emit error(message);
 }
 
-QList<DeviceProcess> DeviceProcessList::localProcesses()
+QList<DeviceProcessItem> DeviceProcessList::localProcesses()
 {
     return LocalProcessList::getLocalProcesses();
 }
 
-bool DeviceProcess::operator <(const DeviceProcess &other) const
+bool DeviceProcessItem::operator <(const DeviceProcessItem &other) const
 {
     if (pid != other.pid)
         return pid < other.pid;

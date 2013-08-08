@@ -59,7 +59,7 @@ void SshDeviceProcessList::doUpdate()
     d->process.run(listProcessesCommandLine().toUtf8(), device()->sshParameters());
 }
 
-void SshDeviceProcessList::doKillProcess(const DeviceProcess &process)
+void SshDeviceProcessList::doKillProcess(const DeviceProcessItem &process)
 {
     QTC_ASSERT(device()->processSupport(), return);
     connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));

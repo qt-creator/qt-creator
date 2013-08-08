@@ -39,11 +39,11 @@ namespace ProjectExplorer {
 
 namespace Internal { class DeviceProcessListPrivate; }
 
-class PROJECTEXPLORER_EXPORT DeviceProcess
+class PROJECTEXPLORER_EXPORT DeviceProcessItem
 {
 public:
-    DeviceProcess() : pid(0) {}
-    bool operator<(const DeviceProcess &other) const;
+    DeviceProcessItem() : pid(0) {}
+    bool operator<(const DeviceProcessItem &other) const;
 
     int pid;
     QString cmdLine;
@@ -60,9 +60,9 @@ public:
 
     void update();
     void killProcess(int row);
-    DeviceProcess at(int row) const;
+    DeviceProcessItem at(int row) const;
 
-    static QList<DeviceProcess> localProcesses();
+    static QList<DeviceProcessItem> localProcesses();
 
 signals:
     void processListUpdated();
@@ -72,7 +72,7 @@ signals:
 protected:
     void reportError(const QString &message);
     void reportProcessKilled();
-    void reportProcessListUpdated(const QList<DeviceProcess> &processes);
+    void reportProcessListUpdated(const QList<DeviceProcessItem> &processes);
 
     IDevice::ConstPtr device() const;
 
@@ -87,7 +87,7 @@ private:
     bool hasChildren(const QModelIndex &parent) const;
 
     virtual void doUpdate() = 0;
-    virtual void doKillProcess(const DeviceProcess &process) = 0;
+    virtual void doKillProcess(const DeviceProcessItem &process) = 0;
 
     void setFinished();
 

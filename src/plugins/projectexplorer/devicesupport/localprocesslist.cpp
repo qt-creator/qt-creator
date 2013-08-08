@@ -166,15 +166,15 @@ static bool isUnixProcessId(const QString &procname)
 
 static const char procDirC[] = "/proc/";
 
-static QList<DeviceProcess> getLocalProcessesUsingProc(const QDir &procDir)
+static QList<DeviceProcessItem> getLocalProcessesUsingProc(const QDir &procDir)
 {
-    QList<DeviceProcess> processes;
+    QList<DeviceProcessItem> processes;
     const QString procDirPath = QLatin1String(procDirC);
     const QStringList procIds = procDir.entryList();
     foreach (const QString &procId, procIds) {
         if (!isUnixProcessId(procId))
             continue;
-        DeviceProcess proc;
+        DeviceProcessItem proc;
         proc.pid = procId.toInt();
         const QString root = procDirPath + procId;
 
@@ -216,14 +216,14 @@ static QList<DeviceProcess> getLocalProcessesUsingProc(const QDir &procDir)
 }
 
 // Determine UNIX processes by running ps
-static QList<DeviceProcess> getLocalProcessesUsingPs()
+static QList<DeviceProcessItem> getLocalProcessesUsingPs()
 {
 #ifdef Q_OS_MAC
     static const char formatC[] = "pid state command";
 #else
     static const char formatC[] = "pid,state,cmd";
 #endif
-    QList<DeviceProcess> processes;
+    QList<DeviceProcessItem> processes;
     QProcess psProcess;
     QStringList args;
     args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String(formatC);
@@ -240,7 +240,7 @@ static QList<DeviceProcess> getLocalProcessesUsingPs()
                 const int pidSep = line.indexOf(blank);
                 const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
                 if (cmdSep > 0) {
-                    DeviceProcess procData;
+                    DeviceProcessItem procData;
                     procData.pid = line.left(pidSep).toInt();
                     procData.exe = line.mid(cmdSep + 1);
                     procData.cmdLine = line.mid(cmdSep + 1);
@@ -252,13 +252,13 @@ static QList<DeviceProcess> getLocalProcessesUsingPs()
     return processes;
 }
 
-QList<DeviceProcess> LocalProcessList::getLocalProcesses()
+QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
 {
     const QDir procDir = QDir(QLatin1String(procDirC));
     return procDir.exists() ? getLocalProcessesUsingProc(procDir) : getLocalProcessesUsingPs();
 }
 
-void LocalProcessList::doKillProcess(const DeviceProcess &process)
+void LocalProcessList::doKillProcess(const DeviceProcessItem &process)
 {
     if (kill(process.pid, SIGKILL) == -1)
         m_error = QString::fromLocal8Bit(strerror(errno));

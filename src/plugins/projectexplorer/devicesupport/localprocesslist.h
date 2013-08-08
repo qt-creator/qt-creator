@@ -49,11 +49,11 @@ public:
     LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    static QList<DeviceProcess> getLocalProcesses();
+    static QList<DeviceProcessItem> getLocalProcesses();
 
 private:
     void doUpdate();
-    void doKillProcess(const DeviceProcess &process);
+    void doKillProcess(const DeviceProcessItem &process);
 
 private slots:
     void handleUpdate();

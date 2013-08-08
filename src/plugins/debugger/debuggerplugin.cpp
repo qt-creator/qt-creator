@@ -527,7 +527,7 @@ public:
 
 static QString executableForPid(qint64 pid)
 {
-    foreach (const DeviceProcess &p, DeviceProcessList::localProcesses())
+    foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses())
         if (p.pid == pid)
             return p.exe;
     return QString();
@@ -1688,7 +1688,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     QTC_ASSERT(kit, return);
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return);
-    DeviceProcess process = dlg->currentProcess();
+    DeviceProcessItem process = dlg->currentProcess();
     if (process.pid == 0) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
             tr("Cannot attach to process with PID 0"));

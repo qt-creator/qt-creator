@@ -62,7 +62,7 @@ public:
 
     DeviceProcessesDialog *dialog;
     bool startServerOnly;
-    DeviceProcess process;
+    DeviceProcessItem process;
     Kit *kit;
     IDevice::ConstPtr device;
 

@@ -38,7 +38,7 @@
 
 namespace ProjectExplorer {
 
-class DeviceProcess;
+class DeviceProcessItem;
 class KitChooser;
 
 namespace Internal { class DeviceProcessesDialogPrivate; }
@@ -55,7 +55,7 @@ public:
 
     void setDevice(const IDevice::ConstPtr &device);
     void showAllDevices();
-    DeviceProcess currentProcess() const;
+    DeviceProcessItem currentProcess() const;
     KitChooser *kitChooser() const;
     void logMessage(const QString &line);
     DeviceProcessesDialog(KitChooser *chooser, QWidget *parent);

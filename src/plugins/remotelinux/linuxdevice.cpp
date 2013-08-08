@@ -72,9 +72,9 @@ private:
             "done").arg(QLatin1String(Delimiter0)).arg(QLatin1String(Delimiter1));
     }
 
-    QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const
+    QList<DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const
     {
-        QList<DeviceProcess> processes;
+        QList<DeviceProcessItem> processes;
         const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
                 + QString::fromLatin1(Delimiter1), QString::SkipEmptyParts);
         foreach (const QString &line, lines) {
@@ -104,7 +104,7 @@ private:
                         + QLatin1Char(']');
             }
 
-            DeviceProcess process;
+            DeviceProcessItem process;
             process.pid = pid;
             process.cmdLine = command;
             process.exe = elements.at(3);

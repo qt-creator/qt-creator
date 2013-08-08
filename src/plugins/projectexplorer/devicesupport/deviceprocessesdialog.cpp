@@ -104,7 +104,7 @@ public slots:
     void handleProcessListUpdated();
     void handleProcessKilled();
     void updateButtons();
-    DeviceProcess selectedProcess() const;
+    DeviceProcessItem selectedProcess() const;
 
 public:
     QWidget *q;
@@ -277,11 +277,11 @@ void DeviceProcessesDialogPrivate::updateButtons()
     errorText->setVisible(!errorText->document()->isEmpty());
 }
 
-DeviceProcess DeviceProcessesDialogPrivate::selectedProcess() const
+DeviceProcessItem DeviceProcessesDialogPrivate::selectedProcess() const
 {
     const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
     if (indexes.empty() || !processList)
-        return DeviceProcess();
+        return DeviceProcessItem();
     return processList->at(proxyModel.mapToSource(indexes.first()).row());
 }
 
@@ -355,7 +355,7 @@ void DeviceProcessesDialog::showAllDevices()
     d->updateDevice();
 }
 
-DeviceProcess DeviceProcessesDialog::currentProcess() const
+DeviceProcessItem DeviceProcessesDialog::currentProcess() const
 {
     return d->selectedProcess();
 }

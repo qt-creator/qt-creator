@@ -105,9 +105,9 @@ private:
         return QLatin1String("pidin -F \"%a %A '/%n'\"");
     }
 
-    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const
+    QList<ProjectExplorer::DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const
     {
-        QList<ProjectExplorer::DeviceProcess> processes;
+        QList<ProjectExplorer::DeviceProcessItem> processes;
         QStringList lines = listProcessesReply.split(QLatin1Char('\n'));
         if (lines.isEmpty())
             return processes;
@@ -122,7 +122,7 @@ private:
                     const int pid = captures[1].toInt();
                     const QString args = captures[2];
                     const QString exe = captures[3];
-                    ProjectExplorer::DeviceProcess deviceProcess;
+                    ProjectExplorer::DeviceProcessItem deviceProcess;
                     deviceProcess.pid = pid;
                     deviceProcess.exe = exe.trimmed();
                     deviceProcess.cmdLine = args.trimmed();
