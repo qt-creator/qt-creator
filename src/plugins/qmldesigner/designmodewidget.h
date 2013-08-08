@@ -35,7 +35,6 @@
 
 #include <designdocument.h>
 #include <modelnode.h>
-#include <propertyeditor.h>
 
 #include <QWidget>
 #include <QLabel>
