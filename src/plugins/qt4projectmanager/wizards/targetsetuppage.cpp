@@ -698,12 +698,19 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
     // c) the first target
     ProjectExplorer::Target *activeTarget = 0;
     QList<ProjectExplorer::Target *> targets = project->targets();
+    int activeTargetPriority = 0;
     foreach (ProjectExplorer::Target *t, targets) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(t->kit());
-        if (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT))
+        if (t->kit() == ProjectExplorer::KitManager::instance()->defaultKit()) {
             activeTarget = t;
-        else if (!activeTarget && version && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT))
+            activeTargetPriority = 3;
+        } else if (activeTargetPriority < 2 && version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)) {
             activeTarget = t;
+            activeTargetPriority = 2;
+        } else if (activeTargetPriority < 1 && version && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)) {
+            activeTarget = t;
+            activeTargetPriority = 1;
+        }
     }
     if (!activeTarget && !targets.isEmpty())
         activeTarget = targets.first();
