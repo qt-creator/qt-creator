@@ -37,11 +37,12 @@ class IAnalyzerTool;
 }
 
 namespace QmlProfiler {
+
+class QmlProfilerModelManager;
 namespace Internal {
 
 class QmlProfilerStateManager;
 class QmlProfilerViewManager;
-class QmlProfilerDataModel;
 
 // capture mouse wheel events
 class MouseWheelResizer : public QObject {
@@ -83,12 +84,13 @@ protected:
     void scrollContentsBy(int dx, int dy);
 };
 
+
 class QmlProfilerTraceView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerDataModel *model, QmlProfilerStateManager *profilerState);
+    explicit QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState);
     ~QmlProfilerTraceView();
 
     void reset();
@@ -99,7 +101,8 @@ public:
 
 public slots:
     void clearDisplay();
-    void selectNextEventWithId(int eventId);
+    void selectNextEventByHash(const QString &eventHash);
+    void selectNextEventByLocation(const QString &filename, const int line, const int column);
 
 private slots:
     void updateCursorPosition();

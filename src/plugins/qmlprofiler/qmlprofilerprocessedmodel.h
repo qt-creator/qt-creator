@@ -27,43 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
+#ifndef QMLPROFILERPROCESSEDMODEL_H
+#define QMLPROFILERPROCESSEDMODEL_H
 
-#include "qmlprofiler_global.h"
-
-#include <extensionsystem/iplugin.h>
-
-#include "abstracttimelinemodel.h"
+#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdetailsrewriter.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+class QmlProfilerProcessedModel : public QmlProfilerSimpleModel
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
 
 public:
-    QmlProfilerPlugin() {}
+    explicit QmlProfilerProcessedModel(Utils::FileInProjectFinder *fileFinder, QObject *parent = 0);
+    ~QmlProfilerProcessedModel();
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    virtual void clear();
+    virtual void complete();
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
-
-    QList<AbstractTimelineModel *> getModels() const;
+private slots:
+    void detailsChanged(int requestId, const QString &newString);
+    void detailsDone();
 
 private:
-    QList<AbstractTimelineModel*> timelineModels;
-
-
+    QmlProfilerDetailsRewriter *m_detailsRewriter;
+    bool m_emitChanged;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+}
+}
 
-#endif // QMLPROFILERPLUGIN_H
-
+#endif

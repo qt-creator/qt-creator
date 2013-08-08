@@ -38,7 +38,6 @@ namespace Internal {
 class QmlProfilerStateManager : public QObject
 {
     Q_OBJECT
-
 public:
     enum QmlProfilerState {
         Idle,
@@ -54,11 +53,11 @@ public:
     explicit QmlProfilerStateManager(QObject *parent = 0);
     ~QmlProfilerStateManager();
 
-    QmlProfilerState currentState() const;
-    bool clientRecording() const;
-    bool serverRecording() const;
+    QmlProfilerState currentState();
+    bool clientRecording();
+    bool serverRecording();
 
-    QString currentStateAsString() const;
+    QString currentStateAsString();
 
 signals:
     void stateChanged();
@@ -71,12 +70,11 @@ public slots:
     void setServerRecording(bool recording);
 
 private:
-    QmlProfilerStateManager::QmlProfilerState m_currentState;
-    bool m_clientRecording;
-    bool m_serverRecording;
+    class QmlProfilerStateManagerPrivate;
+    QmlProfilerStateManagerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+}
+}
 
 #endif // QMLPROFILERSTATEMANAGER_H

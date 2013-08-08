@@ -28,11 +28,8 @@
 ****************************************************************************/
 
 #include "qv8profilerdatamodel.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <QStringList>
-
-using namespace QmlDebug;
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QV8EventData, Q_MOVABLE_TYPE);
@@ -66,7 +63,7 @@ QV8EventData &QV8EventData::operator=(const QV8EventData &ref)
     totalTime = ref.totalTime;
     totalPercent = ref.totalPercent;
     selfTime = ref.selfTime;
-    selfPercent = ref.selfPercent;
+    SelfTimeInPercent = ref.SelfTimeInPercent;
     eventId = ref.eventId;
 
     qDeleteAll(parentHash);
@@ -85,7 +82,7 @@ QV8EventData::QV8EventData()
     totalTime = 0;
     selfTime = 0;
     totalPercent = 0;
-    selfPercent = 0;
+    SelfTimeInPercent = 0;
 }
 
 QV8EventData::~QV8EventData()
@@ -101,8 +98,6 @@ class QV8ProfilerDataModel::QV8ProfilerDataModelPrivate
 public:
     QV8ProfilerDataModelPrivate(QV8ProfilerDataModel *qq) {Q_UNUSED(qq);}
 
-    QmlProfilerDataModel *qmlProfilerDataModel;
-
     void clearV8RootEvent();
     void collectV8Statistics();
 
@@ -112,13 +107,12 @@ public:
     qint64 v8MeasuredTime;
 };
 
-QV8ProfilerDataModel::QV8ProfilerDataModel(QObject *parent,
-                                           QmlProfilerDataModel *profilerDataModel)
-    : QObject(parent), d(new QV8ProfilerDataModelPrivate(this))
+QV8ProfilerDataModel::QV8ProfilerDataModel(QObject *parent)
+    : QObject(parent)
+    , d(new QV8ProfilerDataModelPrivate(this))
 {
     d->v8MeasuredTime = 0;
     d->clearV8RootEvent();
-    d->qmlProfilerDataModel = profilerDataModel;
 }
 
 QV8ProfilerDataModel::~QV8ProfilerDataModel()
@@ -133,6 +127,8 @@ void QV8ProfilerDataModel::clear()
     d->v8parents.clear();
     d->clearV8RootEvent();
     d->v8MeasuredTime = 0;
+
+    emit changed();
 }
 
 bool QV8ProfilerDataModel::isEmpty() const
@@ -159,6 +155,11 @@ QList<QV8EventData *> QV8ProfilerDataModel::getV8Events() const
     return d->v8EventHash.values();
 }
 
+QString getHashStringForV8Event(const QString &displayName, const QString &function)
+{
+    return QString::fromLatin1("%1:%2").arg(displayName, function);
+}
+
 void QV8ProfilerDataModel::addV8Event(int depth,
                                       const QString &function,
                                       const QString &filename,
@@ -168,9 +169,7 @@ void QV8ProfilerDataModel::addV8Event(int depth,
 {
     QString displayName = filename.mid(filename.lastIndexOf(QLatin1Char('/')) + 1) +
             QLatin1Char(':') + QString::number(lineNumber);
-    QString hashStr = QmlProfilerDataModel::getHashStringForV8Event(displayName, function);
-
-    d->qmlProfilerDataModel->setState(QmlProfilerDataModel::AcquiringData);
+    QString hashStr = getHashStringForV8Event(displayName, function);
 
     // time is given in milliseconds, but internally we store it in microseconds
     totalTime *= 1e6;
@@ -223,6 +222,7 @@ void QV8ProfilerDataModel::addV8Event(int depth,
             newChildSub->totalTime += totalTime;
         }
     }
+
 }
 
 void QV8ProfilerDataModel::collectV8Statistics()
@@ -250,9 +250,9 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
         v8RootEvent.totalTime = v8MeasuredTime + 1;
         v8RootEvent.selfTime = 0;
 
-        QString rootEventHash = QmlProfilerDataModel::getHashStringForV8Event(
-                    QmlProfilerDataModel::rootEventName(),
-                    QmlProfilerDataModel::rootEventDescription());
+        QString rootEventHash = getHashStringForV8Event(
+                    tr("<program>"),
+                    tr("Main Program"));
         QV8EventData *v8RootEventPointer = v8EventHash[rootEventHash];
         if (v8RootEventPointer) {
             v8RootEvent = *v8RootEventPointer;
@@ -263,7 +263,7 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
 
         foreach (QV8EventData *v8event, v8EventHash.values()) {
             v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
-            v8event->selfPercent = v8event->selfTime * 100.0 / selfTimes;
+            v8event->SelfTimeInPercent = v8event->selfTime * 100.0 / selfTimes;
         }
 
         int index = 0;
@@ -274,25 +274,20 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
     } else {
         // On empty data, still add a fake root event
         clearV8RootEvent();
-        v8RootEvent.totalPercent = 100;
-        QString rootEventHash = QmlProfilerDataModel::getHashStringForV8Event(
-                    QmlProfilerDataModel::rootEventName(),
-                    QmlProfilerDataModel::rootEventDescription());
-        v8EventHash[rootEventHash] = new QV8EventData;
-        *v8EventHash[rootEventHash] = v8RootEvent;
     }
 }
 
 void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::clearV8RootEvent()
 {
-    v8RootEvent.displayName = QmlProfilerDataModel::rootEventName();
-    v8RootEvent.eventHashStr = QmlProfilerDataModel::rootEventName();
-    v8RootEvent.functionName = QmlProfilerDataModel::rootEventDescription();
+    v8RootEvent.displayName = tr("<program>");
+    v8RootEvent.eventHashStr = tr("<program>");
+    v8RootEvent.functionName = tr("Main Program");
+
     v8RootEvent.line = -1;
     v8RootEvent.totalTime = 0;
     v8RootEvent.totalPercent = 0;
     v8RootEvent.selfTime = 0;
-    v8RootEvent.selfPercent = 0;
+    v8RootEvent.SelfTimeInPercent = 0;
     v8RootEvent.eventId = -1;
 
     qDeleteAll(v8RootEvent.parentHash.values());
@@ -439,7 +434,7 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
         }
         default: break;
         }
-}
+    }
 
     // backwards compatibility
     if (d->v8MeasuredTime == 0)
@@ -472,17 +467,22 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
             }
         }
     }
-
     // store v8 events
     foreach (QV8EventData *storedV8Event, v8eventBuffer.values()) {
         storedV8Event->eventHashStr =
-                QmlProfilerDataModel::getHashStringForV8Event(
+                getHashStringForV8Event(
                     storedV8Event->displayName, storedV8Event->functionName);
         d->v8EventHash[storedV8Event->eventHashStr] = storedV8Event;
     }
 
     d->collectV8Statistics();
 
+}
+
+void QV8ProfilerDataModel::complete()
+{
+    collectV8Statistics();
+    emit changed();
 }
 
 } // namespace Internal

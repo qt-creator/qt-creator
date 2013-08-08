@@ -36,36 +36,37 @@ Canvas2D {
 
     // ***** properties
     height: 50
-    property bool dataAvailable: false
+    property bool dataReady: false
     property variant startTime : 0
     property variant endTime : 0
 
     // ***** functions
     function clearDisplay()
     {
-        dataAvailable = false;
+        dataReady = false;
         requestRedraw();
     }
 
     function updateRange() {
-        var newStartTime = Math.round(rangeMover.x * qmlProfilerDataModel.traceDuration() / width) + qmlProfilerDataModel.traceStartTime();
-        var newEndTime = Math.round((rangeMover.x + rangeMover.width) * qmlProfilerDataModel.traceDuration() / width) + qmlProfilerDataModel.traceStartTime();
+        var newStartTime = Math.round(rangeMover.x * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
+        var newEndTime = Math.round((rangeMover.x + rangeMover.width) * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         if (startTime !== newStartTime || endTime !== newEndTime) {
             zoomControl.setRange(newStartTime, newEndTime);
         }
+
     }
 
     // ***** connections to external objects
     Connections {
         target: zoomControl
         onRangeChanged: {
-            if (qmlProfilerDataModel) {
+            if (qmlProfilerModelProxy) {
                 startTime = zoomControl.startTime();
                 endTime = zoomControl.endTime();
-                var newRangeX = (startTime - qmlProfilerDataModel.traceStartTime()) * width / qmlProfilerDataModel.traceDuration();
+                var newRangeX = (startTime - qmlProfilerModelProxy.traceStartTime()) * width / qmlProfilerModelProxy.traceDuration();
                 if (rangeMover.x !== newRangeX)
                     rangeMover.x = newRangeX;
-                var newWidth = (endTime-startTime) * width / qmlProfilerDataModel.traceDuration();
+                var newWidth = (endTime-startTime) * width / qmlProfilerModelProxy.traceDuration();
                 if (rangeMover.width !== newWidth)
                     rangeMover.width = newWidth;
             }
@@ -73,20 +74,18 @@ Canvas2D {
     }
 
     Connections {
-        target: qmlProfilerDataModel
-        onStateChanged: {
-            // State is "done"
-            if (qmlProfilerDataModel.getCurrentStateFromQml() == 3) {
-                dataAvailable = true;
+        target: qmlProfilerModelProxy
+        onDataAvailable: {
+                dataReady = true;
                 requestRedraw();
-            }
         }
     }
 
+
     // ***** slots
     onDrawRegion: {
-        Plotter.qmlProfilerDataModel = qmlProfilerDataModel;
-        if (dataAvailable) {
+        Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
+        if (dataReady) {
             Plotter.plot(canvas, ctxt, region);
         } else {
             Plotter.drawGraph(canvas, ctxt, region)    //just draw the background
@@ -116,7 +115,7 @@ Canvas2D {
 
     RangeMover {
         id: rangeMover
-        visible: dataAvailable
+        visible: dataReady
     }
 
     Rectangle {

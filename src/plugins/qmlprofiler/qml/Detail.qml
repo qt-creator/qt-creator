@@ -34,7 +34,6 @@ Item {
     id: detail
     property string label
     property string content
-    signal linkActivated(string url)
 
     height: childrenRect.height+2
     width: childrenRect.width
@@ -55,7 +54,6 @@ Item {
         font.pixelSize: 12
         anchors.baseline: lbl.baseline
         anchors.left: guideline.right
-        onLinkActivated: detail.linkActivated(link)
         textFormat: Text.PlainText
     }
 }

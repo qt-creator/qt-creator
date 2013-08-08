@@ -31,8 +31,10 @@
 #include "qmlprofilerruncontrolfactory.h"
 
 #include "qmlprofilertool.h"
+#include "abstracttimelinemodel.h"
 
 #include <analyzerbase/analyzermanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtPlugin>
 
@@ -48,6 +50,7 @@ public:
 };
 
 bool QmlProfilerPlugin::debugOutput = false;
+QmlProfilerPlugin *QmlProfilerPlugin::instance = 0;
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -81,15 +84,14 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     AnalyzerManager::addAction(action);
 
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
+    QmlProfilerPlugin::instance = this;
 
     return true;
 }
 
 void QmlProfilerPlugin::extensionsInitialized()
 {
-    // Retrieve objects from the plugin manager's object pool.
-    // "In the extensionsInitialized method, a plugin can be sure that all
-    //  plugins that depend on it are completely initialized."
+    timelineModels = ExtensionSystem::PluginManager::getObjects<AbstractTimelineModel>();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
@@ -100,8 +102,12 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
+QList<AbstractTimelineModel *> QmlProfilerPlugin::getModels() const
+{
+    return timelineModels;
+}
+
 } // namespace Internal
 } // namespace QmlProfiler
 
 Q_EXPORT_PLUGIN(QmlProfiler::Internal::QmlProfilerPlugin)
-

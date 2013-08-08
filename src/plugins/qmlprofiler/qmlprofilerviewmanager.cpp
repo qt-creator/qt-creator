@@ -33,8 +33,9 @@
 #include "qmlprofilereventview.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
-#include "qmlprofilerdatamodel.h"
+#include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatewidget.h"
+#include "qv8profilereventview.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -53,15 +54,15 @@ public:
 
     QmlProfilerTraceView *traceView;
     QmlProfilerEventsWidget *eventsView;
-    QmlProfilerEventsWidget *v8profilerView;
+    QV8ProfilerEventsWidget *v8profilerView;
     QmlProfilerStateManager *profilerState;
-    QmlProfilerDataModel *profilerDataModel;
+    QmlProfilerModelManager *profilerModelManager;
     QmlProfilerTool *profilerTool;
 };
 
 QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
                                                QmlProfilerTool *profilerTool,
-                                               QmlProfilerDataModel *model,
+                                               QmlProfilerModelManager *modelManager,
                                                QmlProfilerStateManager *profilerState)
     : QObject(parent), d(new QmlProfilerViewManagerPrivate(this))
 {
@@ -70,7 +71,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     d->eventsView = 0;
     d->v8profilerView = 0;
     d->profilerState = profilerState;
-    d->profilerDataModel = model;
+    d->profilerModelManager = modelManager;
     d->profilerTool = profilerTool;
     createViews();
 }
@@ -84,7 +85,8 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
 // Views
 void QmlProfilerViewManager::createViews()
 {
-    QTC_ASSERT(d->profilerDataModel, return);
+
+    QTC_ASSERT(d->profilerModelManager, return);
     QTC_ASSERT(d->profilerState, return);
 
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
@@ -92,26 +94,28 @@ void QmlProfilerViewManager::createViews()
     d->traceView = new QmlProfilerTraceView(mw,
                                             d->profilerTool,
                                             this,
-                                            d->profilerDataModel,
+                                            d->profilerModelManager,
                                             d->profilerState);
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
             this, SIGNAL(gotoSourceLocation(QString,int,int)));
-
     d->traceView->reset();
 
-    d->eventsView = new QmlProfilerEventsWidget(mw, d->profilerTool, this, d->profilerDataModel);
+
+    d->eventsView = new QmlProfilerEventsWidget(mw, d->profilerTool, this,
+                                                d->profilerModelManager);
     connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
             SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->eventsView, SIGNAL(showEventInTimeline(int)), d->traceView,
-            SLOT(selectNextEventWithId(int)));
-    connect(d->traceView, SIGNAL(selectedEventChanged(int)), d->eventsView,
-            SLOT(updateSelectedEvent(int)));
+    connect(d->eventsView, SIGNAL(eventSelectedByHash(QString)), d->traceView,
+            SLOT(selectNextEventByHash(QString)));
+    connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
+            d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
 
-    d->v8profilerView = new QmlProfilerEventsWidget(mw, d->profilerTool,
-                                                    this, d->profilerDataModel);
-    d->v8profilerView->switchToV8View();
+    d->v8profilerView = new QV8ProfilerEventsWidget(mw, d->profilerTool, this,
+                                                    d->profilerModelManager);
+    connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
+            d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
     connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
-            this, SIGNAL(gotoSourceLocation(QString,int,int)));
+            d->traceView, SLOT(selectNextEventByLocation(QString,int,int)));
     connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
             d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
     connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)),
@@ -121,8 +125,8 @@ void QmlProfilerViewManager::createViews()
             (d->profilerTool, tr("Events"), d->eventsView, Qt::BottomDockWidgetArea);
     QDockWidget *timelineDock = AnalyzerManager::createDockWidget
             (d->profilerTool, tr("Timeline"), d->traceView, Qt::BottomDockWidgetArea);
-    QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget
-            (d->profilerTool, tr("JavaScript"), d->v8profilerView, Qt::BottomDockWidgetArea);
+    QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget(
+                d->profilerTool, tr("JavaScript"), d->v8profilerView, Qt::BottomDockWidgetArea);
 
     eventsDock->show();
     timelineDock->show();
@@ -132,9 +136,9 @@ void QmlProfilerViewManager::createViews()
     mw->tabifyDockWidget(timelineDock, eventsDock);
     mw->tabifyDockWidget(eventsDock, v8profilerDock);
 
-    new QmlProfilerStateWidget(d->profilerState, d->profilerDataModel, d->traceView);
-    new QmlProfilerStateWidget(d->profilerState, d->profilerDataModel, d->eventsView);
-    new QmlProfilerStateWidget(d->profilerState, d->profilerDataModel, d->v8profilerView);
+    new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->eventsView);
+    new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
+    new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->v8profilerView);
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const

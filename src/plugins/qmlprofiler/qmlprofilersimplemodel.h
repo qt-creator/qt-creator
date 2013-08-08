@@ -27,43 +27,62 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
+#ifndef QMLPROFILERSIMPLEMODEL_H
+#define QMLPROFILERSIMPLEMODEL_H
 
 #include "qmlprofiler_global.h"
-
-#include <extensionsystem/iplugin.h>
-
-#include "abstracttimelinemodel.h"
+#include <QObject>
+#include <QVector>
+#include <QStringList>
+#include "qmldebug/qmlprofilereventlocation.h"
 
 namespace QmlProfiler {
-namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+class QmlProfilerModelManager;
+
+// stores the data from the client as-is
+class QMLPROFILER_EXPORT QmlProfilerSimpleModel : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
-
 public:
-    QmlProfilerPlugin() {}
+    struct QmlEventData {
+        QString displayName;
+        int eventType;
+        int bindingType;
+        qint64 startTime;
+        qint64 duration;
+        QStringList data;
+        QmlDebug::QmlEventLocation location;
+        qint64 numericData1;
+        qint64 numericData2;
+        qint64 numericData3;
+        qint64 numericData4;
+        qint64 numericData5;
+    };
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    explicit QmlProfilerSimpleModel(QObject *parent = 0);
+    ~QmlProfilerSimpleModel();
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
+    virtual void clear();
+    bool isEmpty() const;
+    const QVector<QmlEventData> &getEvents() const;
+    int count() const;
+    void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 duration, const QStringList &data, const QmlDebug::QmlEventLocation &location,
+                     qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
+    qint64 lastTimeMark() const;
+    virtual void complete();
 
-    QList<AbstractTimelineModel *> getModels() const;
+    static QString getHashString(const QmlProfilerSimpleModel::QmlEventData &event);
 
-private:
-    QList<AbstractTimelineModel*> timelineModels;
+signals:
+    void changed();
 
-
+protected:
+    QVector<QmlEventData> eventList;
+    QmlProfilerModelManager *m_modelManager;
+    int m_modelId;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+}
 
-#endif // QMLPROFILERPLUGIN_H
-
+#endif

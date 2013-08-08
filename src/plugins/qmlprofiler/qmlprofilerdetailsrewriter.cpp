@@ -41,7 +41,7 @@ namespace Internal {
 struct PendingEvent {
     QmlDebug::QmlEventLocation location;
     QString localFile;
-    int eventType;
+    int requestId;
 };
 
 class PropertyVisitor: protected QmlJS::AST::Visitor
@@ -122,7 +122,7 @@ QmlProfilerDetailsRewriter::~QmlProfilerDetailsRewriter()
     delete d;
 }
 
-void QmlProfilerDetailsRewriter::requestDetailsForLocation(int type,
+void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
         const QmlDebug::QmlEventLocation &location)
 {
     const QString localFile = d->m_projectFinder->findFile(location.filename);
@@ -132,7 +132,7 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int type,
     if (!QmlJS::Document::isQmlLikeLanguage(QmlJSTools::languageOfFile(localFile)))
         return;
 
-    PendingEvent ev = {location, localFile, type};
+    PendingEvent ev = {location, localFile, requestId};
     d->m_pendingEvents << ev;
     if (!d->m_pendingDocs.contains(localFile)) {
         if (d->m_pendingDocs.isEmpty())
@@ -154,7 +154,7 @@ void QmlProfilerDetailsRewriter::reloadDocuments()
 }
 
 void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
-        QmlJS::Document::Ptr doc, int type, const QmlDebug::QmlEventLocation &location)
+        QmlJS::Document::Ptr doc, int requestId, const QmlDebug::QmlEventLocation &location)
 {
     PropertyVisitor propertyVisitor;
     QmlJS::AST::Node *node = propertyVisitor(doc->ast(), location.line, location.column);
@@ -168,7 +168,12 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
     textDoc.seek(startPos);
     QString details = textDoc.read(len).replace(QLatin1Char('\n'), QLatin1Char(' ')).simplified();
 
-    emit rewriteDetailsString(type, location, details);
+    emit rewriteDetailsString(requestId, details);
+}
+
+void QmlProfilerDetailsRewriter::clearRequests()
+{
+    d->m_pendingDocs.clear();
 }
 
 void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
@@ -186,7 +191,7 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
             PendingEvent ev = d->m_pendingEvents[i];
             if (ev.localFile == doc->fileName()) {
                 d->m_pendingEvents.removeAt(i);
-                rewriteDetailsForLocation(st, doc, ev.eventType, ev.location);
+                rewriteDetailsForLocation(st, doc, ev.requestId, ev.location);
             }
         }
     }

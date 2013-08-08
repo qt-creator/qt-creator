@@ -51,14 +51,6 @@ Rectangle {
     signal selectedEventChanged(int eventId)
     property bool lockItemSelection : false
 
-    property variant names: [ qsTr("Painting"),
-                              qsTr("Compiling"),
-                              qsTr("Creating"),
-                              qsTr("Binding"),
-                              qsTr("Handling Signal")]
-    property variant colors : [ "#99CCB3", "#99CCCC", "#99B3CC",
-        "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ]
-
     property variant mainviewTimePerPixel : 0
 
     signal updateCursorPosition
@@ -95,7 +87,7 @@ Rectangle {
             backgroundMarks.updateMarks(startTime, endTime);
             view.updateFlickRange(startTime, endTime);
             if (duration > 0) {
-                var candidateWidth = qmlProfilerDataModel.traceDuration() *
+                var candidateWidth = qmlProfilerModelProxy.traceDuration() *
                         flick.width / duration;
                 if (flick.contentWidth !== candidateWidth)
                     flick.contentWidth = candidateWidth;
@@ -104,22 +96,23 @@ Rectangle {
         }
     }
 
+
     Connections {
-        target: qmlProfilerDataModel
+        target: qmlProfilerModelProxy
         onCountChanged: {
-            eventCount = qmlProfilerDataModel.count();
+            eventCount = qmlProfilerModelProxy.count();
             if (eventCount === 0)
                 root.clearAll();
             if (eventCount > 1) {
                 root.progress = Math.min(1.0,
-                    (qmlProfilerDataModel.lastTimeMark() -
-                     qmlProfilerDataModel.traceStartTime()) / root.elapsedTime * 1e-9 );
+                    (qmlProfilerModelProxy.lastTimeMark() -
+                    qmlProfilerModelProxy.traceStartTime()) / root.elapsedTime * 1e-9 );
             } else {
                 root.progress = 0;
             }
         }
         onStateChanged: {
-            switch (qmlProfilerDataModel.getCurrentStateFromQml()) {
+            switch (qmlProfilerModelProxy.getState()) {
             case 0: {
                 root.clearAll();
                 break;
@@ -132,27 +125,30 @@ Rectangle {
                 root.progress = 0.9; // jump to 90%
                 break;
             }
-            case 3: {
-                view.clearData();
-                progress = 1.0;
-                dataAvailable = true;
-                view.visible = true;
-                view.requestPaint();
-                zoomControl.setRange(qmlProfilerDataModel.traceStartTime(),
-                                     qmlProfilerDataModel.traceStartTime() +
-                                     qmlProfilerDataModel.traceDuration()/10);
-                break;
             }
-            }
+        }
+        onDataAvailable: {
+            view.clearData();
+            zoomControl.setRange(0,0);
+            progress = 1.0;
+            dataAvailable = true;
+            view.visible = true;
+            view.requestPaint();
+            zoomControl.setRange(qmlProfilerModelProxy.traceStartTime(),
+                                 qmlProfilerModelProxy.traceStartTime() +
+                                 qmlProfilerModelProxy.traceDuration()/10);
         }
     }
 
+
     // ***** functions
     function gotoSourceLocation(file,line,column) {
-        root.fileName = file;
-        root.lineNumber = line;
-        root.columnNumber = column;
-        root.updateCursorPosition();
+        if (file !== undefined) {
+            root.fileName = file;
+            root.lineNumber = line;
+            root.columnNumber = column;
+            root.updateCursorPosition();
+        }
     }
 
     function clearData() {
@@ -186,10 +182,10 @@ Rectangle {
 
     function updateWindowLength(absoluteFactor) {
         var windowLength = view.endTime - view.startTime;
-        if (qmlProfilerDataModel.traceEndTime() <= qmlProfilerDataModel.traceStartTime() ||
+        if (qmlProfilerModelProxy.traceEndTime() <= qmlProfilerModelProxy.traceStartTime() ||
                 windowLength <= 0)
             return;
-        var currentFactor = windowLength / qmlProfilerDataModel.traceDuration();
+        var currentFactor = windowLength / qmlProfilerModelProxy.traceDuration();
         updateZoom(absoluteFactor / currentFactor);
     }
 
@@ -200,8 +196,8 @@ Rectangle {
             windowLength = min_length;
         var newWindowLength = windowLength * relativeFactor;
 
-        if (newWindowLength > qmlProfilerDataModel.traceDuration()) {
-            newWindowLength = qmlProfilerDataModel.traceDuration();
+        if (newWindowLength > qmlProfilerModelProxy.traceDuration()) {
+            newWindowLength = qmlProfilerModelProxy.traceDuration();
             relativeFactor = newWindowLength / windowLength;
         }
         if (newWindowLength < min_length) {
@@ -210,12 +206,14 @@ Rectangle {
         }
 
         var fixedPoint = (view.startTime + view.endTime) / 2;
+
         if (view.selectedItem !== -1) {
             // center on selected item if it's inside the current screen
-            var newFixedPoint = qmlProfilerDataModel.getStartTime(view.selectedItem);
+            var newFixedPoint = qmlProfilerModelProxy.getStartTime(view.selectedModel, view.selectedItem);
             if (newFixedPoint >= view.startTime && newFixedPoint < view.endTime)
                 fixedPoint = newFixedPoint;
         }
+
 
         var startTime = fixedPoint - relativeFactor*(fixedPoint - view.startTime);
         zoomControl.setRange(startTime, startTime + newWindowLength);
@@ -229,8 +227,8 @@ Rectangle {
             windowLength = min_length;
         var newWindowLength = windowLength * relativeFactor;
 
-        if (newWindowLength > qmlProfilerDataModel.traceDuration()) {
-            newWindowLength = qmlProfilerDataModel.traceDuration();
+        if (newWindowLength > qmlProfilerModelProxy.traceDuration()) {
+            newWindowLength = qmlProfilerModelProxy.traceDuration();
             relativeFactor = newWindowLength / windowLength;
         }
         if (newWindowLength < min_length) {
@@ -248,26 +246,27 @@ Rectangle {
         var newStart = Math.floor(centerPoint - windowLength/2);
         if (newStart < 0)
             newStart = 0;
-        if (newStart + windowLength > qmlProfilerDataModel.traceEndTime())
-            newStart = qmlProfilerDataModel.traceEndTime() - windowLength;
+        if (newStart + windowLength > qmlProfilerModelProxy.traceEndTime())
+            newStart = qmlProfilerModelProxy.traceEndTime() - windowLength;
         zoomControl.setRange(newStart, newStart + windowLength);
     }
 
-    function recenterOnItem( itemIndex )
+    function recenterOnItem( modelIndex, itemIndex )
     {
         if (itemIndex === -1)
             return;
 
         // if item is outside of the view, jump back to its position
-        if (qmlProfilerDataModel.getEndTime(itemIndex) < view.startTime ||
-                qmlProfilerDataModel.getStartTime(itemIndex) > view.endTime) {
-            recenter((qmlProfilerDataModel.getStartTime(itemIndex) +
-                      qmlProfilerDataModel.getEndTime(itemIndex)) / 2);
+        if (qmlProfilerModelProxy.getEndTime(modelIndex, itemIndex) < view.startTime ||
+                qmlProfilerModelProxy.getStartTime(modelIndex, itemIndex) > view.endTime) {
+            recenter((qmlProfilerModelProxy.getStartTime(modelIndex, itemIndex) +
+                      qmlProfilerModelProxy.getEndTime(modelIndex, itemIndex)) / 2);
         }
+
     }
 
     function wheelZoom(wheelCenter, wheelDelta) {
-        if (qmlProfilerDataModel.traceEndTime() > qmlProfilerDataModel.traceStartTime() &&
+        if (qmlProfilerModelProxy.traceEndTime() > qmlProfilerModelProxy.traceStartTime() &&
                 wheelDelta !== 0) {
             if (wheelDelta>0)
                 updateZoomCentered(wheelCenter, 1/1.2);
@@ -280,24 +279,35 @@ Rectangle {
         rangeDetails.visible = false;
         rangeDetails.duration = "";
         rangeDetails.label = "";
-        rangeDetails.type = "";
+        //rangeDetails.type = "";
         rangeDetails.file = "";
         rangeDetails.line = -1;
         rangeDetails.column = 0;
         rangeDetails.isBindingLoop = false;
     }
 
-    function selectNextWithId( eventId )
+    function selectNextByHash(hash) {
+        var eventId = qmlProfilerModelProxy.getEventIdForHash(hash);
+        if (eventId !== -1) {
+            selectNextById(eventId);
+        }
+    }
+
+    function selectNextById(eventId)
     {
+        // this is a slot responding to events from the other pane
+        // which tracks only events from the basic model
         if (!lockItemSelection) {
             lockItemSelection = true;
-            var itemIndex = view.nextItemFromId( eventId );
+            var modelIndex = qmlProfilerModelProxy.basicModelIndex();
+            var itemIndex = view.nextItemFromId( modelIndex, eventId );
             // select an item, lock to it, and recenter if necessary
-            if (view.selectedItem != itemIndex) {
+            if (view.selectedItem != itemIndex || view.selectedModel != modelIndex) {
+                view.selectedModel = modelIndex;
                 view.selectedItem = itemIndex;
                 if (itemIndex !== -1) {
                     view.selectionLocked = true;
-                    recenterOnItem(itemIndex);
+                    recenterOnItem(modelIndex, itemIndex);
                 }
             }
             lockItemSelection = false;
@@ -317,7 +327,9 @@ Rectangle {
     onSelectedItemChanged: {
         if (selectedItem != -1 && !lockItemSelection) {
             lockItemSelection = true;
-            selectedEventChanged( qmlProfilerDataModel.getEventId(selectedItem) );
+            // update in other views
+            var eventLocation = qmlProfilerModelProxy.getEventLocation(view.selectedModel, view.selectedItem);
+            gotoSourceLocation(eventLocation.file, eventLocation.line, eventLocation.column);
             lockItemSelection = false;
         }
     }
@@ -392,7 +404,7 @@ Rectangle {
         TimelineRenderer {
             id: view
 
-            profilerDataModel: qmlProfilerDataModel
+            profilerModelProxy: qmlProfilerModelProxy
 
             x: flick.contentX
             width: flick.width
@@ -401,12 +413,12 @@ Rectangle {
             property variant startX: 0
             onStartXChanged: {
                 var newStartTime = Math.round(startX * (endTime - startTime) / flick.width) +
-                        qmlProfilerDataModel.traceStartTime();
+                        qmlProfilerModelProxy.traceStartTime();
                 if (Math.abs(newStartTime - startTime) > 1) {
                     var newEndTime = Math.round((startX+flick.width) *
                                                 (endTime - startTime) /
                                                 flick.width) +
-                                                qmlProfilerDataModel.traceStartTime();
+                                                qmlProfilerModelProxy.traceStartTime();
                     zoomControl.setRange(newStartTime, newEndTime);
                 }
 
@@ -418,7 +430,7 @@ Rectangle {
                 if (start !== startTime || end !== endTime) {
                     startTime = start;
                     endTime = end;
-                    var newStartX = (startTime - qmlProfilerDataModel.traceStartTime()) *
+                    var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
                             flick.width / (endTime-startTime);
                     if (Math.abs(newStartX - startX) >= 1)
                         startX = newStartX;
@@ -428,32 +440,26 @@ Rectangle {
             onSelectedItemChanged: {
                 if (selectedItem !== -1) {
                     // display details
-                    rangeDetails.duration = qmlProfilerDataModel.getDuration(selectedItem)/1000.0;
-                    rangeDetails.label = qmlProfilerDataModel.getDetails(selectedItem);
-                    rangeDetails.file = qmlProfilerDataModel.getFilename(selectedItem);
-                    rangeDetails.line = qmlProfilerDataModel.getLine(selectedItem);
-                    rangeDetails.column = qmlProfilerDataModel.getColumn(selectedItem);
-                    rangeDetails.type = root.names[qmlProfilerDataModel.getType(selectedItem)];
-                    rangeDetails.isBindingLoop = qmlProfilerDataModel.getBindingLoopDest(selectedItem)!==-1;
-
-                    rangeDetails.visible = true;
+                    rangeDetails.showInfo(qmlProfilerModelProxy.getEventDetails(selectedModel, selectedItem));
+                    rangeDetails.setLocation(qmlProfilerModelProxy.getEventLocation(selectedModel, selectedItem));
 
                     // center view (horizontally)
                     var windowLength = view.endTime - view.startTime;
-                    var eventStartTime = qmlProfilerDataModel.getStartTime(selectedItem);
+                    var eventStartTime = qmlProfilerModelProxy.getStartTime(selectedModel, selectedItem);
                     var eventEndTime = eventStartTime +
-                            qmlProfilerDataModel.getDuration(selectedItem);
+                            qmlProfilerModelProxy.getDuration(selectedModel, selectedItem);
 
                     if (eventEndTime < view.startTime || eventStartTime > view.endTime) {
                         var center = (eventStartTime + eventEndTime)/2;
-                        var from = Math.min(qmlProfilerDataModel.traceEndTime()-windowLength,
+                        var from = Math.min(qmlProfilerModelProxy.traceEndTime()-windowLength,
                                             Math.max(0, Math.floor(center - windowLength/2)));
 
                         zoomControl.setRange(from, from + windowLength);
+
                     }
 
                     // center view (vertically)
-                    var itemY = view.getYPosition(selectedItem);
+                    var itemY = view.getYPosition(selectedModel, selectedItem);
                     if (itemY < root.scrollY) {
                         root.updateVerticalScroll(itemY);
                     } else
@@ -462,17 +468,16 @@ Rectangle {
                             root.updateVerticalScroll(itemY + root.singleRowHeight -
                                                       root.candidateHeight);
                     }
+
                 } else {
                     root.hideRangeDetails();
                 }
             }
 
             onItemPressed: {
-                if (pressedItem !== -1) {
-                    root.gotoSourceLocation(qmlProfilerDataModel.getFilename(pressedItem),
-                                            qmlProfilerDataModel.getLine(pressedItem),
-                                            qmlProfilerDataModel.getColumn(pressedItem));
-                }
+                var location = qmlProfilerModelProxy.getEventLocation(modelIndex, pressedItem);
+                if (location.hasOwnProperty("file")) // not empty
+                    root.gotoSourceLocation(location.file, location.line, location.column);
             }
 
          // hack to pass mouse events to the other mousearea if enabled
@@ -522,17 +527,13 @@ Rectangle {
         color: "#dcdcdc"
         height: col.height
 
-        property int rowCount: 5
-        property variant rowExpanded: [false,false,false,false,false];
+        property int rowCount: qmlProfilerModelProxy.categories();
 
         Column {
             id: col
             Repeater {
                 model: labels.rowCount
-                delegate: Label {
-                    text: root.names[index]
-                    height: labels.height/labels.rowCount
-                }
+                delegate: Label { }
             }
         }
     }

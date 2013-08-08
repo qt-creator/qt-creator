@@ -29,7 +29,7 @@
 
 .pragma library
 
-var qmlProfilerDataModel = 0;
+var qmlProfilerModelProxy = 0;
 
 //draw background of the graph
 function drawGraph(canvas, ctxt, region)
@@ -41,89 +41,82 @@ function drawGraph(canvas, ctxt, region)
 //draw the actual data to be graphed
 function drawData(canvas, ctxt, region)
 {
-    if ((!qmlProfilerDataModel) || qmlProfilerDataModel.count() == 0)
+    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.count() == 0)
         return;
 
-    var typeCount = 5;
     var width = canvas.width;
     var bump = 10;
     var height = canvas.height - bump;
+
+    var typeCount = qmlProfilerModelProxy.visibleCategories();
     var blockHeight = height / typeCount;
 
-    var spacing = width / qmlProfilerDataModel.traceDuration();
+    var spacing = width / qmlProfilerModelProxy.traceDuration();
 
-    var highest = [0,0,0,0,0]; // note: change if typeCount changes
+    var modelRowStart = 0;
+    for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex++) {
+        for (var ii = 0; ii < qmlProfilerModelProxy.count(modelIndex); ++ii) {
 
-    for (var ii = 0; ii < qmlProfilerDataModel.count(); ++ii) {
+            var xx = (qmlProfilerModelProxy.getStartTime(modelIndex,ii) -
+                      qmlProfilerModelProxy.traceStartTime()) * spacing;
+            if (xx > region.x + region.width)
+                continue;
 
-        var xx = (qmlProfilerDataModel.getStartTime(ii) -
-                  qmlProfilerDataModel.traceStartTime()) * spacing;
-        if (xx > region.x + region.width)
-            continue;
+            var eventWidth = qmlProfilerModelProxy.getDuration(modelIndex,ii) * spacing;
+            if (xx + eventWidth < region.x)
+                continue;
 
-        var eventWidth = qmlProfilerDataModel.getDuration(ii) * spacing;
-        if (xx + eventWidth < region.x)
-            continue;
+            if (eventWidth < 1)
+                eventWidth = 1;
 
-        if (eventWidth < 1)
-            eventWidth = 1;
+            xx = Math.round(xx);
 
-        xx = Math.round(xx);
-        var ty = qmlProfilerDataModel.getType(ii);
-        if (xx + eventWidth > highest[ty]) {
-            // special: animations
-            if (ty === 0 && qmlProfilerDataModel.getAnimationCount(ii) >= 0) {
-                var vertScale = qmlProfilerDataModel.getMaximumAnimationCount() -
-                        qmlProfilerDataModel.getMinimumAnimationCount();
-                if (vertScale < 1)
-                    vertScale = 1;
-                var fraction = (qmlProfilerDataModel.getAnimationCount(ii) -
-                                qmlProfilerDataModel.getMinimumAnimationCount()) / vertScale;
-                var eventHeight = blockHeight * (fraction * 0.85 + 0.15);
-                var yy = bump + ty*blockHeight + blockHeight - eventHeight;
+            var rowNumber = modelRowStart + qmlProfilerModelProxy.getEventCategoryInModel(modelIndex, ii);
 
-                var fpsFraction = qmlProfilerDataModel.getFramerate(ii) / 60.0;
-                if (fpsFraction > 1.0)
-                    fpsFraction = 1.0;
-                ctxt.fillStyle = "hsl("+(fpsFraction*0.27+0.028)+",0.3,0.65)";
-                ctxt.fillRect(xx, yy, eventWidth, eventHeight);
-            } else {
-                var hue = ( qmlProfilerDataModel.getEventId(ii) * 25 ) % 360;
-                ctxt.fillStyle = "hsl("+(hue/360.0+0.001)+",0.3,0.65)";
-                ctxt.fillRect(xx, bump + ty*blockHeight, eventWidth, blockHeight);
-            }
-            highest[ty] = xx+eventWidth;
+            var itemHeight = qmlProfilerModelProxy.getHeight(modelIndex,ii) * blockHeight;
+            var yy = (rowNumber + 1) * blockHeight - itemHeight ;
+
+            var itemColor = qmlProfilerModelProxy.getColorRGB(modelIndex, ii);
+            ctxt.fillStyle = "rgb("+itemColor[0]+","+itemColor[1]+","+itemColor[2]+")";
+            ctxt.fillRect(xx, bump + yy, eventWidth, itemHeight);
         }
+        modelRowStart += qmlProfilerModelProxy.categoryCount(modelIndex);
     }
 
     // binding loops
     ctxt.strokeStyle = "orange";
     ctxt.lineWidth = 2;
     var radius = 1;
-    for (var ii = 0; ii < qmlProfilerDataModel.count(); ++ii) {
-        if (qmlProfilerDataModel.getBindingLoopDest(ii) >= 0) {
-            var xcenter = Math.round(qmlProfilerDataModel.getStartTime(ii) +
-                                     qmlProfilerDataModel.getDuration(ii) -
-                                     qmlProfilerDataModel.traceStartTime()) * spacing;
-            var ycenter = Math.round(bump + qmlProfilerDataModel.getType(ii) *
-                                     blockHeight + blockHeight/2);
-            ctxt.arc(xcenter, ycenter, radius, 0, 2*Math.PI, true);
-            ctxt.stroke();
+    modelRowStart = 0;
+    for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex++) {
+        for (ii = 0; ii < qmlProfilerModelProxy.count(modelIndex); ++ii) {
+            if (qmlProfilerModelProxy.getBindingLoopDest(modelIndex,ii) >= 0) {
+                var xcenter = Math.round(qmlProfilerModelProxy.getStartTime(modelIndex,ii) +
+                                         qmlProfilerModelProxy.getDuration(modelIndex,ii) -
+                                         qmlProfilerModelProxy.traceStartTime()) * spacing;
+                var ycenter = Math.round(bump + (modelRowStart +
+                                         qmlProfilerModelProxy.getEventCategoryInModel(modelIndex, ii)) *
+                                         blockHeight + blockHeight/2);
+                ctxt.arc(xcenter, ycenter, radius, 0, 2*Math.PI, true);
+                ctxt.stroke();
+            }
         }
+        modelRowStart += qmlProfilerModelProxy.categoryCount(modelIndex);
     }
+
 }
 
 function drawTimeBar(canvas, ctxt, region)
 {
-    if (!qmlProfilerDataModel)
+    if (!qmlProfilerModelProxy)
         return;
 
     var width = canvas.width;
     var height = 10;
-    var startTime = qmlProfilerDataModel.traceStartTime();
-    var endTime = qmlProfilerDataModel.traceEndTime();
+    var startTime = qmlProfilerModelProxy.traceStartTime();
+    var endTime = qmlProfilerModelProxy.traceEndTime();
 
-    var totalTime = qmlProfilerDataModel.traceDuration();
+    var totalTime = qmlProfilerModelProxy.traceDuration();
     var spacing = width / totalTime;
 
     var initialBlockLength = 120;

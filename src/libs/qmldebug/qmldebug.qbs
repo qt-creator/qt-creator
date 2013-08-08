@@ -6,6 +6,7 @@ QtcLibrary {
 
     cpp.defines: base.concat("QMLDEBUG_LIB")
 
+    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["gui", "network"] }
 
     files: [

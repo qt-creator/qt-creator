@@ -33,7 +33,7 @@
 #include <QWidget>
 
 #include "qmlprofilerstatemanager.h"
-#include "qmlprofilerdatamodel.h"
+#include "qmlprofilermodelmanager.h"
 
 namespace QmlProfiler {
 namespace Internal {
@@ -43,7 +43,7 @@ class QmlProfilerStateWidget : public QWidget
     Q_OBJECT
 public:
     explicit QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
-                                    QmlProfilerDataModel *dataModel, QWidget *parent = 0);
+                                    QmlProfilerModelManager *modelManager, QWidget *parent = 0);
     ~QmlProfilerStateWidget();
 
 private slots:
@@ -51,6 +51,9 @@ private slots:
     void dataStateChanged();
     void profilerStateChanged();
     void reposition();
+
+signals:
+    void newTimeEstimation(qint64);
 
 protected:
     void paintEvent(QPaintEvent *event);

@@ -48,6 +48,11 @@ Canvas2D {
         requestRedraw();
     }
 
+    Connections {
+        target: labels
+        onHeightChanged: { requestRedraw(); }
+    }
+
     onDrawRegion: {
         drawBackgroundBars( ctxt, region );
 
@@ -86,19 +91,21 @@ Canvas2D {
             }
         }
 
+
         // gray off out-of-bounds areas
         var rectWidth;
-        if (startTime < qmlProfilerDataModel.traceStartTime()) {
+        if (startTime < qmlProfilerModelProxy.traceStartTime()) {
             ctxt.fillStyle = "rgba(127,127,127,0.2)";
-            rectWidth = (qmlProfilerDataModel.traceStartTime() - startTime) * spacing;
+            rectWidth = (qmlProfilerModelProxy.traceStartTime() - startTime) * spacing;
             ctxt.fillRect(0, 0, rectWidth, height);
         }
-        if (endTime > qmlProfilerDataModel.traceEndTime()) {
+        if (endTime > qmlProfilerModelProxy.traceEndTime()) {
             ctxt.fillStyle = "rgba(127,127,127,0.2)";
-            var rectX = (qmlProfilerDataModel.traceEndTime() - startTime) * spacing;
-            rectWidth = (endTime - qmlProfilerDataModel.traceEndTime()) * spacing;
+            var rectX = (qmlProfilerModelProxy.traceEndTime() - startTime) * spacing;
+            rectWidth = (endTime - qmlProfilerModelProxy.traceEndTime()) * spacing;
             ctxt.fillRect(rectX, 0, rectWidth, height);
         }
+
     }
 
     function updateMarks(start, end) {
@@ -121,16 +128,16 @@ Canvas2D {
 
         // separators
         var cumulatedHeight = 0;
-        for (var i=0; i<labels.rowCount; i++) {
-            cumulatedHeight += root.singleRowHeight + (labels.rowExpanded[i] ?
-                    qmlProfilerDataModel.uniqueEventsOfType(i) * root.singleRowHeight :
-                    qmlProfilerDataModel.maxNestingForType(i) * root.singleRowHeight);
+        for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex++) {
+            for (var i=0; i<qmlProfilerModelProxy.categoryCount(modelIndex); i++) {
+                cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, i);
 
-            ctxt.strokeStyle = "#B0B0B0";
-            ctxt.beginPath();
-            ctxt.moveTo(0, cumulatedHeight);
-            ctxt.lineTo(width, cumulatedHeight);
-            ctxt.stroke();
+                ctxt.strokeStyle = "#B0B0B0";
+                ctxt.beginPath();
+                ctxt.moveTo(0, cumulatedHeight);
+                ctxt.lineTo(width, cumulatedHeight);
+                ctxt.stroke();
+            }
         }
 
         // bottom

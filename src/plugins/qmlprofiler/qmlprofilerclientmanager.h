@@ -37,12 +37,13 @@
 #include <QStringList>
 
 namespace QmlProfiler {
+class QmlProfilerModelManager;
+
 namespace Internal {
 
 class QmlProfilerClientManager : public QObject
 {
     Q_OBJECT
-
 public:
     explicit QmlProfilerClientManager(QObject *parent = 0);
     ~QmlProfilerClientManager();
@@ -56,16 +57,10 @@ public:
     void discardPendingData();
     bool isConnected() const;
 
+    void setModelManager(QmlProfilerModelManager *m);
 signals:
     void connectionFailed();
     void connectionClosed();
-
-    // data
-    void addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation);
-    void addV8Event(int,QString,QString,int,double,double);
-    void addFrameEvent(qint64,int,int);
-    void traceStarted(qint64);
-    void traceFinished(qint64);
     void dataReadyForProcessing();
 
 public slots:
@@ -85,6 +80,9 @@ private slots:
     void serverRecordingChanged();
 
 private:
+    class QmlProfilerClientManagerPrivate;
+    QmlProfilerClientManagerPrivate *d;
+
     void connectToClient();
 
     void enableServices();
@@ -92,12 +90,9 @@ private:
     void disconnectClientSignals();
 
     void stopClientsRecording();
-
-    class QmlProfilerClientManagerPrivate;
-    QmlProfilerClientManagerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+}
+}
 
 #endif // QMLPROFILERCLIENTMANAGER_H

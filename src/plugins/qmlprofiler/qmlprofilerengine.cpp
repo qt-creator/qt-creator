@@ -82,7 +82,7 @@ QmlProfilerRunControl::QmlProfilerRunControl(const Analyzer::AnalyzerStartParame
 {
     d->m_profilerState = 0;
 
-    // Only wait 4 seconds for the 'Waiting for connection' on application ouput, then just try to connect
+    // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect
     // (application output might be redirected / blocked)
     d->m_noDebugOutputTimer.setSingleShot(true);
     d->m_noDebugOutputTimer.setInterval(4000);

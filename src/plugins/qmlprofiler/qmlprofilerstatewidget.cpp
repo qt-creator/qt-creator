@@ -35,6 +35,7 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QTime>
+#include <QDebug>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -49,7 +50,7 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
     QPixmap shadowPic;
 
     QmlProfilerStateManager *m_profilerState;
-    QmlProfilerDataModel *m_profilerDataModel;
+    QmlProfilerModelManager *m_modelManager;
 
     bool isRecording;
     bool appKilled;
@@ -60,11 +61,9 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
     qint64 estimatedProfilingTime;
 };
 
-
-
 QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
-        QmlProfilerDataModel *dataModel, QWidget *parent) :
-    QWidget(parent), d(new QmlProfilerStateWidgetPrivate(this))
+                                QmlProfilerModelManager *modelManager, QWidget *parent)
+    : QWidget(parent), d(new QmlProfilerStateWidgetPrivate(this))
 {
     setObjectName(QLatin1String("QML Profiler State Display"));
 
@@ -80,6 +79,7 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
 
     d->progressBar = new QProgressBar(this);
     layout->addWidget(d->progressBar);
+    d->progressBar->setMaximum(1000);
     d->progressBar->setVisible(false);
 
     setLayout(layout);
@@ -92,9 +92,11 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     d->emptyList = true;
 
     // profiler state
-    d->m_profilerDataModel = dataModel;
-    connect(d->m_profilerDataModel,SIGNAL(stateChanged()), this, SLOT(dataStateChanged()));
-    connect(d->m_profilerDataModel,SIGNAL(countChanged()), this, SLOT(dataStateChanged()));
+    d->m_modelManager = modelManager;
+    connect(d->m_modelManager,SIGNAL(stateChanged()), this, SLOT(dataStateChanged()));
+    connect(d->m_modelManager,SIGNAL(countChanged()), this, SLOT(dataStateChanged()));
+    connect(d->m_modelManager,SIGNAL(progressChanged()), this, SLOT(dataStateChanged()));
+    connect(this, SIGNAL(newTimeEstimation(qint64)), d->m_modelManager, SLOT(newTimeEstimation(qint64)));
     d->m_profilerState = stateManager;
     connect(d->m_profilerState,SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
     connect(d->m_profilerState, SIGNAL(serverRecordingChanged()),
@@ -196,9 +198,9 @@ void QmlProfilerStateWidget::updateDisplay()
         if (d->isRecording) {
             d->isRecording = false;
             d->estimatedProfilingTime = d->profilingTimer.elapsed();
+            emit newTimeEstimation(d->estimatedProfilingTime);
         }
-        d->progressBar->setMaximum(d->estimatedProfilingTime);
-        d->progressBar->setValue(d->m_profilerDataModel->lastTimeMark() * 1e-6);
+        d->progressBar->setValue(d->m_modelManager->progress() * 1000);
         d->progressBar->setVisible(true);
         resize(300,70);
         reposition();
@@ -232,9 +234,9 @@ void QmlProfilerStateWidget::updateDisplay()
         if (d->isRecording) {
             d->isRecording = false;
             d->estimatedProfilingTime = d->profilingTimer.elapsed();
+            emit newTimeEstimation(d->estimatedProfilingTime);
         }
-        d->progressBar->setMaximum(d->estimatedProfilingTime);
-        d->progressBar->setValue(d->m_profilerDataModel->lastTimeMark() * 1e-6);
+        d->progressBar->setValue(d->m_modelManager->progress() * 1000);
         d->progressBar->setVisible(true);
         resize(300,70);
         reposition();
@@ -252,15 +254,17 @@ void QmlProfilerStateWidget::updateDisplay()
 //    }
 
     // There is a trace on view, hide this dialog
+    d->progressBar->setVisible(false);
     setVisible(false);
 }
 
 void QmlProfilerStateWidget::dataStateChanged()
 {
-    d->loadingDone = d->m_profilerDataModel->currentState() == QmlProfilerDataModel::Done ||
-            d->m_profilerDataModel->currentState() == QmlProfilerDataModel::Empty;
-    d->traceAvailable = d->m_profilerDataModel->traceDuration() > 0;
-    d->emptyList = d->m_profilerDataModel->count() == 0;
+    // consider possible rounding errors
+    d->loadingDone = d->m_modelManager->progress() >= 0.99 ||
+            d->m_modelManager->state() == QmlProfilerDataState::Empty;
+    d->traceAvailable = d->m_modelManager->traceTime()->duration() > 0;
+    d->emptyList = d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0;
     updateDisplay();
 }
 
@@ -275,8 +279,11 @@ void QmlProfilerStateWidget::profilerStateChanged()
     d->isRecording = d->m_profilerState->serverRecording();
     if (d->isRecording)
         d->profilingTimer.start();
-    else
-        d->estimatedProfilingTime = d->profilingTimer.elapsed();
+    else {
+        // estimated time in ns
+        d->estimatedProfilingTime = d->profilingTimer.elapsed() * 1e6;
+        emit newTimeEstimation(d->estimatedProfilingTime);
+    }
     updateDisplay();
 }
 

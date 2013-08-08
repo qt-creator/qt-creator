@@ -46,16 +46,18 @@ public:
     explicit QmlProfilerDetailsRewriter(QObject *parent, Utils::FileInProjectFinder *fileFinder);
     ~QmlProfilerDetailsRewriter();
 
+    void clearRequests();
+
 private:
-    void rewriteDetailsForLocation(QTextStream &textDoc,QmlJS::Document::Ptr doc, int type,
+    void rewriteDetailsForLocation(QTextStream &textDoc, QmlJS::Document::Ptr doc, int requestId,
                                    const QmlDebug::QmlEventLocation &location);
+
 public slots:
-    void requestDetailsForLocation(int type, const QmlDebug::QmlEventLocation &location);
+    void requestDetailsForLocation(int requestId, const QmlDebug::QmlEventLocation &location);
     void reloadDocuments();
     void documentReady(QmlJS::Document::Ptr doc);
 signals:
-    void rewriteDetailsString(int type, const QmlDebug::QmlEventLocation &location,
-                              const QString &details);
+    void rewriteDetailsString(int requestId, const QString &details);
     void eventDetailsChanged();
 private:
     class QmlProfilerDetailsRewriterPrivate;

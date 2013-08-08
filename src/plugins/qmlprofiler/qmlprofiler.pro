@@ -12,16 +12,26 @@ SOURCES += \
     qmlprofilerattachdialog.cpp \
     localqmlprofilerrunner.cpp \
     qmlprofilereventview.cpp \
+    qv8profilereventview.cpp \
     qmlprofilerdetailsrewriter.cpp \
     qmlprofilertraceview.cpp \
     timelinerenderer.cpp \
     qmlprofilerstatemanager.cpp \
     qv8profilerdatamodel.cpp \
-    qmlprofilerdatamodel.cpp \
     qmlprofilerclientmanager.cpp \
     qmlprofilerviewmanager.cpp \
     qmlprofilerstatewidget.cpp \
-    qmlprofilerruncontrolfactory.cpp
+    qmlprofilerruncontrolfactory.cpp \
+    qmlprofilermodelmanager.cpp \
+    qmlprofilersimplemodel.cpp \
+    qmlprofilerprocessedmodel.cpp \
+    qmlprofilereventsmodelproxy.cpp \
+    qmlprofilertimelinemodelproxy.cpp \
+    qmlprofilertreeview.cpp \
+    qmlprofilertracefile.cpp \
+    abstracttimelinemodel.cpp \
+    timelinemodelaggregator.cpp \
+    qmlprofilerpainteventsmodelproxy.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -33,16 +43,26 @@ HEADERS += \
     abstractqmlprofilerrunner.h \
     localqmlprofilerrunner.h \
     qmlprofilereventview.h \
+    qv8profilereventview.h \
     qmlprofilerdetailsrewriter.h \
     qmlprofilertraceview.h \
     timelinerenderer.h \
     qmlprofilerstatemanager.h \
     qv8profilerdatamodel.h \
-    qmlprofilerdatamodel.h \
     qmlprofilerclientmanager.h \
     qmlprofilerviewmanager.h \
     qmlprofilerstatewidget.h \
-    qmlprofilerruncontrolfactory.h
+    qmlprofilerruncontrolfactory.h \
+    qmlprofilermodelmanager.h \
+    qmlprofilersimplemodel.h \
+    qmlprofilerprocessedmodel.h \
+    qmlprofilereventsmodelproxy.h \
+    qmlprofilertimelinemodelproxy.h \
+    qmlprofilertreeview.h \
+    qmlprofilertracefile.h \
+    abstracttimelinemodel.h \
+    timelinemodelaggregator.h \
+    qmlprofilerpainteventsmodelproxy.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

@@ -27,43 +27,56 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
-
-#include "qmlprofiler_global.h"
-
-#include <extensionsystem/iplugin.h>
-
 #include "abstracttimelinemodel.h"
 
 namespace QmlProfiler {
-namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+AbstractTimelineModel::AbstractTimelineModel(QObject *parent) : QObject(parent), m_modelManager(0)
+{}
+
+AbstractTimelineModel::~AbstractTimelineModel()
+{}
+
+void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManager)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
+    m_modelManager = modelManager;
+    connect(modelManager->simpleModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
+    m_modelId = modelManager->registerModelProxy();
+}
 
-public:
-    QmlProfilerPlugin() {}
+qint64 AbstractTimelineModel::traceStartTime() const
+{
+    return m_modelManager->traceTime()->startTime();
+}
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+qint64 AbstractTimelineModel::traceEndTime() const
+{
+    return m_modelManager->traceTime()->endTime();
+}
 
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
+qint64 AbstractTimelineModel::traceDuration() const
+{
+    return m_modelManager->traceTime()->duration();
+}
 
-    QList<AbstractTimelineModel *> getModels() const;
+int AbstractTimelineModel::getState() const
+{
+    return (int)m_modelManager->state();
+}
 
-private:
-    QList<AbstractTimelineModel*> timelineModels;
+int AbstractTimelineModel::rowCount() const
+{
+    int count = 0;
+    for (int i=0; i<categoryCount(); i++)
+        count += categoryDepth(i);
+    return count;
+}
+
+int AbstractTimelineModel::getBindingLoopDest(int index) const
+{
+    Q_UNUSED(index);
+    return -1;
+}
 
 
-};
-
-} // namespace Internal
-} // namespace QmlProfiler
-
-#endif // QMLPROFILERPLUGIN_H
-
+}

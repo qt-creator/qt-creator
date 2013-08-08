@@ -30,12 +30,14 @@
 #include "qmlprofilertraceview.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
-#include "qmlprofilerdatamodel.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilertimelinemodelproxy.h"
+#include "timelinemodelaggregator.h"
 
 // Needed for the load&save actions in the context menu
 #include <analyzerbase/ianalyzertool.h>
 
-// Comunication with the other views (limit events to range)
+// Communication with the other views (limit events to range)
 #include "qmlprofilerviewmanager.h"
 
 #include <utils/styledbar.h>
@@ -119,7 +121,9 @@ public:
     ScrollableDeclarativeView *m_mainView;
     QDeclarativeView *m_timebar;
     QDeclarativeView *m_overview;
-    QmlProfilerDataModel *m_profilerDataModel;
+    QmlProfilerModelManager *m_modelManager;
+    TimelineModelAggregator *m_modelProxy;
+
 
     ZoomControl *m_zoomControl;
 
@@ -129,7 +133,7 @@ public:
     int m_currentZoomLevel;
 };
 
-QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerDataModel *model, QmlProfilerStateManager *profilerState)
+QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
     : QWidget(parent), d(new QmlProfilerTraceViewPrivate(this))
 {
     setObjectName(QLatin1String("QML Profiler"));
@@ -180,13 +184,15 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 
     d->m_profilerTool = profilerTool;
     d->m_viewContainer = container;
-    d->m_profilerDataModel = model;
-    connect(d->m_profilerDataModel, SIGNAL(stateChanged()),
+    d->m_modelManager = modelManager;
+    d->m_modelProxy = new TimelineModelAggregator(this);
+    d->m_modelProxy->setModelManager(modelManager);
+    connect(d->m_modelManager, SIGNAL(stateChanged()),
             this, SLOT(profilerDataModelStateChanged()));
-    d->m_mainView->rootContext()->setContextProperty(QLatin1String("qmlProfilerDataModel"),
-                                                     d->m_profilerDataModel);
-    d->m_overview->rootContext()->setContextProperty(QLatin1String("qmlProfilerDataModel"),
-                                                     d->m_profilerDataModel);
+    d->m_mainView->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
+                                                     d->m_modelProxy);
+    d->m_overview->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
+                                                     d->m_modelProxy);
 
     d->m_profilerState = profilerState;
     connect(d->m_profilerState, SIGNAL(stateChanged()),
@@ -372,12 +378,25 @@ void QmlProfilerTraceView::clearDisplay()
     QMetaObject::invokeMethod(d->m_overview->rootObject(), "clearDisplay");
 }
 
-void QmlProfilerTraceView::selectNextEventWithId(int eventId)
+void QmlProfilerTraceView::selectNextEventByHash(const QString &hash)
 {
     QGraphicsObject *rootObject = d->m_mainView->rootObject();
+
     if (rootObject)
-        QMetaObject::invokeMethod(rootObject, "selectNextWithId",
-                                  Q_ARG(QVariant,QVariant(eventId)));
+        QMetaObject::invokeMethod(rootObject, "selectNextByHash",
+                                  Q_ARG(QVariant,QVariant(hash)));
+}
+
+void QmlProfilerTraceView::selectNextEventByLocation(const QString &filename, const int line, const int column)
+{
+    int eventId = d->m_modelProxy->getEventIdForLocation(filename, line, column);
+
+    if (eventId != -1) {
+        QGraphicsObject *rootObject = d->m_mainView->rootObject();
+        if (rootObject)
+            QMetaObject::invokeMethod(rootObject, "selectNextById",
+                                      Q_ARG(QVariant,QVariant(eventId)));
+    }
 }
 
 /////////////////////////////////////////////////////////
@@ -444,14 +463,14 @@ void QmlProfilerTraceView::setZoomLevel(int zoomLevel)
 
 void QmlProfilerTraceView::updateRange()
 {
-    if (!d->m_profilerDataModel)
+    if (!d->m_modelManager)
         return;
     qreal duration = d->m_zoomControl->endTime() - d->m_zoomControl->startTime();
     if (duration <= 0)
         return;
-    if (d->m_profilerDataModel->traceDuration() <= 0)
+    if (d->m_modelManager->traceTime()->duration() <= 0)
         return;
-    int newLevel = pow(duration / d->m_profilerDataModel->traceDuration(), 1/sliderExp) * sliderTicks;
+    int newLevel = pow(duration / d->m_modelManager->traceTime()->duration(), 1/sliderExp) * sliderTicks;
     if (d->m_currentZoomLevel != newLevel) {
         d->m_currentZoomLevel = newLevel;
         emit zoomLevelChanged(newLevel);
@@ -513,7 +532,7 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
     if (d->m_viewContainer->hasGlobalStats())
         getGlobalStatsAction->setEnabled(false);
 
-    if (d->m_profilerDataModel->count() > 0) {
+    if (!d->m_modelProxy->isEmpty()) {
         menu.addSeparator();
         viewAllAction = menu.addAction(tr("Reset Zoom"));
     }
@@ -523,8 +542,8 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
     if (selectedAction) {
         if (selectedAction == viewAllAction) {
             d->m_zoomControl->setRange(
-                        d->m_profilerDataModel->traceStartTime(),
-                        d->m_profilerDataModel->traceEndTime());
+                        d->m_modelManager->traceTime()->startTime(),
+                        d->m_modelManager->traceTime()->endTime());
         }
         if (selectedAction == getLocalStatsAction) {
             d->m_viewContainer->getStatisticsInRange(
@@ -532,9 +551,7 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
                         d->m_viewContainer->selectionEnd());
         }
         if (selectedAction == getGlobalStatsAction) {
-            d->m_viewContainer->getStatisticsInRange(
-                        d->m_profilerDataModel->traceStartTime(),
-                        d->m_profilerDataModel->traceEndTime());
+            d->m_viewContainer->getStatisticsInRange(-1, -1);
         }
     }
 }
@@ -558,19 +575,15 @@ void QmlProfilerTraceView::setAppKilled()
 // Profiler State
 void QmlProfilerTraceView::profilerDataModelStateChanged()
 {
-    switch (d->m_profilerDataModel->currentState()) {
-    case QmlProfilerDataModel::Empty :
-        emit enableToolbar(false);
+    switch (d->m_modelManager->state()) {
+        case QmlProfilerDataState::Empty:
+            emit enableToolbar(false);
         break;
-    case QmlProfilerDataModel::AcquiringData :
-        // nothing to be done
+        case QmlProfilerDataState::AcquiringData: break;
+        case QmlProfilerDataState::ProcessingData: break;
+        case QmlProfilerDataState::Done:
+            emit enableToolbar(true);
         break;
-    case QmlProfilerDataModel::ProcessingData :
-        // nothing to be done
-        break;
-    case QmlProfilerDataModel::Done :
-        emit enableToolbar(true);
-    break;
     default:
         break;
     }
@@ -580,7 +593,7 @@ void QmlProfilerTraceView::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppKilled : {
-        if (d->m_profilerDataModel->currentState() == QmlProfilerDataModel::AcquiringData)
+        if (d->m_modelManager->state() == QmlProfilerDataState::AcquiringData)
             setAppKilled();
         break;
     }

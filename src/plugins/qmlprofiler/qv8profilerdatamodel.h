@@ -39,7 +39,6 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerDataModel;
 struct QV8EventSub;
 
 struct QV8EventData
@@ -55,7 +54,7 @@ struct QV8EventData
     double totalTime; // given in milliseconds
     double totalPercent;
     double selfTime;
-    double selfPercent;
+    double SelfTimeInPercent;
     QHash <QString, QV8EventSub *> parentHash;
     QHash <QString, QV8EventSub *> childrenHash;
     int eventId;
@@ -75,7 +74,7 @@ class QV8ProfilerDataModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit QV8ProfilerDataModel(QObject *parent, QmlProfilerDataModel *profilerDataModel);
+    QV8ProfilerDataModel(QObject *parent = 0);
     ~QV8ProfilerDataModel();
 
     void clear();
@@ -88,6 +87,11 @@ public:
 
     void save(QXmlStreamWriter &stream);
     void load(QXmlStreamReader &stream);
+
+    void complete();
+
+signals:
+    void changed();
 
 public slots:
     void addV8Event(int depth,

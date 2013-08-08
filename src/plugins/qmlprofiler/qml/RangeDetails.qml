@@ -35,7 +35,7 @@ Item {
 
     property string duration
     property string label
-    property string type
+    property string dialogTitle
     property string file
     property int line
     property int column
@@ -63,6 +63,36 @@ Item {
         target: root
         onWidthChanged: fitInView();
         onCandidateHeightChanged: fitInView();
+    }
+
+    //property variant eventInfo
+
+    ListModel {
+        id: eventInfo
+    }
+
+    function showInfo(eventData) {
+        eventInfo.clear();
+        rangeDetails.dialogTitle = eventData[0]["title"];
+        for (var i = 1; i < eventData.length; i++) {
+            for (var k in eventData[i]) {
+                eventInfo.append({"key": k, "value":eventData[i][k]});
+            }
+        }
+        rangeDetails.visible = true;
+    }
+
+    function setLocation(location) {
+        if (location.hasOwnProperty("file")) { // not empty
+            file = location.file;
+            line = location.line;
+            column = location.column;
+        } else {
+            // reset to default values
+            file = "";
+            line = 0;
+            column = -1;
+        }
     }
 
     function fitInView() {
@@ -122,7 +152,7 @@ Item {
     //title
     Text {
         id: typeTitle
-        text: "  "+rangeDetails.type
+        text: "  "+rangeDetails.dialogTitle
         font.bold: true
         height: 18
         y: 2
@@ -145,41 +175,13 @@ Item {
             id: col
             x: 10
             y: 5
-            Detail {
-                label: qsTr("Duration:")
-                content: rangeDetails.duration < 1000 ? rangeDetails.duration + "μs" : Math.floor(rangeDetails.duration/10)/100 + "ms"
-            }
-            Detail {
-                opacity: content.length !== 0 ? 1 : 0
-                label: qsTr("Details:")
-                content: {
-                    var inputString = rangeDetails.label;
-                    if (inputString.length > 7 && inputString.substring(0,7) == "file://") {
-                        var pos = inputString.lastIndexOf("/");
-                        return inputString.substr(pos+1);
-                    }
-                    var maxLen = 40;
-                    if (inputString.length > maxLen)
-                        inputString = inputString.substring(0,maxLen)+"...";
 
-                    return inputString;
+            Repeater {
+                model: eventInfo
+                Detail {
+                    label: key
+                    content: value
                 }
-            }
-            Detail {
-                opacity: content.length !== 0 ? 1 : 0
-                label: qsTr("Location:")
-                content: {
-                    var file = rangeDetails.file;
-                    var pos = file.lastIndexOf("/");
-                    if (pos != -1)
-                        file = file.substr(pos+1);
-                    return (file.length !== 0) ? (file + ":" + rangeDetails.line) : "";
-                }
-            }
-            Detail {
-                visible: isBindingLoop
-                opacity: content.length != 0 ? 1 : 0
-                label: qsTr("Binding loop detected")
             }
         }
     }
@@ -194,7 +196,7 @@ Item {
         drag.maximumY: root.candidateHeight - parent.height + yoffset
         onClicked: {
             root.gotoSourceLocation(file, line, column);
-            root.recenterOnItem(view.selectedItem);
+            root.recenterOnItem(view.selectedModel, view.selectedItem);
         }
     }
 

@@ -35,7 +35,6 @@
 #include <qmldebug/qmlprofilereventtypes.h>
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventsmodelproxy.h"
-#include "qmlprofilertreeview.h"
 
 #include <analyzerbase/ianalyzertool.h>
 
@@ -61,7 +60,7 @@ class QmlProfilerEventsWidget : public QWidget
     Q_OBJECT
 public:
     explicit QmlProfilerEventsWidget(QWidget *parent,
-                                     QmlProfilerTool *profilerTool,
+                                     Analyzer::IAnalyzerTool *profilerTool,
                                      QmlProfilerViewManager *container,
                                      QmlProfilerModelManager *profilerModelManager );
     ~QmlProfilerEventsWidget();
@@ -81,7 +80,7 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void eventSelectedByHash(const QString &eventHash);
+    void showEventInTimeline(int eventId);
     void resized();
 
 public slots:
@@ -100,10 +99,27 @@ private:
     QmlProfilerEventsWidgetPrivate *d;
 };
 
-class QmlProfilerEventsMainView : public QmlProfilerTreeView
+class QmlProfilerEventsMainView : public QTreeView
 {
     Q_OBJECT
 public:
+    enum Fields {
+        Name,
+        Type,
+        Percent,
+        TotalDuration,
+        SelfPercent,
+        SelfDuration,
+        CallCount,
+        TimePerCall,
+        MaxTime,
+        MinTime,
+        MedianTime,
+        Details,
+
+        MaxFields
+    };
+
     explicit QmlProfilerEventsMainView(QWidget *parent,
                                        QmlProfilerEventsModelProxy *modelProxy);
     ~QmlProfilerEventsMainView();
@@ -119,8 +135,9 @@ public:
     static QString nameForType(int typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
+    bool isRangeGlobal(qint64 rangeStart, qint64 rangeEnd) const;
 //    int selectedEventId() const;
-    QString selectedEventHash() const;
+    const QString &selectedEventHash() const;
 
     void setShowExtendedStatistics(bool);
     bool showExtendedStatistics() const;
@@ -129,13 +146,15 @@ public:
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void eventSelected(const QString &eventHash);
+    void showEventInTimeline(int eventId);
 
 public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
     void selectEvent(const QString &eventHash);
-    void selectEventByLocation(const QString &filename, int line, int column);
+    void selectEventByLocation(const QString &filename, int line);
     void buildModel();
+    void changeDetailsForEvent(int eventId, const QString &newString);
 
 private slots:
     void profilerDataModelStateChanged();
@@ -150,7 +169,7 @@ private:
 
 };
 
-class QmlProfilerEventRelativesView : public QmlProfilerTreeView
+class QmlProfilerEventRelativesView : public QTreeView
 {
     Q_OBJECT
 public:

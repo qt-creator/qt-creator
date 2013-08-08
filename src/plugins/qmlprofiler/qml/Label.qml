@@ -31,23 +31,24 @@ import QtQuick 1.0
 
 Item {
     id: labelContainer
-    property alias text: txt.text
+    property string text: qmlProfilerModelProxy.categoryLabel(modelIndex, categoryIndex)
     property bool expanded: false
-    property int typeIndex: index
+    property int categoryIndex: qmlProfilerModelProxy.correctedCategoryIndexForModel(modelIndex, index)
+    property int modelIndex: qmlProfilerModelProxy.modelIndexForCategory(index);
 
     property variant descriptions: []
     property variant extdescriptions: []
     property variant eventIds: []
 
+    visible: qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex) > 0;
+
     height: root.singleRowHeight
     width: 150
 
     onExpandedChanged: {
-        var rE = labels.rowExpanded;
-        rE[typeIndex] = expanded;
-        labels.rowExpanded = rE;
+        qmlProfilerModelProxy.setExpanded(modelIndex, categoryIndex, expanded);
         backgroundMarks.requestRedraw();
-        view.setRowExpanded(typeIndex, expanded);
+        getDescriptions();
         updateHeight();
     }
 
@@ -56,20 +57,24 @@ Item {
     }
 
     function updateHeight() {
-        height = root.singleRowHeight * (1 +
-            (expanded ? qmlProfilerDataModel.uniqueEventsOfType(typeIndex) :
-                        qmlProfilerDataModel.maxNestingForType(typeIndex)));
+        if (expanded != qmlProfilerModelProxy.expanded(modelIndex, categoryIndex))
+            expanded = qmlProfilerModelProxy.expanded(modelIndex, categoryIndex);
+        height = root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex);
     }
 
     function getDescriptions() {
+        visible = qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex) > 0;
+        if (!visible)
+            return;
+
         var desc=[];
         var ids=[];
         var extdesc=[];
-        for (var i=0; i<qmlProfilerDataModel.uniqueEventsOfType(typeIndex); i++) {
-            desc[i] = qmlProfilerDataModel.eventTextForType(typeIndex, i);
-            ids[i] = qmlProfilerDataModel.eventIdForType(typeIndex, i);
-            extdesc[i] = qmlProfilerDataModel.eventDisplayNameForType(typeIndex, i) +
-                        " : " + desc[i];
+        var labelList = qmlProfilerModelProxy.getLabelsForCategory(modelIndex, categoryIndex);
+        for (var i = 0; i < labelList.length; i++ ) {
+            desc[i] = labelList[i].description;
+            ids[i] = labelList[i].id;
+            extdesc[i] = labelList[i].displayName + ":" + labelList[i].description;
         }
         descriptions = desc;
         eventIds = ids;
@@ -78,20 +83,13 @@ Item {
     }
 
     Connections {
-        target: qmlProfilerDataModel
-        onReloadDetailLabels: getDescriptions();
+        target: qmlProfilerModelProxy
+        onExpandedChanged: {
+            updateHeight();
+        }
+
         onStateChanged: {
-            // Empty
-            if (qmlProfilerDataModel.getCurrentStateFromQml() == 0) {
-                descriptions = [];
-                eventIds = [];
-                extdescriptions = [];
-                updateHeight();
-            } else
-            // Done
-            if (qmlProfilerDataModel.getCurrentStateFromQml() == 3) {
-                getDescriptions();
-            }
+            getDescriptions();
         }
     }
 
@@ -99,6 +97,7 @@ Item {
         id: txt
         x: 5
         font.pixelSize: 12
+        text: labelContainer.text
         color: "#232323"
         height: root.singleRowHeight
         width: 140
@@ -140,9 +139,9 @@ Item {
                     onExited: changeToolTip("");
                     onClicked: {
                         if (mouse.modifiers & Qt.ShiftModifier)
-                            view.selectPrevFromId(eventIds[index]);
+                            view.selectPrevFromId(modelIndex,eventIds[index]);
                         else
-                            view.selectNextFromId(eventIds[index]);
+                            view.selectNextFromId(modelIndex,eventIds[index]);
                     }
                 }
             }
@@ -150,7 +149,6 @@ Item {
     }
 
     Image {
-        visible: descriptions.length > 0
         source: expanded ? "arrow_down.png" : "arrow_right.png"
         x: parent.width - 12
         y: root.singleRowHeight / 2 - height / 2

@@ -27,43 +27,46 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
+#ifndef QMLPROFILERTREEVIEW
+#define QMLPROFILERTREEVIEW
 
-#include "qmlprofiler_global.h"
-
-#include <extensionsystem/iplugin.h>
-
-#include "abstracttimelinemodel.h"
+#include <QTreeView>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+class QmlProfilerTreeView : public QTreeView
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
 
-public:
-    QmlProfilerPlugin() {}
-
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
-
-    QList<AbstractTimelineModel *> getModels() const;
-
-private:
-    QList<AbstractTimelineModel*> timelineModels;
+protected:
+    QmlProfilerTreeView(QWidget *parent = 0);
 
 
+    enum Fields {
+        Name,
+        Callee,
+        CalleeDescription,
+        Caller,
+        CallerDescription,
+        CallCount,
+        Details,
+        Location,
+        MaxTime,
+        TimePerCall,
+        SelfTime,
+        SelfTimeInPercent,
+        MinTime,
+        TimeInPercent,
+        TotalTime,
+        Type,
+        MedianTime,
+        MaxFields
+    };
+    QString displayHeader(Fields header) const;
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROFILERPLUGIN_H
-
+#endif // QMLPROFILERTREEVIEW

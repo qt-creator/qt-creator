@@ -38,6 +38,8 @@ enum QmlEventType {
     Creating,
     Binding,
     HandlingSignal,
+    PixmapCacheEvent,
+    SceneGraphFrameEvent,
 
     MaximumQmlEventType
 };
@@ -46,6 +48,8 @@ enum BindingType {
     QmlBinding,
     V8Binding,
     OptimizedBinding,
+    QPainterEvent,
+    AnimationFrame,
 
     MaximumBindingType
 };

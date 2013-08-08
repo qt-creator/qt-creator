@@ -170,7 +170,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         } else if (event == AnimationFrame) {
             int frameRate, animationCount;
             stream >> frameRate >> animationCount;
-            emit this->frame(time, frameRate, animationCount);
+            emit rangedEvent(QmlDebug::Painting, QmlDebug::AnimationFrame, time, 0,
+                       QStringList(), QmlDebug::QmlEventLocation(), frameRate, animationCount, 0,0,0);
             d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == StartTrace) {
             emit this->traceStarted(time);
@@ -181,6 +182,32 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         }
     } else if (messageType == Complete) {
         emit complete();
+    } else if (messageType == SceneGraphFrame) {
+        int sgEventType;
+        int count = 0;
+        qint64 params[5];
+
+        stream >> sgEventType;
+        while (!stream.atEnd()) {
+            stream >> params[count++];
+        }
+        while (count<5)
+            params[count++] = 0;
+        emit rangedEvent(SceneGraphFrameEvent, sgEventType,time, 0, QStringList(),
+                         QmlDebug::QmlEventLocation(), params[0], params[1], params[2], params[3], params[4]);
+    } else if (messageType == PixmapCacheEvent) {
+        int pixEvTy, width = 0, height = 0, refcount = 0;
+        QString pixUrl;
+        stream >> pixEvTy >> pixUrl;
+        if (pixEvTy == (int)PixmapReferenceCountChanged || pixEvTy == (int)PixmapCacheCountChanged) {
+            stream >> refcount;
+        } else if (pixEvTy == (int)PixmapSizeKnown) {
+            stream >> width >> height;
+            refcount = 1;
+        }
+        emit rangedEvent(QmlDebug::PixmapCacheEvent, pixEvTy, time, 0, QStringList(),
+                        QmlDebug::QmlEventLocation(pixUrl,0,0), width, height, refcount, 0, 0);
+        d->maximumTime = qMax(time, d->maximumTime);
     } else {
         int range;
         stream >> range;
@@ -240,7 +267,10 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 BindingType bindingType = QmlBinding;
                 if ((QmlEventType)range == Binding)
                     bindingType = d->bindingTypes.pop();
-                emit this->range((QmlEventType)range, bindingType, startTime, time - startTime, data, location);
+                if ((QmlEventType)range == Painting)
+                    bindingType = QPainterEvent;
+                emit rangedEvent((QmlEventType)range, bindingType, startTime, time - startTime, data,
+                           location, 0, 0, 0, 0, 0);
                 if (d->rangeCount[range] == 0) {
                     int count = d->rangeDatas[range].count() +
                                 d->rangeStartTimes[range].count() +

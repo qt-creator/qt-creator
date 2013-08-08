@@ -33,10 +33,11 @@
 #include <QObject>
 
 namespace QmlProfiler {
+class QmlProfilerModelManager;
+
 namespace Internal {
 
 class QmlProfilerTool;
-class QmlProfilerDataModel;
 class QmlProfilerStateManager;
 
 class QmlProfilerViewManager : public QObject
@@ -45,7 +46,7 @@ class QmlProfilerViewManager : public QObject
 public:
     explicit QmlProfilerViewManager(QObject *parent,
                                     QmlProfilerTool *profilerTool,
-                                    QmlProfilerDataModel *model,
+                                    QmlProfilerModelManager *modelManager,
                                     QmlProfilerStateManager *profilerState);
     ~QmlProfilerViewManager();
 
