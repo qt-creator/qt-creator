@@ -34,9 +34,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-class CustomParserConfigDialog;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class CustomParserConfigDialog; }
+QT_END_NAMESPACE
 
 class CustomParserConfigDialog : public QDialog
 {
