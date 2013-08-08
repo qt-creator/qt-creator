@@ -30,6 +30,8 @@
 
 #include "blackberrydevicelistdetector.h"
 
+#include "blackberryndkprocess.h"
+
 #include <QStringList>
 
 namespace Qnx {
@@ -84,7 +86,7 @@ void BlackBerryDeviceListDetector::processData(const QString &line)
     // line format is: deviceName,deviceHostName,deviceType,deviceDisplayName
     QStringList list = line.split(QLatin1String(","));
     if (list.count() == 4) {
-        emit deviceDetected (list[3].isEmpty() ? list[0] : list[3], list[1], QLatin1String("Simulator") == list[2] ? Simulator : Device);
+        emit deviceDetected (list[3].isEmpty() ? list[0] : list[3], list[1], QLatin1String("Simulator") == list[2]);
     }
 }
 

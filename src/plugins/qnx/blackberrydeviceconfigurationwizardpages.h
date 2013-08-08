@@ -73,7 +73,7 @@ public:
 private slots:
     void requestDebugToken();
     void onDeviceSelectionChanged();
-    void onDeviceDetected(const QString &deviceName, const QString &hostName, const BlackBerryDeviceListDetector::DeviceType deviceType);
+    void onDeviceDetected(const QString &deviceName, const QString &hostName, bool isSimulator);
     void onDeviceListDetectorFinished();
 
 private:

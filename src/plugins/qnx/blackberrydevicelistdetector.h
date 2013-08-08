@@ -31,32 +31,25 @@
 #ifndef QNX_INTERNAL_BLACKBERRYDEVICELISTDETECTOR_H
 #define QNX_INTERNAL_BLACKBERRYDEVICELISTDETECTOR_H
 
-#include "blackberryndkprocess.h"
-
 #include <QObject>
 #include <QString>
 
-namespace Qnx {
+QT_FORWARD_DECLARE_CLASS(QProcess)
 
+namespace Qnx {
 namespace Internal {
 
 class BlackBerryDeviceListDetector : public QObject
 {
     Q_OBJECT
 public:
-    enum DeviceType {
-        Device,
-        Simulator
-    };
-
     explicit BlackBerryDeviceListDetector(QObject *parent = 0);
 
     void detectDeviceList();
 
 signals:
-    void deviceDetected(
-            const QString &deviceName, const QString &deviceHostName,
-            const BlackBerryDeviceListDetector::DeviceType deviceType);
+    void deviceDetected(const QString &deviceName, const QString &deviceHostName,
+                        bool isSimulator);
     void finished();
 
 private slots:
@@ -72,7 +65,5 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-Q_DECLARE_METATYPE(Qnx::Internal::BlackBerryDeviceListDetector::DeviceType)
 
 #endif // QNX_INTERNAL_BLACKBERRYDEVICELISTDETECTOR_H

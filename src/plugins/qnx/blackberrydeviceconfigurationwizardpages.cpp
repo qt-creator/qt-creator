@@ -80,8 +80,8 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
     m_ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);
 
     connect(m_ui->deviceListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(onDeviceSelectionChanged()));
-    connect(m_deviceListDetector, SIGNAL(deviceDetected(QString,QString,BlackBerryDeviceListDetector::DeviceType)),
-            this, SLOT(onDeviceDetected(QString,QString,BlackBerryDeviceListDetector::DeviceType)));
+    connect(m_deviceListDetector, SIGNAL(deviceDetected(QString,QString,bool)),
+            this, SLOT(onDeviceDetected(QString,QString,bool)));
     connect(m_deviceListDetector, SIGNAL(finished()), this, SLOT(onDeviceListDetectorFinished()));
     connect(m_ui->deviceName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->deviceHostIp, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
@@ -136,8 +136,7 @@ void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceListDetectorFinished(
 }
 
 void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceDetected(
-        const QString &deviceName, const QString &hostName,
-        const BlackBerryDeviceListDetector::DeviceType deviceType)
+        const QString &deviceName, const QString &hostName, bool isSimulator)
 {
     QString displayName(deviceName);
     if (displayName != hostName)
@@ -146,7 +145,7 @@ void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceDetected(
     QListWidgetItem *device = createDeviceListItem(displayName, Autodetected);
     device->setData(DeviceNameRole, displayName);
     device->setData(DeviceIpRole, hostName);
-    device->setData(DeviceTypeRole, QVariant::fromValue(deviceType));
+    device->setData(DeviceTypeRole, isSimulator);
     QListWidgetItem *pleaseWait = findDeviceListItem(PleaseWait);
     int row = pleaseWait ? m_ui->deviceListWidget->row(pleaseWait) : m_ui->deviceListWidget->count();
     m_ui->deviceListWidget->insertItem(row, device);
@@ -157,9 +156,8 @@ void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceSelectionChanged()
     QList<QListWidgetItem *> selectedItems = m_ui->deviceListWidget->selectedItems();
     const QListWidgetItem *selected = selectedItems.count() == 1 ? selectedItems[0] : 0;
     const ItemKind itemKind = selected ? selected->data(ItemKindRole).value<ItemKind>() : Note;
-    const BlackBerryDeviceListDetector::DeviceType deviceType = selected && itemKind == Autodetected
-            ? selected->data(DeviceTypeRole).value<BlackBerryDeviceListDetector::DeviceType>()
-            : BlackBerryDeviceListDetector::Device;
+    const bool isSimulator = selected && itemKind == Autodetected
+            ? selected->data(DeviceTypeRole).toBool() : false;
     switch (itemKind) {
     case SpecifyManually:
         m_ui->deviceName->setEnabled(true);
@@ -179,9 +177,9 @@ void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceSelectionChanged()
         m_ui->deviceHostIp->setEnabled(false);
         m_ui->deviceHostIp->setText(selected->data(DeviceIpRole).toString());
         m_ui->physicalDevice->setEnabled(false);
-        m_ui->physicalDevice->setChecked(deviceType == BlackBerryDeviceListDetector::Device);
+        m_ui->physicalDevice->setChecked(!isSimulator);
         m_ui->simulator->setEnabled(false);
-        m_ui->simulator->setChecked(deviceType == BlackBerryDeviceListDetector::Simulator);
+        m_ui->simulator->setChecked(isSimulator);
         m_ui->password->setFocus();
         break;
     case PleaseWait:
