@@ -171,7 +171,6 @@ public:
     bool m_isRunning;
     Utils::FancyMainWindow *m_mainWindow;
     AnalyzerAction *m_currentAction;
-    QList<IAnalyzerTool *> m_tools;
     QList<AnalyzerAction *> m_actions;
     QAction *m_startAction;
     QAction *m_stopAction;
@@ -538,9 +537,6 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
     m_toolBox->addItem(action->text());
     m_toolBox->blockSignals(blocked);
     connect(action, SIGNAL(triggered()), SLOT(selectMenuAction()));
-
-    if (!m_tools.contains(tool))
-        m_tools.append(tool);
     m_toolBox->setEnabled(true);
 }
 
