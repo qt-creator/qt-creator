@@ -882,6 +882,7 @@ DiffEditor::DiffEditor *GitClient::findExistingOrOpenNewDiffEditor(const char *r
         QString title = titlePattern;
         editor = qobject_cast<DiffEditor::DiffEditor *>(
                     Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait.toUtf8()));
+        QTC_ASSERT(editor, return 0);
         editor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         Core::EditorManager::activateEditor(editor);
     }
