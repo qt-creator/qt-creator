@@ -686,7 +686,7 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
 
 QList<IAnalyzerTool *> AnalyzerManager::tools()
 {
-    return m_instance->d->m_tools;
+    return d->m_tools;
 }
 
 void AnalyzerManager::selectTool(IAnalyzerTool *tool, StartMode mode)
