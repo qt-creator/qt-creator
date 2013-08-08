@@ -1265,6 +1265,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         QString parseInto;
         LoadFlags flags = 0;
+        if (m_cumulative)
+            flags = LoadSilent;
         if (args.count() >= 2) {
             parseInto = args.at(1).toQString(m_tmp2);
             if (args.count() >= 3 && isTrue(args.at(2), m_tmp3))
