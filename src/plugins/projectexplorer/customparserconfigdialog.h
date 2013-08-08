@@ -34,9 +34,10 @@
 
 #include <QDialog>
 
-QT_BEGIN_NAMESPACE
+namespace ProjectExplorer {
+namespace Internal {
+
 namespace Ui { class CustomParserConfigDialog; }
-QT_END_NAMESPACE
 
 class CustomParserConfigDialog : public QDialog
 {
@@ -66,5 +67,8 @@ private:
     Ui::CustomParserConfigDialog *ui;
     bool m_dirty;
 };
+
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // CUSTOMPARSERCONFIGDIALOG_H

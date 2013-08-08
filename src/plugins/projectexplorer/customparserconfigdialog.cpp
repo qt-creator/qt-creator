@@ -33,6 +33,9 @@
 #include <QPushButton>
 #include <QRegExp>
 
+namespace ProjectExplorer {
+namespace Internal {
+
 CustomParserConfigDialog::CustomParserConfigDialog(QDialog *parent) :
     QDialog(parent),
     ui(new Ui::CustomParserConfigDialog)
@@ -165,3 +168,6 @@ void CustomParserConfigDialog::changed()
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     m_dirty = true;
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer
