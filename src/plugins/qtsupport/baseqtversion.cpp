@@ -388,6 +388,15 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     QString string = map.value(QLatin1String(QTVERSIONQMAKEPATH)).toString();
     if (string.startsWith(QLatin1Char('~')))
         string.remove(0, 1).prepend(QDir::homePath());
+
+    QFileInfo fi(string);
+    if (BuildableHelperLibrary::isQtChooser(fi)) {
+        // we don't want to treat qtchooser as a normal qmake
+        // see e.g. QTCREATORBUG-9841, also this lead to users changing what
+        // qtchooser forwards too behind our backs, which will inadvertly lead to bugs
+        string = BuildableHelperLibrary::qtChooserToQmakePath(string);
+    }
+
     ctor(FileName::fromString(string));
 }
 
