@@ -37,23 +37,42 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzersettings.h>
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <valgrind/valgrindsettings.h>
 
 #include <utils/hostosinfo.h>
 
 #include <QtPlugin>
+#include <QCoreApplication>
 
 using namespace Analyzer;
 
 namespace Valgrind {
 namespace Internal {
 
-class ProjectSettingsFactory : public AnalyzerSubConfigFactory
+static ValgrindGlobalSettings *theGlobalSettings = 0;
+
+class ValgrindOptionsPage : public Core::IOptionsPage
 {
-    AbstractAnalyzerSubConfig *createProjectSettings()
+public:
+    explicit ValgrindOptionsPage()
     {
-        return new ValgrindProjectSettings();
+        setId(ANALYZER_VALGRIND_SETTINGS);
+        setDisplayName(tr("Valgrind"));
+        setCategory("T.Analyzer");
+        setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+        setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));
     }
+
+    QWidget *createPage(QWidget *parent) {
+        return theGlobalSettings->createConfigWidget(parent);
+    }
+
+    void apply() {
+        theGlobalSettings->writeSettings();
+    }
+    void finish() {}
 };
 
 class ValgrindAction : public AnalyzerAction
@@ -62,10 +81,19 @@ public:
     ValgrindAction() {}
 };
 
+
+ValgrindPlugin::~ValgrindPlugin()
+{
+    delete theGlobalSettings;
+    theGlobalSettings = 0;
+}
+
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
-    AnalyzerGlobalSettings::registerConfig(new ValgrindGlobalSettings());
-    AnalyzerRunConfigurationAspect::registerConfigFactory(new ProjectSettingsFactory());
+    theGlobalSettings = new ValgrindGlobalSettings();
+    theGlobalSettings->readSettings();
+
+    addAutoReleasedObject(new ValgrindOptionsPage());
 
     IAnalyzerTool *memcheckTool = new MemcheckTool(this);
     IAnalyzerTool *callgrindTool = new CallgrindTool(this);
@@ -120,6 +148,11 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     addAutoReleasedObject(new ValgrindRunControlFactory());
 
     return true;
+}
+
+ValgrindGlobalSettings *ValgrindPlugin::globalSettings()
+{
+   return theGlobalSettings;
 }
 
 } // namespace Internal

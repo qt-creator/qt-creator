@@ -222,7 +222,7 @@ void SuppressionDialog::accept()
         }
     }
 
-    m_settings->subConfig<ValgrindBaseSettings>()->addSuppressionFiles(QStringList(path));
+    m_settings->addSuppressionFiles(QStringList(path));
 
     QModelIndexList indices = m_view->selectionModel()->selectedRows();
     qSort(indices.begin(), indices.end(), sortIndizesReverse);

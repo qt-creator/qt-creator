@@ -41,15 +41,13 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT EnvironmentAspect : public QObject, public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT EnvironmentAspect : public IRunConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    // from IRunConfigurationAspect:
+    // IRunConfigurationAspect:
     QVariantMap toMap() const;
-    QString displayName() const;
-
     RunConfigWidget *createConfigurationWidget();
 
     virtual RunConfiguration *runConfiguration() const { return m_runConfiguration; }

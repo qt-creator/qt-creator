@@ -213,12 +213,6 @@ public:
 };
 
 
-static ValgrindGlobalSettings *globalSettings()
-{
-    return AnalyzerGlobalSettings::instance()->subConfig<ValgrindGlobalSettings>();
-}
-
-
 CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     : q(parent)
     , m_dataModel(new DataModel(this))
@@ -399,7 +393,7 @@ void CallgrindToolPrivate::updateCostFormat()
         m_calleesView->setCostFormat(format);
         m_callersView->setCostFormat(format);
     }
-    if (ValgrindGlobalSettings *settings = globalSettings())
+    if (ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings())
         settings->setCostFormat(format);
 }
 
@@ -583,8 +577,9 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 
     // apply project settings
     if (runConfiguration) {
-        if (const AnalyzerRunConfigurationAspect *analyzerSettings = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>()) {
-            if (const ValgrindProjectSettings *settings = analyzerSettings->subConfig<ValgrindProjectSettings>()) {
+        if (AnalyzerRunConfigurationAspect *analyzerAspect
+                = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>(ANALYZER_VALGRIND_SETTINGS)) {
+            if (const ValgrindBaseSettings *settings = qobject_cast<ValgrindBaseSettings *>(analyzerAspect->currentConfig())) {
                 m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
                 m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
                 m_dataModel->setVerboseToolTipsEnabled(settings->enableEventToolTips());
@@ -785,7 +780,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     }
 
 
-    ValgrindGlobalSettings *settings = globalSettings();
+    ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings();
 
     // cycle detection
     //action = new QAction(QLatin1String("Cycle Detection"), this); ///FIXME: icon

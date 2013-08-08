@@ -37,6 +37,8 @@
 namespace Valgrind {
 namespace Internal {
 
+class ValgrindGlobalSettings;
+
 class ValgrindPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -44,9 +46,12 @@ class ValgrindPlugin : public ExtensionSystem::IPlugin
 
 public:
     ValgrindPlugin() {}
+    ~ValgrindPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized() {}
+    bool initialize(const QStringList &arguments, QString *errorString);
+    void extensionsInitialized() {}
+
+    static ValgrindGlobalSettings *globalSettings();
 };
 
 } // namespace Internal

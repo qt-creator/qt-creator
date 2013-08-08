@@ -33,54 +33,36 @@
 
 #include "analyzersettings.h"
 
-#include <utils/detailswidget.h>
-
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace Utils {
-class DetailsWidget;
-}
+namespace Utils { class DetailsWidget; }
 
 namespace Analyzer {
-
-class AbstractAnalyzerSubConfig;
-
 namespace Internal {
-
-class AnalyzerToolDetailWidget : public Utils::DetailsWidget
-{
-    Q_OBJECT
-
-public:
-    explicit AnalyzerToolDetailWidget(AbstractAnalyzerSubConfig *config, QWidget *parent=0);
-};
 
 class AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
 {
     Q_OBJECT
 
 public:
-    AnalyzerRunConfigWidget();
+    AnalyzerRunConfigWidget(AnalyzerRunConfigurationAspect *aspect);
 
-    virtual QString displayName() const;
-
-    void setRunConfigurationAspect(AnalyzerRunConfigurationAspect *aspect);
-
-private:
-    void setDetailEnabled(bool value);
+    QString displayName() const;
 
 private slots:
     void chooseSettings(int setting);
     void restoreGlobal();
 
 private:
-    QWidget *m_subConfigWidget;
+    QWidget *m_configWidget;
     AnalyzerRunConfigurationAspect *m_aspect;
+    AbstractAnalyzerSubConfig *m_config;
     QComboBox *m_settingsCombo;
     QPushButton *m_restoreButton;
+    Utils::DetailsWidget *m_details;
 };
 
 } // namespace Internal

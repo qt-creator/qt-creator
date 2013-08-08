@@ -632,8 +632,8 @@ void AnalyzerManager::extensionsInitialized()
 
 void AnalyzerManager::shutdown()
 {
-    QTC_ASSERT(d->m_currentAction, return);
-    d->saveToolSettings(d->m_currentAction);
+    if (d->m_currentAction)
+        d->saveToolSettings(d->m_currentAction);
 }
 
 void AnalyzerManager::addAction(AnalyzerAction *action)

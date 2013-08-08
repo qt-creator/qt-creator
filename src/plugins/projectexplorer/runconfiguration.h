@@ -72,19 +72,29 @@ private:
 inline bool operator==(const ProcessHandle &p1, const ProcessHandle &p2) { return p1.equals(p2); }
 inline bool operator!=(const ProcessHandle &p1, const ProcessHandle &p2) { return !p1.equals(p2); }
 
-class PROJECTEXPLORER_EXPORT IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
 {
+    Q_OBJECT
+
 public:
     virtual ~IRunConfigurationAspect() {}
     virtual QVariantMap toMap() const = 0;
-    virtual QString displayName() const = 0;
-
     virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const = 0;
     virtual RunConfigWidget *createConfigurationWidget();
+
+    QString displayName() const { return m_displayName; }
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+
+    void setId(Core::Id id) { m_id = id; }
+    Core::Id id() const { return m_id; }
 
 protected:
     friend class RunConfiguration;
     virtual void fromMap(const QVariantMap &map) = 0;
+
+private:
+    QString m_displayName;
+    Core::Id m_id;
 };
 
 // Documentation inside.
@@ -110,17 +120,23 @@ public:
     QVariantMap toMap() const;
 
     QList<IRunConfigurationAspect *> extraAspects() const;
+
     template <typename T> T *extraAspect() const
     {
         QTC_ASSERT(m_aspectsInitialized, return 0);
-        IRunConfigurationAspect *typeCheck = static_cast<T *>(0);
-        Q_UNUSED(typeCheck);
-        T *result = 0;
-        foreach (IRunConfigurationAspect *a, m_aspects) {
-            if ((result = dynamic_cast<T *>(a)) != 0)
-                break;
-        }
-        return result;
+        foreach (IRunConfigurationAspect *aspect, m_aspects)
+            if (T *result = qobject_cast<T *>(aspect))
+                return result;
+        return 0;
+    }
+
+    template <typename T> T *extraAspect(Core::Id id) const
+    {
+        QTC_ASSERT(m_aspectsInitialized, return 0);
+        foreach (IRunConfigurationAspect *aspect, m_aspects)
+            if (aspect->id() == id)
+                return qobject_cast<T *>(aspect);
+        return 0;
     }
 
     virtual ProjectExplorer::Abi abi() const;

@@ -30,13 +30,14 @@
 
 #include "valgrindengine.h"
 #include "valgrindsettings.h"
+#include "valgrindplugin.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runconfiguration.h>
 #include <analyzerbase/analyzermanager.h>
 
 #include <QApplication>
@@ -47,6 +48,7 @@
 using namespace Analyzer;
 using namespace Core;
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace Valgrind {
 namespace Internal {
@@ -62,10 +64,11 @@ ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
       m_isStopping(false)
 {
     if (runConfiguration)
-        m_settings = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>();
+        if (AnalyzerRunConfigurationAspect *aspect = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>(ANALYZER_VALGRIND_SETTINGS))
+            m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->customSubConfig());
 
-    if  (!m_settings)
-        m_settings = AnalyzerGlobalSettings::instance();
+    if (!m_settings)
+        m_settings = ValgrindPlugin::globalSettings();
 
     connect(m_progressWatcher, SIGNAL(canceled()),
             this, SLOT(handleProgressCanceled()));
@@ -99,7 +102,7 @@ bool ValgrindRunControl::startEngine()
 
     ValgrindRunner *run = runner();
     run->setWorkingDirectory(sp.workingDirectory);
-    QString valgrindExe = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
+    QString valgrindExe = m_settings->valgrindExecutable();
     if (!sp.analyzerCmdPrefix.isEmpty())
         valgrindExe = sp.analyzerCmdPrefix + QLatin1Char(' ') + valgrindExe;
     run->setValgrindExecutable(valgrindExe);
@@ -173,7 +176,7 @@ void ValgrindRunControl::receiveProcessOutput(const QByteArray &output, OutputFo
 void ValgrindRunControl::receiveProcessError(const QString &message, QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
-        const QString &valgrind = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
+        const QString valgrind = m_settings->valgrindExecutable();
         if (!valgrind.isEmpty())
             appendMessage(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(message), ErrorMessageFormat);
         else

@@ -41,6 +41,8 @@
 namespace Valgrind {
 namespace Internal {
 
+const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
+
 /**
  * Valgrind settings shared for global and per-project.
  */
@@ -52,10 +54,7 @@ public:
     ValgrindBaseSettings() {}
 
     virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
     virtual void fromMap(const QVariantMap &map);
-
-    virtual Core::Id id() const;
     virtual QString displayName() const;
 
 signals:
@@ -167,11 +166,10 @@ class ValgrindGlobalSettings : public ValgrindBaseSettings
     Q_OBJECT
 
 public:
-    ValgrindGlobalSettings() {}
+    ValgrindGlobalSettings();
 
     QWidget *createConfigWidget(QWidget *parent);
     QVariantMap toMap() const;
-    QVariantMap defaults() const;
     void fromMap(const QVariantMap &map);
     virtual AbstractAnalyzerSubConfig *clone();
 
@@ -190,6 +188,9 @@ public:
 
     void setLastSuppressionDialogHistory(const QStringList &history);
     QStringList lastSuppressionDialogHistory() const;
+
+    void writeSettings() const;
+    void readSettings();
 
 private:
     QStringList m_suppressionFiles;
@@ -229,7 +230,6 @@ public:
 
     QWidget *createConfigWidget(QWidget *parent);
     QVariantMap toMap() const;
-    QVariantMap defaults() const;
     void fromMap(const QVariantMap &map);
     virtual AbstractAnalyzerSubConfig *clone();
 

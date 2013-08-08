@@ -37,6 +37,7 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
 
+#include <valgrind/valgrindsettings.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
 #include <valgrind/xmlprotocol/error.h>
@@ -220,20 +221,21 @@ MemcheckTool::MemcheckTool(QObject *parent)
 void MemcheckTool::settingsDestroyed(QObject *settings)
 {
     QTC_ASSERT(m_settings == settings, return);
-    m_settings = AnalyzerGlobalSettings::instance();
+    m_settings = ValgrindPlugin::globalSettings();
 }
 
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
-    AnalyzerSettings *settings = 0;
+    ValgrindBaseSettings *settings = 0;
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *project = pe->startupProject())
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
-                settings = rc->extraAspect<AnalyzerRunConfigurationAspect>();
+                if (AnalyzerRunConfigurationAspect *aspect = rc->extraAspect<AnalyzerRunConfigurationAspect>(ANALYZER_VALGRIND_SETTINGS))
+                    settings = qobject_cast<ValgrindBaseSettings *>(aspect->customSubConfig());
 
     if (!settings) // fallback to global settings
-        settings = AnalyzerGlobalSettings::instance();
+        settings = ValgrindPlugin::globalSettings();
 
     if (m_settings == settings)
         return;
@@ -247,33 +249,29 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     // now make the new settings current, update and connect input widgets
     m_settings = settings;
     QTC_ASSERT(m_settings, return);
-
     connect(m_settings, SIGNAL(destroyed(QObject*)), SLOT(settingsDestroyed(QObject*)));
-
-    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
-    QTC_ASSERT(memcheckSettings, return);
 
     foreach (QAction *action, m_errorFilterActions) {
         bool contained = true;
         foreach (const QVariant &v, action->data().toList()) {
             bool ok;
             int kind = v.toInt(&ok);
-            if (ok && !memcheckSettings->visibleErrorKinds().contains(kind))
+            if (ok && !m_settings->visibleErrorKinds().contains(kind))
                 contained = false;
         }
         action->setChecked(contained);
     }
 
-    m_filterProjectAction->setChecked(!memcheckSettings->filterExternalIssues());
+    m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
     m_errorView->settingsChanged(m_settings);
 
-    connect(memcheckSettings, SIGNAL(visibleErrorKindsChanged(QList<int>)),
+    connect(m_settings, SIGNAL(visibleErrorKindsChanged(QList<int>)),
             m_errorProxyModel, SLOT(setAcceptedKinds(QList<int>)));
-    m_errorProxyModel->setAcceptedKinds(memcheckSettings->visibleErrorKinds());
+    m_errorProxyModel->setAcceptedKinds(m_settings->visibleErrorKinds());
 
-    connect(memcheckSettings, SIGNAL(filterExternalIssuesChanged(bool)),
+    connect(m_settings, SIGNAL(filterExternalIssuesChanged(bool)),
             m_errorProxyModel, SLOT(setFilterExternalIssues(bool)));
-    m_errorProxyModel->setFilterExternalIssues(memcheckSettings->filterExternalIssues());
+    m_errorProxyModel->setFilterExternalIssues(m_settings->filterExternalIssues());
 }
 
 RunMode MemcheckTool::runMode() const
@@ -498,9 +496,7 @@ void MemcheckTool::updateErrorFilter()
     QTC_ASSERT(m_errorView, return);
     QTC_ASSERT(m_settings, return);
 
-    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
-    QTC_ASSERT(memcheckSettings, return);
-    memcheckSettings->setFilterExternalIssues(!m_filterProjectAction->isChecked());
+    m_settings->setFilterExternalIssues(!m_filterProjectAction->isChecked());
 
     QList<int> errorKinds;
     foreach (QAction *a, m_errorFilterActions) {
@@ -513,7 +509,7 @@ void MemcheckTool::updateErrorFilter()
                 errorKinds << kind;
         }
     }
-    memcheckSettings->setVisibleErrorKinds(errorKinds);
+    m_settings->setVisibleErrorKinds(errorKinds);
 }
 
 void MemcheckTool::finished()

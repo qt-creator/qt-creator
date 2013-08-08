@@ -39,7 +39,7 @@ namespace Debugger {
 namespace Internal { class DebuggerRunConfigWidget;  }
 
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
-    : public QObject, public ProjectExplorer::IRunConfigurationAspect
+    : public ProjectExplorer::IRunConfigurationAspect
 {
     Q_OBJECT
 
@@ -59,8 +59,6 @@ public:
 
     DebuggerRunConfigurationAspect *clone(ProjectExplorer::RunConfiguration *parent) const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget();
-
-    QString displayName() const;
 
     bool useCppDebugger() const;
     void setUseCppDebugger(bool value);

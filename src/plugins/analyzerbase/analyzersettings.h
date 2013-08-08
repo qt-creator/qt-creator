@@ -62,101 +62,17 @@ class ANALYZER_EXPORT AbstractAnalyzerSubConfig : public QObject
 public:
     AbstractAnalyzerSubConfig() {}
 
-    /// return a list of default values
-    virtual QVariantMap defaults() const = 0;
     /// convert current configuration into map for storage
     virtual QVariantMap toMap() const = 0;
     /// read configuration from @p map
     virtual void fromMap(const QVariantMap &map) = 0;
 
-    /// unique ID for this configuration
-    virtual Core::Id id() const = 0;
-    /// user readable display name for this configuration
-    virtual QString displayName() const = 0;
     /// create a configuration widget for this configuration
     virtual QWidget *createConfigWidget(QWidget *parent) = 0;
     /// clones s AbstractAnalyzerSubConfig
     virtual AbstractAnalyzerSubConfig *clone() = 0;
 };
 
-class ANALYZER_EXPORT AnalyzerSubConfigFactory : public QObject
-{
-    Q_OBJECT
-
-public:
-    AnalyzerSubConfigFactory() {}
-
-    /// Factory method to create the project tool setting
-    virtual AbstractAnalyzerSubConfig *createProjectSettings() = 0;
-};
-
-/**
- * Shared interface for the global and per-project settings.
- *
- * Use this to get the subConfig for your tool.
- */
-class ANALYZER_EXPORT AnalyzerSettings : public QObject
-{
-    Q_OBJECT
-
-public:
-    template<class T>
-    T *subConfig() const
-    {
-        foreach (AbstractAnalyzerSubConfig *subConfig, subConfigs()) {
-            if (T *config = qobject_cast<T *>(subConfig))
-                return config;
-        }
-        return 0;
-    }
-
-    QList<AbstractAnalyzerSubConfig *> subConfigs() const
-    {
-        return m_subConfigs;
-    }
-
-    QVariantMap defaults() const;
-    virtual QVariantMap toMap() const;
-
-protected:
-    virtual void fromMap(const QVariantMap &map);
-
-    QVariantMap toMap(const QList<AbstractAnalyzerSubConfig *> &subConfigs) const;
-    void fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs);
-
-    AnalyzerSettings(QObject *parent);
-    AnalyzerSettings(const AnalyzerSettings *other);
-    QList<AbstractAnalyzerSubConfig *> m_subConfigs;
-};
-
-
-// global and local settings are loaded and saved differently, and they also handle suppressions
-// differently.
-/**
- * Global settings
- *
- * To access your custom configuration use:
- * @code
- * AnalyzerGlobalSettings::instance()->subConfig<YourGlobalConfig>()->...
- * @endcode
- */
-class ANALYZER_EXPORT AnalyzerGlobalSettings : public AnalyzerSettings
-{
-    Q_OBJECT
-
-public:
-    static AnalyzerGlobalSettings *instance();
-    ~AnalyzerGlobalSettings();
-
-    void writeSettings() const;
-    void readSettings();
-
-    static void registerConfig(AbstractAnalyzerSubConfig *config);
-
-private:
-    AnalyzerGlobalSettings(QObject *parent);
-    static AnalyzerGlobalSettings *m_instance;
-};
 
 /**
  * Settings associated with a single project/run configuration
@@ -168,18 +84,16 @@ private:
  * @endcode
  */
 class ANALYZER_EXPORT AnalyzerRunConfigurationAspect
-    : public AnalyzerSettings, public ProjectExplorer::IRunConfigurationAspect
+    : public ProjectExplorer::IRunConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    AnalyzerRunConfigurationAspect();
-    AnalyzerRunConfigurationAspect(const AnalyzerRunConfigurationAspect *other);
+    AnalyzerRunConfigurationAspect(AbstractAnalyzerSubConfig *customConfiguration,
+                                   AbstractAnalyzerSubConfig *globalConfiguration);
+
     ~AnalyzerRunConfigurationAspect();
 
-    static void registerConfigFactory(AnalyzerSubConfigFactory *factory);
-
-    QString displayName() const;
     virtual QVariantMap toMap() const;
     AnalyzerRunConfigurationAspect *clone(ProjectExplorer::RunConfiguration *parent) const;
 
@@ -187,7 +101,9 @@ public:
     void setUsingGlobalSettings(bool value);
     void resetCustomToGlobalSettings();
 
-    QList<AbstractAnalyzerSubConfig *> customSubConfigs() const { return m_customConfigurations; }
+    AbstractAnalyzerSubConfig *customSubConfig() const { return m_customConfiguration; }
+    AbstractAnalyzerSubConfig *globalSubConfig() const { return m_globalConfiguration; }
+    AbstractAnalyzerSubConfig *currentConfig() const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 
 protected:
@@ -195,7 +111,8 @@ protected:
 
 private:
     bool m_useGlobalSettings;
-    QList<AbstractAnalyzerSubConfig *> m_customConfigurations;
+    AbstractAnalyzerSubConfig *m_customConfiguration;
+    AbstractAnalyzerSubConfig *m_globalConfiguration;
 };
 
 } // namespace Analyzer

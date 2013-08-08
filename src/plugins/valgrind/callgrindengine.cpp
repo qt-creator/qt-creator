@@ -64,19 +64,18 @@ QStringList CallgrindRunControl::toolArguments() const
 {
     QStringList arguments;
 
-    ValgrindBaseSettings *callgrindSettings = m_settings->subConfig<ValgrindBaseSettings>();
-    QTC_ASSERT(callgrindSettings, return arguments);
+    QTC_ASSERT(m_settings, return arguments);
 
-    if (callgrindSettings->enableCacheSim())
+    if (m_settings->enableCacheSim())
         arguments << QLatin1String("--cache-sim=yes");
 
-    if (callgrindSettings->enableBranchSim())
+    if (m_settings->enableBranchSim())
         arguments << QLatin1String("--branch-sim=yes");
 
-    if (callgrindSettings->collectBusEvents())
+    if (m_settings->collectBusEvents())
         arguments << QLatin1String("--collect-bus=yes");
 
-    if (callgrindSettings->collectSystime())
+    if (m_settings->collectSystime())
         arguments << QLatin1String("--collect-systime=yes");
 
     if (m_markAsPaused)

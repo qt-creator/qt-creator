@@ -48,15 +48,12 @@ class Error;
 }
 }
 
-namespace Analyzer {
-class AnalyzerSettings;
-}
-
 namespace Valgrind {
 namespace Internal {
 
-class MemcheckErrorView;
 class FrameFinder;
+class MemcheckErrorView;
+class ValgrindBaseSettings;
 
 class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
 {
@@ -109,7 +106,7 @@ private:
     void clearErrorView();
 
 private:
-    Analyzer::AnalyzerSettings *m_settings;
+    ValgrindBaseSettings *m_settings;
     QMenu *m_filterMenu;
 
     FrameFinder *m_frameFinder;

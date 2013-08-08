@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 #include "valgrindruncontrolfactory.h"
+#include "valgrindsettings.h"
+#include "valgrindplugin.h"
 
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
@@ -109,7 +111,11 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
 IRunConfigurationAspect *ValgrindRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
 {
     Q_UNUSED(rc);
-    return new AnalyzerRunConfigurationAspect;
+    IRunConfigurationAspect *aspect
+        = new AnalyzerRunConfigurationAspect(new ValgrindProjectSettings(), ValgrindPlugin::globalSettings());
+    aspect->setId(ANALYZER_VALGRIND_SETTINGS);
+    aspect->setDisplayName(tr("Valgrind Settings"));
+    return aspect;
 }
 
 } // namespace Internal

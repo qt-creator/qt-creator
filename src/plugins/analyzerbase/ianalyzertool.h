@@ -46,9 +46,7 @@ class RunConfiguration;
 
 namespace Analyzer {
 
-class IAnalyzerOutputPaneAdapter;
 class AnalyzerRunControl;
-class AbstractAnalyzerSubConfig;
 
 
 /**

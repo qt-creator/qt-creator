@@ -34,11 +34,10 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
+#include <valgrind/valgrindsettings.h>
 
 #include <QFutureInterface>
 #include <QFutureWatcher>
-
-namespace Analyzer { class AnalyzerSettings; }
 
 namespace Valgrind {
 namespace Internal {
@@ -62,7 +61,7 @@ protected:
     virtual QStringList toolArguments() const = 0;
     virtual Valgrind::ValgrindRunner *runner() = 0;
 
-    Analyzer::AnalyzerSettings *m_settings;
+    ValgrindBaseSettings *m_settings;
     QFutureInterface<void> *m_progress;
     QFutureWatcher<void> *m_progressWatcher;
 

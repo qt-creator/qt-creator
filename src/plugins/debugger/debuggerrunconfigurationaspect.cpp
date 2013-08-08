@@ -277,11 +277,6 @@ bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
     return dev->canAutoDetectPorts();
 }
 
-QString DebuggerRunConfigurationAspect::displayName() const
-{
-    return tr("Debugger settings");
-}
-
 QVariantMap DebuggerRunConfigurationAspect::toMap() const
 {
     QVariantMap map;
@@ -324,6 +319,9 @@ ProjectExplorer::RunConfigWidget *DebuggerRunConfigurationAspect::createConfigur
 
 void DebuggerRunConfigurationAspect::ctor()
 {
+    setId("DebuggerAspect");
+    setDisplayName(tr("Debugger settings"));
+
     connect(this, SIGNAL(debuggersChanged()),
             m_runConfiguration, SIGNAL(requestRunActionsUpdate()));
 }

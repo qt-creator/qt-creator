@@ -48,6 +48,8 @@ EnvironmentAspect::EnvironmentAspect(RunConfiguration *rc) :
     m_runConfiguration(rc)
 {
     QTC_CHECK(m_runConfiguration);
+    setDisplayName(tr("Run Environment"));
+    setId("EnvironmentAspect");
 }
 
 EnvironmentAspect::EnvironmentAspect(const EnvironmentAspect *other, RunConfiguration *parent) :
@@ -62,11 +64,6 @@ QVariantMap EnvironmentAspect::toMap() const
     data.insert(QLatin1String(BASE_KEY), m_base);
     data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_changes));
     return data;
-}
-
-QString EnvironmentAspect::displayName() const
-{
-    return tr("Run Environment");
 }
 
 RunConfigWidget *EnvironmentAspect::createConfigurationWidget()

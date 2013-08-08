@@ -18,8 +18,6 @@ QtcPlugin {
         "analyzerconstants.h",
         "analyzermanager.cpp",
         "analyzermanager.h",
-        "analyzeroptionspage.cpp",
-        "analyzeroptionspage.h",
         "analyzerplugin.cpp",
         "analyzerplugin.h",
         "analyzerrunconfigwidget.cpp",

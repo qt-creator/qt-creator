@@ -99,22 +99,21 @@ QStringList MemcheckRunControl::toolArguments() const
     QStringList arguments;
     arguments << QLatin1String("--gen-suppressions=all");
 
-    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
-    QTC_ASSERT(memcheckSettings, return arguments);
+    QTC_ASSERT(m_settings, return arguments);
 
-    if (memcheckSettings->trackOrigins())
+    if (m_settings->trackOrigins())
         arguments << QLatin1String("--track-origins=yes");
 
-    foreach (const QString &file, memcheckSettings->suppressionFiles())
+    foreach (const QString &file, m_settings->suppressionFiles())
         arguments << QString::fromLatin1("--suppressions=%1").arg(file);
 
-    arguments << QString::fromLatin1("--num-callers=%1").arg(memcheckSettings->numCallers());
+    arguments << QString::fromLatin1("--num-callers=%1").arg(m_settings->numCallers());
     return arguments;
 }
 
 QStringList MemcheckRunControl::suppressionFiles() const
 {
-    return m_settings->subConfig<ValgrindBaseSettings>()->suppressionFiles();
+    return m_settings->suppressionFiles();
 }
 
 void MemcheckRunControl::status(const Status &status)

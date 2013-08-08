@@ -42,12 +42,11 @@ class QPlainTextEdit;
 class QDialogButtonBox;
 QT_END_NAMESPACE
 
-namespace Analyzer { class AnalyzerSettings; }
-
 namespace Valgrind {
 namespace Internal {
 
 class MemcheckErrorView;
+class ValgrindBaseSettings;
 
 class SuppressionDialog : public QDialog
 {
@@ -66,7 +65,7 @@ private:
     void reject();
 
     MemcheckErrorView *m_view;
-    Analyzer::AnalyzerSettings *m_settings;
+    ValgrindBaseSettings *m_settings;
     bool m_cleanupIfCanceled;
     QList<XmlProtocol::Error> m_errors;
 
