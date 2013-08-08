@@ -43,18 +43,10 @@ CustomParserSettings::CustomParserSettings() :
     messageCap(3)
 { }
 
-bool CustomParserSettings::operator !=(const CustomParserSettings &other) const
+bool CustomParserSettings::operator ==(const CustomParserSettings &other) const
 {
-    if (errorPattern == other.errorPattern)
-        return false;
-    if (fileNameCap == other.fileNameCap)
-        return false;
-    if (lineNumberCap == other.lineNumberCap)
-        return false;
-    if (messageCap == other.messageCap)
-        return false;
-
-    return true;
+    return errorPattern == other.errorPattern && fileNameCap == other.fileNameCap
+            && lineNumberCap == other.lineNumberCap && messageCap == other.messageCap;
 }
 
 CustomParser::CustomParser(const CustomParserSettings &settings) :

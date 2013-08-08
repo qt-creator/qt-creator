@@ -43,7 +43,8 @@ class CustomParserSettings
 public:
     CustomParserSettings();
 
-    bool operator !=(const CustomParserSettings &other) const;
+    bool operator ==(const CustomParserSettings &other) const;
+    bool operator !=(const CustomParserSettings &other) const { return !operator==(other); }
 
     QString errorPattern;
     int fileNameCap;
