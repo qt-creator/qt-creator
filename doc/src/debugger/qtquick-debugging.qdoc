@@ -125,13 +125,33 @@
 
     \list 1
 
-        \li Start the application.
+        \li Build the application by using the appropriate configuration
+            parameters (if you build the application with \QC, it automatically
+            uses the correct configuration):
+
+            \list
+
+                \li Qt Quick 1: \c {CONFIG+=declarative_debug}
+
+                \li Qt Quick 2: \c {CONFIG+=qml_debug}
+
+            \endlist
+
+        \li Start the application with the following arguments:
+
+            \c {qmljsdebugger=port:<port>[,host:<ip address>][,block]}
+
+            Where \c port (mandatory) specifies the debugging port,
+            \c {ip address} (optional) specifies the IP address of the host
+            where the application is running, and \c block (optional) prevents
+            the application from running until the debug client connects to the
+            server. This enables debugging from the start.
 
         \li Select \gui {Debug > Start Debugging > Attach to QML Port}.
 
-            When debugging on the desktop, you can use the default values for
-            the connection. When debugging on devices, enter the device IP
-            address in the \gui Host field.
+            Choose the kit configured for the device where the application to
+            be debugged is running. The port number to use is displayed in the
+            standard output when the application starts.
 
     \endlist
 
