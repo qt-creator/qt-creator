@@ -145,10 +145,7 @@ public:
                 }
             }
             if (!haveConnection) {
-                // Let's nag clients who release connections with open channels.
-                const int channelCount = connection->closeAllChannels();
-                QSSH_ASSERT(channelCount == 0);
-
+                connection->closeAllChannels(); // Clean up after neglectful clients.
                 m_unacquiredConnections.append(connection);
             } else {
                 doDelete = true;
