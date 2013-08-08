@@ -581,7 +581,6 @@ void BaseTextEditorWidgetPrivate::foldLicenseHeader()
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
     QTextBlock block = doc->firstBlock();
-    const TabSettings &ts = m_document->tabSettings();
     while (block.isValid() && block.isVisible()) {
         QString text = block.text();
         if (BaseTextDocumentLayout::canFold(block) && block.next().isVisible()) {
@@ -593,7 +592,7 @@ void BaseTextEditorWidgetPrivate::foldLicenseHeader()
                 break;
             }
         }
-        if (ts.firstNonSpace(text) < text.size())
+        if (TabSettings::firstNonSpace(text) < text.size())
             break;
         block = block.next();
     }
@@ -5937,14 +5936,13 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
         selstart.setPosition(cursor.selectionStart());
         QTextCursor selend = cursor;
         selend.setPosition(cursor.selectionEnd());
-        const TabSettings &ts = d->m_document->tabSettings();
 
-        bool startOk = ts.cursorIsAtBeginningOfLine(selstart);
+        bool startOk = TabSettings::cursorIsAtBeginningOfLine(selstart);
         bool multipleBlocks = (selend.block() != selstart.block());
 
         if (startOk && multipleBlocks) {
             selstart.movePosition(QTextCursor::StartOfBlock);
-            if (ts.cursorIsAtBeginningOfLine(selend))
+            if (TabSettings::cursorIsAtBeginningOfLine(selend))
                 selend.movePosition(QTextCursor::StartOfBlock);
             cursor.setPosition(selstart.position());
             cursor.setPosition(selend.position(), QTextCursor::KeepAnchor);

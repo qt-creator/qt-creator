@@ -68,26 +68,26 @@ public:
     void fromMap(const QString &prefix, const QVariantMap &map);
 
     int lineIndentPosition(const QString &text) const;
-    int firstNonSpace(const QString &text) const;
-    inline bool onlySpace(const QString &text) const { return firstNonSpace(text) == text.length(); }
     int columnAt(const QString &text, int position) const;
     int positionAtColumn(const QString &text, int column, int *offset = 0) const;
-    int spacesLeftFromPosition(const QString &text, int position) const;
     int indentedColumn(int column, bool doIndent = true) const;
     QString indentationString(int startColumn, int targetColumn, const QTextBlock &currentBlock = QTextBlock()) const;
     QString indentationString(const QString &text) const;
     int indentationColumn(const QString &text) const;
-    int maximumPadding(const QString &text) const;
-
-    bool cursorIsAtBeginningOfLine(const QTextCursor &cursor) const;
+    static int maximumPadding(const QString &text);
 
     void indentLine(QTextBlock block, int newIndent, int padding = 0) const;
     void reindentLine(QTextBlock block, int delta) const;
 
-    int trailingWhitespaces(const QString &text) const;
-    void removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block) const;
     bool isIndentationClean(const QTextBlock &block) const;
     bool guessSpacesForTabs(const QTextBlock &block) const;
+
+    static int firstNonSpace(const QString &text);
+    static inline bool onlySpace(const QString &text) { return firstNonSpace(text) == text.length(); }
+    static int spacesLeftFromPosition(const QString &text, int position);
+    static bool cursorIsAtBeginningOfLine(const QTextCursor &cursor);
+    static int trailingWhitespaces(const QString &text);
+    static void removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block);
 
     TabPolicy m_tabPolicy;
     int m_tabSize;

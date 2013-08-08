@@ -87,7 +87,7 @@ void TabSettings::fromMap(const QString &prefix, const QVariantMap &map)
         map.value(prefix + QLatin1String(paddingModeKey), m_continuationAlignBehavior).toInt();
 }
 
-bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor) const
+bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor)
 {
     QString text = cursor.block().text();
     int fns = firstNonSpace(text);
@@ -106,7 +106,7 @@ int TabSettings::lineIndentPosition(const QString &text) const
     return i - (column % m_indentSize);
 }
 
-int TabSettings::firstNonSpace(const QString &text) const
+int TabSettings::firstNonSpace(const QString &text)
 {
     int i = 0;
     while (i < text.size()) {
@@ -128,7 +128,7 @@ int TabSettings::indentationColumn(const QString &text) const
     return columnAt(text, firstNonSpace(text));
 }
 
-int TabSettings::maximumPadding(const QString &text) const
+int TabSettings::maximumPadding(const QString &text)
 {
     int fns = firstNonSpace(text);
     int i = fns;
@@ -141,7 +141,7 @@ int TabSettings::maximumPadding(const QString &text) const
 }
 
 
-int TabSettings::trailingWhitespaces(const QString &text) const
+int TabSettings::trailingWhitespaces(const QString &text)
 {
     int i = 0;
     while (i < text.size()) {
@@ -152,7 +152,7 @@ int TabSettings::trailingWhitespaces(const QString &text) const
     return i;
 }
 
-void TabSettings::removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block) const
+void TabSettings::removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block)
 {
     if (const int trailing = trailingWhitespaces(block.text())) {
         cursor.setPosition(block.position() + block.length() - 1);
@@ -213,7 +213,7 @@ int TabSettings::positionAtColumn(const QString &text, int column, int *offset) 
     return i;
 }
 
-int TabSettings::spacesLeftFromPosition(const QString &text, int position) const
+int TabSettings::spacesLeftFromPosition(const QString &text, int position)
 {
     int i = position;
     while (i > 0) {
