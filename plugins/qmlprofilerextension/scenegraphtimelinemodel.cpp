@@ -142,9 +142,18 @@ const QString SceneGraphTimelineModel::categoryLabel(int categoryIndex) const
 int SceneGraphTimelineModel::findFirstIndex(qint64 startTime) const
 {
     int candidate = findFirstIndexNoParents(startTime);
-    // because there's two threads synchronized, the right index could be one off
-    if (candidate > 0 && d->eventList[candidate-1].startTime + d->eventList[candidate-1].duration >= startTime)
-        return candidate - 1;
+    // because there's two asynchronous threads in the display,
+    // check the former event in same thread for false positives
+    int i = candidate - 1;
+    while (i >= 0) {
+        if (d->eventList[candidate].sgEventType == d->eventList[i].sgEventType) {
+            if (d->eventList[i].startTime + d->eventList[i].duration >= startTime)
+                candidate = i;
+            else
+                break;
+        }
+        i--;
+    }
 
     return candidate;
 }
@@ -395,7 +404,9 @@ void SceneGraphTimelineModel::loadData()
             for (int i=0; i < timingFieldCount; i++)
                 newEvent.timing[i] = 0;
 
-            d->eventList << newEvent;
+            // Filter out events with incorrect timings due to interrupted thread on server side
+            if (newEvent.duration > 0 && newEvent.startTime > 0)
+                d->eventList << newEvent;
             lastRenderEvent = d->eventList.count()-1;
         }
 
@@ -445,7 +456,10 @@ void SceneGraphTimelineModel::loadData()
                 newEvent.timing[2] = event.numericData3;
                 newEvent.timing[3] = event.numericData4;
 
-                d->eventList << newEvent;
+                // Filter out events with incorrect timings due to interrupted thread on server side
+                if (newEvent.duration > 0 && newEvent.startTime > 0)
+                    d->eventList << newEvent;
+
                 break;
             }
             case SceneGraphWindowsAnimations: {
