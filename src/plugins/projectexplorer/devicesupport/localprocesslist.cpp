@@ -101,9 +101,9 @@ LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *par
 {
 }
 
-QList<DeviceProcess> LocalProcessList::getLocalProcesses()
+QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
 {
-    QList<DeviceProcess> processes;
+    QList<DeviceProcessItem> processes;
 
     PROCESSENTRY32 pe;
     pe.dwSize = sizeof(PROCESSENTRY32);
@@ -112,7 +112,7 @@ QList<DeviceProcess> LocalProcessList::getLocalProcesses()
         return processes;
 
     for (bool hasNext = Process32First(snapshot, &pe); hasNext; hasNext = Process32Next(snapshot, &pe)) {
-        DeviceProcess p;
+        DeviceProcessItem p;
         p.pid = pe.th32ProcessID;
         // Image has the absolute path, but can fail.
         const QString image = imageName(pe.th32ProcessID);
@@ -125,7 +125,7 @@ QList<DeviceProcess> LocalProcessList::getLocalProcesses()
     return processes;
 }
 
-void LocalProcessList::doKillProcess(const DeviceProcess &process)
+void LocalProcessList::doKillProcess(const DeviceProcessItem &process)
 {
     const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
             |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
