@@ -107,7 +107,7 @@ private:
 
     QStringList collectRelativeFilePaths(const QString &parentPath);
     void collectFiles(QList<DeployItem> *deployList, QList<DeployItem> *pluginsAndImports);
-    void removeManagedFilesFromPackage();
+    void removeManagedFilesFromPackage(const Utils::FileName &qtLibraryDir);
     void copyFilesIntoPackage(const QList<DeployItem> &deployList);
     void stripFiles(const QList<DeployItem> &deployList);
 

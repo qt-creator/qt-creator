@@ -557,7 +557,7 @@ void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
     }
 }
 
-void AndroidPackageCreationStep::removeManagedFilesFromPackage()
+void AndroidPackageCreationStep::removeManagedFilesFromPackage(const Utils::FileName &qtLibraryDir)
 {
     // Clean up all files managed by Qt Creator
     {
@@ -570,6 +570,12 @@ void AndroidPackageCreationStep::removeManagedFilesFromPackage()
                 bool isQtLibrary = dirIt.fileInfo().path().startsWith(androidLibPath)
                         && dirIt.fileName().startsWith(QLatin1String("libQt5"))
                         && dirIt.fileName().endsWith(QLatin1String(".so"));
+
+                if (isQtLibrary) {
+                    Utils::FileName qtLibraryFile = qtLibraryDir;
+                    qtLibraryFile.appendPath(dirIt.fileName());
+                    isQtLibrary = qtLibraryFile.toFileInfo().exists();
+                }
 
                 if (dirIt.filePath().contains(AndroidManager::libraryPrefix()) || isQtLibrary)
                     QFile::remove(dirIt.filePath());
@@ -656,7 +662,7 @@ bool AndroidPackageCreationStep::createPackage()
             collectFiles(&deployFiles, &importsAndPlugins);
 
         // Remove files from package if they are not needed
-        removeManagedFilesFromPackage();
+        removeManagedFilesFromPackage(version->libraryPath());
 
         // Deploy files to package
         if (bundleQt) {
