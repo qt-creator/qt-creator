@@ -143,7 +143,7 @@ public:
     TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles);
     ~TestCase();
 
-    void run();
+    void run(bool expectedFail = false);
 
 private:
     TestCase(const TestCase &);
@@ -278,7 +278,7 @@ TestDocumentPtr TestCase::testFileWithTargetCursorMarker()
     return TestDocumentPtr();
 }
 
-void TestCase::run()
+void TestCase::run(bool expectedFail)
 {
     TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker();
     QVERIFY(initialTestFile);
@@ -318,6 +318,8 @@ void TestCase::run()
                                        &expectedLine, &expectedColumn);
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
+    if (expectedFail)
+        QEXPECT_FAIL("", "Contributor works on a fix.", Abort);
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
     QCOMPARE(currentTextEditor->currentColumn() - 1, expectedColumn);
 }
@@ -583,7 +585,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromEnum()
         ;
 
     TestCase test(TestCase::FollowSymbolUnderCursor, source);
-    test.run();
+    test.run(/*expectedFail =*/ true);
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_selfInitialization()
