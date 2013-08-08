@@ -151,7 +151,7 @@ void AnalyzerGlobalSettings::registerConfig(AbstractAnalyzerSubConfig *config)
 }
 
 
-static QList<AnalyzerSubConfigFactory *> theAnalyzerSubConfigFactories()
+static QList<AnalyzerSubConfigFactory *> &theAnalyzerSubConfigFactories()
 {
     static QList<AnalyzerSubConfigFactory *> theFactories;
     return theFactories;
