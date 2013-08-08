@@ -1031,7 +1031,7 @@ bool Qt4PriFileNode::renameFile(const QString &filePath, const QString &newFileP
 
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    const Core::MimeType mt = mdb->findByFile(filePath);
+    const Core::MimeType mt = mdb->findByFile(newFilePath);
     QStringList dummy;
 
     changeFiles(mt.type(), QStringList() << filePath, &dummy, RemoveFromProFile);
@@ -1154,15 +1154,14 @@ void Qt4PriFileNode::changeFiles(const QString &mimeType,
         includeFile = parser.parsedProBlock(contents, m_projectFilePath, 1);
     }
 
-    const QStringList vars = varNames(mimeType);
     QDir priFileDir = QDir(m_qt4ProFileNode->m_projectDir);
 
     if (change == AddToProFile) {
         // Use the first variable for adding.
-        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, vars.first());
+        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, varNameForAdding(mimeType));
         notChanged->clear();
     } else { // RemoveFromProFile
-        *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, vars);
+        *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, varNamesForRemoving());
     }
 
     // save file
@@ -1236,36 +1235,58 @@ QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
 //! \brief Qt4PriFileNode::varNames
 //! \param mimeType
 //! \return the qmake variable name for the mime type
-//! Note: For adding the first variable in the list is used
-//! For removal all variables returned a searched for the file
+//! Note: Only used for adding.
 //!
-QStringList Qt4PriFileNode::varNames(const QString &mimeType)
+QString Qt4PriFileNode::varNameForAdding(const QString &mimeType)
 {
-    QStringList vars;
     if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE)
             || mimeType == QLatin1String(ProjectExplorer::Constants::C_HEADER_MIMETYPE)) {
-        vars << QLatin1String("HEADERS");
-        vars << QLatin1String("OBJECTIVE_HEADERS");
-    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
-               || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE)) {
-        vars << QLatin1String("SOURCES");
-    } else if (mimeType == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)) {
-        vars << QLatin1String("OBJECTIVE_SOURCES");
-    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE)) {
-        vars << QLatin1String("RESOURCES");
-    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE)) {
-        vars << QLatin1String("FORMS");
-    } else if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)) {
-        vars << QLatin1String("OTHER_FILES");
-    } else if (mimeType == QLatin1String(Constants::PROFILE_MIMETYPE)) {
-        vars << QLatin1String("SUBDIRS");
-    } else {
-        vars << QLatin1String("OTHER_FILES");
-        vars << QLatin1String("ICON");
+        return QLatin1String("HEADERS");
     }
-    return vars;
+
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
+               || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE)) {
+        return QLatin1String("SOURCES");
+    }
+
+    if (mimeType == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
+        return QLatin1String("OBJECTIVE_SOURCES");
+
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE))
+        return QLatin1String("RESOURCES");
+
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE))
+        return QLatin1String("FORMS");
+
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
+        return QLatin1String("OTHER_FILES");
+
+    if (mimeType == QLatin1String(Constants::PROFILE_MIMETYPE))
+        return QLatin1String("SUBDIRS");
+
+    return QLatin1String("OTHER_FILES");
 }
 
+//!
+//! \brief Qt4PriFileNode::varNamesForRemoving
+//! \return all qmake variables which are displayed in the project tree
+//! Note: Only used for removing.
+//!
+QStringList Qt4PriFileNode::varNamesForRemoving()
+{
+    QStringList vars;
+    vars << QLatin1String("HEADERS");
+    vars << QLatin1String("OBJECTIVE_HEADERS");
+    vars << QLatin1String("SOURCES");
+    vars << QLatin1String("OBJECTIVE_SOURCES");
+    vars << QLatin1String("RESOURCES");
+    vars << QLatin1String("FORMS");
+    vars << QLatin1String("OTHER_FILES");
+    vars << QLatin1String("SUBDIRS");
+    vars << QLatin1String("OTHER_FILES");
+    vars << QLatin1String("ICON");
+    return vars;
+}
 
 QStringList Qt4PriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
                                             QtSupport::BaseQtVersion *qtVersion)
