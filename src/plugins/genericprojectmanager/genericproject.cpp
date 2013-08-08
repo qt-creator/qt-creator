@@ -255,6 +255,7 @@ void GenericProject::refresh(RefreshOptions options)
                                     SysRootKitInformation::sysRoot(k));
         }
 
+        part->cxxVersion = CppTools::ProjectPart::CXX11; // assume C++11
         part->includePaths += allIncludePaths();
         part->defines += m_defines;
 
