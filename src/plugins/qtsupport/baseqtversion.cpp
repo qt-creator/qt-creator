@@ -394,7 +394,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
         // we don't want to treat qtchooser as a normal qmake
         // see e.g. QTCREATORBUG-9841, also this lead to users changing what
         // qtchooser forwards too behind our backs, which will inadvertly lead to bugs
-        string = BuildableHelperLibrary::qtChooserToQmakePath(string);
+        string = BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget());
     }
 
     ctor(FileName::fromString(string));
