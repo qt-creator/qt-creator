@@ -36,6 +36,8 @@
 #include "propertyeditorcontextobject.h"
 #include "quickpropertyeditorview.h"
 
+#include <nodemetainfo.h>
+
 class PropertyEditorValue;
 
 namespace QmlDesigner {
@@ -66,19 +68,22 @@ public:
     static QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType,
                                       const QmlObjectNode &objectNode);
 
-    static QString qmlFileName(const NodeMetaInfo &nodeInfo) ;
-    static QUrl fileToUrl(const QString &filePath) ;
-    static QString fileFromUrl(const QUrl &url) ;
-    static QUrl qmlForNode(const ModelNode &modelNode, TypeName &className) ;
-    static QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath) ;
+    static QUrl getQmlFileUrl(const QString &relativeTypeName, const NodeMetaInfo &info = NodeMetaInfo());
+    static QUrl getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className);
 
-    static QString fixTypeNameForPanes(const QString &typeName);
+    static bool checkIfUrlExists(const QUrl &url);
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    const PropertyName &name, const QVariant &value,
                                    PropertyEditorView *propertyEditor);
     void setupPropertyEditorValue(const PropertyName &name, PropertyEditorView *propertyEditor, const QString &type);
+
+    static QString qmlFileName(const NodeMetaInfo &nodeInfo);
+    static QUrl fileToUrl(const QString &filePath);
+    static QString fileFromUrl(const QUrl &url);
+    static QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath);
+    static QString fixTypeNameForPanes(const QString &typeName);
 
 private:
     QuickPropertyEditorView *m_view;

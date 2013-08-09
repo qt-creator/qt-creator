@@ -100,13 +100,10 @@ void PropertyEditorView::setupPane(const TypeName &typeName)
 {
     NodeMetaInfo metaInfo = model()->metaInfo(typeName);
 
-    QUrl qmlFile = PropertyEditorQmlBackend::fileToUrl(
-                PropertyEditorQmlBackend::locateQmlFile(metaInfo, QLatin1String("Qt/ItemPane.qml")));
+    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl(QLatin1String("Qt/ItemPane"), metaInfo);
     QUrl qmlSpecificsFile;
 
-    qmlSpecificsFile = PropertyEditorQmlBackend::fileToUrl(PropertyEditorQmlBackend::locateQmlFile(
-                                                               metaInfo, PropertyEditorQmlBackend::fixTypeNameForPanes(typeName)
-                                                               + "Specifics.qml"));
+    qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(typeName + "Specifics", metaInfo);
 
     PropertyEditorQmlBackend *qmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 
@@ -364,7 +361,7 @@ void PropertyEditorView::resetView()
         m_selectedNode = ModelNode();
 
     TypeName specificsClassName;
-    QUrl qmlFile(PropertyEditorQmlBackend::qmlForNode(m_selectedNode, specificsClassName));
+    QUrl qmlFile(PropertyEditorQmlBackend::getQmlUrlForModelNode(m_selectedNode, specificsClassName));
     QUrl qmlSpecificsFile;
 
     TypeName diffClassName;
@@ -374,18 +371,15 @@ void PropertyEditorView::resetView()
         hierarchy << m_selectedNode.metaInfo();
         hierarchy << m_selectedNode.metaInfo().superClasses();
 
-        foreach (const NodeMetaInfo &info, hierarchy) {
-            if (QFileInfo(PropertyEditorQmlBackend::fileFromUrl(qmlSpecificsFile)).exists())
+        foreach (const NodeMetaInfo &metaInfo, hierarchy) {
+            if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
-            qmlSpecificsFile = PropertyEditorQmlBackend::fileToUrl(PropertyEditorQmlBackend::locateQmlFile(
-                                                                       info,
-                                                                       PropertyEditorQmlBackend::fixTypeNameForPanes(info.typeName())
-                                                                       + "Specifics.qml"));
-            diffClassName = info.typeName();
+            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + QLatin1String("Specifics"), metaInfo);
+            diffClassName = metaInfo.typeName();
         }
     }
 
-    if (!QFileInfo(PropertyEditorQmlBackend::fileFromUrl(qmlSpecificsFile)).exists())
+    if (!PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
         diffClassName = specificsClassName;
 
     QString specificQmlData;

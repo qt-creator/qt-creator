@@ -403,6 +403,10 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
     return qmlTemplate;
 }
 
+QUrl PropertyEditorQmlBackend::getQmlFileUrl(const QString &relativeTypeName, const NodeMetaInfo &info)
+{
+    return fileToUrl(locateQmlFile(info, fixTypeNameForPanes(relativeTypeName) + QLatin1String(".qml")));
+}
 
 QString PropertyEditorQmlBackend::fixTypeNameForPanes(const QString &typeName)
 {
@@ -447,7 +451,12 @@ QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
     return url.toLocalFile();
 }
 
-QUrl PropertyEditorQmlBackend::qmlForNode(const ModelNode &modelNode, TypeName &className)
+bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
+{
+    return (QFileInfo(fileFromUrl(url)).exists());
+}
+
+QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className)
 {
     if (modelNode.isValid()) {
         QList<NodeMetaInfo> hierarchy;
