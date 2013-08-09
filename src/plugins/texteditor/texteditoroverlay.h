@@ -39,6 +39,7 @@
 QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace TextEditor {
+class NameMangler;
 class BaseTextEditorWidget;
 
 namespace Internal {
@@ -100,6 +101,8 @@ public:
 
     void mapEquivalentSelections();
     void updateEquivalentSelections(const QTextCursor &cursor);
+    void setNameMangler(const QList<NameMangler *> &manglers);
+    void mangle();
 
     bool hasFirstSelectionBeginMoved() const;
 
@@ -120,6 +123,7 @@ private:
     QWidget *m_viewport;
     QList<OverlaySelection> m_selections;
     QVector<QList<int> > m_equivalentSelections;
+    QList<NameMangler *> m_manglers;
 };
 
 } // namespace Internal

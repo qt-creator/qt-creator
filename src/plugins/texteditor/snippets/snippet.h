@@ -36,7 +36,18 @@
 #include <QList>
 #include <QString>
 
+namespace Core { class Id; }
+
 namespace TextEditor {
+
+class TEXTEDITOR_EXPORT NameMangler
+{
+public:
+    virtual ~NameMangler() { }
+
+    virtual Core::Id id() const = 0;
+    virtual QString mangle(const QString &unmangled) const = 0;
+};
 
 class TEXTEDITOR_EXPORT Snippet
 {
@@ -73,9 +84,10 @@ public:
         QString text;
         bool success;
         struct Range {
-            Range(int s, int l) : start(s), length(l) { }
+            Range(int s, int l, NameMangler *m) : start(s), length(l), mangler(m) { }
             int start;
             int length;
+            NameMangler *mangler;
         };
         QList<Range> ranges;
     };

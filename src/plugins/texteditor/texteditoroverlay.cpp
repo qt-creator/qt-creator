@@ -29,6 +29,7 @@
 
 #include "texteditoroverlay.h"
 #include "basetexteditor.h"
+#include "snippets/snippet.h"
 
 #include <QDebug>
 #include <QMap>
@@ -72,6 +73,8 @@ void TextEditorOverlay::clear()
         return;
     m_selections.clear();
     m_firstSelectionOriginalBegin = -1;
+    m_equivalentSelections.clear();
+    m_manglers.clear();
     update();
 }
 
@@ -490,7 +493,7 @@ void TextEditorOverlay::mapEquivalentSelections()
 
     QMap<QString, int> all;
     for (int i = 0; i < m_selections.size(); ++i)
-        all.insertMulti(selectionText(i), i);
+        all.insertMulti(selectionText(i).toLower(), i);
 
     const QList<QString> &uniqueKeys = all.uniqueKeys();
     foreach (const QString &key, uniqueKeys) {
@@ -524,6 +527,29 @@ void TextEditorOverlay::updateEquivalentSelections(const QTextCursor &cursor)
             selectionCursor.joinPreviousEditBlock();
             selectionCursor.removeSelectedText();
             selectionCursor.insertText(currentText);
+            selectionCursor.endEditBlock();
+        }
+    }
+}
+
+void TextEditorOverlay::setNameMangler(const QList<NameMangler *> &manglers)
+{
+    m_manglers = manglers;
+}
+
+void TextEditorOverlay::mangle()
+{
+    for (int i = 0; i < m_manglers.count(); ++i) {
+        if (!m_manglers.at(i))
+            continue;
+
+        const QString current = selectionText(i);
+        const QString result = m_manglers.at(i)->mangle(current);
+        if (result != current) {
+            QTextCursor selectionCursor = assembleCursorForSelection(i);
+            selectionCursor.joinPreviousEditBlock();
+            selectionCursor.removeSelectedText();
+            selectionCursor.insertText(result);
             selectionCursor.endEditBlock();
         }
     }

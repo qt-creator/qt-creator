@@ -1559,6 +1559,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 && d->m_snippetOverlay->isVisible()) {
             e->accept();
             d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->mangle();
             d->m_snippetOverlay->clear();
             QTextCursor cursor = textCursor();
             cursor.clearSelection();
@@ -1598,6 +1599,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (d->m_snippetOverlay->isVisible()) {
             e->accept();
             d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->mangle();
             d->m_snippetOverlay->clear();
             QTextCursor cursor = textCursor();
             cursor.movePosition(QTextCursor::EndOfBlock);
@@ -1942,6 +1944,7 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
     cursor.insertText(data.text);
     QList<QTextEdit::ExtraSelection> selections;
 
+    QList<NameMangler *> manglers;
     for (int i = 0; i < data.ranges.count(); ++i) {
         int position = data.ranges.at(i).start + startCursorPosition;
         int length = data.ranges.at(i).length;
@@ -1953,6 +1956,7 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
         selection.cursor = tc;
         selection.format = (length ? d->m_occurrencesFormat : d->m_occurrenceRenameFormat);
         selections.append(selection);
+        manglers << data.ranges.at(i).mangler;
     }
 
     cursor.setPosition(startCursorPosition, QTextCursor::KeepAnchor);
@@ -1960,6 +1964,7 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
     cursor.endEditBlock();
 
     setExtraSelections(BaseTextEditorWidget::SnippetPlaceholderSelection, selections);
+    d->m_snippetOverlay->setNameMangler(manglers);
 
     if (!selections.isEmpty()) {
         const QTextEdit::ExtraSelection &selection = selections.first();
@@ -2516,6 +2521,7 @@ bool BaseTextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
         || !m_snippetOverlay->hasCursorInSelection(end)
         || m_snippetOverlay->hasFirstSelectionBeginMoved()) {
         m_snippetOverlay->setVisible(false);
+        m_snippetOverlay->mangle();
         m_snippetOverlay->clear();
         return false;
     }
@@ -4696,6 +4702,7 @@ void BaseTextEditorWidget::handleBackspaceKey()
             handled = true;
         } else {
             if (cursorWithinSnippet) {
+                d->m_snippetOverlay->mangle();
                 d->m_snippetOverlay->clear();
                 cursorWithinSnippet = false;
             }
@@ -4728,6 +4735,7 @@ void BaseTextEditorWidget::handleBackspaceKey()
             cursor.deletePreviousChar();
         } else {
             if (cursorWithinSnippet) {
+                d->m_snippetOverlay->mangle();
                 d->m_snippetOverlay->clear();
                 cursorWithinSnippet = false;
             }
@@ -5317,6 +5325,7 @@ void BaseTextEditorWidget::setExtraSelections(ExtraSelectionKind kind, const QLi
         }
         d->m_overlay->setVisible(!d->m_overlay->isEmpty());
     } else if (kind == SnippetPlaceholderSelection) {
+        d->m_snippetOverlay->mangle();
         d->m_snippetOverlay->clear();
         foreach (const QTextEdit::ExtraSelection &selection, d->m_extraSelections[kind]) {
             d->m_snippetOverlay->addOverlaySelection(selection.cursor,
@@ -5990,6 +5999,7 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
 
         if (d->m_snippetOverlay->isVisible() && lines.count() > 1) {
             d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->mangle();
             d->m_snippetOverlay->clear();
         }
 
@@ -6006,6 +6016,7 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     if (d->m_snippetOverlay->isVisible() && (text.contains(QLatin1Char('\n'))
                                              || text.contains(QLatin1Char('\t')))) {
         d->m_snippetOverlay->hide();
+        d->m_snippetOverlay->mangle();
         d->m_snippetOverlay->clear();
     }
 
