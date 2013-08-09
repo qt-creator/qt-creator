@@ -426,7 +426,7 @@ private:
     QString mocDirPath(QtSupport::ProFileReader *reader) const;
     QStringList includePaths(QtSupport::ProFileReader *reader) const;
     QStringList libDirectories(QtSupport::ProFileReader *reader) const;
-    QStringList subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy = 0) const;
+    QStringList subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy, bool silent) const;
 
     TargetInformation targetInformation(QtSupport::ProFileReader *reader) const;
     void setupInstallsList(const QtSupport::ProFileReader *reader);

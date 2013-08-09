@@ -1720,7 +1720,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     QStringList subProjectsNotToDeploy;
     if (evalResult == EvalOk) {
         if (m_projectType == SubDirsTemplate) {
-            newProjectFilesExact = subDirsPaths(m_readerExact, &subProjectsNotToDeploy);
+            newProjectFilesExact = subDirsPaths(m_readerExact, &subProjectsNotToDeploy, false);
             exactSubdirs = newProjectFilesExact.toSet();
         }
         foreach (ProFile *includeFile, m_readerExact->includeFiles()) {
@@ -1737,7 +1737,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     QHash<QString, ProFile*> includeFilesCumlative;
     ProFile *fileForCurrentProjectCumlative = 0;
     if (m_projectType == SubDirsTemplate)
-        newProjectFilesCumlative = subDirsPaths(m_readerCumulative);
+        newProjectFilesCumlative = subDirsPaths(m_readerCumulative, 0, true);
     foreach (ProFile *includeFile, m_readerCumulative->includeFiles()) {
         if (includeFile->fileName() == m_projectFilePath) {
             fileForCurrentProjectCumlative = includeFile;
@@ -2042,7 +2042,8 @@ QStringList Qt4ProFileNode::libDirectories(QtSupport::ProFileReader *reader) con
     return result;
 }
 
-QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy) const
+QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy,
+                                         bool silent) const
 {
     QStringList subProjectPaths;
 
@@ -2085,8 +2086,9 @@ QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QStri
                 subProjectsNotToDeploy->append(realFile);
             }
         } else {
-            m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
-                                         .arg(subDirVar).arg(realDir));
+            if (!silent)
+                m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
+                                             .arg(subDirVar).arg(realDir));
         }
     }
 
