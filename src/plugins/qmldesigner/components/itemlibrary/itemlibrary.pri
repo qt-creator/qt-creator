@@ -12,7 +12,3 @@ OTHER_FILES += \
     qml/ItemView.qml \
     qml/ItemsViewStyle.qml \
     qml/ItemsView.qml
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += declarative-private core-private script-private
-}
