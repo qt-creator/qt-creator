@@ -103,6 +103,6 @@ inline QString CeSdkHandler::fixPaths(QString path) const
     return QDir::toNativeSeparators(path);
 }
 
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
 #endif // CE_SDK_HANDLER_H

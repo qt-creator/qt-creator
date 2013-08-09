@@ -59,6 +59,6 @@ private:
     BuildConfiguration *m_buildConfiguration;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
 #endif // BUILDENVIRONMENTWIDGET_H
