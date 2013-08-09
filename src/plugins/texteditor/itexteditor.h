@@ -56,6 +56,25 @@ namespace Utils {
 
 namespace TextEditor {
 
+class TEXTEDITOR_EXPORT BlockRange
+{
+public:
+    BlockRange() : _first(0), _last(-1) {}
+    BlockRange(int firstPosition, int lastPosition)
+      : _first(firstPosition), _last(lastPosition)
+    {}
+
+    inline bool isNull() const { return _last < _first; }
+
+    int first() const { return _first; }
+    int last() const { return _last; }
+
+private:
+    int _first;
+    int _last;
+};
+
+
 class TEXTEDITOR_EXPORT ITextEditorDocument : public Core::TextDocument
 {
     Q_OBJECT

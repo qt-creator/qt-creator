@@ -428,18 +428,6 @@ signals:
     void refactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
 public:
-
-    struct BlockRange
-    {
-        BlockRange() : first(0), last(-1) {}
-        BlockRange(int first_position, int last_position)
-          : first(first_position), last(last_position)
-        {}
-        int first;
-        int last;
-        inline bool isNull() const { return last < first; }
-    };
-
     // the blocks list must be sorted
     void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
 

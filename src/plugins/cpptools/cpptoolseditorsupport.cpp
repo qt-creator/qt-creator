@@ -192,6 +192,13 @@ void CppEditorSupport::setExtraDiagnostics(const QString &key,
     emit diagnosticsChanged();
 }
 
+void CppEditorSupport::setIfdefedOutBlocks(const QList<BlockRange> &ifdefedOutBlocks)
+{
+    m_editorUpdates.ifdefedOutBlocks = ifdefedOutBlocks;
+
+    emit diagnosticsChanged();
+}
+
 bool CppEditorSupport::initialized()
 {
     return m_initialized;
@@ -262,11 +269,13 @@ void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
         return; // outdated content, wait for a new document to be parsed
 
     // Update the ifdeffed-out blocks:
-    QList<Document::Block> skippedBlocks = doc->skippedBlocks();
-    m_editorUpdates.ifdefedOutBlocks.clear();
-    m_editorUpdates.ifdefedOutBlocks.reserve(skippedBlocks.size());
-    foreach (const Document::Block &block, skippedBlocks) {
-        m_editorUpdates.ifdefedOutBlocks.append(BlockRange(block.begin(), block.end()));
+    if (m_highlightingSupport && !m_highlightingSupport->hightlighterHandlesIfdefedOutBlocks()) {
+        QList<Document::Block> skippedBlocks = doc->skippedBlocks();
+        QList<BlockRange> ifdefedOutBlocks;
+        ifdefedOutBlocks.reserve(skippedBlocks.size());
+        foreach (const Document::Block &block, skippedBlocks)
+            ifdefedOutBlocks.append(BlockRange(block.begin(), block.end()));
+        setIfdefedOutBlocks(ifdefedOutBlocks);
     }
 
     if (m_highlightingSupport && !m_highlightingSupport->hightlighterHandlesDiagnostics()) {

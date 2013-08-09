@@ -67,6 +67,7 @@ public:
     virtual bool requiresSemanticInfo() const = 0;
 
     virtual bool hightlighterHandlesDiagnostics() const = 0;
+    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
 
     virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
             const CPlusPlus::Document::Ptr &doc,

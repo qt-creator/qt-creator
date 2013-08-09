@@ -5416,7 +5416,7 @@ QString BaseTextEditorWidget::extraSelectionTooltip(int pos) const
 }
 
 // the blocks list must be sorted
-void BaseTextEditorWidget::setIfdefedOutBlocks(const QList<BaseTextEditorWidget::BlockRange> &blocks)
+void BaseTextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
 {
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
@@ -5433,11 +5433,12 @@ void BaseTextEditorWidget::setIfdefedOutBlocks(const QList<BaseTextEditorWidget:
         bool set = false;
         if (rangeNumber < blocks.size()) {
             const BlockRange &range = blocks.at(rangeNumber);
-            if (block.position() >= range.first && ((block.position() + block.length() - 1) <= range.last || !range.last))
+            if (block.position() >= range.first()
+                    && ((block.position() + block.length() - 1) <= range.last() || !range.last()))
                 set = BaseTextDocumentLayout::setIfdefedOut(block);
             else
                 cleared = BaseTextDocumentLayout::clearIfdefedOut(block);
-            if (block.contains(range.last))
+            if (block.contains(range.last()))
                 ++rangeNumber;
         } else {
             cleared = BaseTextDocumentLayout::clearIfdefedOut(block);

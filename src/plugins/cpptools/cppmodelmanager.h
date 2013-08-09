@@ -99,6 +99,8 @@ public:
 
     virtual void setExtraDiagnostics(const QString &fileName, const QString &key,
                                      const QList<Document::DiagnosticMessage> &diagnostics);
+    virtual void setIfdefedOutBlocks(const QString &fileName,
+                                     const QList<TextEditor::BlockRange> &ifdeffedOutBlocks);
 
     void finishedRefreshingSourceFiles(const QStringList &files);
 

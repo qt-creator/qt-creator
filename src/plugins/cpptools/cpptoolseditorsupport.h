@@ -86,6 +86,8 @@ class CPPTOOLS_EXPORT CppEditorSupport: public QObject
 {
     Q_OBJECT
 
+    typedef TextEditor::BlockRange BlockRange;
+
 public:
     CppEditorSupport(Internal::CppModelManager *modelManager, TextEditor::BaseTextEditor *textEditor);
     virtual ~CppEditorSupport();
@@ -97,6 +99,7 @@ public:
 
     void setExtraDiagnostics(const QString &key,
                              const QList<CPlusPlus::Document::DiagnosticMessage> &messages);
+    void setIfdefedOutBlocks(const QList<BlockRange> &ifdefedOutBlocks);
 
     /// True after the document was parsed/updated for the first time
     /// and the first semantic info calculation was started.
@@ -136,7 +139,6 @@ private slots:
     void updateEditorNow();
 
 private:
-    typedef TextEditor::BaseTextEditorWidget::BlockRange BlockRange;
     struct EditorUpdates {
         EditorUpdates()
             : revision(-1)

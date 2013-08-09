@@ -49,6 +49,9 @@ public:
     virtual bool hightlighterHandlesDiagnostics() const
     { return false; }
 
+    virtual bool hightlighterHandlesIfdefedOutBlocks() const
+    { return false; }
+
     virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
             const CPlusPlus::Document::Ptr &doc,
             const CPlusPlus::Snapshot &snapshot) const;

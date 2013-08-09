@@ -969,3 +969,21 @@ void CppModelManager::setExtraDiagnostics(const QString &fileName,
         }
     }
 }
+
+void CppModelManager::setIfdefedOutBlocks(const QString &fileName,
+                                          const QList<TextEditor::BlockRange> &ifdeffedOutBlocks)
+{
+    QList<CppEditorSupport *> cppEditorSupports;
+
+    {
+        QMutexLocker locker(&m_cppEditorSupportsMutex);
+        cppEditorSupports = m_cppEditorSupports.values();
+    }
+
+    foreach (CppEditorSupport *editorSupport, cppEditorSupports) {
+        if (editorSupport->fileName() == fileName) {
+            editorSupport->setIfdefedOutBlocks(ifdeffedOutBlocks);
+            break;
+        }
+    }
+}
