@@ -123,13 +123,12 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
-    QDeclarativeContext *ctxt = m_view->rootContext();
     m_view->engine()->setOutputWarningsToStandardError(debug);
     m_view->engine()->addImportPath(propertyEditorResourcesPath());
     m_dummyPropertyEditorValue->setValue("#000000");
-    ctxt->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
+    context()->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
-    ctxt->setContextObject(m_contextObject.data());
+    context()->setContextObject(m_contextObject.data());
 
     QObject::connect(&m_backendValuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)), propertyEditor, SLOT(changeValue(QString)));
 }
@@ -242,8 +241,6 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
     if (!qmlObjectNode.isValid())
         return;
 
-    QDeclarativeContext *ctxt = m_view->rootContext();
-
     if (qmlObjectNode.isValid()) {
         foreach (const PropertyName &propertyName, qmlObjectNode.modelNode().metaInfo().propertyNames())
             createPropertyEditorValue(qmlObjectNode, propertyName, qmlObjectNode.instanceValue(propertyName), propertyEditor);
@@ -270,16 +267,16 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         // anchors
         m_backendAnchorBinding.setup(QmlItemNode(qmlObjectNode.modelNode()));
 
-        ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
+        context()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
 
-        ctxt->setContextProperty("transaction", m_propertyEditorTransaction.data());
+        context()->setContextProperty("transaction", m_propertyEditorTransaction.data());
 
         contextObject()->setSpecificsUrl(qmlSpecificsFile);
 
         contextObject()->setStateName(stateName);
         if (!qmlObjectNode.isValid())
             return;
-        ctxt->setContextProperty("propertyCount", QVariant(qmlObjectNode.modelNode().properties().count()));
+        context()->setContextProperty("propertyCount", QVariant(qmlObjectNode.modelNode().properties().count()));
 
         contextObject()->setIsBaseState(qmlObjectNode.isInBaseState());
         contextObject()->setSelectionChanged(false);
@@ -303,8 +300,6 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
 void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor)
 {
-    QDeclarativeContext *ctxt = m_view->rootContext();
-
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName, 4, 7);
 
     foreach (const PropertyName &propertyName, metaInfo.propertyNames())
@@ -328,8 +323,8 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     QObject::connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)));
     m_backendValuesPropertyMap.insert("id", QVariant::fromValue(valueObject));
 
-    ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
-    ctxt->setContextProperty("transaction", m_propertyEditorTransaction.data());
+    context()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
+    context()->setContextProperty("transaction", m_propertyEditorTransaction.data());
 
     contextObject()->setSpecificsUrl(qmlSpecificsFile);
 
