@@ -31,6 +31,7 @@
 #include "qmldesignerplugin.h"
 
 #include <modelnode.h>
+#include <qmlitemnode.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
 #include <bindingproperty.h>
