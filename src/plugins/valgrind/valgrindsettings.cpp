@@ -76,6 +76,15 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
+/**
+ * Utility function to set @p val if @p key is present in @p map.
+ */
+template <typename T> void setIfPresent(const QVariantMap &map, const QString &key, T *val)
+{
+    if (map.contains(key))
+        *val = map.value(key).template value<T>();
+}
+
 void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
     // General

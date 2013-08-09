@@ -40,16 +40,6 @@
 namespace Analyzer {
 
 /**
- * Utility function to set @p val if @p key is present in @p map.
- */
-template <typename T> void setIfPresent(const QVariantMap &map, const QString &key, T *val)
-{
-    if (!map.contains(key))
-        return;
-    *val = map.value(key).template value<T>();
-}
-
-/**
  * Subclass this to add configuration to your analyzer tool.
  *
  * If global and project-specific settings differ for your tool,
