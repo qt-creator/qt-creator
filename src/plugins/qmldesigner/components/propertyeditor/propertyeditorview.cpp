@@ -29,8 +29,11 @@
 
 #include "propertyeditorview.h"
 
-#include <qmldesignerconstants.h>
+#include "propertyeditorqmlbackend.h"
+#include "propertyeditorvalue.h"
+#include "propertyeditortransaction.h"
 
+#include <qmldesignerconstants.h>
 #include <nodemetainfo.h>
 
 #include <invalididexception.h>
@@ -41,9 +44,6 @@
 
 #include <nodeabstractproperty.h>
 #include <rewriterview.h>
-
-#include "propertyeditorvalue.h"
-#include "propertyeditortransaction.h"
 
 #include <utils/fileutils.h>
 

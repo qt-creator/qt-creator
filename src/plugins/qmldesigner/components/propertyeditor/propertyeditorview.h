@@ -34,7 +34,6 @@
 #include <QHash>
 #include <QTimer>
 
-#include "propertyeditorqmlbackend.h"
 #include "propertyeditorwidget.h"
 
 QT_BEGIN_NAMESPACE
@@ -49,6 +48,7 @@ class PropertyEditorTransaction;
 class CollapseButton;
 class PropertyEditorWidget;
 class PropertyEditorView;
+class PropertyEditorQmlBackend;
 
 class PropertyEditorView: public AbstractView
 {
