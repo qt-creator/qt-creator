@@ -391,14 +391,10 @@ namespace Internal {
 // CustomToolChainFactory
 // --------------------------------------------------------------------------
 
-QString CustomToolChainFactory::displayName() const
+CustomToolChainFactory::CustomToolChainFactory()
 {
-    return tr("Custom");
-}
-
-QString CustomToolChainFactory::id() const
-{
-    return QLatin1String(Constants::CUSTOM_TOOLCHAIN_ID);
+    setId(Constants::CUSTOM_TOOLCHAIN_ID);
+    setDisplayName(tr("Custom"));
 }
 
 bool CustomToolChainFactory::canCreate()

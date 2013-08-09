@@ -55,16 +55,13 @@ class GccToolChainFactory : public ToolChainFactory
     Q_OBJECT
 
 public:
-    // Name used to display the name of the tool chain that will be created.
-    QString displayName() const;
-    QString id() const;
+    GccToolChainFactory();
 
     QList<ToolChain *> autoDetect();
 
     bool canCreate();
     ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data);
     ToolChain *restore(const QVariantMap &data);
 
@@ -116,16 +113,13 @@ class ClangToolChainFactory : public GccToolChainFactory
     Q_OBJECT
 
 public:
-    // Name used to display the name of the tool chain that will be created.
-    QString displayName() const;
-    QString id() const;
+    ClangToolChainFactory();
 
     QList<ToolChain *> autoDetect();
 
     bool canCreate();
     ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data);
     ToolChain *restore(const QVariantMap &data);
 
@@ -142,16 +136,13 @@ class MingwToolChainFactory : public GccToolChainFactory
     Q_OBJECT
 
 public:
-    // Name used to display the name of the tool chain that will be created.
-    QString displayName() const;
-    QString id() const;
+    MingwToolChainFactory();
 
     QList<ToolChain *> autoDetect();
 
     bool canCreate();
     ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data);
     ToolChain *restore(const QVariantMap &data);
 
@@ -168,15 +159,12 @@ class LinuxIccToolChainFactory : public GccToolChainFactory
     Q_OBJECT
 
 public:
-    // Name used to display the name of the tool chain that will be created.
-    QString displayName() const;
-    QString id() const;
+    LinuxIccToolChainFactory();
 
     QList<ToolChain *> autoDetect();
 
     ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data);
     ToolChain *restore(const QVariantMap &data);
 

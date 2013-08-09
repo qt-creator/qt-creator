@@ -31,6 +31,7 @@
 #define TOOLCHAIN_H
 
 #include "projectexplorer_export.h"
+#include <coreplugin/id.h>
 
 #include <QObject>
 #include <QString>
@@ -167,8 +168,8 @@ class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
     Q_OBJECT
 
 public:
-    virtual QString displayName() const = 0;
-    virtual QString id() const = 0;
+    Core::Id id() const { return m_id; }
+    QString displayName() const { return m_displayName; }
 
     virtual QList<ToolChain *> autoDetect();
 
@@ -181,6 +182,14 @@ public:
     static QString idFromMap(const QVariantMap &data);
     static void idToMap(QVariantMap &data, const QString id);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
+
+protected:
+    void setId(Core::Id id) { m_id = id; }
+    void setDisplayName(const QString &name) { m_displayName = name; }
+
+private:
+    QString m_displayName;
+    Core::Id m_id;
 };
 
 } // namespace ProjectExplorer

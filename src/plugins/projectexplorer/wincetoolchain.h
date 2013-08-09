@@ -104,8 +104,7 @@ class WinCEToolChainFactory : public ToolChainFactory
     Q_OBJECT
 
 public:
-    QString displayName() const;
-    QString id() const;
+    WinCEToolChainFactory();
 
     QList<ToolChain *> autoDetect();
 

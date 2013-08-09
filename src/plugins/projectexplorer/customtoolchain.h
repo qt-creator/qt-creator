@@ -151,9 +151,7 @@ class CustomToolChainFactory : public ToolChainFactory
     Q_OBJECT
 
 public:
-    // Name used to display the name of the tool chain that will be created.
-    QString displayName() const;
-    QString id() const;
+    CustomToolChainFactory();
 
     bool canCreate();
     ToolChain *create();

@@ -429,14 +429,10 @@ void MsvcToolChainConfigWidget::setFromToolChain()
 // MsvcToolChainFactory
 // --------------------------------------------------------------------------
 
-QString MsvcToolChainFactory::displayName() const
+MsvcToolChainFactory::MsvcToolChainFactory()
 {
-    return tr("MSVC");
-}
-
-QString MsvcToolChainFactory::id() const
-{
-    return QLatin1String(Constants::MSVC_TOOLCHAIN_ID);
+    setId(Constants::MSVC_TOOLCHAIN_ID);
+    setDisplayName(tr("MSVC"));
 }
 
 bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsName)

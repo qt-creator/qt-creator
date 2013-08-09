@@ -243,18 +243,10 @@ AndroidToolChainConfigWidget::AndroidToolChainConfigWidget(AndroidToolChain *tc)
 // ToolChainFactory
 // --------------------------------------------------------------------------
 
-AndroidToolChainFactory::AndroidToolChainFactory() :
-    ToolChainFactory()
-{ }
-
-QString AndroidToolChainFactory::displayName() const
+AndroidToolChainFactory::AndroidToolChainFactory()
 {
-    return tr("Android GCC");
-}
-
-QString AndroidToolChainFactory::id() const
-{
-    return QLatin1String(Constants::ANDROID_TOOLCHAIN_ID);
+    setId(Constants::ANDROID_TOOLCHAIN_ID);
+    setDisplayName(tr("Android GCC"));
 }
 
 QList<ToolChain *> AndroidToolChainFactory::autoDetect()

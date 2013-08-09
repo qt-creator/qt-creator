@@ -96,9 +96,6 @@ class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     AndroidToolChainFactory();
 
-    QString displayName() const;
-    QString id() const;
-
     QList<ProjectExplorer::ToolChain *> autoDetect();
     bool canRestore(const QVariantMap &data);
     ProjectExplorer::ToolChain *restore(const QVariantMap &data);

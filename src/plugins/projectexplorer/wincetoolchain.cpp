@@ -351,14 +351,10 @@ ToolChain *WinCEToolChain::clone() const
 // WinCEToolChainFactory
 // --------------------------------------------------------------------------
 
-QString WinCEToolChainFactory::displayName() const
+WinCEToolChainFactory::WinCEToolChainFactory()
 {
-    return tr("WinCE");
-}
-
-QString WinCEToolChainFactory::id() const
-{
-    return QLatin1String(Constants::WINCE_TOOLCHAIN_ID);
+    setId(Constants::WINCE_TOOLCHAIN_ID);
+    setDisplayName(tr("WinCE"));
 }
 
 

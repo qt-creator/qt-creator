@@ -94,13 +94,12 @@ class MsvcToolChainFactory : public ToolChainFactory
     Q_OBJECT
 
 public:
-    QString displayName() const;
-    QString id() const;
+    MsvcToolChainFactory();
 
     QList<ToolChain *> autoDetect();
 
-    virtual bool canRestore(const QVariantMap &data);
-    virtual ToolChain *restore(const QVariantMap &data)
+    bool canRestore(const QVariantMap &data);
+    ToolChain *restore(const QVariantMap &data)
         { return MsvcToolChain::readFromMap(data); }
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
