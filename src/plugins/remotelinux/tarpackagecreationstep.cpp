@@ -197,7 +197,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
     emit addOutput(tr("Adding file '%1' to tarball...").arg(nativePath), MessageOutput);
 
     // TODO: Wasteful. Work with fixed-size buffer.
-    while (!file.atEnd() && !file.error() != QFile::NoError && !tarFile.error() != QFile::NoError) {
+    while (!file.atEnd() && file.error() == QFile::NoError && tarFile.error() == QFile::NoError) {
         const QByteArray data = file.read(chunkSize);
         tarFile.write(data);
         if (fi.isCanceled())
