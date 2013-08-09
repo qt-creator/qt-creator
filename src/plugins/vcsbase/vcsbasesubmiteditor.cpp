@@ -186,17 +186,25 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
 
     // Message font according to settings
+    Utils::CompletingTextEdit *descriptionEdit = editorWidget->descriptionEdit();
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();
-    QFont font = editorWidget->descriptionEdit()->font();
-    font.setFamily(fs.family());
-    font.setPointSize(fs.fontSize());
-    editorWidget->descriptionEdit()->setFont(font);
+    const QTextCharFormat tf = fs.toTextCharFormat(TextEditor::C_TEXT);
+    descriptionEdit->setFont(tf.font());
+    const QTextCharFormat selectionFormat = fs.toTextCharFormat(TextEditor::C_SELECTION);
+    QPalette pal = descriptionEdit->palette();
+    pal.setColor(QPalette::Base, tf.background().color());
+    pal.setColor(QPalette::Text, tf.foreground().color());
+    pal.setColor(QPalette::Foreground, tf.foreground().color());
+    if (selectionFormat.background().style() != Qt::NoBrush)
+        pal.setColor(QPalette::Highlight, selectionFormat.background().color());
+    pal.setBrush(QPalette::HighlightedText, selectionFormat.foreground());
+    descriptionEdit->setPalette(pal);
 
     d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
 
     connect(d->m_widget, SIGNAL(diffSelected(QList<int>)), this, SLOT(slotDiffSelectedVcsFiles(QList<int>)));
-    connect(d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
+    connect(descriptionEdit, SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
     const CommonVcsSettings settings = VcsPlugin::instance()->settings();
     // Add additional context menu settings
@@ -231,7 +239,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(slotRefreshCommitData()));
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    aggregate->add(new Find::BaseTextFind(d->m_widget->descriptionEdit()));
+    aggregate->add(new Find::BaseTextFind(descriptionEdit));
     aggregate->add(this);
 }
 
