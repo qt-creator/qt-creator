@@ -114,8 +114,8 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Edit Menu
 
-    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::DELETE, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::DELETE, qmlDesignerNavigatorContext);
+    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerFormEditorContext);
+    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Delete);
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);

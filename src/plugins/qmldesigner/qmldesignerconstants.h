@@ -33,7 +33,7 @@
 namespace QmlDesigner {
 namespace Constants {
 
-const char DELETE[]               = "QmlDesigner.Delete";
+const char C_DELETE[]               = "QmlDesigner.Delete";
 
 // Context
 const char C_QMLDESIGNER[]         = "QmlDesigner::QmlDesignerMain";
