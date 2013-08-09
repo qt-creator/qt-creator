@@ -360,6 +360,19 @@ void PropertyEditorView::resetView()
     if (m_selectedNode.isValid() && model() != m_selectedNode.model())
         m_selectedNode = ModelNode();
 
+    setupQmlBackend();
+
+    m_locked = false;
+
+    if (m_timerId)
+        m_timerId = 0;
+
+    updateSize();
+}
+
+
+void PropertyEditorView::setupQmlBackend()
+{
     TypeName specificsClassName;
     QUrl qmlFile(PropertyEditorQmlBackend::getQmlUrlForModelNode(m_selectedNode, specificsClassName));
     QUrl qmlSpecificsFile;
@@ -385,61 +398,54 @@ void PropertyEditorView::resetView()
     QString specificQmlData;
 
     if (m_selectedNode.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type()) {
-        //do magic !!
         specificQmlData = PropertyEditorQmlBackend::templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo(diffClassName), m_selectedNode);
     }
 
-    PropertyEditorQmlBackend *qmlBackend = m_qmlBackendHash.value(qmlFile.toString());
+    PropertyEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 
     QString currentStateName = currentState().isBaseState() ? currentState().name() : QLatin1String("invalid state");
 
-    if (!qmlBackend) {
-        qmlBackend = new PropertyEditorQmlBackend(this);
+    if (!currentQmlBackend) {
+        currentQmlBackend = new PropertyEditorQmlBackend(this);
 
-        m_stackedWidget->addWidget(qmlBackend->widget());
-        m_qmlBackendHash.insert(qmlFile.toString(), qmlBackend);
+        m_stackedWidget->addWidget(currentQmlBackend->widget());
+        m_qmlBackendHash.insert(qmlFile.toString(), currentQmlBackend);
 
         QmlObjectNode qmlObjectNode;
         if (m_selectedNode.isValid()) {
             qmlObjectNode = QmlObjectNode(m_selectedNode);
             Q_ASSERT(qmlObjectNode.isValid());
         }
-        qmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
-        qmlBackend->context()->setContextProperty("finishedNotify", QVariant(false));
+        currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
+        currentQmlBackend->context()->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
-            qmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+            currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
 
-        qmlBackend->contextObject()->setGlobalBaseUrl(qmlFile);
-        qmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-        qmlBackend->setSource(qmlFile);
-        qmlBackend->context()->setContextProperty("finishedNotify", QVariant(true));
+        currentQmlBackend->contextObject()->setGlobalBaseUrl(qmlFile);
+        currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+        currentQmlBackend->setSource(qmlFile);
+        currentQmlBackend->context()->setContextProperty("finishedNotify", QVariant(true));
     } else {
         QmlObjectNode qmlObjectNode;
         if (m_selectedNode.isValid())
             qmlObjectNode = QmlObjectNode(m_selectedNode);
 
-        qmlBackend->context()->setContextProperty("finishedNotify", QVariant(false));
+        currentQmlBackend->context()->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
-            qmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-        qmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
-        qmlBackend->contextObject()->setGlobalBaseUrl(qmlFile);
-        qmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+            currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+        currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
+        currentQmlBackend->contextObject()->setGlobalBaseUrl(qmlFile);
+        currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     }
 
-    m_stackedWidget->setCurrentWidget(qmlBackend->widget());
+    m_stackedWidget->setCurrentWidget(currentQmlBackend->widget());
 
-    qmlBackend->context()->setContextProperty("finishedNotify", QVariant(true));
+    currentQmlBackend->context()->setContextProperty("finishedNotify", QVariant(true));
 
-    qmlBackend->contextObject()->triggerSelectionChanged();
+    currentQmlBackend->contextObject()->triggerSelectionChanged();
 
-    m_qmlBackEndForCurrentType = qmlBackend;
+    m_qmlBackEndForCurrentType = currentQmlBackend;
 
-    m_locked = false;
-
-    if (m_timerId)
-        m_timerId = 0;
-
-    updateSize();
 }
 
 void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

@@ -122,6 +122,7 @@ private: //functions
     void select(const ModelNode& node);
 
     void delayedResetView();
+    void setupQmlBackend();
 
 private: //variables
     ModelNode m_selectedNode;
