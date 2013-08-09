@@ -1005,9 +1005,11 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
         if (!(flags & SuppressFailMessageInLogWindow))
             outputWindow->appendError(response.exitMessage(binary, timeOutMS));
     }
-    // TODO tell the document manager that the directory now received all expected changes
-    // if (flags & ExpectRepoChanges)
-    //    Core::DocumentManager::unexpectDirectoryChange(workingDir);
+    if (flags & ExpectRepoChanges) {
+        // TODO tell the document manager that the directory now received all expected changes
+        // Core::DocumentManager::unexpectDirectoryChange(workingDir);
+        Core::ICore::vcsManager()->emitRepositoryChanged(workingDir);
+    }
 
     return response;
 }
@@ -1051,16 +1053,14 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
         SynchronousProcess::stopProcess(process);
         return false;
     }
-    // TODO tell the document manager that the directory now received all expected changes
-    // if (flags & ExpectRepoChanges)
-    //    Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
 
-    if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0) {
-        if (flags & ExpectRepoChanges)
-            Core::ICore::vcsManager()->emitRepositoryChanged(workingDirectory);
-        return true;
+    if (flags & ExpectRepoChanges) {
+        // TODO tell the document manager that the directory now received all expected changes
+        // Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
+        Core::ICore::vcsManager()->emitRepositoryChanged(workingDirectory);
     }
-    return false;
+
+    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
 bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDirectory,
