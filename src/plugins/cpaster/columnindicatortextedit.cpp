@@ -41,6 +41,7 @@ ColumnIndicatorTextEdit::ColumnIndicatorTextEdit(QWidget *parent) :
     font.setFamily(QLatin1String("Courier New"));
     setFont(font);
     setReadOnly(true);
+    setUndoRedoEnabled(false);
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sizePolicy.setVerticalStretch(3);
     setSizePolicy(sizePolicy);
