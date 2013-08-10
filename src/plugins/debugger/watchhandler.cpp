@@ -1562,14 +1562,18 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
     return "watch." + QByteArray::number(theWatcherNames[exp]);
 }
 
-void WatchHandler::watchExpression(const QString &exp, const QString &name)
+void WatchHandler::watchExpression(const QString &exp0, const QString &name)
 {
+    QString exp = exp0;
+
     QTC_ASSERT(m_engine, return);
     // Do not insert the same entry more then once.
     if (theWatcherNames.value(exp.toLatin1()))
         return;
 
     // FIXME: 'exp' can contain illegal characters
+    exp.replace(QLatin1Char('#'), QString());
+
     WatchData data;
     data.exp = exp.toLatin1();
     data.name = name.isEmpty() ? exp : name;
