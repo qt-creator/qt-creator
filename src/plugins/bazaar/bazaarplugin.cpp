@@ -536,7 +536,7 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusIt
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     if (!saver.finalize()) {
-        VcsBase::VcsBaseOutputWindow::instance()->append(saver.errorString());
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
         return;
     }
 

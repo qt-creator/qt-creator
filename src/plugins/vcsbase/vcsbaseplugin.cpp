@@ -1098,7 +1098,7 @@ bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     if (!stdOut.isEmpty())
         ow->append(QString::fromLocal8Bit(stdOut));
     if (!stdErr.isEmpty())
-        ow->append(QString::fromLocal8Bit(stdErr));
+        ow->appendError(QString::fromLocal8Bit(stdErr));
 
     if (patchProcess.exitStatus() != QProcess::NormalExit) {
         ow->appendError(tr("'%1' crashed.").arg(patch));

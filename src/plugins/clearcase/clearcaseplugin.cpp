@@ -1513,7 +1513,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
             } else {
                 VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
                 outputWindow->append(response.stdOut);
-                outputWindow->append(response.stdErr);
+                outputWindow->appendError(response.stdErr);
             }
         }
 

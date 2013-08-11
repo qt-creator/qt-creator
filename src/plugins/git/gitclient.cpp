@@ -1170,7 +1170,7 @@ void GitClient::show(const QString &source, const QString &id,
                      const QStringList &args, const QString &name)
 {
     if (!canShow(id)) {
-        outputWindow()->append(msgCannotShow(id));
+        outputWindow()->appendError(msgCannotShow(id));
         return;
     }
 
@@ -1550,9 +1550,9 @@ bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QSt
         if (errorMessage)
             *errorMessage = commandOutputFromLocal8Bit(errorText);
         else
-            outputWindow()->append(tr("Cannot execute \"git %1\" in \"%2\": %3").arg(
-                                       args.join(QLatin1String(" ")), workingDirectory,
-                                       commandOutputFromLocal8Bit(errorText)));
+            outputWindow()->appendError(tr("Cannot execute \"git %1\" in \"%2\": %3").arg(
+                                            args.join(QLatin1String(" ")), workingDirectory,
+                                            commandOutputFromLocal8Bit(errorText)));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputTextData);
@@ -1656,7 +1656,7 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
         if (errorMessage)
             *errorMessage = message;
         else
-            outputWindow()->append(message);
+            outputWindow()->appendError(message);
         return false;
     }
 
@@ -1885,10 +1885,10 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
         if (unchanged)
             *unchanged = true;
         if (!(flags & StashIgnoreUnchanged))
-            outputWindow()->append(msgNoChangedFiles());
+            outputWindow()->appendWarning(msgNoChangedFiles());
         break;
     case StatusFailed:
-        outputWindow()->append(errorMessage);
+        outputWindow()->appendError(errorMessage);
         break;
     }
     if (!success)
@@ -1946,7 +1946,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
     if (errorMessage)
         *errorMessage = msg;
     else
-        outputWindow()->append(msg);
+        outputWindow()->appendError(msg);
     return  false;
 }
 
@@ -2027,7 +2027,7 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
         if (errorMessage)
             *errorMessage = error;
         else
-            outputWindow()->append(error);
+            outputWindow()->appendError(error);
         return result;
     }
     QStringList remotes = output.split(QLatin1String("\n"));
@@ -2062,7 +2062,7 @@ QStringList GitClient::synchronousSubmoduleStatus(const QString &workingDirector
         if (errorMessage)
             *errorMessage = error;
         else
-            outputWindow()->append(error);
+            outputWindow()->appendError(error);
 
         return QStringList();
     }
@@ -2985,11 +2985,11 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
         break;
     case RevertUnchanged: {
         const QString msg = (isDirectory || files.size() > 1) ? msgNoChangedFiles() : tr("The file is not modified.");
-        outputWindow()->append(msg);
+        outputWindow()->appendWarning(msg);
     }
         break;
     case RevertFailed:
-        outputWindow()->append(errorMessage);
+        outputWindow()->appendError(errorMessage);
         break;
     }
 }
@@ -3308,7 +3308,7 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
         if (errorMessage)
             *errorMessage = msg;
         else
-            outputWindow()->append(msg);
+            outputWindow()->appendError(msg);
         return false;
     }
     QString output = commandOutputFromLocal8Bit(outputText);
@@ -3340,7 +3340,7 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
         if (errorMessage)
             *errorMessage = msg;
         else
-            outputWindow()->append(msg);
+            outputWindow()->appendError(msg);
         return false;
     }
     QString output = commandOutputFromLocal8Bit(outputText);
@@ -3380,7 +3380,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
         if (errorMessage)
             *errorMessage = msg;
         else
-            outputWindow()->append(msg);
+            outputWindow()->appendError(msg);
         return false;
     }
     Stash stash;
@@ -3510,7 +3510,7 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
         if (errorMessage)
             *errorMessage = msg;
         else
-            outputWindow()->append(msg);
+            outputWindow()->appendError(msg);
         return 0;
     }
     // cut 'git version 1.6.5.1.sha'

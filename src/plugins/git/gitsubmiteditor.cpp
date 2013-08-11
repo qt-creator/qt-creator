@@ -179,7 +179,7 @@ void GitSubmitEditor::updateFileModel()
         setCommitData(data);
         submitEditorWidget()->refreshLog(m_workingDirectory);
     } else {
-        VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         m_forceClose = true;
         Core::EditorManager::instance()->closeEditor(this);
     }

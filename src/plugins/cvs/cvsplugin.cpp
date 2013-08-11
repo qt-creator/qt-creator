@@ -781,7 +781,7 @@ void CvsPlugin::startCommit(const QString &workingDir, const QString &file)
         }
     }
     if (statusOutput.empty()) {
-        VcsBaseOutputWindow::instance()->append(tr("There are no modified files."));
+        VcsBaseOutputWindow::instance()->appendWarning(tr("There are no modified files."));
         return;
     }
     m_commitRepository = workingDir;

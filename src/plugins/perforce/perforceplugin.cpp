@@ -1095,7 +1095,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     // Logging
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     if ((flags & StdErrToWindow) && !response.stdErr.isEmpty())
-        outputWindow->append(response.stdErr);
+        outputWindow->appendError(response.stdErr);
     if ((flags & StdOutToWindow) && !response.stdOut.isEmpty())
         outputWindow->append(response.stdOut);
     return response;

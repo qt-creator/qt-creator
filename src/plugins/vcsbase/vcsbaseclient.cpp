@@ -305,7 +305,7 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
         return false;
     }
     if (!stdErr.isEmpty())
-        ::vcsOutputWindow()->append(QString::fromLocal8Bit(stdErr));
+        ::vcsOutputWindow()->appendError(QString::fromLocal8Bit(stdErr));
 
     return vcsProcess.exitStatus() == QProcess::NormalExit && vcsProcess.exitCode() == 0;
 }
