@@ -1310,7 +1310,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
     QString errorMessage;
     if (m_gitClient->synchronousApplyPatch(workingDirectory, file, &errorMessage)) {
         if (errorMessage.isEmpty())
-            outwin->append(tr("Patch %1 successfully applied to %2").arg(file, workingDirectory));
+            outwin->appendMessage(tr("Patch %1 successfully applied to %2").arg(file, workingDirectory));
         else
             outwin->appendError(errorMessage);
     } else {

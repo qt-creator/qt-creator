@@ -485,6 +485,7 @@ public:
         connect(this, SIGNAL(appendError(QString)), outputWindow, SLOT(appendError(QString)));
         connect(this, SIGNAL(appendCommand(QString,QString,QStringList)),
                 outputWindow, SLOT(appendCommand(QString,QString,QStringList)));
+        connect(this, SIGNAL(appendMessage(QString)), outputWindow, SLOT(appendMessage(QString)));
     }
 
 signals:
@@ -494,6 +495,7 @@ signals:
     void appendCommand(const QString &workingDirectory,
                        const QString &binary,
                        const QStringList &args);
+    void appendMessage(const QString &text);
 };
 
 /*!
@@ -1038,7 +1040,7 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
     // Success/Fail message in appropriate window?
     if (response.result == SynchronousProcessResponse::Finished) {
         if (flags & ShowSuccessMessage)
-            emit output.append(response.exitMessage(binary, timeOutMS));
+            emit output.appendMessage(response.exitMessage(binary, timeOutMS));
     } else if (!(flags & SuppressFailMessageInLogWindow)) {
         emit output.appendError(response.exitMessage(binary, timeOutMS));
     }

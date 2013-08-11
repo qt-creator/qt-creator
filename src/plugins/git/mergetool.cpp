@@ -262,7 +262,7 @@ void MergeTool::done()
     const QString workingDirectory = m_process->workingDirectory();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
-        outputWindow->append(tr("Merge tool process finished successully."));
+        outputWindow->appendMessage(tr("Merge tool process finished successully."));
         m_gitClient->continueCommandIfNeeded(workingDirectory);
     } else {
         outputWindow->appendError(tr("Merge tool process terminated with exit code %1")

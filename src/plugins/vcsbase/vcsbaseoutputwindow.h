@@ -106,6 +106,9 @@ public slots:
                        const QString &binary,
                        const QStringList &args);
 
+    // Append a blue message text and pop up.
+    void appendMessage(const QString &text);
+
 private:
     VcsBaseOutputWindow();
 

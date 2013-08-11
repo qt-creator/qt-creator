@@ -2885,7 +2885,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     const bool rc = fullySynchronousGit(repositoryDirectory, args, &outputText, &errorText);
     const QString stdErr = commandOutputFromLocal8Bit(errorText);
     if (rc) {
-        outputWindow()->append(msgCommitted(amendSHA1, commitCount));
+        outputWindow()->appendMessage(msgCommitted(amendSHA1, commitCount));
         outputWindow()->appendError(stdErr);
     } else {
         outputWindow()->appendError(tr("Cannot commit %n file(s): %1\n", 0, commitCount).arg(stdErr));

@@ -92,6 +92,8 @@ public:
     void appendWarning(const QString &text);
     // Append a bold command "10:00 " + "Executing: vcs -diff"
     void appendCommand(const QString &text);
+    // Append a message text (e.g. "command has finished successfully") and pop up.
+    void appendMessage(const QString &text);
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
@@ -103,6 +105,7 @@ private:
     QTextCharFormat m_errorFormat;
     QTextCharFormat m_warningFormat;
     QTextCharFormat m_commandFormat;
+    QTextCharFormat m_messageFormat;
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
@@ -110,13 +113,15 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_defaultFormat(currentCharFormat()),
     m_errorFormat(m_defaultFormat),
     m_warningFormat(m_defaultFormat),
-    m_commandFormat(m_defaultFormat)
+    m_commandFormat(m_defaultFormat),
+    m_messageFormat(m_defaultFormat)
 {
     setReadOnly(true);
     setFrameStyle(QFrame::NoFrame);
     m_errorFormat.setForeground(Qt::red);
     m_warningFormat.setForeground(Qt::darkYellow);
     m_commandFormat.setFontWeight(QFont::Bold);
+    m_messageFormat.setForeground(Qt::blue);
 }
 
 // Search back for beginning of word
@@ -236,6 +241,13 @@ void OutputWindowPlainTextEdit::appendCommand(const QString &text)
     setCurrentCharFormat(m_commandFormat);
     const QString timeStamp = QTime::currentTime().toString(QLatin1String("\nHH:mm "));
     appendLines(timeStamp + text);
+    setCurrentCharFormat(m_defaultFormat);
+}
+
+void OutputWindowPlainTextEdit::appendMessage(const QString &text)
+{
+    setCurrentCharFormat(m_messageFormat);
+    appendLines(text);
     setCurrentCharFormat(m_defaultFormat);
 }
 
@@ -431,6 +443,11 @@ void VcsBaseOutputWindow::appendCommand(const QString &workingDirectory,
                                         const QStringList &args)
 {
     appendCommand(msgExecutionLogEntry(workingDirectory, binary, args));
+}
+
+void VcsBaseOutputWindow::appendMessage(const QString &text)
+{
+    d->plainTextEdit()->appendMessage(text);
 }
 
 VcsBaseOutputWindow *VcsBaseOutputWindow::instance()
