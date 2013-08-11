@@ -2514,6 +2514,21 @@ void FakeVimPlugin::test_map()
     KEYS("f<space>", "abc" N "x " X " z" N "def");
     KEYS("t<space>", "abc" N "x " X " z" N "def");
     data.doCommand("unmap <SPACE>");
+
+    // operator-pending mappings
+    data.setText("abc def" N "ghi jkl");
+    data.doCommand("omap <SPACE> aw");
+    KEYS("c<space>X<esc>", X "Xdef" N "ghi jkl");
+    data.doCommand("onoremap <SPACE> iwX");
+    KEYS("c<space>Y<esc>", "X" X "Y" N "ghi jkl");
+    data.doCommand("ono <SPACE> l");
+    KEYS("d<space>", X "X" N "ghi jkl");
+    data.doCommand("unmap <SPACE>");
+
+    data.setText("abc def" N "ghi jkl");
+    data.doCommand("onoremap iwwX 3iwX Y");
+    KEYS("ciwwX Z<esc>", "X Y " X "Z" N "ghi jkl");
+    data.doCommand("unmap <SPACE>X");
 }
 
 void FakeVimPlugin::test_vim_command_cc()

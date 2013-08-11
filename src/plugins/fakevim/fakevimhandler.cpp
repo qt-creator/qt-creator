@@ -1522,7 +1522,6 @@ public:
     bool handleCommandSubSubMode(const Input &);
     void fixSelection(); // Fix selection according to current range, move and command modes.
     void finishMovement(const QString &dotCommandMovement = QString());
-    void finishMovement(const QString &dotCommandMovement, int count);
     void resetCommandMode();
     void clearCommandMode();
     QTextCursor search(const SearchData &sd, int startPos, int count, bool showMessages);
@@ -1716,6 +1715,18 @@ public:
     Q_SLOT void onUndoCommandAdded();
 
     bool isInsertMode() const { return g.mode == InsertMode || g.mode == ReplaceMode; }
+    // Waiting for movement operator.
+    bool isOperatorPending() const {
+        return g.submode == ChangeSubMode
+            || g.submode == DeleteSubMode
+            || g.submode == FilterSubMode
+            || g.submode == IndentSubMode
+            || g.submode == ShiftLeftSubMode
+            || g.submode == ShiftRightSubMode
+            || g.submode == InvertCaseSubMode
+            || g.submode == DownCaseSubMode
+            || g.submode == UpCaseSubMode
+            || g.submode == YankSubMode; }
 
     bool isVisualMode() const { return g.visualMode != NoVisualMode; }
     bool isNoVisualMode() const { return g.visualMode == NoVisualMode; }
@@ -3004,11 +3015,6 @@ void FakeVimHandler::Private::fixSelection()
     }
 }
 
-void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement, int count)
-{
-    finishMovement(dotCommandMovement.arg(count));
-}
-
 void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
 {
     //dump("FINISH MOVEMENT");
@@ -3755,6 +3761,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleChangeCaseSubMode(input);
     }
 
+    if (!handled && isOperatorPending())
+       handled = handleMovement(input);
+
     // Clear state and display incomplete command if necessary.
     if (handled) {
         bool noMode =
@@ -4253,8 +4262,6 @@ bool FakeVimHandler::Private::handleChangeDeleteSubModes(const Input &input)
         finishMovement();
         g.submode = NoSubMode;
         handled = true;
-    } else {
-        handled = handleMovement(input);
     }
 
     return handled;
@@ -4305,9 +4312,9 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
     return handled;
 }
 
-bool FakeVimHandler::Private::handleFilterSubMode(const Input &input)
+bool FakeVimHandler::Private::handleFilterSubMode(const Input &)
 {
-    return handleMovement(input);
+    return false;
 }
 
 bool FakeVimHandler::Private::handleRegisterSubMode(const Input &input)
@@ -4338,8 +4345,6 @@ bool FakeVimHandler::Private::handleShiftSubMode(const Input &input)
         finishMovement();
         handled = true;
         g.submode = NoSubMode;
-    } else {
-        handled = handleMovement(input);
     }
     return handled;
 }
@@ -4361,8 +4366,6 @@ bool FakeVimHandler::Private::handleChangeCaseSubMode(const Input &input)
         finishMovement(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
         handled = true;
         g.submode = NoSubMode;
-    } else {
-        handled = handleMovement(input);
     }
     return handled;
 }
@@ -4388,8 +4391,6 @@ bool FakeVimHandler::Private::handleYankSubMode(const Input &input)
         yankText(range, m_register);
         g.submode = NoSubMode;
         handled = true;
-    } else {
-        handled = handleMovement(input);
     }
     return handled;
 }
@@ -5189,6 +5190,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     if (cmd == "vm" || cmd == "vmap") { modes = "v"; type = Map; } else
     if (cmd == "xm" || cmd == "xmap") { modes = "x"; type = Map; } else
     if (cmd == "smap") { modes = "s"; type = Map; } else
+    if (cmd == "omap") { modes = "o"; type = Map; } else
     if (cmd == "map!") { modes = "ic"; type = Map; } else
     if (cmd == "im" || cmd == "imap") { modes = "i"; type = Map; } else
     if (cmd == "lm" || cmd == "lmap") { modes = "l"; type = Map; } else
@@ -7271,14 +7273,16 @@ void FakeVimHandler::Private::onUndoCommandAdded()
 
 char FakeVimHandler::Private::currentModeCode() const
 {
-    if (g.submode != NoSubMode)
-        return ' ';
-    else if (g.mode == ExMode)
+    if (g.mode == ExMode)
         return 'c';
     else if (isVisualMode())
         return 'v';
+    else if (isOperatorPending())
+        return 'o';
     else if (g.mode == CommandMode)
         return 'n';
+    else if (g.submode != NoSubMode)
+        return ' ';
     else
         return 'i';
 }
