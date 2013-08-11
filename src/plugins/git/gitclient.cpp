@@ -2224,6 +2224,7 @@ VcsBase::Command *GitClient::createCommand(const QString &workingDirectory,
         connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
     if (useOutputToWindow) {
         command->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
+        command->addFlags(VcsBasePlugin::ShowSuccessMessage);
         if (editor) // assume that the commands output is the important thing
             command->addFlags(VcsBasePlugin::SilentOutput);
     } else if (editor) {
