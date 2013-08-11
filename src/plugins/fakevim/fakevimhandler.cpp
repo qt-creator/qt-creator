@@ -6262,42 +6262,34 @@ void FakeVimHandler::Private::moveToWordEnd(int count, bool simple, bool forward
 bool FakeVimHandler::Private::handleFfTt(QString key)
 {
     int key0 = key.size() == 1 ? key.at(0).unicode() : 0;
-    int oldPos = position();
     // g.subsubmode \in { 'f', 'F', 't', 'T' }
     bool forward = g.subsubdata.is('f') || g.subsubdata.is('t');
+    bool exclusive =  g.subsubdata.is('t') || g.subsubdata.is('T');
     int repeat = count();
+    int n = block().position() + (forward ? block().length() : - 1);
     QTextDocument *doc = document();
-    int n = block().position();
-    if (forward)
-        n += block().length();
-    int pos = position();
-    while (pos != n) {
-        pos += forward ? 1 : -1;
-        if (pos == n)
-            break;
+
+    for (int d = forward ? 1 : -1, pos = position() + d; pos != n; pos += d) {
         int uc = doc->characterAt(pos).unicode();
         if (uc == ParagraphSeparator)
             break;
-        if (uc == key0)
+        if (uc == key0) {
             --repeat;
-        if (repeat == 0) {
-            if (g.subsubdata.is('t'))
-                --pos;
-            else if (g.subsubdata.is('T'))
-                ++pos;
+            if (repeat == 0) {
+                if (exclusive)
+                    pos -= d;
 
-            if (forward)
-                moveRight(pos - position());
-            else
-                moveLeft(position() - pos);
-            break;
+                if (forward)
+                    moveRight(pos - position());
+                else
+                    moveLeft(position() - pos);
+
+                setTargetColumn();
+                return true;
+            }
         }
     }
-    if (repeat == 0) {
-        setTargetColumn();
-        return true;
-    }
-    setPosition(oldPos);
+
     return false;
 }
 

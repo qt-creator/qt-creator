@@ -693,6 +693,17 @@ void FakeVimPlugin::test_vim_fFtT()
     KEYS("2F(", "123()456" N "a(b" X "(c)d)e");
     KEYS("l2F(", "123()456" N "a" X "(b(c)d)e");
     KEYS("F(", "123()456" N "a" X "(b(c)d)e");
+
+    data.setText("abc def" N "ghi " X "jkl");
+    KEYS("vFgx", "abc def" N X "kl");
+    KEYS("u", "abc def" N X "ghi jkl");
+    KEYS("tk", "abc def" N "ghi " X "jkl");
+    KEYS("dTg", "abc def" N "g" X "jkl");
+    INTEGRITY(false);
+    KEYS("u", "abc def" N "g" X "hi jkl");
+    KEYS("f .", "abc def" N "g" X " jkl");
+    KEYS("u", "abc def" N "g" X "hi jkl");
+    KEYS("rg$;", "abc def" N "gg" X "i jkl");
 }
 
 void FakeVimPlugin::test_vim_transform_numbers()
