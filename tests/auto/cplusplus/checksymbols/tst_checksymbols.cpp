@@ -201,6 +201,7 @@ private slots:
     void test_alias_decl_QTCREATORBUG9386();
     void test_completion_enum_inside_block_inside_function_QTCREATORBUG5456();
     void test_completion_enum_inside_function_QTCREATORBUG5456();
+    void test_completion_using_inside_different_namespace_QTCREATORBUG7978();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -1816,6 +1817,42 @@ void tst_CheckSymbols::test_completion_enum_inside_function_QTCREATORBUG5456()
             << Use(4, 4, 1, CppHighlightingSupport::TypeUse)
             << Use(4, 6, 1, CppHighlightingSupport::LocalUse)
             << Use(4, 10, 2, CppHighlightingSupport::EnumerationUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_completion_using_inside_different_namespace_QTCREATORBUG7978()
+{
+    const QByteArray source =
+            "struct S {};\n"
+            "namespace std\n"
+            "{\n"
+            "    template <typename T> struct shared_ptr{};\n"
+            "}\n"
+            "namespace NS\n"
+            "{\n"
+            "    using std::shared_ptr;\n"
+            "}\n"
+            "void fun()\n"
+            "{\n"
+            "    NS::shared_ptr<S> p;\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 1, CppHighlightingSupport::TypeUse)
+            << Use(2, 11, 3, CppHighlightingSupport::TypeUse)
+            << Use(4, 24, 1, CppHighlightingSupport::TypeUse)
+            << Use(4, 34, 10, CppHighlightingSupport::TypeUse)
+            << Use(6, 11, 2, CppHighlightingSupport::TypeUse)
+            << Use(8, 11, 3, CppHighlightingSupport::TypeUse)
+            << Use(8, 16, 10, CppHighlightingSupport::TypeUse)
+            << Use(10, 6, 3, CppHighlightingSupport::FunctionUse)
+            << Use(12, 5, 2, CppHighlightingSupport::TypeUse)
+            << Use(12, 9, 10, CppHighlightingSupport::TypeUse)
+            << Use(12, 20, 1, CppHighlightingSupport::TypeUse)
+            << Use(12, 23, 1, CppHighlightingSupport::LocalUse)
             ;
 
     TestData::check(source, expectedUses);

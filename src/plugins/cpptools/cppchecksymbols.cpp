@@ -852,7 +852,10 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
                         addUse(ast->unqualified_name, CppHighlightingSupport::FunctionUse);
                 }
             } else {
-                maybeAddTypeOrStatic(binding->find(ast->unqualified_name->name), ast->unqualified_name);
+                QList<LookupItem> items = binding->find(ast->unqualified_name->name);
+                if (items.empty())
+                    items = _context.lookup(ast->name, enclosingScope());
+                maybeAddTypeOrStatic(items, ast->unqualified_name);
             }
 
             if (TemplateIdAST *template_id = ast->unqualified_name->asTemplateId())

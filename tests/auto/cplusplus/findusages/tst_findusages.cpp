@@ -108,6 +108,8 @@ private Q_SLOTS:
     void using_insideNamespace();
     void using_insideFunction();
     void templatedFunction_QTCREATORBUG9749();
+
+    void usingInDifferentNamespace_QTCREATORBUG7978();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -864,6 +866,45 @@ void tst_FindUsages::templatedFunction_QTCREATORBUG9749()
     FindUsages findUsages(src, doc, snapshot);
     findUsages(func);
     QCOMPARE(findUsages.usages().size(), 2);
+}
+
+void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()
+{
+    const QByteArray src = "\n"
+            "struct S {};\n"
+            "namespace std\n"
+            "{\n"
+            "    template <typename T> struct shared_ptr{};\n"
+            "}\n"
+            "namespace NS\n"
+            "{\n"
+            "    using std::shared_ptr;\n"
+            "}\n"
+            "void fun()\n"
+            "{\n"
+            "    NS::shared_ptr<S> p;\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("usingInDifferentNamespace_QTCREATORBUG7978");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 4U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Namespace *ns = doc->globalSymbolAt(1)->asNamespace();
+    QVERIFY(ns);
+    QCOMPARE(ns->memberCount(), 1U);
+    Template *templateClass = ns->memberAt(0)->asTemplate();
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(templateClass);
+    QCOMPARE(findUsages.usages().size(), 3);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)
