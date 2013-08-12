@@ -146,7 +146,7 @@ void BlackBerryDeviceConfigurationWidget::requestDebugToken()
 void BlackBerryDeviceConfigurationWidget::uploadDebugToken()
 {
     // check the debug token path before even laucnhing the uploader process
-    if (!QFileInfo(ui->pwdLineEdit->text()).exists()) {
+    if (!QFileInfo(ui->debugToken->fileName().toString()).exists()) {
         QMessageBox::critical(this, tr("Error"), tr("Invalid debug token path."));
         return;
     }
