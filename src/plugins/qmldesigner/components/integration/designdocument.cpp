@@ -285,18 +285,11 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
     viewManager().attachViewsExceptRewriterAndComponetView();
 }
 
-void DesignDocument::changeToSubComponentAndPushOnCrumblePath(const ModelNode &componentNode)
+void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 {
     if (QmlDesignerPlugin::instance()->currentDesignDocument() != this)
         return;
 
-    changeToSubComponent(componentNode);
-
-    QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
-}
-
-void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
-{
     if (m_inFileComponentModel)
         changeToDocumentModel();
 
@@ -304,6 +297,8 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 
     if (subComponentLoaded)
         attachRewriterToModel();
+
+    QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrumbleBar(componentNode);
 }
 
 void DesignDocument::attachRewriterToModel()

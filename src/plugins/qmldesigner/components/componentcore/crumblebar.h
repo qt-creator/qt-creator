@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <utils/crumblepath.h>
+#include <modelnode.h>
 
 namespace QmlDesigner {
 
@@ -42,7 +43,7 @@ public:
     explicit CrumbleBar(QObject *parent = 0);
 
     void pushFile(const QString &fileName);
-    void pushInFileComponent(const QString &componentId);
+    void pushInFileComponent(const ModelNode &modelNode);
 
     void nextFileIsCalledInternally();
 
@@ -50,6 +51,9 @@ public:
 
 private slots:
     void onCrumblePathElementClicked(const QVariant &data);
+
+private:
+    void updateVisibility();
 
 private:
     bool m_isInternalCalled;
@@ -60,6 +64,7 @@ class CrumbleBarInfo {
 public:
     QString fileName;
     QString componentId;
+    ModelNode modelNode;
 };
 
 bool operator ==(const CrumbleBarInfo &first, const CrumbleBarInfo &second);

@@ -117,7 +117,6 @@ public slots:
     void undo();
     void redo();
     void updateActiveQtVersion();
-    void changeToSubComponentAndPushOnCrumblePath(const ModelNode &componentNode);
     void changeToSubComponent(const ModelNode &componentNode);
 
 private slots:

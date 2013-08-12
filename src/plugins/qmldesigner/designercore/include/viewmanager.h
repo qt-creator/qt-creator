@@ -81,8 +81,7 @@ public:
     void enableWidgets();
 
     void pushFileOnCrumbleBar(const QString &fileName);
-    void pushInFileComponentOnCrambleBar(const QString &componentId);
-
+    void pushInFileComponentOnCrumbleBar(const ModelNode &modelNode);
     void nextFileIsCalledInternally();
 
     NodeInstanceView *nodeInstanceView();

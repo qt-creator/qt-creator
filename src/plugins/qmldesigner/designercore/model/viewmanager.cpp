@@ -213,10 +213,9 @@ void ViewManager::pushFileOnCrumbleBar(const QString &fileName)
     crumbleBar()->pushFile(fileName);
 }
 
-void ViewManager::pushInFileComponentOnCrambleBar(const QString &componentId)
-
+void ViewManager::pushInFileComponentOnCrumbleBar(const ModelNode &modelNode)
 {
-    crumbleBar()->pushInFileComponent(componentId);
+    crumbleBar()->pushInFileComponent(modelNode);
 }
 
 void ViewManager::nextFileIsCalledInternally()
