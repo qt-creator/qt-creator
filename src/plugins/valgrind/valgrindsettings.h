@@ -55,7 +55,6 @@ public:
 
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &map);
-    virtual QString displayName() const;
 
 signals:
     void changed(); // sent when multiple values have changed simulatenously (e.g. fromMap)

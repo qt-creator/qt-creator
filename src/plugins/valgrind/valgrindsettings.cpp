@@ -154,11 +154,6 @@ QString ValgrindBaseSettings::valgrindExecutable() const
     return m_valgrindExecutable;
 }
 
-QString ValgrindBaseSettings::displayName() const
-{
-    return tr("Valgrind");
-}
-
 void ValgrindBaseSettings::setNumCallers(int numCallers)
 {
     if (m_numCallers != numCallers) {
