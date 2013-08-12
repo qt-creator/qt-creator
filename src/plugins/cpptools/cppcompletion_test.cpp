@@ -32,6 +32,7 @@
 
 #include <texteditor/plaintexteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/convenience.h>
 
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
@@ -76,6 +77,11 @@ static QStringList getCompletions(TestData &data, bool *replaceAccessOperator = 
     CppAssistProposalModel *listmodel = dynamic_cast<CppAssistProposalModel *>(model);
     if (!listmodel)
         return completions;
+    const int pos = proposal->basePosition();
+    const int length = data.pos - pos;
+    const QString prefix = Convenience::textAt(QTextCursor(data.editor->document()), pos, length);
+    if (!prefix.isEmpty())
+        listmodel->filter(prefix);
 
     for (int i = 0; i < listmodel->size(); ++i)
         completions << listmodel->text(i);
