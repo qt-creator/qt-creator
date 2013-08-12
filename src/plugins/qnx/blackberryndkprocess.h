@@ -81,6 +81,7 @@ private slots:
 private:
     int errorLineToReturnStatus(const QString &line) const;
     virtual void processData(const QString &line);
+    virtual void resetResults();
 
     QProcess *m_process;
 

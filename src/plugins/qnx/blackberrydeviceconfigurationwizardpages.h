@@ -47,9 +47,27 @@ namespace Qnx {
 namespace Internal {
 namespace Ui {
 class BlackBerryDeviceConfigurationWizardSetupPage;
+class BlackBerryDeviceConfigurationWizardQueryPage;
 class BlackBerryDeviceConfigurationWizardSshKeyPage;
+class BlackBerryDeviceConfigurationWizardConfigPage;
 }
 class BlackBerrySshKeysGenerator;
+class BlackBerryDeviceInformation;
+
+struct BlackBerryDeviceConfigurationWizardHolder {
+    QString devicePin;
+    QString deviceName;
+    QString scmBundle;
+    QString debugTokenAuthor;
+    bool isSimulator;
+    bool debugTokenValid;
+    bool deviceInfoRetrieved;
+
+    BlackBerryDeviceConfigurationWizardHolder()
+        : isSimulator(false)
+        , debugTokenValid(false)
+        , deviceInfoRetrieved(false) {}
+};
 
 class BlackBerryDeviceConfigurationWizardSetupPage : public QWizardPage
 {
@@ -65,13 +83,9 @@ public:
     void initializePage();
     bool isComplete() const;
 
-    QString deviceName() const;
     QString hostName() const;
     QString password() const;
-    QString debugToken() const;
-    ProjectExplorer::IDevice::MachineType machineType() const;
 private slots:
-    void requestDebugToken();
     void onDeviceSelectionChanged();
     void onDeviceDetected(const QString &deviceName, const QString &hostName, bool isSimulator);
     void onDeviceListDetectorFinished();
@@ -83,6 +97,25 @@ private:
 
     Ui::BlackBerryDeviceConfigurationWizardSetupPage *m_ui;
     BlackBerryDeviceListDetector *m_deviceListDetector;
+};
+
+class BlackBerryDeviceConfigurationWizardQueryPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    explicit BlackBerryDeviceConfigurationWizardQueryPage(BlackBerryDeviceConfigurationWizardHolder &holder, QWidget *parent = 0);
+    ~BlackBerryDeviceConfigurationWizardQueryPage();
+
+    void initializePage();
+    bool isComplete() const;
+
+private slots:
+    void processQueryFinished(int status);
+
+private:
+    Ui::BlackBerryDeviceConfigurationWizardQueryPage *m_ui;
+    BlackBerryDeviceConfigurationWizardHolder &m_holder;
+    BlackBerryDeviceInformation *m_deviceInformation;
 };
 
 class BlackBerryDeviceConfigurationWizardSshKeyPage : public QWizardPage
@@ -110,6 +143,26 @@ private:
     void setBusy(bool busy);
 
     Ui::BlackBerryDeviceConfigurationWizardSshKeyPage *m_ui;
+};
+
+class BlackBerryDeviceConfigurationWizardConfigPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    explicit BlackBerryDeviceConfigurationWizardConfigPage(BlackBerryDeviceConfigurationWizardHolder &holder, QWidget *parent = 0);
+    ~BlackBerryDeviceConfigurationWizardConfigPage();
+
+    void initializePage();
+    bool isComplete() const;
+
+    QString configurationName() const;
+    QString debugToken() const;
+private slots:
+    void generateDebugToken();
+
+private:
+    Ui::BlackBerryDeviceConfigurationWizardConfigPage *m_ui;
+    BlackBerryDeviceConfigurationWizardHolder &m_holder;
 };
 
 class BlackBerryDeviceConfigurationWizardFinalPage : public QWizardPage

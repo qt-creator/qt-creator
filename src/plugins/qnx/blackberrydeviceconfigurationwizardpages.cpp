@@ -33,8 +33,11 @@
 #include "blackberryconfiguration.h"
 #include "blackberrydebugtokenrequestdialog.h"
 #include "blackberrysshkeysgenerator.h"
+#include "blackberrydeviceinformation.h"
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
+#include "ui_blackberrydeviceconfigurationwizardquerypage.h"
 #include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
+#include "ui_blackberrydeviceconfigurationwizardconfigpage.h"
 #include "blackberryconfiguration.h"
 #include "qnxutils.h"
 
@@ -54,7 +57,10 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 namespace {
-const char DEVICENAME_FIELD_ID[] = "DeviceName";
+const char DEVICEHOSTNAME_FIELD_ID[] = "DeviceHostName";
+const char DEVICEPASSWORD_FIELD_ID[] = "DevicePassword";
+const char CONFIGURATIONNAME_FIELD_ID[] = "ConfigurationName";
+const char DEBUGTOKENPATH_FIELD_ID[] = "DebugTokenPath";
 
 enum DeviceListUserRole
 {
@@ -71,25 +77,14 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
     m_ui->setupUi(this);
     setTitle(tr("Connection Details"));
 
-    m_ui->debugToken->setExpectedKind(Utils::PathChooser::File);
-    m_ui->debugToken->setPromptDialogFilter(QLatin1String("*.bar"));
-
-    QString debugTokenBrowsePath = QnxUtils::dataDirPath();
-    if (!QFileInfo(debugTokenBrowsePath).exists())
-        debugTokenBrowsePath = QDir::homePath();
-    m_ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);
-
     connect(m_ui->deviceListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(onDeviceSelectionChanged()));
     connect(m_deviceListDetector, SIGNAL(deviceDetected(QString,QString,bool)),
             this, SLOT(onDeviceDetected(QString,QString,bool)));
     connect(m_deviceListDetector, SIGNAL(finished()), this, SLOT(onDeviceListDetectorFinished()));
-    connect(m_ui->deviceName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->deviceHostIp, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
-    connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SIGNAL(completeChanged()));
-    connect(m_ui->debugToken, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
-    connect(m_ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
 
-    registerField(QLatin1String(DEVICENAME_FIELD_ID), m_ui->deviceName);
+    registerField(QLatin1String(DEVICEHOSTNAME_FIELD_ID), m_ui->deviceHostIp);
+    registerField(QLatin1String(DEVICEPASSWORD_FIELD_ID), m_ui->password);
 }
 
 BlackBerryDeviceConfigurationWizardSetupPage::~BlackBerryDeviceConfigurationWizardSetupPage()
@@ -160,38 +155,23 @@ void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceSelectionChanged()
             ? selected->data(DeviceTypeRole).toBool() : false;
     switch (itemKind) {
     case SpecifyManually:
-        m_ui->deviceName->setEnabled(true);
-        m_ui->deviceName->setText(tr("BlackBerry Device"));
         m_ui->deviceHostIp->setEnabled(true);
         m_ui->deviceHostIp->setText(QLatin1String("169.254.0.1"));
-        m_ui->physicalDevice->setEnabled(true);
-        m_ui->physicalDevice->setChecked(true);
-        m_ui->simulator->setEnabled(true);
-        m_ui->simulator->setChecked(false);
+        m_ui->password->setEnabled(true);
         m_ui->deviceHostIp->selectAll();
         m_ui->deviceHostIp->setFocus();
         break;
     case Autodetected:
-        m_ui->deviceName->setEnabled(true);
-        m_ui->deviceName->setText(selected->data(DeviceNameRole).toString());
         m_ui->deviceHostIp->setEnabled(false);
         m_ui->deviceHostIp->setText(selected->data(DeviceIpRole).toString());
-        m_ui->physicalDevice->setEnabled(false);
-        m_ui->physicalDevice->setChecked(!isSimulator);
-        m_ui->simulator->setEnabled(false);
-        m_ui->simulator->setChecked(isSimulator);
+        m_ui->password->setEnabled(true);
         m_ui->password->setFocus();
         break;
     case PleaseWait:
     case Note:
-        m_ui->deviceName->setEnabled(false);
-        m_ui->deviceName->clear();
         m_ui->deviceHostIp->setEnabled(false);
         m_ui->deviceHostIp->clear();
-        m_ui->physicalDevice->setEnabled(false);
-        m_ui->physicalDevice->setChecked(false);
-        m_ui->simulator->setEnabled(false);
-        m_ui->simulator->setChecked(false);
+        m_ui->password->setEnabled(false);
         break;
     }
 }
@@ -224,17 +204,7 @@ QListWidgetItem *BlackBerryDeviceConfigurationWizardSetupPage::findDeviceListIte
 
 bool BlackBerryDeviceConfigurationWizardSetupPage::isComplete() const
 {
-    bool debugTokenComplete = m_ui->simulator->isChecked()
-            || (m_ui->physicalDevice->isChecked() && !m_ui->debugToken->fileName().isEmpty()
-                && QFileInfo(m_ui->debugToken->fileName().toString()).exists());
-
-    return !m_ui->deviceHostIp->text().isEmpty() && !m_ui->deviceHostIp->text().isEmpty()
-            && debugTokenComplete;
-}
-
-QString BlackBerryDeviceConfigurationWizardSetupPage::deviceName() const
-{
-    return m_ui->deviceName->text();
+    return !m_ui->deviceHostIp->text().isEmpty();
 }
 
 QString BlackBerryDeviceConfigurationWizardSetupPage::hostName() const
@@ -247,33 +217,66 @@ QString BlackBerryDeviceConfigurationWizardSetupPage::password() const
     return m_ui->password->text();
 }
 
-QString BlackBerryDeviceConfigurationWizardSetupPage::debugToken() const
+// ----------------------------------------------------------------------------
+
+BlackBerryDeviceConfigurationWizardQueryPage::BlackBerryDeviceConfigurationWizardQueryPage
+        (BlackBerryDeviceConfigurationWizardHolder &holder, QWidget *parent)
+    : QWizardPage(parent)
+    , m_ui(new Ui::BlackBerryDeviceConfigurationWizardQueryPage)
+    , m_holder(holder)
+    , m_deviceInformation(new BlackBerryDeviceInformation(this))
 {
-    return m_ui->debugToken->fileName().toString();
+    m_ui->setupUi(this);
+    setTitle(tr("Query Device Information"));
+
+    connect(m_deviceInformation,SIGNAL(finished(int)),this,SLOT(processQueryFinished(int)));
 }
 
-IDevice::MachineType BlackBerryDeviceConfigurationWizardSetupPage::machineType() const
+BlackBerryDeviceConfigurationWizardQueryPage::~BlackBerryDeviceConfigurationWizardQueryPage()
 {
-    return m_ui->physicalDevice->isChecked() ? IDevice::Hardware : IDevice::Emulator;
+    delete m_ui;
+    m_ui = 0;
 }
 
-void BlackBerryDeviceConfigurationWizardSetupPage::requestDebugToken()
+void BlackBerryDeviceConfigurationWizardQueryPage::initializePage()
 {
-    BlackBerryDebugTokenRequestDialog dialog;
+    m_ui->statusLabel->setText(tr("Querying device information. Please wait..."));
+    m_ui->progressBar->setVisible(true);
 
-    if (!m_ui->deviceHostIp->text().isEmpty() && !m_ui->password->text().isEmpty())
-        dialog.setTargetDetails(m_ui->deviceHostIp->text(), m_ui->password->text());
+    m_holder.deviceInfoRetrieved = false;
 
-    const int result = dialog.exec();
+    m_deviceInformation->setDeviceTarget(
+                field(QLatin1String(DEVICEHOSTNAME_FIELD_ID)).toString(),
+                field(QLatin1String(DEVICEPASSWORD_FIELD_ID)).toString());
+}
 
-    if (result != QDialog::Accepted)
-        return;
+void BlackBerryDeviceConfigurationWizardQueryPage::processQueryFinished(int status)
+{
+    m_holder.deviceInfoRetrieved = status == BlackBerryDeviceInformation::Success;
+    m_holder.devicePin = m_deviceInformation->devicePin();
+    m_holder.scmBundle = m_deviceInformation->scmBundle();
+    m_holder.deviceName = m_deviceInformation->hostName();
+    m_holder.debugTokenAuthor = m_deviceInformation->debugTokenAuthor();
+    m_holder.debugTokenValid = m_deviceInformation->debugTokenValid();
+    m_holder.isSimulator = m_deviceInformation->isSimulator();
 
-    m_ui->debugToken->setPath(dialog.debugToken());
+    if (m_holder.deviceInfoRetrieved)
+        m_ui->statusLabel->setText(tr("Device information retrieved successfully."));
+    else
+        m_ui->statusLabel->setText(tr("Cannot connect to the device. Check if the device is in development mode and has matching host name and password."));
+    m_ui->progressBar->setVisible(false);
+    emit completeChanged();
+
+    if (m_holder.deviceInfoRetrieved)
+        wizard()->next();
+}
+
+bool BlackBerryDeviceConfigurationWizardQueryPage::isComplete() const
+{
+    return m_holder.deviceInfoRetrieved;
 }
 
 // ----------------------------------------------------------------------------
-
 
 BlackBerryDeviceConfigurationWizardSshKeyPage::BlackBerryDeviceConfigurationWizardSshKeyPage(QWidget *parent)
     : QWizardPage(parent)
@@ -401,8 +404,84 @@ void BlackBerryDeviceConfigurationWizardSshKeyPage::setBusy(bool busy)
     wizard()->button(QWizard::FinishButton)->setEnabled(!busy);
     wizard()->button(QWizard::CancelButton)->setEnabled(!busy);
 }
+
 // ----------------------------------------------------------------------------
 
+BlackBerryDeviceConfigurationWizardConfigPage::BlackBerryDeviceConfigurationWizardConfigPage
+        (BlackBerryDeviceConfigurationWizardHolder &holder, QWidget *parent)
+    : QWizardPage(parent)
+    , m_ui(new Ui::BlackBerryDeviceConfigurationWizardConfigPage)
+    , m_holder(holder)
+{
+    m_ui->setupUi(this);
+    setTitle(tr("Configuration"));
+
+    m_ui->debugTokenField->setExpectedKind(Utils::PathChooser::File);
+    m_ui->debugTokenField->setPromptDialogFilter(QLatin1String("*.bar"));
+
+    QString debugTokenBrowsePath = QnxUtils::dataDirPath();
+    if (!QFileInfo(debugTokenBrowsePath).exists())
+        debugTokenBrowsePath = QDir::homePath();
+    m_ui->debugTokenField->setInitialBrowsePathBackup(debugTokenBrowsePath);
+
+    connect(m_ui->configurationNameField, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
+    connect(m_ui->debugTokenField, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
+    connect(m_ui->generateButton, SIGNAL(clicked()), this, SLOT(generateDebugToken()));
+
+    registerField(QLatin1String(CONFIGURATIONNAME_FIELD_ID), m_ui->configurationNameField);
+    registerField(QLatin1String(DEBUGTOKENPATH_FIELD_ID), m_ui->debugTokenField);
+}
+
+BlackBerryDeviceConfigurationWizardConfigPage::~BlackBerryDeviceConfigurationWizardConfigPage()
+{
+    delete m_ui;
+    m_ui = 0;
+}
+
+void BlackBerryDeviceConfigurationWizardConfigPage::initializePage()
+{
+    QString deviceHostName = field(QLatin1String(DEVICEHOSTNAME_FIELD_ID)).toString();
+    m_ui->configurationNameField->setText(m_holder.deviceName);
+    m_ui->deviceHostNameField->setText(deviceHostName);
+    m_ui->deviceTypeField->setText(QLatin1String (m_holder.isSimulator ? "Simulator" : "Device"));
+    m_ui->debugTokenField->setEnabled(!m_holder.isSimulator);
+    m_ui->generateButton->setEnabled(!m_holder.isSimulator);
+}
+
+bool BlackBerryDeviceConfigurationWizardConfigPage::isComplete() const
+{
+    bool configurationNameComplete = !m_ui->configurationNameField->text().isEmpty();
+    Utils::FileName fileName = m_ui->debugTokenField->fileName();
+    bool debugTokenComplete = m_holder.isSimulator
+            || (!fileName.isEmpty() && QFileInfo(fileName.toString()).exists());
+
+    return configurationNameComplete  &&  debugTokenComplete;
+}
+
+void BlackBerryDeviceConfigurationWizardConfigPage::generateDebugToken()
+{
+    BlackBerryDebugTokenRequestDialog dialog;
+    dialog.setDevicePin(m_holder.devicePin);
+
+    const int result = dialog.exec();
+
+    if (result != QDialog::Accepted)
+        return;
+
+    m_ui->debugTokenField->setPath(dialog.debugToken());
+}
+
+QString BlackBerryDeviceConfigurationWizardConfigPage::configurationName() const
+{
+    return m_ui->configurationNameField->text();
+}
+
+QString BlackBerryDeviceConfigurationWizardConfigPage::debugToken() const
+{
+    return m_ui->debugTokenField->fileName().toString();
+}
+
+// ----------------------------------------------------------------------------
 
 BlackBerryDeviceConfigurationWizardFinalPage::BlackBerryDeviceConfigurationWizardFinalPage(QWidget *parent)
     : QWizardPage(parent)
@@ -410,9 +489,6 @@ BlackBerryDeviceConfigurationWizardFinalPage::BlackBerryDeviceConfigurationWizar
     setTitle(tr("Setup Finished"));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
-    QLabel *label = new QLabel(tr("The new device configuration will now be created."), this);
+    QLabel *label = new QLabel(tr("The new device configuration will be created now."), this);
     layout->addWidget(label);
 }
-
-
-

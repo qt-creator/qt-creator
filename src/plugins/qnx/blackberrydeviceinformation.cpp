@@ -62,6 +62,18 @@ void BlackBerryDeviceInformation::setDeviceTarget(const QString &deviceIp, const
     start(arguments);
 }
 
+void BlackBerryDeviceInformation::resetResults()
+{
+    m_devicePin.clear();
+    m_deviceOS.clear();
+    m_hardwareId.clear();
+    m_debugTokenAuthor.clear();
+    m_scmBundle.clear();
+    m_hostName.clear();
+    m_debugTokenValid = false;
+    m_isSimulator = false;
+}
+
 QString BlackBerryDeviceInformation::devicePin() const
 {
     return m_devicePin;
@@ -77,14 +89,51 @@ QString BlackBerryDeviceInformation::hardwareId() const
     return m_hardwareId;
 }
 
+QString BlackBerryDeviceInformation::debugTokenAuthor() const
+{
+    return m_debugTokenAuthor;
+}
+
+QString BlackBerryDeviceInformation::scmBundle() const
+{
+    return m_scmBundle;
+}
+
+QString BlackBerryDeviceInformation::hostName() const
+{
+    return m_hostName;
+}
+
+bool BlackBerryDeviceInformation::debugTokenValid() const
+{
+    return m_debugTokenValid;
+}
+
+bool BlackBerryDeviceInformation::isSimulator() const
+{
+    return m_isSimulator;
+}
+
 void BlackBerryDeviceInformation::processData(const QString &line)
 {
-    if (line.startsWith(QLatin1String("devicepin::")))
-        m_devicePin = line.split(QLatin1String("::0x")).at(1).trimmed();
+    if (line.startsWith(QLatin1String("devicepin::0x")))
+        m_devicePin = line.mid(QLatin1String("devicepin::0x").size()).trimmed();
     else if (line.startsWith(QLatin1String("device_os::")))
-        m_deviceOS = line.split(QLatin1String("::")).at(1).trimmed();
+        m_deviceOS = line.mid(QLatin1String("device_os::").size()).trimmed();
     else if (line.startsWith(QLatin1String("hardwareid::")))
-        m_hardwareId = line.split(QLatin1String("::")).at(1).trimmed();
+        m_hardwareId = line.mid(QLatin1String("hardwareid::").size()).trimmed();
+    else if (line.startsWith(QLatin1String("debug_token_author::")))
+        m_debugTokenAuthor = line.mid(QLatin1String("debug_token_author::").size()).trimmed();
+    else if (line.startsWith(QLatin1String("debug_token_valid:b:")))
+        m_debugTokenValid = line.mid(QLatin1String("debug_token_valid:b:").size()).trimmed()
+                == QLatin1String("true");
+    else if (line.startsWith(QLatin1String("simulator:b:")))
+        m_isSimulator = line.mid(QLatin1String("simulator:b:").size()).trimmed()
+                == QLatin1String("true");
+    else if (line.startsWith(QLatin1String("scmbundle::")))
+        m_scmBundle = line.mid(QLatin1String("scmbundle::").size()).trimmed();
+    else if (line.startsWith(QLatin1String("hostname::")))
+        m_hostName = line.mid(QLatin1String("hostname::").size()).trimmed();
 }
 
 } // namespace Internal

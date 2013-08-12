@@ -55,6 +55,7 @@ public:
     ~BlackBerryDebugTokenRequestDialog();
 
     QString debugToken() const;
+    void setDevicePin(const QString &devicePin);
     void setTargetDetails(const QString &deviceIp, const QString &password);
 
 private slots:

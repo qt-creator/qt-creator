@@ -216,7 +216,9 @@ FORMS += \
     bardescriptoreditorassetswidget.ui \
     blackberrysetupwizardkeyspage.ui \
     blackberrysetupwizarddevicepage.ui \
-    blackberrysetupwizardfinishpage.ui
+    blackberrysetupwizardfinishpage.ui \
+    blackberrydeviceconfigurationwizardconfigpage.ui \
+    blackberrydeviceconfigurationwizardquerypage.ui
 
 include(../../private_headers.pri)
 

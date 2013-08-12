@@ -75,6 +75,7 @@ void BlackBerryDeviceListDetector::processFinished()
 
 const QString BlackBerryDeviceListDetector::readProcessLine()
 {
+    // we assume that the process output is ASCII only
     QByteArray bytes = m_process->readLine();
     while (bytes.endsWith('\r')  ||  bytes.endsWith('\n'))
         bytes.chop(1);
@@ -83,10 +84,10 @@ const QString BlackBerryDeviceListDetector::readProcessLine()
 
 void BlackBerryDeviceListDetector::processData(const QString &line)
 {
-    // line format is: deviceName,deviceHostName,deviceType,deviceDisplayName
+    // line format is: deviceName,deviceHostNameOrIP,deviceType,versionIfSimulator
     QStringList list = line.split(QLatin1String(","));
     if (list.count() == 4) {
-        emit deviceDetected (list[3].isEmpty() ? list[0] : list[3], list[1], QLatin1String("Simulator") == list[2]);
+        emit deviceDetected (list[0], list[1], QLatin1String("Simulator") == list[2]);
     }
 }
 

@@ -99,6 +99,11 @@ QString BlackBerryDebugTokenRequestDialog::debugToken() const
     return m_ui->debugTokenPath->path();
 }
 
+void BlackBerryDebugTokenRequestDialog::setDevicePin(const QString &devicePin)
+{
+    m_ui->devicePin->setText(devicePin);
+}
+
 void BlackBerryDebugTokenRequestDialog::setTargetDetails(const QString &deviceIp, const QString &password)
 {
     m_ui->devicePin->setPlaceholderText(tr("Requesting Device PIN..."));

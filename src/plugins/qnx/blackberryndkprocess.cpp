@@ -78,6 +78,8 @@ void BlackBerryNdkProcess::start(const QStringList &arguments)
     if (m_process->state() != QProcess::NotRunning)
         return;
 
+    resetResults();
+
     m_process->start(command(), arguments);
 }
 
@@ -153,6 +155,10 @@ int BlackBerryNdkProcess::errorLineToReturnStatus(const QString &line) const
 void BlackBerryNdkProcess::processData(const QString &line)
 {
     Q_UNUSED(line);
+}
+
+void BlackBerryNdkProcess::resetResults()
+{
 }
 
 } // namespace Internal

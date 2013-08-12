@@ -45,11 +45,15 @@ BlackBerryDeviceConfigurationWizard::BlackBerryDeviceConfigurationWizard(QWidget
     setWindowTitle(tr("New BlackBerry Device Configuration Setup"));
 
     m_setupPage = new BlackBerryDeviceConfigurationWizardSetupPage(this);
+    m_queryPage = new BlackBerryDeviceConfigurationWizardQueryPage(m_holder, this);
     m_sshKeyPage = new BlackBerryDeviceConfigurationWizardSshKeyPage(this);
+    m_configPage = new BlackBerryDeviceConfigurationWizardConfigPage(m_holder, this);
     m_finalPage = new BlackBerryDeviceConfigurationWizardFinalPage(this);
 
     setPage(SetupPageId, m_setupPage);
+    setPage(QueryPageId, m_queryPage);
     setPage(SshKeyPageId, m_sshKeyPage);
+    setPage(ConfigPageId, m_configPage);
     setPage(FinalPageId, m_finalPage);
     m_finalPage->setCommitPage(true);
 }
@@ -66,10 +70,13 @@ ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfigurationWizard::device()
     sshParams.timeout = 10;
     sshParams.port = 22;
 
-    BlackBerryDeviceConfiguration::Ptr configuration = BlackBerryDeviceConfiguration::create(m_setupPage->deviceName(),
-                                                                                             Core::Id(Constants::QNX_BB_OS_TYPE),
-                                                                                             m_setupPage->machineType());
+    BlackBerryDeviceConfiguration::Ptr configuration = BlackBerryDeviceConfiguration::create(
+            m_configPage->configurationName(),
+            Core::Id(Constants::QNX_BB_OS_TYPE),
+            m_holder.isSimulator
+                    ? ProjectExplorer::IDevice::Emulator
+                    : ProjectExplorer::IDevice::Hardware);
     configuration->setSshParameters(sshParams);
-    configuration->setDebugToken(m_setupPage->debugToken());
+    configuration->setDebugToken(m_configPage->debugToken());
     return configuration;
 }

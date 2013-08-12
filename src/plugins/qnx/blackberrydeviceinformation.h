@@ -61,13 +61,24 @@ public:
     QString devicePin() const;
     QString deviceOS() const;
     QString hardwareId() const;
+    QString debugTokenAuthor() const;
+    bool debugTokenValid() const;
+    QString scmBundle() const;
+    QString hostName() const;
+    bool isSimulator() const;
 
 private:
     QString m_devicePin;
     QString m_deviceOS;
     QString m_hardwareId;
+    QString m_debugTokenAuthor;
+    QString m_scmBundle;
+    QString m_hostName;
+    bool m_debugTokenValid;
+    bool m_isSimulator;
 
     void processData(const QString &line);
+    void resetResults();
 };
 
 }
