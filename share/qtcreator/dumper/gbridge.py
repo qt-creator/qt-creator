@@ -624,6 +624,18 @@ def expensiveDowncast(value):
 
 typeCache = {}
 
+typesToReport = {}
+typesReported = {}
+
+def addToCache(type):
+    global typesReported
+    global typesToReport
+    typename = str(type)
+    if typename in typesReported:
+        return
+    typesReported[typename] = True
+    typesToReport[typename] = type
+
 def lookupType(typestring):
     global typeCache
     global typesToReport
@@ -1260,8 +1272,6 @@ registerCommand("bbedit", bbedit)
 #
 #######################################################################
 
-typesToReport = {}
-
 def bb(args):
     global typesToReport
     output = Dumper(args).output
@@ -1853,7 +1863,7 @@ class Dumper:
         type = value.type.unqualified()
         typeName = str(type)
         tryDynamic &= self.useDynamicType
-        lookupType(typeName) # Fill type cache
+        addToCache(type) # Fill type cache
         if tryDynamic:
             self.putAddress(value.address)
 
