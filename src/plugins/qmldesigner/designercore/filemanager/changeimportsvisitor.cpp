@@ -79,8 +79,8 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
 
     for (UiImportList *iter = ast->imports; iter; iter = iter->next) {
         if (equals(iter->import, import)) {
-            int start = iter->firstSourceLocation().begin();
-            int end = iter->lastSourceLocation().end();
+            int start = iter->import->firstSourceLocation().begin();
+            int end = iter->import->lastSourceLocation().end();
             includeSurroundingWhitespace(start, end);
             replace(start, end - start, QString());
             setDidRewriting(true);
