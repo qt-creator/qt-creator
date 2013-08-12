@@ -113,10 +113,8 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
     emit changed();
 }
 
-QVariantMap ValgrindBaseSettings::toMap() const
+void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
-    QVariantMap map;
-
     // General
     map.insert(QLatin1String(valgrindExeC), m_valgrindExecutable);
 
@@ -138,7 +136,6 @@ QVariantMap ValgrindBaseSettings::toMap() const
     map.insert(QLatin1String(callgrindMinimumCostRatioC), m_minimumInclusiveCostRatio);
     map.insert(QLatin1String(callgrindVisualisationMinimumCostRatioC),
                m_visualisationMinimumInclusiveCostRatio);
-    return map;
 }
 
 void ValgrindBaseSettings::setValgrindExecutable(const QString &valgrindExecutable)
@@ -288,13 +285,15 @@ void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
 AbstractAnalyzerSubConfig *ValgrindGlobalSettings::clone()
 {
     ValgrindGlobalSettings *other = new ValgrindGlobalSettings;
-    other->fromMap(toMap());
+    QVariantMap data;
+    toMap(data);
+    other->fromMap(data);
     return other;
 }
 
-QVariantMap ValgrindGlobalSettings::toMap() const
+void ValgrindGlobalSettings::toMap(QVariantMap &map) const
 {
-    QVariantMap map = ValgrindBaseSettings::toMap();
+    ValgrindBaseSettings::toMap(map);
 
     // Memcheck
     map.insert(QLatin1String(suppressionFilesC), m_suppressionFiles);
@@ -305,8 +304,6 @@ QVariantMap ValgrindGlobalSettings::toMap() const
     map.insert(QLatin1String(callgrindCostFormatC), m_costFormat);
     map.insert(QLatin1String(callgrindCycleDetectionC), m_detectCycles);
     map.insert(QLatin1String(callgrindShortenTemplates), m_shortenTemplates);
-
-    return map;
 }
 
 //
@@ -400,7 +397,8 @@ void ValgrindGlobalSettings::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(groupC));
-    const QVariantMap map = toMap();
+    QVariantMap map;
+    toMap(map);
     for (QVariantMap::ConstIterator it = map.begin(); it != map.end(); ++it)
         settings->setValue(it.key(), it.value());
     settings->endGroup();
@@ -466,19 +464,19 @@ void ValgrindProjectSettings::fromMap(const QVariantMap &map)
 AbstractAnalyzerSubConfig *ValgrindProjectSettings::clone()
 {
     ValgrindProjectSettings *other = new ValgrindProjectSettings;
-    other->fromMap(toMap());
+    QVariantMap data;
+    toMap(data);
+    other->fromMap(data);
     return other;
 }
 
-QVariantMap ValgrindProjectSettings::toMap() const
+void ValgrindProjectSettings::toMap(QVariantMap &map) const
 {
-    QVariantMap map = ValgrindBaseSettings::toMap();
+    ValgrindBaseSettings::toMap(map);
 
     // Memcheck
     map.insert(QLatin1String(addedSuppressionFilesC), m_addedSuppressionFiles);
     map.insert(QLatin1String(removedSuppressionFilesC), m_disabledGlobalSuppressionFiles);
-
-    return map;
 }
 
 //

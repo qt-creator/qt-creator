@@ -277,16 +277,14 @@ bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
     return dev->canAutoDetectPorts();
 }
 
-QVariantMap DebuggerRunConfigurationAspect::toMap() const
+void DebuggerRunConfigurationAspect::toMap(QVariantMap &map) const
 {
-    QVariantMap map;
     map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger == EnabledLanguage);
     map.insert(QLatin1String(USE_CPP_DEBUGGER_AUTO_KEY), m_useCppDebugger == AutoEnabledLanguage);
     map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger == EnabledLanguage);
     map.insert(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), m_useQmlDebugger == AutoEnabledLanguage);
     map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);
     map.insert(QLatin1String(USE_MULTIPROCESS_KEY), m_useMultiProcess);
-    return map;
 }
 
 void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)

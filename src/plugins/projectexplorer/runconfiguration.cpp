@@ -224,7 +224,7 @@ QVariantMap RunConfiguration::toMap() const
     QVariantMap map = ProjectConfiguration::toMap();
 
     foreach (IRunConfigurationAspect *aspect, m_aspects)
-        map.unite(aspect->toMap());
+        aspect->toMap(map);
 
     return map;
 }

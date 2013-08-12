@@ -71,11 +71,10 @@ void AnalyzerRunConfigurationAspect::fromMap(const QVariantMap &map)
     m_useGlobalSettings = map.value(QLatin1String(useGlobalC), true).toBool();
 }
 
-QVariantMap AnalyzerRunConfigurationAspect::toMap() const
+void AnalyzerRunConfigurationAspect::toMap(QVariantMap &map) const
 {
-    QVariantMap map = m_customConfiguration->toMap();
+    m_customConfiguration->toMap(map);
     map.insert(QLatin1String(useGlobalC), m_useGlobalSettings);
-    return map;
 }
 
 AnalyzerRunConfigurationAspect *AnalyzerRunConfigurationAspect::clone(
@@ -97,7 +96,9 @@ void AnalyzerRunConfigurationAspect::resetCustomToGlobalSettings()
 {
     AbstractAnalyzerSubConfig *global = globalSubConfig();
     QTC_ASSERT(global, return);
-    m_customConfiguration->fromMap(global->toMap());
+    QVariantMap map;
+    global->toMap(map);
+    m_customConfiguration->fromMap(map);
 }
 
 ProjectExplorer::RunConfigWidget *AnalyzerRunConfigurationAspect::createConfigurationWidget()

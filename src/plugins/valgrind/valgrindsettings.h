@@ -53,8 +53,8 @@ class ValgrindBaseSettings : public Analyzer::AbstractAnalyzerSubConfig
 public:
     ValgrindBaseSettings() {}
 
-    virtual QVariantMap toMap() const;
-    virtual void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const;
+    void fromMap(const QVariantMap &map);
 
 signals:
     void changed(); // sent when multiple values have changed simulatenously (e.g. fromMap)
@@ -168,7 +168,7 @@ public:
     ValgrindGlobalSettings();
 
     QWidget *createConfigWidget(QWidget *parent);
-    QVariantMap toMap() const;
+    void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
     virtual AbstractAnalyzerSubConfig *clone();
 
@@ -228,7 +228,7 @@ public:
     ValgrindProjectSettings() {}
 
     QWidget *createConfigWidget(QWidget *parent);
-    QVariantMap toMap() const;
+    void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
     virtual AbstractAnalyzerSubConfig *clone();
 

@@ -47,7 +47,6 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public IRunConfigurationAspect
 
 public:
     // IRunConfigurationAspect:
-    QVariantMap toMap() const;
     RunConfigWidget *createConfigurationWidget();
 
     virtual RunConfiguration *runConfiguration() const { return m_runConfiguration; }
@@ -73,6 +72,7 @@ protected:
     EnvironmentAspect(const EnvironmentAspect *other, RunConfiguration *parent);
     EnvironmentAspect(RunConfiguration *rc);
     void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const;
 
 private:
     mutable int m_base;

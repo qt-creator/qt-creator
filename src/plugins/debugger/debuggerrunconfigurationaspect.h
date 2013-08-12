@@ -54,8 +54,8 @@ public:
         AutoEnabledLanguage
     };
 
-    QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const;
 
     DebuggerRunConfigurationAspect *clone(ProjectExplorer::RunConfiguration *parent) const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget();

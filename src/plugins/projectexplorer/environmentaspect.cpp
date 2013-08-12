@@ -58,14 +58,6 @@ EnvironmentAspect::EnvironmentAspect(const EnvironmentAspect *other, RunConfigur
     m_runConfiguration(parent)
 { }
 
-QVariantMap EnvironmentAspect::toMap() const
-{
-    QVariantMap data;
-    data.insert(QLatin1String(BASE_KEY), m_base);
-    data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_changes));
-    return data;
-}
-
 RunConfigWidget *EnvironmentAspect::createConfigurationWidget()
 {
     return new EnvironmentAspectWidget(this);
@@ -114,6 +106,12 @@ void EnvironmentAspect::fromMap(const QVariantMap &map)
 {
     m_base = map.value(QLatin1String(BASE_KEY), -1).toInt();
     m_changes = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
+}
+
+void EnvironmentAspect::toMap(QVariantMap &data) const
+{
+    data.insert(QLatin1String(BASE_KEY), m_base);
+    data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_changes));
 }
 
 } // namespace ProjectExplorer

@@ -78,7 +78,6 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
 
 public:
     virtual ~IRunConfigurationAspect() {}
-    virtual QVariantMap toMap() const = 0;
     virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const = 0;
     virtual RunConfigWidget *createConfigurationWidget();
 
@@ -91,6 +90,7 @@ public:
 protected:
     friend class RunConfiguration;
     virtual void fromMap(const QVariantMap &map) = 0;
+    virtual void toMap(QVariantMap &data) const = 0;
 
 private:
     QString m_displayName;

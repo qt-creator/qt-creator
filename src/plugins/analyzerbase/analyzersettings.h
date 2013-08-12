@@ -53,7 +53,7 @@ public:
     AbstractAnalyzerSubConfig() {}
 
     /// convert current configuration into map for storage
-    virtual QVariantMap toMap() const = 0;
+    virtual void toMap(QVariantMap &map) const = 0;
     /// read configuration from @p map
     virtual void fromMap(const QVariantMap &map) = 0;
 
@@ -84,7 +84,6 @@ public:
 
     ~AnalyzerRunConfigurationAspect();
 
-    virtual QVariantMap toMap() const;
     AnalyzerRunConfigurationAspect *clone(ProjectExplorer::RunConfiguration *parent) const;
 
     bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
@@ -97,7 +96,8 @@ public:
     ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 
 protected:
-    virtual void fromMap(const QVariantMap &map);
+    void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const;
 
 private:
     bool m_useGlobalSettings;
