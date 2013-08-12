@@ -40,6 +40,8 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT Import
 {
 public:
+    Import();
+
     static Import createLibraryImport(const QString &url, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
     static Import createFileImport(const QString &file, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
     static Import empty();

@@ -54,6 +54,7 @@ WidgetInfo ImportManagerView::widgetInfo()
 {
     if (m_importsWidget == 0) {
         m_importsWidget = new ImportsWidget;
+        connect(m_importsWidget, SIGNAL(removeImport(Import)), this, SLOT(removeImport(Import)));
         if (model())
             m_importsWidget->setImports(model()->imports());
     }
@@ -226,6 +227,12 @@ void ImportManagerView::customNotification(const AbstractView */*view*/, const Q
 void ImportManagerView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
 {
 
+}
+
+void ImportManagerView::removeImport(const Import &import)
+{
+    if (model())
+        model()->changeImports(QList<Import>(), QList<Import>() << import);
 }
 
 } // namespace QmlDesigner

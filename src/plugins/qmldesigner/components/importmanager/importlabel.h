@@ -45,7 +45,14 @@ public:
 
     void setImport(const Import &import);
 
+signals:
+    void removeImport(const Import &import);
+
+private slots:
+    void emitRemoveImport();
+
 private:
+    Import m_import;
     QLabel *m_importLabel;
     QPushButton *m_removeButton;
 };

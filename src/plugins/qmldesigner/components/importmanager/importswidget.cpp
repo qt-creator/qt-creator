@@ -84,6 +84,7 @@ void ImportsWidget::setImports(const QList<Import> &imports)
         ImportLabel *importLabel = new ImportLabel(this);
         importLabel->setImport(import);
         m_importLabels.append(importLabel);
+        connect(importLabel, SIGNAL(removeImport(Import)), this, SIGNAL(removeImport(Import)));
     }
 
     updateLayout();

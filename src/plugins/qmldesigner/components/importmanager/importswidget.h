@@ -47,6 +47,9 @@ public:
     void setImports(const QList<Import> &imports);
     void removeAllImports();
 
+signals:
+    void removeImport(const Import &import);
+
 protected:
     void updateLayout();
 

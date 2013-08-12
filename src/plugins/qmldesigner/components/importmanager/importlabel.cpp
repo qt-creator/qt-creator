@@ -47,6 +47,7 @@ ImportLabel::ImportLabel(QWidget *parent) :
     m_removeButton->setMaximumHeight(20);
     m_removeButton->setFocusPolicy(Qt::NoFocus);
     m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    connect(m_removeButton, SIGNAL(clicked()), this, SLOT(emitRemoveImport()));
     layout->addWidget(m_removeButton);
 
     m_importLabel = new QLabel(this);
@@ -58,8 +59,16 @@ ImportLabel::ImportLabel(QWidget *parent) :
 void ImportLabel::setImport(const Import &import)
 {
     m_importLabel->setText(import.toString(false));
+
     if (import.url() == "QtQuick")
         m_removeButton->setDisabled(true);
+
+    m_import = import;
+}
+
+void ImportLabel::emitRemoveImport()
+{
+    emit removeImport(m_import);
 }
 
 } // namespace QmlDesigner

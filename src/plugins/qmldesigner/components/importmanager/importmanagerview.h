@@ -93,6 +93,9 @@ public:
 
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
+private slots:
+    void removeImport(const Import &import);
+
 private:
     ImportsWidget *m_importsWidget;
 };
