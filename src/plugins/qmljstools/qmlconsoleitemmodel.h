@@ -58,8 +58,6 @@ public:
     bool appendMessage(QmlJS::ConsoleItem::ItemType itemType, const QString &message,
                        int position = -1);
 
-    QAbstractItemModel *model() { return this; }
-
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     int sizeOfFile(const QFont &font);
