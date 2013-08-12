@@ -39,19 +39,11 @@ namespace DiffEditor {
 namespace Internal {
 
 DiffShowEditorFactory::DiffShowEditorFactory(QObject *parent)
-    : IEditorFactory(parent),
-      m_mimeTypes(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE))
+    : IEditorFactory(parent)
 {
-}
-
-Core::Id DiffShowEditorFactory::id() const
-{
-    return Constants::DIFF_SHOW_EDITOR_ID;
-}
-
-QString DiffShowEditorFactory::displayName() const
-{
-    return qApp->translate("DiffEditorFactory", Constants::DIFF_SHOW_EDITOR_DISPLAY_NAME);
+    setId(Constants::DIFF_SHOW_EDITOR_ID);
+    setDisplayName(qApp->translate("DiffEditorFactory", Constants::DIFF_SHOW_EDITOR_DISPLAY_NAME));
+    setMimeTypes(QStringList() << QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
 }
 
 Core::IEditor *DiffShowEditorFactory::createEditor(QWidget *parent)
@@ -59,11 +51,6 @@ Core::IEditor *DiffShowEditorFactory::createEditor(QWidget *parent)
     DiffEditorWidget *editorWidget = new DiffEditorWidget(parent);
     DiffShowEditor *editor = new DiffShowEditor(editorWidget);
     return editor;
-}
-
-QStringList DiffShowEditorFactory::mimeTypes() const
-{
-    return m_mimeTypes;
 }
 
 } // namespace Internal

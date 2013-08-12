@@ -47,13 +47,7 @@ class DiffEditorFactory : public Core::IEditorFactory
 public:
     explicit DiffEditorFactory(QObject *parent);
 
-    QStringList mimeTypes() const;
     Core::IEditor *createEditor(QWidget *parent);
-    Core::Id id() const;
-    QString displayName() const;
-
-private:
-    const QStringList m_mimeTypes;
 };
 
 } // namespace Internal
