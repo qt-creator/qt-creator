@@ -548,7 +548,7 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
     if (runConfiguration) {
         if (AnalyzerRunConfigurationAspect *analyzerAspect
                 = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>(ANALYZER_VALGRIND_SETTINGS)) {
-            if (const ValgrindBaseSettings *settings = qobject_cast<ValgrindBaseSettings *>(analyzerAspect->currentConfig())) {
+            if (const ValgrindBaseSettings *settings = qobject_cast<ValgrindBaseSettings *>(analyzerAspect->currentSettings())) {
                 m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
                 m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
                 m_dataModel->setVerboseToolTipsEnabled(settings->enableEventToolTips());

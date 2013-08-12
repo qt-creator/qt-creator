@@ -59,7 +59,7 @@ private slots:
 private:
     QWidget *m_configWidget;
     AnalyzerRunConfigurationAspect *m_aspect;
-    AbstractAnalyzerSubConfig *m_config;
+    ISettingsAspect *m_config;
     QComboBox *m_settingsCombo;
     QPushButton *m_restoreButton;
     Utils::DetailsWidget *m_details;

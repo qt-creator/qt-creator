@@ -46,7 +46,7 @@ namespace Internal {
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(AnalyzerRunConfigurationAspect *aspect)
 {
     m_aspect = aspect;
-    m_config = aspect->customSubConfig();
+    m_config = aspect->projectSettings();
 
     QWidget *globalSetting = new QWidget;
     QHBoxLayout *globalSettingLayout = new QHBoxLayout(globalSetting);

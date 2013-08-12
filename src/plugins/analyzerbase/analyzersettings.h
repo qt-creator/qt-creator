@@ -45,33 +45,28 @@ namespace Analyzer {
  * If global and project-specific settings differ for your tool,
  * create one subclass for each.
  */
-class ANALYZER_EXPORT AbstractAnalyzerSubConfig : public QObject
+class ANALYZER_EXPORT ISettingsAspect : public QObject
 {
     Q_OBJECT
 
 public:
-    AbstractAnalyzerSubConfig() {}
+    ISettingsAspect() {}
 
-    /// convert current configuration into map for storage
+    /// Converts current object into map for storage.
     virtual void toMap(QVariantMap &map) const = 0;
-    /// read configuration from @p map
+    /// Read object state from @p map.
     virtual void fromMap(const QVariantMap &map) = 0;
 
-    /// create a configuration widget for this configuration
+    /// Create a configuration widget for this settings aspect.
     virtual QWidget *createConfigWidget(QWidget *parent) = 0;
-    /// clones s AbstractAnalyzerSubConfig
-    virtual AbstractAnalyzerSubConfig *clone() = 0;
+    /// Clones the object.
+    virtual ISettingsAspect *clone() = 0;
 };
 
 
 /**
  * Settings associated with a single project/run configuration
  *
- * To access your custom configuration use:
- * @code
- * ProjectExplorer::RunConfiguration *rc = ...;
- * rc->extraAspect<AnalyzerRunConfigurationAspect>()->subConfig<YourProjectConfig>()->...
- * @endcode
  */
 class ANALYZER_EXPORT AnalyzerRunConfigurationAspect
     : public ProjectExplorer::IRunConfigurationAspect
@@ -79,8 +74,8 @@ class ANALYZER_EXPORT AnalyzerRunConfigurationAspect
     Q_OBJECT
 
 public:
-    AnalyzerRunConfigurationAspect(AbstractAnalyzerSubConfig *customConfiguration,
-                                   AbstractAnalyzerSubConfig *globalConfiguration);
+    AnalyzerRunConfigurationAspect(ISettingsAspect *projectSettings,
+                                   ISettingsAspect *globalSettings);
 
     ~AnalyzerRunConfigurationAspect();
 
@@ -90,9 +85,9 @@ public:
     void setUsingGlobalSettings(bool value);
     void resetCustomToGlobalSettings();
 
-    AbstractAnalyzerSubConfig *customSubConfig() const { return m_customConfiguration; }
-    AbstractAnalyzerSubConfig *globalSubConfig() const { return m_globalConfiguration; }
-    AbstractAnalyzerSubConfig *currentConfig() const;
+    ISettingsAspect *projectSettings() const { return m_projectSettings; }
+    ISettingsAspect *globalSettings() const { return m_globalSettings; }
+    ISettingsAspect *currentSettings() const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 
 protected:
@@ -101,8 +96,8 @@ protected:
 
 private:
     bool m_useGlobalSettings;
-    AbstractAnalyzerSubConfig *m_customConfiguration;
-    AbstractAnalyzerSubConfig *m_globalConfiguration;
+    ISettingsAspect *m_projectSettings;
+    ISettingsAspect *m_globalSettings;
 };
 
 } // namespace Analyzer

@@ -46,7 +46,7 @@ const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 /**
  * Valgrind settings shared for global and per-project.
  */
-class ValgrindBaseSettings : public Analyzer::AbstractAnalyzerSubConfig
+class ValgrindBaseSettings : public Analyzer::ISettingsAspect
 {
     Q_OBJECT
 
@@ -170,7 +170,7 @@ public:
     QWidget *createConfigWidget(QWidget *parent);
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
-    virtual AbstractAnalyzerSubConfig *clone();
+    virtual ISettingsAspect  *clone();
 
     /*
      * Global memcheck settings
@@ -230,7 +230,7 @@ public:
     QWidget *createConfigWidget(QWidget *parent);
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
-    virtual AbstractAnalyzerSubConfig *clone();
+    virtual ISettingsAspect  *clone();
 
     /**
      * Per-project memcheck settings, saves a diff to the global suppression files list

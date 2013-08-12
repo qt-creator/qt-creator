@@ -46,34 +46,33 @@ static const char useGlobalC[] = "Analyzer.Project.UseGlobal";
 
 namespace Analyzer {
 
-AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(
-    AbstractAnalyzerSubConfig *customConfiguration,
-    AbstractAnalyzerSubConfig *globalConfiguration)
+AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(ISettingsAspect *projectSettings,
+    ISettingsAspect *globalSettings)
 {
     m_useGlobalSettings = true;
-    m_customConfiguration = customConfiguration;
-    m_globalConfiguration = globalConfiguration;
+    m_projectSettings = projectSettings;
+    m_globalSettings = globalSettings;
 }
 
-AbstractAnalyzerSubConfig *AnalyzerRunConfigurationAspect::currentConfig() const
+ISettingsAspect *AnalyzerRunConfigurationAspect::currentSettings() const
 {
-   return m_useGlobalSettings ? m_globalConfiguration : m_customConfiguration;
+   return m_useGlobalSettings ? m_globalSettings : m_projectSettings;
 }
 
 AnalyzerRunConfigurationAspect::~AnalyzerRunConfigurationAspect()
 {
-    delete m_customConfiguration;
+    delete m_projectSettings;
 }
 
 void AnalyzerRunConfigurationAspect::fromMap(const QVariantMap &map)
 {
-    m_customConfiguration->fromMap(map);
+    m_projectSettings->fromMap(map);
     m_useGlobalSettings = map.value(QLatin1String(useGlobalC), true).toBool();
 }
 
 void AnalyzerRunConfigurationAspect::toMap(QVariantMap &map) const
 {
-    m_customConfiguration->toMap(map);
+    m_projectSettings->toMap(map);
     map.insert(QLatin1String(useGlobalC), m_useGlobalSettings);
 }
 
@@ -82,7 +81,7 @@ AnalyzerRunConfigurationAspect *AnalyzerRunConfigurationAspect::clone(
 {
     Q_UNUSED(parent)
     AnalyzerRunConfigurationAspect *other
-            = new AnalyzerRunConfigurationAspect(m_customConfiguration->clone(), m_globalConfiguration);
+            = new AnalyzerRunConfigurationAspect(m_projectSettings->clone(), m_globalSettings);
     other->m_useGlobalSettings = m_useGlobalSettings;
     return other;
 }
@@ -94,11 +93,11 @@ void AnalyzerRunConfigurationAspect::setUsingGlobalSettings(bool value)
 
 void AnalyzerRunConfigurationAspect::resetCustomToGlobalSettings()
 {
-    AbstractAnalyzerSubConfig *global = globalSubConfig();
+    ISettingsAspect *global = globalSettings();
     QTC_ASSERT(global, return);
     QVariantMap map;
     global->toMap(map);
-    m_customConfiguration->fromMap(map);
+    m_projectSettings->fromMap(map);
 }
 
 ProjectExplorer::RunConfigWidget *AnalyzerRunConfigurationAspect::createConfigurationWidget()

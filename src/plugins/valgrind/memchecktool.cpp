@@ -232,7 +232,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
                 if (AnalyzerRunConfigurationAspect *aspect = rc->extraAspect<AnalyzerRunConfigurationAspect>(ANALYZER_VALGRIND_SETTINGS))
-                    settings = qobject_cast<ValgrindBaseSettings *>(aspect->customSubConfig());
+                    settings = qobject_cast<ValgrindBaseSettings *>(aspect->projectSettings());
 
     if (!settings) // fallback to global settings
         settings = ValgrindPlugin::globalSettings();
