@@ -173,6 +173,7 @@ public:
     bool autoSaveEnabled() const;
     void setAutoSaveInterval(int interval);
     int autoSaveInterval() const;
+    static bool isAutoSaveFile(const QString &fileName);
 
     QTextCodec *defaultTextCodec() const;
 

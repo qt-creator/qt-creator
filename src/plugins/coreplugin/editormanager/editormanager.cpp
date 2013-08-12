@@ -1531,6 +1531,11 @@ static QString autoSaveName(const QString &fileName)
     return fileName + QLatin1String(".autosave");
 }
 
+bool EditorManager::isAutoSaveFile(const QString &fileName)
+{
+    return fileName.endsWith(QLatin1String(".autosave"));
+}
+
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
                         const Id &editorId, OpenEditorFlags flags, bool *newEditor)
 {

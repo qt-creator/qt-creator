@@ -557,7 +557,7 @@ QSet<Utils::FileName> Qt4PriFileNode::recursiveEnumerate(const QString &folder)
         foreach (const QFileInfo &file, dir.entryInfoList()) {
             if (file.isDir() && !file.isSymLink())
                 result += recursiveEnumerate(file.absoluteFilePath());
-            else
+            else if (!Core::EditorManager::isAutoSaveFile(file.fileName()))
                 result += Utils::FileName(file);
         }
     } else if (fi.exists()) {
