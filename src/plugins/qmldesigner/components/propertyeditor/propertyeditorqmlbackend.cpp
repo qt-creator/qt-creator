@@ -54,7 +54,7 @@ enum {
 
 const char resourcePropertyEditorPath[] = ":/propertyeditor";
 
-static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration;
+static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 
 static inline QString propertyTemplatesPath()
 {
@@ -345,7 +345,7 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
                                                      NodeMetaInfo superType,
                                                      const QmlObjectNode &objectNode)
 {
-    if (!templateConfiguration() && templateConfiguration()->isValid())
+    if (!templateConfiguration() || !templateConfiguration()->isValid())
         return QString();
 
     QStringList imports = variantToStringList(templateConfiguration()->property(QLatin1String("imports")));
