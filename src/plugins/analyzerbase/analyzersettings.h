@@ -59,8 +59,10 @@ public:
 
     /// Create a configuration widget for this settings aspect.
     virtual QWidget *createConfigWidget(QWidget *parent) = 0;
-    /// Clones the object.
-    virtual ISettingsAspect *clone() = 0;
+    /// "Virtual default constructor"
+    virtual ISettingsAspect *create() const = 0;
+    /// "Virtual copy constructor"
+    ISettingsAspect *clone() const;
 };
 
 

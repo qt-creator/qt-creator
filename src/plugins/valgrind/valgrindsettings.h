@@ -170,7 +170,8 @@ public:
     QWidget *createConfigWidget(QWidget *parent);
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
-    virtual ISettingsAspect  *clone();
+    ISettingsAspect *create() const { return new ValgrindGlobalSettings; }
+
 
     /*
      * Global memcheck settings
@@ -230,7 +231,7 @@ public:
     QWidget *createConfigWidget(QWidget *parent);
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
-    virtual ISettingsAspect  *clone();
+    ISettingsAspect *create() const { return new ValgrindProjectSettings; }
 
     /**
      * Per-project memcheck settings, saves a diff to the global suppression files list

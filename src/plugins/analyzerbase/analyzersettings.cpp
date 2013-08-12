@@ -46,6 +46,15 @@ static const char useGlobalC[] = "Analyzer.Project.UseGlobal";
 
 namespace Analyzer {
 
+ISettingsAspect *ISettingsAspect::clone() const
+{
+    ISettingsAspect *other = create();
+    QVariantMap data;
+    toMap(data);
+    other->fromMap(data);
+    return other;
+}
+
 AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(ISettingsAspect *projectSettings,
     ISettingsAspect *globalSettings)
 {

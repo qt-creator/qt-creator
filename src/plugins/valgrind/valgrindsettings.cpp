@@ -282,15 +282,6 @@ void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
     setIfPresent(map, QLatin1String(callgrindShortenTemplates), &m_shortenTemplates);
 }
 
-ISettingsAspect  *ValgrindGlobalSettings::clone()
-{
-    ValgrindGlobalSettings *other = new ValgrindGlobalSettings;
-    QVariantMap data;
-    toMap(data);
-    other->fromMap(data);
-    return other;
-}
-
 void ValgrindGlobalSettings::toMap(QVariantMap &map) const
 {
     ValgrindBaseSettings::toMap(map);
@@ -459,15 +450,6 @@ void ValgrindProjectSettings::fromMap(const QVariantMap &map)
     // Memcheck
     setIfPresent(map, QLatin1String(addedSuppressionFilesC), &m_addedSuppressionFiles);
     setIfPresent(map, QLatin1String(removedSuppressionFilesC), &m_disabledGlobalSuppressionFiles);
-}
-
-ISettingsAspect  *ValgrindProjectSettings::clone()
-{
-    ValgrindProjectSettings *other = new ValgrindProjectSettings;
-    QVariantMap data;
-    toMap(data);
-    other->fromMap(data);
-    return other;
 }
 
 void ValgrindProjectSettings::toMap(QVariantMap &map) const
