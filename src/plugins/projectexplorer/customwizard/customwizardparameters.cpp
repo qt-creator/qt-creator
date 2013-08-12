@@ -37,17 +37,18 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QCoreApplication>
-#include <QFile>
+#include <QDate>
+#include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
-#include <QXmlStreamReader>
-#include <QXmlStreamAttribute>
-#include <QTemporaryFile>
-#include <QScriptEngine>
-
 #include <QIcon>
+#include <QScriptEngine>
+#include <QTemporaryFile>
+#include <QTime>
+#include <QXmlStreamAttribute>
+#include <QXmlStreamReader>
 
 enum { debug = 0 };
 
@@ -969,12 +970,30 @@ bool CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *
 
 void CustomWizardContext::reset()
 {
-    // Basic replacement fields: Suffixes.
+    // Basic replacement fields: Suffixes and date/time.
+    const QDate currentDate = QDate::currentDate();
+    const QTime currentTime = QTime::currentTime();
     baseReplacements.clear();
     baseReplacements.insert(QLatin1String("CppSourceSuffix"),
                             MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
                             MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+    baseReplacements.insert(QLatin1String("CurrentDate"),
+                            currentDate.toString(Qt::ISODate));
+    baseReplacements.insert(QLatin1String("CurrentTime"),
+                            currentTime.toString(Qt::ISODate));
+    baseReplacements.insert(QLatin1String("CurrentDate:ISO"),
+                            currentDate.toString(Qt::ISODate));
+    baseReplacements.insert(QLatin1String("CurrentTime:ISO"),
+                            currentTime.toString(Qt::ISODate));
+    baseReplacements.insert(QLatin1String("CurrentDate:RFC"),
+                            currentDate.toString(Qt::RFC2822Date));
+    baseReplacements.insert(QLatin1String("CurrentTime:RFC"),
+                            currentTime.toString(Qt::RFC2822Date));
+    baseReplacements.insert(QLatin1String("CurrentDate:Locale"),
+                            currentDate.toString(Qt::DefaultLocaleShortDate));
+    baseReplacements.insert(QLatin1String("CurrentTime:Locale"),
+                            currentTime.toString(Qt::DefaultLocaleShortDate));
     replacements.clear();
     path.clear();
     targetPath.clear();

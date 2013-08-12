@@ -585,10 +585,28 @@
             which is also defined in \gui {File Naming}.
 
         \li \c {%CurrentDate%} is replaced by the current date in the format
-            \c {yyyy-MM-dd}.
+            \c {YYYY-MM-DD} as specified by ISO 8601.
 
-        \li \c {%CurrentTime%} is replaced by the current time in the short
-            format of the locale.
+        \li \c {%CurrentTime%} is replaced by the current time in the format
+            \c {HH:MM:SS} as specified by ISO 8601.
+
+        \li \c {%CurrentDate:Locale%} is replaced by the current date in the short format
+            specified by the application's locale.
+
+        \li \c {%CurrentTime:Locale%} is replaced by the current time in the short format
+            specified by the application's locale.
+
+        \li \c {%CurrentDate:ISO%} is replaced by the current date in the format
+            \c {YYYY-MM-DD} as specified by ISO 8601.
+
+        \li \c {%CurrentTime:ISO%} is replaced by the current time in the format
+            \c {HH:MM:SS} as specified by ISO 8601.
+
+        \li \c {%CurrentDate:RFC%} is replaced by the current date in the format
+            \c {DD Mon YYYY}, where \c {Mon} is the three letter month name, as specified by RFC 2822.
+
+        \li \c {%CurrentTime:RFC%} is replaced by the current time in the format
+            \c {HH:MM:SS} as specified by RFC 2822.
 
     \endlist
 
