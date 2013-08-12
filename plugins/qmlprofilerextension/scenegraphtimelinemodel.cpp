@@ -26,7 +26,7 @@
 namespace QmlProfilerExtension {
 namespace Internal {
 
-using namespace QmlProfiler::Internal;
+using namespace QmlProfiler;
 
 enum SceneGraphEventType {
     SceneGraphRendererFrame,
@@ -99,7 +99,7 @@ bool SceneGraphTimelineModel::isEmpty() const
     return d->eventList.isEmpty();
 }
 
-bool SceneGraphTimelineModel::eventAccepted(const QmlProfiler::Internal::QmlProfilerSimpleModel::QmlEventData &event) const
+bool SceneGraphTimelineModel::eventAccepted(const QmlProfiler::QmlProfilerSimpleModel::QmlEventData &event) const
 {
     return (event.eventType == QmlDebug::SceneGraphFrameEvent);
 }

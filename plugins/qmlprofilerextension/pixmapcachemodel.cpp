@@ -25,7 +25,7 @@
 namespace QmlProfilerExtension {
 namespace Internal {
 
-using namespace QmlProfiler::Internal;
+using namespace QmlProfiler;
 
 class PixmapCacheModel::PixmapCacheModelPrivate {
 public:
@@ -91,7 +91,7 @@ bool PixmapCacheModel::isEmpty() const
     return d->eventList.isEmpty();
 }
 
-bool PixmapCacheModel::eventAccepted(const QmlProfiler::Internal::QmlProfilerSimpleModel::QmlEventData &event) const
+bool PixmapCacheModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
 {
     return (event.eventType == QmlDebug::PixmapCacheEvent);
 }
