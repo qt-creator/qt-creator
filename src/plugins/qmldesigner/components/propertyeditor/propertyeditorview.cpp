@@ -61,7 +61,6 @@ enum {
     debug = false
 };
 
-const int collapseButtonOffset = 114;
 namespace QmlDesigner {
 
 PropertyEditorView::PropertyEditorView(QWidget *parent) :
