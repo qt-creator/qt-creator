@@ -118,11 +118,7 @@ private slots:
     void setupPanes();
 
 private: //functions
-    QString qmlFileName(const NodeMetaInfo &nodeInfo) const;
-    QUrl fileToUrl(const QString &filePath) const;
-    QString fileFromUrl(const QUrl &url) const;
-    QUrl qmlForNode(const ModelNode &modelNode, TypeName &className) const;
-    QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath) const;
+
     void select(const ModelNode& node);
 
     void delayedResetView();
@@ -134,8 +130,8 @@ private: //variables
     int m_timerId;
     PropertyEditorWidget* m_stackedWidget;
     QString m_qmlDir;
-    QHash<QString, PropertyEditorQmlBackend *> m_typeHash;
-    PropertyEditorQmlBackend *m_currentType;
+    QHash<QString, PropertyEditorQmlBackend *> m_qmlBackendHash;
+    PropertyEditorQmlBackend *m_qmlBackEndForCurrentType;
     bool m_locked;
     bool m_setupCompleted;
     QTimer *m_singleShotTimer;

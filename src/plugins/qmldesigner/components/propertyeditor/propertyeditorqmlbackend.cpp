@@ -31,6 +31,7 @@
 
 #include "propertyeditorvalue.h"
 #include "propertyeditortransaction.h"
+#include <qmldesignerconstants.h>
 
 #include <qmlobjectnode.h>
 #include <nodemetainfo.h>
@@ -38,6 +39,7 @@
 #include <bindingproperty.h>
 
 #include <QApplication>
+#include <QDir>
 #include <QFileInfo>
 
 #include <qmljs/qmljssimplereader.h>
@@ -49,6 +51,8 @@
 enum {
     debug = false
 };
+
+const char resourcePropertyEditorPath[] = ":/propertyeditor";
 
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration;
 
@@ -398,5 +402,107 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
 
     return qmlTemplate;
 }
+
+
+QString PropertyEditorQmlBackend::fixTypeNameForPanes(const QString &typeName)
+{
+    QString fixedTypeName = typeName;
+    fixedTypeName.replace('.', '/');
+    return fixedTypeName;
+}
+
+QString PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
+{
+    if (nodeInfo.typeName().split('.').last() == "QDeclarativeItem")
+        return "QtQuick/ItemPane.qml";
+    const QString fixedTypeName = fixTypeNameForPanes(nodeInfo.typeName());
+    return fixedTypeName + QLatin1String("Pane.qml");
+}
+
+QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)  {
+    QUrl fileUrl;
+
+    if (filePath.isEmpty())
+        return fileUrl;
+
+    if (filePath.startsWith(QLatin1Char(':'))) {
+        fileUrl.setScheme("qrc");
+        QString path = filePath;
+        path.remove(0, 1); // remove trailing ':'
+        fileUrl.setPath(path);
+    } else {
+        fileUrl = QUrl::fromLocalFile(filePath);
+    }
+
+    return fileUrl;
+}
+
+QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
+{
+    if (url.scheme() == QLatin1String("qrc")) {
+        const QString &path = url.path();
+        return QLatin1String(":") + path;
+    }
+
+    return url.toLocalFile();
+}
+
+QUrl PropertyEditorQmlBackend::qmlForNode(const ModelNode &modelNode, TypeName &className)
+{
+    if (modelNode.isValid()) {
+        QList<NodeMetaInfo> hierarchy;
+        hierarchy.append(modelNode.metaInfo());
+        hierarchy.append(modelNode.metaInfo().superClasses());
+
+        foreach (const NodeMetaInfo &info, hierarchy) {
+            QUrl fileUrl = fileToUrl(locateQmlFile(info, qmlFileName(info)));
+            if (fileUrl.isValid()) {
+                className = info.typeName();
+                return fileUrl;
+            }
+        }
+    }
+    return fileToUrl(QDir(propertyEditorResourcesPath()).filePath("QtQuick/emptyPane.qml"));
+}
+
+QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath)
+{
+    QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
+
+    static QDir resourcesDir(resourcePropertyEditorPath);
+    QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
+
+    const QString versionString = QLatin1String("_") + QString::number(info.majorVersion())
+            + QLatin1String("_")
+            + QString::number(info.minorVersion());
+
+    QString relativePathWithoutEnding = relativePath;
+    relativePathWithoutEnding.chop(4);
+    const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QLatin1String(".qml");
+
+    //Check for qml files with versions first
+    const QString withoutDirWithVersion = relativePathWithVersion.split(QLatin1String("/")).last();
+    if (importDir.exists(relativePathWithVersion))
+        return importDir.absoluteFilePath(relativePathWithVersion);
+    if (importDir.exists(withoutDirWithVersion)) //Since we are in a subfolder of the import we do not require the directory
+        return importDir.absoluteFilePath(withoutDirWithVersion);
+    if (fileSystemDir.exists(relativePathWithVersion))
+        return fileSystemDir.absoluteFilePath(relativePathWithVersion);
+    if (resourcesDir.exists(relativePathWithVersion))
+        return resourcesDir.absoluteFilePath(relativePathWithVersion);
+
+    const QString withoutDir = relativePath.split(QLatin1String("/")).last();
+    if (importDir.exists(relativePath))
+        return importDir.absoluteFilePath(relativePath);
+    if (importDir.exists(withoutDir)) //Since we are in a subfolder of the import we do not require the directory
+        return importDir.absoluteFilePath(withoutDir);
+    if (fileSystemDir.exists(relativePath))
+        return fileSystemDir.absoluteFilePath(relativePath);
+    if (resourcesDir.exists(relativePath))
+        return resourcesDir.absoluteFilePath(relativePath);
+
+    return QString();
+}
+
 
 } //QmlDesigner

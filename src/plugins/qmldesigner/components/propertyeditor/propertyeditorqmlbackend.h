@@ -63,8 +63,16 @@ public:
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
 
     static QString propertyEditorResourcesPath();
+    static QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType,
+                                      const QmlObjectNode &objectNode);
 
-    static QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlObjectNode &objectNode);
+    static QString qmlFileName(const NodeMetaInfo &nodeInfo) ;
+    static QUrl fileToUrl(const QString &filePath) ;
+    static QString fileFromUrl(const QUrl &url) ;
+    static QUrl qmlForNode(const ModelNode &modelNode, TypeName &className) ;
+    static QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath) ;
+
+    static QString fixTypeNameForPanes(const QString &typeName);
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
