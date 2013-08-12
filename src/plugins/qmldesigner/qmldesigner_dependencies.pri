@@ -15,6 +15,7 @@ INCLUDEPATH *= \
     $$PWD/designercore \
     $$PWD/designercore/include \
     $$PWD/components/componentcore \
+    $$PWD/components/importmanager \
     $$PWD/components/formeditor \
     $$PWD/components/itemlibrary \
     $$PWD/components/navigator \

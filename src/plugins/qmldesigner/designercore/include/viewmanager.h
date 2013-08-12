@@ -41,6 +41,7 @@
 #include <propertyeditorview.h>
 #include <componentview.h>
 #include <debugview.h>
+#include <importmanagerview.h>
 #include <QWidgetAction>
 
 namespace QmlDesigner {
@@ -109,6 +110,7 @@ private: // variables
     Internal::DebugView m_debugView;
     ComponentView m_componentView;
     FormEditorView m_formEditorView;
+    ImportManagerView m_importManagerView;
     ItemLibraryView m_itemLibraryView;
     NavigatorView m_navigatorView;
     PropertyEditorView m_propertyEditorView;

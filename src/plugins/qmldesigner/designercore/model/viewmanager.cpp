@@ -102,10 +102,13 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     currentModel()->detachView(&m_formEditorView);
     currentModel()->detachView(&m_navigatorView);
     currentModel()->detachView(&m_itemLibraryView);
+    currentModel()->detachView(&m_importManagerView);
     currentModel()->detachView(&m_statesEditorView);
     currentModel()->detachView(&m_propertyEditorView);
+
     if (m_debugView.isAttached())
         currentModel()->detachView(&m_debugView);
+
     currentModel()->setNodeInstanceView(0);
 }
 
@@ -143,9 +146,11 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
 {
     if (QmlDesignerPlugin::instance()->settings().enableDebugView)
         currentModel()->attachView(&m_debugView);
+
     attachNodeInstanceView();
     currentModel()->attachView(&m_formEditorView);
     currentModel()->attachView(&m_navigatorView);
+    currentModel()->attachView(&m_importManagerView);
     attachItemLibraryView();
     currentModel()->attachView(&m_statesEditorView);
     currentModel()->attachView(&m_propertyEditorView);
