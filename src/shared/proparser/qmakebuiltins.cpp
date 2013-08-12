@@ -1544,7 +1544,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                         break;
 #ifdef PROEVALUATOR_THREAD_SAFE
                     QMutexLocker locker(&baseEnv->mutex);
-                    if (baseEnv->inProgress) {
+                    if (baseEnv->inProgress && baseEnv->evaluator != this) {
                         // The env is still in the works, but it may be already past the cache
                         // loading. So we need to wait for completion and amend it as usual.
                         QThreadPool::globalInstance()->releaseThread();
