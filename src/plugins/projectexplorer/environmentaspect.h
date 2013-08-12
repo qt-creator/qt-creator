@@ -49,8 +49,6 @@ public:
     // IRunConfigurationAspect:
     RunConfigWidget *createConfigurationWidget();
 
-    virtual RunConfiguration *runConfiguration() const { return m_runConfiguration; }
-
     virtual QList<int> possibleBaseEnvironments() const = 0;
     virtual QString baseEnvironmentDisplayName(int base) const = 0;
 
@@ -69,15 +67,13 @@ signals:
     void environmentChanged();
 
 protected:
-    EnvironmentAspect(const EnvironmentAspect *other, RunConfiguration *parent);
-    EnvironmentAspect(RunConfiguration *rc);
+    explicit EnvironmentAspect(RunConfiguration *rc);
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
 private:
     mutable int m_base;
     QList<Utils::EnvironmentItem> m_changes;
-    RunConfiguration *m_runConfiguration;
 };
 
 } // namespace ProjectExplorer

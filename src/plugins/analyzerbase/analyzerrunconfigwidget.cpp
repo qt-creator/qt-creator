@@ -41,9 +41,8 @@
 #include <QPushButton>
 
 namespace Analyzer {
-namespace Internal {
 
-AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(AnalyzerRunConfigurationAspect *aspect)
+AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurationAspect *aspect)
 {
     m_aspect = aspect;
     m_config = aspect->projectSettings();
@@ -106,8 +105,7 @@ void AnalyzerRunConfigWidget::chooseSettings(int setting)
 void AnalyzerRunConfigWidget::restoreGlobal()
 {
     QTC_ASSERT(m_aspect, return);
-    m_aspect->resetCustomToGlobalSettings();
+    m_aspect->resetProjectToGlobalSettings();
 }
 
-} // namespace Internal
 } // namespace Analyzer

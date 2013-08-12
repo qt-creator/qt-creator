@@ -41,9 +41,9 @@ RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::RunC
     ProjectExplorer::EnvironmentAspect(rc)
 { }
 
-RemoteLinuxEnvironmentAspect *RemoteLinuxEnvironmentAspect::clone(ProjectExplorer::RunConfiguration *parent) const
+RemoteLinuxEnvironmentAspect *RemoteLinuxEnvironmentAspect::create(ProjectExplorer::RunConfiguration *parent) const
 {
-    return new RemoteLinuxEnvironmentAspect(this, parent);
+    return new RemoteLinuxEnvironmentAspect(parent);
 }
 
 ProjectExplorer::RunConfigWidget *RemoteLinuxEnvironmentAspect::createConfigurationWidget()
@@ -100,11 +100,6 @@ QString RemoteLinuxEnvironmentAspect::userEnvironmentChangesAsString() const
         env.append(placeHolder.arg(item.name, item.value));
     return env.mid(0, env.size() - 1);
 }
-
-RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(const RemoteLinuxEnvironmentAspect *other,
-                                                           ProjectExplorer::RunConfiguration *parent) :
-    ProjectExplorer::EnvironmentAspect(other, parent)
-{ }
 
 } // namespace RemoteLinux
 

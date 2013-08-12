@@ -103,13 +103,97 @@ bool ProcessHandle::equals(const ProcessHandle &rhs) const
     return m_pid == rhs.m_pid;
 }
 
+///////////////////////////////////////////////////////////////////////
+//
+// ISettingsAspect
+//
+///////////////////////////////////////////////////////////////////////
+
+ISettingsAspect *ISettingsAspect::clone() const
+{
+    ISettingsAspect *other = create();
+    QVariantMap data;
+    toMap(data);
+    other->fromMap(data);
+    return other;
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// IRunConfigurationAspect
+//
+///////////////////////////////////////////////////////////////////////
+
+IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *parent)
+{
+    m_runConfiguration = parent;
+    m_projectSettings = 0;
+    m_globalSettings = 0;
+    m_useGlobalSettings = false;
+    connect(this, SIGNAL(requestRunActionsUpdate()), parent, SIGNAL(requestRunActionsUpdate()));
+}
+
+IRunConfigurationAspect::~IRunConfigurationAspect()
+{
+    delete m_projectSettings;
+}
 
 /*!
     \brief Returns the widget used to configure this run configuration. Ownership is transferred to the caller
 */
+
 RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget()
 {
     return 0;
+}
+
+void IRunConfigurationAspect::setProjectSettings(ISettingsAspect *settings)
+{
+    m_projectSettings = settings;
+}
+
+void IRunConfigurationAspect::setGlobalSettings(ISettingsAspect *settings)
+{
+    m_globalSettings = settings;
+}
+
+void IRunConfigurationAspect::setUsingGlobalSettings(bool value)
+{
+    m_useGlobalSettings = value;
+}
+
+ISettingsAspect *IRunConfigurationAspect::currentSettings() const
+{
+   return m_useGlobalSettings ? m_globalSettings : m_projectSettings;
+}
+
+void IRunConfigurationAspect::fromMap(const QVariantMap &map)
+{
+    m_projectSettings->fromMap(map);
+    m_useGlobalSettings = map.value(m_id.toString() + QLatin1String(".UseGlobalSettings"), true).toBool();
+}
+
+void IRunConfigurationAspect::toMap(QVariantMap &map) const
+{
+    m_projectSettings->toMap(map);
+    map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
+}
+
+IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *parent) const
+{
+    IRunConfigurationAspect *other = create(parent);
+    other->m_projectSettings = m_projectSettings->clone();
+    other->m_globalSettings = m_globalSettings;
+    other->m_useGlobalSettings = m_useGlobalSettings;
+    return other;
+}
+
+void IRunConfigurationAspect::resetProjectToGlobalSettings()
+{
+    QTC_ASSERT(m_globalSettings, return);
+    QVariantMap map;
+    m_globalSettings->toMap(map);
+    m_projectSettings->fromMap(map);
 }
 
 
@@ -271,6 +355,14 @@ QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
 {
     QTC_ASSERT(m_aspectsInitialized, return QList<IRunConfigurationAspect *>());
     return m_aspects;
+}
+IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
+{
+    QTC_ASSERT(m_aspectsInitialized, return 0);
+    foreach (IRunConfigurationAspect *aspect, m_aspects)
+        if (aspect->id() == id)
+            return aspect;
+    return 0;
 }
 
 Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const

@@ -35,7 +35,6 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzersettings.h>
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 

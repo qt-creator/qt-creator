@@ -24,8 +24,6 @@ QtcPlugin {
         "analyzerrunconfigwidget.h",
         "analyzerruncontrol.cpp",
         "analyzerruncontrol.h",
-        "analyzersettings.cpp",
-        "analyzersettings.h",
         "analyzerstartparameters.h",
         "analyzerutils.cpp",
         "analyzerutils.h",

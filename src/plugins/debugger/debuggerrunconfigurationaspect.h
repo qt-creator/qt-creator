@@ -45,8 +45,7 @@ class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
 
 public:
     DebuggerRunConfigurationAspect(ProjectExplorer::RunConfiguration *runConfiguration);
-    DebuggerRunConfigurationAspect(ProjectExplorer::RunConfiguration *runConfiguration,
-                                   const DebuggerRunConfigurationAspect *other);
+    DebuggerRunConfigurationAspect *create(ProjectExplorer::RunConfiguration *runConfiguration) const;
 
     enum DebuggerLanguageStatus {
         DisabledLanguage = 0,
@@ -57,7 +56,6 @@ public:
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
-    DebuggerRunConfigurationAspect *clone(ProjectExplorer::RunConfiguration *parent) const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 
     bool useCppDebugger() const;
@@ -69,15 +67,8 @@ public:
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
     bool isQmlDebuggingSpinboxSuppressed() const;
-    ProjectExplorer::RunConfiguration *runConfiguration();
-
-signals:
-    void debuggersChanged();
 
 private:
-    void ctor();
-
-    ProjectExplorer::RunConfiguration *m_runConfiguration;
     DebuggerLanguageStatus m_useCppDebugger;
     DebuggerLanguageStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;

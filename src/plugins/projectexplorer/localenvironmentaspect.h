@@ -39,9 +39,8 @@ class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
     Q_OBJECT
 
 public:
-    LocalEnvironmentAspect(RunConfiguration *rc);
-
-    LocalEnvironmentAspect *clone(RunConfiguration *parent) const;
+    LocalEnvironmentAspect(RunConfiguration *parent);
+    LocalEnvironmentAspect *create(RunConfiguration *parent) const;
 
     QList<int> possibleBaseEnvironments() const;
     QString baseEnvironmentDisplayName(int base) const;
@@ -56,8 +55,6 @@ private:
         SystemEnvironmentBase,
         BuildEnvironmentBase
     };
-
-    LocalEnvironmentAspect(const LocalEnvironmentAspect *other, RunConfiguration *parent);
 };
 
 } // namespace ProjectExplorer

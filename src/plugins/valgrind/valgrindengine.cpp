@@ -64,8 +64,8 @@ ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
       m_isStopping(false)
 {
     if (runConfiguration)
-        if (AnalyzerRunConfigurationAspect *aspect = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>(ANALYZER_VALGRIND_SETTINGS))
-            m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->projectSettings());
+        if (IRunConfigurationAspect *aspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS))
+            m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->currentSettings());
 
     if (!m_settings)
         m_settings = ValgrindPlugin::globalSettings();

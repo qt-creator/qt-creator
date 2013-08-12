@@ -43,20 +43,12 @@ namespace ProjectExplorer {
 // EnvironmentAspect:
 // --------------------------------------------------------------------
 
-EnvironmentAspect::EnvironmentAspect(RunConfiguration *rc) :
-    m_base(-1),
-    m_runConfiguration(rc)
+EnvironmentAspect::EnvironmentAspect(RunConfiguration *runConfig)
+    : IRunConfigurationAspect(runConfig), m_base(-1)
 {
-    QTC_CHECK(m_runConfiguration);
     setDisplayName(tr("Run Environment"));
     setId("EnvironmentAspect");
 }
-
-EnvironmentAspect::EnvironmentAspect(const EnvironmentAspect *other, RunConfiguration *parent) :
-    m_base(other->m_base),
-    m_changes(other->m_changes),
-    m_runConfiguration(parent)
-{ }
 
 RunConfigWidget *EnvironmentAspect::createConfigurationWidget()
 {

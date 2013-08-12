@@ -32,7 +32,6 @@
 
 #include "analyzerplugin.h"
 #include "ianalyzertool.h"
-#include "analyzersettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>

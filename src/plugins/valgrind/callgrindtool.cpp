@@ -47,7 +47,6 @@
 #include <valgrind/valgrindsettings.h>
 
 #include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzersettings.h>
 #include <analyzerbase/analyzerutils.h>
 #include <analyzerbase/analyzerconstants.h>
 
@@ -546,8 +545,7 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 
     // apply project settings
     if (runConfiguration) {
-        if (AnalyzerRunConfigurationAspect *analyzerAspect
-                = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>(ANALYZER_VALGRIND_SETTINGS)) {
+        if (IRunConfigurationAspect *analyzerAspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS)) {
             if (const ValgrindBaseSettings *settings = qobject_cast<ValgrindBaseSettings *>(analyzerAspect->currentSettings())) {
                 m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
                 m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);

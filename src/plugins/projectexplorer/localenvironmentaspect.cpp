@@ -88,22 +88,16 @@ void LocalEnvironmentAspect::buildEnvironmentHasChanged()
         emit environmentChanged();
 }
 
-LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *rc) :
-    EnvironmentAspect(rc)
+LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *parent) :
+    EnvironmentAspect(parent)
 {
-    connect(rc->target(), SIGNAL(environmentChanged()),
+    connect(parent->target(), SIGNAL(environmentChanged()),
             this, SLOT(buildEnvironmentHasChanged()));
 }
 
-LocalEnvironmentAspect::LocalEnvironmentAspect(const LocalEnvironmentAspect *other,
-                                               ProjectExplorer::RunConfiguration *parent) :
-    EnvironmentAspect(other, parent)
-{ }
-
-LocalEnvironmentAspect *LocalEnvironmentAspect::clone(RunConfiguration *parent) const
+LocalEnvironmentAspect *LocalEnvironmentAspect::create(RunConfiguration *parent) const
 {
-    Q_UNUSED(parent);
-    return new LocalEnvironmentAspect(this, parent);
+    return new LocalEnvironmentAspect(parent);
 }
 
 } // namespace ProjectExplorer

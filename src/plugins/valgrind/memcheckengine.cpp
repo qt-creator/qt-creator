@@ -32,8 +32,6 @@
 
 #include "valgrindsettings.h"
 
-#include <analyzerbase/analyzersettings.h>
-
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 

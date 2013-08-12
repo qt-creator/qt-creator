@@ -34,9 +34,9 @@
 #include "memchecktool.h"
 #include "valgrindruncontrolfactory.h"
 #include "valgrindsettings.h"
+#include "valgrindconfigwidget.h"
 
 #include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzersettings.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -73,7 +73,7 @@ public:
     }
 
     QWidget *createPage(QWidget *parent) {
-        return theGlobalSettings->createConfigWidget(parent);
+        return new ValgrindConfigWidget(theGlobalSettings, parent, true);
     }
 
     void apply() {

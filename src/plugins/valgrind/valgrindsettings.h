@@ -31,8 +31,8 @@
 #ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
 #define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
 
-#include <analyzerbase/analyzersettings.h>
 #include "callgrindcostdelegate.h"
+#include <projectexplorer/runconfiguration.h>
 
 #include <QObject>
 #include <QString>
@@ -46,7 +46,7 @@ const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 /**
  * Valgrind settings shared for global and per-project.
  */
-class ValgrindBaseSettings : public Analyzer::ISettingsAspect
+class ValgrindBaseSettings : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
 

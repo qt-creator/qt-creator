@@ -47,6 +47,7 @@ namespace Utils { class OutputFormatter; }
 namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
+class IRunConfigurationAspect;
 class RunConfiguration;
 class RunConfigWidget;
 class RunControl;
@@ -72,29 +73,85 @@ private:
 inline bool operator==(const ProcessHandle &p1, const ProcessHandle &p2) { return p1.equals(p2); }
 inline bool operator!=(const ProcessHandle &p1, const ProcessHandle &p2) { return !p1.equals(p2); }
 
+/**
+ * An interface for a hunk of global or per-project
+ * configuration data.
+ *
+ */
+
+class PROJECTEXPLORER_EXPORT ISettingsAspect : public QObject
+{
+    Q_OBJECT
+
+public:
+    ISettingsAspect() {}
+
+    /// Create a configuration widget for this settings aspect.
+    virtual QWidget *createConfigWidget(QWidget *parent) = 0;
+    /// "Virtual default constructor"
+    virtual ISettingsAspect *create() const = 0;
+    /// "Virtual copy constructor"
+    ISettingsAspect *clone() const;
+
+protected:
+    ///
+    friend class IRunConfigurationAspect;
+    /// Converts current object into map for storage.
+    virtual void toMap(QVariantMap &map) const = 0;
+    /// Read object state from @p map.
+    virtual void fromMap(const QVariantMap &map) = 0;
+};
+
+
+/**
+ * An interface to facilitate switching between hunks of
+ * global and per-project configuration data.
+ *
+ */
+
 class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
 {
     Q_OBJECT
 
 public:
-    virtual ~IRunConfigurationAspect() {}
-    virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const = 0;
+    explicit IRunConfigurationAspect(RunConfiguration *parent);
+    ~IRunConfigurationAspect();
+
+    virtual IRunConfigurationAspect *create(RunConfiguration *parent) const = 0;
+    virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const;
     virtual RunConfigWidget *createConfigurationWidget();
 
-    QString displayName() const { return m_displayName; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-
     void setId(Core::Id id) { m_id = id; }
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setProjectSettings(ISettingsAspect *settings);
+    void setGlobalSettings(ISettingsAspect *settings);
+
+    QString displayName() const { return m_displayName; }
     Core::Id id() const { return m_id; }
+    bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
+    void setUsingGlobalSettings(bool value);
+    void resetProjectToGlobalSettings();
+
+    ISettingsAspect *projectSettings() const { return m_projectSettings; }
+    ISettingsAspect *globalSettings() const { return m_globalSettings; }
+    ISettingsAspect *currentSettings() const;
+    RunConfiguration *runConfiguration() const { return m_runConfiguration; }
+
+signals:
+    void requestRunActionsUpdate();
 
 protected:
     friend class RunConfiguration;
-    virtual void fromMap(const QVariantMap &map) = 0;
-    virtual void toMap(QVariantMap &data) const = 0;
+    virtual void fromMap(const QVariantMap &map);
+    virtual void toMap(QVariantMap &data) const;
 
 private:
-    QString m_displayName;
     Core::Id m_id;
+    QString m_displayName;
+    bool m_useGlobalSettings;
+    RunConfiguration *m_runConfiguration;
+    ISettingsAspect *m_projectSettings; // Owned if present.
+    ISettingsAspect *m_globalSettings;  // Not owned.
 };
 
 // Documentation inside.
@@ -120,6 +177,7 @@ public:
     QVariantMap toMap() const;
 
     QList<IRunConfigurationAspect *> extraAspects() const;
+    IRunConfigurationAspect *extraAspect(Core::Id id) const;
 
     template <typename T> T *extraAspect() const
     {
@@ -127,15 +185,6 @@ public:
         foreach (IRunConfigurationAspect *aspect, m_aspects)
             if (T *result = qobject_cast<T *>(aspect))
                 return result;
-        return 0;
-    }
-
-    template <typename T> T *extraAspect(Core::Id id) const
-    {
-        QTC_ASSERT(m_aspectsInitialized, return 0);
-        foreach (IRunConfigurationAspect *aspect, m_aspects)
-            if (aspect->id() == id)
-                return qobject_cast<T *>(aspect);
         return 0;
     }
 

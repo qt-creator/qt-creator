@@ -58,14 +58,9 @@ QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(ProjectExplorer::RunCon
     ProjectExplorer::EnvironmentAspect(rc)
 { }
 
-QmlProjectEnvironmentAspect *QmlProjectEnvironmentAspect::clone(ProjectExplorer::RunConfiguration *parent) const
+QmlProjectEnvironmentAspect *QmlProjectEnvironmentAspect::create(ProjectExplorer::RunConfiguration *parent) const
 {
-    return new QmlProjectEnvironmentAspect(this, parent);
+    return new QmlProjectEnvironmentAspect(parent);
 }
-
-QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(const QmlProjectManager::QmlProjectEnvironmentAspect *other,
-                                                         ProjectExplorer::RunConfiguration *parent) :
-    ProjectExplorer::EnvironmentAspect(other, parent)
-{ }
 
 } // namespace QmlProjectManager
