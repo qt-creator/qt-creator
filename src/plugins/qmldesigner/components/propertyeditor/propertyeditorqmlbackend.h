@@ -64,6 +64,8 @@ public:
 
     static QString propertyEditorResourcesPath();
 
+    static QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlObjectNode &objectNode);
+
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    const PropertyName &name, const QVariant &value,

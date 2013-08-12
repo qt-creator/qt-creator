@@ -40,6 +40,8 @@
 #include <QApplication>
 #include <QFileInfo>
 
+#include <qmljs/qmljssimplereader.h>
+
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>
 #endif
@@ -47,6 +49,36 @@
 enum {
     debug = false
 };
+
+static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration;
+
+static inline QString propertyTemplatesPath()
+{
+    return QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath() + QLatin1String("/PropertyTemplates/");
+}
+
+QmlJS::SimpleReaderNode::Ptr templateConfiguration()
+{
+    if (!s_templateConfiguration) {
+        QmlJS::SimpleReader reader;
+        const QString fileName = propertyTemplatesPath() + QLatin1String("TemplateTypes.qml");
+        s_templateConfiguration = reader.readFile(fileName);
+
+        if (!s_templateConfiguration)
+            qWarning().nospace() << "template definitions:" << reader.errors();
+    }
+
+    return s_templateConfiguration;
+}
+
+QStringList variantToStringList(const QVariant &variant) {
+    QStringList stringList;
+
+    foreach (const QVariant &singleValue, variant.toList())
+        stringList << singleValue.toString();
+
+    return stringList;
+}
 
 static QObject *variantToQObject(const QVariant &value)
 {
@@ -308,6 +340,63 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
     return sharedDirPath() + QLatin1String("/propertyeditor");
+}
+
+QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
+                                                     NodeMetaInfo superType,
+                                                     const QmlObjectNode &objectNode)
+{
+    if (!templateConfiguration() && templateConfiguration()->isValid())
+        return QString();
+
+    QStringList imports = variantToStringList(templateConfiguration()->property(QLatin1String("imports")));
+
+    QString qmlTemplate = imports.join(QLatin1String("\n")) + QLatin1Char('\n');
+    qmlTemplate += QLatin1String("GroupBox {\n");
+    qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(QString::fromUtf8(objectNode.modelNode().simplifiedTypeName()));
+    qmlTemplate += QLatin1String("layout: VerticalLayout {\n");
+
+    QList<PropertyName> orderedList = type.propertyNames();
+    qSort(orderedList);
+
+    bool emptyTemplate = true;
+
+    foreach (const PropertyName &name, orderedList) {
+
+        if (name.startsWith("__"))
+            continue; //private API
+        PropertyName properName = name;
+
+        properName.replace('.', '_');
+
+        QString typeName = type.propertyTypeName(name);
+        //alias resolution only possible with instance
+        if (typeName == QLatin1String("alias") && objectNode.isValid())
+            typeName = objectNode.instanceType(name);
+
+        if (!superType.hasProperty(name) && type.propertyIsWritable(name) && !name.contains(".")) {
+            foreach (const QmlJS::SimpleReaderNode::Ptr &node, templateConfiguration()->children())
+                if (variantToStringList(node->property(QLatin1String("typeNames"))).contains(typeName)) {
+                    const QString fileName = propertyTemplatesPath() + node->property(QLatin1String("sourceFile")).toString();
+                    QFile file(fileName);
+                    if (file.open(QIODevice::ReadOnly)) {
+                        QString source = file.readAll();
+                        file.close();
+                        qmlTemplate += source.arg(QString::fromUtf8(name)).arg(QString::fromUtf8(properName));
+                        emptyTemplate = false;
+                    } else {
+                        qWarning().nospace() << "template definition source file not found:" << fileName;
+                    }
+                }
+        }
+    }
+    qmlTemplate += QLatin1String("}\n"); //VerticalLayout
+    qmlTemplate += QLatin1String("}\n"); //GroupBox
+
+    if (emptyTemplate)
+        return QString();
+
+    return qmlTemplate;
 }
 
 } //QmlDesigner

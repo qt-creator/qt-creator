@@ -55,7 +55,6 @@
 #include "propertyeditortransaction.h"
 #include "originwidget.h"
 
-#include <qmljs/qmljssimplereader.h>
 #include <utils/fileutils.h>
 
 #include <QCoreApplication>
@@ -76,92 +75,6 @@ const int collapseButtonOffset = 114;
 const char resourcePropertyEditorPath[] = ":/propertyeditor";
 
 namespace QmlDesigner {
-
-static inline QString propertyTemplatesPath()
-{
-    return PropertyEditorQmlBackend::propertyEditorResourcesPath() + QLatin1String("/PropertyTemplates/");
-}
-
-static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration;
-
-QmlJS::SimpleReaderNode::Ptr templateConfiguration()
-{
-    if (!s_templateConfiguration) {
-        QmlJS::SimpleReader reader;
-        const QString fileName = propertyTemplatesPath() + QLatin1String("TemplateTypes.qml");
-        s_templateConfiguration = reader.readFile(fileName);
-
-        if (!s_templateConfiguration)
-            qWarning().nospace() << "template definitions:" << reader.errors();
-    }
-
-    return s_templateConfiguration;
-}
-
-QStringList variantToStringList(const QVariant &variant) {
-    QStringList stringList;
-
-    foreach (const QVariant &singleValue, variant.toList())
-        stringList << singleValue.toString();
-
-    return stringList;
-}
-
-QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlObjectNode &objectNode)
-{
-    if (!templateConfiguration() && templateConfiguration()->isValid())
-        return QString();
-
-    QStringList imports = variantToStringList(templateConfiguration()->property(QLatin1String("imports")));
-
-    QString qmlTemplate = imports.join(QLatin1String("\n")) + QLatin1Char('\n');
-    qmlTemplate += QLatin1String("GroupBox {\n");
-    qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(QString::fromUtf8(objectNode.modelNode().simplifiedTypeName()));
-    qmlTemplate += QLatin1String("layout: VerticalLayout {\n");
-
-    QList<PropertyName> orderedList = type.propertyNames();
-    qSort(orderedList);
-
-    bool emptyTemplate = true;
-
-    foreach (const PropertyName &name, orderedList) {
-
-        if (name.startsWith("__"))
-            continue; //private API
-        PropertyName properName = name;
-
-        properName.replace('.', '_');
-
-        QString typeName = type.propertyTypeName(name);
-        //alias resolution only possible with instance
-        if (typeName == QLatin1String("alias") && objectNode.isValid())
-            typeName = objectNode.instanceType(name);
-
-        if (!superType.hasProperty(name) && type.propertyIsWritable(name) && !name.contains(".")) {
-            foreach (const QmlJS::SimpleReaderNode::Ptr &node, templateConfiguration()->children())
-                if (variantToStringList(node->property(QLatin1String("typeNames"))).contains(typeName)) {
-                    const QString fileName = propertyTemplatesPath() + node->property(QLatin1String("sourceFile")).toString();
-                    QFile file(fileName);
-                    if (file.open(QIODevice::ReadOnly)) {
-                        QString source = file.readAll();
-                        file.close();
-                        qmlTemplate += source.arg(QString::fromUtf8(name)).arg(QString::fromUtf8(properName));
-                        emptyTemplate = false;
-                    } else {
-                        qWarning().nospace() << "template definition source file not found:" << fileName;
-                    }
-                }
-        }
-    }
-    qmlTemplate += QLatin1String("}\n"); //VerticalLayout
-    qmlTemplate += QLatin1String("}\n"); //GroupBox
-
-    if (emptyTemplate)
-        return QString();
-
-    return qmlTemplate;
-}
-
 
 PropertyEditorView::PropertyEditorView(QWidget *parent) :
         AbstractView(parent),
@@ -507,7 +420,7 @@ void PropertyEditorView::resetView()
 
     if (m_selectedNode.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type()) {
         //do magic !!
-        specificQmlData = templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo(diffClassName), m_selectedNode);
+        specificQmlData = PropertyEditorQmlBackend::templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo(diffClassName), m_selectedNode);
     }
 
     PropertyEditorQmlBackend *type = m_typeHash.value(qmlFile.toString());
