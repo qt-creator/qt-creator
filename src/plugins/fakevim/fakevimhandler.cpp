@@ -2145,7 +2145,7 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 
             // Move cursor line to middle of screen if it's not visible.
             const int line = cursorLine();
-            if (line < firstVisibleLine() || line >= firstVisibleLine() + linesOnScreen())
+            if (line < firstVisibleLine() || line > firstVisibleLine() + linesOnScreen())
                 scrollToLine(qMax(0, line - linesOnScreen() / 2));
             else
                 scrollToLine(firstVisibleLine());
@@ -2839,6 +2839,7 @@ void FakeVimHandler::Private::moveDown(int n)
 
     setPosition(position);
     moveToTargetColumn();
+    updateScrollOffset();
 }
 
 void FakeVimHandler::Private::movePageDown(int count)
