@@ -27,19 +27,15 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYEDITOR_H
-#define PROPERTYEDITOR_H
+#ifndef PROPERTYEDITORVIEW_H
+#define PROPERTYEDITORVIEW_H
 
 #include <abstractview.h>
-#include <declarativewidgetview.h>
 #include <QHash>
-#include <QStackedWidget>
 #include <QTimer>
 
-#include "qmlanchorbindingproxy.h"
-#include "designerpropertymap.h"
-#include "propertyeditorvalue.h"
-#include "propertyeditorcontextobject.h"
+#include "propertyeditorqmlbackend.h"
+#include "propertyeditorwidget.h"
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -47,38 +43,20 @@ class QStackedWidget;
 class QTimer;
 QT_END_NAMESPACE
 
-class PropertyEditorValue;
-
 namespace QmlDesigner {
 
 class PropertyEditorTransaction;
 class CollapseButton;
-class StackedWidget;
+class PropertyEditorWidget;
+class PropertyEditorView;
 
-class PropertyEditor: public AbstractView
+class PropertyEditorView: public AbstractView
 {
     Q_OBJECT
 
-    class NodeType {
-    public:
-        NodeType(PropertyEditor *propertyEditor);
-        ~NodeType();
-
-        void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
-        void initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
-        void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
-
-        DeclarativeWidgetView *m_view;
-        Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
-        DesignerPropertyMap<PropertyEditorValue> m_backendValuesPropertyMap;
-        QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
-        QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;
-        QScopedPointer<PropertyEditorContextObject> m_contextObject;
-    };
-
 public:
-    PropertyEditor(QWidget *parent = 0);
-    ~PropertyEditor();
+    PropertyEditorView(QWidget *parent = 0);
+    ~PropertyEditorView();
 
     void setQmlDir(const QString &qmlDirPath);
 
@@ -149,38 +127,20 @@ private: //functions
 
     void delayedResetView();
 
-
 private: //variables
     ModelNode m_selectedNode;
     QWidget *m_parent;
     QShortcut *m_updateShortcut;
     int m_timerId;
-    StackedWidget* m_stackedWidget;
+    PropertyEditorWidget* m_stackedWidget;
     QString m_qmlDir;
-    QHash<QString, NodeType *> m_typeHash;
-    NodeType *m_currentType;
+    QHash<QString, PropertyEditorQmlBackend *> m_typeHash;
+    PropertyEditorQmlBackend *m_currentType;
     bool m_locked;
     bool m_setupCompleted;
     QTimer *m_singleShotTimer;
 };
 
+} //QmlDesigner
 
-class StackedWidget : public QStackedWidget
-{
-Q_OBJECT
-
-public:
-    StackedWidget(QWidget *parent = 0) : QStackedWidget(parent) {}
-
-signals:
-    void resized();
-protected:
-    void resizeEvent(QResizeEvent * event)
-    {
-        QStackedWidget::resizeEvent(event);
-        emit resized();
-    }
-};
-}
-
-#endif // PROPERTYEDITOR_H
+#endif // PROPERTYEDITORVIEW_H

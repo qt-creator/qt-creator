@@ -27,43 +27,28 @@
 **
 ****************************************************************************/
 
-#include "propertyeditortransaction.h"
-#include <QTimerEvent>
+#ifndef PROPERTYEDITORWIDGET_H
+#define PROPERTYEDITORWIDGET_H
 
-#include <QDebug>
+#include <QStackedWidget>
 
 namespace QmlDesigner {
 
-PropertyEditorTransaction::PropertyEditorTransaction(QmlDesigner::PropertyEditorView *propertyEditor) : QObject(propertyEditor), m_propertyEditor(propertyEditor), m_timerId(-1)
+class PropertyEditorWidget : public QStackedWidget
 {
-}
 
-void PropertyEditorTransaction::start()
-{
-    if (!m_propertyEditor->model())
-        return;
-    if (m_rewriterTransaction.isValid())
-        m_rewriterTransaction.commit();
-    m_rewriterTransaction = m_propertyEditor->beginRewriterTransaction();
-    m_timerId = startTimer(4000);
-}
+Q_OBJECT
 
-void PropertyEditorTransaction::end()
-{
-    if (m_rewriterTransaction.isValid() &&  m_propertyEditor->model()) {
-        killTimer(m_timerId);
-        m_rewriterTransaction.commit();
-    }
-}
+public:
+    PropertyEditorWidget(QWidget *parent = 0);
 
-void PropertyEditorTransaction::timerEvent(QTimerEvent *timerEvent)
-{
-    if (timerEvent->timerId() != m_timerId)
-        return;
-    killTimer(timerEvent->timerId());
-    if (m_rewriterTransaction.isValid())
-        m_rewriterTransaction.commit();
-}
+signals:
+    void resized();
+
+protected:
+    void resizeEvent(QResizeEvent * event);
+};
 
 } //QmlDesigner
 
+#endif //PROPERTYEDITORWIDGET_H

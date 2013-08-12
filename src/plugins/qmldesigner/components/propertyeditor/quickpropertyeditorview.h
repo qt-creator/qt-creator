@@ -27,12 +27,13 @@
 **
 ****************************************************************************/
 
-#ifndef DECLARATIVEWIDGETVIEW_H
-#define DECLARATIVEWIDGETVIEW_H
+#ifndef QUICKPROERTYEDITORVIEW_H
+#define QUICKPROERTYEDITORVIEW_H
 
 #include <QWidget>
 #include <QUrl>
 #include <QDeclarativeEngine>
+#include <QDeclarativeContext>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeContext;
@@ -42,13 +43,13 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class DeclarativeWidgetView : public QWidget
+class QuickPropertyEditorView : public QWidget
 {
     Q_OBJECT
 
     Q_PROPERTY(QUrl source READ source WRITE setSource DESIGNABLE true)
 public:
-    explicit DeclarativeWidgetView(QWidget *parent = 0);
+    explicit QuickPropertyEditorView(QWidget *parent = 0);
 
     QUrl source() const;
     void setSource(const QUrl&);
@@ -62,7 +63,7 @@ public:
     Status status() const;
 
 signals:
-    void statusChanged(DeclarativeWidgetView::Status);
+    void statusChanged(QuickPropertyEditorView::Status);
 
 protected:
     void setRootWidget(QWidget *);
@@ -81,4 +82,4 @@ private:
 
 } //QmlDesigner
 
-#endif // DECLARATIVEWIDGETVIEW_H
+#endif // QUICKPROERTYEDITORVIEW_H

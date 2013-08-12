@@ -27,43 +27,19 @@
 **
 ****************************************************************************/
 
-#include "propertyeditortransaction.h"
-#include <QTimerEvent>
+#include "propertyeditorwidget.h"
 
-#include <QDebug>
 
 namespace QmlDesigner {
 
-PropertyEditorTransaction::PropertyEditorTransaction(QmlDesigner::PropertyEditorView *propertyEditor) : QObject(propertyEditor), m_propertyEditor(propertyEditor), m_timerId(-1)
+PropertyEditorWidget::PropertyEditorWidget(QWidget *parent) : QStackedWidget(parent)
 {
 }
 
-void PropertyEditorTransaction::start()
+void PropertyEditorWidget::resizeEvent(QResizeEvent * event)
 {
-    if (!m_propertyEditor->model())
-        return;
-    if (m_rewriterTransaction.isValid())
-        m_rewriterTransaction.commit();
-    m_rewriterTransaction = m_propertyEditor->beginRewriterTransaction();
-    m_timerId = startTimer(4000);
+    QStackedWidget::resizeEvent(event);
+    emit resized();
 }
 
-void PropertyEditorTransaction::end()
-{
-    if (m_rewriterTransaction.isValid() &&  m_propertyEditor->model()) {
-        killTimer(m_timerId);
-        m_rewriterTransaction.commit();
-    }
 }
-
-void PropertyEditorTransaction::timerEvent(QTimerEvent *timerEvent)
-{
-    if (timerEvent->timerId() != m_timerId)
-        return;
-    killTimer(timerEvent->timerId());
-    if (m_rewriterTransaction.isValid())
-        m_rewriterTransaction.commit();
-}
-
-} //QmlDesigner
-

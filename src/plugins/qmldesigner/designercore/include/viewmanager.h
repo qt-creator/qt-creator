@@ -38,7 +38,7 @@
 #include <navigatorview.h>
 #include <stateseditorview.h>
 #include <formeditorview.h>
-#include <propertyeditor.h>
+#include <propertyeditorview.h>
 #include <componentview.h>
 #include <debugview.h>
 #include <QWidgetAction>
@@ -111,7 +111,7 @@ private: // variables
     FormEditorView m_formEditorView;
     ItemLibraryView m_itemLibraryView;
     NavigatorView m_navigatorView;
-    PropertyEditor m_propertyEditorView;
+    PropertyEditorView m_propertyEditorView;
     StatesEditorView m_statesEditorView;
     NodeInstanceView m_nodeInstanceView;
 

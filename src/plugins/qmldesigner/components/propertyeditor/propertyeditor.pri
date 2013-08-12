@@ -1,6 +1,6 @@
 VPATH += $$PWD
 
-SOURCES += propertyeditor.cpp \
+SOURCES += propertyeditorview.cpp \
     qmlanchorbindingproxy.cpp \
     resetwidget.cpp \
     qlayoutobject.cpp \
@@ -15,10 +15,12 @@ SOURCES += propertyeditor.cpp \
     siblingcombobox.cpp \
     propertyeditortransaction.cpp \
     propertyeditorcontextobject.cpp \
-    declarativewidgetview.cpp \
-    gradientlineqmladaptor.cpp
+    quickpropertyeditorview.cpp \
+    gradientlineqmladaptor.cpp \
+    propertyeditorqmlbackend.cpp \
+    propertyeditorwidget.cpp
 
-HEADERS += propertyeditor.h \
+HEADERS += propertyeditorview.h \
     qmlanchorbindingproxy.h \
     resetwidget.h \
     qlayoutobject.h \
@@ -34,8 +36,10 @@ HEADERS += propertyeditor.h \
     propertyeditortransaction.h \
     designerpropertymap.h \
     propertyeditorcontextobject.h \
-    declarativewidgetview.h \
-    gradientlineqmladaptor.h
+    quickpropertyeditorview.h \
+    gradientlineqmladaptor.h \
+    propertyeditorqmlbackend.h \
+    propertyeditorwidget.h
     
 QT += declarative
 

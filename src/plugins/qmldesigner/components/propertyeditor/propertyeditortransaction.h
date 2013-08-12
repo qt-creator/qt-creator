@@ -30,7 +30,7 @@
 #ifndef PROPERTYEDITORTRANSACTION_H
 #define PROPERTYEDITORTRANSACTION_H
 
-#include "propertyeditor.h"
+#include "propertyeditorview.h"
 
 namespace QmlDesigner {
 
@@ -38,7 +38,7 @@ class PropertyEditorTransaction : public QObject
 {
     Q_OBJECT
 public:
-    PropertyEditorTransaction(QmlDesigner::PropertyEditor *propertyEditor);
+    PropertyEditorTransaction(QmlDesigner::PropertyEditorView *propertyEditor);
 
 public slots:
     void start();
@@ -47,7 +47,7 @@ protected:
      void timerEvent(QTimerEvent *event);
 
 private:
-    QmlDesigner::PropertyEditor *m_propertyEditor;
+    QmlDesigner::PropertyEditorView *m_propertyEditor;
     QmlDesigner::RewriterTransaction m_rewriterTransaction;
     int m_timerId;
 };
