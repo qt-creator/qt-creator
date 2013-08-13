@@ -38,7 +38,7 @@ namespace Internal {
 class BazaarAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers, const QColor &bg,
+    explicit BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                          QTextDocument *document = 0);
 
 private:

@@ -50,7 +50,7 @@ public:
 private:
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     QString findDiffFile(const QString &f) const;
     QStringList annotationPreviousVersions(const QString &v) const;
 

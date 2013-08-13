@@ -1887,13 +1887,9 @@ const Utils::CommentDefinition *CPPEditor::commentDefinition() const
 void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
-    CppHighlighter *highlighter
-            = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
     if (!highlighter)
         return;
-
-    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(highlighterFormatCategories());
-    highlighter->setFormats(formats.constBegin(), formats.constEnd());
 
     m_occurrencesFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
     m_occurrencesUnusedFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);

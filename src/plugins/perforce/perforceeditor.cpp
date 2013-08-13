@@ -109,10 +109,9 @@ QString PerforceEditor::changeUnderCursor(const QTextCursor &c) const
     return m_changeNumberPattern.exactMatch(change) ? change : QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes,
-                                                                                const QColor &bg) const
+VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
-    return new PerforceAnnotationHighlighter(changes, bg);
+    return new PerforceAnnotationHighlighter(changes);
 }
 
 QString PerforceEditor::findDiffFile(const QString &f) const

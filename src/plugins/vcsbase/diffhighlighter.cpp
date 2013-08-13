@@ -72,8 +72,7 @@ enum DiffFormats {
     DiffInFormat,
     DiffOutFormat,
     DiffFileFormat,
-    DiffLocationFormat,
-    NumDiffFormats
+    DiffLocationFormat
 };
 
 enum FoldingState {
@@ -83,61 +82,92 @@ enum FoldingState {
     Location
 };
 
+}; // namespace Internal;
+
+static inline QTextCharFormat invertedColorFormat(const QTextCharFormat &in)
+{
+    QTextCharFormat rc = in;
+    rc.setForeground(in.background());
+    rc.setBackground(in.foreground());
+    return rc;
+}
+
 // --- DiffHighlighterPrivate
 class DiffHighlighterPrivate
 {
+    DiffHighlighter *q_ptr;
+    Q_DECLARE_PUBLIC(DiffHighlighter)
 public:
     DiffHighlighterPrivate(const QRegExp &filePattern);
 
-    DiffFormats analyzeLine(const QString &block) const;
+    Internal::DiffFormats analyzeLine(const QString &block) const;
+    void updateOtherFormats();
 
     mutable QRegExp m_filePattern;
     const QString m_locationIndicator;
     const QChar m_diffInIndicator;
     const QChar m_diffOutIndicator;
-    QTextCharFormat m_formats[NumDiffFormats];
     QTextCharFormat m_addedTrailingWhiteSpaceFormat;
 
-    FoldingState m_foldingState;
+    Internal::FoldingState m_foldingState;
 };
 
 DiffHighlighterPrivate::DiffHighlighterPrivate(const QRegExp &filePattern) :
+    q_ptr(0),
     m_filePattern(filePattern),
     m_locationIndicator(QLatin1String("@@")),
     m_diffInIndicator(QLatin1Char('+')),
     m_diffOutIndicator(QLatin1Char('-')),
-    m_foldingState(StartOfFile)
+    m_foldingState(Internal::StartOfFile)
 {
     QTC_CHECK(filePattern.isValid());
 }
 
-DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const
+Internal::DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const
 {
     // Do not match on git "--- a/" as a deleted line, check
     // file first
     if (m_filePattern.indexIn(text) == 0)
-        return DiffFileFormat;
+        return Internal::DiffFileFormat;
     if (text.startsWith(m_diffInIndicator))
-        return DiffInFormat;
+        return Internal::DiffInFormat;
     if (text.startsWith(m_diffOutIndicator))
-        return DiffOutFormat;
+        return Internal::DiffOutFormat;
     if (text.startsWith(m_locationIndicator))
-        return DiffLocationFormat;
-    return DiffTextFormat;
+        return Internal::DiffLocationFormat;
+    return Internal::DiffTextFormat;
 }
 
-} // namespace Internal
+void DiffHighlighterPrivate::updateOtherFormats()
+{
+    Q_Q(DiffHighlighter);
+    m_addedTrailingWhiteSpaceFormat =
+            invertedColorFormat(q->formatForCategory(Internal::DiffInFormat));
+
+}
 
 // --- DiffHighlighter
 DiffHighlighter::DiffHighlighter(const QRegExp &filePattern) :
     TextEditor::SyntaxHighlighter(static_cast<QTextDocument *>(0)),
-    d(new Internal::DiffHighlighterPrivate(filePattern))
+    d_ptr(new DiffHighlighterPrivate(filePattern))
 {
+    d_ptr->q_ptr = this;
+    Q_D(DiffHighlighter);
+
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty()) {
+        categories << TextEditor::C_TEXT
+                   << TextEditor::C_ADDED_LINE
+                   << TextEditor::C_REMOVED_LINE
+                   << TextEditor::C_DIFF_FILE
+                   << TextEditor::C_DIFF_LOCATION;
+    }
+    setTextFormatCategories(categories);
+    d->updateOtherFormats();
 }
 
 DiffHighlighter::~DiffHighlighter()
 {
-    delete d;
 }
 
 // Check trailing spaces
@@ -157,6 +187,7 @@ static inline int trimmedLength(const QString &in)
  */
 void DiffHighlighter::highlightBlock(const QString &text)
 {
+    Q_D(DiffHighlighter);
     if (text.isEmpty())
         return;
 
@@ -168,13 +199,13 @@ void DiffHighlighter::highlightBlock(const QString &text)
     case Internal::DiffInFormat: {
             // Mark trailing whitespace.
             const int trimmedLen = trimmedLength(text);
-            setFormat(0, trimmedLen, d->m_formats[format]);
+            setFormat(0, trimmedLen, formatForCategory(format));
             if (trimmedLen != length)
                 setFormat(trimmedLen, length - trimmedLen, d->m_addedTrailingWhiteSpaceFormat);
         }
         break;
     default:
-        setFormat(0, length, d->m_formats[format]);
+        setFormat(0, length, formatForCategory(format));
         break;
     }
 
@@ -234,24 +265,11 @@ void DiffHighlighter::highlightBlock(const QString &text)
     }
 }
 
-static inline QTextCharFormat invertedColorFormat(const QTextCharFormat &in)
+void DiffHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
 {
-    QTextCharFormat rc = in;
-    rc.setForeground(in.background());
-    rc.setBackground(in.foreground());
-    return rc;
-}
-
-void DiffHighlighter::setFormats(const QVector<QTextCharFormat> &s)
-{
-    if (s.size() == Internal::NumDiffFormats) {
-        qCopy(s.constBegin(), s.constEnd(), d->m_formats);
-        // Display trailing blanks with colors swapped
-        d->m_addedTrailingWhiteSpaceFormat =
-                invertedColorFormat(d->m_formats[Internal::DiffInFormat]);
-    } else {
-        qWarning("%s: insufficient setting size: %d", Q_FUNC_INFO, s.size());
-    }
+    Q_D(DiffHighlighter);
+    SyntaxHighlighter::setFontSettings(fontSettings);
+    d->updateOtherFormats();
 }
 
 } // namespace VcsBase

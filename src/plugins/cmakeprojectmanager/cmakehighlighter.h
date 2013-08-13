@@ -31,9 +31,6 @@
 #define CMAKEHIGHLIGHTER_H
 
 #include <texteditor/syntaxhighlighter.h>
-#include <QtAlgorithms>
-#include <QSyntaxHighlighter>
-#include <QTextCharFormat>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -50,21 +47,11 @@ public:
         CMakeFunctionFormat,
         CMakeCommentFormat,
         CMakeStringFormat,
-        CMakeVisualWhiteSpaceFormat,
-        NumCMakeFormats
+        CMakeVisualWhiteSpaceFormat
     };
 
     CMakeHighlighter(QTextDocument *document = 0);
     virtual void highlightBlock(const QString &text);
-
-    // Set formats from a sequence of type QTextCharFormat
-    template <class InputIterator>
-        void setFormats(InputIterator begin, InputIterator end) {
-            qCopy(begin, end, m_formats);
-        }
-
-private:
-    QTextCharFormat m_formats[NumCMakeFormats];
 };
 
 } // namespace Internal

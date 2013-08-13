@@ -33,9 +33,8 @@ using namespace Bazaar::Internal;
 using namespace Bazaar;
 
 BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                         const QColor &bg,
                                                          QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(changeNumbers, bg, document),
+    : VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
       m_changeset(QLatin1String(Constants::ANNOTATE_CHANGESET_ID))
 {
 }

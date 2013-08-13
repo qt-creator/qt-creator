@@ -41,7 +41,7 @@ class ClearCaseAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:
-    explicit ClearCaseAnnotationHighlighter(const ChangeNumbers &changeNumbers, const QColor &bg,
+    explicit ClearCaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                             QTextDocument *document = 0);
 
 private:

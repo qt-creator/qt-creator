@@ -32,8 +32,6 @@
 
 #include "../pythoneditor_global.h"
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/fontsettings.h>
-#include <QMap>
 
 namespace PythonEditor {
 
@@ -46,15 +44,12 @@ public:
     explicit PythonHighlighter(TextEditor::BaseTextDocument *parent);
     virtual ~PythonHighlighter();
 
-    void setFontSettings(const TextEditor::FontSettings &fs);
-
 protected:
     virtual void highlightBlock(const QString &text);
 
 private:
     int highlightLine(const QString &text, int initialState);
     void highlightImport(Internal::Scanner &scanner);
-    QVector<QTextCharFormat> m_formats;
 };
 
 } // namespace PythonEditor

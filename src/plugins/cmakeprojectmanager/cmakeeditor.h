@@ -85,7 +85,6 @@ protected:
 
 public slots:
     void unCommentSelection();
-    void setFontSettings(const TextEditor::FontSettings &);
 
 private:
     CMakeEditorFactory *m_factory;

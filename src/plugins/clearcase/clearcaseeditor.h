@@ -49,7 +49,7 @@ public:
 private:
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
 
     QRegExp m_versionNumberPattern;
 };

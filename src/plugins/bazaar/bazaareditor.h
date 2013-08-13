@@ -46,7 +46,7 @@ public:
 private:
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &cursor) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
 
     mutable QRegExp m_changesetId;
     mutable QRegExp m_exactChangesetId;

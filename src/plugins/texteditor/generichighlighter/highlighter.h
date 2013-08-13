@@ -65,12 +65,12 @@ public:
         VisualWhitespace,
         Keyword,
         DataType,
+        Comment,
         Decimal,
         BaseN,
         Float,
         Char,
         String,
-        Comment,
         Alert,
         Error,
         Function,
@@ -78,7 +78,6 @@ public:
         Others
     };
 
-    void configureFormat(TextFormatId id, const QTextCharFormat &format);
     void setTabSettings(const TabSettings &ts);
     void setDefaultContext(const QSharedPointer<Context> &defaultContext);
 
@@ -134,7 +133,6 @@ private:
         QHash<QString, TextFormatId> m_ids;
     };
     static const KateFormatMap m_kateFormats;
-    QHash<TextFormatId, QTextCharFormat> m_creatorFormats;
 
     struct BlockData : TextBlockUserData
     {

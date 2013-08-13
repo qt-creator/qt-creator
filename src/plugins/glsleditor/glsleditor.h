@@ -109,9 +109,6 @@ public:
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 
-public slots:
-    virtual void setFontSettings(const TextEditor::FontSettings &);
-
 private slots:
     void updateDocument();
     void updateDocumentNow();

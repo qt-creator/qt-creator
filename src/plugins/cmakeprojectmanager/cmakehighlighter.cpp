@@ -30,9 +30,7 @@
 #include "cmakehighlighter.h"
 
 #include <QRegExp>
-#include <QColor>
 #include <QTextDocument>
-#include <QTextEdit>
 
 using namespace CMakeProjectManager::Internal;
 
@@ -48,6 +46,15 @@ static bool isVariable(const QByteArray &word)
 CMakeHighlighter::CMakeHighlighter(QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document)
 {
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty()) {
+        categories << TextEditor::C_LABEL  // variables
+                   << TextEditor::C_KEYWORD   // functions
+                   << TextEditor::C_COMMENT
+                   << TextEditor::C_STRING
+                   << TextEditor::C_VISUAL_WHITESPACE;
+    }
+    setTextFormatCategories(categories);
 }
 
 
@@ -62,12 +69,12 @@ void CMakeHighlighter::highlightBlock(const QString &text)
     for (i=0; i < text.length(); i++) {
         char c = text.at(i).toLatin1();
         if (inCommentMode) {
-            setFormat(i, 1, m_formats[CMakeCommentFormat]);
+            setFormat(i, 1, formatForCategory(CMakeCommentFormat));
         } else {
             if (c == '#') {
                 if (!inStringMode) {
                     inCommentMode = true;
-                    setFormat(i, 1, m_formats[CMakeCommentFormat]);
+                    setFormat(i, 1, formatForCategory(CMakeCommentFormat));
                     buf.clear();
                 } else {
                     buf += c;
@@ -75,7 +82,7 @@ void CMakeHighlighter::highlightBlock(const QString &text)
             } else if (c == '(') {
                 if (!inStringMode) {
                     if (!buf.isEmpty())
-                        setFormat(i - buf.length(), buf.length(), m_formats[CMakeFunctionFormat]);
+                        setFormat(i - buf.length(), buf.length(), formatForCategory(CMakeFunctionFormat));
                     buf.clear();
                 } else {
                     buf += c;
@@ -88,10 +95,10 @@ void CMakeHighlighter::highlightBlock(const QString &text)
             } else if (c == '\"') {
                 buf += c;
                 if (inStringMode) {
-                    setFormat(i + 1 - buf.length(), buf.length(), m_formats[CMakeStringFormat]);
+                    setFormat(i + 1 - buf.length(), buf.length(), formatForCategory(CMakeStringFormat));
                     buf.clear();
                 } else {
-                    setFormat(i, 1, m_formats[CMakeStringFormat]);
+                    setFormat(i, 1, formatForCategory(CMakeStringFormat));
                 }
                 inStringMode = !inStringMode;
             } else if (c == '\\') {
@@ -105,14 +112,14 @@ void CMakeHighlighter::highlightBlock(const QString &text)
                 }
             } else if (c == '$') {
                 if (inStringMode)
-                    setFormat(i - buf.length(), buf.length(), m_formats[CMakeStringFormat]);
+                    setFormat(i - buf.length(), buf.length(), formatForCategory(CMakeStringFormat));
                 buf.clear();
                 buf += c;
                 setFormat(i, 1, emptyFormat);
             } else if (c == '}') {
                 buf += c;
                 if (isVariable(buf)) {
-                    setFormat(i + 1 - buf.length(), buf.length(), m_formats[CMakeVariableFormat]);
+                    setFormat(i + 1 - buf.length(), buf.length(), formatForCategory(CMakeVariableFormat));
                     buf.clear();
                 }
             } else {
@@ -123,12 +130,12 @@ void CMakeHighlighter::highlightBlock(const QString &text)
     }
 
     if (inStringMode) {
-        setFormat(i - buf.length(), buf.length(), m_formats[CMakeStringFormat]);
+        setFormat(i - buf.length(), buf.length(), formatForCategory(CMakeStringFormat));
         setCurrentBlockState(1);
     } else {
         setCurrentBlockState(0);
     }
 
-    applyFormatToSpaces(text, m_formats[CMakeVisualWhiteSpaceFormat]);
+    applyFormatToSpaces(text, formatForCategory(CMakeVisualWhiteSpaceFormat));
 }
 

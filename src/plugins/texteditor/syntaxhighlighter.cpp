@@ -30,6 +30,10 @@
 #include "syntaxhighlighter.h"
 #include "basetextdocument.h"
 #include "basetextdocumentlayout.h"
+#include "texteditorsettings.h"
+#include "fontsettings.h"
+
+#include <utils/qtcassert.h>
 
 #include <qtimer.h>
 
@@ -70,12 +74,15 @@ public:
     }
 
     void applyFormatChanges(int from, int charsRemoved, int charsAdded);
+    void updateFormatsForCategories(const TextEditor::FontSettings &fontSettings);
 
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
     bool rehighlightPending;
     bool inReformatBlocks;
     BaseTextDocumentLayout::FoldValidator foldValidator;
+    QVector<QTextCharFormat> formats;
+    QVector<TextEditor::TextStyle> formatCategories;
 };
 
 static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemoved, int charsAdded) {
@@ -783,5 +790,32 @@ QList<QColor> SyntaxHighlighter::generateColors(int n, const QColor &background)
     }
     return result;
 }
+
+void SyntaxHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
+{
+    Q_D(SyntaxHighlighter);
+    d->updateFormatsForCategories(fontSettings);
+}
+
+void SyntaxHighlighter::setTextFormatCategories(const QVector<TextEditor::TextStyle> &categories)
+{
+    Q_D(SyntaxHighlighter);
+    d->formatCategories = categories;
+    d->updateFormatsForCategories(TextEditorSettings::instance()->fontSettings());
+}
+
+QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
+{
+    Q_D(const SyntaxHighlighter);
+    QTC_ASSERT(d->formats.size() > category, return QTextCharFormat());
+
+    return d->formats.at(category);
+}
+
+void SyntaxHighlighterPrivate::updateFormatsForCategories(const TextEditor::FontSettings &fontSettings)
+{
+    formats = fontSettings.toTextCharFormats(formatCategories);
+}
+
 
 #include "moc_syntaxhighlighter.cpp"

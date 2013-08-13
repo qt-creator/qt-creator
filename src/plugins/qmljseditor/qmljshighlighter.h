@@ -34,13 +34,8 @@
 
 #include <qmljs/qmljsscanner.h>
 
-#include <QVector>
-#include <QSet>
-#include <QSyntaxHighlighter>
-
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/texteditorconstants.h>
 
 namespace QmlJSEditor {
 
@@ -65,7 +60,6 @@ public:
 
     bool isQmlEnabled() const;
     void setQmlEnabled(bool duiEnabled);
-    void setFormats(const QVector<QTextCharFormat> &formats);
 
 protected:
     virtual void highlightBlock(const QString &text);
@@ -92,8 +86,6 @@ private:
 
     QmlJS::Scanner m_scanner;
     Parentheses m_currentBlockParentheses;
-
-    QTextCharFormat m_formats[NumFormats];
 };
 
 } // namespace QmlJSEditor

@@ -980,12 +980,6 @@ void QmlJSTextEditorWidget::updateFileName()
 void QmlJSTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
-    Highlighter *highlighter = qobject_cast<Highlighter*>(baseTextDocument()->syntaxHighlighter());
-    if (!highlighter)
-        return;
-
-    highlighter->setFormats(fs.toTextCharFormats(highlighterFormatCategories()));
-    highlighter->rehighlight();
 
     m_occurrencesFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
     m_occurrencesUnusedFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);

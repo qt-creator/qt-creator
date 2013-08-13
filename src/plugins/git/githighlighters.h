@@ -31,7 +31,6 @@
 #define GITHIGHLIGHTERS_H
 
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/texteditorconstants.h>
 
 namespace TextEditor {
 class FontSettings;
@@ -39,6 +38,18 @@ class FontSettings;
 
 namespace Git {
 namespace Internal {
+
+enum Format {
+    Format_Comment,
+    Format_Change,
+    Format_Description,
+    Format_Pick,
+    Format_Reword,
+    Format_Edit,
+    Format_Squash,
+    Format_Fixup,
+    Format_Exec
+};
 
 // Highlighter for git submit messages. Make the first line bold, indicates
 // comments as such (retrieving the format from the text editor) and marks up
@@ -50,10 +61,10 @@ public:
     explicit GitSubmitHighlighter(TextEditor::BaseTextDocument *parent);
     void highlightBlock(const QString &text);
 
-    void initialize();
 private:
+    void initialize();
+
     enum State { None = -1, Header, Other };
-    QTextCharFormat m_commentFormat;
     QRegExp m_keywordPattern;
     QChar m_hashChar;
 };
@@ -71,13 +82,9 @@ private:
     {
     public:
         mutable QRegExp exp;
-        QTextCharFormat format;
-        RebaseAction(const QString &regexp, const TextEditor::FontSettings &settings,
-                     TextEditor::TextStyle category);
+        Format formatCategory;
+        RebaseAction(const QString &regexp, const Format formatCategory);
     };
-    QTextCharFormat m_commentFormat;
-    QTextCharFormat m_changeFormat;
-    QTextCharFormat m_descFormat;
     const QChar m_hashChar;
     QRegExp m_changeNumberPattern;
     QList<RebaseAction> m_actions;

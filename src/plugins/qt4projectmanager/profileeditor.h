@@ -75,9 +75,6 @@ protected:
     TextEditor::BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *);
 
-public slots:
-    virtual void setFontSettings(const TextEditor::FontSettings &);
-
 private:
     ProFileEditorFactory *m_factory;
     TextEditor::TextEditorActionHandler *m_ah;

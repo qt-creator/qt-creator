@@ -36,8 +36,6 @@
 
 #include <cpptools/cppqtstyleindenter.h>
 
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/snippets/snippeteditor.h>
 
 #include <QLatin1String>
@@ -65,12 +63,7 @@ QString CppSnippetProvider::displayName() const
 
 void CppSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
 {
-    CppHighlighter *highlighter = new CppHighlighter;
-    const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
-    const QVector<QTextCharFormat> &formats =
-        fs.toTextCharFormats(CPPEditorWidget::highlighterFormatCategories());
-    highlighter->setFormats(formats.constBegin(), formats.constEnd());
-    editor->setSyntaxHighlighter(highlighter);
+    editor->setSyntaxHighlighter(new CppHighlighter);
     editor->setIndenter(new CppTools::CppQtStyleIndenter);
     editor->setAutoCompleter(new CppAutoCompleter);
 }

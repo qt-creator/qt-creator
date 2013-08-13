@@ -43,6 +43,15 @@ ProFileHighlighter::ProFileHighlighter(QTextDocument *document) :
     ProFileCompletionAssistProvider *pcap
             = ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
     m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
+
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty()) {
+        categories << TextEditor::C_TYPE
+                   << TextEditor::C_KEYWORD
+                   << TextEditor::C_COMMENT
+                   << TextEditor::C_VISUAL_WHITESPACE;
+    }
+    setTextFormatCategories(categories);
 }
 
 void ProFileHighlighter::highlightBlock(const QString &text)
@@ -58,26 +67,26 @@ void ProFileHighlighter::highlightBlock(const QString &text)
     for (;;) {
         const QChar c = text.at(i);
         if (inCommentMode) {
-            setFormat(i, 1, m_formats[ProfileCommentFormat]);
+            setFormat(i, 1, formatForCategory(ProfileCommentFormat));
         } else {
             if (c.isLetter() || c == QLatin1Char('_') || c == QLatin1Char('.') || c.isDigit()) {
                 buf += c;
                 setFormat(i - buf.length()+1, buf.length(), emptyFormat);
                 if (!buf.isEmpty() && m_keywords.isFunction(buf))
-                    setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileFunctionFormat]);
+                    setFormat(i - buf.length()+1, buf.length(), formatForCategory(ProfileFunctionFormat));
                 else if (!buf.isEmpty() && m_keywords.isVariable(buf))
-                    setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileVariableFormat]);
+                    setFormat(i - buf.length()+1, buf.length(), formatForCategory(ProfileVariableFormat));
             } else if (c == QLatin1Char('(')) {
                 if (!buf.isEmpty() && m_keywords.isFunction(buf))
-                    setFormat(i - buf.length(), buf.length(), m_formats[ProfileFunctionFormat]);
+                    setFormat(i - buf.length(), buf.length(), formatForCategory(ProfileFunctionFormat));
                 buf.clear();
             } else if (c == QLatin1Char('#')) {
                 inCommentMode = true;
-                setFormat(i, 1, m_formats[ProfileCommentFormat]);
+                setFormat(i, 1, formatForCategory(ProfileCommentFormat));
                 buf.clear();
             } else {
                 if (!buf.isEmpty() && m_keywords.isVariable(buf))
-                    setFormat(i - buf.length(), buf.length(), m_formats[ProfileVariableFormat]);
+                    setFormat(i - buf.length(), buf.length(), formatForCategory(ProfileVariableFormat));
                 buf.clear();
             }
         }
@@ -86,5 +95,5 @@ void ProFileHighlighter::highlightBlock(const QString &text)
             break;
     }
 
-    applyFormatToSpaces(text, m_formats[ProfileVisualWhitespaceFormat]);
+    applyFormatToSpaces(text, formatForCategory(ProfileVisualWhitespaceFormat));
 }

@@ -60,7 +60,28 @@ Highlighter::Highlighter(QTextDocument *parent) :
     m_persistentObservableStatesCounter(PersistentsStart),
     m_dynamicContextsCounter(0),
     m_isBroken(false)
-{}
+{
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty()) {
+        categories << TextEditor::C_TEXT
+                   << TextEditor::C_VISUAL_WHITESPACE
+                   << TextEditor::C_KEYWORD
+                   << TextEditor::C_TYPE
+                   << TextEditor::C_COMMENT
+                   << TextEditor::C_NUMBER
+                   << TextEditor::C_NUMBER
+                   << TextEditor::C_NUMBER
+                   << TextEditor::C_STRING
+                   << TextEditor::C_STRING
+                   << TextEditor::C_TEXT
+                   << TextEditor::C_TEXT
+                   << TextEditor::C_TEXT
+                   << TextEditor::C_TEXT
+                   << TextEditor::C_TEXT;
+    }
+
+    setTextFormatCategories(categories);
+}
 
 Highlighter::~Highlighter()
 {}
@@ -82,19 +103,14 @@ Highlighter::KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsChar"), Highlighter::Char);
     m_ids.insert(QLatin1String("dsString"), Highlighter::String);
     m_ids.insert(QLatin1String("dsComment"), Highlighter::Comment);
-    m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
     m_ids.insert(QLatin1String("dsAlert"), Highlighter::Alert);
+    m_ids.insert(QLatin1String("dsError"), Highlighter::Error);
     m_ids.insert(QLatin1String("dsFunction"), Highlighter::Function);
     m_ids.insert(QLatin1String("dsRegionMarker"), Highlighter::RegionMarker);
-    m_ids.insert(QLatin1String("dsError"), Highlighter::Error);
+    m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
 }
 
-void Highlighter::configureFormat(TextFormatId id, const QTextCharFormat &format)
-{
-    m_creatorFormats[id] = format;
-}
-
-void  Highlighter::setDefaultContext(const QSharedPointer<Context> &defaultContext)
+void Highlighter::setDefaultContext(const QSharedPointer<Context> &defaultContext)
 {
     m_defaultContext = defaultContext;
     m_persistentObservableStates.insert(m_defaultContext->name(), Default);
@@ -140,7 +156,7 @@ void Highlighter::highlightBlock(const QString &text)
         }
     }
 
-    applyFormatToSpaces(text, m_creatorFormats.value(VisualWhitespace));
+    applyFormatToSpaces(text, formatForCategory(VisualWhitespace));
 }
 
 void Highlighter::setupDataForBlock(const QString &text)
@@ -388,34 +404,30 @@ void Highlighter::applyFormat(int offset,
         return;
     }
 
-    TextFormatId formatId = m_kateFormats.m_ids.value(itemData->style());
+    TextFormatId formatId = m_kateFormats.m_ids.value(itemData->style(), Normal);
     if (formatId != Normal) {
-        QHash<TextFormatId, QTextCharFormat>::const_iterator cit =
-            m_creatorFormats.constFind(formatId);
-        if (cit != m_creatorFormats.constEnd()) {
-            QTextCharFormat format = cit.value();
-            if (itemData->isCustomized()) {
-                // Please notice that the following are applied every time for item data which have
-                // customizations. The configureFormats method could be used to provide a "one time"
-                // configuration, but it would probably require to traverse all item data from all
-                // definitions available/loaded (either to set the values or for some "notifying"
-                // strategy). This is because the highlighter does not really know on which
-                // definition(s) it is working. Since not many item data specify customizations I
-                // think this approach would fit better. If there are other ideas...
-                if (itemData->color().isValid())
-                    format.setForeground(itemData->color());
-                if (itemData->isItalicSpecified())
-                    format.setFontItalic(itemData->isItalic());
-                if (itemData->isBoldSpecified())
-                    format.setFontWeight(toFontWeight(itemData->isBold()));
-                if (itemData->isUnderlinedSpecified())
-                    format.setFontUnderline(itemData->isUnderlined());
-                if (itemData->isStrikeOutSpecified())
-                    format.setFontStrikeOut(itemData->isStrikeOut());
-            }
-
-            setFormat(offset, count, format);
+        QTextCharFormat format = formatForCategory(formatId);
+        if (itemData->isCustomized()) {
+            // Please notice that the following are applied every time for item data which have
+            // customizations. The configureFormats method could be used to provide a "one time"
+            // configuration, but it would probably require to traverse all item data from all
+            // definitions available/loaded (either to set the values or for some "notifying"
+            // strategy). This is because the highlighter does not really know on which
+            // definition(s) it is working. Since not many item data specify customizations I
+            // think this approach would fit better. If there are other ideas...
+            if (itemData->color().isValid())
+                format.setForeground(itemData->color());
+            if (itemData->isItalicSpecified())
+                format.setFontItalic(itemData->isItalic());
+            if (itemData->isBoldSpecified())
+                format.setFontWeight(toFontWeight(itemData->isBold()));
+            if (itemData->isUnderlinedSpecified())
+                format.setFontUnderline(itemData->isUnderlined());
+            if (itemData->isStrikeOutSpecified())
+                format.setFontStrikeOut(itemData->isStrikeOut());
         }
+
+        setFormat(offset, count, format);
     }
 }
 

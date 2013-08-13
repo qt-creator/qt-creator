@@ -35,7 +35,6 @@
 #include <QRegExp>
 #include <QString>
 #include <QTextCursor>
-#include <QDebug>
 
 #define BZR_CHANGE_PATTERN "[0-9]+"
 
@@ -107,8 +106,7 @@ QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes,
-                                                                              const QColor &bg) const
+VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
-    return new BazaarAnnotationHighlighter(changes, bg);
+    return new BazaarAnnotationHighlighter(changes);
 }

@@ -57,7 +57,7 @@ class tst_HighlighterEngine : public QObject
 public:
     tst_HighlighterEngine();
 
-private slots:    
+private slots:
     void initTestCase();
     void init();
 
@@ -130,20 +130,6 @@ void tst_HighlighterEngine::initTestCase()
     m_highlighterMock.reset(new HighlighterMock());
     m_highlighterMock->setDefaultContext(m_definition->initialContext());
     m_highlighterMock->setDocument(m_text.document());
-    m_highlighterMock->configureFormat(Highlighter::Keyword, Formats::instance().keywordFormat());
-    m_highlighterMock->configureFormat(Highlighter::DataType, Formats::instance().dataTypeFormat());
-    m_highlighterMock->configureFormat(Highlighter::Decimal, Formats::instance().decimalFormat());
-    m_highlighterMock->configureFormat(Highlighter::BaseN, Formats::instance().baseNFormat());
-    m_highlighterMock->configureFormat(Highlighter::Float, Formats::instance().floatFormat());
-    m_highlighterMock->configureFormat(Highlighter::Char, Formats::instance().charFormat());
-    m_highlighterMock->configureFormat(Highlighter::String, Formats::instance().stringFormat());
-    m_highlighterMock->configureFormat(Highlighter::Comment, Formats::instance().commentFormat());
-    m_highlighterMock->configureFormat(Highlighter::Alert, Formats::instance().alertFormat());
-    m_highlighterMock->configureFormat(Highlighter::Error, Formats::instance().errorFormat());
-    m_highlighterMock->configureFormat(Highlighter::Function, Formats::instance().functionFormat());
-    m_highlighterMock->configureFormat(Highlighter::RegionMarker,
-                                       Formats::instance().regionMarketFormat());
-    m_highlighterMock->configureFormat(Highlighter::Others, Formats::instance().othersFormat());
 }
 
 void tst_HighlighterEngine::init()
@@ -605,7 +591,7 @@ void tst_HighlighterEngine::testSimpleLine_data()
     HighlightSequence seqi(seqd);
     seqi.add(9, 17, Formats::instance().commentFormat());
     HighlightSequence seqj(seqd);
-    seqj.add(9, 11, Formats::instance().commentFormat());    
+    seqj.add(9, 11, Formats::instance().commentFormat());
     HighlightSequence seqk(0, 3);
     HighlightSequence seql(0, 3, Formats::instance().keywordFormat());
     HighlightSequence seqm(0, 2);

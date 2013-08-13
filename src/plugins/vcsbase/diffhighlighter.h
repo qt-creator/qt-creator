@@ -44,23 +44,22 @@ namespace TextEditor { class FontSettingsPage; }
 
 namespace VcsBase {
 
-namespace Internal { class DiffHighlighterPrivate; }
+class DiffHighlighterPrivate;
 
 class VCSBASE_EXPORT DiffHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
-
+    Q_DECLARE_PRIVATE(DiffHighlighter)
 public:
     explicit DiffHighlighter(const QRegExp &filePattern);
     ~DiffHighlighter();
 
     void highlightBlock(const QString &text);
 
-    // Set formats from a sequence of type QTextCharFormat
-    void setFormats(const QVector<QTextCharFormat> &s);
+    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
 private:
-    Internal::DiffHighlighterPrivate *const d;
+    QScopedPointer<DiffHighlighterPrivate> d_ptr;
 };
 
 } // namespace VcsBase

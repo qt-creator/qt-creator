@@ -34,9 +34,8 @@ using namespace ClearCase;
 using namespace ClearCase::Internal;
 
 ClearCaseAnnotationHighlighter::ClearCaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                               const QColor &bg,
                                                                QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, bg, document),
+    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
     m_separator(QLatin1Char('|'))
 {
 }

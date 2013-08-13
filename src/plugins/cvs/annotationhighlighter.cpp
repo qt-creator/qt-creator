@@ -33,9 +33,8 @@ using namespace Cvs;
 using namespace Cvs::Internal;
 
 CvsAnnotationHighlighter::CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                   const QColor &bg,
                                                    QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, bg, document),
+    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
     m_blank(QLatin1Char(' '))
 {
 }

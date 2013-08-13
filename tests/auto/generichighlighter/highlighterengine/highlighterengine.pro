@@ -8,6 +8,7 @@ SOURCES += \
     tst_highlighterengine.cpp \
     highlightermock.cpp \
     formats.cpp \
+    syntaxhighlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/highlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/context.cpp \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.cpp \

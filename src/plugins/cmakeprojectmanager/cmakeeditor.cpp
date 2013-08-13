@@ -40,13 +40,13 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QFileInfo>
 #include <QSharedPointer>
+#include <QTextBlock>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -139,27 +139,6 @@ void CMakeEditorWidget::unCommentSelection()
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     showDefaultContextMenu(e, Constants::M_CONTEXT);
-}
-
-void CMakeEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
-{
-    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
-    CMakeHighlighter *highlighter = qobject_cast<CMakeHighlighter*>(baseTextDocument()->syntaxHighlighter());
-    if (!highlighter)
-        return;
-
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_LABEL  // variables
-                << TextEditor::C_KEYWORD   // functions
-                << TextEditor::C_COMMENT
-                << TextEditor::C_STRING
-                << TextEditor::C_VISUAL_WHITESPACE;
-    }
-
-    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
-    highlighter->setFormats(formats.constBegin(), formats.constEnd());
-    highlighter->rehighlight();
 }
 
 static bool isValidFileNameChar(const QChar &c)

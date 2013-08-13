@@ -41,11 +41,22 @@ using namespace QmlJS;
 Highlighter::Highlighter(QTextDocument *parent)
     : TextEditor::SyntaxHighlighter(parent),
       m_qmlEnabled(true),
+      m_braceDepth(0),
+      m_foldingIndent(0),
       m_inMultilineComment(false)
 {
     m_currentBlockParentheses.reserve(20);
-    m_braceDepth = 0;
-    m_foldingIndent = 0;
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty()) {
+        categories << TextEditor::C_NUMBER
+                   << TextEditor::C_STRING
+                   << TextEditor::C_TYPE
+                   << TextEditor::C_KEYWORD
+                   << TextEditor::C_FIELD
+                   << TextEditor::C_COMMENT
+                   << TextEditor::C_VISUAL_WHITESPACE;
+    }
+    setTextFormatCategories(categories);
 }
 
 Highlighter::~Highlighter()
@@ -62,12 +73,6 @@ void Highlighter::setQmlEnabled(bool qmlEnabled)
     m_qmlEnabled = qmlEnabled;
 }
 
-void Highlighter::setFormats(const QVector<QTextCharFormat> &formats)
-{
-    QTC_ASSERT(formats.size() == NumFormats, return);
-    qCopy(formats.begin(), formats.end(), m_formats);
-}
-
 void Highlighter::highlightBlock(const QString &text)
 {
     const QList<Token> tokens = m_scanner(text, onBlockStart());
@@ -78,11 +83,11 @@ void Highlighter::highlightBlock(const QString &text)
 
         switch (token.kind) {
             case Token::Keyword:
-                setFormat(token.offset, token.length, m_formats[KeywordFormat]);
+                setFormat(token.offset, token.length, formatForCategory(KeywordFormat));
                 break;
 
             case Token::String:
-                setFormat(token.offset, token.length, m_formats[StringFormat]);
+                setFormat(token.offset, token.length, formatForCategory(StringFormat));
                 break;
 
             case Token::Comment:
@@ -95,11 +100,11 @@ void Highlighter::highlightBlock(const QString &text)
                     onOpeningParenthesis(QLatin1Char('+'), token.offset, index == 0);
                     m_inMultilineComment = true;
                 }
-                setFormat(token.offset, token.length, m_formats[CommentFormat]);
+                setFormat(token.offset, token.length, formatForCategory(CommentFormat));
                 break;
 
             case Token::RegExp:
-                setFormat(token.offset, token.length, m_formats[StringFormat]);
+                setFormat(token.offset, token.length, formatForCategory(StringFormat));
                 break;
 
             case Token::LeftParenthesis:
@@ -136,7 +141,7 @@ void Highlighter::highlightBlock(const QString &text)
                     // check the previous token
                     if (index == 0 || tokens.at(index - 1).isNot(Token::Dot)) {
                         if (index + 1 == tokens.size() || tokens.at(index + 1).isNot(Token::Colon)) {
-                            setFormat(token.offset, token.length, m_formats[KeywordFormat]);
+                            setFormat(token.offset, token.length, formatForCategory(KeywordFormat));
                             break;
                         }
                     }
@@ -144,7 +149,7 @@ void Highlighter::highlightBlock(const QString &text)
                     const Token &previousToken = tokens.at(index - 1);
                     if (previousToken.is(Token::Identifier) && text.at(previousToken.offset) == QLatin1Char('p')
                         && text.midRef(previousToken.offset, previousToken.length) == QLatin1String("property")) {
-                        setFormat(token.offset, token.length, m_formats[KeywordFormat]);
+                        setFormat(token.offset, token.length, formatForCategory(KeywordFormat));
                         break;
                     }
                 }
@@ -163,7 +168,7 @@ void Highlighter::highlightBlock(const QString &text)
     int previousTokenEnd = 0;
     for (int index = 0; index < tokens.size(); ++index) {
         const Token &token = tokens.at(index);
-        setFormat(previousTokenEnd, token.begin() - previousTokenEnd, m_formats[VisualWhitespace]);
+        setFormat(previousTokenEnd, token.begin() - previousTokenEnd, formatForCategory(VisualWhitespace));
 
         switch (token.kind) {
         case Token::Comment:
@@ -177,7 +182,7 @@ void Highlighter::highlightBlock(const QString &text)
                     do {
                         ++i;
                     } while (i < e && text.at(i).isSpace());
-                    setFormat(start, i - start, m_formats[VisualWhitespace]);
+                    setFormat(start, i - start, formatForCategory(VisualWhitespace));
                 } else {
                     ++i;
                 }
@@ -191,7 +196,7 @@ void Highlighter::highlightBlock(const QString &text)
         previousTokenEnd = token.end();
     }
 
-    setFormat(previousTokenEnd, text.length() - previousTokenEnd, m_formats[VisualWhitespace]);
+    setFormat(previousTokenEnd, text.length() - previousTokenEnd, formatForCategory(VisualWhitespace));
 
     setCurrentBlockState(m_scanner.state());
     onBlockEnd(m_scanner.state());

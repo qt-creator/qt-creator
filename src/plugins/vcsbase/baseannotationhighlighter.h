@@ -35,17 +35,16 @@
 #include <texteditor/syntaxhighlighter.h>
 
 namespace VcsBase {
-namespace Internal {
 class BaseAnnotationHighlighterPrivate;
-} // namespace Internal
 
 class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(BaseAnnotationHighlighter)
 public:
     typedef  QSet<QString> ChangeNumbers;
 
-    explicit BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers, const QColor &bg,
+    explicit BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                        QTextDocument *document = 0);
     virtual ~BaseAnnotationHighlighter();
 
@@ -53,13 +52,13 @@ public:
 
     virtual void highlightBlock(const QString &text);
 
-    void setBackgroundColor(const QColor &color);
+    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
 private:
     // Implement this to return the change number of a line
     virtual QString changeNumber(const QString &block) const = 0;
 
-    Internal::BaseAnnotationHighlighterPrivate *const d;
+    QScopedPointer<BaseAnnotationHighlighterPrivate> d_ptr;
 };
 
 } // namespace VcsBase

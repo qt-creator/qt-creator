@@ -63,7 +63,7 @@ private:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     QString decorateVersion(const QString &revision) const;
     QStringList annotationPreviousVersions(const QString &revision) const;
     bool isValidRevision(const QString &revision) const;

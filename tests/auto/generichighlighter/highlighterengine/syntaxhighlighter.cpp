@@ -27,44 +27,30 @@
 **
 ****************************************************************************/
 
-#include "qmljssnippetprovider.h"
-#include "qmljshighlighter.h"
-#include "qmljseditor.h"
-#include "qmljsautocompleter.h"
-#include "qmljseditorconstants.h"
+#include "syntaxhighlighter.h"
+#include "highlighter.h"
+#include "formats.h"
 
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/snippets/snippeteditor.h>
-
-#include <qmljstools/qmljsindenter.h>
-
-#include <QLatin1String>
-#include <QCoreApplication>
-
-using namespace QmlJSEditor;
+using namespace TextEditor;
 using namespace Internal;
 
-QmlJSSnippetProvider::QmlJSSnippetProvider() :
-    TextEditor::ISnippetProvider()
-{}
-
-QmlJSSnippetProvider::~QmlJSSnippetProvider()
-{}
-
-QString QmlJSSnippetProvider::groupId() const
+QTextCharFormat SyntaxHighlighter::formatForCategory(int categoryIndex) const
 {
-    return QLatin1String(Constants::QML_SNIPPETS_GROUP_ID);
+    switch (categoryIndex) {
+    case Highlighter::Keyword:      return Formats::instance().keywordFormat();
+    case Highlighter::DataType:     return Formats::instance().dataTypeFormat();
+    case Highlighter::Decimal:      return Formats::instance().decimalFormat();
+    case Highlighter::BaseN:        return Formats::instance().baseNFormat();
+    case Highlighter::Float:        return Formats::instance().floatFormat();
+    case Highlighter::Char:         return Formats::instance().charFormat();
+    case Highlighter::String:       return Formats::instance().stringFormat();
+    case Highlighter::Comment:      return Formats::instance().commentFormat();
+    case Highlighter::Alert:        return Formats::instance().alertFormat();
+    case Highlighter::Error:        return Formats::instance().errorFormat();
+    case Highlighter::Function:     return Formats::instance().functionFormat();
+    case Highlighter::RegionMarker: return Formats::instance().regionMarketFormat();
+    case Highlighter::Others:       return Formats::instance().othersFormat();
+    default:                                  return QTextCharFormat();
+    }
 }
 
-QString QmlJSSnippetProvider::displayName() const
-{
-    return QCoreApplication::translate("QmlJSEditor::Internal::QmlJSSnippetProvider", "QML");
-}
-
-void QmlJSSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
-{
-    editor->setSyntaxHighlighter(new Highlighter);
-    editor->setIndenter(new Indenter);
-    editor->setAutoCompleter(new AutoCompleter);
-}

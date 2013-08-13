@@ -31,7 +31,7 @@
 #define TEXTEDITOR_SYNTAXHIGHLIGHTER_H
 
 #include "texteditor_global.h"
-
+#include <texteditor/texteditorconstants.h>
 #include <QObject>
 #include <QTextLayout>
 
@@ -48,6 +48,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class BaseTextDocument;
+class FontSettings;
 class SyntaxHighlighterPrivate;
 
 class TEXTEDITOR_EXPORT SyntaxHighlighter : public QObject
@@ -68,11 +69,15 @@ public:
 
     static QList<QColor> generateColors(int n, const QColor &background);
 
+    // Don't call in constructors of derived classes
+    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
 public Q_SLOTS:
     void rehighlight();
     void rehighlightBlock(const QTextBlock &block);
 
 protected:
+    void setTextFormatCategories(const QVector<TextEditor::TextStyle> &categories);
+    QTextCharFormat formatForCategory(int categoryIndex) const;
     virtual void highlightBlock(const QString &text) = 0;
 
     void setFormat(int start, int count, const QTextCharFormat &format);

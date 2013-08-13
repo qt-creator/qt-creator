@@ -40,7 +40,7 @@ class SubversionAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighte
 {
     Q_OBJECT
 public:
-    explicit SubversionAnnotationHighlighter(const ChangeNumbers &changeNumbers, const QColor &bg,
+    explicit SubversionAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                              QTextDocument *document = 0);
 
 private:

@@ -35,6 +35,7 @@
 // base instead of the real TextEditor::SyntaxHighlighter should not affect it.
 
 #include <QSyntaxHighlighter>
+#include <texteditor/texteditorconstants.h>
 
 namespace TextEditor {
 
@@ -47,6 +48,10 @@ public:
 protected:
     void applyFormatToSpaces(const QString &, const QTextCharFormat &)
     {}
+    void setTextFormatCategories(const QVector<TextEditor::TextStyle> &)
+    {}
+    QTextCharFormat formatForCategory(int categoryIndex) const;
+
 };
 
 }

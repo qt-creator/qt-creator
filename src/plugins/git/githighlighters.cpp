@@ -27,9 +27,7 @@
 **
 ****************************************************************************/
 
-#include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/qtcassert.h>
 
@@ -39,13 +37,6 @@ namespace Git {
 namespace Internal {
 
 static const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
-
-// Retrieve the comment char format from the text editor.
-static QTextCharFormat commentFormat()
-{
-    const TextEditor::FontSettings settings = TextEditor::TextEditorSettings::instance()->fontSettings();
-    return settings.toTextCharFormat(TextEditor::C_COMMENT);
-}
 
 GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
     TextEditor::SyntaxHighlighter(parent)
@@ -61,7 +52,11 @@ GitSubmitHighlighter::GitSubmitHighlighter(TextEditor::BaseTextDocument *parent)
 
 void GitSubmitHighlighter::initialize()
 {
-    m_commentFormat = commentFormat();
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty())
+        categories << TextEditor::C_COMMENT;
+
+    setTextFormatCategories(categories);
     m_keywordPattern.setPattern(QLatin1String("^[\\w-]+:"));
     m_hashChar = QLatin1Char('#');
     QTC_CHECK(m_keywordPattern.isValid());
@@ -77,7 +72,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
         setCurrentBlockState(state);
         return;
     } else if (text.startsWith(m_hashChar)) {
-        setFormat(0, text.size(), m_commentFormat);
+        setFormat(0, text.size(), formatForCategory(Format_Comment));
         setCurrentBlockState(state);
         return;
     } else if (state == None) {
@@ -107,11 +102,10 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
 }
 
 GitRebaseHighlighter::RebaseAction::RebaseAction(const QString &regexp,
-                                                 const TextEditor::FontSettings &settings,
-                                                 TextEditor::TextStyle category)
-    : exp(regexp)
+                                                 const Format formatCategory)
+    : exp(regexp),
+      formatCategory(formatCategory)
 {
-    format = settings.toTextCharFormat(category);
 }
 
 GitRebaseHighlighter::GitRebaseHighlighter(TextEditor::BaseTextDocument *parent) :
@@ -119,26 +113,36 @@ GitRebaseHighlighter::GitRebaseHighlighter(TextEditor::BaseTextDocument *parent)
     m_hashChar(QLatin1Char('#')),
     m_changeNumberPattern(QLatin1String(CHANGE_PATTERN))
 {
-    const TextEditor::FontSettings settings = TextEditor::TextEditorSettings::instance()->fontSettings();
-    m_commentFormat = settings.toTextCharFormat(TextEditor::C_COMMENT);
-    m_changeFormat = settings.toTextCharFormat(TextEditor::C_DOXYGEN_COMMENT);
-    m_descFormat = settings.toTextCharFormat(TextEditor::C_STRING);
-    m_actions << RebaseAction(QLatin1String("^(p|pick)\\b"), settings, TextEditor::C_KEYWORD);
-    m_actions << RebaseAction(QLatin1String("^(r|reword)\\b"), settings, TextEditor::C_FIELD);
-    m_actions << RebaseAction(QLatin1String("^(e|edit)\\b"), settings, TextEditor::C_TYPE);
-    m_actions << RebaseAction(QLatin1String("^(s|squash)\\b"), settings, TextEditor::C_ENUMERATION);
-    m_actions << RebaseAction(QLatin1String("^(f|fixup)\\b"), settings, TextEditor::C_NUMBER);
-    m_actions << RebaseAction(QLatin1String("^(x|exec)\\b"), settings, TextEditor::C_LABEL);
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty()) {
+        categories << TextEditor::C_COMMENT
+                   << TextEditor::C_DOXYGEN_COMMENT
+                   << TextEditor::C_STRING
+                   << TextEditor::C_KEYWORD
+                   << TextEditor::C_FIELD
+                   << TextEditor::C_TYPE
+                   << TextEditor::C_ENUMERATION
+                   << TextEditor::C_NUMBER
+                   << TextEditor::C_LABEL;
+    }
+    setTextFormatCategories(categories);
+
+    m_actions << RebaseAction(QLatin1String("^(p|pick)\\b"), Format_Pick);
+    m_actions << RebaseAction(QLatin1String("^(r|reword)\\b"), Format_Reword);
+    m_actions << RebaseAction(QLatin1String("^(e|edit)\\b"), Format_Edit);
+    m_actions << RebaseAction(QLatin1String("^(s|squash)\\b"), Format_Squash);
+    m_actions << RebaseAction(QLatin1String("^(f|fixup)\\b"), Format_Fixup);
+    m_actions << RebaseAction(QLatin1String("^(x|exec)\\b"), Format_Exec);
 }
 
 void GitRebaseHighlighter::highlightBlock(const QString &text)
 {
     if (text.startsWith(m_hashChar)) {
-        setFormat(0, text.size(), m_commentFormat);
+        setFormat(0, text.size(), formatForCategory(Format_Comment));
         int changeIndex = 0;
         while ((changeIndex = m_changeNumberPattern.indexIn(text, changeIndex)) != -1) {
             const int changeLen = m_changeNumberPattern.matchedLength();
-            setFormat(changeIndex, changeLen, m_changeFormat);
+            setFormat(changeIndex, changeLen, formatForCategory(Format_Change));
             changeIndex += changeLen;
         }
         return;
@@ -147,13 +151,13 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
     foreach (const RebaseAction &action, m_actions) {
         if (action.exp.indexIn(text) != -1) {
             const int len = action.exp.matchedLength();
-            setFormat(0, len, action.format);
+            setFormat(0, len, formatForCategory(action.formatCategory));
             const int changeIndex = m_changeNumberPattern.indexIn(text, len);
             if (changeIndex != -1) {
                 const int changeLen = m_changeNumberPattern.matchedLength();
                 const int descStart = changeIndex + changeLen + 1;
-                setFormat(changeIndex, changeLen, m_changeFormat);
-                setFormat(descStart, text.size() - descStart, m_descFormat);
+                setFormat(changeIndex, changeLen, formatForCategory(Format_Change));
+                setFormat(descStart, text.size() - descStart, formatForCategory(Format_Description));
             }
             break;
         }

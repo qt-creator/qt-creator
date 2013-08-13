@@ -51,14 +51,7 @@ public:
     ProFileHighlighter(QTextDocument *document = 0);
     void highlightBlock(const QString &text);
 
-    // Set formats from a sequence of type QTextCharFormat
-    void setFormats(const QVector<QTextCharFormat> &formats)
-    {
-        qCopy(formats.begin(), formats.end(), m_formats);
-    }
-
 private:
-    QTextCharFormat m_formats[NumProfileFormats];
     TextEditor::Keywords m_keywords;
 };
 

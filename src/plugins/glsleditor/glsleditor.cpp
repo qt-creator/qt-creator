@@ -51,8 +51,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -64,7 +62,7 @@
 #include <QFileInfo>
 #include <QSignalMapper>
 #include <QTimer>
-#include <QDebug>
+#include <QTextBlock>
 
 #include <QMenu>
 #include <QComboBox>
@@ -207,42 +205,6 @@ bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, con
     editorWidget()->setMimeType(Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     return b;
-}
-
-void GLSLTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
-{
-    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
-    Highlighter *highlighter = qobject_cast<Highlighter*>(baseTextDocument()->syntaxHighlighter());
-    if (!highlighter)
-        return;
-
-    /*
-        NumberFormat,
-        StringFormat,
-        TypeFormat,
-        KeywordFormat,
-        LabelFormat,
-        CommentFormat,
-        VisualWhitespace,
-     */
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_OPERATOR
-                   << TextEditor::C_PREPROCESSOR
-                   << TextEditor::C_LABEL
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_DOXYGEN_COMMENT
-                   << TextEditor::C_DOXYGEN_TAG
-                   << TextEditor::C_VISUAL_WHITESPACE
-                   << TextEditor::C_REMOVED_LINE;
-    }
-
-    highlighter->setFormats(fs.toTextCharFormats(categories));
-    highlighter->rehighlight();
 }
 
 QString GLSLTextEditorWidget::wordUnderCursor() const

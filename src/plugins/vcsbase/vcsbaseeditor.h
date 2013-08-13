@@ -217,9 +217,6 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *);
 
-public slots:
-    void setFontSettings(const TextEditor::FontSettings &);
-
 private slots:
     void slotActivateAnnotation();
     void slotPopulateDiffBrowser();
@@ -244,8 +241,7 @@ protected:
     // Implement to identify a change number at the cursor position
     virtual QString changeUnderCursor(const QTextCursor &) const = 0;
     // Factory functions for highlighters
-    virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes,
-                                                                   const QColor &bg) const = 0;
+    virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const = 0;
     // Returns a local file name from the diff file specification
     // (text cursor at position above change hunk)
     QString fileNameFromDiffSpecification(const QTextBlock &inBlock) const;

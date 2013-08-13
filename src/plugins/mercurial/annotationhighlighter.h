@@ -39,7 +39,7 @@ namespace Internal {
 class MercurialAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers, const QColor &bg,
+    explicit MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                             QTextDocument *document = 0);
 
 private:

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "baseannotationhighlighter.h"
+#include <texteditor/fontsettings.h>
 
 #include <QDebug>
 #include <QColor>
@@ -51,34 +52,63 @@ typedef QMap<QString, QTextCharFormat> ChangeNumberFormatMap;
 */
 
 namespace VcsBase {
-namespace Internal {
 
 class BaseAnnotationHighlighterPrivate
 {
+    BaseAnnotationHighlighter *q_ptr;
+    Q_DECLARE_PUBLIC(BaseAnnotationHighlighter)
 public:
+    enum Formats {
+        BackgroundFormat // C_TEXT
+    };
+
+    BaseAnnotationHighlighterPrivate();
+
+    void updateOtherFormats();
+
     ChangeNumberFormatMap m_changeNumberMap;
     QColor m_background;
 };
 
-} // namespace Internal
+BaseAnnotationHighlighterPrivate::BaseAnnotationHighlighterPrivate()
+    : q_ptr(0)
+{
+}
+
+void BaseAnnotationHighlighterPrivate::updateOtherFormats()
+{
+    Q_Q(BaseAnnotationHighlighter);
+    m_background = q->formatForCategory(BackgroundFormat).brushProperty(QTextFormat::BackgroundBrush).color();
+    q->setChangeNumbers(m_changeNumberMap.keys().toSet());
+}
+
 
 BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                     const QColor &bg,
                                                      QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document),
-    d(new Internal::BaseAnnotationHighlighterPrivate)
+    d_ptr(new BaseAnnotationHighlighterPrivate())
 {
-    d->m_background = bg;
+    d_ptr->q_ptr = this;
+
+    Q_D(BaseAnnotationHighlighter);
+
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty())
+        categories << TextEditor::C_TEXT;
+
+    setTextFormatCategories(categories);
+    d->updateOtherFormats();
+
     setChangeNumbers(changeNumbers);
 }
 
 BaseAnnotationHighlighter::~BaseAnnotationHighlighter()
 {
-    delete d;
 }
 
 void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumbers)
 {
+    Q_D(BaseAnnotationHighlighter);
     d->m_changeNumberMap.clear();
     if (!changeNumbers.isEmpty()) {
         // Assign a color gradient to annotation change numbers. Give
@@ -99,6 +129,7 @@ void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumb
 
 void BaseAnnotationHighlighter::highlightBlock(const QString &text)
 {
+    Q_D(BaseAnnotationHighlighter);
     if (text.isEmpty() || d->m_changeNumberMap.empty())
         return;
     const QString change = changeNumber(text);
@@ -107,10 +138,11 @@ void BaseAnnotationHighlighter::highlightBlock(const QString &text)
         setFormat(0, text.length(), it.value());
 }
 
-void BaseAnnotationHighlighter::setBackgroundColor(const QColor &color)
+void BaseAnnotationHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
 {
-    d->m_background = color;
-    setChangeNumbers(d->m_changeNumberMap.keys().toSet());
+    Q_D(BaseAnnotationHighlighter);
+    SyntaxHighlighter::setFontSettings(fontSettings);
+    d->updateOtherFormats();
 }
 
 } // namespace VcsBase

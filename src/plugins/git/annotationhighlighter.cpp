@@ -35,9 +35,8 @@ namespace Git {
 namespace Internal {
 
 GitAnnotationHighlighter::GitAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                   const QColor &bg,
                                                    QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, bg, document),
+    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
     m_blank(QLatin1Char(' '))
 {
 }

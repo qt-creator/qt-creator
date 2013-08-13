@@ -30,8 +30,6 @@
 #ifndef CPPHIGHLIGHTER_H
 #define CPPHIGHLIGHTER_H
 
-#include "cppeditorenums.h"
-
 #include <texteditor/syntaxhighlighter.h>
 
 #include <QTextCharFormat>
@@ -51,12 +49,6 @@ public:
 
     virtual void highlightBlock(const QString &text);
 
-    // Set formats from a sequence of type QTextCharFormat
-    template <class InputIterator>
-        void setFormats(InputIterator begin, InputIterator end) {
-            qCopy(begin, end, m_formats);
-        }
-
 private:
     void highlightWord(QStringRef word, int position, int length);
     void highlightLine(const QString &line, int position, int length,
@@ -66,8 +58,6 @@ private:
                                  int length);
 
     bool isPPKeyword(const QStringRef &text) const;
-
-    QTextCharFormat m_formats[NumCppFormats];
 };
 
 } // namespace Internal

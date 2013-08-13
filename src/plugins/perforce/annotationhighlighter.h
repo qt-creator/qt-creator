@@ -41,7 +41,6 @@ class PerforceAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
     Q_OBJECT
 public:
     explicit PerforceAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                           const QColor &bg,
                                            QTextDocument *document = 0);
 
 private:

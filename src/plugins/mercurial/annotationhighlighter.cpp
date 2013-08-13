@@ -34,9 +34,8 @@ using namespace Mercurial::Internal;
 using namespace Mercurial;
 
 MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                               const QColor &bg,
                                                                QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(changeNumbers, bg, document),
+    : VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
     changeset(QLatin1String(Constants::CHANGESETID12))
 {
 }
