@@ -48,7 +48,7 @@ typedef CppTools::ProjectPart ProjectPart;
 typedef CppTools::ProjectFile ProjectFile;
 typedef ProjectExplorer::Project Project;
 
-Q_DECLARE_METATYPE(ProjectFile)
+Q_DECLARE_METATYPE(QList<ProjectFile>)
 
 namespace {
 
