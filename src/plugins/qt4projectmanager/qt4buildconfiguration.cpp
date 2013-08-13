@@ -29,7 +29,6 @@
 
 #include "qt4buildconfiguration.h"
 
-#include "buildconfigurationinfo.h"
 #include "qmakebuildinfo.h"
 #include "qt4project.h"
 #include "qt4projectconfigwidget.h"
@@ -57,6 +56,20 @@
 #include <QInputDialog>
 
 namespace Qt4ProjectManager {
+
+// --------------------------------------------------------------------
+// Helpers:
+// --------------------------------------------------------------------
+
+static Utils::FileName defaultBuildDirectory(bool supportsShadowBuild,
+                                             const QString &projectPath,
+                                             const ProjectExplorer::Kit *k,
+                                             const QString &suffix)
+{
+    if (supportsShadowBuild)
+        return Utils::FileName::fromString(Qt4Project::shadowBuildDirectory(projectPath, k, suffix));
+    return Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath));
+}
 
 using namespace Internal;
 using namespace ProjectExplorer;
@@ -550,10 +563,8 @@ QmakeBuildInfo *Qt4BuildConfigurationFactory::createBuildInfo(const Kit *k,
     // Leave info->buildDirectory unset;
     info->kitId = k->id();
     info->supportsShadowBuild = (version && version->supportsShadowBuilds());
-    if (info->supportsShadowBuild)
-        info->buildDirectory = Utils::FileName::fromString(Qt4Project::shadowBuildDirectory(projectPath, k, info->displayName));
-    else
-        info->buildDirectory = Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath));
+    info->buildDirectory
+            = defaultBuildDirectory(info->supportsShadowBuild, projectPath, k, info->displayName);
     info->type = type;
     return info;
 }
@@ -571,7 +582,26 @@ QList<BuildInfo *> Qt4BuildConfigurationFactory::availableBuilds(const Target *p
     QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath(),
                                            BuildConfiguration::Debug);
     info->displayName.clear(); // ask for a name
+    info->buildDirectory.clear(); // This depends on the displayName
     result << info;
+
+    return result;
+}
+
+bool Qt4BuildConfigurationFactory::canSetup(const Kit *k, const QString &projectPath) const
+{
+    return k && QtSupport::QtKitInformation::qtVersion(k)
+            && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::PROFILE_MIMETYPE));
+}
+
+QList<BuildInfo *> Qt4BuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+{
+    QList<ProjectExplorer::BuildInfo *> result;
+    QTC_ASSERT(canSetup(k, projectPath), return result);
+
+    result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
+    result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Release);
 
     return result;
 }
@@ -594,11 +624,44 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const B
     else
         config |= QtSupport::BaseQtVersion::DebugBuild;
 
-    BuildConfiguration *bc
-            = Qt4BuildConfiguration::setup(parent, info->displayName, info->displayName,
-                                           config, qmakeInfo->additionalArguments,
-                                           info->buildDirectory.toString(), false);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(parent);
+    bc->setDefaultDisplayName(info->displayName);
+    bc->setDisplayName(info->displayName);
 
+    BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+    BuildStepList *cleanSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    Q_ASSERT(buildSteps);
+    Q_ASSERT(cleanSteps);
+
+    QMakeStep *qmakeStep = new QMakeStep(buildSteps);
+    buildSteps->insertStep(0, qmakeStep);
+
+    MakeStep *makeStep = new MakeStep(buildSteps);
+    buildSteps->insertStep(1, makeStep);
+
+    MakeStep *cleanStep = new MakeStep(cleanSteps);
+    cleanStep->setClean(true);
+    cleanStep->setUserArguments(QLatin1String("clean"));
+    cleanSteps->insertStep(0, cleanStep);
+
+    QString additionalArguments = qmakeInfo->additionalArguments;
+
+    bool enableQmlDebugger
+            = Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
+    if (!additionalArguments.isEmpty())
+        qmakeStep->setUserArguments(additionalArguments);
+    qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
+
+    bc->setQMakeBuildConfiguration(config);
+
+    Utils::FileName directory = qmakeInfo->buildDirectory;
+    if (directory.isEmpty()) {
+        directory = defaultBuildDirectory(qmakeInfo->supportsShadowBuild,
+                                          parent->project()->projectFilePath(),
+                                          parent->kit(), info->displayName);
+    }
+
+    bc->setBuildDirectory(directory);
     return bc;
 }
 
@@ -633,87 +696,12 @@ BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const 
     return 0;
 }
 
-QList<BuildConfigurationInfo> Qt4BuildConfigurationFactory::availableBuildConfigurations(const Kit *k,
-                                                                                         const QString &proFilePath)
-{
-    QList<BuildConfigurationInfo> infoList;
-
-    BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    if (!version || !version->isValid())
-        return infoList;
-    BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild;
-    BuildConfigurationInfo info = BuildConfigurationInfo(config, QString(), QString(), false);
-    info.directory = Qt4Project::shadowBuildDirectory(proFilePath, k, buildConfigurationDisplayName(info));
-    infoList.append(info);
-
-    info.buildConfig = config ^ BaseQtVersion::DebugBuild;
-    info.directory = Qt4Project::shadowBuildDirectory(proFilePath, k, buildConfigurationDisplayName(info));
-    infoList.append(info);
-    return infoList;
-}
-
-// Return name of a build configuration.
-QString Qt4BuildConfigurationFactory::buildConfigurationDisplayName(const BuildConfigurationInfo &info)
-{
-    return (info.buildConfig & BaseQtVersion::DebugBuild) ?
-                //: Name of a debug build configuration to created by a project wizard. We recommend not translating it.
-                tr("Debug") :
-                //: Name of a release build configuration to be created by a project wizard. We recommend not translating it.
-                tr("Release");
-}
-
 BuildConfiguration::BuildType Qt4BuildConfiguration::buildType() const
 {
     if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         return Debug;
     else
         return Release;
-}
-
-Qt4BuildConfiguration *Qt4BuildConfiguration::setup(Target *t, QString defaultDisplayName,
-                                                    QString displayName,
-                                                    BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                                    QString additionalArguments, QString directory,
-                                                    bool importing)
-{
-    Q_UNUSED(importing);
-
-    // Add the build configuration.
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(t);
-    bc->setDefaultDisplayName(defaultDisplayName);
-    bc->setDisplayName(displayName);
-
-    BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
-    BuildStepList *cleanSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-    Q_ASSERT(buildSteps);
-    Q_ASSERT(cleanSteps);
-
-    QMakeStep *qmakeStep = new QMakeStep(buildSteps);
-    buildSteps->insertStep(0, qmakeStep);
-
-    MakeStep *makeStep = new MakeStep(buildSteps);
-    buildSteps->insertStep(1, makeStep);
-
-    MakeStep *cleanStep = new MakeStep(cleanSteps);
-    cleanStep->setClean(true);
-    cleanStep->setUserArguments(QLatin1String("clean"));
-    cleanSteps->insertStep(0, cleanStep);
-
-    bool enableQmlDebugger
-            = Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
-
-    if (!additionalArguments.isEmpty())
-        qmakeStep->setUserArguments(additionalArguments);
-    qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
-
-    bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
-
-    if (directory.isEmpty())
-        bc->setBuildDirectory(Utils::FileName::fromString(t->project()->projectDirectory()));
-    else
-        bc->setBuildDirectory(Utils::FileName::fromString(directory));
-
-    return bc;
 }
 
 Qt4BuildConfiguration::LastKitState::LastKitState()
@@ -742,7 +730,5 @@ bool Qt4BuildConfiguration::LastKitState::operator !=(const LastKitState &other)
 {
     return !operator ==(other);
 }
-
-
 
 } // namespace Qt4ProjectManager

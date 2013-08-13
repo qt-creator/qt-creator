@@ -27,48 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDCONFIGURATIONINFO_H
-#define BUILDCONFIGURATIONINFO_H
+#ifndef QMAKEPROJECTIMPORTER_H
+#define QMAKEPROJECTIMPORTER_H
 
-#include "qt4projectmanager_global.h"
+#include <projectexplorer/projectimporter.h>
 
-#include <qtsupport/baseqtversion.h>
+namespace QtSupport { class BaseQtVersion; }
 
 namespace Qt4ProjectManager {
 
-class QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo
+class Qt4Project;
+
+namespace Internal {
+
+// Documentation inside.
+class QmakeProjectImporter : public ProjectExplorer::ProjectImporter
 {
 public:
-    explicit BuildConfigurationInfo()
-        : buildConfig(QtSupport::BaseQtVersion::QmakeBuildConfig(0)), importing(false)
-    { }
+    QmakeProjectImporter(const QString &path);
 
-    explicit BuildConfigurationInfo(QtSupport::BaseQtVersion::QmakeBuildConfigs bc,
-                                    const QString &aa, const QString &d,
-                                    bool importing_ = false,
-                                    const QString &makefile_ = QString())
-        : buildConfig(bc),
-          additionalArguments(aa), directory(d),
-          importing(importing_),
-          makefile(makefile_)
-    { }
+    QList<ProjectExplorer::BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
+    QStringList importCandidates(const Utils::FileName &projectFilePath);
+    ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets);
 
-    bool operator ==(const BuildConfigurationInfo &other) const
-    {
-        return buildConfig == other.buildConfig
-                && additionalArguments == other.additionalArguments
-                && directory == other.directory
-                && importing == other.importing
-                && makefile == other.makefile;
-    }
+    void cleanupKit(ProjectExplorer::Kit *k);
 
-    QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig;
-    QString additionalArguments;
-    QString directory;
-    bool importing;
-    QString makefile;
+private:
+    ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version,
+                                             bool temporaryVersion,
+                                             const Utils::FileName &parsedSpec);
 };
 
+} // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // BUILDCONFIGURATIONINFO_H
+#endif // QMAKEPROJECTIMPORTER_H

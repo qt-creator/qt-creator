@@ -31,12 +31,12 @@
 
 #include "qtquickapp.h"
 #include "qtquickappwizardpages.h"
-#include "targetsetuppage.h"
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include "qt4projectmanagerconstants.h"
 
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/targetsetuppage.h>
 
 #include <QIcon>
 #include <QDebug>
@@ -226,7 +226,7 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
 void QtQuickAppWizard::projectPathChanged(const QString &path) const
 {
     if (d->wizardDialog->targetsPage())
-        d->wizardDialog->targetsPage()->setProFilePath(path);
+        d->wizardDialog->targetsPage()->setProjectPath(path);
 }
 
 void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,

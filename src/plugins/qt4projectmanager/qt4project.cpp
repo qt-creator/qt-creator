@@ -30,12 +30,13 @@
 #include "qt4project.h"
 
 #include "qt4projectmanager.h"
+#include "qmakeprojectimporter.h"
+#include "qmakebuildinfo.h"
 #include "qmakestep.h"
 #include "qt4nodes.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
 #include "findqt4profiles.h"
-#include "buildconfigurationinfo.h"
 #include "qt4projectmanager/wizards/abstractmobileapp.h"
 #include "qt4projectmanager/wizards/qtquickapp.h"
 #include "qt4projectmanager/wizards/html5app.h"
@@ -378,32 +379,6 @@ void Qt4Project::updateFileList()
         if (debug)
             qDebug() << Q_FUNC_INFO << *m_projectFiles;
     }
-}
-
-bool Qt4Project::setupTarget(ProjectExplorer::Target *t)
-{
-    QList<BuildConfigurationInfo> infoList
-            = Qt4BuildConfigurationFactory::availableBuildConfigurations(t->kit(), m_fileInfo->filePath());
-    setupTarget(t, infoList);
-    return true;
-}
-
-void Qt4Project::setupTarget(ProjectExplorer::Target *t, const QList<BuildConfigurationInfo> &infoList)
-{
-    // Build Configurations:
-    foreach (const BuildConfigurationInfo &info, infoList) {
-        QString name = info.buildConfig & QtSupport::BaseQtVersion::DebugBuild
-                ? tr("Debug") : tr("Release");
-        Qt4BuildConfiguration *bc
-                = Qt4BuildConfiguration::setup(t, name, name,
-                                               info.buildConfig, info.additionalArguments,
-                                               info.directory, info.importing);
-        t->addBuildConfiguration(bc);
-    }
-
-    // Deploy Configurations:
-    t->updateDefaultDeployConfigurations();
-    // Do not create Run Configurations: Those will be generated later anyway.
 }
 
 bool Qt4Project::fromMap(const QVariantMap &map)
@@ -1389,6 +1364,7 @@ bool Qt4Project::needsConfiguration() const
 
 void Qt4Project::configureAsExampleProject(const QStringList &platforms)
 {
+    QList<const BuildInfo *> infoList;
     QList<Kit *> kits = ProjectExplorer::KitManager::kits();
     foreach (Kit *k, kits) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
@@ -1397,12 +1373,14 @@ void Qt4Project::configureAsExampleProject(const QStringList &platforms)
         if (!platforms.isEmpty() && !platforms.contains(version->platformName()))
             continue;
 
-        QList<BuildConfigurationInfo> infoList
-                = Qt4BuildConfigurationFactory::availableBuildConfigurations(k, projectFilePath());
-        if (infoList.isEmpty())
+        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(k, projectFilePath());
+        if (!factory)
             continue;
-        addTarget(createTarget(k, infoList));
+        foreach (BuildInfo *info, factory->availableSetups(k, projectFilePath()))
+            infoList << info;
     }
+    setup(infoList);
+    qDeleteAll(infoList);
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
 
@@ -1454,16 +1432,6 @@ QString Qt4Project::buildNameFor(const Kit *k)
         return QLatin1String("unknown");
 
     return k->fileSystemFriendlyName();
-}
-
-Target *Qt4Project::createTarget(Kit *k, const QList<BuildConfigurationInfo> &infoList)
-{
-    if (target(k))
-        return 0;
-
-    Target *t = new Target(this, k);
-    setupTarget(t, infoList);
-    return t;
 }
 
 void Qt4Project::updateBuildSystemData()
@@ -1653,6 +1621,12 @@ void Qt4Project::emitBuildDirectoryInitialized()
 {
     emit buildDirectoryInitialized();
 }
+
+ProjectImporter *Qt4Project::createProjectImporter() const
+{
+    return new QmakeProjectImporter(projectFilePath());
+}
+
 } // namespace Qt4ProjectManager
 
 #include "qt4project.moc"

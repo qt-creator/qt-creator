@@ -341,6 +341,18 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, con
     return 0;
 }
 
+// setup
+IBuildConfigurationFactory *IBuildConfigurationFactory::find(Kit *k, const QString &projectPath)
+{
+    QList<IBuildConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+    foreach (IBuildConfigurationFactory *factory, factories) {
+        if (factory->canSetup(k, projectPath))
+            return factory;
+    }
+    return 0;
+}
+
 // create
 IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {

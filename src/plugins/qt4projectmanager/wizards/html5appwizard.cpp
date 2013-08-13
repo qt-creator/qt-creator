@@ -31,11 +31,11 @@
 
 #include "html5app.h"
 #include "html5appwizardpages.h"
-#include "targetsetuppage.h"
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/targetsetuppage.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <limits>
 
@@ -115,7 +115,7 @@ AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidge
 void Html5AppWizard::projectPathChanged(const QString &path) const
 {
     if (d->wizardDialog->targetsPage())
-        d->wizardDialog->targetsPage()->setProFilePath(path);
+        d->wizardDialog->targetsPage()->setProjectPath(path);
 }
 
 void Html5AppWizard::prepareGenerateFiles(const QWizard *w,

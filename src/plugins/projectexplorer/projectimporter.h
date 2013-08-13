@@ -27,40 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef IMPORTWIDGET_H
-#define IMPORTWIDGET_H
+#ifndef PROJECTIMPORTER_H
+#define PROJECTIMPORTER_H
 
-#include <QWidget>
+#include "projectexplorer_export.h"
 
-namespace Utils {
-class PathChooser;
-class FileName;
-} // namespace Utils
+#include <utils/fileutils.h>
 
-namespace Qt4ProjectManager {
-namespace Internal {
+namespace ProjectExplorer {
 
-class ImportWidget : public QWidget
+class BuildInfo;
+class Kit;
+class Project;
+class Target;
+
+// Documentation inside.
+class PROJECTEXPLORER_EXPORT ProjectImporter
 {
-    Q_OBJECT
-
 public:
-    explicit ImportWidget(QWidget *parent = 0);
-    ~ImportWidget();
+    ProjectImporter(const QString &path);
+    virtual ~ProjectImporter();
 
-    void setCurrentDirectory(const Utils::FileName &dir);
+    const QString projectFilePath() const { return m_projectPath; }
 
-signals:
-    void importFrom(const Utils::FileName &dir);
+    virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) = 0;
+    virtual QStringList importCandidates(const Utils::FileName &projectFilePath) = 0;
+    virtual Target *preferredTarget(const QList<Target *> &possibleTargets) = 0;
 
-private slots:
-    void handleImportRequest();
+    bool isUpdating() const { return m_isUpdating; }
+
+    virtual void markTemporary(Kit *k);
+    virtual void makePermanent(Kit *k);
+
+    // Additional cleanup that has to happen when kits are removed
+    virtual void cleanupKit(Kit *k);
+
+    void addProject(Kit *k);
+    void removeProject(Kit *k, const QString &path);
+
+protected:
+    void setIsUpdating(bool b) { m_isUpdating = b; }
 
 private:
-    Utils::PathChooser *m_pathChooser;
+    const QString m_projectPath;
+    bool m_isUpdating;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
-#endif // IMPORTWIDGET_H
+#endif // PROJECTIMPORTER_H

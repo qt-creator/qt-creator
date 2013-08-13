@@ -27,12 +27,13 @@
 **
 ****************************************************************************/
 
-#ifndef QT4TARGETSETUPWIDGET_H
-#define QT4TARGETSETUPWIDGET_H
+#ifndef TARGETSETUPWIDGET_H
+#define TARGETSETUPWIDGET_H
 
-#include "qt4projectmanager_global.h"
+#include "projectexplorer_export.h"
 
-#include <projectexplorer/task.h>
+#include "buildinfo.h"
+#include "task.h"
 
 #include <QWidget>
 
@@ -45,38 +46,36 @@ class QPushButton;
 class QSpacerItem;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Kit; }
-namespace QtSupport {
-class BaseQtVersion;
-} // namespace QtSupport
 namespace Utils {
 class DetailsWidget;
 class PathChooser;
 } // namespace Utils
 
-namespace Qt4ProjectManager {
-class BuildConfigurationInfo;
+namespace ProjectExplorer {
+class BuildInfo;
+class Kit;
 
-class QT4PROJECTMANAGER_EXPORT Qt4TargetSetupWidget : public QWidget
+namespace Internal {
+
+class TargetSetupWidget : public QWidget
 {
     Q_OBJECT
 public:
-    Qt4TargetSetupWidget(ProjectExplorer::Kit *k,
-                         const QString &proFilePath,
-                         const QList<BuildConfigurationInfo> &infoList);
-    ~Qt4TargetSetupWidget();
+    TargetSetupWidget(Kit *k,
+                      const QString &projectPath,
+                      const QList<BuildInfo *> &infoList);
+    ~TargetSetupWidget();
 
-    ProjectExplorer::Kit *kit();
+    Kit *kit();
     void clearKit();
 
     bool isKitSelected() const;
     void setKitSelected(bool b);
 
-    void addBuildConfigurationInfo(const BuildConfigurationInfo &info, bool importing = false);
+    void addBuildInfo(BuildInfo *info, bool isImport);
 
-    QList<BuildConfigurationInfo> selectedBuildConfigurationInfoList() const;
-    QList<BuildConfigurationInfo> allBuildConfigurationInfoList() const;
-    void setProFilePath(const QString &proFilePath);
+    QList<const BuildInfo *> selectedBuildInfoList() const;
+    void setProjectPath(const QString &projectPath);
 
 signals:
     void selectedToggled() const;
@@ -91,18 +90,18 @@ private slots:
 
 private:
     void reportIssues(int index);
-    QPair<ProjectExplorer::Task::TaskType, QString> findIssues(const BuildConfigurationInfo &info);
+    QPair<Task::TaskType, QString> findIssues(const BuildInfo *info);
     void clear();
 
-    ProjectExplorer::Kit *m_kit;
-    QString m_proFilePath;
+    Kit *m_kit;
+    QString m_projectPath;
     bool m_haveImported;
     Utils::DetailsWidget *m_detailsWidget;
     QPushButton *m_manageButton;
     QGridLayout *m_newBuildsLayout;
     QList<QCheckBox *> m_checkboxes;
     QList<Utils::PathChooser *> m_pathChoosers;
-    QList<BuildConfigurationInfo> m_infoList;
+    QList<BuildInfo *> m_infoList;
     QList<bool> m_enabled;
     QList<QLabel *> m_reportIssuesLabels;
     QList<bool> m_issues;
@@ -110,6 +109,7 @@ private:
     int m_selected; // Number of selected buildconfiguartions
 };
 
-} // namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace ProjectExplorer
 
-#endif // QT4TARGETSETUPWIDGET_H
+#endif // TARGETSETUPWIDGET_H

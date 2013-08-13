@@ -35,7 +35,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
 namespace Internal {
 
 ImportWidget::ImportWidget(QWidget *parent) :
@@ -85,4 +85,4 @@ void ImportWidget::handleImportRequest()
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer

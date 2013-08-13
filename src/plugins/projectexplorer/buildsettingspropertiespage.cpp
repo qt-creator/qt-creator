@@ -98,7 +98,7 @@ PropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
 
 BuildSettingsWidget::~BuildSettingsWidget()
 {
-    clear();
+    clearWidgets();
     qDeleteAll(m_buildInfoList);
 }
 
@@ -195,7 +195,7 @@ void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
     m_subWidgets.append(widget);
 }
 
-void BuildSettingsWidget::clear()
+void BuildSettingsWidget::clearWidgets()
 {
     qDeleteAll(m_subWidgets);
     m_subWidgets.clear();
@@ -232,7 +232,7 @@ void BuildSettingsWidget::updateAddButtonMenu()
 
 void BuildSettingsWidget::updateBuildSettings()
 {
-    clear();
+    clearWidgets();
 
     // update buttons
     m_removeButton->setEnabled(m_target->buildConfigurations().size() > 1);

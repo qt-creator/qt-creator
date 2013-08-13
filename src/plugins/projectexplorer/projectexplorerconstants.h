@@ -246,6 +246,9 @@ const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
 const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
 
+// Unconfigured Panel
+const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
+
 } // namespace Constants
 
 // Run modes

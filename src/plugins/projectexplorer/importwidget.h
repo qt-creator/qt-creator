@@ -27,37 +27,40 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEBUILDINFO_H
-#define QMAKEBUILDINFO_H
+#ifndef IMPORTWIDGET_H
+#define IMPORTWIDGET_H
 
-#include "qt4buildconfiguration.h"
+#include <QWidget>
 
-#include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kitmanager.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+namespace Utils {
+class PathChooser;
+class FileName;
+} // namespace Utils
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
+namespace Internal {
 
-class QmakeBuildInfo : public ProjectExplorer::BuildInfo
+class ImportWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
-    QmakeBuildInfo(const Qt4BuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f) { }
+    explicit ImportWidget(QWidget *parent = 0);
+    ~ImportWidget();
 
-    ProjectExplorer::BuildConfiguration::BuildType type;
-    QString additionalArguments;
-    QString makefile;
+    void setCurrentDirectory(const Utils::FileName &dir);
 
-    QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,
-                                              const QString &buildDir) const
-    {
-        ProjectExplorer::Kit *k = ProjectExplorer::KitManager::find(kitId);
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        return version ? version->reportIssues(projectPath, buildDir)
-                       : QList<ProjectExplorer::Task>();
-    }
+signals:
+    void importFrom(const Utils::FileName &dir);
+
+private slots:
+    void handleImportRequest();
+
+private:
+    Utils::PathChooser *m_pathChooser;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace ProjectExplorer
 
-#endif // QMAKEBUILDINFO_H
+#endif // IMPORTWIDGET_H

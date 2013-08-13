@@ -72,7 +72,7 @@ public:
     BuildSettingsWidget(Target *target);
     ~BuildSettingsWidget();
 
-    void clear();
+    void clearWidgets();
     void addSubWidget(ProjectExplorer::NamedWidget *widget);
     QList<ProjectExplorer::NamedWidget *> subWidgets() const;
 

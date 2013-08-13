@@ -30,21 +30,19 @@
 #ifndef UNCONFIGUREDPROJECTPANEL_H
 #define UNCONFIGUREDPROJECTPANEL_H
 
-#include <projectexplorer/iprojectproperties.h>
+#include "iprojectproperties.h"
 
 #include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QPushButton)
 
-namespace ProjectExplorer { class Kit; }
-
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
+class Kit;
 class TargetSetupPage;
-class Qt4Project;
 
 namespace Internal {
 
-class UnconfiguredProjectPanel : public ProjectExplorer::IProjectPanelFactory
+class UnconfiguredProjectPanel : public IProjectPanelFactory
 {
     Q_OBJECT
 public:
@@ -52,15 +50,15 @@ public:
     virtual QString id() const;
     virtual QString displayName() const;
     int priority() const;
-    virtual bool supports(ProjectExplorer::Project *project);
-    virtual ProjectExplorer::PropertiesPanel *createPanel(ProjectExplorer::Project *project);
+    virtual bool supports(Project *project);
+    virtual PropertiesPanel *createPanel(Project *project);
 };
 
 class TargetSetupPageWrapper : public QWidget
 {
     Q_OBJECT
 public:
-    TargetSetupPageWrapper(ProjectExplorer::Project *project);
+    TargetSetupPageWrapper(Project *project);
 protected:
     void keyReleaseEvent(QKeyEvent *event);
     void keyPressEvent(QKeyEvent *event);
@@ -72,13 +70,13 @@ private slots:
     void completeChanged();
 
 private:
-    Qt4Project *m_project;
+    Project *m_project;
     TargetSetupPage *m_targetSetupPage;
     QPushButton *m_configureButton;
     QPushButton *m_cancelButton;
 };
 
-}
-}
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // UNCONFIGUREDPROJECTPANEL_H

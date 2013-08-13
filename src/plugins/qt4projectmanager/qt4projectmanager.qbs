@@ -54,7 +54,6 @@ QtcPlugin {
             "qt4projectmanagerplugin.cpp", "qt4projectmanagerplugin.h",
             "qt4targetsetupwidget.cpp", "qt4targetsetupwidget.h",
             "qtmodulesinfo.cpp", "qtmodulesinfo.h",
-            "unconfiguredprojectpanel.cpp", "unconfiguredprojectpanel.h",
             "winceqtversion.cpp", "winceqtversion.h",
             "winceqtversionfactory.cpp", "winceqtversionfactory.h"
         ]
@@ -117,7 +116,6 @@ QtcPlugin {
             "html5appwizard.cpp", "html5appwizard.h",
             "html5appwizardpages.cpp", "html5appwizardpages.h",
             "html5appwizardsourcespage.ui",
-            "importwidget.cpp", "importwidget.h",
             "libraryparameters.cpp", "libraryparameters.h",
             "librarywizard.cpp", "librarywizard.h",
             "librarywizarddialog.cpp", "librarywizarddialog.h",
@@ -137,7 +135,6 @@ QtcPlugin {
             "qtwizard.cpp", "qtwizard.h",
             "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
             "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",
-            "targetsetuppage.cpp", "targetsetuppage.h",
             "testwizard.cpp", "testwizard.h",
             "testwizarddialog.cpp", "testwizarddialog.h",
             "testwizardpage.cpp", "testwizardpage.h",

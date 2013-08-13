@@ -30,7 +30,7 @@
 #include "abstractmobileappwizard.h"
 
 #include "mobileappwizardpages.h"
-#include "targetsetuppage.h"
+#include "../qmakeprojectimporter.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <qt4projectmanager/qt4project.h>
@@ -38,6 +38,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/targetsetuppage.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -64,7 +65,8 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
                .value<QList<Core::Id> >())
 {
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))) {
-        m_targetsPage = new TargetSetupPage;
+        m_targetsPage = new ProjectExplorer::TargetSetupPage;
+        m_targetsPage->setProjectImporter(new Internal::QmakeProjectImporter(path()));
         QString platform = selectedPlatform();
         if (platform.isEmpty()) {
             m_targetsPage->setPreferredKitMatcher(
@@ -120,7 +122,7 @@ void AbstractMobileAppWizardDialog::addMobilePages()
         m_targetItem->setNextShownItem(0);
 }
 
-TargetSetupPage *AbstractMobileAppWizardDialog::targetsPage() const
+ProjectExplorer::TargetSetupPage *AbstractMobileAppWizardDialog::targetsPage() const
 {
     return m_targetsPage;
 }
@@ -295,7 +297,7 @@ void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     app()->setProjectName(projectName);
     app()->setProjectPath(projectPath);
     if (wizardDialog()->m_targetsPage)
-        wizardDialog()->m_targetsPage->setProFilePath(app()->path(AbstractMobileApp::AppPro));
+        wizardDialog()->m_targetsPage->setProjectPath(app()->path(AbstractMobileApp::AppPro));
     projectPathChanged(app()->path(AbstractMobileApp::AppPro));
 }
 

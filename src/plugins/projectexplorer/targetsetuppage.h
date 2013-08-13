@@ -30,7 +30,9 @@
 #ifndef TARGETSETUPPAGE_H
 #define TARGETSETUPPAGE_H
 
-#include "../qt4projectmanager_global.h"
+#include "projectexplorer_export.h"
+
+#include "projectimporter.h"
 
 #include <QString>
 #include <QWizardPage>
@@ -38,44 +40,36 @@
 
 QT_FORWARD_DECLARE_CLASS(QSpacerItem)
 
+namespace Core { class Id; }
 namespace Utils { class FileName; }
-
-namespace Core {
-class Id;
-} // namespace Core
 
 namespace ProjectExplorer {
 class Kit;
 class KitMatcher;
-} // namespace ProjectExplorer
-
-namespace QtSupport { class BaseQtVersion; }
-
-namespace Qt4ProjectManager {
-class Qt4Project;
-class Qt4TargetSetupWidget;
+class Project;
 
 namespace Internal {
 class ImportWidget;
 class TargetSetupPageUi;
+class TargetSetupWidget;
 } // namespace Internal
 
 /// \internal
-class QT4PROJECTMANAGER_EXPORT TargetSetupPage : public QWizardPage
+class PROJECTEXPLORER_EXPORT TargetSetupPage : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    explicit TargetSetupPage(QWidget* parent = 0);
+    explicit TargetSetupPage(QWidget *parent = 0);
     ~TargetSetupPage();
 
     /// Initializes the TargetSetupPage
-    /// \note The import information is gathered in initializePage(), make sure that the right proFilePath is set before
+    /// \note The import information is gathered in initializePage(), make sure that the right projectPath is set before
     void initializePage();
 
     // Call these before initializePage!
-    void setRequiredKitMatcher(ProjectExplorer::KitMatcher *matcher);
-    void setPreferredKitMatcher(ProjectExplorer::KitMatcher *matcher);
+    void setRequiredKitMatcher(KitMatcher *matcher);
+    void setPreferredKitMatcher(KitMatcher *matcher);
     void setImportSearch(bool b);
 
     /// Sets whether the targetsetupage uses a scrollarea
@@ -84,50 +78,46 @@ public:
     void setUseScrollArea(bool b);
 
     bool isComplete() const;
-    bool setupProject(Qt4ProjectManager::Qt4Project *project);
+    bool setupProject(Project *project);
     bool isKitSelected(Core::Id id) const;
     void setKitSelected(Core::Id id, bool selected);
     QList<Core::Id> selectedKits() const;
-    void setProFilePath(const QString &dir);
+    void setProjectPath(const QString &dir);
+    void setProjectImporter(ProjectImporter *importer);
 
     /// Overrides the summary text of the targetsetuppage
     void setNoteText(const QString &text);
     void showOptionsHint(bool show);
 
 private slots:
-    void import(const Utils::FileName &path);
-    void handleQtUpdate(const QList<int> &add, const QList<int> &rm, const QList<int> &mod);
     void handleKitAddition(ProjectExplorer::Kit *k);
     void handleKitRemoval(ProjectExplorer::Kit *k);
     void handleKitUpdate(ProjectExplorer::Kit *k);
     void updateVisibility();
     void openOptions();
+    void import(const Utils::FileName &path);
 
 private:
+    bool isUpdating() const;
     void selectAtLeastOneKit();
-    void import(const Utils::FileName &path, const bool silent);
-    void removeWidget(ProjectExplorer::Kit *k);
-    Qt4TargetSetupWidget *addWidget(ProjectExplorer::Kit *k);
+    void removeWidget(Kit *k);
+    Internal::TargetSetupWidget *addWidget(Kit *k);
 
     void setupImports();
+    void import(const Utils::FileName &path, bool silent);
 
     void setupWidgets();
     void reset();
-    ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version, bool temporaryVersion, const Utils::FileName &parsedSpec);
-    void cleanKit(ProjectExplorer::Kit *k);
-    void makeQtPersistent(ProjectExplorer::Kit *k);
-    void addProject(ProjectExplorer::Kit *k, const QString &path);
-    void removeProject(ProjectExplorer::Kit *k, const QString &path);
 
-    ProjectExplorer::KitMatcher *m_requiredMatcher;
-    ProjectExplorer::KitMatcher *m_preferredMatcher;
+    KitMatcher *m_requiredMatcher;
+    KitMatcher *m_preferredMatcher;
+    ProjectImporter *m_importer;
     QLayout *m_baseLayout;
     bool m_importSearch;
-    bool m_ignoreUpdates;
-    QString m_proFilePath;
+    QString m_projectPath;
     QString m_defaultShadowBuildLocation;
-    QMap<Core::Id, Qt4TargetSetupWidget *> m_widgets;
-    Qt4TargetSetupWidget *m_firstWidget;
+    QMap<Core::Id, Internal::TargetSetupWidget *> m_widgets;
+    Internal::TargetSetupWidget *m_firstWidget;
 
     Internal::TargetSetupPageUi *m_ui;
 
@@ -137,6 +127,6 @@ private:
     bool m_forceOptionHint;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
 #endif // TARGETSETUPPAGE_H

@@ -33,6 +33,8 @@
 #include <qt4projectmanager/qt4projectmanager_global.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
+namespace ProjectExplorer { class TargetSetupPage; }
+
 namespace QtSupport {
 class QtVersionNumber;
 class QtVersionManager;
@@ -41,7 +43,6 @@ class QtVersionManager;
 namespace Qt4ProjectManager {
 
 class AbstractMobileApp;
-class TargetSetupPage;
 
 namespace Internal {
 class MobileAppWizardGenericOptionsPage;
@@ -61,7 +62,7 @@ protected:
     void addMobilePages();
 
 public:
-    TargetSetupPage *targetsPage() const;
+    ProjectExplorer::TargetSetupPage *targetsPage() const;
 
 protected:
     int addPageWithTitle(QWizardPage *page, const QString &title);
@@ -80,7 +81,7 @@ private:
     Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
     Internal::MobileAppWizardMaemoOptionsPage *m_maemoOptionsPage;
     Internal::MobileAppWizardHarmattanOptionsPage *m_harmattanOptionsPage;
-    TargetSetupPage *m_targetsPage;
+    ProjectExplorer::TargetSetupPage *m_targetsPage;
 
     int m_genericOptionsPageId;
     int m_maemoOptionsPageId;

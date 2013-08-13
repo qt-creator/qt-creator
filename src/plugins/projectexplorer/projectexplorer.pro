@@ -11,12 +11,17 @@ HEADERS += projectexplorer.h \
     environmentaspect.h \
     environmentaspectwidget.h \
     gcctoolchain.h \
+    importwidget.h \
     localapplicationrunconfiguration.h \
     localenvironmentaspect.h \
     osparser.h \
     projectexplorer_export.h \
+    projectimporter.h \
     projectwindow.h \
     removetaskhandler.h \
+    targetsetuppage.h \
+    targetsetupwidget.h \
+    unconfiguredprojectpanel.h \
     kit.h \
     kitchooser.h \
     kitconfigwidget.h \
@@ -147,11 +152,16 @@ SOURCES += projectexplorer.cpp \
     environmentaspect.cpp \
     environmentaspectwidget.cpp \
     gcctoolchain.cpp \
+    importwidget.cpp \
     localapplicationrunconfiguration.cpp \
     localenvironmentaspect.cpp \
     osparser.cpp \
+    projectimporter.cpp \
     projectwindow.cpp \
     removetaskhandler.cpp \
+    targetsetuppage.cpp \
+    targetsetupwidget.cpp \
+    unconfiguredprojectpanel.cpp \
     kit.cpp \
     kitchooser.cpp \
     kitconfigwidget.cpp \

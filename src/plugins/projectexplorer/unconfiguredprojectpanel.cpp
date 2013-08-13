@@ -28,38 +28,36 @@
 ****************************************************************************/
 
 #include "unconfiguredprojectpanel.h"
-#include "wizards/targetsetuppage.h"
-#include "qt4projectmanagerconstants.h"
 
-#include "qt4project.h"
+#include "kit.h"
+#include "kitmanager.h"
+#include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorerconstants.h"
+#include "session.h"
+#include "targetsetuppage.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
-#include <qtsupport/qtkitinformation.h>
-
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QDialogButtonBox>
 
-using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
-
+namespace ProjectExplorer {
+namespace Internal {
 
 UnconfiguredProjectPanel::UnconfiguredProjectPanel()
 {
 }
 
-QString Qt4ProjectManager::Internal::UnconfiguredProjectPanel::id() const
+QString UnconfiguredProjectPanel::id() const
 {
     return QLatin1String(Constants::UNCONFIGURED_PANEL_PAGE_ID);
 }
 
-QString Qt4ProjectManager::Internal::UnconfiguredProjectPanel::displayName() const
+QString UnconfiguredProjectPanel::displayName() const
 {
     return tr("Configure Project");
 }
@@ -69,16 +67,14 @@ int UnconfiguredProjectPanel::priority() const
     return -10;
 }
 
-bool Qt4ProjectManager::Internal::UnconfiguredProjectPanel::supports(ProjectExplorer::Project *project)
+bool UnconfiguredProjectPanel::supports(Project *project)
 {
-    if (qobject_cast<Qt4Project *>(project) && project->targets().isEmpty())
-        return true;
-    return false;
+    return project->targets().isEmpty() && project->supportsNoTargetPanel();
 }
 
-ProjectExplorer::PropertiesPanel *Qt4ProjectManager::Internal::UnconfiguredProjectPanel::createPanel(ProjectExplorer::Project *project)
+PropertiesPanel *UnconfiguredProjectPanel::createPanel(Project *project)
 {
-    ProjectExplorer::PropertiesPanel *panel = new ProjectExplorer::PropertiesPanel;
+    PropertiesPanel *panel = new PropertiesPanel;
     panel->setDisplayName(displayName());
     panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png")));
 
@@ -91,20 +87,22 @@ ProjectExplorer::PropertiesPanel *Qt4ProjectManager::Internal::UnconfiguredProje
 /// TargetSetupPageWrapper
 ////////
 
-TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project)
-    : QWidget(), m_project(qobject_cast<Qt4Project *>(project))
+TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project) :
+    QWidget(), m_project(project)
 {
     QVBoxLayout *layout = new QVBoxLayout();
     layout->setMargin(0);
     setLayout(layout);
 
     m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher);
+    m_targetSetupPage->setProjectImporter(project->createProjectImporter());
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setImportSearch(true);
-    m_targetSetupPage->setProFilePath(project->projectFilePath());
+    m_targetSetupPage->setProjectPath(project->projectFilePath());
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    m_targetSetupPage->setRequiredKitMatcher(project->createRequiredKitMatcher());
+    m_targetSetupPage->setPreferredKitMatcher(project->createPreferredKitMatcher());
     updateNoteText();
 
     layout->addWidget(m_targetSetupPage);
@@ -137,21 +135,21 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
             this, SLOT(cancel()));
     connect(m_targetSetupPage, SIGNAL(completeChanged()),
             this, SLOT(completeChanged()));
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
+    connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
             this, SLOT(updateNoteText()));
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
             this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 }
 
-void TargetSetupPageWrapper::kitUpdated(ProjectExplorer::Kit *k)
+void TargetSetupPageWrapper::kitUpdated(Kit *k)
 {
-    if (k == ProjectExplorer::KitManager::defaultKit())
+    if (k == KitManager::defaultKit())
         updateNoteText();
 }
 
 void TargetSetupPageWrapper::updateNoteText()
 {
-    ProjectExplorer::Kit *k = ProjectExplorer::KitManager::defaultKit();
+    Kit *k = KitManager::defaultKit();
 
     QString text;
     bool showHint = false;
@@ -211,3 +209,6 @@ void TargetSetupPageWrapper::completeChanged()
 {
     m_configureButton->setEnabled(m_targetSetupPage->isComplete());
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer

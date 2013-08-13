@@ -104,6 +104,24 @@ QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableBuilds(const Tar
     return result;
 }
 
+bool AutotoolsBuildConfigurationFactory::canSetup(const Kit *k, const QString &projectPath) const
+{
+    return k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::MAKEFILE_MIMETYPE));
+}
+
+QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+{
+    QList<BuildInfo *> result;
+    QTC_ASSERT(canSetup(k, projectPath), return result);
+    BuildInfo *info = createBuildInfo(k,
+                                      Utils::FileName::fromString(AutotoolsProject::defaultBuildDirectory(projectPath)));
+    //: The name of the build configuration created by default for a autotools project.
+    info->displayName = tr("Default");
+    result << info;
+    return result;
+}
+
 BuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
     QTC_ASSERT(parent, return 0);
@@ -165,6 +183,7 @@ BuildInfo *AutotoolsBuildConfigurationFactory::createBuildInfo(const ProjectExpl
     info->typeName = tr("Build");
     info->buildDirectory = buildDir;
     info->kitId = k->id();
+    info->supportsShadowBuild = true; // Works sometimes...
 
     return info;
 }

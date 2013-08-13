@@ -37,6 +37,7 @@
 #include "projectexplorersettings.h"
 #include "projectmacroexpander.h"
 #include "removetaskhandler.h"
+#include "unconfiguredprojectpanel.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "target.h"
@@ -429,6 +430,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new DependenciesPanelFactory);
 
     addAutoReleasedObject(new ProcessStepFactory);
+    addAutoReleasedObject(new UnconfiguredProjectPanel);
 
     addAutoReleasedObject(new AllProjectsFind);
     addAutoReleasedObject(new CurrentProjectFind);
@@ -1653,7 +1655,7 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
 {
     if (debug) {
         qDebug() << "buildStateChanged";
-        qDebug() << pro->document()->filePath() << "isBuilding()" << BuildManager::isBuilding(pro);
+        qDebug() << pro->projectFilePath() << "isBuilding()" << BuildManager::isBuilding(pro);
     }
     Q_UNUSED(pro)
     updateActions();

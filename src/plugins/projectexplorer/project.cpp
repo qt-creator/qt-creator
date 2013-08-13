@@ -282,6 +282,7 @@ Target *Project::restoreTarget(const QVariantMap &data)
         delete t;
         return 0;
     }
+
     return t;
 }
 
@@ -505,8 +506,16 @@ void Project::setup(QList<const BuildInfo *> infoList)
             continue;
         t->addBuildConfiguration(bc);
     }
-    foreach (Target *t, toRegister)
+    foreach (Target *t, toRegister) {
+        t->updateDefaultDeployConfigurations();
+        t->updateDefaultRunConfigurations();
         addTarget(t);
+    }
+}
+
+ProjectImporter *Project::createProjectImporter() const
+{
+    return 0;
 }
 
 void Project::onBuildDirectoryChanged()

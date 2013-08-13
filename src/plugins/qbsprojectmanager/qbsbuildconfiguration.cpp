@@ -250,6 +250,7 @@ ProjectExplorer::BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const 
     info->buildDirectory = buildDirectory;
     info->kitId = k->id();
     info->type = type;
+    info->supportsShadowBuild = true;
     return info;
 }
 
@@ -267,6 +268,32 @@ QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableBuild
 
     ProjectExplorer::BuildInfo *info = createBuildInfo(parent->kit(), buildDirectory,
                                                        ProjectExplorer::BuildConfiguration::Debug);
+    result << info;
+
+    return result;
+}
+
+bool QbsBuildConfigurationFactory::canSetup(const ProjectExplorer::Kit *k, const QString &projectPath) const
+{
+    return k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::MIME_TYPE));
+}
+
+QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const
+{
+    QList<ProjectExplorer::BuildInfo *> result;
+    QTC_ASSERT(canSetup(k, projectPath), return result);
+
+    const Utils::FileName buildDirectory = QbsProject::defaultBuildDirectory(projectPath);
+
+    ProjectExplorer::BuildInfo *info = createBuildInfo(k, buildDirectory, ProjectExplorer::BuildConfiguration::Debug);
+    //: The name of the debug build configuration created by default for a qbs project.
+    info->displayName = tr("Debug");
+    result << info;
+
+    info = createBuildInfo(k, buildDirectory, ProjectExplorer::BuildConfiguration::Release);
+    //: The name of the release build configuration created by default for a qbs project.
+    info->displayName = tr("Release");
     result << info;
 
     return result;

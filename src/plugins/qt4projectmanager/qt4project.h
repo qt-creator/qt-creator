@@ -49,7 +49,6 @@ namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
 namespace Qt4ProjectManager {
-class BuildConfigurationInfo;
 class MakeStep;
 class QMakeStep;
 class Qt4BuildConfiguration;
@@ -139,9 +138,9 @@ public:
     /// used by the default implementation of shadowBuildDirectory
     static QString buildNameFor(const ProjectExplorer::Kit *k);
 
-    ProjectExplorer::Target *createTarget(ProjectExplorer::Kit *k, const QList<BuildConfigurationInfo> &infoList);
-
     void emitBuildDirectoryInitialized();
+
+    ProjectExplorer::ProjectImporter *createProjectImporter() const;
 
 signals:
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
@@ -155,8 +154,6 @@ public slots:
 
 protected:
     bool fromMap(const QVariantMap &map);
-    bool setupTarget(ProjectExplorer::Target *t);
-    void setupTarget(ProjectExplorer::Target *t, const QList<BuildConfigurationInfo> &infoList);
 
 private slots:
     void asyncUpdate();

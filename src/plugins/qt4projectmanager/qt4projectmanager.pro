@@ -8,6 +8,7 @@ HEADERS += \
     qmakebuildinfo.h \
     qmakekitinformation.h \
     qmakekitconfigwidget.h \
+    qmakeprojectimporter.h \
     qmakerunconfigurationfactory.h \
     qt4projectmanagerplugin.h \
     qt4projectmanager.h \
@@ -38,8 +39,6 @@ HEADERS += \
     wizards/modulespage.h \
     wizards/filespage.h \
     wizards/qtwizard.h \
-    wizards/targetsetuppage.h \
-    wizards/importwidget.h \
     wizards/qtquickapp.h \
     wizards/qtquickappwizard.h \
     wizards/qtquickappwizardpages.h \
@@ -62,16 +61,14 @@ HEADERS += \
     librarydetailscontroller.h \
     findqt4profiles.h \
     qt4projectmanager_global.h \
-    qt4targetsetupwidget.h \
-    buildconfigurationinfo.h \
     winceqtversionfactory.h \
     winceqtversion.h \
-    profilecompletionassist.h \
-    unconfiguredprojectpanel.h
+    profilecompletionassist.h
 
 SOURCES += \
     qmakekitconfigwidget.cpp \
     qmakekitinformation.cpp \
+    qmakeprojectimporter.cpp \
     qmakerunconfigurationfactory.cpp \
     qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
@@ -102,8 +99,6 @@ SOURCES += \
     wizards/modulespage.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \
-    wizards/targetsetuppage.cpp \
-    wizards/importwidget.cpp \
     wizards/qtquickapp.cpp \
     wizards/qtquickappwizard.cpp \
     wizards/qtquickappwizardpages.cpp \
@@ -124,11 +119,9 @@ SOURCES += \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
     findqt4profiles.cpp \
-    qt4targetsetupwidget.cpp \
     winceqtversionfactory.cpp \
     winceqtversion.cpp \
-    profilecompletionassist.cpp \
-    unconfiguredprojectpanel.cpp
+    profilecompletionassist.cpp
 
 FORMS += makestep.ui \
     qmakestep.ui \

@@ -44,7 +44,6 @@ class QMakeStep;
 class MakeStep;
 class Qt4BuildConfigurationFactory;
 class Qt4ProFileNode;
-class BuildConfigurationInfo;
 
 namespace Internal { class Qt4ProjectConfigWidget; }
 
@@ -103,13 +102,6 @@ public:
 
     BuildType buildType() const;
 
-    static Qt4BuildConfiguration *setup(ProjectExplorer::Target *t,
-                                        QString defaultDisplayName,
-                                        QString displayName,
-                                        QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                        QString additionalArguments,
-                                        QString directory,
-                                        bool importing);
     /// returns whether the Qt version in the profile supports shadow building (also true for no Qt version)
     bool supportsShadowBuilds();
 
@@ -161,6 +153,7 @@ private:
     ProjectExplorer::FileNode *m_fileNodeBuild;
 
     friend class Internal::Qt4ProjectConfigWidget;
+    friend class Qt4BuildConfigurationFactory;
 };
 
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
@@ -173,6 +166,9 @@ public:
 
     bool canCreate(const ProjectExplorer::Target *parent) const;
     QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
+    bool canSetup(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
+                                                        const QString &projectPath) const;
     ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
                                                 const ProjectExplorer::BuildInfo *info) const;
 
@@ -180,9 +176,6 @@ public:
     ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
     bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
-
-    static QList<BuildConfigurationInfo> availableBuildConfigurations(const ProjectExplorer::Kit *k, const QString &proFilePath);
-    static QString buildConfigurationDisplayName(const BuildConfigurationInfo &info);
 
 private slots:
     void update();

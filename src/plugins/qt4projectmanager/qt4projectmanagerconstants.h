@@ -90,9 +90,6 @@ const char QMAKEVAR_QMLJSDEBUGGER_PATH[] = "QMLJSDEBUGGER_PATH";
 const char QMAKEVAR_QUICK1_DEBUG[] = "CONFIG+=declarative_debug";
 const char QMAKEVAR_QUICK2_DEBUG[] = "CONFIG+=qml_debug";
 
-// Unconfigured Panel
-const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
-
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

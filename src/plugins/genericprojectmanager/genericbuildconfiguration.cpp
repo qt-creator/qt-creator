@@ -102,6 +102,23 @@ QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Targe
     return result;
 }
 
+bool GenericBuildConfigurationFactory::canSetup(const Kit *k, const QString &projectPath) const
+{
+    return k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::GENERICMIMETYPE));
+}
+
+QList<BuildInfo *> GenericBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+{
+    QList<BuildInfo *> result;
+    QTC_ASSERT(canSetup(k, projectPath), return result);
+    BuildInfo *info = createBuildInfo(k, Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath)));
+    //: The name of the build configuration created by default for a generic project.
+    info->displayName = tr("Default");
+    result << info;
+    return result;
+}
+
 BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
     QTC_ASSERT(canCreate(parent), return 0);

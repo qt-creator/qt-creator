@@ -133,6 +133,13 @@ public:
     // List of build information that can be used to create a new build configuration via
     // "Add Build Configuration" button.
     virtual QList<BuildInfo *> availableBuilds(const Target *parent) const = 0;
+
+    // Used to see whether this factory can produce any BuildConfigurations for a kit when
+    // setting up the given project.
+    virtual bool canSetup(const Kit *k, const QString &projectPath) const = 0;
+    // List of build information that can be used to initially set up a new build configuration.
+    virtual QList<BuildInfo *> availableSetups(const Kit *k, const QString &projectPath) const = 0;
+
     virtual BuildConfiguration *create(Target *parent, const BuildInfo *info) const = 0;
 
     // used to recreate the runConfigurations when restoring settings

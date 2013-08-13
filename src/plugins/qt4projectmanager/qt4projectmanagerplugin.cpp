@@ -53,7 +53,6 @@
 #include "qt-desktop/desktopqtversionfactory.h"
 #include "qt-desktop/simulatorqtversionfactory.h"
 #include "winceqtversionfactory.h"
-#include "unconfiguredprojectpanel.h"
 #include "qmakekitinformation.h"
 #include "profilehighlighterfactory.h"
 
@@ -156,7 +155,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
     addAutoReleasedObject(new ProFileHoverHandler(this));
-    addAutoReleasedObject(new UnconfiguredProjectPanel);
     addAutoReleasedObject(new ProFileHighlighterFactory);
 
     //menus

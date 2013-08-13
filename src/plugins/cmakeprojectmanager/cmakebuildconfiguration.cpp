@@ -132,7 +132,30 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBui
     QList<ProjectExplorer::BuildInfo *> result;
     QTC_ASSERT(canCreate(parent), return result);
 
-    CMakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectDirectory());
+    CMakeBuildInfo *info = createBuildInfo(parent->kit(),
+                                           parent->project()->projectDirectory());
+    result << info;
+    return result;
+}
+
+bool CMakeBuildConfigurationFactory::canSetup(const ProjectExplorer::Kit *k, const QString &projectPath) const
+{
+    return k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::CMAKEMIMETYPE));
+}
+
+QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k,
+                                                                                    const QString &projectPath) const
+{
+    QList<ProjectExplorer::BuildInfo *> result;
+    QTC_ASSERT(canSetup(k, projectPath), return result);
+
+    CMakeBuildInfo *info = createBuildInfo(k, ProjectExplorer::Project::projectDirectory(projectPath));
+    //: The name of the build configuration created by default for a cmake project.
+    info->displayName = tr("Default");
+    info->buildDirectory
+            = Utils::FileName::fromString(CMakeProject::shadowBuildDirectory(projectPath, k,
+                                                                             info->displayName));
     result << info;
     return result;
 }
@@ -234,6 +257,7 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
     k->addToEnvironment(info->environment);
     info->useNinja = false;
     info->sourceDirectory = sourceDir;
+    info->supportsShadowBuild = true;
 
     return info;
 }

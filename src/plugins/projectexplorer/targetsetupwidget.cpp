@@ -27,17 +27,17 @@
 **
 ****************************************************************************/
 
-#include "qt4targetsetupwidget.h"
+#include "targetsetupwidget.h"
 
-#include "buildconfigurationinfo.h"
-#include "qt4buildconfiguration.h"
+#include "buildconfiguration.h"
+#include "buildinfo.h"
+#include "projectexplorerconstants.h"
+#include "kit.h"
+#include "kitmanager.h"
+#include "kitoptionspage.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitoptionspage.h>
-#include <qtsupport/qtkitinformation.h>
-
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
@@ -49,15 +49,16 @@
 #include <QLabel>
 #include <QPushButton>
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
+namespace Internal {
 
 // -------------------------------------------------------------------------
-// Qt4TargetSetupWidget
+// TargetSetupWidget
 // -------------------------------------------------------------------------
 
-Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Kit *k,
-                                           const QString &proFilePath,
-                                           const QList<BuildConfigurationInfo> &infoList) :
+TargetSetupWidget::TargetSetupWidget(Kit *k,
+                                     const QString &projectPath,
+                                     const QList<BuildInfo *> &infoList) :
     m_kit(k),
     m_haveImported(false),
     m_ignoreChange(false),
@@ -100,45 +101,48 @@ Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Kit *k,
     widget->setEnabled(false);
     m_detailsWidget->setWidget(widget);
 
-    foreach (const BuildConfigurationInfo &info, infoList)
-        addBuildConfigurationInfo(info);
+    foreach (BuildInfo *info, infoList)
+        addBuildInfo(info, false);
 
-    setProFilePath(proFilePath);
+    setProjectPath(projectPath);
 
     connect(m_detailsWidget, SIGNAL(checked(bool)),
             this, SLOT(targetCheckBoxToggled(bool)));
 
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
             this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
 
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageKit()));
 }
 
-Qt4TargetSetupWidget::~Qt4TargetSetupWidget()
-{ }
+TargetSetupWidget::~TargetSetupWidget()
+{
+    qDeleteAll(m_infoList);
+    m_infoList.clear();
+}
 
-ProjectExplorer::Kit *Qt4TargetSetupWidget::kit()
+Kit *TargetSetupWidget::kit()
 {
     return m_kit;
 }
 
-void Qt4TargetSetupWidget::clearKit()
+void TargetSetupWidget::clearKit()
 {
     m_kit = 0;
 }
 
-bool Qt4TargetSetupWidget::isKitSelected() const
+bool TargetSetupWidget::isKitSelected() const
 {
     if (!m_detailsWidget->isChecked())
         return false;
 
-    return !selectedBuildConfigurationInfoList().isEmpty();
+    return !selectedBuildInfoList().isEmpty();
 }
 
-void Qt4TargetSetupWidget::setKitSelected(bool b)
+void TargetSetupWidget::setKitSelected(bool b)
 {
     // Only check target if there are build configurations possible
-    b &= !selectedBuildConfigurationInfoList().isEmpty();
+    b &= !selectedBuildInfoList().isEmpty();
     m_ignoreChange = true;
     m_detailsWidget->setChecked(b);
     m_detailsWidget->widget()->setEnabled(b);
@@ -147,39 +151,36 @@ void Qt4TargetSetupWidget::setKitSelected(bool b)
     m_detailsWidget->setState(b ? Utils::DetailsWidget::Expanded : Utils::DetailsWidget::Collapsed);
 }
 
-void Qt4TargetSetupWidget::addBuildConfigurationInfo(const BuildConfigurationInfo &info, bool importing)
+void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
 {
-    if (importing) {
-        if (!m_haveImported) {
-            // disable everything on first import
-            for (int i = 0; i < m_enabled.count(); ++i) {
-                m_enabled[i] = false;
-                m_checkboxes[i]->setChecked(false);
-            }
-            m_selected = 0;
+    if (isImport && !m_haveImported) {
+        // disable everything on first import
+        for (int i = 0; i < m_enabled.count(); ++i) {
+            m_enabled[i] = false;
+            m_checkboxes[i]->setChecked(false);
         }
+        m_selected = 0;
 
         m_haveImported = true;
     }
+
     int pos = m_pathChoosers.count();
     m_enabled.append(true);
     ++m_selected;
 
-    m_infoList.append(info);
+    m_infoList << info;
 
     QCheckBox *checkbox = new QCheckBox;
-    checkbox->setText(Qt4BuildConfigurationFactory::buildConfigurationDisplayName(info));
+    checkbox->setText(info->displayName);
     checkbox->setChecked(m_enabled.at(pos));
     checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     m_newBuildsLayout->addWidget(checkbox, pos * 2, 0);
 
     Utils::PathChooser *pathChooser = new Utils::PathChooser();
     pathChooser->setExpectedKind(Utils::PathChooser::Directory);
-    pathChooser->setPath(info.directory);
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_kit);
-    if (!version)
-        return;
-    pathChooser->setReadOnly(!version->supportsShadowBuilds() || importing);
+    pathChooser->setFileName(info->buildDirectory);
+    pathChooser->setEnabled(info->supportsShadowBuild);
+    pathChooser->setReadOnly(!info->supportsShadowBuild || isImport);
     m_newBuildsLayout->addWidget(pathChooser, pos * 2, 1);
 
     QLabel *reportIssuesLabel = new QLabel;
@@ -203,7 +204,7 @@ void Qt4TargetSetupWidget::addBuildConfigurationInfo(const BuildConfigurationInf
     emit selectedToggled();
 }
 
-void Qt4TargetSetupWidget::targetCheckBoxToggled(bool b)
+void TargetSetupWidget::targetCheckBoxToggled(bool b)
 {
     if (m_ignoreChange)
         return;
@@ -219,7 +220,7 @@ void Qt4TargetSetupWidget::targetCheckBoxToggled(bool b)
     emit selectedToggled();
 }
 
-void Qt4TargetSetupWidget::manageKit()
+void TargetSetupWidget::manageKit()
 {
     ProjectExplorer::KitOptionsPage *page =
             ExtensionSystem::PluginManager::getObject<ProjectExplorer::KitOptionsPage>();
@@ -227,25 +228,31 @@ void Qt4TargetSetupWidget::manageKit()
         return;
 
     page->showKit(m_kit);
-    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                                   ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID);
+    Core::ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+                                   Constants::KITS_SETTINGS_PAGE_ID);
 }
 
-void Qt4TargetSetupWidget::setProFilePath(const QString &proFilePath)
+void TargetSetupWidget::setProjectPath(const QString &projectPath)
 {
     if (!m_kit)
         return;
 
-    m_proFilePath = proFilePath;
+    m_projectPath = projectPath;
     clear();
 
-    QList<BuildConfigurationInfo> infoList
-            = Qt4BuildConfigurationFactory::availableBuildConfigurations(m_kit, proFilePath);
-    foreach (const BuildConfigurationInfo &info, infoList)
-        addBuildConfigurationInfo(info);
+    IBuildConfigurationFactory *factory
+            = IBuildConfigurationFactory::find(m_kit, projectPath);
+
+    if (!factory)
+        return;
+
+    QList<BuildInfo *> infoList
+            = factory->availableSetups(m_kit, projectPath);
+    foreach (BuildInfo *info, infoList)
+        addBuildInfo(info, false);
 }
 
-void Qt4TargetSetupWidget::handleKitUpdate(ProjectExplorer::Kit *k)
+void TargetSetupWidget::handleKitUpdate(Kit *k)
 {
     if (k != m_kit)
         return;
@@ -254,9 +261,9 @@ void Qt4TargetSetupWidget::handleKitUpdate(ProjectExplorer::Kit *k)
     m_detailsWidget->setSummaryText(k->displayName());
 }
 
-QList<BuildConfigurationInfo> Qt4TargetSetupWidget::selectedBuildConfigurationInfoList() const
+QList<const BuildInfo *> TargetSetupWidget::selectedBuildInfoList() const
 {
-    QList<BuildConfigurationInfo> result;
+    QList<const BuildInfo *> result;
     for (int i = 0; i < m_infoList.count(); ++i) {
         if (m_enabled.at(i))
             result.append(m_infoList.at(i));
@@ -264,12 +271,7 @@ QList<BuildConfigurationInfo> Qt4TargetSetupWidget::selectedBuildConfigurationIn
     return result;
 }
 
-QList<BuildConfigurationInfo> Qt4TargetSetupWidget::allBuildConfigurationInfoList() const
-{
-    return m_infoList;
-}
-
-void Qt4TargetSetupWidget::clear()
+void TargetSetupWidget::clear()
 {
     qDeleteAll(m_checkboxes);
     m_checkboxes.clear();
@@ -277,8 +279,9 @@ void Qt4TargetSetupWidget::clear()
     m_pathChoosers.clear();
     qDeleteAll(m_reportIssuesLabels);
     m_reportIssuesLabels.clear();
-
+    qDeleteAll(m_infoList);
     m_infoList.clear();
+
     m_issues.clear();
     m_enabled.clear();
     m_selected = 0;
@@ -287,7 +290,7 @@ void Qt4TargetSetupWidget::clear()
     emit selectedToggled();
 }
 
-void Qt4TargetSetupWidget::checkBoxToggled(bool b)
+void TargetSetupWidget::checkBoxToggled(bool b)
 {
     QCheckBox *box = qobject_cast<QCheckBox *>(sender());
     if (!box)
@@ -305,7 +308,7 @@ void Qt4TargetSetupWidget::checkBoxToggled(bool b)
     }
 }
 
-void Qt4TargetSetupWidget::pathChanged()
+void TargetSetupWidget::pathChanged()
 {
     if (m_ignoreChange)
         return;
@@ -315,45 +318,41 @@ void Qt4TargetSetupWidget::pathChanged()
     int index = m_pathChoosers.indexOf(pathChooser);
     if (index == -1)
         return;
-    m_infoList[index].directory = pathChooser->path();
+    m_infoList[index]->buildDirectory = pathChooser->fileName();
     reportIssues(index);
 }
 
-void Qt4TargetSetupWidget::reportIssues(int index)
+void TargetSetupWidget::reportIssues(int index)
 {
-    QPair<ProjectExplorer::Task::TaskType, QString> issues = findIssues(m_infoList.at(index));
+    QPair<Task::TaskType, QString> issues = findIssues(m_infoList.at(index));
     QLabel *reportIssuesLabel = m_reportIssuesLabels.at(index);
     reportIssuesLabel->setText(issues.second);
-    bool error = issues.first != ProjectExplorer::Task::Unknown;
+    bool error = issues.first != Task::Unknown;
     reportIssuesLabel->setVisible(error);
     m_issues[index] = error;
 }
 
-QPair<ProjectExplorer::Task::TaskType, QString> Qt4TargetSetupWidget::findIssues(const BuildConfigurationInfo &info)
+QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo *info)
 {
-    if (m_proFilePath.isEmpty())
-        return qMakePair(ProjectExplorer::Task::Unknown, QString());
+    if (m_projectPath.isEmpty())
+        return qMakePair(Task::Unknown, QString());
 
-    QString buildDir = info.directory;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_kit);
-    if (!version)
-        return qMakePair(ProjectExplorer::Task::Unknown, QString());
-
-    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir);
+    QString buildDir = info->buildDirectory.toString();
+    QList<Task> issues = info->reportIssues(m_projectPath, buildDir);
 
     QString text;
-    ProjectExplorer::Task::TaskType highestType = ProjectExplorer::Task::Unknown;
-    foreach (const ProjectExplorer::Task &t, issues) {
+    Task::TaskType highestType = Task::Unknown;
+    foreach (const Task &t, issues) {
         if (!text.isEmpty())
             text.append(QLatin1String("<br>"));
         // set severity:
         QString severity;
-        if (t.type == ProjectExplorer::Task::Error) {
-            highestType = ProjectExplorer::Task::Error;
+        if (t.type == Task::Error) {
+            highestType = Task::Error;
             severity = tr("<b>Error:</b> ", "Severity is Task::Error");
-        } else if (t.type == ProjectExplorer::Task::Warning) {
-            if (highestType == ProjectExplorer::Task::Unknown)
-                highestType = ProjectExplorer::Task::Warning;
+        } else if (t.type == Task::Warning) {
+            if (highestType == Task::Unknown)
+                highestType = Task::Warning;
             severity = tr("<b>Warning:</b> ", "Severity is Task::Warning");
         }
         text.append(severity + t.description);
@@ -363,4 +362,5 @@ QPair<ProjectExplorer::Task::TaskType, QString> Qt4TargetSetupWidget::findIssues
     return qMakePair(highestType, text);
 }
 
-} // namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace ProjectExplorer
