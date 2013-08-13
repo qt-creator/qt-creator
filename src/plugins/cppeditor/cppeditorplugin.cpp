@@ -36,6 +36,7 @@
 #include "cpphoverhandler.h"
 #include "cppoutline.h"
 #include "cpptypehierarchy.h"
+#include "cppincludehierarchy.h"
 #include "cppsnippetprovider.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
@@ -103,6 +104,7 @@ CppEditorPlugin::CppEditorPlugin() :
     m_findUsagesAction(0),
     m_updateCodeModelAction(0),
     m_openTypeHierarchyAction(0),
+    m_openIncludeHierarchyAction(0),
     m_quickFixProvider(0)
 {
     m_instance = this;
@@ -156,6 +158,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addAutoReleasedObject(new CppHoverHandler);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
     addAutoReleasedObject(new CppTypeHierarchyFactory);
+    addAutoReleasedObject(new CppIncludeHierarchyFactory);
     addAutoReleasedObject(new CppSnippetProvider);
     addAutoReleasedObject(new CppHighlighterFactory);
 
@@ -241,6 +244,13 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd = ActionManager::registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+T") : tr("Ctrl+Shift+T")));
     connect(m_openTypeHierarchyAction, SIGNAL(triggered()), this, SLOT(openTypeHierarchy()));
+    contextMenu->addAction(cmd);
+    cppToolsMenu->addAction(cmd);
+
+    m_openIncludeHierarchyAction = new QAction(tr("Open Include Hierarchy"), this);
+    cmd = Core::ActionManager::registerAction(m_openIncludeHierarchyAction, Constants::OPEN_INCLUDE_HIERARCHY, context);
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+I") : tr("Ctrl+Shift+I")));
+    connect(m_openIncludeHierarchyAction, SIGNAL(triggered()), this, SLOT(openIncludeHierarchy()));
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
@@ -351,6 +361,7 @@ void CppEditorPlugin::onTaskStarted(Core::Id type)
         m_findUsagesAction->setEnabled(false);
         m_updateCodeModelAction->setEnabled(false);
         m_openTypeHierarchyAction->setEnabled(false);
+        m_openIncludeHierarchyAction->setEnabled(false);
     }
 }
 
@@ -361,6 +372,7 @@ void CppEditorPlugin::onAllTasksFinished(Core::Id type)
         m_findUsagesAction->setEnabled(true);
         m_updateCodeModelAction->setEnabled(true);
         m_openTypeHierarchyAction->setEnabled(true);
+        m_openIncludeHierarchyAction->setEnabled(true);
     }
 }
 
@@ -380,6 +392,17 @@ void CppEditorPlugin::openTypeHierarchy()
         NavigationWidget *navigation = NavigationWidget::instance();
         navigation->activateSubWidget(Constants::TYPE_HIERARCHY_ID);
         emit typeHierarchyRequested();
+    }
+}
+
+void CppEditorPlugin::openIncludeHierarchy()
+{
+    CPPEditorWidget *editor
+            = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
+    if (editor) {
+        Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
+        navigation->activateSubWidget(Core::Id(Constants::INCLUDE_HIERARCHY_ID));
+        emit includeHierarchyRequested();
     }
 }
 

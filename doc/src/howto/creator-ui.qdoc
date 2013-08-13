@@ -135,6 +135,9 @@
 
         \li \gui {Type Hierarchy} shows the base classes of a class.
 
+        \li \gui {Include Hierarchy} shows which files are included in the current file
+            and which files include the current file.
+
     \endlist
 
     You can change the view of the sidebar in the following ways:
@@ -233,6 +236,12 @@
 
     To view the base classes of a class, right-click the class and select
     \gui {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
+
+    \section2 Viewing Include Hierarchy
+
+    To view which files are included in the current file and which files include
+    the current file, right-click in the editor and select \gui {Open Include Hierarchy}
+    or press \key {Ctrl+Shift+I}.
 
     \section1 Viewing Output
 

@@ -74,10 +74,12 @@ public:
 signals:
     void outlineSortingChanged(bool sort);
     void typeHierarchyRequested();
+    void includeHierarchyRequested();
 
 public slots:
     void openDeclarationDefinitionInNextSplit();
     void openTypeHierarchy();
+    void openIncludeHierarchy();
     void findUsages();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
@@ -291,6 +293,7 @@ private:
     QAction *m_findUsagesAction;
     QAction *m_updateCodeModelAction;
     QAction *m_openTypeHierarchyAction;
+    QAction *m_openIncludeHierarchyAction;
 
     CppQuickFixAssistProvider *m_quickFixProvider;
 

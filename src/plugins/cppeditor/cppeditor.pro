@@ -19,7 +19,11 @@ HEADERS += cppeditorplugin.h \
     cppquickfixes.h \
     cppquickfix.h \
     cppsnippetprovider.h \
-    cpptypehierarchy.h
+    cpptypehierarchy.h \
+    cppincludehierarchy.h \
+    cppincludehierarchymodel.h \
+    cppincludehierarchyitem.h \
+    cppincludehierarchytreeview.h
 
 SOURCES += cppeditorplugin.cpp \
     cppautocompleter.cpp \
@@ -37,7 +41,11 @@ SOURCES += cppeditorplugin.cpp \
     cppquickfix.cpp \
     cppquickfixes.cpp \
     cppsnippetprovider.cpp \
-    cpptypehierarchy.cpp
+    cpptypehierarchy.cpp \
+    cppincludehierarchy.cpp \
+    cppincludehierarchymodel.cpp \
+    cppincludehierarchyitem.cpp \
+    cppincludehierarchytreeview.cpp
 
 RESOURCES += cppeditor.qrc
 
