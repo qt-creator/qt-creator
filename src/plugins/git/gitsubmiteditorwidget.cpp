@@ -82,7 +82,10 @@ void GitSubmitEditorWidget::setHasUnmerged(bool e)
     m_hasUnmerged = e;
 }
 
-void GitSubmitEditorWidget::initialize(CommitType commitType, const QString &repository)
+void GitSubmitEditorWidget::initialize(CommitType commitType,
+                                       const QString &repository,
+                                       const GitSubmitEditorPanelData &data,
+                                       const GitSubmitEditorPanelInfo &info)
 {
     if (m_isInitialized)
         return;
@@ -100,6 +103,8 @@ void GitSubmitEditorWidget::initialize(CommitType commitType, const QString &rep
         hideDescription();
     }
     insertTopWidget(m_gitSubmitPanel);
+    setPanelData(data);
+    setPanelInfo(info);
 }
 
 void GitSubmitEditorWidget::refreshLog(const QString &repository)

@@ -66,11 +66,12 @@ public:
     explicit GitSubmitEditorWidget(QWidget *parent = 0);
 
     GitSubmitEditorPanelData panelData() const;
-    void setPanelData(const GitSubmitEditorPanelData &data);
-    void setPanelInfo(const GitSubmitEditorPanelInfo &info);
     QString amendSHA1() const;
     void setHasUnmerged(bool e);
-    void initialize(CommitType commitType, const QString &repository);
+    void initialize(CommitType commitType,
+                    const QString &repository,
+                    const GitSubmitEditorPanelData &data,
+                    const GitSubmitEditorPanelInfo &info);
     void refreshLog(const QString &repository);
 
 protected:
@@ -85,6 +86,8 @@ private slots:
 
 private:
     bool emailIsValid() const;
+    void setPanelData(const GitSubmitEditorPanelData &data);
+    void setPanelInfo(const GitSubmitEditorPanelInfo &info);
 
     QWidget *m_gitSubmitPanel;
     LogChangeWidget *m_logChangeWidget;
