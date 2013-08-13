@@ -138,8 +138,8 @@ void ProcessCheckoutJob::addStep(const QString &binary,
 
 void ProcessCheckoutJob::slotOutput()
 {
-    const QByteArray data = d->process->readAllStandardOutput();
-    const QString s = QString::fromLocal8Bit(data, data.endsWith('\n') ? data.size() - 1: data.size());
+    const QString s = Utils::SynchronousProcess::normalizeNewlines(
+                QString::fromLocal8Bit(d->process->readAllStandardOutput()));
     if (debug)
         qDebug() << s;
     emit output(s);
