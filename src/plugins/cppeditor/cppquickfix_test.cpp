@@ -1264,7 +1264,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
 
 QList<Include> includesForSource(const QByteArray &source)
 {
-    const QString fileName = TestIncludePaths::TestIncludePaths::directoryOfTestFile() + QLatin1String("/file.cpp");
+    const QString fileName = TestIncludePaths::directoryOfTestFile() + QLatin1String("/file.cpp");
     Utils::FileSaver srcSaver(fileName);
     srcSaver.write(source);
     srcSaver.finalize();
