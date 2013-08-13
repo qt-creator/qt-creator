@@ -689,7 +689,7 @@ public:
           m_command(command)
     {
         if (parentCommand) {
-            parentCommand->setExpectChanges(true);
+            parentCommand->addFlags(VcsBasePlugin::ExpectRepoChanges);
             connect(parentCommand, SIGNAL(output(QString)), this, SLOT(readStdOut(QString)));
             connect(parentCommand, SIGNAL(errorText(QString)), this, SLOT(readStdErr(QString)));
         }
@@ -1244,16 +1244,6 @@ void GitClient::slotBlameRevisionRequested(const QString &source, QString change
         change.truncate(blankPos);
     const QFileInfo fi(source);
     blame(fi.absolutePath(), QStringList(), fi.fileName(), change, lineNumber);
-}
-
-void GitClient::appendOutput(const QString &text) const
-{
-    outputWindow()->append(text);
-}
-
-void GitClient::appendOutputSilently(const QString &text) const
-{
-    outputWindow()->appendSilently(text);
 }
 
 QTextCodec *GitClient::getSourceCodec(const QString &file) const
@@ -2233,15 +2223,13 @@ VcsBase::Command *GitClient::createCommand(const QString &workingDirectory,
     if (editor)
         connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
     if (useOutputToWindow) {
+        command->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
         if (editor) // assume that the commands output is the important thing
-            connect(command, SIGNAL(output(QString)), this, SLOT(appendOutputSilently(QString)));
-        else
-            connect(command, SIGNAL(output(QString)), this, SLOT(appendOutput(QString)));
+            command->addFlags(VcsBasePlugin::SilentOutput);
     } else if (editor) {
         connect(command, SIGNAL(output(QString)), editor, SLOT(setPlainTextFiltered(QString)));
     }
 
-    connect(command, SIGNAL(errorText(QString)), outputWindow(), SLOT(appendError(QString)));
     return command;
 }
 
@@ -2257,7 +2245,8 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
     VcsBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
     command->setUnixTerminalDisabled(false);
-    command->setExpectChanges(expectChanges);
+    if (expectChanges)
+        command->addFlags(VcsBasePlugin::ExpectRepoChanges);
     command->execute();
     return command;
 }

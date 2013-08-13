@@ -596,27 +596,18 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
     if (editor)
         d->bindCommandToEditor(cmd, editor);
     if (mode == VcsWindowOutputBind) {
-        if (editor) { // assume that the commands output is the important thing
-            connect(cmd, SIGNAL(output(QString)),
-                    ::vcsOutputWindow(), SLOT(appendSilently(QString)));
-        } else {
-            connect(cmd, SIGNAL(output(QString)),
-                    ::vcsOutputWindow(), SLOT(append(QString)));
-        }
+        cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
+        if (editor) // assume that the commands output is the important thing
+            cmd->addFlags(VcsBasePlugin::SilentOutput);
     } else if (editor) {
         connect(cmd, SIGNAL(output(QString)), editor, SLOT(setPlainText(QString)));
     }
 
-    if (::vcsOutputWindow())
-        connect(cmd, SIGNAL(errorText(QString)),
-                ::vcsOutputWindow(), SLOT(appendError(QString)));
     return cmd;
 }
 
 void VcsBaseClient::enqueueJob(Command *cmd, const QStringList &args)
 {
-    const QString binary = QFileInfo(d->m_clientSettings->binaryPath()).baseName();
-    ::vcsOutputWindow()->appendCommand(cmd->workingDirectory(), binary, args);
     cmd->addJob(args);
     cmd->execute();
 }

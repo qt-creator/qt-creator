@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "command.h"
+#include "vcsbaseplugin.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -70,8 +71,9 @@ public:
     QVariant m_cookie;
     bool m_unixTerminalDisabled;
     int m_defaultTimeout;
-    bool m_expectChanges;
+    unsigned m_flags;
     QTextCodec *m_codec;
+    const QString m_sshPasswordPrompt;
 
     QList<Job> m_jobs;
 
@@ -87,8 +89,9 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_environment(environment),
     m_unixTerminalDisabled(false),
     m_defaultTimeout(10),
-    m_expectChanges(false),
+    m_flags(0),
     m_codec(0),
+    m_sshPasswordPrompt(VcsBasePlugin::sshPrompt()),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
 {
@@ -152,14 +155,14 @@ void Command::setUnixTerminalDisabled(bool e)
     d->m_unixTerminalDisabled = e;
 }
 
-bool Command::expectChanges() const
+unsigned Command::flags() const
 {
-    return d->m_expectChanges;
+    return d->m_flags;
 }
 
-void Command::setExpectChanges(bool e)
+void Command::addFlags(unsigned f)
 {
-    d->m_expectChanges = e;
+    d->m_flags |= f;
 }
 
 void Command::addJob(const QStringList &arguments)
@@ -200,11 +203,6 @@ int Command::lastExecutionExitCode() const
     return d->m_lastExecExitCode;
 }
 
-QString Command::msgTimeout(int seconds)
-{
-    return tr("Error: VCS timed out after %1s.").arg(seconds);
-}
-
 void Command::run()
 {
     // Check that the binary path is not empty
@@ -213,64 +211,35 @@ void Command::run()
         return;
     }
 
-    const unsigned processFlags = unixTerminalDisabled() ?
-                unsigned(Utils::SynchronousProcess::UnixTerminalDisabled) :
-                unsigned(0);
-    const QSharedPointer<QProcess> process = Utils::SynchronousProcess::createProcess(processFlags);
-    if (!workingDirectory().isEmpty())
-        process->setWorkingDirectory(workingDirectory());
-
-    process->setProcessEnvironment(processEnvironment());
-
-    QByteArray stdOut;
-    QByteArray stdErr;
-    QString error;
+    QString stdOut;
+    QString stdErr;
 
     const int count = d->m_jobs.size();
-    int exitCode = -1;
-    bool ok = true;
+    d->m_lastExecExitCode = -1;
+    d->m_lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
-        process->start(binaryPath(), d->m_jobs.at(j).arguments);
-        if (!process->waitForStarted()) {
-            ok = false;
-            error += QString::fromLatin1("Error: \"%1\" could not be started: %2")
-                    .arg(binaryPath(), process->errorString());
-            break;
-        }
-
-        process->closeWriteChannel();
         const int timeOutSeconds = d->m_jobs.at(j).timeout;
-        if (!Utils::SynchronousProcess::readDataFromProcess(*process,
-                                                            timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1,
-                                                            &stdOut, &stdErr, false)) {
-            Utils::SynchronousProcess::stopProcess(*process);
-            ok = false;
-            error += msgTimeout(timeOutSeconds);
+        Utils::SynchronousProcessResponse resp =
+                VcsBasePlugin::runVcs(d->m_workingDirectory, d->m_binaryPath,
+                                      d->m_jobs.at(j).arguments,
+                                      timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1,
+                                      d->m_environment, d->m_sshPasswordPrompt,
+                                      d->m_flags, d->m_codec);
+        stdOut += resp.stdOut;
+        stdErr += resp.stdErr;
+        d->m_lastExecExitCode = resp.exitCode;
+        d->m_lastExecSuccess = resp.result == Utils::SynchronousProcessResponse::Finished;
+        if (!d->m_lastExecSuccess)
             break;
-        }
-
-        error += QString::fromLocal8Bit(stdErr);
-        exitCode = process->exitCode();
     }
 
-    d->m_lastExecSuccess = ok;
-    d->m_lastExecExitCode = exitCode;
+    emit output(stdOut);
+    if (!stdErr.isEmpty())
+        emit errorText(stdErr);
 
-    if (ok) {
-        emit output(Utils::SynchronousProcess::normalizeNewlines(
-                        d->m_codec ? d->m_codec->toUnicode(stdOut)
-                                   : QString::fromLocal8Bit(stdOut.constData(), stdOut.size())));
-    }
-
-    if (!error.isEmpty())
-        emit errorText(error);
-
-    emit finished(ok, exitCode, cookie());
-    if (ok) {
+    emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
+    if (d->m_lastExecSuccess)
         emit success(cookie());
-        if (d->m_expectChanges)
-            Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
-    }
 
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
