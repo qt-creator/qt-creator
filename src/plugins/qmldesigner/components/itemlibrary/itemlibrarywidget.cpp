@@ -50,7 +50,6 @@
 #include <QApplication>
 
 #include <QDeclarativeItem>
-#include <private/qdeclarativeengine_p.h>
 
 
 namespace QmlDesigner {
