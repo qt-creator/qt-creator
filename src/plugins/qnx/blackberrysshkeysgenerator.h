@@ -44,16 +44,15 @@ class BlackBerrySshKeysGenerator : public QThread
 {
     Q_OBJECT
 public:
-    BlackBerrySshKeysGenerator(const QString &privateKeyPath);
+    BlackBerrySshKeysGenerator();
     ~BlackBerrySshKeysGenerator();
 
 signals:
     void sshKeysGenerationFailed(const QString &error);
-    void sshKeysGenerationFinished(const QString &privateKeyPath, const QByteArray &privateKey, const QByteArray &publicKey);
+    void sshKeysGenerationFinished(const QByteArray &privateKey, const QByteArray &publicKey);
 
 private:
       QSsh::SshKeyGenerator *m_keyGen;
-      const QString m_privateKeyPath;
       void run();
 };
 

@@ -98,6 +98,13 @@ IDevice::Ptr BlackBerryDeviceConfiguration::clone() const
     return Ptr(new BlackBerryDeviceConfiguration(*this));
 }
 
+bool BlackBerryDeviceConfiguration::hasDeviceTester() const
+{
+    // we are unable to easily verify that a device is available unless we duplicate
+    // 'Connect to device' functionality, therefore disabling device-tester
+    return false;
+}
+
 BlackBerryDeviceConfiguration::ConstPtr BlackBerryDeviceConfiguration::device(const Kit *k)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);

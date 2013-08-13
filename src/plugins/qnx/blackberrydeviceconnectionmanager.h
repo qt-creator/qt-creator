@@ -60,6 +60,11 @@ public:
     void connectDevice(const ProjectExplorer::IDevice::ConstPtr &device);
     void disconnectDevice(const ProjectExplorer::IDevice::ConstPtr &device);
 
+    const QString privateKeyPath() const;
+    bool hasValidSSHKeys() const;
+    bool setSSHKeys(const QByteArray privateKeyContent, const QByteArray publicKeyContent,
+            QString *error);
+
 signals:
     void connectionOutput(Core::Id deviceId, const QString &output);
     void deviceAboutToConnect(Core::Id deviceId);

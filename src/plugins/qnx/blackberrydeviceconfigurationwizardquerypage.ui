@@ -25,11 +25,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QProgressBar" name="progressBar">
-     <property name="maximum">
-      <number>0</number>
-     </property>
-    </widget>
+    <widget class="QProgressBar" name="progressBar"/>
    </item>
    <item>
     <spacer name="verticalSpacer">

@@ -195,7 +195,6 @@ HEADERS += qnxplugin.h\
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
     blackberryrunconfigurationwidget.ui \
-    blackberrydeviceconfigurationwizardsshkeypage.ui \
     blackberrydeployconfigurationwidget.ui \
     blackberrydeviceconfigurationwidget.ui \
     qnxbaseqtconfigwidget.ui \

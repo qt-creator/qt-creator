@@ -102,6 +102,11 @@ private:
 class BlackBerryDeviceConfigurationWizardQueryPage : public QWizardPage
 {
     Q_OBJECT
+    enum QueryState
+    {
+        Querying = 0, GeneratingSshKey, Done
+    };
+
 public:
     explicit BlackBerryDeviceConfigurationWizardQueryPage(BlackBerryDeviceConfigurationWizardHolder &holder, QWidget *parent = 0);
     ~BlackBerryDeviceConfigurationWizardQueryPage();
@@ -111,38 +116,18 @@ public:
 
 private slots:
     void processQueryFinished(int status);
+    void sshKeysGenerationFailed(const QString &error);
+    void processSshKeys(const QByteArray &privateKey, const QByteArray &publicKey);
 
 private:
+    void checkAndGenerateSSHKeys();
+    void queryDone();
+    void setState(QueryState state, const QString &message);
+
     Ui::BlackBerryDeviceConfigurationWizardQueryPage *m_ui;
     BlackBerryDeviceConfigurationWizardHolder &m_holder;
     BlackBerryDeviceInformation *m_deviceInformation;
-};
-
-class BlackBerryDeviceConfigurationWizardSshKeyPage : public QWizardPage
-{
-    Q_OBJECT
-public:
-    explicit BlackBerryDeviceConfigurationWizardSshKeyPage(QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWizardSshKeyPage();
-
-    void initializePage();
-    bool isComplete() const;
-
-    QString privateKey() const;
-    QString publicKey() const;
-
-private slots:
-    void findMatchingPublicKey(const QString &privateKeyPath);
-
-    void sshKeysGenerationFailed(const QString &error);
-    void processSshKeys(const QString &privateKeyPath, const QByteArray &privateKey, const QByteArray &publicKey);
-    void generateSshKeys();
-
-private:
-    bool saveKeys(const QByteArray &privateKey, const QByteArray &publicKey, const QString &privateKeyPath, const QString &publicKeyPath);
-    void setBusy(bool busy);
-
-    Ui::BlackBerryDeviceConfigurationWizardSshKeyPage *m_ui;
+    QueryState m_state;
 };
 
 class BlackBerryDeviceConfigurationWizardConfigPage : public QWizardPage

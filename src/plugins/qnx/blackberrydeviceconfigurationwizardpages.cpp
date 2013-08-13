@@ -39,6 +39,7 @@
 #include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
 #include "ui_blackberrydeviceconfigurationwizardconfigpage.h"
 #include "blackberryconfiguration.h"
+#include "blackberrydeviceconnectionmanager.h"
 #include "qnxutils.h"
 
 #include <coreplugin/icore.h>
@@ -151,8 +152,6 @@ void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceSelectionChanged()
     QList<QListWidgetItem *> selectedItems = m_ui->deviceListWidget->selectedItems();
     const QListWidgetItem *selected = selectedItems.count() == 1 ? selectedItems[0] : 0;
     const ItemKind itemKind = selected ? selected->data(ItemKindRole).value<ItemKind>() : Note;
-    const bool isSimulator = selected && itemKind == Autodetected
-            ? selected->data(DeviceTypeRole).toBool() : false;
     switch (itemKind) {
     case SpecifyManually:
         m_ui->deviceHostIp->setEnabled(true);
@@ -228,6 +227,7 @@ BlackBerryDeviceConfigurationWizardQueryPage::BlackBerryDeviceConfigurationWizar
 {
     m_ui->setupUi(this);
     setTitle(tr("Query Device Information"));
+    m_ui->progressBar->setMaximum(Done);
 
     connect(m_deviceInformation,SIGNAL(finished(int)),this,SLOT(processQueryFinished(int)));
 }
@@ -240,10 +240,9 @@ BlackBerryDeviceConfigurationWizardQueryPage::~BlackBerryDeviceConfigurationWiza
 
 void BlackBerryDeviceConfigurationWizardQueryPage::initializePage()
 {
-    m_ui->statusLabel->setText(tr("Querying device information. Please wait..."));
-    m_ui->progressBar->setVisible(true);
-
     m_holder.deviceInfoRetrieved = false;
+
+    setState(Querying, tr("Querying device information. Please wait..."));
 
     m_deviceInformation->setDeviceTarget(
                 field(QLatin1String(DEVICEHOSTNAME_FIELD_ID)).toString(),
@@ -261,148 +260,86 @@ void BlackBerryDeviceConfigurationWizardQueryPage::processQueryFinished(int stat
     m_holder.isSimulator = m_deviceInformation->isSimulator();
 
     if (m_holder.deviceInfoRetrieved)
-        m_ui->statusLabel->setText(tr("Device information retrieved successfully."));
+        checkAndGenerateSSHKeys();
     else
-        m_ui->statusLabel->setText(tr("Cannot connect to the device. Check if the device is in development mode and has matching host name and password."));
-    m_ui->progressBar->setVisible(false);
+        setState(Done, tr("Cannot connect to the device. "
+                "Check if the device is in development mode and has matching host name and password."));
+}
+
+void BlackBerryDeviceConfigurationWizardQueryPage::checkAndGenerateSSHKeys()
+{
+    if (! BlackBerryDeviceConnectionManager::instance()->hasValidSSHKeys()) {
+        setState(GeneratingSshKey, tr("Generating SSH keys. Please wait..."));
+
+        BlackBerrySshKeysGenerator *sshKeysGenerator = new BlackBerrySshKeysGenerator();
+        connect(sshKeysGenerator, SIGNAL(sshKeysGenerationFailed(QString)),
+                this, SLOT(sshKeysGenerationFailed(QString)), Qt::QueuedConnection);
+        connect(sshKeysGenerator, SIGNAL(sshKeysGenerationFinished(QByteArray,QByteArray)),
+                this, SLOT(processSshKeys(QByteArray,QByteArray)), Qt::QueuedConnection);
+        sshKeysGenerator->start();
+    } else
+        queryDone();
+}
+
+void BlackBerryDeviceConfigurationWizardQueryPage::sshKeysGenerationFailed(const QString &error)
+{
+    // this slot can be called asynchronously - processing it only in GeneratingSshKey state
+    if (m_state != GeneratingSshKey)
+        return;
+
+    QString message = tr("Failed generating SSH key needed for securing connection to a device. Error: ");
+    message.append(error);
+    setState(Done, message);
+}
+
+void BlackBerryDeviceConfigurationWizardQueryPage::processSshKeys(const QByteArray &privateKey,
+                                                                  const QByteArray &publicKey)
+{
+    // this slot can be called asynchronously - processing it only in GeneratingSshKey state
+    if (m_state != GeneratingSshKey)
+        return;
+
+    // condition prevents overriding already generated SSH keys
+    // this may happens when an user enter the QueryPage several times before
+    // the first SSH keys are generated i.e. when multiple calls of checkAndGenerateSSHKeys()
+    // before processSshKeys() is called, multiple processSshKeys() calls are triggered later.
+    // only the first one is allowed to write the SSH keys.
+    if (! BlackBerryDeviceConnectionManager::instance()->hasValidSSHKeys()) {
+        QString error;
+        if (!BlackBerryDeviceConnectionManager::instance()->setSSHKeys(privateKey, publicKey, &error)) {
+            QString message = tr("Failed saving SSH key needed for securing connection to a device. Error: ");
+            message.append(error);
+            setState(Done, message);
+            return;
+        }
+    }
+
+    queryDone();
+}
+
+void BlackBerryDeviceConfigurationWizardQueryPage::queryDone()
+{
+    setState(Done, tr("Device information retrieved successfully."));
+}
+
+void BlackBerryDeviceConfigurationWizardQueryPage::setState(QueryState state, const QString &message)
+{
+    m_state = state;
+    m_ui->statusLabel->setText(message);
+    m_ui->progressBar->setVisible(state != Done);
+    m_ui->progressBar->setValue(state);
     emit completeChanged();
 
-    if (m_holder.deviceInfoRetrieved)
-        wizard()->next();
+    if (isComplete())
+        if (wizard()->currentPage() == this)
+            wizard()->next();
 }
 
 bool BlackBerryDeviceConfigurationWizardQueryPage::isComplete() const
 {
-    return m_holder.deviceInfoRetrieved;
-}
-
-// ----------------------------------------------------------------------------
-
-BlackBerryDeviceConfigurationWizardSshKeyPage::BlackBerryDeviceConfigurationWizardSshKeyPage(QWidget *parent)
-    : QWizardPage(parent)
-    , m_ui(new Ui::BlackBerryDeviceConfigurationWizardSshKeyPage)
-{
-    m_ui->setupUi(this);
-
-    m_ui->privateKey->setExpectedKind(Utils::PathChooser::File);
-    m_ui->progressBar->hide();
-
-    QString initialBrowsePath = QnxUtils::dataDirPath();
-    if (!QFileInfo(initialBrowsePath).exists())
-        initialBrowsePath = QDir::homePath();
-    m_ui->privateKey->setInitialBrowsePathBackup(initialBrowsePath);
-
-    setTitle(tr("SSH Key Setup"));
-    setSubTitle(tr("Please select an existing <b>4096</b>-bit key or click <b>Generate</b> to create a new one."));
-
-    connect(m_ui->privateKey, SIGNAL(changed(QString)), this, SLOT(findMatchingPublicKey(QString)));
-    connect(m_ui->privateKey, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
-    connect(m_ui->generate, SIGNAL(clicked()), this, SLOT(generateSshKeys()));
-}
-
-BlackBerryDeviceConfigurationWizardSshKeyPage::~BlackBerryDeviceConfigurationWizardSshKeyPage()
-{
-    delete m_ui;
-    m_ui = 0;
-}
-
-void BlackBerryDeviceConfigurationWizardSshKeyPage::initializePage()
-{
-}
-
-bool BlackBerryDeviceConfigurationWizardSshKeyPage::isComplete() const
-{
-    QFileInfo privateKeyFi(m_ui->privateKey->fileName().toString());
-    QFileInfo publicKeyFi(m_ui->publicKey->text());
-
-    return privateKeyFi.exists() && publicKeyFi.exists();
-}
-
-QString BlackBerryDeviceConfigurationWizardSshKeyPage::privateKey() const
-{
-    return m_ui->privateKey->fileName().toString();
-}
-
-QString BlackBerryDeviceConfigurationWizardSshKeyPage::publicKey() const
-{
-    return m_ui->publicKey->text();
-}
-
-void BlackBerryDeviceConfigurationWizardSshKeyPage::findMatchingPublicKey(const QString &privateKeyPath)
-{
-    const QString candidate = privateKeyPath + QLatin1String(".pub");
-    if (QFileInfo(candidate).exists())
-        m_ui->publicKey->setText(QDir::toNativeSeparators(candidate));
-    else
-        m_ui->publicKey->clear();
-}
-
-void BlackBerryDeviceConfigurationWizardSshKeyPage::sshKeysGenerationFailed(const QString &error)
-{
-    setBusy(false);
-    QMessageBox::critical(this, tr("Key Generation Failed"), error);
-}
-
-void BlackBerryDeviceConfigurationWizardSshKeyPage::processSshKeys(const QString &privateKeyPath, const QByteArray &privateKey, const QByteArray &publicKey)
-{
-    setBusy(false);
-
-    const QString publicKeyPath = privateKeyPath + QLatin1String(".pub");
-
-    if (!saveKeys(privateKey, publicKey, privateKeyPath, publicKeyPath)) // saveKeys(..) will show an error message if necessary
-        return;
-
-    m_ui->privateKey->setFileName(Utils::FileName::fromString(privateKeyPath));
-    m_ui->publicKey->setText(QDir::toNativeSeparators(publicKeyPath));
-
-    emit completeChanged();
-}
-
-bool BlackBerryDeviceConfigurationWizardSshKeyPage::saveKeys(const QByteArray &privateKey, const QByteArray &publicKey, const QString &privateKeyPath, const QString &publicKeyPath)
-{
-    Utils::FileSaver privSaver(privateKeyPath);
-    privSaver.write(privateKey);
-    if (!privSaver.finalize(this))
-        return false; // finalize shows an error message if necessary
-    QFile::setPermissions(privateKeyPath, QFile::ReadOwner | QFile::WriteOwner);
-
-    Utils::FileSaver pubSaver(publicKeyPath);
-
-    pubSaver.write(publicKey);
-    if (!pubSaver.finalize(this))
-        return false;
-
-    return true;
-}
-
-void BlackBerryDeviceConfigurationWizardSshKeyPage::generateSshKeys()
-{
-    QString lookInDir = QnxUtils::dataDirPath();
-    if (!QFileInfo(lookInDir).exists())
-        lookInDir = QDir::homePath();
-
-    QString privateKeyPath = QFileDialog::getSaveFileName(this, tr("Choose Private Key File Name"), lookInDir);
-    if (privateKeyPath.isEmpty())
-        return;
-
-    setBusy(true);
-    BlackBerrySshKeysGenerator *sshKeysGenerator = new BlackBerrySshKeysGenerator(privateKeyPath);
-    connect(sshKeysGenerator, SIGNAL(sshKeysGenerationFailed(QString)), this, SLOT(sshKeysGenerationFailed(QString)), Qt::QueuedConnection);
-    connect(sshKeysGenerator, SIGNAL(sshKeysGenerationFinished(QString,QByteArray,QByteArray)), this, SLOT(processSshKeys(QString,QByteArray,QByteArray)), Qt::QueuedConnection);
-    sshKeysGenerator->start();
-}
-
-void BlackBerryDeviceConfigurationWizardSshKeyPage::setBusy(bool busy)
-{
-    m_ui->privateKey->setEnabled(!busy);
-    m_ui->publicKey->setEnabled(!busy);
-    m_ui->generate->setEnabled(!busy);
-    m_ui->progressBar->setVisible(busy);
-
-    wizard()->button(QWizard::BackButton)->setEnabled(!busy);
-    wizard()->button(QWizard::NextButton)->setEnabled(!busy);
-    wizard()->button(QWizard::FinishButton)->setEnabled(!busy);
-    wizard()->button(QWizard::CancelButton)->setEnabled(!busy);
+    return m_state == Done
+            && m_holder.deviceInfoRetrieved
+            && BlackBerryDeviceConnectionManager::instance()->hasValidSSHKeys();
 }
 
 // ----------------------------------------------------------------------------

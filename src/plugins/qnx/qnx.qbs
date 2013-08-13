@@ -110,7 +110,6 @@ QtcPlugin {
         "blackberrydeviceconfigurationwizardpages.h",
         "blackberrydeviceconfigurationwizardquerypage.ui",
         "blackberrydeviceconfigurationwizardsetuppage.ui",
-        "blackberrydeviceconfigurationwizardsshkeypage.ui",
         "blackberrydeviceconnection.cpp",
         "blackberrydeviceconnection.h",
         "blackberrydeviceconnectionmanager.cpp",

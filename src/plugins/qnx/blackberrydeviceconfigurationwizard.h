@@ -53,14 +53,12 @@ private:
     enum PageId {
         SetupPageId,
         QueryPageId,
-        SshKeyPageId,
         ConfigPageId,
         FinalPageId
     };
 
     BlackBerryDeviceConfigurationWizardSetupPage *m_setupPage;
     BlackBerryDeviceConfigurationWizardQueryPage *m_queryPage;
-    BlackBerryDeviceConfigurationWizardSshKeyPage *m_sshKeyPage;
     BlackBerryDeviceConfigurationWizardConfigPage *m_configPage;
     BlackBerryDeviceConfigurationWizardFinalPage *m_finalPage;
 

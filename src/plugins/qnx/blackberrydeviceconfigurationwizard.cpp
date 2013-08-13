@@ -33,6 +33,7 @@
 #include "blackberrydeviceconfigurationwizardpages.h"
 #include "qnxconstants.h"
 #include "blackberrydeviceconfiguration.h"
+#include "blackberrydeviceconnectionmanager.h"
 
 #include <ssh/sshconnection.h>
 
@@ -46,13 +47,11 @@ BlackBerryDeviceConfigurationWizard::BlackBerryDeviceConfigurationWizard(QWidget
 
     m_setupPage = new BlackBerryDeviceConfigurationWizardSetupPage(this);
     m_queryPage = new BlackBerryDeviceConfigurationWizardQueryPage(m_holder, this);
-    m_sshKeyPage = new BlackBerryDeviceConfigurationWizardSshKeyPage(this);
     m_configPage = new BlackBerryDeviceConfigurationWizardConfigPage(m_holder, this);
     m_finalPage = new BlackBerryDeviceConfigurationWizardFinalPage(this);
 
     setPage(SetupPageId, m_setupPage);
     setPage(QueryPageId, m_queryPage);
-    setPage(SshKeyPageId, m_sshKeyPage);
     setPage(ConfigPageId, m_configPage);
     setPage(FinalPageId, m_finalPage);
     m_finalPage->setCommitPage(true);
@@ -65,7 +64,7 @@ ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfigurationWizard::device()
     sshParams.host = m_setupPage->hostName();
     sshParams.password = m_setupPage->password();
     sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
-    sshParams.privateKeyFile = m_sshKeyPage->privateKey();
+    sshParams.privateKeyFile = BlackBerryDeviceConnectionManager::instance()->privateKeyPath();
     sshParams.userName = QLatin1String("devuser");
     sshParams.timeout = 10;
     sshParams.port = 22;

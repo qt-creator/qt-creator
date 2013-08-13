@@ -35,9 +35,15 @@
 #include "blackberrydeviceconnection.h"
 #include "qnxconstants.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <ssh/sshconnection.h>
+#include <ssh/sshkeygenerator.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+
+#include <QFileInfo>
+#include <QDir>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -162,6 +168,59 @@ void BlackBerryDeviceConnectionManager::connectDevice(const ProjectExplorer::IDe
 void BlackBerryDeviceConnectionManager::disconnectDevice(const ProjectExplorer::IDevice::ConstPtr &device)
 {
     disconnectDevice(device->id());
+}
+
+/*!
+ * @brief Returns default private key path in local settings.
+ * @return the default private key path
+ */
+const QString BlackBerryDeviceConnectionManager::privateKeyPath() const
+{
+    return QFileInfo(Core::ICore::settings()->fileName()).absolutePath() + QLatin1String("/qtcreator/qnx/id_rsa");
+}
+
+/*!
+ * @brief Checks validity of default SSH keys used for connecting to a device.
+ * @return true, if the default SSH keys are valid
+ */
+bool BlackBerryDeviceConnectionManager::hasValidSSHKeys() const
+{
+    const QString privateKey = privateKeyPath();
+    QFileInfo privateKeyFileInfo(privateKey);
+    QFileInfo publicKeyFileInfo(privateKey + QLatin1String(".pub"));
+
+    return privateKeyFileInfo.exists() && privateKeyFileInfo.isReadable()
+            && publicKeyFileInfo.exists() && publicKeyFileInfo.isReadable();
+}
+
+/*!
+ * @brief Stores a new private and public SSH key in local settings.
+ * @param privateKeyContent the private key content
+ * @param publicKeyContent the public key content
+ */
+bool BlackBerryDeviceConnectionManager::setSSHKeys(const QByteArray privateKeyContent,
+        const QByteArray publicKeyContent, QString *error)
+{
+    const QString privateKey = privateKeyPath();
+    const QString publicKey = privateKey + QLatin1String(".pub");
+
+    QFileInfo fileInfo(privateKey);
+    QDir dir = fileInfo.dir();
+    if (!dir.exists())
+        dir.mkpath(QLatin1String("."));
+
+    Utils::FileSaver privSaver(privateKey);
+    privSaver.write(privateKeyContent);
+    if (!privSaver.finalize(error))
+        return false;
+    QFile::setPermissions(privateKey, QFile::ReadOwner | QFile::WriteOwner);
+
+    Utils::FileSaver pubSaver(publicKey);
+    pubSaver.write(publicKeyContent);
+    if (!pubSaver.finalize(error))
+        return false;
+
+    return true;
 }
 
 void BlackBerryDeviceConnectionManager::disconnectDevice(Core::Id deviceId)
