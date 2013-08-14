@@ -95,6 +95,14 @@ bool Import::operator==(const Import &other) const
     return url() == other.url() && file() == other.file() && version() == other.version() && alias() == other.alias();
 }
 
+bool Import::isSameModule(const Import &other) const
+{
+    if (isLibraryImport())
+        return url() == other.url();
+    else
+        return file() == other.file();
+}
+
 uint qHash(const Import &import)
 {
     return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());

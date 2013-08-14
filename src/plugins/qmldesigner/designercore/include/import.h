@@ -62,6 +62,7 @@ public:
     QString toImportString() const;
 
     bool operator==(const Import &other) const;
+    bool isSameModule(const Import &other) const;
 
 private:
     Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths);
