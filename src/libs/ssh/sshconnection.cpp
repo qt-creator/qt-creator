@@ -36,6 +36,7 @@
 #include "sshcryptofacility_p.h"
 #include "sshdirecttcpiptunnel.h"
 #include "sshexception_p.h"
+#include "sshinit_p.h"
 #include "sshkeyexchange_p.h"
 #include "sshremoteprocess.h"
 
@@ -60,26 +61,7 @@
 
 namespace QSsh {
 
-namespace {
-    const QByteArray ClientId("SSH-2.0-QtCreator\r\n");
-
-    bool staticInitializationsDone = false;
-    QMutex staticInitMutex;
-
-    void doStaticInitializationsIfNecessary()
-    {
-        QMutexLocker locker(&staticInitMutex);
-        if (!staticInitializationsDone) {
-            Botan::LibraryInitializer::initialize("thread_safe=true");
-            qRegisterMetaType<QSsh::SshError>("QSsh::SshError");
-            qRegisterMetaType<QSsh::SftpJobId>("QSsh::SftpJobId");
-            qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
-            qRegisterMetaType<QList <QSsh::SftpFileInfo> >("QList<QSsh::SftpFileInfo>");
-            staticInitializationsDone = true;
-        }
-    }
-} // anonymous namespace
-
+const QByteArray ClientId("SSH-2.0-QtCreator\r\n");
 
 SshConnectionParameters::SshConnectionParameters() :
     timeout(0),  authenticationType(AuthenticationTypePublicKey), port(0)
@@ -112,7 +94,11 @@ bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters
 SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject *parent)
     : QObject(parent)
 {
-    doStaticInitializationsIfNecessary();
+    Internal::initSsh();
+    qRegisterMetaType<QSsh::SshError>("QSsh::SshError");
+    qRegisterMetaType<QSsh::SftpJobId>("QSsh::SftpJobId");
+    qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
+    qRegisterMetaType<QList <QSsh::SftpFileInfo> >("QList<QSsh::SftpFileInfo>");
 
     d = new Internal::SshConnectionPrivate(this, serverInfo);
     connect(d, SIGNAL(connected()), this, SIGNAL(connected()),

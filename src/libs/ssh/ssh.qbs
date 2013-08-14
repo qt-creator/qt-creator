@@ -29,6 +29,7 @@ QtcLibrary {
         "ssherrors.h",
         "sshexception_p.h",
         "sshincomingpacket_p.h", "sshincomingpacket.cpp",
+        "sshinit_p.h", "sshinit.cpp",
         "sshkeycreationdialog.cpp", "sshkeycreationdialog.h", "sshkeycreationdialog.ui",
         "sshkeyexchange.cpp", "sshkeyexchange_p.h",
         "sshkeygenerator.cpp", "sshkeygenerator.h",
