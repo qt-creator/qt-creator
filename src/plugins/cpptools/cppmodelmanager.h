@@ -144,7 +144,6 @@ public:
     static QStringList timeStampModifiedFiles(const QList<Document::Ptr> documentsToCheck);
 
 signals:
-    void aboutToRemoveFiles(const QStringList &files);
     void gcFinished(); // Needed for tests.
 
 public slots:
