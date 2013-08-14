@@ -102,7 +102,6 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     currentModel()->detachView(&m_formEditorView);
     currentModel()->detachView(&m_navigatorView);
     currentModel()->detachView(&m_itemLibraryView);
-    currentModel()->detachView(&m_importManagerView);
     currentModel()->detachView(&m_statesEditorView);
     currentModel()->detachView(&m_propertyEditorView);
 
@@ -150,7 +149,6 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     attachNodeInstanceView();
     currentModel()->attachView(&m_formEditorView);
     currentModel()->attachView(&m_navigatorView);
-    currentModel()->attachView(&m_importManagerView);
     attachItemLibraryView();
     currentModel()->attachView(&m_statesEditorView);
     currentModel()->attachView(&m_propertyEditorView);
@@ -184,7 +182,6 @@ QList<WidgetInfo> ViewManager::widgetInfos()
     QList<WidgetInfo> widgetInfoList;
 
     widgetInfoList.append(m_formEditorView.widgetInfo());
-    widgetInfoList.append(m_importManagerView.widgetInfo());
     widgetInfoList.append(m_itemLibraryView.widgetInfo());
     widgetInfoList.append(m_navigatorView.widgetInfo());
     widgetInfoList.append(m_propertyEditorView.widgetInfo());

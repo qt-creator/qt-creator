@@ -110,7 +110,6 @@ private: // variables
     Internal::DebugView m_debugView;
     ComponentView m_componentView;
     FormEditorView m_formEditorView;
-    ImportManagerView m_importManagerView;
     ItemLibraryView m_itemLibraryView;
     NavigatorView m_navigatorView;
     PropertyEditorView m_propertyEditorView;

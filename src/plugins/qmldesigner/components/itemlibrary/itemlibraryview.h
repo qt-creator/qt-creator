@@ -38,7 +38,7 @@
 namespace QmlDesigner {
 
 class ItemLibraryWidget;
-
+class ImportManagerView;
 
 class ItemLibraryView : public AbstractView
 {
@@ -107,6 +107,7 @@ protected:
 
 private:
     QWeakPointer<ItemLibraryWidget> m_widget;
+    ImportManagerView *m_importManagerView;
 };
 
 }

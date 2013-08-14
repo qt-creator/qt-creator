@@ -85,6 +85,8 @@ public:
 
     void updateImports();
 
+    void setImportsWidget(QWidget *importsWidget);
+
 public Q_SLOTS:
     void setSearchFilter(const QString &searchFilter);
     void updateModel();

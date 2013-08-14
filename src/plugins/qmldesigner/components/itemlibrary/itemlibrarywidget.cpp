@@ -111,6 +111,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QTabBar *tabBar = new QTabBar(this);
     tabBar->addTab(tr("QML Types", "Title of library QML types view"));
     tabBar->addTab(tr("Resources", "Title of library resources view"));
+    tabBar->addTab(tr("Imports", "Title of library imports view"));
     tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     m_lineEdit = new Utils::FilterLineEdit(this);
@@ -190,6 +191,11 @@ void ItemLibraryWidget::updateImports()
     }
 
     setImportFilter(filter);
+}
+
+void ItemLibraryWidget::setImportsWidget(QWidget *importsWidget)
+{
+    m_stackedWidget->addWidget(importsWidget);
 }
 
 QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()

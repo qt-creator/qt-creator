@@ -30,10 +30,14 @@
 #include "itemlibraryview.h"
 #include "itemlibrarywidget.h"
 #include <import.h>
+#include <importmanagerview.h>
 
 namespace QmlDesigner {
 
-ItemLibraryView::ItemLibraryView(QObject* parent) : AbstractView(parent)
+ItemLibraryView::ItemLibraryView(QObject* parent)
+    : AbstractView(parent),
+      m_importManagerView(new ImportManagerView(this))
+
 {
 
 }
@@ -50,8 +54,10 @@ bool ItemLibraryView::hasWidget() const
 
 WidgetInfo ItemLibraryView::widgetInfo()
 {
-    if (m_widget.isNull())
-            m_widget = new ItemLibraryWidget;
+    if (m_widget.isNull()) {
+        m_widget = new ItemLibraryWidget;
+        m_widget->setImportsWidget(m_importManagerView->widgetInfo().widget);
+    }
 
     return createWidgetInfo(m_widget.data(),
                             new WidgetInfo::ToolBarWidgetDefaultFactory<ItemLibraryWidget>(m_widget.data()),
@@ -65,10 +71,13 @@ void ItemLibraryView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
     m_widget->setModel(model);
     updateImports();
+    model->attachView(m_importManagerView);
 }
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)
 {
+    model->detachView(m_importManagerView);
+
     AbstractView::modelAboutToBeDetached(model);
     m_widget->setModel(0);
 }
