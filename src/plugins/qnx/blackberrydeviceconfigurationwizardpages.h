@@ -48,7 +48,6 @@ namespace Internal {
 namespace Ui {
 class BlackBerryDeviceConfigurationWizardSetupPage;
 class BlackBerryDeviceConfigurationWizardQueryPage;
-class BlackBerryDeviceConfigurationWizardSshKeyPage;
 class BlackBerryDeviceConfigurationWizardConfigPage;
 }
 class BlackBerrySshKeysGenerator;

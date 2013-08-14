@@ -36,7 +36,6 @@
 #include "blackberrydeviceinformation.h"
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
 #include "ui_blackberrydeviceconfigurationwizardquerypage.h"
-#include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
 #include "ui_blackberrydeviceconfigurationwizardconfigpage.h"
 #include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
