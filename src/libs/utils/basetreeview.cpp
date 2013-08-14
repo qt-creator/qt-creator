@@ -40,7 +40,7 @@ namespace Utils {
 class BaseTreeViewDelegate : public QItemDelegate
 {
 public:
-    BaseTreeViewDelegate() {}
+    BaseTreeViewDelegate(QObject *parent): QItemDelegate(parent) {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
@@ -64,7 +64,7 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     setIconSize(QSize(10, 10));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setUniformRowHeights(true);
-    setItemDelegate(new BaseTreeViewDelegate);
+    setItemDelegate(new BaseTreeViewDelegate(this));
     header()->setDefaultAlignment(Qt::AlignLeft);
     header()->setClickable(true);
 

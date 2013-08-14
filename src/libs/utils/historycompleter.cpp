@@ -65,8 +65,9 @@ public:
 class HistoryLineDelegate : public QItemDelegate
 {
 public:
-    HistoryLineDelegate()
-        : pixmap(QLatin1String(":/core/images/editclear.png"))
+    HistoryLineDelegate(QObject *parent)
+        : QItemDelegate(parent)
+        , pixmap(QLatin1String(":/core/images/editclear.png"))
     {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -85,7 +86,7 @@ public:
     HistoryLineView(HistoryCompleterPrivate *model_)
         : model(model_)
     {
-        HistoryLineDelegate *delegate = new HistoryLineDelegate;
+        HistoryLineDelegate *delegate = new HistoryLineDelegate(this);
         pixmapWidth = delegate->pixmap.width();
         setItemDelegate(delegate);
     }
