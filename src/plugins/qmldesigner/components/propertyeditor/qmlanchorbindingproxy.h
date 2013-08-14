@@ -143,7 +143,7 @@ signals:
     void horizontalTargetChanged();
 
 private:
-
+    void setDefaultAnchorTarget(const ModelNode &modelNode);
     void calcTopMargin();
     void calcBottomMargin();
     void calcLeftMargin();

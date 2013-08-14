@@ -76,7 +76,11 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 {
     m_qmlItemNode = fxItemNode;
 
-    m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = m_qmlItemNode.modelNode().parentProperty().parentModelNode();
+    if (m_qmlItemNode.modelNode().hasParentProperty()) {
+        setDefaultAnchorTarget(m_qmlItemNode.modelNode().parentProperty().parentModelNode());
+    } else {
+        setDefaultAnchorTarget(ModelNode());
+    }
 
     if (topAnchored()) {
         ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
@@ -660,6 +664,16 @@ void QmlAnchorBindingProxy::fill()
     emit leftAnchorChanged();
     emit rightAnchorChanged();
     emit anchorsChanged();
+}
+
+void QmlAnchorBindingProxy::setDefaultAnchorTarget(const ModelNode &modelNode)
+{
+    m_verticalTarget = modelNode;
+    m_horizontalTarget = modelNode;
+    m_topTarget = modelNode;
+    m_bottomTarget = modelNode;
+    m_leftTarget = modelNode;
+    m_rightTarget = modelNode;
 }
 
 } // namespace Internal
