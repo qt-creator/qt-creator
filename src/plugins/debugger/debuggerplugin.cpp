@@ -33,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
+#include "debuggerkitconfigwidget.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggermainwindow.h"
@@ -1626,7 +1627,7 @@ void DebuggerPluginPrivate::attachCore()
     DebuggerStartParameters sp;
     QString display = dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile();
     QTC_ASSERT(fillParameters(&sp, dlg.kit()), return);
-    DebuggerKitInformation::DebuggerItem info = DebuggerKitInformation::debuggerItem(dlg.kit());
+    DebuggerItem info = DebuggerKitInformation::debuggerItem(dlg.kit());
     sp.masterEngineType = info.engineType;
     sp.executable = dlg.localExecutableFile();
     sp.coreFile = dlg.localCoreFile();
@@ -3182,6 +3183,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     foreach (IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);
     m_plugin->addAutoReleasedObject(new LocalsAndExpressionsOptionsPage);
+    m_plugin->addAutoReleasedObject(new DebuggerOptionsPage);
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
         SLOT(onModeChanged(Core::IMode*)));
@@ -3435,6 +3437,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     // Separators
     mstart->addSeparator(globalcontext, Constants::G_GENERAL);
     mstart->addSeparator(globalcontext, Constants::G_SPECIAL);
+
+    DebuggerItemManager::restoreDebuggers();
 
     KitManager::registerKitInformation(new DebuggerKitInformation);
 

@@ -30,29 +30,91 @@
 #ifndef DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 #define DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 
-#include <projectexplorer/kitconfigwidget.h>
-
 #include "debuggerkitinformation.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <projectexplorer/kitconfigwidget.h>
+#include <projectexplorer/abi.h>
+#include <utils/detailswidget.h>
+#include <utils/fileutils.h>
+#include <utils/pathchooser.h>
+#include <utils/persistentsettings.h>
+
 #include <QDialog>
+#include <QStandardItemModel>
+#include <QTreeView>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
 class QComboBox;
+class QLabel;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Kit; }
-namespace Utils {
-class PathChooser;
-class FileName;
-}
-
 namespace Debugger {
-
 namespace Internal {
+
+class DebuggerItemConfigWidget;
+
 // -----------------------------------------------------------------------
-// DebuggerKitConfigWidget:
+// DebuggerItemManager
+// -----------------------------------------------------------------------
+
+class DebuggerItemManager : public QStandardItemModel
+{
+    Q_OBJECT
+
+public:
+    DebuggerItemManager(QObject *parent);
+    ~DebuggerItemManager();
+
+    QList<DebuggerItem *> debuggers() const { return m_debuggers; }
+    QList<DebuggerItem *> findDebuggers(const ProjectExplorer::Abi &abi) const;
+    DebuggerItem *currentDebugger() const { return m_currentDebugger; }
+    static DebuggerItem *debuggerFromId(const QVariant &id);
+    QModelIndex currentIndex() const;
+    void setCurrentIndex(const QModelIndex &index);
+
+    bool isLoaded() const;
+    void updateCurrentItem();
+    // Returns id.
+    QVariant defaultDebugger(ProjectExplorer::ToolChain *tc);
+    // Adds item unless present. Return id of a matching item.
+    QVariant maybeAddDebugger(const DebuggerItem &item, bool makeCurrent = true);
+    static void restoreDebuggers();
+
+public slots:
+    void saveDebuggers();
+    void autoDetectDebuggers();
+    void addDebugger();
+    void cloneDebugger();
+    void removeDebugger();
+
+signals:
+    void debuggerAdded(DebuggerItem *item);
+    void debuggerRemoved(DebuggerItem *item);
+    void debuggerUpdated(DebuggerItem *item);
+
+private:
+    friend class DebuggerOptionsPage;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    void autoDetectCdbDebugger();
+
+    QMap<QString, Utils::FileName> m_abiToDebugger;
+    Utils::PersistentSettingsWriter *m_writer;
+    QList<DebuggerItem *> m_debuggers;
+    DebuggerItem *m_currentDebugger;
+
+    QStandardItem *m_autoRoot;
+    QStandardItem *m_manualRoot;
+    QStringList added;
+    QStringList removed;
+    QHash<DebuggerItem *, QStandardItem *> m_itemFromDebugger;
+    QHash<QStandardItem *, DebuggerItem *> m_debuggerFromItem;
+};
+
+// -----------------------------------------------------------------------
+// DebuggerKitConfigWidget
 // -----------------------------------------------------------------------
 
 class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
@@ -64,48 +126,63 @@ public:
 
     QString displayName() const;
     QString toolTip() const;
-
     void makeReadOnly();
-
     void refresh();
-
     QWidget *buttonWidget() const;
     QWidget *mainWidget() const;
 
 private slots:
-    void autoDetectDebugger();
-    void showDialog();
+    void manageDebuggers();
+    void currentDebuggerChanged(int idx);
+    void onDebuggerAdded(DebuggerItem *);
+    void onDebuggerUpdated(DebuggerItem *);
+    void onDebuggerRemoved(DebuggerItem *);
 
 private:
-    QWidget *m_main;
-    QLabel *m_label;
-    QPushButton *m_autoDetectButton;
-    QPushButton *m_editButton;
+    int indexOf(const DebuggerItem *debugger);
+    QVariant currentId() const;
+    void updateComboBox(const QVariant &id);
+
+    bool m_isReadOnly;
+    QComboBox *m_comboBox;
+    QPushButton *m_manageButton;
 };
 
-class DebuggerKitConfigDialog : public QDialog
+// --------------------------------------------------------------------------
+// DebuggerOptionsPage
+// --------------------------------------------------------------------------
+
+class DebuggerOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-public:
-    explicit DebuggerKitConfigDialog(QWidget *parent =  0);
 
-    void setDebuggerItem(const DebuggerKitInformation::DebuggerItem &item);
-    DebuggerKitInformation::DebuggerItem item() const
-        { return DebuggerKitInformation::DebuggerItem(engineType(), fileName()); }
+public:
+    DebuggerOptionsPage();
+
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+    bool matches(const QString &) const;
 
 private slots:
-    void refreshLabel();
+    void debuggerSelectionChanged();
+    void debuggerModelChanged();
+    void updateState();
+    void cloneDebugger();
+    void addDebugger();
+    void removeDebugger();
 
 private:
-    DebuggerEngineType engineType() const;
-    void setEngineType(DebuggerEngineType et);
+    QWidget *m_configWidget;
+    QString m_searchKeywords;
 
-    Utils::FileName fileName() const;
-    void setFileName(const Utils::FileName &fn);
-
-    QComboBox *m_comboBox;
-    QLabel *m_label;
-    Utils::PathChooser *m_chooser;
+    DebuggerItemManager *m_manager;
+    DebuggerItemConfigWidget *m_itemConfigWidget;
+    QTreeView *m_debuggerView;
+    Utils::DetailsWidget *m_container;
+    QPushButton *m_addButton;
+    QPushButton *m_cloneButton;
+    QPushButton *m_delButton;
 };
 
 } // namespace Internal
