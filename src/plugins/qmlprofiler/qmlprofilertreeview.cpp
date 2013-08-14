@@ -83,8 +83,9 @@ QString QmlProfilerTreeView::displayHeader(Fields header) const
         return QCoreApplication::translate(ctxt2, "Type");
     case MedianTime:
         return QCoreApplication::translate(ctxt2, "Median Time");
+    default:
+        return QString();
     }
-    return QString();
 }
 
 } // namespace Internal

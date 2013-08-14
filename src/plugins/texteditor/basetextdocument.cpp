@@ -347,7 +347,6 @@ void BaseTextDocument::checkPermissions()
 
 bool BaseTextDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    QString title = tr("untitled");
     QStringList content;
 
     ReadResult readResult = Utils::TextFileFormat::ReadIOError;
