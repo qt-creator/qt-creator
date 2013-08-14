@@ -56,7 +56,8 @@ public:
     QString alias() const { return m_alias; }
     QStringList importPaths() const { return m_importPathList; }
 
-    QString toString(bool addSemicolon = false, bool skipAlias = false) const;
+    QString toString(bool skipAlias = false) const;
+    QString toImportString() const;
 
     bool operator==(const Import &other) const;
 

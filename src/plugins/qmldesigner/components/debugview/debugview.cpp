@@ -85,12 +85,12 @@ void DebugView::importsChanged(const QList<Import> &addedImports, const QList<Im
         QString message;
         message += tr("Added imports:") += lineBreak;
         foreach (const Import &import, addedImports) {
-            message += import.toString() += lineBreak;
+            message += import.toImportString() += lineBreak;
         }
 
         message += tr("Removed imports:") += lineBreak;
         foreach (const Import &import, removedImports) {
-            message += import.toString() += lineBreak;
+            message += import.toImportString() += lineBreak;
         }
 
         log(tr("Imports changed:"), message);

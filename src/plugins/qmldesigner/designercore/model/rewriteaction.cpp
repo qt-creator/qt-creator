@@ -358,7 +358,7 @@ bool AddImportRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring,
 
     if (!result)
         qDebug() << "*** AddImportRewriteAction::execute failed in changeImports ("
-                 << m_import.toString()
+                 << m_import.toImportString()
                  << ") **"
                  << info();
     return result;
@@ -376,7 +376,7 @@ bool RemoveImportRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring
 
     if (!result)
         qDebug() << "*** RemoveImportRewriteAction::execute failed in changeImports ("
-                 << m_import.toString()
+                 << m_import.toImportString()
                  << ") **"
                  << info();
     return result;

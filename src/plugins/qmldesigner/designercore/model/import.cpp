@@ -48,6 +48,15 @@ Import Import::empty()
     return Import(QString(), QString(), QString(), QString(), QStringList());
 }
 
+QString Import::toImportString() const
+{
+    QString result = QLatin1String("import ");
+
+    result += toString(false);
+
+    return result;
+}
+
 Import::Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths):
         m_url(url),
         m_file(file),
@@ -57,9 +66,9 @@ Import::Import(const QString &url, const QString &file, const QString &version, 
 {
 }
 
-QString Import::toString(bool addSemicolon, bool skipAlias) const
+QString Import::toString(bool skipAlias) const
 {
-    QString result = QLatin1String("import ");
+    QString result;
 
     if (isFileImport())
         result += '"' + file() + '"';
@@ -73,9 +82,6 @@ QString Import::toString(bool addSemicolon, bool skipAlias) const
 
     if (hasAlias() && !skipAlias)
         result += " as " + alias();
-
-    if (addSemicolon)
-        result += ';';
 
     return result;
 }
