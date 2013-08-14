@@ -80,8 +80,6 @@ protected:
     virtual BaseTextEditor *createEditor() { return new PlainTextEditor(this); }
 
 private:
-    QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents) const;
-
     bool m_isMissingSyntaxDefinition;
     Utils::CommentDefinition m_commentDefinition;
 };

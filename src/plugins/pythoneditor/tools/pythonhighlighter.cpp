@@ -65,9 +65,20 @@ using namespace PythonEditor::Internal;
  * @endcode
  */
 
+PythonHighlighter::PythonHighlighter(QTextDocument *parent) :
+    TextEditor::SyntaxHighlighter(parent)
+{
+    init();
+}
+
 /// New instance created when opening any document in editor
 PythonHighlighter::PythonHighlighter(TextEditor::BaseTextDocument *parent) :
     TextEditor::SyntaxHighlighter(parent)
+{
+    init();
+}
+
+void PythonHighlighter::init()
 {
     static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {

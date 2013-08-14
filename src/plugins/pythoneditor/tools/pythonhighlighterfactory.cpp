@@ -26,51 +26,20 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#include "pythonhighlighterfactory.h"
+#include "pythoneditorconstants.h"
+#include "tools/pythonhighlighter.h"
 
-namespace GLSLEditor {
-namespace Internal {
+using namespace PythonEditor::Internal;
 
-class GLSLTextEditorWidget;
-
-class Highlighter : public TextEditor::SyntaxHighlighter
+PythonHighlighterFactory::PythonHighlighterFactory()
 {
-    Q_OBJECT
+    setId(Constants::C_PYTHONEDITOR_ID);
+    addMimeType(QLatin1String(Constants::C_PY_MIMETYPE));
+}
 
-public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
-
-    explicit Highlighter(QTextDocument *parent = 0);
-    explicit Highlighter(TextEditor::BaseTextDocument *parent);
-    virtual ~Highlighter();
-
-protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
-
-private:
-    void init();
-};
-
-} // namespace Internal
-} // namespace GLSLEditor
-
-#endif // GLSLHIGHLIGHTER_H
+TextEditor::SyntaxHighlighter *PythonHighlighterFactory::createHighlighter() const
+{
+    return new PythonHighlighter;
+}

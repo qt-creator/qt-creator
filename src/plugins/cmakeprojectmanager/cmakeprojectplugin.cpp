@@ -36,6 +36,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakefilecompletionassist.h"
+#include "cmakehighlighterfactory.h"
 
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/icore.h>
@@ -82,6 +83,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(new CMakeLocatorFilter);
     addAutoReleasedObject(new CMakeFileCompletionAssistProvider(cmp));
     addAutoReleasedObject(new CMakeFeatureProvider);
+    addAutoReleasedObject(new CMakeHighlighterFactory);
     return true;
 }
 

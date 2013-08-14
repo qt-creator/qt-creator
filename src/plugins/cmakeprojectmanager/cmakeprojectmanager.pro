@@ -12,6 +12,7 @@ HEADERS = cmakeproject.h \
     cmakeeditorfactory.h \
     cmakeeditor.h \
     cmakehighlighter.h \
+    cmakehighlighterfactory.h \
     cmakelocatorfilter.h \
     cmakefilecompletionassist.h \
     cmakevalidator.h \
@@ -28,6 +29,7 @@ SOURCES = cmakeproject.cpp \
     cmakeeditorfactory.cpp \
     cmakeeditor.cpp \
     cmakehighlighter.cpp \
+    cmakehighlighterfactory.cpp \
     cmakelocatorfilter.cpp \
     cmakefilecompletionassist.cpp \
     cmakevalidator.cpp \

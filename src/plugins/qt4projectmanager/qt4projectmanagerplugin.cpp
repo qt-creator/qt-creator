@@ -55,6 +55,7 @@
 #include "winceqtversionfactory.h"
 #include "unconfiguredprojectpanel.h"
 #include "qmakekitinformation.h"
+#include "profilehighlighterfactory.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
@@ -156,6 +157,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
     addAutoReleasedObject(new ProFileHoverHandler(this));
     addAutoReleasedObject(new UnconfiguredProjectPanel);
+    addAutoReleasedObject(new ProFileHighlighterFactory);
 
     //menus
     Core::ActionContainer *mbuild =

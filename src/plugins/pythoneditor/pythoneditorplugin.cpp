@@ -33,6 +33,7 @@
 #include "wizard/pythonclasswizard.h"
 #include "pythoneditorwidget.h"
 #include "pythoneditorfactory.h"
+#include "tools/pythonhighlighterfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -252,6 +253,7 @@ bool PythonEditorPlugin::initialize(
     ////////////////////////////////////////////////////////////////////////////
     addAutoReleasedObject(new FileWizard(Core::ICore::instance()));
     addAutoReleasedObject(new ClassWizard(Core::ICore::instance()));
+    addAutoReleasedObject(new Internal::PythonHighlighterFactory);
 
     return true;
 }

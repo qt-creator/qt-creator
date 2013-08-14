@@ -34,6 +34,7 @@
 #include "glslfilewizard.h"
 #include "glslhoverhandler.h"
 #include "glslcompletionassist.h"
+#include "glslhighlighterfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -201,6 +202,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     vertWizardParameters.setDisplayName(tr("Vertex Shader (Desktop OpenGL)"));
     vertWizardParameters.setId(QLatin1String("K.GLSL"));
     addAutoReleasedObject(new GLSLFileWizard(vertWizardParameters, GLSLFileWizard::VertexShaderDesktop, core));
+    addAutoReleasedObject(new GLSLHighlighterFactory);
 
     return true;
 }

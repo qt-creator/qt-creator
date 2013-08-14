@@ -38,15 +38,20 @@
 #include <QToolButton>
 
 #include <texteditor/basetexteditor.h>
-#include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/ihighlighterfactory.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
+#include <texteditor/generichighlighter/highlighter.h>
 
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
+#include <coreplugin/mimedatabase.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
@@ -55,6 +60,7 @@ static const int BASE_LEVEL = 0;
 static const int FILE_LEVEL = 1;
 static const int CHUNK_LEVEL = 2;
 
+using namespace Core;
 using namespace TextEditor;
 
 namespace DiffEditor {
@@ -103,7 +109,7 @@ struct FileData {
 
 class DiffViewEditorEditable : public BaseTextEditor
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     DiffViewEditorEditable(BaseTextEditorWidget *editorWidget)
         : BaseTextEditor(editorWidget)
@@ -119,27 +125,50 @@ private slots:
 
 };
 
-
-////////////////////////
-
-class DiffViewEditorWidget : public SnippetEditorWidget
+class MultiHighlighter : public SyntaxHighlighter
 {
     Q_OBJECT
 public:
+    MultiHighlighter(DiffViewEditorWidget *editor, QTextDocument *document = 0);
+    ~MultiHighlighter();
+
+    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents);
+
+protected:
+    virtual void highlightBlock(const QString &text);
+
+private:
+    DiffViewEditorWidget *m_editor;
+    QMap<QString, IHighlighterFactory *> m_mimeTypeToHighlighterFactory;
+    QList<SyntaxHighlighter *> m_highlighters;
+    QList<QTextDocument *> m_documents;
+};
+
+////////////////////////
+
+class DiffViewEditorWidget : public BaseTextEditorWidget
+{
+    Q_OBJECT
+public:
+    struct ExtendedFileInfo
+    {
+        DiffEditorWidget::DiffFileInfo fileInfo;
+        TextEditor::SyntaxHighlighter *highlighter;
+    };
+
     DiffViewEditorWidget(QWidget *parent = 0);
 
-    void setSyntaxHighlighter(SyntaxHighlighter *sh) {
-        baseTextDocument()->setSyntaxHighlighter(sh);
-    }
+    // TODO: remove me, codec should be taken from somewhere else
     QTextCodec *codec() const {
         return const_cast<QTextCodec *>(baseTextDocument()->codec());
     }
 
-    QMap<int, int> skippedLines() const { return m_skippedLines; }
+    // block number, file info
     QMap<int, DiffEditorWidget::DiffFileInfo> fileInfo() const { return m_fileInfo; }
 
     void setLineNumber(int blockNumber, int lineNumber);
-    void setFileInfo(int blockNumber, const DiffEditorWidget::DiffFileInfo &fileInfo) { m_fileInfo[blockNumber] = fileInfo; setSeparator(blockNumber, true); }
+    void setFileInfo(int blockNumber, const DiffEditorWidget::DiffFileInfo &fileInfo);
     void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; setSeparator(blockNumber, true); }
     void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
     bool isFileLine(int blockNumber) const { return m_fileInfo.contains(blockNumber); }
@@ -149,7 +178,8 @@ public:
     void clearAll();
     void clearAll(const QString &message);
     void clearAllData();
-    QTextBlock firstVisibleBlock() const { return SnippetEditorWidget::firstVisibleBlock(); }
+    QTextBlock firstVisibleBlock() const { return BaseTextEditorWidget::firstVisibleBlock(); }
+    void setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents);
 
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
@@ -183,19 +213,107 @@ private:
                         const QTextBlock &block, int top);
     void jumpToOriginalFile(const QTextCursor &cursor);
 
+    // block number, visual line number.
     QMap<int, int> m_lineNumbers;
     int m_lineNumberDigits;
-    // block number, fileInfo
+    // block number, fileInfo. Set for file lines only.
     QMap<int, DiffEditorWidget::DiffFileInfo> m_fileInfo;
-    // block number, skipped lines
+    // block number, skipped lines. Set for chunk lines only.
     QMap<int, int> m_skippedLines;
-    // block number, separator. Separator used as lines alignment and inside skipped lines
+    // block number, separator. Set for file, chunk or span line.
     QMap<int, bool> m_separators;
     bool m_inPaintEvent;
     QColor m_fileLineForeground;
     QColor m_chunkLineForeground;
     QColor m_textForeground;
+    MultiHighlighter *m_highlighter;
 };
+
+MultiHighlighter::MultiHighlighter(DiffViewEditorWidget *editor, QTextDocument *document)
+    : SyntaxHighlighter(document),
+      m_editor(editor)
+{
+    const QList<IHighlighterFactory *> &factories =
+        ExtensionSystem::PluginManager::getObjects<TextEditor::IHighlighterFactory>();
+    foreach (IHighlighterFactory *factory, factories) {
+        QStringList mimeTypes = factory->mimeTypes();
+        foreach (const QString &mimeType, mimeTypes)
+            m_mimeTypeToHighlighterFactory.insert(mimeType, factory);
+    }
+}
+
+MultiHighlighter::~MultiHighlighter()
+{
+    setDocuments(QList<QPair<DiffEditorWidget::DiffFileInfo, QString> >());
+}
+
+void MultiHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
+{
+    foreach (SyntaxHighlighter *highlighter, m_highlighters) {
+        if (highlighter) {
+            highlighter->setFontSettings(fontSettings);
+            highlighter->rehighlight();
+        }
+    }
+}
+
+void MultiHighlighter::setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents)
+{
+    // clear old documents
+    qDeleteAll(m_documents);
+    m_documents.clear();
+    qDeleteAll(m_highlighters);
+    m_highlighters.clear();
+
+    const MimeDatabase *mimeDatabase = ICore::mimeDatabase();
+
+    // create new documents
+    for (int i = 0; i < documents.count(); i++) {
+        DiffEditorWidget::DiffFileInfo fileInfo = documents.at(i).first;
+        const QString contents = documents.at(i).second;
+        QTextDocument *document = new QTextDocument(contents);
+        const MimeType mimeType = mimeDatabase->findByFile(QFileInfo(fileInfo.fileName));
+        SyntaxHighlighter *highlighter = 0;
+        if (const IHighlighterFactory *factory = m_mimeTypeToHighlighterFactory.value(mimeType.type())) {
+            highlighter = factory->createHighlighter();
+            if (highlighter)
+                highlighter->setDocument(document);
+        }
+        if (!highlighter) {
+            TextEditor::Highlighter *h = new TextEditor::Highlighter();
+            highlighter = h;
+            h->setMimeType(mimeType);
+            highlighter->setDocument(document);
+        }
+        m_documents.append(document);
+        m_highlighters.append(highlighter);
+    }
+}
+
+void MultiHighlighter::highlightBlock(const QString &text)
+{
+    Q_UNUSED(text)
+
+    QTextBlock block = currentBlock();
+    const int fileIndex = m_editor->fileIndexForBlockNumber(block.blockNumber());
+    if (fileIndex < 0)
+        return;
+
+    SyntaxHighlighter *currentHighlighter = m_highlighters.at(fileIndex);
+    if (!currentHighlighter)
+        return;
+
+    // find block in document
+    QTextDocument *currentDocument = m_documents.at(fileIndex);
+    if (!currentDocument)
+        return;
+
+    QTextBlock documentBlock = currentDocument->findBlockByNumber(
+                block.blockNumber() - m_editor->blockNumberForFileIndex(fileIndex));
+
+    QList<QTextLayout::FormatRange> formats = documentBlock.layout()->additionalFormats();
+    setExtraAdditionalFormats(block, formats);
+}
 
 void DiffViewEditorEditable::slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position)
 {
@@ -216,7 +334,7 @@ void DiffViewEditorEditable::slotTooltipRequested(TextEditor::ITextEditor *edito
 }
 
 DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
-    : SnippetEditorWidget(parent), m_lineNumberDigits(1), m_inPaintEvent(false)
+    : BaseTextEditorWidget(parent), m_lineNumberDigits(1), m_inPaintEvent(false)
 {
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
@@ -225,22 +343,25 @@ DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
     settings.m_displayFoldingMarkers = true;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
-    SnippetEditorWidget::setDisplaySettings(settings);
+    BaseTextEditorWidget::setDisplaySettings(settings);
 
     setCodeFoldingSupported(true);
     setFrameStyle(QFrame::NoFrame);
+
+    m_highlighter = new MultiHighlighter(this, baseTextDocument()->document());
+    baseTextDocument()->setSyntaxHighlighter(m_highlighter);
 }
 
 void DiffViewEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
-    SnippetEditorWidget::setDisplaySettings(settings);
+    BaseTextEditorWidget::setDisplaySettings(settings);
 }
 
 void DiffViewEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
-    SnippetEditorWidget::setFontSettings(fs);
+    BaseTextEditorWidget::setFontSettings(fs);
     m_fileLineForeground = fs.formatFor(C_DIFF_FILE_LINE).foreground();
     m_chunkLineForeground = fs.formatFor(C_DIFF_CONTEXT_LINE).foreground();
     m_textForeground = fs.toTextCharFormat(C_TEXT).foreground().color();
@@ -318,6 +439,12 @@ void DiffViewEditorWidget::setLineNumber(int blockNumber, int lineNumber)
     m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumberString.count());
 }
 
+void DiffViewEditorWidget::setFileInfo(int blockNumber, const DiffEditorWidget::DiffFileInfo &fileInfo)
+{
+    m_fileInfo[blockNumber] = fileInfo;
+    setSeparator(blockNumber, true);
+}
+
 int DiffViewEditorWidget::blockNumberForFileIndex(int fileIndex) const
 {
     if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
@@ -359,6 +486,7 @@ void DiffViewEditorWidget::clearAll(const QString &message)
     clear();
     clearAllData();
     setPlainText(message);
+    m_highlighter->setDocuments(QList<QPair<DiffEditorWidget::DiffFileInfo, QString> >());
 }
 
 void DiffViewEditorWidget::clearAllData()
@@ -370,9 +498,14 @@ void DiffViewEditorWidget::clearAllData()
     m_separators.clear();
 }
 
+void  DiffViewEditorWidget::setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents)
+{
+    m_highlighter->setDocuments(documents);
+}
+
 void DiffViewEditorWidget::scrollContentsBy(int dx, int dy)
 {
-    SnippetEditorWidget::scrollContentsBy(dx, dy);
+    BaseTextEditorWidget::scrollContentsBy(dx, dy);
     // TODO: update only chunk lines
     viewport()->update();
 }
@@ -423,7 +556,7 @@ void DiffViewEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
         e->accept();
         return;
     }
-    SnippetEditorWidget::mouseDoubleClickEvent(e);
+    BaseTextEditorWidget::mouseDoubleClickEvent(e);
 }
 
 void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
@@ -444,7 +577,7 @@ void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
 {
     m_inPaintEvent = true;
-    SnippetEditorWidget::paintEvent(e);
+    BaseTextEditorWidget::paintEvent(e);
     m_inPaintEvent = false;
     QPainter painter(viewport());
 
@@ -760,12 +893,12 @@ QTextCodec *DiffEditorWidget::codec() const
     return const_cast<QTextCodec *>(m_leftEditor->codec());
 }
 
-SnippetEditorWidget *DiffEditorWidget::leftEditor() const
+BaseTextEditorWidget *DiffEditorWidget::leftEditor() const
 {
     return m_leftEditor;
 }
 
-SnippetEditorWidget *DiffEditorWidget::rightEditor() const
+BaseTextEditorWidget *DiffEditorWidget::rightEditor() const
 {
     return m_rightEditor;
 }
@@ -1150,18 +1283,20 @@ void DiffEditorWidget::showDiff()
 
     clear();
 
-    QString leftText, rightText;
+    QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > leftDocs, rightDocs;
+    QString leftTexts, rightTexts;
     int blockNumber = 0;
     QChar separator = QLatin1Char('\n');
     for (int i = 0; i < m_contextFileData.count(); i++) {
+        QString leftText, rightText;
         const FileData &contextFileData = m_contextFileData.at(i);
 
         int leftLineNumber = 0;
         int rightLineNumber = 0;
         m_leftEditor->setFileInfo(blockNumber, contextFileData.leftFileInfo);
         m_rightEditor->setFileInfo(blockNumber, contextFileData.rightFileInfo);
-        leftText += separator;
-        rightText += separator;
+        leftText = separator;
+        rightText = separator;
         blockNumber++;
 
         for (int j = 0; j < contextFileData.chunks.count(); j++) {
@@ -1199,13 +1334,20 @@ void DiffEditorWidget::showDiff()
                 blockNumber++;
             }
         }
+        leftTexts += leftText;
+        rightTexts += rightText;
+        leftDocs.append(qMakePair(contextFileData.leftFileInfo, leftText));
+        rightDocs.append(qMakePair(contextFileData.rightFileInfo, rightText));
     }
 
-    if (leftText.isEmpty() && rightText.isEmpty())
+    if (leftTexts.isEmpty() && rightTexts.isEmpty())
         return;
 
-    m_leftEditor->setPlainText(leftText);
-    m_rightEditor->setPlainText(rightText);
+    m_leftEditor->setDocuments(leftDocs);
+    m_rightEditor->setDocuments(rightDocs);
+
+    m_leftEditor->setPlainText(leftTexts);
+    m_rightEditor->setPlainText(rightTexts);
 
     colorDiff(m_contextFileData);
 

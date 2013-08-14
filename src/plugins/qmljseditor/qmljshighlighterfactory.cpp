@@ -26,51 +26,26 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#include "qmljshighlighterfactory.h"
+#include "qmljseditorconstants.h"
+#include "qmljshighlighter.h"
+#include <qmljstools/qmljstoolsconstants.h>
 
-namespace GLSLEditor {
-namespace Internal {
+using namespace QmlJSEditor::Internal;
 
-class GLSLTextEditorWidget;
-
-class Highlighter : public TextEditor::SyntaxHighlighter
+QmlJSHighlighterFactory::QmlJSHighlighterFactory()
 {
-    Q_OBJECT
+    setId(Constants::C_QMLJSEDITOR_ID);
+    addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::JSON_MIMETYPE);
+}
 
-public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
-
-    explicit Highlighter(QTextDocument *parent = 0);
-    explicit Highlighter(TextEditor::BaseTextDocument *parent);
-    virtual ~Highlighter();
-
-protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
-
-private:
-    void init();
-};
-
-} // namespace Internal
-} // namespace GLSLEditor
-
-#endif // GLSLHIGHLIGHTER_H
+TextEditor::SyntaxHighlighter *QmlJSHighlighterFactory::createHighlighter() const
+{
+    return new Highlighter;
+}

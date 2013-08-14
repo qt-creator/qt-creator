@@ -11,6 +11,7 @@ glsleditorfactory.h \
 glsleditorplugin.h \
 glslfilewizard.h \
 glslhighlighter.h \
+glslhighlighterfactory.h \
 glslautocompleter.h \
 glslindenter.h \
 glslhoverhandler.h \
@@ -24,6 +25,7 @@ glsleditorfactory.cpp \
 glsleditorplugin.cpp \
 glslfilewizard.cpp \
 glslhighlighter.cpp \
+glslhighlighterfactory.cpp \
 glslautocompleter.cpp \
 glslindenter.cpp \
 glslhoverhandler.cpp \

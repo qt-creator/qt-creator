@@ -125,20 +125,19 @@ void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
     if (!mimeType.isNull()) {
         m_isMissingSyntaxDefinition = true;
 
+        highlighter->setMimeType(mimeType);
         const QString &type = mimeType.type();
         setMimeType(type);
 
         QString definitionId = Manager::instance()->definitionIdByMimeType(type);
         if (definitionId.isEmpty())
-            definitionId = findDefinitionId(mimeType, true);
+            definitionId = Highlighter::findDefinitionId(mimeType, true);
 
         if (!definitionId.isEmpty()) {
             m_isMissingSyntaxDefinition = false;
             const QSharedPointer<HighlightDefinition> &definition =
                 Manager::instance()->definition(definitionId);
             if (!definition.isNull() && definition->isValid()) {
-                highlighter->setDefaultContext(definition->initialContext());
-
                 m_commentDefinition.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
                 m_commentDefinition.singleLine = definition->singleLineComment();
                 m_commentDefinition.multiLineStart = definition->multiLineCommentStart();
@@ -161,23 +160,6 @@ void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
 bool PlainTextEditorWidget::isMissingSyntaxDefinition() const
 {
     return m_isMissingSyntaxDefinition;
-}
-
-QString PlainTextEditorWidget::findDefinitionId(const Core::MimeType &mimeType,
-                                          bool considerParents) const
-{
-    QString definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.aliases());
-    if (definitionId.isEmpty() && considerParents) {
-        definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.subClassesOf());
-        if (definitionId.isEmpty()) {
-            foreach (const QString &parent, mimeType.subClassesOf()) {
-                const Core::MimeType &parentMimeType =
-                    Core::ICore::mimeDatabase()->findByType(parent);
-                definitionId = findDefinitionId(parentMimeType, considerParents);
-            }
-        }
-    }
-    return definitionId;
 }
 
 void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()

@@ -26,51 +26,22 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#include "profilehighlighterfactory.h"
+#include "qt4projectmanagerconstants.h"
+#include "profilehighlighter.h"
 
-namespace GLSLEditor {
-namespace Internal {
+using namespace Qt4ProjectManager::Internal;
 
-class GLSLTextEditorWidget;
-
-class Highlighter : public TextEditor::SyntaxHighlighter
+ProFileHighlighterFactory::ProFileHighlighterFactory()
 {
-    Q_OBJECT
+    setId(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+    addMimeType(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
+    addMimeType(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
+    addMimeType(Qt4ProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
+}
 
-public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
-
-    explicit Highlighter(QTextDocument *parent = 0);
-    explicit Highlighter(TextEditor::BaseTextDocument *parent);
-    virtual ~Highlighter();
-
-protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
-
-private:
-    void init();
-};
-
-} // namespace Internal
-} // namespace GLSLEditor
-
-#endif // GLSLHIGHLIGHTER_H
+TextEditor::SyntaxHighlighter *ProFileHighlighterFactory::createHighlighter() const
+{
+    return new ProFileHighlighter;
+}

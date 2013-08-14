@@ -26,51 +26,24 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#include "glslhighlighterfactory.h"
+#include "glsleditorconstants.h"
+#include "glslhighlighter.h"
 
-namespace GLSLEditor {
-namespace Internal {
+using namespace GLSLEditor::Internal;
 
-class GLSLTextEditorWidget;
-
-class Highlighter : public TextEditor::SyntaxHighlighter
+GLSLHighlighterFactory::GLSLHighlighterFactory()
 {
-    Q_OBJECT
+    setId(GLSLEditor::Constants::C_GLSLEDITOR_ID);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES);
+    addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES);
+}
 
-public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
-
-    explicit Highlighter(QTextDocument *parent = 0);
-    explicit Highlighter(TextEditor::BaseTextDocument *parent);
-    virtual ~Highlighter();
-
-protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
-
-private:
-    void init();
-};
-
-} // namespace Internal
-} // namespace GLSLEditor
-
-#endif // GLSLHIGHLIGHTER_H
+TextEditor::SyntaxHighlighter *GLSLHighlighterFactory::createHighlighter() const
+{
+    return new Highlighter;
+}

@@ -11,6 +11,7 @@ HEADERS += cppeditorplugin.h \
     cppfilewizard.h \
     cppfunctiondecldeflink.h \
     cpphighlighter.h \
+    cpphighlighterfactory.h \
     cpphoverhandler.h \
     cppoutline.h \
     cppquickfixassistant.h \
@@ -27,6 +28,7 @@ SOURCES += cppeditorplugin.cpp \
     cppfilewizard.cpp \
     cppfunctiondecldeflink.cpp \
     cpphighlighter.cpp \
+    cpphighlighterfactory.cpp \
     cpphoverhandler.cpp \
     cppoutline.cpp \
     cppquickfixassistant.cpp \

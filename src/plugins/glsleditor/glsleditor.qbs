@@ -32,6 +32,8 @@ QtcPlugin {
         "glslfilewizard.h",
         "glslhighlighter.cpp",
         "glslhighlighter.h",
+        "glslhighlighterfactory.cpp",
+        "glslhighlighterfactory.h",
         "glslhoverhandler.cpp",
         "glslhoverhandler.h",
         "glslindenter.cpp",

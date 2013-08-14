@@ -89,6 +89,7 @@ QtcPlugin {
         "icodestylepreferences.h",
         "icodestylepreferencesfactory.cpp",
         "icodestylepreferencesfactory.h",
+        "ihighlighterfactory.cpp",
         "indenter.cpp",
         "indenter.h",
         "ioutlinewidget.h",

@@ -36,6 +36,8 @@
 #include "progressdata.h"
 #include "reuse.h"
 #include "tabsettings.h"
+#include "manager.h"
+#include <coreplugin/icore.h>
 
 #include <QLatin1String>
 #include <QLatin1Char>
@@ -115,6 +117,40 @@ void Highlighter::setDefaultContext(const QSharedPointer<Context> &defaultContex
     m_defaultContext = defaultContext;
     m_persistentObservableStates.insert(m_defaultContext->name(), Default);
     m_indentationBasedFolding = defaultContext->definition()->isIndentationBasedFolding();
+}
+
+QString Highlighter::findDefinitionId(const Core::MimeType &mimeType,
+                                          bool considerParents)
+{
+    QString definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.aliases());
+    if (definitionId.isEmpty() && considerParents) {
+        definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.subClassesOf());
+        if (definitionId.isEmpty()) {
+            foreach (const QString &parent, mimeType.subClassesOf()) {
+                const Core::MimeType &parentMimeType =
+                    Core::ICore::mimeDatabase()->findByType(parent);
+                definitionId = findDefinitionId(parentMimeType, considerParents);
+            }
+        }
+    }
+    return definitionId;
+}
+
+void Highlighter::setMimeType(const Core::MimeType &mimeType)
+{
+    const QString type = mimeType.type();
+    QString definitionId = Manager::instance()->definitionIdByMimeType(type);
+    if (definitionId.isEmpty())
+        definitionId = findDefinitionId(mimeType, true);
+
+    if (!definitionId.isEmpty()) {
+        const QSharedPointer<HighlightDefinition> &definition =
+            Manager::instance()->definition(definitionId);
+        if (!definition.isNull() && definition->isValid()) {
+            setDefaultContext(definition->initialContext());
+        }
+    }
+
 }
 
 void Highlighter::setTabSettings(const TabSettings &ts)

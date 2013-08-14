@@ -18,6 +18,7 @@ HEADERS += \
     wizard/pythonclasswizarddialog.h \
     wizard/pythonsourcegenerator.h \
     tools/pythonhighlighter.h \
+    tools/pythonhighlighterfactory.h \
     tools/pythonindenter.h \
     tools/lexical/pythonformattoken.h \
     tools/lexical/pythonscanner.h \
@@ -34,5 +35,6 @@ SOURCES += \
     wizard/pythonclassnamepage.cpp \
     wizard/pythonsourcegenerator.cpp \
     tools/pythonhighlighter.cpp \
+    tools/pythonhighlighterfactory.cpp \
     tools/pythonindenter.cpp \
     tools/lexical/pythonscanner.cpp

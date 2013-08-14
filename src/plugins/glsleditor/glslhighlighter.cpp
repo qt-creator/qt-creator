@@ -39,8 +39,19 @@ using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;
 using namespace TextEditor;
 
+Highlighter::Highlighter(QTextDocument *parent)
+    : TextEditor::SyntaxHighlighter(parent)
+{
+    init();
+}
+
 Highlighter::Highlighter(BaseTextDocument *parent)
     : TextEditor::SyntaxHighlighter(parent)
+{
+    init();
+}
+
+void Highlighter::init()
 {
     static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {

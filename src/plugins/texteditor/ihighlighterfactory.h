@@ -26,51 +26,41 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#ifndef IHIGHLIGHTERFACTORY_H
+#define IHIGHLIGHTERFACTORY_H
 
-namespace GLSLEditor {
-namespace Internal {
+#include <texteditor/texteditor_global.h>
+#include <coreplugin/id.h>
 
-class GLSLTextEditorWidget;
+#include <QObject>
+#include <QStringList>
 
-class Highlighter : public TextEditor::SyntaxHighlighter
+namespace TextEditor {
+
+class SyntaxHighlighter;
+
+class TEXTEDITOR_EXPORT IHighlighterFactory : public QObject
 {
     Q_OBJECT
-
 public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
+    virtual TextEditor::SyntaxHighlighter *createHighlighter() const = 0;
 
-    explicit Highlighter(QTextDocument *parent = 0);
-    explicit Highlighter(TextEditor::BaseTextDocument *parent);
-    virtual ~Highlighter();
+    Core::Id id() const { return m_id; }
+    QStringList mimeTypes() const { return m_mimeTypes; }
 
 protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
+    void setId(Core::Id id) { m_id = id; }
+    void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
+    void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
+    void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
 
 private:
-    void init();
+    Core::Id m_id;
+    QStringList m_mimeTypes;
 };
 
-} // namespace Internal
-} // namespace GLSLEditor
+} // TextEditor
 
-#endif // GLSLHIGHLIGHTER_H
+#endif // IHIGHLIGHTERFACTORY_H
+

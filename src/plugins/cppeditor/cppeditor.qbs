@@ -37,6 +37,8 @@ QtcPlugin {
         "cppfunctiondecldeflink.h",
         "cpphighlighter.cpp",
         "cpphighlighter.h",
+        "cpphighlighterfactory.cpp",
+        "cpphighlighterfactory.h",
         "cpphoverhandler.cpp",
         "cpphoverhandler.h",
         "cppoutline.cpp",

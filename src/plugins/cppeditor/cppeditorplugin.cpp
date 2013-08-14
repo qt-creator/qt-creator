@@ -39,6 +39,7 @@
 #include "cppsnippetprovider.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
+#include "cpphighlighterfactory.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -160,6 +161,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addAutoReleasedObject(new CppOutlineWidgetFactory);
     addAutoReleasedObject(new CppTypeHierarchyFactory);
     addAutoReleasedObject(new CppSnippetProvider);
+    addAutoReleasedObject(new CppHighlighterFactory);
 
     m_quickFixProvider = new CppQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixProvider);

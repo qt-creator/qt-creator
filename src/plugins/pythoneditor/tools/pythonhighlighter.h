@@ -40,6 +40,7 @@ class PythonHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 public:
+    explicit PythonHighlighter(QTextDocument *parent = 0);
     explicit PythonHighlighter(TextEditor::BaseTextDocument *parent);
     virtual ~PythonHighlighter();
 
@@ -49,6 +50,7 @@ protected:
 private:
     int highlightLine(const QString &text, int initialState);
     void highlightImport(Internal::Scanner &scanner);
+    void init();
 };
 
 } // namespace PythonEditor

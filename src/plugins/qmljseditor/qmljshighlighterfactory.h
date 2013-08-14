@@ -26,51 +26,26 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
 
-#include <texteditor/syntaxhighlighter.h>
+#ifndef QMLJSHIGHLIGHTERFACTORY_H
+#define QMLJSHIGHLIGHTERFACTORY_H
 
-namespace GLSLEditor {
+#include <texteditor/ihighlighterfactory.h>
+
+namespace QmlJSEditor {
 namespace Internal {
 
-class GLSLTextEditorWidget;
-
-class Highlighter : public TextEditor::SyntaxHighlighter
+class QmlJSHighlighterFactory : public TextEditor::IHighlighterFactory
 {
     Q_OBJECT
 
 public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
+    QmlJSHighlighterFactory();
 
-    explicit Highlighter(QTextDocument *parent = 0);
-    explicit Highlighter(TextEditor::BaseTextDocument *parent);
-    virtual ~Highlighter();
-
-protected:
-    void highlightBlock(const QString &text);
-    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
-    bool isPPKeyword(const QStringRef &text) const;
-
-private:
-    void init();
+    virtual TextEditor::SyntaxHighlighter *createHighlighter() const;
 };
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace QmlJSEditor
 
-#endif // GLSLHIGHLIGHTER_H
+#endif // QMLJSHIGHLIGHTERFACTORY_H

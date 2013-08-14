@@ -37,7 +37,6 @@
 
 namespace TextEditor {
 class BaseTextEditorWidget;
-class SnippetEditorWidget;
 class FontSettings;
 }
 
@@ -98,8 +97,8 @@ signals:
     void navigatedToDiffFile(int diffFileIndex);
 
 protected:
-    TextEditor::SnippetEditorWidget *leftEditor() const;
-    TextEditor::SnippetEditorWidget *rightEditor() const;
+    TextEditor::BaseTextEditorWidget *leftEditor() const;
+    TextEditor::BaseTextEditorWidget *rightEditor() const;
 
 private slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);

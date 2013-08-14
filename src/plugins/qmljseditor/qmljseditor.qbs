@@ -47,6 +47,8 @@ QtcPlugin {
         "qmljsfindreferences.h",
         "qmljshighlighter.cpp",
         "qmljshighlighter.h",
+        "qmljshighlighterfactory.cpp",
+        "qmljshighlighterfactory.h",
         "qmljshoverhandler.cpp",
         "qmljshoverhandler.h",
         "qmljsoutline.cpp",
