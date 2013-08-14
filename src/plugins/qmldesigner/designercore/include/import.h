@@ -79,4 +79,6 @@ QMLDESIGNERCORE_EXPORT uint qHash(const Import &import);
 
 } // namespace QmlDesigner
 
+Q_DECLARE_METATYPE(QmlDesigner::Import)
+
 #endif // IMPORT_H
