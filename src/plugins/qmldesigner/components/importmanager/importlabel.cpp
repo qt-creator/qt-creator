@@ -60,9 +60,6 @@ void ImportLabel::setImport(const Import &import)
 {
     m_importLabel->setText(import.toString(false));
 
-    if (import.url() == "QtQuick")
-        m_removeButton->setDisabled(true);
-
     m_import = import;
 }
 
