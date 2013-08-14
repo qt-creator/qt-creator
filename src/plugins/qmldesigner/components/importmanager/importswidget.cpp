@@ -30,6 +30,7 @@
 #include "importswidget.h"
 
 #include <QVBoxLayout>
+#include <QComboBox>
 
 #include "importlabel.h"
 
@@ -39,13 +40,52 @@ ImportsWidget::ImportsWidget(QWidget *parent) :
     QWidget(parent)
 {
     setWindowTitle(tr("Import Manager"));
+    m_addImportComboBox = new QComboBox(this);
+    connect(m_addImportComboBox, SIGNAL(activated(int)), this, SLOT(addSelectedImport(int)));
 }
 
-void ImportsWidget::removeAllImports()
+void ImportsWidget::removeImports()
 {
     qDeleteAll(m_importLabels);
     m_importLabels.clear();
     updateLayout();
+}
+
+static bool isImportAlreadyUsed(const Import &import, QList<ImportLabel*> importLabels)
+{
+    foreach (ImportLabel *importLabel, importLabels) {
+        if (importLabel->import() == import)
+            return true;
+    }
+
+    return false;
+}
+
+void ImportsWidget::setPossibleImports(const QList<Import> &possibleImports)
+{
+    m_addImportComboBox->clear();
+    foreach (const Import &possibleImport, possibleImports) {
+        if (!isImportAlreadyUsed(possibleImport, m_importLabels))
+            m_addImportComboBox->addItem(possibleImport.toString(true), QVariant::fromValue(possibleImport));
+    }
+}
+
+void ImportsWidget::removePossibleImports()
+{
+    m_addImportComboBox->clear();
+}
+
+void ImportsWidget::setUsedImports(const QList<Import> &usedImports)
+{
+    foreach (ImportLabel *importLabel, m_importLabels)
+        importLabel->setDisabled(usedImports.contains(importLabel->import()));
+
+}
+
+void ImportsWidget::removeUsedImports()
+{
+    foreach (ImportLabel *importLabel, m_importLabels)
+        importLabel->setEnabled(true);
 }
 
 static bool importLess(const Import &firstImport, const Import &secondImport)
@@ -90,6 +130,7 @@ void ImportsWidget::setImports(const QList<Import> &imports)
     updateLayout();
 }
 
+
 void ImportsWidget::updateLayout()
 {
     delete layout();
@@ -97,10 +138,19 @@ void ImportsWidget::updateLayout()
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
 
+    layout->addWidget(m_addImportComboBox);
+
     foreach (ImportLabel *importLabel, m_importLabels)
         layout->addWidget(importLabel);
 
     layout->addStretch();
+}
+
+void ImportsWidget::addSelectedImport(int addImportComboBoxIndex)
+{
+    Import selectedImport = m_addImportComboBox->itemData(addImportComboBoxIndex).value<Import>();
+
+    emit addImport(selectedImport);
 }
 
 } // namespace QmlDesigner

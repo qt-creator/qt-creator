@@ -95,6 +95,7 @@ public:
 
 private slots:
     void removeImport(const Import &import);
+    void addImport(const Import &import);
 
 private:
     ImportsWidget *m_importsWidget;

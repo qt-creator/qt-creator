@@ -34,6 +34,10 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
 class ImportLabel;
@@ -45,16 +49,27 @@ public:
     explicit ImportsWidget(QWidget *parent = 0);
 
     void setImports(const QList<Import> &imports);
-    void removeAllImports();
+    void removeImports();
+
+    void setPossibleImports(const QList<Import> &possibleImports);
+    void removePossibleImports();
+
+    void setUsedImports(const QList<Import> &possibleImports);
+    void removeUsedImports();
 
 signals:
     void removeImport(const Import &import);
+    void addImport(const Import &import);
 
 protected:
     void updateLayout();
 
+private slots:
+    void addSelectedImport(int addImportComboBoxIndex);
+
 private:
     QList<ImportLabel*> m_importLabels;
+    QComboBox *m_addImportComboBox;
 };
 
 } // namespace QmlDesigner

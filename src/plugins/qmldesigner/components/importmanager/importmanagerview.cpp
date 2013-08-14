@@ -55,6 +55,8 @@ WidgetInfo ImportManagerView::widgetInfo()
     if (m_importsWidget == 0) {
         m_importsWidget = new ImportsWidget;
         connect(m_importsWidget, SIGNAL(removeImport(Import)), this, SLOT(removeImport(Import)));
+        connect(m_importsWidget, SIGNAL(addImport(Import)), this, SLOT(addImport(Import)));
+
         if (model())
             m_importsWidget->setImports(model()->imports());
     }
@@ -66,26 +68,34 @@ void ImportManagerView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    if (m_importsWidget)
+    if (m_importsWidget) {
         m_importsWidget->setImports(model->imports());
+        m_importsWidget->setPossibleImports(model->possibleImports());
+        m_importsWidget->setUsedImports(model->usedImports());
+    }
 }
 
 void ImportManagerView::modelAboutToBeDetached(Model *model)
 {
-    if (m_importsWidget)
-        m_importsWidget->removeAllImports();
+    if (m_importsWidget) {
+        m_importsWidget->removeImports();
+        m_importsWidget->removePossibleImports();
+        m_importsWidget->removeUsedImports();
+    }
 
     AbstractView::modelAboutToBeDetached(model);
 }
 
 void ImportManagerView::nodeCreated(const ModelNode &createdNode)
 {
-// handle case that the import is used
+    if (m_importsWidget)
+        m_importsWidget->setUsedImports(model()->usedImports());
 }
 
 void ImportManagerView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-// handle case that the import is unused
+    if (m_importsWidget)
+        m_importsWidget->setUsedImports(model()->usedImports());
 }
 
 void ImportManagerView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -210,8 +220,11 @@ void ImportManagerView::nodeOrderChanged(const NodeListProperty &/*listProperty*
 
 void ImportManagerView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
-    if (m_importsWidget)
+    if (m_importsWidget) {
         m_importsWidget->setImports(model()->imports());
+        m_importsWidget->setPossibleImports(model()->possibleImports());
+        m_importsWidget->setUsedImports(model()->usedImports());
+    }
 }
 
 void ImportManagerView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)
@@ -233,6 +246,12 @@ void ImportManagerView::removeImport(const Import &import)
 {
     if (model())
         model()->changeImports(QList<Import>(), QList<Import>() << import);
+}
+
+void ImportManagerView::addImport(const Import &import)
+{
+    if (model())
+        model()->changeImports(QList<Import>() << import, QList<Import>());
 }
 
 } // namespace QmlDesigner

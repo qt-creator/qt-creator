@@ -44,6 +44,7 @@ public:
     explicit ImportLabel(QWidget *parent = 0);
 
     void setImport(const Import &import);
+    const Import import() const;
 
 signals:
     void removeImport(const Import &import);

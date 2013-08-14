@@ -63,6 +63,11 @@ void ImportLabel::setImport(const Import &import)
     m_import = import;
 }
 
+const Import ImportLabel::import() const
+{
+    return m_import;
+}
+
 void ImportLabel::emitRemoveImport()
 {
     emit removeImport(m_import);
