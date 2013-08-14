@@ -95,6 +95,9 @@ public:
     static QString loadLocalBundledFiles(ProjectExplorer::Target *target, int apiLevel = -1);
     static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel = -1);
 
+    static QPair<int, int> apiLevelRange(ProjectExplorer::Target *target);
+    static QString androidNameForApiLevel(int x);
+
     class Library
     {
     public:

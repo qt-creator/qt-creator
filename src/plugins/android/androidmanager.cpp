@@ -647,6 +647,57 @@ QString AndroidManager::loadLocalJarsInitClasses(ProjectExplorer::Target *target
     return loadLocal(target, apiLevel, type, QLatin1String("initClass"));
 }
 
+QPair<int, int> AndroidManager::apiLevelRange(ProjectExplorer::Target *target)
+{
+    // 4 is the minimum version on which qt is supported
+    // 19 and 20 are not yet released, but allow the user
+    // to set them
+    int minApiLevel = 4;
+    QtSupport::BaseQtVersion *qt;
+    if (target && (qt = QtSupport::QtKitInformation::qtVersion(target->kit())))
+        if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
+            minApiLevel = 9;
+    return qMakePair(minApiLevel, 20);
+}
+
+QString AndroidManager::androidNameForApiLevel(int x)
+{
+    switch (x) {
+    case 4:
+        return QLatin1String("Android 1.6");
+    case 5:
+        return QLatin1String("Android 2.0");
+    case 6:
+        return QLatin1String("Android 2.0.1");
+    case 7:
+        return QLatin1String("Android 2.1.x");
+    case 8:
+        return QLatin1String("Android 2.2.x");
+    case 9:
+        return QLatin1String("Android 2.3, 2.3.1, 2.3.2");
+    case 10:
+        return QLatin1String("Android 2.3.3, 2.3.4");
+    case 11:
+        return QLatin1String("Android 3.0.x");
+    case 12:
+        return QLatin1String("Android 3.1.x");
+    case 13:
+        return QLatin1String("Android 3.2");
+    case 14:
+        return QLatin1String("Android 4.0, 4.0.1, 4.0.2");
+    case 15:
+        return QLatin1String("Android 4.0.3, 4.0.4");
+    case 16:
+        return QLatin1String("Android 4.1, 4.1.1");
+    case 17:
+        return QLatin1String("Android 4.2, 4.2.2");
+    case 18:
+        return QLatin1String("Android 4.3");
+    default:
+        return QLatin1String("Unknown Android version.");
+    }
+}
+
 QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies(ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());

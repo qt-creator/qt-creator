@@ -115,6 +115,7 @@ private slots:
     void setPackageName();
     void gotoError();
     void updateInfoBar();
+    void updateSdkVersions();
     void startParseCheck();
     void delayedParseCheck();
 private:
@@ -144,6 +145,8 @@ private:
     QLabel *m_packageNameWarning;
     QSpinBox *m_versionCode;
     QLineEdit *m_versionNameLinedit;
+    QComboBox *m_androidMinSdkVersion;
+    QComboBox *m_androidTargetSdkVersion;
 
     // Application
     QLineEdit *m_appNameLineEdit;
