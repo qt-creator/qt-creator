@@ -32,12 +32,13 @@
 
 #include "ivcprojectnodemodel.h"
 
-#include "tools/tool.h"
 #include "deploymenttool.h"
 #include "debuggertool.h"
 
 namespace VcProjectManager {
 namespace Internal {
+
+class ConfigurationTool;
 
 class Configuration : public QObject, public IVcProjectXMLNode
 {
@@ -61,16 +62,19 @@ public:
      */
     virtual Configuration::Ptr clone() const = 0;
 
-    void addTool(Tool::Ptr tool);
-    void removeTool(Tool::Ptr tool);
-    Tool::Ptr tool(const QString &toolName) const;
-    QList<Tool::Ptr> tools() const;
     QString name() const;
     void setName(const QString &name);
+
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
     void clearAttribute(const QString &attributeName);
     void removeAttribute(const QString &attributeName);
+
+    void addConfigurationTool(ConfigurationTool *tool);
+    void removeConfigurationTool(const QString &toolKey);
+    int configurationToolCount() const;
+    ConfigurationTool* configurationTool(int index) const;
+    ConfigurationTool* configurationTool(const QString &toolKey) const;
 
 signals:
     void nameChanged();
@@ -82,8 +86,8 @@ protected:
 
     QString m_name;
     QString m_nodeName;
-    QList<Tool::Ptr> m_tools;
     QHash<QString, QString> m_anyAttribute;
+    QList<ConfigurationTool *> m_configurationTools;
 };
 
 class Configuration2003 : public Configuration

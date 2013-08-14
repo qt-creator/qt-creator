@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="Browse Information"
+    Key="VCBscMakeTool"
+    >
+    <Section
+        Name="General"
+        >
+        <Boolean
+            Name="Suppress Startup Banner"
+            Key="SuppressStartupBanner"
+            DefaultValue="true"
+            Description="Suppress the display of the startup banner and information messages."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/nologo)">true</Value>
+        </Boolean>
+        <String
+            Name="Output File"
+            Key="OutputFile"
+            DefaultValue="$(OutDir)/$(ProjectName).bsc"
+            Description="Overrides the default output file name."
+        />
+    </Section>
+</ToolInfo>

@@ -34,6 +34,10 @@
 #include <QSettings>
 #include <QStringList>
 
+#include "vcprojectmanagerconstants.h"
+#include "vcprojectmodel/tools/tool_constants.h"
+#include "vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
+
 namespace VcProjectManager {
 namespace Internal {
 
@@ -48,44 +52,86 @@ VcSchemaManager::~VcSchemaManager()
 {
 }
 
-void VcSchemaManager::addSchema(const QString &schemaPath, Constants::SchemaVersion version)
+void VcSchemaManager::addDocumentSchema(const QString &schemaPath, Constants::SchemaVersion version)
 {
-    m_schemas.insert(version, schemaPath);
+    m_documentSchemas.insert(version, schemaPath);
 }
 
-QString VcSchemaManager::schema(Constants::SchemaVersion version)
+QString VcSchemaManager::documentSchema(Constants::SchemaVersion version)
 {
-    return m_schemas.value(version);
+    return m_documentSchemas.value(version);
 }
 
-void VcSchemaManager::setSchema(Constants::SchemaVersion version, const QString &schemaPath)
+void VcSchemaManager::setDocumentSchema(Constants::SchemaVersion version, const QString &schemaPath)
 {
-    m_schemas.insert(version, schemaPath);
+    m_documentSchemas.insert(version, schemaPath);
 }
 
-void VcSchemaManager::removeSchema(Constants::SchemaVersion version)
+void VcSchemaManager::removeDocumentSchema(Constants::SchemaVersion version)
 {
-    m_schemas.remove(version);
+    m_documentSchemas.remove(version);
+}
+
+QString VcSchemaManager::toolSchema() const
+{
+    return m_toolSchema;
+}
+
+void VcSchemaManager::setToolSchema(const QString &schemaPath)
+{
+    m_toolSchema = schemaPath;
+}
+
+QList<QString> VcSchemaManager::toolXMLFilePaths() const
+{
+    return m_toolXMLPaths.values();
+}
+
+void VcSchemaManager::addToolXML(const QString &toolKey, const QString &toolFilePath)
+{
+    if (m_toolXMLPaths.contains(toolKey))
+        return;
+
+    m_toolXMLPaths[toolKey] = toolFilePath;
+}
+
+void VcSchemaManager::removeToolXML(const QString &toolKey)
+{
+    m_toolXMLPaths.remove(toolKey);
 }
 
 void VcSchemaManager::removeAllSchemas()
 {
-    m_schemas.clear();
+    m_documentSchemas.clear();
+    m_toolSchema.clear();
 }
 
 void VcSchemaManager::saveSettings()
 {
     QSettings *settings = Core::ICore::settings();
-    settings->beginWriteArray(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH));
-    settings->setArrayIndex(0);
+    settings->beginGroup(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH));
 
     settings->setValue(QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER),
-                       m_schemas.value(Constants::SV_2003));
+                       m_documentSchemas.value(Constants::SV_2003));
     settings->setValue(QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER),
-                       m_schemas.value(Constants::SV_2005));
+                       m_documentSchemas.value(Constants::SV_2005));
     settings->setValue(QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER),
-                       m_schemas.value(Constants::SV_2008));
-    settings->endArray();
+                       m_documentSchemas.value(Constants::SV_2008));
+
+    settings->endGroup();
+
+    settings->setValue(QLatin1String(Constants::VC_PROJECT_TOOL_SCHEMA), m_toolSchema);
+
+    settings->beginGroup(QLatin1String(Constants::VC_PROJECT_TOOL_XML));
+
+    QHashIterator<QString, QString> it(m_toolXMLPaths);
+
+    while (it.hasNext()) {
+        it.next();
+        settings->setValue(it.key(), it.value());
+    }
+
+    settings->endGroup();
 }
 
 VcSchemaManager::VcSchemaManager()
@@ -96,15 +142,38 @@ VcSchemaManager::VcSchemaManager()
 
 void VcSchemaManager::loadSettings()
 {
-    m_schemas.clear();
+    m_documentSchemas.clear();
 
     QSettings *settings = Core::ICore::settings();
-    settings->beginReadArray(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH));
-    settings->setArrayIndex(0);
-    m_schemas.insert(Constants::SV_2003, settings->value(QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER)).toString());
-    m_schemas.insert(Constants::SV_2005, settings->value(QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER)).toString());
-    m_schemas.insert(Constants::SV_2008, settings->value(QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER)).toString());
-    settings->endArray();
+
+    settings->beginGroup(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH));
+    m_documentSchemas.insert(Constants::SV_2003, settings->value(QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER)).toString());
+    m_documentSchemas.insert(Constants::SV_2005, settings->value(QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER)).toString());
+    m_documentSchemas.insert(Constants::SV_2008, settings->value(QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER)).toString());
+    settings->endGroup();
+
+    m_toolSchema = settings->value(QLatin1String(Constants::VC_PROJECT_TOOL_SCHEMA)).toString();
+
+    settings->beginGroup(QLatin1String(Constants::VC_PROJECT_TOOL_XML));
+    QStringList childKeys = settings->childKeys();
+
+    foreach (const QString &key, childKeys)
+        m_toolXMLPaths[key] = settings->value(key).toString();
+
+    settings->endGroup();
+}
+
+bool VcSchemaManager::similarToolXMLExistsFor(const QString &filePath)
+{
+    ToolInfo fileToolInfo = ToolDescriptionDataManager::readToolInfo(filePath);
+
+    foreach (const QString &toolXMLPath, m_toolXMLPaths) {
+        ToolInfo info = ToolDescriptionDataManager::readToolInfo(toolXMLPath);
+        if (info == fileToolInfo)
+            return true;
+    }
+
+    return false;
 }
 
 } // namespace Internal

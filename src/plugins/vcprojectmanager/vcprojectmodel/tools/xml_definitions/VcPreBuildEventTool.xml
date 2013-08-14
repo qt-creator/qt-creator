@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="Pre-Build Event"
+    Key="VCPreBuildEventTool"
+    >
+    <Section
+        Name="Pre Build Event"
+        >
+        <StringList
+            Name="Command Line"
+            Key="CommandLine"
+            DefaultValue=""
+            Separator="\r\n"
+            Description="Specifies a command line for the pre-build event tool to run."
+        />
+        <String
+            Name="Description"
+            Key="Description"
+            DefaultValue=""
+            Description="Provides a description for the pre-build event tool to display."
+        />
+        <Boolean
+            Name="Excluded From Build"
+            Key="ExcludedFromBuild"
+            DefaultValue="false"
+            Description="Specifies whether this build event is excluded from the build for the current configuration."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+    </Section>
+</ToolInfo>

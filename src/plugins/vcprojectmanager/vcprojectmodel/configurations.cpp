@@ -31,7 +31,6 @@
 
 #include "configurationsfactory.h"
 #include "vcprojectdocument.h"
-#include "tools/toolfactory.h"
 #include "../widgets/configurationswidgets.h"
 
 namespace VcProjectManager {
@@ -100,68 +99,6 @@ QDomNode Configurations::toXMLDomNode(QDomDocument &domXMLDocument) const
 bool Configurations::isEmpty() const
 {
     return m_configurations.isEmpty();
-}
-
-Configuration::Ptr Configurations::addConfiguration(const QString &configName)
-{
-    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion(), QLatin1String("Configuration"));
-    config->setName(configName);
-
-    if (appendConfiguration(config)) {
-        Tool::Ptr tool = ToolFactory::createTool(QLatin1String("VCPreBuildEventTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCCustomBuildTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCXMLDataGeneratorTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCWebServiceProxyGeneratorTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCMIDLTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCCLCompilerTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCManagedResourceCompilerTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCResourceCompilerTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCPreLinkEventTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCLinkerTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCALinkTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCManifestTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCXDCMakeTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCBscMakeTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCFxCopTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCAppVerifierTool"));
-        config->addTool(tool);
-
-        tool = ToolFactory::createTool(QLatin1String("VCPostBuildEventTool"));
-        config->addTool(tool);
-
-        return config;
-    }
-    return Configuration::Ptr();
 }
 
 bool Configurations::appendConfiguration(Configuration::Ptr config)

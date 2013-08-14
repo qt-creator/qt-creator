@@ -9,7 +9,15 @@ HEADERS += \
     widgets/schemaoptionswidget.h \
     widgets/vcprojectkitconfigwidget.h \
     widgets/newconfigitemdialog.h \
-    widgets/vcenternamedialog.h
+    widgets/vcenternamedialog.h \
+    widgets/toolwidgets/booltoolattributesettingsitem.h \
+    widgets/toolwidgets/integertoolattributesettingsitem.h \
+    widgets/toolwidgets/stringlisttoolattributesettingsitem.h \
+    widgets/toolwidgets/stringtoolattributesettingsitem.h \
+    widgets/toolwidgets/toolsectionsettingswidget.h \
+    widgets/toolwidgets/toolsettingswidget.h \
+    widgets/toolwidgets/itoolattributesettingswidget.h \
+    widgets/toolschemawidget.h
 
 SOURCES += \
     widgets/vcnodewidget.cpp \
@@ -22,12 +30,21 @@ SOURCES += \
     widgets/schemaoptionswidget.cpp \
     widgets/vcprojectkitconfigwidget.cpp \
     widgets/newconfigitemdialog.cpp \
-    widgets/vcenternamedialog.cpp
+    widgets/vcenternamedialog.cpp \
+    widgets/toolwidgets/stringtoolattributesettingsitem.cpp \
+    widgets/toolwidgets/stringlisttoolattributesettingsitem.cpp \
+    widgets/toolwidgets/integertoolattributesettingsitem.cpp \
+    widgets/toolwidgets/booltoolattributesettingsitem.cpp \
+    widgets/toolwidgets/toolsectionsettingswidget.cpp \
+    widgets/toolwidgets/toolsettingswidget.cpp \
+    widgets/toolwidgets/itoolattributesettingswidget.cpp \
+    widgets/toolschemawidget.cpp
 
 FORMS += \
     widgets/projectsettingswidget.ui \
     widgets/configurationswidget.ui \
     widgets/schemaoptionswidget.ui \
     widgets/newconfigitemdialog.ui \
-    widgets/vcenternamewidget.ui
+    widgets/vcenternamewidget.ui \
+    widgets/toolschemawidget.ui
 

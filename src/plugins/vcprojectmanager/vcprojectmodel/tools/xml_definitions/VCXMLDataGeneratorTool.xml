@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="XML Data Proxy Generator"
+    Key="VCXMLDataGeneratorTool"
+    >
+    <Section
+        Name = "General"
+        >
+        <String
+            Name="Output File"
+            Key="Output"
+            DefaultValue="$(InputName).dll"
+            Description="Specifies the output file name. (/out:[file])"
+        />
+        <Boolean
+            Name="Suppress Startup Banner"
+            Key="SuppressStartupBanner"
+            DefaultValue="true"
+            Description="Suppress the display of the startup banner and information messages. (/nologo)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/nologo)">true</Value>
+        </Boolean>
+        <String
+            Name="Namespace"
+            Key="Namespace"
+            DefaultValue="$(SafeRootNamespace)"
+            Description="Specifies the namespace for the generated class. (/Namespace:[name])"
+        />
+    </Section>
+</ToolInfo>

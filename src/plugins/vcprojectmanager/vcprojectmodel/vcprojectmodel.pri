@@ -24,24 +24,24 @@ HEADERS += \
     vcprojectmodel/configuration.h \
     vcprojectmodel/assemblyreference.h \
     vcprojectmodel/activexreference.h \
-    vcprojectmodel/tools/xmldocgeneratortool.h \
-    vcprojectmodel/tools/toolfactory.h \
     vcprojectmodel/tools/tool_constants.h \
-    vcprojectmodel/tools/tool.h \
-    vcprojectmodel/tools/prelinkeventtool.h \
-    vcprojectmodel/tools/prebuildeventtool.h \
-    vcprojectmodel/tools/postbuildeventtool.h \
-    vcprojectmodel/tools/manifesttool.h \
-    vcprojectmodel/tools/linkertool.h \
-    vcprojectmodel/tools/linker_constants.h \
-    vcprojectmodel/tools/generaltool.h \
-    vcprojectmodel/tools/custombuildsteptool.h \
     vcprojectmodel/tools/candcpptool_constants.h \
-    vcprojectmodel/tools/candcpptool.h \
-    vcprojectmodel/tools/browseinformationtool.h \
     vcprojectmodel/vcdocumentmodel.h \
     vcprojectmodel/ivcprojectnodemodel.h \
-    vcprojectmodel/vcdocprojectnodes.h
+    vcprojectmodel/vcdocprojectnodes.h \
+    vcprojectmodel/tools/toolattributes/itoolattribute.h \
+    vcprojectmodel/tools/toolattributes/booltoolattribute.h \
+    vcprojectmodel/tools/toolattributes/stringtoolattribute.h \
+    vcprojectmodel/tools/toolattributes/stringlisttoolattribute.h \
+    vcprojectmodel/tools/toolattributes/integertoolattribute.h \
+    vcprojectmodel/tools/configurationtool.h \
+    vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h \
+    vcprojectmodel/tools/toolattributes/tooldescription.h \
+    vcprojectmodel/tools/toolattributes/iattributedescriptiondataitem.h \
+    vcprojectmodel/tools/toolsectiondescription.h \
+    vcprojectmodel/tools/toolsection.h \
+    vcprojectmodel/tools/toolattributes/toolattributeoption.h \
+    vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.h
 
 SOURCES += \
     vcprojectmodel/vcprojectdocument.cpp \
@@ -68,18 +68,33 @@ SOURCES += \
     vcprojectmodel/configuration.cpp \
     vcprojectmodel/assemblyreference.cpp \
     vcprojectmodel/activexreference.cpp \
-    vcprojectmodel/tools/xmldocgeneratortool.cpp \
-    vcprojectmodel/tools/toolfactory.cpp \
-    vcprojectmodel/tools/tool.cpp \
-    vcprojectmodel/tools/prelinkeventtool.cpp \
-    vcprojectmodel/tools/prebuildeventtool.cpp \
-    vcprojectmodel/tools/postbuildeventtool.cpp \
-    vcprojectmodel/tools/manifesttool.cpp \
-    vcprojectmodel/tools/linkertool.cpp \
-    vcprojectmodel/tools/generaltool.cpp \
-    vcprojectmodel/tools/custombuildsteptool.cpp \
-    vcprojectmodel/tools/candcpptool.cpp \
-    vcprojectmodel/tools/browseinformationtool.cpp \
     vcprojectmodel/vcdocumentmodel.cpp \
     vcprojectmodel/ivcprojectnodemodel.cpp \
-    vcprojectmodel/vcdocprojectnodes.cpp
+    vcprojectmodel/vcdocprojectnodes.cpp \
+    vcprojectmodel/tools/toolattributes/booltoolattribute.cpp \
+    vcprojectmodel/tools/toolattributes/stringtoolattribute.cpp \
+    vcprojectmodel/tools/toolattributes/stringlisttoolattribute.cpp \
+    vcprojectmodel/tools/toolattributes/integertoolattribute.cpp \
+    vcprojectmodel/tools/configurationtool.cpp \
+    vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.cpp \
+    vcprojectmodel/tools/toolattributes/tooldescription.cpp \
+    vcprojectmodel/tools/toolsectiondescription.cpp \
+    vcprojectmodel/tools/toolsection.cpp \
+    vcprojectmodel/tools/toolattributes/toolattributeoption.cpp \
+    vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.cpp
+
+OTHER_FILES += \
+    vcprojectmodel/tools/xml_definitions/VCXMLDataGeneratorTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCXDCMakeTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCWebServiceProxyGeneratorTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCResourceCompilerTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCPreLinkEventTool.xml \
+    vcprojectmodel/tools/xml_definitions/VcPreBuildEventTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCPostBuildEventTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCMIDLTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCManifestTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCManagedResourceCompilerTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCLinkerTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCCustomBuildTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCCLCompilerTool.xml \
+    vcprojectmodel/tools/xml_definitions/VCBscMakeTool.xml

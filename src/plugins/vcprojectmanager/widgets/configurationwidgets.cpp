@@ -34,8 +34,9 @@
 #include <QStackedWidget>
 #include <QHBoxLayout>
 
-#include "../vcprojectmodel/tools/tool.h"
 #include "../vcprojectmodel/tools/tool_constants.h"
+#include "../vcprojectmodel/tools/configurationtool.h"
+#include "../vcprojectmodel/tools/toolattributes/tooldescription.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -64,123 +65,17 @@ ConfigurationBaseWidget::ConfigurationBaseWidget(Configuration *config)
     mainWidgetSplitter->setStretchFactor(1, 5);
     // add tool items
 
-    // C/C++ Tool
-    Tool::Ptr tool = m_config->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
+    for (int i = 0; i < m_config->configurationToolCount(); ++i) {
+        ConfigurationTool *configTool = m_config->configurationTool(i);
 
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
+        if (configTool) {
+            VcNodeWidget *toolWidget = configTool->createSettingsWidget();
 
-    // Linker Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCLinkerTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // Manifest Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCManifestTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // XML Document Generator Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCXDCMakeTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // Browse Information Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCBscMakeTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // Pre Link Event Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCPreLinkEventTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // Pre Build Event Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCPreBuildEventTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // Post Build Event Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCPostBuildEventTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // Custom Build Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCCustomBuildTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
-        }
-    }
-
-    // Web Service Tool
-    tool = m_config->tool(QLatin1String(ToolConstants::strVCWebServiceProxyGeneratorTool));
-    if (tool) {
-        VcNodeWidget *toolWidget = tool->createSettingsWidget();
-
-        if (toolWidget) {
-            m_listWidget->addItem(tool->nodeWidgetName());
-            m_stackWidget->addWidget(toolWidget);
-            m_toolWidgets.append(toolWidget);
+            if (toolWidget) {
+                m_listWidget->addItem(configTool->toolDescription()->toolDisplayName());
+                m_stackWidget->addWidget(toolWidget);
+                m_toolWidgets.append(toolWidget);
+            }
         }
     }
 

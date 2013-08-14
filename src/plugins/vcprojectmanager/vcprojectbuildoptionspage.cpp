@@ -32,6 +32,7 @@
 #include "widgets/schemaoptionswidget.h"
 #include "msbuildversionmanager.h"
 #include "vcschemamanager.h"
+#include "widgets/toolschemawidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -151,6 +152,13 @@ VcProjectBuildOptionsWidget::VcProjectBuildOptionsWidget(QWidget *parent) :
 
     m_schemaOptionsWidget = new SchemaOptionsWidget;
     mainlayout->addWidget(m_schemaOptionsWidget);
+
+    m_toolSchemaWidget = new ToolSchemaWidget;
+    mainlayout->addWidget(m_toolSchemaWidget);
+
+    mainlayout->setStretchFactor(msBuildMainLayout, 0);
+    mainlayout->setStretchFactor(m_schemaOptionsWidget, 0);
+    mainlayout->setStretchFactor(m_toolSchemaWidget, 1);
 
     connect(m_addMsBuildButton, SIGNAL(clicked()), this, SIGNAL(addNewButtonClicked()));
     connect(m_editBuildButton, SIGNAL(clicked()), this, SIGNAL(editButtonClicked()));
@@ -287,6 +295,7 @@ void VcProjectBuildOptionsWidget::saveSettings() const
     connect(msBVM, SIGNAL(msBuildReplaced(Core::Id,Core::Id)), this, SLOT(onMsBuildReplaced(Core::Id,Core::Id)));
 
     m_schemaOptionsWidget->saveSettings();
+    m_toolSchemaWidget->saveSettings();
 }
 
 SchemaOptionsWidget *VcProjectBuildOptionsWidget::schemaOptionsWidget() const

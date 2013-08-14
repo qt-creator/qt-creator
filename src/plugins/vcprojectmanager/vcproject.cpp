@@ -39,8 +39,11 @@
 #include "vcprojectmodel/vcprojectdocument.h"
 #include "vcprojectmodel/configurations.h"
 #include "vcprojectmodel/tools/tool_constants.h"
-#include "vcprojectmodel/tools/candcpptool.h"
 #include "vcprojectmodel/vcdocprojectnodes.h"
+#include "vcprojectmodel/tools/configurationtool.h"
+#include "vcprojectmodel/tools/toolsection.h"
+#include "vcprojectmodel/tools/toolattributes/stringlisttoolattribute.h"
+#include "vcprojectmodel/tools/toolattributes/iattributedescriptiondataitem.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -303,12 +306,31 @@ void VcProject::updateCodeModels()
         Configuration::Ptr configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configuration(configName);
 
         if (configModel) {
-            Tool::Ptr tl = configModel->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
-            CAndCppTool::Ptr tool = tl.staticCast<CAndCppTool>();
-            if (tool)
-                pPart->defines += tool->preprocessorDefinitions().join(QLatin1String("\n")).toLatin1();
+            ConfigurationTool *configTool = configModel->configurationTool(QLatin1String(ToolConstants::strVCCLCompilerTool));
+            if (configTool) {
+                for (int i = 0; i < configTool->sectionCount(); ++i) {
+                    ToolSection *toolSection = configTool->section(i);
+
+                    if (toolSection) {
+                        IToolAttribute *toolAttr = toolSection->toolAttribute(QLatin1String("PreprocessorDefinitions"));
+
+                        if (toolAttr) {
+                            StringListToolAttribute *stringToolAttr = static_cast<StringListToolAttribute *>(toolAttr);
+
+                            QString separator = stringToolAttr->descriptionDataItem()->optionalValue(QLatin1String("separator"));
+                            QStringList preprocDefs;
+
+                            if (!separator.isEmpty())
+                                 preprocDefs = stringToolAttr->value().split(separator);
+
+                            pPart->defines += preprocDefs.join(QLatin1String("\n")).toLatin1();
+                        }
+                    }
+                }
+            }
         }
     }
+
     // VS 2005-2008 has poor c++11 support, see http://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
     pPart->cxxVersion = CppTools::ProjectPart::CXX98;
     pPart->qtVersion = CppTools::ProjectPart::NoQt;

@@ -48,6 +48,7 @@ namespace Internal {
 
 class SchemaOptionsWidget;
 class MsBuildInformation;
+class ToolSchemaWidget;
 
 struct VcProjectValidator {
     enum ValidationRequest {
@@ -132,6 +133,7 @@ private:
     QPushButton *m_deleteBuildButton;
     QTableWidget *m_buildTableWidget;
     SchemaOptionsWidget *m_schemaOptionsWidget;
+    ToolSchemaWidget *m_toolSchemaWidget;
 
     QList<MsBuildInformation *> m_newMsBuilds;
     QList<Core::Id> m_removedMsBuilds;

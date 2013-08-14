@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="Custom Build Step"
+    Key="VCCustomBuildTool"
+    >
+    <Section
+        Name="General"
+        >
+        <StringList
+            Name="CommandLine"
+            Key="CommandLine"
+            DefaultValue=""
+            Separator="\r\n"
+            Description="Specifies a command line for the custom build step."
+        />
+        <String
+            Name="Description"
+            Key="Description"
+            DefaultValue=""
+            Description="Provides a description for the custom build step."
+        />
+        <StringList
+            Name="Outputs"
+            Key="Outputs"
+            DefaultValue=""
+            Separator=";"
+            Description="Specifies the output files the custom build step generates."
+        />
+        <StringList
+            Name="AdditionalDependencies"
+            Key="AdditionalDependencies"
+            DefaultValue=""
+            Separator=";"
+            Description="Specifies the additional input files tom use for the custom build step."
+        />
+    </Section>
+</ToolInfo>

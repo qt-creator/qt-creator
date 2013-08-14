@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="Web Service Proxy Generator"
+    Key="VCWebServiceProxyGeneratorTool"
+    >
+    <Section
+        Name = "General"
+        >
+        <String
+            Name="Output File"
+            Key="Output"
+            DefaultValue="$(SafeParentName).h"
+            Description="Specifies the output file name. (/out:[file])"
+        />
+        <Boolean
+            Name="Suppress Startup Banner"
+            Key="SuppressStartupBanner"
+            DefaultValue="true"
+            Description="Suppress the display of the startup banner and information messages. (/nologo)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/nologo)">true</Value>
+        </Boolean>
+        <String
+            Name="Namespace"
+            Key="Namespace"
+            DefaultValue="$(SafeParentName)"
+            Description="Specifies the namespace used in the generated web proxy. (/Namespace:[name])"
+        />
+        <String
+            Name="References"
+            Key="References"
+            DefaultValue=""
+            Description="Specifies the additional DLLs referenced by the proxy DLL. (/Reference:[files])"
+        />
+    </Section>
+</ToolInfo>

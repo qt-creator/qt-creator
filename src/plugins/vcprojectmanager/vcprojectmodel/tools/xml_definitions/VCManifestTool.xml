@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="Manifest Tool"
+    Key="VCManifestTool"
+    >
+    <Section
+        Name="General"
+        >
+        <Boolean
+            Name="Suppress Startup Banner"
+            Key="SuppressStartupBanner"
+            DefaultValue="true"
+            Description="Suppresses the display of the startup banner and information messages."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/nologo)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Verbose Output"
+            Key="VerboseOutput"
+            DefaultValue="true"
+            Description="Displays additional information during manifest generation."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/verbose)">true</Value>
+        </Boolean>
+        <String
+            Name="Assembly Identity"
+            Key="AssemblyIdentity"
+            DefaultValue=""
+            Description="Specifies the attributes of the assemblyIdentity element in the manifest."
+        />
+        <Boolean
+            Name="Use Unicode Response Files"
+            Key="UseUnicodeResponseFiles"
+            DefaultValue="true"
+            Description="Instructs the project system to generate UNICODE response files when spawning the manifest tool. Set this property to Yes when files in the project have UNICODE paths."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Use FAT32 Workaround"
+            Key="UseFAT32Workaround"
+            DefaultValue="false"
+            Description="Work-around file timestamp issues on FAT32 drives, to let the manifest tool update correctly."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+    </Section>
+    <Section
+        Name="Input and Output"
+        >
+        <String
+            Name="Additional Manifest Files"
+            Key="AdditionalManifestFiles"
+            DefaultValue=""
+            Description="Specifies the additional user manifest fragment files to merge into the manifest."
+        />
+        <String
+            Name="Input Resource Manifests"
+            Key="InputResourceManifests"
+            DefaultValue=""
+            Description="Specifies the input manifest stored as resources."
+        />
+        <Boolean
+            Name="Embed Manifest"
+            Key="EmbedManifest"
+            DefaultValue="true"
+            Description="Specifies if the manifest file should be embedded in the assembly or created as a stand-alone file."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+        <String
+            Name="Output Manifest File"
+            Key="OutputManifestFile"
+            DefaultValue="$(TargetPath).manifest"
+            Description="Specifies the output manifest file if the manifest is not embedded in the assembly."
+        />
+        <String
+            Name="Manifest Resource File"
+            Key="ManifestResourceFile"
+            DefaultValue="$(IntDir)\$(TargetFileName).embed.manifest.res"
+            Description="Specifies the output resources file used to embed the manifest into the project output."
+        />
+        <Boolean
+            Name="Generate Catalog Files"
+            Key="GenerateCatalogFiles"
+            DefaultValue="false"
+            Description="Generates .cdf files to make catalogs."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/makecdfs)">true</Value>
+        </Boolean>
+        <String
+            Name="Dependency Information File"
+            Key="DependencyInformationFile"
+            DefaultValue="$(IntDir)\mt.dep"
+            Description="Specifies the dependency information file used by Visual Studio to track build dependency information for the manifest tool."
+        />
+    </Section>
+    <Section
+        Name="Isolated COM"
+        >
+        <String
+            Name="Type Library File"
+            Key="TypeLibraryFile"
+            DefaultValue=""
+            Description="Specifies the type library to use for regfree COM manifest support."
+        />
+        <String
+            Name="Registrar Script File"
+            Key="RegistrarScriptFile"
+            DefaultValue=""
+            Description="Specifies the register script file to use for regfree COM manifest support."
+        />
+        <String
+            Name="Component File Name"
+            Key="ComponentFileName"
+            DefaultValue=""
+            Description="Specifies the file name of the component that is built from the .rgs or .tlb specifies."
+        />
+        <String
+            Name="Replacements File"
+            Key="ReplacementsFile"
+            DefaultValue=""
+            Description="Specifies the XML replacement file used to replace strings in the .rgs file."
+        />
+    </Section>
+    <Section
+        Name="Advanced"
+        >
+        <Boolean
+            Name="Update File Hashes"
+            Key="UpdateFileHashes"
+            DefaultValue="false"
+            Description="Specifies if the file hashes should be updated."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/hashupdate)">true</Value>
+        </Boolean>
+        <String
+            Name="Update File Hashes Search Path"
+            Key="UpdateFileHashesSearchPath"
+            DefaultValue=""
+            Description="Specifies the search path to use when updating file hashes."
+        />
+    </Section>
+</ToolInfo>

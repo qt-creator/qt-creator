@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="XML Document Generator"
+    Key="VCXDCMakeTool"
+    >
+    <Section
+        Name="XML Document Generator"
+        >
+        <Boolean
+            Name="Suppress Startup Banner"
+            Key="SuppressStartupBanner"
+            DefaultValue="true"
+            Description="Suppresses the display of the startup banner and information messages."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/nologo)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Validate Intelli Sense"
+            Key="ValidateIntelliSense"
+            DefaultValue="false"
+            Description="Validates the IntelliSense information after the documentation merger completes."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/validate)">true</Value>
+        </Boolean>
+        <StringList
+            Name="Additional Document Files"
+            Key="AdditionalDocumentFiles"
+            DefaultValue=""
+            Separator=";"
+            Description="Additional documentation files (.XDC) to merge."
+        />
+        <String
+            Name="Output Document File"
+            Key="OutputDocumentFile"
+            DefaultValue="$(TargetDir)$(TargetName).xml"
+            Description="Specifies the output document file (.XML) that is merged from all the input document files."
+        />
+        <Boolean
+            Name="Document Library Dependencies"
+            Key="DocumentLibraryDependencies"
+            DefaultValue="true"
+            Description="If true, project dependencies that output static libraries will have their XML document comment files (.XDC) documented in this project's XML document file."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Use Unicode Response Files"
+            Key="UseUnicodeResponseFiles"
+            DefaultValue="true"
+            Description="Instructs the project system to generate UNICODE response files when spawning the xdcmake tool. Set this property to Yes when files in the project have UNICODE paths."
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+    </Section>
+</ToolInfo>

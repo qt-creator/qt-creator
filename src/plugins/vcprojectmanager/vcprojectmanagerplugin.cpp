@@ -38,6 +38,7 @@
 #include "vcprojectkitinformation.h"
 #include "vcschemamanager.h"
 #include "menuhandler.h"
+#include "vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
 
 // TODO: clean up
 #include <coreplugin/coreconstants.h>
@@ -89,6 +90,7 @@ bool VcProjectManagerPlugin::initialize(const QStringList &arguments, QString *e
     addAutoReleasedObject(new MsBuildVersionManager);
     addAutoReleasedObject(new VcSchemaManager);
     addAutoReleasedObject(new MenuHandler);
+    addAutoReleasedObject(new ToolDescriptionDataManager);
 
     ProjectExplorer::KitManager::instance()->registerKitInformation(new VcProjectKitInformation);
 

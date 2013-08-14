@@ -56,7 +56,6 @@ public:
 
     bool isEmpty() const;
 
-    Configuration::Ptr addConfiguration(const QString &configName);
     bool appendConfiguration(Configuration::Ptr config);
     void removeConfiguration(Configuration::Ptr config);
     Configuration::Ptr configuration(const QString &configName);

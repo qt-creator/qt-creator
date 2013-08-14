@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="Resource Compiler Tool"
+    Key="VCResourceCompilerTool"
+    >
+    <Section
+        Name = "General"
+        >
+        <String
+            Name="Preprocessor Definitions"
+            Key="PreprocessorDefinitions"
+            DefaultValue="_UNICODE;UNICODE"
+            Description="Specifies one or more defines for the resource compiler. (/d[macro])"
+        />
+        <Integer
+            Name="Culture"
+            Key="Culture"
+            DefaultValue="0"
+            Description="Lists culture (such as US English or Mexican Spanish) used in the resources. (/l [num])"
+            >
+                <Value ValueText="Default">0</Value>
+                <Value ValueText="Afrikaans (South Africa) (0x436)">1078</Value>
+                <Value ValueText="Albanian (Albania) (0x41c)">1052</Value>
+                <Value ValueText="Arabic (Saudi Arabia) (0x401)">1025</Value>
+                <Value ValueText="Arabic (Iraq) (0x801)">2049</Value>
+                <Value ValueText="Arabic (Egypt) (0xc01)">3073</Value>
+                <Value ValueText="Arabic (Libya) (0x1001)">4097</Value>
+                <Value ValueText="Arabic (Algeria) (0x1401)">5121</Value>
+                <Value ValueText="Arabic (Morocco) (0x1801)">6145</Value>
+                <Value ValueText="Arabic (Tunisia) (0x1c01)">7169</Value>
+                <Value ValueText="Arabic (Oman) (0x2001)">8193</Value>
+                <Value ValueText="Arabic (Yemen) (0x2401)">9217</Value>
+                <Value ValueText="Arabic (Syria) (0x2801)">10241</Value>
+                <Value ValueText="Arabic (Jordan) (0x2c01)">11265</Value>
+                <Value ValueText="Arabic (Lebanon) (0x3001)">12289</Value>
+                <Value ValueText="Arabic (Kuwait) (0x3401)">13313</Value>
+                <Value ValueText="Arabic (U.A.E.) (0x3801)">14337</Value>
+                <Value ValueText="Arabic (Bahrain) (0x3c01)">15361</Value>
+                <Value ValueText="Arabic (Qatar) (0x4001)">16385</Value>
+                <Value ValueText="Basque (Basque) (0x42d)">1069</Value>
+                <Value ValueText="Bulgarian (Bulgaria) (0x402)">1026</Value>
+                <Value ValueText="Belarusian (Belarus) (0x423)">1059</Value>
+                <Value ValueText="Catalan (Catalan) (0x403)">1027</Value>
+                <Value ValueText="Chinese (Traditional, Taiwan) (0x404)">1028</Value>
+                <Value ValueText="Chinese (Simplified, PRC) (0x804)">2052</Value>
+                <Value ValueText="Chinese (Traditional, Hong Kong S.A.R.) (0xc04)">3076</Value>
+                <Value ValueText="Chinese (Simplified, Singapore) (0x1004)">4100</Value>
+                <Value ValueText="Croatian (Croatia) (0x41a)">1050</Value>
+                <Value ValueText="Czech (Czech Republic) (0x405)">1029</Value>
+                <Value ValueText="Danish (Denmark) (0x406)">1030</Value>
+                <Value ValueText="Dutch (Netherlands) (0x413)">1043</Value>
+                <Value ValueText="Dutch (Belgium) (0x813)">2067</Value>
+                <Value ValueText="English (United States) (0x409)">1033</Value>
+                <Value ValueText="English (United Kingdom) (0x809)">2057</Value>
+                <Value ValueText="English (Australia) (0xc09)">3081</Value>
+                <Value ValueText="English (Canada) (0x1009)">4105</Value>
+                <Value ValueText="English (New Zealand) (0x1409)">5129</Value>
+                <Value ValueText="English (Ireland) (0x1809)">6153</Value>
+                <Value ValueText="English (South Africa) (0x1c09)">7177</Value>
+                <Value ValueText="English (Jamaica) (0x2009)">8201</Value>
+                <Value ValueText="English (Caribbean) (0x2409)">9225</Value>
+                <Value ValueText="Estonian (Estonia) (0x425)">1061</Value>
+                <Value ValueText="Estonian (Estonia) (0x425)">1061</Value>
+                <Value ValueText="Finnish (Finland) (0x40b)">1035</Value>
+                <Value ValueText="French (France) (0x40c)">1036</Value>
+                <Value ValueText="French (Belgium) (0x80c)">2060</Value>
+                <Value ValueText="French (Canada) (0xc0c)">3084</Value>
+                <Value ValueText="French (Switzerland) (0x100c)">4108</Value>
+                <Value ValueText="French (Luxembourg) (0x140c)">5132</Value>
+                <Value ValueText="German (Germany) (0x407)">1031</Value>
+                <Value ValueText="German (Switzerland) (0x807)">2055</Value>
+                <Value ValueText="German (Austria) (0xc07)">3079</Value>
+                <Value ValueText="German (Luxembourg) (0x1007)">4103</Value>
+                <Value ValueText="German (Liechtenstein) (0x1407)">5127</Value>
+                <Value ValueText="Greek (Greece) (0x408)">1032</Value>
+                <Value ValueText="Hebrew (Israel) (0x40d)">1037</Value>
+                <Value ValueText="Hungarian (Hungary) (0x40e)">1038</Value>
+                <Value ValueText="Icelandic (Iceland) (0x40f)">1039</Value>
+                <Value ValueText="Indonesian (Indonesia) (0x421)">1057</Value>
+                <Value ValueText="Italian (Italy) (0x410)">1040</Value>
+                <Value ValueText="Italian (Switzerland) (0x810)">2064</Value>
+                <Value ValueText="Japanese (Japan) (0x411)">1041</Value>
+                <Value ValueText="Korean (Korea) (0x412)">1042</Value>
+                <Value ValueText="Latvian (Latvia) (0x426)">1062</Value>
+                <Value ValueText="Lithuanian (Lithuania) (0x427)">1063</Value>
+                <Value ValueText="Norwegian, Bokmål (Norway) (0x414)">1044</Value>
+                <Value ValueText="Norwegian, Nynorsk (Norway) (0x814)">2068</Value>
+                <Value ValueText="Polish (Poland) (0x415)">1045</Value>
+                <Value ValueText="Portuguese (Brazil) (0x416)">1046</Value>
+                <Value ValueText="Portuguese (Portugal) (0x816)">2070</Value>
+                <Value ValueText="Romanian (Romania) (0x418)">1048</Value>
+                <Value ValueText="Russian (Russia) (0x419)">1049</Value>
+                <Value ValueText="Slovak (Slovakia) (0x41b)">1051</Value>
+                <Value ValueText="Spanish (Spain, Traditional Sort) (0x40a)">1034</Value>
+                <Value ValueText="Spanish (Mexico) (0x80a)">2058</Value>
+                <Value ValueText="Spanish (Spain, International Sort) (0xc0a)">3082</Value>
+                <Value ValueText="Spanish (Guatemala) (0x100a)">4106</Value>
+                <Value ValueText="Spanish (Costa Rica) (0x140a)">5130</Value>
+                <Value ValueText="Spanish (Panama) (0x180a)">6154</Value>
+                <Value ValueText="Spanish (Dominican Republic) (0x1c0a)">7178</Value>
+                <Value ValueText="Spanish (Bolivarian Republic of Venezuela) (0x200a)">8202</Value>
+                <Value ValueText="Spanish (Colombia) (0x240a)">9226</Value>
+                <Value ValueText="Spanish (Peru) (0x280a)">10250</Value>
+                <Value ValueText="Spanish (Argentina) (0x2c0a)">11274</Value>
+                <Value ValueText="Spanish (Ecuador) (0x300a)">12298</Value>
+                <Value ValueText="Spanish (Chile) (0x340a)">13322</Value>
+                <Value ValueText="Spanish (Uruguay) (0x380a)">14346</Value>
+                <Value ValueText="Spanish (Paraguay) (0x3c0a)">15370</Value>
+                <Value ValueText="Spanish (Bolivia) (0x400a)">16394</Value>
+                <Value ValueText="Swedish (Sweden) (0x41d)">1053</Value>
+                <Value ValueText="Thai (Thailand) (0x41e)">1054</Value>
+                <Value ValueText="Turkish (Turkey) (0x41f)">1055</Value>
+                <Value ValueText="Ukrainian (Ukraine) (0x422)">1058</Value>
+                <Value ValueText="Serbian (Latin, Serbia and Montenegro (Former)) (0x81a)">2074</Value>
+                <Value ValueText="Urdu (Islamic Republic of Pakistan) (0x420)">1056</Value>
+        </Integer>
+        <StringList
+            Name="Additional Include Directories"
+            Key="AdditionalIncludeDirectories"
+            DefaultValue=""
+            Separator=";"
+            Description="Specifies one or more directories to add to the include path; use semi-colon delimiter if more then one. (/I[path])"
+        />
+        <Boolean
+            Name="Ignore Standard Include Path"
+            Key="IgnoreStandardIncludePath"
+            DefaultValue="false"
+            Description="Ignore standard include path. (/X)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/X)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Show Progress"
+            Key="ShowProgress"
+            DefaultValue="false"
+            Description="Send progress messages to output window. (/v)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/v)">true</Value>
+        </Boolean>
+        <String
+            Name="Resource Output File Name"
+            Key="ResourceOutputFileName"
+            DefaultValue="$(IntDir)/$(InputName).res"
+            Description="Specifies name of resource file. (/fo[file])"
+        />
+    </Section>
+</ToolInfo>

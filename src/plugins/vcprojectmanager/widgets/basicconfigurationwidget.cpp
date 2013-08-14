@@ -81,21 +81,6 @@ BasicConfigurationWidget::~BasicConfigurationWidget()
 {
 }
 
-void BasicConfigurationWidget::insertTableRow(const QString &column0, const QString &column1, const QString &description)
-{
-    m_tableWidget->insertRow(m_tableWidget->rowCount());
-    QTableWidgetItem *columntItem0 = new QTableWidgetItem;
-    columntItem0->setText(column0);
-    QTableWidgetItem *columntItem1 = new QTableWidgetItem;
-    columntItem0->setText(column1);
-
-    m_tableWidget->setItem(m_tableWidget->rowCount() - 1, 0, columntItem0);
-    m_tableWidget->setItem(m_tableWidget->rowCount() - 1, 1, columntItem1);
-    m_tableWidget->resizeColumnsToContents();
-
-    m_labelDescription.insert(column0, description);
-}
-
 void BasicConfigurationWidget::insertTableRow(const QString &column0, QWidget *widget, const QString &description)
 {
     m_tableWidget->insertRow(m_tableWidget->rowCount());

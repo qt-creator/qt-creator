@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ToolInfo
+    Name="MIDL"
+    Key="VCMIDLTool"
+    >
+    <Section
+        Name="General"
+        >
+        <StringList
+            Name="Preprocessor Definitions"
+            Key="PreprocessorDefinitions"
+            DefaultValue=""
+            Separator=";"
+            Description="Specifies one or more defines, including MIDL macros. (/D[macro])"
+        />
+        <StringList
+            Name="Additional Include Directories"
+            Key="AdditionalIncludeDirectories"
+            DefaultValue=""
+            Separator=";"
+            Description="Specifies one or more directories to ad to the include path; separate with semi-colons if more than one. (/I[path])"
+        />
+        <Boolean
+            Name="Ignore Standard Include Path"
+            Key="IgnoreStandardIncludePath"
+            DefaultValue="false"
+            Description="Ignore standard include path. (/no_def_idir)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/no_def_idir)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Mk TypLib Compatible"
+            Key="MkTypLibCompatible"
+            DefaultValue="false"
+            Description="Forces compatibility with mktyplib.exe version 2.03. (/mktyplib203)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/mktyplib203)">true</Value>
+        </Boolean>
+        <Integer
+            Name="Warning Level"
+            Key="WarningLevel"
+            DefaultValue="1"
+            Description="Select how strict you want MIDL to be about code errors. (/W0 - /W4)"
+            >
+                <Value ValueText="0 (/W0)">0</Value>
+                <Value ValueText="1 (/W1)">1</Value>
+                <Value ValueText="2 (/W2)">2</Value>
+                <Value ValueText="3 (/W3)">3</Value>
+                <Value ValueText="4 (/W4)">4</Value>
+        </Integer>
+        <Boolean
+            Name="Warn As Error"
+            Key="WarnAsError"
+            DefaultValue="false"
+            Description="Enables MIDL to treat all warnings as errors. (/WX)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/WX)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Suppress Startup Banner"
+            Key="SuppressStartupBanner"
+            DefaultValue="true"
+            Description="Suppress the display of the startup banner and information messages. (/nologo)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/nologo)">true</Value>
+        </Boolean>
+        <Integer
+            Name="C Compiler Char Type"
+            Key="DefaultCharType"
+            DefaultValue="1"
+            Description="Specifies the default character type of the C compiler that will be used to compile the generated code. (/char unsigned, /char signed, /char ascii7)"
+            >
+                <Value ValueText="Unsigned (/char unsigned)">0</Value>
+                <Value ValueText="Signed (/char signed)">1</Value>
+                <Value ValueText="Ascii (/char ascii7)">2</Value>
+        </Integer>
+        <Integer
+            Name="Target Environment"
+            Key="TargetEnvironment"
+            DefaultValue="1"
+            Description="Specifies environment to target. (/env win32, /env ia64, /env x64)"
+            >
+                <Value ValueText="Not Set">0</Value>
+                <Value ValueText="Microsoft Windows 32-bit (/env win32)">1</Value>
+                <Value ValueText="Microsoft Windows 64-bit on Itanium (/env ia64)">2</Value>
+                <Value ValueText="Microsoft Windows 64-bit on x64 (/env x64)">3</Value>
+        </Integer>
+        <Boolean
+            Name="Generate Stubless Proxies"
+            Key="GenerateStublessProxies"
+            DefaultValue="false"
+            Description="Generate stubless proxies. (/Oicf)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/Oicf; Same as /Oif)">true</Value>
+        </Boolean>
+    </Section>
+    <Section
+        Name="Output"
+        >
+        <String
+            Name="Output Directory"
+            Key="OutputDirectory"
+            DefaultValue=""
+            Description="Specifies directory to place MIDL output into. (/out[directory])"
+        />
+        <String
+            Name="Header File Name"
+            Key="HeaderFileName"
+            DefaultValue="$(InputName)_h.h"
+            Description="Specifies name of generated header file. (/h[filename])"
+        />
+        <String
+            Name="DLL Data File Name"
+            Key="DLLDataFileName"
+            DefaultValue="dlldata.c"
+            Description="Specifies the name of the DLLDATA file. (/dlldata [filename])"
+        />
+        <String
+            Name="Interface Identifier File Name"
+            Key="InterfaceIdentifierFileName"
+            DefaultValue=""
+            Description="Specifies a name for the Interface Identifier file. (/iid [filename])"
+        />
+        <String
+            Name="Proxy File Name"
+            Key="ProxyFileName"
+            DefaultValue=""
+            Description="Specifies name of proxy file. (/proxy [filename])"
+        />
+        <Boolean
+            Name="Generate Type Library"
+            Key="GenerateTypeLibrary"
+            DefaultValue="true"
+            Description="Specify whether or not to generate a type library. (/notlb for no)"
+            >
+                <Value ValueText="No (/notlb)">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+        <String
+            Name="Type Library Name"
+            Key="TypeLibraryName"
+            DefaultValue="$(IntDir)/$(ProjectName).tlb"
+            Description="Specifies the name of the type library file. (/tlb [filename])"
+        />
+    </Section>
+    <Section
+        Name="Advanced"
+        >
+        <Integer
+            Name="Enable Error Checking"
+            Key="EnableErrorChecks"
+            DefaultValue="0"
+            Description="Select error checking option; if you select 'Custom' only selected error checking options occur during compile. (/error all, /error none)"
+            >
+                <Value ValueText="Enable Custom">0</Value>
+                <Value ValueText="Disabled (/error none)">1</Value>
+                <Value ValueText="Enabled (/error all)">2</Value>
+        </Integer>
+        <Boolean
+            Name="Check Allocations"
+            Key="ErrorCheckAllocations"
+            DefaultValue="false"
+            Description="Specifies error check for out of memory errors. (/error allocation)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/error allocation)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Check Bounds"
+            Key="ErrorCheckBounds"
+            DefaultValue="false"
+            Description="Specifies error check of size vs. transmission length specifications. (/error bounds_check)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/error bounds_check)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Check Enum Range"
+            Key="ErrorCheckEnumRange"
+            DefaultValue="false"
+            Description="Specifies error check that enum values to be in allowable range. (/error enum)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/error enum)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Check Reference Pointers"
+            Key="ErrorCheckRefPointers"
+            DefaultValue="false"
+            Description="Specifies error check of reference pointers for NULL. (/error ref)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/error ref)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Check Stub Data"
+            Key="ErrorCheckStubData"
+            DefaultValue="false"
+            Description="Specifies error check for server side data stub validity. (/error stub_data)"
+            >
+                <Value ValueText="No">false</Value>
+                <Value ValueText="Yes (/error stub_data)">true</Value>
+        </Boolean>
+        <Boolean
+            Name="Validate Parameters"
+            Key="ValidateParameters"
+            DefaultValue="true"
+            Description="Enables the generation of parameter validation information. (/robust, /no_robust)"
+            >
+                <Value ValueText="No (/no_robust)">false</Value>
+                <Value ValueText="Yes">true</Value>
+        </Boolean>
+        <Integer
+            Name="Struct Member Alignment"
+            Key="StructMemberAlignment"
+            DefaultValue="0"
+            Description="Specifies 1, 2, 4, or 8-byte boundaries for struct member alignment. (/Zp[num])"
+            >
+                <Value ValueText="Option Not Set">0</Value>
+                <Value ValueText="1 Byte (/Zp1)">1</Value>
+                <Value ValueText="2 Byte (/Zp2)">2</Value>
+                <Value ValueText="4 Byte (/Zp4)">3</Value>
+                <Value ValueText="8 Byte (/Zp8)">4</Value>
+        </Integer>
+        <String
+            Name="Redirect Output And Errors"
+            Key="RedirectOutputAndErrors"
+            DefaultValue=""
+            Description="Specifies file name to write screen output and errors into. (/o [file])"
+        />
+        <StringList
+            Name="C Preprocess Options"
+            Key="CPreprocessOptions"
+            DefaultValue=""
+            Separator=";"
+            Description="C-compiler preprocessor option to pass to MIDL; must be in exact format of the Cpp Preprocess options. (/cpp_opt [option])"
+        />
+        <StringList
+            Name="Undefine Preprocessor Definitions"
+            Key="UndefinePreprocessorDefinitions"
+            DefaultValue=""
+            Separator=";"
+            Description="Specifies one or more undefines; including MIDL macros. (/U[macro])"
+        />
+    </Section>
+</ToolInfo>

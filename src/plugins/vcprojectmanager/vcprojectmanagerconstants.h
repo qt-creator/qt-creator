@@ -57,6 +57,8 @@ const char VC_PROJECT_SCHEMA_PATH[] = "VcProject.SchemaPath";
 const char VC_PROJECT_SCHEMA_2003_QUIALIFIER[] = "Schema2003";
 const char VC_PROJECT_SCHEMA_2005_QUIALIFIER[] = "Schema2005";
 const char VC_PROJECT_SCHEMA_2008_QUIALIFIER[] = "Schema2008";
+const char VC_PROJECT_TOOL_SCHEMA[] = "VcProject.ToolSchema";
+const char VC_PROJECT_TOOL_XML[] = "VcProject.ToolXML";
 const char VC_PROJECT_KIT_INFO_ID[] = "VcProject.KitInformation";
 
 const char VC_PROJECT_SHOW_PROPERTIES_ACTION[] = "VcProject.ShowPropertiesAction";

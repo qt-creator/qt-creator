@@ -47,7 +47,6 @@ public:
     explicit BasicConfigurationWidget(QWidget *parent = 0);
     ~BasicConfigurationWidget();
 
-    void insertTableRow(const QString &column0, const QString &column1, const QString &description);
     void insertTableRow(const QString &column0, QWidget *widget, const QString &description);
 
 private slots:

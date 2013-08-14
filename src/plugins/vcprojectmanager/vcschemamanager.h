@@ -32,6 +32,7 @@
 
 #include "vcprojectmanagerconstants.h"
 #include <QMap>
+#include <QHash>
 #include <QObject>
 
 namespace VcProjectManager {
@@ -46,10 +47,17 @@ public:
     static VcSchemaManager* instance();
     ~VcSchemaManager();
 
-    void addSchema(const QString &schemaPath, Constants::SchemaVersion version);
-    QString schema(Constants::SchemaVersion version);
-    void setSchema(Constants::SchemaVersion version, const QString &schemaPath);
-    void removeSchema(Constants::SchemaVersion version);
+    void addDocumentSchema(const QString &schemaPath, Constants::SchemaVersion version);
+    QString documentSchema(Constants::SchemaVersion version);
+    void setDocumentSchema(Constants::SchemaVersion version, const QString &schemaPath);
+    void removeDocumentSchema(Constants::SchemaVersion version);
+
+    QString toolSchema() const;
+    void setToolSchema(const QString &schemaPath);
+
+    QList<QString> toolXMLFilePaths() const;
+    void addToolXML(const QString &toolKey, const QString &toolFilePath);
+    void removeToolXML(const QString &toolKey);
 
     void removeAllSchemas();
 
@@ -58,9 +66,12 @@ public:
 private:
     VcSchemaManager();
     void loadSettings();
+    bool similarToolXMLExistsFor(const QString &filePath);
 
     static VcSchemaManager *m_instance;
-    QMap<Constants::SchemaVersion, QString> m_schemas;
+    QMap<Constants::SchemaVersion, QString> m_documentSchemas;
+    QString m_toolSchema;
+    QHash<QString, QString> m_toolXMLPaths; //<tool_key, tool_xml_file_path>
 };
 
 } // namespace Internal
