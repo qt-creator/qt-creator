@@ -78,9 +78,8 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceAboutToConnect(Core::Id)),
             this, SLOT(clearConnectionLog(Core::Id)));
 
-    ui->debugToken->addButton(tr("Request"), this, SLOT(requestDebugToken()));
-    ui->debugToken->addButton(tr("Upload"), this, SLOT(uploadDebugToken()));
-    uploadButton = ui->debugToken->buttonAtIndex(2);
+    connect(ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
+    connect(ui->uploadButton, SIGNAL(clicked()), this, SLOT(uploadDebugToken()));
 
     QString debugTokenBrowsePath = QnxUtils::dataDirPath();
     if (!QFileInfo(debugTokenBrowsePath).exists())
@@ -159,7 +158,7 @@ void BlackBerryDeviceConfigurationWidget::uploadDebugToken()
 
 void BlackBerryDeviceConfigurationWidget::updateUploadButton()
 {
-    uploadButton->setEnabled(!ui->debugToken->path().isEmpty());
+    ui->uploadButton->setEnabled(!ui->debugToken->path().isEmpty());
 }
 
 void BlackBerryDeviceConfigurationWidget::uploadFinished(int status)
@@ -242,6 +241,8 @@ void BlackBerryDeviceConfigurationWidget::initGui()
 
     if (deviceConfiguration()->machineType() == IDevice::Emulator) {
         ui->debugToken->setEnabled(false);
+        ui->requestButton->setEnabled(false);
+        ui->uploadButton->setEnabled(false);
         ui->debugTokenLabel->setEnabled(false);
     }
 
