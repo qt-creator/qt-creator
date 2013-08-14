@@ -29,16 +29,37 @@
 
 #include "importlabel.h"
 
+#include <QHBoxLayout>
+#include <QPushButton>
+
 namespace QmlDesigner {
 
 ImportLabel::ImportLabel(QWidget *parent) :
-    QLabel(parent)
+    QWidget(parent)
 {
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+
+    m_removeButton = new QPushButton("X", this);
+    m_removeButton->setFlat(true);
+    m_removeButton->setMaximumWidth(20);
+    m_removeButton->setMaximumHeight(20);
+    m_removeButton->setFocusPolicy(Qt::NoFocus);
+    m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    layout->addWidget(m_removeButton);
+
+    m_importLabel = new QLabel(this);
+    layout->addWidget(m_importLabel);
+
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 void ImportLabel::setImport(const Import &import)
 {
-    setText(import.toString());
+    m_importLabel->setText(import.toString(false));
+    if (import.url() == "QtQuick")
+        m_removeButton->setDisabled(true);
 }
 
 } // namespace QmlDesigner

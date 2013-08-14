@@ -31,12 +31,13 @@
 #define IMPORTLABEL_H
 
 #include <QLabel>
+#include <QPushButton>
 
 #include <import.h>
 
 namespace QmlDesigner {
 
-class ImportLabel : public QLabel
+class ImportLabel : public QWidget
 {
     Q_OBJECT
 public:
@@ -44,6 +45,9 @@ public:
 
     void setImport(const Import &import);
 
+private:
+    QLabel *m_importLabel;
+    QPushButton *m_removeButton;
 };
 
 }

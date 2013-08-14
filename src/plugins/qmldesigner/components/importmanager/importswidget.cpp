@@ -38,6 +38,7 @@ namespace QmlDesigner {
 ImportsWidget::ImportsWidget(QWidget *parent) :
     QWidget(parent)
 {
+    setWindowTitle(tr("Import Manager"));
 }
 
 void ImportsWidget::removeAllImports()
@@ -47,12 +48,39 @@ void ImportsWidget::removeAllImports()
     updateLayout();
 }
 
+static bool importLess(const Import &firstImport, const Import &secondImport)
+{
+    if (firstImport.url() == "QtQuick")
+        return true;
+
+    if (secondImport.url() == "QtQuick")
+        return false;
+
+    if (firstImport.isLibraryImport() && secondImport.isFileImport())
+        return true;
+
+    if (firstImport.isFileImport() && secondImport.isLibraryImport())
+        return false;
+
+    if (firstImport.isFileImport() && secondImport.isFileImport())
+        return QString::localeAwareCompare(firstImport.file(), secondImport.file()) < 0;
+
+    if (firstImport.isLibraryImport() && secondImport.isLibraryImport())
+        return QString::localeAwareCompare(firstImport.url(), secondImport.url()) < 0;
+
+    return false;
+}
+
 void ImportsWidget::setImports(const QList<Import> &imports)
 {
     qDeleteAll(m_importLabels);
     m_importLabels.clear();
 
-    foreach (const Import &import, imports) {
+    QList<Import> sortedImports = imports;
+
+    qSort(sortedImports.begin(), sortedImports.end(), importLess);
+
+    foreach (const Import &import, sortedImports) {
         ImportLabel *importLabel = new ImportLabel(this);
         importLabel->setImport(import);
         m_importLabels.append(importLabel);
@@ -66,6 +94,7 @@ void ImportsWidget::updateLayout()
     delete layout();
 
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
 
     foreach (ImportLabel *importLabel, m_importLabels)
         layout->addWidget(importLabel);
