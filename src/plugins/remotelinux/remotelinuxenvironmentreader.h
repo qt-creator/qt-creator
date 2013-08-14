@@ -64,7 +64,7 @@ private slots:
     void handleConnectionFailure();
     void handleCurrentDeviceConfigChanged();
 
-    void remoteProcessFinished(int exitCode);
+    void remoteProcessFinished(int exitStatus);
 
 private:
     void setFinished();

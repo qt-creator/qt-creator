@@ -90,30 +90,37 @@ void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
     setFinished();
 }
 
-void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
+void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitStatus)
 {
-    Q_ASSERT(exitCode == QSsh::SshRemoteProcess::FailedToStart
-        || exitCode == QSsh::SshRemoteProcess::CrashExit
-        || exitCode == QSsh::SshRemoteProcess::NormalExit);
+    Q_ASSERT(exitStatus == QSsh::SshRemoteProcess::FailedToStart
+        || exitStatus == QSsh::SshRemoteProcess::CrashExit
+        || exitStatus == QSsh::SshRemoteProcess::NormalExit);
 
     if (m_stop)
         return;
 
     disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
-    if (exitCode == QSsh::SshRemoteProcess::NormalExit) {
+    QString errorMessage;
+    if (exitStatus != QSsh::SshRemoteProcess::NormalExit) {
+        errorMessage = m_remoteProcessRunner->processErrorString();
+    } else if (m_remoteProcessRunner->processExitCode() != 0) {
+        errorMessage = tr("Process exited with code %1.")
+                .arg(m_remoteProcessRunner->processExitCode());
+    }
+    if (!errorMessage.isEmpty()) {
+        errorMessage = tr("Error running 'env': %1").arg(errorMessage);
+        const QString remoteStderr
+                = QString::fromUtf8(m_remoteProcessRunner->readAllStandardError()).trimmed();
+        if (!remoteStderr.isEmpty())
+            errorMessage += tr("\nRemote stderr was: '%1'").arg(remoteStderr);
+        emit error(errorMessage);
+    } else {
         QString remoteOutput = QString::fromUtf8(m_remoteProcessRunner->readAllStandardOutput());
         if (!remoteOutput.isEmpty()) {
             m_env = Utils::Environment(remoteOutput.split(QLatin1Char('\n'),
                 QString::SkipEmptyParts), Utils::OsTypeLinux);
         }
-    } else {
-        QString errorMsg = tr("Error running remote process: %1")
-            .arg(m_remoteProcessRunner->processErrorString());
-        QString remoteStderr = QString::fromUtf8(m_remoteProcessRunner->readAllStandardError());
-        if (!remoteStderr.isEmpty())
-            errorMsg += tr("\nRemote stderr was: '%1'").arg(remoteStderr);
-        emit error(errorMsg);
     }
     setFinished();
 }
