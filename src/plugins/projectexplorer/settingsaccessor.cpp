@@ -578,6 +578,8 @@ QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &s
     QVariantMap result = userMap;
     if (sharedMap.isEmpty())
         return result;
+    if (userMap.isEmpty())
+        return sharedMap;
 
     QSet<QString> stickyKeys;
     const QVariant stickyList = result.take(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
@@ -898,18 +900,22 @@ SettingsAccessor::SettingsData SettingsAccessor::mergeSettings(const SettingsAcc
 {
     SettingsData newUser = user;
     SettingsData newShared = shared;
+    SettingsData result;
     if (shared.isValid() && user.isValid()) {
         while (newUser.version() < newShared.version())
             incrementVersion(newUser);
 
         while (newShared.version() < newUser.version())
             incrementVersion(newShared);
+        result = newUser;
+        result.m_map = mergeSharedSettings(newUser.m_map, newShared.m_map);
+    } else if (shared.isValid()) {
+        result = shared;
+    } else if (user.isValid()) {
+        result = user;
     }
 
     m_project->setProperty(SHARED_SETTINGS, newShared.m_map);
-
-    SettingsData result = newUser;
-    result.m_map = mergeSharedSettings(newUser.m_map, newShared.m_map);
 
     if (!result.isValid())
         return result;
