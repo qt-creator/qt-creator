@@ -31,14 +31,20 @@
 #define QMLDESIGNER_IMPORTMANAGERVIEW_H
 
 #include <abstractview.h>
+#include <QWeakPointer>
 
 namespace QmlDesigner {
+
+class ImportsWidget;
 
 class ImportManagerView : public AbstractView
 {
     Q_OBJECT
 public:
     explicit ImportManagerView(QObject *parent = 0);
+    ~ImportManagerView();
+
+    WidgetInfo widgetInfo();
 
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
@@ -85,6 +91,9 @@ public:
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+
+private:
+    ImportsWidget *m_importsWidget;
 };
 
 } // namespace QmlDesigner

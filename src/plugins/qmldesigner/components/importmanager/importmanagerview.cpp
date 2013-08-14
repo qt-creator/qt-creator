@@ -28,12 +28,29 @@
 ****************************************************************************/
 
 #include "importmanagerview.h"
+#include "importswidget.h"
+
 
 namespace QmlDesigner {
 
 ImportManagerView::ImportManagerView(QObject *parent) :
-    AbstractView(parent)
+    AbstractView(parent),
+    m_importsWidget(0)
+
 {
+}
+
+ImportManagerView::~ImportManagerView()
+{
+
+}
+
+WidgetInfo ImportManagerView::widgetInfo()
+{
+    if (m_importsWidget == 0)
+        m_importsWidget = new ImportsWidget;
+
+    return createWidgetInfo(m_importsWidget, 0, "ImportManager", WidgetInfo::LeftPane, 1);
 }
 
 void ImportManagerView::modelAttached(Model *model)
