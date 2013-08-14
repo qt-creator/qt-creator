@@ -1729,6 +1729,27 @@ QList<Import> Model::imports() const
     return d->imports();
 }
 
+QList<Import> Model::possibleImports() const
+{
+    QList<Import> possibleImportList;
+
+    possibleImportList.append(Import::createLibraryImport("QtQuick", "2.1"));
+    possibleImportList.append(Import::createLibraryImport("QtQuick.Controls", "1.0"));
+    possibleImportList.append(Import::createLibraryImport("QtQuick.Layouts", "1.0"));
+    possibleImportList.append(Import::createLibraryImport("QtQuick.Window", "2.0"));
+
+    return possibleImportList;
+}
+
+QList<Import> Model::usedImports() const
+{
+    QList<Import> usedImportList;
+
+    usedImportList.append(Import::createLibraryImport("QtQuick"));
+
+    return usedImportList;
+}
+
 void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved)
 {
     d->changeImports(importsToBeAdded, importsToBeRemoved);
