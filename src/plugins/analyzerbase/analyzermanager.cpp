@@ -523,8 +523,6 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
 {
     delayedInit(); // Make sure that there is a valid IMode instance.
 
-    IAnalyzerTool *tool = action->tool();
-
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
 
     Id menuGroup = action->menuGroup();
