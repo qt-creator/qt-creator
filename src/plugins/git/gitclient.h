@@ -148,6 +148,7 @@ public:
     void status(const QString &workingDirectory);
     void log(const QString &workingDirectory, const QString &fileName = QString(),
              bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
+    void reflog(const QString &workingDirectory);
     void blame(const QString &workingDirectory, const QStringList &args, const QString &fileName,
                const QString &revision = QString(), int lineNumber = -1);
     void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());

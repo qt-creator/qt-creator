@@ -1151,6 +1151,27 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     executeGit(workingDirectory, arguments, editor);
 }
 
+void GitClient::reflog(const QString &workingDirectory)
+{
+    const QString title = tr("Git Reflog \"%1\"").arg(workingDirectory);
+    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
+    VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("reflogRepository", workingDirectory);
+    if (!editor) {
+        editor = createVcsEditor(editorId, title, workingDirectory, CodecLogOutput,
+                                 "reflogRepository", workingDirectory, 0);
+    }
+
+    QStringList arguments;
+    arguments << QLatin1String("reflog") << QLatin1String(noColorOption)
+              << QLatin1String(decorateOption);
+
+    int logCount = settings()->intValue(GitSettings::logCountKey);
+    if (logCount > 0)
+         arguments << QLatin1String("-n") << QString::number(logCount);
+
+    executeGit(workingDirectory, arguments, editor);
+}
+
 // Do not show "0000" or "^32ae4"
 static inline bool canShow(const QString &sha)
 {

@@ -409,6 +409,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            SLOT(logRepository()));
 
     createRepositoryAction(localRepositoryMenu,
+                           tr("Reflog"), Core::Id("Git.ReflogRepository"),
+                           globalcontext, true,
+                           SLOT(reflogRepository()));
+
+    createRepositoryAction(localRepositoryMenu,
                            tr("Clean..."), Core::Id("Git.CleanRepository"),
                            globalcontext, true, SLOT(cleanRepository()));
 
@@ -783,6 +788,13 @@ void GitPlugin::logRepository()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_gitClient->log(state.topLevel());
+}
+
+void GitPlugin::reflogRepository()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient->reflog(state.topLevel());
 }
 
 void GitPlugin::undoFileChanges(bool revertStaging)

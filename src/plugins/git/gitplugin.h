@@ -115,6 +115,7 @@ private slots:
     void blameFile();
     void logProject();
     void logRepository();
+    void reflogRepository();
     void undoFileChanges(bool revertStaging = true);
     void undoUnstagedFileChanges();
     void resetRepository();
