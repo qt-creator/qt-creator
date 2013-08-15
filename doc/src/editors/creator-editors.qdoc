@@ -2145,10 +2145,10 @@
         \li Locating files belonging to your project, such as source, header
             resource, and .ui files
 
-        \li Locating class and method definitions in your project or anywhere
+        \li Locating class, enum, and function definitions in your project or anywhere
             referenced from your project
 
-        \li Locating class and method definitions in the current document
+        \li Locating symbols in the current document
 
         \li Locating a specific line and column in the document displayed in
             your editor

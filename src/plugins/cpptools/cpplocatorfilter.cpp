@@ -38,7 +38,7 @@ CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
     : m_data(locatorData)
 {
     setId("Classes and Methods");
-    setDisplayName(tr("C++ Classes and Methods"));
+    setDisplayName(tr("C++ Classes, Enums and Functions"));
     setShortcutString(QString(QLatin1Char(':')));
     setIncludedByDefault(false);
 }
