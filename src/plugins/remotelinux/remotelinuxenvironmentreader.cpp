@@ -42,6 +42,7 @@ namespace Internal {
 RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RunConfiguration *config, QObject *parent)
     : QObject(parent)
     , m_stop(false)
+    , m_env(Utils::OsTypeLinux)
     , m_kit(config->target()->kit())
     , m_remoteProcessRunner(0)
 {
@@ -104,7 +105,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
         QString remoteOutput = QString::fromUtf8(m_remoteProcessRunner->readAllStandardOutput());
         if (!remoteOutput.isEmpty()) {
             m_env = Utils::Environment(remoteOutput.split(QLatin1Char('\n'),
-                QString::SkipEmptyParts));
+                QString::SkipEmptyParts), Utils::OsTypeLinux);
         }
     } else {
         QString errorMsg = tr("Error running remote process: %1")
