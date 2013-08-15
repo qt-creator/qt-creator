@@ -32,6 +32,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QMetaType>
 
 #include "qmldesignercorelib_global.h"
 
