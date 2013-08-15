@@ -287,6 +287,11 @@ void ItemLibraryWidget::emitImportChecked()
 
 void ItemLibraryWidget::setCurrentIndexOfStackedWidget(int index)
 {
+    if (index == 2)
+        m_filterLineEdit->setVisible(false);
+    else
+        m_filterLineEdit->setVisible(true);
+
     m_stackedWidget->setCurrentIndex(index);
 }
 
