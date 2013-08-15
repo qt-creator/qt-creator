@@ -121,8 +121,8 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
 
 void QNXPlugin::extensionsInitialized()
 {
-    ProjectExplorer::ProjectExplorerPlugin::taskHub()->addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
-                                                                               tr("Bar Descriptor"));
+    ProjectExplorer::TaskHub::addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
+                                          tr("Bar Descriptor"));
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QNXPlugin::aboutToShutdown()

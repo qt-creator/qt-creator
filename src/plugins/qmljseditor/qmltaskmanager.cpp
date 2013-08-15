@@ -51,11 +51,8 @@ namespace Internal {
 
 QmlTaskManager::QmlTaskManager(QObject *parent) :
     QObject(parent),
-    m_taskHub(0),
     m_updatingSemantic(false)
 {
-    m_taskHub = ProjectExplorer::ProjectExplorerPlugin::taskHub();
-
     // displaying results incrementally leads to flickering
 //    connect(&m_messageCollector, SIGNAL(resultsReadyAt(int,int)),
 //            SLOT(displayResults(int,int)));
@@ -195,7 +192,7 @@ void QmlTaskManager::insertTask(const ProjectExplorer::Task &task)
     QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(task.file.toString());
     tasks.append(task);
     m_docsWithTasks.insert(task.file.toString(), tasks);
-    m_taskHub->addTask(task);
+    ProjectExplorer::TaskHub::addTask(task);
 }
 
 void QmlTaskManager::removeTasksForFile(const QString &fileName)
@@ -203,16 +200,16 @@ void QmlTaskManager::removeTasksForFile(const QString &fileName)
     if (m_docsWithTasks.contains(fileName)) {
         const QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(fileName);
         foreach (const ProjectExplorer::Task &task, tasks)
-            m_taskHub->removeTask(task);
+            ProjectExplorer::TaskHub::removeTask(task);
         m_docsWithTasks.remove(fileName);
     }
 }
 
 void QmlTaskManager::removeAllTasks(bool clearSemantic)
 {
-    m_taskHub->clearTasks(Constants::TASK_CATEGORY_QML);
+    ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_QML);
     if (clearSemantic)
-        m_taskHub->clearTasks(Constants::TASK_CATEGORY_QML_ANALYSIS);
+        ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_QML_ANALYSIS);
     m_docsWithTasks.clear();
 }
 

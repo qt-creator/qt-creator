@@ -35,7 +35,6 @@
 #include "bardescriptoreditorwidget.h"
 #include "bardescriptordocument.h"
 
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
@@ -118,7 +117,6 @@ void BarDescriptorEditor::changeEditorPage(QAction *action)
 
 void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
 {
-    ProjectExplorer::TaskHub *taskHub = ProjectExplorer::ProjectExplorerPlugin::taskHub();
     BarDescriptorEditorWidget *editorWidget = qobject_cast<BarDescriptorEditorWidget *>(widget());
     QTC_ASSERT(editorWidget, return);
 
@@ -130,14 +128,14 @@ void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
     if (page == Source) {
         editorWidget->setXmlSource(m_file->xmlSource());
     } else if (prevPage == Source) {
-        taskHub->clearTasks(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
+        ProjectExplorer::TaskHub::clearTasks(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
         QString errorMsg;
         int errorLine;
         if (!m_file->loadContent(editorWidget->xmlSource(), &errorMsg, &errorLine)) {
             const ProjectExplorer::Task task(ProjectExplorer::Task::Error, errorMsg, Utils::FileName::fromString(m_file->filePath()),
                                        errorLine, Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
-            taskHub->addTask(task);
-            taskHub->requestPopup();
+            ProjectExplorer::TaskHub::addTask(task);
+            ProjectExplorer::TaskHub::requestPopup();
 
             foreach (QAction *action, m_actionGroup->actions())
                 if (action->data().toInt() == Source)

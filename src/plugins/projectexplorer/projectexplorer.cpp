@@ -345,8 +345,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
     addAutoReleasedObject(new KitOptionsPage);
 
-    d->m_taskHub = new TaskHub;
-    addAutoReleasedObject(d->m_taskHub);
+    addAutoReleasedObject(new TaskHub);
 
     connect(Core::ICore::instance(), SIGNAL(newItemsDialogRequested()), this, SLOT(loadCustomWizards()));
 
@@ -1654,11 +1653,6 @@ void ProjectExplorerPlugin::showContextMenu(QWidget *view, const QPoint &globalP
 BuildManager *ProjectExplorerPlugin::buildManager() const
 {
     return d->m_buildManager;
-}
-
-TaskHub *ProjectExplorerPlugin::taskHub()
-{
-    return m_instance->d->m_taskHub;
 }
 
 void ProjectExplorerPlugin::buildStateChanged(Project * pro)

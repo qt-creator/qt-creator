@@ -80,16 +80,6 @@ static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 
 static const char CONFIGURATION_PATH[] = "<configuration>";
 
-// --------------------------------------------------------------------
-// HELPERS:
-// --------------------------------------------------------------------
-
-ProjectExplorer::TaskHub *taskHub()
-{
-    return ProjectExplorer::ProjectExplorerPlugin::taskHub();
-}
-
-
 namespace QbsProjectManager {
 namespace Internal {
 
@@ -382,11 +372,12 @@ bool QbsProject::fromMap(const QVariantMap &map)
 void QbsProject::generateErrors(const qbs::ErrorInfo &e)
 {
     foreach (const qbs::ErrorItem &item, e.items())
-        taskHub()->addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                                 item.description(),
-                                                 Utils::FileName::fromString(item.codeLocation().fileName()),
-                                                 item.codeLocation().line(),
-                                                 ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        ProjectExplorer::TaskHub::addTask(
+                    ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                          item.description(),
+                                          Utils::FileName::fromString(item.codeLocation().fileName()),
+                                          item.codeLocation().line(),
+                                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
 void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir)
@@ -394,7 +385,7 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
     QTC_ASSERT(!dir.isNull(), return);
 
     // Clear buildsystem related tasks:
-    taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
@@ -452,7 +443,7 @@ void QbsProject::prepareForParsing()
 {
     m_forceParsing = false;
 
-    taskHub()->clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+   ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     if (m_qbsUpdateFutureInterface)
         m_qbsUpdateFutureInterface->reportCanceled();
     delete m_qbsUpdateFutureInterface;

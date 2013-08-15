@@ -78,7 +78,7 @@ bool MemcheckRunControl::startEngine()
     m_runner.setParser(&m_parser);
 
     // Clear about-to-be-outdated tasks.
-    ProjectExplorerPlugin::instance()->taskHub()->clearTasks(Analyzer::Constants::ANALYZERTASK_ID);
+    TaskHub::clearTasks(Analyzer::Constants::ANALYZERTASK_ID);
 
     appendMessage(tr("Analyzing memory of %1\n").arg(executable()),
                         Utils::NormalMessageFormat);
@@ -142,10 +142,9 @@ void MemcheckRunControl::receiveLogMessage(const QByteArray &b)
         line = suppressionError.cap(2).toInt();
     }
 
-    TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
-    hub->addTask(Task(Task::Error, error, Utils::FileName::fromUserInput(file), line,
-                      Analyzer::Constants::ANALYZERTASK_ID));
-    hub->requestPopup();
+    TaskHub::addTask(Task(Task::Error, error, Utils::FileName::fromUserInput(file), line,
+                          Analyzer::Constants::ANALYZERTASK_ID));
+    TaskHub::requestPopup();
 }
 
 } // namespace Internal

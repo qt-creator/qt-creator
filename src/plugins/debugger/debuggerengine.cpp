@@ -167,8 +167,7 @@ public:
         m_watchHandler(engine),
         m_disassemblerAgent(engine),
         m_memoryAgent(engine),
-        m_isStateDebugging(false),
-        m_taskHub(0)
+        m_isStateDebugging(false)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
     }
@@ -255,8 +254,6 @@ public slots:
         m_disassemblerAgent.resetLocation();
     }
 
-    TaskHub *taskHub();
-
 public:
     DebuggerState state() const { return m_state; }
     RemoteSetupState remoteSetupState() const { return m_remoteSetupState; }
@@ -301,7 +298,6 @@ public:
     bool m_isStateDebugging;
 
     Utils::FileInProjectFinder m_fileFinder;
-    TaskHub *m_taskHub;
 };
 
 
@@ -1856,25 +1852,6 @@ void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
     showMessageBox(QMessageBox::Information, tr("Warning"),
                    tr("This does not seem to be a \"Debug\" build.\n"
                       "Setting breakpoints by file name and line number may fail.\n").append(detailedWarning));
-}
-
-TaskHub *DebuggerEnginePrivate::taskHub()
-{
-    if (!m_taskHub) {
-        m_taskHub = ProjectExplorerPlugin::taskHub();
-        m_taskHub->addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO,
-                               tr("Debug Information"));
-        m_taskHub->addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST,
-                               tr("Debugger Test"));
-        m_taskHub->addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
-                               tr("Debugger Runtime"));
-    }
-    return m_taskHub;
-}
-
-TaskHub *DebuggerEngine::taskHub()
-{
-    return d->taskHub();
 }
 
 } // namespace Debugger

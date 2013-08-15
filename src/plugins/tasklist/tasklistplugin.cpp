@@ -119,10 +119,10 @@ public:
             }
             description = unescape(description);
 
-            ProjectExplorer::ProjectExplorerPlugin::taskHub()
-                    ->addTask(ProjectExplorer::Task(type, description,
-                                                    Utils::FileName::fromUserInput(file), line,
-                                                    Core::Id(Constants::TASKLISTTASK_ID)));
+            ProjectExplorer::TaskHub::addTask(
+                        ProjectExplorer::Task(type, description,
+                                              Utils::FileName::fromUserInput(file), line,
+                                              Core::Id(Constants::TASKLISTTASK_ID)));
         }
         return true;
     }
@@ -187,8 +187,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     Q_UNUSED(arguments)
 
     //: Category under which tasklist tasks are listed in Issues view
-    ProjectExplorer::ProjectExplorerPlugin::taskHub()
-            ->addCategory(Core::Id(Constants::TASKLISTTASK_ID), tr("My Tasks"));
+    ProjectExplorer::TaskHub::addCategory(Core::Id(Constants::TASKLISTTASK_ID), tr("My Tasks"));
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
         return false;
@@ -220,7 +219,7 @@ void TaskListPlugin::stopMonitoring()
 
 void TaskListPlugin::clearTasks()
 {
-    ProjectExplorer::ProjectExplorerPlugin::taskHub()->clearTasks(Core::Id(Constants::TASKLISTTASK_ID));
+    ProjectExplorer::TaskHub::clearTasks(Core::Id(Constants::TASKLISTTASK_ID));
 }
 
 Q_EXPORT_PLUGIN(TaskListPlugin)

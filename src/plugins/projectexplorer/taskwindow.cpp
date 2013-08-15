@@ -198,7 +198,6 @@ public:
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QMenu *m_categoriesMenu;
-    TaskHub *m_taskHub;
     int m_badgeCount;
     QList<QAction *> m_actions;
 };
@@ -217,7 +216,7 @@ static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
     return button;
 }
 
-TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
+TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 {
     d->m_defaultHandler = 0;
 
@@ -236,7 +235,6 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     d->m_taskWindowContext = new Internal::TaskWindowContext(d->m_listview);
-    d->m_taskHub = taskhub;
     d->m_badgeCount = 0;
 
     Core::ICore::addContextObject(d->m_taskWindowContext);
@@ -270,25 +268,26 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    connect(d->m_taskHub, SIGNAL(categoryAdded(Core::Id,QString,bool)),
+    TaskHub *hub = TaskHub::instance();
+    connect(hub, SIGNAL(categoryAdded(Core::Id,QString,bool)),
             this, SLOT(addCategory(Core::Id,QString,bool)));
-    connect(d->m_taskHub, SIGNAL(taskAdded(ProjectExplorer::Task)),
+    connect(hub, SIGNAL(taskAdded(ProjectExplorer::Task)),
             this, SLOT(addTask(ProjectExplorer::Task)));
-    connect(d->m_taskHub, SIGNAL(taskRemoved(ProjectExplorer::Task)),
+    connect(hub, SIGNAL(taskRemoved(ProjectExplorer::Task)),
             this, SLOT(removeTask(ProjectExplorer::Task)));
-    connect(d->m_taskHub, SIGNAL(taskLineNumberUpdated(uint,int)),
+    connect(hub, SIGNAL(taskLineNumberUpdated(uint,int)),
             this, SLOT(updatedTaskLineNumber(uint,int)));
-    connect(d->m_taskHub, SIGNAL(taskFileNameUpdated(uint,QString)),
+    connect(hub, SIGNAL(taskFileNameUpdated(uint,QString)),
             this, SLOT(updatedTaskFileName(uint,QString)));
-    connect(d->m_taskHub, SIGNAL(tasksCleared(Core::Id)),
+    connect(hub, SIGNAL(tasksCleared(Core::Id)),
             this, SLOT(clearTasks(Core::Id)));
-    connect(d->m_taskHub, SIGNAL(categoryVisibilityChanged(Core::Id,bool)),
+    connect(hub, SIGNAL(categoryVisibilityChanged(Core::Id,bool)),
             this, SLOT(setCategoryVisibility(Core::Id,bool)));
-    connect(d->m_taskHub, SIGNAL(popupRequested(int)),
+    connect(hub, SIGNAL(popupRequested(int)),
             this, SLOT(popup(int)));
-    connect(d->m_taskHub, SIGNAL(showTask(uint)),
+    connect(hub, SIGNAL(showTask(uint)),
             this, SLOT(showTask(uint)));
-    connect(d->m_taskHub, SIGNAL(openTask(uint)),
+    connect(hub, SIGNAL(openTask(uint)),
             this, SLOT(openTask(uint)));
 }
 
@@ -595,7 +594,7 @@ void TaskWindow::clearContents()
 {
     // clear all tasks in all displays
     // Yeah we are that special
-    d->m_taskHub->clearTasks();
+    TaskHub::clearTasks();
 }
 
 bool TaskWindow::hasFocus() const

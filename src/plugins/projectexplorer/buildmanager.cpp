@@ -32,8 +32,8 @@
 #include "buildprogress.h"
 #include "buildsteplist.h"
 #include "compileoutputwindow.h"
-#include "projectexplorer.h"
 #include "project.h"
+#include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "target.h"
 #include "taskwindow.h"
@@ -126,8 +126,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAc
     d->m_outputWindow = new Internal::CompileOutputWindow(this, cancelBuildAction);
     ExtensionSystem::PluginManager::addObject(d->m_outputWindow);
 
-    d->m_taskHub = ProjectExplorerPlugin::taskHub();
-    d->m_taskWindow = new Internal::TaskWindow(d->m_taskHub);
+    d->m_taskWindow = new Internal::TaskWindow;
     ExtensionSystem::PluginManager::addObject(d->m_taskWindow);
 
     qRegisterMetaType<ProjectExplorer::BuildStep::OutputFormat>();
@@ -147,10 +146,10 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAc
 
 void BuildManager::extensionsInitialized()
 {
-    d->m_taskHub->addCategory(Core::Id(Constants::TASK_CATEGORY_COMPILE),
-        tr("Compile", "Category for compiler issues listed under 'Issues'"));
-    d->m_taskHub->addCategory(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM),
-        tr("Build System", "Category for build system issues listed under 'Issues'"));
+    TaskHub::addCategory(Core::Id(Constants::TASK_CATEGORY_COMPILE),
+                         tr("Compile", "Category for compiler issues listed under 'Issues'"));
+    TaskHub::addCategory(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM),
+                         tr("Build System", "Category for build system issues listed under 'Issues'"));
 }
 
 BuildManager::~BuildManager()
@@ -294,8 +293,8 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         d->m_outputWindow->clearContents();
         foreach (const QString &str, preambleMessage)
             addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
-        d->m_taskHub->clearTasks(Core::Id(Constants::TASK_CATEGORY_COMPILE));
-        d->m_taskHub->clearTasks(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        TaskHub::clearTasks(Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        TaskHub::clearTasks(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         progressManager->setApplicationLabel(QString());
         d->m_futureProgress = progressManager->addTask(d->m_progressFutureInterface->future(),
               QString(),
@@ -331,7 +330,7 @@ void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
 {
     d->m_outputWindow->registerPositionOf(task);
     // Distribute to all others
-    d->m_taskHub->addTask(task);
+    TaskHub::addTask(task);
 }
 
 void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFormat format,

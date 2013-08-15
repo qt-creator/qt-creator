@@ -52,7 +52,7 @@ class TaskWindow : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    TaskWindow(ProjectExplorer::TaskHub *taskHub);
+    TaskWindow();
     virtual ~TaskWindow();
 
     void delayedInitialization();

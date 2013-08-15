@@ -28,10 +28,12 @@
 ****************************************************************************/
 
 #include "taskhub.h"
-#include "projectexplorer.h"
+
 #include <coreplugin/ioutputpane.h>
 
 using namespace ProjectExplorer;
+
+TaskHub *TaskHub::m_instance = 0;
 
 class TaskMark : public TextEditor::BaseTextMark
 {
@@ -54,19 +56,19 @@ private:
 
 void TaskMark::updateLineNumber(int lineNumber)
 {
-    ProjectExplorerPlugin::taskHub()->updateTaskLineNumber(m_id, lineNumber);
+    TaskHub::updateTaskLineNumber(m_id, lineNumber);
     BaseTextMark::updateLineNumber(lineNumber);
 }
 
 void TaskMark::updateFileName(const QString &fileName)
 {
-    ProjectExplorerPlugin::taskHub()->updateTaskFileName(m_id, fileName);
+    TaskHub::updateTaskFileName(m_id, fileName);
     BaseTextMark::updateFileName(fileName);
 }
 
 void TaskMark::removedFromEditor()
 {
-    ProjectExplorerPlugin::taskHub()->updateTaskLineNumber(m_id, -1);
+    TaskHub::updateTaskLineNumber(m_id, -1);
 }
 
 bool TaskMark::isClickable() const
@@ -76,25 +78,26 @@ bool TaskMark::isClickable() const
 
 void TaskMark::clicked()
 {
-    ProjectExplorerPlugin::taskHub()->taskMarkClicked(m_id);
+    TaskHub::taskMarkClicked(m_id);
 }
 
 TaskHub::TaskHub()
     : m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
       m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
 {
+    m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
 }
 
 TaskHub::~TaskHub()
 {
-
+    m_instance = 0;
 }
 
 void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
 {
-    emit categoryAdded(categoryId, displayName, visible);
+    emit m_instance->categoryAdded(categoryId, displayName, visible);
 }
 
 void TaskHub::addTask(Task task)
@@ -105,60 +108,60 @@ void TaskHub::addTask(Task task)
         mark->setIcon(taskTypeIcon(task.type));
         mark->setPriority(TextEditor::ITextMark::LowPriority);
         task.addMark(mark);
-        emit taskAdded(task);
+        emit m_instance->taskAdded(task);
         mark->init();
     } else {
-        emit taskAdded(task);
+        emit m_instance->taskAdded(task);
     }
 }
 
 void TaskHub::clearTasks(Core::Id categoryId)
 {
-    emit tasksCleared(categoryId);
+    emit m_instance->tasksCleared(categoryId);
 }
 
 void TaskHub::removeTask(const Task &task)
 {
-    emit taskRemoved(task);
+    emit m_instance->taskRemoved(task);
 }
 
 void TaskHub::updateTaskFileName(unsigned int id, const QString &fileName)
 {
-    emit taskFileNameUpdated(id, fileName);
+    emit m_instance->taskFileNameUpdated(id, fileName);
 }
 
 void TaskHub::updateTaskLineNumber(unsigned int id, int line)
 {
-    emit taskLineNumberUpdated(id, line);
+    emit m_instance->taskLineNumberUpdated(id, line);
 }
 
 void TaskHub::taskMarkClicked(unsigned int id)
 {
-    emit showTask(id);
+    emit m_instance->showTask(id);
 }
 
 void TaskHub::showTaskInEditor(unsigned int id)
 {
-    emit openTask(id);
+    emit m_instance->openTask(id);
 }
 
 void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 {
-    emit categoryVisibilityChanged(categoryId, visible);
+    emit m_instance->categoryVisibilityChanged(categoryId, visible);
 }
 
 void TaskHub::requestPopup()
 {
-    emit popupRequested(Core::IOutputPane::NoModeSwitch);
+    emit m_instance->popupRequested(Core::IOutputPane::NoModeSwitch);
 }
 
-QIcon TaskHub::taskTypeIcon(Task::TaskType t) const
+QIcon TaskHub::taskTypeIcon(Task::TaskType t)
 {
     switch (t) {
     case Task::Warning:
-        return m_warningIcon;
+        return m_instance->m_warningIcon;
     case Task::Error:
-        return m_errorIcon;
+        return m_instance->m_errorIcon;
     case Task::Unknown:
         break;
     }

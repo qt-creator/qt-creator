@@ -89,7 +89,6 @@ private:
                                 bool updateSemantic);
 
 private:
-    ProjectExplorer::TaskHub *m_taskHub;
     QHash<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
     QFutureWatcher<FileErrorMessages> m_messageCollector;
     QTimer m_updateDelay;

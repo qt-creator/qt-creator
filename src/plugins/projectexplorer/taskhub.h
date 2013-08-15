@@ -36,31 +36,32 @@
 #include <QIcon>
 
 namespace ProjectExplorer {
+
+class ProjectExplorerPlugin;
 class Task;
 
 class PROJECTEXPLORER_EXPORT TaskHub : public QObject
 {
     Q_OBJECT
 public:
-    TaskHub();
-    virtual ~TaskHub();
+    static TaskHub *instance();
 
 public slots:
-    void addCategory(Core::Id categoryId, const QString &displayName, bool visible = true);
-    void addTask(ProjectExplorer::Task task);
-    void clearTasks(Core::Id categoryId = Core::Id());
-    void removeTask(const ProjectExplorer::Task &task);
+    static void addCategory(Core::Id categoryId, const QString &displayName, bool visible = true);
+    static void addTask(ProjectExplorer::Task task);
+    static void clearTasks(Core::Id categoryId = Core::Id());
+    static void removeTask(const ProjectExplorer::Task &task);
 
 public:
-    void updateTaskFileName(unsigned int id, const QString &fileName);
-    void updateTaskLineNumber(unsigned int id, int line);
-    void taskMarkClicked(unsigned int id);
-    void showTaskInEditor(unsigned int id);
-    void setCategoryVisibility(const Core::Id &categoryId, bool visible);
+    static void updateTaskFileName(unsigned int id, const QString &fileName);
+    static void updateTaskLineNumber(unsigned int id, int line);
+    static void taskMarkClicked(unsigned int id);
+    static void showTaskInEditor(unsigned int id);
+    static void setCategoryVisibility(const Core::Id &categoryId, bool visible);
 
-    void requestPopup();
+    static void requestPopup();
 
-    QIcon taskTypeIcon(ProjectExplorer::Task::TaskType t) const;
+    static QIcon taskTypeIcon(ProjectExplorer::Task::TaskType t);
 
 signals:
     void categoryAdded(Core::Id categoryId, const QString &displayName, bool visible);
@@ -73,9 +74,18 @@ signals:
     void popupRequested(int);
     void showTask(unsigned int id);
     void openTask(unsigned int id);
+
 private:
+    TaskHub();
+    ~TaskHub();
+
     const QIcon m_errorIcon;
     const QIcon m_warningIcon;
+
+    static TaskHub *m_instance;
+
+    friend class ProjectExplorerPlugin;
 };
+
 } // namespace ProjectExplorer
 #endif // TASKHUB_H

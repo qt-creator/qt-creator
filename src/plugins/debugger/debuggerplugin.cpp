@@ -83,6 +83,7 @@
 
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
@@ -1503,6 +1504,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         connect(KitManager::instance(), SIGNAL(kitsLoaded()), this, SLOT(parseCommandLineArguments()));
     // Cpp/Qml ui setup
     m_mainWindow = new DebuggerMainWindow;
+
+    TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO,
+                         tr("Debug Information"));
+    TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST,
+                         tr("Debugger Test"));
+    TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
+                         tr("Debugger Runtime"));
 
     return true;
 }

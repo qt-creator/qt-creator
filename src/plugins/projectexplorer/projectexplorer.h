@@ -92,7 +92,6 @@ public:
     Project *startupProject() const;
 
     BuildManager *buildManager() const;
-    static TaskHub *taskHub();
 
     bool saveModifiedFiles();
 

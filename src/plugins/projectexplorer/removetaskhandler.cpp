@@ -29,7 +29,6 @@
 
 #include "removetaskhandler.h"
 
-#include "projectexplorer.h"
 #include "task.h"
 #include "taskhub.h"
 
@@ -39,7 +38,7 @@ using namespace ProjectExplorer::Internal;
 
 void RemoveTaskHandler::handle(const ProjectExplorer::Task &task)
 {
-    ProjectExplorerPlugin::taskHub()->removeTask(task);
+    TaskHub::removeTask(task);
 }
 
 QAction *RemoveTaskHandler::createAction(QObject *parent) const
