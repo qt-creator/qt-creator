@@ -87,7 +87,7 @@ public:
 
     void setImportsWidget(QWidget *importsWidget);
 
-public Q_SLOTS:
+public slots:
     void setSearchFilter(const QString &searchFilter);
     void updateModel();
     void updateSearch();
@@ -117,6 +117,9 @@ signals:
     void qtBasicOnlyChecked(bool b);
     void meegoChecked(bool b);
 
+private slots:
+    void setCurrentIndexOfStackedWidget(int index);
+
 private:
     ItemLibraryFileIconProvider m_iconProvider;
     QSize m_itemIconSize;
@@ -128,7 +131,7 @@ private:
     QWeakPointer<QFileSystemModel> m_resourcesFileSystemModel;
 
     QWeakPointer<QStackedWidget> m_stackedWidget;
-    QWeakPointer<Utils::FilterLineEdit> m_lineEdit;
+    QWeakPointer<Utils::FilterLineEdit> m_filterLineEdit;
     QScopedPointer<QDeclarativeView> m_itemsView;
     QScopedPointer<Internal::ItemLibraryTreeView> m_resourcesView;
 
