@@ -111,20 +111,14 @@ protected:
     void paintBoundingRect(QPainter *painter) const;
     void paintPlaceHolderForInvisbleItem(QPainter *painter) const;
 
-private slots:
-    void changeAttention(qreal value);
-
 private: // functions
     FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);
     void setup();
-    void setAttentionScale(double scale);
-    void setAttentionHighlight(double value);
 
 private: // variables
     SnappingLineCreator m_snappingLineCreator;
     QmlItemNode m_qmlItemNode;
     QWeakPointer<QTimeLine> m_attentionTimeLine;
-    QTransform m_attentionTransform; // make item larger in anchor mode
     QTransform m_inverseAttentionTransform;
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;

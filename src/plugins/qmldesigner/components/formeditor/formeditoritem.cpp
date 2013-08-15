@@ -92,7 +92,6 @@ void FormEditorItem::updateGeometry()
     m_boundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
     m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect().united(m_boundingRect);
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
-    setTransform(m_attentionTransform, true);
     //the property for zValue is called z in QGraphicsObject
     if (qmlItemNode().instanceValue("z").isValid())
         setZValue(qmlItemNode().instanceValue("z").toDouble());
@@ -104,61 +103,10 @@ void FormEditorItem::updateVisibilty()
 //    setOpacity(nodeInstance().opacity());
 }
 
-void FormEditorItem::showAttention()
-{
-    if (m_attentionTimeLine.isNull()) {
-        m_attentionTimeLine = new QTimeLine(500, this);
-        m_attentionTimeLine->setCurveShape(QTimeLine::SineCurve);
-        connect(m_attentionTimeLine.data(), SIGNAL(valueChanged(qreal)), SLOT(changeAttention(qreal)));
-        connect(m_attentionTimeLine.data(), SIGNAL(finished()), m_attentionTimeLine.data(), SLOT(deleteLater()));
-
-        m_attentionTimeLine->start();
-    }
-}
-
-void FormEditorItem::changeAttention(qreal value)
-{
-    if (QGraphicsItem::parentItem() == scene()->formLayerItem()) {
-        setAttentionHighlight(value);
-    } else {
-        setAttentionHighlight(value);
-        setAttentionScale(value);
-    }
-}
 
 FormEditorView *FormEditorItem::formEditorView() const
 {
     return scene()->editorView();
-}
-
-void FormEditorItem::setAttentionScale(double sinusScale)
-{
-    if (!qFuzzyIsNull(sinusScale)) {
-        double scale = std::sqrt(sinusScale);
-        m_attentionTransform.reset();
-        QPointF centerPoint(qmlItemNode().instanceBoundingRect().center());
-        m_attentionTransform.translate(centerPoint.x(), centerPoint.y());
-        m_attentionTransform.scale(scale * 0.15 + 1.0, scale * 0.15 + 1.0);
-        m_attentionTransform.translate(-centerPoint.x(), -centerPoint.y());
-        m_inverseAttentionTransform = m_attentionTransform.inverted();
-        prepareGeometryChange();
-        setTransform(qmlItemNode().instanceTransformWithContentTransform());
-        setTransform(m_attentionTransform, true);
-    } else {
-        m_attentionTransform.reset();
-        prepareGeometryChange();
-        setTransform(qmlItemNode().instanceTransform());
-    }
-}
-
-void FormEditorItem::setAttentionHighlight(double value)
-{
-    if (QGraphicsItem::parentItem() == scene()->formLayerItem())
-        m_borderWidth = value * 4;
-    else
-        m_borderWidth = 1. + value * 3;
-
-    update();
 }
 
 void FormEditorItem::setHighlightBoundingRect(bool highlight)
