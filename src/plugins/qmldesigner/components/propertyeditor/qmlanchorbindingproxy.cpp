@@ -434,7 +434,7 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
 QRectF QmlAnchorBindingProxy::boundingBox(QmlItemNode node)
 {
     if (node.isValid())
-        return node.instanceTransform().mapRect(node.instanceBoundingRect());
+        return node.instanceTransformWithContentTransform().mapRect(node.instanceBoundingRect());
 
     return QRect();
 }
