@@ -153,7 +153,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         if (!newQmlItemNode.isValid())
             return newQmlItemNode;
 
-        newQmlItemNode.setId(view->generateNewId(itemLibraryEntry.name().toLower()));
+        newQmlItemNode.setId(view->generateNewId(itemLibraryEntry.name()));
 
         if (!view->currentState().isBaseState()) {
             newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
