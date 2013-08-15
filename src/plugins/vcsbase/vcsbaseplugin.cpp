@@ -593,8 +593,8 @@ void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternal
         if (!d->m_state.equals(newInternalState)) {
             d->m_state.setState(newInternalState);
             updateActions(VcsEnabled);
-            Core::EditorManager::setWindowTitleVcsTopic(vc->vcsTopic(d->m_state.topLevel()));
         }
+        Core::EditorManager::setWindowTitleVcsTopic(vc->vcsTopic(d->m_state.topLevel()));
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
         const ActionState newActionState = vc ? OtherVcsEnabled : NoVcsEnabled;
