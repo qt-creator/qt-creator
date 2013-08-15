@@ -167,6 +167,7 @@ HEADERS += \
     $$PWD/bracematcher.h \
     $$PWD/proxyaction.h \
     $$PWD/hostosinfo.h \
+    $$PWD/osspecificaspects.h \
     $$PWD/elidinglabel.h \
     $$PWD/tooltip/tooltip.h \
     $$PWD/tooltip/tips.h \

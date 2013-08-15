@@ -335,13 +335,13 @@ void AndroidConfigurations::detectToolchainHost()
 {
     QStringList hostPatterns;
     switch (HostOsInfo::hostOs()) {
-    case HostOsInfo::HostOsLinux:
+    case OsTypeLinux:
         hostPatterns << QLatin1String("linux*");
         break;
-    case HostOsInfo::HostOsWindows:
+    case OsTypeWindows:
         hostPatterns << QLatin1String("windows*");
         break;
-    case HostOsInfo::HostOsMac:
+    case OsTypeMac:
         hostPatterns << QLatin1String("darwin*");
         break;
     default: /* unknown host */ return;

@@ -187,14 +187,14 @@ void Environment::prependOrSetPath(const QString &value)
 void Environment::prependOrSetLibrarySearchPath(const QString &value)
 {
     switch (HostOsInfo::hostOs()) {
-    case HostOsInfo::HostOsWindows: {
+    case OsTypeWindows: {
         const QChar sep = QLatin1Char(';');
         const QLatin1String path("PATH");
         prependOrSet(path, QDir::toNativeSeparators(value), QString(sep));
         break;
     }
-    case HostOsInfo::HostOsLinux:
-    case HostOsInfo::HostOsOtherUnix: {
+    case OsTypeLinux:
+    case OsTypeOtherUnix: {
         const QChar sep = QLatin1Char(':');
         const QLatin1String path("LD_LIBRARY_PATH");
         prependOrSet(path, QDir::toNativeSeparators(value), QString(sep));

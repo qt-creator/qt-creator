@@ -110,6 +110,7 @@ QtcLibrary {
         "newclasswidget.cpp",
         "newclasswidget.h",
         "newclasswidget.ui",
+        "osspecificaspects.h",
         "outputformat.h",
         "outputformatter.cpp",
         "outputformatter.h",

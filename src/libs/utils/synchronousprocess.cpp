@@ -621,11 +621,11 @@ static QString checkBinary(const QDir &dir, const QString &binary)
         return  QString();
 
     switch (HostOsInfo::hostOs()) {
-    case HostOsInfo::HostOsLinux:
-    case HostOsInfo::HostOsOtherUnix:
-    case HostOsInfo::HostOsOther:
+    case OsTypeLinux:
+    case OsTypeOtherUnix:
+    case OsTypeOther:
         break;
-    case HostOsInfo::HostOsWindows: {
+    case OsTypeWindows: {
             static const char *windowsExtensions[] = {".cmd", ".bat", ".exe", ".com" };
             // Check the Windows extensions using the order
             const int windowsExtensionCount = sizeof(windowsExtensions)/sizeof(const char*);
@@ -636,7 +636,7 @@ static QString checkBinary(const QDir &dir, const QString &binary)
             }
         }
         break;
-    case HostOsInfo::HostOsMac: {
+    case OsTypeMac: {
             // Check for Mac app folders
             const QFileInfo appFolder(dir.filePath(binary + QLatin1String(".app")));
             if (appFolder.isDir()) {

@@ -32,10 +32,12 @@
 
 #include "utils_global.h"
 
+#include "osspecificaspects.h"
+
 #include <QString>
 
 #ifdef Q_OS_WIN
-#define QTC_HOST_EXE_SUFFIX ".exe"
+#define QTC_HOST_EXE_SUFFIX QTC_WIN_EXE_SUFFIX
 #else
 #define QTC_HOST_EXE_SUFFIX ""
 #endif // Q_OS_WIN
@@ -45,55 +47,54 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT HostOsInfo
 {
 public:
-    // Add more as needed.
-    enum HostOs { HostOsWindows, HostOsLinux, HostOsMac, HostOsOtherUnix, HostOsOther };
-    static inline HostOs hostOs();
+    static inline OsType hostOs();
 
     enum HostArchitecture { HostArchitectureX86, HostArchitectureAMD64, HostArchitectureItanium,
                             HostArchitectureArm, HostArchitectureUnknown };
     static HostArchitecture hostArchitecture();
 
-    static bool isWindowsHost() { return hostOs() == HostOsWindows; }
-    static bool isLinuxHost() { return hostOs() == HostOsLinux; }
-    static bool isMacHost() { return hostOs() == HostOsMac; }
+    static bool isWindowsHost() { return hostOs() == OsTypeWindows; }
+    static bool isLinuxHost() { return hostOs() == OsTypeLinux; }
+    static bool isMacHost() { return hostOs() == OsTypeMac; }
     static inline bool isAnyUnixHost();
 
     static QString withExecutableSuffix(const QString &executable)
     {
-        QString finalName = executable;
-        if (isWindowsHost())
-            finalName += QLatin1String(QTC_HOST_EXE_SUFFIX);
-        return finalName;
+        return hostOsAspects().withExecutableSuffix(executable);
     }
 
     static Qt::CaseSensitivity fileNameCaseSensitivity()
     {
-        return isWindowsHost() ? Qt::CaseInsensitive: Qt::CaseSensitive;
+        return hostOsAspects().fileNameCaseSensitivity();
     }
 
     static QChar pathListSeparator()
     {
-        return isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
+        return hostOsAspects().pathListSeparator();
     }
 
     static Qt::KeyboardModifier controlModifier()
     {
-        return isMacHost() ? Qt::MetaModifier : Qt::ControlModifier;
+        return hostOsAspects().controlModifier();
     }
+
+private:
+    static OsSpecificAspects hostOsAspects() { return OsSpecificAspects(hostOs()); }
 };
 
-HostOsInfo::HostOs HostOsInfo::hostOs()
+
+OsType HostOsInfo::hostOs()
 {
 #if defined(Q_OS_WIN)
-    return HostOsWindows;
+    return OsTypeWindows;
 #elif defined(Q_OS_LINUX)
-    return HostOsLinux;
+    return OsTypeLinux;
 #elif defined(Q_OS_MAC)
-    return HostOsMac;
+    return OsTypeMac;
 #elif defined(Q_OS_UNIX)
-    return HostOsOtherUnix;
+    return OsTypeOtherUnix;
 #else
-    return HostOsOther;
+    return OsTypeOther;
 #endif
 }
 

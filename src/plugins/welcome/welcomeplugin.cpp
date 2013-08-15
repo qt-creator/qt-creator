@@ -286,10 +286,10 @@ void WelcomeMode::initPlugins()
 QString WelcomeMode::platform() const
 {
     switch (HostOsInfo::hostOs()) {
-    case HostOsInfo::HostOsWindows: return QLatin1String("windows");
-    case HostOsInfo::HostOsMac: return QLatin1String("mac");
-    case HostOsInfo::HostOsLinux: return QLatin1String("linux");
-    case HostOsInfo::HostOsOtherUnix: return QLatin1String("unix");
+    case OsTypeWindows: return QLatin1String("windows");
+    case OsTypeMac: return QLatin1String("mac");
+    case OsTypeLinux: return QLatin1String("linux");
+    case OsTypeOtherUnix: return QLatin1String("unix");
     default: return QLatin1String("other");
     }
 }

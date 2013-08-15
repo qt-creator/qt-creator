@@ -67,13 +67,13 @@ LibraryDetailsController::LibraryDetailsController(
     m_libraryDetailsWidget(libraryDetails)
 {
     switch (Utils::HostOsInfo::hostOs()) {
-    case Utils::HostOsInfo::HostOsMac:
+    case Utils::OsTypeMac:
         m_creatorPlatform = CreatorMac;
         break;
-    case Utils::HostOsInfo::HostOsLinux:
+    case Utils::OsTypeLinux:
         m_creatorPlatform = CreatorLinux;
         break;
-    case Utils::HostOsInfo::HostOsWindows:
+    case Utils::OsTypeWindows:
         m_creatorPlatform = CreatorWindows;
         break;
     default:
