@@ -160,6 +160,8 @@ void BranchDialog::add()
 
     if (branchAddDialog.exec() == QDialog::Accepted && m_model) {
         QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(), trackedIndex);
+        if (!idx.isValid())
+            return;
         m_ui->branchView->selectionModel()->select(idx, QItemSelectionModel::Clear
                                                         | QItemSelectionModel::Select
                                                         | QItemSelectionModel::Current);
