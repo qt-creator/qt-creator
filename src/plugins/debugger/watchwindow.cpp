@@ -965,9 +965,10 @@ bool WatchTreeView::event(QEvent *ev)
     return BaseTreeView::event(ev);
 }
 
-void WatchTreeView::currentChanged(const QModelIndex &current, const QModelIndex &)
+void WatchTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     emit currentIndexChanged(current);
+    BaseTreeView::currentChanged(current, previous);
 }
 
 void WatchTreeView::editItem(const QModelIndex &idx)
