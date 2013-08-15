@@ -586,6 +586,14 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
         if (setRE.indexIn(type) != -1)
             type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
 
+        // std::unordered_set
+        QRegExp unorderedSetRE(QString::fromLatin1("unordered_set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
+            .arg(innerEsc, innerEsc, innerEsc, allocEsc));
+        unorderedSetRE.setMinimal(true);
+        QTC_ASSERT(unorderedSetRE.isValid(), return typeIn);
+        if (unorderedSetRE.indexIn(type) != -1)
+            type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
+
         // std::map
         if (inner.startsWith(QLatin1String("std::pair<"))) {
             // search for outermost ',', split key and value
@@ -620,6 +628,35 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
                 if (mapRE2.indexIn(type) != -1)
                     type.replace(mapRE2.cap(0), QString::fromLatin1("map<const %1, %2>").arg(key, value));
             }
+        }
+
+        // std::unordered_map
+        if (inner.startsWith(QLatin1String("std::pair<"))) {
+            // search for outermost ',', split key and value
+            int pos;
+            int level = 0;
+            for (pos = 10; pos < inner.size(); ++pos) {
+                int c = inner.at(pos).unicode();
+                if (c == '<')
+                    ++level;
+                else if (c == '>')
+                    --level;
+                else if (c == ',' && level == 0)
+                    break;
+            }
+            const QString key = chopConst(inner.mid(10, pos - 10));
+            const QString keyEsc = QRegExp::escape(key);
+            // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
+            if (inner.at(++pos) == QLatin1Char(' '))
+                pos++;
+            const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+            const QString valueEsc = QRegExp::escape(value);
+            QRegExp mapRE1(QString::fromLatin1("unordered_map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*>")
+                           .arg(keyEsc, valueEsc, keyEsc, keyEsc, allocEsc));
+            mapRE1.setMinimal(true);
+            QTC_ASSERT(mapRE1.isValid(), return typeIn);
+            if (mapRE1.indexIn(type) != -1)
+                type.replace(mapRE1.cap(0), QString::fromLatin1("unordered_map<%1, %2>").arg(key, value));
         }
     }
     type.replace(QLatin1Char('@'), QLatin1Char('*'));

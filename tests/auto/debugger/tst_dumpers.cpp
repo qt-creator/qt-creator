@@ -2951,6 +2951,44 @@ void tst_Dumpers::dumper_data()
                % Check("is", "", "std::ifstream")
                % Check("ok", "true", "bool");
 
+    QTest::newRow("StdUnorderedMap1")
+            << Data("#include <unordered_map>\n",
+                    "std::unordered_map<unsigned int, unsigned int> map;\n"
+                    "map[11] = 1;\n"
+                    "map[22] = 2;\n")
+               % Check("map", "<2 items>", "std::unordered_map<unsigned int, unsigned int>")
+               % Cxx11Profile()
+               % Check("map.0", "[0] 22", "2", "unsigned int")
+               % Check("map.1", "[1] 11", "1", "unsigned int");
+
+    QTest::newRow("StdUnorderedMap2")
+            << Data("#include <unordered_map>\n"
+                    "#include <string>\n",
+                    "std::unordered_map<std::string, float> map;\n"
+                    "map[\"11.0\"] = 11.0;\n"
+                    "map[\"22.0\"] = 22.0;\n")
+               % Cxx11Profile()
+               % Check("map", "<2 items>", "std::unordered_map<std::string, float>")
+               //% Check("map.0", "[0]", "", "std::pair<std:string const, float>")
+               % Check("map.0.first", "\"22.0\"", "std::string")
+               % Check("map.0.second", "22", "float")
+               //% Check("map.1", "[1]", "", "std::pair<std::string const, float>")
+               % Check("map.1.first", "\"11.0\"", "std::string")
+               % Check("map.1.second", "11", "float");
+
+    QTest::newRow("StdUnorderedSet1")
+            << Data("#include <unordered_set>\n",
+                    "std::unordered_set<int> set;\n"
+                    "set.insert(11);\n"
+                    "set.insert(22);\n"
+                    "set.insert(33);\n")
+               % Cxx11Profile()
+               % Check("set", "<3 items>", "std::unordered_set<int>")
+               % Check("set.0", "[0]", "33", "int")
+               % Check("set.1", "[1]", "22", "int")
+               % Check("set.2", "[2]", "11", "int");
+
+
     QTest::newRow("ItemModel")
             << Data("#include <QStandardItemModel>\n",
                     "QStandardItemModel m;\n"

@@ -2508,6 +2508,58 @@ def qdump__std____1__unique_ptr(d, value):
         d.putSubItem("data", i.dereference())
 
 
+def qform__std__unordered_map():
+    return mapForms()
+
+def qdump__std__unordered_map(d, value):
+    try:
+        size = value["_M_element_count"]
+        start = value["_M_before_begin"]["_M_nxt"]
+    except:
+        size = value["_M_h"]["_M_element_count"]
+        start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+    d.putItemCount(size)
+    d.putNumChild(size)
+    if d.isExpanded():
+        p = pointerValue(start)
+        keyType = d.templateArgument(value.type, 0)
+        valueType = d.templateArgument(value.type, 1)
+        allocatorType = d.templateArgument(value.type, 4)
+        pairType = d.templateArgument(allocatorType, 0)
+        ptrSize = d.ptrSize()
+        if d.isMapCompact(keyType, valueType):
+            with Children(d, size, childType=valueType):
+                for i in d.childRange():
+                    pair = d.createValue(p + ptrSize, pairType)
+                    with SubItem(d, i):
+                        d.putField("iname", d.currentIName)
+                        d.putName("[%s] %s" % (i, pair["first"]))
+                        d.putValue(pair["second"])
+                    p = d.dereference(p)
+        else:
+            with Children(d, size, childType=pairType):
+                for i in d.childRange():
+                    d.putSubItem(i, d.createValue(p + ptrSize, pairType))
+                    p = d.dereference(p)
+
+def qdump__std__unordered_set(d, value):
+    try:
+        size = value["_M_element_count"]
+        start = value["_M_before_begin"]["_M_nxt"]
+    except:
+        size = value["_M_h"]["_M_element_count"]
+        start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+    d.putItemCount(size)
+    d.putNumChild(size)
+    if d.isExpanded():
+        p = pointerValue(start)
+        valueType = d.templateArgument(value.type, 0)
+        with Children(d, size, childType=valueType):
+            ptrSize = d.ptrSize()
+            for i in d.childRange():
+                d.putSubItem(i, d.createValue(p + ptrSize, valueType))
+                p = d.dereference(p)
+
 
 def qedit__std__vector(expr, value):
     values = value.split(',')

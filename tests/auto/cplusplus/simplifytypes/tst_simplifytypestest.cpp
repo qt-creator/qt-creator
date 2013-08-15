@@ -42,6 +42,8 @@ const char *description[] =
     "g++_stringset",
     "g++_stringvector",
     "g++_wstringvector",
+    "g++_unordered_set",
+    "g++_unordered_map",
     "libc++_stringvector",
     "msvc_stdstring",
     "msvc_stdwstring",
@@ -64,6 +66,10 @@ const char *input[] =
 "std::set<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >",
 "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >",
 "std::vector<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >, std::allocator<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > > >",
+
+"std::unordered_set<int, std::hash<int>, std::equal_to<int>, std::allocator<int> >",
+"std::unordered_map<int, int, std::hash<int>, std::equal_to<int>, std::allocator<std::pair<int const, int> > >",
+
 // libc++
 "std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > >",
 // MSVC
@@ -88,6 +94,8 @@ const char *output[] =
     "std::set<std::string>",
     "std::vector<std::string>",
     "std::vector<std::wstring>",
+    "std::unordered_set<int>",
+    "std::unordered_map<int, int>",
     // libc++
     "std::vector<std::string>",
     // MSVC
