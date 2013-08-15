@@ -79,8 +79,10 @@ static QTransform transformForItem(QQuickItem *item, NodeInstanceServer *nodeIns
 }
 
 QTransform QuickItemNodeInstance::transform() const
-{
-    return transformForItem(quickItem(), nodeInstanceServer());
+{   if (quickItem()->parentItem())
+        return DesignerSupport::parentTransform(quickItem());;
+
+    return QTransform();
 }
 
 
@@ -146,9 +148,23 @@ QRectF QuickItemNodeInstance::contentItemBoundingBox() const
     return QRectF();
 }
 
+static QTransform contentItemTransformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
+{
+    QTransform toParentTransform = DesignerSupport::parentTransform(item);
+    if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem())) {
+
+        return transformForItem(item->parentItem(), nodeInstanceServer) * toParentTransform;
+    }
+
+    return toParentTransform;
+}
+
 QTransform QuickItemNodeInstance::contentItemTransform() const
 {
-    return DesignerSupport::parentTransform(contentItem());
+    if (contentItem())
+        return contentItemTransformForItem(contentItem(), nodeInstanceServer());
+
+    return QTransform();
 }
 
 
