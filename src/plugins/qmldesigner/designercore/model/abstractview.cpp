@@ -376,15 +376,26 @@ bool AbstractView::hasId(const QString &id) const
     return model()->d->hasId(id);
 }
 
+QString firstCharToLower(const QString string)
+{
+    QString resultString = string;
+
+    if (!resultString.isEmpty())
+        resultString[0] = resultString.at(0).toLower();
+
+    return resultString;
+}
+
 QString AbstractView::generateNewId(const QString prefixName) const
 {
     int counter = 1;
 
-    QString newId = QString("%1%2").arg(prefixName.toLower()).arg(counter);
+    QString newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
+    newId.remove(QRegExp(QLatin1String("[^a-zA-Z0-9_]")));
 
     while (hasId(newId)) {
         counter += 1;
-        newId = QString("%1%2").arg(prefixName.toLower()).arg(counter);
+        newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
     }
 
     return newId;
