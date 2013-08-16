@@ -1120,7 +1120,8 @@ SubversionPlugin::Version SubversionPlugin::svnVersion()
         args << QLatin1String("--version") << QLatin1String("-q");
         const Utils::SynchronousProcessResponse response =
                 VcsBase::VcsBasePlugin::runVcs(QDir().absolutePath(), m_settings.binaryPath(),
-                                               args, m_settings.timeOutMs(), 0);
+                                               args, m_settings.timeOutMs(),
+                                               VcsBase::VcsBasePlugin::sshPrompt(), 0);
         if (response.result == Utils::SynchronousProcessResponse::Finished &&
                 response.exitCode == 0) {
             m_svnVersionBinary = m_settings.binaryPath();
@@ -1154,8 +1155,8 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
 
     const QStringList completeArguments = SubversionPlugin::addAuthenticationOptions(arguments, userName, password);
     const Utils::SynchronousProcessResponse sp_resp =
-            VcsBase::VcsBasePlugin::runVcs(workingDir, executable,
-                                           completeArguments, timeOut, flags, outputCodec);
+            VcsBase::VcsBasePlugin::runVcs(workingDir, executable, completeArguments, timeOut,
+                                           VcsBase::VcsBasePlugin::sshPrompt(), flags, outputCodec);
 
     response.error = sp_resp.result != Utils::SynchronousProcessResponse::Finished;
     if (response.error)

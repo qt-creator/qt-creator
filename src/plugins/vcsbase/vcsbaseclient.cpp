@@ -318,8 +318,8 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
 {
     const QString binary = settings()->binaryPath();
     const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
-    return VcsBase::VcsBasePlugin::runVcs(workingDirectory, binary, args,
-                                          timeoutSec * 1000, flags, outputCodec);
+    return VcsBase::VcsBasePlugin::runVcs(workingDirectory, binary, args, timeoutSec * 1000,
+                                          VcsBase::VcsBasePlugin::sshPrompt(), flags, outputCodec);
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,

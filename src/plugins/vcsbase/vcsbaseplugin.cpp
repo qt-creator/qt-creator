@@ -468,6 +468,34 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
     return in;
 }
 
+class OutputProxy : public QObject
+{
+    Q_OBJECT
+
+    friend class VcsBasePlugin;
+
+public:
+    OutputProxy()
+    {
+        // Users of this class can either be in the GUI thread or in other threads.
+        // Use Qt::AutoConnection to always append in the GUI thread (directly or queued)
+        VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
+        connect(this, SIGNAL(append(QString)), outputWindow, SLOT(append(QString)));
+        connect(this, SIGNAL(appendSilently(QString)), outputWindow, SLOT(appendSilently(QString)));
+        connect(this, SIGNAL(appendError(QString)), outputWindow, SLOT(appendError(QString)));
+        connect(this, SIGNAL(appendCommand(QString,QString,QStringList)),
+                outputWindow, SLOT(appendCommand(QString,QString,QStringList)));
+    }
+
+signals:
+    void append(const QString &text);
+    void appendSilently(const QString &text);
+    void appendError(const QString &text);
+    void appendCommand(const QString &workingDirectory,
+                       const QString &binary,
+                       const QStringList &args);
+};
+
 /*!
     \class VcsBase::VcsBasePlugin
 
@@ -798,9 +826,9 @@ QString VcsBasePlugin::findRepositoryForDirectory(const QString &dirS,
 }
 
 // Is SSH prompt configured?
-static inline QString sshPrompt()
+QString VcsBasePlugin::sshPrompt()
 {
-    return VcsBase::Internal::VcsPlugin::instance()->settings().sshPasswordPrompt;
+    return Internal::VcsPlugin::instance()->settings().sshPasswordPrompt;
 }
 
 bool VcsBasePlugin::isSshPromptConfigured()
@@ -810,22 +838,30 @@ bool VcsBasePlugin::isSshPromptConfigured()
 
 void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e, bool forceCLocale)
 {
+    setProcessEnvironment(e, forceCLocale, sshPrompt());
+}
+
+void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
+                                          bool forceCLocale,
+                                          const QString &sshPromptBinary)
+{
     if (forceCLocale)
         e->insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
-    const QString sshPromptBinary = sshPrompt();
     if (!sshPromptBinary.isEmpty())
         e->insert(QLatin1String("SSH_ASKPASS"), sshPromptBinary);
 }
 
 // Run a process fully synchronously, returning Utils::SynchronousProcessResponse
 // response struct and using the VcsBasePlugin flags as applicable
-static SynchronousProcessResponse runVcsFullySynchronously(const QString &workingDir,
+SynchronousProcessResponse VcsBasePlugin::runVcsFullySynchronously(
+                              const QString &workingDir,
                               const QString &binary,
                               const QStringList &arguments,
                               int timeOutMS,
                               QProcessEnvironment env,
+                              const QString &sshPasswordPrompt,
                               unsigned flags,
-                              QTextCodec *outputCodec = 0)
+                              QTextCodec *outputCodec)
 {
     SynchronousProcessResponse response;
     if (binary.isEmpty()) {
@@ -833,11 +869,9 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
         return response;
     }
 
-    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
-
     // Set up process
     unsigned processFlags = 0;
-    if (VcsBasePlugin::isSshPromptConfigured() && (flags & VcsBasePlugin::SshPasswordPrompt))
+    if (!sshPasswordPrompt.isEmpty() && (flags & VcsBasePlugin::SshPasswordPrompt))
         processFlags |= SynchronousProcess::UnixTerminalDisabled;
     QSharedPointer<QProcess> process = SynchronousProcess::createProcess(processFlags);
     if (!workingDir.isEmpty())
@@ -861,11 +895,12 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
             !SynchronousProcess::readDataFromProcess(*process.data(), timeOutMS,
                                                             &stdOut, &stdErr, true);
 
+    OutputProxy output;
     if (!stdErr.isEmpty()) {
         response.stdErr = Utils::SynchronousProcess::normalizeNewlines(
                     outputCodec ? outputCodec->toUnicode(stdErr) : QString::fromLocal8Bit(stdErr));
         if (!(flags & VcsBasePlugin::SuppressStdErrInLogWindow))
-            outputWindow->append(response.stdErr);
+            emit output.append(response.stdErr);
     }
 
     if (!stdOut.isEmpty()) {
@@ -873,9 +908,9 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
                     outputCodec ? outputCodec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut));
         if (flags & VcsBasePlugin::ShowStdOutInLogWindow) {
             if (flags & VcsBasePlugin::SilentOutput)
-                outputWindow->appendSilently(response.stdOut);
+                emit output.appendSilently(response.stdOut);
             else
-                outputWindow->append(response.stdOut);
+                emit output.append(response.stdOut);
         }
     }
 
@@ -897,12 +932,13 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                       const QString &binary,
                       const QStringList &arguments,
                       int timeOutMS,
+                      const QString &sshPasswordPrompt,
                       unsigned flags,
                       QTextCodec *outputCodec)
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     return runVcs(workingDir, binary, arguments, timeOutMS, env,
-                  flags, outputCodec);
+                  sshPasswordPrompt, flags, outputCodec);
 }
 
 SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
@@ -910,10 +946,12 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                                                  const QStringList &arguments,
                                                  int timeOutMS,
                                                  QProcessEnvironment env,
+                                                 const QString &sshPasswordPrompt,
                                                  unsigned flags,
                                                  QTextCodec *outputCodec)
 {
     SynchronousProcessResponse response;
+    OutputProxy output;
 
     if (binary.isEmpty()) {
         response.result = SynchronousProcessResponse::StartFailed;
@@ -923,9 +961,9 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     if (!(flags & SuppressCommandLogging))
-        outputWindow->appendCommand(workingDir, binary, arguments);
+        emit output.appendCommand(workingDir, binary, arguments);
 
-    const bool sshPromptConfigured = VcsBasePlugin::isSshPromptConfigured();
+    const bool sshPromptConfigured = !sshPasswordPrompt.isEmpty();
     if (debugExecution) {
         QDebug nsp = qDebug().nospace();
         nsp << "VcsBasePlugin::runVcs" << workingDir << binary << arguments
@@ -952,14 +990,14 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
             nsp << " Codec: " << outputCodec->name();
     }
 
-    VcsBase::VcsBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
+    setProcessEnvironment(&env, (flags & ForceCLocale), sshPasswordPrompt);
 
     // TODO tell the document manager about expected repository changes
     //    if (flags & ExpectRepoChanges)
     //        Core::DocumentManager::expectDirectoryChange(workingDir);
     if (flags & FullySynchronously) {
         response = runVcsFullySynchronously(workingDir, binary, arguments, timeOutMS,
-                                             env, flags, outputCodec);
+                                            env, sshPasswordPrompt, flags, outputCodec);
     } else {
         // Run, connect stderr to the output window
         SynchronousProcess process;
@@ -1000,10 +1038,9 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
     // Success/Fail message in appropriate window?
     if (response.result == SynchronousProcessResponse::Finished) {
         if (flags & ShowSuccessMessage)
-            outputWindow->append(response.exitMessage(binary, timeOutMS));
-    } else {
-        if (!(flags & SuppressFailMessageInLogWindow))
-            outputWindow->appendError(response.exitMessage(binary, timeOutMS));
+            emit output.append(response.exitMessage(binary, timeOutMS));
+    } else if (!(flags & SuppressFailMessageInLogWindow)) {
+        emit output.appendError(response.exitMessage(binary, timeOutMS));
     }
     if (flags & ExpectRepoChanges) {
         // TODO tell the document manager that the directory now received all expected changes
@@ -1026,8 +1063,9 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
     if (binary.isEmpty())
         return false;
 
+    OutputProxy output;
     if (!(flags & SuppressCommandLogging))
-        VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, binary, arguments);
+        emit output.appendCommand(workingDirectory, binary, arguments);
 
     // TODO tell the document manager about expected repository changes
     // if (flags & ExpectRepoChanges)

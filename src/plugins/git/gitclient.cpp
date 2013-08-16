@@ -2322,7 +2322,7 @@ Utils::SynchronousProcessResponse GitClient::synchronousGit(const QString &worki
 {
     return VcsBasePlugin::runVcs(workingDirectory, gitBinaryPath(), gitArguments,
                                  settings()->intValue(GitSettings::timeoutKey) * 1000,
-                                 processEnvironment(),
+                                 processEnvironment(), VcsBase::VcsBasePlugin::sshPrompt(),
                                  flags, outputCodec);
 }
 

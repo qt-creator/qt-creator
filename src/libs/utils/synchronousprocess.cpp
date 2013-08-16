@@ -36,6 +36,7 @@
 #include <QTextCodec>
 #include <QDir>
 #include <QMessageBox>
+#include <QThread>
 
 #include <QApplication>
 
@@ -359,6 +360,11 @@ void SynchronousProcess::setProcessChannelMode(QProcess::ProcessChannelMode m)
     d->m_process.setProcessChannelMode(m);
 }
 
+static bool isGuiThread()
+{
+    return QThread::currentThread() == QCoreApplication::instance()->thread();
+}
+
 SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
                                                  const QStringList &args)
 {
@@ -375,7 +381,8 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     d->m_process.closeWriteChannel();
     if (!d->m_startFailure) {
         d->m_timer.start();
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+        if (isGuiThread())
+            QApplication::setOverrideCursor(Qt::WaitCursor);
         d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
         if (d->m_result.result == SynchronousProcessResponse::Finished || d->m_result.result == SynchronousProcessResponse::FinishedError) {
             processStdOut(false);
@@ -386,7 +393,8 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
         d->m_result.stdErr = d->m_stdErr.data;
 
         d->m_timer.stop();
-        QApplication::restoreOverrideCursor();
+        if (isGuiThread())
+            QApplication::restoreOverrideCursor();
     }
 
     if (debug)
@@ -396,6 +404,8 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
 
 static inline bool askToKill(const QString &binary = QString())
 {
+    if (!isGuiThread())
+        return true;
     const QString title = SynchronousProcess::tr("Process not Responding");
     QString msg = binary.isEmpty() ?
                   SynchronousProcess::tr("The process is not responding.") :

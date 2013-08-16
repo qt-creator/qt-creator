@@ -1376,7 +1376,9 @@ ClearCaseResponse
 
     const Utils::SynchronousProcessResponse sp_resp =
             VcsBase::VcsBasePlugin::runVcs(workingDir, executable,
-                                           arguments, timeOut, flags, outputCodec);
+                                           arguments, timeOut,
+                                           VcsBase::VcsBasePlugin::sshPrompt(),
+                                           flags, outputCodec);
 
     response.error = sp_resp.result != Utils::SynchronousProcessResponse::Finished;
     if (response.error)

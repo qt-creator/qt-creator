@@ -151,6 +151,8 @@ public:
     // requires a terminal-less process) and sets LANG to 'C' to force English
     // (suppress LOCALE warnings/parse commands output) if desired.
     static void setProcessEnvironment(QProcessEnvironment *e, bool forceCLocale);
+    // Returns SSH prompt configured in settings.
+    static QString sshPrompt();
     // Returns whether an SSH prompt is configured.
     static bool isSshPromptConfigured();
 
@@ -175,6 +177,7 @@ public:
                                                     const QStringList &arguments,
                                                     int timeOutMS,
                                                     QProcessEnvironment env,
+                                                    const QString &sshPasswordPrompt,
                                                     unsigned flags = 0,
                                                     QTextCodec *outputCodec = 0);
 
@@ -182,6 +185,7 @@ public:
                                                     const QString &binary,
                                                     const QStringList &arguments,
                                                     int timeOutMS,
+                                                    const QString &sshPasswordPrompt,
                                                     unsigned flags = 0,
                                                     QTextCodec *outputCodec = 0);
 
@@ -241,6 +245,20 @@ private slots:
     void slotTestRemoveSnapshot();
 
 private:
+    static void setProcessEnvironment(QProcessEnvironment *e,
+                                      bool forceCLocale,
+                                      const QString &sshPasswordPrompt);
+
+    static Utils::SynchronousProcessResponse runVcsFullySynchronously(
+            const QString &workingDir,
+            const QString &binary,
+            const QStringList &arguments,
+            int timeOutMS,
+            QProcessEnvironment env,
+            const QString &sshPasswordPrompt,
+            unsigned flags,
+            QTextCodec *outputCodec = 0);
+
     VcsBasePluginPrivate *d;
 };
 

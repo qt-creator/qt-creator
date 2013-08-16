@@ -146,7 +146,8 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("LANGUAGE"), QLatin1String("C"));
     const Utils::SynchronousProcessResponse resp = VcsBase::VcsBasePlugin::runVcs(
-                workingDir, binary, args, timeoutSec * 1000, env, flags);
+                workingDir, binary, args, timeoutSec * 1000, env,
+                VcsBase::VcsBasePlugin::sshPrompt(), flags);
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
 
     parsePullOutput(resp.stdOut.trimmed());
