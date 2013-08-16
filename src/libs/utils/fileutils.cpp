@@ -218,6 +218,18 @@ QString FileUtils::shortNativePath(const FileName &path)
     return path.toUserOutput();
 }
 
+QString FileUtils::fileSystemFriendlyName(const QString &name)
+{
+    QString result = name;
+    result.replace(QRegExp(QLatin1String("\\W")), QLatin1String("_"));
+    result.replace(QRegExp(QLatin1String("_+")), QLatin1String("_")); // compact _
+    result.remove(QRegExp(QLatin1String("^_*"))); // remove leading _
+    result.remove(QRegExp(QLatin1String("_+$"))); // remove trailing _
+    if (result.isEmpty())
+        result = QLatin1String("unknown");
+    return result;
+}
+
 bool FileUtils::makeWritable(const FileName &path)
 {
     const QString fileName = path.toString();

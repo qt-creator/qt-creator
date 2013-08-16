@@ -33,6 +33,8 @@
 #include "ioutputparser.h"
 #include "osparser.h"
 
+#include <utils/fileutils.h>
+
 #include <QApplication>
 #include <QFileInfo>
 #include <QIcon>
@@ -54,22 +56,6 @@ const char ICON_KEY[] = "PE.Profile.Icon";
 } // namespace
 
 namespace ProjectExplorer {
-
-// --------------------------------------------------------------------
-// Helper:
-// --------------------------------------------------------------------
-
-static QString cleanName(const QString &name)
-{
-    QString result = name;
-    result.replace(QRegExp(QLatin1String("\\W")), QLatin1String("_"));
-    result.replace(QRegExp(QLatin1String("_+")), QLatin1String("_")); // compact _
-    result.remove(QRegExp(QLatin1String("^_*"))); // remove leading _
-    result.remove(QRegExp(QLatin1String("_+$"))); // remove trailing _
-    if (result.isEmpty())
-        result = QLatin1String("unknown");
-    return result;
-}
 
 // -------------------------------------------------------------------------
 // KitPrivate
@@ -265,14 +251,14 @@ QStringList Kit::candidateNameList(const QString &base) const
 
 QString Kit::fileSystemFriendlyName() const
 {
-    QString name = cleanName(displayName());
+    QString name = Utils::FileUtils::fileSystemFriendlyName(displayName());
     foreach (Kit *i, KitManager::kits()) {
         if (i == this)
             continue;
-        if (name == cleanName(i->displayName())) {
+        if (name == Utils::FileUtils::fileSystemFriendlyName(i->displayName())) {
             // append part of the kit id: That should be unique enough;-)
             // Leading { will be turned into _ which should be fine.
-            name = cleanName(name + QLatin1Char('_') + (id().toString().left(7)));
+            name = Utils::FileUtils::fileSystemFriendlyName(name + QLatin1Char('_') + (id().toString().left(7)));
             break;
         }
     }

@@ -48,6 +48,11 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
       m_buildConfiguration(bc),
       m_ignoreChange(false)
 {
+    m_defaultShadowBuildDir
+            = Qt4Project::shadowBuildDirectory(bc->target()->project()->projectFilePath(),
+                                               bc->target()->kit(),
+                                               Utils::FileUtils::fileSystemFriendlyName(bc->displayName()));
+
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     m_detailsContainer = new Utils::DetailsWidget(this);
@@ -62,6 +67,19 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    bool isShadowBuild = bc->isShadowBuild();
+    if (isShadowBuild) {
+        m_ui->shadowBuildDirEdit->setPath(bc->rawBuildDirectory());
+        m_ui->inSourceBuildDirEdit->setVisible(false);
+    } else {
+        m_ui->shadowBuildDirEdit->setPath(m_defaultShadowBuildDir);
+        m_ui->shadowBuildDirEdit->setVisible(false);
+    }
+    m_ui->inSourceBuildDirEdit->setPath(bc->target()->project()->projectDirectory());
+    m_ui->inSourceBuildDirEdit->setReadOnly(true);
+    m_ui->inSourceBuildDirEdit->setEnabled(false);
+
+    m_ui->shadowBuildCheckBox->setChecked(isShadowBuild);
 
     connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
             this, SLOT(shadowBuildClicked(bool)));
@@ -88,9 +106,10 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
 
     m_ui->shadowBuildDirEdit->setBaseDirectory(m_buildConfiguration->target()->project()->projectDirectory());
 
-    buildDirectoryChanged();
-
     setDisplayName(tr("General"));
+
+    updateDetails();
+    updateProblemLabel();
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
@@ -121,11 +140,15 @@ void Qt4ProjectConfigWidget::buildDirectoryChanged()
 {
     if (m_ignoreChange)
         return;
-    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->shadowBuildDirectory());
-    bool shadowBuild = m_buildConfiguration->shadowBuild();
-    m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
+
+    bool shadowBuild = m_ui->shadowBuildCheckBox->isChecked();
+    m_ui->inSourceBuildDirEdit->setVisible(!shadowBuild);
+
+    m_ui->shadowBuildDirEdit->setVisible(shadowBuild);
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
     m_browseButton->setEnabled(shadowBuild);
+
+    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->rawBuildDirectory());
 
     updateDetails();
     updateProblemLabel();
@@ -142,10 +165,15 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
 {
     m_ui->shadowBuildDirEdit->setEnabled(checked);
     m_browseButton->setEnabled(checked);
-    bool b = m_ui->shadowBuildCheckBox->isChecked();
+
+    m_ui->shadowBuildDirEdit->setVisible(checked);
+    m_ui->inSourceBuildDirEdit->setVisible(!checked);
 
     m_ignoreChange = true;
-    m_buildConfiguration->setShadowBuildAndDirectory(b, m_ui->shadowBuildDirEdit->rawPath());
+    if (checked)
+        m_buildConfiguration->setBuildDirectory(m_ui->shadowBuildDirEdit->rawPath());
+    else
+        m_buildConfiguration->setBuildDirectory(m_ui->inSourceBuildDirEdit->rawPath());
     m_ignoreChange = false;
 
     updateDetails();
@@ -154,17 +182,12 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
 
 void Qt4ProjectConfigWidget::shadowBuildEdited()
 {
-    if (m_buildConfiguration->shadowBuildDirectory() == m_ui->shadowBuildDirEdit->rawPath())
+    if (m_buildConfiguration->rawBuildDirectory() == m_ui->shadowBuildDirEdit->rawPath())
         return;
-    m_ignoreChange = true;
-    m_buildConfiguration->setShadowBuildAndDirectory(m_buildConfiguration->shadowBuild(), m_ui->shadowBuildDirEdit->rawPath());
-    m_ignoreChange = false;
 
-    // if the directory already exists
-    // check if we have a build in there and
-    // offer to import it
-    updateProblemLabel();
-    updateDetails();
+    m_ignoreChange = true;
+    m_buildConfiguration->setBuildDirectory(m_ui->shadowBuildDirEdit->rawPath());
+    m_ignoreChange = false;
 }
 
 void Qt4ProjectConfigWidget::updateProblemLabel()
@@ -214,7 +237,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     }
 
     QString shadowBuildWarning;
-    if (!version->supportsShadowBuilds() && m_buildConfiguration->shadowBuild()) {
+    if (!version->supportsShadowBuilds() && m_buildConfiguration->isShadowBuild()) {
         shadowBuildWarning = tr("The Qt version %1 does not support shadow builds, building might fail.")
                 .arg(version->displayName())
                 + QLatin1String("<br>");
@@ -222,7 +245,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
 
     if (allGood) {
         QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory();;
-        if (m_buildConfiguration->shadowBuild())
+        if (m_buildConfiguration->isShadowBuild())
             buildDirectory = m_buildConfiguration->buildDirectory();
         QList<ProjectExplorer::Task> issues;
         issues = version->reportIssues(proFileName, buildDirectory);

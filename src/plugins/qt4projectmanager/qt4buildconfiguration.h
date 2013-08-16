@@ -56,9 +56,9 @@ public:
 
     ProjectExplorer::NamedWidget *createConfigWidget();
     QString buildDirectory() const;
-    bool shadowBuild() const;
-    QString shadowBuildDirectory() const;
-    void setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory);
+    QString rawBuildDirectory() const;
+    bool isShadowBuild() const;
+    void setBuildDirectory(const QString &dir);
 
     void setSubNodeBuild(Qt4ProjectManager::Qt4ProFileNode *node);
     Qt4ProjectManager::Qt4ProFileNode *subNodeBuild() const;
@@ -120,12 +120,13 @@ signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
+    void shadowBuildChanged();
 
 private slots:
     void kitChanged();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void qtVersionsChanged(const QList<int> &, const QList<int> &, const QList<int> &changed);
-    void emitBuildDirectoryChanged();
+    bool emitBuildDirectoryChanged();
 
 protected:
     Qt4BuildConfiguration(ProjectExplorer::Target *target, Qt4BuildConfiguration *source);
@@ -134,7 +135,6 @@ protected:
 
 private:
     void ctor();
-    QString rawBuildDirectory() const;
     QString defaultShadowBuildDirectory() const;
 
     class LastKitState

@@ -96,6 +96,7 @@ public:
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
     static QString shortNativePath(const FileName &path);
+    static QString fileSystemFriendlyName(const QString &name);
     static bool makeWritable(const FileName &path);
 };
 

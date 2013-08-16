@@ -75,6 +75,7 @@ private:
     QAbstractButton *m_browseButton;
     Qt4BuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;
+    QString m_defaultShadowBuildDir;
     bool m_ignoreChange;
 };
 
