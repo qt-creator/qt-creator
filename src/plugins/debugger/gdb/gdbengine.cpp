@@ -1829,7 +1829,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
             postCommand("set detach-on-fork off", ConsoleCommand);
 
         //postCommand("set build-id-verbose 2", ConsoleCommand);
-        postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
+        postCommand("python print(sys.version)", ConsoleCommand, CB(handleHasPython));
     }
 }
 
