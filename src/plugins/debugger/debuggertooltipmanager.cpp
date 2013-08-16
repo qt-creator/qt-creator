@@ -479,16 +479,6 @@ private:
     StandardItemTreeModelBuilder m_builder;
 };
 
-void DebuggerToolTipWidget::addWidget(QWidget *w)
-{
-    w->setFocusPolicy(Qt::NoFocus);
-    m_mainVBoxLayout->addWidget(w);
-}
-
-void DebuggerToolTipWidget::addToolBarWidget(QWidget *w)
-{
-    m_toolBar->addWidget(w);
-}
 
 void DebuggerToolTipWidget::pin()
 {
@@ -606,33 +596,34 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(QWidget *parent) :
     m_treeView(new DebuggerToolTipTreeView),
     m_defaultModel(new QStandardItemModel(this))
 {
-    m_mainVBoxLayout->setSizeConstraint(QLayout::SetFixedSize);
-    m_mainVBoxLayout->setContentsMargins(0, 0, 0, 0);
-
     const QIcon pinIcon(QLatin1String(":/debugger/images/pin.xpm"));
     const QList<QSize> pinIconSizes = pinIcon.availableSizes();
 
     m_toolButton->setIcon(pinIcon);
     connect(m_toolButton, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
 
-    m_toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
-    if (!pinIconSizes.isEmpty())
-        m_toolBar->setIconSize(pinIconSizes.front());
-    m_toolBar->addWidget(m_toolButton);
-
-    m_mainVBoxLayout->addWidget(m_toolBar);
-
-    setLayout(m_mainVBoxLayout);
     QToolButton *copyButton = new QToolButton;
     copyButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
     connect(copyButton, SIGNAL(clicked()), this, SLOT(copy()));
-    addToolBarWidget(copyButton);
 
     m_titleLabel->setText(msgReleasedText());
     m_titleLabel->setMinimumWidth(40); // Ensure a draggable area even if text is empty.
     connect(m_titleLabel, SIGNAL(dragged(QPoint)), this, SLOT(slotDragged(QPoint)));
-    addToolBarWidget(m_titleLabel);
-    addWidget(m_treeView);
+
+    m_toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
+    if (!pinIconSizes.isEmpty())
+        m_toolBar->setIconSize(pinIconSizes.front());
+    m_toolBar->addWidget(m_toolButton);
+    m_toolBar->addWidget(m_titleLabel);
+    m_toolBar->addWidget(copyButton);
+
+    m_treeView->setFocusPolicy(Qt::NoFocus);
+
+    m_mainVBoxLayout->setSizeConstraint(QLayout::SetFixedSize);
+    m_mainVBoxLayout->setContentsMargins(0, 0, 0, 0);
+    m_mainVBoxLayout->addWidget(m_toolBar);
+    m_mainVBoxLayout->addWidget(m_treeView);
+    setLayout(m_mainVBoxLayout);
 }
 
 bool DebuggerToolTipWidget::matches(const QString &fileName,

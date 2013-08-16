@@ -88,9 +88,6 @@ class DebuggerToolTipWidget : public QWidget
 public:
     bool isPinned() const  { return m_isPinned; }
 
-    void addWidget(QWidget *w);
-    void addToolBarWidget(QWidget *w);
-
     explicit DebuggerToolTipWidget(QWidget *parent = 0);
     bool engineAcquired() const { return m_engineAcquired; }
 
