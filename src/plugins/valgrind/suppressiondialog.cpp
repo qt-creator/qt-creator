@@ -55,7 +55,6 @@
 #include <QLabel>
 #include <QPlainTextEdit>
 
-using namespace Analyzer;
 using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
