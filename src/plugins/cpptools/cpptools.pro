@@ -102,7 +102,8 @@ equals(TEST, 1) {
         cppcompletion_test.cpp \
         cppmodelmanager_test.cpp \
         modelmanagertesthelper.cpp \
-        cpppointerdeclarationformatter_test.cpp
+        cpppointerdeclarationformatter_test.cpp \
+        cpplocatorfilter_test.cpp
 
     HEADERS += \
         cpppreprocessertesthelper.h \

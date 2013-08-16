@@ -119,7 +119,8 @@ QtcPlugin {
             "cpppreprocessertesthelper.cpp", "cpppreprocessertesthelper.h",
             "cppmodelmanager_test.cpp",
             "modelmanagertesthelper.cpp", "modelmanagertesthelper.h",
-            "cpppointerdeclarationformatter_test.cpp"
+            "cpppointerdeclarationformatter_test.cpp",
+            "cpplocatorfilter_test.cpp"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
