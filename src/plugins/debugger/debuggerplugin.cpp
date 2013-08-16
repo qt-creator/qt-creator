@@ -2074,15 +2074,15 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
         m_currentEngine->resetLocation();
     m_currentEngine = engine;
 
-    m_localsWindow->setModel(engine->localsModel());
+    m_localsWindow->setModel(engine->watchModel());
     m_modulesWindow->setModel(engine->modulesModel());
     m_registerWindow->setModel(engine->registerModel());
-    m_returnWindow->setModel(engine->returnModel());
+    m_returnWindow->setModel(engine->watchModel());
     m_sourceFilesWindow->setModel(engine->sourceFilesModel());
     m_stackWindow->setModel(engine->stackModel());
     m_threadsWindow->setModel(engine->threadsModel());
-    m_watchersWindow->setModel(engine->watchersModel());
-    m_inspectorWindow->setModel(engine->inspectorModel());
+    m_watchersWindow->setModel(engine->watchModel());
+    m_inspectorWindow->setModel(engine->watchModel());
 
     engine->watchHandler()->rebuildModel();
 

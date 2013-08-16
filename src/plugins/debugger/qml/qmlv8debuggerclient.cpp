@@ -254,13 +254,14 @@ void QmlV8DebuggerClientPrivate::evaluate(const QString expr, bool global,
         args.setProperty(_(DISABLE_BREAK), QScriptValue(disableBreak));
 
     if (addContext) {
-        QAbstractItemModel *localsModel = engine->localsModel();
-        int rowCount = localsModel->rowCount();
+        WatchHandler *watchHandler = engine->watchHandler();
+        QAbstractItemModel *watchModel = watchHandler->model();
+        int rowCount = watchModel->rowCount();
 
         QScriptValue ctxtList = parser.call(QScriptValue(), QScriptValueList() << _(ARRAY  ));
         while (rowCount) {
-            QModelIndex index = localsModel->index(--rowCount, 0);
-            const WatchData *data = engine->watchHandler()->watchData(index);
+            QModelIndex index = watchModel->index(--rowCount, 0);
+            const WatchData *data = watchHandler->watchData(index);
             QScriptValue ctxt = parser.call(QScriptValue(), QScriptValueList() << QScriptValue(_(OBJECT)));
             ctxt.setProperty(_(NAME), QScriptValue(data->name));
             ctxt.setProperty(_(HANDLE), QScriptValue(int(data->id)));

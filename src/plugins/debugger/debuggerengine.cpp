@@ -446,31 +446,6 @@ QAbstractItemModel *DebuggerEngine::threadsModel() const
     return model;
 }
 
-QAbstractItemModel *DebuggerEngine::localsModel() const
-{
-    return watchHandler()->model();
-}
-
-QAbstractItemModel *DebuggerEngine::watchersModel() const
-{
-    return watchHandler()->model();
-}
-
-QAbstractItemModel *DebuggerEngine::returnModel() const
-{
-    return watchHandler()->model();
-}
-
-QAbstractItemModel *DebuggerEngine::inspectorModel() const
-{
-    return watchHandler()->model();
-}
-
-QAbstractItemModel *DebuggerEngine::toolTipsModel() const
-{
-    return watchHandler()->model();
-}
-
 QAbstractItemModel *DebuggerEngine::watchModel() const
 {
     return watchHandler()->model();

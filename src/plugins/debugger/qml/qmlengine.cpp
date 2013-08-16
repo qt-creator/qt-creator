@@ -372,7 +372,7 @@ void QmlEngine::connectionEstablished()
 
     if (!watchHandler()->watcherNames().isEmpty())
         synchronizeWatchers();
-    connect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
+    connect(watchModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
 
     if (state() == EngineRunRequested)
         notifyEngineRunAndInferiorRunOk();
@@ -560,7 +560,7 @@ void QmlEngine::gotoLocation(const Location &location)
 
 void QmlEngine::closeConnection()
 {
-    disconnect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
+    disconnect(watchModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
     m_adapter.closeConnection();
 }
 

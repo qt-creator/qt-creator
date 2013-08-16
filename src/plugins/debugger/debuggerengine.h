@@ -223,11 +223,6 @@ public:
     virtual QAbstractItemModel *registerModel() const;
     virtual QAbstractItemModel *stackModel() const;
     virtual QAbstractItemModel *threadsModel() const;
-    virtual QAbstractItemModel *localsModel() const; // Deprecated, FIXME: use watchModel
-    virtual QAbstractItemModel *watchersModel() const; // Deprecated, FIXME: use watchModel
-    virtual QAbstractItemModel *returnModel() const; // Deprecated, FIXME: use watchModel
-    virtual QAbstractItemModel *inspectorModel() const; // Deprecated, FIXME: use watchModel
-    virtual QAbstractItemModel *toolTipsModel() const; // Deprecated, FIXME: use watchModel
     virtual QAbstractItemModel *watchModel() const;
     virtual QAbstractItemModel *sourceFilesModel() const;
 
