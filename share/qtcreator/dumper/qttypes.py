@@ -2296,6 +2296,12 @@ def qdump__std__map(d, value):
 def qdump__std____debug__map(d, value):
     qdump__std__map(d, value)
 
+def qdump__std____debug__set(d, value):
+    qdump__std__set(d, value)
+
+def qdump__std____cxx1998__map(d, value):
+    qdump__std__map(d, value)
+
 def stdTreeIteratorHelper(d, value):
     pnode = value["_M_node"]
     node = pnode.dereference()
@@ -2332,6 +2338,9 @@ def qdump__std___Rb_tree_const_iterator(d, value):
 def qdump__std__map__iterator(d, value):
     stdTreeIteratorHelper(d, value)
 
+def qdump____gnu_debug___Safe_iterator(d, value):
+    d.putItem(value["_M_current"])
+
 def qdump__std__map__const_iterator(d, value):
     stdTreeIteratorHelper(d, value)
 
@@ -2341,7 +2350,8 @@ def qdump__std__set__iterator(d, value):
 def qdump__std__set__const_iterator(d, value):
     stdTreeIteratorHelper(d, value)
 
-
+def qdump__std____cxx1998__set(d, value):
+    qdump__std__set(d, value)
 
 def qdump__std__set(d, value):
     impl = value["_M_t"]["_M_impl"]
@@ -2511,6 +2521,9 @@ def qdump__std____1__unique_ptr(d, value):
 def qform__std__unordered_map():
     return mapForms()
 
+def qform__std____debug__unordered_map():
+    return mapForms()
+
 def qdump__std__unordered_map(d, value):
     try:
         size = value["_M_element_count"]
@@ -2542,6 +2555,9 @@ def qdump__std__unordered_map(d, value):
                     d.putSubItem(i, d.createValue(p + ptrSize, pairType))
                     p = d.dereference(p)
 
+def qdump__std____debug__unordered_map(d, value):
+    qdump__std__unordered_map(d, value)
+
 def qdump__std__unordered_set(d, value):
     try:
         size = value["_M_element_count"]
@@ -2559,6 +2575,9 @@ def qdump__std__unordered_set(d, value):
             for i in d.childRange():
                 d.putSubItem(i, d.createValue(p + ptrSize, valueType))
                 p = d.dereference(p)
+
+def qdump__std____debug__unordered_set(d, value):
+    qdump__std__unordered_set(d, value)
 
 
 def qedit__std__vector(expr, value):
