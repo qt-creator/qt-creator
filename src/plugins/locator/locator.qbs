@@ -1,6 +1,7 @@
 import qbs.base 1.0
 
 import "../QtcPlugin.qbs" as QtcPlugin
+import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "Locator"
@@ -51,4 +52,13 @@ QtcPlugin {
         "images/locator.png",
         "images/reload.png",
     ]
+
+    Group {
+        name: "Tests"
+        condition: Defaults.testsEnabled(qbs)
+        files: [
+            "locatorfiltertest.cpp",
+            "locatorfiltertest.h",
+        ]
+    }
 }

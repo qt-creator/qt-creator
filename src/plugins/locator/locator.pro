@@ -33,3 +33,8 @@ FORMS += settingspage.ui \
     filesystemfilter.ui \
     directoryfilter.ui
 RESOURCES += locator.qrc
+
+equals(TEST, 1) {
+    HEADERS += locatorfiltertest.h
+    SOURCES += locatorfiltertest.cpp
+}
