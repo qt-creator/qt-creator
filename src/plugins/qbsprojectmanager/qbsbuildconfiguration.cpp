@@ -46,7 +46,6 @@
 #include <QInputDialog>
 
 static const char QBS_BC_ID[] = "Qbs.QbsBuildConfiguration";
-static const char QBS_BUILD_DIRECTORY_KEY[] = "Qbs.BuildDirectory";
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -74,17 +73,9 @@ QbsBuildConfiguration::QbsBuildConfiguration(ProjectExplorer::Target *target, co
 { }
 
 QbsBuildConfiguration::QbsBuildConfiguration(ProjectExplorer::Target *target, QbsBuildConfiguration *source) :
-    BuildConfiguration(target, source),
-    m_buildDirectory(source->m_buildDirectory)
+    BuildConfiguration(target, source)
 {
     cloneSteps(source);
-}
-
-QVariantMap QbsBuildConfiguration::toMap() const
-{
-    QVariantMap map(BuildConfiguration::toMap());
-    map.insert(QLatin1String(QBS_BUILD_DIRECTORY_KEY), m_buildDirectory.toUserOutput());
-    return map;
 }
 
 bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
@@ -100,8 +91,6 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
         if (bs)
             connect(bs, SIGNAL(qbsConfigurationChanged()), this, SIGNAL(qbsConfigurationChanged()));
     }
-
-    m_buildDirectory = Utils::FileName::fromUserInput(map.value(QLatin1String(QBS_BUILD_DIRECTORY_KEY)).toString());
 
     return true;
 }
@@ -137,12 +126,6 @@ QVariantMap QbsBuildConfiguration::qbsConfiguration() const
     if (qbsBs)
         config = qbsBs->qbsConfiguration();
     return config;
-}
-
-QString QbsBuildConfiguration::buildDirectory() const
-{
-    QString path = QDir::cleanPath(environment().expandVariables(m_buildDirectory.toString()));
-    return QDir::cleanPath(QDir(target()->project()->projectDirectory()).absoluteFilePath(path));
 }
 
 Internal::QbsProject *QbsBuildConfiguration::project() const
@@ -237,14 +220,6 @@ QbsBuildConfiguration *QbsBuildConfiguration::setup(ProjectExplorer::Target *t,
     cleanSteps->insertStep(0, cs);
 
     return bc;
-}
-
-void QbsBuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
-{
-    if (m_buildDirectory == dir)
-        return;
-    m_buildDirectory = dir;
-    emit buildDirectoryChanged();
 }
 
 // ---------------------------------------------------------------------------

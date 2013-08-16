@@ -158,7 +158,7 @@ bool AutogenStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setWorkingDirectory(bc->buildDirectory().toString());
     pp->setCommand(QLatin1String("autogen.sh"));
     pp->setArguments(additionalArguments());
     pp->resolveAll();
@@ -171,9 +171,10 @@ void AutogenStep::run(QFutureInterface<bool> &interface)
     BuildConfiguration *bc = buildConfiguration();
 
     // Check whether we need to run autogen.sh
-    const QFileInfo configureInfo(bc->buildDirectory() + QLatin1String("/configure"));
-    const QFileInfo configureAcInfo(bc->buildDirectory() + QLatin1String("/configure.ac"));
-    const QFileInfo makefileAmInfo(bc->buildDirectory() + QLatin1String("/Makefile.am"));
+    const QString buildDir = bc->buildDirectory().toString();
+    const QFileInfo configureInfo(buildDir + QLatin1String("/configure"));
+    const QFileInfo configureAcInfo(buildDir + QLatin1String("/configure.ac"));
+    const QFileInfo makefileAmInfo(buildDir + QLatin1String("/Makefile.am"));
 
     if (!configureInfo.exists()
         || configureInfo.lastModified() < configureAcInfo.lastModified()
@@ -275,7 +276,7 @@ void AutogenStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory());
+    param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(QLatin1String("autogen.sh"));
     param.setArguments(m_autogenStep->additionalArguments());
     m_summaryText = param.summary(displayName());

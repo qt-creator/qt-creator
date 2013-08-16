@@ -40,6 +40,7 @@ namespace Internal {
 
 class GenericTarget;
 class GenericBuildConfigurationFactory;
+class GenericBuildSettingsWidget;
 
 class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -50,21 +51,14 @@ public:
     explicit GenericBuildConfiguration(ProjectExplorer::Target *parent);
 
     ProjectExplorer::NamedWidget *createConfigWidget();
-    QString buildDirectory() const;
 
-    QString rawBuildDirectory() const;
-    void setBuildDirectory(const QString &buildDirectory);
-
-    QVariantMap toMap() const;
     BuildType buildType() const;
 
 protected:
     GenericBuildConfiguration(ProjectExplorer::Target *parent, GenericBuildConfiguration *source);
     GenericBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id);
-    virtual bool fromMap(const QVariantMap &map);
 
-private:
-    QString m_buildDirectory;
+    friend class GenericBuildSettingsWidget;
 };
 
 class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
@@ -98,6 +92,7 @@ public:
 
 private slots:
     void buildDirectoryChanged();
+    void environmentHasChanged();
 
 private:
     Utils::PathChooser *m_pathChooser;

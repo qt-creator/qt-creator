@@ -53,6 +53,7 @@ private slots:
 
     // Changes triggered from creator
     void buildDirectoryChanged();
+    void environmentHasChanged();
 
 private:
     Internal::QbsBuildConfiguration *m_buildConfiguration;

@@ -81,7 +81,7 @@ bool BlackBerryAbstractDeployStep::init()
     m_processCounter = -1;
 
     m_environment = target()->activeBuildConfiguration()->environment();
-    m_buildDirectory = target()->activeBuildConfiguration()->buildDirectory();
+    m_buildDirectory = target()->activeBuildConfiguration()->buildDirectory().toString();
 
     return true;
 }

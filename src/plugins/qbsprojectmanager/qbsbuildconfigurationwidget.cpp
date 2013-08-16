@@ -31,6 +31,8 @@
 
 #include "qbsbuildconfiguration.h"
 
+#include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -45,8 +47,8 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
     m_buildConfiguration(bc),
     m_ignoreChange(false)
 {
-    connect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(buildDirectoryChanged()));
+    connect(bc, SIGNAL(buildDirectoryChanged()), this, SLOT(buildDirectoryChanged()));
+    connect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentHasChanged()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -63,6 +65,8 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
 
     m_buildDirChooser = new Utils::PathChooser;
     m_buildDirChooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_buildDirChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
+    m_buildDirChooser->setEnvironment(bc->environment());
     layout->addWidget(m_buildDirChooser, 0, 1);
 
     connect(m_buildDirChooser, SIGNAL(changed(QString)), this, SLOT(buildDirEdited()));
@@ -81,7 +85,12 @@ void QbsBuildConfigurationWidget::buildDirectoryChanged()
     if (m_ignoreChange)
         return;
 
-    m_buildDirChooser->setPath(m_buildConfiguration->buildDirectory());
+    m_buildDirChooser->setPath(m_buildConfiguration->rawBuildDirectory().toString());
+}
+
+void QbsBuildConfigurationWidget::environmentHasChanged()
+{
+    m_buildDirChooser->setEnvironment(m_buildConfiguration->environment());
 }
 
 } // namespace Internal

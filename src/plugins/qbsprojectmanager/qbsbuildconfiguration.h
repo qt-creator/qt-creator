@@ -57,11 +57,8 @@ public:
 
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;
-    QString buildDirectory() const;
 
     Internal::QbsProject *project() const;
-
-    QVariantMap toMap() const;
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
@@ -96,11 +93,9 @@ private:
                                         const QString &displayName,
                                         const QVariantMap &buildData,
                                         const Utils::FileName &directory);
-    void setBuildDirectory(const Utils::FileName &dir);
 
     bool m_isParsing;
     bool m_parsingError;
-    Utils::FileName m_buildDirectory;
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;

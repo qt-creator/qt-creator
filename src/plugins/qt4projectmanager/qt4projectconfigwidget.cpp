@@ -67,9 +67,11 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_ui->shadowBuildDirEdit->setEnvironment(bc->environment());
+    m_ui->shadowBuildDirEdit->setBaseDirectory(bc->target()->project()->projectDirectory());
     bool isShadowBuild = bc->isShadowBuild();
     if (isShadowBuild) {
-        m_ui->shadowBuildDirEdit->setPath(bc->rawBuildDirectory());
+        m_ui->shadowBuildDirEdit->setPath(bc->rawBuildDirectory().toString());
         m_ui->inSourceBuildDirEdit->setVisible(false);
     } else {
         m_ui->shadowBuildDirEdit->setPath(m_defaultShadowBuildDir);
@@ -97,14 +99,10 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
 
     connect(bc->target(), SIGNAL(kitChanged()), this, SLOT(updateProblemLabel()));
 
-    m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
-
     connect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
             this, SLOT(buildDirectoryChanged()));
     connect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(updateProblemLabel()));
-
-    m_ui->shadowBuildDirEdit->setBaseDirectory(m_buildConfiguration->target()->project()->projectDirectory());
 
     setDisplayName(tr("General"));
 
@@ -121,7 +119,7 @@ void Qt4ProjectConfigWidget::updateDetails()
 {
     m_detailsContainer->setSummaryText(
                 tr("building in <b>%1</b>")
-                .arg(QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
+                .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
 }
 
 void Qt4ProjectConfigWidget::setProblemLabel(const QString &text)
@@ -148,7 +146,7 @@ void Qt4ProjectConfigWidget::buildDirectoryChanged()
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
     m_browseButton->setEnabled(shadowBuild);
 
-    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->rawBuildDirectory());
+    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->rawBuildDirectory().toString());
 
     updateDetails();
     updateProblemLabel();
@@ -171,9 +169,9 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
 
     m_ignoreChange = true;
     if (checked)
-        m_buildConfiguration->setBuildDirectory(m_ui->shadowBuildDirEdit->rawPath());
+        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(m_ui->shadowBuildDirEdit->rawPath()));
     else
-        m_buildConfiguration->setBuildDirectory(m_ui->inSourceBuildDirEdit->rawPath());
+        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(m_ui->inSourceBuildDirEdit->rawPath()));
     m_ignoreChange = false;
 
     updateDetails();
@@ -182,11 +180,11 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
 
 void Qt4ProjectConfigWidget::shadowBuildEdited()
 {
-    if (m_buildConfiguration->rawBuildDirectory() == m_ui->shadowBuildDirEdit->rawPath())
+    if (m_buildConfiguration->rawBuildDirectory().toString() == m_ui->shadowBuildDirEdit->rawPath())
         return;
 
     m_ignoreChange = true;
-    m_buildConfiguration->setBuildDirectory(m_ui->shadowBuildDirEdit->rawPath());
+    m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(m_ui->shadowBuildDirEdit->rawPath()));
     m_ignoreChange = false;
 }
 
@@ -214,7 +212,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     bool allGood = false;
     // we only show if we actually have a qmake and makestep
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
-        QString makefile = m_buildConfiguration->buildDirectory() + QLatin1Char('/');
+        QString makefile = m_buildConfiguration->buildDirectory().toString() + QLatin1Char('/');
         if (m_buildConfiguration->makefile().isEmpty())
             makefile.append(QLatin1String("Makefile"));
         else
@@ -246,7 +244,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     if (allGood) {
         QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory();;
         if (m_buildConfiguration->isShadowBuild())
-            buildDirectory = m_buildConfiguration->buildDirectory();
+            buildDirectory = m_buildConfiguration->buildDirectory().toString();
         QList<ProjectExplorer::Task> issues;
         issues = version->reportIssues(proFileName, buildDirectory);
         qSort(issues);
@@ -278,12 +276,12 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     } else if (targetMismatch) {
         setProblemLabel(shadowBuildWarning + tr("A build for a different project exists in %1, which will be overwritten.",
                                                 "%1 build directory")
-                        .arg(QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
+                        .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
         return;
     } else if (incompatibleBuild) {
         setProblemLabel(shadowBuildWarning +tr("An incompatible build exists in %1, which will be overwritten.",
                                                "%1 build directory")
-                        .arg(QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
+                        .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
         return;
     } else if (!shadowBuildWarning.isEmpty()) {
         setProblemLabel(shadowBuildWarning);

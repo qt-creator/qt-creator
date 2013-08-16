@@ -173,7 +173,7 @@ bool MakeStep::init()
     if (bc->subNodeBuild())
         workingDirectory = bc->subNodeBuild()->buildDir();
     else
-        workingDirectory = bc->buildDirectory();
+        workingDirectory = bc->buildDirectory().toString();
     pp->setWorkingDirectory(workingDirectory);
 
     QString makeCmd = tc->makeCommand(bc->environment());
@@ -415,7 +415,7 @@ void MakeStepConfigWidget::updateDetails()
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
-    param.setWorkingDirectory(bc->buildDirectory());
+    param.setWorkingDirectory(bc->buildDirectory().toString());
     QString makeCmd = tc->makeCommand(bc->environment());
     if (!m_makeStep->makeCommand().isEmpty())
         makeCmd = m_makeStep->makeCommand();

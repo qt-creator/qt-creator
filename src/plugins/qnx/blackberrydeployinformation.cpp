@@ -221,7 +221,9 @@ void BlackBerryDeployInformation::fromMap(const QVariantMap &map)
         const QString targetName = innerMap.value(QLatin1String(TARGET_KEY)).toString();
         const QString sourceDir = innerMap.value(QLatin1String(SOURCE_KEY)).toString();
 
-        BarPackageDeployInformation deployInformation(enabled, proFilePath, sourceDir, m_target->activeBuildConfiguration()->buildDirectory(), targetName);
+        BarPackageDeployInformation deployInformation(enabled, proFilePath, sourceDir,
+                                                      m_target->activeBuildConfiguration()->buildDirectory().toString(),
+                                                      targetName);
         deployInformation.userAppDescriptorPath = appDescriptorPath;
         deployInformation.userPackagePath = packagePath;
         m_deployInformation << deployInformation;
@@ -248,7 +250,7 @@ void BlackBerryDeployInformation::updateModel()
                         || !m_deployInformation[i].userPackagePath.isEmpty())) {
                 BarPackageDeployInformation deployInformation = m_deployInformation[i];
                 // In case the user resets the bar package path (or if it is empty already), we need the current build dir
-                deployInformation.buildDir = m_target->activeBuildConfiguration()->buildDirectory();
+                deployInformation.buildDir = m_target->activeBuildConfiguration()->buildDirectory().toString();
                 keep << deployInformation;
                 nodeFound = true;
                 break;
@@ -302,7 +304,7 @@ BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNo
     Qt4ProjectManager::TargetInformation ti = node->targetInformation();
 
     QFileInfo fi(node->path());
-    const QString buildDir = m_target->activeBuildConfiguration()->buildDirectory();
+    const QString buildDir = m_target->activeBuildConfiguration()->buildDirectory().toString();
 
     return BarPackageDeployInformation(true, node->path(), fi.absolutePath(), buildDir, ti.target);
 }

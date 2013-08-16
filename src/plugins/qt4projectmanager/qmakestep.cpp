@@ -248,7 +248,7 @@ bool QMakeStep::init()
     if (qt4bc->subNodeBuild())
         workingDirectory = qt4bc->subNodeBuild()->buildDir();
     else
-        workingDirectory = qt4bc->buildDirectory();
+        workingDirectory = qt4bc->buildDirectory().toString();
 
     FileName program = qtVersion->qmakeCommand();
 

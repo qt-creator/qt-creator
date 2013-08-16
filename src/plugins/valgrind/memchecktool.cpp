@@ -145,7 +145,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
             validFolders << project->projectDirectory();
             foreach (Target *target, project->targets()) {
                 foreach (BuildConfiguration *config, target->buildConfigurations())
-                    validFolders << config->buildDirectory();
+                    validFolders << config->buildDirectory().toString();
             }
         }
 

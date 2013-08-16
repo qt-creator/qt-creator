@@ -45,6 +45,8 @@ class Qt4BuildConfigurationFactory;
 class Qt4ProFileNode;
 class BuildConfigurationInfo;
 
+namespace Internal { class Qt4ProjectConfigWidget; }
+
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
@@ -55,10 +57,7 @@ public:
     ~Qt4BuildConfiguration();
 
     ProjectExplorer::NamedWidget *createConfigWidget();
-    QString buildDirectory() const;
-    QString rawBuildDirectory() const;
     bool isShadowBuild() const;
-    void setBuildDirectory(const QString &dir);
 
     void setSubNodeBuild(Qt4ProjectManager::Qt4ProFileNode *node);
     Qt4ProjectManager::Qt4ProFileNode *subNodeBuild() const;
@@ -136,6 +135,7 @@ protected:
 private:
     void ctor();
     QString defaultShadowBuildDirectory() const;
+    void setBuildDirectory(const Utils::FileName &directory);
 
     class LastKitState
     {
@@ -155,11 +155,12 @@ private:
     bool m_shadowBuild;
     bool m_isEnabled;
     QString m_buildDirectory;
-    QString m_lastEmmitedBuildDirectory;
     bool m_qtVersionSupportsShadowBuilds;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     Qt4ProjectManager::Qt4ProFileNode *m_subNodeBuild;
     ProjectExplorer::FileNode *m_fileNodeBuild;
+
+    friend class Internal::Qt4ProjectConfigWidget;
 };
 
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

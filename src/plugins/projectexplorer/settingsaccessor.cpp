@@ -421,6 +421,23 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 14 Move builddir into BuildConfiguration
+class Version14Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+         return 14;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("3.0-pre1");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 } // namespace
 
 //
@@ -513,6 +530,7 @@ SettingsAccessor::SettingsAccessor(Project *project) :
     addVersionHandler(new Version11Handler);
     addVersionHandler(new Version12Handler);
     addVersionHandler(new Version13Handler);
+    addVersionHandler(new Version14Handler);
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -2763,6 +2781,26 @@ QVariantMap Version13Handler::update(Project *project, const QVariantMap &map)
             result.insert(QLatin1String("PE.EnvironmentAspect.Changes"), it.value());
         else if (it.key() == QLatin1String("PE.BaseEnvironmentBase"))
             result.insert(QLatin1String("PE.EnvironmentAspect.Base"), it.value());
+        else
+            result.insert(it.key(), it.value());
+    }
+    return result;
+}
+
+QVariantMap Version14Handler::update(Project *project, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value().type() == QVariant::Map)
+            result.insert(it.key(), update(project, it.value().toMap()));
+        else if (it.key() == QLatin1String("AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory")
+                 || it.key() == QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory")
+                 || it.key() == QLatin1String("GenericProjectManager.GenericBuildConfiguration.BuildDirectory")
+                 || it.key() == QLatin1String("Qbs.BuildDirectory")
+                 || it.key() == QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory"))
+            result.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildDirectory"), it.value());
         else
             result.insert(it.key(), it.value());
     }

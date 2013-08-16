@@ -366,7 +366,7 @@ bool MaemoMakeInstallToSysrootStep::init()
     processParameters()->setCommand(command);
     processParameters()->setArguments(args.join(QLatin1String(" ")));
     processParameters()->setEnvironment(env);
-    processParameters()->setWorkingDirectory(bc->buildDirectory());
+    processParameters()->setWorkingDirectory(bc->buildDirectory().toString());
     return true;
 }
 

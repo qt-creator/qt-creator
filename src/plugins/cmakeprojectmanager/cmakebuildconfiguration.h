@@ -39,6 +39,7 @@ class ToolChain;
 
 namespace CMakeProjectManager {
 namespace Internal {
+class CMakeProject;
 
 class CMakeBuildConfigurationFactory;
 
@@ -52,9 +53,6 @@ public:
     ~CMakeBuildConfiguration();
 
     ProjectExplorer::NamedWidget *createConfigWidget();
-    QString buildDirectory() const;
-
-    void setBuildDirectory(const QString &buildDirectory);
 
     QVariantMap toMap() const;
 
@@ -71,9 +69,10 @@ protected:
     bool fromMap(const QVariantMap &map);
 
 private:
-    QString m_buildDirectory;
     QString m_msvcVersion;
     bool m_useNinja;
+
+    friend class CMakeProject;
 };
 
 class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

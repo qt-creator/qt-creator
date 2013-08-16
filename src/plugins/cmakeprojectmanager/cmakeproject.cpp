@@ -135,7 +135,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     CMakeBuildConfiguration *cmakebc = static_cast<CMakeBuildConfiguration *>(bc);
 
     // Pop up a dialog asking the user to rerun cmake
-    QString cbpFile = CMakeManager::findCbpFile(QDir(bc->buildDirectory()));
+    QString cbpFile = CMakeManager::findCbpFile(QDir(bc->buildDirectory().toString()));
     QFileInfo cbpFileFi(cbpFile);
     CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
     if (!cbpFileFi.exists()) {
@@ -180,7 +180,7 @@ void CMakeProject::activeTargetWasChanged(Target *target)
 
 void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory)
 {
-    bc->setBuildDirectory(newBuildDirectory);
+    bc->setBuildDirectory(Utils::FileName::fromString(newBuildDirectory));
     parseCMakeLists();
 }
 
@@ -210,7 +210,7 @@ bool CMakeProject::parseCMakeLists()
             document->infoBar()->removeInfo(Core::Id("CMakeEditor.RunCMake"));
 
     // Find cbp file
-    QString cbpFile = CMakeManager::findCbpFile(activeBC->buildDirectory());
+    QString cbpFile = CMakeManager::findCbpFile(activeBC->buildDirectory().toString());
 
     if (cbpFile.isEmpty()) {
         emit buildTargetsChanged();
@@ -559,7 +559,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         CMakeBuildConfiguration *bc(new CMakeBuildConfiguration(t));
         bc->setDefaultDisplayName(QLatin1String("all"));
         bc->setUseNinja(copw.useNinja());
-        bc->setBuildDirectory(copw.buildDirectory());
+        bc->setBuildDirectory(Utils::FileName::fromString(copw.buildDirectory()));
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 
@@ -585,7 +585,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         CMakeBuildConfiguration *activeBC = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
         if (!activeBC)
             return false;
-        QString cbpFile = CMakeManager::findCbpFile(QDir(activeBC->buildDirectory()));
+        QString cbpFile = CMakeManager::findCbpFile(QDir(activeBC->buildDirectory().toString()));
         QFileInfo cbpFileFi(cbpFile);
 
         CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
@@ -669,7 +669,7 @@ QString CMakeProject::uiHeaderFile(const QString &uiFile)
 
     QDir srcDirRoot = QDir(project.toString());
     QString relativePath = srcDirRoot.relativeFilePath(baseDirectory.toString());
-    QDir buildDir = QDir(activeTarget()->activeBuildConfiguration()->buildDirectory());
+    QDir buildDir = QDir(activeTarget()->activeBuildConfiguration()->buildDirectory().toString());
     QString uiHeaderFilePath = buildDir.absoluteFilePath(relativePath);
     uiHeaderFilePath += QLatin1String("/ui_");
     uiHeaderFilePath += fi.completeBaseName();
@@ -839,8 +839,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     fl->addRow(tr("Build directory:"), hbox);
 
     m_buildConfiguration = bc;
-    m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
-    if (m_buildConfiguration->buildDirectory() == bc->target()->project()->projectDirectory())
+    m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
+    if (m_buildConfiguration->buildDirectory().toString() == bc->target()->project()->projectDirectory())
         m_changeButton->setEnabled(false);
     else
         m_changeButton->setEnabled(true);
@@ -856,7 +856,7 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_buildConfiguration->setUseNinja(copw.useNinja());
-        m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
+        m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
     }
 }
 

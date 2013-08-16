@@ -158,7 +158,7 @@ bool ConfigureStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setWorkingDirectory(bc->buildDirectory().toString());
     pp->setCommand(QLatin1String("configure"));
     pp->setArguments(additionalArguments());
     pp->resolveAll();
@@ -171,8 +171,9 @@ void ConfigureStep::run(QFutureInterface<bool>& interface)
     BuildConfiguration *bc = buildConfiguration();
 
     //Check whether we need to run configure
-    const QFileInfo configureInfo(bc->buildDirectory() + QLatin1String("/configure"));
-    const QFileInfo configStatusInfo(bc->buildDirectory() + QLatin1String("/config.status"));
+    QString buildDir = bc->buildDirectory().toString();
+    const QFileInfo configureInfo(buildDir +QLatin1String("/configure"));
+    const QFileInfo configStatusInfo(buildDir + QLatin1String("/config.status"));
 
     if (!configStatusInfo.exists()
         || configStatusInfo.lastModified() < configureInfo.lastModified()) {
@@ -273,7 +274,7 @@ void ConfigureStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory());
+    param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(QLatin1String("configure"));
     param.setArguments(m_configureStep->additionalArguments());
     m_summaryText = param.summary(displayName());

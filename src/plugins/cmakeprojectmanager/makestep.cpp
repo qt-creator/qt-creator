@@ -192,7 +192,7 @@ bool MakeStep::init()
     if (m_useNinja && !env.value(QLatin1String("NINJA_STATUS")).startsWith(m_ninjaProgressString))
         env.set(QLatin1String("NINJA_STATUS"), m_ninjaProgressString + QLatin1String("%o/sec] "));
     pp->setEnvironment(env);
-    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setWorkingDirectory(bc->buildDirectory().toString());
     pp->setCommand(makeCommand(tc, bc->environment()));
     pp->setArguments(arguments);
     pp->resolveAll();
@@ -408,7 +408,7 @@ void MakeStepConfigWidget::updateDetails()
         ProcessParameters param;
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
-        param.setWorkingDirectory(bc->buildDirectory());
+        param.setWorkingDirectory(bc->buildDirectory().toString());
         param.setCommand(m_makeStep->makeCommand(tc, bc->environment()));
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());

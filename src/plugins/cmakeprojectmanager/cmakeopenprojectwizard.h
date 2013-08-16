@@ -78,7 +78,7 @@ public:
 
         BuildInfo(CMakeBuildConfiguration *bc)
             : sourceDirectory(bc->target()->project()->projectDirectory())
-            , buildDirectory(bc->buildDirectory())
+            , buildDirectory(bc->buildDirectory().toString())
             , environment(bc->environment())
             , useNinja(bc->useNinja())
             , kit(bc->target()->kit())

@@ -113,7 +113,7 @@ bool GenericMakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setWorkingDirectory(bc->buildDirectory().toString());
     Utils::Environment env = bc->environment();
     // Force output to english for the parsers. Do this here and not in the toolchain's
     // addToEnvironment() to not screw up the users run environment.
@@ -301,7 +301,7 @@ void GenericMakeStepConfigWidget::updateDetails()
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
-    param.setWorkingDirectory(bc->buildDirectory());
+    param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setEnvironment(bc->environment());
     param.setCommand(m_makeStep->makeCommand(bc->environment()));
     param.setArguments(m_makeStep->allArguments());

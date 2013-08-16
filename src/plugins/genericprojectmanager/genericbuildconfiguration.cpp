@@ -48,7 +48,6 @@ namespace GenericProjectManager {
 namespace Internal {
 
 const char GENERIC_BC_ID[] = "GenericProjectManager.GenericBuildConfiguration";
-const char BUILD_DIRECTORY_KEY[] = "GenericProjectManager.GenericBuildConfiguration.BuildDirectory";
 
 GenericBuildConfiguration::GenericBuildConfiguration(Target *parent)
     : BuildConfiguration(parent, Core::Id(GENERIC_BC_ID))
@@ -61,48 +60,9 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, const Core:
 }
 
 GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, GenericBuildConfiguration *source) :
-    BuildConfiguration(parent, source),
-    m_buildDirectory(source->m_buildDirectory)
+    BuildConfiguration(parent, source)
 {
     cloneSteps(source);
-}
-
-QVariantMap GenericBuildConfiguration::toMap() const
-{
-    QVariantMap map(BuildConfiguration::toMap());
-    map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
-    return map;
-}
-
-bool GenericBuildConfiguration::fromMap(const QVariantMap &map)
-{
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), target()->project()->projectDirectory()).toString();
-
-    return BuildConfiguration::fromMap(map);
-}
-
-QString GenericBuildConfiguration::buildDirectory() const
-{
-    // Convert to absolute path when necessary
-    const QDir projectDir(target()->project()->projectDirectory());
-    return projectDir.absoluteFilePath(m_buildDirectory);
-}
-
-/**
- * Returns the build directory unmodified, instead of making it absolute like
- * buildDirectory() does.
- */
-QString GenericBuildConfiguration::rawBuildDirectory() const
-{
-    return m_buildDirectory;
-}
-
-void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
-{
-    if (m_buildDirectory == buildDirectory)
-        return;
-    m_buildDirectory = buildDirectory;
-    emit buildDirectoryChanged();
 }
 
 NamedWidget *GenericBuildConfiguration::createConfigWidget()
@@ -244,13 +204,21 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration
 
     m_buildConfiguration = bc;
     m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
-    m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory());
+    m_pathChooser->setEnvironment(bc->environment());
+    m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory().toString());
     setDisplayName(tr("Generic Manager"));
+
+    connect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentHasChanged()));
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
-    m_buildConfiguration->setBuildDirectory(m_pathChooser->rawPath());
+    m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(m_pathChooser->rawPath()));
+}
+
+void GenericBuildSettingsWidget::environmentHasChanged()
+{
+    m_pathChooser->setEnvironment(m_buildConfiguration->environment());
 }
 
 } // namespace Internal

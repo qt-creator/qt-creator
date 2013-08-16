@@ -39,6 +39,7 @@ namespace Internal {
 
 class AutotoolsTarget;
 class AutotoolsBuildConfigurationFactory;
+class AutotoolsBuildSettingsWidget;
 
 class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -50,19 +51,13 @@ public:
 
     ProjectExplorer::NamedWidget *createConfigWidget();
 
-    QString buildDirectory() const;
-    void setBuildDirectory(const QString &buildDirectory);
-    QVariantMap toMap() const;
     BuildType buildType() const;
 
 protected:
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id);
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, AutotoolsBuildConfiguration *source);
 
-    bool fromMap(const QVariantMap &map);
-
-private:
-    QString m_buildDirectory;
+    friend class AutotoolsBuildSettingsWidget;
 };
 
 class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

@@ -59,11 +59,7 @@ using namespace ProjectExplorer::Constants;
 //////////////////////////////////////
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent)
     : BuildConfiguration(parent, Core::Id(AUTOTOOLS_BC_ID))
-{
-    AutotoolsProject *project = qobject_cast<AutotoolsProject *>(parent->project());
-    if (project)
-        m_buildDirectory = project->defaultBuildDirectory();
-}
+{ }
 
 NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
 {
@@ -72,44 +68,13 @@ NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
 
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id)
     : BuildConfiguration(parent, id)
-{
-}
+{ }
 
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent,
                                                          AutotoolsBuildConfiguration *source)
-    : BuildConfiguration(parent, source),
-      m_buildDirectory(source->m_buildDirectory)
+    : BuildConfiguration(parent, source)
 {
     cloneSteps(source);
-}
-
-QVariantMap AutotoolsBuildConfiguration::toMap() const
-{
-    QVariantMap map = BuildConfiguration::toMap();
-    map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
-    return map;
-}
-
-bool AutotoolsBuildConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!BuildConfiguration::fromMap(map))
-        return false;
-
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
-    return true;
-}
-
-QString AutotoolsBuildConfiguration::buildDirectory() const
-{
-    return m_buildDirectory;
-}
-
-void AutotoolsBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
-{
-    if (m_buildDirectory == buildDirectory)
-        return;
-    m_buildDirectory = buildDirectory;
-    emit buildDirectoryChanged();
 }
 
 //////////////////////////////////////

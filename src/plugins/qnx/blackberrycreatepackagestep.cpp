@@ -301,8 +301,8 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         }
     }
 
-    const QString buildDir = target()->activeBuildConfiguration()->buildDirectory();
     if (!preparedFile.open(QIODevice::WriteOnly)) {
+        const QString buildDir = target()->activeBuildConfiguration()->buildDirectory().toUserOutput();
         raiseError(tr("Could not create prepared application descriptor file in '%1'").arg(buildDir));
         return false;
     }

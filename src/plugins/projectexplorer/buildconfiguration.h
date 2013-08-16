@@ -34,10 +34,9 @@
 #include "projectconfiguration.h"
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
-namespace Utils {
-class AbstractMacroExpander;
-}
+namespace Utils { class AbstractMacroExpander; }
 
 namespace ProjectExplorer {
 
@@ -56,7 +55,8 @@ public:
     // ctors are protected
     virtual ~BuildConfiguration();
 
-    virtual QString buildDirectory() const = 0;
+    Utils::FileName buildDirectory() const;
+    Utils::FileName rawBuildDirectory() const;
 
     virtual ProjectExplorer::NamedWidget *createConfigWidget() = 0;
     virtual QList<NamedWidget *> createSubConfigWidgets();
@@ -99,10 +99,12 @@ protected:
     BuildConfiguration(Target *target, const Core::Id id);
     BuildConfiguration(Target *target, BuildConfiguration *source);
 
+    virtual void setBuildDirectory(const Utils::FileName &dir);
     void cloneSteps(BuildConfiguration *source);
 
 private slots:
     void handleKitUpdate();
+    void emitBuildDirectoryChanged();
 
 private:
     void emitEnvironmentChanged();
@@ -111,6 +113,8 @@ private:
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
     Utils::AbstractMacroExpander *m_macroExpander;
+    Utils::FileName m_buildDirectory;
+    Utils::FileName m_lastEmmitedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;
 };
 

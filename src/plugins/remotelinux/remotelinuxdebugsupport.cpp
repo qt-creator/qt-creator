@@ -111,7 +111,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
     if (const Project *project = target->project()) {
         params.projectSourceDirectory = project->projectDirectory();
         if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-            params.projectBuildDirectory = buildConfig->buildDirectory();
+            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
         params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
     }
 

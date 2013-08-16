@@ -1129,7 +1129,7 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
     if (variable == Constants::VAR_CURRENTPROJECT_BUILDPATH) {
         if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
             Core::VariableManager::insert(variable,
-                                                      currentProject()->activeTarget()->activeBuildConfiguration()->buildDirectory());
+                                          currentProject()->activeTarget()->activeBuildConfiguration()->buildDirectory().toUserOutput());
         } else {
             Core::VariableManager::remove(variable);
         }

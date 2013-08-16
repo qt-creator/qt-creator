@@ -44,7 +44,6 @@ using namespace CMakeProjectManager;
 using namespace Internal;
 
 namespace {
-const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory";
 const char USE_NINJA_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.UseNinja";
 } // namespace
 
@@ -52,15 +51,14 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
     BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID)), m_useNinja(false)
 {
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
-    m_buildDirectory = project->shadowBuildDirectory(project->projectFilePath(),
-                                                     parent->kit(),
-                                                     displayName());
+    setBuildDirectory(Utils::FileName::fromString(project->shadowBuildDirectory(project->projectFilePath(),
+                                                                                parent->kit(),
+                                                                                displayName())));
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
-    m_buildDirectory(source->m_buildDirectory),
     m_msvcVersion(source->m_msvcVersion),
     m_useNinja(false)
 {
@@ -71,7 +69,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
 QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
-    map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
     map.insert(QLatin1String(USE_NINJA_KEY), m_useNinja);
     return map;
 }
@@ -81,7 +78,6 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
     m_useNinja = map.value(QLatin1String(USE_NINJA_KEY), false).toBool();
 
     return true;
@@ -106,20 +102,6 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
 ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()
 {
     return new CMakeBuildSettingsWidget(this);
-}
-
-QString CMakeBuildConfiguration::buildDirectory() const
-{
-    return m_buildDirectory;
-}
-
-void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
-{
-    if (m_buildDirectory == buildDirectory)
-        return;
-    m_buildDirectory = buildDirectory;
-    emit buildDirectoryChanged();
-    emit environmentChanged();
 }
 
 /*!
@@ -205,7 +187,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
     cleanMakeStep->setClean(true);
 
-    bc->setBuildDirectory(copw.buildDirectory());
+    bc->setBuildDirectory(Utils::FileName::fromString(copw.buildDirectory()));
     bc->setUseNinja(copw.useNinja());
 
     // Default to all
@@ -254,7 +236,7 @@ bool CMakeBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t)
 ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 {
     QString cmakeBuildType;
-    QFile cmakeCache(buildDirectory() + QLatin1String("/CMakeCache.txt"));
+    QFile cmakeCache(buildDirectory().toString() + QLatin1String("/CMakeCache.txt"));
     if (cmakeCache.open(QIODevice::ReadOnly)) {
         while (!cmakeCache.atEnd()) {
             QByteArray line = cmakeCache.readLine();

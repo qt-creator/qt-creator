@@ -61,6 +61,7 @@ public:
 
 private slots:
     void buildDirectoryChanged();
+    void environmentHasChanged();
 
 private:
     Utils::PathChooser *m_pathChooser;

@@ -349,7 +349,7 @@ void QbsProject::parseCurrentBuildConfiguration()
     QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
-    parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory());
+    parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString());
 }
 
 bool QbsProject::fromMap(const QVariantMap &map)
