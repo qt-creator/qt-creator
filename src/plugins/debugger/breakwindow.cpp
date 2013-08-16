@@ -748,11 +748,14 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
         selectedIndices.append(indexUnderMouse);
 
     BreakHandler *handler = breakHandler();
-    BreakpointModelIds selectedIds = handler->findBreakpointsByIndex(selectedIndices);
+    BreakpointModelIds selectedIds;
+    foreach (BreakpointModelId id, handler->findBreakpointsByIndex(selectedIndices))
+        if (id.isMajor())
+            selectedIds.append(id);
 
     const int rowCount = model()->rowCount();
     QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
-    deleteAction->setEnabled(!selectedIds.isEmpty());
+    deleteAction->setEnabled(!selectedIds.empty());
 
     QAction *deleteAllAction = new QAction(tr("Delete All Breakpoints"), &menu);
     deleteAllAction->setEnabled(model()->rowCount() > 0);

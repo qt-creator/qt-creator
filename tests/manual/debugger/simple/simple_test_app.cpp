@@ -6767,8 +6767,15 @@ namespace sanity {
 } // namespace sanity
 
 
+template <class X> int ffff(X x)
+{
+    return sizeof(x);
+}
+
 int main(int argc, char *argv[])
 {
+    int z = ffff(3) + ffff(2.0);
+
     #if USE_GUILIB
     QApplication app(argc, argv);
     #else
