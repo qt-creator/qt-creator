@@ -414,7 +414,8 @@ struct DataBase
 {
     DataBase()
       : useQt(false), useQHash(false),
-        forceC(false), gdbOnly(false), lldbOnly(false)
+        forceC(false), gdbOnly(false), lldbOnly(false),
+        glibcxxDebug(false)
     {}
 
     mutable bool useQt;
@@ -422,6 +423,7 @@ struct DataBase
     mutable bool forceC;
     mutable bool gdbOnly;
     mutable bool lldbOnly;
+    mutable bool glibcxxDebug;
     mutable GdbVersion neededGdbVersion;
     mutable LldbVersion neededLldbVersion;
 };
@@ -551,11 +553,13 @@ public:
     {
         t = 0;
         m_keepTemp = true;
+        m_forceKeepTemp = false;
         m_gdbVersion = 0;
         m_gdbBuildVersion = 0;
         m_lldbVersion = 0;
         m_isMacGdb = false;
         m_isQnxGdb = false;
+        m_useGLibCxxDebug = false;
     }
 
 private slots:
@@ -566,6 +570,7 @@ private slots:
     void cleanup();
 
 private:
+    bool keepTemp() const { return m_keepTemp || m_forceKeepTemp; }
     TempStuff *t;
     QByteArray m_debuggerBinary;
     QByteArray m_qmakeBinary;
@@ -573,11 +578,13 @@ private:
     bool m_usePython;
     DebuggerEngine m_debuggerEngine;
     bool m_keepTemp;
+    bool m_forceKeepTemp;
     int m_gdbVersion; // 7.5.1 -> 70501
     int m_gdbBuildVersion;
     int m_lldbVersion;
     bool m_isMacGdb;
     bool m_isQnxGdb;
+    bool m_useGLibCxxDebug;
 };
 
 void tst_Dumpers::initTestCase()
@@ -585,7 +592,7 @@ void tst_Dumpers::initTestCase()
     m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH_FOR_TEST");
     if (m_debuggerBinary.isEmpty())
         m_debuggerBinary = "gdb";
-    qDebug() << "Debugger    : " << m_debuggerBinary.constData();
+    qDebug() << "Debugger           : " << m_debuggerBinary.constData();
 
     m_debuggerEngine = DumpTestGdbEngine;
     if (m_debuggerBinary.endsWith("cdb.exe"))
@@ -597,7 +604,13 @@ void tst_Dumpers::initTestCase()
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH_FOR_TEST");
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
-    qDebug() << "QMake       : " << m_qmakeBinary.constData();
+    qDebug() << "QMake              : " << m_qmakeBinary.constData();
+
+    m_useGLibCxxDebug = qgetenv("QTC_USE_GLIBCXXDEBUG_FOR_TEST").toInt();
+    qDebug() << "Use _GLIBCXX_DEBUG : " << m_useGLibCxxDebug;
+
+    m_forceKeepTemp = qgetenv("QTC_KEEP_TEMP_FOR_TEST").toInt();
+    qDebug() << "Force keep temp    : " << m_forceKeepTemp;
 
     Environment utilsEnv = Environment::systemEnvironment();
 
@@ -612,8 +625,8 @@ void tst_Dumpers::initTestCase()
         QByteArray output = debugger.readAllStandardOutput();
         //qDebug() << "stdout: " << output;
         m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
-        qDebug() << "Python      : " << (m_usePython ? "ok" : "*** not ok ***");
-        qDebug() << "Dumper dir  : " << DUMPERDIR;
+        qDebug() << "Python             : " << (m_usePython ? "ok" : "*** not ok ***");
+        qDebug() << "Dumper dir         : " << DUMPERDIR;
 
         QString version = QString::fromLocal8Bit(output);
         int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
@@ -625,7 +638,7 @@ void tst_Dumpers::initTestCase()
         version = version.mid(pos1, pos2 - pos1);
         extractGdbVersion(version, &m_gdbVersion,
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
-        qDebug() << "Gdb version : " << m_gdbVersion;
+        qDebug() << "Gdb version        : " << m_gdbVersion;
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
@@ -654,7 +667,7 @@ void tst_Dumpers::initTestCase()
         if (pos >= 0)
             ba = ba.left(pos);
         m_lldbVersion = ba.toInt();
-        qDebug() << "Lldb version " << output << ba << m_lldbVersion;
+        qDebug() << "Lldb version       :" << output << ba << m_lldbVersion;
         QVERIFY(m_lldbVersion);
     }
     m_env = utilsEnv.toProcessEnvironment();
@@ -721,6 +734,8 @@ void tst_Dumpers::dumper()
         proFile.write("QT -= widgets gui\n");
     else
         proFile.write("CONFIG -= QT\n");
+    if (m_useGLibCxxDebug)
+        proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
     proFile.write(data.profileExtra);
     proFile.close();
 
@@ -884,7 +899,7 @@ void tst_Dumpers::dumper()
     error = debugger.readAllStandardError();
     if (!error.isEmpty()) { qDebug() << error; }
 
-    if (m_keepTemp) {
+    if (keepTemp()) {
         QFile logger(t->buildPath + QLatin1String("/output.txt"));
         logger.open(QIODevice::ReadWrite);
         logger.write("=== STDOUT ===\n");
@@ -1003,14 +1018,16 @@ void tst_Dumpers::dumper()
         qDebug() << "EXPANDED     : " << expanded;
         ok = false;
     }
-    if (!ok) {
+    if (ok) {
+        m_keepTemp = false;
+    } else {
         qDebug() << "CONTENTS     : " << contents;
         qDebug() << "Qt VERSION   : "
             << qPrintable(QString::number(context.qtVersion, 16));
         qDebug() << "BUILD DIR    : " << qPrintable(t->buildPath);
     }
     QVERIFY(ok);
-    t->buildTemp.setAutoRemove(m_keepTemp);
+    t->buildTemp.setAutoRemove(!keepTemp());
 }
 
 void tst_Dumpers::dumper_data()
