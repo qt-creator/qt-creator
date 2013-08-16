@@ -39,6 +39,8 @@ QtcPlugin {
         "locatormanager.h",
         "locatorplugin.cpp",
         "locatorplugin.h",
+        "locatorsearchutils.cpp",
+        "locatorsearchutils.h",
         "locatorwidget.cpp",
         "locatorwidget.h",
         "opendocumentsfilter.cpp",

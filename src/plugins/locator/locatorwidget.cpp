@@ -30,6 +30,7 @@
 #include "locatorwidget.h"
 #include "locatorplugin.h"
 #include "locatorconstants.h"
+#include "locatorsearchutils.h"
 #include "ilocatorfilter.h"
 
 #include <coreplugin/coreconstants.h>
@@ -130,12 +131,7 @@ private:
 
 } // namespace Internal
 
-uint qHash(const FilterEntry &entry)
-{
-    if (entry.internalData.canConvert(QVariant::String))
-        return QT_PREPEND_NAMESPACE(qHash)(entry.internalData.toString());
-    return QT_PREPEND_NAMESPACE(qHash)(entry.internalData.constData());
-}
+
 
 } // namespace Locator
 
@@ -491,24 +487,6 @@ QList<ILocatorFilter*> LocatorWidget::filtersFor(const QString &text, QString &s
     return activeFilters;
 }
 
-static void filter_helper(QFutureInterface<Locator::FilterEntry> &entries, QList<ILocatorFilter *> filters, QString searchText)
-{
-    QSet<FilterEntry> alreadyAdded;
-    const bool checkDuplicates = (filters.size() > 1);
-    foreach (ILocatorFilter *filter, filters) {
-        if (entries.isCanceled())
-            break;
-
-        foreach (const FilterEntry &entry, filter->matchesFor(entries, searchText)) {
-            if (checkDuplicates && alreadyAdded.contains(entry))
-                continue;
-            entries.reportResult(entry);
-            if (checkDuplicates)
-                alreadyAdded.insert(entry);
-        }
-    }
-}
-
 void LocatorWidget::updateCompletionList(const QString &text)
 {
     m_updateRequested = true;
@@ -519,7 +497,7 @@ void LocatorWidget::updateCompletionList(const QString &text)
     m_entriesWatcher->future().cancel();
     m_entriesWatcher->future().waitForFinished();
 
-    QFuture<FilterEntry> future = QtConcurrent::run(filter_helper, filters, searchText);
+    QFuture<FilterEntry> future = QtConcurrent::run(runSearch, filters, searchText);
     m_entriesWatcher->setFuture(future);
 }
 
