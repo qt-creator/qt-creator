@@ -120,7 +120,8 @@ QtcPlugin {
             "cppmodelmanager_test.cpp",
             "modelmanagertesthelper.cpp", "modelmanagertesthelper.h",
             "cpppointerdeclarationformatter_test.cpp",
-            "cpplocatorfilter_test.cpp"
+            "cpplocatorfilter_test.cpp",
+            "symbolsearcher_test.cpp"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
