@@ -292,7 +292,7 @@ void SearchSymbols::appendItem(const QString &symbolName, const QString &symbolT
                                const QString &symbolScope, ModelItemInfo::ItemType itemType,
                                Symbol *symbol)
 {
-    if (!symbol->name())
+    if (!symbol->name() || symbol->isGenerated())
         return;
 
     QString path = m_paths.value(symbol->fileId(), QString());

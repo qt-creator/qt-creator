@@ -1,8 +1,12 @@
 // Copyright header
 
+#define GENERATE_FUNC void myFunctionGenerated() {}
+
 //
 // Symbols in a global namespace
 //
+
+GENERATE_FUNC
 
 int myVariable;
 
