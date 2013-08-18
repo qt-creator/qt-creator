@@ -113,7 +113,7 @@ void CppElementEvaluator::execute()
             return;
 
         const LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
-        handleLookupItemMatch(snapshot, lookupItem, typeOfExpression.context());
+        handleLookupItemMatch(snapshot, lookupItem, typeOfExpression.context(), scope);
     }
 }
 
@@ -155,11 +155,17 @@ bool CppElementEvaluator::matchMacroInUse(const CPlusPlus::Document::Ptr &docume
 
 void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                                                 const LookupItem &lookupItem,
-                                                const LookupContext &context)
+                                                const LookupContext &context,
+                                                const Scope *scope)
 {
     Symbol *declaration = lookupItem.declaration();
     if (!declaration) {
         const QString &type = Overview().prettyType(lookupItem.type(), QString());
+        //  special case for bug QTCREATORBUG-4780
+        if (scope && scope->isFunction()
+                && lookupItem.type().isEqualTo(scope->asFunction()->returnType())) {
+            return;
+        }
         m_element = QSharedPointer<CppElement>(new Unknown(type));
     } else {
         const FullySpecifiedType &type = declaration->type();

@@ -76,7 +76,8 @@ private:
     bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
     void handleLookupItemMatch(const CPlusPlus::Snapshot &snapshot,
                                const CPlusPlus::LookupItem &lookupItem,
-                               const CPlusPlus::LookupContext &lookupContext);
+                               const CPlusPlus::LookupContext &lookupContext,
+                               const CPlusPlus::Scope *scope);
 
     CPPEditorWidget *m_editor;
     CppTools::CppModelManagerInterface *m_modelManager;
