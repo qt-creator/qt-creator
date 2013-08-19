@@ -38,6 +38,11 @@
 :CMake Wizard.Next_QPushButton	{name='__qt__passive_wizardbutton1' text~='(Next.*|Continue)' type='QPushButton' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Run CMake_QPushButton	{text='Run CMake' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard	{type='CMakeProjectManager::Internal::CMakeOpenProjectWizard' unnamed='1' visible='1' windowTitle='CMake Wizard'}
+:CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:CodePaster__Internal__PasteSelectDialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:CodePaster__Internal__PasteSelectDialog.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster__Internal__PasteSelectDialog' type='CodePaster::PasteSelectDialog' visible='1'}
 :CompilerPath.Utils_BaseValidatingLineEdit	{container=':qt_tabwidget_stackedwidget_QWidget' name='LineEdit' type='Utils::BaseValidatingLineEdit' visible='1'}
 :Core__Internal__GeneralSettings.User Interface_QGroupBox	{container=':qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget' name='interfaceBox' title='User Interface' type='QGroupBox' visible='1'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
@@ -124,6 +129,7 @@
 :Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
 :Qt Creator_Core::Internal::NavComboBox	{type='Core::Internal::NavComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::ProgressBar	{type='Core::Internal::ProgressBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_FilenameQComboBox	{type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Find::Internal::SearchResultTreeView	{type='Find::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -156,6 +162,11 @@
 :RunSettingsEnvironmentDetails_Utils::DetailsButton	{leftWidget=':RunSettingsUseBuildEnvironment_QLabel' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :RunSettingsUseBuildEnvironment_QLabel	{text~='Us(e|ing) <b>Build Environment</b>' type='QLabel' unnamed='1' visible='1'}
 :Select signal.signalList_QTreeWidget	{container=':Go to slot.Select signal_QGroupBox' name='signalList' type='QTreeWidget' visible='1'}
+:Send to Codepaster.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
+:Send to Codepaster.Paste_QPushButton	{text='Paste' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
+:Send to Codepaster.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
+:Send to Codepaster.stackedWidget_QStackedWidget	{name='stackedWidget' type='QStackedWidget' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
+:Send to Codepaster_CodePaster::PasteView	{name='CodePaster__Internal__ViewDialog' type='CodePaster::PasteView' visible='1' windowTitle='Send to Codepaster'}
 :Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer__Internal__SessionDialog' type='ProjectExplorer::Internal::SessionDialog' visible='1' windowTitle='Session Manager'}
 :Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
 :User Interface.languageBox_QComboBox	{container=':Core__Internal__GeneralSettings.User Interface_QGroupBox' name='languageBox' type='QComboBox' visible='1'}
@@ -183,3 +194,4 @@
 :scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox	{name='qmlDebuggingLibraryCheckBox' type='QCheckBox' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :scrollArea_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
+:stackedWidget.plainTextEdit_QPlainTextEdit	{container=':Send to Codepaster.stackedWidget_QStackedWidget' name='plainTextEdit' type='QPlainTextEdit' visible='1'}
