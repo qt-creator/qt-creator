@@ -384,9 +384,6 @@ void QbsProject::parse(const QVariantMap &config, const Utils::Environment &env,
 {
     QTC_ASSERT(!dir.isNull(), return);
 
-    // Clear buildsystem related tasks:
-    ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-
     qbs::SetupProjectParameters params;
     params.setBuildConfiguration(config);
     qbs::ErrorInfo err = params.expandBuildConfiguration(m_manager->settings());
@@ -443,7 +440,7 @@ void QbsProject::prepareForParsing()
 {
     m_forceParsing = false;
 
-   ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+   ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     if (m_qbsUpdateFutureInterface)
         m_qbsUpdateFutureInterface->reportCanceled();
     delete m_qbsUpdateFutureInterface;
