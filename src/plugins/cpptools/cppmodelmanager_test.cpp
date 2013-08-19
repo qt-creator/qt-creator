@@ -35,10 +35,17 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <utils/hostosinfo.h>
 
 #include <QDebug>
 #include <QFileInfo>
 #include <QtTest>
+
+#if  QT_VERSION >= 0x050000
+#define MSKIP_SINGLE(x) QSKIP(x)
+#else
+#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
+#endif
 
 using namespace CppTools::Internal;
 
@@ -260,6 +267,9 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
 /// Check: Frameworks headers are resolved.
 void CppToolsPlugin::test_modelmanager_framework_headers()
 {
+    if (Utils::HostOsInfo::isWindowsHost())
+        MSKIP_SINGLE("Can't resolve framework soft links on Windows.");
+
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
 
