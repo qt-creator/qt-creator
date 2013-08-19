@@ -99,6 +99,12 @@ public:
         m_link = cppClass->link;
     }
 
+    void clear()
+    {
+        QLabel::clear();
+        m_link = CPPEditorWidget::Link();
+    }
+
 private:
     void mousePressEvent(QMouseEvent *)
     {
@@ -114,45 +120,42 @@ private:
     CPPEditorWidget::Link m_link;
 };
 
-} // namespace Internal
-} // namespace CppEditor
-
 // CppTypeHierarchyWidget
-CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
+CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     QWidget(0),
     m_treeView(0),
     m_model(0),
-    m_delegate(0)
+    m_delegate(0),
+    m_noTypeHierarchyAvailableLabel(0)
 {
+    m_inspectedClass = new CppClassLabel(this);
+    m_inspectedClass->setMargin(5);
+    m_model = new QStandardItemModel(this);
+    m_treeView = new NavigationTreeView(this);
+    m_delegate = new AnnotatedItemDelegate(this);
+    m_delegate->setDelimiter(QLatin1String(" "));
+    m_delegate->setAnnotationRole(AnnotationRole);
+    m_treeView->setModel(m_model);
+    m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_treeView->setItemDelegate(m_delegate);
+    m_treeView->setRootIsDecorated(false);
+    connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
+
+    m_noTypeHierarchyAvailableLabel = new QLabel(tr("No type hierarchy available"), this);
+    m_noTypeHierarchyAvailableLabel->setAlignment(Qt::AlignCenter);
+    m_noTypeHierarchyAvailableLabel->setAutoFillBackground(true);
+    m_noTypeHierarchyAvailableLabel->setBackgroundRole(QPalette::Base);
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
+    layout->addWidget(m_inspectedClass);
+    layout->addWidget(m_treeView);
+    layout->addWidget(m_noTypeHierarchyAvailableLabel);
 
-    if (qobject_cast<CPPEditor *>(editor)) {
-        m_inspectedClass = new CppClassLabel(this);
-        m_inspectedClass->setMargin(5);
-        layout->addWidget(m_inspectedClass);
-        m_model = new QStandardItemModel(this);
-        m_treeView = new NavigationTreeView(this);
-        m_delegate = new AnnotatedItemDelegate(this);
-        m_delegate->setDelimiter(QLatin1String(" "));
-        m_delegate->setAnnotationRole(AnnotationRole);
-        m_treeView->setModel(m_model);
-        m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        m_treeView->setItemDelegate(m_delegate);
-        m_treeView->setRootIsDecorated(false);
-        layout->addWidget(m_treeView);
-
-        connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
-        connect(CppEditorPlugin::instance(), SIGNAL(typeHierarchyRequested()), this, SLOT(perform()));
-    } else {
-        QLabel *label = new QLabel(tr("No type hierarchy available"), this);
-        label->setAlignment(Qt::AlignCenter);
-        label->setAutoFillBackground(true);
-        label->setBackgroundRole(QPalette::Base);
-        layout->addWidget(label);
-    }
     setLayout(layout);
+
+    connect(CppEditorPlugin::instance(), SIGNAL(typeHierarchyRequested()), SLOT(perform()));
 }
 
 CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
@@ -160,14 +163,17 @@ CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
 
 void CppTypeHierarchyWidget::perform()
 {
+    showNoTypeHierarchyLabel();
+
     CPPEditor *editor = qobject_cast<CPPEditor *>(Core::EditorManager::instance()->currentEditor());
     if (!editor)
         return;
+
     CPPEditorWidget *widget = qobject_cast<CPPEditorWidget *>(editor->widget());
     if (!widget)
         return;
 
-    m_model->clear();
+    clearTypeHierarchy();
 
     CppElementEvaluator evaluator(widget);
     evaluator.setLookupBaseClasses(true);
@@ -185,11 +191,14 @@ void CppTypeHierarchyWidget::perform()
             m_model->invisibleRootItem()->appendRow(derived);
             buildHierarchy(*cppClass, derived, true, &CppClass::derived);
             m_treeView->expandAll();
+
+            showTypeHierarchy();
         }
     }
 }
 
-void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardItem *parent, bool isRoot, const HierarchyMember member)
+void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
+                                            bool isRoot, const HierarchyMember member)
 {
     if (!isRoot) {
         QStandardItem *item = itemForClass(cppClass);
@@ -198,6 +207,26 @@ void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardI
     }
     foreach (const CppClass &klass, sortClasses(cppClass.*member))
         buildHierarchy(klass, parent, false, member);
+}
+
+void CppTypeHierarchyWidget::showNoTypeHierarchyLabel()
+{
+    m_inspectedClass->hide();
+    m_treeView->hide();
+    m_noTypeHierarchyAvailableLabel->show();
+}
+
+void CppTypeHierarchyWidget::showTypeHierarchy()
+{
+    m_inspectedClass->show();
+    m_treeView->show();
+    m_noTypeHierarchyAvailableLabel->hide();
+}
+
+void CppTypeHierarchyWidget::clearTypeHierarchy()
+{
+    m_inspectedClass->clear();
+    m_model->clear();
 }
 
 void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
@@ -214,7 +243,7 @@ void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
 // CppTypeHierarchyStackedWidget
 CppTypeHierarchyStackedWidget::CppTypeHierarchyStackedWidget(QWidget *parent) :
     QStackedWidget(parent),
-    m_typeHiearchyWidgetInstance(new CppTypeHierarchyWidget(Core::EditorManager::currentEditor()))
+    m_typeHiearchyWidgetInstance(new CppTypeHierarchyWidget)
 {
     addWidget(m_typeHiearchyWidgetInstance);
 }
@@ -259,3 +288,7 @@ Core::NavigationView CppTypeHierarchyFactory::createWidget()
     navigationView.widget = w;
     return navigationView;
 }
+
+} // namespace Internal
+} // namespace CppEditor
+
