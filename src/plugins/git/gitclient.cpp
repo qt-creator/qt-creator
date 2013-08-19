@@ -360,7 +360,7 @@ void GitDiffHandler::collectFilesContents()
 
                 QString revisionArgument = (revision.type == Other)
                         ? revision.id : QString();
-                revisionArgument += QLatin1String(":./");
+                revisionArgument += QLatin1Char(':');
                 QStringList arguments;
                 arguments << QLatin1String("show") << revisionArgument + fileName;
                 command->addJob(arguments, m_timeout);
@@ -1206,8 +1206,7 @@ void GitClient::show(const QString &source, const QString &id,
                     DiffEditor::Constants::DIFF_SHOW_EDITOR_ID);
 
         int timeout = settings()->intValue(GitSettings::timeoutKey);
-        GitDiffHandler *handler = new GitDiffHandler(editor, gitBinaryPath(),
-                                                     findRepositoryForDirectory(workDir),
+        GitDiffHandler *handler = new GitDiffHandler(editor, gitBinaryPath(), workDir,
                                                      processEnvironment(), timeout);
         handler->show(id);
     } else {
