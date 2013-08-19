@@ -108,7 +108,7 @@ int main(int argc, char **)
     while (GetMessage(&msg, NULL, 0, 0))
     {
         if (msg.message == WM_DESTROY)
-            dwExitCode = msg.wParam;
+            dwExitCode = static_cast<DWORD>(msg.wParam);
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
