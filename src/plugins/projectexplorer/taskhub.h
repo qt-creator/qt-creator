@@ -47,12 +47,12 @@ public:
     static TaskHub *instance();
 
 public slots:
-    static void addCategory(Core::Id categoryId, const QString &displayName, bool visible = true);
     static void addTask(ProjectExplorer::Task task);
     static void clearTasks(Core::Id categoryId = Core::Id());
     static void removeTask(const ProjectExplorer::Task &task);
 
 public:
+    static void addCategory(Core::Id categoryId, const QString &displayName, bool visible = true);
     static void updateTaskFileName(unsigned int id, const QString &fileName);
     static void updateTaskLineNumber(unsigned int id, int line);
     static void taskMarkClicked(unsigned int id);

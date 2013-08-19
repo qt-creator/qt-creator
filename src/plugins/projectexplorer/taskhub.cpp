@@ -30,6 +30,7 @@
 #include "taskhub.h"
 
 #include <coreplugin/ioutputpane.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
@@ -97,7 +98,13 @@ TaskHub::~TaskHub()
 
 void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
 {
+    QTC_CHECK(!displayName.isEmpty());
     emit m_instance->categoryAdded(categoryId, displayName, visible);
+}
+
+TaskHub *TaskHub::instance()
+{
+    return m_instance;
 }
 
 void TaskHub::addTask(Task task)
