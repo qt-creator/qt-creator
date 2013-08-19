@@ -62,6 +62,8 @@ public:
     void setCurrentStateInternalId(int internalId);
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
+    void showAddNewStatesButton(bool showAddNewStatesButton);
+
 private:
     QWeakPointer<QDeclarativeView> m_declarativeView;
     QWeakPointer<StatesEditorView> m_statesEditorView;

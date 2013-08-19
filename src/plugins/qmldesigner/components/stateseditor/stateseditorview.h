@@ -112,6 +112,7 @@ private:
     void resetModel();
     void addState();
     void duplicateCurrentState();
+    void checkForApplicationWindow();
 
 private:
     QWeakPointer<StatesEditorModel> m_statesEditorModel;

@@ -85,6 +85,7 @@ Rectangle {
                     id: newStateBoxLoader;
                     width:132
                     height:listViewRow.height
+                    visible: canAddNewStates
                     Loader {
                         sourceComponent: addState;
                         // make it square

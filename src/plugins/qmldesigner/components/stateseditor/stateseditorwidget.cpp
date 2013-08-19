@@ -67,6 +67,11 @@ void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
     m_imageProvider->setNodeInstanceView(nodeInstanceView);
 }
 
+void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
+{
+    m_declarativeView->rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
+}
+
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel):
         QWidget(),
     m_declarativeView(new QDeclarativeView(this)),
@@ -93,6 +98,8 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
     m_declarativeView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
+
+    m_declarativeView->rootContext()->setContextProperty("canAddNewStates", true);
 
     // Work around ASSERT in the internal QGraphicsScene that happens when
     // the scene is created + items set dirty in one event loop run (BAUHAUS-459)
