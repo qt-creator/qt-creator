@@ -72,11 +72,11 @@ void CMakeParser::stdError(const QString &line)
 
     if (m_commonError.indexIn(trimmedLine) != -1) {
         m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_commonError.cap(1)),
-                          m_commonError.cap(2).toInt(), Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                          m_commonError.cap(2).toInt(), Constants::TASK_CATEGORY_BUILDSYSTEM);
         return;
     } else if (m_nextSubError.indexIn(trimmedLine) != -1) {
         m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_nextSubError.cap(1)), -1,
-                          Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                          Constants::TASK_CATEGORY_BUILDSYSTEM);
         return;
     } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
         if (!m_lastTask.description.isEmpty())
@@ -113,7 +113,7 @@ void CMakeProjectPlugin::testCMakeParser_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const Core::Id categoryCompile = Core::Id(Constants::TASK_CATEGORY_COMPILE);
+    const Core::Id categoryBuild = Constants::TASK_CATEGORY_BUILDSYSTEM;
 
     // negative tests
     QTest::newRow("pass-through stdout")
@@ -145,11 +145,11 @@ void CMakeProjectPlugin::testCMakeParser_data()
                 << Task(Task::Error,
                         QLatin1String("Cannot find source file: unknownFile.qml Tried extensions .c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp .hxx .in .txx"),
                         Utils::FileName::fromUserInput(QLatin1String("src/1/app/CMakeLists.txt")), 70,
-                        categoryCompile)
+                        categoryBuild)
             << Task(Task::Error,
                     QLatin1String("Cannot find source file: CMakeLists.txt2 Tried extensions .c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp .hxx .in .txx"),
                     Utils::FileName::fromUserInput(QLatin1String("src/1/app/CMakeLists.txt")), -1,
-                    categoryCompile))
+                    categoryBuild))
             << QString();
 
     QTest::newRow("add subdirectory")
@@ -161,7 +161,7 @@ void CMakeProjectPlugin::testCMakeParser_data()
                 << Task(Task::Error,
                         QLatin1String("add_subdirectory given source \"app1\" which is not an existing directory."),
                         Utils::FileName::fromUserInput(QLatin1String("src/1/CMakeLists.txt")), 8,
-                        categoryCompile))
+                        categoryBuild))
             << QString();
 
     QTest::newRow("unknown command")
@@ -173,7 +173,7 @@ void CMakeProjectPlugin::testCMakeParser_data()
                 << Task(Task::Error,
                         QLatin1String("Unknown CMake command \"i_am_wrong_command\"."),
                         Utils::FileName::fromUserInput(QLatin1String("src/1/CMakeLists.txt")), 8,
-                        categoryCompile))
+                        categoryBuild))
             << QString();
 
     QTest::newRow("incorrect arguments")
@@ -185,7 +185,7 @@ void CMakeProjectPlugin::testCMakeParser_data()
                 << Task(Task::Error,
                         QLatin1String("message called with incorrect number of arguments"),
                         Utils::FileName::fromUserInput(QLatin1String("src/1/CMakeLists.txt")), 8,
-                        categoryCompile))
+                        categoryBuild))
             << QString();
 }
 
