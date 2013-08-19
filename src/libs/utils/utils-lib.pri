@@ -84,7 +84,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/tooltip/tooltip.cpp \
     $$PWD/tooltip/tips.cpp \
     $$PWD/tooltip/tipcontents.cpp \
-    $$PWD/unixutils.cpp
+    $$PWD/unixutils.cpp \
+    $$PWD/function.cpp
 
 win32 {
     SOURCES += \
@@ -175,7 +176,8 @@ HEADERS += \
     $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
     $$PWD/unixutils.h \
-    $$PWD/qtcoverride.h
+    $$PWD/qtcoverride.h \
+    $$PWD/function.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

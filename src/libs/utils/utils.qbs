@@ -87,6 +87,8 @@ QtcLibrary {
         "filterlineedit.h",
         "flowlayout.cpp",
         "flowlayout.h",
+        "function.cpp",
+        "function.h",
         "historycompleter.cpp",
         "historycompleter.h",
         "hostosinfo.h",
