@@ -604,7 +604,7 @@ QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) c
                 continue;
             if (!device.cpuAbi.contains(cpuAbi))
                 continue;
-            if (!device.sdk == apiLevel)
+            if (device.sdk != apiLevel)
                 continue;
             serialNumber = device.serialNumber;
             // found a serial number, now wait until it's done booting...
