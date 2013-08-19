@@ -115,6 +115,10 @@ public:
 
     QmlItemNode qmlItemNode() const;
 
+    bool modelHasAnchors() const;
+    bool modelHasAnchor(AnchorLine::Type sourceAnchorLineType) const;
+    AnchorLine modelAnchor(AnchorLine::Type sourceAnchorLineType) const;
+
 
 private:
     QmlItemNode m_qmlItemNode;

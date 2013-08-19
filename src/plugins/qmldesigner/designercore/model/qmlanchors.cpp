@@ -119,6 +119,54 @@ QmlItemNode QmlAnchors::qmlItemNode() const
     return m_qmlItemNode;
 }
 
+bool QmlAnchors::modelHasAnchors() const
+{
+    return modelHasAnchor(AnchorLine::Left)
+            || modelHasAnchor(AnchorLine::Right)
+            || modelHasAnchor(AnchorLine::Top)
+            || modelHasAnchor(AnchorLine::Bottom)
+            || modelHasAnchor(AnchorLine::HorizontalCenter)
+            || modelHasAnchor(AnchorLine::VerticalCenter)
+            || modelHasAnchor(AnchorLine::Baseline);
+}
+
+bool QmlAnchors::modelHasAnchor(AnchorLine::Type sourceAnchorLineType) const
+{
+    const PropertyName propertyName = anchorPropertyName(sourceAnchorLineType);
+
+    if (sourceAnchorLineType & AnchorLine::Fill)
+        return qmlItemNode().modelNode().hasBindingProperty(propertyName) || qmlItemNode().modelNode().hasBindingProperty("anchors.fill");
+
+    if (sourceAnchorLineType & AnchorLine::Center)
+        return qmlItemNode().modelNode().hasBindingProperty(propertyName) || qmlItemNode().modelNode().hasBindingProperty("anchors.centerIn");
+
+    return qmlItemNode().modelNode().hasBindingProperty(anchorPropertyName(sourceAnchorLineType));
+}
+
+AnchorLine QmlAnchors::modelAnchor(AnchorLine::Type sourceAnchorLineType) const
+{
+ QPair<PropertyName, ModelNode> targetAnchorLinePair;
+ if (sourceAnchorLineType & AnchorLine::Fill && qmlItemNode().modelNode().hasBindingProperty("anchors.fill")) {
+     targetAnchorLinePair.second = qmlItemNode().modelNode().bindingProperty("anchors.fill").resolveToModelNode();
+     targetAnchorLinePair.first = lineTypeToString(sourceAnchorLineType);
+ } else if (sourceAnchorLineType & AnchorLine::Center && qmlItemNode().modelNode().hasBindingProperty("anchors.centerIn")) {
+     targetAnchorLinePair.second = qmlItemNode().modelNode().bindingProperty("anchors.centerIn").resolveToModelNode();
+     targetAnchorLinePair.first = lineTypeToString(sourceAnchorLineType);
+ } else {
+     AbstractProperty binding = qmlItemNode().modelNode().bindingProperty(anchorPropertyName(sourceAnchorLineType)).resolveToProperty();
+     targetAnchorLinePair.first = binding.name();
+     targetAnchorLinePair.second = binding.parentModelNode();
+ }
+
+ AnchorLine::Type targetAnchorLine = propertyNameToLineType(targetAnchorLinePair.first);
+
+ if (targetAnchorLine == AnchorLine::Invalid )
+     return AnchorLine();
+
+
+ return AnchorLine(QmlItemNode(targetAnchorLinePair.second), targetAnchorLine);
+}
+
 bool QmlAnchors::isValid() const
 {
     return m_qmlItemNode.isValid();
