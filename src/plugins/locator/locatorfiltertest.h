@@ -83,6 +83,7 @@ typedef ResultData::ResultDataList ResultDataList;
 Q_DECLARE_METATYPE(Locator::Internal::Tests::ResultData)
 Q_DECLARE_METATYPE(Locator::Internal::Tests::ResultDataList)
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
 
 template<> char *toString(const Locator::Internal::Tests::ResultData &data)
@@ -92,5 +93,6 @@ template<> char *toString(const Locator::Internal::Tests::ResultData &data)
 }
 
 } // namespace QTest
+QT_END_NAMESPACE
 
 #endif // LOCATORFILTERTEST_H
