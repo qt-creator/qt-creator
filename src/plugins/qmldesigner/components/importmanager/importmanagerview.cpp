@@ -86,13 +86,13 @@ void ImportManagerView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void ImportManagerView::nodeCreated(const ModelNode &createdNode)
+void ImportManagerView::nodeCreated(const ModelNode &/*createdNode*/)
 {
     if (m_importsWidget)
         m_importsWidget->setUsedImports(model()->usedImports());
 }
 
-void ImportManagerView::nodeAboutToBeRemoved(const ModelNode &removedNode)
+void ImportManagerView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/)
 {
     if (m_importsWidget)
         m_importsWidget->setUsedImports(model()->usedImports());
@@ -218,7 +218,7 @@ void ImportManagerView::nodeOrderChanged(const NodeListProperty &/*listProperty*
 
 }
 
-void ImportManagerView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
     if (m_importsWidget) {
         m_importsWidget->setImports(model()->imports());
