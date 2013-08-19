@@ -892,7 +892,7 @@ void AndroidPackageCreationStep::raiseError(const QString &shortMsg,
 {
     emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, BuildStep::ErrorOutput);
     emit addTask(Task(Task::Error, shortMsg, Utils::FileName::fromString(QString()), -1,
-                      TASK_CATEGORY_BUILDSYSTEM));
+                      TASK_CATEGORY_DEPLOYMENT));
 }
 
 const Core::Id AndroidPackageCreationStep::CreatePackageId("Qt4ProjectManager.AndroidPackageCreationStep");

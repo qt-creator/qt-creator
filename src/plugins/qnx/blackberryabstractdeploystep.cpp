@@ -186,7 +186,7 @@ void BlackBerryAbstractDeployStep::raiseError(const QString &errorMessage)
 {
     emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
     emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
-                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void BlackBerryAbstractDeployStep::processReadyReadStdOutput()

@@ -573,7 +573,7 @@ bool AndroidDeployStep::deployPackage()
 void AndroidDeployStep::raiseError(const QString &errorString)
 {
     emit addTask(Task(Task::Error, errorString, Utils::FileName::fromString(QString()), -1,
-        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void AndroidDeployStep::writeOutput(const QString &text, OutputFormat format)

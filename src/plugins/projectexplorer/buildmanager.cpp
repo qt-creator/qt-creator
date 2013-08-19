@@ -146,10 +146,12 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAc
 
 void BuildManager::extensionsInitialized()
 {
-    TaskHub::addCategory(Core::Id(Constants::TASK_CATEGORY_COMPILE),
+    TaskHub::addCategory(Constants::TASK_CATEGORY_COMPILE,
                          tr("Compile", "Category for compiler issues listed under 'Issues'"));
-    TaskHub::addCategory(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM),
+    TaskHub::addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM,
                          tr("Build System", "Category for build system issues listed under 'Issues'"));
+    TaskHub::addCategory(Constants::TASK_CATEGORY_DEPLOYMENT,
+                         tr("Deployment", "Category for deployment issues listed under 'Issues'"));
 }
 
 BuildManager::~BuildManager()
@@ -185,8 +187,9 @@ bool BuildManager::isBuilding() const
 int BuildManager::getErrorTaskCount() const
 {
     const int errors =
-            d->m_taskWindow->errorTaskCount(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM))
-            + d->m_taskWindow->errorTaskCount(Core::Id(Constants::TASK_CATEGORY_COMPILE));
+            d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+            + d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE)
+            + d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT);
     return errors;
 }
 
@@ -273,8 +276,9 @@ void BuildManager::toggleTaskWindow()
 bool BuildManager::tasksAvailable() const
 {
     const int count =
-            d->m_taskWindow->taskCount(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM))
-            + d->m_taskWindow->taskCount(Core::Id(Constants::TASK_CATEGORY_COMPILE));
+            d->m_taskWindow->taskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+            + d->m_taskWindow->taskCount(Constants::TASK_CATEGORY_COMPILE)
+            + d->m_taskWindow->taskCount(Constants::TASK_CATEGORY_DEPLOYMENT);
     return count > 0;
 }
 
@@ -293,8 +297,9 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         d->m_outputWindow->clearContents();
         foreach (const QString &str, preambleMessage)
             addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
-        TaskHub::clearTasks(Core::Id(Constants::TASK_CATEGORY_COMPILE));
-        TaskHub::clearTasks(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
         progressManager->setApplicationLabel(QString());
         d->m_futureProgress = progressManager->addTask(d->m_progressFutureInterface->future(),
               QString(),

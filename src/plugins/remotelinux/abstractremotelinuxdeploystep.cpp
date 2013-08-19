@@ -132,7 +132,7 @@ void AbstractRemoteLinuxDeployStep::handleErrorMessage(const QString &message)
 {
     emit addOutput(message, ErrorMessageOutput);
     emit addTask(Task(Task::Error, message, Utils::FileName(), -1,
-                      Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                      Constants::TASK_CATEGORY_DEPLOYMENT));
     d->hasError = true;
 }
 
@@ -140,7 +140,7 @@ void AbstractRemoteLinuxDeployStep::handleWarningMessage(const QString &message)
 {
     emit addOutput(message, ErrorMessageOutput);
     emit addTask(Task(Task::Warning, message, Utils::FileName(), -1,
-                      Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                      Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void AbstractRemoteLinuxDeployStep::handleFinished()

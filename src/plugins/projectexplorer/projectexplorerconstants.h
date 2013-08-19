@@ -188,6 +188,7 @@ const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
 // Task categories
 const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
+const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
 
 // Wizard categories
 const char QT_PROJECT_WIZARD_CATEGORY[] = "H.QtProjects";
