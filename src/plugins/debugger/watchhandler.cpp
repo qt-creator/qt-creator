@@ -274,6 +274,7 @@ private:
 WatchModel::WatchModel(WatchHandler *handler)
     : m_handler(handler)
 {
+    setObjectName(QLatin1String("WatchModel"));
     m_root = createItem(QByteArray(), tr("Root"), 0);
     // Note: Needs to stay
     m_localsRoot = createItem("local", tr("Locals"), m_root);

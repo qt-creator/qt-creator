@@ -416,34 +416,22 @@ SourceFilesHandler *DebuggerEngine::sourceFilesHandler() const
 
 QAbstractItemModel *DebuggerEngine::modulesModel() const
 {
-    QAbstractItemModel *model = modulesHandler()->model();
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("ModulesModel"));
-    return model;
+   return modulesHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::registerModel() const
 {
-    QAbstractItemModel *model = registerHandler()->model();
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("RegisterModel"));
-    return model;
+    return registerHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::stackModel() const
 {
-    QAbstractItemModel *model = stackHandler()->model();
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("StackModel"));
-    return model;
+    return stackHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::threadsModel() const
 {
-    QAbstractItemModel *model = threadsHandler()->model();
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("ThreadsModel"));
-    return model;
+    return threadsHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::watchModel() const
@@ -453,10 +441,7 @@ QAbstractItemModel *DebuggerEngine::watchModel() const
 
 QAbstractItemModel *DebuggerEngine::sourceFilesModel() const
 {
-    QAbstractItemModel *model = sourceFilesHandler()->model();
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("SourceFilesModel"));
-    return model;
+    return sourceFilesHandler()->model();
 }
 
 void DebuggerEngine::fetchMemory(MemoryAgent *, QObject *,

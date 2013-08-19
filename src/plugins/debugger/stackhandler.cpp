@@ -57,6 +57,7 @@ StackHandler::StackHandler()
   : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
     m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
 {
+    setObjectName(QLatin1String("StackModel"));
     m_resetLocationScheduled = false;
     m_contentsValid = false;
     m_currentIndex = -1;

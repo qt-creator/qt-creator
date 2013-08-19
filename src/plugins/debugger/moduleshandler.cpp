@@ -262,7 +262,9 @@ ModulesHandler::ModulesHandler(DebuggerEngine *engine)
 {
     m_engine = engine;
     m_model = new ModulesModel(this);
+    m_model->setObjectName(QLatin1String("ModulesModel"));
     m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setObjectName(QLatin1String("ModulesProxyModel"));
     m_proxyModel->setSourceModel(m_model);
 }
 

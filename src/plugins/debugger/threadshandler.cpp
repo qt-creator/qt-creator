@@ -135,6 +135,7 @@ ThreadsHandler::ThreadsHandler()
     m_emptyIcon(QLatin1String(":/debugger/images/debugger_empty_14.png"))
 {
     m_resetLocationScheduled = false;
+    setObjectName(QLatin1String("ThreadsModel"));
 //    m_proxyModel = new QSortFilterProxyModel(this);
 //    m_proxyModel->setSourceModel(this);
 }

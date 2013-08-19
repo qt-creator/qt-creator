@@ -314,6 +314,7 @@ Register::Register(const QByteArray &name_)
 
 RegisterHandler::RegisterHandler()
 {
+    setObjectName(QLatin1String("RegisterModel"));
     m_base = 16;
     calculateWidth();
 #if USE_REGISTER_MODEL_TEST
