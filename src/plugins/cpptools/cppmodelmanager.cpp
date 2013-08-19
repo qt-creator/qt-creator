@@ -410,7 +410,7 @@ void CppModelManager::dumpModelManagerConfiguration()
                 cxxExtensions << QLatin1String("MicrosoftExtensions");
             if (part->cxxExtensions & ProjectPart::BorlandExtensions)
                 cxxExtensions << QLatin1String("BorlandExtensions");
-            if (part->cxxExtensions & ProjectPart::OpenMP)
+            if (part->cxxExtensions & ProjectPart::OpenMPExtensions)
                 cxxExtensions << QLatin1String("OpenMP");
 
             qDebug() << "cVersion:" << cVersion;
@@ -775,6 +775,21 @@ QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) co
     }
 
     return parts;
+}
+
+ProjectPart::Ptr CppModelManager::fallbackProjectPart() const
+{
+    ProjectPart::Ptr part(new ProjectPart);
+
+    part->defines = m_definedMacros;
+    part->includePaths = m_includePaths;
+    part->frameworkPaths = m_frameworkPaths;
+    part->cVersion = ProjectPart::C11;
+    part->cxxVersion = ProjectPart::CXX11;
+    part->cxxExtensions = ProjectPart::AllExtensions;
+    part->qtVersion = ProjectPart::Qt5;
+
+    return part;
 }
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor) const

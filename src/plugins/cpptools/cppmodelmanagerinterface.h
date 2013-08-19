@@ -85,7 +85,9 @@ public:
         GnuExtensions = 0x1,
         MicrosoftExtensions = 0x2,
         BorlandExtensions = 0x4,
-        OpenMP = 0x8
+        OpenMPExtensions = 0x8,
+
+        AllExtensions = GnuExtensions | MicrosoftExtensions | BorlandExtensions | OpenMPExtensions
     };
     Q_DECLARE_FLAGS(CXXExtensions, CXXExtension)
 
@@ -217,6 +219,7 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
     virtual QFuture<void> updateProjectInfo(const ProjectInfo &pinfo) = 0;
     virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const = 0;
+    virtual ProjectPart::Ptr fallbackProjectPart() const = 0;
 
     virtual QStringList includePaths() = 0;
 

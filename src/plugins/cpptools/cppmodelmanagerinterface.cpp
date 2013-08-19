@@ -147,7 +147,7 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     if (cxx & ToolChain::MicrosoftExtensions)
         cxxExtensions |= MicrosoftExtensions;
     if (cxx & ToolChain::OpenMP)
-        cxxExtensions |= OpenMP;
+        cxxExtensions |= OpenMPExtensions;
 
     cWarningFlags = tc->warningFlags(cflags);
     cxxWarningFlags = tc->warningFlags(cxxflags);

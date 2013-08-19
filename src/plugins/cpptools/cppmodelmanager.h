@@ -74,6 +74,7 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
     virtual QList<CppTools::ProjectPart::Ptr> projectPart(const QString &fileName) const;
+    virtual ProjectPart::Ptr fallbackProjectPart() const;
 
     virtual CPlusPlus::Snapshot snapshot() const;
     virtual Document::Ptr document(const QString &fileName) const;
