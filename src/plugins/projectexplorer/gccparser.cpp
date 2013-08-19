@@ -83,7 +83,7 @@ void GccParser::stdError(const QString &line)
                      lne /* description */,
                      Utils::FileName() /* filename */,
                      -1 /* linenumber */,
-                     Core::Id(Constants::TASK_CATEGORY_COMPILE)));
+                     Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
@@ -91,7 +91,7 @@ void GccParser::stdError(const QString &line)
                   description,
                   Utils::FileName(), /* filename */
                   -1, /* line */
-                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                  Constants::TASK_CATEGORY_COMPILE);
         if (description.startsWith(QLatin1String("warning: "))) {
             task.type = Task::Warning;
             task.description = description.mid(9);
@@ -106,7 +106,7 @@ void GccParser::stdError(const QString &line)
         Task task(Task::Unknown,
                   m_regExp.cap(8) /* description */,
                   filename, lineno,
-                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                  Constants::TASK_CATEGORY_COMPILE);
         if (m_regExp.cap(7) == QLatin1String("warning"))
             task.type = Task::Warning;
         else if (m_regExp.cap(7) == QLatin1String("error") ||
@@ -126,7 +126,7 @@ void GccParser::stdError(const QString &line)
                      lne.trimmed() /* description */,
                      Utils::FileName::fromUserInput(m_regExpIncluded.cap(1)) /* filename */,
                      m_regExpIncluded.cap(3).toInt() /* linenumber */,
-                     Core::Id(Constants::TASK_CATEGORY_COMPILE)));
+                     Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (lne.startsWith(QLatin1Char(' '))) {
         amendDescription(lne, true);
@@ -194,7 +194,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const Core::Id categoryCompile = Core::Id(Constants::TASK_CATEGORY_COMPILE);
+    const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT

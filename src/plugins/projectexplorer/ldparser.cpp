@@ -74,7 +74,7 @@ void LdParser::stdError(const QString &line)
                           lne /* description */,
                           Utils::FileName() /* filename */,
                           -1 /* linenumber */,
-                          Core::Id(Constants::TASK_CATEGORY_COMPILE)));
+                          Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
@@ -82,7 +82,7 @@ void LdParser::stdError(const QString &line)
                   description,
                   Utils::FileName(), /* filename */
                   -1, /* line */
-                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                  Constants::TASK_CATEGORY_COMPILE);
         if (description.startsWith(QLatin1String("warning: "))) {
             task.type = Task::Warning;
             task.description = description.mid(9);
@@ -105,7 +105,7 @@ void LdParser::stdError(const QString &line)
         }
         QString description = m_regExpLinker.cap(8).trimmed();
         Task task(Task::Error, description, filename, lineno,
-                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                  Constants::TASK_CATEGORY_COMPILE);
         if (description.startsWith(QLatin1String("At global scope")) ||
             description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||

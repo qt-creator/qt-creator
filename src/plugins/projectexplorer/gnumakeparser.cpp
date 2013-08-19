@@ -429,12 +429,12 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
                     QLatin1String("no filename, no mangling"),
                     Utils::FileName(),
                     -1,
-                    Core::Id(Constants::TASK_CATEGORY_COMPILE))
+                    Constants::TASK_CATEGORY_COMPILE)
             << Task(Task::Error,
                     QLatin1String("no filename, no mangling"),
                     Utils::FileName(),
                     -1,
-                    Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                    Constants::TASK_CATEGORY_COMPILE);
    QTest::newRow("no mangling")
             << QStringList()
             << QStringList()
@@ -442,12 +442,12 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
                     QLatin1String("unknown filename, no mangling"),
                     Utils::FileName::fromUserInput(QLatin1String("some/path/unknown.cpp")),
                     -1,
-                    Core::Id(Constants::TASK_CATEGORY_COMPILE))
+                    Constants::TASK_CATEGORY_COMPILE)
             << Task(Task::Error,
                     QLatin1String("unknown filename, no mangling"),
                     Utils::FileName::fromUserInput(QLatin1String("some/path/unknown.cpp")),
                     -1,
-                    Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                    Constants::TASK_CATEGORY_COMPILE);
     QTest::newRow("find file")
             << (QStringList(QLatin1String("test/file.cpp")))
             << (QStringList(QLatin1String("test")))
@@ -455,12 +455,12 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
                     QLatin1String("mangling"),
                     Utils::FileName::fromUserInput(QLatin1String("file.cpp")),
                     10,
-                    Core::Id(Constants::TASK_CATEGORY_COMPILE))
+                    Constants::TASK_CATEGORY_COMPILE)
             << Task(Task::Error,
                     QLatin1String("mangling"),
                     Utils::FileName::fromUserInput(QLatin1String("$TMPDIR/test/file.cpp")),
                     10,
-                    Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                    Constants::TASK_CATEGORY_COMPILE);
 }
 
 void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()

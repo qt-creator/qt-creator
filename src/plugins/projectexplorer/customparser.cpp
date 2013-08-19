@@ -170,7 +170,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const Core::Id categoryCompile = Core::Id(Constants::TASK_CATEGORY_COMPILE);
+    const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
     const QString simplePattern = QLatin1String("^([a-z]+\\.[a-z]+):(\\d+): error: ([^\\s].+)$");
     const Utils::FileName fileName = Utils::FileName::fromUserInput(QLatin1String("main.c"));
 

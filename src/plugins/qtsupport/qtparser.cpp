@@ -57,7 +57,7 @@ void QtParser::stdError(const QString &line)
                   m_mocRegExp.cap(5).trimmed(),
                   Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
-                  Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
+                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
         if (m_mocRegExp.cap(4).compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             task.type = Task::Warning;
         emit addTask(task);
@@ -121,7 +121,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("Can't create link to 'Object Trees & Ownership'"),
                                                        Utils::FileName::fromUserInput(QLatin1String("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp")), 295,
-                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("moc warning")
             << QString::fromLatin1("..\\untitled\\errorfile.h:0: Warning: No relevant classes found. No output generated.")
@@ -130,7 +130,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
                                                        Utils::FileName::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), 0,
-                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("moc warning 2")
             << QString::fromLatin1("c:\\code\\test.h(96): Warning: Property declaration ) has no READ accessor function. The property will be invalid.")
@@ -139,7 +139,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
                                                        Utils::FileName::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
-                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("ninja with moc")
             << QString::fromLatin1("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h(54): Error: Undefined interface")
@@ -148,7 +148,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Error,
                                                        QLatin1String("Undefined interface"),
                                                        Utils::FileName::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54,
-                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 

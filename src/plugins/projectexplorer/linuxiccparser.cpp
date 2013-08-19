@@ -70,7 +70,7 @@ void LinuxIccParser::stdError(const QString &line)
         m_temporary = ProjectExplorer::Task(Task::Unknown, m_firstLine.cap(6).trimmed(),
                                             Utils::FileName::fromUserInput(m_firstLine.cap(1)),
                                             m_firstLine.cap(2).toInt(),
-                                            Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                                            Constants::TASK_CATEGORY_COMPILE);
         QString category = m_firstLine.cap(4);
         if (category == QLatin1String("error"))
             m_temporary.type = Task::Error;
@@ -152,7 +152,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 13,
-                        Core::Id(Constants::TASK_CATEGORY_COMPILE)))
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
     QTest::newRow("private function")
@@ -166,7 +166,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                 << Task(Task::Error,
                         QLatin1String("function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\nb.privatefunc();"),
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 53,
-                        Core::Id(Constants::TASK_CATEGORY_COMPILE)))
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
     QTest::newRow("simple warning")
@@ -180,7 +180,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                 << Task(Task::Warning,
                         QLatin1String("use of \"=\" where \"==\" may have been intended\nwhile (a = true)"),
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 41,
-                        Core::Id(Constants::TASK_CATEGORY_COMPILE)))
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 

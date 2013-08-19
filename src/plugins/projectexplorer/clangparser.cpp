@@ -63,7 +63,7 @@ void ClangParser::stdError(const QString &line)
                   m_commandRegExp.cap(4),
                   Utils::FileName(), /* filename */
                   -1, /* line */
-                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
+                  Constants::TASK_CATEGORY_COMPILE);
         if (m_commandRegExp.cap(3) == QLatin1String("warning"))
             task.type = Task::Warning;
         else if (m_commandRegExp.cap(3) == QLatin1String("note"))
@@ -78,7 +78,7 @@ void ClangParser::stdError(const QString &line)
                      lne.trimmed(),
                      Utils::FileName::fromUserInput(m_inLineRegExp.cap(2)), /* filename */
                      m_inLineRegExp.cap(3).toInt(), /* line */
-                     Core::Id(Constants::TASK_CATEGORY_COMPILE)));
+                     Constants::TASK_CATEGORY_COMPILE));
         return;
     }
 
@@ -127,7 +127,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const Core::Id categoryCompile = Core::Id(Constants::TASK_CATEGORY_COMPILE);
+    const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
