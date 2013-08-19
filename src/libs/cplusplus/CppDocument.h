@@ -104,6 +104,10 @@ public:
     QByteArray utf8Source() const;
     void setUtf8Source(const QByteArray &utf8Source);
 
+    QByteArray fingerprint() const { return m_fingerprint; }
+    void setFingerprint(const QByteArray &fingerprint)
+    { m_fingerprint = fingerprint; }
+
     void startSkippingBlocks(unsigned offset);
     void stopSkippingBlocks(unsigned offset);
 
@@ -360,6 +364,8 @@ private:
 
      /// the macro name of the include guard, if there is one.
     QByteArray _includeGuardMacroName;
+
+    QByteArray m_fingerprint;
 
     QByteArray _source;
     QDateTime _lastModified;

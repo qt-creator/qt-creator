@@ -30,6 +30,7 @@
 #include "cppcompletionassist.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
+#include "cpptoolseditorsupport.h"
 #include "cppdoxygen.h"
 
 #include <coreplugin/icore.h>
@@ -416,24 +417,28 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
 }
 
 TextEditor::IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
-        ProjectExplorer::Project *project, const QString &filePath, QTextDocument *document,
+        ProjectExplorer::Project *project, BaseTextEditor *editor, QTextDocument *document,
         int position, TextEditor::AssistReason reason) const
 {
+    Q_UNUSED(project);
+
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    QStringList includePaths;
-    QStringList frameworkPaths;
-    if (project) {
-        includePaths = modelManager->projectInfo(project).includePaths();
-        frameworkPaths = modelManager->projectInfo(project).frameworkPaths();
+
+    if (CppEditorSupport *supp = modelManager->cppEditorSupport(editor)) {
+        if (QSharedPointer<SnapshotUpdater> updater = supp->snapshotUpdater()) {
+            updater->update(modelManager->workingCopy());
+            return new CppTools::Internal::CppCompletionAssistInterface(
+                        document,
+                        position,
+                        editor->document()->filePath(),
+                        reason,
+                        updater->snapshot(),
+                        updater->includePaths(),
+                        updater->frameworkPaths());
+        }
     }
-    return new CppTools::Internal::CppCompletionAssistInterface(
-                document,
-                position,
-                filePath,
-                reason,
-                modelManager->snapshot(),
-                includePaths,
-                frameworkPaths);
+
+    return 0;
 }
 
 // -----------------

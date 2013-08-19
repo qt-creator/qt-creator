@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "cpptoolsplugin.h"
-
 #include "cpppreprocessor.h"
+#include "cpptoolseditorsupport.h"
 #include "modelmanagertesthelper.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -722,8 +722,8 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     QVERIFY(mm->isCppEditor(editor));
     QVERIFY(mm->workingCopy().contains(file));
 
-    // Check: File is in the snapshot
-    QVERIFY(mm->snapshot().contains(file));
+    // Wait until the file is refreshed
+    helper.waitForRefreshedSourceFiles();
 
     // Close file/editor
     Core::Tests::closeAndDeleteEditor(editor);
@@ -751,9 +751,9 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
 
-    // Check: File is in the working copy and snapshot
+    // Wait until the file is refreshed and check whether it is in the working copy
+    helper.waitForRefreshedSourceFiles();
     QVERIFY(mm->workingCopy().contains(file));
-    QVERIFY(mm->snapshot().contains(file));
 
     // Run the garbage collector
     mm->GC();
@@ -766,4 +766,107 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     Core::Tests::closeAndDeleteEditor(editor);
     helper.waitForFinishedGc();
     QVERIFY(mm->snapshot().isEmpty());
+}
+
+namespace {
+struct EditorCloser {
+    Core::IEditor *editor;
+    EditorCloser(Core::IEditor *editor): editor(editor) {}
+    ~EditorCloser()
+    {
+        if (editor)
+            Core::EditorManager::closeEditors(QList<Core::IEditor*>() << editor);
+    }
+};
+}
+
+void CppToolsPlugin::test_modelmanager_defines_per_project()
+{
+    ModelManagerTestHelper helper;
+
+    MyTestDataDir testDataDirectory(QLatin1String("testdata_defines"));
+    const QString main1File = testDataDirectory.file(QLatin1String("main1.cpp"));
+    const QString main2File = testDataDirectory.file(QLatin1String("main2.cpp"));
+    const QString header = testDataDirectory.file(QLatin1String("header.h"));
+
+    CppModelManager *mm = CppModelManager::instance();
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_defines_per_project"));
+
+    ProjectPart::Ptr part1(new ProjectPart);
+    part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
+    part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
+    part1->cxxVersion = ProjectPart::CXX11;
+    part1->qtVersion = ProjectPart::NoQt;
+    part1->defines = QByteArray("#define SUB1\n");
+    part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
+
+    ProjectPart::Ptr part2(new ProjectPart);
+    part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
+    part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
+    part2->cxxVersion = ProjectPart::CXX11;
+    part2->qtVersion = ProjectPart::NoQt;
+    part2->defines = QByteArray("#define SUB2\n");
+    part2->includePaths = QStringList() << testDataDirectory.includeDir(false);
+
+    ProjectInfo pi = mm->projectInfo(project);
+    pi.appendProjectPart(part1);
+    pi.appendProjectPart(part2);
+
+    mm->updateProjectInfo(pi);
+
+    helper.waitForRefreshedSourceFiles();
+
+    QCOMPARE(mm->snapshot().size(), 4);
+
+    // Open a file in the editor
+    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+
+    {
+        Core::IEditor *editor = Core::EditorManager::openEditor(main1File);
+        EditorCloser closer(editor);
+        QVERIFY(editor);
+        QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+        QVERIFY(mm->isCppEditor(editor));
+
+        CppEditorSupport *sup = mm->cppEditorSupport(
+                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
+        while (sup->lastSemanticInfoDocument().isNull())
+            QCoreApplication::processEvents();
+
+        Document::Ptr doc = mm->snapshot().document(main1File);
+        QVERIFY(doc);
+        QVERIFY(doc->globalNamespace());
+        QCOMPARE(doc->globalSymbolCount(), 1U);
+        CPlusPlus::Symbol *s = doc->globalSymbolAt(0);
+        QVERIFY(s);
+        CPlusPlus::Declaration *decl = s->asDeclaration();
+        QVERIFY(decl);
+        QVERIFY(decl->type()->isIntegerType());
+        QCOMPARE(decl->name()->identifier()->chars(), "one");
+    }
+
+    {
+        Core::IEditor *editor = Core::EditorManager::openEditor(main2File);
+        EditorCloser closer(editor);
+        QVERIFY(editor);
+        QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+        QVERIFY(mm->isCppEditor(editor));
+
+        CppEditorSupport *sup = mm->cppEditorSupport(
+                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
+        while (sup->lastSemanticInfoDocument().isNull())
+            QCoreApplication::processEvents();
+
+        Document::Ptr doc = mm->snapshot().document(main2File);
+        QVERIFY(doc);
+        QVERIFY(doc->globalNamespace());
+        QCOMPARE(doc->globalSymbolCount(), 1U);
+        CPlusPlus::Symbol *s = doc->globalSymbolAt(0);
+        QVERIFY(s);
+        CPlusPlus::Declaration *decl = s->asDeclaration();
+        QVERIFY(decl);
+        QVERIFY(decl->type()->isIntegerType());
+        QCOMPARE(decl->name()->identifier()->chars(), "two");
+    }
 }

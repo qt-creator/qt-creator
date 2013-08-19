@@ -223,12 +223,14 @@ public:
     virtual bool isCppEditor(Core::IEditor *editor) const = 0;
 
     virtual WorkingCopy workingCopy() const = 0;
+    virtual QByteArray codeModelConfiguration() const = 0;
     virtual CPlusPlus::Snapshot snapshot() const = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
     virtual QFuture<void> updateProjectInfo(const ProjectInfo &pinfo) = 0;
     virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const = 0;
+    virtual QList<ProjectPart::Ptr> projectPartFromDependencies(const QString &fileName) const = 0;
     virtual ProjectPart::Ptr fallbackProjectPart() const = 0;
 
     virtual QStringList includePaths() = 0;

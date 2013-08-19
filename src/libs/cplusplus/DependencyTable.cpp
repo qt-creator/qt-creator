@@ -37,10 +37,8 @@ using namespace CPlusPlus;
 QStringList DependencyTable::filesDependingOn(const QString &fileName) const
 {
     int index = fileIndex.value(fileName, -1);
-    if (index == -1) {
-        qWarning() << fileName << "not in the snapshot";
+    if (index == -1)
         return QStringList();
-    }
 
     QStringList deps;
     for (int i = 0; i < files.size(); ++i) {

@@ -549,7 +549,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     }
 
     // Add the project configuration file
-    QByteArray conf = QByteArray::fromRawData(pp_configuration, qstrlen(pp_configuration));
+    QByteArray conf = codeModelConfiguration();
     conf += definedMacros();
     workingCopy.insert(configurationFileName(), conf);
 
@@ -559,6 +559,11 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 CppModelManager::WorkingCopy CppModelManager::workingCopy() const
 {
     return const_cast<CppModelManager *>(this)->buildWorkingCopyList();
+}
+
+QByteArray CppModelManager::codeModelConfiguration() const
+{
+    return QByteArray::fromRawData(pp_configuration, qstrlen(pp_configuration));
 }
 
 QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles,
@@ -760,20 +765,19 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
 
 QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
 {
-    QList<ProjectPart::Ptr> parts = m_fileToProjectParts.value(fileName);
-    if (!parts.isEmpty())
-        return parts;
+    return m_fileToProjectParts.value(fileName);
+}
 
+QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(const QString &fileName) const
+{
+    QSet<ProjectPart::Ptr> parts;
     DependencyTable table;
     table.build(snapshot());
     const QStringList deps = table.filesDependingOn(fileName);
-    foreach (const QString &dep, deps) {
-        parts = m_fileToProjectParts.value(dep);
-        if (!parts.isEmpty())
-            return parts;
-    }
+    foreach (const QString &dep, deps)
+        parts.unite(QSet<ProjectPart::Ptr>::fromList(m_fileToProjectParts.value(dep)));
 
-    return parts;
+    return parts.values();
 }
 
 ProjectPart::Ptr CppModelManager::fallbackProjectPart() const

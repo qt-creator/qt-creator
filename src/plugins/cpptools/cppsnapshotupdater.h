@@ -27,47 +27,58 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H
-#define CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H
+#ifndef CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
+#define CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
 
 #include "cpptools_global.h"
+#include "cppmodelmanager.h"
 
-#include <texteditor/codeassist/assistenums.h>
-#include <texteditor/codeassist/completionassistprovider.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/DependencyTable.h>
 
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer {
-class Project;
-}
-
-namespace TextEditor {
-class BaseTextEditor;
-class IAssistInterface;
-}
+#include <QMutex>
+#include <QString>
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT CppCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+class CPPTOOLS_EXPORT SnapshotUpdater
 {
-    Q_OBJECT
+    Q_DISABLE_COPY(SnapshotUpdater)
 
 public:
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual int activationCharSequenceLength() const;
-    virtual bool isActivationCharSequence(const QString &sequence) const;
+    SnapshotUpdater(const QString &fileInEditor = QString());
 
-    virtual TextEditor::IAssistInterface *createAssistInterface(
-            ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,
-            QTextDocument *document, int position, TextEditor::AssistReason reason) const = 0;
+    QString fileInEditor() const
+    { return m_fileInEditor; }
 
-    static int activationSequenceChar(const QChar &ch, const QChar &ch2,
-                                      const QChar &ch3, unsigned *kind,
-                                      bool wantFunctionCall);
+    void update(CppModelManagerInterface::WorkingCopy workingCopy);
+
+    CPlusPlus::Document::Ptr document() const;
+
+    CPlusPlus::Snapshot snapshot() const
+    { return m_snapshot; }
+
+    QStringList includePaths() const
+    { return m_includePaths; }
+
+    QStringList frameworkPaths() const
+    { return m_frameworkPaths; }
+
+private:
+    void updateProjectPart();
+    void addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const;
+
+private:
+    mutable QMutex m_mutex;
+    QString m_fileInEditor;
+    ProjectPart::Ptr m_projectPart;
+    QByteArray m_configFile;
+    QStringList m_includePaths;
+    QStringList m_frameworkPaths;
+    CPlusPlus::Snapshot m_snapshot;
+    CPlusPlus::DependencyTable m_deps;
 };
 
 } // namespace CppTools
 
-#endif // CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H
+#endif // CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H

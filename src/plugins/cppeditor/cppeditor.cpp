@@ -2107,10 +2107,11 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
     if (kind == TextEditor::Completion) {
         CppEditorSupport *ces = CppModelManagerInterface::instance()->cppEditorSupport(editor());
         CppCompletionAssistProvider *cap = ces->completionAssistProvider();
-        if (cap)
+        if (cap) {
             return cap->createAssistInterface(
-                        ProjectExplorer::ProjectExplorerPlugin::currentProject(),
-                        editor()->document()->filePath(), document(), position(), reason);
+                            ProjectExplorer::ProjectExplorerPlugin::currentProject(),
+                            editor(), document(), position(), reason);
+        }
     } else if (kind == TextEditor::QuickFix) {
         if (!semanticInfo().doc || isOutdated())
             return 0;

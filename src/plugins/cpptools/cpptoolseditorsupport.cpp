@@ -169,6 +169,8 @@ QString CppEditorSupport::fileName() const
 
 QByteArray CppEditorSupport::contents() const
 {
+    QMutexLocker locker(&m_cachedContentsLock);
+
     const int editorRev = editorRevision();
     if (m_cachedContentsEditorRevision != editorRev && !m_fileIsBeingReloaded) {
         m_cachedContentsEditorRevision = editorRev;
@@ -215,6 +217,13 @@ SemanticInfo CppEditorSupport::recalculateSemanticInfo(bool emitSignalWhenFinish
     return m_lastSemanticInfo;
 }
 
+Document::Ptr CppEditorSupport::lastSemanticInfoDocument() const
+{
+    QMutexLocker locker(&m_lastSemanticInfoLock);
+
+    return m_lastSemanticInfo.doc;
+}
+
 void CppEditorSupport::recalculateSemanticInfoDetached(bool force)
 {
     // Block premature calculation caused by CppEditorPlugin::currentEditorChanged
@@ -236,6 +245,16 @@ CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
     return m_completionAssistProvider;
 }
 
+QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater()
+{
+    QSharedPointer<SnapshotUpdater> updater = m_snapshotUpdater;
+    if (!updater) {
+        updater.reset(new SnapshotUpdater(fileName()));
+        m_snapshotUpdater = updater;
+    }
+    return updater;
+}
+
 void CppEditorSupport::updateDocument()
 {
     m_revision = editorRevision();
@@ -244,6 +263,19 @@ void CppEditorSupport::updateDocument()
         m_updateEditorTimer->stop();
 
     m_updateDocumentTimer->start(m_updateDocumentInterval);
+}
+
+static void parse(QFutureInterface<void> &future, CppEditorSupport *support)
+{
+    future.setProgressRange(0, 1);
+
+    CppModelManager *cmm = qobject_cast<CppModelManager *>(CppModelManager::instance());
+    QSharedPointer<SnapshotUpdater> updater = support->snapshotUpdater();
+
+    updater->update(cmm->workingCopy());
+    cmm->finishedRefreshingSourceFiles(QStringList(updater->document()->fileName()));
+
+    future.setProgressValue(1);
 }
 
 void CppEditorSupport::updateDocumentNow()
@@ -259,8 +291,7 @@ void CppEditorSupport::updateDocumentNow()
         if (m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
             startHighlighting();
 
-        const QStringList sourceFiles(m_textEditor->document()->filePath());
-        m_documentParser = m_modelManager->updateSourceFiles(sourceFiles);
+        m_documentParser = QtConcurrent::run(&parse, this);
     }
 }
 
@@ -429,7 +460,7 @@ SemanticInfo::Source CppEditorSupport::currentSource(bool force)
     int line = 0, column = 0;
     m_textEditor->convertPosition(m_textEditor->editorWidget()->position(), &line, &column);
 
-    const Snapshot snapshot = m_modelManager->snapshot();
+    const Snapshot snapshot = m_snapshotUpdater->snapshot();
 
     QByteArray code;
     if (force || m_lastSemanticInfo.revision != editorRevision())

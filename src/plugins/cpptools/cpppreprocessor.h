@@ -23,6 +23,8 @@ public:
     static QString cleanPath(const QString &path);
 
     CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing = false);
+    CppPreprocessor(QPointer<CppModelManager> modelManager, const CPlusPlus::Snapshot &snapshot,
+                    bool dumpFileNameWhileParsing = false);
     virtual ~CppPreprocessor();
 
     void setRevision(unsigned revision);
@@ -35,11 +37,16 @@ public:
     void removeFromCache(const QString &fileName);
     void resetEnvironment();
 
+    CPlusPlus::Snapshot snapshot() const
+    { return m_snapshot; }
+
     const QSet<QString> &todo() const
     { return m_todo; }
 
     CppModelManager *modelManager() const
     { return m_modelManager.data(); }
+
+    void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot) { m_globalSnapshot = snapshot; }
 
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
@@ -71,6 +78,7 @@ private:
     void addFrameworkPath(const QString &frameworkPath);
 
     CPlusPlus::Snapshot m_snapshot;
+    CPlusPlus::Snapshot m_globalSnapshot;
     QPointer<CppModelManager> m_modelManager;
     bool m_dumpFileNameWhileParsing;
     CPlusPlus::Environment m_env;

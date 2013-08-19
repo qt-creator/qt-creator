@@ -33,12 +33,14 @@
 #include "cpphighlightingsupport.h"
 #include "cppmodelmanager.h"
 #include "cppsemanticinfo.h"
+#include "cppsnapshotupdater.h"
 
 #include <cplusplus/CppDocument.h>
 
 #include <QFuture>
 #include <QObject>
 #include <QPointer>
+#include <QSharedPointer>
 #include <QTimer>
 
 namespace CPlusPlus { class AST; }
@@ -111,6 +113,8 @@ public:
     /// thread if it is outdate.
     SemanticInfo recalculateSemanticInfo(bool emitSignalWhenFinished = true);
 
+    CPlusPlus::Document::Ptr lastSemanticInfoDocument() const;
+
     /// Recalculates the semantic info in a future, and will emit the
     /// semanticInfoUpdated() signal when finished.
     /// Requires that initialized() is true.
@@ -118,6 +122,8 @@ public:
     void recalculateSemanticInfoDetached(bool force = false);
 
     CppCompletionAssistProvider *completionAssistProvider() const;
+
+    QSharedPointer<SnapshotUpdater> snapshotUpdater();
 
 signals:
     void documentUpdated();
@@ -173,6 +179,7 @@ private:
     QFuture<void> m_documentParser;
 
     // content caching
+    mutable QMutex m_cachedContentsLock;
     mutable QByteArray m_cachedContents;
     mutable int m_cachedContentsEditorRevision;
     bool m_fileIsBeingReloaded;
@@ -188,6 +195,7 @@ private:
     mutable QMutex m_lastSemanticInfoLock;
     SemanticInfo m_lastSemanticInfo;
     QFuture<void> m_futureSemanticInfo;
+    QSharedPointer<SnapshotUpdater> m_snapshotUpdater;
 
     // Highlighting:
     unsigned m_lastHighlightRevision;

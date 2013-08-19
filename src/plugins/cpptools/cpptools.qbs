@@ -121,7 +121,9 @@ QtcPlugin {
         "cppcodemodelsettings.h",
         "cppcodemodelsettingspage.cpp",
         "cppcodemodelsettingspage.h",
-        "cppcodemodelsettingspage.ui"
+        "cppcodemodelsettingspage.ui",
+        "cppsnapshotupdater.cpp",
+        "cppsnapshotupdater.h",
     ]
 
     Group {

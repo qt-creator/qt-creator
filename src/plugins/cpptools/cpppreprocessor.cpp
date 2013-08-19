@@ -6,6 +6,7 @@
 #include <utils/textfileformat.h>
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 
 /*!
  * \class CppTools::Internal::CppPreprocessor
@@ -26,6 +27,17 @@ using namespace CppTools::Internal;
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager,
                                  bool dumpFileNameWhileParsing)
     : m_snapshot(modelManager->snapshot()),
+      m_modelManager(modelManager),
+      m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
+      m_preprocess(this, &m_env),
+      m_revision(0)
+{
+    m_preprocess.setKeepComments(true);
+}
+
+CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager, const Snapshot &snapshot,
+                                 bool dumpFileNameWhileParsing)
+    : m_snapshot(snapshot),
       m_modelManager(modelManager),
       m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
       m_preprocess(this, &m_env),
@@ -129,10 +141,10 @@ public:
     {
         _doc->check(_mode);
 
-        if (_modelManager)
+        if (_modelManager) {
             _modelManager->emitDocumentUpdated(_doc);
-
-        _doc->releaseSourceAndAST();
+            _doc->releaseSourceAndAST();
+        }
     }
 };
 } // end of anonymous namespace
@@ -398,7 +410,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
 
     if (m_dumpFileNameWhileParsing) {
         qDebug() << "Parsing file:" << absoluteFileName
-                 << "contents:" << contents.size()
+                 << "contents:" << contents.size() << "bytes";
         ;
     }
 
@@ -425,6 +437,33 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
 //        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(),
 //               b.constData());
 //    }
+
+    QCryptographicHash hash(QCryptographicHash::Sha1);
+    hash.addData(preprocessedCode);
+    foreach (const Macro &macro, doc->definedMacros()) {
+        if (macro.isHidden()) {
+            static const QByteArray undef("#undef ");
+            hash.addData(undef);
+            hash.addData(macro.name());
+        } else {
+            static const QByteArray def("#define ");
+            hash.addData(macro.name());
+            hash.addData(" ", 1);
+            hash.addData(def);
+            hash.addData(macro.definitionText());
+        }
+        hash.addData("\n", 1);
+    }
+    doc->setFingerprint(hash.result());
+
+    Document::Ptr anotherDoc = m_globalSnapshot.document(absoluteFileName);
+    if (anotherDoc && anotherDoc->fingerprint() == doc->fingerprint()) {
+        switchDocument(previousDoc);
+        mergeEnvironment(anotherDoc);
+        m_snapshot.insert(anotherDoc);
+        m_todo.remove(absoluteFileName);
+        return;
+    }
 
     doc->setUtf8Source(preprocessedCode);
     doc->keepSourceAndAST();

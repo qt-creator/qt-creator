@@ -12,6 +12,7 @@ HEADERS += completionsettingspage.h \
     cpptools_global.h \
     cpptoolsconstants.h \
     cpptoolseditorsupport.h \
+    cppsnapshotupdater.h \
     cpptoolsplugin.h \
     cppqtstyleindenter.h \
     searchsymbols.h \
@@ -60,6 +61,7 @@ SOURCES += completionsettingspage.cpp \
     cppmodelmanagerinterface.cpp \
     cpplocatorfilter.cpp \
     cpptoolseditorsupport.cpp \
+    cppsnapshotupdater.cpp \
     cpptoolsplugin.cpp \
     cppqtstyleindenter.cpp \
     searchsymbols.cpp \
