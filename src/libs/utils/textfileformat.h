@@ -76,6 +76,8 @@ public:
     static ReadResult readFile(const QString &fileName, const QTextCodec *defaultCodec,
                                QString *plainText, TextFileFormat *format, QString *errorString,
                                QByteArray *decodingErrorSample = 0);
+    static ReadResult readFileUTF8(const QString &fileName, QByteArray *plainText,
+                                   QString *errorString);
 
     bool writeFile(const QString &fileName, QString plainText, QString *errorString) const;
 

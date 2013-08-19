@@ -41,7 +41,7 @@ FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
     , _preproc(this, &_env)
 { }
 
-QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
+QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
 {
     std::swap(newDoc, _currentDoc);
     const QString fileName = _currentDoc->fileName();

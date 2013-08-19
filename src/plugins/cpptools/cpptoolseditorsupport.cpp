@@ -166,12 +166,12 @@ QString CppEditorSupport::fileName() const
     return m_textEditor->document()->filePath();
 }
 
-QString CppEditorSupport::contents() const
+QByteArray CppEditorSupport::contents() const
 {
     const int editorRev = editorRevision();
     if (m_cachedContentsEditorRevision != editorRev && !m_fileIsBeingReloaded) {
         m_cachedContentsEditorRevision = editorRev;
-        m_cachedContents = m_textEditor->textDocument()->contents();
+        m_cachedContents = m_textEditor->textDocument()->contents().toUtf8();
     }
 
     return m_cachedContents;
@@ -430,7 +430,7 @@ SemanticInfo::Source CppEditorSupport::currentSource(bool force)
 
     const Snapshot snapshot = m_modelManager->snapshot();
 
-    QString code;
+    QByteArray code;
     if (force || m_lastSemanticInfo.revision != editorRevision())
         code = contents(); // get the source code only when needed.
 

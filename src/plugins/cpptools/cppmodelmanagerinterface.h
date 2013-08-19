@@ -176,29 +176,38 @@ public:
         QByteArray m_defines;
     };
 
+    /// The working-copy stores all files that are stored on disk in their current state.
+    ///
+    /// So, currently the working copy holds:
+    ///  - unsaved content of editors
+    ///  - uic-ed UI files (through \c AbstractEditorSupport)
+    ///  - the preprocessor configuration
+    ///
+    /// Contents are keyed on filename, and hold the revision in the editor and the editor's
+    /// contents encoded as UTF-8.
     class CPPTOOLS_EXPORT WorkingCopy
     {
     public:
-        void insert(const QString &fileName, const QString &source, unsigned revision = 0)
+        void insert(const QString &fileName, const QByteArray &source, unsigned revision = 0)
         { _elements.insert(fileName, qMakePair(source, revision)); }
 
         bool contains(const QString &fileName) const
         { return _elements.contains(fileName); }
 
-        QString source(const QString &fileName) const
+        QByteArray source(const QString &fileName) const
         { return _elements.value(fileName).first; }
 
-        QPair<QString, unsigned> get(const QString &fileName) const
+        QPair<QByteArray, unsigned> get(const QString &fileName) const
         { return _elements.value(fileName); }
 
-        QHashIterator<QString, QPair<QString, unsigned> > iterator() const
-        { return QHashIterator<QString, QPair<QString, unsigned> >(_elements); }
+        QHashIterator<QString, QPair<QByteArray, unsigned> > iterator() const
+        { return QHashIterator<QString, QPair<QByteArray, unsigned> >(_elements); }
 
         int size() const
         { return _elements.size(); }
 
     private:
-        typedef QHash<QString, QPair<QString, unsigned> > Table;
+        typedef QHash<QString, QPair<QByteArray, unsigned> > Table;
         Table _elements;
     };
 

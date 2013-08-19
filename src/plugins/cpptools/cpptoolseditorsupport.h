@@ -96,7 +96,7 @@ public:
 
     QString fileName() const;
 
-    QString contents() const;
+    QByteArray contents() const;
     unsigned editorRevision() const;
 
     void setExtraDiagnostics(const QString &key,
@@ -173,7 +173,7 @@ private:
     QFuture<void> m_documentParser;
 
     // content caching
-    mutable QString m_cachedContents;
+    mutable QByteArray m_cachedContents;
     mutable int m_cachedContentsEditorRevision;
     bool m_fileIsBeingReloaded;
 

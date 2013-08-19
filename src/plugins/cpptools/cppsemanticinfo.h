@@ -47,7 +47,7 @@ public:
     {
         const CPlusPlus::Snapshot snapshot;
         const QString fileName;
-        const QString code;
+        const QByteArray code;
         const int line;
         const int column;
         const unsigned revision;
@@ -59,7 +59,7 @@ public:
 
         Source(const CPlusPlus::Snapshot &snapshot,
                const QString &fileName,
-               const QString &code,
+               const QByteArray &code,
                int line, int column,
                unsigned revision,
                bool force)

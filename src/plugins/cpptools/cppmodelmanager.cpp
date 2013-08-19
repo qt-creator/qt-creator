@@ -541,13 +541,13 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     QSetIterator<AbstractEditorSupport *> it(m_extraEditorSupports);
     while (it.hasNext()) {
         AbstractEditorSupport *es = it.next();
-        workingCopy.insert(es->fileName(), QString::fromUtf8(es->contents()));
+        workingCopy.insert(es->fileName(), es->contents());
     }
 
     // Add the project configuration file
-    QByteArray conf(pp_configuration);
+    QByteArray conf = QByteArray::fromRawData(pp_configuration, qstrlen(pp_configuration));
     conf += definedMacros();
-    workingCopy.insert(configurationFileName(), QString::fromLocal8Bit(conf));
+    workingCopy.insert(configurationFileName(), conf);
 
     return workingCopy;
 }

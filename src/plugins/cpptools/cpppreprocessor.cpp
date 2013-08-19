@@ -3,6 +3,7 @@
 #include "cppmodelmanager.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/textfileformat.h>
 
 #include <QCoreApplication>
 
@@ -154,14 +155,14 @@ void CppPreprocessor::resetEnvironment()
 }
 
 void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
-                                      QString *contents,
+                                      QByteArray *contents,
                                       unsigned *revision) const
 {
     if (absoluteFilePath.isEmpty())
         return;
 
     if (m_workingCopy.contains(absoluteFilePath)) {
-        const QPair<QString, unsigned> entry = m_workingCopy.get(absoluteFilePath);
+        const QPair<QByteArray, unsigned> entry = m_workingCopy.get(absoluteFilePath);
         if (contents)
             *contents = entry.first;
         if (revision)
@@ -169,16 +170,11 @@ void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
         return;
     }
 
-    QFile file(absoluteFilePath);
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
-        QTextStream stream(&file);
-        stream.setCodec(Core::EditorManager::defaultTextCodec());
-        if (contents)
-            *contents = stream.readAll();
-        if (revision)
-            *revision = 0;
-        file.close();
-    }
+    QString errStr;
+    if (contents)
+        Utils::TextFileFormat::readFileUTF8(absoluteFilePath, contents, &errStr);
+    if (revision)
+        *revision = 0;
 }
 
 bool CppPreprocessor::checkFile(const QString &absoluteFilePath) const
@@ -370,7 +366,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
         m_included.insert(absoluteFileName);
 
     unsigned editorRevision = 0;
-    QString contents;
+    QByteArray contents;
     getFileContents(absoluteFileName, &contents, &editorRevision);
     if (m_currentDoc) {
         if (contents.isEmpty() && !QFileInfo(absoluteFileName).isAbsolute()) {

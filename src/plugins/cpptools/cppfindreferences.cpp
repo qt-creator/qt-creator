@@ -53,8 +53,8 @@ using namespace CppTools::Internal;
 using namespace CppTools;
 using namespace CPlusPlus;
 
-static QString getSource(const QString &fileName,
-                         const CppModelManagerInterface::WorkingCopy &workingCopy)
+static QByteArray getSource(const QString &fileName,
+                            const CppModelManagerInterface::WorkingCopy &workingCopy)
 {
     if (workingCopy.contains(fileName)) {
         return workingCopy.source(fileName);
@@ -68,7 +68,7 @@ static QString getSource(const QString &fileName,
         if (result != Utils::TextFileFormat::ReadSuccess)
             qWarning() << "Could not read " << fileName << ". Error: " << error;
 
-        return fileContents;
+        return fileContents.toUtf8();
     }
 }
 
@@ -110,7 +110,7 @@ public:
                 return usages; // skip this document, it's not using symbolId.
         }
         Document::Ptr doc;
-        const QString unpreprocessedSource = getSource(fileName, workingCopy);
+        const QByteArray unpreprocessedSource = getSource(fileName, workingCopy);
 
         if (symbolDocument && fileName == symbolDocument->fileName()) {
             doc = symbolDocument;
@@ -124,7 +124,7 @@ public:
             if (doc != symbolDocument)
                 doc->check();
 
-            FindUsages process(unpreprocessedSource.toUtf8(), doc, snapshot);
+            FindUsages process(unpreprocessedSource, doc, snapshot);
             process(symbol);
 
             usages = process.usages();
@@ -439,7 +439,7 @@ bool CppFindReferences::findSymbol(CppFindReferencesParameters *parameters,
 
     Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
-    QString source = getSource(newSymbolDocument->fileName(), _modelManager->workingCopy());
+    QByteArray source = getSource(newSymbolDocument->fileName(), _modelManager->workingCopy());
     Document::Ptr doc =
             snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
     doc->check();
@@ -541,7 +541,7 @@ public:
     {
         QList<Usage> usages;
         Document::Ptr doc = snapshot.document(fileName);
-        QString source;
+        QByteArray source;
 
 restart_search:
         if (future->isPaused())
@@ -566,8 +566,8 @@ restart_search:
 
                 if (macro.name() == useMacro.name()) {
                     unsigned lineStart;
-                    const QString &lineSource = matchingLine(use.begin(), source, &lineStart);
-                    usages.append(Usage(fileName, lineSource, use.beginLine(),
+                    const QByteArray &lineSource = matchingLine(use.begin(), source, &lineStart);
+                    usages.append(Usage(fileName, QString::fromUtf8(lineSource), use.beginLine(),
                                         use.begin() - lineStart, useMacro.name().length()));
                 }
             }
@@ -578,18 +578,18 @@ restart_search:
         return usages;
     }
 
-    static QString matchingLine(unsigned position, const QString &source,
-                                unsigned *lineStart = 0)
+    static QByteArray matchingLine(unsigned position, const QByteArray &source,
+                                   unsigned *lineStart = 0)
     {
-        int lineBegin = source.lastIndexOf(QLatin1Char('\n'), position) + 1;
-        int lineEnd = source.indexOf(QLatin1Char('\n'), position);
+        int lineBegin = source.lastIndexOf('\n', position) + 1;
+        int lineEnd = source.indexOf('\n', position);
         if (lineEnd == -1)
             lineEnd = source.length();
 
         if (lineStart)
             *lineStart = lineBegin;
 
-        const QString matchingLine = source.mid(lineBegin, lineEnd - lineBegin);
+        const QByteArray matchingLine = source.mid(lineBegin, lineEnd - lineBegin);
         return matchingLine;
     }
 };
@@ -652,10 +652,11 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
 
     // add the macro definition itself
     {
-        const QString &source = getSource(macro.fileName(), workingCopy);
+        const QByteArray &source = getSource(macro.fileName(), workingCopy);
         unsigned lineStart;
-        const QString line = FindMacroUsesInFile::matchingLine(macro.offset(), source, &lineStart);
-        search->addResult(macro.fileName(), macro.line(), line,
+        const QByteArray line = FindMacroUsesInFile::matchingLine(macro.offset(), source,
+                                                                  &lineStart);
+        search->addResult(macro.fileName(), macro.line(), QString::fromUtf8(line),
                           macro.offset() - lineStart, macro.name().length());
     }
 

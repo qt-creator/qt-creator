@@ -59,6 +59,7 @@ public:
     ~UiCodeModelSupport();
 
     void setHeaderFileName(const QString &name);
+    /// \returns the contents encoded in UTF-8.
     QByteArray contents() const;
     QString uiFileName() const; // The .ui-file
     QString fileName() const; // The header file

@@ -2702,13 +2702,13 @@ static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
                                                   const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
-    QString src;
+    QByteArray src;
     if (workingCopy.contains(fileName)) {
         src = workingCopy.source(fileName);
     } else {
         FileReader reader;
         if (reader.fetch(fileName)) // ### FIXME error reporting
-            src = QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
+            src = QString::fromLocal8Bit(reader.data()).toUtf8();
     }
 
     CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(src, fileName);

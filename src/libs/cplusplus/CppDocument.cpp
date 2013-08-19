@@ -736,7 +736,8 @@ void Snapshot::insert(Document::Ptr doc)
         _documents.insert(doc->fileName(), doc);
 }
 
-Document::Ptr Snapshot::preprocessedDocument(const QString &source, const QString &fileName) const
+Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
+                                             const QString &fileName) const
 {
     Document::Ptr newDoc = Document::create(fileName);
     if (Document::Ptr thisDocument = document(fileName)) {

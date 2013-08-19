@@ -196,7 +196,7 @@ void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileAc
 
         Snapshot snapshot = mm->snapshot();
         Document::Ptr document = snapshot.preprocessedDocument(
-            editorWidget->document()->toPlainText(), filePath);
+            editorWidget->document()->toPlainText().toUtf8(), filePath);
         QVERIFY(document);
         document->parse();
         TranslationUnit *translationUnit = document->translationUnit();

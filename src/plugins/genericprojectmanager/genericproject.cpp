@@ -221,8 +221,11 @@ void GenericProject::parseProject(RefreshOptions options)
         m_defines.clear();
 
         QFile configFile(configFileName());
-        if (configFile.open(QFile::ReadOnly))
-            m_defines = configFile.readAll();
+        if (configFile.open(QFile::ReadOnly)) {
+            // convert from local/file encoding to UTF-8
+            QTextStream configStream(&configFile);
+            m_defines = configStream.readAll().toUtf8();
+        }
     }
 
     if (options & Files)

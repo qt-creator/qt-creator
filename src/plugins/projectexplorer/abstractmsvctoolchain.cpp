@@ -223,14 +223,15 @@ QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList cxxflag
     Q_UNUSED(cxxflags);
     Q_UNUSED(env);
 
-    QByteArray predefinedMacros = "#define __MSVCRT__\n"
+    static const QByteArray predefinedMacros(
+            "#define __MSVCRT__\n"
             "#define __w64\n"
             "#define __int64 long long\n"
             "#define __int32 long\n"
             "#define __int16 short\n"
             "#define __int8 char\n"
             "#define __ptr32\n"
-            "#define __ptr64\n";
+            "#define __ptr64\n");
 
     return predefinedMacros;
 }

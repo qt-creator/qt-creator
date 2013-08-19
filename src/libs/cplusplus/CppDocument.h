@@ -398,7 +398,7 @@ public:
 
     Snapshot simplified(Document::Ptr doc) const;
 
-    Document::Ptr preprocessedDocument(const QString &source,
+    Document::Ptr preprocessedDocument(const QByteArray &source,
                                        const QString &fileName) const;
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,

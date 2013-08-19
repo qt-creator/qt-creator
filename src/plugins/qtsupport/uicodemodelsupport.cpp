@@ -123,14 +123,14 @@ void UiCodeModelSupport::init() const
             if (debug)
                 qDebug()<<"uic run wasn't succesfull";
             m_cacheTime = QDateTime ();
-            m_contents = QByteArray();
+            m_contents.clear();
             m_state = FINISHED;
             return;
         }
     } else {
         if (debug)
             qDebug()<<"Could open "<<m_uiFileName<<"needed for the cpp model";
-        m_contents = QByteArray();
+        m_contents.clear();
         m_state = FINISHED;
     }
 }
@@ -296,7 +296,10 @@ bool UiCodeModelSupport::finishProcess() const
     if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
         return true;
 
-    m_contents = m_process.readAllStandardOutput();
+    // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
+    // conversion below is to normalize both the encoding, and the line terminators.
+    QString normalized = QString::fromLocal8Bit(m_process.readAllStandardOutput());
+    m_contents = normalized.toUtf8();
     m_cacheTime = QDateTime::currentDateTime();
     if (debug)
         qDebug() << "ok" << m_contents.size() << "bytes.";

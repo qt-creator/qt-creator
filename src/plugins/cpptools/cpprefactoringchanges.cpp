@@ -109,7 +109,7 @@ CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const QString &fi
 {
     QTextDocument *document = 0;
     if (data()->m_workingCopy.contains(fileName))
-        document = new QTextDocument(data()->m_workingCopy.source(fileName));
+        document = new QTextDocument(QString::fromUtf8(data()->m_workingCopy.source(fileName)));
     CppRefactoringFilePtr result(new CppRefactoringFile(document, fileName));
     result->m_data = m_data;
 
@@ -144,7 +144,7 @@ Document::Ptr CppRefactoringFile::cppDocument() const
 {
     if (!m_cppDocument || !m_cppDocument->translationUnit() ||
             !m_cppDocument->translationUnit()->ast()) {
-        const QString source = document()->toPlainText();
+        const QByteArray source = document()->toPlainText().toUtf8();
         const QString name = fileName();
         const Snapshot &snapshot = data()->m_snapshot;
 

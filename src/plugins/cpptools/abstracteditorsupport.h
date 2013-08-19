@@ -45,6 +45,7 @@ public:
     explicit AbstractEditorSupport(CppModelManagerInterface *modelmanager);
     virtual ~AbstractEditorSupport();
 
+    /// \returns the contents, encoded as UTF-8
     virtual QByteArray contents() const = 0;
     virtual QString fileName() const = 0;
 
