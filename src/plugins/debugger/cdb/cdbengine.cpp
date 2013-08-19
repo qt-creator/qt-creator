@@ -2475,7 +2475,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
             const Task task(type, exception.toString(false).trimmed(),
                             fileName, exception.lineNumber,
                             Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
-            taskHub()->addTask(task);
+            TaskHub::addTask(task);
         }
         return;
     }

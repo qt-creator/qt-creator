@@ -689,7 +689,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 const Task::TaskType type = isFatalWinException(exCode) ? Task::Error : Task::Warning;
                 const Task task(type, m_lastWinException, Utils::FileName(), 0,
                                 Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
-                taskHub()->addTask(task);
+                TaskHub::addTask(task);
             }
 
             if (data.startsWith("QMLBP:")) {
@@ -734,7 +734,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                             .arg(m_lastMissingDebugInfo).arg(cmd),
                         FileName(), 0, Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
 
-                    taskHub()->addTask(task);
+                    TaskHub::addTask(task);
 
                     DebugInfoTask dit;
                     dit.command = cmd;
