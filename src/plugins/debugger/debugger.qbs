@@ -16,6 +16,7 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtcSsh" }
+    Depends { name: "Utils" }
 
     cpp.includePaths: base.concat([
         "shared",
