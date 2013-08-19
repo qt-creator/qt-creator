@@ -36,6 +36,7 @@
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/testdatadir.h>
 #include <extensionsystem/pluginmanager.h>
 #include <locator/locatorfiltertest.h>
 #include <utils/fileutils.h>
@@ -45,6 +46,7 @@
 #include <QtTest>
 
 using namespace Core;
+using namespace Core::Internal::Tests;
 using namespace CppTools::Internal;
 using namespace ExtensionSystem;
 using namespace Locator;
@@ -56,46 +58,11 @@ Q_DECLARE_METATYPE(ILocatorFilter *)
 
 namespace {
 
-class TestDataDirectory
+class MyTestDataDir : public Core::Internal::Tests::TestDataDir
 {
 public:
-    TestDataDirectory(const QString &testDataDirectory)
-        : m_testDataDirectory(QLatin1String(SRCDIR "/../../../tests/cpplocators/")
-                              + testDataDirectory)
-    {
-        maybeAppendSlash(&m_testDataDirectory);
-        QFileInfo testDataDir(m_testDataDirectory);
-        QVERIFY(testDataDir.exists());
-        QVERIFY(testDataDir.isDir());
-    }
-
-    /// File from the test data directory (top level)
-    QString file(const QString &fileName) const
-    {
-        return testDataDir() + fileName;
-    }
-
-private:
-    QString testDataDir(const QString& subdir = QString(), bool clean = true) const
-    {
-        QString path = m_testDataDirectory;
-        if (!subdir.isEmpty())
-            path += QLatin1String("/") + subdir;
-        if (clean)
-            path = QDir::cleanPath(path);
-        maybeAppendSlash(&path);
-        return path;
-    }
-
-    static void maybeAppendSlash(QString *string)
-    {
-        const QChar slash = QLatin1Char('/');
-        if (!string->endsWith(slash))
-            string->append(slash);
-    }
-
-private:
-    QString m_testDataDirectory;
+    MyTestDataDir(const QString &testDataDirectory)
+        : TestDataDir(QLatin1String(SRCDIR "/../../../tests/cpplocators/") + testDataDirectory) {}
 };
 
 class CppLocatorFilterTest : public BasicLocatorFilterTest
@@ -199,7 +166,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
     ILocatorFilter *cppClassesFilter = PluginManager::getObject<CppClassesFilter>();
     ILocatorFilter *cppLocatorFilter = PluginManager::getObject<CppLocatorFilter>();
 
-    TestDataDirectory testDirectory(QLatin1String("testdata_basic"));
+    MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
     const QString testFile = testDirectory.file(QLatin1String("file1.cpp"));
     const QString testFileShort = FileUtils::shortNativePath(FileName::fromString(testFile));
 
@@ -242,7 +209,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
 
 void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
 {
-    TestDataDirectory testDirectory(QLatin1String("testdata_basic"));
+    MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
     const QString testFile = testDirectory.file(QLatin1String("file1.cpp"));
 
     QList<ResultData> expectedResults = QList<ResultData>()

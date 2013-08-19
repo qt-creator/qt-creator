@@ -33,6 +33,7 @@
 #include "cppmodelmanager.h"
 #include "searchsymbols.h"
 
+#include <coreplugin/testdatadir.h>
 #include <utils/runextensions.h>
 
 #include <QtTest>
@@ -42,46 +43,13 @@ using namespace CppTools::Internal;
 
 namespace {
 
-class TestDataDirectory
+class MyTestDataDir : public Core::Internal::Tests::TestDataDir
 {
 public:
-    TestDataDirectory(const QString &testDataDirectory)
-        : m_testDataDirectory(QLatin1String(SRCDIR "/../../../tests/cppsymbolsearcher/")
-                              + testDataDirectory)
-    {
-        maybeAppendSlash(&m_testDataDirectory);
-        QFileInfo testDataDir(m_testDataDirectory);
-        QVERIFY(testDataDir.exists());
-        QVERIFY(testDataDir.isDir());
-    }
-
-    /// File from the test data directory (top level)
-    QString file(const QString &fileName) const
-    {
-        return testDataDir() + fileName;
-    }
-
-private:
-    QString testDataDir(const QString &subdir = QString(), bool clean = true) const
-    {
-        QString path = m_testDataDirectory;
-        if (!subdir.isEmpty())
-            path += QLatin1String("/") + subdir;
-        if (clean)
-            path = QDir::cleanPath(path);
-        maybeAppendSlash(&path);
-        return path;
-    }
-
-    static void maybeAppendSlash(QString *string)
-    {
-        const QChar slash = QLatin1Char('/');
-        if (!string->endsWith(slash))
-            string->append(slash);
-    }
-
-private:
-    QString m_testDataDirectory;
+    MyTestDataDir(const QString &testDataDirectory)
+        : TestDataDir(QLatin1String(SRCDIR "/../../../tests/cppsymbolsearcher/")
+                      + testDataDirectory)
+    {}
 };
 
 class ResultData
@@ -194,7 +162,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     QTest::addColumn<SymbolSearcher::Parameters>("searchParameters");
     QTest::addColumn<ResultDataList>("expectedResults");
 
-    TestDataDirectory testDirectory(QLatin1String("testdata_basic"));
+    MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
     const QString testFile = testDirectory.file(QLatin1String("file1.cpp"));
 
     QScopedPointer<CppIndexingSupport> builtinIndexingSupport(new BuiltinIndexingSupport);
