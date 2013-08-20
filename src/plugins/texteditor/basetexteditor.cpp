@@ -1998,7 +1998,7 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
 
     setExtraSelections(BaseTextEditorWidget::SnippetPlaceholderSelection, selections);
 
-    if (! selections.isEmpty()) {
+    if (!selections.isEmpty()) {
         const QTextEdit::ExtraSelection &selection = selections.first();
 
         cursor = textCursor();
@@ -2010,7 +2010,6 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
         }
         setTextCursor(cursor);
     }
-
 }
 
 void BaseTextEditorWidget::universalHelper()
