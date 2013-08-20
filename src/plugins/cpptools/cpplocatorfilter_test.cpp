@@ -193,17 +193,23 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
     QTest::newRow("CppLocatorFilter")
         << testFile
         << cppLocatorFilter
-        << _("myclass")
+        << _("my")
         << (QList<ResultData>()
             << ResultData(_("MyClass"), testFileShort)
             << ResultData(_("MyClass::MyClass"), _("()"))
             << ResultData(_("MyClass::function2"), _("(bool, int)"))
-            << ResultData(_("<anonymous namespace>::MyClass"), testFileShort)
-            << ResultData(_("<anonymous namespace>::MyClass::MyClass"), _("()"))
-            << ResultData(_("<anonymous namespace>::MyClass::function2"), _("(bool, int)"))
+            << ResultData(_("MyEnum"), testFileShort)
             << ResultData(_("MyNamespace::MyClass"), testFileShort)
             << ResultData(_("MyNamespace::MyClass::MyClass"), _("()"))
             << ResultData(_("MyNamespace::MyClass::function2"), _("(bool, int)"))
+            << ResultData(_("MyNamespace::MyEnum"), testFileShort)
+            << ResultData(_("MyNamespace::myFunction"), _("(bool, int)"))
+            << ResultData(_("myFunction"), _("(bool, int)"))
+            << ResultData(_("<anonymous namespace>::MyClass"), testFileShort)
+            << ResultData(_("<anonymous namespace>::MyClass::MyClass"), _("()"))
+            << ResultData(_("<anonymous namespace>::MyClass::function2"), _("(bool, int)"))
+            << ResultData(_("<anonymous namespace>::MyEnum"), testFileShort)
+            << ResultData(_("<anonymous namespace>::myFunction"), _("(bool, int)"))
             );
 }
 
