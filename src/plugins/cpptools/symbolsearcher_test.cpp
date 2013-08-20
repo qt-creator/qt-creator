@@ -143,6 +143,18 @@ inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size(
 Q_DECLARE_METATYPE(ResultData)
 Q_DECLARE_METATYPE(ResultDataList)
 
+QT_BEGIN_NAMESPACE
+namespace QTest {
+
+template<> char *toString(const ResultData &data)
+{
+    QByteArray ba = "\"" + data.m_symbolName.toUtf8() + "\", \"" + data.m_scope.toUtf8() + "\"";
+    return qstrdup(ba.data());
+}
+
+} // namespace QTest
+QT_END_NAMESPACE
+
 void CppToolsPlugin::test_builtinsymbolsearcher()
 {
     QFETCH(QString, testFile);
@@ -182,8 +194,8 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("int myVariable"), _(""))
             << ResultData(_("myFunction(bool, int)"), _(""))
             << ResultData(_("MyEnum"), _(""))
-            << ResultData(_("int V1"), _(""))
-            << ResultData(_("int V2"), _(""))
+            << ResultData(_("int V1"), _("MyEnum"))
+            << ResultData(_("int V2"), _("MyEnum"))
             << ResultData(_("MyClass"), _(""))
             << ResultData(_("MyClass()"), _("MyClass"))
             << ResultData(_("function1()"), _("MyClass"))
@@ -191,21 +203,21 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("int myVariable"), _("MyNamespace"))
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
             << ResultData(_("MyEnum"), _("MyNamespace"))
-            << ResultData(_("int V1"), _("MyNamespace"))
-            << ResultData(_("int V2"), _("MyNamespace"))
+            << ResultData(_("int V1"), _("MyNamespace::MyEnum"))
+            << ResultData(_("int V2"), _("MyNamespace::MyEnum"))
             << ResultData(_("MyClass"), _("MyNamespace"))
             << ResultData(_("MyClass()"), _("MyNamespace::MyClass"))
             << ResultData(_("function1()"), _("MyNamespace::MyClass"))
             << ResultData(_("function2(bool, int)"), _("MyNamespace::MyClass"))
-            << ResultData(_("int myVariable"), _(""))
-            << ResultData(_("myFunction(bool, int)"), _(""))
-            << ResultData(_("MyEnum"), _(""))
-            << ResultData(_("int V1"), _(""))
-            << ResultData(_("int V2"), _(""))
-            << ResultData(_("MyClass"), _(""))
-            << ResultData(_("MyClass()"), _("MyClass"))
-            << ResultData(_("function1()"), _("MyClass"))
-            << ResultData(_("function2(bool, int)"), _("MyClass"))
+            << ResultData(_("int myVariable"), _("<anonymous namespace>"))
+            << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
+            << ResultData(_("MyEnum"), _("<anonymous namespace>"))
+            << ResultData(_("int V1"), _("<anonymous namespace>::MyEnum"))
+            << ResultData(_("int V2"), _("<anonymous namespace>::MyEnum"))
+            << ResultData(_("MyClass"), _("<anonymous namespace>"))
+            << ResultData(_("MyClass()"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("function1()"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("function2(bool, int)"), _("<anonymous namespace>::MyClass"))
         );
 
     // Check Classes
@@ -220,7 +232,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
         << (ResultDataList()
             << ResultData(_("MyClass"), _(""))
             << ResultData(_("MyClass"), _("MyNamespace"))
-            << ResultData(_("MyClass"), _(""))
+            << ResultData(_("MyClass"), _("<anonymous namespace>"))
         );
 
     // Check Functions
@@ -237,8 +249,8 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("function2(bool, int)"), _("MyClass"))
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
             << ResultData(_("function2(bool, int)"), _("MyNamespace::MyClass"))
-            << ResultData(_("myFunction(bool, int)"), _(""))
-            << ResultData(_("function2(bool, int)"), _("MyClass"))
+            << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
+            << ResultData(_("function2(bool, int)"), _("<anonymous namespace>::MyClass"))
         );
 
     // Check Enums
@@ -253,7 +265,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
         << (ResultDataList()
             << ResultData(_("MyEnum"), _(""))
             << ResultData(_("MyEnum"), _("MyNamespace"))
-            << ResultData(_("MyEnum"), _(""))
+            << ResultData(_("MyEnum"), _("<anonymous namespace>"))
         );
 
     // Check Declarations
@@ -268,6 +280,6 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
         << (ResultDataList()
             << ResultData(_("int myVariable"), _(""))
             << ResultData(_("int myVariable"), _("MyNamespace"))
-            << ResultData(_("int myVariable"), _(""))
+            << ResultData(_("int myVariable"), _("<anonymous namespace>"))
         );
 }

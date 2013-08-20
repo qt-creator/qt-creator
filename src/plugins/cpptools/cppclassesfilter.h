@@ -42,6 +42,10 @@ class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter
 public:
     CppClassesFilter(Internal::CppModelManager *manager);
     ~CppClassesFilter();
+
+private:
+    QString stringToMatchUserInputAgainst(const ModelItemInfo &info);
+    Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 };
 
 } // namespace CppTools

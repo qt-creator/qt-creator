@@ -40,9 +40,25 @@ CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager)
     setIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SymbolSearcher::Functions);
-    search.setSeparateScope(true);
 }
 
 CppFunctionsFilter::~CppFunctionsFilter()
 {
 }
+
+QString CppFunctionsFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info)
+{
+    return info.symbolName;
+}
+
+Locator::FilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
+{
+    const QVariant id = qVariantFromValue(info);
+    Locator::FilterEntry filterEntry(this, info.symbolName + info.symbolType, id, info.icon);
+    filterEntry.extraInfo = info.symbolScope.isEmpty()
+        ? info.shortNativeFilePath()
+        : info.symbolScope;
+
+    return filterEntry;
+}
+

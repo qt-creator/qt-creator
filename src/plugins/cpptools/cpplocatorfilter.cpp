@@ -30,12 +30,9 @@
 #include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
 
-#include <utils/fileutils.h>
-
 #include <QStringMatcher>
 
 using namespace CppTools::Internal;
-using namespace Utils;
 
 static const int MaxPendingDocuments = 10;
 
@@ -111,6 +108,23 @@ void CppLocatorFilter::onAboutToRemoveFiles(const QStringList &files)
         m_searchList.remove(file);
 }
 
+QString CppLocatorFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info)
+{
+    return info.scopedSymbolName();
+}
+
+Locator::FilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
+{
+    const QVariant id = qVariantFromValue(info);
+    const QString name = info.symbolScope.isEmpty() ? info.symbolName : info.scopedSymbolName();
+    Locator::FilterEntry filterEntry(this, name, id, info.icon);
+    filterEntry.extraInfo = info.type == ModelItemInfo::Class || info.type == ModelItemInfo::Enum
+        ? info.shortNativeFilePath()
+        : info.symbolType;
+
+    return filterEntry;
+}
+
 void CppLocatorFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
@@ -146,19 +160,11 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
 
         const QList<ModelItemInfo> items = it.value();
         foreach (const ModelItemInfo &info, items) {
-            if ((hasWildcard && regexp.exactMatch(info.symbolName))
-                    || (!hasWildcard && matcher.indexIn(info.symbolName) != -1)) {
-
-                QVariant id = qVariantFromValue(info);
-                Locator::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
-                if (!info.symbolType.isEmpty()) {
-                    filterEntry.extraInfo = info.symbolType;
-                } else {
-                    filterEntry.extraInfo = FileUtils::shortNativePath(
-                        FileName::fromString(info.fileName));
-                }
-
-                if (info.symbolName.startsWith(entry, caseSensitivityForPrefix))
+            const QString matchString = stringToMatchUserInputAgainst(info);
+            if ((hasWildcard && regexp.exactMatch(matchString))
+                    || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
+                const Locator::FilterEntry filterEntry = filterEntryFromModelItemInfo(info);
+                if (matchString.startsWith(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
                 else
                     goodEntries.append(filterEntry);

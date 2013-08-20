@@ -41,9 +41,24 @@ CppClassesFilter::CppClassesFilter(CppModelManager *manager)
     setDisplayName(tr("C++ Classes"));
 
     search.setSymbolsToSearchFor(SymbolSearcher::Classes);
-    search.setSeparateScope(true);
 }
 
 CppClassesFilter::~CppClassesFilter()
 {
+}
+
+QString CppClassesFilter::stringToMatchUserInputAgainst(const ModelItemInfo &info)
+{
+    return info.symbolName;
+}
+
+Locator::FilterEntry CppClassesFilter::filterEntryFromModelItemInfo(const ModelItemInfo &info)
+{
+    const QVariant id = qVariantFromValue(info);
+    Locator::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
+    filterEntry.extraInfo = info.symbolScope.isEmpty()
+        ? info.shortNativeFilePath()
+        : info.symbolScope;
+
+    return filterEntry;
 }

@@ -63,6 +63,10 @@ private slots:
     void onAboutToRemoveFiles(const QStringList &files);
 
 private:
+    virtual QString stringToMatchUserInputAgainst(const ModelItemInfo &info);
+    virtual Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
+
+private:
     CppModelManager *m_manager;
 
     QHash<QString, QList<ModelItemInfo> > m_searchList;

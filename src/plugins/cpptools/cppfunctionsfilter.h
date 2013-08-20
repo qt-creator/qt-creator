@@ -42,6 +42,10 @@ class CppFunctionsFilter : public CppLocatorFilter
 public:
     CppFunctionsFilter(CppModelManager *manager);
     ~CppFunctionsFilter();
+
+private:
+    QString stringToMatchUserInputAgainst(const ModelItemInfo &info);
+    Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 };
 
 } // namespace Internal

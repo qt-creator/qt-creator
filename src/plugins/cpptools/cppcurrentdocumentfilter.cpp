@@ -49,8 +49,6 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Cor
                                  SymbolSearcher::Functions |
                                  SymbolSearcher::Classes);
 
-    search.setSeparateScope(true);
-
     connect(manager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this,    SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -88,15 +86,18 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
         if (future.isCanceled())
             break;
 
-        if ((hasWildcard && regexp.exactMatch(info.symbolName))
-            || (!hasWildcard && matcher.indexIn(info.symbolName) != -1))
-        {
-            QString symbolName = info.symbolName;// + (info.type == ModelItemInfo::Declaration ? ";" : " {...}");
-            QVariant id = qVariantFromValue(info);
-            Locator::FilterEntry filterEntry(this, symbolName, id, info.icon);
-            filterEntry.extraInfo = info.symbolType;
+        QString matchString = info.typeNameRepresentation();
+        if (matchString.isEmpty())
+            matchString = info.symbolName;
 
-            if (info.symbolName.startsWith(entry, caseSensitivityForPrefix))
+        if ((hasWildcard && regexp.exactMatch(matchString))
+            || (!hasWildcard && matcher.indexIn(matchString) != -1))
+        {
+            QVariant id = qVariantFromValue(info);
+            Locator::FilterEntry filterEntry(this, matchString, id, info.icon);
+            filterEntry.extraInfo = info.symbolScope;
+
+            if (matchString.startsWith(entry, caseSensitivityForPrefix))
                 betterEntries.append(filterEntry);
             else
                 goodEntries.append(filterEntry);

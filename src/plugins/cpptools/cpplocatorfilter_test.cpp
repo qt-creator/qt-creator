@@ -152,7 +152,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
     ResultDataList results = ResultData::fromFilterEntryList(test.matchesFor(searchText));
 //    ResultData::printFilterEntries(results);
     QVERIFY(!results.isEmpty());
-    QCOMPARE(expectedResults, results);
+    QCOMPARE(results, expectedResults);
 }
 
 void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()

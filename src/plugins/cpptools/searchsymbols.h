@@ -37,6 +37,8 @@
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
 
+#include <utils/fileutils.h>
+
 #include <QIcon>
 #include <QString>
 #include <QSet>
@@ -58,15 +60,15 @@ struct CPPTOOLS_EXPORT ModelItemInfo
 
     ModelItemInfo(const QString &symbolName,
                   const QString &symbolType,
+                  const QString &symbolScope,
                   ItemType type,
-                  QStringList fullyQualifiedName,
                   const QString &fileName,
                   int line,
                   int column,
                   const QIcon &icon)
         : symbolName(symbolName),
           symbolType(symbolType),
-          fullyQualifiedName(fullyQualifiedName),
+          symbolScope(symbolScope),
           fileName(fileName),
           icon(icon),
           type(type),
@@ -77,17 +79,42 @@ struct CPPTOOLS_EXPORT ModelItemInfo
     ModelItemInfo(const ModelItemInfo &otherInfo)
         : symbolName(otherInfo.symbolName),
           symbolType(otherInfo.symbolType),
-          fullyQualifiedName(otherInfo.fullyQualifiedName),
+          symbolScope(otherInfo.symbolScope),
           fileName(otherInfo.fileName),
           icon(otherInfo.icon),
           type(otherInfo.type),
           line(otherInfo.line),
           column(otherInfo.column)
-    {  }
+    { }
+
+    QString scopedSymbolName() const
+    {
+        return symbolScope.isEmpty()
+                ? symbolName
+                : symbolScope +  QLatin1String("::") + symbolName;
+    }
+
+    QString typeNameRepresentation() const
+    {
+        if (type == ModelItemInfo::Declaration) {
+            if (!symbolType.isEmpty()) {
+                const QString padding = symbolType.endsWith(QLatin1Char('*'))
+                    ? QString()
+                    : QString(QLatin1Char(' '));
+                return symbolType + padding + symbolName;
+            }
+        } else if (type == ModelItemInfo::Method) {
+            return symbolName + symbolType;
+        }
+        return QString();
+    }
+
+    QString shortNativeFilePath() const
+    { return Utils::FileUtils::shortNativePath(Utils::FileName::fromString(fileName)); }
 
     QString symbolName;
     QString symbolType;
-    QStringList fullyQualifiedName;
+    QString symbolScope;
     QString fileName;
     QIcon icon;
     ItemType type;
@@ -106,7 +133,6 @@ public:
     SearchSymbols();
 
     void setSymbolsToSearchFor(SymbolTypes types);
-    void setSeparateScope(bool separateScope);
 
     QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
     { return operator()(doc, sizeHint, QString()); }
@@ -149,8 +175,9 @@ protected:
     QString scopedSymbolName(const QString &symbolName) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
     QString symbolName(const CPlusPlus::Symbol *symbol) const;
-    void appendItem(const QString &name,
-                    const QString &info,
+    void appendItem(const QString &symbolName,
+                    const QString &symbolType,
+                    const QString &symbolScope,
                     ModelItemInfo::ItemType type,
                     CPlusPlus::Symbol *symbol);
 
@@ -166,7 +193,6 @@ private:
     QList<ModelItemInfo> items;
     SymbolTypes symbolsToSearchFor;
     QHash<const CPlusPlus::StringLiteral *, QString> m_paths;
-    bool separateScope;
 };
 
 } // namespace CppTools
