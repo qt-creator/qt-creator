@@ -100,7 +100,11 @@ public:
     ObjectValue *_qmlPointObject;
     ObjectValue *_qmlSizeObject;
     ObjectValue *_qmlRectObject;
+    ObjectValue *_qmlVector2DObject;
     ObjectValue *_qmlVector3DObject;
+    ObjectValue *_qmlVector4DObject;
+    ObjectValue *_qmlQuaternionObject;
+    ObjectValue *_qmlMatrix4x4Object;
 
     NullValue _nullValue;
     UndefinedValue _undefinedValue;
@@ -505,11 +509,72 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     _qmlRectObject->setMember(QLatin1String("width"), numberValue());
     _qmlRectObject->setMember(QLatin1String("height"), numberValue());
 
+    _qmlVector2DObject = newObject(/*prototype =*/ 0);
+    _qmlVector2DObject->setClassName(QLatin1String("Vector2D"));
+    _qmlVector2DObject->setMember(QLatin1String("x"), realValue());
+    _qmlVector2DObject->setMember(QLatin1String("y"), realValue());
+    addFunction(_qmlVector2DObject, QLatin1String("plus"), _qmlVector2DObject, 1);
+    addFunction(_qmlVector2DObject, QLatin1String("minus"), _qmlVector2DObject, 1);
+    addFunction(_qmlVector2DObject, QLatin1String("times"), _qmlVector2DObject, 1);
+    addFunction(_qmlVector2DObject, QLatin1String("dotProduct"), realValue(), 1);
+    addFunction(_qmlVector2DObject, QLatin1String("length"), realValue(), 1);
+    addFunction(_qmlVector2DObject, QLatin1String("normalized"), _qmlVector2DObject, 0);
+    addFunction(_qmlVector2DObject, QLatin1String("toVector3d"), _qmlVector3DObject, 0);
+    addFunction(_qmlVector2DObject, QLatin1String("toVector4d"), _qmlVector4DObject, 0);
+    addFunction(_qmlVector2DObject, QLatin1String("fuzzyEquals"), booleanValue(), 1, 1);
+
     _qmlVector3DObject = newObject(/*prototype =*/ 0);
     _qmlVector3DObject->setClassName(QLatin1String("Vector3D"));
     _qmlVector3DObject->setMember(QLatin1String("x"), realValue());
     _qmlVector3DObject->setMember(QLatin1String("y"), realValue());
     _qmlVector3DObject->setMember(QLatin1String("z"), realValue());
+    addFunction(_qmlVector3DObject, QLatin1String("plus"), _qmlVector3DObject, 1);
+    addFunction(_qmlVector3DObject, QLatin1String("minus"), _qmlVector3DObject, 1);
+    addFunction(_qmlVector3DObject, QLatin1String("times"), _qmlVector3DObject, 1);
+    addFunction(_qmlVector3DObject, QLatin1String("dotProduct"), realValue(), 1);
+    addFunction(_qmlVector3DObject, QLatin1String("length"), realValue(), 1);
+    addFunction(_qmlVector3DObject, QLatin1String("normalized"), _qmlVector3DObject, 0);
+    addFunction(_qmlVector3DObject, QLatin1String("toVector2d"), _qmlVector2DObject, 0);
+    addFunction(_qmlVector3DObject, QLatin1String("toVector4d"), _qmlVector4DObject, 0);
+    addFunction(_qmlVector3DObject, QLatin1String("fuzzyEquals"), booleanValue(), 1, 1);
+
+    _qmlVector4DObject = newObject(/*prototype =*/ 0);
+    _qmlVector4DObject->setClassName(QLatin1String("Vector4D"));
+    _qmlVector4DObject->setMember(QLatin1String("x"), realValue());
+    _qmlVector4DObject->setMember(QLatin1String("y"), realValue());
+    _qmlVector4DObject->setMember(QLatin1String("z"), realValue());
+    _qmlVector4DObject->setMember(QLatin1String("w"), realValue());
+    addFunction(_qmlVector4DObject, QLatin1String("plus"), _qmlVector4DObject, 1);
+    addFunction(_qmlVector4DObject, QLatin1String("minus"), _qmlVector4DObject, 1);
+    addFunction(_qmlVector4DObject, QLatin1String("times"), _qmlVector4DObject, 1);
+    addFunction(_qmlVector4DObject, QLatin1String("dotProduct"), realValue(), 1);
+    addFunction(_qmlVector4DObject, QLatin1String("length"), realValue(), 1);
+    addFunction(_qmlVector4DObject, QLatin1String("normalized"), _qmlVector4DObject, 0);
+    addFunction(_qmlVector4DObject, QLatin1String("toVector2d"), _qmlVector2DObject, 0);
+    addFunction(_qmlVector4DObject, QLatin1String("toVector3d"), _qmlVector3DObject, 0);
+    addFunction(_qmlVector4DObject, QLatin1String("fuzzyEquals"), booleanValue(), 1, 1);
+
+    _qmlQuaternionObject = newObject(/*prototype =*/ 0);
+    _qmlQuaternionObject->setClassName(QLatin1String("Quaternion"));
+    _qmlQuaternionObject->setMember(QLatin1String("scalar"), realValue());
+    _qmlQuaternionObject->setMember(QLatin1String("x"), realValue());
+    _qmlQuaternionObject->setMember(QLatin1String("y"), realValue());
+    _qmlQuaternionObject->setMember(QLatin1String("z"), realValue());
+
+    _qmlMatrix4x4Object = newObject(/*prototype =*/ 0);
+    _qmlMatrix4x4Object->setClassName(QLatin1String("Matrix4x4"));
+    for (int i = 1; i < 5; ++i)
+        for (int j = 1; j < 5; ++j)
+            _qmlMatrix4x4Object->setMember(QString::fromLatin1("m%1%2").arg(i).arg(j), realValue());
+    addFunction(_qmlMatrix4x4Object, QLatin1String("plus"), _qmlMatrix4x4Object, 1);
+    addFunction(_qmlMatrix4x4Object, QLatin1String("minus"), _qmlMatrix4x4Object, 1);
+    addFunction(_qmlMatrix4x4Object, QLatin1String("times"), _qmlMatrix4x4Object, 1); // could be matrix or vector
+    addFunction(_qmlMatrix4x4Object, QLatin1String("row"), _qmlVector4DObject, 1);
+    addFunction(_qmlMatrix4x4Object, QLatin1String("column"), _qmlMatrix4x4Object, 1);
+    addFunction(_qmlMatrix4x4Object, QLatin1String("determinant"), realValue(), 0);
+    addFunction(_qmlMatrix4x4Object, QLatin1String("inverted"), _qmlMatrix4x4Object, 1);
+    addFunction(_qmlMatrix4x4Object, QLatin1String("transposed"), _qmlMatrix4x4Object, 1);
+    addFunction(_qmlMatrix4x4Object, QLatin1String("fuzzyEquals"), booleanValue(), 1, 1);
 
     // global Qt object, in alphabetic order
     _qtObject = newObject(new QtObjectPrototypeReference(this));
@@ -535,7 +600,11 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_qtObject, QLatin1String("rgba"), &_colorValue, 4);
     addFunction(_qtObject, QLatin1String("size"), _qmlSizeObject, 2);
     addFunction(_qtObject, QLatin1String("tint"), &_colorValue, 2);
+    addFunction(_qtObject, QLatin1String("vector2d"), _qmlVector2DObject, 2);
     addFunction(_qtObject, QLatin1String("vector3d"), _qmlVector3DObject, 3);
+    addFunction(_qtObject, QLatin1String("vector4d"), _qmlVector4DObject, 4);
+    addFunction(_qtObject, QLatin1String("quaternion"), _qmlQuaternionObject, 4);
+    addFunction(_qtObject, QLatin1String("matrix4x4"), _qmlMatrix4x4Object, 16);
     _globalObject->setMember(QLatin1String("Qt"), _qtObject);
 
     // firebug/webkit compat
@@ -821,9 +890,29 @@ const ObjectValue *ValueOwner::qmlRectObject()
     return _shared->_qmlRectObject;
 }
 
+const ObjectValue *ValueOwner::qmlVector2DObject()
+{
+    return _shared->_qmlVector2DObject;
+}
+
 const ObjectValue *ValueOwner::qmlVector3DObject()
 {
     return _shared->_qmlVector3DObject;
+}
+
+const ObjectValue *ValueOwner::qmlVector4DObject()
+{
+    return _shared->_qmlVector4DObject;
+}
+
+const ObjectValue *ValueOwner::qmlQuaternionObject()
+{
+    return _shared->_qmlQuaternionObject;
+}
+
+const ObjectValue *ValueOwner::qmlMatrix4x4Object()
+{
+    return _shared->_qmlMatrix4x4Object;
 }
 
 const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
