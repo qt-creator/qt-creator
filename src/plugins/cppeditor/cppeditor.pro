@@ -24,7 +24,8 @@ HEADERS += cppeditorplugin.h \
     cppincludehierarchymodel.h \
     cppincludehierarchyitem.h \
     cppincludehierarchytreeview.h \
-    cppvirtualfunctionassistprovider.h
+    cppvirtualfunctionassistprovider.h \
+    cpppreprocessoradditionwidget.h
 
 SOURCES += cppeditorplugin.cpp \
     cppautocompleter.cpp \
@@ -47,7 +48,8 @@ SOURCES += cppeditorplugin.cpp \
     cppincludehierarchymodel.cpp \
     cppincludehierarchyitem.cpp \
     cppincludehierarchytreeview.cpp \
-    cppvirtualfunctionassistprovider.cpp
+    cppvirtualfunctionassistprovider.cpp \
+    cpppreprocessoradditionwidget.cpp
 
 RESOURCES += cppeditor.qrc
 
@@ -63,3 +65,6 @@ equals(TEST, 1) {
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
+
+FORMS += \
+    cpppreprocessoradditionwidget.ui

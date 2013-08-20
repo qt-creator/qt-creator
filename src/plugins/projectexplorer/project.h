@@ -123,6 +123,9 @@ public:
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, const QVariant &value);
 
+    QVariantMap additionalCppDefines() const;
+    void setAdditionalCppDefines(const QVariantMap value) const;
+
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QStringList &platforms);
 

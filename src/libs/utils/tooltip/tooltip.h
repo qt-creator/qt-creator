@@ -60,6 +60,8 @@ class TipContent;
 class QTCREATOR_UTILS_EXPORT ToolTip : public QObject
 {
     Q_OBJECT
+protected:
+    ToolTip();
 
 public:
     ~ToolTip();
@@ -73,11 +75,13 @@ public:
     static void hide();
     static bool isVisible();
 
-private slots:
+protected slots:
     void hideTipImmediately();
 
+protected:
+    void showInternal(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
+
 private:
-    ToolTip();
     bool acceptShow(const TipContent &content, const QPoint &pos, QWidget *w, const QRect &rect);
     bool validateContent(const TipContent &content);
     void setUp(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);

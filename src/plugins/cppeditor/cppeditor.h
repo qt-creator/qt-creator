@@ -187,6 +187,9 @@ private Q_SLOTS:
 
     void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
 
+    void showPreProcessorWidget();
+    void preProcessorWidgetFinished(const QByteArray &additionalDefines);
+
 private:
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
@@ -257,6 +260,7 @@ private:
     CppTools::CommentsSettings m_commentsSettings;
 
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
+    QString m_preProcessorAdditions;
 };
 
 } // namespace Internal

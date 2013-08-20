@@ -34,6 +34,7 @@
 #include "cppeditorplugin.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphighlighter.h"
+#include "cpppreprocessoradditionwidget.h"
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -52,6 +53,10 @@
 #include <cpptools/doxygengenerator.h>
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/symbolfinder.h>
+#include <cpptools/cppmodelmanager.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/nodesvisitor.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/codeassist/basicproposalitem.h>
@@ -78,6 +83,7 @@
 #include <QComboBox>
 #include <QTreeView>
 #include <QSortFilterProxyModel>
+#include <QToolButton>
 
 enum {
     UPDATE_OUTLINE_INTERVAL = 500,
@@ -641,6 +647,10 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
+    QToolButton *hashButton = new QToolButton(this);
+    hashButton->setText(QLatin1String("#"));
+    connect(hashButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
+    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, hashButton);
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
@@ -691,6 +701,20 @@ void CPPEditorWidget::selectAll()
 
 void CPPEditorWidget::setMimeType(const QString &mt)
 {
+    const QString &fileName = editor()->document()->filePath();
+    // Check if this editor belongs to a project
+    QList<ProjectPart::Ptr> projectParts = m_modelManager->projectPart(fileName);
+    if (projectParts.isEmpty())
+        projectParts = m_modelManager->projectPartFromDependencies(fileName);
+    if (!projectParts.isEmpty()) {
+        if (ProjectExplorer::Project *project = projectParts.first()->project) {
+            QByteArray additionalDefines = project->additionalCppDefines()
+                    .value(projectParts.first()->projectFile).toByteArray();
+            m_modelManager->cppEditorSupport(editor())->snapshotUpdater()->setEditorDefines(
+                        additionalDefines);
+        }
+    }
+
     BaseTextEditorWidget::setMimeType(mt);
     setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                    || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
@@ -1939,6 +1963,33 @@ bool CPPEditorWidget::isStartOfDoxygenComment(const QTextCursor &cursor) const
 void CPPEditorWidget::onCommentsSettingsChanged(const CppTools::CommentsSettings &settings)
 {
     m_commentsSettings = settings;
+}
+
+void CPPEditorWidget::showPreProcessorWidget()
+{
+    const QString &fileName = editor()->document()->filePath();
+    // Check if this editor belongs to a project
+
+    QList<ProjectPart::Ptr> projectParts = m_modelManager->projectPart(fileName);
+    if (projectParts.isEmpty())
+        projectParts = m_modelManager->projectPartFromDependencies(fileName);
+    if (projectParts.isEmpty())
+        projectParts << m_modelManager->fallbackProjectPart();
+
+    PreProcessorAdditionPopUp::instance()->show(this, projectParts);
+
+    connect(PreProcessorAdditionPopUp::instance(),
+            SIGNAL(finished(QByteArray)),
+            SLOT(preProcessorWidgetFinished(QByteArray)));
+}
+
+void CPPEditorWidget::preProcessorWidgetFinished(const QByteArray &additionalDefines)
+{
+    PreProcessorAdditionPopUp::instance()->disconnect(this);
+    QSharedPointer<SnapshotUpdater> updater
+            = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
+    updater->setEditorDefines(additionalDefines);
+    updater->update(m_modelManager->workingCopy());
 }
 
 #include <cppeditor.moc>

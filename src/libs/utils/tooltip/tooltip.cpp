@@ -67,29 +67,7 @@ ToolTip *ToolTip::instance()
 
 void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
 {
-    ToolTip *t = instance();
-    if (t->acceptShow(content, pos, w, rect)) {
-        QWidget *target = 0;
-        if (HostOsInfo::isWindowsHost())
-            target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
-        else
-            target = w;
-
-        switch (content.typeId()) {
-            case TextContent::TEXT_CONTENT_ID:
-                t->m_tip = new TextTip(target);
-                break;
-            case ColorContent::COLOR_CONTENT_ID:
-                t->m_tip = new ColorTip(target);
-                break;
-            case WidgetContent::WIDGET_CONTENT_ID:
-                t->m_tip = new WidgetTip(target);
-                break;
-        }
-        t->setUp(pos, content, w, rect);
-        qApp->installEventFilter(t);
-        t->showTip();
-    }
+    instance()->showInternal(pos, content, w, rect);
 }
 
 void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w)
@@ -214,6 +192,32 @@ void ToolTip::hideTipImmediately()
     qApp->removeEventFilter(this);
 }
 
+void ToolTip::showInternal(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
+{
+    if (acceptShow(content, pos, w, rect)) {
+        QWidget *target = 0;
+        if (HostOsInfo::isWindowsHost())
+            target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
+        else
+            target = w;
+
+        switch (content.typeId()) {
+            case TextContent::TEXT_CONTENT_ID:
+                m_tip = new TextTip(target);
+                break;
+            case ColorContent::COLOR_CONTENT_ID:
+                m_tip = new ColorTip(target);
+                break;
+            case WidgetContent::WIDGET_CONTENT_ID:
+                m_tip = new WidgetTip(target);
+                break;
+        }
+        setUp(pos, content, w, rect);
+        qApp->installEventFilter(this);
+        showTip();
+    }
+}
+
 void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 {
     QRect screen = Internal::screenGeometry(pos, w);
@@ -254,7 +258,7 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
     }
 #endif
     case QEvent::Leave:
-        if (o == m_tip)
+        if (o == m_tip && !m_tip->isAncestorOf(qApp->focusWidget()))
             hideTipWithDelay();
         break;
     case QEvent::Enter:
