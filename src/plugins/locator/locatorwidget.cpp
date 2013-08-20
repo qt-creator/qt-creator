@@ -407,8 +407,10 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
                     !(fev->reason() == Qt::ActiveWindowFocusReason && !m_completionList->isActiveWindow()))
                 hideList = false;
         }
-        if (hideList)
+        if (hideList) {
             m_completionList->hide();
+            m_fileLineEdit->clearFocus();
+        }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
         showPopupNow();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
@@ -542,6 +544,7 @@ void LocatorWidget::acceptCurrentEntry()
         return;
     const FilterEntry entry = m_locatorModel->data(index, Qt::UserRole).value<FilterEntry>();
     m_completionList->hide();
+    m_fileLineEdit->clearFocus();
     entry.filter->accept(entry);
 }
 
