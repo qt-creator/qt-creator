@@ -35,6 +35,7 @@
 #include "behaviorsettings.h"
 #include "codecselector.h"
 #include "completionsettings.h"
+#include "snippets/snippet.h"
 #include "tabsettings.h"
 #include "typingsettings.h"
 #include "icodestylepreferences.h"
@@ -1931,57 +1932,19 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 
 void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
 {
-    if ((snippet.count(Snippet::kVariableDelimiter) % 2) != 0) {
-        qWarning() << "invalid snippet";
-        return;
-    }
-
-    QList<QTextEdit::ExtraSelection> selections;
+    Snippet::ParsedSnippet data = Snippet::parse(snippet);
 
     QTextCursor cursor = cursor_arg;
     cursor.beginEditBlock();
     cursor.removeSelectedText();
     const int startCursorPosition = cursor.position();
 
-    int pos = 0;
-    QMap<int, int> positions;
+    cursor.insertText(data.text);
+    QList<QTextEdit::ExtraSelection> selections;
 
-    while (pos < snippet.size()) {
-        if (snippet.at(pos) != Snippet::kVariableDelimiter) {
-            const int start = pos;
-            do { ++pos; }
-            while (pos < snippet.size() && snippet.at(pos) != Snippet::kVariableDelimiter);
-            cursor.insertText(snippet.mid(start, pos - start));
-        } else {
-            // the start of a place holder.
-            const int start = ++pos;
-            for (; pos < snippet.size(); ++pos) {
-                if (snippet.at(pos) == Snippet::kVariableDelimiter)
-                    break;
-            }
-
-            Q_ASSERT(pos < snippet.size());
-            Q_ASSERT(snippet.at(pos) == Snippet::kVariableDelimiter);
-
-            const QString textToInsert = snippet.mid(start, pos - start);
-
-            int cursorPosition = cursor.position();
-            cursor.insertText(textToInsert);
-
-            if (textToInsert.isEmpty())
-                positions.insert(cursorPosition, 0);
-            else
-                positions.insert(cursorPosition, textToInsert.length());
-
-            ++pos;
-        }
-    }
-
-    QMapIterator<int,int> it(positions);
-    while (it.hasNext()) {
-        it.next();
-        int length = it.value();
-        int position = it.key();
+    for (int i = 0; i < data.ranges.count(); ++i) {
+        int position = data.ranges.at(i).start + startCursorPosition;
+        int length = data.ranges.at(i).length;
 
         QTextCursor tc(document());
         tc.setPosition(position);

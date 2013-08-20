@@ -142,3 +142,118 @@ QString Snippet::generateTip() const
 
     return tip;
 }
+
+Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
+{
+    Snippet::ParsedSnippet result;
+    result.success = true;
+
+    const int count = snippet.count();
+    bool success = true;
+    int start = -1;
+
+    result.text.reserve(count);
+
+    for (int i = 0; i < count; ++i) {
+        QChar current = snippet.at(i);
+        QChar next = (i + 1) < count ? snippet.at(i + 1) : QChar();
+
+        if (current == QLatin1Char('\\')) {
+            if (next.isNull()) {
+                success = false;
+                break;
+            }
+            result.text.append(next);
+            ++i;
+            continue;
+        }
+
+        if (current == Snippet::kVariableDelimiter) {
+            if (start < 0) {
+                // start delimiter:
+                start = result.text.count();
+            } else {
+                result.ranges << ParsedSnippet::Range(start, result.text.count() - start);
+                start = -1;
+            }
+            continue;
+        }
+        result.text.append(current);
+    }
+
+    if (start >= 0)
+        success = false;
+
+    result.success = success;
+
+    if (!success) {
+        result.ranges.clear();
+        result.text = snippet;
+    }
+
+    return result;
+}
+
+#ifdef WITH_TESTS
+#   include <QTest>
+
+#   include "texteditorplugin.h"
+
+void Internal::TextEditorPlugin::testSnippetParsing_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<bool>("success");
+    QTest::addColumn<QList<int> >("ranges_start");
+    QTest::addColumn<QList<int> >("ranges_length");
+
+    QTest::newRow("no input")
+            << QString() << QString() << true << (QList<int>()) << (QList<int>());
+    QTest::newRow("empty input")
+            << QString::fromLatin1("") << QString::fromLatin1("") << true << (QList<int>()) << (QList<int>());
+
+    QTest::newRow("simple identifier")
+            << QString::fromLatin1("$test$") << QString::fromLatin1("test") << true
+            << (QList<int>() << 0) << (QList<int>() << 4);
+    QTest::newRow("escaped string")
+            << QString::fromLatin1("\\$test\\$") << QString::fromLatin1("$test$") << true
+            << (QList<int>()) << (QList<int>());
+    QTest::newRow("escaped escape")
+            << QString::fromLatin1("\\\\$test\\\\$") << QString::fromLatin1("\\test\\") << true
+            << (QList<int>() << 1) << (QList<int>() << 5);
+
+    QTest::newRow("Q_PROPERTY")
+            << QString::fromLatin1("Q_PROPERTY($type$ $name$ READ $name$ WRITE set$name$ NOTIFY $name$Changed)")
+            << QString::fromLatin1("Q_PROPERTY(type name READ name WRITE setname NOTIFY nameChanged)") << true
+            << (QList<int>() << 11 << 16 << 26 << 40 << 52)
+            << (QList<int>() << 4 << 4 << 4 << 4 << 4);
+
+    QTest::newRow("broken escape")
+            << QString::fromLatin1("\\\\$test\\\\$\\") << QString::fromLatin1("\\\\$test\\\\$\\") << false
+            << (QList<int>()) << (QList<int>());
+    QTest::newRow("open identifier")
+            << QString::fromLatin1("$test") << QString::fromLatin1("$test") << false
+            << (QList<int>()) << (QList<int>());
+}
+
+void Internal::TextEditorPlugin::testSnippetParsing()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, text);
+    QFETCH(bool, success);
+    QFETCH(QList<int>, ranges_start);
+    QFETCH(QList<int>, ranges_length);
+    Q_ASSERT(ranges_start.count() == ranges_length.count()); // sanity check for the test data
+
+    Snippet::ParsedSnippet result = Snippet::parse(input);
+
+    QCOMPARE(result.text, text);
+    QCOMPARE(result.success, success);
+    QCOMPARE(result.ranges.count(), ranges_start.count());
+    for (int i = 0; i < ranges_start.count(); ++i) {
+        QCOMPARE(result.ranges.at(i).start, ranges_start.at(i));
+        QCOMPARE(result.ranges.at(i).length, ranges_length.at(i));
+    }
+}
+#endif
+

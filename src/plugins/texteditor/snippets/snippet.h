@@ -33,6 +33,7 @@
 #include <texteditor/texteditor_global.h>
 
 #include <QChar>
+#include <QList>
 #include <QString>
 
 namespace TextEditor {
@@ -66,6 +67,20 @@ public:
     QString generateTip() const;
 
     static const QChar kVariableDelimiter;
+
+    class ParsedSnippet {
+    public:
+        QString text;
+        bool success;
+        struct Range {
+            Range(int s, int l) : start(s), length(l) { }
+            int start;
+            int length;
+        };
+        QList<Range> ranges;
+    };
+
+    static ParsedSnippet parse(const QString &snippet);
 
 private:
     bool m_isRemoved;

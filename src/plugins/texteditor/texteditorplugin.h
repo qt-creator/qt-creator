@@ -77,6 +77,11 @@ private slots:
     void updateVariable(const QByteArray &variable);
     void updateCurrentSelection(const QString &text);
 
+#ifdef WITH_TESTS
+    void testSnippetParsing_data();
+    void testSnippetParsing();
+#endif
+
 private:
     static TextEditorPlugin *m_instance;
     TextEditorSettings *m_settings;
