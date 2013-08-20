@@ -70,7 +70,7 @@ QVariantMap AndroidQBSPropertyProvider::properties(const ProjectExplorer::Kit *k
     qbsProperties[CPP_ANDROID_TOOLCHAIN_HOST] = config.toolchainHost;
     qbsProperties[CPP_ANDROID_TOOLCHAIN_PREFIX] = AndroidConfigurations::toolchainPrefix(tc->targetAbi().architecture());
     qbsProperties[CPP_ANDROID_GDBSERVER] = tc->suggestedGdbServer().toString();
-#warning TODO: Find a way to extract ANDROID_ARCHITECTURE from Qt mkspec
+    // TODO: Find a way to extract ANDROID_ARCHITECTURE from Qt mkspec
 //            qbsProperties[QbsProjectManager::Constants::QBS_ARCHITECTURE] = ...
 
     return qbsProperties;
