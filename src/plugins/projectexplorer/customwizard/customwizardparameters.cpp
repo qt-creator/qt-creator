@@ -890,7 +890,7 @@ bool replaceFieldHelper(ValueStringTransformation transform,
         case 'c': // Capitalize first letter.
             replacement = it.value();
             if (!replacement.isEmpty())
-                replacement[0] = replacement.at(0).toUpper();
+                replacement[0] = replacement.at(0).toTitleCase();
             break;
         default:
             break;
