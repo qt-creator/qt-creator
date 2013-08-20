@@ -61,7 +61,7 @@ void DesktopDeviceProcess::interrupt()
 {
 #ifdef Q_OS_UNIX
     ::kill(m_process->pid(), SIGINT);
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN)
     // tbd
 #endif
 }
