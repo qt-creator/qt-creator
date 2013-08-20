@@ -97,12 +97,9 @@ public:
     QSize preferredSize() const { return m_preferredSize; }
 
     void focusOutEvent (QFocusEvent * event)  {
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            if (event->reason() == Qt::ActiveWindowFocusReason)
-                hide();
-        } else {
-            QTreeView::focusOutEvent(event);
-        }
+        if (event->reason() == Qt::ActiveWindowFocusReason)
+            hide();
+        QTreeView::focusOutEvent(event);
     }
 
     void next() {
@@ -400,14 +397,9 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
-        bool hideList = true;
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            QFocusEvent *fev = static_cast<QFocusEvent*>(event);
-            if (fev->reason() == Qt::ActiveWindowFocusReason &&
-                    !(fev->reason() == Qt::ActiveWindowFocusReason && !m_completionList->isActiveWindow()))
-                hideList = false;
-        }
-        if (hideList) {
+        QFocusEvent *fev = static_cast<QFocusEvent*>(event);
+        if (fev->reason() != Qt::ActiveWindowFocusReason
+                || (fev->reason() == Qt::ActiveWindowFocusReason && !m_completionList->isActiveWindow())) {
             m_completionList->hide();
             m_fileLineEdit->clearFocus();
         }
