@@ -298,15 +298,6 @@ void MakeStep::run(QFutureInterface<bool> & fi)
     AbstractProcessStep::run(fi);
 }
 
-bool MakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
-{
-    // Symbian does retun 0, even on failed makes! So we check for fatal make errors here.
-    if (outputParser() && outputParser()->hasFatalErrors())
-        return false;
-
-    return AbstractProcessStep::processSucceeded(exitCode, status);
-}
-
 bool MakeStep::immutable() const
 {
     return false;

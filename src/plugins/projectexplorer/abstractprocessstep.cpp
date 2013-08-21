@@ -298,6 +298,9 @@ void AbstractProcessStep::processStartupFailed()
 
 bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
 {
+    if (outputParser() && outputParser()->hasFatalErrors())
+        return false;
+
     return exitCode == 0 && status == QProcess::NormalExit;
 }
 

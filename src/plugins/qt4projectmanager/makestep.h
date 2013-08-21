@@ -85,7 +85,6 @@ public:
 
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
-    bool processSucceeded(int exitCode, QProcess::ExitStatus status);
 
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
