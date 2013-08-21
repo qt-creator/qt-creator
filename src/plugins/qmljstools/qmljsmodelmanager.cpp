@@ -245,7 +245,7 @@ ModelManager::ModelManager(QObject *parent):
     connect(m_updateCppQmlTypesTimer, SIGNAL(timeout()), SLOT(startCppQmlTypeUpdate()));
 
     m_asyncResetTimer = new QTimer(this);
-    m_asyncResetTimer->setInterval(1000);
+    m_asyncResetTimer->setInterval(15000);
     m_asyncResetTimer->setSingleShot(true);
     connect(m_asyncResetTimer, SIGNAL(timeout()), SLOT(resetCodeModel()));
 

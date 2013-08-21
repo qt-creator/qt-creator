@@ -1156,19 +1156,20 @@ void CdbEngine::interruptInferior()
     if (debug)
         qDebug() << "CdbEngine::interruptInferior()" << stateName(state());
 
-    bool ok = false;
-    if (!canInterruptInferior())
+    if (!canInterruptInferior()) {
+        // Restore running state if inferior can't be stoped.
         showMessage(tr("Interrupting is not possible in remote sessions."), LogError);
-    else
-        ok = doInterruptInferior(NoSpecialStop);
-    // Restore running state if stop failed.
-    if (!ok) {
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
         notifyInferiorStopOk();
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
         notifyInferiorRunRequested();
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunOk")
         notifyInferiorRunOk();
+        return;
+    }
+    if (!doInterruptInferior(NoSpecialStop)) {
+        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopFailed")
+        notifyInferiorStopFailed();
     }
 }
 

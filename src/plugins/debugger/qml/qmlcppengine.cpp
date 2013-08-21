@@ -761,9 +761,6 @@ void QmlCppEngine::slaveEngineStateChanged
                 QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
                 notifyInferiorRunOk();
             }
-        } else if (newState == EngineRunFailed) {
-            if (d->m_cppEngine->targetState() != DebuggerFinished)
-                d->m_cppEngine->quitDebugger();
         }
     }
 }

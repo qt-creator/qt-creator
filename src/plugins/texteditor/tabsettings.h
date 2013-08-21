@@ -85,6 +85,7 @@ public:
     void reindentLine(QTextBlock block, int delta) const;
 
     int trailingWhitespaces(const QString &text) const;
+    void removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block) const;
     bool isIndentationClean(const QTextBlock &block) const;
     bool guessSpacesForTabs(const QTextBlock &block) const;
 

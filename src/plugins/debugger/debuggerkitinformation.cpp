@@ -325,14 +325,14 @@ DebuggerKitInformation::DebuggerItem DebuggerKitInformation::variantToItem(const
             break;
         }
     }
-    result.binary = Utils::FileName::fromString(binary);
+    result.binary = Utils::FileName::fromUserInput(binary);
     return result;
 }
 
 QVariant DebuggerKitInformation::itemToVariant(const DebuggerItem &i)
 {
     QVariantMap vmap;
-    vmap.insert(QLatin1String(binaryKeyC), QVariant(i.binary.toUserOutput()));
+    vmap.insert(QLatin1String(binaryKeyC), QVariant(i.binary.toString()));
     vmap.insert(QLatin1String(engineTypeKeyC), QVariant(int(i.engineType)));
     return QVariant(vmap);
 }

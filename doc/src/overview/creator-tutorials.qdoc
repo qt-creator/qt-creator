@@ -46,6 +46,11 @@
 
             Learn how to create a Qt widget based application for the desktop.
 
+       \li \l{Creating an Android Application}
+
+            Learn how to create a Qt Quick application using Qt Quick Controls
+            for Android devices.
+
     \endlist
 
 */

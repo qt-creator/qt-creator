@@ -203,8 +203,8 @@ void BranchDialog::checkout()
     } else if (branchCheckoutDialog.exec() == QDialog::Accepted && m_model) {
 
         if (branchCheckoutDialog.makeStashOfCurrentBranch()) {
-            if (!gitClient->executeSynchronousStash(m_repository,
-                            currentBranch + QLatin1String("-AutoStash"))) {
+            if (gitClient->synchronousStash(m_repository,
+                           currentBranch + QLatin1String("-AutoStash")).isEmpty()) {
                 return;
             }
         } else if (branchCheckoutDialog.moveLocalChangesToNextBranch()) {

@@ -519,9 +519,13 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_predefinedDetails->updateSummaryText();
     m_headerDetails->updateSummaryText();
 
+    connect(m_compilerCommand, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
+    connect(m_makeCommand, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
     connect(m_predefinedMacros, SIGNAL(textChanged()), this, SLOT(updateSummaries()));
     connect(m_headerPaths, SIGNAL(textChanged()), this, SLOT(updateSummaries()));
+    connect(m_cxx11Flags, SIGNAL(textChanged(QString)), this, SIGNAL(dirty()));
+    connect(m_mkspecs, SIGNAL(textChanged(QString)), this, SIGNAL(dirty()));
     connect(m_errorParserComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(errorParserChanged(int)));
     connect(m_customParserSettingsButton, SIGNAL(clicked()),
@@ -535,6 +539,7 @@ void CustomToolChainConfigWidget::updateSummaries()
         m_predefinedDetails->updateSummaryText();
     else
         m_headerDetails->updateSummaryText();
+    emit dirty();
 }
 
 void CustomToolChainConfigWidget::errorParserChanged(int index)

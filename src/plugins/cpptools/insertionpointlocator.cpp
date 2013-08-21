@@ -498,8 +498,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
     Declaration *surroundingFunctionDecl = 0;
     for (int i = declIndex - 1; i >= 0; --i) {
         Symbol *s = klass->memberAt(i);
-        surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s);
-        if (!surroundingFunctionDecl)
+        if (s->isGenerated() || !(surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s)))
             continue;
         if ((definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
                                                                       changes.snapshot())))

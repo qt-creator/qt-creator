@@ -176,9 +176,8 @@ def __startDebugger__(kitCount, currentKit, config):
     isMsvcBuild = isMsvcConfig(kitCount, currentKit)
     clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
     handleDebuggerWarnings(config, isMsvcBuild)
-    hasNotTimedOut = waitFor("object.exists(':Debugger Toolbar.Continue_QToolButton')", 60000)
     try:
-        mBox = findObject(":Failed to start application_QMessageBox")
+        mBox = waitForObject(":Failed to start application_QMessageBox", 5000)
         mBoxText = mBox.text
         mBoxIText = mBox.informativeText
         clickButton(":DebugModeWidget.OK_QPushButton")
@@ -188,10 +187,8 @@ def __startDebugger__(kitCount, currentKit, config):
         return False
     except:
         pass
-    if hasNotTimedOut:
-        test.passes("Debugger started...")
-    else:
-        test.fail("Debugger seems to have not started...")
+    if not test.verify(waitFor("object.exists(':Debugger Toolbar.Continue_QToolButton')", 60000),
+                       "Verify start of debugger"):
         if "MSVC" in config:
             debuggerLog = takeDebuggerLog()
             if "lib\qtcreatorcdbext64\qtcreatorcdbext.dll cannot be found." in debuggerLog:

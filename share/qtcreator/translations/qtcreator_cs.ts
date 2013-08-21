@@ -245,6 +245,18 @@
         <translation>Odstranit vše</translation>
     </message>
     <message>
+        <source>Remove All Bookmarks</source>
+        <translation>Odstranit všechny záložky</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
+        <translation>Opravdu chcete odstranit všechny záložky ze všech souborů v nynějším sezení?</translation>
+    </message>
+    <message>
+        <source>Do not &amp;ask again.</source>
+        <translation>&amp;Neptat se znovu.</translation>
+    </message>
+    <message>
         <source>Edit Note</source>
         <translation>Upravit poznámku</translation>
     </message>
@@ -427,23 +439,23 @@
     </message>
     <message>
         <source>Run Environment</source>
-        <translation>Prováděcí prostředí</translation>
+        <translation type="obsolete">Prováděcí prostředí</translation>
     </message>
     <message>
         <source>Base environment for this runconfiguration:</source>
-        <translation>Základní prostředí pro toto nastavení spuštění:</translation>
+        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
+        <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
     <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
@@ -578,6 +590,10 @@
     <message>
         <source>Executable:</source>
         <translation>Spustitelný soubor:</translation>
+    </message>
+    <message>
+        <source>Prefer Ninja generator (CMake 2.8.9 or higher required)</source>
+        <translation>Upřednostňovat generátor Ninja (požadován CMake 2.8.9 nebo vyšší)</translation>
     </message>
     <message>
         <source>CMake executable</source>
@@ -1249,6 +1265,18 @@ Chcete je nechat přepsat?</translation>
         <translation>Ctrl+E,3</translation>
     </message>
     <message>
+        <source>Open in New Window</source>
+        <translation>Otevřít v novém okně</translation>
+    </message>
+    <message>
+        <source>Meta+E,4</source>
+        <translation>Meta+E,4</translation>
+    </message>
+    <message>
+        <source>Ctrl+E,4</source>
+        <translation>Ctrl+E,4</translation>
+    </message>
+    <message>
         <source>Remove Current Split</source>
         <translation>Odstranit nynější rozdělení</translation>
     </message>
@@ -1273,6 +1301,10 @@ Chcete je nechat přepsat?</translation>
         <translation>Ctrl+E,1</translation>
     </message>
     <message>
+        <source>Go to Next Split or Window</source>
+        <translation>Jít na další rozdělení nebo okno</translation>
+    </message>
+    <message>
         <source>Meta+E,o</source>
         <translation>Meta+E,o</translation>
     </message>
@@ -1285,12 +1317,16 @@ Chcete je nechat přepsat?</translation>
         <translation>&amp;Pokročilé</translation>
     </message>
     <message>
+        <source>Current document</source>
+        <translation>Nynější dokument</translation>
+    </message>
+    <message>
         <source>Full path of the current document including file name.</source>
-        <translation>Úplná cesta nynějšího dokumentu včetně názvu souboru.</translation>
+        <translation type="obsolete">Úplná cesta nynějšího dokumentu včetně názvu souboru.</translation>
     </message>
     <message>
         <source>Full path of the current document excluding file name.</source>
-        <translation>Úplná cesta nynějšího dokumentu vyjma názvu souboru.</translation>
+        <translation type="obsolete">Úplná cesta nynějšího dokumentu vyjma názvu souboru.</translation>
     </message>
     <message>
         <source>X-coordinate of the current editor&apos;s upper left corner, relative to screen.</source>
@@ -1326,15 +1362,15 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with SCC.</source>
-        <translation>Soubor se nepodařilo s pomocí správy verzí udělat zapisovatelný (otevřít pro úpravy).</translation>
+        <translation type="obsolete">Soubor se nepodařilo s pomocí správy verzí udělat zapisovatelný (otevřít pro úpravy).</translation>
     </message>
     <message>
         <source>Cannot Set Permissions</source>
-        <translation>Chyba při nastavení oprávnění pro přístup k souboru</translation>
+        <translation type="obsolete">Chyba při nastavení oprávnění pro přístup k souboru</translation>
     </message>
     <message>
         <source>Cannot set permissions to writable.</source>
-        <translation>Soubor se nepodařilo udělat zapisovatelný.</translation>
+        <translation type="obsolete">Soubor se nepodařilo udělat zapisovatelný.</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
@@ -1462,7 +1498,7 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Go to Next Split</source>
-        <translation>Jít na další rozdělení</translation>
+        <translation type="obsolete">Jít na další rozdělení</translation>
     </message>
     <message>
         <source>%1,o</source>
@@ -1680,11 +1716,11 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Reset warnings</source>
-        <translation>Nastavit varování znovu</translation>
+        <translation type="obsolete">Nastavit varování znovu</translation>
     </message>
     <message>
         <source>Done</source>
-        <translation>Hotovo</translation>
+        <translation type="obsolete">Hotovo</translation>
     </message>
     <message>
         <source>Restart required</source>
@@ -1822,6 +1858,10 @@ Chcete je nechat přepsat?</translation>
         <source>Reset warnings</source>
         <comment>Button text</comment>
         <translation>Nastavit varování znovu</translation>
+    </message>
+    <message>
+        <source>Re-enable all warnings which were suppressed using &quot;Don&apos;t show again&quot; button (e.g. missing highlighter).</source>
+        <translation>Povolit znovu všechna varování, jež byla potlačena pomocí tlačítka Neptat se znovu (např. chybějící zvýrazňování).</translation>
     </message>
 </context>
 <context>
@@ -2001,6 +2041,10 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Alt+0</source>
         <translation>Alt+0</translation>
+    </message>
+    <message>
+        <source>Show Mode Selector</source>
+        <translation>Ukázat volič režimu</translation>
     </message>
     <message>
         <source>Ctrl+Meta+F</source>
@@ -2333,6 +2377,10 @@ Chcete je nechat přepsat?</translation>
         <translation>Zkratka</translation>
     </message>
     <message>
+        <source>Type to set shortcut</source>
+        <translation>Pište pro nastavení klávesové zkratky</translation>
+    </message>
+    <message>
         <source>Import Keyboard Mapping Scheme</source>
         <translation>Importovat schéma přiřazení kláves</translation>
     </message>
@@ -2363,8 +2411,12 @@ Chcete je nechat přepsat?</translation>
         <translation>O programu Qt Creator</translation>
     </message>
     <message>
+        <source>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;&lt;br/&gt;Built on %3 at %4&lt;br /&gt;&lt;br/&gt;%5&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
+        <translation>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;&lt;br/&gt;Sestavený %3 v %4&lt;br /&gt;&lt;br/&gt;%5&lt;br/&gt;Autorské právo 2008-%6 %7. Všechna práva vyhrazena.&lt;br/&gt;&lt;br/&gt; Program je poskytován tak, JAK JE, BEZ ZÁRUKY JAKÉHOKOLI DRUHU, VČETNĚ ZÁRUKY PROVEDENÍ, PRODEJNOSTI A VHODNOSTI PRO URČITÝ ÚČEL.&lt;br/&gt;</translation>
+    </message>
+    <message>
         <source>(%1)</source>
-        <translation>(%1)</translation>
+        <translation type="obsolete">(%1)</translation>
     </message>
     <message>
         <source>From revision %1&lt;br/&gt;</source>
@@ -2373,7 +2425,7 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <translation>&lt;h3&gt;Qt Creator %1 %8 &lt;/h3&gt;Založený na Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Vytvořený %4 v %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Autorské právo 2008-%6 %7. Všechna práva vyhrazena.&lt;br/&gt;&lt;br/&gt; Program je poskytován tak, JAK JE, BEZ ZÁRUKY JAKÉHOKOLI DRUHU, VČETNĚ ZÁRUKY PROVEDENÍ, PRODEJNOSTI A VHODNOSTI PRO URČITÝ ÚČEL.&lt;br/&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Qt Creator %1 %8 &lt;/h3&gt;Založený na Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Vytvořený %4 v %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Autorské právo 2008-%6 %7. Všechna práva vyhrazena.&lt;br/&gt;&lt;br/&gt; Program je poskytován tak, JAK JE, BEZ ZÁRUKY JAKÉHOKOLI DRUHU, VČETNĚ ZÁRUKY PROVEDENÍ, PRODEJNOSTI A VHODNOSTI PRO URČITÝ ÚČEL.&lt;br/&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
@@ -2447,7 +2499,7 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>The header and source file names will be derived from the class name</source>
-        <translation>Názvy pro hlavičkové a zdrojové soubory se odvozují z názvu pto třídu</translation>
+        <translation>Názvy pro hlavičkové a zdrojové soubory se odvozují z názvu pro třídu</translation>
     </message>
     <message>
         <source>Configure...</source>
@@ -2487,7 +2539,7 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>C++ Header File</source>
-        <translation>Hlavičkový soubor C++</translation>
+        <translation type="obsolete">Hlavičkový soubor C++</translation>
     </message>
     <message>
         <source>Creates a C++ header file.</source>
@@ -2499,11 +2551,11 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>C++ Source File</source>
-        <translation>Zdrojový soubor C++</translation>
+        <translation type="obsolete">Zdrojový soubor C++</translation>
     </message>
     <message>
         <source>C++ Class</source>
-        <translation>Třída C++</translation>
+        <translation type="obsolete">Třída C++</translation>
     </message>
     <message>
         <source>Creates a header and a source file for a new class.</source>
@@ -2519,15 +2571,15 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
-        <translation>Vytvoří hlavičku C++ a zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
+        <translation type="obsolete">Vytvoří hlavičku C++ a zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
     </message>
     <message>
         <source>Creates a C++ source file that you can add to a C++ project.</source>
-        <translation>Vytvoří zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
+        <translation type="obsolete">Vytvoří zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
     </message>
     <message>
         <source>Creates a C++ header file that you can add to a C++ project.</source>
-        <translation>Vytvoří hlavičkový soubor C++, který můžete přidat do projektu C++.</translation>
+        <translation type="obsolete">Vytvoří hlavičkový soubor C++, který můžete přidat do projektu C++.</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
@@ -2535,51 +2587,51 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Switch Between Method Declaration/Definition</source>
-        <translation>Přepínání mezi deklarací a definicí metody</translation>
+        <translation type="obsolete">Přepínání mezi deklarací a definicí metody</translation>
     </message>
     <message>
         <source>Shift+F2</source>
-        <translation>Shift+F2</translation>
+        <translation type="obsolete">Shift+F2</translation>
     </message>
     <message>
         <source>Open Method Declaration/Definition in Next Split</source>
-        <translation>Otevřít deklaraci/definici metody v dalším rozdělení</translation>
+        <translation type="obsolete">Otevřít deklaraci/definici metody v dalším rozdělení</translation>
     </message>
     <message>
         <source>Ctrl+E, Shift+F2</source>
-        <translation>Ctrl+E, Shift+F2</translation>
+        <translation type="obsolete">Ctrl+E, Shift+F2</translation>
     </message>
     <message>
         <source>Find Usages</source>
-        <translation>Najít použití</translation>
+        <translation type="obsolete">Najít použití</translation>
     </message>
     <message>
         <source>Ctrl+Shift+U</source>
-        <translation>Ctrl+Shift+U</translation>
+        <translation type="obsolete">Ctrl+Shift+U</translation>
     </message>
     <message>
         <source>Open Type Hierarchy</source>
-        <translation>Otevřít hierarchii tříd</translation>
+        <translation type="obsolete">Otevřít hierarchii tříd</translation>
     </message>
     <message>
         <source>Ctrl+Shift+T</source>
-        <translation>Ctrl+Shift+T</translation>
+        <translation type="obsolete">Ctrl+Shift+T</translation>
     </message>
     <message>
         <source>Meta+Shift+T</source>
-        <translation>Meta+Shift+T</translation>
+        <translation type="obsolete">Meta+Shift+T</translation>
     </message>
     <message>
         <source>Rename Symbol Under Cursor</source>
-        <translation>Přejmenovat symbol pod ukazovátkem</translation>
+        <translation type="obsolete">Přejmenovat symbol pod ukazovátkem</translation>
     </message>
     <message>
         <source>CTRL+SHIFT+R</source>
-        <translation>Ctrl+Shift+R</translation>
+        <translation type="obsolete">Ctrl+Shift+R</translation>
     </message>
     <message>
         <source>Update Code Model</source>
-        <translation>Obnovit model kódu</translation>
+        <translation type="obsolete">Obnovit model kódu</translation>
     </message>
     <message>
         <source>Rename Symbol under Cursor</source>
@@ -2808,6 +2860,14 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Open Corresponding Header/Source in Next Split</source>
         <translation>Otevřít odpovídající hlavičku/zdroj v dalším rozdělení</translation>
+    </message>
+    <message>
+        <source>Meta+E, F4</source>
+        <translation>Meta+E, F4</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, F4</source>
+        <translation>Ctrl+E, F4</translation>
     </message>
 </context>
 <context>
@@ -3745,7 +3805,7 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Breakpoints</source>
-        <translation>Body přerušení</translation>
+        <translation type="obsolete">Body přerušení</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3757,7 +3817,7 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Break on functions:</source>
-        <translation>Přerušit při funkcích:</translation>
+        <translation type="obsolete">Přerušit při funkcích:</translation>
     </message>
     <message>
         <source>This is useful to catch runtime error messages, for example caused by assert().</source>
@@ -3765,23 +3825,23 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Symbol paths: %1</source>
-        <translation>Cesty k symbolům: %1</translation>
+        <translation type="obsolete">Cesty k symbolům: %1</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
-        <translation>&lt;žádná&gt;</translation>
+        <translation type="obsolete">&lt;žádná&gt;</translation>
     </message>
     <message>
         <source>Source paths: %1</source>
-        <translation>Cesty ke zdrojovému textu: %1</translation>
+        <translation type="obsolete">Cesty ke zdrojovému textu: %1</translation>
     </message>
     <message>
         <source>Paths</source>
-        <translation>Cesty</translation>
+        <translation type="obsolete">Cesty</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation>Upravit...</translation>
+        <translation type="obsolete">Upravit...</translation>
     </message>
     <message>
         <source>Various</source>
@@ -3789,7 +3849,7 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Ignore first chance access violations</source>
-        <translation type="unfinished"></translation>
+        <translation>Přehlížet první příležitostné porušení přístupu</translation>
     </message>
 </context>
 <context>
@@ -3803,8 +3863,16 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation>Přidá symbolický server firmy Microsoft, který poskytuje symboly pro knihovny operačního systému. Vyžaduje zadání adresáře s místní vyrovnávací pamětí.</translation>
     </message>
     <message>
+        <source>Symbol Cache...</source>
+        <translation>Vyrovnávací paměť pro symboly...</translation>
+    </message>
+    <message>
+        <source>Uses a directory to cache symbols used by the debugger.</source>
+        <translation>Používá adresář pro ukládání symbolů používaných ladičem do vyrovnávací paměti.</translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ladič není zařízen k používání veřejného &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Serveru&lt;/a&gt;. Toto se doporučuje k vyhledávání symbolů knihoven operačních systémů.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Poznámka:&lt;/i&gt; Je požadováno rychle internetové spojení. Při prvním spuštění se může vyskytnout zpoždění.&lt;/p&gt;&lt;p&gt;Chcete zřídit symbolický server?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ladič není zařízen k používání veřejného &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Serveru&lt;/a&gt;. Toto se doporučuje k vyhledávání symbolů knihoven operačních systémů.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Poznámka:&lt;/i&gt; Je požadováno rychle internetové spojení. Při prvním spuštění se může vyskytnout zpoždění.&lt;/p&gt;&lt;p&gt;Chcete zřídit symbolický server?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3812,11 +3880,11 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Symbol Server</source>
-        <translation>Symbolický server</translation>
+        <translation type="obsolete">Symbolický server</translation>
     </message>
     <message>
         <source>Do not ask again</source>
-        <translation>Neptat se znovu</translation>
+        <translation type="obsolete">Neptat se znovu</translation>
     </message>
     <message>
         <source>Pick a local cache directory</source>
@@ -4598,26 +4666,26 @@ Zkuste: %2</translation>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.
 </source>
-        <translation>Zdá se, že toto není sestavení &quot;Debug&quot;.
+        <translation type="obsolete">Zdá se, že toto není sestavení &quot;Debug&quot;.
 Nastavení bodů přerušení podle názvů souborů a čísel řádků může selhat.</translation>
     </message>
     <message>
         <source>Found.</source>
-        <translation>Nalezeno.</translation>
+        <translation type="obsolete">Nalezeno.</translation>
     </message>
     <message>
         <source>Not Found.</source>
-        <translation>Nenalezeno.</translation>
+        <translation type="obsolete">Nenalezeno.</translation>
     </message>
     <message>
         <source>
 Section %1: %2</source>
-        <translation>
+        <translation type="obsolete">
 Část %1: %2</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Varování</translation>
+        <translation type="obsolete">Varování</translation>
     </message>
     <message>
         <source>The gdb process could not be stopped:
@@ -5180,12 +5248,40 @@ markers in the source code editor.</source>
 souboru .gdbinit při spuštění ladiče.</translation>
     </message>
     <message>
+        <source>Create tasks from missing packages</source>
+        <translation>Vytvořit úkoly z chybějících balíčků</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempts to identify missing debug info packages and lists them in the Issues output pane.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature needs special support from the Linux distribution and GDB build and is not available everywhere.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zapnutím této volby se zkusí určit chybějící balíčky s informacemi o ladění a uvede je v okně pro zobrazení potíží při sestavování.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Poznámka:&lt;/b&gt; Tato funkcionalita vyžaduje zvláštní podporu od linuxové distribuce a od GDB a není dostupná všude.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;To execute simple Python commands, prefix them with &quot;python&quot;.&lt;/p&gt;&lt;p&gt;To execute sequences of Python commands spanning multiple lines prepend the block with &quot;python&quot; on a separate line, and append &quot;end&quot; on a separate line.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Pro provádění jednoduchých Pythonovských příkazů na jejich začátek dejte předponu &quot;python&quot;.&lt;/p&gt;&lt;p&gt;Pro provádění sekvencí Pythonovských příkazů, které zabírají více řádků, dejte na začátek bloku &quot;python&quot; na samostatném řádku a připojte &quot;end&quot; na samostatném řádku.&lt;/p&gt;&lt;p&gt;Pro provádění libovolných Pythonovských skriptů použijte &lt;i&gt;python execfile(&apos;/cesta/k/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after GDB has been started, but before the debugged program is started or attached, and before the debugging helpers are initialized.&lt;/p&gt;%1&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zde zadané příkazy GDB budou provedeny po spuštění GDB. ale ještě před spuštěním programu k ladění, a před spuštěním pomocných ladicích programů.&lt;/p&gt;%1&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Debugging Helper Customization</source>
+        <translation>Přizpůsobení pomocného ladicího programu</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after Qt Creator&apos;s debugging helpers have been loaded and fully initialized. You can load additional debugging helpers or modify existing ones here.&lt;/p&gt;%1&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zde zadané příkazy GDB budou provedeny po nahrání pomocných ladicích programů a jejich plném spuštění. pomocných ladicích programů. Můžete nahrát další  pomocné ladicí programy nebo změnit již existující.&lt;/p&gt;%1&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Extended</source>
+        <translation>Rozšířené</translation>
+    </message>
+    <message>
         <source>Warn when debugging &quot;Release&quot; builds</source>
-        <translation>Varovat při ladění sestavení, která představují vydání (Release)</translation>
+        <translation type="obsolete">Varovat při ladění sestavení, která představují vydání (Release)</translation>
     </message>
     <message>
         <source>Show a warning when starting the debugger on a binary with insufficient debug information.</source>
-        <translation>Ukázat varování při spuštění ladění pro spustitelný soubor s nedostatečnými ladicími informacemi.</translation>
+        <translation type="obsolete">Ukázat varování při spuštění ladění pro spustitelný soubor s nedostatečnými ladicími informacemi.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Add common paths to locations of debug information such as &lt;i&gt;/usr/src/debug&lt;/i&gt; when starting GDB.&lt;/body&gt;&lt;/html&gt;</source>
@@ -5209,23 +5305,28 @@ souboru .gdbinit při spuštění ladiče.</translation>
     </message>
     <message>
         <source>Use Intel style disassembly</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít pro disassembler styl Intel</translation>
+    </message>
+    <message>
+        <source>Load system GDB pretty printers</source>
+        <translation>Nahrát Pretty Printers GDB ze systému</translation>
+    </message>
+    <message>
+        <source>Uses the default GDB pretty printers installed in your system or linked to the libraries your application uses.
+</source>
+        <translation>Použít Pretty Printers GDB, které jsou nainstalovány v systému nebo spojeny s knihovnami, které používá váš program.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;GDB shows by default AT&amp;&amp;T style disassembly.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after GDB has been started and the debugging helpers have been initialized.&lt;/p&gt;&lt;p&gt;You can add commands to load further debugging helpers here, or modify existing ones.&lt;/p&gt;&lt;p&gt;To execute simple Python commands, prefix them with &quot;python&quot;.&lt;/p&gt;&lt;p&gt;To execute sequences of Python commands spanning multiple lines prepend the block with &quot;python&quot; on a separate line, and append &quot;end&quot; on a separate line.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Předloha GDB pro disassembler je ve stylu AT&amp;&amp;T.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Additional Attach Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodatečné příkazy při připojení</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after GDB has successfully attached to remote targets.&lt;/p&gt;&lt;p&gt;You can add commands to further set up the target here, such as &quot;monitor reset&quot; or &quot;load&quot;.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zde zadané příkazy GDB budou provedeny po úspěšném připojení GDB k vzdáleným cílům. &lt;/p&gt;&lt;p&gt;Zde můžete přidat příkazy pro další nastavení cíle, jako jsou &quot;monitor reset&quot; nebo &quot;load&quot;.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This specifies whether the dynamic or the static type of objects will bedisplayed. Choosing the dynamic type might be slower.</source>
@@ -6156,8 +6257,12 @@ informacemi o ladění.</translation>
         <translation>Adresa objektu</translation>
     </message>
     <message>
+        <source>Pointer Address</source>
+        <translation>Adresa ukazatele</translation>
+    </message>
+    <message>
         <source>Referencing Address</source>
-        <translation>Odkazující adresa</translation>
+        <translation type="obsolete">Odkazující adresa</translation>
     </message>
     <message>
         <source>Static Object Size</source>
@@ -6984,6 +7089,10 @@ Zkuste projekt vytvořit znovu.</translation>
         <translation>Shift+F4</translation>
     </message>
     <message>
+        <source>About Qt Designer Plugins...</source>
+        <translation>O přídavných modulech programu Qt Designer...</translation>
+    </message>
+    <message>
         <source>Views</source>
         <translation type="obsolete">Pohledy</translation>
     </message>
@@ -7005,7 +7114,7 @@ Zkuste projekt vytvořit znovu.</translation>
     </message>
     <message>
         <source>About Qt Designer plugins....</source>
-        <translation>O přídavných modulech programu Qt Designer...</translation>
+        <translation type="obsolete">O přídavných modulech programu Qt Designer...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -7360,6 +7469,10 @@ Důvod: %3</translation>
         <source>Read .vimrc</source>
         <translation>Číst .vimrc</translation>
     </message>
+    <message>
+        <source>Path to .vimrc</source>
+        <translation>Cesta k .vimrc</translation>
+    </message>
 </context>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
@@ -7585,12 +7698,16 @@ Důvod: %3</translation>
         <translation>FakeVim</translation>
     </message>
     <message>
+        <source>Default: %1</source>
+        <translation>Výchozí: %1</translation>
+    </message>
+    <message>
         <source>Use FakeVim</source>
         <translation>Používat FakeVim</translation>
     </message>
     <message>
         <source>Read .vimrc</source>
-        <translation>Číst .vimrc</translation>
+        <translation type="obsolete">Číst .vimrc</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
@@ -7684,6 +7801,34 @@ Důvod: %3</translation>
     <message>
         <source>Show partial command</source>
         <translation>Ukázat částečný příkaz</translation>
+    </message>
+    <message>
+        <source>Use ignorecase</source>
+        <translation>Použít ignorecase</translation>
+    </message>
+    <message>
+        <source>Let Qt Creator handle some key presses in insert mode so that code can be properly completed and expanded.</source>
+        <translation>Umožní Qt Creatoru zacházet s některými stisky kláves v režimu vkládání, takže kód může být správně doplňován a rozšiřován.</translation>
+    </message>
+    <message>
+        <source>Pass keys in insert mode</source>
+        <translation>Předat dál stisky kláves v režimu vkládání</translation>
+    </message>
+    <message>
+        <source>Scroll offset:</source>
+        <translation>Posun obrazu:</translation>
+    </message>
+    <message>
+        <source>Read .vimrc from location:</source>
+        <translation>Použít .vimrc z umístění:</translation>
+    </message>
+    <message>
+        <source>Keep empty to use the default path, i.e. %USERPROFILE%\_vimrc on Windows, ~/.vimrc otherwise.</source>
+        <translation>Ponechat prázdné, aby se použila výchozí cesta, tzn., %USERPROFILE%\_vimrc auf Windows, ansonsten ~/.vimrc.</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>Procházet...</translation>
     </message>
 </context>
 <context>
@@ -8562,6 +8707,14 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation>Smazat větev</translation>
     </message>
     <message>
+        <source>Branch Exists</source>
+        <translation>Větev existuje</translation>
+    </message>
+    <message>
+        <source>Local branch &apos;%1&apos; already exists.</source>
+        <translation>Místní větev &apos;%1&apos; již existuje.</translation>
+    </message>
+    <message>
         <source>Would you like to delete the branch &apos;%1&apos;?</source>
         <translation>Chcete smazat větev &apos;%1&apos;?</translation>
     </message>
@@ -8646,6 +8799,10 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translatorcomment>XXX: klávesové zkratky upraveny, ale neověřeno za běhu</translatorcomment>
         <translation>Přes&amp;kládat (rebase)</translation>
     </message>
+    <message>
+        <source>Re&amp;name</source>
+        <translation>&amp;Přejmenovat</translation>
+    </message>
 </context>
 <context>
     <name>Git::Internal::ChangeSelectionDialog</name>
@@ -8667,19 +8824,59 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Select Working Directory</source>
-        <translation>Vybrat pracovní adresář</translation>
+        <translation type="obsolete">Vybrat pracovní adresář</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Chyba</translation>
+        <translation type="obsolete">Chyba</translation>
     </message>
     <message>
         <source>Selected directory is not a Git repository.</source>
-        <translation>Vybraný adresář není skladištěm Git.</translation>
+        <translation type="obsolete">Vybraný adresář není skladištěm Git.</translation>
+    </message>
+    <message>
+        <source>Browse &amp;Directory...</source>
+        <translation>Vybrat &amp;adresář...</translation>
+    </message>
+    <message>
+        <source>Browse &amp;History...</source>
+        <translation>Procházet &amp;historii...</translation>
+    </message>
+    <message>
+        <source>&amp;Show</source>
+        <translation>Uká&amp;zat</translation>
+    </message>
+    <message>
+        <source>Cherry &amp;Pick</source>
+        <translation>Cherry-&amp;Pick</translation>
+    </message>
+    <message>
+        <source>&amp;Revert</source>
+        <translation>&amp;Vrátit</translation>
+    </message>
+    <message>
+        <source>Check&amp;out</source>
+        <translation>Načíst (checkout)</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>&amp;Zavřít</translation>
+    </message>
+    <message>
+        <source>Select Commit</source>
+        <translation>Vybrat zápis (commit)</translation>
+    </message>
+    <message>
+        <source>Select Git Directory</source>
+        <translation>Vybrat adresář Git</translation>
     </message>
     <message>
         <source>Error: Unknown reference</source>
         <translation>Chyba: Neznámý odkaz</translation>
+    </message>
+    <message>
+        <source>Error: Bad working directory.</source>
+        <translation>Chyba: Neplatný pracovní adresář.</translation>
     </message>
     <message>
         <source>Error: Could not start Git.</source>
@@ -8699,7 +8896,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Select</source>
-        <translation>Vybrat</translation>
+        <translation type="obsolete">Vybrat</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -8745,7 +8942,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Git Log</source>
-        <translation>Git Log</translation>
+        <translation type="obsolete">Git Log</translation>
     </message>
     <message>
         <source>Git Log %1</source>
@@ -8903,7 +9100,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Changes</source>
-        <translation>Změny</translation>
+        <translation type="obsolete">Změny</translation>
     </message>
     <message>
         <source>You have modified files. Would you like to stash your changes?</source>
@@ -9026,8 +9223,32 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation>Nadřazenou revizi &quot;%1&quot; ve skladišti &quot;%2&quot; se nepodařilo určit: %3</translation>
     </message>
     <message>
+        <source>Cannot execute &quot;git %1&quot; in &quot;%2&quot;: %3</source>
+        <translation>Příkaz &quot;git %1&quot; se v adresáři &quot;%2&quot; nepodařilo provést: %3</translation>
+    </message>
+    <message>
         <source>Cannot retrieve branch of &quot;%1&quot;: %2</source>
         <translation>Větev skladiště &quot;%1&quot; nelze určit: %2</translation>
+    </message>
+    <message>
+        <source>Cannot run &quot;%1&quot; in &quot;%2&quot;: %3</source>
+        <translation>Příkaz &quot;%1&quot; se v adresáři &quot;%2&quot; nepodařilo provést: %3</translation>
+    </message>
+    <message>
+        <source>REBASING</source>
+        <translation>PŘESKLÁDÁVÁ SE</translation>
+    </message>
+    <message>
+        <source>REVERTING</source>
+        <translation>VRACÍ SE</translation>
+    </message>
+    <message>
+        <source>CHERRY-PICKING</source>
+        <translation>VYBÍRÁ SE</translation>
+    </message>
+    <message>
+        <source>MERGING</source>
+        <translation>SLUČUJE SE</translation>
     </message>
     <message>
         <source>Detached HEAD</source>
@@ -9051,20 +9272,60 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation>Nepodařilo se určit odložené změny s popisem &quot;%1&quot; ve skladišti &quot;%2&quot;.</translation>
     </message>
     <message>
+        <source>Submodules Found</source>
+        <translation>Submoduly nalezeny</translation>
+    </message>
+    <message>
+        <source>Would you like to update submodules?</source>
+        <translation>Chcete aktualizovat submoduly?</translation>
+    </message>
+    <message>
+        <source>Uncommitted Changes Found</source>
+        <translation>Nalezeny nezapsané změny</translation>
+    </message>
+    <message>
+        <source>What would you like to do with local changes in:</source>
+        <translation>Co chcete dělat s následujícími místními změnami:</translation>
+    </message>
+    <message>
+        <source>Stash</source>
+        <translation>Odložit (stash)</translation>
+    </message>
+    <message>
+        <source>Stash local changes and continue.</source>
+        <translation>Odložit místní změny a pokračovat.</translation>
+    </message>
+    <message>
+        <source>Discard</source>
+        <translation>Odmítnout</translation>
+    </message>
+    <message>
+        <source>Discard (reset) local changes and continue.</source>
+        <translation>Zahodit (reset) místní změny a pokračovat.</translation>
+    </message>
+    <message>
+        <source>Continue with local changes in working directory.</source>
+        <translation>Pokračovat s místními změnami v pracovním adresáři.</translation>
+    </message>
+    <message>
+        <source>Cancel current command.</source>
+        <translation>Zrušit nynější příkaz.</translation>
+    </message>
+    <message>
         <source>Cannot run &quot;git branch&quot; in &quot;%1&quot;: %2</source>
-        <translation>Příkaz &quot;git branch&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
+        <translation type="obsolete">Příkaz &quot;git branch&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
     </message>
     <message>
         <source>Cannot run &quot;git remote&quot; in &quot;%1&quot;: %2</source>
-        <translation>Příkaz &quot;git remote&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
+        <translation type="obsolete">Příkaz &quot;git remote&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
     </message>
     <message>
         <source>Cannot run &quot;git show&quot; in &quot;%1&quot;: %2</source>
-        <translation>Příkaz &quot;git show&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
+        <translation type="obsolete">Příkaz &quot;git show&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
     </message>
     <message>
         <source>Cannot run &quot;git clean&quot; in &quot;%1&quot;: %2</source>
-        <translation>Příkaz &quot;git clean&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
+        <translation type="obsolete">Příkaz &quot;git clean&quot; se ve skladišti &quot;%1&quot; nepodařilo provést: %2</translation>
     </message>
     <message>
         <source>There were warnings while applying &quot;%1&quot; to &quot;%2&quot;:
@@ -9078,11 +9339,53 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Would you like to stash your changes?</source>
-        <translation>Chcete své změny odložit (stash)?</translation>
+        <translation type="obsolete">Chcete své změny odložit (stash)?</translation>
     </message>
     <message>
         <source>Cannot obtain status: %1</source>
         <translation>Stav se nepodařilo získat: %1</translation>
+    </message>
+    <message>
+        <source>Continue Rebase</source>
+        <translation>Pokračovat v přeskládání</translation>
+    </message>
+    <message>
+        <source>Rebase is in progress. What do you want to do?</source>
+        <translation>Probíhá přeskládání. Co chcete dělat?</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Pokračovat</translation>
+    </message>
+    <message>
+        <source>Continue Revert</source>
+        <translation>Pokračovat ve vracení změn</translation>
+    </message>
+    <message>
+        <source>You need to commit changes to finish revert.
+Commit now?</source>
+        <translation>Pro dokončení vrácení změn je nutno provést zápis. Chcete nyní zapsat?</translation>
+    </message>
+    <message>
+        <source>Commit</source>
+        <translation>Použít</translation>
+    </message>
+    <message>
+        <source>Continue Cherry-Picking</source>
+        <translation>Pokračovat ve výběrovém slučování</translation>
+    </message>
+    <message>
+        <source>You need to commit changes to finish cherry-picking.
+Commit now?</source>
+        <translation>Pro dokončení výběrového slučování je nutno provést zápis. Chcete nyní zapsat?</translation>
+    </message>
+    <message>
+        <source>No changes found. </source>
+        <translation>Beze změn.</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>Přeskočit</translation>
     </message>
     <message>
         <source>&lt;Detached HEAD&gt;</source>
@@ -9173,8 +9476,20 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation>Git SVN Log</translation>
     </message>
     <message>
+        <source>Rebase, merge or am is in progress. Finish or abort it and then try again.</source>
+        <translation>Probíhá operace přeskládání, slučování nebo am. Ukončete ji, prosím, nebo ji zrušte a zkuste to ještě jednou.</translation>
+    </message>
+    <message>
         <source>There are no modified files.</source>
         <translation>Nejsou žádné změněné soubory.</translation>
+    </message>
+    <message>
+        <source>No commits were found</source>
+        <translation>Nepodařilo se nalézt žádné zápisy</translation>
+    </message>
+    <message>
+        <source>No local commits were found</source>
+        <translation>Nepodařilo se nalézt žádné místní zápisy</translation>
     </message>
     <message>
         <source>Cannot restore stash &quot;%1&quot;: %2</source>
@@ -9314,6 +9629,46 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Amend Last Commit...</source>
         <translation>Poupravit poslední zápis (amend)...</translation>
+    </message>
+    <message>
+        <source>Fixup Previous Commit...</source>
+        <translation>Vylepšit předchozí zápis...</translation>
+    </message>
+    <message>
+        <source>Interactive Rebase...</source>
+        <translation>Interaktivní přeskládání...</translation>
+    </message>
+    <message>
+        <source>Update Submodules</source>
+        <translation>Aktualizovat submoduly</translation>
+    </message>
+    <message>
+        <source>Abort Merge</source>
+        <translation>Zrušit slučování</translation>
+    </message>
+    <message>
+        <source>Abort Rebase</source>
+        <translation>Zrušit přeskládání</translation>
+    </message>
+    <message>
+        <source>Abort Cherry Pick</source>
+        <translation>Zrušit výběrové slučování</translation>
+    </message>
+    <message>
+        <source>Abort Revert</source>
+        <translation>Zrušit vrácení změn</translation>
+    </message>
+    <message>
+        <source>Continue Rebase</source>
+        <translation>Pokračovat v přeskládání</translation>
+    </message>
+    <message>
+        <source>Continue Cherry Pick</source>
+        <translation>Pokračovat ve výběrovém slučování</translation>
+    </message>
+    <message>
+        <source>Continue Revert</source>
+        <translation>Pokračovat ve vracení změn</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -9567,12 +9922,12 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Revert Single Commit...</source>
-        <translation>Vrátit zpět zápis (revert)...</translation>
+        <translation type="obsolete">Vrátit zpět zápis (revert)...</translation>
     </message>
     <message>
         <source>Cherry-Pick Commit...</source>
         <translatorcomment>XXX: ověřit za běhu (příliš dlouhé?) slovo zápis lze vypustit</translatorcomment>
-        <translation>Výběrově sloučit zápis (cherry-pick)...</translation>
+        <translation type="obsolete">Výběrově sloučit zápis (cherry-pick)...</translation>
     </message>
     <message>
         <source>&amp;Patch</source>
@@ -9593,6 +9948,26 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Manage Remotes...</source>
         <translation>Spravovat vzdálená skladiště...</translation>
+    </message>
+    <message>
+        <source>Revert...</source>
+        <translation>Vrátit...</translation>
+    </message>
+    <message>
+        <source>Cherry Pick...</source>
+        <translation>Výběrově sloučit...</translation>
+    </message>
+    <message>
+        <source>Checkout...</source>
+        <translation>Načíst (checkout)...</translation>
+    </message>
+    <message>
+        <source>Rebase...</source>
+        <translation>Přeskládat...</translation>
+    </message>
+    <message>
+        <source>Merge...</source>
+        <translation>Sloučit...</translation>
     </message>
     <message>
         <source>Git &amp;Tools</source>
@@ -9627,12 +10002,28 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation>Nástroj na slučování</translation>
     </message>
     <message>
+        <source>Actions on Commits...</source>
+        <translation>Činnosti při zápisech...</translation>
+    </message>
+    <message>
+        <source>Undo Changes to %1</source>
+        <translation>Změny pro %1 vrátit zpět</translation>
+    </message>
+    <message>
+        <source>Interactive Rebase</source>
+        <translation>Interaktivní přeskládání</translation>
+    </message>
+    <message>
         <source>Unsupported version of Git found. Git %1 or later required.</source>
         <translation>Nalezena nepodporovaná verze Git. Je požadován Git %1 nebo pozdější.</translation>
     </message>
     <message>
         <source>Amend %1</source>
         <translation>Pozměnit zápis %1</translation>
+    </message>
+    <message>
+        <source>Git Fixup Commit</source>
+        <translation type="unfinished">Git Fixup Commit</translation>
     </message>
     <message>
         <source>Git Commit</source>
@@ -9925,11 +10316,23 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Repository browser</source>
-        <translation>Prohlížeč skladiště</translation>
+        <translation type="obsolete">Prohlížeč skladiště</translation>
     </message>
     <message>
         <source>Command:</source>
         <translation>Příkaz:</translation>
+    </message>
+    <message>
+        <source>Show tags in Branches dialog</source>
+        <translation>Ukázat klíčová slova v dialogu větve</translation>
+    </message>
+    <message>
+        <source>Show diff side-by-side</source>
+        <translation>Ukázat změny vedle sebe</translation>
+    </message>
+    <message>
+        <source>Repository Browser</source>
+        <translation>Prohlížeč skladiště</translation>
     </message>
 </context>
 <context>
@@ -11430,6 +11833,10 @@ ve svém .pro souboru.</translation>
 <context>
     <name>PluginManager</name>
     <message>
+        <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
+        <translation>Přídavný modul &apos;%1&apos; je ve zkušebním seznamu přítomen dvakrát.</translation>
+    </message>
+    <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>Přídavný modul &apos;%1&apos; neexistuje.</translation>
     </message>
@@ -12414,6 +12821,14 @@ ve svém .pro souboru.</translation>
         <translation>&lt;Žádný&gt;</translation>
     </message>
     <message>
+        <source>Open project anyway?</source>
+        <translation>Přesto projekt otevřít?</translation>
+    </message>
+    <message>
+        <source>Version Control Failure</source>
+        <translation>Selhání správy verzí</translation>
+    </message>
+    <message>
         <source>Failed to add subproject &apos;%1&apos;
 to project &apos;%2&apos;.</source>
         <translation>Dílčí projekt &apos;%1&apos;
@@ -13051,11 +13466,11 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     </message>
     <message>
         <source>Full path of the current project&apos;s main file, including file name.</source>
-        <translation>Úplná cesta hlavního souboru nynějšího projektu včetně názvu souboru.</translation>
+        <translation type="obsolete">Úplná cesta hlavního souboru nynějšího projektu včetně názvu souboru.</translation>
     </message>
     <message>
         <source>Full path of the current project&apos;s main file, excluding file name.</source>
-        <translation>Úplná cesta hlavního souboru nynějšího projektu vyjma názvu souboru.</translation>
+        <translation type="obsolete">Úplná cesta hlavního souboru nynějšího projektu vyjma názvu souboru.</translation>
     </message>
     <message>
         <source>Full build path of the current project&apos;s active build configuration.</source>
@@ -13124,6 +13539,10 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Failed to Open Project</source>
         <translation>Nepodařilo se otevřít projekt</translation>
+    </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project already open</source>
+        <translation>Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -13224,6 +13643,10 @@ Chcete je přehlížet?</translation>
     <message>
         <source>Quick Switch Kit Selector</source>
         <translation>Rychlý výběr sady</translation>
+    </message>
+    <message>
+        <source>Current project&apos;s main file</source>
+        <translation>Hlavní soubor nynějšího projektu</translation>
     </message>
     <message>
         <source>A build is in progress</source>
@@ -13419,6 +13842,14 @@ přidat do správy verzí (%2)?</translation>
     <message>
         <source>Failed to restore project files</source>
         <translation>Projektové soubory se nepodařilo obnovit</translation>
+    </message>
+    <message>
+        <source>Delete Session</source>
+        <translation>Smazat sezení</translation>
+    </message>
+    <message>
+        <source>Delete session %1?</source>
+        <translation>Smazat sezení %1?</translation>
     </message>
     <message>
         <source>Could not restore the following project files:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;</source>
@@ -14395,15 +14826,15 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
+        <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
     <message>
         <source>Qt Run Configuration</source>
@@ -14470,7 +14901,7 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>Základní prostředí pro toto nastavení spuštění:</translation>
+        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
     </message>
     <message>
         <source>Debugger:</source>
@@ -14478,7 +14909,7 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     </message>
     <message>
         <source>Run Environment</source>
-        <translation>Prováděcí prostředí</translation>
+        <translation type="obsolete">Prováděcí prostředí</translation>
     </message>
     <message>
         <source>Base environment for this runconfiguration:</source>
@@ -14486,15 +14917,15 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
+        <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
     <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
@@ -14937,19 +15368,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>No Qt version.</source>
-        <translation>Žádná verze Qt.</translation>
+        <translation type="obsolete">Žádná verze Qt.</translation>
     </message>
     <message>
         <source>Invalid Qt version.</source>
-        <translation>Neplatná verze Qt.</translation>
+        <translation type="obsolete">Neplatná verze Qt.</translation>
     </message>
     <message>
         <source>Requires Qt 4.7.1 or newer.</source>
-        <translation>Vyžaduje Qt 4.7.1 nebo novější.</translation>
+        <translation type="obsolete">Vyžaduje Qt 4.7.1 nebo novější.</translation>
     </message>
     <message>
         <source>Library not available. &lt;a href=&apos;compile&apos;&gt;Compile...&lt;/a&gt;</source>
-        <translation>Knihovna není dostupná. &lt;a href=&apos;compile&apos;&gt;Sestavit...&lt;/a&gt;</translation>
+        <translation type="obsolete">Knihovna není dostupná. &lt;a href=&apos;compile&apos;&gt;Sestavit...&lt;/a&gt;</translation>
     </message>
     <message>
         <source>QML Debugging</source>
@@ -14987,12 +15418,20 @@ p, li { white-space: pre-wrap; }
         <translation>Vytvořené soubory přivést do nynějšího stavu</translation>
     </message>
     <message>
+        <source>In project&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;The following files are either outdated or have been modified:&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Do you want Qt Creator to update the files? Any changes will be lost.</source>
+        <translation>V projektu&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Následující soubory jsou buď zastaralé, nebo byly změněny:&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Chcete, aby Qt Creator soubory zaktualizoval? Přitom budou všechny změny v nich ztraceny.</translation>
+    </message>
+    <message>
         <source>The following files are either outdated or have been modified:&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Do you want Qt Creator to update the files? Any changes will be lost.</source>
-        <translation>Následující soubory jsou buď zastaralé, nebo byly změněny:&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Chcete, aby Qt Creator soubory zaktualizoval? Přitom budou všechny změny v nich ztraceny.</translation>
+        <translation type="obsolete">Následující soubory jsou buď zastaralé, nebo byly změněny:&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Chcete, aby Qt Creator soubory zaktualizoval? Přitom budou všechny změny v nich ztraceny.</translation>
     </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
-        <translation>Projekt %1 se nepodařil otevřít: Soubor s projektem neexistuje</translation>
+        <translation type="obsolete">Projekt %1 se nepodařil otevřít: Soubor s projektem neexistuje</translation>
+    </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
+        <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
     <message>
         <source>QMake</source>
@@ -15004,7 +15443,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
-        <translation>Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
+        <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
     </message>
     <message>
         <source>Opening %1 ...</source>
@@ -15149,27 +15588,27 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Base classes for graphical user interface (GUI) components. (Qt 4: Includes widgets. Qt 5: Includes OpenGL.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Základní třídy pro součástky grafického uživatelského rozhraní (GUI). (Qt 4: Obsahuje doplňky (widgets). Qt 5: Obsahuje OpenGL.)</translation>
     </message>
     <message>
         <source>Classes to extend Qt GUI with C++ widgets (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Třídy, které rozšiřují Qt GUI o doplňky (widgets) (Qt 5)</translation>
     </message>
     <message>
         <source>Qt Quick 1 classes</source>
-        <translation type="unfinished"></translation>
+        <translation>Třídy Qt Quick 1</translation>
     </message>
     <message>
         <source>Classes for QML and JavaScript languages (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Třídy pro jazyky založené na QML a JavaScriptu (Qt 5)</translation>
     </message>
     <message>
         <source>A declarative framework for building highly dynamic applications with custom user interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Deklarativní rámec (framework) na vytváření vysoce dynamických aplikací s volně stanovitelnými uživatelskými rozhraními</translation>
     </message>
     <message>
         <source>Print support classes (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Třídy pro podporu tisku (Qt 5)</translation>
     </message>
     <message>
         <source>Additional Qt Script components</source>
@@ -15177,11 +15616,11 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>WebKit1 and QWidget-based classes from Qt 4 (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Třídy založené na WebKit1 a QWidget z Qt 4 (Qt 5)</translation>
     </message>
     <message>
         <source>Multimedia framework classes (Qt 4 only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Třídy pro uspořádání multimédií (jen Qt 4)</translation>
     </message>
     <message>
         <source>Classes for low-level multimedia functionality</source>
@@ -15189,7 +15628,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Classes that ease porting from Qt 3 to Qt 4 (Qt 4 only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Třídy pro zjednodušení přenositelnosti z Qt 3 na Qt 4 (jen Qt 4)</translation>
     </message>
     <message>
         <source>Graphical user interface components</source>
@@ -16129,6 +16568,10 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation>Hledat</translation>
     </message>
     <message>
+        <source>Aborting replace.</source>
+        <translation>Ruší se nahrazování.</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation type="obsolete">%1 nalezen</translation>
     </message>
@@ -16563,8 +17006,16 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <translation type="obsolete">Řádek v nynějším dokumentu</translation>
     </message>
     <message>
+        <source>Line %1, Column %2</source>
+        <translation>Řádek: %1, sloupec: %2</translation>
+    </message>
+    <message>
         <source>Line %1</source>
         <translation>Řádek %1</translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation>Sloupec %1</translation>
     </message>
     <message>
         <source>Line in Current Document</source>
@@ -16917,6 +17368,14 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <translation>Následovat symbol pod ukazovátkem v dalším rozdělení</translation>
     </message>
     <message>
+        <source>Meta+E, F2</source>
+        <translation>Meta+E, F2</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, F2</source>
+        <translation>Ctrl+E, F2</translation>
+    </message>
+    <message>
         <source>Jump To File Under Cursor</source>
         <translation>Jít na soubor pod ukazovátkem</translation>
     </message>
@@ -17005,6 +17464,10 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <translation>Označit další slovo (Camel Case)</translation>
     </message>
     <message>
+        <source>&lt;line&gt;:&lt;column&gt;</source>
+        <translation>&lt;číslo řádku&gt;:&lt;číslo sloupce&gt;</translation>
+    </message>
+    <message>
         <source>Goto Line Start</source>
         <translation type="obsolete">Jít na začátek řádku</translation>
     </message>
@@ -17086,7 +17549,7 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
     </message>
     <message>
         <source>&lt;line number&gt;</source>
-        <translation>&lt;číslo řádku&gt;</translation>
+        <translation type="obsolete">&lt;číslo řádku&gt;</translation>
     </message>
     <message>
         <source>Move Line Up</source>
@@ -17342,6 +17805,54 @@ Použito na text, pokud neodpovídají žádná jiná pravidla.</translation>
     <message>
         <source>Applied to enumeration items.</source>
         <translation>Použito na položky výčtu.</translation>
+    </message>
+    <message>
+        <source>Diff File Line</source>
+        <translation>Rozdíly v řádku souboru</translation>
+    </message>
+    <message>
+        <source>Applied to lines with file information in differences (in side-by-side diff editor).</source>
+        <translation>Použito na řádky s informacemi o souboru v rozdílech (při zobrazení rozdílů vedle sebe).</translation>
+    </message>
+    <message>
+        <source>Diff Context Line</source>
+        <translation>Rozdíly v řádku s kontextem</translation>
+    </message>
+    <message>
+        <source>Applied to lines describing hidden context in differences (in side-by-side diff editor).</source>
+        <translation>Použito na řádky, které v rozdílech popisují skryté souvislosti (při zobrazení rozdílů vedle sebe).</translation>
+    </message>
+    <message>
+        <source>Diff Source Line</source>
+        <translation>Rozdíly v řádku ze zdrojového souboru</translation>
+    </message>
+    <message>
+        <source>Applied to source lines with changes in differences (in side-by-side diff editor).</source>
+        <translation>Použito na změněné řádky zdrojového souboru v rozdílech (při zobrazení rozdílů vedle sebe).</translation>
+    </message>
+    <message>
+        <source>Diff Source Character</source>
+        <translation>Rozdíly ve znaku ze zdrojového souboru</translation>
+    </message>
+    <message>
+        <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
+        <translation>Použito na smazané znaky v rozdílech (při zobrazení rozdílů vedle sebe).</translation>
+    </message>
+    <message>
+        <source>Diff Destination Line</source>
+        <translation>Rozdíly v řádku z cílového souboru</translation>
+    </message>
+    <message>
+        <source>Applied to destination lines with changes in differences (in side-by-side diff editor).</source>
+        <translation>Použito na změněné řádky cílového souboru v rozdílech (při zobrazení rozdílů vedle sebe).</translation>
+    </message>
+    <message>
+        <source>Diff Destination Character</source>
+        <translation>Rozdíly ve znaku z cílového souboru</translation>
+    </message>
+    <message>
+        <source>Applied to added characters in differences (in side-by-side diff editor).</source>
+        <translation>Použito na přidané znaky v rozdílech (při zobrazení rozdílů vedle sebe).</translation>
     </message>
     <message>
         <source>Applied to Enumeration Items.</source>
@@ -18758,11 +19269,11 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
     <message>
         <source>Open compiler output pane when building</source>
-        <translation>Při sestavování ukázat výstup překladače</translation>
+        <translation type="obsolete">Při sestavování ukázat výstup překladače</translation>
     </message>
     <message>
         <source>Open application output pane when running</source>
-        <translation>Při spuštění programu ukázat výstupní panel</translation>
+        <translation type="obsolete">Při spuštění programu ukázat výstupní panel</translation>
     </message>
     <message>
         <source>Enabling this option ensures that the order of interleaved messages from stdout and stderr is preserved, at the cost of disabling highlighting of stderr.</source>
@@ -18794,7 +19305,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
     <message>
         <source>Open application output pane when debugging</source>
-        <translation>Při ladění programu ukázat výstupní panel</translation>
+        <translation type="obsolete">Při ladění programu ukázat výstupní panel</translation>
     </message>
     <message>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;http://releases.qt-project.org/jom/&quot;&gt;http://releases.qt-project.org/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
@@ -18807,6 +19318,18 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Reset</source>
         <translation>Nastavit znovu</translation>
+    </message>
+    <message>
+        <source>Open Compile Output pane when building</source>
+        <translation>Při sestavování ukázat výstup překladače</translation>
+    </message>
+    <message>
+        <source>Open Application Output pane on output when running</source>
+        <translation>Při spuštění programu otevřít, když následuje výstup, výstupní panel</translation>
+    </message>
+    <message>
+        <source>Open Application Output pane on output when debugging</source>
+        <translation>Při ladění programu otevřít, když následuje výstup, výstupní panel</translation>
     </message>
 </context>
 <context>
@@ -19573,8 +20096,12 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Shellové příkazy nejsou jako terminálové příkazy přípustné.</translation>
     </message>
     <message>
+        <source>Cannot start the terminal emulator &apos;%1&apos;, change the setting in the Environment options.</source>
+        <translation>Emulátor terminálu &apos;%1&apos; se nepodařilo spustit. Změňte hodnotu v nastavení prostředí.</translation>
+    </message>
+    <message>
         <source>Cannot start the terminal emulator &apos;%1&apos;.</source>
-        <translation>Nepodařilo se spustit program pro emulaci terminálu &apos;%1&apos;.</translation>
+        <translation type="obsolete">Nepodařilo se spustit program pro emulaci terminálu &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Cannot create socket &apos;%1&apos;: %2</source>
@@ -19723,6 +20250,10 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>The path &apos;%1&apos; is not a directory.</source>
         <translation>Cesta &apos;%1&apos; neukazuje na adresář.</translation>
+    </message>
+    <message>
+        <source>The directory &apos;%1&apos; does not exist.</source>
+        <translation>Adresář &apos;%1&apos; neexistuje.</translation>
     </message>
     <message>
         <source>Cannot execute &apos;%1&apos;.</source>
@@ -19894,6 +20425,10 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Image Viewer</source>
         <translation>Prohlížeč obrázků</translation>
+    </message>
+    <message>
+        <source>Python Editor</source>
+        <translation>Editor Pythonu</translation>
     </message>
 </context>
 <context>
@@ -21093,6 +21628,14 @@ Chcete jej ukončit?</translation>
         <translation>Řetězec UCS4</translation>
     </message>
     <message>
+        <source>Array of 10 items</source>
+        <translation>Pole s 10 položkami</translation>
+    </message>
+    <message>
+        <source>Array of 1000 items</source>
+        <translation>Pole s 1000 položkami</translation>
+    </message>
+    <message>
         <source>Decimal</source>
         <translation>Desítkový</translation>
     </message>
@@ -21604,7 +22147,7 @@ Chcete jej ukončit?</translation>
     <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
         <source>Run</source>
-        <translation>Spustit</translation>
+        <translation type="obsolete">Spustit</translation>
     </message>
 </context>
 <context>
@@ -21622,6 +22165,11 @@ Chcete jej ukončit?</translation>
 </source>
         <translation>Nebyl zadán žádný spustitelný soubor.
 </translation>
+    </message>
+    <message>
+        <source>Executable %1 does not exist.
+</source>
+        <translation>Spustitelný soubor %1 neexistuje.</translation>
     </message>
     <message>
         <source>Starting %1...
@@ -21759,6 +22307,10 @@ Důvod: %2</translation>
     <message>
         <source>Develop</source>
         <translation>Vývoj</translation>
+    </message>
+    <message>
+        <source>New Project</source>
+        <translation>Nový projekt</translation>
     </message>
 </context>
 <context>
@@ -22146,7 +22698,7 @@ Důvod: %2</translation>
     </message>
     <message>
         <source>Building helpers</source>
-        <translation>Pomocné knihovny pro výstup dat</translation>
+        <translation type="obsolete">Pomocné knihovny pro výstup dat</translation>
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
@@ -23065,6 +23617,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation>Předloha odeslání (submit) ClearCase</translation>
     </message>
     <message>
+        <source>Git Commit File</source>
+        <translation>Zapsat soubor (Git Commit)</translation>
+    </message>
+    <message>
         <source>GLSL Shader file</source>
         <translation>Soubor GLSL Shader</translation>
     </message>
@@ -23139,6 +23695,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>XPM image</source>
         <translation>Soubor s obrázkem XPM</translation>
+    </message>
+    <message>
+        <source>Python Source File</source>
+        <translation>Zdrojový soubor Python</translation>
     </message>
     <message>
         <source>Qt Build Suite file</source>
@@ -23295,15 +23855,15 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Delete...</source>
-        <translation>Smazat...</translation>
+        <translation type="obsolete">Smazat...</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation>Ukázat</translation>
+        <translation type="obsolete">Ukázat</translation>
     </message>
     <message>
         <source>Restore...</source>
-        <translation>Použít odložené...</translation>
+        <translation type="obsolete">Použít odložené...</translation>
     </message>
     <message>
         <source>Restore to branch...</source>
@@ -23312,7 +23872,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Refresh</source>
-        <translation>Obnovit seznam</translation>
+        <translation type="obsolete">Obnovit seznam</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
@@ -23344,12 +23904,37 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Delete All...</source>
-        <translation>Smazat vše...</translation>
+        <translation type="obsolete">Smazat vše...</translation>
     </message>
     <message>
         <source>Restore to Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
-        <translation>Použít jako větev...</translation>
+        <translation type="obsolete">Použít jako větev...</translation>
+    </message>
+    <message>
+        <source>Delete &amp;All...</source>
+        <translation>&amp;Smazat vše</translation>
+    </message>
+    <message>
+        <source>&amp;Delete...</source>
+        <translation>S&amp;mazat...</translation>
+    </message>
+    <message>
+        <source>&amp;Show</source>
+        <translation>Uká&amp;zat</translation>
+    </message>
+    <message>
+        <source>R&amp;estore...</source>
+        <translation>&amp;Obnovit...</translation>
+    </message>
+    <message>
+        <source>Restore to &amp;Branch...</source>
+        <extracomment>Restore a git stash to new branch to be created</extracomment>
+        <translation>Obnovit jako &amp;větev...</translation>
+    </message>
+    <message>
+        <source>Re&amp;fresh</source>
+        <translation>&amp;Obnovit</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -23536,6 +24121,10 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     <message>
         <source>Specify URL:</source>
         <translation>Adresa (URL):</translation>
+    </message>
+    <message>
+        <source>Prompt for credentials</source>
+        <translation>Vyvolat uživatelská data</translation>
     </message>
 </context>
 <context>
@@ -24200,11 +24789,11 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     </message>
     <message>
         <source>Snap margin:</source>
-        <translation>Okraj:</translation>
+        <translation type="obsolete">Okraj:</translation>
     </message>
     <message>
         <source>Item spacing:</source>
-        <translation>Odstup:</translation>
+        <translation type="obsolete">Odstup:</translation>
     </message>
     <message>
         <source>Canvas</source>
@@ -24224,19 +24813,39 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     </message>
     <message>
         <source>Warn about QML features which are not properly supported by the Qt Quick Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat varování u Qt Quick Designerem ne plně podporovaných vlastností QML</translation>
     </message>
     <message>
         <source>Warn about unsupported features in the Qt Quick Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat varování u Qt Quick Designerem nepodporovaných vlastností</translation>
     </message>
     <message>
         <source>Also warn in the code editor about QML features which are not properly supported by the Qt Quick Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Varování u Qt Quick Designerem ne plně podporovaných vlastností QML ukázat také v editoru kódu</translation>
     </message>
     <message>
         <source>Warn about unsupported features of Qt Quick Designer in the code editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat varování u Qt Quick Designerem nepodporovaných vlastností v editoru kódu</translation>
+    </message>
+    <message>
+        <source>Debugging</source>
+        <translation>Ladění</translation>
+    </message>
+    <message>
+        <source>Show the debugging view</source>
+        <translation>Ukázat ladicí pohled</translation>
+    </message>
+    <message>
+        <source>Enable the debugging view</source>
+        <translation>Zapnout ladicí pohled</translation>
+    </message>
+    <message>
+        <source>Parent item padding:</source>
+        <translation>Odstup od nadřazené položky:</translation>
+    </message>
+    <message>
+        <source>Sibling item spacing:</source>
+        <translation>Odstup mezi rovnocennými položkami:</translation>
     </message>
 </context>
 <context>
@@ -25828,103 +26437,103 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
     <message>
         <source>Memory at 0x%1</source>
-        <translation>Paměť při 0x%1</translation>
+        <translation type="obsolete">Paměť při 0x%1</translation>
     </message>
     <message>
         <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
+        <translation type="obsolete">&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
     </message>
     <message>
         <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
+        <translation type="obsolete">&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
+        <translation type="obsolete">Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
+        <translation type="obsolete">Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
     </message>
     <message>
         <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation>%1-bit&amp;nbsp;typ celého čísla</translation>
+        <translation type="obsolete">%1-bit&amp;nbsp;typ celého čísla</translation>
     </message>
     <message>
         <source>Little Endian</source>
-        <translation>Malý endian</translation>
+        <translation type="obsolete">Malý endian</translation>
     </message>
     <message>
         <source>Big Endian</source>
-        <translation>Velký endian</translation>
+        <translation type="obsolete">Velký endian</translation>
     </message>
     <message>
         <source>Binary&amp;nbsp;value:</source>
-        <translation>Dvojková&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">Dvojková&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>Octal&amp;nbsp;value:</source>
-        <translation>Osmičková&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">Osmičková&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation>Předchozí&amp;nbsp;dvojková&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">Předchozí&amp;nbsp;dvojková&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation>Předchozí&amp;nbsp;osmičková&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">Předchozí&amp;nbsp;osmičková&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">&lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>Předchozí &lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">Předchozí &lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">&lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>Předchozí &lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+        <translation type="obsolete">Předchozí &lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
     </message>
     <message>
         <source>Copying Failed</source>
-        <translation>Kopírování se nezdařilo</translation>
+        <translation type="obsolete">Kopírování se nezdařilo</translation>
     </message>
     <message>
         <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation>Nemůžete kopírovat více jak 4 MB binárních dat.</translation>
+        <translation type="obsolete">Nemůžete kopírovat více jak 4 MB binárních dat.</translation>
     </message>
     <message>
         <source>Copy Selection as ASCII Characters</source>
-        <translation>Kopírovat výběr jako znaky ASCII</translation>
+        <translation type="obsolete">Kopírovat výběr jako znaky ASCII</translation>
     </message>
     <message>
         <source>Copy Selection as Hex Values</source>
-        <translation>Kopírovat výběr jako šestnáctkové hodnoty</translation>
+        <translation type="obsolete">Kopírovat výběr jako šestnáctkové hodnoty</translation>
     </message>
     <message>
         <source>Set Data Breakpoint on Selection</source>
-        <translation>Nastavit bod přerušení dat na výběru</translation>
+        <translation type="obsolete">Nastavit bod přerušení dat na výběru</translation>
     </message>
     <message>
         <source>Jump to Address in This Window</source>
-        <translation>Jít na adresu v tomto okně</translation>
+        <translation type="obsolete">Jít na adresu v tomto okně</translation>
     </message>
     <message>
         <source>Jump to Address in New Window</source>
-        <translation>Jít na adresu v novém okně</translation>
+        <translation type="obsolete">Jít na adresu v novém okně</translation>
     </message>
     <message>
         <source>Jump to Address 0x%1 in This Window</source>
-        <translation>Jít na adresu 0x%1 v tomto okně</translation>
+        <translation type="obsolete">Jít na adresu 0x%1 v tomto okně</translation>
     </message>
     <message>
         <source>Jump to Address 0x%1 in New Window</source>
-        <translation>Jít na adresu 0x%1 v novém okně</translation>
+        <translation type="obsolete">Jít na adresu 0x%1 v novém okně</translation>
     </message>
 </context>
 <context>
@@ -25946,15 +26555,15 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
+        <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
     <message>
         <source>The executable is not built by the current build configuration</source>
@@ -26378,6 +26987,10 @@ heslem, jež můžete zadat níže.</translation>
         <translation>Zformátovat ukazatele nebo odkazy</translation>
     </message>
     <message>
+        <source>Assign to Local Variable</source>
+        <translation>Přiřadit k místní proměnné</translation>
+    </message>
+    <message>
         <source>Use Fast String Concatenation with %</source>
         <translation type="obsolete">Použít účinné zřetězení řetězce za použití operátoru %</translation>
     </message>
@@ -26425,12 +27038,20 @@ heslem, jež můžete zadat níže.</translation>
         <translation>Editor rozdílů pro Git</translation>
     </message>
     <message>
+        <source>Git Commit Editor</source>
+        <translation>Editor zápisu (commit) pro Git</translation>
+    </message>
+    <message>
+        <source>Git Rebase Editor</source>
+        <translation>Editor přeskládání (rebase) pro Git</translation>
+    </message>
+    <message>
         <source>Git Submit Editor</source>
         <translation>Editor odeslání (submit) pro Git</translation>
     </message>
     <message>
         <source>Mercurial Command Log Editor</source>
-        <translation>Editor záznamů o příkazech pro Mercurial</translation>
+        <translation type="obsolete">Editor záznamů o příkazech pro Mercurial</translation>
     </message>
     <message>
         <source>Mercurial File Log Editor</source>
@@ -26454,7 +27075,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
     <message>
         <source>Perforce CommandLog Editor</source>
-        <translation>Editor záznamů o příkazech pro Perforce</translation>
+        <translation type="obsolete">Editor záznamů o příkazech pro Perforce</translation>
     </message>
     <message>
         <source>Perforce Log Editor</source>
@@ -26478,7 +27099,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
     <message>
         <source>Subversion Command Log Editor</source>
-        <translation>Editor záznamů o příkazech pro Subversion</translation>
+        <translation type="obsolete">Editor záznamů o příkazech pro Subversion</translation>
     </message>
     <message>
         <source>Subversion File Log Editor</source>
@@ -26494,7 +27115,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
     <message>
         <source>Bazaar Command Log Editor</source>
-        <translation>Editor záznamů o příkazech pro Bazaar</translation>
+        <translation type="obsolete">Editor záznamů o příkazech pro Bazaar</translation>
     </message>
     <message>
         <source>Bazaar File Log Editor</source>
@@ -26518,7 +27139,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
     <message>
         <source>ClearCase Command Log Editor</source>
-        <translation>Editor záznamů o příkazech pro ClearCase</translation>
+        <translation type="obsolete">Editor záznamů o příkazech pro ClearCase</translation>
     </message>
     <message>
         <source>ClearCase File Log Editor</source>
@@ -26907,7 +27528,11 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
-        <translation>Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
+        <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
+    </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
+        <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
 </context>
 <context>
@@ -27126,7 +27751,11 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Mercurial</source>
-        <translation>Mercurial</translation>
+        <translation type="obsolete">Mercurial</translation>
+    </message>
+    <message>
+        <source>Me&amp;rcurial</source>
+        <translation>Me&amp;rcurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -27470,7 +28099,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
     <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
-        <translation>Vytvoří přídavný modul C++ pro rozšíření, která mohou být do programů nahrávána dynamicky s použitím třídy QDeclarativeEngine.</translation>
+        <translation type="obsolete">Vytvoří přídavný modul C++ pro rozšíření, která mohou být do programů nahrávána dynamicky s použitím třídy QDeclarativeEngine.</translation>
     </message>
     <message>
         <source>Custom QML Extension Plugin</source>
@@ -27486,7 +28115,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
     <message>
         <source>Object Class-name:</source>
-        <translation>Název třídy objektu:</translation>
+        <translation type="obsolete">Název třídy objektu:</translation>
     </message>
     <message>
         <source>URI:</source>
@@ -27701,12 +28330,24 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation>Místní uživatelská nastavení</translation>
     </message>
     <message>
+        <source>Creates a C++ plugin to load extensions dynamically into applications using the QDeclarativeEngine class.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.7.0&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Vytvoří přídavný modul C++ pro dynamické nahrávání rozšíření do programů s použitím třídy QDeclarativeEngine. &amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Vyžaduje &amp;lt;b&amp;gt;Qt 4.7.0&amp;lt;/b&amp;gt; nebo novější.</translation>
+    </message>
+    <message>
         <source>Qt Quick 1 Extension Plugin</source>
         <translation>Přídavný modul pro rozšíření Qt Quick 1</translation>
     </message>
     <message>
+        <source>Object class-name:</source>
+        <translation>Název třídy objektu:</translation>
+    </message>
+    <message>
+        <source>Creates a C++ plugin to load extensions dynamically into applications using the QQmlEngine class.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Vytvoří přídavný modul C++ pro dynamické nahrávání rozšíření do programů s použitím třídy QQmlEngine class. &amp;lt;br&amp;gt;&amp;lt;br&amp;gt;Vyžaduje &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; nebo novější.</translation>
+    </message>
+    <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QQmlEngine class.</source>
-        <translation>Vytvoří přídavný modul C++ pro rozšíření, která mohou být do programů nahrávána dynamicky s použitím třídy QQmlEngine.</translation>
+        <translation type="obsolete">Vytvoří přídavný modul C++ pro rozšíření, která mohou být do programů nahrávána dynamicky s použitím třídy QQmlEngine.</translation>
     </message>
     <message>
         <source>Qt Quick 2 Extension Plugin</source>
@@ -28370,15 +29011,27 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
     <message>
         <source>Transform Tool (Q).</source>
-        <translation>Nástroj na proměnu (Q).</translation>
+        <translation type="obsolete">Nástroj na proměnu (Q).</translation>
     </message>
     <message>
         <source>Snap to guides (E).</source>
-        <translation>Umístit na vodítka (E).</translation>
+        <translation type="obsolete">Umístit na vodítka (E).</translation>
     </message>
     <message>
         <source>Toggle snapping and anchoring (R).</source>
-        <translation>Přepnout přichytávání a kotvení (R).</translation>
+        <translation type="obsolete">Přepnout přichytávání a kotvení (R).</translation>
+    </message>
+    <message>
+        <source>No snapping (T).</source>
+        <translation>Žádné vyrovnání (T).</translation>
+    </message>
+    <message>
+        <source>Snap to parent or sibling items and generate anchors (W).</source>
+        <translation>Srovnat s nadřazenou nebo rovnocennou položkou a nastavit kotvu (W).</translation>
+    </message>
+    <message>
+        <source>Snap to parent or sibling items but do not generate anchors (E).</source>
+        <translation>Srovnat s nadřazenou nebo rovnocennou položkou ale nenastavovat kotvu (E).</translation>
     </message>
     <message>
         <source>Show bounding rectangles and stripes for empty items (A).</source>
@@ -29600,10 +30253,14 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
-        <translation>Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
+        <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
     </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file is not a file</source>
+        <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
+    </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
 </context>
@@ -31739,7 +32396,7 @@ if (a &amp;&amp;
     </message>
     <message>
         <source>Left const/volatile</source>
-        <translation type="unfinished">Levá const/volatile</translation>
+        <translation>Levá const/volatile</translation>
     </message>
     <message>
         <source>This does not apply to references.</source>
@@ -31747,7 +32404,7 @@ if (a &amp;&amp;
     </message>
     <message>
         <source>Right const/volatile</source>
-        <translation type="unfinished">Pravá const/volatile</translation>
+        <translation>Pravá const/volatile</translation>
     </message>
 </context>
 <context>
@@ -31982,7 +32639,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <name>Git::Internal::BranchAddDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>Dialog</translation>
+        <translation type="obsolete">Dialog</translation>
     </message>
     <message>
         <source>Branch Name:</source>
@@ -31991,6 +32648,14 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>CheckBox</source>
         <translation>Zaškrtávací okénko</translation>
+    </message>
+    <message>
+        <source>Add Branch</source>
+        <translation>Přidat větev</translation>
+    </message>
+    <message>
+        <source>Rename Branch</source>
+        <translation>Přejmenovat větev</translation>
     </message>
     <message>
         <source>Track remote branch &apos;%1&apos;</source>
@@ -32362,6 +33027,14 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Sys&amp;root:</source>
         <translation>Sys&amp;root:</translation>
+    </message>
+    <message>
+        <source>Start QML Profiler</source>
+        <translation>Spustit profiler QML</translation>
+    </message>
+    <message>
+        <source>Kit:</source>
+        <translation>Sada:</translation>
     </message>
 </context>
 <context>
@@ -34622,111 +35295,111 @@ Při plné simulaci mezipaměti budou zapnuta další počítadla událostí:
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>
-        <translation type="unfinished">Očekáván dokument obsahující člena Module {}.</translation>
+        <translation>Očekáván dokument obsahující člena Module {}.</translation>
     </message>
     <message>
         <source>Expected only Component and ModuleApi object definitions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen definice objektů Component a ModuleApi.</translation>
     </message>
     <message>
         <source>Expected only Property, Method, Signal and Enum object definitions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen definice objektů vlastnost, metoda, signál nebo výčet.</translation>
     </message>
     <message>
         <source>Expected only name, prototype, defaultProperty, attachedType, exports and exportMetaObjectRevisions script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen skriptové vazby název, prototyp, výchozí vlastnost, attachedType-, export nebo exportMetaObjectRevisions.</translation>
     </message>
     <message>
         <source>Expected only script bindings and object definitions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen skriptové vazby a definice objektů.</translation>
     </message>
     <message>
         <source>Component definition is missing a name binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>U definice součástky chybí vazba názvu.</translation>
     </message>
     <message>
         <source>Expected only uri, version and name script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen skriptové vazby URI, verze a název.</translation>
     </message>
     <message>
         <source>Expected only script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen skriptové vazby.</translation>
     </message>
     <message>
         <source>ModuleApi definition has no or invalid version binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Definice ModuleApi nemá žádnou, nebo má neplatnou vazbu verze.</translation>
     </message>
     <message>
         <source>Expected only Parameter object definitions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen definice objektů parametrů.</translation>
     </message>
     <message>
         <source>Expected only name and type script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen skriptové vazby název a typ.</translation>
     </message>
     <message>
         <source>Method or signal is missing a name script binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>U metody nebo signálu chybí skriptová vazba názvu.</translation>
     </message>
     <message>
         <source>Expected script binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávána skriptová vazba.</translation>
     </message>
     <message>
         <source>Expected only type, name, revision, isPointer, isReadonly and isList script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen skriptové vazby typ, název, revize, isPointer, isReadonly a isList.</translation>
     </message>
     <message>
         <source>Property object is missing a name or type script binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>U objektu vlastnost chybí skriptová vazba název nebo typ.</translation>
     </message>
     <message>
         <source>Expected only name and values script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekávány jen skriptové vazby název a hodnota.</translation>
     </message>
     <message>
         <source>Expected string after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáván řetězec znaků.</translation>
     </message>
     <message>
         <source>Expected boolean after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekávána booleanská hodnota.</translation>
     </message>
     <message>
         <source>Expected true or false after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáváno pravdivý nebo nepravdivý.</translation>
     </message>
     <message>
         <source>Expected numeric literal after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáváno číslo tvořené písmeny (literal).</translation>
     </message>
     <message>
         <source>Expected integer after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáváno celé číslo.</translation>
     </message>
     <message>
         <source>Expected array of strings after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáváno pole ze řetězců znaků.</translation>
     </message>
     <message>
         <source>Expected array literal with only string literal members.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáváno pole tvořené písmeny (literal) složené ze řetězců znaků.</translation>
     </message>
     <message>
         <source>Expected string literal to contain &apos;Package/Name major.minor&apos; or &apos;Name major.minor&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekáván řetězec znaků tvořený písmeny (literal), který má obsahovat &apos;Package/Name major.minor&apos; nebo &apos;Name major.minor&apos;.</translation>
     </message>
     <message>
         <source>Expected array of numbers after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáváno pole složené z čísel.</translation>
     </message>
     <message>
         <source>Expected array literal with only number literal members.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáváno pole tvořené písmeny (literal) složené jen z čísel.</translation>
     </message>
     <message>
         <source>Meta object revision without matching export.</source>
-        <translation type="unfinished"></translation>
+        <translation>Revize metaobjektu bez odpovídajícího exportu.</translation>
     </message>
     <message>
         <source>Expected integer.</source>
@@ -34734,11 +35407,11 @@ Při plné simulaci mezipaměti budou zapnuta další počítadla událostí:
     </message>
     <message>
         <source>Expected object literal after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáván objekt tvořený písmeny (literal).</translation>
     </message>
     <message>
         <source>Expected object literal to contain only &apos;string: number&apos; elements.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekáván objekt tvořený písmeny (literal), který obsahuje jen prvky &apos;string: number&apos;.</translation>
     </message>
 </context>
 <context>
@@ -35540,6 +36213,10 @@ Server: %2.</translation>
         <source>Run CMake</source>
         <translation>Provést CMake</translation>
     </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
+        <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::ExternalToolModel</name>
@@ -35605,6 +36282,10 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Split Side by Side</source>
         <translation>Rozdělit jedno vedle druhého</translation>
+    </message>
+    <message>
+        <source>Open in New Window</source>
+        <translation>Otevřít v novém okně</translation>
     </message>
     <message>
         <source>Close Document</source>
@@ -35838,6 +36519,14 @@ Chcete je nechat přepsat?</translation>
 <context>
     <name>Core::VcsManager</name>
     <message>
+        <source>%1 repository was detected but %1 is not configured.</source>
+        <translation>Bylo nalezeno skladiště verzovacího systému %1, ale %1 ještě není nastaven.</translation>
+    </message>
+    <message>
+        <source>Configure</source>
+        <translation>Nastavit</translation>
+    </message>
+    <message>
         <source>Version Control</source>
         <translation>Správa verzí</translation>
     </message>
@@ -35942,6 +36631,18 @@ správy verzí (%2)</translation>
         <source>Add Definition in %1</source>
         <translation>Přidat definici v %1</translation>
     </message>
+    <message>
+        <source>Add Definition Here</source>
+        <translation>Přidat definici zde</translation>
+    </message>
+    <message>
+        <source>Add Definition Inside Class</source>
+        <translation>Přidat definici uvnitř třídy</translation>
+    </message>
+    <message>
+        <source>Add Definition Outside Class</source>
+        <translation>Přidat definici vně třídy</translation>
+    </message>
 </context>
 <context>
     <name>CppEditor::Internal::InsertQtPropertyMembers</name>
@@ -35951,7 +36652,7 @@ správy verzí (%2)</translation>
     </message>
     <message>
         <source>Generate Missing Q_PROPERTY Members...</source>
-        <translation>Doplnit chybějící prvky Q_PROPERTY...</translation>
+        <translation type="obsolete">Doplnit chybějící prvky Q_PROPERTY...</translation>
     </message>
 </context>
 <context>
@@ -36372,6 +37073,31 @@ Příznaky: %3</translation>
         <translation>Zastaveno na vnitřním bodu přerušení %1 ve vlákně %2.</translation>
     </message>
     <message>
+        <source>Found.</source>
+        <translation>Nalezeno.</translation>
+    </message>
+    <message>
+        <source>Not found.</source>
+        <translation>Nenalezeno.</translation>
+    </message>
+    <message>
+        <source>
+Section %1: %2</source>
+        <translation>
+Část %1: %2</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Varování</translation>
+    </message>
+    <message>
+        <source>This does not seem to be a &quot;Debug&quot; build.
+Setting breakpoints by file name and line number may fail.
+</source>
+        <translation>Zdá se, že toto není sestavení &quot;Debug&quot;.
+Nastavení bodů přerušení podle názvů souborů a čísel řádků může selhat.</translation>
+    </message>
+    <message>
         <source>Stopped.</source>
         <translation>Zastaveno.</translation>
     </message>
@@ -36478,6 +37204,10 @@ Příznaky: %3</translation>
     <message>
         <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.</source>
         <translation>Některé body přerušení nejsou podporovány ladiči nyní aktivních jazyků a nebude na ně proto brán zřetel.</translation>
+    </message>
+    <message>
+        <source>Not enough free ports for QML debugging. </source>
+        <translation>Není dostatek volných portů pro ladění QML. </translation>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; is disabled.</source>
@@ -37450,6 +38180,10 @@ Má se to zkusit ještě jednou?</translation>
         <translation>Zdroj JS pro %1</translation>
     </message>
     <message>
+        <source>QML debugging port not set: Unable to convert %1 to unsigned int.</source>
+        <translation>Port pro ladění QML nenastaven. %1 nelze převést na celé číslo bez znaménka.</translation>
+    </message>
+    <message>
         <source>Run to line %1 (%2) requested...</source>
         <translation>Požadováno provedení až po řádek %1 (%2)...</translation>
     </message>
@@ -37650,6 +38384,10 @@ Má se to zkusit ještě jednou?</translation>
         <translation>Skrýt soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
     </message>
     <message>
+        <source>Show files matching:</source>
+        <translation>Ukázat soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
+    </message>
+    <message>
         <source>Apply Filter</source>
         <translation>Použít filtr</translation>
     </message>
@@ -37678,6 +38416,10 @@ Má se to zkusit ještě jednou?</translation>
     <message>
         <source>Hide files matching:</source>
         <translation>Skrýt soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
+    </message>
+    <message>
+        <source>Show files matching:</source>
+        <translation>Ukázat soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
     </message>
     <message>
         <source>Apply Filter</source>
@@ -38251,6 +38993,14 @@ když bude zavolán mimo git bash.</translation>
         <translation>Cesta k &amp;překladači:</translation>
     </message>
     <message>
+        <source>Platform codegen flags:</source>
+        <translation>Platformněspecifický vypínač pro codegen:</translation>
+    </message>
+    <message>
+        <source>Platform linker flags:</source>
+        <translation>Platformněspecifický vypínač pro spojovací program:</translation>
+    </message>
+    <message>
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
@@ -38584,7 +39334,12 @@ Chcete přesto soubor s nastavením nahrát?</translation>
     <message>
         <source>Items</source>
         <comment>Title of library items view</comment>
-        <translation>Prvky</translation>
+        <translation type="obsolete">Prvky</translation>
+    </message>
+    <message>
+        <source>QML Types</source>
+        <comment>Title of library QML types view</comment>
+        <translation>Typy QML</translation>
     </message>
     <message>
         <source>Resources</source>
@@ -38635,6 +39390,10 @@ Chcete přesto soubor s nastavením nahrát?</translation>
 </context>
 <context>
     <name>QmlDesigner::StatesEditorView</name>
+    <message>
+        <source>States Editor</source>
+        <translation>Editor stavů</translation>
+    </message>
     <message>
         <source>base state</source>
         <translation>Základní stav</translation>
@@ -39158,6 +39917,30 @@ Panel &apos;Obecné zprávy&apos; obsahuje další iformace.
 %2</translation>
     </message>
     <message>
+        <source>&quot;%1&quot; failed to start: %2</source>
+        <translation>&quot;%1&quot; se nepodařilo spustit: %2</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; crashed.</source>
+        <translation>&quot;%1&quot; spadl.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; timed out.</source>
+        <translation>Překročení času u &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>I/O error running &quot;%1&quot;.</source>
+        <translation>Chyba vstupu/výstupu při spouštění &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; returned exit code %2.</source>
+        <translation>&quot;%1&quot; vrátil hodnotu %2.</translation>
+    </message>
+    <message>
+        <source>Arguments: %1</source>
+        <translation>Argumenty: %1</translation>
+    </message>
+    <message>
         <source>Errors while reading typeinfo files:</source>
         <translation>Chyby při čtení souborů typeinfo:</translation>
     </message>
@@ -39501,23 +40284,23 @@ Má se to zkusit ještě jednou?</translation>
     <name>QmlProfiler::Internal::RemoteLinuxQmlProfilerRunner</name>
     <message>
         <source>Gathering ports failed: %1</source>
-        <translation>Chyba při ověřování portů: %1</translation>
+        <translation type="obsolete">Chyba při ověřování portů: %1</translation>
     </message>
     <message>
         <source>Not enough free ports on device for analyzing.
 </source>
-        <translation>Na zařízení není dostatek volných portů pro rozbor.
+        <translation type="obsolete">Na zařízení není dostatek volných portů pro rozbor.
 </translation>
     </message>
     <message>
         <source>Starting remote process...
 </source>
-        <translation>Spouští se vzdálený proces...
+        <translation type="obsolete">Spouští se vzdálený proces...
 </translation>
     </message>
     <message>
         <source>Failure running remote process.</source>
-        <translation>Selhání při spouštění vzdáleného procesu.</translation>
+        <translation type="obsolete">Selhání při spouštění vzdáleného procesu.</translation>
     </message>
     <message>
         <source>Starting remote process ...
@@ -39626,11 +40409,11 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
     </message>
     <message>
         <source>Run Environment</source>
-        <translation>Prováděcí prostředí</translation>
+        <translation type="obsolete">Prováděcí prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Invalid Qt version</source>
@@ -39656,7 +40439,11 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
     <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
     <message>
         <source>Run</source>
-        <translation>Spustit</translation>
+        <translation type="obsolete">Spustit</translation>
+    </message>
+    <message>
+        <source>Not enough free ports for QML debugging. </source>
+        <translation>Není dostatek volných portů pro ladění QML. </translation>
     </message>
 </context>
 <context>
@@ -41074,13 +41861,13 @@ Můžete tuto aplikaci sestavit a nasadit jak na stolním počítači tak na mob
     <name>MobileAppWizard</name>
     <message>
         <source>Mobile Qt Application</source>
-        <translation>Program Qt pro přenosná zařízení</translation>
+        <translation type="obsolete">Program Qt pro přenosná zařízení</translation>
     </message>
     <message>
         <source>Creates a Qt application optimized for mobile devices with a Qt Designer-based main window.
 
 Preselects Qt for Simulator and mobile targets if available.</source>
-        <translation>Vytvoří aplikaci Qt pro mobilní zařízení s na Qt-Designer založeným hlavním oknem.
+        <translation type="obsolete">Vytvoří aplikaci Qt pro mobilní zařízení s na Qt-Designer založeným hlavním oknem.
 
 Vybere verze Qt pro Simulator a mobilní cíle, pokud jsou dostupné.</translation>
     </message>
@@ -41233,19 +42020,19 @@ Vyžaduje &lt;b&gt;Qt 4.7.4&lt;/b&gt; nebo novější a soubor součástek nains
     </message>
     <message>
         <source>Qt Quick 1 Application (Built-in Elements)</source>
-        <translation>Program Qt Quick 1 (jen vestavěné prvky)</translation>
+        <translation type="obsolete">Program Qt Quick 1 (jen vestavěné prvky)</translation>
     </message>
     <message>
         <source>The built-in elements in the QtQuick 1 namespace allow you to write cross-platform applications with a custom look and feel.
 
 Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
-        <translation>Vestavěné prvky ve jmenném prostoru QtQuick 1 dovolují psát víceplatformní programy s uživatelsky stanoveným vzhledem.
+        <translation type="obsolete">Vestavěné prvky ve jmenném prostoru QtQuick 1 dovolují psát víceplatformní programy s uživatelsky stanoveným vzhledem.
 
 Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     </message>
     <message>
         <source>Qt Quick 2 Application (Built-in Elements)</source>
-        <translation>Program Qt Quick 2 (jen vestavěné prvky)</translation>
+        <translation type="obsolete">Program Qt Quick 2 (jen vestavěné prvky)</translation>
     </message>
     <message>
         <source>Creates a Qt Quick 2 application project that can contain both QML and C++ code and includes a QQuickView.
@@ -41253,9 +42040,41 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
 The built-in elements in the QtQuick 2 namespace allow you to write cross-platform applications with a custom look and feel.
 
 Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
-        <translation>Vytvoří projekt programu Qt Quick 2, který může obsahovat jak kód QML tak C++ a zahrnuje QQuickView.
+        <translation type="obsolete">Vytvoří projekt programu Qt Quick 2, který může obsahovat jak kód QML tak C++ a zahrnuje QQuickView.
 
 Vestavěné prvky ve jmenném prostoru QtQuick 2 dovolují psát víceplatformní programy s uživatelsky stanoveným vzhledem.
+
+Vyžaduje &lt;b&gt;Qt 5.0&lt;/b&gt; nebo novější.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 application project that can contain both QML and C++ code and includes a QQuickView.
+
+</source>
+        <translation>Vytvoří projekt programu Qt Quick 2, který může obsahovat jak kód QML tak C++ a zahrnuje instanci třídy QQuickView.
+
+</translation>
+    </message>
+    <message>
+        <source>Qt Quick 1 Application (Built-in Types)</source>
+        <translation>Program Qt Quick 1 (vestavěné typy)</translation>
+    </message>
+    <message>
+        <source>The built-in QML types in the QtQuick 1 namespace allow you to write cross-platform applications with a custom look and feel.
+
+Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
+        <translation>Vestavěné typy QML ve jmenném prostoru QtQuick 1 dovolují psát víceplatformní programy s uživatelsky stanoveným vzhledem.
+
+Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2 Application (Built-in Types)</source>
+        <translation>Program Qt Quick 2 (vestavěné typy)</translation>
+    </message>
+    <message>
+        <source>The built-in QML types in the QtQuick 2 namespace allow you to write cross-platform applications with a custom look and feel.
+
+Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
+        <translation>Vestavěné typy QML ve jmenném prostoru QtQuick 2 dovolují psát víceplatformní programy s uživatelsky stanoveným vzhledem.
 
 Vyžaduje &lt;b&gt;Qt 5.0&lt;/b&gt; nebo novější.</translation>
     </message>
@@ -41456,6 +42275,26 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     <message>
         <source>Version:</source>
         <translation>Verze:</translation>
+    </message>
+    <message>
+        <source>No Qt version.</source>
+        <translation>Žádná verze Qt.</translation>
+    </message>
+    <message>
+        <source>Invalid Qt version.</source>
+        <translation>Neplatná verze Qt.</translation>
+    </message>
+    <message>
+        <source>Requires Qt 4.7.1 or newer.</source>
+        <translation>Vyžaduje Qt 4.7.1 nebo novější.</translation>
+    </message>
+    <message>
+        <source>Library not available. &lt;a href=&apos;compile&apos;&gt;Compile...&lt;/a&gt;</source>
+        <translation>Knihovna není dostupná. &lt;a href=&apos;compile&apos;&gt;Sestavit...&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Building helpers</source>
+        <translation>Pomocné knihovny pro sestavení</translation>
     </message>
 </context>
 <context>
@@ -41852,6 +42691,10 @@ Důvod: %2</translation>
     <message>
         <source>Connection Data</source>
         <translation>Data připojení</translation>
+    </message>
+    <message>
+        <source>Choose a Private Key File</source>
+        <translation>Vyberte soubor se soukromým klíčem</translation>
     </message>
     <message>
         <source>Generic Linux Device</source>
@@ -43442,11 +44285,11 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
 </context>
 <context>
@@ -43460,7 +44303,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
     <message>
         <source>Fetch Device Environment</source>
-        <translation>Natáhnout prostředí zařízení</translation>
+        <translation type="obsolete">Natáhnout prostředí zařízení</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
@@ -43520,15 +44363,15 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>Základní prostředí pro toto nastavení spuštění:</translation>
+        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -43540,11 +44383,11 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Cancel Fetch Operation</source>
-        <translation>Zrušit operaci natažení prostředí</translation>
+        <translation type="obsolete">Zrušit operaci natažení prostředí</translation>
     </message>
     <message>
         <source>Device Error</source>
-        <translation>Chyba zařízení</translation>
+        <translation type="obsolete">Chyba zařízení</translation>
     </message>
     <message>
         <source>Device error</source>
@@ -43552,7 +44395,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Fetching environment failed: %1</source>
-        <translation>Natažení prostředí se nezdařilo: %1</translation>
+        <translation type="obsolete">Natažení prostředí se nezdařilo: %1</translation>
     </message>
 </context>
 <context>
@@ -43580,7 +44423,19 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
     <message>
         <source>Run on remote Linux device</source>
-        <translation>Spustit na vzdáleném linuxovém zařízení</translation>
+        <translation type="obsolete">Spustit na vzdáleném linuxovém zařízení</translation>
+    </message>
+    <message>
+        <source>Cannot debug: Kit has no device.</source>
+        <translation>Nelze ladit: Kit nemá žádné zařízení.</translation>
+    </message>
+    <message>
+        <source>Cannot debug: Not enough free ports available.</source>
+        <translation>Nelze ladit: Není dostatek volných portů.</translation>
+    </message>
+    <message>
+        <source>No analyzer tool selected.</source>
+        <translation>Nevybrán žádný nástroj pro rozbor.</translation>
     </message>
 </context>
 <context>
@@ -44703,7 +45558,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
     <message>
         <source>New Project</source>
-        <translation>Nový projekt</translation>
+        <translation type="obsolete">Nový projekt</translation>
     </message>
 </context>
 <context>
@@ -46733,8 +47588,12 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <translation>Nahrát nastavení</translation>
     </message>
     <message>
-        <source>Choose a private key file</source>
+        <source>Choose a Private Key File</source>
         <translation>Vyberte soubor se soukromým klíčem</translation>
+    </message>
+    <message>
+        <source>Choose a private key file</source>
+        <translation type="obsolete">Vyberte soubor se soukromým klíčem</translation>
     </message>
     <message>
         <source>WizardPage</source>
@@ -46970,7 +47829,15 @@ Chybový výstup byl: &apos;%1&apos;</translation>
     <name>Madde::Internal::MaemoRunControlFactory</name>
     <message>
         <source>Run on device</source>
-        <translation>Spustit na zařízení</translation>
+        <translation type="obsolete">Spustit na zařízení</translation>
+    </message>
+    <message>
+        <source>Cannot debug: Kit has no device.</source>
+        <translation>Nelze ladit: Kit nemá žádné zařízení.</translation>
+    </message>
+    <message>
+        <source>Cannot debug: Not enough free ports available.</source>
+        <translation>Nelze ladit: Není dostatek volných portů.</translation>
     </message>
 </context>
 <context>
@@ -47169,15 +48036,36 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Použije se verzovaná zajišťovací kopie souboru s nastavením .user, protože nynější soubor byl vytvořen novější, neslučitelnou verzí Qt Creatoru.&lt;/p&gt;&lt;p&gt;Na změny v nastavení projektu, které byly provedeny po posledním použití této verze Qt Creatoru pro tento projekt, nebude brán zřetel, a nyní následující změny &lt;b&gt;nebudou&lt;/b&gt; na novou verzi přeneseny.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Použije se verzovaná zajišťovací kopie souboru s nastavením .user, protože nynější soubor byl vytvořen novější, neslučitelnou verzí Qt Creatoru.&lt;/p&gt;&lt;p&gt;Na změny v nastavení projektu, které byly provedeny po posledním použití této verze Qt Creatoru pro tento projekt, nebude brán zřetel, a nyní následující změny &lt;b&gt;nebudou&lt;/b&gt; na novou verzi přeneseny.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Project Settings File from a different Environment?</source>
         <translation type="obsolete">Soubor s nastavením projektu z jiného prostředí?</translation>
     </message>
     <message>
+        <source>No valid .user file found for &apos;%1&apos;</source>
+        <translation>Nepodařilo se najít žádný platný soubor .user pro &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No valid settings file could be found for this installation of Qt Creator.&lt;/p&gt;&lt;p&gt;All settings files were either too new or too old to be read.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Nepodařilo se najít žádný platný soubor s nastavením pro tuto instalaci Qt Creatoru.&lt;/p&gt;&lt;p&gt;Všechny soubory s nastavením jsou buď příliš nové, nebo příliš staré na to, aby se daly přečíst.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;No .user settings file created by this instance of Qt Creator was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &apos;%1&apos;?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Nepodařilo se najít žádný soubor s nastavením .user, který by byl vytvořen touto instancí Qt Creatoru.&lt;/p&gt;&lt;p&gt;Pracoval jste s tímtos projektem na jiném stroji, nebo jste pro nastavení použil jinou cestu?&lt;/p&gt;&lt;p&gt;Stále ještě chcete nahrát soubor s nastavením &apos;%1&apos;?&lt;/p&gt;</translation>
+    </message>
+    <message>
         <source>Using Old Settings File for &apos;%1&apos;</source>
         <translation>Používá se soubor se starým nastavením pro &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The versioned backup &apos;%1&apos; of the .user settings file is used, because the non-versioned file was created by an incompatible version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;</source>
+        <translatorcomment>&lt;p&gt;Používá se verzovaná záloha &apos;%1&apos; souboru s nastavením .user, neboť neverzovaný soubor byl vytvořen nekompatibilní verzí Qt Creatoru.&lt;/p&gt;&lt;p&gt;Změny v nastavení projektu, které byly pro tento projekt udělány po posledním užití této verze Qt Creatoru, jsou zahozeny; nyní provedené změny se na novou verzi &lt;b&gt;nepoužijí&lt;/b&gt;.&lt;/p&gt;</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>The version of your .shared file is not supported by Qt Creator. Do you want to try loading it anyway?</source>
+        <translation>Tato verze souboru .shared není Qt Creatorem podporována. Chcete ji přesto nahrát?</translation>
     </message>
     <message>
         <source>Settings File for &apos;%1&apos; from a different Environment?</source>
@@ -47189,7 +48077,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
 The .user settings files contain environment specific settings. They should not be copied to a different environment. 
 
 Do you still want to load the settings file?</source>
-        <translation>Qt Creator zjistil, že soubor s uživatelským nastavením .user byl vytvořen pro jiné vývojářské nastavení, možná pochází z jiného stroje.
+        <translation type="obsolete">Qt Creator zjistil, že soubor s uživatelským nastavením .user byl vytvořen pro jiné vývojářské nastavení, možná pochází z jiného stroje.
 
 Soubory s nastavením .user obsahují nastavení zvláštní pro prostředí. Neměly by se kopírovat do jiného prostředí.
 
@@ -47203,7 +48091,7 @@ Chcete přesto soubor s nastavením nahrát?</translation>
         <source>The version of your .shared file is not supported by this Qt Creator version. Only settings that are still compatible will be taken into account.
 
 Do you want to try loading it?</source>
-        <translation>Verze vašeho souboru .shared ještě není touto verzí Qt Creatoru podporována. Budou se používat pouze slučitelná nastavení.
+        <translation type="obsolete">Verze vašeho souboru .shared ještě není touto verzí Qt Creatoru podporována. Budou se používat pouze slučitelná nastavení.
 
 Chcete se pokusit o jeho nahrání?</translation>
     </message>
@@ -47274,19 +48162,19 @@ o pravděpodobném URI.</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
-        <translation>Nelze otevřít soubor</translation>
+        <translation type="obsolete">Nelze otevřít soubor</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
-        <translation>Soubor se nepodařilo s pomocí správy verzí udělat zapisovatelný (otevřít pro úpravy).</translation>
+        <translation type="obsolete">Soubor se nepodařilo s pomocí správy verzí udělat zapisovatelný (otevřít pro úpravy).</translation>
     </message>
     <message>
         <source>Cannot Set Permissions</source>
-        <translation>Chyba při nastavení oprávnění pro přístup k souboru</translation>
+        <translation type="obsolete">Chyba při nastavení oprávnění pro přístup k souboru</translation>
     </message>
     <message>
         <source>Cannot set permissions to writable.</source>
-        <translation>Soubor se nepodařilo udělat zapisovatelný.</translation>
+        <translation type="obsolete">Soubor se nepodařilo udělat zapisovatelný.</translation>
     </message>
     <message>
         <source>There are unsaved changes for project file %1.</source>
@@ -48480,54 +49368,96 @@ Tato volba je užitečná, když chcete svůj program vyzkoušet na zařízeníc
     </message>
     <message>
         <source>Use Qt libraries from device</source>
-        <translation>Použít knihovny qt ze zařízení</translation>
+        <translation type="obsolete">Použít knihovny qt ze zařízení</translation>
     </message>
     <message>
         <source>Push local Qt libraries to device.
 You must have Qt libraries compiled for that platform</source>
-        <translation>Odeslat místní knihovny qt do zařízení.
+        <translation type="obsolete">Odeslat místní knihovny qt do zařízení.
 Musíte mít pro ten systém sestaveny knihovny qt</translation>
     </message>
     <message>
         <source>Deploy local Qt libraries</source>
-        <translation>Nasadit místní knihovny qt</translation>
+        <translation type="obsolete">Nasadit místní knihovny qt</translation>
     </message>
     <message>
         <source>Check this option to force the application to use local Qt libraries instead of system libraries.</source>
-        <translation>Zaškrtněte tuto volbu pro vynucení místních knihoven qt namísto systémových knihoven v programu.</translation>
+        <translation type="obsolete">Zaškrtněte tuto volbu pro vynucení místních knihoven qt namísto systémových knihoven v programu.</translation>
     </message>
     <message>
         <source>Use local Qt libraries</source>
-        <translation>Použít místní knihovny qt</translation>
+        <translation type="obsolete">Použít místní knihovny qt</translation>
     </message>
     <message>
         <source>Edit Rules File</source>
-        <translation>Upravit soubor s pravidly</translation>
+        <translation type="obsolete">Upravit soubor s pravidly</translation>
     </message>
     <message>
         <source>Choose and install Ministro system wide Qt shared libraries.
 This option is useful when you want to try your application on devices which don&apos;t have Android Market (e.g. Android Emulator).</source>
-        <translation>Vybrat a nainstalovat systémové sdílené knihovny qt Ministro.
+        <translation type="obsolete">Vybrat a nainstalovat systémové sdílené knihovny qt Ministro.
 Tato volba je užitečná, když chcete svůj program vyzkoušet na zařízeních, která nemájí Android Market (např. Android Emulator).</translation>
     </message>
     <message>
         <source>Install Ministro, system-wide Qt shared libraries installer</source>
-        <translation>Nainstalovat Ministro, instalátor systémových sdílených knihoven qt</translation>
+        <translation type="obsolete">Nainstalovat Ministro, instalátor systémových sdílených knihoven qt</translation>
     </message>
     <message>
         <source>Choose APK</source>
-        <translation>Vybrat APK</translation>
+        <translation type="obsolete">Vybrat APK</translation>
     </message>
     <message>
         <source>Clean Libs on Device</source>
-        <translation>Uklidit knihovny na zařízení</translation>
+        <translation type="obsolete">Uklidit knihovny na zařízení</translation>
+    </message>
+    <message>
+        <source>Qt Deployment</source>
+        <translation>Nasazení Qt</translation>
+    </message>
+    <message>
+        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
+        <translation>Použít vnější program Ministro ke stažení a správě knihoven Qt.</translation>
+    </message>
+    <message>
+        <source>Use Ministro service to install Qt</source>
+        <translation>Použít službu Ministro k nainstalování Qt</translation>
+    </message>
+    <message>
+        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
+The APK will not be usable on any other device.</source>
+        <translation>Zkopírovat místní knihovny Qt na zařízení. Knihovny Qt musíte mít přeloženy pro tuto platformu.
+Toto APK nelze použít na žádném jiném zařízení.</translation>
+    </message>
+    <message>
+        <source>Deploy local Qt libraries to temporary directory</source>
+        <translation>Zkopírovat místní knihovny Qt do dočasného adresáře</translation>
+    </message>
+    <message>
+        <source>Creates a standalone APK.</source>
+        <translation>Vytvoří samostatné APK.</translation>
+    </message>
+    <message>
+        <source>Bundle Qt libraries in APK</source>
+        <translation>Knihovny Qt zabalit do APK</translation>
+    </message>
+    <message>
+        <source>Advanced Actions</source>
+        <translation>Pokročilé činnosti</translation>
+    </message>
+    <message>
+        <source>Clean Temporary Libraries Directory on Device</source>
+        <translation>Vyprázdnit adresář s dočasnými knihovnami na zařízení</translation>
+    </message>
+    <message>
+        <source>Install Ministro from APK</source>
+        <translation>Instalovat Ministro z APK</translation>
     </message>
 </context>
 <context>
     <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
-        <translation>Manifest</translation>
+        <translation type="obsolete">Manifest</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -48633,7 +49563,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>1.0.0</source>
-        <translation>1.0.0</translation>
+        <translation type="obsolete">1.0.0</translation>
     </message>
     <message>
         <source>Application</source>
@@ -48695,39 +49625,39 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Select low dpi icon</source>
-        <translation>Vybrat ikonu s nízkým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
     </message>
     <message>
         <source>Select medium dpi icon</source>
-        <translation>Vybrat ikonu se středním dpi</translation>
+        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
     </message>
     <message>
         <source>Select high dpi icon</source>
-        <translation>Vybrat ikonu s vysokým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
     </message>
     <message>
         <source>Permissions</source>
-        <translation>Oprávnění</translation>
+        <translation type="obsolete">Oprávnění</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Přidat</translation>
+        <translation type="obsolete">Přidat</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Odstranit</translation>
+        <translation type="obsolete">Odstranit</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation>Uložit</translation>
+        <translation type="obsolete">Uložit</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Zahodit</translation>
+        <translation type="obsolete">Zahodit</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Název:</translation>
+        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_CHECKIN_PROPERTIES</source>
@@ -49275,37 +50205,37 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;b&gt;Package name:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Název balíčku:&lt;/b&gt; </translation>
+        <translation type="obsolete">&lt;b&gt;Název balíčku:&lt;/b&gt; </translation>
     </message>
     <message>
         <source>&lt;p align=&quot;justify&quot;&gt;Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;Packages are usually defined using a hierarchical naming pattern, with levels in the hierarchy separated by periods (.) (pronounced &quot;dot&quot;).&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;In general, a package name begins with the top level domain name of the organization and then the organization&apos;s domain and then any subdomains listed in reverse order. The organization can then choose a specific name for their package. Package names should be all lowercase characters whenever possible.&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;</source>
-        <translation>&lt;p align=&quot;justify&quot;&gt;Vyberte, prosím, pro svůj program platný název balíčku (např. &quot;org.example.myapplication&quot;).&lt;/p&gt;
+        <translation type="obsolete">&lt;p align=&quot;justify&quot;&gt;Vyberte, prosím, pro svůj program platný název balíčku (např. &quot;org.example.myapplication&quot;).&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;Balíčky jsou obvykle stanoveny hierarchickým pojmenovávacím vzorem, s úrovněmi hierarchie oddělenými tečkami (.) (vysloveno &quot;tečka&quot;).&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;Obecně začíná název balíčku vrcholovým názvem domény organizace, a potom pokračuje doménou organizace, a pak jakoukoli podřízenou doménou, uvedeno v obráceném pořadí. Organizace pak pro svůj balíček může zvolit zvláštní název. Názvy balíčků by měly být, když je to možné, tvořeny malými písmeny&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;Zvyklosti pro nedvojznačné názvy balíčků a pravidla pro pojmenovávání balíčků, když za název balíčku nelze použít přímo název internetové domény jsou popsány v oddíle 7.7 specifikace jazyka Java (Java Language Specification).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Version code:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Kód verze:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Kód verze:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Version name:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Název verze:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Název verze:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Application name:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Název programu:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Název programu:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Run:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Spuštění:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Spuštění:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Application icon:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Ikona programu:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Ikona programu:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;center&gt;Prebundled libraries&lt;/center&gt;
@@ -49358,7 +50288,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>OpenJDK location:</source>
-        <translation>Umístění OpenJDK:</translation>
+        <translation type="obsolete">Umístění OpenJDK:</translation>
     </message>
     <message>
         <source>Start</source>
@@ -49407,6 +50337,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Automatically create kits for Android tool chains</source>
         <translation>Automaticky vytvořit sady pro sady nástrojů</translation>
+    </message>
+    <message>
+        <source>JDK location:</source>
+        <translation>Umístění JDK:</translation>
     </message>
 </context>
 <context>
@@ -49513,6 +50447,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Remove</source>
         <translation>Odstranit</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filtr</translation>
     </message>
 </context>
 <context>
@@ -49629,6 +50567,14 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Záplata 2</translation>
     </message>
+    <message>
+        <source>Days</source>
+        <translation>dnech</translation>
+    </message>
+    <message>
+        <source>&amp;Expires after:</source>
+        <translation>&amp;Vyprší po:</translation>
+    </message>
 </context>
 <context>
     <name>CodePaster::Internal::SettingsPage</name>
@@ -49647,6 +50593,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Výchozí protokol:</translation>
+    </message>
+    <message>
+        <source>&amp;Expires after:</source>
+        <translation>&amp;Vyprší po:</translation>
+    </message>
+    <message>
+        <source>Days</source>
+        <translation>dnech</translation>
     </message>
 </context>
 <context>
@@ -49974,8 +50928,12 @@ p, li { white-space: pre-wrap; }
         <translation>Ano (ID je &quot;%1&quot;)</translation>
     </message>
     <message>
+        <source>Show Running Processes</source>
+        <translation>Ukázat bežící procesy</translation>
+    </message>
+    <message>
         <source>Remote Processes</source>
-        <translation>Procesy na zařízení</translation>
+        <translation type="obsolete">Procesy na zařízení</translation>
     </message>
     <message>
         <source>Current state:</source>
@@ -50699,6 +51657,10 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <source>Always open links in another split</source>
         <translation>Vždy otevřít odkazy v jiném rozdělení</translation>
     </message>
+    <message>
+        <source>Display file encoding</source>
+        <translation>Zobrazit kódování souboru</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::Internal::HighlighterSettingsPage</name>
@@ -50870,6 +51832,14 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
         <source>With Regular Indent</source>
         <translation>Normální odsazení</translation>
     </message>
+    <message>
+        <source>The text editor indentation setting is used for non-code files only. See the C++ and Qt Quick coding style settings to configure indentation for code files.</source>
+        <translation>Nastavení textového editoru týkající se odsazení se použijí jen na soubory, které neobsahují žádný Code. Použijte nastavení pro C++ a Qt Quick Coding Style k nastavení odsazení v souborech Code.</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;Code indentation is configured in &lt;a href=&quot;C++&quot;&gt;C++&lt;/a&gt; and &lt;a href=&quot;QtQuick&quot;&gt;Qt Quick&lt;/a&gt; settings.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Odsazení Code je nastaveno v nasatvení pro &lt;a href=&quot;C++&quot;&gt;C++&lt;/a&gt; a &lt;a href=&quot;QtQuick&quot;&gt;Qt Quick&lt;/a&gt;.&lt;/i&gt;</translation>
+    </message>
 </context>
 <context>
     <name>Todo::Internal::KeywordDialog</name>
@@ -50997,6 +51967,10 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     <message>
         <source>Clean Repository</source>
         <translation>Uklidit skladiště</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Vybrat vše</translation>
     </message>
 </context>
 <context>
@@ -51807,7 +52781,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>Analyzer::Internal::AnalyzerRunControlFactory</name>
     <message>
         <source>Analyzer</source>
-        <translation>Rozbor</translation>
+        <translation type="obsolete">Rozbor</translation>
     </message>
     <message>
         <source>No analyzer tool selected</source>
@@ -51988,7 +52962,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
     <message>
         <source>Qt Android smart installer installation failed</source>
-        <translation>Instalace chytrého Qt instalátoru pro Android se nezdařila</translation>
+        <translation type="obsolete">Instalace chytrého Qt instalátoru pro Android se nezdařila</translation>
     </message>
     <message>
         <source>Package installation failed.</source>
@@ -52079,6 +53053,10 @@ Ujistěte se, prosím, že váš program je sestaven úspěšně a je vybrán na
     <message>
         <source>Cannot create Android package: current build configuration is not Qt 4.</source>
         <translation>Nelze vytvořit balíček pro Android: nynější nastavení sestavování není  Qt 4.</translation>
+    </message>
+    <message>
+        <source>Cannot create Android package: No ANDROID_TARGET_ARCH set in make spec.</source>
+        <translation>Nelze vytvořit balíček pro Android: ANDROID_TARGET_ARCH in make spec nenastaven.</translation>
     </message>
     <message>
         <source>Cannot find ELF information</source>
@@ -52180,12 +53158,12 @@ Ujistěte se, prosím, že váš program je sestaven úspěšně a je vybrán na
     <message>
         <source>The package name &apos;%1&apos; is not valid.
 Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).</source>
-        <translation>Název balíčku &apos;%1&apos; není platný.
+        <translation type="obsolete">Název balíčku &apos;%1&apos; není platný.
 Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.example.myapplication&quot;).</translation>
     </message>
     <message>
         <source>Choose High DPI Icon</source>
-        <translation>Vybrat ikonu s vysokým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
     </message>
     <message>
         <source>png images (*.png)</source>
@@ -52193,11 +53171,11 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     </message>
     <message>
         <source>Choose Medium DPI Icon</source>
-        <translation>Vybrat ikonu se středním dpi</translation>
+        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
     </message>
     <message>
         <source>Choose Low DPI Icon</source>
-        <translation>Vybrat ikonu s nízkým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
     </message>
     <message>
         <source>&lt; type or choose a permission &gt;</source>
@@ -52205,15 +53183,15 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     </message>
     <message>
         <source>Invalid Package Name</source>
-        <translation>Neplatný název balíčku</translation>
+        <translation type="obsolete">Neplatný název balíčku</translation>
     </message>
     <message>
         <source>PNG images (*.png)</source>
-        <translation>Soubory s obrázky PNG (*.png)</translation>
+        <translation type="obsolete">Soubory s obrázky PNG (*.png)</translation>
     </message>
     <message>
         <source>&lt; Type or choose a permission &gt;</source>
-        <translation>&lt; Napište nebo vyberte oprávnění &gt;</translation>
+        <translation type="obsolete">&lt; Napište nebo vyberte oprávnění &gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Package configurations&lt;/b&gt;</source>
@@ -52272,7 +53250,7 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     </message>
     <message>
         <source>Run on Android device or emulator.</source>
-        <translation>Spustit na zařízení nebo emulátoru Androida.</translation>
+        <translation type="obsolete">Spustit na zařízení nebo emulátoru Androida.</translation>
     </message>
 </context>
 <context>
@@ -52314,6 +53292,10 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
 &apos;%1&apos; ukončen</translation>
     </message>
     <message>
+        <source>No free ports available on host for QML debugging.</source>
+        <translation>Na host není dostatek volných portů pro ladění pro ladění QML.</translation>
+    </message>
+    <message>
         <source>
 
 &apos;%1&apos; died.</source>
@@ -52346,8 +53328,16 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <translation>Nelze spustit &apos;%1&apos;.</translation>
     </message>
     <message>
+        <source>
+
+&apos;%1&apos; terminated.</source>
+        <translation>
+
+&apos;%1&apos; ukončen.</translation>
+    </message>
+    <message>
         <source>Cannot find %1 process.</source>
-        <translation>Nelze najít proces %1.</translation>
+        <translation type="obsolete">Nelze najít proces %1.</translation>
     </message>
     <message>
         <source>
@@ -52637,11 +53627,15 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
-        <translation>Projekt %1 se nepodařil otevřít: Soubor s projektem neexistuje</translation>
+        <translation type="obsolete">Projekt %1 se nepodařil otevřít: Soubor s projektem neexistuje</translation>
     </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
-        <translation>Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
+        <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
+    </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
+        <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
 </context>
 <context>
@@ -52787,6 +53781,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
 <context>
     <name>Core::DocumentManager</name>
     <message>
+        <source>Could not save the files.</source>
+        <comment>error message</comment>
+        <translation>Soubory se nepodařilo uložit.</translation>
+    </message>
+    <message>
         <source>File Error</source>
         <translation>Chyba souboru</translation>
     </message>
@@ -52812,19 +53811,19 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>File Is Read Only</source>
-        <translation>Soubor je pouze pro čtení</translation>
+        <translation type="obsolete">Soubor je pouze pro čtení</translation>
     </message>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation>Soubor &lt;i&gt;%1&lt;/i&gt; je pouze pro čtení.</translation>
+        <translation type="obsolete">Soubor &lt;i&gt;%1&lt;/i&gt; je pouze pro čtení.</translation>
     </message>
     <message>
         <source>Make &amp;Writable</source>
-        <translation>Udělat &amp;zapisovatelným</translation>
+        <translation type="obsolete">Udělat &amp;zapisovatelným</translation>
     </message>
     <message>
         <source>&amp;Save As...</source>
-        <translation>&amp;Uložit jako...</translation>
+        <translation type="obsolete">&amp;Uložit jako...</translation>
     </message>
     <message>
         <source>Open with VCS (%1)</source>
@@ -52943,6 +53942,14 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Přidat bod přerušení...</translation>
     </message>
     <message>
+        <source>Remove All Breakpoints</source>
+        <translation>Odstranit všechny body přerušení</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
+        <translation>Opravdu chcete odstranit všechny body přerušení ze všech souborů v nynějším sezení?</translation>
+    </message>
+    <message>
         <source>Add Breakpoint</source>
         <translation>Přidat bod přerušení</translation>
     </message>
@@ -53020,7 +54027,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>DebuggerPlugin</name>
     <message>
         <source>Debug</source>
-        <translation>Ladění</translation>
+        <translation type="obsolete">Ladění</translation>
     </message>
     <message>
         <source>Debugger</source>
@@ -53324,11 +54331,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation>Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
+        <translation type="obsolete">Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation>Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
+        <translation type="obsolete">Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
@@ -53361,6 +54368,14 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
         <translation type="obsolete">Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Memory at Pointer&apos;s Address &quot;%1&quot; (0x%2)</source>
+        <translation>Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
+    </message>
+    <message>
+        <source>Memory at Object&apos;s Address &quot;%1&quot; (0x%2)</source>
+        <translation>Paměť na adrese objektu &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Add Expression Evaluator</source>
@@ -53431,8 +54446,12 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Přidat bod přerušení dat na adrese objektu (0x%1)</translation>
     </message>
     <message>
+        <source>Add Data Breakpoint at Pointer&apos;s Address (0x%1)</source>
+        <translation>Přidat bod přerušení dat na adrese objektu (0x%1)</translation>
+    </message>
+    <message>
         <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation>Přidat bod přerušení dat na odkazované adrese (0x%1)</translation>
+        <translation type="obsolete">Přidat bod přerušení dat na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Add Data Breakpoint</source>
@@ -53465,6 +54484,22 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>Remove All Expression Evaluators</source>
         <translation>Odstranit všechny hodnotitele výrazů</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Pointer&apos;s Address (0x%1)</source>
+        <translation>Otevřít editor paměti na adrese ukazatele (0x%1)</translation>
+    </message>
+    <message>
+        <source>Open Memory View at Pointer&apos;s Address (0x%1)</source>
+        <translation>Otevřít zobrazení paměti na adrese ukazatele (0x%1)</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Pointer&apos;s Address</source>
+        <translation>Otevřít editor paměti na adrese ukazatele</translation>
+    </message>
+    <message>
+        <source>Open Memory View at Pointer&apos;s Address</source>
+        <translation>Otevřít zobrazení paměti na adrese ukazatele</translation>
     </message>
     <message>
         <source>Enter Expression for Evaluator</source>
@@ -53512,19 +54547,19 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation>Otevřít editor paměti na odkazované adrese (0x%1)</translation>
+        <translation type="obsolete">Otevřít editor paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation>Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
+        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address</source>
-        <translation>Otevřít editor paměti na odkazované adrese</translation>
+        <translation type="obsolete">Otevřít editor paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address</source>
-        <translation>Otevřít zobrazení paměti na odkazované adrese</translation>
+        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
@@ -53625,6 +54660,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation type="obsolete">Kopírovat adresu (URL)</translation>
     </message>
     <message>
+        <source>Apply in: </source>
+        <translation>Použít v: </translation>
+    </message>
+    <message>
         <source>Changes</source>
         <translation>Změny</translation>
     </message>
@@ -53641,20 +54680,48 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Podrobnosti</translation>
     </message>
     <message>
-        <source>Diff...</source>
-        <translation>Rozdíly...</translation>
+        <source>&amp;Refresh</source>
+        <translation>&amp;Obnovit</translation>
     </message>
     <message>
-        <source>Apply...</source>
-        <translation>Použít...</translation>
+        <source>&amp;Show...</source>
+        <translation>&amp;Ukázat...</translation>
     </message>
     <message>
-        <source>Checkout...</source>
+        <source>Cherry &amp;Pick...</source>
+        <translation>&amp;Výběrově sloučit...</translation>
+    </message>
+    <message>
+        <source>&amp;Checkout...</source>
         <translation>Načíst (checkout)...</translation>
     </message>
     <message>
+        <source>&amp;Show</source>
+        <translation>Uká&amp;zat</translation>
+    </message>
+    <message>
+        <source>Cherry &amp;Pick</source>
+        <translation>&amp;Výběrově sloučit</translation>
+    </message>
+    <message>
+        <source>&amp;Checkout</source>
+        <translation>&amp;Načíst (checkout)</translation>
+    </message>
+    <message>
+        <source>Diff...</source>
+        <translation type="obsolete">Rozdíly...</translation>
+    </message>
+    <message>
+        <source>Apply...</source>
+        <translation type="obsolete">Použít...</translation>
+    </message>
+    <message>
+        <source>Checkout...</source>
+        <translation type="obsolete">Načíst (checkout)...</translation>
+    </message>
+    <message>
         <source>Refresh</source>
-        <translation>Obnovit</translation>
+        <translation type="obsolete">Obnovit</translation>
     </message>
     <message>
         <source>Fetching &quot;%1&quot;...</source>
@@ -53808,6 +54875,10 @@ of the Qt project.</source>
 Například &quot;status:staged,status:integrating&quot; lze použít pro ukázání stavu pokračující integrace projektu Qt.</translation>
     </message>
     <message>
+        <source>Always prompt for repository folder</source>
+        <translation>Vždy vyvolat složku se skladištěm</translation>
+    </message>
+    <message>
         <source>&amp;Host:</source>
         <translation>&amp;Hostitel:</translation>
     </message>
@@ -53818,6 +54889,23 @@ Například &quot;status:staged,status:integrating&quot; lze použít pro ukáz�
     <message>
         <source>&amp;ssh:</source>
         <translation>&amp;ssh:</translation>
+    </message>
+    <message>
+        <source>&amp;Repository:</source>
+        <translation>&amp;Skladiště:</translation>
+    </message>
+    <message>
+        <source>Default repository where patches will be applied.</source>
+        <translation>Výchozí skladiště, na něž se budou používat záplaty.</translation>
+    </message>
+    <message>
+        <source>Pr&amp;ompt:</source>
+        <translation>&amp;Zeptat se:</translation>
+    </message>
+    <message>
+        <source>If checked, user will always be
+asked to confirm the repository path.</source>
+        <translation>Když je toto nastavení zapnuto, uživatel bude vždy dotázán, aby potvrdil cestu ke skladišti.</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
@@ -53856,15 +54944,15 @@ Například &quot;status:staged,status:integrating&quot; lze použít pro ukáz�
     </message>
     <message>
         <source>Error writing to temporary file.</source>
-        <translation>Chyba při zápisu do dočasného souboru.</translation>
+        <translation type="obsolete">Chyba při zápisu do dočasného souboru.</translation>
     </message>
     <message>
         <source>Writing %1...</source>
-        <translation>Zapisuje se %1...</translation>
+        <translation type="obsolete">Zapisuje se %1...</translation>
     </message>
     <message>
         <source>Cherry-picking %1...</source>
-        <translation>Vybírá se %1...</translation>
+        <translation type="obsolete">Vybírá se %1...</translation>
     </message>
 </context>
 <context>
@@ -53874,8 +54962,34 @@ Například &quot;status:staged,status:integrating&quot; lze použít pro ukáz�
         <translation>Gerrit...</translation>
     </message>
     <message>
+        <source>Push to Gerrit...</source>
+        <translation>Odvést do Gerritu...</translation>
+    </message>
+    <message>
+        <source>Initialization Failed</source>
+        <translation>Spuštění se nezdařilo</translation>
+    </message>
+    <message>
+        <source>Failed to initialize dialog. Aborting.</source>
+        <translation>Dialog se nepodařilo spustit. Ruší se.</translation>
+    </message>
+    <message>
         <source>Git is not available.</source>
         <translation>Git je nedostupný.</translation>
+    </message>
+    <message>
+        <source>Remote Not Verified</source>
+        <translation>Remote neověřen</translation>
+    </message>
+    <message>
+        <source>Change host %1
+and project %2
+
+were not verified among remotes in %3. Select different folder?</source>
+        <translation>Change host %1
+a Projekt %2
+
+nepatří k ověřeným Remotes v %3. Vybrat jinou složku?</translation>
     </message>
     <message>
         <source>git is not available.</source>
@@ -53896,38 +55010,46 @@ Například &quot;status:staged,status:integrating&quot; lze použít pro ukáz�
         <source>Show difference.</source>
         <translation>Ukázat rozdíly.</translation>
     </message>
+    <message>
+        <source>Graph</source>
+        <translation>Graf</translation>
+    </message>
+    <message>
+        <source>Show textual graph log.</source>
+        <translation>Ukázat graf jako text.</translation>
+    </message>
 </context>
 <context>
     <name>Git::Internal::ResetDialog</name>
     <message>
         <source>Sha1</source>
-        <translation>Sha1</translation>
+        <translation type="obsolete">Sha1</translation>
     </message>
     <message>
         <source>Subject</source>
-        <translation>Předmět</translation>
+        <translation type="obsolete">Předmět</translation>
     </message>
     <message>
         <source>Reset to:</source>
-        <translation>Nastavit znovu na:</translation>
+        <translation type="obsolete">Nastavit znovu na:</translation>
     </message>
     <message>
         <source>Reset type:</source>
         <translatorcomment>XXX: neověřeno za běhu</translatorcomment>
-        <translation>Druh znovunastavení:</translation>
+        <translation type="obsolete">Druh znovunastavení:</translation>
     </message>
     <message>
         <source>Hard Reset</source>
         <translatorcomment>XXX: Včetně pracovního stromu (lepší, ale asi moc dlouhé?); Napevno (hard) </translatorcomment>
-        <translation>I pracovní strom (hard)</translation>
+        <translation type="obsolete">I pracovní strom (hard)</translation>
     </message>
     <message>
         <source>Soft Reset</source>
-        <translation>Pouze HEAD (soft)</translation>
+        <translation type="obsolete">Pouze HEAD (soft)</translation>
     </message>
     <message>
         <source>Undo Changes to %1</source>
-        <translation>Změny pro %1 vrátit zpět</translation>
+        <translation type="obsolete">Změny pro %1 vrátit zpět</translation>
     </message>
 </context>
 <context>
@@ -53993,12 +55115,16 @@ Chcete jej ukončit?</translation>
 <context>
     <name>ProjectExplorer::DesktopDevice</name>
     <message>
+        <source>Local PC</source>
+        <translation>Místní PC</translation>
+    </message>
+    <message>
         <source>Desktop</source>
         <translation>Stolní počítač</translation>
     </message>
     <message>
         <source>Run locally</source>
-        <translation>Spustit místně</translation>
+        <translation type="obsolete">Spustit místně</translation>
     </message>
 </context>
 <context>
@@ -54064,7 +55190,7 @@ Chcete jej ukončit?</translation>
     <name>ProjectExplorer::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
-        <translation>Nastavení ladiče</translation>
+        <translation type="obsolete">Nastavení ladiče</translation>
     </message>
 </context>
 <context>
@@ -54188,7 +55314,7 @@ Má se to zkusit ještě jednou?</translation>
     </message>
     <message>
         <source>Unexpected complete signal in data model.</source>
-        <translation type="unfinished">Neočekávaný signál v datovém modelu.</translation>
+        <translation>Neočekávaný signál v datovém modelu.</translation>
     </message>
     <message>
         <source>No data to save.</source>
@@ -54835,8 +55961,16 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <translation>Záznamy CO UDĚLAT</translation>
     </message>
     <message>
+        <source>Current File</source>
+        <translation>Nynější soubor</translation>
+    </message>
+    <message>
         <source>Scan in the current opened file</source>
         <translation>Hledat v nyní otevřeném souboru</translation>
+    </message>
+    <message>
+        <source>Whole Project</source>
+        <translation>Celý projekt</translation>
     </message>
     <message>
         <source>Scan in the whole project</source>
@@ -54993,6 +56127,14 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     <message>
         <source>The public key file could not be saved: %1</source>
         <translation>Soubor s veřejným klíčem se nepodařilo uložit: %1</translation>
+    </message>
+    <message>
+        <source>File Exists</source>
+        <translation>Soubor již existuje</translation>
+    </message>
+    <message>
+        <source>There already is a file of that name. Do you want to overwrite it?</source>
+        <translation>Soubor s tímto názvem již existuje. Chcete jej přepsat?</translation>
     </message>
 </context>
 <context>
@@ -55310,6 +56452,10 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>Uploading debug token</source>
         <translation>Nahrává se symbol pro ladění</translation>
     </message>
+    <message>
+        <source>Connection log:</source>
+        <translation>Záznam o spojení:</translation>
+    </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage</name>
@@ -55374,7 +56520,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
     <message>
         <source>Generate</source>
-        <translation>Vytvořit</translation>
+        <translation type="obsolete">Vytvořit</translation>
     </message>
     <message>
         <source>SSH Key Setup</source>
@@ -55387,6 +56533,14 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     <message>
         <source>Key Generation Failed</source>
         <translation>Chyba při vytváření klíče</translation>
+    </message>
+    <message>
+        <source>Choose Private Key File Name</source>
+        <translation>Vyberte název souboru se soukromým klíčem</translation>
+    </message>
+    <message>
+        <source>Generate...</source>
+        <translation>Vytvořit...</translation>
     </message>
 </context>
 <context>
@@ -55820,6 +56974,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>&amp;Check Out</source>
+        <translation type="obsolete">&amp;Načíst (checkout)</translation>
+    </message>
+    <message>
+        <source>Check &amp;Out</source>
         <translation>&amp;Načíst (checkout)</translation>
     </message>
     <message>
@@ -56235,7 +57393,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
-        <translation>Otevřít s pomocí systému na ověřování verzí (VCS) (%1)</translation>
+        <translation>Otevřít s pomocí systému na správu verzí (VCS) (%1)</translation>
     </message>
 </context>
 <context>
@@ -56810,6 +57968,10 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Detached HEAD</source>
         <translation>Odpojená HEAD</translation>
     </message>
+    <message>
+        <source>Select Change</source>
+        <translation>Vybrat změnu</translation>
+    </message>
 </context>
 <context>
     <name>Madde::Internal::DebianManager</name>
@@ -56870,11 +58032,11 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     <name>Madde::Internal::MaddeDevice</name>
     <message>
         <source>Test</source>
-        <translation>Zkouška</translation>
+        <translation type="obsolete">Zkouška</translation>
     </message>
     <message>
         <source>Deploy Public Key...</source>
-        <translation>Poslat veřejný klíč...</translation>
+        <translation type="obsolete">Poslat veřejný klíč...</translation>
     </message>
     <message>
         <source>Maemo5/Fremantle</source>
@@ -56934,7 +58096,11 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     <name>Perforce::Internal::PerforceVersionControl</name>
     <message>
         <source>&amp;Edit (%1)</source>
-        <translation>&amp;Upravit (%1)</translation>
+        <translation type="obsolete">&amp;Upravit (%1)</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>Ú&amp;pravy</translation>
     </message>
     <message>
         <source>&amp;Hijack</source>
@@ -57380,7 +58546,11 @@ o pravděpodobném URI.</translation>
     <name>Qnx::Internal::BlackBerryCreatePackageStep</name>
     <message>
         <source>Create BAR packages</source>
-        <translation>Vytvořit balíčky BAR</translation>
+        <translation type="obsolete">Vytvořit balíčky BAR</translation>
+    </message>
+    <message>
+        <source>Create packages</source>
+        <translation>Vytvořit soubory balíčků</translation>
     </message>
     <message>
         <source>Could not find packager command &apos;%1&apos; in the build environment</source>
@@ -57403,6 +58573,10 @@ o pravděpodobném URI.</translation>
         <translation>Nepodařilo se vytvořit adresář pro sestavování &apos;%1&apos;</translation>
     </message>
     <message>
+        <source>Missing passwords for signing packages</source>
+        <translation>Chybí hesla pro podepsání balíčků</translation>
+    </message>
+    <message>
         <source>Error preparing application descriptor file</source>
         <translation>Chyba při přípravě souboru s popisem programu</translation>
     </message>
@@ -57421,6 +58595,38 @@ o pravděpodobném URI.</translation>
         <source>&lt;b&gt;Create packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;Vytvořit balíčky&lt;/b&gt; </translation>
     </message>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Sign packages</source>
+        <translation>Podepsat balíčky</translation>
+    </message>
+    <message>
+        <source>CSK password:</source>
+        <translation>Heslo CSK:</translation>
+    </message>
+    <message>
+        <source>Keystore password:</source>
+        <translation>Heslo pro úložiště klíče:</translation>
+    </message>
+    <message>
+        <source>Note: This will store the passwords in a world-readable file.</source>
+        <translation>Poznámka: Hesla budou uložena ve všemi čitelném souboru.</translation>
+    </message>
+    <message>
+        <source>Save passwords</source>
+        <translation>Uložit hesla</translation>
+    </message>
+    <message>
+        <source>Show passwords</source>
+        <translation>Ukázat hesla</translation>
+    </message>
+    <message>
+        <source>Package in development mode</source>
+        <translation>Balíček ve vývojářském režimu</translation>
+    </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryCreatePackageStepFactory</name>
@@ -57436,25 +58642,30 @@ o pravděpodobném URI.</translation>
         <translation>Nasadit na zařízení BlackBerry</translation>
     </message>
     <message>
+        <source>Setup Application Descriptor File</source>
+        <translation>Nastavit soubor s popisem programu</translation>
+    </message>
+    <message>
+        <source>You need to set up a bar descriptor file to enable packaging.
+Do you want Qt Creator to generate it for your project?</source>
+        <translation>Musíte nastavit soubor s popisem bar, abyste umožnil zabalení souboru.
+Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again for this project</source>
+        <translation>U tohoto projektu se už znovu neptat</translation>
+    </message>
+    <message>
         <source>Cannot Set up Application Descriptor File</source>
         <translation>Nelze nastavit soubor s popisem programu</translation>
     </message>
     <message>
         <source>Reading the bar descriptor template failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Čtení předlohy s popisem bar se nezdařilo.</translation>
     </message>
     <message>
         <source>Writing the bar descriptor file failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add bar-descriptor.xml File to Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt Creator has set up a bar descriptor file to enable packaging.
-Do you want to add it to the project?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zápis souboru s popisem bar se nezdařil.</translation>
     </message>
 </context>
 <context>
@@ -57522,6 +58733,14 @@ Do you want to add it to the project?</source>
         <source>BlackBerry</source>
         <translation>BlackBerry</translation>
     </message>
+    <message>
+        <source>Connect to device</source>
+        <translation>Spojit se zařízením</translation>
+    </message>
+    <message>
+        <source>Disconnect from device</source>
+        <translation>Odpojit od zařízení</translation>
+    </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryDeviceConfigurationFactory</name>
@@ -57538,19 +58757,19 @@ Do you want to add it to the project?</source>
     </message>
     <message>
         <source>Failure to Save Key File</source>
-        <translation>Chyba při ukládání souboru s klíčem</translation>
+        <translation type="obsolete">Chyba při ukládání souboru s klíčem</translation>
     </message>
     <message>
         <source>Failed to create directory: &apos;%1&apos;.</source>
-        <translation>Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
+        <translation type="obsolete">Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
     <message>
         <source>Private key file already exists: &apos;%1&apos;</source>
-        <translation>Soubor se soukromým klíčem &apos;%1&apos; již existuje</translation>
+        <translation type="obsolete">Soubor se soukromým klíčem &apos;%1&apos; již existuje</translation>
     </message>
     <message>
         <source>Public key file already exists: &apos;%1&apos;</source>
-        <translation>Soubor s veřejným klíčem &apos;%1&apos; již existuje</translation>
+        <translation type="obsolete">Soubor s veřejným klíčem &apos;%1&apos; již existuje</translation>
     </message>
 </context>
 <context>
@@ -57605,8 +58824,12 @@ Do you want to add it to the project?</source>
         <translation>Není žádné činné nastavení nasazovování</translation>
     </message>
     <message>
+        <source>Device not connected</source>
+        <translation>Zařízení nepřipojeno</translation>
+    </message>
+    <message>
         <source>Run on BlackBerry Device</source>
-        <translation>Spustit na zařízení BlackBerry</translation>
+        <translation type="obsolete">Spustit na zařízení BlackBerry</translation>
     </message>
 </context>
 <context>
@@ -57702,7 +58925,11 @@ Do you want to add it to the project?</source>
     <name>Qnx::Internal::QnxRunControlFactory</name>
     <message>
         <source>Run on remote QNX device</source>
-        <translation>Spustit na vzdáleném zařízení QNX</translation>
+        <translation type="obsolete">Spustit na vzdáleném zařízení QNX</translation>
+    </message>
+    <message>
+        <source>No analyzer tool selected.</source>
+        <translation>Nevybrán žádný nástroj pro rozbor.</translation>
     </message>
 </context>
 <context>
@@ -57763,7 +58990,11 @@ Do you want to add it to the project?</source>
     <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Command:</source>
-        <translation>Příkaz:</translation>
+        <translation type="obsolete">Příkaz:</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <translation>Spustitelný soubor:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -57779,23 +59010,23 @@ Do you want to add it to the project?</source>
     </message>
     <message>
         <source>Run Environment</source>
-        <translation>Prováděcí prostředí</translation>
+        <translation type="obsolete">Prováděcí prostředí</translation>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>Základní prostředí pro toto nastavení spuštění:</translation>
+        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
+        <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
 </context>
 <context>
@@ -57821,15 +59052,15 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
+        <translation type="obsolete">Smazat prostředí</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation>Prostředí systému</translation>
+        <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
+        <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
     <message>
         <source>Custom Executable</source>
@@ -57958,7 +59189,7 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Not enough free ports on device for debugging.</source>
-        <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
+        <translation type="obsolete">Na zařízení není dostatek volných portů pro ladění.</translation>
     </message>
 </context>
 <context>
@@ -58046,7 +59277,7 @@ nelze najít v cestě.</translation>
     <name>Git::Internal::BranchCheckoutDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>Dialog</translation>
+        <translation type="obsolete">Dialog</translation>
     </message>
     <message>
         <source>Local Changes Found. Choose Action:</source>
@@ -58095,7 +59326,7 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Keep Going</source>
-        <translation>Nechat běžet</translation>
+        <translation type="obsolete">Nechat běžet</translation>
     </message>
     <message>
         <source>jobs</source>
@@ -58117,6 +59348,22 @@ nelze najít v cestě.</translation>
         <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
         <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
+    <message>
+        <source>Might make your application vulnerable. Only use in a safe environment.</source>
+        <translation>Může váš program udělat zranitelným. Mělo by se používat jen v bezpečném prostředí.</translation>
+    </message>
+    <message>
+        <source>Enable QML debugging:</source>
+        <translation>Zapnout ladění QML:</translation>
+    </message>
+    <message>
+        <source>Properties:</source>
+        <translation>Vlastnosti:</translation>
+    </message>
+    <message>
+        <source>Keep going</source>
+        <translation>Pokračovat</translation>
+    </message>
 </context>
 <context>
     <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
@@ -58130,34 +59377,38 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Keep Going</source>
-        <translation>Nechat běžet</translation>
+        <translation type="obsolete">Nechat běžet</translation>
     </message>
     <message>
         <source>jobs</source>
-        <translation>Úkoly</translation>
+        <translation type="obsolete">Úkoly</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
         <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
+    </message>
+    <message>
+        <source>Keep going</source>
+        <translation>Pokračovat</translation>
     </message>
 </context>
 <context>
     <name>QbsProjectManager::Internal::QbsStepConfigWidget</name>
     <message>
         <source>Dry run</source>
-        <translation>Spustit na zkoušku</translation>
+        <translation type="obsolete">Spustit na zkoušku</translation>
     </message>
     <message>
         <source>Keep Going</source>
-        <translation>Nechat běžet</translation>
+        <translation type="obsolete">Nechat běžet</translation>
     </message>
     <message>
         <source>jobs</source>
-        <translation>Úkoly</translation>
+        <translation type="obsolete">Úkoly</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
+        <translation type="obsolete">&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -58191,6 +59442,14 @@ nelze najít v cestě.</translation>
         <translation>Určuje, zda je tlačítko zaškrtnutelné či ne.</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Povoleno</translation>
+    </message>
+    <message>
+        <source>Determines whether the button is enabled or not.</source>
+        <translation>Určuje, zda je tlačítko zapnuto či ne.</translation>
+    </message>
+    <message>
         <source>Default button</source>
         <translation>Výchozí tlačítko</translation>
     </message>
@@ -58208,7 +59467,7 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Text color</source>
-        <translation>Barva textu</translation>
+        <translation type="obsolete">Barva textu</translation>
     </message>
     <message>
         <source>Focus on press</source>
@@ -58250,11 +59509,11 @@ nelze najít v cestě.</translation>
     <name>ComboBoxSpecifics</name>
     <message>
         <source>Text</source>
-        <translation>Text</translation>
+        <translation type="obsolete">Text</translation>
     </message>
     <message>
         <source>The text shown on the combobox</source>
-        <translation>Text zobrazený na rozbalovacím seznamu</translation>
+        <translation type="obsolete">Text zobrazený na rozbalovacím seznamu</translation>
     </message>
     <message>
         <source>Tool tip</source>
@@ -58442,11 +59701,11 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>This QML file contains features which are not supported by Qt Quick Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento soubor QML obsahuje funkce nepodporované Qt Quick Designerem</translation>
     </message>
     <message>
         <source>Warn about unsupported features</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat varování u nepodporovaných vlastností</translation>
     </message>
 </context>
 <context>
@@ -58473,68 +59732,52 @@ nelze najít v cestě.</translation>
 <context>
     <name>Qnx::Internal::BarDescriptorEditorWidget</name>
     <message>
-        <source>StackedWidget</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Package Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informace o balíčku</translation>
     </message>
     <message>
-        <source>Package ID:</source>
-        <translation type="unfinished"></translation>
+        <source>Assets</source>
+        <translation>Výhody</translation>
     </message>
     <message>
         <source>Package version:</source>
-        <translation>Verze balíčku:</translation>
-    </message>
-    <message>
-        <source>Package build ID:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Verze balíčku:</translation>
     </message>
     <message>
         <source>Author Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informace o autorovi</translation>
     </message>
     <message>
         <source>Author:</source>
-        <translation>Autor:</translation>
-    </message>
-    <message>
-        <source>Author ID:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Autor:</translation>
     </message>
     <message>
         <source>Entry-Point Text and Images</source>
-        <translation type="unfinished"></translation>
+        <translation>Začátek textu a obrazových dat</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation>Smazat</translation>
-    </message>
-    <message>
-        <source>Splash screens:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Smazat</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation>Přidat...</translation>
+        <translation type="obsolete">Přidat...</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Odstranit</translation>
+        <translation type="obsolete">Odstranit</translation>
     </message>
     <message>
         <source>Icon:</source>
-        <translation>Ikona:</translation>
+        <translation type="obsolete">Ikona:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation>Popis:</translation>
+        <translation type="obsolete">Popis:</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Název:</translation>
+        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>General</source>
@@ -58542,19 +59785,15 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Orientation:</source>
-        <translation>Natočení:</translation>
-    </message>
-    <message>
-        <source>Chrome:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Natočení:</translation>
     </message>
     <message>
         <source>Transparent main window</source>
-        <translation>Průhledné hlavní okno</translation>
+        <translation type="obsolete">Průhledné hlavní okno</translation>
     </message>
     <message>
         <source>Application Arguments:</source>
-        <translation>Argumenty pro program:</translation>
+        <translation type="obsolete">Argumenty pro program:</translation>
     </message>
     <message>
         <source>Permissions</source>
@@ -58562,11 +59801,11 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation>Vybrat vše</translation>
+        <translation type="obsolete">Vybrat vše</translation>
     </message>
     <message>
         <source>Deselect All</source>
-        <translation>Odznačit vše</translation>
+        <translation type="obsolete">Odznačit vše</translation>
     </message>
     <message>
         <source>Environment</source>
@@ -58574,55 +59813,51 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>Výchozí</translation>
+        <translation type="obsolete">Výchozí</translation>
     </message>
     <message>
         <source>Auto-orient</source>
-        <translation>Automatické natočení</translation>
+        <translation type="obsolete">Automatické natočení</translation>
     </message>
     <message>
         <source>Landscape</source>
-        <translation>Na šířku</translation>
+        <translation type="obsolete">Na šířku</translation>
     </message>
     <message>
         <source>Portrait</source>
-        <translation>Na výšku</translation>
+        <translation type="obsolete">Na výšku</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation>Obvyklé</translation>
+        <translation type="obsolete">Obvyklé</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Žádné</translation>
+        <translation type="obsolete">Žádné</translation>
     </message>
     <message>
         <source>Device Environment</source>
-        <translation>Prostředí zařízení</translation>
+        <translation type="obsolete">Prostředí zařízení</translation>
     </message>
     <message>
         <source>Images (*.jpg *.png)</source>
-        <translation>Obrázky (*.jpg *.png)</translation>
+        <translation type="obsolete">Obrázky (*.jpg *.png)</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation>Cesta</translation>
+        <translation type="obsolete">Cesta</translation>
     </message>
     <message>
         <source>Destination</source>
-        <translation>Cíl</translation>
-    </message>
-    <message>
-        <source>Entry-Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Cíl</translation>
     </message>
     <message>
         <source>Select Splash Screen</source>
-        <translation>Vybrat uvítací obrazovku</translation>
+        <translation type="obsolete">Vybrat uvítací obrazovku</translation>
     </message>
     <message>
         <source>Select File to Add</source>
-        <translation>Vybrat soubor k přidání</translation>
+        <translation type="obsolete">Vybrat soubor k přidání</translation>
     </message>
 </context>
 <context>
@@ -58727,6 +59962,10 @@ nelze najít v cestě.</translation>
         <translation>Soubory BAR (*.bar)</translation>
     </message>
     <message>
+        <source>Requesting Device PIN...</source>
+        <translation>Požaduje se PIN zařízení...</translation>
+    </message>
+    <message>
         <source>Base directory does not exist.</source>
         <translation>Základní adresář neexistuje.</translation>
     </message>
@@ -58775,6 +60014,10 @@ nelze najít v cestě.</translation>
         <translation>S podřízeným procesem se nepodařilo spojit.</translation>
     </message>
     <message>
+        <source>Not yet registered to request debug tokens.</source>
+        <translation>Není ještě přihlášeno, aby se mohly požadovat symboly pro ladění.</translation>
+    </message>
+    <message>
         <source>An unknwon error has occurred.</source>
         <translation>Vyskytla se neznámá chyba.</translation>
     </message>
@@ -58806,6 +60049,10 @@ nelze najít v cestě.</translation>
         <translation>Archivy PKCS 12 (*.p12)</translation>
     </message>
     <message>
+        <source>Error parsing inferior process output.</source>
+        <translation>Chyba při vyhodnocování výstupu podřízeného procesu.</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
@@ -58826,23 +60073,23 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>BlackBerry Signing Authority</source>
-        <translation type="unfinished"></translation>
+        <translation>Podpisová autorita pro BlackBerry</translation>
     </message>
     <message>
         <source>Registered: Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Přihlášeno: Ano</translation>
     </message>
     <message>
         <source>Register</source>
-        <translation type="unfinished"></translation>
+        <translation>Přihlásit</translation>
     </message>
     <message>
         <source>Unregister</source>
-        <translation type="unfinished"></translation>
+        <translation>Odhlásit</translation>
     </message>
     <message>
         <source>Developer Certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Vývojářský certifikát</translation>
     </message>
     <message>
         <source>Create</source>
@@ -58866,31 +60113,31 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Unregister Key</source>
-        <translation type="unfinished"></translation>
+        <translation>Odhlásit klíč</translation>
     </message>
     <message>
         <source>Do you really want to unregister your key? This action cannot be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Opravdu chcete odhlásit svůj klíč? Tento krok nelze vrátit zpět.</translation>
     </message>
     <message>
         <source>Error storing certificate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při ukládání certifikátu.</translation>
     </message>
     <message>
         <source>This certificate already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento certifikát již existuje.</translation>
     </message>
     <message>
         <source>Delete Certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Smazat certifikát</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this certificate?</source>
-        <translation type="unfinished"></translation>
+        <translation>Opravdu chcete smazat tento certifikát?</translation>
     </message>
     <message>
         <source>Registered: No</source>
-        <translation type="unfinished"></translation>
+        <translation>Přihlášeno: Ne</translation>
     </message>
 </context>
 <context>
@@ -58908,6 +60155,14 @@ nelze najít v cestě.</translation>
         <translation>Odstranit</translation>
     </message>
     <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>It appears that your BlackBerry environment has already been configured.</source>
+        <translation>Zdá se, že vaše prostředí pro BlackBerry je již nastaveno.</translation>
+    </message>
+    <message>
         <source>Clean BlackBerry 10 Configuration</source>
         <translation>Smazat nastavení BlackBerry 10</translation>
     </message>
@@ -58915,36 +60170,32 @@ nelze najít v cestě.</translation>
         <source>Are you sure you want to remove the current BlackBerry configuration?</source>
         <translation>Opravdu chcete odstranit nynější nastavení BlackBerry?</translation>
     </message>
+    <message>
+        <source>Get started and configure your environment:</source>
+        <translation>Začněte s nastavením svého prostředí:</translation>
+    </message>
+    <message>
+        <source>environment setup wizard</source>
+        <translation>Průvodce nastavením prostředí</translation>
+    </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryRegisterKeyDialog</name>
     <message>
-        <source>Create Key</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obdržet klíče&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Musíte objednat dva soubory CSJ u BlackBerry, což uděláte na této &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;stránce&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>PBDT CSJ file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor PBDT CSJ:</translation>
     </message>
     <message>
         <source>RDK CSJ file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor RDK CSJ:</translation>
     </message>
     <message>
         <source>CSJ PIN:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>CSK PIN:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Confirm CSK PIN:</source>
-        <translation type="unfinished"></translation>
+        <translation>PIN CSJ:</translation>
     </message>
     <message>
         <source>Keystore password:</source>
@@ -58952,11 +60203,11 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Confirm password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Potvrdit heslo:</translation>
     </message>
     <message>
         <source>Generate developer certificate automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit vývojářský certifikát automaticky</translation>
     </message>
     <message>
         <source>Show</source>
@@ -58964,19 +60215,19 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>This is the PIN you entered when you requested the CSJ files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Toto je PIN, který jste zadal při žádosti o soubor CSJ.</translation>
     </message>
     <message>
         <source>Status</source>
         <translation>Stav</translation>
     </message>
     <message>
-        <source>CSK PINs do not match.</source>
-        <translation type="unfinished"></translation>
+        <source>CSK passwords do not match.</source>
+        <translation>Hesla CSK se neshodují.</translation>
     </message>
     <message>
         <source>Keystore password does not match.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hesla pro úložiště klíče se neshodují.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -58984,7 +60235,7 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Error creating developer certificate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při vytváření vývojářského certifikátu.</translation>
     </message>
     <message>
         <source>Browse CSJ File</source>
@@ -58993,6 +60244,18 @@ nelze najít v cestě.</translation>
     <message>
         <source>CSJ files (*.csj)</source>
         <translation>Soubory CSJ (*.csj)</translation>
+    </message>
+    <message>
+        <source>Register Key</source>
+        <translation>Přihlásit klíč</translation>
+    </message>
+    <message>
+        <source>CSK password:</source>
+        <translation>Heslo CSK:</translation>
+    </message>
+    <message>
+        <source>Confirm CSK password:</source>
+        <translation>Potvrdit heslo CSK:</translation>
     </message>
 </context>
 <context>
@@ -59066,18 +60329,18 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po dvojtečce očekáván výraz.</translation>
     </message>
     <message>
         <source>Expected expression statement to be a literal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Očekáván výraz tvořený písmeny (literal).</translation>
     </message>
 </context>
 <context>
     <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastnost je stanovena dvakrát.</translation>
     </message>
 </context>
 <context>
@@ -59340,23 +60603,23 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Imperative code is not supported in the Qt Quick Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Imperativní kód není Qt Quick Designerem podporován.</translation>
     </message>
     <message>
         <source>This type is not supported in the Qt Quick Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento typ není Qt Quick Designerem podporován.</translation>
     </message>
     <message>
         <source>Reference to parent item cannot be resolved correctly by the Qt Quick Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odkaz na rodičovskou položku nemůže být Qt Quick Designerem správně vyřešen.</translation>
     </message>
     <message>
         <source>This visual property binding cannot be evaluated in the local context and might not show up in Qt Quick Designer as expected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuto viditelnou vazbu vlastnosti (Property) nelze v místní souvislosti zpracovat, a z toho důvodu nebude v Qt Quick Designeru zřejmě zobrazena, jak je očekáváno. angezeigt.</translation>
     </message>
     <message>
         <source>Qt Quick Designer only supports states in the root item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick Designer podporuje jen stavy v kořenové položce.</translation>
     </message>
 </context>
 <context>
@@ -59447,13 +60710,6 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
-    <message>
-        <source>Create Getter and Setter Member Functions</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing</source>
@@ -59464,14 +60720,14 @@ nelze najít v cestě.</translation>
     <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked &apos;override&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Jen virtuální metody lze označit jako &apos;override&apos;</translation>
     </message>
 </context>
 <context>
     <name>CPlusPlus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Jen virtuální metody lze označit jako &apos;final&apos;</translation>
     </message>
     <message>
         <source>Expected a namespace-name</source>
@@ -59479,25 +60735,25 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Too many arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>Příliš mnoho argumentů</translation>
     </message>
 </context>
 <context>
     <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>Příliš málo argumentů</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::CdbPathDialog</name>
     <message>
         <source>CDB Symbol Paths</source>
-        <translation>Cesty k symbolům CDB</translation>
+        <translation type="obsolete">Cesty k symbolům CDB</translation>
     </message>
     <message>
         <source>CDB Source Paths</source>
-        <translation>Cesty ke zdroji CDB</translation>
+        <translation type="obsolete">Cesty ke zdroji CDB</translation>
     </message>
 </context>
 <context>
@@ -59532,7 +60788,15 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Close temporary buffers on debugger exit</source>
-        <translation>Při ukončení ladění zavřít editory</translation>
+        <translation type="obsolete">Při ukončení ladění zavřít editory</translation>
+    </message>
+    <message>
+        <source>Close temporary views on debugger exit</source>
+        <translation>Při ukončení ladění zavřít dočasné pohledy</translation>
+    </message>
+    <message>
+        <source>Stopping and stepping in the debugger will automatically open source or disassembler views associated with the current location. Select this option to automatically close them when the debugger exits.</source>
+        <translation>Zastavení nebo spuštění jednotlivých kroků v ladiči automaticky otevře pohledy se zdrojovým textem nebo disassembler dotyčného místa. Toto nastavení zapněte, pro jejich automatické zavření při ukončení ladiče.</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
@@ -59552,11 +60816,11 @@ nelze najít v cestě.</translation>
     </message>
     <message>
         <source>Enable a full file path in breakpoints by default also for GDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Povolit úplnou souborovou cestu k bodu přerušení ve výchozím nastavení i pro GDB.</translation>
     </message>
     <message>
         <source>Set breakpoints using a full absolute path</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit úplnou absolutní cestu pro body přerušení jako výchozí</translation>
     </message>
     <message>
         <source>Register Qt Creator for debugging crashed applications.</source>
@@ -59565,6 +60829,14 @@ nelze najít v cestě.</translation>
     <message>
         <source>Use Qt Creator for post-mortem debugging</source>
         <translation>Použít Qt Creator pro ladění - následný rozbor</translation>
+    </message>
+    <message>
+        <source>Warn when debugging &quot;Release&quot; builds</source>
+        <translation>Varovat při ladění sestavení, která představují vydání (Release)</translation>
+    </message>
+    <message>
+        <source>Show a warning when starting the debugger on a binary with insufficient debug information.</source>
+        <translation>Ukázat varování při spuštění ladění pro spustitelný soubor s nedostatečnými ladicími informacemi.</translation>
     </message>
     <message>
         <source>Maximum stack depth:</source>
@@ -59583,15 +60855,15 @@ nelze najít v cestě.</translation>
     <name>ImageViewer</name>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
-        <translation type="unfinished"></translation>
+        <translation>Barva při %1,%2: červená: %3 zelená: %4 modrá: %5 alfa: %6</translation>
     </message>
     <message>
         <source>Size: %1x%2, %3 byte, format: %4, depth: %5</source>
-        <translation type="unfinished"></translation>
+        <translation>Velikost: %1x%2, %3 bytů, Formát: %4, Hloubka: %5</translation>
     </message>
     <message>
         <source>&lt;Click to display color&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Klepněte pro zobrazení barvy&gt;</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -59613,11 +60885,7 @@ nelze najít v cestě.</translation>
     <name>DiffEditor::Internal::DiffEditorEditable</name>
     <message>
         <source>Ignore Whitespaces</source>
-        <translation>Nevšímat si prázdných míst</translation>
-    </message>
-    <message>
-        <source>Context Lines:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Nevšímat si prázdných míst</translation>
     </message>
 </context>
 <context>
@@ -59642,6 +60910,10 @@ nelze najít v cestě.</translation>
 </context>
 <context>
     <name>DiffEditor::DiffViewEditorWidget</name>
+    <message>
+        <source>No difference</source>
+        <translation>Žádný rozdíl</translation>
+    </message>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -59649,6 +60921,10 @@ nelze najít v cestě.</translation>
             <numerusform>Přeskočeny %n řádky...</numerusform>
             <numerusform>Přeskočeno %n řádků...</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>[%1] %2</source>
+        <translation>[%1] %2</translation>
     </message>
 </context>
 <context>
@@ -59737,11 +61013,11 @@ Vzdálený: %4</translation>
     </message>
     <message>
         <source>No changes found. </source>
-        <translation>Beze změn.</translation>
+        <translation type="obsolete">Beze změn.</translation>
     </message>
     <message>
         <source>Skip</source>
-        <translation>Přeskočit</translation>
+        <translation type="obsolete">Přeskočit</translation>
     </message>
     <message>
         <source>Merge tool process finished successully.</source>
@@ -59749,37 +61025,37 @@ Vzdálený: %4</translation>
     </message>
     <message>
         <source>Continue Rebase</source>
-        <translation>Pokračovat v přeskládání</translation>
+        <translation type="obsolete">Pokračovat v přeskládání</translation>
     </message>
     <message>
         <source>Continue rebase?</source>
-        <translation>Pokračovat v přeskládání?</translation>
+        <translation type="obsolete">Pokračovat v přeskládání?</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation>Pokračovat</translation>
+        <translation type="obsolete">Pokračovat</translation>
     </message>
     <message>
         <source>Continue Revert</source>
-        <translation>Pokračovat ve vracení změn</translation>
+        <translation type="obsolete">Pokračovat ve vracení změn</translation>
     </message>
     <message>
         <source>You need to commit changes to finish revert.
 Commit now?</source>
-        <translation>Pro dokončení vrácení změn je nutno provést zápis. Chcete nyní zapsat?</translation>
+        <translation type="obsolete">Pro dokončení vrácení změn je nutno provést zápis. Chcete nyní zapsat?</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation>Zapsat (commit)</translation>
+        <translation type="obsolete">Zapsat (commit)</translation>
     </message>
     <message>
         <source>Continue Cherry-Picking</source>
-        <translation>Pokračovat ve výběrovém slučování</translation>
+        <translation type="obsolete">Pokračovat ve výběrovém slučování</translation>
     </message>
     <message>
         <source>You need to commit changes to finish cherry-picking.
 Commit now?</source>
-        <translation>Pro dokončení výběrového slučování je nutno provést zápis. Chcete nyní zapsat?</translation>
+        <translation type="obsolete">Pro dokončení výběrového slučování je nutno provést zápis. Chcete nyní zapsat?</translation>
     </message>
     <message>
         <source>Merge tool process terminated with exit code %1</source>
@@ -59812,19 +61088,19 @@ Commit now?</source>
     <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Each line defines a macro. Format is MACRO[=VALUE]</source>
-        <translation type="unfinished"></translation>
+        <translation>každý řádek definuje makro. Formát je MAKRO[=HODNOTA]</translation>
     </message>
     <message>
         <source>Each line adds a global header lookup path.</source>
-        <translation type="unfinished"></translation>
+        <translation>každý řádek přidá globální vyhledávací cestu k záhlaví (Header).</translation>
     </message>
     <message>
         <source>Comma-separated list of flags that turn on C++11 support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Čárkou oddělený seznam příznaků, které zapínají podporu pro C++.</translation>
     </message>
     <message>
         <source>Comma-separated list of mkspecs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Čárkou oddělený seznam mkspecs.</translation>
     </message>
     <message>
         <source>&amp;Compiler path:</source>
@@ -59832,7 +61108,7 @@ Commit now?</source>
     </message>
     <message>
         <source>&amp;Make path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cesta k &amp;Make:</translation>
     </message>
     <message>
         <source>&amp;ABI:</source>
@@ -59840,19 +61116,19 @@ Commit now?</source>
     </message>
     <message>
         <source>&amp;Predefined macros:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Přednastavená makra:</translation>
     </message>
     <message>
         <source>&amp;Header paths:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cesty k hlavičkám (&amp;Header):</translation>
     </message>
     <message>
         <source>C++11 &amp;flags:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pří&amp;znaky C++:</translation>
     </message>
     <message>
         <source>&amp;Qt mkspecs:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Qt-mkspecs:</translation>
     </message>
 </context>
 <context>
@@ -59921,6 +61197,10 @@ Commit now?</source>
     <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs build</source>
+        <translation type="obsolete">Sestavení Qbs</translation>
+    </message>
+    <message>
+        <source>Qbs Build</source>
         <translation>Sestavení Qbs</translation>
     </message>
 </context>
@@ -59928,13 +61208,21 @@ Commit now?</source>
     <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
     <message>
         <source>Qbs</source>
-        <translation>Qbs</translation>
+        <translation type="obsolete">Qbs</translation>
+    </message>
+    <message>
+        <source>Qbs Build</source>
+        <translation>Sestavení Qbs</translation>
     </message>
 </context>
 <context>
     <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs clean</source>
+        <translation type="obsolete">Pročištění Qbs</translation>
+    </message>
+    <message>
+        <source>Qbs Clean</source>
         <translation>Pročištění Qbs</translation>
     </message>
 </context>
@@ -59942,7 +61230,11 @@ Commit now?</source>
     <name>QbsProjectManager::Internal::QbsCleanStepFactory</name>
     <message>
         <source>Qbs</source>
-        <translation>Qbs</translation>
+        <translation type="obsolete">Qbs</translation>
+    </message>
+    <message>
+        <source>Qbs Clean</source>
+        <translation>Pročištění Qbs</translation>
     </message>
 </context>
 <context>
@@ -59961,6 +61253,30 @@ Commit now?</source>
     <message>
         <source>Build</source>
         <translation>Sestavení</translation>
+    </message>
+    <message>
+        <source>Build File</source>
+        <translation>Sestavit soubor</translation>
+    </message>
+    <message>
+        <source>Build File &quot;%1&quot;</source>
+        <translation>Sestavit soubor &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+B</source>
+        <translation>Ctrl+Alt+B</translation>
+    </message>
+    <message>
+        <source>Build Product</source>
+        <translation>Sestavit produkt</translation>
+    </message>
+    <message>
+        <source>Build Product &quot;%1&quot;</source>
+        <translation>Sestavit produkt &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+Shift+B</source>
+        <translation>Ctrl+Alt+Shift+B</translation>
     </message>
 </context>
 <context>
@@ -60165,7 +61481,7 @@ Commit now?</source>
     </message>
     <message>
         <source>This .qml file contains features which are not supported by Qt Quick Designer</source>
-        <translation>Tento soubor .qml obsahuje funkce nepodporované Qt Quick Designer</translation>
+        <translation>Tento soubor .qml obsahuje funkce nepodporované Qt Quick Designerem</translation>
     </message>
 </context>
 <context>
@@ -60378,22 +61694,18 @@ Commit now?</source>
     </message>
     <message>
         <source>Assets</source>
-        <translation type="unfinished"></translation>
+        <translation>Výhody</translation>
     </message>
     <message>
         <source>XML Source</source>
         <translation>Zdroj XML</translation>
-    </message>
-    <message>
-        <source>Bar Descriptor</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Qnx::Internal::BarDescriptorEditorFactory</name>
     <message>
         <source>Bar descriptor editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor popisu pro Bar</translation>
     </message>
 </context>
 <context>
@@ -60403,12 +61715,116 @@ Commit now?</source>
         <translation>Oprávnění</translation>
     </message>
     <message>
+        <source>BlackBerry Messenger</source>
+        <translation>Posel BlackBerry</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to connect to the BBM Social Platform to access BBM contact lists and user profiles, invite BBM contacts to download your app, initiate BBM chats and share content from within your app, or stream data between apps in real time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu spojení s BBM Social Platform kvůli přístupu ke kontaktním seznamům BBM a k uživatelským profilům, pozvání kontaktů BBM ke stažení vašeho programu, spuštění chatů BBM a sdílení obsahu z vašeho programu, nebo výměnu dat mezi aplikacemi ve skutečném čase.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Kalendář</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access the calendar on the device. This access includes viewing, adding, and deleting calendar appointments.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup ke kalendáři na zařízení. Tento přístup zahrnuje prohlížení, přidávání nebo mazání termínů.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to take pictures, record video, and use the flash.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu fotografování, nahrávání videí a používání blesku.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Contacts</source>
+        <translation>Kontakty</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access the contacts stored on the device. This access includes viewing, creating, and deleting the contacts.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup ke kontaktům uloženým v zařízení. Tento přístup zahrnuje prohlížení, přidávání nebo mazání kontaktů.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access device identifiers such as serial number and PIN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k identifikátorům zařízení, jako jsou sériové číslo a PIN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Email and PIN Messages</source>
+        <translation>E-mail a zprávy PIN</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access the email and PIN messages stored on the device. This access includes viewing, creating, sending, and deleting the messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k e-mailům a ke zprávám PIN uloženým v zařízení. Tento přístup zahrnuje prohlížení, přidávání nebo mazání zpráv.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access the current GPS location of the device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k současnému umístění GPS zařízení.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to use Wi-fi, wired, or other connections to a destination that is not local on the user&apos;s device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k Wi-fi, drátové a jiné spojení s cílem, jenž není místní.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Umístění</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access the device&apos;s current or saved locations.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k současnému nebo uloženému umístění GPS zařízení.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to record sound using the microphone.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu nahrávání zvuku pomocí mikrofonu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Notebooks</source>
+        <translation>Notebooky</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access the content stored in the notebooks on the device. This access includes adding and deleting entries and content.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k obsahu uloženému v poznámkovém bloku zařízení. Tento přístup zahrnuje přidávání a mazání záznamů a obsahu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Post a notification to the notifications area of the screen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Posílání oznámení do odpovídající oznamovací oblasti na obrazovce.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Push</source>
+        <translation>Odvést (push)</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to use the Push Service with the BlackBerry Internet Service. This access allows the app to receive and request push messages. To use the Push Service with the BlackBerry Internet Service, you must register with BlackBerry. When you register, you receive a confirmation email message that contains information that your application needs to receive and request push messages. For more information about registering, visit https://developer.blackberry.com/services/push/. If you&apos;re using the Push Service with the BlackBerry Enterprise Server or the BlackBerry Device Service, you don&apos;t need to register with BlackBerry.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run When Backgrounded</source>
+        <translation>Provádět na pozadí</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows background processing. Without this permission, the app is stopped when the user switches focus to another app. Apps that use this permission are rigorously reviewed for acceptance to BlackBerry App World storefront for their use of power.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní zpracování na pozadí. Bez tohoto oprávnění je program zastaven, když uživatel změní zaměření na jinou aplikaci. Programy, které mají toto oprávnění, jsou přísně hodnoceny BlackBerry App World Storefront ohledně spotřeby elektrické energie.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Shared Files</source>
+        <translation>Sdílené soubory</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access pictures, music, documents, and other files stored on the user&apos;s device, at a remote storage provider, on a media card, or in the cloud.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k obrázkům, hudbě, dokumentům a jiným souborům, které jsou uloženy v zařízení, u vzdáleného poskytovatele ukládacího prostoru, na ukládací kartě nebo v něčem, čemu se říká Cloud.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Text Messages</source>
+        <translation>Textové zprávy</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows this app to access the text messages stored on the device. The access includes viewing, creating, sending, and deleting text messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umožní tomuto programu přístup k textovým zprávám uloženým v zařízení. Tento přístup zahrnuje prohlížení, vytváření, posílání nebo mazání textových zpráv.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
         <source>Files</source>
-        <translation>Soubory</translation>
+        <translation type="obsolete">Soubory</translation>
     </message>
     <message>
         <source>Read and write files that are shared between all applications run by the current user.</source>
-        <translation>Číst a zapisovat soubory sdílené mezi všemi programy spouštěnými nynějším uživatelem.</translation>
+        <translation type="obsolete">Číst a zapisovat soubory sdílené mezi všemi programy spouštěnými nynějším uživatelem.</translation>
     </message>
     <message>
         <source>Microphone</source>
@@ -60416,7 +61832,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Access the audio stream from the microphone.</source>
-        <translation>Přistupovat ke zvukovéhmu proudu z mikrofonu.</translation>
+        <translation type="obsolete">Přistupovat ke zvukovéhmu proudu z mikrofonu.</translation>
     </message>
     <message>
         <source>GPS Location</source>
@@ -60424,7 +61840,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Read the current location of the device.</source>
-        <translation>Číst současné umístění zařízení.</translation>
+        <translation type="obsolete">Číst současné umístění zařízení.</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -60432,23 +61848,19 @@ Commit now?</source>
     </message>
     <message>
         <source>Capture images and video using the cameras.</source>
-        <translation>Zachytávejte obrázky a videa pomocí kamer.</translation>
+        <translation type="obsolete">Zachytávejte obrázky a videa pomocí kamer.</translation>
     </message>
     <message>
         <source>Internet</source>
         <translation>Internet</translation>
     </message>
     <message>
-        <source>Use a Wi-Fi, wired, or other connection to a destination that is not local.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Play Sounds</source>
-        <translation>Přehrávat zvuky</translation>
+        <translation type="obsolete">Přehrávat zvuky</translation>
     </message>
     <message>
         <source>Play an audio stream.</source>
-        <translation>Přehrávat zvukový proud.</translation>
+        <translation type="obsolete">Přehrávat zvukový proud.</translation>
     </message>
     <message>
         <source>Post Notifications</source>
@@ -60456,23 +61868,11 @@ Commit now?</source>
     </message>
     <message>
         <source>Post a notification to the notifications area of the screen.</source>
-        <translation>Dát na obrazovce oznámení do oblasti s oznámeními.</translation>
-    </message>
-    <message>
-        <source>Set Audio Volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change the volume of an audio stream being played.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Dát na obrazovce oznámení do oblasti s oznámeními.</translation>
     </message>
     <message>
         <source>Device Identifying Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Access unique device identifying information (e.g. PIN).</source>
-        <translation type="unfinished"></translation>
+        <translation>Informace k rozpoznání zařízení</translation>
     </message>
 </context>
 <context>
@@ -60494,90 +61894,98 @@ Commit now?</source>
     <name>Qnx::Internal::BlackBerryConfiguration</name>
     <message>
         <source>The following errors occurred while setting up BB10 Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Při nastavování nastavení BB10 se vyskytly následující chyby:</translation>
     </message>
     <message>
         <source>- No Qt version found.</source>
-        <translation type="unfinished"></translation>
+        <translation>- Nenalezena žádná verze Qt.</translation>
     </message>
     <message>
         <source>- No GCC compiler found.</source>
-        <translation type="unfinished"></translation>
+        <translation>- Nenalezen žádný překladač GCC.</translation>
     </message>
     <message>
         <source>- No GDB debugger found for BB10 Device.</source>
-        <translation type="unfinished"></translation>
+        <translation>- Nenalezen žádný překladač GDB pro zařízení BB10.</translation>
     </message>
     <message>
         <source>- No GDB debugger found for BB10 Simulator.</source>
-        <translation type="unfinished"></translation>
+        <translation>- Nenalezen žádný překladač GDB pro simulátor BB10.</translation>
     </message>
     <message>
-        <source>Cannot Setup BB10 Configuration</source>
-        <translation type="unfinished"></translation>
+        <source>Cannot Set up BB10 Configuration</source>
+        <translation>Nelze nastavit nastavení BB10</translation>
     </message>
     <message>
-        <source>Qt Version Already Known</source>
-        <translation type="unfinished"></translation>
+        <source>This Qt version was already registered.</source>
+        <translation>Tato verze Qt již byla přihlášena.</translation>
     </message>
     <message>
-        <source>This Qt version was already registered</source>
-        <translation>Tato verze Qt již byla přihlášena</translation>
-    </message>
-    <message>
-        <source>Invalid Qt version</source>
+        <source>Invalid Qt Version</source>
         <translation>Neplatná verze Qt</translation>
     </message>
     <message>
-        <source>Unable to add BlackBerry Qt version</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to add BlackBerry Qt version.</source>
+        <translation>Nepodařilo se přidat žádnou verzi Qt pro BlackBerry.</translation>
+    </message>
+    <message>
+        <source>This compiler was already registered.</source>
+        <translation>Tento překladač již byl přihlášen.</translation>
+    </message>
+    <message>
+        <source>This kit was already registered.</source>
+        <translation>Tato sada již byla přihlášena.</translation>
+    </message>
+    <message>
+        <source>Qt Version Already Known</source>
+        <translation>Verze Qt již známa</translation>
+    </message>
+    <message>
+        <source>This Qt version was already registered</source>
+        <translation type="obsolete">Tato verze Qt již byla přihlášena</translation>
+    </message>
+    <message>
+        <source>Invalid Qt version</source>
+        <translation type="obsolete">Neplatná verze Qt</translation>
     </message>
     <message>
         <source>Compiler Already Known</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This Compiler was already registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Překladač již znám</translation>
     </message>
     <message>
         <source>Kit Already Known</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This Kit was already registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Sada již známa</translation>
     </message>
     <message>
         <source>BlackBerry 10 (%1) - Simulator</source>
-        <translation type="unfinished"></translation>
+        <translation>BlackBerry 10 (%1) - Simulátor</translation>
     </message>
     <message>
         <source>BlackBerry 10 (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>BlackBerry 10 (%1)</translation>
     </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryCsjRegistrar</name>
     <message>
         <source>Failed to start blackberry-signer process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se spustit podpisový proces pro BlackBerry.</translation>
     </message>
     <message>
         <source>Process timed out.</source>
-        <translation type="unfinished"></translation>
+        <translation>Překročení časového omezení u procesu.</translation>
     </message>
     <message>
         <source>Child process has crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podřízený proces spadl.</translation>
     </message>
     <message>
         <source>Process I/O error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstupní/Výstupní chyba procesu.</translation>
     </message>
     <message>
         <source>Unknown process error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámá chyba procesu.</translation>
     </message>
 </context>
 <context>
@@ -60605,11 +62013,15 @@ Commit now?</source>
     <name>Qnx::Internal::QNXPlugin</name>
     <message>
         <source>Bar descriptor file (BlackBerry)</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor s popisem Bar (BlackBerry)</translation>
     </message>
     <message>
-        <source>Could not add mime-type for bar-descriptor.xml editor</source>
-        <translation type="unfinished"></translation>
+        <source>Could not add mime-type for bar-descriptor.xml editor.</source>
+        <translation>Nepodařilo se přidat MIME-Typ pro editor Bar-Descriptor.xml.</translation>
+    </message>
+    <message>
+        <source>Bar Descriptor</source>
+        <translation>Bar-Deskriptor</translation>
     </message>
 </context>
 <context>
@@ -60652,11 +62064,1942 @@ Commit now?</source>
     <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Display context-sensitive help or type information on mouseover.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazit kontextově citlivou nápovědu nebo informace o typu, když se ukazovátko myši nachází nad prvkem.</translation>
     </message>
     <message>
         <source>Display context-sensitive help or type information on Shift+Mouseover.</source>
+        <translation>Zobrazit kontextově citlivou nápovědu nebo informace o typu, když se ukazovátko myši nachází nad prvkem s je stisknuta přepínací klávesa Shift.</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::ReadOnlyFilesDialog</name>
+    <message>
+        <source>Files Without Write Permissions</source>
+        <translation>Soubory bez oprávnění pro zápis</translation>
+    </message>
+    <message>
+        <source>The following files have no write permissions. Do you want to change the permissions?</source>
+        <translation>Následující soubory jsou chráněny proti zápisu. Chcete oprávnění změnit?</translation>
+    </message>
+    <message>
+        <source>Make Writable</source>
+        <translation>Udělat zapisovatelným</translation>
+    </message>
+    <message>
+        <source>Open with VCS</source>
+        <translation>Otevřít s pomocí systému na správu verzí (VCS) (%1)</translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation>Uložit jako</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Cesta</translation>
+    </message>
+    <message>
+        <source>Select all, if possible: </source>
+        <translation>Vybrat vše, je-li to možné: </translation>
+    </message>
+    <message>
+        <source>Mixed</source>
+        <translation>Smíšený</translation>
+    </message>
+    <message>
+        <source>Failed to %1 File</source>
+        <translation>Nepodařilo se: %1 Soubor</translation>
+    </message>
+    <message>
+        <source>%1 file %2 from version control system %3 failed.
+</source>
+        <translation>Neúspěch při %1 souboru %2 systému na správu verzí %3.
+</translation>
+    </message>
+    <message>
+        <source>No Version Control System Found</source>
+        <translation>Nepodařilo se najít žádný systém na správu verzí</translation>
+    </message>
+    <message>
+        <source>Cannot open file %1 from version control system.
+No version control system found.
+</source>
+        <translation>Soubor %1 ze systému na správu verzí se nepodařilo otevřít.
+Nepodařilo se najít žádný systém na správu verzí.</translation>
+    </message>
+    <message>
+        <source>Cannot Set Permissions</source>
+        <translation>Chyba při nastavení oprávnění pro přístup k souboru</translation>
+    </message>
+    <message>
+        <source>Cannot set permissions for %1 to writable.
+</source>
+        <translation>Soubor %1 se nepodařilo udělat zapisovatelný.</translation>
+    </message>
+    <message>
+        <source>Cannot Save File</source>
+        <translation>Soubor nelze uložit</translation>
+    </message>
+    <message>
+        <source>Cannot save file %1
+</source>
+        <translation>Soubor %1 nelze uložit
+</translation>
+    </message>
+    <message>
+        <source>Canceled Changing Permissions</source>
+        <translation>Změna oprávnění zrušena</translation>
+    </message>
+    <message>
+        <source>Could Not Change Permissions on Some Files</source>
+        <translation>Nepodařilo se změniit oprávnění k některým souborům</translation>
+    </message>
+    <message>
+        <source>
+See details for a complete list of files.</source>
+        <translation>
+Úplný seznam souborů naleznete v podrobnostech.</translation>
+    </message>
+    <message>
+        <source>&amp;Change Permission</source>
+        <translation>&amp;Změnit oprávnění</translation>
+    </message>
+    <message>
+        <source>The following files are not checked out yet.
+Do you want to check them out now?</source>
+        <translation>Následující soubory ještě nejsou načteny.
+Chcete je nyní načíst?</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::SymbolPathsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br/&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server, to also use a local symbol cache.&lt;br/&gt;A fast internet connection is required for this to work smoothly,&lt;br/&gt;and a delay might occur when connecting for the first time and caching the symbols.&lt;/p&gt;&lt;p&gt;What would you like to set up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Local Symbol Cache</source>
+        <translation>Použít místní symbolickou vyrovnávací paměť</translation>
+    </message>
+    <message>
+        <source>Use Microsoft Symbol Server</source>
+        <translation>Použít Microsoft Symbol Server</translation>
+    </message>
+    <message>
+        <source>Do not ask again</source>
+        <translation>Neptat se znovu</translation>
+    </message>
+</context>
+<context>
+    <name>Gerrit::Internal::GerritPushDialog</name>
+    <message>
+        <source>Push to Gerrit</source>
+        <translation>Odvést do Gerritu...</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Local repository:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Místní skladiště&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Destination:</source>
+        <translation>Cíl:</translation>
+    </message>
+    <message>
+        <source>R&amp;emote:</source>
+        <translation>Vz&amp;dálený:</translation>
+    </message>
+    <message>
+        <source>&amp;Branch:</source>
+        <translation>&amp;Větev</translation>
+    </message>
+    <message>
+        <source>&amp;Topic:</source>
+        <translation>&amp;Téma:</translation>
+    </message>
+    <message>
+        <source>&amp;Draft</source>
+        <translation>&amp;Návrh</translation>
+    </message>
+    <message>
+        <source>Number of commits</source>
+        <translation>Počet zápisů</translation>
+    </message>
+    <message>
+        <source>&amp;Push up to commit:</source>
+        <translation>&amp;Odvést do zápisu (commit):</translation>
+    </message>
+    <message>
+        <source>Pushes the selected commit and all dependent commits.</source>
+        <translation>Odvede vybraný zápis (commit) a všechny závislé zápisy.</translation>
+    </message>
+    <message>
+        <source>&amp;Reviewers:</source>
+        <translation>&amp;Posuzovatel:</translation>
+    </message>
+    <message>
+        <source>Comma-separated list of reviewers.
+
+Partial names can be used if they are unambiguous.</source>
+        <translation>Čárkou oddělený seznam posuzovatelů.
+
+Lze používat části jmen, pokud jsou jednoznačné.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Local repository:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Místní skladiště:&lt;/b&gt; %1</translation>
+    </message>
+    <message>
+        <source>Number of commits between HEAD and %1: %2</source>
+        <translation>Počet zápisů (commit) mezi HEAD a %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::AuthenticationDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>User name:</source>
+        <translation>Uživatelské jméno:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Heslo:</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Machine type:</source>
+        <translation>Typ stroje:</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>Textový štítek</translation>
+    </message>
+    <message>
+        <source>Free ports:</source>
+        <translation>Volné porty:</translation>
+    </message>
+    <message>
+        <source>Physical Device</source>
+        <translation>Fyzické zařízení</translation>
+    </message>
+    <message>
+        <source>You will need at least one port for QML debugging.</source>
+        <translation>Pro ladění QML potřebujete alespoň jeden port.</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
+    <message>
+        <source>Install root:</source>
+        <translation>Install root:</translation>
+    </message>
+    <message>
+        <source>Remove first</source>
+        <translation>Odstranit jako první</translation>
+    </message>
+    <message>
+        <source>Dry run</source>
+        <translation>Spustit na zkoušku</translation>
+    </message>
+    <message>
+        <source>Keep going</source>
+        <translation>Pokračovat</translation>
+    </message>
+    <message>
+        <source>Qbs Install Prefix</source>
+        <translation>Předpona instalace Qbs</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
+    </message>
+</context>
+<context>
+    <name>DebugViewWidget</name>
+    <message>
+        <source>Debug</source>
+        <translation>Ladění</translation>
+    </message>
+    <message>
+        <source>Model Log</source>
+        <translation>Záznam modelu</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Smazat</translation>
+    </message>
+    <message>
+        <source>Instance Notifications</source>
+        <translation>Oznámení instance</translation>
+    </message>
+    <message>
+        <source>Instance Errors</source>
+        <translation>Chyby instance</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Povoleno</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BarDescriptorEditorAssetsWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>Přidat...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Odstranit</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Cesta</translation>
+    </message>
+    <message>
+        <source>Destination</source>
+        <translation>Cíl</translation>
+    </message>
+    <message>
+        <source>Entry-Point</source>
+        <translation>Vstupní místo</translation>
+    </message>
+    <message>
+        <source>Select File to Add</source>
+        <translation>Vybrat soubor k přidání</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BarDescriptorEditorAuthorInformationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Author:</source>
+        <translation>Autor:</translation>
+    </message>
+    <message>
+        <source>Author ID:</source>
+        <translation>ID autora:</translation>
+    </message>
+    <message>
+        <source>Set from debug token...</source>
+        <translation>Nastavit ze symbolu pro ladění...</translation>
+    </message>
+    <message>
+        <source>Select Debug Token</source>
+        <translation>Vybrat symbol pro ladění</translation>
+    </message>
+    <message>
+        <source>Debug token:</source>
+        <translation>Symbol pro ladění:</translation>
+    </message>
+    <message>
+        <source>Error Reading Debug Token</source>
+        <translation>Chyba při čtení symbolu pro ladění</translation>
+    </message>
+    <message>
+        <source>There was a problem reading debug token.</source>
+        <translation>Při čtení symbolu pro ladění se vyskytla chyba.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BarDescriptorEditorEntryPointWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Název:</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation>Popis:</translation>
+    </message>
+    <message>
+        <source>Icon:</source>
+        <translation>Ikona:</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Smazat</translation>
+    </message>
+    <message>
+        <source>Splash screens:</source>
+        <translation>Uvítací obrazovky:</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>Přidat...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Odstranit</translation>
+    </message>
+    <message>
+        <source>Images (*.jpg *.png)</source>
+        <translation>Obrázky (*.jpg *.png)</translation>
+    </message>
+    <message>
+        <source>Select Splash Screen</source>
+        <translation>Vybrat uvítací obrazovku</translation>
+    </message>
+    <message>
+        <source>&lt;font color=&quot;red&quot;&gt;Could not open &apos;%1&apos; for reading.&lt;/font&gt;</source>
+        <translation>&lt;font color=&quot;red&quot;&gt;Nepodařilo se otevřít &apos;%1&apos; pro čtení.&lt;/font&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;font color=&quot;red&quot;&gt;The selected image is too big (%1x%2). The maximum size is %3x%4 pixels.&lt;/font&gt;</source>
+        <translation>&lt;font color=&quot;red&quot;&gt;Vybraný obrázek je příliš velký (%1x%2). Největší možná velikost je %3x%4 pixelů.&lt;/font&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BarDescriptorEditorEnvironmentWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Device Environment</source>
+        <translation>Prostředí zařízení</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BarDescriptorEditorGeneralWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Orientation:</source>
+        <translation>Natočení:</translation>
+    </message>
+    <message>
+        <source>Chrome:</source>
+        <translation>Chrome:</translation>
+    </message>
+    <message>
+        <source>Transparent main window</source>
+        <translation>Průhledné hlavní okno</translation>
+    </message>
+    <message>
+        <source>Application Arguments:</source>
+        <translation>Argumenty pro program:</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Výchozí</translation>
+    </message>
+    <message>
+        <source>Auto-orient</source>
+        <translation>Automatické natočení</translation>
+    </message>
+    <message>
+        <source>Landscape</source>
+        <translation>Na šířku</translation>
+    </message>
+    <message>
+        <source>Portrait</source>
+        <translation>Na výšku</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Obvyklé</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Žádný</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BarDescriptorEditorPackageInformationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Package ID:</source>
+        <translation>ID balíčku:</translation>
+    </message>
+    <message>
+        <source>Package version:</source>
+        <translation>Verze balíčku:</translation>
+    </message>
+    <message>
+        <source>Package build ID:</source>
+        <translation>ID sestavení balíčku:</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BarDescriptorEditorPermissionsWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulář</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Vybrat vše</translation>
+    </message>
+    <message>
+        <source>Deselect All</source>
+        <translation>Odznačit vše</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySetupWizardDevicePage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>Stránka průvodce</translation>
+    </message>
+    <message>
+        <source>Device name:</source>
+        <translation>Název zařízení:</translation>
+    </message>
+    <message>
+        <source>IP or host name of the device</source>
+        <translation>IP nebo název hostitelského počítače zařízení</translation>
+    </message>
+    <message>
+        <source>Device IP address:</source>
+        <translation>Adresa IP zařízení:</translation>
+    </message>
+    <message>
+        <source>Device password:</source>
+        <translation>Heslo k zařízení:</translation>
+    </message>
+    <message>
+        <source>The password you use to unlock your device</source>
+        <translation>Heslo pro odemknutí zařízení</translation>
+    </message>
+    <message>
+        <source>Physical device</source>
+        <translation>Fyzické zařízení</translation>
+    </message>
+    <message>
+        <source>Simulator</source>
+        <translation>Simulátor</translation>
+    </message>
+    <message>
+        <source>Configure BlackBerry Device Connection</source>
+        <translation>Nastavit spojení se zařízením BlackBerry</translation>
+    </message>
+    <message>
+        <source>BlackBerry Device</source>
+        <translation>Zařízení BlackBerry</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySetupWizardFinishPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>Stránka průvodce</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Stav</translation>
+    </message>
+    <message>
+        <source>Your environment is ready to be configured.</source>
+        <translation>Vaše prostředí je připraveno k nastavování.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySetupWizardKeysPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>Stránka průvodce</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obdržet klíče&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Musíte objednat dva soubory CSJ u BlackBerry, což uděláte na této &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;stránce&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>PBDT CSJ file:</source>
+        <translation>Soubor PBDT CSJ:</translation>
+    </message>
+    <message>
+        <source>RDK CSJ file:</source>
+        <translation>Soubor RDK CSJ:</translation>
+    </message>
+    <message>
+        <source>CSJ PIN:</source>
+        <translation>PIN CSJ:</translation>
+    </message>
+    <message>
+        <source>The PIN you provided on the key request website</source>
+        <translation>Vámi na stránce při žádosti o klíč zadaný PIN</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Heslo:</translation>
+    </message>
+    <message>
+        <source>The password that will be used to access your keys and CSK files</source>
+        <translation>Heslo, které se má použít při přístupu k vašim klíčům a souborům CSK</translation>
+    </message>
+    <message>
+        <source>Confirm password:</source>
+        <translation>Potvrdit heslo:</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Stav</translation>
+    </message>
+    <message>
+        <source>Register Signing Keys</source>
+        <translation>Přihlásit klíč k podpisu</translation>
+    </message>
+    <message>
+        <source>Passwords do not match.</source>
+        <translation>Hesla se neshodují.</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>This wizard will be closed and you will be taken to the BlackBerry key request web page. Do you want to continue?</source>
+        <translation>Průvodce nyní bude zavřen a vy budete zavedeni na stránku BlackBerry, kde se žádá o klíč. Chcete pokračovat?</translation>
+    </message>
+    <message>
+        <source>Browse CSJ File</source>
+        <translation>Procházet soubor CSJ</translation>
+    </message>
+    <message>
+        <source>CSJ files (*.csj)</source>
+        <translation>Soubory CSJ (*.csj)</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySigningPasswordsDialog</name>
+    <message>
+        <source>Package signing passwords</source>
+        <translation>Hesla k podepsání balíčku</translation>
+    </message>
+    <message>
+        <source>CSK password:</source>
+        <translation>Heslo CSK:</translation>
+    </message>
+    <message>
+        <source>Keystore password:</source>
+        <translation>Heslo pro úložiště klíče:</translation>
+    </message>
+</context>
+<context>
+    <name>WindowPane</name>
+    <message>
+        <source>Window</source>
+        <translation>Okno</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Název</translation>
+    </message>
+</context>
+<context>
+    <name>CppQmlTypesLoader</name>
+    <message>
+        <source>%1 seems not to be encoded in UTF8 or has a BOM.</source>
+        <translation>%1 není kódován v UTF8, nebo nemá BOM.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJS::QrcParser</name>
+    <message>
+        <source>XML error on line %1, col %2: %3</source>
+        <translation>Chyba v XML na řádku %1, sloupec %2: %3</translation>
+    </message>
+    <message>
+        <source>The &lt;RCC&gt; root element is missing.</source>
+        <translation>Kořenový prvek (&lt;RCC&gt;) chybí.</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidAnalyzeSupport</name>
+    <message>
+        <source>No analyzer tool selected.</source>
+        <translation>Nevybrán žádný nástroj pro rozbor.</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidManifestEditor</name>
+    <message>
+        <source>General</source>
+        <translation>Obecné</translation>
+    </message>
+    <message>
+        <source>XML Source</source>
+        <translation>Zdroj XML</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidManifestEditorFactory</name>
+    <message>
+        <source>Android Manifest editor</source>
+        <translation>Editor manifestu pro Android</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidManifestEditorWidget</name>
+    <message>
+        <source>Package</source>
+        <translation>Balíček</translation>
+    </message>
+    <message>
+        <source>&lt;p align=&quot;justify&quot;&gt;Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Packages are usually defined using a hierarchical naming pattern, with levels in the hierarchy separated by periods (.) (pronounced &quot;dot&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In general, a package name begins with the top level domain name of the organization and then the organization&apos;s domain and then any subdomains listed in reverse order. The organization can then choose a specific name for their package. Package names should be all lowercase characters whenever possible.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;</source>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Vyberte, prosím, pro svůj program platný název balíčku (např. &quot;org.example.myapplication&quot;).&lt;/p&gt;
+&lt;p align=&quot;justify&quot;&gt;Balíčky jsou obvykle stanoveny hierarchickým pojmenovávacím vzorem, s úrovněmi hierarchie oddělenými tečkami (.) (vysloveno &quot;tečka&quot;).&lt;/p&gt;
+&lt;p align=&quot;justify&quot;&gt;Obecně začíná název balíčku vrcholovým názvem domény organizace, a potom pokračuje doménou organizace, a pak jakoukoli podřízenou doménou, uvedeno v obráceném pořadí. Organizace pak pro svůj balíček může zvolit zvláštní název. Názvy balíčků by měly být, když je to možné, tvořeny malými písmeny&lt;/p&gt;
+&lt;p align=&quot;justify&quot;&gt;Zvyklosti pro nedvojznačné názvy balíčků a pravidla pro pojmenovávání balíčků, když za název balíčku nelze použít přímo název internetové domény jsou popsány v oddíle 7.7 specifikace jazyka Java (Java Language Specification).&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Package name:</source>
+        <translation>Název balíčku:</translation>
+    </message>
+    <message>
+        <source>The package name is not valid.</source>
+        <translation>Název balíčku je neplatný.</translation>
+    </message>
+    <message>
+        <source>Version code:</source>
+        <translation>Kód verze:</translation>
+    </message>
+    <message>
+        <source>Version name:</source>
+        <translation>Název verze:</translation>
+    </message>
+    <message>
+        <source>Application</source>
+        <translation>Program</translation>
+    </message>
+    <message>
+        <source>Application name:</source>
+        <translation>Název programu:</translation>
+    </message>
+    <message>
+        <source>Run:</source>
+        <translation>Spuštění:</translation>
+    </message>
+    <message>
+        <source>Select low dpi icon</source>
+        <translation>Vybrat ikonu s nízkým dpi</translation>
+    </message>
+    <message>
+        <source>Select medium dpi icon</source>
+        <translation>Vybrat ikonu se středním dpi</translation>
+    </message>
+    <message>
+        <source>Select high dpi icon</source>
+        <translation>Vybrat ikonu s vysokým dpi</translation>
+    </message>
+    <message>
+        <source>Application icon:</source>
+        <translation>Symbol programu:</translation>
+    </message>
+    <message>
+        <source>Permissions</source>
+        <translation>Oprávnění</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Odstranit</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Přidat</translation>
+    </message>
+    <message>
+        <source>The structure of the android manifest file is corrupt. Expected a top level &apos;manifest&apos; node.</source>
+        <translation>Stavba souboru s manifestem pro Android je neplatná. Očekáván uzel &apos;manifest&apos; na nejhornější úrovni.</translation>
+    </message>
+    <message>
+        <source>The structure of the Android manifest file is corrupt. Expected an &apos;application&apos; and &apos;activity&apos; sub node.</source>
+        <translation>Stavba souboru s manifestem pro Android je poškozena. Očekávány poduzly &apos;application&apos; a &apos;activity&apos;.</translation>
+    </message>
+    <message>
+        <source>Could not parse file: &apos;%1&apos;</source>
+        <translation>Nepodařilo se zpracovat soubor: &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>%2: Could not parse file: &apos;%1&apos;</source>
+        <translation>%2: Nepodařilo se zpracovat soubor: &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Goto error</source>
+        <translation>Jít na chybu</translation>
+    </message>
+    <message>
+        <source>Choose Low DPI Icon</source>
+        <translation>Vybrat ikonu s nízkým dpi</translation>
+    </message>
+    <message>
+        <source>PNG images (*.png)</source>
+        <translation>Soubory s obrázky PNG (*.png)</translation>
+    </message>
+    <message>
+        <source>Choose Medium DPI Icon</source>
+        <translation>Vybrat ikonu se středním dpi</translation>
+    </message>
+    <message>
+        <source>Choose High DPI Icon</source>
+        <translation>Vybrat ikonu s vysokým dpi</translation>
+    </message>
+</context>
+<context>
+    <name>Android::AndroidPlugin</name>
+    <message>
+        <source>Android Manifest file</source>
+        <translation>Soubor s manifestem pro Android</translation>
+    </message>
+    <message>
+        <source>Could not add mime-type for AndroidManifest.xml editor.</source>
+        <translation>Nepodařilo se přidat MIME-Typ pro editor Android-Manifest.xml.</translation>
+    </message>
+</context>
+<context>
+    <name>BINEditor::BinEditorWidget</name>
+    <message>
+        <source>Memory at 0x%1</source>
+        <translation>Paměť při 0x%1</translation>
+    </message>
+    <message>
+        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
+        <translation>&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
+    </message>
+    <message>
+        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
+        <translation>&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
+        <translation>Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
+        <translation>Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
+    </message>
+    <message>
+        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
+        <translation>%1-bit&amp;nbsp;typ celého čísla</translation>
+    </message>
+    <message>
+        <source>Little Endian</source>
+        <translation>Malý endian</translation>
+    </message>
+    <message>
+        <source>Big Endian</source>
+        <translation>Velký endian</translation>
+    </message>
+    <message>
+        <source>Binary&amp;nbsp;value:</source>
+        <translation>Dvojková&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>Octal&amp;nbsp;value:</source>
+        <translation>Osmičková&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
+        <translation>Předchozí&amp;nbsp;dvojková&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
+        <translation>Předchozí&amp;nbsp;osmičková&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>Předchozí &lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>Předchozí &lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
+    </message>
+    <message>
+        <source>Copying Failed</source>
+        <translation>Kopírování se nezdařilo</translation>
+    </message>
+    <message>
+        <source>You cannot copy more than 4 MB of binary data.</source>
+        <translation>Nemůžete kopírovat více jak 4 MB binárních dat.</translation>
+    </message>
+    <message>
+        <source>Copy Selection as ASCII Characters</source>
+        <translation>Kopírovat výběr jako znaky ASCII</translation>
+    </message>
+    <message>
+        <source>Copy Selection as Hex Values</source>
+        <translation>Kopírovat výběr jako šestnáctkové hodnoty</translation>
+    </message>
+    <message>
+        <source>Set Data Breakpoint on Selection</source>
+        <translation>Nastavit bod přerušení dat na výběru</translation>
+    </message>
+    <message>
+        <source>Jump to Address in This Window</source>
+        <translation>Jít na adresu v tomto okně</translation>
+    </message>
+    <message>
+        <source>Jump to Address in New Window</source>
+        <translation>Jít na adresu v novém okně</translation>
+    </message>
+    <message>
+        <source>Jump to Address 0x%1 in This Window</source>
+        <translation>Jít na adresu 0x%1 v tomto okně</translation>
+    </message>
+    <message>
+        <source>Jump to Address 0x%1 in New Window</source>
+        <translation>Jít na adresu 0x%1 v novém okně</translation>
+    </message>
+</context>
+<context>
+    <name>Core::ICore</name>
+    <message>
+        <source> (%1)</source>
+        <translation> (%1)</translation>
+    </message>
+    <message>
+        <source>Qt Creator %1%2</source>
+        <translation>Qt Creator %1%2</translation>
+    </message>
+    <message>
+        <source>Based on Qt %1 (%2, %3 bit)</source>
+        <translation>Založeno na Qt %1 (%2, %3 bit)</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::ProgressManagerPrivate</name>
+    <message>
+        <source>Toggle Progress Details</source>
+        <translation>Přepnout podrobnosti postupu</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+0</source>
+        <translation>Ctrl+Shift+0</translation>
+    </message>
+    <message>
+        <source>Alt+Shift+0</source>
+        <translation>Alt+Shift+0</translation>
+    </message>
+</context>
+<context>
+    <name>Core::VariableManager</name>
+    <message>
+        <source>%1: Full path including file name.</source>
+        <translation>%1: Úplná cesta včetně názvu souboru.</translation>
+    </message>
+    <message>
+        <source>%1: Full path excluding file name.</source>
+        <translation>%1: Úplná cesta vyjma názvu souboru.</translation>
+    </message>
+    <message>
+        <source>%1: File name without path.</source>
+        <translation>%1: Název souboru bez cesty.</translation>
+    </message>
+    <message>
+        <source>%1: File base name without path and suffix.</source>
+        <translation>%1: Základní název souboru bez cesty a přípony.</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppEditorPlugin</name>
+    <message>
+        <source>C++ Class</source>
+        <translation>Třída C++</translation>
+    </message>
+    <message>
+        <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
+        <translation>Vytvoří hlavičku C++ a zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
+    </message>
+    <message>
+        <source>Creates a C++ source file that you can add to a C++ project.</source>
+        <translation>Vytvoří zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
+    </message>
+    <message>
+        <source>C++ Source File</source>
+        <translation>Zdrojový soubor C++</translation>
+    </message>
+    <message>
+        <source>Creates a C++ header file that you can add to a C++ project.</source>
+        <translation>Vytvoří hlavičkový soubor C++, který můžete přidat do projektu C++.</translation>
+    </message>
+    <message>
+        <source>C++ Header File</source>
+        <translation>Hlavičkový soubor C++</translation>
+    </message>
+    <message>
+        <source>Switch Between Method Declaration/Definition</source>
+        <translation>Přepínání mezi deklarací a definicí metody</translation>
+    </message>
+    <message>
+        <source>Shift+F2</source>
+        <translation>Shift+F2</translation>
+    </message>
+    <message>
+        <source>Open Method Declaration/Definition in Next Split</source>
+        <translation>Otevřít deklaraci/definici metody v dalším rozdělení</translation>
+    </message>
+    <message>
+        <source>Meta+E, Shift+F2</source>
+        <translation>Meta+E, Shift+F2</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Shift+F2</source>
+        <translation>Ctrl+E, Shift+F2</translation>
+    </message>
+    <message>
+        <source>Find Usages</source>
+        <translation>Najít použití</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+U</source>
+        <translation>Ctrl+Shift+U</translation>
+    </message>
+    <message>
+        <source>Open Type Hierarchy</source>
+        <translation>Otevřít hierarchii tříd</translation>
+    </message>
+    <message>
+        <source>Meta+Shift+T</source>
+        <translation>Meta+Shift+T</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+T</source>
+        <translation>Ctrl+Shift+T</translation>
+    </message>
+    <message>
+        <source>Rename Symbol Under Cursor</source>
+        <translation>Přejmenovat symbol pod ukazovátkem</translation>
+    </message>
+    <message>
+        <source>CTRL+SHIFT+R</source>
+        <translation>Ctrl+Shift+R</translation>
+    </message>
+    <message>
+        <source>Update Code Model</source>
+        <translation>Obnovit model kódu</translation>
+    </message>
+</context>
+<context>
+    <name>QuickFixFactory</name>
+    <message>
+        <source>Create Getter and Setter Member Functions</source>
+        <translation>Vytvořit funkce Getter a Setter</translation>
+    </message>
+    <message>
+        <source>Generate Missing Q_PROPERTY Members...</source>
+        <translation>Doplnit chybějící prvky Q_PROPERTY...</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::QuickFix</name>
+    <message>
+        <source>Move Definition Outside Class</source>
+        <translation>Přesunout definice vně třídy</translation>
+    </message>
+    <message>
+        <source>Move Definition to %1</source>
+        <translation>Přesunout definici do %1</translation>
+    </message>
+    <message>
+        <source>Move Definition to Class</source>
+        <translation>Přesunout definici do třídy</translation>
+    </message>
+    <message>
+        <source>Insert Virtual Functions of Base Classes</source>
+        <translation>Vložit virtuální funkce základních tříd</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
+    <message>
+        <source>Insert Virtual Functions</source>
+        <translation>Vložit virtuální funkce</translation>
+    </message>
+    <message>
+        <source>&amp;Functions to insert:</source>
+        <translation>&amp;Funkce k vložení:</translation>
+    </message>
+    <message>
+        <source>&amp;Hide already implemented functions of current class</source>
+        <translation>&amp;Skrýt již provedené funkce třídy</translation>
+    </message>
+    <message>
+        <source>&amp;Insertion options:</source>
+        <translation>Volby pro &amp;vkládání</translation>
+    </message>
+    <message>
+        <source>Insert only declarations</source>
+        <translation>Vložit pouze deklarace</translation>
+    </message>
+    <message>
+        <source>Insert definitions inside class</source>
+        <translation>Vložit definici uvnitř třídy</translation>
+    </message>
+    <message>
+        <source>Insert definitions outside class</source>
+        <translation>Vložit definice vně třídy</translation>
+    </message>
+    <message>
+        <source>Insert definitions in implementation file</source>
+        <translation>Vložit definice do prováděcího souboru</translation>
+    </message>
+    <message>
+        <source>&amp;Add keyword &apos;virtual&apos; to function declaration</source>
+        <translation>Přidat klíčové slovo &apos;&amp;virtual&apos; do deklarace funkce</translation>
+    </message>
+</context>
+<context>
+    <name>Cvs::Internal::CvsControl</name>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>Ú&amp;pravy</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::CdbPathsPageWidget</name>
+    <message>
+        <source>Symbol Paths</source>
+        <translation>Cesty k symbolům</translation>
+    </message>
+    <message>
+        <source>Source Paths</source>
+        <translation>Cesty ke zdrojovému textu</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::CdbPathsPage</name>
+    <message>
+        <source>CDB Paths</source>
+        <translation>Cesty CDB</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::DebuggerRunConfigurationAspect</name>
+    <message>
+        <source>Debugger settings</source>
+        <translation>Nastavení ladiče</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::GdbOptionsPage2</name>
+    <message>
+        <source>GDB Extended</source>
+        <translation>Rozšířené GDB</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::LldbEngine</name>
+    <message>
+        <source>Unable to start lldb &apos;%1&apos;: %2</source>
+        <translation>lldb &apos;%1&apos; se nepodařilo spustit: %2</translation>
+    </message>
+    <message>
+        <source>Adapter start failed.</source>
+        <translation>Spuštění adaptéru se nepodařilo.</translation>
+    </message>
+    <message>
+        <source>Running requested...</source>
+        <translation>Požadováno pokračování...</translation>
+    </message>
+    <message>
+        <source>Interrupt requested...</source>
+        <translation>Požadováno přerušení...</translation>
+    </message>
+    <message>
+        <source>&apos;%1&apos; contains no identifier.</source>
+        <translation>&apos;%1&apos; neobsahuje žádný identifikátor.</translation>
+    </message>
+    <message>
+        <source>String literal %1</source>
+        <translation>Řetězec znaků tvořený písmeny %1</translation>
+    </message>
+    <message>
+        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects.</source>
+        <translation>Nevyhodnocovat výraz &apos;%1&apos; s možnými postranními účinky.</translation>
+    </message>
+    <message>
+        <source>Lldb I/O Error</source>
+        <translation>Chyba ve vstupu/výstupu Lldb</translation>
+    </message>
+    <message>
+        <source>The Lldb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
+        <translation>Spuštění procesu Lldb se nezdařilo. Buď chybí spustitelný soubor &apos;%1&apos;, nebo nemáte dostatečná oprávnění pro spuštění programu.</translation>
+    </message>
+    <message>
+        <source>The Lldb process crashed some time after starting successfully.</source>
+        <translation>Proces Lldb po určité době od úspěšného spuštění spadl.</translation>
+    </message>
+    <message>
+        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
+        <translation>Došlo k překročení času u poslední funkce waitFor...(). Stav QProcess je nezměněn, a tak se můžete pokusit zavolat waitFor...() ještě jednou.</translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to write to the Lldb process. For example, the process may not be running, or it may have closed its input channel.</source>
+        <translation>Při pokusu o zápis do procesu Lldb se vyskytla chyba. Pravděpodobně proces neběží, nebo zavřel svůj vstupní kanál.</translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to read from the Lldb process. For example, the process may not be running.</source>
+        <translation>Při pokusu o čtení z procesu Lldb se vyskytla chyba. Pravděpodobně proces neběží.</translation>
+    </message>
+    <message>
+        <source>An unknown error in the Lldb process occurred. </source>
+        <translation>V Lldb procesu se vyskytla neznámá chyba.</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::DiffEditor</name>
+    <message>
+        <source>Ignore Whitespace</source>
+        <translation>Nevšímat si prázdných míst</translation>
+    </message>
+    <message>
+        <source>Context Lines:</source>
+        <translation>Řádky se souvislostmi:</translation>
+    </message>
+    <message>
+        <source>Synchronize Horizontal Scroll Bars</source>
+        <translation>Seřídit vodorovné posuvníky</translation>
+    </message>
+    <message>
+        <source>[%1] vs. [%2] %3</source>
+        <translation>[%1] vs. [%2] %3</translation>
+    </message>
+    <message>
+        <source>%1 vs. %2</source>
+        <translation>%1 vs. %2</translation>
+    </message>
+    <message>
+        <source>[%1] %2 vs. [%3] %4</source>
+        <translation>[%1] %2 vs. [%3] %4</translation>
+    </message>
+</context>
+<context>
+    <name>Diff</name>
+    <message>
+        <source>Delete</source>
+        <translation>Smazat</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Vložit</translation>
+    </message>
+    <message>
+        <source>Equal</source>
+        <translation>Stejný</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::GitDiffHandler</name>
+    <message>
+        <source>Working tree</source>
+        <translation>Pracovní kopie</translation>
+    </message>
+    <message>
+        <source>Index</source>
+        <translation>Rejstřík</translation>
+    </message>
+    <message>
+        <source>Waiting for data...</source>
+        <translation>Čeká se na data...</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::LogChangeWidget</name>
+    <message>
+        <source>Sha1</source>
+        <translation>Sha1</translation>
+    </message>
+    <message>
+        <source>Subject</source>
+        <translation>Předmět</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::LogChangeDialog</name>
+    <message>
+        <source>Reset to:</source>
+        <translation>Nastavit znovu na:</translation>
+    </message>
+    <message>
+        <source>Select change:</source>
+        <translation>Vybrat změnu:</translation>
+    </message>
+    <message>
+        <source>Reset type:</source>
+        <translation>Druh znovunastavení:</translation>
+    </message>
+    <message>
+        <source>Mixed</source>
+        <translation>Smíchaně</translation>
+    </message>
+    <message>
+        <source>Hard</source>
+        <translation>Ostré</translation>
+    </message>
+    <message>
+        <source>Soft</source>
+        <translation>Měkké</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::DeviceCheckBuildStep</name>
+    <message>
+        <source>No device configured.</source>
+        <translation>Nebylo nastaveno žádné zařízení.</translation>
+    </message>
+    <message>
+        <source>Set Up Device</source>
+        <translation>Nastavit zařízení</translation>
+    </message>
+    <message>
+        <source>There is no device set up for this kit. Do you want to add a device?</source>
+        <translation>Pro tuto sadu není nastaveno žádné zařízení. Chcete přidat zařízení?</translation>
+    </message>
+    <message>
+        <source>Check for a configured device</source>
+        <translation>Prověřit, zda je nastaveno zařízení</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::EnvironmentAspect</name>
+    <message>
+        <source>Run Environment</source>
+        <translation>Prováděcí prostředí</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::EnvironmentAspectWidget</name>
+    <message>
+        <source>Base environment for this run configuration:</source>
+        <translation>Základní prostředí pro toto nastavení spuštění:</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::LocalEnvironmentAspect</name>
+    <message>
+        <source>Build Environment</source>
+        <translation>Prostředí pro sestavování</translation>
+    </message>
+    <message>
+        <source>System Environment</source>
+        <translation>Prostředí systému</translation>
+    </message>
+    <message>
+        <source>Clean Environment</source>
+        <translation>Smazat prostředí</translation>
+    </message>
+</context>
+<context>
+    <name>PythonEditor::FileWizard</name>
+    <message>
+        <source>Python source file</source>
+        <translation>Zdrojový soubor Python</translation>
+    </message>
+    <message>
+        <source>Creates an empty Python script with UTF-8 charset</source>
+        <translation>Vytvoří prázdný Pythonovský skript se znakovou sadou UTF-8</translation>
+    </message>
+    <message>
+        <source>New %1</source>
+        <translation>Nový %1</translation>
+    </message>
+</context>
+<context>
+    <name>PythonEditor::ClassWizard</name>
+    <message>
+        <source>Python class</source>
+        <translation>Třída Pythonu</translation>
+    </message>
+    <message>
+        <source>Creates new Python class</source>
+        <translation>Vytvoří novou třídu Pythonu</translation>
+    </message>
+    <message>
+        <source>C++ module for Python</source>
+        <translation>Modul C++ pro Python</translation>
+    </message>
+    <message>
+        <source>Creates C++/Boost file with bindings for Python</source>
+        <translation>Vytvoří soubor C++-/Boost s vazbami pro Python</translation>
+    </message>
+</context>
+<context>
+    <name>PythonEditor::ClassNamePage</name>
+    <message>
+        <source>Enter Class Name</source>
+        <translation>Zadejte název třídy</translation>
+    </message>
+    <message>
+        <source>The source file name will be derived from the class name</source>
+        <translation>Název zdrojového soubory se odvodí z názvu pro třídu</translation>
+    </message>
+</context>
+<context>
+    <name>PythonEditor::ClassWizardDialog</name>
+    <message>
+        <source>Python Class Wizard</source>
+        <translation>Nová třída Pythonu</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Podrobnosti</translation>
+    </message>
+</context>
+<context>
+    <name>Qbs</name>
+    <message>
+        <source>Qbs Install</source>
+        <translation>Instalace Qbs</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsInstallStep</name>
+    <message>
+        <source>Qbs Install</source>
+        <translation>Instalace Qbs</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsInstallStepFactory</name>
+    <message>
+        <source>Qbs Install</source>
+        <translation>Instalace Qbs</translation>
+    </message>
+</context>
+<context>
+    <name>Qbs::QbsProjectNode</name>
+    <message>
+        <source>%1 in %2</source>
+        <translation>%1 v %2</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::QbsManager</name>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
+        <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsPropertyLineEdit</name>
+    <message>
+        <source>Could not split properties.</source>
+        <translation>Nepodařilo se rozdělit vlastnosti.</translation>
+    </message>
+    <message>
+        <source>No &apos;:&apos; found in property definition.</source>
+        <translation>Definice vlastnosti neobsahuje žádný znak &apos;:&apos;.</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsRunConfiguration</name>
+    <message>
+        <source>The .qbs files are currently being parsed.</source>
+        <translation>Soubor .qbs je právě zpracováván.</translation>
+    </message>
+    <message>
+        <source>Parsing of .qbs files has failed.</source>
+        <translation>Zpracování souboru .qbs se nezdařilo.</translation>
+    </message>
+    <message>
+        <source>Qbs Run Configuration</source>
+        <translation>Nastavení spuštění Qbs</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsRunConfigurationWidget</name>
+    <message>
+        <source>Executable:</source>
+        <translation>Spustitelný soubor:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Argumenty:</translation>
+    </message>
+    <message>
+        <source>Select Working Directory</source>
+        <translation>Vybrat pracovní adresář</translation>
+    </message>
+    <message>
+        <source>Reset to default</source>
+        <translation>Nastavit znovu výchozí</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Pracovní adresář:</translation>
+    </message>
+    <message>
+        <source>Run in terminal</source>
+        <translation>Spustit v terminálu</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::DebugView</name>
+    <message>
+        <source>Model attached</source>
+        <translation>Model připojen</translation>
+    </message>
+    <message>
+        <source>FileName %1</source>
+        <translation>Název souboru %1</translation>
+    </message>
+    <message>
+        <source>Model detached</source>
+        <translation>Model odpojen</translation>
+    </message>
+    <message>
+        <source>Added imports:</source>
+        <translation>Přidané importy:</translation>
+    </message>
+    <message>
+        <source>Removed imports:</source>
+        <translation>Odstraněné importy:</translation>
+    </message>
+    <message>
+        <source>Imports changed:</source>
+        <translation>Změněné importy:</translation>
+    </message>
+    <message>
+        <source>Node created:</source>
+        <translation>Uzel vytvořen:</translation>
+    </message>
+    <message>
+        <source>Node removed:</source>
+        <translation>Uzel odstraněn:</translation>
+    </message>
+    <message>
+        <source>New parent property:</source>
+        <translation>Nová rodičovská vlastnost:</translation>
+    </message>
+    <message>
+        <source>Old parent property:</source>
+        <translation>Stará rodičovská vlastnost:</translation>
+    </message>
+    <message>
+        <source>PropertyChangeFlag</source>
+        <translation>PropertyChangeFlag</translation>
+    </message>
+    <message>
+        <source>Node reparanted:</source>
+        <translation>Převěšený uzel:</translation>
+    </message>
+    <message>
+        <source>New Id: </source>
+        <translation>Nové ID: </translation>
+    </message>
+    <message>
+        <source>Old Id: </source>
+        <translation>Staré ID: </translation>
+    </message>
+    <message>
+        <source>Node id changed:</source>
+        <translation>Změněné ID uzlu:</translation>
+    </message>
+    <message>
+        <source>VariantProperties changed:</source>
+        <translation>Změněné VariantProperties:</translation>
+    </message>
+    <message>
+        <source>BindingProperties changed:</source>
+        <translation>Změněné BindingProperties:</translation>
+    </message>
+    <message>
+        <source>SignalHandlerProperties changed:</source>
+        <translation>Změněné SignalHandlerProperties:</translation>
+    </message>
+    <message>
+        <source>Properties removed:</source>
+        <translation>Odstraněné vlastnosti:</translation>
+    </message>
+    <message>
+        <source>Auxiliary Data Changed:</source>
+        <translation>Změněná dodatečná data:</translation>
+    </message>
+    <message>
+        <source>Begin rewriter transaction</source>
+        <translation>Začít Rewriter transakci</translation>
+    </message>
+    <message>
+        <source>End rewriter transaction</source>
+        <translation>Ukončit Rewriter transakci</translation>
+    </message>
+    <message>
+        <source>Debug View</source>
+        <translation>Ladicí pohled</translation>
+    </message>
+    <message>
+        <source>Instance property change</source>
+        <translation>Změněná vlastnost instance</translation>
+    </message>
+    <message>
+        <source>Instance Completed</source>
+        <translation>Instance úplná</translation>
+    </message>
+    <message>
+        <source>Custom Notification:</source>
+        <translation>Vlastní oznámení:</translation>
+    </message>
+    <message>
+        <source>Node Source Changed:</source>
+        <translation>Změněný zdroj uzlu:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::FormEditorView</name>
+    <message>
+        <source>Form Editor</source>
+        <translation>Editor formulářů</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
+    <message>
+        <source>System Environment</source>
+        <translation>Prostředí systému</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryCheckDevModeStep</name>
+    <message>
+        <source>Check Development Mode</source>
+        <translation>Přezkoušet vývojářský režim</translation>
+    </message>
+    <message>
+        <source>Could not find command &apos;%1&apos; in the build environment</source>
+        <translation>Příkaz: %1 se v prostředí pro sestavování nepodařilo nalézt</translation>
+    </message>
+    <message>
+        <source>No hostname specified for device</source>
+        <translation>Pro zařízení nebyl zadán žádný název hostitele</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryCheckDevModeStepConfigWidget</name>
+    <message>
+        <source>&lt;b&gt;Check development mode&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Přezkoušet vývojářský režim&lt;/b&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryCheckDevModeStepFactory</name>
+    <message>
+        <source>Check Development Mode</source>
+        <translation>Přezkoušet vývojářský režim</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryDeviceConnection</name>
+    <message>
+        <source>Error connecting to device: java could not be found in the environment.</source>
+        <translation>Chyba při připojování k zařízení: Javu se v prostředí nepodařilo nalézt.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryProcessParser</name>
+    <message>
+        <source>Authentication failed. Please make sure the password for the device is correct.</source>
+        <translation>Autentizace se nezdařila. Ujistěte se, prosím, že heslo pro zařízení je správné.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySetupWizard</name>
+    <message>
+        <source>BlackBerry Development Environment Setup Wizard</source>
+        <translation>Průvodce pro nastavení vývojářského prostředí BlackBerry</translation>
+    </message>
+    <message>
+        <source>Reading device PIN...</source>
+        <translation>Čte se PIN zařízení...</translation>
+    </message>
+    <message>
+        <source>Registering CSJ keys...</source>
+        <translation>Přihlašuje se klíč CSJ...</translation>
+    </message>
+    <message>
+        <source>Generating developer certificate...</source>
+        <translation>Vytváří se vývojářský certifikát...</translation>
+    </message>
+    <message>
+        <source>Generating SSH keys...</source>
+        <translation>Vytváří se klíče SSH...</translation>
+    </message>
+    <message>
+        <source>Requesting a debug token for the device...</source>
+        <translation>Požaduje se symbol pro ladění pro zařízení...</translation>
+    </message>
+    <message>
+        <source>Now uploading the debug token...</source>
+        <translation>Nahrává se symbol pro ladění...</translation>
+    </message>
+    <message>
+        <source>Writing device information...</source>
+        <translation>Zapisují se informace o zařízení...</translation>
+    </message>
+    <message>
+        <source>Error reading device PIN. Please make sure that the specified device IP address is correct.</source>
+        <translation>Chyba při čtení PIN zařízení. Ujistěte se, prosím, že adresa IP zařízení je správná.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Chyba</translation>
+    </message>
+    <message>
+        <source>Error creating developer certificate.</source>
+        <translation>Chyba při vytváření vývojářského certifikátu.</translation>
+    </message>
+    <message>
+        <source>Failed to request debug token: </source>
+        <translation>Nepodařilo se požádat o symbol pro ladění: </translation>
+    </message>
+    <message>
+        <source>Wrong CSK password.</source>
+        <translation>Nesprávné heslo CSK.</translation>
+    </message>
+    <message>
+        <source>Wrong keystore password.</source>
+        <translation>Nesprávné heslo pro úložiště klíče.</translation>
+    </message>
+    <message>
+        <source>Network unreachable.</source>
+        <translation>Síť nedosažitelná.</translation>
+    </message>
+    <message>
+        <source>Illegal device PIN.</source>
+        <translation>Neplatný PIN zařízení.</translation>
+    </message>
+    <message>
+        <source>Failed to start inferior process.</source>
+        <translation>Nepodařilo se spustit podřízený proces.</translation>
+    </message>
+    <message>
+        <source>Inferior processes timed out.</source>
+        <translation>Došlo k překročení časového omezení u podřízeného procesu.</translation>
+    </message>
+    <message>
+        <source>Inferior process has crashed.</source>
+        <translation>Podřízený proces spadl.</translation>
+    </message>
+    <message>
+        <source>Failed to communicate with the inferior process.</source>
+        <translation>S podřízeným procesem se nepodařilo spojit.</translation>
+    </message>
+    <message>
+        <source>An unknwon error has occurred.</source>
+        <translation>Vyskytla se neznámá chyba.</translation>
+    </message>
+    <message>
+        <source>Failed to upload debug token: </source>
+        <translation>Chyba při nahrávání symbolu pro ladění: </translation>
+    </message>
+    <message>
+        <source>No route to host.</source>
+        <translation>Žádná cesta k hostiteli.</translation>
+    </message>
+    <message>
+        <source>Authentication failed.</source>
+        <translation>Ověření pravosti selhalo.</translation>
+    </message>
+    <message>
+        <source>Development mode is disabled on the device.</source>
+        <translation>Vývojářský režim je na zařízení zakázán.</translation>
+    </message>
+    <message>
+        <source>An unknwon error has happened.</source>
+        <translation>Vyskytla se neznámá chyba.</translation>
+    </message>
+    <message>
+        <source>Key Generation Failed</source>
+        <translation>Chyba při vytváření klíče</translation>
+    </message>
+    <message>
+        <source>Failure to Save Key File</source>
+        <translation>Chyba při ukládání souboru s klíčem</translation>
+    </message>
+    <message>
+        <source>Failed to create directory: &apos;%1&apos;.</source>
+        <translation>Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
+    </message>
+    <message>
+        <source>Private key file already exists: &apos;%1&apos;</source>
+        <translation>Soubor se soukromým klíčem &apos;%1&apos; již existuje</translation>
+    </message>
+    <message>
+        <source>Public key file already exists: &apos;%1&apos;</source>
+        <translation>Soubor s veřejným klíčem &apos;%1&apos; již existuje</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySetupWizardWelcomePage</name>
+    <message>
+        <source>Welcome to the BlackBerry Development Environment Setup Wizard.
+This wizard will guide you through the essential steps to deploy a ready-to-go development environment for BlackBerry 10 devices.</source>
+        <translation>Vítejte v průvodci pro nastavení vývojářského prostředí BlackBerry.
+Tento průvodce vás provede základními kroky, které jsou nutné pro nasazení nachystaného vývojářského prostředí pro zařízení BlackBerry10.</translation>
+    </message>
+    <message>
+        <source>BlackBerry Development Environment Setup</source>
+        <translation>Nastavení vývojářského prostředí BlackBerry</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySetupWizardNdkPage</name>
+    <message>
+        <source>Configure the NDK Path</source>
+        <translation>Nastavit cestu k NKD</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxAbstractRunSupport</name>
+    <message>
+        <source>Not enough free ports on device for debugging.</source>
+        <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxAnalyzeSupport</name>
+    <message>
+        <source>Preparing remote side...
+</source>
+        <translation>Připravuje se vzdálená strana...
+</translation>
+    </message>
+    <message>
+        <source>The %1 process closed unexpectedly.</source>
+        <translation>Proces %1 byl neočekávaně ukončen.</translation>
+    </message>
+    <message>
+        <source>Initial setup failed: %1</source>
+        <translation>Počáteční nastavení se nezdařilo: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxDeviceTester</name>
+    <message>
+        <source>%1 found.
+</source>
+        <translation>%1 nalezeno.
+</translation>
+    </message>
+    <message>
+        <source>%1 not found.
+</source>
+        <translation>%1 nenalezeno.
+</translation>
+    </message>
+    <message>
+        <source>An error occurred checking for %1.
+</source>
+        <translation>Při přezkušování %1 se vyskytla chyba.
+</translation>
+    </message>
+    <message>
+        <source>SSH connection error: %1
+</source>
+        <translation>Chyba ve spojení SSH: %1
+</translation>
+    </message>
+    <message>
+        <source>Checking for %1...</source>
+        <translation>Přezkušuje se %1...</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxRunSupport</name>
+    <message>
+        <source>Not enough free ports on device for debugging.</source>
+        <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxAnalyzeSupport</name>
+    <message>
+        <source>Checking available ports...
+</source>
+        <translation>Ověřují se dostupné porty...</translation>
+    </message>
+    <message>
+        <source>Failure running remote process.</source>
+        <translation>Selhání při spouštění vzdáleného procesu.</translation>
+    </message>
+    <message>
+        <source>Initial setup failed: %1</source>
+        <translation>Počáteční nastavení se nezdařilo: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
+    <message>
+        <source>Clean Environment</source>
+        <translation>Smazat prostředí</translation>
+    </message>
+    <message>
+        <source>System Environment</source>
+        <translation>Prostředí systému</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
+    <message>
+        <source>Fetch Device Environment</source>
+        <translation>Natáhnout prostředí zařízení</translation>
+    </message>
+    <message>
+        <source>Cancel Fetch Operation</source>
+        <translation>Zrušit operaci natažení prostředí</translation>
+    </message>
+    <message>
+        <source>Device Error</source>
+        <translation>Chyba zařízení</translation>
+    </message>
+    <message>
+        <source>Fetching environment failed: %1</source>
+        <translation>Natažení prostředí se nezdařilo: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RefactoringFile::apply</name>
+    <message>
+        <source>Refactoring cannot be applied.</source>
+        <translation>Refaktoring se nepodařilo použít.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::QmlApplicationWizardDialog</name>
+    <message>
+        <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Vytvoří projekt Qt Quick 1 UI s jediným souborem QML, který obsahuje hlavní pohled.&amp;lt;br/&amp;gt;Projekty Qt Quick 1 UI není potřeba je sestavovat a lze je spouštět přímo v prohlížeči QML. K vytvoření a ke spuštění tohoto typu projektů není potřeba, aby bylo ve vašem počítači nainstalováno vývojářské prostředí.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Vyžaduje &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; nebo novější.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Vytvoří projekt Qt Quick 2 UI s jediným souborem QML, který obsahuje hlavní pohled.&amp;lt;br/&amp;gt;Projekty Qt Quick 2 UI není potřeba je sestavovat a lze je spouštět přímo v prohlížeči QML. K vytvoření a ke spuštění tohoto typu projektů není potřeba, aby bylo ve vašem počítači nainstalováno vývojářské prostředí.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Vyžaduje &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; nebo novější.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Vytvoří projekt Qt Quick 2 UI s jediným souborem QML, který obsahuje hlavní pohled.&amp;lt;br/&amp;gt;Projekty Qt Quick 2 UI není potřeba je sestavovat a lze je spouštět přímo v prohlížeči QML. K vytvoření a ke spuštění tohoto typu projektů není potřeba, aby bylo ve vašem počítači nainstalováno vývojářské prostředí.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Vyžaduje &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; nebo novější.</translation>
     </message>
 </context>
 </TS>

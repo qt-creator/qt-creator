@@ -38,11 +38,9 @@ modification group.
 */
 namespace QmlDesigner {
 /*!
-\brief Constructor
-
-\param line use the __LINE__ macro
-\param function use the __FUNCTION__ or the Q_FUNC_INFO macro
-\param file use the __FILE__ macro
+    Constructs an exception. \a line uses the __LINE__ macro,
+    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
+    the __FILE__ macro.
 */
 ModificationGroupException::ModificationGroupException(int line,
                                                    const QString &function,

@@ -54,6 +54,16 @@ def getQtCreatorVersionFromFile():
         test.fail("Failed to get the exact version from File")
         return ""
 
+def checkQtCreatorHelpVersion(expectedVersion):
+    switchViewTo(ViewConstants.HELP)
+    try:
+        creatorManual = waitForObject("{column='0' container=':Qt Creator_QHelpContentWidget' "
+                                      "text?='Qt Creator Manual*' type='QModelIndex'}", 5000)
+        test.compare(str(creatorManual.text)[18:], expectedVersion,
+                     "Verifying whether manual uses expected version.")
+    except LookupError:
+        test.fail("Missing Qt Creator Manual.")
+
 def main():
     expectedVersion = getQtCreatorVersionFromFile()
     if not expectedVersion:
@@ -77,6 +87,7 @@ def main():
                               "window=':About Qt Creator_Core::Internal::VersionDialog'}"))
     test.verify(checkIfObjectExists(":About Qt Creator_Core::Internal::VersionDialog", False),
                 "Verifying if About dialog closed.")
+    checkQtCreatorHelpVersion(expectedVersion)
     # exit qt creator
     invokeMenuItem("File", "Exit")
     # verify if qt creator closed properly

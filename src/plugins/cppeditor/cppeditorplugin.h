@@ -162,6 +162,7 @@ private slots:
     void test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists();
     void test_quickfix_InsertDefFromDecl_notTriggeringStatement();
     void test_quickfix_InsertDefFromDecl_findRightImplementationFile();
+    void test_quickfix_InsertDefFromDecl_ignoreSurroundingGeneratedDeclarations();
     void test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1();
     void test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2();
 

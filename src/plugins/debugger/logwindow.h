@@ -61,6 +61,8 @@ public:
     QString combinedContents() const;
     QString inputContents() const;
 
+    void clearUndoRedoStacks();
+
     static QString logTimeStamp();
 
     static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent = 0);

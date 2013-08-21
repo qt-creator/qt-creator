@@ -34,6 +34,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/synchronousprocess.h>
+#include <utils/runextensions.h>
 
 #include <QDebug>
 #include <QProcess>
@@ -184,7 +185,7 @@ void Command::execute()
         return;
 
     // For some reason QtConcurrent::run() only works on this
-    QFuture<void> task = QtConcurrent::run(this, &Command::run);
+    QFuture<void> task = QtConcurrent::run(&Command::run, this);
     QString binary = QFileInfo(d->m_binaryPath).baseName();
     if (!binary.isEmpty())
         binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
@@ -203,7 +204,7 @@ int Command::lastExecutionExitCode() const
     return d->m_lastExecExitCode;
 }
 
-void Command::run()
+void Command::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
     if (binaryPath().trimmed().isEmpty()) {
@@ -233,13 +234,15 @@ void Command::run()
             break;
     }
 
-    emit output(stdOut);
-    if (!stdErr.isEmpty())
-        emit errorText(stdErr);
+    if (!future.isCanceled()) {
+        emit output(stdOut);
+        if (!stdErr.isEmpty())
+            emit errorText(stdErr);
 
-    emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
-    if (d->m_lastExecSuccess)
-        emit success(cookie());
+        emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
+        if (d->m_lastExecSuccess)
+            emit success(cookie());
+    }
 
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();

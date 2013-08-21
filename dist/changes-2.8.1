@@ -1,0 +1,134 @@
+
+Qt Creator version 2.8.1 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.8.0..v2.8.1
+
+There is a total of about 123 changes by 28 individual contributors.
+
+Credits for these changes go to:
+
+Andreas Holzammer
+André Pönitz
+Aurindam Jana
+Christian Kandeler
+Christian Stenger
+Daniel Teske
+David Schulz
+Eike Ziller
+El Mehdi Fekar
+Fawzi Mohamed
+Jaroslaw Kobus
+Joerg Bornemann
+Leena Miettinen
+Lukas Holecek
+Michal Klocek
+Nikolai Kosjar
+Orgad Shaneh
+Oswald Buddenhagen
+Pavel Fric
+Petar Perisin
+Rainer Keller
+Robert Loehning
+Sergey Belyashov
+Sergio Martins
+Thomas Hartmann
+Tobias Hunger
+Venugopal Shivashankar
+Victor Ostashevsky
+
+
+
+General
+
+Editing
+   * Removed trailing whitespace in generated files (QTCREATORBUG-9833)
+   * Fixed placing cursor after replacing "." with "->" (QTCREATORBUG-9891)
+   * Fixed crash that occurred when opening non-splittable editors in split
+     windows (QTCREATORBUG-9843)
+   * Fixed issues with having same document open in multiple splits
+     (QTCREATORBUG-9801, QTCREATORBUG-9798)
+
+Managing Projects
+
+Compilers
+
+Devices
+   * Fixed device changes in kits
+
+QMake Projects
+   * Fixed tool chain use for cross-compilation
+   * Avoided deadlock during spec/cache loading
+
+CMake Projects
+
+Qbs Projects
+
+Autotools Projects
+
+Generic Projects
+
+Documentation
+   * Added tutorial for developing Android applications
+   * Updated documentation of Android Manifest editor
+   * Updated some debugger documentation
+
+Debugging
+   * Fixed dumpers in the presence of -D_GLIBCXX_DEBUG
+   * Fixed endless loop when stopping without winXXinterrupt.exe
+   * Added support for GDB builds with Python 3.x
+   * Added dumper for std::unordered_{set,map} (QTCREATORBUG-9855)
+   * Improved display performance of unnamed structures (QTCREATORBUG-9947)
+   * Made C++ debugging continue even if QML debugger fails (QTCREATORBUG-9836)
+   * Fixed remote QML debugging with port forwarding involved
+
+Analyzer
+   * Improved Android and QNX support
+
+C++ Support
+   * Fixed crash in typedef resolving (QTCREATORBUG-9990)
+   * Improved performance for generated symbols (QTCREATORBUG-9877)
+   * Added checking whether project has changed before reparsing
+     (QTCREATORBUG-9581)
+
+Python Support
+
+Diff Viewer
+
+Version Control Systems
+   * Disabled undo/redo for VCS output window (QTCREATORBUG-7645)
+   * Git
+      * Fixed crash on quit while rebase-todo editor is open
+      * Fixed double stash pop on branch checkout
+
+FakeVim
+
+Platform Specific
+
+Linux
+
+Qt Support
+
+QNX
+   * Fixed the SSH Key Setup dialog to display native separators in paths
+    (QTCREATORBUG-9830)
+
+Android
+   * Ensured that keytool returns English output (QTCREATORBUG-9941)
+
+Translations
+   * Updated Czech, Polish, Russian and Ukrainian translations
+
+Testing
+   * Added Squish tests for codepasting, external sort tool,
+     UI completion, and "Go to slot" in Qt Designer
+
+QML Designer
+   * Fixed support for layouts
+   * Fixed several issues in property editor
+   * Added support for global Qt enums in rewriter
+

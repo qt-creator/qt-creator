@@ -1302,45 +1302,45 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         QMakeBaseEnv *baseEnv = *baseEnvPtr;
 
 #ifdef PROEVALUATOR_THREAD_SAFE
-        {
-            QMutexLocker locker(&baseEnv->mutex);
-            m_option->mutex.unlock();
-            if (baseEnv->inProgress) {
-                QThreadPool::globalInstance()->releaseThread();
-                baseEnv->cond.wait(&baseEnv->mutex);
-                QThreadPool::globalInstance()->reserveThread();
-                if (!baseEnv->isOk)
-                    return ReturnFalse;
-            } else
+        QMutexLocker locker(&baseEnv->mutex);
+        m_option->mutex.unlock();
+        if (baseEnv->inProgress) {
+            QThreadPool::globalInstance()->releaseThread();
+            baseEnv->cond.wait(&baseEnv->mutex);
+            QThreadPool::globalInstance()->reserveThread();
+            if (!baseEnv->isOk)
+                return ReturnFalse;
+        } else
 #endif
-            if (!baseEnv->evaluator) {
+        if (!baseEnv->evaluator) {
 #ifdef PROEVALUATOR_THREAD_SAFE
-                baseEnv->inProgress = true;
-                locker.unlock();
-#endif
-
-                QMakeEvaluator *baseEval = new QMakeEvaluator(m_option, m_parser, m_vfs, m_handler);
-                baseEnv->evaluator = baseEval;
-                baseEval->m_superfile = m_superfile;
-                baseEval->m_conffile = m_conffile;
-                baseEval->m_cachefile = m_cachefile;
-                baseEval->m_sourceRoot = m_sourceRoot;
-                baseEval->m_buildRoot = m_buildRoot;
-                baseEval->m_hostBuild = m_hostBuild;
-                bool ok = baseEval->loadSpec();
-
-#ifdef PROEVALUATOR_THREAD_SAFE
-                locker.relock();
-                baseEnv->isOk = ok;
-                baseEnv->inProgress = false;
-                baseEnv->cond.wakeAll();
+            baseEnv->inProgress = true;
+            locker.unlock();
 #endif
 
-                if (!ok)
-                    return ReturnFalse;
-            }
+            QMakeEvaluator *baseEval = new QMakeEvaluator(m_option, m_parser, m_vfs, m_handler);
+            baseEnv->evaluator = baseEval;
+            baseEval->m_superfile = m_superfile;
+            baseEval->m_conffile = m_conffile;
+            baseEval->m_cachefile = m_cachefile;
+            baseEval->m_sourceRoot = m_sourceRoot;
+            baseEval->m_buildRoot = m_buildRoot;
+            baseEval->m_hostBuild = m_hostBuild;
+            bool ok = baseEval->loadSpec();
+
 #ifdef PROEVALUATOR_THREAD_SAFE
+            locker.relock();
+            baseEnv->isOk = ok;
+            baseEnv->inProgress = false;
+            baseEnv->cond.wakeAll();
+#endif
+
+            if (!ok)
+                return ReturnFalse;
         }
+#ifdef PROEVALUATOR_THREAD_SAFE
+        else if (!baseEnv->isOk)
+            return ReturnFalse;
 #endif
 
         initFrom(*baseEnv->evaluator);

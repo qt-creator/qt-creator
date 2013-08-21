@@ -95,7 +95,7 @@ void QmakeKitInformation::setup(ProjectExplorer::Kit *k)
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
 
-    if (!tc || !tc->suggestedMkspecList().contains(spec)) {
+    if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
         QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
         ProjectExplorer::ToolChain *possibleTc = 0;
         foreach (ProjectExplorer::ToolChain *current, tcList) {

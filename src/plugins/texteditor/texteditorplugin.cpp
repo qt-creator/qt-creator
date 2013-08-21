@@ -322,19 +322,21 @@ void TextEditorPlugin::updateVariable(const QByteArray &variable)
 
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
-    Core::IEditor *iface = Core::EditorManager::currentEditor();
-    ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
-    if (editor) {
-        int pos = editor->position();
+    if (ITextEditor *editor = qobject_cast<ITextEditor *>(Core::EditorManager::currentEditor())) {
+        const int pos = editor->position();
         int anchor = editor->position(ITextEditor::Anchor);
         if (anchor < 0) // no selection
             anchor = pos;
-        int selectionLength = anchor-pos;
-        if (selectionLength < 0)
+        int selectionLength = pos - anchor;
+        const bool selectionInTextDirection = selectionLength >= 0;
+        if (!selectionInTextDirection)
             selectionLength = -selectionLength;
-        int start = qMin(pos, anchor);
+        const int start = qMin(pos, anchor);
         editor->setCursorPosition(start);
         editor->replace(selectionLength, text);
+        const int replacementEnd = editor->position();
+        editor->setCursorPosition(selectionInTextDirection ? start : replacementEnd);
+        editor->select(selectionInTextDirection ? replacementEnd : start);
     }
 }
 

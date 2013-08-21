@@ -911,6 +911,8 @@ private:
     static QList<LookupItem> typedefsFromScopeUpToFunctionScope(const Name *name, Scope *scope)
     {
         QList<LookupItem> results;
+        if (!scope)
+            return results;
         Scope *enclosingBlockScope = 0;
         for (Block *block = scope->asBlock(); block;
              block = enclosingBlockScope ? enclosingBlockScope->asBlock() : 0) {
@@ -994,7 +996,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
     TypedefsResolver typedefsResolver(_context);
 
     foreach (const LookupItem &r, baseResults) {
-        if (!r.type().type())
+        if (!r.type().type() || !r.scope())
             continue;
         FullySpecifiedType ty = r.type().simplified();
         FullySpecifiedType originalType = ty;

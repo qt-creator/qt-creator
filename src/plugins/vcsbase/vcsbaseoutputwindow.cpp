@@ -117,6 +117,7 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_messageFormat(m_defaultFormat)
 {
     setReadOnly(true);
+    setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
     m_errorFormat.setForeground(Qt::red);
     m_warningFormat.setForeground(Qt::darkYellow);

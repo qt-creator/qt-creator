@@ -114,7 +114,6 @@ public:
     QString remoteChannel;
     QString symbolFileName;
     QString serverStartScript;
-    QString searchPath; // Gdb "set solib-search-path"
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     QByteArray remoteSourcesDir;
