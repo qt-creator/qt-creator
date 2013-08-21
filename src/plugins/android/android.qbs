@@ -8,7 +8,10 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Qt4ProjectManager" }
-    Depends { name: "QbsProjectManager" }
+    Depends {
+        name: "QbsProjectManager"
+        condition: project.buildQbsProjectManager
+    }
     Depends { name: "Debugger" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
@@ -20,6 +23,11 @@ QtcPlugin {
     pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     cpp.includePaths: base.concat("../../shared")
+
+    Properties {
+        condition: project.buildQbsProjectManager
+        cpp.defines: base.concat(['HAVE_QBS'])
+    }
 
     files: [
         "addnewavddialog.ui",
@@ -73,8 +81,6 @@ QtcPlugin {
         "androidpackageinstallationstep.h",
         "androidplugin.cpp",
         "androidplugin.h",
-        "androidqbspropertyprovider.cpp",
-        "androidqbspropertyprovider.h",
         "androidqtversion.cpp",
         "androidqtversion.h",
         "androidqtversionfactory.cpp",
@@ -99,4 +105,13 @@ QtcPlugin {
         "javaparser.cpp",
         "javaparser.h",
     ]
+
+    Group {
+        name: "Qbs Support"
+        condition: project.buildQbsProjectManager
+        files: [
+            "androidqbspropertyprovider.cpp",
+            "androidqbspropertyprovider.h",
+        ]
+    }
 }

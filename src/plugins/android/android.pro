@@ -40,8 +40,7 @@ HEADERS += \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
-    androidmanifestdocument.h \
-    androidqbspropertyprovider.h
+    androidmanifestdocument.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -76,8 +75,7 @@ SOURCES += \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \
-    androidmanifestdocument.cpp \
-    androidqbspropertyprovider.cpp
+    androidmanifestdocument.cpp
 
 FORMS += \
     androidsettingswidget.ui \
@@ -85,6 +83,14 @@ FORMS += \
     androiddeploystepwidget.ui \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui
+
+exists(../../shared/qbs/qbs.pro) {
+    HEADERS += \
+        androidqbspropertyprovider.h
+    SOURCES += \
+        androidqbspropertyprovider.cpp
+    DEFINES += HAVE_QBS
+}
 
 RESOURCES = android.qrc
 DEFINES += ANDROID_LIBRARY

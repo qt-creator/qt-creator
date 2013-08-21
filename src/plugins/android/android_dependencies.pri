@@ -6,5 +6,8 @@ QTC_PLUGIN_DEPENDS += \
     qt4projectmanager \
     qtsupport \
     texteditor \
-    analyzerbase \
-    qbsprojectmanager
+    analyzerbase
+
+exists(../../shared/qbs/qbs.pro): \
+    QTC_PLUGIN_DEPENDS += \
+        qbsprojectmanager
