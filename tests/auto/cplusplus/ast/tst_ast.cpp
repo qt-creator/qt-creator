@@ -94,6 +94,7 @@ public:
 
 private slots:
     void initTestCase();
+    void cleanup();
 
     // line/column positions
     void line_and_column_1();
@@ -1685,6 +1686,11 @@ void tst_AST::q_enum_1()
 void tst_AST::initTestCase()
 {
     control.setDiagnosticClient(&diag);
+}
+
+void tst_AST::cleanup()
+{
+    diag.errorCount = 0;
 }
 
 void tst_AST::line_and_column_1()
