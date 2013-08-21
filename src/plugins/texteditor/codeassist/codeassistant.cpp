@@ -357,6 +357,7 @@ void CodeAssistantPrivate::finalizeRequest()
 
 void CodeAssistantPrivate::finalizeProposal()
 {
+    stopAutomaticProposalTimer();
     m_proposal.reset();
     m_proposalWidget = 0;
     if (m_receivedContentWhileWaiting)
