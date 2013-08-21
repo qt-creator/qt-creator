@@ -2396,35 +2396,35 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             Kit *tmpKit = rawKit;
 
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
-                tmpKit->setIconPath(QLatin1String(":/android/images/QtAndroid.png"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/android/images/QtAndroid.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
-                tmpKit->setIconPath(QLatin1String(":///DESKTOP///"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("GenericLinuxOsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
-                tmpKit->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("HarmattanOsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
-                tmpKit->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Maemo5OsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
-                tmpKit->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("MeegoOsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
-                tmpKit->setIconPath(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/SymbianDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Symbian Device"));
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
-                tmpKit->setIconPath(QLatin1String(":/projectexplorer/images/Simulator.png"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/Simulator.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
             } else {
-                tmpKit->setIconPath(QLatin1String(":///DESKTOP///"));
+                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
             }

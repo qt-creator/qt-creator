@@ -100,7 +100,7 @@ public:
     bool m_isValid;
     bool m_hasWarning;
     QIcon m_icon;
-    QString m_iconPath;
+    Utils::FileName m_iconPath;
     int m_nestedBlockingLevel;
     bool m_mustNotify;
     bool m_mustNotifyAboutDisplayName;
@@ -123,7 +123,7 @@ Kit::Kit(Core::Id id) :
         setValue(sti->dataId(), sti->defaultValue(this));
 
     setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed"));
-    setIconPath(QLatin1String(":///DESKTOP///"));
+    setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
 }
 
 Kit::~Kit()
@@ -298,25 +298,25 @@ QIcon Kit::icon() const
     return d->m_icon;
 }
 
-QIcon Kit::icon(const QString &path)
+QIcon Kit::icon(const Utils::FileName &path)
 {
     if (path.isEmpty())
         return QIcon();
-    if (path == QLatin1String(":///DESKTOP///"))
+    if (path == Utils::FileName::fromString(QLatin1String(":///DESKTOP///")))
         return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
 
-    QFileInfo fi(path);
+    QFileInfo fi(path.toString());
     if (fi.isFile() && fi.isReadable())
-        return QIcon(path);
+        return QIcon(path.toString());
     return QIcon();
 }
 
-QString Kit::iconPath() const
+Utils::FileName Kit::iconPath() const
 {
     return d->m_iconPath;
 }
 
-void Kit::setIconPath(const QString &path)
+void Kit::setIconPath(const Utils::FileName &path)
 {
     if (d->m_iconPath == path)
         return;
@@ -378,7 +378,7 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_displayName);
     data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
     data.insert(QLatin1String(SDK_PROVIDED_KEY), d->m_sdkProvided);
-    data.insert(QLatin1String(ICON_KEY), d->m_iconPath);
+    data.insert(QLatin1String(ICON_KEY), d->m_iconPath.toString());
 
     QVariantMap extra;
 
@@ -465,7 +465,7 @@ bool Kit::fromMap(const QVariantMap &data)
     else
         d->m_sdkProvided = d->m_autodetected;
     setDisplayName(data.value(QLatin1String(DISPLAYNAME_KEY)).toString());
-    setIconPath(data.value(QLatin1String(ICON_KEY)).toString());
+    setIconPath(Utils::FileName::fromString(data.value(QLatin1String(ICON_KEY)).toString()));
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     d->m_data.clear(); // remove default values

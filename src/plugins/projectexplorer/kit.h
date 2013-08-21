@@ -80,9 +80,9 @@ public:
     Core::Id id() const;
 
     QIcon icon() const;
-    static QIcon icon(const QString &path);
-    QString iconPath() const;
-    void setIconPath(const QString &path);
+    static QIcon icon(const Utils::FileName &path);
+    Utils::FileName iconPath() const;
+    void setIconPath(const Utils::FileName &path);
 
     QVariant value(Core::Id key, const QVariant &unset = QVariant()) const;
     bool hasValue(Core::Id key) const;

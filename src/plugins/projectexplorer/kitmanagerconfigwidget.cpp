@@ -242,11 +242,14 @@ void KitManagerConfigWidget::removeKit()
 
 void KitManagerConfigWidget::setIcon()
 {
-    const QString path = QFileDialog::getOpenFileName(this, tr("Select Icon"), m_modifiedKit->iconPath(), tr("Images (*.png *.xpm *.jpg)"));
+    const Utils::FileName path = Utils::FileName::fromString(
+                QFileDialog::getOpenFileName(this, tr("Select Icon"),
+                                             m_modifiedKit->iconPath().toString(),
+                                             tr("Images (*.png *.xpm *.jpg)")));
     if (path.isEmpty())
         return;
 
-    const QIcon icon = QIcon(path);
+    const QIcon icon = Kit::icon(path);
     if (icon.isNull())
         return;
 

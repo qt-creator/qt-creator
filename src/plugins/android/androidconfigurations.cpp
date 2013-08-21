@@ -775,7 +775,7 @@ void AndroidConfigurations::updateAutomaticKitList()
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
-            newKit->setIconPath(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
+            newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON)));
             DeviceTypeKitInformation::setDeviceTypeId(newKit, Core::Id(Constants::ANDROID_DEVICE_TYPE));
             ToolChainKitInformation::setToolChain(newKit, tc);
             QtSupport::QtKitInformation::setQtVersion(newKit, qt);
