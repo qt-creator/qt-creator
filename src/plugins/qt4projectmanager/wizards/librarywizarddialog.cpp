@@ -60,6 +60,7 @@ static const PluginBaseClasses pluginBaseClasses[] =
 {
     { "QAccessiblePlugin", "QtGui", "QtCore", "accessible", "QAccessibleFactoryInterface" },
     { "QDecorationPlugin", "QtGui", "QtCore", 0, 0 }, // Qt 4 only.
+    { "QGenericPlugin", "QtGui", "QtCore", "generic", "QGenericPluginFactoryInterface" },
     { "QIconEnginePluginV2", "QtGui", "QtCore", "imageformats", 0 }, // Qt 4 only.
     { "QIconEnginePlugin", "QtGui", "QtCore", "imageformats", "QIconEngineFactoryInterface" },
     { "QImageIOPlugin", "QtGui", "QtCore", "imageformats",  "QImageIOHandlerFactoryInterface" },
@@ -69,7 +70,7 @@ static const PluginBaseClasses pluginBaseClasses[] =
     { "QTextCodecPlugin", "QtCore", 0, "codecs", 0 } // Qt 4 only.
 };
 
-enum { defaultPluginBaseClass = 6 };
+enum { defaultPluginBaseClass = 2 };
 
 static const PluginBaseClasses *findPluginBaseClass(const QString &name)
 {
