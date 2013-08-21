@@ -71,7 +71,7 @@ QString KitChooser::kitToolTip(Kit *k) const
 void KitChooser::populate()
 {
     clear();
-    foreach (Kit *kit, KitManager::instance()->kits()) {
+    foreach (Kit *kit, KitManager::kits()) {
         if (kitMatches(kit)) {
             addItem(kitText(kit), qVariantFromValue(kit->id()));
             setItemData(count() - 1, kitToolTip(kit), Qt::ToolTipRole);
@@ -109,7 +109,7 @@ Core::Id KitChooser::currentKitId() const
 Kit *KitChooser::kitAt(int index) const
 {
     Core::Id id = qvariant_cast<Core::Id>(itemData(index));
-    return KitManager::instance()->find(id);
+    return KitManager::find(id);
 }
 
 } // namespace ProjectExplorer

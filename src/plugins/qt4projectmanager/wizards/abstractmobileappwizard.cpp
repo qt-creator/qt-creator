@@ -210,7 +210,7 @@ bool AbstractMobileAppWizardDialog::isQtPlatformSelected(const QString &platform
 
     QtSupport::QtPlatformKitMatcher matcher(platform);
     QList<ProjectExplorer::Kit *> kitsList
-            = ProjectExplorer::KitManager::instance()->kits(&matcher);
+            = ProjectExplorer::KitManager::kits(&matcher);
     foreach (ProjectExplorer::Kit *k, kitsList) {
         if (selectedKitsList.contains(k->id()))
             return true;

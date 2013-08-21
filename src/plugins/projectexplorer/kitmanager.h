@@ -113,30 +113,28 @@ public:
     static KitManager *instance();
     ~KitManager();
 
-    QList<Kit *> kits(const KitMatcher *m = 0) const;
-    Kit *find(const Core::Id &id) const;
-    Kit *find(const KitMatcher *m) const;
-    Kit *defaultKit() const;
+    static QList<Kit *> kits(const KitMatcher *m = 0);
+    static Kit *find(const Core::Id &id);
+    static Kit *find(const KitMatcher *m);
+    static Kit *defaultKit();
 
-    QList<KitInformation *> kitInformation() const;
+    static QList<KitInformation *> kitInformation();
 
-    Internal::KitManagerConfigWidget *createConfigWidget(Kit *k) const;
+    static Internal::KitManagerConfigWidget *createConfigWidget(Kit *k);
 
     static void deleteKit(Kit *k);
 
-    bool isLoaded() const;
-
     static QString uniqueKitName(const Kit *k, const QString name, const QList<Kit *> &allKits);
 
+    static bool registerKit(ProjectExplorer::Kit *k);
+    static void deregisterKit(ProjectExplorer::Kit *k);
+    static void setDefaultKit(ProjectExplorer::Kit *k);
+
+    static void registerKitInformation(ProjectExplorer::KitInformation *ki);
+    static void deregisterKitInformation(ProjectExplorer::KitInformation *ki);
+
 public slots:
-    bool registerKit(ProjectExplorer::Kit *k);
-    void deregisterKit(ProjectExplorer::Kit *k);
-    void setDefaultKit(ProjectExplorer::Kit *k);
-
     void saveKits();
-
-    void registerKitInformation(ProjectExplorer::KitInformation *ki);
-    void deregisterKitInformation(ProjectExplorer::KitInformation *ki);
 
 signals:
     void kitAdded(ProjectExplorer::Kit *);
@@ -155,7 +153,8 @@ signals:
 private:
     explicit KitManager(QObject *parent = 0);
 
-    bool setKeepDisplayNameUnique(bool unique);
+    bool isLoaded() const;
+    static bool setKeepDisplayNameUnique(bool unique);
 
     // Make sure the this is only called after all
     // KitInformation are registered!
@@ -170,8 +169,8 @@ private:
     };
     KitList restoreKits(const Utils::FileName &fileName);
 
-    void notifyAboutDisplayNameChange(ProjectExplorer::Kit *k);
-    void notifyAboutUpdate(ProjectExplorer::Kit *k);
+    static void notifyAboutDisplayNameChange(ProjectExplorer::Kit *k);
+    static void notifyAboutUpdate(ProjectExplorer::Kit *k);
     void addKit(Kit *k);
 
     Internal::KitManagerPrivate *const d;

@@ -337,10 +337,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_toolChainManager = new ToolChainManager;
 
     // Register KitInformation:
-    KitManager::instance()->registerKitInformation(new DeviceTypeKitInformation);
-    KitManager::instance()->registerKitInformation(new DeviceKitInformation);
-    KitManager::instance()->registerKitInformation(new ToolChainKitInformation);
-    KitManager::instance()->registerKitInformation(new SysRootKitInformation);
+    KitManager::registerKitInformation(new DeviceTypeKitInformation);
+    KitManager::registerKitInformation(new DeviceKitInformation);
+    KitManager::registerKitInformation(new ToolChainKitInformation);
+    KitManager::registerKitInformation(new SysRootKitInformation);
 
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
     addAutoReleasedObject(new KitOptionsPage);

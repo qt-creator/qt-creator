@@ -335,7 +335,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         return sp;
 
     Target *target = runConfiguration->target();
-    Kit *kit = target ? target->kit() : KitManager::instance()->defaultKit();
+    Kit *kit = target ? target->kit() : KitManager::defaultKit();
     if (!fillParameters(&sp, kit, errorMessage))
         return sp;
     sp.environment = environment->environment();

@@ -254,7 +254,7 @@ QString UiCodeModelSupport::uicCommand() const
 {
     QtSupport::BaseQtVersion *version;
     if (m_project->needsConfiguration()) {
-        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::instance()->defaultKit());
+        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
     } else {
         ProjectExplorer::Target *target = m_project->activeTarget();
         version = QtSupport::QtKitInformation::qtVersion(target->kit());

@@ -744,7 +744,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     QList<Kit *> existingKits;
 
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits()) {
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits()) {
         if (ProjectExplorer::DeviceKitInformation::deviceId(k) != Core::Id(Constants::ANDROID_DEVICE_ID))
             continue;
         if (!k->isAutoDetected())
@@ -805,7 +805,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     foreach (Kit *k, existingKits)
-        KitManager::instance()->deregisterKit(k);
+        KitManager::deregisterKit(k);
 
     foreach (Kit *kit, newKits) {
         AndroidToolChain *tc = static_cast<AndroidToolChain *>(ToolChainKitInformation::toolChain(kit));
@@ -814,7 +814,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                             .arg(qt->targetArch())
                             .arg(tc->ndkToolChainVersion())
                             .arg(qt->qtVersionString()));
-        KitManager::instance()->registerKit(kit);
+        KitManager::registerKit(kit);
     }
 }
 

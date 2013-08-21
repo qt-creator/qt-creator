@@ -117,7 +117,7 @@ public:
         // prioritize default qt version
         QtVersionManager *versionManager = QtVersionManager::instance();
         QList <BaseQtVersion *> qtVersions = versionManager->validVersions();
-        ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::instance()->defaultKit();
+        ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
         BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
         if (defaultVersion && qtVersions.contains(defaultVersion))
             qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
@@ -544,7 +544,7 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
     // prioritize default qt version
     QtVersionManager *versionManager = QtVersionManager::instance();
     QList <BaseQtVersion *> qtVersions = versionManager->validVersions();
-    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::instance()->defaultKit();
+    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
     BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
     if (defaultVersion && qtVersions.contains(defaultVersion))
         qtVersions.move(qtVersions.indexOf(defaultVersion), 0);

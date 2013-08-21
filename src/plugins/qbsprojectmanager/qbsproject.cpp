@@ -357,9 +357,9 @@ bool QbsProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    ProjectExplorer::KitManager *km = ProjectExplorer::KitManager::instance();
-    if (!activeTarget() && km->defaultKit()) {
-        ProjectExplorer::Target *t = new ProjectExplorer::Target(this, km->defaultKit());
+    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
+    if (!activeTarget() && defaultKit) {
+        ProjectExplorer::Target *t = new ProjectExplorer::Target(this, defaultKit);
         t->updateDefaultBuildConfigurations();
         t->updateDefaultDeployConfigurations();
         t->updateDefaultRunConfigurations();
@@ -496,7 +496,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
     if (ProjectExplorer::Target *target = activeTarget())
         k = target->kit();
     else
-        k = ProjectExplorer::KitManager::instance()->defaultKit();
+        k = ProjectExplorer::KitManager::defaultKit();
     qtVersion = QtSupport::QtKitInformation::qtVersion(k);
 
     CppTools::CppModelManagerInterface *modelmanager =

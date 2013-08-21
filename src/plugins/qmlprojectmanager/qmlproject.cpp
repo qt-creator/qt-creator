@@ -381,13 +381,12 @@ bool QmlProject::fromMap(const QVariantMap &map)
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
         Internal::QmlProjectKitMatcher matcher(defaultImport());
-        ProjectExplorer::KitManager *kitManager = ProjectExplorer::KitManager::instance();
-        QList<ProjectExplorer::Kit*> kits = kitManager->kits(&matcher);
+        QList<ProjectExplorer::Kit*> kits = ProjectExplorer::KitManager::kits(&matcher);
 
         if (!kits.isEmpty()) {
             ProjectExplorer::Kit *kit = 0;
-            if (kits.contains(kitManager->defaultKit())) {
-                kit = kitManager->defaultKit();
+            if (kits.contains(ProjectExplorer::KitManager::defaultKit())) {
+                kit = ProjectExplorer::KitManager::defaultKit();
             } else {
                 kit = kits.first();
             }

@@ -154,8 +154,8 @@ KitManager::KitManager(QObject *parent) :
 
 bool KitManager::setKeepDisplayNameUnique(bool unique)
 {
-    bool current = d->m_keepDisplayNameUnique;
-    d->m_keepDisplayNameUnique = unique;
+    bool current = m_instance->d->m_keepDisplayNameUnique;
+    m_instance->d->m_keepDisplayNameUnique = unique;
     return current;
 }
 
@@ -299,13 +299,15 @@ bool greaterPriority(KitInformation *a, KitInformation *b)
 
 void KitManager::registerKitInformation(KitInformation *ki)
 {
-    QTC_CHECK(!isLoaded());
+    QTC_CHECK(!m_instance->isLoaded());
+    QTC_ASSERT(!m_instance->d->m_informationList.contains(ki), return);
 
     QList<KitInformation *>::iterator it
-            = qLowerBound(d->m_informationList.begin(), d->m_informationList.end(), ki, greaterPriority);
-    d->m_informationList.insert(it, ki);
+            = qLowerBound(m_instance->d->m_informationList.begin(),
+                          m_instance->d->m_informationList.end(), ki, greaterPriority);
+    m_instance->d->m_informationList.insert(it, ki);
 
-    if (!d->m_initialized)
+    if (!m_instance->isLoaded())
         return;
 
     foreach (Kit *k, kits()) {
@@ -320,8 +322,8 @@ void KitManager::registerKitInformation(KitInformation *ki)
 
 void KitManager::deregisterKitInformation(KitInformation *ki)
 {
-    QTC_CHECK(d->m_informationList.contains(ki));
-    d->m_informationList.removeAll(ki);
+    QTC_CHECK(m_instance->d->m_informationList.contains(ki));
+    m_instance->d->m_informationList.removeOne(ki);
     delete ki;
 }
 
@@ -373,17 +375,17 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
     return result;
 }
 
-QList<Kit *> KitManager::kits(const KitMatcher *m) const
+QList<Kit *> KitManager::kits(const KitMatcher *m)
 {
     QList<Kit *> result;
-    foreach (Kit *k, d->m_kitList) {
+    foreach (Kit *k, m_instance->d->m_kitList) {
         if (!m || m->matches(k))
             result.append(k);
     }
     return result;
 }
 
-Kit *KitManager::find(const Core::Id &id) const
+Kit *KitManager::find(const Core::Id &id)
 {
     if (!id.isValid())
         return 0;
@@ -395,26 +397,26 @@ Kit *KitManager::find(const Core::Id &id) const
     return 0;
 }
 
-Kit *KitManager::find(const KitMatcher *m) const
+Kit *KitManager::find(const KitMatcher *m)
 {
     QList<Kit *> matched = kits(m);
     return matched.isEmpty() ? 0 : matched.first();
 }
 
-Kit *KitManager::defaultKit() const
+Kit *KitManager::defaultKit()
 {
-    return d->m_defaultKit;
+    return m_instance->d->m_defaultKit;
 }
 
-QList<KitInformation *> KitManager::kitInformation() const
+QList<KitInformation *> KitManager::kitInformation()
 {
-    return d->m_informationList;
+    return m_instance->d->m_informationList;
 }
 
-Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k) const
+Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
 {
     Internal::KitManagerConfigWidget *result = new Internal::KitManagerConfigWidget(k);
-    foreach (KitInformation *ki, d->m_informationList)
+    foreach (KitInformation *ki, kitInformation())
         result->addConfigWidget(ki->createConfigWidget(result->workingCopy()));
 
     result->updateVisibility();
@@ -463,28 +465,28 @@ void KitManager::notifyAboutDisplayNameChange(Kit *k)
 {
     if (!k)
         return;
-    if (d->m_kitList.contains(k) && d->m_keepDisplayNameUnique)
+    if (m_instance->d->m_kitList.contains(k) && m_instance->d->m_keepDisplayNameUnique)
         k->setDisplayName(uniqueKitName(k, k->displayName(), kits()));
-    int pos = d->m_kitList.indexOf(k);
-    if (pos >= 0 && d->m_initialized)
-        d->moveKit(pos);
+    int pos = m_instance->d->m_kitList.indexOf(k);
+    if (pos >= 0 && m_instance->d->m_initialized)
+        m_instance->d->moveKit(pos);
     notifyAboutUpdate(k);
 }
 
 void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
-    if (!k || !d->m_initialized)
+    if (!k || !m_instance->isLoaded())
         return;
 
-    if (d->m_kitList.contains(k))
-        emit kitUpdated(k);
+    if (m_instance->d->m_kitList.contains(k))
+        emit m_instance->kitUpdated(k);
     else
-        emit unmanagedKitUpdated(k);
+        emit m_instance->unmanagedKitUpdated(k);
 }
 
 bool KitManager::registerKit(ProjectExplorer::Kit *k)
 {
-    QTC_ASSERT(isLoaded(), return false);
+    QTC_ASSERT(m_instance->isLoaded(), return false);
     if (!k)
         return true;
     foreach (Kit *current, kits()) {
@@ -495,9 +497,8 @@ bool KitManager::registerKit(ProjectExplorer::Kit *k)
     k->setDisplayName(uniqueKitName(k, k->displayName(), kits()));
 
     // make sure we have all the information in our kits:
-    addKit(k);
-    if (d->m_initialized)
-        emit kitAdded(k);
+    m_instance->addKit(k);
+    emit m_instance->kitAdded(k);
     return true;
 }
 
@@ -505,8 +506,8 @@ void KitManager::deregisterKit(Kit *k)
 {
     if (!k || !kits().contains(k))
         return;
-    d->m_kitList.removeOne(k);
-    if (d->m_defaultKit == k) {
+    m_instance->d->m_kitList.removeOne(k);
+    if (defaultKit() == k) {
         QList<Kit *> stList = kits();
         Kit *newDefault = 0;
         foreach (Kit *cur, stList) {
@@ -517,20 +518,18 @@ void KitManager::deregisterKit(Kit *k)
         }
         setDefaultKit(newDefault);
     }
-    if (d->m_initialized)
-        emit kitRemoved(k);
+    emit m_instance->kitRemoved(k);
     delete k;
 }
 
 void KitManager::setDefaultKit(Kit *k)
 {
-    if (d->m_defaultKit == k)
+    if (defaultKit() == k)
         return;
     if (k && !kits().contains(k))
         return;
-    d->m_defaultKit = k;
-    if (d->m_initialized)
-        emit defaultkitChanged();
+    m_instance->d->m_defaultKit = k;
+    emit m_instance->defaultkitChanged();
 }
 
 void KitManager::addKit(Kit *k)

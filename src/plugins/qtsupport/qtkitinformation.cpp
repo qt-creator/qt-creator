@@ -206,14 +206,14 @@ void QtKitInformation::qtVersionsChanged(const QList<int> &addedIds,
 {
     Q_UNUSED(addedIds);
     Q_UNUSED(removedIds);
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits())
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
         if (changedIds.contains(qtVersionId(k)))
             notifyAboutUpdate(k);
 }
 
 void QtKitInformation::kitsWereLoaded()
 {
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits())
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
         fix(k);
 
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),

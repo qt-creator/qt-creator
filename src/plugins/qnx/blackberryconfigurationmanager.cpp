@@ -169,7 +169,7 @@ void BlackBerryConfigurationManager::saveManualConfigurations()
 void BlackBerryConfigurationManager::clearInvalidConfigurations()
 {
     QList<NdkInstallInformation> autoNdks = QnxUtils::installedNdks();
-    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::instance()->kits()) {
+    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::kits()) {
         if (!kit->isAutoDetected())
             continue;
 
@@ -187,7 +187,7 @@ void BlackBerryConfigurationManager::clearInvalidConfigurations()
                 QtSupport::QtVersionManager::instance()->removeVersion(QtSupport::QtKitInformation::qtVersion(kit));
                 ProjectExplorer::ToolChainManager::instance()->deregisterToolChain(
                             ProjectExplorer::ToolChainKitInformation::toolChain(kit));
-                ProjectExplorer::KitManager::instance()->deregisterKit(kit);
+                ProjectExplorer::KitManager::deregisterKit(kit);
             }
         }
     }

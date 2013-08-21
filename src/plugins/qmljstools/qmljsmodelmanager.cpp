@@ -95,7 +95,7 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
         activeTarget = project->activeTarget();
     }
     ProjectExplorer::Kit *activeKit = activeTarget ? activeTarget->kit() :
-                                           ProjectExplorer::KitManager::instance()->defaultKit();
+                                           ProjectExplorer::KitManager::defaultKit();
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(activeKit);
 
     bool preferDebugDump = false;
@@ -143,7 +143,7 @@ void QmlJSTools::setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &
         activeTarget = projectInfo.project->activeTarget();
     }
     ProjectExplorer::Kit *activeKit = activeTarget
-            ? activeTarget->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
+            ? activeTarget->kit() : ProjectExplorer::KitManager::defaultKit();
     QHash<QString, QString> replacements;
     replacements.insert(QLatin1String("$(QT_INSTALL_IMPORTS)"), projectInfo.qtImportsPath);
     replacements.insert(QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath);

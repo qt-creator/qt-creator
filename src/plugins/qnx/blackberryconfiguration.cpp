@@ -174,8 +174,8 @@ void BlackBerryConfiguration::setupConfigurationPerQtVersion(const Utils::FileNa
         // register
         QtSupport::QtVersionManager::instance()->addVersion(qtVersion);
         ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
-        ProjectExplorer::KitManager::instance()->registerKit(deviceKit);
-        ProjectExplorer::KitManager::instance()->registerKit(simulatorKit);
+        ProjectExplorer::KitManager::registerKit(deviceKit);
+        ProjectExplorer::KitManager::registerKit(simulatorKit);
     }
 }
 
@@ -232,7 +232,7 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
         return 0;
 
     // Check if an identical kit already exists
-    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::instance()->kits())
+    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::kits())
     {
         if (QtSupport::QtKitInformation::qtVersion(kit) == qtVersion && ProjectExplorer::ToolChainKitInformation::toolChain(kit) == tc
                 && ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_BB_OS_TYPE
@@ -324,12 +324,12 @@ void BlackBerryConfiguration::deactivate()
     QtSupport::BaseQtVersion *qt4Version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake4BinaryFile);
     QtSupport::BaseQtVersion *qt5Version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake5BinaryFile);
     if (qt4Version || qt5Version) {
-        foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::instance()->kits()) {
+        foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::kits()) {
             if (qt4Version && qt4Version == QtSupport::QtKitInformation::qtVersion(kit))
-                ProjectExplorer::KitManager::instance()->deregisterKit(kit);
+                ProjectExplorer::KitManager::deregisterKit(kit);
 
             else if (qt5Version && qt5Version == QtSupport::QtKitInformation::qtVersion(kit))
-                ProjectExplorer::KitManager::instance()->deregisterKit(kit);
+                ProjectExplorer::KitManager::deregisterKit(kit);
         }
 
         if (qt4Version)

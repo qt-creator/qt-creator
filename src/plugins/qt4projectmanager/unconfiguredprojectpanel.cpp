@@ -144,13 +144,13 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
 
 void TargetSetupPageWrapper::kitUpdated(ProjectExplorer::Kit *k)
 {
-    if (k == ProjectExplorer::KitManager::instance()->defaultKit())
+    if (k == ProjectExplorer::KitManager::defaultKit())
         updateNoteText();
 }
 
 void TargetSetupPageWrapper::updateNoteText()
 {
-    ProjectExplorer::Kit *k = ProjectExplorer::KitManager::instance()->defaultKit();
+    ProjectExplorer::Kit *k = ProjectExplorer::KitManager::defaultKit();
 
     QString text;
     bool showHint = false;

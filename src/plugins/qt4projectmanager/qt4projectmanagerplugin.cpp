@@ -121,7 +121,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
 
-    ProjectExplorer::KitManager::instance()->registerKitInformation(new QmakeKitInformation);
+    ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 
     addObject(m_proFileEditorFactory);
 

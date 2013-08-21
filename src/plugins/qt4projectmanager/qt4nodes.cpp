@@ -577,7 +577,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
     InternalNode contents;
 
     ProjectExplorer::Target *t = m_project->activeTarget();
-    ProjectExplorer::Kit *k = t ? t->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
+    ProjectExplorer::Kit *k = t ? t->kit() : ProjectExplorer::KitManager::defaultKit();
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
 
     // Figure out DEPLOYMENT and INSTALL folders

@@ -118,9 +118,8 @@ public:
 Kit::Kit(Core::Id id) :
     d(new Internal::KitPrivate(id))
 {
-    KitManager *stm = KitManager::instance();
     KitGuard g(this);
-    foreach (KitInformation *sti, stm->kitInformation())
+    foreach (KitInformation *sti, KitManager::kitInformation())
         setValue(sti->dataId(), sti->defaultValue(this));
 
     setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed"));
@@ -193,7 +192,7 @@ bool Kit::hasWarning() const
 QList<Task> Kit::validate() const
 {
     QList<Task> result;
-    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    QList<KitInformation *> infoList = KitManager::kitInformation();
     d->m_isValid = true;
     d->m_hasWarning = false;
     foreach (KitInformation *i, infoList) {
@@ -213,7 +212,7 @@ QList<Task> Kit::validate() const
 void Kit::fix()
 {
     KitGuard g(this);
-    foreach (KitInformation *i, KitManager::instance()->kitInformation())
+    foreach (KitInformation *i, KitManager::kitInformation())
         i->fix(this);
 }
 
@@ -222,7 +221,7 @@ void Kit::setup()
     KitGuard g(this);
     // Process the KitInfos in reverse order: They may only be based on other information lower in
     // the stack.
-    QList<KitInformation *> info = KitManager::instance()->kitInformation();
+    QList<KitInformation *> info = KitManager::kitInformation();
     for (int i = info.count() - 1; i >= 0; --i)
         info.at(i)->setup(this);
 }
@@ -255,7 +254,7 @@ QStringList Kit::candidateNameList(const QString &base) const
 {
     QStringList result;
     result << base;
-    foreach (KitInformation *ki, KitManager::instance()->kitInformation()) {
+    foreach (KitInformation *ki, KitManager::kitInformation()) {
         const QString postfix = ki->displayNamePostfix(this);
         if (!postfix.isEmpty())
             result << candidateName(base, postfix);
@@ -266,7 +265,7 @@ QStringList Kit::candidateNameList(const QString &base) const
 QString Kit::fileSystemFriendlyName() const
 {
     QString name = cleanName(displayName());
-    foreach (Kit *i, KitManager::instance()->kits()) {
+    foreach (Kit *i, KitManager::kits()) {
         if (i == this)
             continue;
         if (name == cleanName(i->displayName())) {
@@ -393,7 +392,7 @@ QVariantMap Kit::toMap() const
 
 void Kit::addToEnvironment(Utils::Environment &env) const
 {
-    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList)
         ki->addToEnvironment(this, env);
 }
@@ -401,7 +400,7 @@ void Kit::addToEnvironment(Utils::Environment &env) const
 IOutputParser *Kit::createOutputParser() const
 {
     IOutputParser *first = 0;
-    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList) {
         IOutputParser *next = ki->createOutputParser(this);
         if (!first)
@@ -441,7 +440,7 @@ QString Kit::toHtml() const
         str << "</p>";
     }
 
-    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList) {
         KitInformation::ItemList list = ki->toUserOutput(this);
         foreach (const KitInformation::Item &j, list)
@@ -489,7 +488,7 @@ void Kit::setSdkProvided(bool sdkProvided)
 
 void Kit::makeSticky()
 {
-    foreach (KitInformation *ki, KitManager::instance()->kitInformation()) {
+    foreach (KitInformation *ki, KitManager::kitInformation()) {
         if (hasValue(ki->dataId()))
             makeSticky(ki->dataId());
     }
@@ -507,7 +506,7 @@ void Kit::kitUpdated()
         return;
     }
     validate();
-    KitManager::instance()->notifyAboutUpdate(this);
+    KitManager::notifyAboutUpdate(this);
 }
 
 void Kit::kitDisplayNameChanged()
@@ -518,7 +517,7 @@ void Kit::kitDisplayNameChanged()
         return;
     }
     validate();
-    KitManager::instance()->notifyAboutDisplayNameChange(this);
+    KitManager::notifyAboutDisplayNameChange(this);
 }
 
 } // namespace ProjectExplorer

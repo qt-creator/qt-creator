@@ -270,7 +270,7 @@ void TargetSettingsPanelWidget::menuShown(int targetIndex)
 
 void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 {
-    Kit *k = KitManager::instance()->find(action->data().value<Core::Id>());
+    Kit *k = KitManager::find(action->data().value<Core::Id>());
     Target *sourceTarget = m_targets.at(m_menuTargetIndex);
     Target *newTarget = cloneTarget(sourceTarget, k);
 
@@ -283,7 +283,7 @@ void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 
 void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 {
-    Kit *k = KitManager::instance()->find(action->data().value<Core::Id>());
+    Kit *k = KitManager::find(action->data().value<Core::Id>());
     Target *newTarget = cloneTarget(m_targets.at(m_menuTargetIndex), k);
 
     if (newTarget) {
@@ -294,7 +294,7 @@ void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 
 void TargetSettingsPanelWidget::addActionTriggered(QAction *action)
 {
-    Kit *k = KitManager::instance()->find(action->data().value<Core::Id>());
+    Kit *k = KitManager::find(action->data().value<Core::Id>());
     QTC_ASSERT(!m_project->target(k), return);
 
     Target *target = m_project->createTarget(k);
@@ -563,7 +563,7 @@ void TargetSettingsPanelWidget::updateTargetButtons()
             this, SLOT(duplicateActionTriggered(QAction*)));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTarget()));
 
-    QList<Kit *> kits = KitManager::instance()->kits();
+    QList<Kit *> kits = KitManager::kits();
     qSort(kits.begin(), kits.end(), diplayNameSorter);
     foreach (Kit *k, kits) {
         if (m_project->target(k))

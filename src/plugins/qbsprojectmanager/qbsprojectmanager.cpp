@@ -203,7 +203,7 @@ void QbsManager::pushKitsToQbs()
     removeCreatorProfiles();
 
     // add definitions from our kits
-    foreach (const ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits())
+    foreach (const ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
         addProfileFromKit(k);
 }
 

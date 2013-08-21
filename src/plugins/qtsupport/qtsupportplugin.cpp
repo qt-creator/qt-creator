@@ -87,7 +87,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
-    ProjectExplorer::KitManager::instance()->registerKitInformation(new QtKitInformation);
+    ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 
     return true;
 }

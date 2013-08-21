@@ -157,7 +157,7 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     // Load the project tree structure.
     loadProjectTree();
 
-    Kit *defaultKit = KitManager::instance()->defaultKit();
+    Kit *defaultKit = KitManager::defaultKit();
     if (!activeTarget() && defaultKit)
         addTarget(createTarget(defaultKit));
 

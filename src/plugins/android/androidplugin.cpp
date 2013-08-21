@@ -77,7 +77,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidToolChainFactory);
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
-    ProjectExplorer::KitManager::instance()->registerKitInformation(new Internal::AndroidGdbServerKitInformation);
+    ProjectExplorer::KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     // AndroidManifest.xml editor
     Core::MimeGlobPattern androidManifestGlobPattern(QLatin1String("AndroidManifest.xml"), Core::MimeGlobPattern::MaxWeight);

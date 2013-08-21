@@ -117,7 +117,7 @@ Kit *ClassWizard::kitForWizard(const ClassWizardDialog *wizard) const
     if (proj && proj->activeTarget())
         return proj->activeTarget()->kit();
 
-    return KitManager::instance()->defaultKit();
+    return KitManager::defaultKit();
 }
 
 } // namespace PythonEditor

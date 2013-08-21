@@ -770,7 +770,7 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    d->m_kit = KitManager::instance()->find(id());
+    d->m_kit = KitManager::find(id());
     if (!d->m_kit)
         return false;
 

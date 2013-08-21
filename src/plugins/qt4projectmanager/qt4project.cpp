@@ -512,7 +512,7 @@ void Qt4Project::updateCppCodeModel()
     if (ProjectExplorer::Target *target = activeTarget())
         k = target->kit();
     else
-        k = KitManager::instance()->defaultKit();
+        k = KitManager::defaultKit();
     qtVersion = QtSupport::QtKitInformation::qtVersion(k);
 
     CppTools::CppModelManagerInterface *modelmanager =
@@ -992,7 +992,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(const Qt4ProFileNode *
             else
                 qmakeArgs = bc->configCommandLineArguments();
         } else {
-            k = KitManager::instance()->defaultKit();
+            k = KitManager::defaultKit();
         }
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
@@ -1393,7 +1393,7 @@ bool Qt4Project::needsConfiguration() const
 
 void Qt4Project::configureAsExampleProject(const QStringList &platforms)
 {
-    QList<Kit *> kits = ProjectExplorer::KitManager::instance()->kits();
+    QList<Kit *> kits = ProjectExplorer::KitManager::kits();
     foreach (Kit *k, kits) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
         if (!version)

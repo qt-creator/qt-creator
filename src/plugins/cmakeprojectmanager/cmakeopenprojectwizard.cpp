@@ -292,8 +292,7 @@ bool CMakeOpenProjectWizard::compatibleKitExist() const
     bool hasNinjaGenerator = m_cmakeManager->hasCodeBlocksNinjaGenerator();
     bool preferNinja = m_cmakeManager->preferNinja();
 
-    QList<ProjectExplorer::Kit *> kitList =
-            ProjectExplorer::KitManager::instance()->kits();
+    QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::kits();
 
     foreach (ProjectExplorer::Kit *k, kitList) {
         // OfferNinja and ForceNinja differ in what they return
@@ -665,8 +664,7 @@ void CMakeRunPage::initializePage()
         QByteArray cachedGenerator = cachedGeneratorFromFile(m_buildDirectory + QLatin1String("/CMakeCache.txt"));
 
         m_generatorComboBox->show();
-        QList<ProjectExplorer::Kit *> kitList =
-                ProjectExplorer::KitManager::instance()->kits();
+        QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::kits();
         int defaultIndex = 0;
 
         foreach (ProjectExplorer::Kit *k, kitList) {
@@ -675,7 +673,7 @@ void CMakeRunPage::initializePage()
                                                                           preferNinja,
                                                                           hasCodeBlocksGenerator);
 
-            if (k == ProjectExplorer::KitManager::instance()->defaultKit())
+            if (k == ProjectExplorer::KitManager::defaultKit())
                 defaultIndex = m_generatorComboBox->count();
 
             foreach (const GeneratorInfo &info, infos)

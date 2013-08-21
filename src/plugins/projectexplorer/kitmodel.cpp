@@ -57,7 +57,7 @@ public:
         if (kn)
             kn->childNodes.append(this);
 
-        widget = KitManager::instance()->createConfigWidget(k);
+        widget = KitManager::createConfigWidget(k);
         if (widget) {
             if (k && k->isAutoDetected())
                 widget->makeStickySubWidgetsReadOnly();
@@ -104,7 +104,7 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
     m_autoRoot = new KitNode(m_root);
     m_manualRoot = new KitNode(m_root);
 
-    foreach (Kit *k, KitManager::instance()->kits())
+    foreach (Kit *k, KitManager::kits())
         addKit(k);
 
     changeDefaultKit();
@@ -285,8 +285,7 @@ void KitModel::apply()
     }
 
     // Update kits:
-    KitManager *km = KitManager::instance();
-    bool unique = km->setKeepDisplayNameUnique(false);
+    bool unique = KitManager::setKeepDisplayNameUnique(false);
     nodes = m_autoRoot->childNodes; // These can be dirty due to being made default!
     nodes.append(m_manualRoot->childNodes);
     foreach (KitNode *n, nodes) {
@@ -297,7 +296,7 @@ void KitModel::apply()
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
         }
     }
-    km->setKeepDisplayNameUnique(unique);
+    KitManager::setKeepDisplayNameUnique(unique);
 }
 
 void KitModel::markForRemoval(Kit *k)
@@ -475,7 +474,7 @@ void KitModel::updateKit(Kit *k)
 
 void KitModel::changeDefaultKit()
 {
-    Kit *defaultKit = KitManager::instance()->defaultKit();
+    Kit *defaultKit = KitManager::defaultKit();
     QList<KitNode *> nodes = m_autoRoot->childNodes;
     nodes << m_manualRoot->childNodes;
     foreach (KitNode *n, nodes) {

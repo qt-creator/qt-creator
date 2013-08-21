@@ -248,7 +248,7 @@ void GenericProject::refresh(RefreshOptions options)
         pinfo.clearProjectParts();
         CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
 
-        Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
+        Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
             QStringList cxxflags; // FIXME: Can we do better?
             part->evaluateToolchain(tc, cxxflags, cxxflags,
@@ -408,7 +408,7 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    Kit *defaultKit = KitManager::instance()->defaultKit();
+    Kit *defaultKit = KitManager::defaultKit();
     if (!activeTarget() && defaultKit)
         addTarget(createTarget(defaultKit));
 

@@ -270,7 +270,7 @@ Target *Project::restoreTarget(const QVariantMap &data)
         return 0;
     }
 
-    Kit *k = KitManager::instance()->find(id);
+    Kit *k = KitManager::find(id);
     if (!k) {
         qWarning("Warning: No kit '%s' found. Continuing.", qPrintable(id.toString()));
         return 0;

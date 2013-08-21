@@ -593,12 +593,12 @@ public:
 #ifdef Q_OS_WIN
         if (Utils::winIs64BitSystem()) {
             CdbMatcher matcher64(64);
-            if (Kit *cdb64Kit = KitManager::instance()->find(&matcher64))
+            if (Kit *cdb64Kit = KitManager::find(&matcher64))
                 return cdb64Kit;
         }
 #endif
         CdbMatcher matcher;
-        return KitManager::instance()->find(&matcher);
+        return KitManager::find(&matcher);
     }
 
 private:
@@ -625,14 +625,14 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorM
         }
         if (!abis.isEmpty()) {
             AbiKitMatcher matcher(abis);
-            kit = KitManager::instance()->find(&matcher);
+            kit = KitManager::find(&matcher);
             if (!kit) {
                 CompatibleAbiKitMatcher matcher(abis);
-                kit = KitManager::instance()->find(&matcher);
+                kit = KitManager::find(&matcher);
             }
         }
         if (!kit)
-            kit = KitManager::instance()->defaultKit();
+            kit = KitManager::defaultKit();
     }
 
     // Verify that debugger and profile are valid
@@ -1427,7 +1427,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
                     sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
                 } else if (key == QLatin1String("kit")) {
-                    kit = KitManager::instance()->find(Id::fromString(val));
+                    kit = KitManager::find(Id::fromString(val));
                 }
             }
         }
@@ -3436,7 +3436,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->addSeparator(globalcontext, Constants::G_GENERAL);
     mstart->addSeparator(globalcontext, Constants::G_SPECIAL);
 
-    KitManager::instance()->registerKitInformation(new DebuggerKitInformation);
+    KitManager::registerKitInformation(new DebuggerKitInformation);
 
     return theDebuggerCore->initialize(arguments, errorMessage);
 }

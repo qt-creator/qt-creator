@@ -184,7 +184,7 @@ QString StartApplicationParameters::displayName() const
         name += QLatin1String("...");
     }
 
-    if (Kit *kit = KitManager::instance()->find(kitId))
+    if (Kit *kit = KitManager::find(kitId))
         name += QString::fromLatin1(" (%1)").arg(kit->displayName());
 
     return name;

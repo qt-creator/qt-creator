@@ -260,7 +260,7 @@ void ToolChainKitInformation::makeSticky(Kit *k)
 
 void ToolChainKitInformation::kitsWereLoaded()
 {
-    foreach (Kit *k, KitManager::instance()->kits())
+    foreach (Kit *k, KitManager::kits())
         fix(k);
 
     connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
@@ -272,14 +272,14 @@ void ToolChainKitInformation::kitsWereLoaded()
 void ToolChainKitInformation::toolChainUpdated(ProjectExplorer::ToolChain *tc)
 {
     ToolChainMatcher m(tc);
-    foreach (Kit *k, KitManager::instance()->kits(&m))
+    foreach (Kit *k, KitManager::kits(&m))
         notifyAboutUpdate(k);
 }
 
 void ToolChainKitInformation::toolChainRemoved(ProjectExplorer::ToolChain *tc)
 {
     Q_UNUSED(tc);
-    foreach (Kit *k, KitManager::instance()->kits())
+    foreach (Kit *k, KitManager::kits())
         fix(k);
 }
 
@@ -463,7 +463,7 @@ void DeviceKitInformation::makeSticky(Kit *k)
 
 void DeviceKitInformation::kitsWereLoaded()
 {
-    foreach (Kit *k, KitManager::instance()->kits())
+    foreach (Kit *k, KitManager::kits())
         fix(k);
 
     DeviceManager *dm = DeviceManager::instance();
@@ -480,7 +480,7 @@ void DeviceKitInformation::kitsWereLoaded()
 
 void DeviceKitInformation::deviceUpdated(const Core::Id &id)
 {
-    foreach (Kit *k, KitManager::instance()->kits()) {
+    foreach (Kit *k, KitManager::kits()) {
         if (deviceId(k) == id)
             notifyAboutUpdate(k);
     }
@@ -493,7 +493,7 @@ void DeviceKitInformation::kitUpdated(Kit *k)
 
 void DeviceKitInformation::devicesChanged()
 {
-    foreach (Kit *k, KitManager::instance()->kits())
+    foreach (Kit *k, KitManager::kits())
         setup(k); // Set default device if necessary
 }
 

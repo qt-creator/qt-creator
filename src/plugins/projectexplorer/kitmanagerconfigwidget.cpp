@@ -101,7 +101,7 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
 
     KitManager::deleteKit(m_modifiedKit);
     // Make sure our workingCopy did not get registered somehow:
-    foreach (const Kit *k, KitManager::instance()->kits())
+    foreach (const Kit *k, KitManager::kits())
         QTC_CHECK(k->id() != Core::Id(WORKING_COPY_KIT_ID));
 }
 
@@ -113,7 +113,6 @@ QString KitManagerConfigWidget::displayName() const
 void KitManagerConfigWidget::apply()
 {
     bool mustSetDefault = m_isDefaultKit;
-    KitManager *km = KitManager::instance();
     bool mustRegister = false;
     if (!m_kit) {
         mustRegister = true;
@@ -121,10 +120,10 @@ void KitManagerConfigWidget::apply()
     }
     m_kit->copyFrom(m_modifiedKit);//m_isDefaultKit is reset in discard() here.
     if (mustRegister)
-        km->registerKit(m_kit);
+        KitManager::registerKit(m_kit);
 
     if (mustSetDefault)
-        km->setDefaultKit(m_kit);
+        KitManager::setDefaultKit(m_kit);
 
     m_isDefaultKit = mustSetDefault;
     emit dirty();
@@ -134,7 +133,7 @@ void KitManagerConfigWidget::discard()
 {
     if (m_kit) {
         m_modifiedKit->copyFrom(m_kit);
-        m_isDefaultKit = (m_kit == KitManager::instance()->defaultKit());
+        m_isDefaultKit = (m_kit == KitManager::defaultKit());
     } else {
         // This branch will only ever get reached once during setup of widget for a not-yet-existing
         // kit.
@@ -149,7 +148,7 @@ bool KitManagerConfigWidget::isDirty() const
 {
     return !m_kit
             || !m_kit->isEqual(m_modifiedKit)
-            || m_isDefaultKit != (KitManager::instance()->defaultKit() == m_kit);
+            || m_isDefaultKit != (KitManager::defaultKit() == m_kit);
 }
 
 bool KitManagerConfigWidget::isValid() const
@@ -238,7 +237,7 @@ void KitManagerConfigWidget::removeKit()
 {
     if (!m_kit)
         return;
-    KitManager::instance()->deregisterKit(m_kit);
+    KitManager::deregisterKit(m_kit);
 }
 
 void KitManagerConfigWidget::setIcon()
