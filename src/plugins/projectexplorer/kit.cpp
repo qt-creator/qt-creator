@@ -33,6 +33,7 @@
 #include "ioutputparser.h"
 
 #include <QApplication>
+#include <QFileInfo>
 #include <QIcon>
 #include <QStyle>
 #include <QTextStream>
@@ -298,6 +299,19 @@ QIcon Kit::icon() const
     return d->m_icon;
 }
 
+QIcon Kit::icon(const QString &path)
+{
+    if (path.isEmpty())
+        return QIcon();
+    if (path == QLatin1String(":///DESKTOP///"))
+        return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
+
+    QFileInfo fi(path);
+    if (fi.isFile() && fi.isReadable())
+        return QIcon(path);
+    return QIcon();
+}
+
 QString Kit::iconPath() const
 {
     return d->m_iconPath;
@@ -308,12 +322,7 @@ void Kit::setIconPath(const QString &path)
     if (d->m_iconPath == path)
         return;
     d->m_iconPath = path;
-    if (path.isNull())
-        d->m_icon = QIcon();
-    else if (path == QLatin1String(":///DESKTOP///"))
-        d->m_icon = qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
-    else
-        d->m_icon = QIcon(path);
+    d->m_icon = icon(path);
     kitUpdated();
 }
 
