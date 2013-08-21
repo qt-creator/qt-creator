@@ -49,7 +49,7 @@ PasteBinDotCaProtocol::PasteBinDotCaProtocol() :
 
 unsigned PasteBinDotCaProtocol::capabilities() const
 {
-    return ListCapability | PostDescriptionCapability;
+    return ListCapability | PostDescriptionCapability | PostUserNameCapability;
 }
 
 void PasteBinDotCaProtocol::fetch(const QString &id)

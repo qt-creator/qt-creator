@@ -66,7 +66,7 @@ QString PasteBinDotComProtocol::protocolName()
 
 unsigned PasteBinDotComProtocol::capabilities() const
 {
-    return ListCapability;
+    return ListCapability | PostDescriptionCapability;
 }
 
 static inline QByteArray format(Protocol::ContentType ct)
@@ -112,7 +112,7 @@ static inline QByteArray expirySpecification(int expiryDays)
 
 void PasteBinDotComProtocol::paste(const QString &text,
                                    ContentType ct, int expiryDays,
-                                   const QString &username,
+                                   const QString & /* username */, // Not used unless registered user
                                    const QString &comment,
                                    const QString &description)
 {
@@ -127,8 +127,8 @@ void PasteBinDotComProtocol::paste(const QString &text,
     pasteData += expirySpecification(expiryDays);
     pasteData += '&';
     pasteData += format(ct);
-    pasteData += "api_paste_name=";
-    pasteData += QUrl::toPercentEncoding(username);
+    pasteData += "api_paste_name="; // Title or name.
+    pasteData += QUrl::toPercentEncoding(description);
     pasteData += "&api_paste_code=";
     pasteData += QUrl::toPercentEncoding(fixNewLines(text));
     // fire request

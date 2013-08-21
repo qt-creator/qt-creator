@@ -114,6 +114,7 @@ void PasteView::protocolChanged(int p)
 {
     const unsigned caps = m_protocols.at(p)->capabilities();
     m_ui.uiDescription->setEnabled(caps & Protocol::PostDescriptionCapability);
+    m_ui.uiUsername->setEnabled(caps & Protocol::PostUserNameCapability);
     m_ui.uiComment->setEnabled(caps & Protocol::PostCommentCapability);
 }
 

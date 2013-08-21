@@ -58,7 +58,8 @@ public:
     enum Capabilities  {
         ListCapability = 0x1,
         PostCommentCapability = 0x2,
-        PostDescriptionCapability = 0x4
+        PostDescriptionCapability = 0x4,
+        PostUserNameCapability = 0x8
     };
 
     virtual ~Protocol();

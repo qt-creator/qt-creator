@@ -69,7 +69,7 @@ QString FileShareProtocol::name() const
 
 unsigned FileShareProtocol::capabilities() const
 {
-    return ListCapability|PostDescriptionCapability;
+    return ListCapability | PostDescriptionCapability | PostUserNameCapability;
 }
 
 bool FileShareProtocol::hasSettings() const

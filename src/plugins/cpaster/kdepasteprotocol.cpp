@@ -61,7 +61,7 @@ QString KdePasteProtocol::protocolName()
 
 unsigned KdePasteProtocol::capabilities() const
 {
-    return ListCapability;
+    return ListCapability | PostUserNameCapability;
 }
 
 bool KdePasteProtocol::checkConfiguration(QString *errorMessage)
