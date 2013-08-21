@@ -26,7 +26,7 @@ QtcPlugin {
         return libs
     }
 
-    condition: project.useExternalQbs || project.qbsSubModuleExists
+    condition: project.buildQbsProjectManager
 
     Depends { name: "Qt"; submodules: [ "widgets", "script" ] }
     Depends { name: "ProjectExplorer" }

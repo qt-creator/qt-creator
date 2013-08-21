@@ -15,6 +15,7 @@ Project {
     property path qbs_build_dir: qbs.getenv("QBS_BUILD_DIR")
     property path qbs_source_dir: qbs.getenv("QBS_SOURCE_DIR")
     property bool useExternalQbs: qbs_build_dir && qbs_source_dir
+    property bool buildQbsProjectManager: useExternalQbs || qbsSubModuleExists
     Project {
         name: "qbs"
         id: qbsProject
