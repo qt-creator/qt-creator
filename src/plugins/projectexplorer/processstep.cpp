@@ -88,9 +88,7 @@ bool ProcessStep::init()
     pp->setArguments(m_arguments);
     pp->resolveAll();
 
-    IOutputParser *parser = target()->kit()->createOutputParser();
-    if (parser)
-        setOutputParser(parser);
+    setOutputParser(target()->kit()->createOutputParser());
     return AbstractProcessStep::init();
 }
 
