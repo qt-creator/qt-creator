@@ -92,6 +92,7 @@ QtcPlugin {
             "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
             "namedwidget.cpp", "namedwidget.h",
             "nodesvisitor.cpp", "nodesvisitor.h",
+            "osparser.cpp", "osparser.h",
             "outputparser_test.cpp", "outputparser_test.h",
             "pluginfilefactory.cpp", "pluginfilefactory.h",
             "processparameters.cpp", "processparameters.h",

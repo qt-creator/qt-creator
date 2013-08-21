@@ -31,6 +31,7 @@
 
 #include "kitmanager.h"
 #include "ioutputparser.h"
+#include "osparser.h"
 
 #include <QApplication>
 #include <QFileInfo>
@@ -399,15 +400,10 @@ void Kit::addToEnvironment(Utils::Environment &env) const
 
 IOutputParser *Kit::createOutputParser() const
 {
-    IOutputParser *first = 0;
+    IOutputParser *first = new OsParser;
     QList<KitInformation *> infoList = KitManager::kitInformation();
-    foreach (KitInformation *ki, infoList) {
-        IOutputParser *next = ki->createOutputParser(this);
-        if (!first)
-            first = next;
-        else
-            first->appendOutputParser(next);
-    }
+    foreach (KitInformation *ki, infoList)
+        first->appendOutputParser(ki->createOutputParser(this));
     return first;
 }
 

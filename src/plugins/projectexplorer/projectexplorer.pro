@@ -12,6 +12,7 @@ HEADERS += projectexplorer.h \
     gcctoolchain.h \
     localapplicationrunconfiguration.h \
     localenvironmentaspect.h \
+    osparser.h \
     projectexplorer_export.h \
     projectwindow.h \
     removetaskhandler.h \
@@ -147,6 +148,7 @@ SOURCES += projectexplorer.cpp \
     gcctoolchain.cpp \
     localapplicationrunconfiguration.cpp \
     localenvironmentaspect.cpp \
+    osparser.cpp \
     projectwindow.cpp \
     removetaskhandler.cpp \
     kit.cpp \
