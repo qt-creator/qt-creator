@@ -197,7 +197,7 @@ void IOutputParser::doFlush()
 
 bool IOutputParser::hasFatalErrors() const
 {
-    return false || (m_parser && m_parser->hasFatalErrors());
+    return m_parser && m_parser->hasFatalErrors();
 }
 
 void IOutputParser::setWorkingDirectory(const QString &workingDirectory)
