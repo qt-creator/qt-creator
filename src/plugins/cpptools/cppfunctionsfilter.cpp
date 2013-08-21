@@ -46,8 +46,11 @@ CppFunctionsFilter::~CppFunctionsFilter()
 {
 }
 
-QString CppFunctionsFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info)
+QString CppFunctionsFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info,
+                                                          bool userInputContainsColonColon)
 {
+    if (userInputContainsColonColon)
+        return info.scopedSymbolName();
     return info.symbolName;
 }
 

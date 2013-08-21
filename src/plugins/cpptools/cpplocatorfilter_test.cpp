@@ -180,6 +180,16 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
            );
 
+    QTest::newRow("CppFunctionsFilter-WithNamespacePrefix")
+        << testFile
+        << cppFunctionsFilter
+        << _("mynamespace::")
+        << (QList<ResultData>()
+            << ResultData(_("MyClass()"), _("MyNamespace::MyClass"))
+            << ResultData(_("function2(bool, int)"), _("MyNamespace::MyClass"))
+            << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
+           );
+
     QTest::newRow("CppClassesFilter")
         << testFile
         << cppClassesFilter
@@ -188,6 +198,14 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("MyClass"), testFileShort)
             << ResultData(_("MyClass"), _("MyNamespace"))
             << ResultData(_("MyClass"), _("<anonymous namespace>"))
+           );
+
+    QTest::newRow("CppClassesFilter-WithNamespacePrefix")
+        << testFile
+        << cppClassesFilter
+        << _("mynamespace::")
+        << (QList<ResultData>()
+            << ResultData(_("MyClass"), _("MyNamespace"))
            );
 
     QTest::newRow("CppLocatorFilter")

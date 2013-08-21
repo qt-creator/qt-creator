@@ -108,8 +108,10 @@ void CppLocatorFilter::onAboutToRemoveFiles(const QStringList &files)
         m_searchList.remove(file);
 }
 
-QString CppLocatorFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info)
+QString CppLocatorFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info,
+                                                        bool userInputContainsColonColon)
 {
+    Q_UNUSED(userInputContainsColonColon)
     return info.scopedSymbolName();
 }
 
@@ -149,6 +151,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
     if (!regexp.isValid())
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
+    bool hasColonColon = entry.contains(QLatin1String("::"));
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
     QHashIterator<QString, QList<ModelItemInfo> > it(m_searchList);
@@ -160,7 +163,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
 
         const QList<ModelItemInfo> items = it.value();
         foreach (const ModelItemInfo &info, items) {
-            const QString matchString = stringToMatchUserInputAgainst(info);
+            const QString matchString = stringToMatchUserInputAgainst(info, hasColonColon);
             if ((hasWildcard && regexp.exactMatch(matchString))
                     || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
                 const Locator::FilterEntry filterEntry = filterEntryFromModelItemInfo(info);

@@ -47,8 +47,11 @@ CppClassesFilter::~CppClassesFilter()
 {
 }
 
-QString CppClassesFilter::stringToMatchUserInputAgainst(const ModelItemInfo &info)
+QString CppClassesFilter::stringToMatchUserInputAgainst(const ModelItemInfo &info,
+                                                        bool userInputContainsColonColon)
 {
+    if (userInputContainsColonColon)
+        return info.scopedSymbolName();
     return info.symbolName;
 }
 
