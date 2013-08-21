@@ -571,6 +571,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         switch (ke->key()) {
         case Qt::Key_Escape:
             abort();
+            e->accept();
             return true;
 
         case Qt::Key_N:

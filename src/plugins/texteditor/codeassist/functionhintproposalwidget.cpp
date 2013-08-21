@@ -190,12 +190,16 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape)
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
             d->m_escapePressed = true;
+            e->accept();
+        }
         break;
     case QEvent::KeyPress:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape)
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
             d->m_escapePressed = true;
+            e->accept();
+        }
         if (d->m_model->size() > 1) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Up) {
