@@ -398,8 +398,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
-        if (fev->reason() != Qt::ActiveWindowFocusReason
-                || (fev->reason() == Qt::ActiveWindowFocusReason && !m_completionList->isActiveWindow())) {
+        if (fev->reason() != Qt::ActiveWindowFocusReason || !m_completionList->isActiveWindow()) {
             m_completionList->hide();
             m_fileLineEdit->clearFocus();
         }
