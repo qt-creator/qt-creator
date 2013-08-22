@@ -77,14 +77,11 @@ def main():
         clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.OK_QPushButton"))
         filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
         waitFor("not filenameCombo.currentText.isEmpty()", 20000)
-        if protocol == "Pastebin.Com" and JIRA.isBugStillOpen(9997, JIRA.Bug.CREATOR):
+        if protocol == "Pastebin.Com":
             protocol = "Pastebin.com"
-        test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-        if protocol == "Paste.KDE.Org" and JIRA.isBugStillOpen(9995, JIRA.Bug.CREATOR):
-            test.xcompare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
-        else:
-            test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
+        test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
+        test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
         invokeMenuItem("File", "Close All")
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)
