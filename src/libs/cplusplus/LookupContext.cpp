@@ -308,7 +308,7 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                                             ClassOrNamespace* enclosingTemplateInstantiation,
                                             QSet<const Declaration *> typedefsBeingResolved) const
 {
-    if (! scope) {
+    if (! scope || ! name) {
         return 0;
     } else if (Block *block = scope->asBlock()) {
         for (unsigned i = 0; i < block->memberCount(); ++i) {
