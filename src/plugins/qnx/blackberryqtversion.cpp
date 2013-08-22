@@ -39,10 +39,15 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QTextStream>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
+
+namespace {
+const QLatin1String NndkEnvFile("ndkEnvFile");
+}
 
 BlackBerryQtVersion::BlackBerryQtVersion()
     : QnxAbstractQtVersion()
@@ -52,10 +57,17 @@ BlackBerryQtVersion::BlackBerryQtVersion()
 BlackBerryQtVersion::BlackBerryQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected, const QString &autoDetectionSource, const QString &sdkPath)
     : QnxAbstractQtVersion(arch, path, isAutoDetected, autoDetectionSource)
 {
-    if (QnxUtils::isValidNdkPath(sdkPath))
-        setSdkPath(sdkPath);
-    else
+    if (!sdkPath.isEmpty()) {
+        if (QFileInfo(sdkPath).isDir()) {
+            setSdkPath(sdkPath);
+        } else {
+            m_ndkEnvFile = sdkPath;
+            setSdkPath(QFileInfo(sdkPath).absolutePath());
+        }
+
+    } else {
         setDefaultSdkPath();
+    }
 }
 
 BlackBerryQtVersion::~BlackBerryQtVersion()
@@ -78,13 +90,27 @@ QString BlackBerryQtVersion::description() const
     return tr("BlackBerry %1", "Qt Version is meant for BlackBerry").arg(archString());
 }
 
+QVariantMap BlackBerryQtVersion::toMap() const
+{
+    QVariantMap result = QnxAbstractQtVersion::toMap();
+    result.insert(NndkEnvFile, m_ndkEnvFile);
+    return result;
+}
+
+void BlackBerryQtVersion::fromMap(const QVariantMap &map)
+{
+    QnxAbstractQtVersion::fromMap(map);
+    m_ndkEnvFile = map.value(NndkEnvFile).toString();
+}
+
 QMultiMap<QString, QString> BlackBerryQtVersion::environment() const
 {
     QTC_CHECK(!sdkPath().isEmpty());
     if (sdkPath().isEmpty())
         return QMultiMap<QString, QString>();
 
-    return QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(sdkPath()));
+    QString envFile = m_ndkEnvFile.isEmpty() ? QnxUtils::envFilePath(sdkPath()) : m_ndkEnvFile;
+    return QnxUtils::parseEnvironmentFile(envFile);
 }
 
 void BlackBerryQtVersion::setDefaultSdkPath()

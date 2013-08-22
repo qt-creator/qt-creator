@@ -54,6 +54,9 @@ public:
 
     QString description() const;
 
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map);
+
     Core::FeatureSet availableFeatures() const;
     QString platformName() const;
     QString platformDisplayName() const;
@@ -63,6 +66,8 @@ public:
 private:
     QMultiMap<QString, QString> environment() const;
     void setDefaultSdkPath();
+
+    QString m_ndkEnvFile;
 };
 
 } // namespace Internal

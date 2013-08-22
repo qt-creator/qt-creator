@@ -62,17 +62,14 @@ public slots:
     void launchBlackBerrySetupWizard() const;
     void updateInfoTable(QTreeWidgetItem* currentNdk);
     void updateNdkList();
-    void clearInfoTable();
-    void addNdk();
-    void removeNdk();
+    void addNdkTarget();
+    void removeNdkTarget();
 
 private:
-    void initInfoTable();
     void initNdkList();
 
     Ui_BlackBerryNDKSettingsWidget *m_ui;
     BlackBerryConfigurationManager *m_bbConfigManager;
-    QStandardItemModel *m_infoModel;
     QTreeWidgetItem *m_autoDetectedNdks;
     QTreeWidgetItem *m_manualNdks;
 };

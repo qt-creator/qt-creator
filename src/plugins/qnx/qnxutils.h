@@ -64,12 +64,12 @@ public:
     static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
     static QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName);
     static bool isValidNdkPath(const QString & ndkPath);
-    static QString envFilePath(const QString & ndkPath);
+    static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
     static void prependQnxMapToEnvironment(const QMultiMap<QString, QString> &qnxMap, Utils::Environment &env);
     static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
     static QString dataDirPath();
     static QString qConfigPath();
-    static QString ndkVersion(const QString& ndkPath);
+    static QString defaultTargetVersion(const QString& ndkPath);
     static QList<NdkInstallInformation> installedNdks();
 };
 

@@ -49,13 +49,15 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <QMessageBox>
+#include <QFileInfo>
 
 namespace Qnx {
 namespace Internal {
 
 namespace {
 const QLatin1String SettingsGroup("BlackBerryConfiguration");
-const QLatin1String NDKLocationKey("NDKLocation");
+const QLatin1String NDKLocationKey("NDKLocation"); // For 10.1 NDK support (< QTC 3.0)
+const QLatin1String NDKEnvFileKey("NDKEnvFile");
 const QLatin1String CertificateGroup("Certificates");
 const QLatin1String ManualNDKsGroup("ManualNDKs");
 }
@@ -102,7 +104,16 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
 
     foreach (const QString &manualNdk, settings->childGroups()) {
         settings->beginGroup(manualNdk);
-        BlackBerryConfiguration *config = new BlackBerryConfiguration(settings->value(NDKLocationKey).toString(),
+        QString ndkEnvPath = settings->value(NDKEnvFileKey).toString();
+        // For 10.1 NDK support (< QTC 3.0):
+        // Since QTC 3.0 BBConfigurations are based on the bbndk-env file
+        // to support multiple targets per NDK
+        if (ndkEnvPath.isEmpty()) {
+            QString ndkPath = settings->value(NDKLocationKey).toString();
+            ndkEnvPath = QnxUtils::envFilePath(ndkPath);
+        }
+
+        BlackBerryConfiguration *config = new BlackBerryConfiguration(Utils::FileName::fromString(ndkEnvPath),
                                                                       false);
         if (!addConfiguration(config))
             delete config;
@@ -117,7 +128,9 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
 void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
 {
     foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
-        BlackBerryConfiguration *config = new BlackBerryConfiguration(ndkInfo.path, true, ndkInfo.name);
+        QString envFilePath = QnxUtils::envFilePath(ndkInfo.path, ndkInfo.version);
+        BlackBerryConfiguration *config = new BlackBerryConfiguration(Utils::FileName::fromString(envFilePath),
+                                                                      true, ndkInfo.name);
         if (!addConfiguration(config))
             delete config;
     }
@@ -157,7 +170,7 @@ void BlackBerryConfigurationManager::saveManualConfigurations()
 
     foreach (BlackBerryConfiguration *config, manualConfigurations()) {
         settings->beginGroup(config->displayName());
-        settings->setValue(NDKLocationKey, config->ndkPath());
+        settings->setValue(NDKEnvFileKey, config->ndkEnvFile().toString());
         settings->endGroup();
     }
 
@@ -243,10 +256,10 @@ QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::manualConfigura
     return manuals;
 }
 
-BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromNdkPath(const QString &ndkPath) const
+BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFile(const Utils::FileName &envFile) const
 {
     foreach (BlackBerryConfiguration *config, m_configs) {
-        if (config->ndkPath() == ndkPath)
+        if (config->ndkEnvFile() == envFile)
             return config;
     }
 

@@ -54,7 +54,7 @@ public:
     void removeConfiguration(BlackBerryConfiguration *config);
     QList<BlackBerryConfiguration*> configurations() const;
     QList<BlackBerryConfiguration*> manualConfigurations() const;
-    BlackBerryConfiguration *configurationFromNdkPath(const QString &ndkPath) const;
+    BlackBerryConfiguration *configurationFromEnvFile(const Utils::FileName &envFile) const;
 
     QString barsignerCskPath() const;
     QString barsignerDbPath() const;

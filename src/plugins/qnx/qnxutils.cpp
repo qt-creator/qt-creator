@@ -187,7 +187,7 @@ bool QnxUtils::isValidNdkPath(const QString &ndkPath)
     return (QFileInfo(envFilePath(ndkPath)).exists());
 }
 
-QString QnxUtils::envFilePath(const QString &ndkPath)
+QString QnxUtils::envFilePath(const QString &ndkPath, const QString &targetVersion)
 {
     QString envFile;
     if (Utils::HostOsInfo::isWindowsHost())
@@ -196,7 +196,7 @@ QString QnxUtils::envFilePath(const QString &ndkPath)
         envFile = ndkPath + QLatin1String("/bbndk-env.sh");
 
     if (!QFileInfo(envFile).exists()) {
-        QString version = ndkVersion(ndkPath);
+        QString version = targetVersion.isEmpty() ? defaultTargetVersion(ndkPath) : targetVersion;
         version = version.replace(QLatin1Char('.'), QLatin1Char('_'));
         if (Utils::HostOsInfo::isWindowsHost())
             envFile = ndkPath + QLatin1String("/bbndk-env_") + version + QLatin1String(".bat");
@@ -262,7 +262,7 @@ QString QnxUtils::qConfigPath()
     }
 }
 
-QString QnxUtils::ndkVersion(const QString &ndkPath)
+QString QnxUtils::defaultTargetVersion(const QString &ndkPath)
 {
     foreach (const NdkInstallInformation &ndkInfo, installedNdks()) {
         if (!ndkInfo.path.compare(ndkPath, Utils::HostOsInfo::fileNameCaseSensitivity()))

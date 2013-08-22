@@ -50,7 +50,7 @@ namespace Internal {
 class BlackBerryConfiguration
 {
 public:
-    BlackBerryConfiguration(const QString& ndkPath, bool isAutoDetected, const QString &displayName = QString());
+    BlackBerryConfiguration(const Utils::FileName &ndkEnvFile, bool isAutoDetected, const QString &displayName = QString());
     bool activate();
     void deactivate();
     QString ndkPath() const;
@@ -59,6 +59,7 @@ public:
     bool isAutoDetected() const;
     bool isActive() const;
     bool isValid() const;
+    Utils::FileName ndkEnvFile() const;
     Utils::FileName qmake4BinaryFile() const;
     Utils::FileName qmake5BinaryFile() const;
     Utils::FileName gccCompiler() const;
@@ -68,10 +69,10 @@ public:
     QMultiMap<QString, QString> qnxEnv() const;
 
 private:
-    QString m_ndkPath;
     QString m_displayName;
     QString m_targetName;
     bool m_isAutoDetected;
+    Utils::FileName m_ndkEnvFile;
     Utils::FileName m_qmake4BinaryFile;
     Utils::FileName m_qmake5BinaryFile;
     Utils::FileName m_gccCompiler;

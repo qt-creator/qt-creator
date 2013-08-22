@@ -54,12 +54,15 @@
 namespace Qnx {
 namespace Internal {
 
-BlackBerryConfiguration::BlackBerryConfiguration(const QString &ndkPath, bool isAutoDetected, const QString &displayName)
+BlackBerryConfiguration::BlackBerryConfiguration(const Utils::FileName &ndkEnvFile, bool isAutoDetected,
+                                                 const QString &displayName)
 {
-    m_ndkPath = ndkPath;
+    Q_ASSERT(!QFileInfo(ndkEnvFile.toString()).isDir());
+    m_ndkEnvFile = ndkEnvFile;
     m_isAutoDetected = isAutoDetected;
-    m_displayName = displayName.isEmpty() ? m_ndkPath.split(QDir::separator()).last() : displayName;
-    m_qnxEnv = QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(m_ndkPath));
+    QString ndkPath = ndkEnvFile.parentDir().toString();
+    m_displayName = displayName.isEmpty() ? ndkPath.split(QDir::separator()).last() : displayName;
+    m_qnxEnv = QnxUtils::parseEnvironmentFile(m_ndkEnvFile.toString());
 
     QString ndkTarget = m_qnxEnv.value(QLatin1String("QNX_TARGET"));
     QString sep = QString::fromLatin1("%1qnx6").arg(QDir::separator());
@@ -94,7 +97,7 @@ BlackBerryConfiguration::BlackBerryConfiguration(const QString &ndkPath, bool is
 
 QString BlackBerryConfiguration::ndkPath() const
 {
-    return m_ndkPath;
+    return m_ndkEnvFile.parentDir().toString();
 }
 
 QString BlackBerryConfiguration::displayName() const
@@ -123,6 +126,11 @@ bool BlackBerryConfiguration::isValid() const
 {
     return !((m_qmake4BinaryFile.isEmpty() && m_qmake5BinaryFile.isEmpty()) || m_gccCompiler.isEmpty()
             || m_deviceDebuger.isEmpty() || m_simulatorDebuger.isEmpty());
+}
+
+Utils::FileName BlackBerryConfiguration::ndkEnvFile() const
+{
+    return m_ndkEnvFile;
 }
 
 Utils::FileName BlackBerryConfiguration::qmake4BinaryFile() const
@@ -193,7 +201,7 @@ QtSupport::BaseQtVersion *BlackBerryConfiguration::createQtVersion(const Utils::
         return version;
     }
 
-    version = new BlackBerryQtVersion(QnxUtils::cpudirToArch(cpuDir), qmakePath, m_isAutoDetected, QString(), m_ndkPath);
+    version = new BlackBerryQtVersion(QnxUtils::cpudirToArch(cpuDir), qmakePath, m_isAutoDetected, QString(), m_ndkEnvFile.toString());
     if (!version) {
         if (!m_isAutoDetected)
             QMessageBox::warning(0, QObject::tr("Invalid Qt Version"),
@@ -288,7 +296,7 @@ bool BlackBerryConfiguration::activate()
         if (m_isAutoDetected)
             return false;
 
-        QString errorMessage = QObject::tr("The following errors occurred while activating NDK: %1").arg(m_ndkPath);
+        QString errorMessage = QObject::tr("The following errors occurred while activating Target: %1").arg(m_targetName);
         if (m_qmake4BinaryFile.isEmpty() && m_qmake4BinaryFile.isEmpty())
             errorMessage += QLatin1Char('\n') + QObject::tr("- No Qt version found.");
 
