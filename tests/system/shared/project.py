@@ -70,6 +70,9 @@ def openCmakeProject(projectPath, buildDir):
     replaceEditorContent("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'"
                          "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}", buildDir)
     clickButton(waitForObject(":CMake Wizard.Next_QPushButton"))
+    return __handleCmakeWizardPage__()
+
+def __handleCmakeWizardPage__():
     generatorCombo = waitForObject(":Generator:_QComboBox")
     mkspec = __getMkspecFromQmake__("qmake")
     test.log("Using mkspec '%s'" % mkspec)
@@ -282,8 +285,42 @@ def createNewQmlExtension(workingDir, targets=Targets.DESKTOP_474_GCC, qtQuickVe
     __createProjectHandleLastPage__()
     return checkedTargets
 
+def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desktopTargetClasses()):
+    __createProjectOrFileSelectType__("  Other Project", "Empty Qt Project")
+    if workingDir == None:
+        workingDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(workingDir, projectName)
+    checkedTargets = __chooseTargets__(targets)
+    snooze(1)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleLastPage__()
+    return projectName, checkedTargets
+
+def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESKTOP_474_GCC,
+                          plainC=False, cmake=False):
+    if plainC:
+        template = "Plain C Project"
+    else:
+        template = "Plain C++ Project"
+    if cmake:
+        template += " (CMake Build)"
+    available = __createProjectOrFileSelectType__("  Non-Qt Project", template)
+    if workingDir == None:
+        workingDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(workingDir, projectName)
+    if cmake:
+        __createProjectHandleLastPage__()
+        clickButton(waitForObject(":Next_QPushButton"))
+        if not __handleCmakeWizardPage__():
+            return None
+    else:
+        __chooseTargets__(target, availableTargets=available)
+        clickButton(waitForObject(":Next_QPushButton"))
+        __createProjectHandleLastPage__()
+    return projectName
+
 # parameter target can be an OR'd value of Targets
-# parameter availableTargets should be the result of __createProjectSelectType__()
+# parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
 def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
                       isMaddeDisabled=True):
