@@ -225,22 +225,20 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
             break;
         }
 
-        if (current == QLatin1Char(':')) {
-            if (start >= 0) {
-                if (mangler != 0) {
-                    success = false;
-                    break;
-                }
-                if (next == QLatin1Char('l')) {
-                    mangler = &lcMangler;
-                } else if (next == QLatin1Char('u')) {
-                    mangler = &ucMangler;
-                } else if (next == QLatin1Char('c')) {
-                    mangler = &tcMangler;
-                } else {
-                    success = false;
-                    break;
-                }
+        if (current == QLatin1Char(':') && start >= 0) {
+            if (mangler != 0) {
+                success = false;
+                break;
+            }
+            if (next == QLatin1Char('l')) {
+                mangler = &lcMangler;
+            } else if (next == QLatin1Char('u')) {
+                mangler = &ucMangler;
+            } else if (next == QLatin1Char('c')) {
+                mangler = &tcMangler;
+            } else {
+                success = false;
+                break;
             }
             ++i;
             continue;
@@ -338,6 +336,22 @@ void Internal::TextEditorPlugin::testSnippetParsing_data()
             << QString::fromLatin1("$test:X$") << QString::fromLatin1("$test:X$") << false
             << (QList<int>()) << (QList<int>())
             << (QList<Core::Id>());
+
+    QTest::newRow("multiline with :")
+            << QString::fromLatin1("class $name$\n"
+                                   "{\n"
+                                   "public:\n"
+                                   "    $name$() {}\n"
+                                   "};")
+            << QString::fromLatin1("class name\n"
+                                   "{\n"
+                                   "public:\n"
+                                   "    name() {}\n"
+                                   "};")
+            << true
+            << (QList<int>() << 6 << 25)
+            << (QList<int>() << 4 << 4)
+            << (QList<Core::Id>() << NOMANGLER_ID << NOMANGLER_ID);
 }
 
 void Internal::TextEditorPlugin::testSnippetParsing()
