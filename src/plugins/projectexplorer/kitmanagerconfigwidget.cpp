@@ -206,8 +206,6 @@ void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
         if (w->isSticky())
             w->makeReadOnly();
     }
-    m_iconButton->setEnabled(false);
-    m_nameEdit->setEnabled(false);
 }
 
 Kit *KitManagerConfigWidget::workingCopy() const
