@@ -39,7 +39,7 @@ class PasteBinDotCaProtocol : public NetworkProtocol
 public:
     explicit PasteBinDotCaProtocol();
 
-    static QString protocolName() { return QLatin1String("Pastebin.Ca"); }
+    static QString protocolName();
     QString name() const { return protocolName(); }
 
     virtual bool hasSettings() const { return false; }

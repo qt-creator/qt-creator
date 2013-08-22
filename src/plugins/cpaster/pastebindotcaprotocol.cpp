@@ -37,6 +37,7 @@
 #include <QStringList>
 
 static const char urlC[] = "http://pastebin.ca/";
+static const char protocolNameC[] = "Pastebin.Ca";
 
 namespace CodePaster {
 PasteBinDotCaProtocol::PasteBinDotCaProtocol() :
@@ -45,6 +46,11 @@ PasteBinDotCaProtocol::PasteBinDotCaProtocol() :
     m_pasteReply(0),
     m_hostChecked(false)
 {
+}
+
+QString PasteBinDotCaProtocol::protocolName()
+{
+    return QLatin1String(protocolNameC);
 }
 
 unsigned PasteBinDotCaProtocol::capabilities() const
@@ -115,7 +121,7 @@ void PasteBinDotCaProtocol::paste(const QString &text,
 void PasteBinDotCaProtocol::pasteFinished()
 {
     if (m_pasteReply->error()) {
-        qWarning("Pastebin.ca protocol error: %s", qPrintable(m_pasteReply->errorString()));
+        qWarning("%s protocol error: %s", protocolNameC, qPrintable(m_pasteReply->errorString()));
     } else {
         /// returns ""SUCCESS:[id]""
         const QByteArray data = m_pasteReply->readAll();
@@ -134,7 +140,7 @@ void PasteBinDotCaProtocol::fetchFinished()
     if (error) {
         content = m_fetchReply->errorString();
     } else {
-        title = QString::fromLatin1("Pastebin.ca: %1").arg(m_fetchId);
+        title = name() + QLatin1String(": ") + m_fetchId;
         const QByteArray data = m_fetchReply->readAll();
         content = QString::fromUtf8(data);
         content.remove(QLatin1Char('\r'));
@@ -220,7 +226,7 @@ void PasteBinDotCaProtocol::listFinished()
 {
     const bool error = m_listReply->error();
     if (error)
-        qWarning("pastebin.ca list failed: %s", qPrintable(m_listReply->errorString()));
+        qWarning("%s list failed: %s", protocolNameC, qPrintable(m_listReply->errorString()));
     else
         emit listDone(name(), parseLists(m_listReply));
     m_listReply->deleteLater();
