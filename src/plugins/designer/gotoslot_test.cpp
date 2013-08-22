@@ -29,6 +29,9 @@
 
 #include "formeditorplugin.h"
 
+#if QT_VERSION < 0x050000
+#include <QtTest>
+#else
 #include "formeditorw.h"
 
 #include <coreplugin/testdatadir.h>
@@ -143,11 +146,16 @@ private:
 };
 
 } // anonymous namespace
+#endif
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
 /// header and source files are updated.
-void FormEditorPlugin::test_gotoslot_withoutProject()
+void Designer::Internal::FormEditorPlugin::test_gotoslot_withoutProject()
 {
+#if QT_VERSION >= 0x050000
     GoToSlotTest test;
     test.run();
+#else
+    QSKIP("Available only with >= Qt5", SkipSingle);
+#endif
 }
