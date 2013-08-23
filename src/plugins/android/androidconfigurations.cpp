@@ -375,7 +375,7 @@ FileName AndroidConfigurations::jarsignerPath() const
 
 FileName AndroidConfigurations::zipalignPath() const
 {
-    Utils::FileName path = m_config.sdkLocation;
+    FileName path = m_config.sdkLocation;
     return path.appendPath(QLatin1String("tools/zipalign" QTC_HOST_EXE_SUFFIX));
 }
 
@@ -733,7 +733,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     if (AndroidConfigurations::instance().config().automaticKitCreation) {
         // having a empty toolchains list will remove all autodetected kits for android
         // exactly what we want in that case
-        foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
+        foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
             if (!tc->isAutoDetected())
                 continue;
             if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
@@ -744,8 +744,8 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     QList<Kit *> existingKits;
 
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits()) {
-        if (ProjectExplorer::DeviceKitInformation::deviceId(k) != Core::Id(Constants::ANDROID_DEVICE_ID))
+    foreach (Kit *k, KitManager::kits()) {
+        if (DeviceKitInformation::deviceId(k) != Core::Id(Constants::ANDROID_DEVICE_ID))
             continue;
         if (!k->isAutoDetected())
             continue;
@@ -755,17 +755,17 @@ void AndroidConfigurations::updateAutomaticKitList()
         existingKits << k;
     }
 
-    QMap<ProjectExplorer::Abi::Architecture, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
+    QMap<Abi::Architecture, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
     foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::instance()->versions()) {
         if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
             continue;
-        QList<ProjectExplorer::Abi> qtAbis = qtVersion->qtAbis();
+        QList<Abi> qtAbis = qtVersion->qtAbis();
         if (qtAbis.empty())
             continue;
         qtVersionsForArch[qtAbis.first().architecture()].append(qtVersion);
     }
 
-    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
+    DeviceManager *dm = DeviceManager::instance();
     IDevice::ConstPtr device = dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)); // should always exist
 
     // register new kits
@@ -859,25 +859,25 @@ void AndroidConfigurations::load()
     m_config = AndroidConfig(*settings);
 
     if (m_config.antLocation.isEmpty()) {
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         QString location = env.searchInPath(QLatin1String("ant"));
         QFileInfo fi(location);
         if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
-            m_config.antLocation = Utils::FileName::fromString(location);
+            m_config.antLocation = FileName::fromString(location);
             saveSettings = true;
         }
     }
 
     if (m_config.openJDKLocation.isEmpty()) {
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         QString location = env.searchInPath(QLatin1String("javac"));
         QFileInfo fi(location);
         if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
             QDir parentDirectory = fi.canonicalPath();
             parentDirectory.cdUp(); // one up from bin
-            m_config.openJDKLocation = Utils::FileName::fromString(parentDirectory.absolutePath());
+            m_config.openJDKLocation = FileName::fromString(parentDirectory.absolutePath());
             saveSettings = true;
-        } else if (Utils::HostOsInfo::isWindowsHost()) {
+        } else if (HostOsInfo::isWindowsHost()) {
             QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
             QStringList allVersions = settings.childGroups();
             QString javaHome;
@@ -907,7 +907,7 @@ void AndroidConfigurations::load()
                 }
             }
             if (!javaHome.isEmpty()) {
-                m_config.openJDKLocation = Utils::FileName::fromString(javaHome);
+                m_config.openJDKLocation = FileName::fromString(javaHome);
                 saveSettings = true;
             }
         }
@@ -921,9 +921,9 @@ void AndroidConfigurations::load()
 
 void AndroidConfigurations::updateAndroidDevice()
 {
-    ProjectExplorer::DeviceManager * const devMgr = ProjectExplorer::DeviceManager::instance();
+    DeviceManager * const devMgr = DeviceManager::instance();
     if (adbToolPath().toFileInfo().exists())
-        devMgr->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
+        devMgr->addDevice(IDevice::Ptr(new Internal::AndroidDevice));
     else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
         devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
 }
