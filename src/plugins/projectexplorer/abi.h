@@ -117,6 +117,8 @@ public:
         const OSFlavor &so, const BinaryFormat &f, unsigned char w);
     Abi(const QString &abiString);
 
+    static Abi abiFromTargetTriplet(const QString &machineTriple);
+
     bool operator != (const Abi &other) const;
     bool operator == (const Abi &other) const;
     bool isCompatibleWith(const Abi &other) const;

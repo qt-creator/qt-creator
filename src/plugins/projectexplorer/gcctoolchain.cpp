@@ -221,75 +221,15 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
 {
     QList<Abi> abiList;
 
-    QString machine = m.toLower();
-    if (machine.isEmpty())
+    Abi guessed = Abi::abiFromTargetTriplet(m);
+    if (guessed.isNull())
         return abiList;
 
-    QStringList parts = machine.split(QRegExp(QLatin1String("[ /-]")));
-
-    Abi::Architecture arch = Abi::UnknownArchitecture;
-    Abi::OS os = Abi::UnknownOS;
-    Abi::OSFlavor flavor = Abi::UnknownFlavor;
-    Abi::BinaryFormat format = Abi::UnknownFormat;
-    int width = 0;
-    int unknownCount = 0;
-
-    foreach (const QString &p, parts) {
-        if (p == QLatin1String("unknown") || p == QLatin1String("pc") || p == QLatin1String("none")
-                || p == QLatin1String("gnu") || p == QLatin1String("uclibc")
-                || p == QLatin1String("86_64") || p == QLatin1String("redhat")
-                || p == QLatin1String("gnueabi") || p == QLatin1String("w64")) {
-            continue;
-        } else if (p == QLatin1String("i386") || p == QLatin1String("i486") || p == QLatin1String("i586")
-                   || p == QLatin1String("i686") || p == QLatin1String("x86")) {
-            arch = Abi::X86Architecture;
-        } else if (p.startsWith(QLatin1String("arm"))) {
-            arch = Abi::ArmArchitecture;
-            width = 32;
-        } else if (p == QLatin1String("mipsel")) {
-            arch = Abi::MipsArchitecture;
-            width = 32;
-        } else if (p == QLatin1String("x86_64") || p == QLatin1String("amd64")) {
-            arch = Abi::X86Architecture;
-            width = 64;
-        } else if (p == QLatin1String("powerpc64")) {
-            arch = Abi::PowerPCArchitecture;
-            width = 64;
-        } else if (p == QLatin1String("powerpc")) {
-            arch = Abi::PowerPCArchitecture;
-            width = 32;
-        } else if (p == QLatin1String("linux") || p == QLatin1String("linux6e")) {
-            os = Abi::LinuxOS;
-            if (flavor == Abi::UnknownFlavor)
-                flavor = Abi::GenericLinuxFlavor;
-            format = Abi::ElfFormat;
-        } else if (p.startsWith(QLatin1String("freebsd"))) {
-            os = Abi::BsdOS;
-            if (flavor == Abi::UnknownFlavor)
-                flavor = Abi::FreeBsdFlavor;
-            format = Abi::ElfFormat;
-        } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32") || p == QLatin1String("mingw32msvc")) {
-            arch = Abi::X86Architecture;
-            os = Abi::WindowsOS;
-            flavor = Abi::WindowsMSysFlavor;
-            format = Abi::PEFormat;
-        } else if (p == QLatin1String("apple")) {
-            os = Abi::MacOS;
-            flavor = Abi::GenericMacFlavor;
-            format = Abi::MachOFormat;
-        } else if (p == QLatin1String("darwin10")) {
-            width = 64;
-        } else if (p == QLatin1String("darwin9")) {
-            width = 32;
-        } else if (p == QLatin1String("gnueabi")) {
-            format = Abi::ElfFormat;
-        } else {
-            ++unknownCount;
-        }
-    }
-
-    if (unknownCount == parts.count())
-        return abiList;
+    Abi::Architecture arch = guessed.architecture();
+    Abi::OS os = guessed.os();
+    Abi::OSFlavor flavor = guessed.osFlavor();
+    Abi::BinaryFormat format = guessed.binaryFormat();
+    int width = guessed.wordWidth();
 
     if (os == Abi::MacOS && arch != Abi::ArmArchitecture) {
         // Apple does PPC and x86!
