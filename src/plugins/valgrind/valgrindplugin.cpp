@@ -66,7 +66,7 @@ public:
     explicit ValgrindOptionsPage()
     {
         setId(ANALYZER_VALGRIND_SETTINGS);
-        setDisplayName(tr("Valgrind"));
+        setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindOptionsPage", "Valgrind"));
         setCategory("T.Analyzer");
         setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
         setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));

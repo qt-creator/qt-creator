@@ -117,7 +117,7 @@ public:
         setProjectSettings(new ValgrindProjectSettings());
         setGlobalSettings(ValgrindPlugin::globalSettings());
         setId(ANALYZER_VALGRIND_SETTINGS);
-        setDisplayName(tr("Valgrind Settings"));
+        setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindRunConfigurationAspect", "Valgrind Settings"));
     }
 
     IRunConfigurationAspect *create(RunConfiguration *parent) const
