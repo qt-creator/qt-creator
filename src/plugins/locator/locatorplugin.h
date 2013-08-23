@@ -66,15 +66,15 @@ public:
     void extensionsInitialized();
     bool delayedInitialize();
 
-    QList<ILocatorFilter*> filters();
-    QList<ILocatorFilter*> customFilters();
-    void setFilters(QList<ILocatorFilter*> f);
-    void setCustomFilters(QList<ILocatorFilter*> f);
+    QList<ILocatorFilter *> filters();
+    QList<ILocatorFilter *> customFilters();
+    void setFilters(QList<ILocatorFilter *> f);
+    void setCustomFilters(QList<ILocatorFilter *> f);
     int refreshInterval();
     void setRefreshInterval(int interval);
 
 public slots:
-    void refresh(QList<ILocatorFilter*> filters = QList<ILocatorFilter*>());
+    void refresh(QList<ILocatorFilter *> filters = QList<ILocatorFilter *>());
     void saveSettings();
     void openLocator();
 
@@ -91,8 +91,8 @@ private:
     SettingsPage *m_settingsPage;
 
     bool m_settingsInitialized;
-    QList<ILocatorFilter*> m_filters;
-    QList<ILocatorFilter*> m_customFilters;
+    QList<ILocatorFilter *> m_filters;
+    QList<ILocatorFilter *> m_customFilters;
     int m_refreshInterval;
     QTimer m_refreshTimer;
     OpenDocumentsFilter *m_openDocumentsFilter;

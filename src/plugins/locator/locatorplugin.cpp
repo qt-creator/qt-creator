@@ -213,7 +213,7 @@ void LocatorPlugin::saveSettings()
 /*!
     Return all filters, including the ones created by the user.
 */
-QList<ILocatorFilter*> LocatorPlugin::filters()
+QList<ILocatorFilter *> LocatorPlugin::filters()
 {
     return m_filters;
 }
@@ -222,12 +222,12 @@ QList<ILocatorFilter*> LocatorPlugin::filters()
     This returns a subset of all the filters, that contains only the filters that
     have been created by the user at some point (maybe in a previous session).
  */
-QList<ILocatorFilter*> LocatorPlugin::customFilters()
+QList<ILocatorFilter *> LocatorPlugin::customFilters()
 {
     return m_customFilters;
 }
 
-void LocatorPlugin::setFilters(QList<ILocatorFilter*> f)
+void LocatorPlugin::setFilters(QList<ILocatorFilter *> f)
 {
     m_filters = f;
     m_locatorWidget->updateFilterList();
@@ -254,7 +254,7 @@ void LocatorPlugin::setRefreshInterval(int interval)
     m_refreshTimer.start();
 }
 
-void LocatorPlugin::refresh(QList<ILocatorFilter*> filters)
+void LocatorPlugin::refresh(QList<ILocatorFilter *> filters)
 {
     if (filters.isEmpty())
         filters = m_filters;

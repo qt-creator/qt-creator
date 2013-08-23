@@ -65,7 +65,7 @@ QList<FilterEntry> ExecuteFilter::matchesFor(QFutureInterface<Locator::FilterEnt
         value.append(FilterEntry(this, entry, QVariant()));
     QList<FilterEntry> others;
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    foreach (const QString& i, m_commandHistory) {
+    foreach (const QString &i, m_commandHistory) {
         if (future.isCanceled())
             break;
         if (i == entry) // avoid repeated entry

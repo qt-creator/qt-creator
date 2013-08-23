@@ -58,7 +58,7 @@ QList<FilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Locator::Fi
     if (!entry.isEmpty())
         return entries;
 
-    QMap<QString, ILocatorFilter*> uniqueFilters;
+    QMap<QString, ILocatorFilter *> uniqueFilters;
     foreach (ILocatorFilter *filter, m_plugin->filters()) {
         const QString filterId = filter->shortcutString() + QLatin1Char(',') + filter->displayName();
         uniqueFilters.insert(filterId, filter);
@@ -82,7 +82,7 @@ QList<FilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Locator::Fi
 
 void LocatorFiltersFilter::accept(FilterEntry selection) const
 {
-    ILocatorFilter *filter = selection.internalData.value<ILocatorFilter*>();
+    ILocatorFilter *filter = selection.internalData.value<ILocatorFilter *>();
     if (filter)
         m_locatorWidget->show(filter->shortcutString() + QLatin1Char(' '),
                            filter->shortcutString().length() + 1);

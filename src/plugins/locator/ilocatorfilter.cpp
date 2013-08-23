@@ -120,7 +120,7 @@ QString ILocatorFilter::trimWildcards(const QString &str)
 {
     if (str.isEmpty())
         return str;
-    int first = 0, last = str.size()-1;
+    int first = 0, last = str.size() - 1;
     const QChar asterisk = QLatin1Char('*');
     const QChar question = QLatin1Char('?');
     while (first < str.size() && (str.at(first) == asterisk || str.at(first) == question))
@@ -129,7 +129,7 @@ QString ILocatorFilter::trimWildcards(const QString &str)
         --last;
     if (first > last)
         return QString();
-    return str.mid(first, last-first+1);
+    return str.mid(first, last - first + 1);
 }
 
 Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)

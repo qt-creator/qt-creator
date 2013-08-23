@@ -74,7 +74,7 @@ private:
 
     Ui::SettingsWidget m_ui;
     LocatorPlugin *m_plugin;
-    QWidget* m_page;
+    QWidget *m_page;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_addedFilters;
     QList<ILocatorFilter *> m_removedFilters;

@@ -73,7 +73,7 @@ QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator:
     const QChar ampersand = QLatin1Char('&');
     const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
     const int count = d->commands.size();
-    for (int i = 0; i  < count; i++) {
+    for (int i = 0; i < count; i++) {
         if (future.isCanceled())
             break;
         if (d->commands.at(i)->isActive()) {

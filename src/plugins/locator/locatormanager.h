@@ -48,7 +48,7 @@ public:
     LocatorManager(Internal::LocatorWidget *locatorWidget);
     ~LocatorManager();
 
-    static LocatorManager* instance() { return m_instance; }
+    static LocatorManager *instance() { return m_instance; }
 
     void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 
