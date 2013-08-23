@@ -30,13 +30,12 @@
 #ifndef PYTHONINDENTER_H
 #define PYTHONINDENTER_H
 
-#include "../pythoneditor_global.h"
 #include <texteditor/indenter.h>
 #include <QStringList>
 
 namespace PythonEditor {
 
-class PYEDITOR_EXPORT PythonIndenter : public TextEditor::Indenter
+class PythonIndenter : public TextEditor::Indenter
 {
 public:
     PythonIndenter();

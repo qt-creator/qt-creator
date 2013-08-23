@@ -183,6 +183,7 @@ static const char *const LIST_OF_PYTHON_BUILTINS[] = {
 };
 
 namespace PythonEditor {
+namespace Internal {
 
 PythonEditorPlugin *PythonEditorPlugin::m_instance = 0;
 
@@ -280,7 +281,7 @@ QSet<QString> PythonEditorPlugin::builtins()
     return instance()->m_builtins;
 }
 
+} // namespace Internal
 } // namespace PythonEditor
 
-Q_EXPORT_PLUGIN(PythonEditor::PythonEditorPlugin)
-
+Q_EXPORT_PLUGIN(PythonEditor::Internal::PythonEditorPlugin)

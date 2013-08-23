@@ -45,6 +45,7 @@
 #include <texteditor/autocompleter.h>
 
 namespace PythonEditor {
+namespace Internal {
 
 EditorWidget::EditorWidget(QWidget *parent)
     :TextEditor::BaseTextEditorWidget(parent)
@@ -92,4 +93,5 @@ TextEditor::BaseTextEditor *EditorWidget::createEditor()
     return new PythonEditor(this);
 }
 
+} // namespace Internal
 } // namespace PythonEditor

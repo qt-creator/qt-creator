@@ -30,14 +30,14 @@
 #ifndef PYTHONEDITOR_EDITOR_H
 #define PYTHONEDITOR_EDITOR_H
 
-#include "pythoneditor_global.h"
 #include <texteditor/basetexteditor.h>
 
 namespace PythonEditor {
+namespace Internal {
 
 class EditorWidget;
 
-class PYEDITOR_EXPORT PythonEditor : public TextEditor::BaseTextEditor
+class PythonEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
@@ -58,6 +58,7 @@ public:
               const QString &realFileName);
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONEDITOR_EDITOR_H

@@ -31,6 +31,7 @@
 #include <QSet>
 
 namespace PythonEditor {
+namespace Internal {
 
 static const char BASH_RUN_HEADER[] = "#!/usr/bin/env python\n";
 static const char ENCODING_HEADER[] = "# -*- coding: utf-8 -*-\n";
@@ -207,4 +208,5 @@ QString SourceGenerator::moduleForQWidget() const
         return QLatin1String("QtWidgets");
 }
 
+} // namespace Internal
 } // namespace PythonEditor

@@ -7,7 +7,6 @@ RESOURCES += \
     pythoneditorplugin.qrc
 
 HEADERS += \
-    pythoneditor_global.h \
     pythoneditorplugin.h \
     pythoneditorfactory.h \
     pythoneditor.h \

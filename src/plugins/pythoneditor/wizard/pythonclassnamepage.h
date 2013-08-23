@@ -36,6 +36,7 @@
 namespace Utils { class NewClassWidget; }
 
 namespace PythonEditor {
+namespace Internal {
 
 class ClassNamePage : public QWizardPage
 {
@@ -58,6 +59,7 @@ private:
     bool m_isValid;
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONEDITOR_CLASSNAMEPAGE_H

@@ -39,6 +39,7 @@
 #include <QDebug>
 
 namespace PythonEditor {
+namespace Internal {
 
 EditorFactory::EditorFactory(QObject *parent)
     : Core::IEditorFactory(parent)
@@ -56,4 +57,5 @@ Core::IEditor *EditorFactory::createEditor(QWidget *parent)
     return widget->editor();
 }
 
+} // namespace Internal
 } // namespace PythonEditor

@@ -43,6 +43,7 @@
 using namespace ProjectExplorer;
 
 namespace PythonEditor {
+namespace Internal {
 
 static Core::BaseFileWizardParameters getDefaultParams()
 {
@@ -120,4 +121,5 @@ Kit *ClassWizard::kitForWizard(const ClassWizardDialog *wizard) const
     return KitManager::defaultKit();
 }
 
+} // namespace Internal
 } // namespace PythonEditor

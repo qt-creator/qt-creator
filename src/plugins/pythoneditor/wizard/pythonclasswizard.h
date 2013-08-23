@@ -37,6 +37,8 @@ namespace Utils { class NewClassWidget; }
 namespace ProjectExplorer { class Kit; }
 
 namespace PythonEditor {
+namespace Internal {
+
 class ClassWizardDialog;
 
 class ClassWizard : public Core::BaseFileWizard
@@ -56,6 +58,7 @@ protected:
     ProjectExplorer::Kit *kitForWizard(const ClassWizardDialog *wizard) const;
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONEDITOR_CLASSWIZARD_H

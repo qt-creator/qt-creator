@@ -30,14 +30,13 @@
 #ifndef PYTHONEDITORWIDGET_H
 #define PYTHONEDITORWIDGET_H
 
-#include "pythoneditor_global.h"
-
 #include <texteditor/basetexteditor.h>
 #include <utils/uncommentselection.h>
 
 namespace PythonEditor {
+namespace Internal {
 
-class PYEDITOR_EXPORT EditorWidget : public TextEditor::BaseTextEditorWidget
+class EditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
@@ -57,6 +56,7 @@ private:
     Utils::CommentDefinition m_commentDefinition;
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONEDITORWIDGET_H

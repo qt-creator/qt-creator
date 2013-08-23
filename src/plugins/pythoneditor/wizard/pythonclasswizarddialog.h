@@ -36,6 +36,7 @@
 #include <QVariantMap>
 
 namespace PythonEditor {
+namespace Internal {
 
 class ClassNamePage;
 
@@ -67,6 +68,7 @@ private:
     QVariantMap m_extraValues;
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONEDITOR_CLASSWIZARDDIALOG_H

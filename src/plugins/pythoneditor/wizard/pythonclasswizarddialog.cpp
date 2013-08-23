@@ -34,6 +34,7 @@
 #include <coreplugin/basefilewizard.h>
 
 namespace PythonEditor {
+namespace Internal {
 
 ClassWizardDialog::ClassWizardDialog(QWidget *parent)
     : Utils::Wizard(parent)
@@ -77,4 +78,5 @@ void ClassWizardDialog::setPath(const QString &path)
     m_classNamePage->newClassWidget()->setPath(path);
 }
 
+} // namespace Internal
 } // namespace PythonEditor

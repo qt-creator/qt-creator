@@ -36,6 +36,7 @@
 #include <QScopedPointer>
 
 namespace PythonEditor {
+namespace Internal {
 
 class EditorFactory;
 class EditorWidget;
@@ -71,6 +72,7 @@ private:
     QSet<QString> m_builtins;
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONEDITOR_PLUGIN_H

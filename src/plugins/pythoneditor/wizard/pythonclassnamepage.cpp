@@ -37,6 +37,7 @@
 #include <QVBoxLayout>
 
 namespace PythonEditor {
+namespace Internal {
 
 ClassNamePage::ClassNamePage(QWidget *parent)
     : QWizardPage(parent)
@@ -91,4 +92,5 @@ void ClassNamePage::slotValidChanged()
     }
 }
 
+} // namespace Internal
 } // namespace PythonEditor

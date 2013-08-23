@@ -30,12 +30,12 @@
 #ifndef PYTHONEDITORFACTORY_H
 #define PYTHONEDITORFACTORY_H
 
-#include "pythoneditor_global.h"
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace PythonEditor {
+namespace Internal {
 
-class PYEDITOR_EXPORT EditorFactory : public Core::IEditorFactory
+class EditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
@@ -48,6 +48,7 @@ public:
     Core::IEditor *createEditor(QWidget *parent);
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONEDITORFACTORY_H

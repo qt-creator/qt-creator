@@ -16,7 +16,6 @@ QtcPlugin {
         name: "General"
         files: [
             "pythoneditor.cpp", "pythoneditor.h",
-            "pythoneditor_global.h",
             "pythoneditorconstants.h",
             "pythoneditorfactory.cpp", "pythoneditorfactory.h",
             "pythoneditorplugin.cpp", "pythoneditorplugin.h",

@@ -30,14 +30,14 @@
 #ifndef PYTHON_SOURCEGENERATOR_H
 #define PYTHON_SOURCEGENERATOR_H
 
-#include "../pythoneditor_global.h"
 #include <utils/newclasswidget.h>
 #include <QSet>
 #include <QString>
 
 namespace PythonEditor {
+namespace Internal {
 
-class PYEDITOR_EXPORT SourceGenerator
+class SourceGenerator
 {
 public:
     enum QtBinding {
@@ -70,6 +70,7 @@ private:
     QtVersion m_pythonQtVersion;
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHON_SOURCEGENERATOR_H

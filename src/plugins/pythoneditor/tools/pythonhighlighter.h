@@ -30,14 +30,13 @@
 #ifndef PYTHONHIGHLIGHTER_H
 #define PYTHONHIGHLIGHTER_H
 
-#include "../pythoneditor_global.h"
 #include <texteditor/syntaxhighlighter.h>
 
 namespace PythonEditor {
 
 namespace Internal { class Scanner; }
 
-class PYEDITOR_EXPORT PythonHighlighter : public TextEditor::SyntaxHighlighter
+class PythonHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 public:

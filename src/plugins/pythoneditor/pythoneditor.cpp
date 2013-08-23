@@ -45,6 +45,7 @@
 #include <QFileInfo>
 
 namespace PythonEditor {
+namespace Internal {
 
 PythonEditor::PythonEditor(EditorWidget *editorWidget)
     :BaseTextEditor(editorWidget)
@@ -90,4 +91,5 @@ bool PythonEditor::open(QString *errorString,
     return status;
 }
 
+} // namespace Internal
 } // namespace PythonEditor
