@@ -30,8 +30,6 @@
 #ifndef COMMUNITYWELCOMEPAGE_H
 #define COMMUNITYWELCOMEPAGE_H
 
-#include "welcome_global.h"
-
 #include <utils/iwelcomepage.h>
 #include <coreplugin/icore.h>
 

@@ -2,8 +2,7 @@ QT += network declarative
 
 include(../../qtcreatorplugin.pri)
 
-HEADERS += welcomeplugin.h \
-    welcome_global.h
+HEADERS += welcomeplugin.h
 
 SOURCES += welcomeplugin.cpp
 
