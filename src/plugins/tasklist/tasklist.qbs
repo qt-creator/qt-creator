@@ -20,7 +20,6 @@ QtcPlugin {
         "taskfilefactory.cpp",
         "taskfilefactory.h",
         "tasklist.qrc",
-        "tasklist_export.h",
         "tasklistconstants.h",
         "tasklistplugin.cpp",
         "tasklistplugin.h",
