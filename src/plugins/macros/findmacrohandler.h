@@ -48,10 +48,10 @@ class FindMacroHandler : public IMacroHandler
 public:
     FindMacroHandler();
 
-    void startRecording(Macros::Macro* macro);
+    void startRecording(Macro* macro);
 
-    bool canExecuteEvent(const Macros::MacroEvent &macroEvent);
-    bool executeEvent(const Macros::MacroEvent &macroEvent);
+    bool canExecuteEvent(const MacroEvent &macroEvent);
+    bool executeEvent(const MacroEvent &macroEvent);
 
 public slots:
     void findIncremental(const QString &txt, Find::FindFlags findFlags);

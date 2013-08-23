@@ -43,18 +43,18 @@ class ITextEditor;
 namespace Macros {
 namespace Internal {
 
-class TextEditorMacroHandler : public Macros::IMacroHandler
+class TextEditorMacroHandler : public IMacroHandler
 {
     Q_OBJECT
 
 public:
     TextEditorMacroHandler();
 
-    void startRecording(Macros::Macro *macro);
-    void endRecordingMacro(Macros::Macro *macro);
+    void startRecording(Macro *macro);
+    void endRecordingMacro(Macro *macro);
 
-    bool canExecuteEvent(const Macros::MacroEvent &macroEvent);
-    bool executeEvent(const Macros::MacroEvent &macroEvent);
+    bool canExecuteEvent(const MacroEvent &macroEvent);
+    bool executeEvent(const MacroEvent &macroEvent);
 
     bool eventFilter(QObject *watched, QEvent *event);
 

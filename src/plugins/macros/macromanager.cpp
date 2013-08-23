@@ -62,7 +62,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-using namespace Macros;
 using namespace Macros::Internal;
 
 /*!
@@ -94,7 +93,7 @@ using namespace Macros::Internal;
     the action id passed to the ActionManager.
 */
 
-class Macros::MacroManager::MacroManagerPrivate
+class MacroManager::MacroManagerPrivate
 {
 public:
     MacroManagerPrivate(MacroManager *qq);
@@ -157,7 +156,7 @@ void MacroManager::MacroManagerPrivate::initialize()
 
 static Core::Id makeId(const QString &name)
 {
-    return Core::Id(Constants::PREFIX_MACRO).withSuffix(name);
+    return Core::Id(Macros::Constants::PREFIX_MACRO).withSuffix(name);
 }
 
 void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
@@ -386,13 +385,13 @@ void MacroManager::changeMacro(const QString &name, const QString &description)
         d->changeMacroDescription(macro, description);
 }
 
-void Macros::MacroManager::saveLastMacro()
+void MacroManager::saveLastMacro()
 {
     if (d->currentMacro->events().count())
         d->showSaveDialog();
 }
 
-QString Macros::MacroManager::macrosDirectory()
+QString MacroManager::macrosDirectory()
 {
     const QString &path =
         Core::ICore::userResourcePath() + QLatin1String("/macros");

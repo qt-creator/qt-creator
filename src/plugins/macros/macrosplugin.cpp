@@ -50,7 +50,6 @@
 #include <QKeySequence>
 #include <QMenu>
 
-using namespace Macros;
 using namespace Macros::Internal;
 
 MacrosPlugin::MacrosPlugin()

@@ -31,7 +31,7 @@
 
 #include "macro.h"
 
-using namespace Macros;
+using namespace Macros::Internal;
 
 /*!
     \class Macro::IEventHandler

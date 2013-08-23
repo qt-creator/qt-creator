@@ -36,7 +36,7 @@
 #include <QFileInfo>
 #include <QDataStream>
 
-using namespace Macros;
+using namespace Macros::Internal;
 
 /*!
     \class Macros::Macro

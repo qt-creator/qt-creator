@@ -222,7 +222,7 @@ void FindMacroHandler::changeEditor(Core::IEditor *editor)
     }
 }
 
-void FindMacroHandler::startRecording(Macros::Macro* macro)
+void FindMacroHandler::startRecording(Macro* macro)
 {
     IMacroHandler::startRecording(macro);
     Core::IEditor *current = Core::EditorManager::currentEditor();

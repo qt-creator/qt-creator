@@ -30,16 +30,16 @@
 #ifndef MACROSPLUGIN_IMACROHANDLER_H
 #define MACROSPLUGIN_IMACROHANDLER_H
 
-#include "macros_global.h"
 #include <QObject>
 
 namespace Macros {
+namespace Internal {
 
 class Macro;
 class MacroEvent;
 class MacroManager;
 
-class MACROS_EXPORT IMacroHandler: public QObject
+class IMacroHandler: public QObject
 {
 public:
     IMacroHandler();
@@ -65,6 +65,7 @@ private:
     IMacroHandlerPrivate *d;
 };
 
+} // namespace Internal
 } // namespace Macros
 
 #endif // MACROSPLUGIN_IMACROHANDLER_H

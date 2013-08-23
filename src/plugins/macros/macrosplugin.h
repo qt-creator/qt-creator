@@ -33,10 +33,9 @@
 #include <extensionsystem/iplugin.h>
 
 namespace Macros {
+namespace Internal {
 
 class MacroManager;
-
-namespace Internal {
 
 class MacrosPlugin : public ExtensionSystem::IPlugin
 {

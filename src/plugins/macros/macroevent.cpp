@@ -33,7 +33,7 @@
 #include <QVariant>
 #include <QDataStream>
 
-using namespace Macros;
+using namespace Macros::Internal;
 
 /*!
     \class Macros::MacroEvent

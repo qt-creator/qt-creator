@@ -30,8 +30,6 @@
 #ifndef MACROSPLUGIN_MACROOPTIONSPAGE_H
 #define MACROSPLUGIN_MACROOPTIONSPAGE_H
 
-#include "macros_global.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Macros {
@@ -39,7 +37,7 @@ namespace Internal {
 
 class MacroOptionsWidget;
 
-class MACROS_EXPORT MacroOptionsPage : public Core::IOptionsPage
+class MacroOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

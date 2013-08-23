@@ -3,7 +3,6 @@ DEFINES += MACROS_LIBRARY
 include(../../qtcreatorplugin.pri)
 
 HEADERS += macrosplugin.h \
-    macros_global.h \
     macrosconstants.h \
     macro.h \
     macroevent.h \

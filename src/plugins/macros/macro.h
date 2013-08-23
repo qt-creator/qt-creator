@@ -30,8 +30,6 @@
 #ifndef MACROSPLUGIN_MACRO_H
 #define MACROSPLUGIN_MACRO_H
 
-#include "macros_global.h"
-
 #include <QList>
 #include <QString>
 
@@ -40,10 +38,11 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Macros {
+namespace Internal {
 
 class MacroEvent;
 
-class MACROS_EXPORT Macro
+class Macro
 {
 public:
     Macro();
@@ -72,6 +71,7 @@ private:
     MacroPrivate* d;
 };
 
+} // namespace Internal
 } // namespace Macros
 
 #endif // MACROSPLUGIN_MACRO_H

@@ -30,8 +30,6 @@
 #ifndef MACROSPLUGIN_MACROEVENT_H
 #define MACROSPLUGIN_MACROEVENT_H
 
-#include "macros_global.h"
-
 #include <coreplugin/id.h>
 
 #include <QMap>
@@ -43,8 +41,9 @@ class QDataStream;
 QT_END_NAMESPACE
 
 namespace Macros {
+namespace Internal {
 
-class MACROS_EXPORT MacroEvent
+class MacroEvent
 {
 public:
     MacroEvent();
@@ -66,6 +65,7 @@ private:
     MacroEventPrivate* d;
 };
 
+} // namespace Internal
 } // namespace Macros
 
 #endif // MACROSPLUGIN_MACROEVENT_H

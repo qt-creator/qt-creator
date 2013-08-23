@@ -30,8 +30,6 @@
 #ifndef MACROSPLUGIN_MACROMANAGER_H
 #define MACROSPLUGIN_MACROMANAGER_H
 
-#include "macros_global.h"
-
 #include <QObject>
 #include <QMap>
 
@@ -40,16 +38,14 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Macros {
-
-class Macro;
-class IMacroHandler;
-
 namespace Internal {
+
+class IMacroHandler;
+class Macro;
 class MacroOptionsWidget;
 class MacrosPlugin;
-}
 
-class MACROS_EXPORT MacroManager : public QObject
+class MacroManager : public QObject
 {
     Q_OBJECT
 public:
@@ -86,6 +82,7 @@ private:
     friend class Internal::MacrosPlugin;
 };
 
+} // namespace Internal
 } // namespace Macros
 
 #endif // MACROSPLUGIN_MACROMANAGER_H
