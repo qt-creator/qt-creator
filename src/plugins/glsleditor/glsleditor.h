@@ -30,8 +30,6 @@
 #ifndef GLSLEDITOR_H
 #define GLSLEDITOR_H
 
-#include "glsleditor_global.h"
-
 #include <texteditor/basetexteditor.h>
 
 #include <QSharedPointer>
@@ -46,19 +44,17 @@ namespace GLSL {
 class Engine;
 class TranslationUnitAST;
 class Scope;
-}
+} // namespace GLSL
 
-namespace Core {
-class ICore;
-}
+namespace Core { class ICore; }
 
 namespace GLSLEditor {
-class GLSLTextEditorWidget;
 namespace Internal {
-class GLSLEditorEditable;
-}
 
-class GLSLEDITOR_EXPORT Document
+class GLSLEditorEditable;
+class GLSLTextEditorWidget;
+
+class Document
 {
 public:
     typedef QSharedPointer<Document> Ptr;
@@ -87,7 +83,7 @@ private:
     friend class GLSLTextEditorWidget;
 };
 
-class GLSLEDITOR_EXPORT GLSLTextEditorWidget : public TextEditor::BaseTextEditorWidget
+class GLSLTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
@@ -127,6 +123,7 @@ private:
     Document::Ptr m_glslDocument;
 };
 
+} // namespace Internal
 } // namespace GLSLEditor
 
 #endif // GLSLEDITOR_H

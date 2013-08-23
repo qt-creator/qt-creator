@@ -215,7 +215,7 @@ ExtensionSystem::IPlugin::ShutdownFlag GLSLEditorPlugin::aboutToShutdown()
     return IPlugin::aboutToShutdown();
 }
 
-void GLSLEditorPlugin::initializeEditor(GLSLEditor::GLSLTextEditorWidget *editor)
+void GLSLEditorPlugin::initializeEditor(GLSLTextEditorWidget *editor)
 {
     QTC_CHECK(m_instance);
     m_actionHandler->setupActions(editor);

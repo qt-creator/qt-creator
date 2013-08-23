@@ -5,7 +5,6 @@ DEFINES += \
 
 HEADERS += \
 glsleditor.h \
-glsleditor_global.h \
 glsleditorconstants.h \
 glsleditoreditable.h \
 glsleditorfactory.h \

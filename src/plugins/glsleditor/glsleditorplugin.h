@@ -48,15 +48,13 @@ namespace Core {
 class Command;
 class ActionContainer;
 class ActionManager;
-}
+} // namespace Core
 
 namespace GLSLEditor {
-
-class GLSLTextEditorWidget;
-
 namespace Internal {
 
 class GLSLEditorFactory;
+class GLSLTextEditorWidget;
 
 class GLSLEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -74,7 +72,7 @@ public:
 
     static GLSLEditorPlugin *instance() { return m_instance; }
 
-    void initializeEditor(GLSLEditor::GLSLTextEditorWidget *editor);
+    void initializeEditor(GLSLTextEditorWidget *editor);
 
     struct InitFile
     {

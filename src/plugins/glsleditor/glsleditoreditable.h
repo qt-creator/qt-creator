@@ -33,9 +33,9 @@
 #include <texteditor/basetexteditor.h>
 
 namespace GLSLEditor {
-class GLSLTextEditorWidget;
-
 namespace Internal {
+
+class GLSLTextEditorWidget;
 
 class GLSLEditorEditable : public TextEditor::BaseTextEditor
 {

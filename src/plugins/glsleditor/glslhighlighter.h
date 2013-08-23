@@ -32,9 +32,9 @@
 #include <texteditor/syntaxhighlighter.h>
 
 namespace GLSLEditor {
-class GLSLTextEditorWidget;
-
 namespace Internal {
+
+class GLSLTextEditorWidget;
 
 class Highlighter : public TextEditor::SyntaxHighlighter
 {
