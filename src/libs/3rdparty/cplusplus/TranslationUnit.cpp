@@ -428,8 +428,7 @@ void TranslationUnit::getPosition(unsigned tokenOffset,
 
     // If this token is expanded we already have the information directly from the expansion
     // section header. Otherwise, we need to calculate it.
-    std::map<unsigned, std::pair<unsigned, unsigned> >::const_iterator it =
-            _expandedLineColumn.find(tokenOffset);
+    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tokenOffset);
     if (it != _expandedLineColumn.end()) {
         lineNumber = it->second.first;
         columnNumber = it->second.second + 1;
@@ -554,8 +553,7 @@ bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
 
     _tokens->insert(_tokens->begin() + tokenIndex + 1, newGreater);
 
-    std::map<unsigned, std::pair<unsigned, unsigned> >::const_iterator it =
-            _expandedLineColumn.find(tok.offset);
+    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tok.offset);
     if (it != _expandedLineColumn.end()) {
         const std::pair<unsigned, unsigned> newPosition(it->second.first, it->second.second + 1);
         _expandedLineColumn.insert(std::make_pair(newGreater.offset, newPosition));

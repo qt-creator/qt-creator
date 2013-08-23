@@ -27,7 +27,18 @@
 #include "DiagnosticClient.h"
 #include <cstdio>
 #include <vector>
-#include <map>
+
+#if !(__cplusplus > 199711L || __GXX_EXPERIMENTAL_CXX0X__ || _MSC_VER >= 1600 || defined( _LIBCPP_VERSION ))
+#define USE_TR1
+#endif
+
+#if defined(_MSC_VER) && _MSC_VER < 1600
+#  include <map>
+#elif defined(USE_TR1)
+#  include <tr1/unordered_map>
+#else
+#  include <unordered_map>
+#endif
 
 namespace CPlusPlus {
 
@@ -175,7 +186,15 @@ private:
     std::vector<Token> *_comments;
     std::vector<unsigned> _lineOffsets;
     std::vector<PPLine> _ppLines;
-    std::map<unsigned, std::pair<unsigned, unsigned> > _expandedLineColumn; // TODO: Replace this for a hash
+#if defined(_MSC_VER) && _MSC_VER < 1600
+    // MSVC2008 and earlier do not implement TR1.
+    typedef std::map<unsigned, std::pair<unsigned, unsigned> > TokenLineColumn;
+#elif defined(USE_TR1)
+    typedef std::tr1::unordered_map<unsigned, std::pair<unsigned, unsigned> > TokenLineColumn;
+#else
+    typedef std::unordered_map<unsigned, std::pair<unsigned, unsigned> > TokenLineColumn;
+#endif
+    TokenLineColumn _expandedLineColumn;
     MemoryPool *_pool;
     AST *_ast;
     TranslationUnit *_previousTranslationUnit;
