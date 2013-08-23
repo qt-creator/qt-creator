@@ -31,6 +31,7 @@
 #define CPPCLASSESFILTER_H
 
 #include "cpptools_global.h"
+#include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 
 namespace CppTools {
@@ -40,10 +41,11 @@ class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter
     Q_OBJECT
 
 public:
-    CppClassesFilter(Internal::CppModelManager *manager);
+    CppClassesFilter(Internal::CppLocatorData *locatorData);
     ~CppClassesFilter();
 
 private:
+    QList<QList<CppTools::ModelItemInfo> > itemsToMatchUserInputAgainst() const;
     Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 };
 

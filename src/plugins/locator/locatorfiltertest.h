@@ -83,4 +83,16 @@ typedef ResultData::ResultDataList ResultDataList;
 Q_DECLARE_METATYPE(Locator::Internal::Tests::ResultData)
 Q_DECLARE_METATYPE(Locator::Internal::Tests::ResultDataList)
 
+QT_BEGIN_NAMESPACE
+namespace QTest {
+
+template<> inline char *toString(const Locator::Internal::Tests::ResultData &data)
+{
+    QByteArray ba = "\"" + data.textColumn1.toUtf8() + "\", \"" + data.textColumn2.toUtf8() + "\"";
+    return qstrdup(ba.data());
+}
+
+} // namespace QTest
+QT_END_NAMESPACE
+
 #endif // LOCATORFILTERTEST_H

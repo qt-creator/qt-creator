@@ -64,6 +64,8 @@ QtcPlugin {
         "cppindexingsupport.h",
         "cpplocalsymbols.cpp",
         "cpplocalsymbols.h",
+        "cpplocatordata.cpp",
+        "cpplocatordata.h",
         "cpplocatorfilter.cpp",
         "cpplocatorfilter.h",
         "cppmodelmanager.cpp",

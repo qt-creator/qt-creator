@@ -40,6 +40,7 @@
 #include "cpptoolssettings.h"
 #include "cpptoolsreuse.h"
 #include "cppprojectfile.h"
+#include "cpplocatordata.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -101,9 +102,11 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     connect(Core::DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
             modelManager, SLOT(updateSourceFiles(QStringList)));
 
-    addAutoReleasedObject(new CppLocatorFilter(modelManager));
-    addAutoReleasedObject(new CppClassesFilter(modelManager));
-    addAutoReleasedObject(new CppFunctionsFilter(modelManager));
+    CppLocatorData *locatorData = new CppLocatorData(modelManager);
+    addAutoReleasedObject(locatorData);
+    addAutoReleasedObject(new CppLocatorFilter(locatorData));
+    addAutoReleasedObject(new CppClassesFilter(locatorData));
+    addAutoReleasedObject(new CppFunctionsFilter(locatorData));
     addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
     addAutoReleasedObject(new SymbolsFindFilter(modelManager));

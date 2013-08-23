@@ -30,6 +30,7 @@
 #ifndef CPPLOCATORFILTER_H
 #define CPPLOCATORFILTER_H
 
+#include "cpplocatordata.h"
 #include "searchsymbols.h"
 
 #include <locator/ilocatorfilter.h>
@@ -44,35 +45,19 @@ class CppLocatorFilter : public Locator::ILocatorFilter
     Q_OBJECT
 
 public:
-    CppLocatorFilter(CppModelManager *manager);
+    CppLocatorFilter(CppLocatorData *locatorData);
     ~CppLocatorFilter();
 
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
-    void reset();
-
-protected:
-    SearchSymbols search;
-
-    void flushPendingDocument(bool force);
-
-private slots:
-    void onDocumentUpdated(CPlusPlus::Document::Ptr updatedDoc);
-    void onAboutToRemoveFiles(const QStringList &files);
-
 private:
+    virtual QList<QList<ModelItemInfo> > itemsToMatchUserInputAgainst() const;
     virtual Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 
-private:
-    CppModelManager *m_manager;
-
-    QHash<QString, QList<ModelItemInfo> > m_searchList;
-    QString m_previousEntry;
-
-    mutable QMutex m_pendingDocumentsMutex;
-    QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
+protected:
+    CppLocatorData *m_data;
 };
 
 } // namespace Internal

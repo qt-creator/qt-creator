@@ -32,19 +32,22 @@
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-CppClassesFilter::CppClassesFilter(CppModelManager *manager)
-    : CppLocatorFilter(manager)
+CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
+    : CppLocatorFilter(locatorData)
 {
     setId("Classes");
     setShortcutString(QLatin1String("c"));
     setIncludedByDefault(false);
     setDisplayName(tr("C++ Classes"));
-
-    search.setSymbolsToSearchFor(SymbolSearcher::Classes);
 }
 
 CppClassesFilter::~CppClassesFilter()
 {
+}
+
+QList<QList<CppTools::ModelItemInfo> > CppClassesFilter::itemsToMatchUserInputAgainst() const
+{
+    return QList<QList<CppTools::ModelItemInfo> >() << m_data->classes();
 }
 
 Locator::FilterEntry CppClassesFilter::filterEntryFromModelItemInfo(const ModelItemInfo &info)

@@ -45,7 +45,8 @@ HEADERS += completionsettingspage.h \
     cpppointerdeclarationformatter.h \
     cppprojectfile.h \
     cpppreprocessor.h \
-    includeutils.h
+    includeutils.h \
+    cpplocatordata.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -89,7 +90,8 @@ SOURCES += completionsettingspage.cpp \
     cpppointerdeclarationformatter.cpp \
     cppprojectfile.cpp \
     cpppreprocessor.cpp \
-    includeutils.cpp
+    includeutils.cpp \
+    cpplocatordata.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

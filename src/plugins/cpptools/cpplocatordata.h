@@ -27,29 +27,61 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFUNCTIONSFILTER_H
-#define CPPFUNCTIONSFILTER_H
 
-#include "cpplocatordata.h"
-#include "cpplocatorfilter.h"
+#ifndef CPPLOCATORDATA_H
+#define CPPLOCATORDATA_H
+
+#include <QHash>
+#include <QVector>
+
+#include <cplusplus/CppDocument.h>
+
+#include "cppmodelmanager.h"
+#include "searchsymbols.h"
 
 namespace CppTools {
 namespace Internal {
 
-class CppFunctionsFilter : public CppLocatorFilter
+class CppLocatorData : public QObject
 {
     Q_OBJECT
-
 public:
-    CppFunctionsFilter(CppLocatorData *locatorData);
-    ~CppFunctionsFilter();
+    explicit CppLocatorData(CppModelManager *modelManager);
+
+    QList<ModelItemInfo> enums();
+    QList<ModelItemInfo> classes();
+    QList<ModelItemInfo> functions();
+
+private slots:
+    void onDocumentUpdated(const CPlusPlus::Document::Ptr &document);
+    void onAboutToRemoveFiles(const QStringList &files);
 
 private:
-    QList<QList<ModelItemInfo> > itemsToMatchUserInputAgainst() const;
-    Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
+    void flushPendingDocument(bool force);
+    QList<ModelItemInfo> allModelItemInfos(const QHash<QString,
+                                           QList<ModelItemInfo> > &items) const;
+
+    QString findOrInsertFilePath(const QString &path)
+    { return *m_filePaths.insert(path); }
+
+    void removeFilePath(const QString &path)
+    { m_filePaths.remove(path); }
+
+private:
+    CppModelManager *m_modelManager;
+
+    QSet<QString> m_filePaths; // Used to avoid QString duplication
+
+    SearchSymbols m_search;
+    QHash<QString, QList<ModelItemInfo> > m_allEnums;
+    QHash<QString, QList<ModelItemInfo> > m_allClasses;
+    QHash<QString, QList<ModelItemInfo> > m_allFunctions;
+
+    mutable QMutex m_pendingDocumentsMutex;
+    QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
 };
 
 } // namespace Internal
 } // namespace CppTools
 
-#endif // CPPFUNCTIONSFILTER_H
+#endif // CPPLOCATORDATA_H
