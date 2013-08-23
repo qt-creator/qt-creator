@@ -55,7 +55,7 @@ QString PasteBinDotCaProtocol::protocolName()
 
 unsigned PasteBinDotCaProtocol::capabilities() const
 {
-    return ListCapability | PostDescriptionCapability | PostUserNameCapability;
+    return ListCapability | PostDescriptionCapability | PostCommentCapability;
 }
 
 void PasteBinDotCaProtocol::fetch(const QString &id)
@@ -96,8 +96,8 @@ static QByteArray toTypeId(Protocol::ContentType ct)
 
 void PasteBinDotCaProtocol::paste(const QString &text,
                                   ContentType ct, int expiryDays,
-                                  const QString &username,
-                                  const QString & /* comment */,
+                                  const QString &/* username */,
+                                  const QString & comment,
                                   const QString &description)
 {
     QTC_ASSERT(!m_pasteReply, return);
@@ -107,11 +107,11 @@ void PasteBinDotCaProtocol::paste(const QString &text,
     data += "&type=";
     data += toTypeId(ct);
     data += "&description=";
-    data += QUrl::toPercentEncoding(description);
+    data += QUrl::toPercentEncoding(comment);
     data += "&expiry=";
     data += QByteArray::number(expiryDays);
-    data += "%20day&name=";
-    data += QUrl::toPercentEncoding(username);
+    data += "%20day&name=";  // Title or name.
+    data += QUrl::toPercentEncoding(description);
     // fire request
     const QString link = QLatin1String(urlC) + QLatin1String("quiet-paste.php");
     m_pasteReply = httpPost(link, data);
