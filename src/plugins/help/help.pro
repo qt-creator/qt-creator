@@ -21,7 +21,6 @@ HEADERS += \
     docsettingspage.h \
     filtersettingspage.h \
     generalsettingspage.h \
-    help_global.h \
     helpconstants.h \
     helpfindsupport.h \
     helpindexfilter.h \
