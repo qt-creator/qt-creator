@@ -3,7 +3,6 @@ QT += network
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \
-    madde_exports.h \
     maddeplugin.h \
     debianmanager.h \
     maemoconstants.h \

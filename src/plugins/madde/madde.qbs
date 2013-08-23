@@ -16,7 +16,6 @@ QtcPlugin {
     files: [
         "debianmanager.cpp",
         "debianmanager.h",
-        "madde_exports.h",
         "maddedevice.cpp",
         "maddedevice.h",
         "maddedeviceconfigurationfactory.cpp",
