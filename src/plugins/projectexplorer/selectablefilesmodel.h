@@ -37,13 +37,15 @@
 #include <QDialog>
 #include <QTreeView>
 #include <QLabel>
+#include "projectexplorer_export.h"
+
+namespace Utils { class PathChooser; }
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace GenericProjectManager {
-namespace Internal {
+namespace ProjectExplorer {
 
 struct Tree
 {
@@ -81,12 +83,12 @@ struct Glob
     }
 };
 
-class SelectableFilesModel : public QAbstractItemModel
+class PROJECTEXPLORER_EXPORT SelectableFilesModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    SelectableFilesModel(const QString &baseDir, QObject *parent);
+    SelectableFilesModel(QObject *parent);
     ~SelectableFilesModel();
 
     void setInitialMarkedFiles(const QStringList &files);
@@ -104,11 +106,11 @@ public:
     QStringList selectedPaths() const;
     QStringList preservedFiles() const;
 
-    // only call this once
-    void startParsing();
-    void waitForFinished();
+    void startParsing(const QString &baseDir);
     void cancel();
     void applyFilter(const QString &selectFilesfilter, const QString &hideFilesfilter);
+
+    void selectAllFiles();
 
 signals:
     void parsingFinished();
@@ -121,7 +123,6 @@ private:
     QList<Glob> parseFilter(const QString &filter);
     Qt::CheckState applyFilter(const QModelIndex &index);
     bool filter(Tree *t);
-    void init();
     void run(QFutureInterface<void> &fi);
     void collectFiles(Tree *root, QStringList *result) const;
     void collectPaths(Tree *root, QStringList *result) const;
@@ -129,6 +130,7 @@ private:
     void deleteTree(Tree *tree);
     void propagateUp(const QModelIndex &index);
     void propagateDown(const QModelIndex &index);
+    void selectAllFiles(Tree *root);
     Tree *m_root;
     // Used in the future thread need to all not used after calling startParsing
     QString m_baseDir;
@@ -143,13 +145,13 @@ private:
     QList<Glob> m_showFilesFilter;
 };
 
-class SelectableFilesDialog : public QDialog
+class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
 {
     Q_OBJECT
 
 public:
-    SelectableFilesDialog(const QString &path, const QStringList files, QWidget *parent);
-    ~SelectableFilesDialog();
+    SelectableFilesDialogEditFiles(const QString &path, const QStringList files, QWidget *parent);
+    ~SelectableFilesDialogEditFiles();
     QStringList selectedFiles() const;
 
 private slots:
@@ -157,11 +159,12 @@ private slots:
     void parsingProgress(const QString &fileName);
     void parsingFinished();
 
-private:
+protected:
     void smartExpand(const QModelIndex &index);
     void createShowFileFilterControls(QVBoxLayout *layout);
     void createHideFileFilterControls(QVBoxLayout *layout);
     void createApplyButton(QVBoxLayout *layout);
+
     SelectableFilesModel *m_selectableFilesModel;
 
     QLabel *m_hideFilesFilterLabel;
@@ -177,8 +180,28 @@ private:
     QLabel *m_progressLabel;
 };
 
-} // namespace Internal
-} // namespace GenericProjectManager
+class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
+{
+    Q_OBJECT
+
+public:
+    SelectableFilesDialogAddDirectory(const QString &path, const QStringList files, QWidget *parent);
+
+private slots:
+    void validityOfDirectoryChanged(bool validState);
+    void parsingFinished();
+    void startParsing();
+
+private:
+    Utils::PathChooser *m_pathChooser;
+    QLabel *m_sourceDirectoryLabel;
+    QPushButton *m_startParsingButton;
+
+    void setWidgetsEnabled(bool enabled);
+    void createPathChooser(QVBoxLayout *layout, const QString &path);
+};
+
+} // namespace ProjectExplorer
 
 #endif // SELECTABLEFILESMODEL_H
 

@@ -69,6 +69,7 @@ const char RUNCONTEXTMENU[]       = "ProjectExplorer.RunContextMenu";
 const char STOP[]                 = "ProjectExplorer.Stop";
 const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";
 const char ADDEXISTINGFILES[]     = "ProjectExplorer.AddExistingFiles";
+const char ADDEXISTINGDIRECTORY[] = "ProjectExplorer.AddExistingDirectory";
 const char ADDNEWSUBPROJECT[]     = "ProjectExplorer.AddNewSubproject";
 const char REMOVEPROJECT[]        = "ProjectExplorer.RemoveProject";
 const char OPENFILE[]             = "ProjectExplorer.OpenFile";
@@ -245,6 +246,12 @@ const char VAR_CURRENTKIT_FILESYSTEMNAME[] = "CurrentKit:FileSystemName";
 const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
 const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
+
+const char HIDE_FILE_FILTER_SETTING[] = "GenericProject/FileFilter";
+const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes; *.autosave";
+
+const char SHOW_FILE_FILTER_SETTING[] = "GenericProject/ShowFileFilter";
+const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
 // Unconfigured Panel
 const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";

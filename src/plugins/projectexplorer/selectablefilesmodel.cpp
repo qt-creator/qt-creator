@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "selectablefilesmodel.h"
-#include "genericprojectconstants.h"
+#include <projectexplorerconstants.h>
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
@@ -41,19 +41,14 @@
 #include <QPushButton>
 #include <QTreeView>
 #include <QDir>
+#include <utils/pathchooser.h>
 
-namespace GenericProjectManager {
-namespace Internal {
+namespace ProjectExplorer {
 
-SelectableFilesModel::SelectableFilesModel(const QString &baseDir, QObject *parent)
-    : QAbstractItemModel(parent), m_root(0), m_baseDir(baseDir), m_allFiles(true)
+SelectableFilesModel::SelectableFilesModel(QObject *parent)
+    : QAbstractItemModel(parent), m_root(0), m_allFiles(true)
 {
-    // Dummy tree
-    m_root = new Tree;
-    m_root->name = QLatin1String("/");
-    m_root->parent = 0;
-    m_root->fullPath = m_baseDir;
-    m_root->isDir = true;
+    connect(&m_watcher, SIGNAL(finished()), this, SLOT(buildTreeFinished()));
 }
 
 void SelectableFilesModel::setInitialMarkedFiles(const QStringList &files)
@@ -68,20 +63,19 @@ void SelectableFilesModel::setInitialMarkedFiles(const QStringList &files)
     m_allFiles = false;
 }
 
-void SelectableFilesModel::init()
+void SelectableFilesModel::startParsing(const QString &baseDir)
 {
-}
+    m_watcher.cancel();
+    m_watcher.waitForFinished();
 
-void SelectableFilesModel::startParsing()
-{
+    m_baseDir = baseDir;
     // Build a tree in a future
     m_rootForFuture = new Tree;
     m_rootForFuture->name = QLatin1String("/");
     m_rootForFuture->parent = 0;
-    m_rootForFuture->fullPath = m_baseDir;
+    m_rootForFuture->fullPath = baseDir;
     m_rootForFuture->isDir = true;
 
-    connect(&m_watcher, SIGNAL(finished()), this, SLOT(buildTreeFinished()));
     m_watcher.setFuture(QtConcurrent::run(&SelectableFilesModel::run, this));
 }
 
@@ -101,14 +95,10 @@ void SelectableFilesModel::buildTreeFinished()
     emit parsingFinished();
 }
 
-void SelectableFilesModel::waitForFinished()
-{
-    m_watcher.waitForFinished();
-}
-
 void SelectableFilesModel::cancel()
 {
     m_watcher.cancel();
+    m_watcher.waitForFinished();
 }
 
 bool SelectableFilesModel::filter(Tree *t)
@@ -193,11 +183,15 @@ void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFuture
 
 SelectableFilesModel::~SelectableFilesModel()
 {
+    m_watcher.cancel();
+    m_watcher.waitForFinished();
     deleteTree(m_root);
 }
 
 void SelectableFilesModel::deleteTree(Tree *tree)
 {
+    if (!tree)
+        return;
     foreach (Tree *t, tree->childDirectories)
         deleteTree(t);
     foreach (Tree *t, tree->files)
@@ -233,6 +227,8 @@ QModelIndex SelectableFilesModel::index(int row, int column, const QModelIndex &
 QModelIndex SelectableFilesModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
+        return QModelIndex();
+    if (!child.internalPointer())
         return QModelIndex();
     Tree *parent = static_cast<Tree *>(child.internalPointer())->parent;
     if (!parent)
@@ -398,6 +394,22 @@ void SelectableFilesModel::applyFilter(const QString &showFilesfilter, const QSt
     applyFilter(createIndex(0, 0, m_root));
 }
 
+void SelectableFilesModel::selectAllFiles()
+{
+    selectAllFiles(m_root);
+}
+
+void SelectableFilesModel::selectAllFiles(Tree *root)
+{
+    root->checked = Qt::Checked;
+
+    foreach (Tree *t, root->childDirectories)
+        selectAllFiles(t);
+
+    foreach (Tree *t, root->visibleFiles)
+        t->checked = Qt::Checked;
+}
+
 Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
 {
     bool allChecked = true;
@@ -511,10 +523,10 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
 }
 
 //////////
-// SelectableFilesDialog
+// SelectableFilesDialogs
 //////////
 
-SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringList files, QWidget *parent)
+SelectableFilesDialogEditFiles::SelectableFilesDialogEditFiles(const QString &path, const QStringList files, QWidget *parent)
     : QDialog(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -527,7 +539,7 @@ SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringL
     createHideFileFilterControls(layout);
     createApplyButton(layout);
 
-    m_selectableFilesModel = new SelectableFilesModel(path, this);
+    m_selectableFilesModel = new SelectableFilesModel(this);
     m_selectableFilesModel->setInitialMarkedFiles(files);
     m_view->setModel(m_selectableFilesModel);
     m_view->setMinimumSize(500, 400);
@@ -556,10 +568,10 @@ SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringL
     connect(m_selectableFilesModel, SIGNAL(parsingFinished()),
             this, SLOT(parsingFinished()));
 
-    m_selectableFilesModel->startParsing();
+    m_selectableFilesModel->startParsing(path);
 }
 
-void SelectableFilesDialog::createHideFileFilterControls(QVBoxLayout *layout)
+void SelectableFilesDialogEditFiles::createHideFileFilterControls(QVBoxLayout *layout)
 {
     QHBoxLayout *hbox = new QHBoxLayout;
     m_hideFilesFilterLabel = new QLabel;
@@ -576,7 +588,7 @@ void SelectableFilesDialog::createHideFileFilterControls(QVBoxLayout *layout)
     layout->addLayout(hbox);
 }
 
-void SelectableFilesDialog::createShowFileFilterControls(QVBoxLayout *layout)
+void SelectableFilesDialogEditFiles::createShowFileFilterControls(QVBoxLayout *layout)
 {
     QHBoxLayout *hbox = new QHBoxLayout;
     m_showFilesFilterLabel = new QLabel;
@@ -593,7 +605,7 @@ void SelectableFilesDialog::createShowFileFilterControls(QVBoxLayout *layout)
     layout->addLayout(hbox);
 }
 
-void SelectableFilesDialog::createApplyButton(QVBoxLayout *layout)
+void SelectableFilesDialogEditFiles::createApplyButton(QVBoxLayout *layout)
 {
     QHBoxLayout *hbox = new QHBoxLayout;
 
@@ -608,18 +620,17 @@ void SelectableFilesDialog::createApplyButton(QVBoxLayout *layout)
     connect(m_applyFilterButton, SIGNAL(clicked()), this, SLOT(applyFilter()));
 }
 
-SelectableFilesDialog::~SelectableFilesDialog()
+SelectableFilesDialogEditFiles::~SelectableFilesDialogEditFiles()
 {
     m_selectableFilesModel->cancel();
-    m_selectableFilesModel->waitForFinished();
 }
 
-void SelectableFilesDialog::parsingProgress(const QString &fileName)
+void SelectableFilesDialogEditFiles::parsingProgress(const QString &fileName)
 {
     m_progressLabel->setText(tr("Generating file list...\n\n%1").arg(fileName));
 }
 
-void SelectableFilesDialog::parsingFinished()
+void SelectableFilesDialogEditFiles::parsingFinished()
 {
     m_hideFilesFilterLabel->show();
     m_hideFilesfilterLineEdit->show();
@@ -642,7 +653,7 @@ void SelectableFilesDialog::parsingFinished()
     }
 }
 
-void SelectableFilesDialog::smartExpand(const QModelIndex &index)
+void SelectableFilesDialogEditFiles::smartExpand(const QModelIndex &index)
 {
     if (m_view->model()->data(index, Qt::CheckStateRole) == Qt::PartiallyChecked) {
         m_view->expand(index);
@@ -652,12 +663,12 @@ void SelectableFilesDialog::smartExpand(const QModelIndex &index)
     }
 }
 
-QStringList SelectableFilesDialog::selectedFiles() const
+QStringList SelectableFilesDialogEditFiles::selectedFiles() const
 {
     return m_selectableFilesModel->selectedFiles();
 }
 
-void SelectableFilesDialog::applyFilter()
+void SelectableFilesDialogEditFiles::applyFilter()
 {
     const QString showFilesFilter = m_showFilesfilterLineEdit->text();
     Core::ICore::settings()->setValue(QLatin1String(Constants::SHOW_FILE_FILTER_SETTING), showFilesFilter);
@@ -668,7 +679,70 @@ void SelectableFilesDialog::applyFilter()
     m_selectableFilesModel->applyFilter(showFilesFilter, hideFilesFilter);
 }
 
-} // namespace Internal
-} // namespace GenericProjectManager
+SelectableFilesDialogAddDirectory::SelectableFilesDialogAddDirectory(const QString &path,
+                                                const QStringList files, QWidget *parent) :
+    SelectableFilesDialogEditFiles(path, files, parent)
+{
+    setWindowTitle(tr("Add Existing Directory"));
+
+    connect(m_selectableFilesModel, SIGNAL(parsingFinished()), this, SLOT(parsingFinished()));
+
+    createPathChooser(static_cast<QVBoxLayout*>(layout()), path);
+}
+
+void SelectableFilesDialogAddDirectory::createPathChooser(QVBoxLayout *layout, const QString &path)
+{
+    QHBoxLayout *hbox = new QHBoxLayout;
+
+    m_pathChooser = new Utils::PathChooser;
+    m_pathChooser->setPath(path);
+
+    m_sourceDirectoryLabel = new QLabel(tr("Source directory:"));
+    hbox->addWidget(m_sourceDirectoryLabel);
+
+    hbox->addWidget(m_pathChooser);
+    layout->insertLayout(0, hbox);
+
+    m_startParsingButton = new QPushButton(tr("Start Parsing"));
+    hbox->addWidget(m_startParsingButton);
+
+    connect(m_pathChooser, SIGNAL(validChanged(bool)), this, SLOT(validityOfDirectoryChanged(bool)));
+    connect(m_startParsingButton, SIGNAL(clicked()), this, SLOT(startParsing()));
+}
+
+void SelectableFilesDialogAddDirectory::validityOfDirectoryChanged(bool validState)
+{
+    m_startParsingButton->setEnabled(validState);
+}
+
+void SelectableFilesDialogAddDirectory::parsingFinished()
+{
+    m_selectableFilesModel->selectAllFiles();
+    m_selectableFilesModel->applyFilter(m_showFilesfilterLineEdit->text(),
+                                        m_hideFilesfilterLineEdit->text());
+
+    setWidgetsEnabled(true);
+}
+
+void SelectableFilesDialogAddDirectory::startParsing()
+{
+    setWidgetsEnabled(false);
+
+    m_selectableFilesModel->startParsing(m_pathChooser->path());
+}
+
+void SelectableFilesDialogAddDirectory::setWidgetsEnabled(bool enabled)
+{
+    m_hideFilesfilterLineEdit->setEnabled(enabled);
+    m_showFilesfilterLineEdit->setEnabled(enabled);
+    m_applyFilterButton->setEnabled(enabled);
+    m_view->setEnabled(enabled);
+    m_pathChooser->setEnabled(enabled);
+    m_startParsingButton->setVisible(enabled);
+
+    m_progressLabel->setVisible(!enabled);
+}
+
+} // namespace ProjectExplorer
 
 

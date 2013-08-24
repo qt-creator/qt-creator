@@ -237,6 +237,7 @@ QList<ProjectNode::ProjectAction> GenericProjectNode::supportedActions(Node *nod
     return QList<ProjectAction>()
         << AddNewFile
         << AddExistingFile
+        << AddExistingDirectory
         << RemoveFile
         << Rename;
 }

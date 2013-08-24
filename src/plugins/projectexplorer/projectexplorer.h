@@ -186,6 +186,7 @@ private slots:
 
     void addNewFile();
     void addExistingFiles();
+    void addExistingDirectory();
     void addNewSubproject();
     void removeProject();
     void openFile();

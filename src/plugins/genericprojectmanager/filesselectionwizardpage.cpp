@@ -31,10 +31,10 @@
 
 #include "genericprojectwizard.h"
 #include "genericprojectconstants.h"
-#include "selectablefilesmodel.h"
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/selectablefilesmodel.h>
 
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -117,12 +117,12 @@ void FilesSelectionWizardPage::initializePage()
 {
     m_view->setModel(0);
     delete m_model;
-    m_model = new SelectableFilesModel(m_genericProjectWizardDialog->path(), this);
+    m_model = new ProjectExplorer::SelectableFilesModel(this);
     connect(m_model, SIGNAL(parsingProgress(QString)),
             this, SLOT(parsingProgress(QString)));
     connect(m_model, SIGNAL(parsingFinished()),
             this, SLOT(parsingFinished()));
-    m_model->startParsing();
+    m_model->startParsing(m_genericProjectWizardDialog->path());
 
     m_hideFilesFilterLabel->setVisible(false);
     m_hideFilesfilterLineEdit->setVisible(false);
@@ -139,7 +139,6 @@ void FilesSelectionWizardPage::initializePage()
 void FilesSelectionWizardPage::cleanupPage()
 {
     m_model->cancel();
-    m_model->waitForFinished();
 }
 
 void FilesSelectionWizardPage::parsingProgress(const QString &text)

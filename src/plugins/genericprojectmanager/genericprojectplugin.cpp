@@ -36,7 +36,6 @@
 #include "genericprojectfileseditor.h"
 #include "genericmakestep.h"
 #include "genericproject.h"
-#include "selectablefilesmodel.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -45,7 +44,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
-
+#include <projectexplorer/selectablefilesmodel.h>
 
 #include <texteditor/texteditoractionhandler.h>
 
@@ -115,7 +114,7 @@ void GenericProjectPlugin::updateContextMenu(ProjectExplorer::Project *project, 
 void GenericProjectPlugin::editFiles()
 {
     GenericProject *genericProject = static_cast<GenericProject *>(m_contextMenuProject);
-    SelectableFilesDialog sfd(QFileInfo(genericProject->projectFilePath()).path(), genericProject->files(),
+    ProjectExplorer::SelectableFilesDialogEditFiles sfd(QFileInfo(genericProject->projectFilePath()).path(), genericProject->files(),
                               Core::ICore::mainWindow());
     if (sfd.exec() == QDialog::Accepted)
         genericProject->setFiles(sfd.selectedFiles());

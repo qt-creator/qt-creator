@@ -76,6 +76,7 @@
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
 #include "customtoolchain.h"
+#include <selectablefilesmodel.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
@@ -198,6 +199,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_cancelBuildAction;
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
+    QAction *m_addExistingDirectoryAction;
     QAction *m_addNewSubprojectAction;
     QAction *m_removeFileAction;
     QAction *m_removeProjectAction;
@@ -795,6 +797,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
+    // add existing directory action
+    d->m_addExistingDirectoryAction = new QAction(tr("Add Existing Directory..."), this);
+    cmd = Core::ActionManager::registerAction(d->m_addExistingDirectoryAction,
+                                              ProjectExplorer::Constants::ADDEXISTINGDIRECTORY,
+                                              projecTreeContext);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
+    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
+    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
+
     // new subproject action
     d->m_addNewSubprojectAction = new QAction(tr("New Subproject..."), this);
     cmd = ActionManager::registerAction(d->m_addNewSubprojectAction, ProjectExplorer::Constants::ADDNEWSUBPROJECT,
@@ -962,6 +973,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_closeAllProjects, SIGNAL(triggered()), this, SLOT(closeAllProjects()));
     connect(d->m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(d->m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
+    connect(d->m_addExistingDirectoryAction, SIGNAL(triggered()), this, SLOT(addExistingDirectory()));
     connect(d->m_addNewSubprojectAction, SIGNAL(triggered()), this, SLOT(addNewSubproject()));
     connect(d->m_removeProjectAction, SIGNAL(triggered()), this, SLOT(removeProject()));
     connect(d->m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -2619,6 +2631,7 @@ void ProjectExplorerPlugin::invalidateProject(Project *project)
 void ProjectExplorerPlugin::updateContextMenuActions()
 {
     d->m_addExistingFilesAction->setEnabled(false);
+    d->m_addExistingDirectoryAction->setEnabled(false);
     d->m_addNewFileAction->setEnabled(false);
     d->m_addNewSubprojectAction->setEnabled(false);
     d->m_removeFileAction->setEnabled(false);
@@ -2626,6 +2639,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     d->m_renameFileAction->setEnabled(false);
 
     d->m_addExistingFilesAction->setVisible(true);
+    d->m_addExistingDirectoryAction->setVisible(true);
     d->m_removeFileAction->setVisible(true);
     d->m_deleteFileAction->setVisible(true);
     d->m_runActionContextMenu->setVisible(false);
@@ -2663,6 +2677,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
             d->m_addNewSubprojectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
                                                     && actions.contains(ProjectNode::AddSubProject));
             d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectNode::AddExistingFile));
+            d->m_addExistingDirectoryAction->setEnabled(actions.contains(ProjectNode::AddExistingDirectory));
             d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
         } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
             // Enable and show remove / delete in magic ways:
@@ -2770,6 +2785,17 @@ void ProjectExplorerPlugin::addExistingFiles()
     if (fileNames.isEmpty())
         return;
     addExistingFiles(fileNames);
+}
+
+void ProjectExplorerPlugin::addExistingDirectory()
+{
+    QTC_ASSERT(d->m_currentNode, return);
+
+    const QString path = QFileInfo(d->m_currentNode->path()).absolutePath();
+    SelectableFilesDialogAddDirectory dialog(path, QStringList(), Core::ICore::mainWindow());
+
+    if (dialog.exec() == QDialog::Accepted)
+        addExistingFiles(dialog.selectedFiles());
 }
 
 void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)

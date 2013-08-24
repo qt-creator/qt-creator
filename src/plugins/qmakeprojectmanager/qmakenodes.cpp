@@ -865,7 +865,7 @@ QList<ProjectNode::ProjectAction> QmakePriFileNode::supportedActions(Node *node)
         addExistingFiles = addExistingFiles && !deploysFolder(node->path());
 
         if (addExistingFiles)
-            actions << AddExistingFile;
+            actions << AddExistingFile << AddExistingDirectory;
 
         break;
     }

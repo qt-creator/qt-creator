@@ -39,7 +39,5 @@ QtcPlugin {
         "genericprojectwizard.h",
         "pkgconfigtool.cpp",
         "pkgconfigtool.h",
-        "selectablefilesmodel.cpp",
-        "selectablefilesmodel.h",
     ]
 }

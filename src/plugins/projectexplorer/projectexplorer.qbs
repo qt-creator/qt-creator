@@ -121,6 +121,7 @@ QtcPlugin {
             "runconfiguration.cpp", "runconfiguration.h",
             "runconfigurationmodel.cpp", "runconfigurationmodel.h",
             "runsettingspropertiespage.cpp", "runsettingspropertiespage.h",
+            "selectablefilesmodel.cpp", "selectablefilesmodel.h"
             "session.cpp", "session.h",
             "sessiondialog.cpp", "sessiondialog.h", "sessiondialog.ui",
             "settingsaccessor.cpp", "settingsaccessor.h",
@@ -141,7 +142,7 @@ QtcPlugin {
             "toolchainmanager.cpp", "toolchainmanager.h",
             "toolchainoptionspage.cpp", "toolchainoptionspage.h",
             "unconfiguredprojectpanel.cpp", "unconfiguredprojectpanel.h",
-            "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
+            "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h"
         ]
     }
 
