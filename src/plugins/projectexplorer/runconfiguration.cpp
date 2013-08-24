@@ -182,7 +182,8 @@ void IRunConfigurationAspect::toMap(QVariantMap &map) const
 IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *parent) const
 {
     IRunConfigurationAspect *other = create(parent);
-    other->m_projectSettings = m_projectSettings->clone();
+    if (m_projectSettings)
+        other->m_projectSettings = m_projectSettings->clone();
     other->m_globalSettings = m_globalSettings;
     other->m_useGlobalSettings = m_useGlobalSettings;
     return other;
