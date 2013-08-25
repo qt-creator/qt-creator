@@ -50,7 +50,9 @@ struct CppFileSettings
     CppFileSettings();
 
     QString headerSuffix;
+    QStringList headerSearchPaths;
     QString sourceSuffix;
+    QStringList sourceSearchPaths;
     bool lowerCaseFiles;
     QString licenseTemplatePath;
 

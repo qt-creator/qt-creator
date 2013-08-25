@@ -107,7 +107,8 @@ equals(TEST, 1) {
         cpplocatorfilter_test.cpp \
         symbolsearcher_test.cpp \
         cpppreprocessor_test.cpp \
-        cpppreprocessertesthelper.cpp
+        cpppreprocessertesthelper.cpp \
+        cppheadersource_test.cpp
 
     HEADERS += \
         cpppreprocessertesthelper.h \

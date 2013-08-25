@@ -118,6 +118,7 @@ QtcPlugin {
         files: [
             "cppcodegen_test.cpp",
             "cppcompletion_test.cpp",
+            "cppheadersource_test.cpp",
             "cppmodelmanager_test.cpp",
             "modelmanagertesthelper.cpp", "modelmanagertesthelper.h",
             "cpppointerdeclarationformatter_test.cpp",

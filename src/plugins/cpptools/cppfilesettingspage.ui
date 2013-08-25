@@ -6,52 +6,148 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>291</width>
-    <height>142</height>
+    <width>547</width>
+    <height>305</height>
    </rect>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-   </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="headerSuffixLabel">
-     <property name="text">
-      <string>Header suffix:</string>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="headersGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
+     <property name="title">
+      <string>Headers</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="headerSuffixLabel">
+        <property name="text">
+         <string>&amp;Suffix:</string>
+        </property>
+        <property name="buddy">
+         <cstring>headerSuffixComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="headerSuffixComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="headerSearchPathsLabel">
+        <property name="text">
+         <string>S&amp;earch paths:</string>
+        </property>
+        <property name="buddy">
+         <cstring>headerSearchPathsEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="headerSearchPathsEdit">
+        <property name="toolTip">
+         <string>Comma-separated list of header paths.
+
+Paths can be absolute or relative to the directory of the current open document.
+
+These paths are used in addition to current directory on Switch Header/Source.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QComboBox" name="headerSuffixComboBox"/>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="sourceSuffixLabel">
-     <property name="text">
-      <string>Source suffix:</string>
+   <item>
+    <widget class="QGroupBox" name="sourcesGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
+     <property name="title">
+      <string>Sources</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <item row="1" column="0">
+       <widget class="QLabel" name="sourceSuffixLabel">
+        <property name="text">
+         <string>S&amp;uffix:</string>
+        </property>
+        <property name="buddy">
+         <cstring>sourceSuffixComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="sourceSuffixComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="sourceSearchPathsLabel">
+        <property name="text">
+         <string>Se&amp;arch paths:</string>
+        </property>
+        <property name="buddy">
+         <cstring>sourceSearchPathsEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="sourceSearchPathsEdit">
+        <property name="toolTip">
+         <string>Comma-separated list of source paths.
+
+Paths can be absolute or relative to the directory of the current open document.
+
+These paths are used in addition to current directory on Switch Header/Source.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="sourceSuffixComboBox"/>
-   </item>
-   <item row="2" column="1">
+   <item>
     <widget class="QCheckBox" name="lowerCaseFileNamesCheckBox">
      <property name="text">
-      <string>Lower case file names</string>
+      <string>&amp;Lower case file names</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="licenseTemplateLabel">
-     <property name="text">
-      <string>License template:</string>
-     </property>
-    </widget>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="licenseTemplateLabel">
+       <property name="text">
+        <string>License &amp;template:</string>
+       </property>
+       <property name="buddy">
+        <cstring>licenseTemplatePathChooser</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Utils::PathChooser" name="licenseTemplatePathChooser" native="true"/>
+     </item>
+    </layout>
    </item>
-   <item row="3" column="1">
-    <widget class="Utils::PathChooser" name="licenseTemplatePathChooser" native="true"/>
-   </item>
-   <item row="4" column="0" colspan="2">
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -65,13 +161,6 @@
     </spacer>
    </item>
   </layout>
-  <zorder>licenseTemplatePathChooser</zorder>
-  <zorder>sourceSuffixLabel</zorder>
-  <zorder>headerSuffixLabel</zorder>
-  <zorder>lowerCaseFileNamesCheckBox</zorder>
-  <zorder>headerSuffixComboBox</zorder>
-  <zorder>sourceSuffixComboBox</zorder>
-  <zorder>licenseTemplateLabel</zorder>
  </widget>
  <customwidgets>
   <customwidget>

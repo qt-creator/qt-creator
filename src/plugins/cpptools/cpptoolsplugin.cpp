@@ -52,6 +52,9 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#ifdef Q_OS_WIN
+#include <utils/winutils.h>
+#endif
 
 #include <QtPlugin>
 #include <QFileInfo>
@@ -86,6 +89,21 @@ CppToolsPlugin::~CppToolsPlugin()
 CppToolsPlugin *CppToolsPlugin::instance()
 {
     return m_instance;
+}
+
+void CppToolsPlugin::clearHeaderSourceCache()
+{
+    m_headerSourceMapping.clear();
+}
+
+const QStringList &CppToolsPlugin::headerSearchPaths()
+{
+    return m_instance->m_fileSettings->headerSearchPaths;
+}
+
+const QStringList &CppToolsPlugin::sourceSearchPaths()
+{
+    return m_instance->m_fileSettings->sourceSearchPaths;
 }
 
 bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
@@ -231,6 +249,14 @@ static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStrin
     return result;
 }
 
+static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringList &directories)
+{
+    QStringList result;
+    foreach (const QString &dir, directories)
+        result << QDir::cleanPath(baseDir.absoluteFilePath(dir));
+    return result;
+}
+
 static int commonStringLength(const QString &s1, const QString &s2)
 {
     int length = qMin(s1.length(), s2.length());
@@ -307,15 +333,28 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     }
 
     const QDir absoluteDir = fi.absoluteDir();
+    QStringList candidateDirs(absoluteDir.absolutePath());
+    // If directory is not root, try matching against its siblings
+    const QStringList searchPaths = isHeader ? m_instance->sourceSearchPaths()
+                                             : m_instance->headerSearchPaths();
+    candidateDirs += baseDirWithAllDirectories(absoluteDir, searchPaths);
 
-    // Try to find a file in the same directory first
-    foreach (const QString &candidateFileName, candidateFileNames) {
-        const QFileInfo candidateFi(absoluteDir, candidateFileName);
-        if (candidateFi.isFile()) {
-            m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
-            if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
-                m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
-            return candidateFi.absoluteFilePath();
+    // Try to find a file in the same or sibling directories first
+    foreach (const QString &candidateDir, candidateDirs) {
+        foreach (const QString &candidateFileName, candidateFileNames) {
+            const QString candidateFilePath = candidateDir + QLatin1Char('/') + candidateFileName;
+#ifdef Q_OS_WIN
+            const QString normalized = Utils::normalizePathName(candidateFilePath);
+#else
+            const QString normalized = candidateFilePath;
+#endif
+            const QFileInfo candidateFi(normalized);
+            if (candidateFi.isFile()) {
+                m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
+                if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
+                    m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
+                return candidateFi.absoluteFilePath();
+            }
         }
     }
 

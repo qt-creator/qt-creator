@@ -60,6 +60,9 @@ public:
     ~CppToolsPlugin();
 
     static CppToolsPlugin *instance();
+    static const QStringList &headerSearchPaths();
+    static const QStringList &sourceSearchPaths();
+    static void clearHeaderSourceCache();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
@@ -210,6 +213,9 @@ private slots:
 
     void test_builtinsymbolsearcher();
     void test_builtinsymbolsearcher_data();
+
+    void test_headersource_data();
+    void test_headersource();
 
 private:
     void test_completion();
