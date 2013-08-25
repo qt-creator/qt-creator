@@ -1882,7 +1882,7 @@ void EditorManager::updateWindowTitle()
     QString windowTitle = tr("Qt Creator");
     const QString dashSep = QLatin1String(" - ");
     if (!d->m_titleVcsTopic.isEmpty())
-        windowTitle.prepend(d->m_titleVcsTopic + dashSep);
+        windowTitle.prepend(QLatin1Char('[') + d->m_titleVcsTopic + QLatin1String("] - "));
     if (!d->m_titleAddition.isEmpty())
         windowTitle.prepend(d->m_titleAddition + dashSep);
     IDocument *document = currentDocument();

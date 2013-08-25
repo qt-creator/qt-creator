@@ -271,7 +271,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                 const QString vcsTopic = node->vcsTopic();
 
                 if (!vcsTopic.isEmpty())
-                    name += QLatin1String(" (") + vcsTopic + QLatin1Char(')');
+                    name += QLatin1String(" [") + vcsTopic + QLatin1Char(']');
             }
 
             result = name;
