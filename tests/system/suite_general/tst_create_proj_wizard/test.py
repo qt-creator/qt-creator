@@ -101,7 +101,7 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
         clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
         waitFor("textChanged", 2000)
         text = waitForObject(":frame.templateDescription_QTextBrowser").plainText
-        displayedPlatforms, requiredVersion = __getSupportedPlatforms__(str(text), True)
+        displayedPlatforms = __getSupportedPlatforms__(str(text), True)[0]
         clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
         # don't check because project could exist
         __createProjectSetNameAndPath__(os.path.expanduser("~"), 'untitled', False)
@@ -120,19 +120,6 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
         availableCheckboxes = filter(visibleCheckBoxExists, kits.keys())
         # verification whether expected, found and configured match
         for t in kits:
-            if requiredVersion:
-                if kits[t][1] < requiredVersion:
-                    if t in availableCheckboxes:
-                        test.fail("Kit '%s' found as checkbox, but required Qt version (%s) is "
-                                  "higher than configured Qt version (%s)!" % (t, requiredVersion,
-                                                                               str(kits[t][1])))
-                        availableCheckboxes.remove(t)
-                    else:
-                        test.passes("Irrelevant kit '%s' not found on 'Kit Selection' page - "
-                                    "required Qt version is '%s', current Qt version is '%s'." %
-                                    (t, requiredVersion, str(kits[t][1])))
-                    continue
-            found = False
             if t in displayedPlatforms:
                 if t in availableCheckboxes:
                     test.passes("Found expected kit '%s' on 'Kit Selection' page." % t)
