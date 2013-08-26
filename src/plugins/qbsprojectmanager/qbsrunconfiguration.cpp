@@ -214,8 +214,13 @@ bool QbsRunConfiguration::forcedGuiMode() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
     const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
+    foreach (const qbs::TargetArtifact &ta, product.targetArtifacts()) {
+        if (ta.isExecutable())
+            return !ta.properties().getProperty(QLatin1String("consoleApplication")).toBool();
+    }
 
-    return !product.properties().getProperty(QLatin1String("consoleApplication")).toBool();
+    QTC_ASSERT(false, qDebug("No executable target in product '%s'", qPrintable(product.name())));
+    return false;
 }
 
 QString QbsRunConfiguration::workingDirectory() const
