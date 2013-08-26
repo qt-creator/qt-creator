@@ -1714,20 +1714,6 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     if (!branch.isEmpty())
         return data.topic = branch;
 
-    switch (checkCommandInProgressInGitDir(gitDir)) {
-    case Rebase:
-    case RebaseMerge:
-        return data.topic = tr("REBASING");
-    case Revert:
-        return data.topic = tr("REVERTING");
-    case CherryPick:
-        return data.topic = tr("CHERRY-PICKING");
-    case Merge:
-        return data.topic = tr("MERGING");
-    default:
-        break;
-    }
-
     // Detached HEAD, try a tag or remote branch
     QStringList references;
     if (!synchronousHeadRefs(workingDirectory, &references))
@@ -2451,8 +2437,27 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     return StatusUnchanged;
 }
 
-GitClient::CommandInProgress GitClient::checkCommandInProgressInGitDir(const QString &gitDir)
+QString GitClient::commandInProgressDescription(const QString &workingDirectory)
 {
+    switch (checkCommandInProgress(workingDirectory)) {
+    case NoCommand:
+        break;
+    case Rebase:
+    case RebaseMerge:
+        return tr("REBASING");
+    case Revert:
+        return tr("REVERTING");
+    case CherryPick:
+        return tr("CHERRY-PICKING");
+    case Merge:
+        return tr("MERGING");
+    }
+    return QString();
+}
+
+GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &workingDirectory)
+{
+    const QString gitDir = findGitDirForRepository(workingDirectory);
     if (QFile::exists(gitDir + QLatin1String("/MERGE_HEAD")))
         return Merge;
     else if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing")))
@@ -2465,11 +2470,6 @@ GitClient::CommandInProgress GitClient::checkCommandInProgressInGitDir(const QSt
         return CherryPick;
     else
         return NoCommand;
-}
-
-GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &workingDirectory)
-{
-    return checkCommandInProgressInGitDir(findGitDirForRepository(workingDirectory));
 }
 
 void GitClient::continueCommandIfNeeded(const QString &workingDirectory)

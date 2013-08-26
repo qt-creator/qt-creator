@@ -294,7 +294,7 @@ public:
                            QString *errorMessage = 0);
 
     CommandInProgress checkCommandInProgress(const QString &workingDirectory);
-    CommandInProgress checkCommandInProgressInGitDir(const QString &gitDir);
+    QString commandInProgressDescription(const QString &workingDirectory);
 
     void continueCommandIfNeeded(const QString &workingDirectory);
     void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,

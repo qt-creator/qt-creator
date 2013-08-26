@@ -124,7 +124,11 @@ QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
 
 QString GitVersionControl::vcsTopic(const QString &directory)
 {
-    return m_client->synchronousTopic(directory);
+    QString topic = m_client->synchronousTopic(directory);
+    const QString commandInProgress = m_client->commandInProgressDescription(directory);
+    if (!commandInProgress.isEmpty())
+        topic += QLatin1String(" (") + commandInProgress + QLatin1Char(')');
+    return topic;
 }
 
 /* Snapshots are implemented using stashes, relying on stash messages for
