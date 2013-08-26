@@ -113,7 +113,7 @@ bool Qt4NodeInstanceServer::nonInstanceChildIsDirty(QGraphicsObject *graphicsObj
                 continue;
 
             QGraphicsItemPrivate *childPrivate = QGraphicsItemPrivate::get(child);
-            if (childPrivate->dirty || nonInstanceChildIsDirty(childGraphicsObject))
+            if (childPrivate->dirty || d->dirtySceneTransform || nonInstanceChildIsDirty(childGraphicsObject))
                 return true;
         }
     }
