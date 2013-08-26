@@ -453,6 +453,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 
     if (hasValidResetBinding(name)) {
         QDeclarativePropertyPrivate::setBinding(property, 0, QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
+        resetBinding(name)->setEnabled(false);
     }
 
     bool isWritten = property.write(convertSpecialCharacter(fixedValue));
