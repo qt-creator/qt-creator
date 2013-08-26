@@ -47,14 +47,6 @@ CppClassesFilter::~CppClassesFilter()
 {
 }
 
-QString CppClassesFilter::stringToMatchUserInputAgainst(const ModelItemInfo &info,
-                                                        bool userInputContainsColonColon)
-{
-    if (userInputContainsColonColon)
-        return info.scopedSymbolName();
-    return info.symbolName;
-}
-
 Locator::FilterEntry CppClassesFilter::filterEntryFromModelItemInfo(const ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);

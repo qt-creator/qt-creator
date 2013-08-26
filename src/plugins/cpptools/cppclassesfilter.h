@@ -44,8 +44,6 @@ public:
     ~CppClassesFilter();
 
 private:
-    QString stringToMatchUserInputAgainst(const ModelItemInfo &info,
-                                          bool userInputContainsColonColon);
     Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 };
 

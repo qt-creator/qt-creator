@@ -108,18 +108,10 @@ void CppLocatorFilter::onAboutToRemoveFiles(const QStringList &files)
         m_searchList.remove(file);
 }
 
-QString CppLocatorFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info,
-                                                        bool userInputContainsColonColon)
-{
-    Q_UNUSED(userInputContainsColonColon)
-    return info.scopedSymbolName();
-}
-
 Locator::FilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);
-    const QString name = info.symbolScope.isEmpty() ? info.symbolName : info.scopedSymbolName();
-    Locator::FilterEntry filterEntry(this, name, id, info.icon);
+    Locator::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
     filterEntry.extraInfo = info.type == ModelItemInfo::Class || info.type == ModelItemInfo::Enum
         ? info.shortNativeFilePath()
         : info.symbolType;
@@ -163,7 +155,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
 
         const QList<ModelItemInfo> items = it.value();
         foreach (const ModelItemInfo &info, items) {
-            const QString matchString = stringToMatchUserInputAgainst(info, hasColonColon);
+            const QString matchString = hasColonColon ? info.scopedSymbolName() : info.symbolName;
             if ((hasWildcard && regexp.exactMatch(matchString))
                     || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
                 const Locator::FilterEntry filterEntry = filterEntryFromModelItemInfo(info);

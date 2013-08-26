@@ -46,14 +46,6 @@ CppFunctionsFilter::~CppFunctionsFilter()
 {
 }
 
-QString CppFunctionsFilter::stringToMatchUserInputAgainst(const CppTools::ModelItemInfo &info,
-                                                          bool userInputContainsColonColon)
-{
-    if (userInputContainsColonColon)
-        return info.scopedSymbolName();
-    return info.symbolName;
-}
-
 Locator::FilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);

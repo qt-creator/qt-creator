@@ -63,8 +63,6 @@ private slots:
     void onAboutToRemoveFiles(const QStringList &files);
 
 private:
-    virtual QString stringToMatchUserInputAgainst(const ModelItemInfo &info,
-                                                  bool userInputContainsColonColon);
     virtual Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 
 private:
