@@ -30,6 +30,7 @@
 #include "graphicsobjectnodeinstance.h"
 
 #include <QGraphicsObject>
+#include <QDeclarativeItem>
 #include "private/qgraphicsitem_p.h"
 #include <private/qdeclarativemetatype_p.h>
 
@@ -302,6 +303,11 @@ void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, Q
         painter->save();
         painter->setTransform(graphicsItem->itemTransform(graphicsItem->parentItem()), true);
         painter->setOpacity(graphicsItem->opacity() * painter->opacity());
+
+        QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem *>(graphicsItem);
+        if (declarativeItem && declarativeItem->clip())
+            painter->setClipRect(declarativeItem->boundingRect());
+
         QStyleOptionGraphicsItem option;
         initOption(graphicsItem, &option, painter->transform());
         graphicsItem->paint(painter, &option);
