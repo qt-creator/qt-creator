@@ -41,6 +41,7 @@ Q_DECLARE_METATYPE(QList<DiffEditor::Diff>);
 
 using namespace DiffEditor;
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
     template<>
     char *toString(const Diff &diff)
@@ -64,6 +65,7 @@ namespace QTest {
         return qstrdup(ba.data());
     }
 }
+QT_END_NAMESPACE
 
 
 class tst_Differ: public QObject
