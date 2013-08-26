@@ -595,13 +595,6 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     parseCMakeLists();
 
-    if (!hasUserFile && hasBuildTarget(QLatin1String("all"))) {
-        MakeStep *makeStep = qobject_cast<MakeStep *>(
-                    activeTarget()->activeBuildConfiguration()->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)->at(0));
-        Q_ASSERT(makeStep);
-        makeStep->setBuildTarget(QLatin1String("all"), true);
-    }
-
     m_activeTarget = activeTarget();
     if (m_activeTarget)
         connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),

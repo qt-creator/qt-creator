@@ -85,8 +85,12 @@ public slots:
     void setUseNinja(bool);
     void activeBuildConfigurationChanged();
 
+private slots:
+    void buildTargetsChanged();
+
 signals:
     void makeCommandChanged();
+    void targetsToBuildChanged();
 
 protected:
     void processStarted();
@@ -127,6 +131,8 @@ private slots:
     void additionalArgumentsEdited();
     void updateDetails();
     void buildTargetsChanged();
+    void selectedBuildTargetsChanged();
+
 private:
     MakeStep *m_makeStep;
     QListWidget *m_buildTargetsList;

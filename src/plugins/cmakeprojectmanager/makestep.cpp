@@ -108,6 +108,9 @@ void MakeStep::ctor()
                  this, SLOT(activeBuildConfigurationChanged()));
         activeBuildConfigurationChanged();
     }
+
+    connect(static_cast<CMakeProject *>(project()), SIGNAL(buildTargetsChanged()),
+            this, SLOT(buildTargetsChanged()));
 }
 
 MakeStep::~MakeStep()
@@ -135,6 +138,16 @@ void MakeStep::activeBuildConfigurationChanged()
         connect(m_activeConfiguration, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
         setUseNinja(m_activeConfiguration->useNinja());
     }
+}
+
+void MakeStep::buildTargetsChanged()
+{
+    QStringList filteredTargets;
+    foreach (const QString t, static_cast<CMakeProject *>(project())->buildTargetTitles()) {
+        if (m_buildTargets.contains(t))
+            filteredTargets.append(t);
+    }
+    setBuildTargets(filteredTargets);
 }
 
 void MakeStep::setClean(bool clean)
@@ -174,7 +187,7 @@ bool MakeStep::init()
     if (!tc) {
         m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
                             Utils::FileName(), -1,
-                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return true; // otherwise the tasks will not get reported
     }
 
@@ -274,12 +287,15 @@ void MakeStep::setBuildTarget(const QString &buildTarget, bool on)
         old << buildTarget;
     else if (!on && old.contains(buildTarget))
         old.removeOne(buildTarget);
-    m_buildTargets = old;
+    setBuildTargets(old);
 }
 
 void MakeStep::setBuildTargets(const QStringList &targets)
 {
-    m_buildTargets = targets;
+    if (targets != m_buildTargets) {
+        m_buildTargets = targets;
+        emit targetsToBuildChanged();
+    }
 }
 
 void MakeStep::clearBuildTargets()
@@ -336,7 +352,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     fl->addRow(tr("Targets:"), m_buildTargetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
-    CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
+    CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->project());
     QStringList targetList = pro->buildTargetTitles();
     targetList.sort();
     foreach (const QString &buildTarget, targetList) {
@@ -352,8 +368,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
 
-    connect(pro, SIGNAL(buildTargetsChanged()),
-            this, SLOT(buildTargetsChanged()));
+    connect(pro, SIGNAL(buildTargetsChanged()), this, SLOT(buildTargetsChanged()));
+    connect(m_makeStep, SIGNAL(targetsToBuildChanged()), this, SLOT(selectedBuildTargetsChanged()));
     connect(pro, SIGNAL(environmentChanged()), this, SLOT(updateDetails()));
     connect(m_makeStep, SIGNAL(makeCommandChanged()), this, SLOT(updateDetails()));
 }
@@ -383,6 +399,17 @@ void MakeStepConfigWidget::buildTargetsChanged()
     foreach (const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+    }
+    connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    updateSummary();
+}
+
+void MakeStepConfigWidget::selectedBuildTargetsChanged()
+{
+    disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    for (int y = 0; y < m_buildTargetsList->count(); ++y) {
+        QListWidgetItem *item = m_buildTargetsList->itemAt(0, y);
         item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
     connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
