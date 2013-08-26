@@ -101,7 +101,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager),
       m_activeTarget(0),
       m_fileName(fileName),
-      m_rootNode(new CMakeProjectNode(fileName))
+      m_rootNode(new CMakeProjectNode(fileName)),
+      m_watcher(new QFileSystemWatcher(this))
 {
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -112,6 +113,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 
     connect(this, SIGNAL(buildTargetsChanged()),
             this, SLOT(updateRunConfigurations()));
+
+    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
 }
 
 CMakeProject::~CMakeProject()
@@ -603,9 +606,6 @@ bool CMakeProject::fromMap(const QVariantMap &map)
                 activeBC->setUseNinja(copw.useNinja());
         }
     }
-
-    m_watcher = new QFileSystemWatcher(this);
-    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
 
     parseCMakeLists();
 
