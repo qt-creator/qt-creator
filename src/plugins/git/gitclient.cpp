@@ -829,6 +829,26 @@ private:
     QStringList m_files;
 };
 
+class ProgressParser : public VcsBase::ProgressParser
+{
+public:
+    ProgressParser() :
+        m_progressExp(QLatin1String("\\((\\d+)/(\\d+)\\)")) // e.g. Rebasing (7/42)
+    {
+    }
+
+protected:
+    void parseProgress(const QString &text)
+    {
+        if (m_progressExp.lastIndexIn(text) != -1)
+            setProgressAndMaximum(m_progressExp.cap(1).toInt(), m_progressExp.cap(2).toInt());
+    }
+
+private:
+    QRegExp m_progressExp;
+};
+
+
 
 Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
@@ -3487,6 +3507,7 @@ void GitClient::rebase(const QString &workingDirectory, const QString &baseBranc
                                   arguments);
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
     new ConflictHandler(command, workingDirectory, gitCommand);
+    command->setProgressParser(new ProgressParser);
     command->addJob(arguments, -1);
     command->execute();
 }
@@ -3532,6 +3553,7 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
         m_disableEditor = true;
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
     new ConflictHandler(command, workingDirectory, QLatin1String("rebase"));
+    command->setProgressParser(new ProgressParser);
     command->addJob(arguments, -1);
     command->execute();
     command->setCookie(workingDirectory);

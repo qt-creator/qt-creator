@@ -37,6 +37,7 @@
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
+class QMutex;
 class QStringList;
 class QVariant;
 class QProcessEnvironment;
@@ -47,6 +48,24 @@ QT_END_NAMESPACE
 namespace VcsBase {
 
 namespace Internal { class CommandPrivate; }
+
+class VCSBASE_EXPORT ProgressParser
+{
+public:
+    ProgressParser();
+    virtual ~ProgressParser();
+
+protected:
+    virtual void parseProgress(const QString &text) = 0;
+    void setProgressAndMaximum(int value, int maximum);
+
+private:
+    void setFuture(QFutureInterface<void> *future);
+
+    QFutureInterface<void> *m_future;
+    QMutex *m_futureMutex;
+    friend class Command;
+};
 
 class VCSBASE_EXPORT Command : public QObject
 {
@@ -80,6 +99,7 @@ public:
     QTextCodec *codec() const;
     void setCodec(QTextCodec *codec);
 
+    void setProgressParser(ProgressParser *parser);
 
     Utils::SynchronousProcessResponse runVcs(const QStringList &arguments, int timeoutMS);
     // Make sure to not pass through the event loop at all:
@@ -89,6 +109,9 @@ public:
 private:
     void run(QFutureInterface<void> &future);
     Utils::SynchronousProcessResponse runSynchronous(const QStringList &arguments, int timeoutMS);
+
+private slots:
+    void bufferedOutput(const QString &text);
 
 signals:
     void output(const QString &);

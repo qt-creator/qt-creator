@@ -37,6 +37,7 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <utils/synchronousprocess.h>
 #include <utils/runextensions.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QProcess>
@@ -48,10 +49,28 @@
 #include <QVariant>
 #include <QStringList>
 #include <QTextCodec>
+#include <QMutex>
 
 Q_DECLARE_METATYPE(QVariant)
 
 enum { debugExecution = 0 };
+
+/*!
+    \fn void VcsBase::ProgressParser::parseProgress(const QString &text)
+
+    Reimplement to parse progress as it appears in the standard output.
+    If a progress string is detected, call \c setProgressAndMaximum() to update
+    the progress bar accordingly.
+
+    \sa VcsBase::ProgressParser::setProgressAndMaximum()
+*/
+
+/*!
+    \fn void VcsBase::ProgressParser::setProgressAndMaximum(int value, int maximum)
+
+    Sets progress \a value and \a maximum for current command. Called by \c parseProgress()
+    when a progress string is detected.
+*/
 
 namespace VcsBase {
 namespace Internal {
@@ -69,6 +88,7 @@ public:
     CommandPrivate(const QString &binary,
                    const QString &workingDirectory,
                    const QProcessEnvironment &environment);
+    ~CommandPrivate();
 
     const QString m_binaryPath;
     const QString m_workingDirectory;
@@ -78,6 +98,7 @@ public:
     unsigned m_flags;
     QTextCodec *m_codec;
     const QString m_sshPasswordPrompt;
+    ProgressParser *m_progressParser;
 
     QList<Job> m_jobs;
 
@@ -95,9 +116,15 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_flags(0),
     m_codec(0),
     m_sshPasswordPrompt(VcsBasePlugin::sshPrompt()),
+    m_progressParser(0),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
 {
+}
+
+CommandPrivate::~CommandPrivate()
+{
+    delete m_progressParser;
 }
 
 CommandPrivate::Job::Job(const QStringList &a, int t) :
@@ -207,6 +234,8 @@ void Command::run(QFutureInterface<void> &future)
     QString stdOut;
     QString stdErr;
 
+    if (d->m_progressParser)
+        d->m_progressParser->setFuture(&future);
     const int count = d->m_jobs.size();
     d->m_lastExecExitCode = -1;
     d->m_lastExecSuccess = true;
@@ -233,6 +262,8 @@ void Command::run(QFutureInterface<void> &future)
             emit success(cookie());
     }
 
+    if (d->m_progressParser)
+        d->m_progressParser->setFuture(0);
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
 }
@@ -342,10 +373,10 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
         }
 
         // connect stdout to the output window if desired
-        if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow) {
-            process.setStdOutBufferedSignalsEnabled(true);
+        process.setStdOutBufferedSignalsEnabled(true);
+        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), this, SLOT(bufferedOutput(QString)));
+        if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
             connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
-        }
 
         process.setTimeOutMessageBoxEnabled(true);
 
@@ -479,6 +510,12 @@ bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
+void Command::bufferedOutput(const QString &text)
+{
+    if (d->m_progressParser)
+        d->m_progressParser->parseProgress(text);
+}
+
 const QVariant &Command::cookie() const
 {
     return d->m_cookie;
@@ -497,6 +534,39 @@ QTextCodec *Command::codec() const
 void Command::setCodec(QTextCodec *codec)
 {
     d->m_codec = codec;
+}
+
+//! Use \a parser to parse progress data from stdout. Command takes ownership of \a parser
+void Command::setProgressParser(ProgressParser *parser)
+{
+    QTC_ASSERT(!d->m_progressParser, return);
+    d->m_progressParser = parser;
+}
+
+ProgressParser::ProgressParser() :
+    m_future(0),
+    m_futureMutex(new QMutex)
+{
+}
+
+ProgressParser::~ProgressParser()
+{
+    delete m_futureMutex;
+}
+
+void ProgressParser::setProgressAndMaximum(int value, int maximum)
+{
+    QMutexLocker lock(m_futureMutex);
+    if (!m_future)
+        return;
+    m_future->setProgressRange(0, maximum);
+    m_future->setProgressValue(value);
+}
+
+void ProgressParser::setFuture(QFutureInterface<void> *future)
+{
+    QMutexLocker lock(m_futureMutex);
+    m_future = future;
 }
 
 } // namespace VcsBase
