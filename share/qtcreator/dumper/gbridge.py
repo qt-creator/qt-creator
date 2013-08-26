@@ -2151,6 +2151,13 @@ class Dumper:
                 self.listAnonymous(value, "#%d" % self.anonNumber, type)
             return
 
+        if type.code == StringCode:
+            # FORTRAN strings
+            size = type.sizeof
+            data = self.readRawMemory(value.address, size)
+            self.putValue(data, Hex2EncodedLatin1, 1)
+            self.putType(type)
+
         if type.code != StructCode and type.code != UnionCode:
             warn("WRONG ASSUMPTION HERE: %s " % type.code)
             check(False)
