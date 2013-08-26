@@ -81,6 +81,7 @@ static QString useKindToString(UseKind useKind)
 }
 
 // The following two functions are "enhancements" for QCOMPARE().
+QT_BEGIN_NAMESPACE
 namespace QTest {
 
 template<>
@@ -96,6 +97,7 @@ char *toString(const Use &use)
 }
 
 } // namespace QTest
+QT_END_NAMESPACE
 
 namespace {
 

@@ -30,6 +30,7 @@
 #include <cplusplus/pp.h>
 
 #include <QtTest>
+#include <QFile>
 #include <QHash>
 
 //TESTED_COMPONENT=src/libs/cplusplus

@@ -139,8 +139,8 @@ void SimplifyTypesTest::testCase1_data()
     QTest::addColumn<QString>("expected");
     const size_t count = sizeof(input)/sizeof(const char *);
     for (size_t i = 0; i < count; i++ )
-        QTest::newRow(description[i]) << QString::fromAscii(input[i])
-                                      << QString::fromAscii(output[i]);
+        QTest::newRow(description[i]) << QString::fromLatin1(input[i])
+                                      << QString::fromLatin1(output[i]);
 }
 
 QTEST_APPLESS_MAIN(SimplifyTypesTest);
