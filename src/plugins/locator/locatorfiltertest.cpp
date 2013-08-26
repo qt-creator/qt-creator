@@ -57,6 +57,18 @@ QList<FilterEntry> BasicLocatorFilterTest::matchesFor(const QString &searchText)
     return locatorSearch.results();
 }
 
+QT_BEGIN_NAMESPACE
+namespace QTest {
+
+template<> char *toString(const Locator::Internal::Tests::ResultData &data)
+{
+    QByteArray ba = "\"" + data.textColumn1.toUtf8() + "\", \"" + data.textColumn2.toUtf8() + "\"";
+    return qstrdup(ba.data());
+}
+
+} // namespace QTest
+QT_END_NAMESPACE
+
 ResultData::ResultData()
 {
 }

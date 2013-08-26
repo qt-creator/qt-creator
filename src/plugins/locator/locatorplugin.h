@@ -81,6 +81,11 @@ public slots:
 private slots:
     void updatePlaceholderText(Core::Command *command = 0);
 
+#ifdef WITH_TESTS
+    void test_basefilefilter();
+    void test_basefilefilter_data();
+#endif
+
 private:
     void loadSettings();
 
