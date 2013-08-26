@@ -329,6 +329,11 @@ FileName BaseQtVersion::libraryPath() const
     return Utils::FileName::fromUserInput(qmakeProperty("QT_INSTALL_LIBS"));
 }
 
+FileName BaseQtVersion::pluginPath() const
+{
+    return Utils::FileName::fromUserInput(qmakeProperty("QT_INSTALL_PLUGINS"));
+}
+
 FileName BaseQtVersion::binPath() const
 {
     return Utils::FileName::fromUserInput(qmakeProperty("QT_HOST_BINS"));

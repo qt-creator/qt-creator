@@ -58,6 +58,7 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
         data.insert(QLatin1String(QTCORE_DOCPATH), qt->docsPath().toUserOutput());
         data.insert(QLatin1String(QTCORE_INCPATH), qt->headerPath().toUserOutput());
         data.insert(QLatin1String(QTCORE_LIBPATH), qt->libraryPath().toUserOutput());
+        data.insert(QLatin1String(QTCORE_PLUGINPATH), qt->pluginPath().toUserOutput());
         Utils::FileName mkspecPath = qt->mkspecsPath();
         mkspecPath.appendPath(qt->mkspec().toString());
         data.insert(QLatin1String(QTCORE_MKSPEC), mkspecPath.toUserOutput());

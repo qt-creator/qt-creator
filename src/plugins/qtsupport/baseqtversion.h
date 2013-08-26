@@ -224,6 +224,7 @@ public:
     Utils::FileName headerPath() const;
     Utils::FileName docsPath() const;
     Utils::FileName libraryPath() const;
+    Utils::FileName pluginPath() const;
     Utils::FileName binPath() const;
     Utils::FileName mkspecsPath() const;
 
