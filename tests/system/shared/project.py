@@ -255,20 +255,21 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     progressBarWait(10000)
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir):
-    __createProjectOrFileSelectType__("  Applications", "Qt Quick 1 UI")
+def createNewQtQuickUI(workingDir, qtQuickVersion=1):
+    __createProjectOrFileSelectType__("  Applications", "Qt Quick %d UI" % qtQuickVersion)
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
     __createProjectHandleLastPage__()
     return projectName
 
-def createNewQmlExtension(workingDir):
-    available = __createProjectOrFileSelectType__("  Libraries", "Qt Quick 1 Extension Plugin")
+def createNewQmlExtension(workingDir, targets=Targets.DESKTOP_474_GCC, qtQuickVersion=1):
+    available = __createProjectOrFileSelectType__("  Libraries", "Qt Quick %d Extension Plugin"
+                                                  % qtQuickVersion)
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    checkedTargets = __chooseTargets__(Targets.DESKTOP_474_GCC, available)
+    checkedTargets = __chooseTargets__(targets, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object class-name:' unnamed='1' visible='1'} "
