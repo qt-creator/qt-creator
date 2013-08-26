@@ -142,7 +142,7 @@ void ProcessCheckoutJob::slotOutput()
                 QString::fromLocal8Bit(d->process->readAllStandardOutput()));
     if (debug)
         qDebug() << s;
-    emit output(s);
+    emit output(s.trimmed());
 }
 
 void ProcessCheckoutJob::slotError(QProcess::ProcessError error)
