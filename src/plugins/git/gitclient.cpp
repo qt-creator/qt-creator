@@ -1800,6 +1800,22 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     }
 }
 
+QStringList GitClient::synchronousBranchesForCommit(const QString &workingDirectory, const QString &revision)
+{
+    QString output;
+    QStringList arguments;
+    arguments << QLatin1String(noColorOption) << QLatin1String("-a")
+              << QLatin1String("--contains") << revision;
+    synchronousBranchCmd(workingDirectory, arguments, &output, 0);
+    QStringList res;
+    foreach (const QString &branch, output.split(QLatin1Char('\n'))) {
+        const QString b = branch.mid(2).trimmed();
+        if (!b.isEmpty())
+            res << b;
+    }
+    return res;
+}
+
 bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)
 {
     QStringList arguments;
@@ -1958,11 +1974,11 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
     *output = commandOutputFromLocal8Bit(outputText);
-    if (!rc) {
-        *errorMessage = msgCannotRun(QLatin1String("git branch"), workingDirectory, commandOutputFromLocal8Bit(errorText));
-        return false;
+    if (!rc && errorMessage) {
+        *errorMessage = msgCannotRun(QLatin1String("git branch"), workingDirectory,
+                                     commandOutputFromLocal8Bit(errorText));
     }
-    return true;
+    return rc;
 }
 
 bool GitClient::synchronousTagCmd(const QString &workingDirectory, QStringList tagArgs, QString *output, QString *errorMessage)
