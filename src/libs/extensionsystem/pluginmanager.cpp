@@ -684,17 +684,27 @@ void PluginManager::startTests()
             foreach (const QString &userTestFunction, testSpec.testFunctions) {
                 // There might be a test data suffix like in "testfunction:testdata1".
                 QString testFunctionName = userTestFunction;
+                QString testDataSuffix;
                 const int index = testFunctionName.indexOf(QLatin1Char(':'));
-                if (index != -1)
+                if (index != -1) {
+                    testDataSuffix = testFunctionName.mid(index);
                     testFunctionName = testFunctionName.left(index);
+                }
 
-                if (allTestFunctions.contains(testFunctionName)) {
+                const QRegExp regExp(testFunctionName, Qt::CaseSensitive, QRegExp::Wildcard);
+                QStringList matchingFunctions;
+                foreach (const QString &testFunction, allTestFunctions) {
+                    if (regExp.exactMatch(testFunction))
+                        matchingFunctions.append(testFunction);
+                }
+                if (!matchingFunctions.isEmpty()) {
                     // If the specified test data is invalid, the QTest framework will
                     // print a reasonable error message for us.
-                    testFunctionsToExecute.append(userTestFunction);
+                    foreach (const QString &matchingFunction, matchingFunctions)
+                        testFunctionsToExecute.append(matchingFunction + testDataSuffix);
                 } else {
                     QTextStream out(stdout);
-                    out << "Unknown test function \"" << testFunctionName
+                    out << "No test function matches \"" << testFunctionName
                         << "\" for plugin \"" << pluginSpec->name() << "\"." << endl
                         << "  Available test functions for plugin \"" << pluginSpec->name()
                         << "\" are:" << endl;
