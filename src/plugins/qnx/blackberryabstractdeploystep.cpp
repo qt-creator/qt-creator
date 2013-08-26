@@ -132,7 +132,8 @@ void BlackBerryAbstractDeployStep::reportProgress(int progress)
 {
     QTC_ASSERT(progress >= 0 && progress <= 100, return);
 
-    m_futureInterface->setProgressValue(100 * m_processCounter + progress);
+    if (m_futureInterface)
+        m_futureInterface->setProgressValue(100 * m_processCounter + progress);
 }
 
 void BlackBerryAbstractDeployStep::runCommands()
