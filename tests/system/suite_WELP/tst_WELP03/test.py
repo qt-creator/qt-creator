@@ -59,16 +59,6 @@ def handlePackagingMessageBoxes():
         except:
             break
 
-def qt5SDKPath():
-    if platform.system() in ('Microsoft', 'Windows'):
-        return os.path.abspath("C:/Qt/Qt5.0.1/5.0.1/msvc2010")
-    elif platform.system() == 'Linux':
-        if __is64BitOS__():
-            return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc_64")
-        return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc")
-    else:
-        return os.path.expanduser("~/Qt5.0.1/5.0.1/clang_64")
-
 def main():
     global sdkPath, webPageContentLoadedValue
     # open Qt Creator
