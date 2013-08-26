@@ -1,6 +1,7 @@
 import qbs.base 1.0
 
 Project {
+    property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '2'
     property string ide_version_minor: '8'
     property string ide_version_release: '81'
@@ -55,5 +56,6 @@ Project {
         "lib/qtcreator/qtcomponents/qtcomponents.qbs",
         "share/share.qbs",
         "share/qtcreator/translations/translations.qbs",
+        "tests/tests.qbs"
     ]
 }

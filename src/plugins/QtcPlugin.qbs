@@ -9,6 +9,7 @@ Product {
     property var pluginRecommends: []
 
     targetName: Defaults.qtLibraryName(qbs, name)
+    destinationDirectory: project.ide_plugin_path + '/' + provider
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginspec" }

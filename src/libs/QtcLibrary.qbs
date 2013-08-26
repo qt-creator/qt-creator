@@ -9,6 +9,7 @@ DynamicLibrary {
     }
 
     targetName: Defaults.qtLibraryName(qbs, name)
+    destinationDirectory: project.ide_library_path
 
     cpp.defines: project.generalDefines
     cpp.linkerFlags: {

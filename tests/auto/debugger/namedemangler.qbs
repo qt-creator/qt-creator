@@ -1,0 +1,16 @@
+import qbs
+import "../autotest.qbs" as Autotest
+
+Autotest {
+    name: "Name demangler autotest"
+    Group {
+        name: "Sources from Debugger plugin"
+        prefix: project.debuggerDir + "namedemangler/"
+        files: ["*.h", "*.cpp"]
+    }
+    Group {
+        name: "Test sources"
+        files: "tst_namedemangler.cpp"
+    }
+    cpp.includePaths: base.concat([project.debuggerDir])
+}
