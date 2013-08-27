@@ -273,8 +273,10 @@ void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
     if (m_editor.isNull())
         return;
     DiffEditor::DiffShowEditor *editor = qobject_cast<DiffEditor::DiffShowEditor *>(m_editor);
-    if (editor)
-        editor->setDescription(description);
+    if (editor) {
+        editor->setDescription(GitPlugin::instance()->gitClient()->
+                               extendedShowDescription(m_workingDirectory, description));
+    }
 
     collectFilesList(QStringList()
                      << m_requestedRevisionRange.begin.id
@@ -2552,6 +2554,34 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
         else
             GitPlugin::instance()->startCommit();
     }
+}
+
+QString GitClient::extendedShowDescription(const QString &workingDirectory, const QString &text)
+{
+    if (!text.startsWith(QLatin1String("commit ")))
+        return text;
+    QString modText = text;
+    QString precedes, follows;
+    int lastHeaderLine = modText.indexOf(QLatin1String("\n\n")) + 1;
+    const QString commit = modText.mid(7, 8);
+    synchronousTagsForCommit(workingDirectory, commit, precedes, follows);
+    if (!precedes.isEmpty())
+        modText.insert(lastHeaderLine, QLatin1String("Precedes: ") + precedes + QLatin1Char('\n'));
+    if (!follows.isEmpty())
+        modText.insert(lastHeaderLine, QLatin1String("Follows: ") + follows + QLatin1Char('\n'));
+    QString moreBranches;
+    QStringList branches = synchronousBranchesForCommit(workingDirectory, commit);
+    const int branchCount = branches.count();
+    // If there are more than 20 branches, list first 10 followed by a hint
+    if (branchCount > 20) {
+        const int leave = 10;
+        moreBranches = tr(" and %1 more").arg(branchCount - leave);
+        branches.erase(branches.begin() + leave, branches.end());
+    }
+    modText.insert(lastHeaderLine, QLatin1String("Branches: ")
+                   + branches.join(QLatin1String(", ")) + moreBranches
+                   + QLatin1Char('\n'));
+    return modText;
 }
 
 // Quietly retrieve branch list of remote repository URL

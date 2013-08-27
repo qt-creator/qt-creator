@@ -183,32 +183,12 @@ void GitEditor::setPlainTextFiltered(const QString &text)
         break;
     }
     case VcsBase::DiffOutput: {
-        if (modText.isEmpty())
+        if (modText.isEmpty()) {
             modText = QLatin1String("No difference to HEAD");
-        const QFileInfo fi(source());
-        const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-        QString precedes, follows;
-        if (modText.startsWith(QLatin1String("commit "))) { // show
-            int lastHeaderLine = modText.indexOf(QLatin1String("\n\n")) + 1;
-            const QString commit = modText.mid(7, 8);
-            plugin->gitClient()->synchronousTagsForCommit(workingDirectory, commit, precedes, follows);
-            if (!precedes.isEmpty())
-                modText.insert(lastHeaderLine, QLatin1String("Precedes: ") + precedes + QLatin1Char('\n'));
-            if (!follows.isEmpty())
-                modText.insert(lastHeaderLine, QLatin1String("Follows: ") + follows + QLatin1Char('\n'));
-            QString moreBranches;
-            QStringList branches = plugin->gitClient()->synchronousBranchesForCommit(
-                        workingDirectory, commit);
-            const int branchCount = branches.count();
-            // If there are more than 20 branches, list first 10 followed by a hint
-            if (branchCount > 20) {
-                const int leave = 10;
-                moreBranches = tr(" and %1 more").arg(branchCount - leave);
-                branches.erase(branches.begin() + leave, branches.end());
-            }
-            modText.insert(lastHeaderLine, QLatin1String("Branches: ")
-                           + branches.join(QLatin1String(", ")) + moreBranches
-                           + QLatin1Char('\n'));
+        } else {
+            const QFileInfo fi(source());
+            const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+            modText = plugin->gitClient()->extendedShowDescription(workingDirectory, modText);
         }
         break;
     }

@@ -302,6 +302,8 @@ public:
     void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,
                                     const QString &buttonName, const QString &gitCommand, bool requireChanges = true);
 
+    QString extendedShowDescription(const QString &workingDirectory, const QString &text);
+
     void launchGitK(const QString &workingDirectory, const QString &fileName);
     void launchGitK(const QString &workingDirectory) { launchGitK(workingDirectory, QString()); }
     bool launchGitGui(const QString &workingDirectory);
