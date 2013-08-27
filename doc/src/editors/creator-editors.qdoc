@@ -2165,6 +2165,10 @@
 
     \endlist
 
+    Filters locating files also accept paths, such as \c {tools/*main.cpp}.
+    Filters locating class and method definitions also accept namespaces,
+    such as \c {Utils::*View}.
+
     By default, the following filters are enabled and you do not need to use
     their prefixes explicitly:
 
