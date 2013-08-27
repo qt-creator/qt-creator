@@ -121,6 +121,8 @@ public:
         const QString prefix = Convenience::textAt(QTextCursor(editorWidget->document()), pos, length);
         if (!prefix.isEmpty())
             listmodel->filter(prefix);
+        if (listmodel->isSortable(prefix))
+            listmodel->sort(prefix);
 
         for (int i = 0; i < listmodel->size(); ++i)
             completions << listmodel->text(i);
@@ -2067,6 +2069,56 @@ void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
 
     const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
+}
+
+void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_8737()
+{
+    const QByteArray source =
+            "void f()\n"
+            "{\n"
+            "    int a_b_c, a_c, a_c_a;\n"
+            "    @;\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "a_c");
+
+    QStringList completions = test.getCompletions();
+
+    QVERIFY(completions.size() >= 2);
+    QCOMPARE(completions.at(0), QLatin1String("a_c"));
+    QCOMPARE(completions.at(1), QLatin1String("a_c_a"));
+    QVERIFY(completions.contains(QLatin1String("a_b_c")));
+}
+
+void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_9236()
+{
+    const QByteArray source =
+            "class r_etclass\n"
+            "{\n"
+            "public:\n"
+            "    int raEmTmber;\n"
+            "    void r_e_t(int re_t)\n"
+            "    {\n"
+            "        int r_et;\n"
+            "        int rETUCASE;\n"
+            "        @\n"
+            "        // padding so we get the scope right\n"
+            "    }\n"
+            "};\n"
+            ;
+    CompletionTestCase test(source, "ret");
+
+    QStringList completions = test.getCompletions();
+
+    QVERIFY(completions.size() >= 2);
+    QCOMPARE(completions.at(0), QLatin1String("return"));
+    QCOMPARE(completions.at(1), QLatin1String("rETUCASE"));
+    QVERIFY(completions.contains(QLatin1String("r_etclass")));
+    QVERIFY(completions.contains(QLatin1String("raEmTmber")));
+    QVERIFY(completions.contains(QLatin1String("r_e_t")));
+    QVERIFY(completions.contains(QLatin1String("re_t")));
+    QVERIFY(completions.contains(QLatin1String("r_et")));
 }
 
 void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620()

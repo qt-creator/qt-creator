@@ -448,7 +448,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
         return false;
     }
     if (d->m_model->isSortable(prefix))
-        d->m_model->sort();
+        d->m_model->sort(prefix);
     d->m_completionListView->reset();
 
     // Try to find the previosly explicit selection (if any). If we can find the item set it

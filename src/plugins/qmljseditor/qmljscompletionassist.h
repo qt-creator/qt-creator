@@ -70,7 +70,7 @@ public:
     {}
 
     virtual void filter(const QString &prefix);
-    virtual void sort();
+    virtual void sort(const QString &prefix);
     virtual bool keepPerfectMatch(TextEditor::AssistReason reason) const;
 };
 

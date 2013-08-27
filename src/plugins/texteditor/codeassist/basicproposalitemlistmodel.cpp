@@ -53,16 +53,28 @@ const int kMaxPrefixFilter = 100;
 
 struct ContentLessThan
 {
+    ContentLessThan(const QString &prefix)
+        : m_prefix(prefix)
+    {}
+
     bool operator()(const BasicProposalItem *a, const BasicProposalItem *b)
     {
-        // If order is different, show higher ones first.
-        if (a->order() != b->order())
-            return a->order() > b->order();
-
         // The order is case-insensitive in principle, but case-sensitive when this
         // would otherwise mean equality
         const QString &lowera = a->text().toLower();
         const QString &lowerb = b->text().toLower();
+        const QString &lowerprefix = m_prefix.toLower();
+
+        // All continuations should go before all fuzzy matches
+        if (int diff = lowera.startsWith(lowerprefix) - lowerb.startsWith(lowerprefix))
+            return diff > 0;
+        if (int diff = a->text().startsWith(m_prefix) - b->text().startsWith(m_prefix))
+            return diff > 0;
+
+        // If order is different, show higher ones first.
+        if (a->order() != b->order())
+            return a->order() > b->order();
+
         if (lowera == lowerb)
             return lessThan(a->text(), b->text());
         else
@@ -113,6 +125,9 @@ struct ContentLessThan
                 return a < b;
         }
     };
+
+private:
+    QString m_prefix;
 };
 
 } // Anonymous
@@ -263,9 +278,9 @@ bool BasicProposalItemListModel::isSortable(const QString &prefix) const
     return false;
 }
 
-void BasicProposalItemListModel::sort()
+void BasicProposalItemListModel::sort(const QString &prefix)
 {
-    qStableSort(m_currentItems.begin(), m_currentItems.end(), ContentLessThan());
+    qStableSort(m_currentItems.begin(), m_currentItems.end(), ContentLessThan(prefix));
 }
 
 int BasicProposalItemListModel::persistentId(int index) const

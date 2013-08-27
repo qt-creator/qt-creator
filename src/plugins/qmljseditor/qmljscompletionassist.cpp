@@ -1024,7 +1024,7 @@ void QmlJSAssistProposalModel::filter(const QString &prefix)
     m_currentItems = newCurrentItems;
 }
 
-void QmlJSAssistProposalModel::sort()
+void QmlJSAssistProposalModel::sort(const QString &)
 {
     qSort(currentItems().first, currentItems().second, QmlJSLessThan());
 }
