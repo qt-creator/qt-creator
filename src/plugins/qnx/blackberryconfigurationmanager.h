@@ -75,6 +75,9 @@ public slots:
     void loadSettings();
     void saveSettings();
 
+signals:
+    void settingsLoaded();
+
 private:
     BlackBerryConfigurationManager(QObject *parent = 0);
     static BlackBerryConfigurationManager *m_instance;

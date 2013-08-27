@@ -328,6 +328,8 @@ void BlackBerryConfigurationManager::loadSettings()
     loadAutoDetectedConfigurations();
     loadManualConfigurations();
     loadCertificates();
+
+    emit settingsLoaded();
 }
 
 void BlackBerryConfigurationManager::clearConfigurationSettings(BlackBerryConfiguration *config)

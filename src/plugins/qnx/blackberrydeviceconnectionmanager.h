@@ -83,6 +83,8 @@ private slots:
 
     void handleProcessOutput(const QString &output);
 
+    void processPendingDeviceConnections();
+
 private:
     explicit BlackBerryDeviceConnectionManager();
 
@@ -97,6 +99,8 @@ private:
 
     static BlackBerryDeviceConnectionManager *m_instance;
     QMultiMap<BlackBerryDeviceConnection*, Core::Id> m_connections;
+
+    QList<ProjectExplorer::IDevice::ConstPtr> m_pendingDeviceConnections;
 };
 
 } // namespace Internal
