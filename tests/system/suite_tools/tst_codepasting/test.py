@@ -77,8 +77,6 @@ def main():
         clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.OK_QPushButton"))
         filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
         waitFor("not filenameCombo.currentText.isEmpty()", 20000)
-        if protocol == "Pastebin.Com":
-            protocol = "Pastebin.com"
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
         test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
