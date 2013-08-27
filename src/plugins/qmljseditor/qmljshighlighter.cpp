@@ -251,7 +251,11 @@ bool Highlighter::maybeQmlBuiltinType(const QStringRef &text) const
         return true;
     else if (ch == QLatin1Char('l') && text == QLatin1String("list"))
         return true;
+    else if (ch == QLatin1Char('m') && text == QLatin1String("matrix4x4"))
+        return true;
     else if (ch == QLatin1Char('p') && text == QLatin1String("point"))
+        return true;
+    else if (ch == QLatin1Char('q') && text == QLatin1String("quaternion"))
         return true;
     else if (ch == QLatin1Char('r') && text == QLatin1String("real"))
         return true;
@@ -269,7 +273,11 @@ bool Highlighter::maybeQmlBuiltinType(const QStringRef &text) const
         return true;
     else if (ch == QLatin1Char('v') && text == QLatin1String("var"))
         return true;
+    else if (ch == QLatin1Char('v') && text == QLatin1String("vector2d"))
+        return true;
     else if (ch == QLatin1Char('v') && text == QLatin1String("vector3d"))
+        return true;
+    else if (ch == QLatin1Char('v') && text == QLatin1String("vector4d"))
         return true;
     else
         return false;

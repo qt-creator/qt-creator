@@ -91,7 +91,11 @@ public:
     const ObjectValue *qmlPointObject();
     const ObjectValue *qmlSizeObject();
     const ObjectValue *qmlRectObject();
+    const ObjectValue *qmlVector2DObject();
     const ObjectValue *qmlVector3DObject();
+    const ObjectValue *qmlVector4DObject();
+    const ObjectValue *qmlQuaternionObject();
+    const ObjectValue *qmlMatrix4x4Object();
 
     // converts builtin types, such as int, string to a Value
     const Value *defaultValueForBuiltinType(const QString &typeName) const;

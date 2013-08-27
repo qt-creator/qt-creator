@@ -24,10 +24,13 @@ SUBDIRS += \
     utils/process_stub.pro \
     qtcomponents/styleitem
 
-exists(../shared/qbs/qbs.pro):SUBDIRS += \
+QBS_DIRS = \
     ../shared/qbs/src/lib \
     ../shared/qbs/src/plugins \
     ../shared/qbs/static.pro
+
+exists(../shared/qbs/qbs.pro): SUBDIRS += $$QBS_DIRS
+TR_EXCLUDE = $$QBS_DIRS
 
 win32:SUBDIRS += utils/process_ctrlc_stub.pro
 

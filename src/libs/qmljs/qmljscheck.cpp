@@ -887,8 +887,16 @@ bool Check::visit(UiPublicMember *ast)
                     preferedType = QLatin1String("'rect'");
                 else if (init == _context->valueOwner()->qmlSizeObject())
                     preferedType = QLatin1String("'size'");
+                else if (init == _context->valueOwner()->qmlVector2DObject())
+                    preferedType = QLatin1String("'vector2d'");
                 else if (init == _context->valueOwner()->qmlVector3DObject())
                     preferedType = QLatin1String("'vector3d'");
+                else if (init == _context->valueOwner()->qmlVector4DObject())
+                    preferedType = QLatin1String("'vector4d'");
+                else if (init == _context->valueOwner()->qmlQuaternionObject())
+                    preferedType = QLatin1String("'quaternion'");
+                else if (init == _context->valueOwner()->qmlMatrix4x4Object())
+                    preferedType = QLatin1String("'matrix4x4'");
 
                 if (!preferedType.isEmpty())
                     addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferedType);
