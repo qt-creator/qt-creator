@@ -71,6 +71,17 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
+class ExampleDialog : public QDialog
+{
+    Q_OBJECT
+ public:
+    enum ResultCode { Copy = QDialog::Accepted + 1, Keep };
+    ExampleDialog(QWidget *parent = 0) : QDialog(parent) {};
+ private slots:
+    void handleCopyClicked() { done(Copy); };
+    void handleKeepClicked() { done(Keep); };
+};
+
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
 QPointer<ExamplesListModel> &examplesModelStatic()
@@ -327,7 +338,7 @@ QStringList ExamplesWelcomePage::tagList() const
 QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
 {
     const QString projectDir = proFileInfo.canonicalPath();
-    QDialog d(Core::ICore::mainWindow());
+    ExampleDialog d(Core::ICore::mainWindow());
     QGridLayout *lay = new QGridLayout(&d);
     QLabel *descrLbl = new QLabel;
     d.setWindowTitle(tr("Copy Project to writable Location?"));
@@ -355,14 +366,15 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     QDialogButtonBox *bb = new QDialogButtonBox;
-    connect(bb, SIGNAL(accepted()), &d, SLOT(accept()));
-    connect(bb, SIGNAL(rejected()), &d, SLOT(reject()));
     QPushButton *copyBtn = bb->addButton(tr("&Copy Project and Open"), QDialogButtonBox::AcceptRole);
+    connect(copyBtn, SIGNAL(released()), &d, SLOT(handleCopyClicked()));
     copyBtn->setDefault(true);
-    bb->addButton(tr("&Keep Project and Open"), QDialogButtonBox::RejectRole);
+    QPushButton *keepBtn = bb->addButton(tr("&Keep Project and Open"), QDialogButtonBox::RejectRole);
+    connect(keepBtn, SIGNAL(released()), &d, SLOT(handleKeepClicked()));
     lay->addWidget(bb, 2, 0, 1, 2);
     connect(chooser, SIGNAL(validChanged(bool)), copyBtn, SLOT(setEnabled(bool)));
-    if (d.exec() == QDialog::Accepted) {
+    int code = d.exec();
+    if (code == ExampleDialog::Copy) {
         QString exampleDirName = proFileInfo.dir().dirName();
         QString destBaseDir = chooser->path();
         settings->setValue(QString::fromLatin1(C_FALLBACK_ROOT), destBaseDir);
@@ -402,6 +414,8 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
         }
     }
+    if (code == ExampleDialog::Keep)
+        return proFileInfo.absoluteFilePath();
     return QString();
 
 }
