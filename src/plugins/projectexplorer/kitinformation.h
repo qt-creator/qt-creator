@@ -53,9 +53,6 @@ class PROJECTEXPLORER_EXPORT SysRootKitInformation : public KitInformation
 public:
     SysRootKitInformation();
 
-    Core::Id dataId() const;
-    unsigned int priority() const;
-
     QVariant defaultValue(Kit *k) const;
 
     QList<Task> validate(const Kit *k) const;
@@ -96,9 +93,6 @@ class PROJECTEXPLORER_EXPORT ToolChainKitInformation : public KitInformation
 
 public:
     ToolChainKitInformation();
-
-    Core::Id dataId() const;
-    unsigned int priority() const;
 
     QVariant defaultValue(Kit *k) const;
 
@@ -154,9 +148,6 @@ class PROJECTEXPLORER_EXPORT DeviceTypeKitInformation : public KitInformation
 public:
     DeviceTypeKitInformation();
 
-    Core::Id dataId() const;
-    unsigned int priority() const;
-
     QVariant defaultValue(Kit *k) const;
 
     QList<Task> validate(const Kit *k) const;
@@ -198,9 +189,6 @@ class PROJECTEXPLORER_EXPORT DeviceKitInformation : public KitInformation
 
 public:
     DeviceKitInformation();
-
-    Core::Id dataId() const;
-    unsigned int priority() const;
 
     QVariant defaultValue(Kit *k) const;
 

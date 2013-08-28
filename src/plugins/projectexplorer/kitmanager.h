@@ -70,9 +70,8 @@ public:
     typedef QPair<QString, QString> Item;
     typedef QList<Item> ItemList;
 
-    virtual Core::Id dataId() const = 0;
-
-    virtual unsigned int priority() const = 0; // the higher the closer to the top.
+    Core::Id dataId() const { return m_dataId; }
+    int priority() const { return m_priority; }
 
     virtual QVariant defaultValue(Kit *) const = 0;
 
@@ -95,7 +94,13 @@ public:
     bool isSticky(const Kit *k) const;
 
 protected:
+    void setDataId(Core::Id id) { m_dataId = id; }
+    void setPriority(int priority) { m_priority = priority; }
     void notifyAboutUpdate(Kit *k);
+
+private:
+    Core::Id m_dataId;
+    int m_priority; // The higher the closer to the top.
 };
 
 class PROJECTEXPLORER_EXPORT KitMatcher

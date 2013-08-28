@@ -54,17 +54,8 @@ static const char SYSROOT_INFORMATION[] = "PE.Profile.SysRoot";
 SysRootKitInformation::SysRootKitInformation()
 {
     setObjectName(QLatin1String("SysRootInformation"));
-}
-
-Core::Id SysRootKitInformation::dataId() const
-{
-    static const Core::Id id(SYSROOT_INFORMATION);
-    return id;
-}
-
-unsigned int SysRootKitInformation::priority() const
-{
-    return 31000;
+    setDataId(SYSROOT_INFORMATION);
+    setPriority(31000);
 }
 
 QVariant SysRootKitInformation::defaultValue(Kit *k) const
@@ -127,19 +118,11 @@ static const char TOOLCHAIN_INFORMATION[] = "PE.Profile.ToolChain";
 ToolChainKitInformation::ToolChainKitInformation()
 {
     setObjectName(QLatin1String("ToolChainInformation"));
+    setDataId(TOOLCHAIN_INFORMATION);
+    setPriority(30000);
+
     connect(KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsWereLoaded()));
-}
-
-Core::Id ToolChainKitInformation::dataId() const
-{
-    static const Core::Id id(TOOLCHAIN_INFORMATION);
-    return id;
-}
-
-unsigned int ToolChainKitInformation::priority() const
-{
-    return 30000;
 }
 
 QVariant ToolChainKitInformation::defaultValue(Kit *k) const
@@ -292,17 +275,8 @@ static const char DEVICETYPE_INFORMATION[] = "PE.Profile.DeviceType";
 DeviceTypeKitInformation::DeviceTypeKitInformation()
 {
     setObjectName(QLatin1String("DeviceTypeInformation"));
-}
-
-Core::Id DeviceTypeKitInformation::dataId() const
-{
-    static const Core::Id id(DEVICETYPE_INFORMATION);
-    return id;
-}
-
-unsigned int DeviceTypeKitInformation::priority() const
-{
-    return 33000;
+    setDataId(DEVICETYPE_INFORMATION);
+    setPriority(33000);
 }
 
 QVariant DeviceTypeKitInformation::defaultValue(Kit *k) const
@@ -363,19 +337,11 @@ static const char DEVICE_INFORMATION[] = "PE.Profile.Device";
 DeviceKitInformation::DeviceKitInformation()
 {
     setObjectName(QLatin1String("DeviceInformation"));
+    setDataId(DEVICE_INFORMATION);
+    setPriority(32000);
+
     connect(KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsWereLoaded()));
-}
-
-Core::Id DeviceKitInformation::dataId() const
-{
-    static const Core::Id id(DEVICE_INFORMATION);
-    return id;
-}
-
-unsigned int DeviceKitInformation::priority() const
-{
-    return 32000;
 }
 
 QVariant DeviceKitInformation::defaultValue(Kit *k) const

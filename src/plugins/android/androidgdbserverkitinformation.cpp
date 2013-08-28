@@ -52,16 +52,8 @@ static const char ANDROID_GDBSERVER_INFORMATION[] = "Android.GdbServer.Informati
 
 AndroidGdbServerKitInformation::AndroidGdbServerKitInformation()
 {
-}
-
-Core::Id AndroidGdbServerKitInformation::dataId() const
-{
-    return Core::Id(ANDROID_GDBSERVER_INFORMATION);
-}
-
-unsigned int AndroidGdbServerKitInformation::priority() const
-{
-    return 27999; // Just one less than Debugger!
+    setDataId(ANDROID_GDBSERVER_INFORMATION);
+    setPriority(27999); // Just one less than Debugger!
 }
 
 QVariant AndroidGdbServerKitInformation::defaultValue(ProjectExplorer::Kit *kit) const

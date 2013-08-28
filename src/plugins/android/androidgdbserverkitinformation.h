@@ -69,10 +69,7 @@ class AndroidGdbServerKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
 public:
-    explicit AndroidGdbServerKitInformation();
-    Core::Id dataId() const;
-
-    unsigned int priority() const; // the higher the closer to the top.
+    AndroidGdbServerKitInformation();
 
     QVariant defaultValue(ProjectExplorer::Kit *) const;
 

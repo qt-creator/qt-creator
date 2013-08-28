@@ -45,19 +45,11 @@ const char QT_INFORMATION[] = "QtSupport.QtInformation";
 QtKitInformation::QtKitInformation()
 {
     setObjectName(QLatin1String("QtKitInformation"));
+    setDataId(Internal::QT_INFORMATION);
+    setPriority(26000);
+
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsWereLoaded()));
-}
-
-Core::Id QtKitInformation::dataId() const
-{
-    static Core::Id id = Core::Id(Internal::QT_INFORMATION);
-    return id;
-}
-
-unsigned int QtKitInformation::priority() const
-{
-    return 26000;
 }
 
 QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const

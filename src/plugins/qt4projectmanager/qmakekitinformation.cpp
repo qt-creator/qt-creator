@@ -45,17 +45,8 @@ const char MKSPEC_INFORMATION[] = "QtPM4.mkSpecInformation";
 QmakeKitInformation::QmakeKitInformation()
 {
     setObjectName(QLatin1String("QmakeKitInformation"));
-}
-
-Core::Id QmakeKitInformation::dataId() const
-{
-    static Core::Id id = Core::Id(Internal::MKSPEC_INFORMATION);
-    return id;
-}
-
-unsigned int QmakeKitInformation::priority() const
-{
-    return 24000;
+    setDataId(Internal::MKSPEC_INFORMATION);
+    setPriority(24000);
 }
 
 QVariant QmakeKitInformation::defaultValue(ProjectExplorer::Kit *k) const

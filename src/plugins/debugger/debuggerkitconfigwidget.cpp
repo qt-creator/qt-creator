@@ -229,17 +229,8 @@ void DebuggerItem::reinitializeFromFile()
 DebuggerKitInformation::DebuggerKitInformation()
 {
     setObjectName(QLatin1String("DebuggerKitInformation"));
-}
-
-Core::Id DebuggerKitInformation::dataId() const
-{
-    static Core::Id id = Core::Id(DEBUGGER_INFORMATION);
-    return id;
-}
-
-unsigned int DebuggerKitInformation::priority() const
-{
-    return 28000;
+    setDataId(DEBUGGER_INFORMATION);
+    setPriority(28000);
 }
 
 QVariant DebuggerKitInformation::defaultValue(Kit *k) const

@@ -46,10 +46,6 @@ class QTSUPPORT_EXPORT QtKitInformation : public ProjectExplorer::KitInformation
 public:
     QtKitInformation();
 
-    Core::Id dataId() const;
-
-    unsigned int priority() const; // the higher the closer to the top.
-
     QVariant defaultValue(ProjectExplorer::Kit *k) const;
 
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const;
